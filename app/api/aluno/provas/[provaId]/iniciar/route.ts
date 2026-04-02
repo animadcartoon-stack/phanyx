@@ -1,0 +1,124 @@
+import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
+import { getUserFromToken } from "@/lib/server-auth";
+import { podeUsarProvas } from "@/lib/permissoesPlano";
+
+export async function GET(
+  _req: Request,
+  { params }: { params: { provaId: string } }
+) {
+  const user = await getUserFromToken();
+
+  if (!user) {
+    return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+  }
+
+  if (user.role !== "ALUNO") {
+    return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+  }
+
+  if (!podeUsarProvas(user.plano || "ESSENCIAL")) {
+    return NextResponse.json(
+      { error: "Recurso disponível apenas nos planos Profissional e Enterprise" },
+      { status: 403 }
+    );
+  }
+
+  const aluno = await prisma.aluno.findFirst({
+    where: {
+      userId: user.id,
+      instituicaoId: user.instituicaoId,
+    },
+    select: { id: true },
+  });
+
+  if (!aluno) {
+    return NextResponse.json({ error: "Aluno não encontrado" }, { status: 404 });
+  }
+
+  const provaId = Number(params.provaId);
+
+  if (!Number.isFinite(provaId) || provaId <= 0) {
+    return NextResponse.json({ error: "provaId inválido" }, { status: 400 });
+  }
+
+  const prova = await prisma.prova.findFirst({
+    where: {
+      id: provaId,
+      ativa: true,
+      instituicaoId: user.instituicaoId,
+    },
+    include: {
+      questoes: {
+        include: {
+          alternativas: true,
+        },
+      },
+      turma: {
+        include: {
+          disciplina: true,
+        },
+      },
+    },
+  });
+
+  if (!prova) {
+    return NextResponse.json({ error: "Prova não encontrada" }, { status: 404 });
+  }
+
+  const tentativa = await prisma.tentativaProva.create({
+    data: {
+      alunoId: aluno.id,
+      provaId: prova.id,
+      instituicaoId: user.instituicaoId,
+    },
+    select: {
+      id: true,
+      alunoId: true,
+      provaId: true,
+      finalizada: true,
+    },
+  });
+
+  const questoesOrdenadas = (prova.questoes ?? [])
+    .slice()
+    .sort((a: any, b: any) => {
+      const ao = a?.ordem ?? 0;
+      const bo = b?.ordem ?? 0;
+      if (ao !== bo) return ao - bo;
+      return (a?.id ?? 0) - (b?.id ?? 0);
+    })
+    .map((q: any) => ({
+      id: q.id,
+      enunciado: q.enunciado ?? q.pergunta ?? "",
+      tipo: q.tipo,
+      valor: q.valor ?? 1,
+      ordem: q.ordem ?? 0,
+      alternativas: (q.alternativas ?? [])
+        .slice()
+        .sort((a: any, b: any) => {
+          const ao = a?.ordem ?? 0;
+          const bo = b?.ordem ?? 0;
+          if (ao !== bo) return ao - bo;
+          return (a?.id ?? 0) - (b?.id ?? 0);
+        })
+        .map((a: any) => ({
+          id: a.id,
+          texto: a.texto ?? "",
+          ordem: a.ordem ?? 0,
+        })),
+    }));
+
+  return NextResponse.json({
+    tentativa,
+    prova: {
+      id: prova.id,
+      titulo: (prova as any).titulo ?? "Prova",
+      notaMaxima: (prova as any).notaMaxima ?? 10,
+      disciplinaId: (prova as any).turma?.disciplina?.id ?? null,
+      turmaId: (prova as any).turmaId,
+      disciplinaNome: (prova as any).turma?.disciplina?.nome ?? null,
+      questoes: questoesOrdenadas,
+    },
+  });
+}

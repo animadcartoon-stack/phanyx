@@ -1,0 +1,11 @@
+[
+  {
+    "alunoEmail": "aluno@ibe.com",
+    "disciplinaId": 1,
+    "aulaId": 3,
+    "concluida": true,
+    "tempoAssistidoSegundos": 60,
+    "tempoMinimoSegundos": 60,
+    "updatedAt": "2026-03-11T16:52:40.931Z"
+  }
+]

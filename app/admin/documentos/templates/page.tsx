@@ -1,0 +1,724 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import withAuth from "@/lib/withAuth";
+
+type TipoDocumentoTemplate =
+  | "CONTRATO"
+  | "DECLARACAO"
+  | "RECIBO"
+  | "COMPROVANTE"
+  | "TRANCAMENTO"
+  | "COMPARECIMENTO"
+  | "HISTORICO"
+  | "OUTRO";
+
+type TemplateDocumento = {
+  id: number;
+  nome: string;
+  descricao?: string | null;
+  tipo: TipoDocumentoTemplate;
+  contexto?: string | null;
+  conteudo: string;
+  ativo: boolean;
+  exigeAssinatura: boolean;
+  criadoEm?: string;
+  atualizadoEm?: string;
+};
+
+const TIPOS_DOCUMENTO: Array<{
+  value: TipoDocumentoTemplate;
+  label: string;
+}> = [
+  { value: "CONTRATO", label: "Contrato" },
+  { value: "DECLARACAO", label: "Declaração" },
+  { value: "RECIBO", label: "Recibo" },
+  { value: "COMPROVANTE", label: "Comprovante" },
+  { value: "TRANCAMENTO", label: "Trancamento" },
+  { value: "COMPARECIMENTO", label: "Comparecimento" },
+  { value: "HISTORICO", label: "Histórico" },
+  { value: "OUTRO", label: "Outro" },
+];
+
+const MODELO_INICIAL_CONTRATO = `CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
+
+A instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, celebra contrato com o(a) aluno(a) {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, para o curso {{curso}}.
+
+Disciplinas contratadas:
+{{disciplinas}}
+
+Valor contratado:
+{{valorContrato}}
+
+E por estarem de pleno acordo, firmam o presente contrato.
+
+{{cidadeAssinatura}}, {{dataAtual}}.`;
+
+const MODELO_INICIAL_DECLARACAO = `DECLARAÇÃO
+
+Declaramos, para os devidos fins, que o(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, encontra-se vinculado(a) à instituição {{nomeInstituicao}} no curso {{curso}}.
+
+Documento emitido em {{dataAtual}}.
+
+{{cidadeAssinatura}}.`;
+
+function labelTipo(tipo: TipoDocumentoTemplate) {
+  const item = TIPOS_DOCUMENTO.find((t) => t.value === tipo);
+  return item?.label ?? tipo;
+}
+
+function templateInicialPorTipo(tipo: TipoDocumentoTemplate) {
+  switch (tipo) {
+    case "CONTRATO":
+      return MODELO_INICIAL_CONTRATO;
+    case "DECLARACAO":
+      return MODELO_INICIAL_DECLARACAO;
+    case "RECIBO":
+      return `RECIBO
+
+Recebemos de {{nomeAluno}} a quantia de {{valorContrato}}, referente a {{referenciaFinanceira}}.
+
+Emitido em {{dataAtual}}.
+
+{{nomeInstituicao}}`;
+    case "COMPROVANTE":
+      return `COMPROVANTE DE PAGAMENTO
+
+Confirmamos o pagamento de {{valorContrato}} realizado por {{nomeAluno}}, referente a {{referenciaFinanceira}}.
+
+Emitido em {{dataAtual}}.
+
+{{nomeInstituicao}}`;
+    case "TRANCAMENTO":
+      return `DECLARAÇÃO DE TRANCAMENTO
+
+Declaramos que a matrícula do(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, foi trancada conforme registro institucional.
+
+Emitido em {{dataAtual}}.
+
+{{nomeInstituicao}}`;
+    case "COMPARECIMENTO":
+      return `DECLARAÇÃO DE COMPARECIMENTO
+
+Declaramos que o(a) aluno(a) {{nomeAluno}} compareceu à instituição {{nomeInstituicao}} em {{dataAtual}}.
+
+{{cidadeAssinatura}}.`;
+    case "HISTORICO":
+      return `HISTÓRICO ACADÊMICO
+
+Aluno(a): {{nomeAluno}}
+Matrícula: {{matriculaAluno}}
+Curso: {{curso}}
+
+Emitido em {{dataAtual}}.
+
+{{nomeInstituicao}}`;
+    default:
+      return `DOCUMENTO INSTITUCIONAL
+
+Título: {{tituloDocumento}}
+
+Aluno(a): {{nomeAluno}}
+Data: {{dataAtual}}
+
+{{nomeInstituicao}}`;
+  }
+}
+
+function formatarData(data?: string) {
+  if (!data) return "-";
+  const d = new Date(data);
+  if (Number.isNaN(d.getTime())) return "-";
+  return d.toLocaleString("pt-BR");
+}
+
+function AdminDocumentosTemplatesPage() {
+  const [templates, setTemplates] = useState<TemplateDocumento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [mensagem, setMensagem] = useState("");
+
+  const [filtroBusca, setFiltroBusca] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState<string>("");
+
+  const [nome, setNome] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [tipo, setTipo] = useState<TipoDocumentoTemplate>("CONTRATO");
+  const [contexto, setContexto] = useState("MATRICULA");
+  const [conteudo, setConteudo] = useState(MODELO_INICIAL_CONTRATO);
+  const [ativo, setAtivo] = useState(true);
+  const [exigeAssinatura, setExigeAssinatura] = useState(true);
+
+  async function carregarTemplates() {
+    try {
+      setLoading(true);
+      setMensagem("");
+
+      const res = await fetch("/api/admin/documentos/templates", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao carregar templates");
+      }
+
+      setTemplates(Array.isArray(data) ? data : []);
+    } catch (error: any) {
+      console.error(error);
+      setTemplates([]);
+      setMensagem(error?.message || "Erro ao carregar templates");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarTemplates();
+  }, []);
+
+  function limparFormulario() {
+    setEditingId(null);
+    setNome("");
+    setDescricao("");
+    setTipo("CONTRATO");
+    setContexto("MATRICULA");
+    setConteudo(MODELO_INICIAL_CONTRATO);
+    setAtivo(true);
+    setExigeAssinatura(true);
+  }
+
+  function preencherFormulario(template: TemplateDocumento) {
+    setEditingId(template.id);
+    setNome(template.nome || "");
+    setDescricao(template.descricao || "");
+    setTipo(template.tipo);
+    setContexto(template.contexto || "");
+    setConteudo(template.conteudo || "");
+    setAtivo(Boolean(template.ativo));
+    setExigeAssinatura(Boolean(template.exigeAssinatura));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function salvarTemplate() {
+    try {
+      setSaving(true);
+      setMensagem("");
+
+      if (!nome.trim()) {
+        alert("Informe o nome do template.");
+        return;
+      }
+
+      if (!tipo) {
+        alert("Selecione o tipo do template.");
+        return;
+      }
+
+      if (!conteudo.trim()) {
+        alert("Informe o conteúdo do template.");
+        return;
+      }
+
+      const payload = {
+        nome: nome.trim(),
+        descricao: descricao.trim() || null,
+        tipo,
+        contexto: contexto.trim() || null,
+        conteudo: conteudo.trim(),
+        ativo,
+        exigeAssinatura,
+      };
+
+      const url = editingId
+        ? `/api/admin/documentos/templates/${editingId}`
+        : "/api/admin/documentos/templates";
+
+      const method = editingId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao salvar template");
+      }
+
+      await carregarTemplates();
+      limparFormulario();
+      setMensagem(
+        editingId
+          ? "Template atualizado com sucesso!"
+          : "Template criado com sucesso!"
+      );
+    } catch (error: any) {
+      console.error(error);
+      setMensagem(error?.message || "Erro ao salvar template");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function excluirTemplate(id: number) {
+    const confirmar = confirm(
+      "Tem certeza que deseja excluir este template?"
+    );
+
+    if (!confirmar) return;
+
+    try {
+      setDeletingId(id);
+      setMensagem("");
+
+      const res = await fetch(`/api/admin/documentos/templates/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao excluir template");
+      }
+
+      if (editingId === id) {
+        limparFormulario();
+      }
+
+      await carregarTemplates();
+      setMensagem("Template excluído com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      setMensagem(error?.message || "Erro ao excluir template");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  async function alternarAtivo(template: TemplateDocumento) {
+    try {
+      setMensagem("");
+
+      const res = await fetch(`/api/admin/documentos/templates/${template.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          ativo: !template.ativo,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao atualizar status");
+      }
+
+      await carregarTemplates();
+      setMensagem("Status do template atualizado com sucesso!");
+    } catch (error: any) {
+      console.error(error);
+      setMensagem(error?.message || "Erro ao atualizar status");
+    }
+  }
+
+  const templatesFiltrados = useMemo(() => {
+    return templates.filter((t) => {
+      const termo = filtroBusca.trim().toLowerCase();
+
+      const bateBusca =
+        !termo ||
+        t.nome?.toLowerCase().includes(termo) ||
+        t.descricao?.toLowerCase().includes(termo) ||
+        t.contexto?.toLowerCase().includes(termo) ||
+        t.tipo?.toLowerCase().includes(termo);
+
+      const bateTipo = !filtroTipo || t.tipo === filtroTipo;
+
+      return bateBusca && bateTipo;
+    });
+  }, [templates, filtroBusca, filtroTipo]);
+
+  function aplicarModeloInicial() {
+    setConteudo(templateInicialPorTipo(tipo));
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold">📄 Templates de documentos</h1>
+        <p className="mt-1 text-gray-600">
+          Cadastre modelos dinâmicos de contrato, declaração, recibo,
+          comprovante, trancamento e outros documentos institucionais.
+        </p>
+      </div>
+
+      {mensagem ? (
+        <div className="rounded-2xl border bg-white p-4 text-sm text-gray-700 shadow-sm">
+          {mensagem}
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+        <div className="xl:col-span-2">
+          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  {editingId ? "Editar template" : "Novo template"}
+                </h2>
+                <p className="mt-1 text-sm text-gray-600">
+                  Defina o tipo, contexto, conteúdo e regras do documento.
+                </p>
+              </div>
+
+              {editingId ? (
+                <button
+                  onClick={limparFormulario}
+                  className="rounded-xl border px-3 py-2 text-sm hover:border-blue-400"
+                >
+                  Novo
+                </button>
+              ) : null}
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Nome</label>
+                <input
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  className="mt-1 w-full rounded-xl border px-3 py-2"
+                  placeholder="Ex.: Contrato de matrícula padrão"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Descrição
+                </label>
+                <input
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  className="mt-1 w-full rounded-xl border px-3 py-2"
+                  placeholder="Descrição opcional"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Tipo do documento
+                  </label>
+                  <select
+                    value={tipo}
+                    onChange={(e) =>
+                      setTipo(e.target.value as TipoDocumentoTemplate)
+                    }
+                    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white"
+                  >
+                    {TIPOS_DOCUMENTO.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Contexto
+                  </label>
+                  <input
+                    value={contexto}
+                    onChange={(e) => setContexto(e.target.value)}
+                    className="mt-1 w-full rounded-xl border px-3 py-2"
+                    placeholder="Ex.: MATRICULA, FINANCEIRO, TRANCAMENTO"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <label className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={ativo}
+                    onChange={(e) => setAtivo(e.target.checked)}
+                  />
+                  Ativo
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={exigeAssinatura}
+                    onChange={(e) => setExigeAssinatura(e.target.checked)}
+                  />
+                  Exige assinatura
+                </label>
+              </div>
+
+              <div className="rounded-2xl border bg-slate-50 p-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h3 className="font-medium text-slate-800">
+                      Variáveis dinâmicas
+                    </h3>
+                    <p className="mt-1 text-xs text-slate-600">
+                      Use estas marcações dentro do texto.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={aplicarModeloInicial}
+                    className="rounded-xl border bg-white px-3 py-2 text-sm hover:border-blue-400"
+                  >
+                    Carregar modelo base
+                  </button>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  {[
+                    "{{nomeInstituicao}}",
+                    "{{cnpjInstituicao}}",
+                    "{{responsavelLegal}}",
+                    "{{nomeAluno}}",
+                    "{{cpfAluno}}",
+                    "{{matriculaAluno}}",
+                    "{{curso}}",
+                    "{{disciplinas}}",
+                    "{{valorContrato}}",
+                    "{{cidadeAssinatura}}",
+                    "{{dataAtual}}",
+                    "{{referenciaFinanceira}}",
+                    "{{tituloDocumento}}",
+                  ].map((tag) => (
+                    <span
+                      key={tag}
+                      className="rounded-full border bg-white px-3 py-1 text-slate-700"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Conteúdo do template
+                </label>
+                <textarea
+                  value={conteudo}
+                  onChange={(e) => setConteudo(e.target.value)}
+                  className="mt-1 min-h-[320px] w-full rounded-2xl border px-3 py-3 font-mono text-sm"
+                  placeholder="Digite o conteúdo do documento com as variáveis dinâmicas..."
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={salvarTemplate}
+                  disabled={saving}
+                  className={[
+                    "rounded-xl px-4 py-2 font-semibold text-white",
+                    saving
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700",
+                  ].join(" ")}
+                >
+                  {saving
+                    ? "Salvando..."
+                    : editingId
+                    ? "Salvar alterações"
+                    : "Criar template"}
+                </button>
+
+                <button
+                  onClick={limparFormulario}
+                  type="button"
+                  className="rounded-xl border px-4 py-2 hover:border-blue-400"
+                >
+                  Limpar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="xl:col-span-3">
+          <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+            <div className="border-b px-5 py-4">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold">Templates cadastrados</h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    Gerencie os modelos documentais da instituição.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 md:flex-row">
+                  <input
+                    value={filtroBusca}
+                    onChange={(e) => setFiltroBusca(e.target.value)}
+                    className="rounded-xl border px-3 py-2"
+                    placeholder="Buscar por nome, contexto ou tipo"
+                  />
+
+                  <select
+                    value={filtroTipo}
+                    onChange={(e) => setFiltroTipo(e.target.value)}
+                    className="rounded-xl border px-3 py-2 bg-white"
+                  >
+                    <option value="">Todos os tipos</option>
+                    {TIPOS_DOCUMENTO.map((item) => (
+                      <option key={item.value} value={item.value}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+
+                  <button
+                    onClick={carregarTemplates}
+                    className="rounded-xl border px-3 py-2 hover:border-blue-400"
+                  >
+                    Recarregar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="p-6 text-gray-600">Carregando templates...</div>
+            ) : templatesFiltrados.length === 0 ? (
+              <div className="p-6 text-gray-600">
+                Nenhum template encontrado.
+              </div>
+            ) : (
+              <div className="divide-y">
+                {templatesFiltrados.map((template) => (
+                  <div key={template.id} className="p-5">
+                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                      <div className="min-w-0 space-y-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="text-base font-semibold text-gray-900">
+                            {template.nome}
+                          </h3>
+
+                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
+                            {labelTipo(template.tipo)}
+                          </span>
+
+                          <span
+                            className={[
+                              "rounded-full px-3 py-1 text-xs",
+                              template.ativo
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700",
+                            ].join(" ")}
+                          >
+                            {template.ativo ? "Ativo" : "Inativo"}
+                          </span>
+
+                          <span
+                            className={[
+                              "rounded-full px-3 py-1 text-xs",
+                              template.exigeAssinatura
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-gray-100 text-gray-700",
+                            ].join(" ")}
+                          >
+                            {template.exigeAssinatura
+                              ? "Com assinatura"
+                              : "Sem assinatura"}
+                          </span>
+                        </div>
+
+                        {template.descricao ? (
+                          <p className="text-sm text-gray-600">
+                            {template.descricao}
+                          </p>
+                        ) : null}
+
+                        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 text-sm">
+                          <div>
+                            <p className="text-gray-500">Contexto</p>
+                            <p className="font-medium text-gray-800">
+                              {template.contexto || "-"}
+                            </p>
+                          </div>
+
+                          <div>
+                            <p className="text-gray-500">Atualizado em</p>
+                            <p className="font-medium text-gray-800">
+                              {formatarData(template.atualizadoEm)}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl border bg-slate-50 p-4">
+                          <p className="mb-2 text-sm font-medium text-slate-700">
+                            Prévia do conteúdo
+                          </p>
+                          <div className="max-h-48 overflow-auto whitespace-pre-wrap font-mono text-xs leading-6 text-slate-700">
+                            {template.conteudo}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 xl:w-[260px] xl:justify-end">
+                        <button
+                          onClick={() => preencherFormulario(template)}
+                          className="rounded-xl border px-3 py-2 text-sm hover:border-blue-400 hover:text-blue-700"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          onClick={() => alternarAtivo(template)}
+                          className="rounded-xl border px-3 py-2 text-sm hover:border-amber-400 hover:text-amber-700"
+                        >
+                          {template.ativo ? "Desativar" : "Ativar"}
+                        </button>
+
+                        <button
+                          onClick={() => excluirTemplate(template.id)}
+                          disabled={deletingId === template.id}
+                          className={[
+                            "rounded-xl border px-3 py-2 text-sm",
+                            deletingId === template.id
+                              ? "cursor-not-allowed bg-gray-100 text-gray-400"
+                              : "hover:border-red-400 hover:text-red-700",
+                          ].join(" ")}
+                        >
+                          {deletingId === template.id
+                            ? "Excluindo..."
+                            : "Excluir"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default withAuth(AdminDocumentosTemplatesPage, ["admin"]);

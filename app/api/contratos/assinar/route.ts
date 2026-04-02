@@ -1,0 +1,105 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const contratoId = Number(body?.contratoId);
+    const nome = String(body?.nome || "").trim();
+    const cpf = String(body?.cpf || "").trim();
+    const assinaturaBase64 = String(body?.assinaturaBase64 || "").trim();
+
+    if (!Number.isFinite(contratoId) || contratoId <= 0) {
+      return NextResponse.json({ error: "Contrato inválido" }, { status: 400 });
+    }
+
+    if (!nome) {
+      return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 });
+    }
+
+    if (!cpf) {
+      return NextResponse.json({ error: "CPF é obrigatório" }, { status: 400 });
+    }
+
+    if (!assinaturaBase64) {
+      return NextResponse.json(
+        { error: "Assinatura é obrigatória" },
+        { status: 400 }
+      );
+    }
+
+    const contrato = await prisma.contrato.findUnique({
+      where: {
+        id: contratoId,
+      },
+      include: {
+        assinatura: true,
+      },
+    });
+
+    if (!contrato) {
+      return NextResponse.json(
+        { error: "Contrato não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    if (contrato.status === "ASSINADO") {
+      return NextResponse.json(
+        { error: "Este contrato já foi assinado" },
+        { status: 400 }
+      );
+    }
+
+    const ipAssinatura =
+      req.headers.get("x-forwarded-for") ||
+      req.headers.get("x-real-ip") ||
+      null;
+
+    const userAgent = req.headers.get("user-agent") || null;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.assinatura.upsert({
+        where: {
+          contratoId,
+        },
+        update: {
+          nome,
+          cpf,
+          imagem: assinaturaBase64,
+          data: new Date(),
+        },
+        create: {
+          contratoId,
+          nome,
+          cpf,
+          imagem: assinaturaBase64,
+        },
+      });
+
+      await tx.contrato.update({
+        where: {
+          id: contratoId,
+        },
+        data: {
+          status: "ASSINADO",
+          dataAssinatura: new Date(),
+          ipAssinatura,
+          userAgent,
+        },
+      });
+    });
+
+    return NextResponse.json({
+      ok: true,
+      message: "Contrato assinado com sucesso",
+    });
+  } catch (error: any) {
+    console.error("Erro ao assinar contrato:", error);
+    return NextResponse.json(
+      { error: error?.message || "Erro ao assinar contrato" },
+      { status: 500 }
+    );
+  }
+}

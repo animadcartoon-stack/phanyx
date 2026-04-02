@@ -1,0 +1,220 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import {
+  criarClienteAsaas,
+  criarCobrancaAsaas,
+  obterQrCodePixAsaas,
+} from "@/lib/asaas";
+import { enviarEmailCobranca } from "@/lib/email";
+
+function getValorPlano(plano: string) {
+  const planoNormalizado = String(plano).trim().toUpperCase();
+
+  if (planoNormalizado === "ESSENCIAL") return 49;
+  if (planoNormalizado === "PROFISSIONAL") return 99;
+  if (planoNormalizado === "ENTERPRISE") return 199;
+
+  return 99;
+}
+
+function normalizarEmail(email: string) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function normalizarTelefone(telefone: string) {
+  const digits = String(telefone || "").replace(/\D/g, "");
+  return digits || null;
+}
+
+function normalizarCpfCnpj(valor: string) {
+  return String(valor || "").replace(/\D/g, "");
+}
+
+function formatarDataISO(data?: string | null) {
+  if (!data) return null;
+
+  try {
+    return new Date(data).toISOString().split("T")[0];
+  } catch {
+    return null;
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    const nomeResponsavel = String(body?.nomeResponsavel || "").trim();
+    const nomeInstituicao = String(body?.nomeInstituicao || "").trim();
+    const email = normalizarEmail(body?.email || "");
+    const telefone = normalizarTelefone(body?.telefone || "");
+    const cpfCnpj = normalizarCpfCnpj(body?.cpfCnpj || "");
+    const plano = String(body?.plano || "").trim().toUpperCase();
+
+    if (!nomeResponsavel) {
+      return NextResponse.json(
+        { error: "Nome do responsável é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    if (!nomeInstituicao) {
+      return NextResponse.json(
+        { error: "Nome da instituição é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "Email é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    if (!cpfCnpj) {
+      return NextResponse.json(
+        { error: "CPF/CNPJ é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    if (!plano) {
+      return NextResponse.json(
+        { error: "Plano é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    const valor = getValorPlano(plano);
+
+    const adesaoPendenteExistente = await prisma.adesaoInstituicao.findFirst({
+      where: {
+        email,
+        nomeInstituicao,
+        plano,
+        status: {
+          in: ["PENDING", "PENDENTE", "AGUARDANDO_PAGAMENTO"],
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    if (adesaoPendenteExistente?.pixCode && adesaoPendenteExistente?.asaasId) {
+      return NextResponse.json({
+        success: true,
+        reutilizada: true,
+        adesao: adesaoPendenteExistente,
+      });
+    }
+
+    const cliente = await criarClienteAsaas({
+      name: nomeResponsavel,
+      email,
+      cpfCnpj,
+    });
+
+    if (!cliente?.id) {
+      throw new Error("Asaas não retornou o ID do cliente.");
+    }
+
+    const adesao = await prisma.adesaoInstituicao.create({
+      data: {
+        nomeResponsavel,
+        nomeInstituicao,
+        email,
+        telefone,
+        cpfCnpj,
+        plano,
+        valor,
+        status: "PENDING",
+        pixCode: "",
+        asaasId: null,
+      },
+    });
+
+    try {
+      const dueDate = new Date().toISOString().split("T")[0];
+
+      const cobranca = await criarCobrancaAsaas({
+        customer: cliente.id,
+        billingType: "PIX",
+        value: Number(valor),
+        dueDate,
+        description: `Adesão FORMAX - ${plano}`,
+        externalReference: String(adesao.id),
+      });
+
+      const asaasId = cobranca?.id ? String(cobranca.id) : null;
+
+      if (!asaasId) {
+        throw new Error("Asaas não retornou o ID da cobrança.");
+      }
+
+      const qrCode = await obterQrCodePixAsaas(asaasId);
+      const pixCode = qrCode?.payload ? String(qrCode.payload) : "";
+
+      if (!pixCode) {
+        throw new Error("Asaas não retornou o código Pix.");
+      }
+
+      const cobrancaAny = cobranca as any;
+const linkCobranca = cobrancaAny?.invoiceUrl || null;
+
+      const adesaoAtualizada = await prisma.adesaoInstituicao.update({
+        where: { id: adesao.id },
+        data: {
+          asaasId,
+          pixCode,
+        },
+      });
+
+      try {
+        await enviarEmailCobranca({
+          email,
+          nome: nomeResponsavel,
+          instituicao: nomeInstituicao,
+          valor,
+          vencimento: formatarDataISO(cobrancaAny?.dueDate || dueDate),
+          descricao: `Adesão FORMAX - ${plano}`,
+          linkCobranca,
+        });
+      } catch (emailError) {
+        console.error("ERRO AO ENVIAR EMAIL DE COBRANÇA:", emailError);
+      }
+
+      return NextResponse.json({
+        success: true,
+        adesao: adesaoAtualizada,
+      });
+    } catch (err: any) {
+      console.error("🔥 ERRO REAL ASAAS:", err);
+
+      await prisma.adesaoInstituicao.update({
+        where: { id: adesao.id },
+        data: {
+          status: "ERRO",
+        },
+      });
+
+      return NextResponse.json(
+        {
+          error: err?.message || "Erro ao gerar cobrança no Asaas",
+        },
+        { status: 500 }
+      );
+    }
+  } catch (error: any) {
+    console.error("ERRO CRIAR ADESAO:", error);
+
+    return NextResponse.json(
+      {
+        error: "Erro ao criar adesão",
+        detalhe: error?.message || String(error),
+      },
+      { status: 500 }
+    );
+  }
+}
