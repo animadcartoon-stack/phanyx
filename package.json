@@ -10,16 +10,22 @@
 },
   
   "dependencies": {
-    "@prisma/client": "^5.22.0",
-    "bcryptjs": "^3.0.3",
-    "jsonwebtoken": "^9.0.3",
-    "jspdf": "^4.0.0",
-    "next": "^14.2.35",
-    "prisma": "^5.22.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "recharts": "^3.7.0"
-  },
+  "@prisma/client": "^5.22.0",
+  "bcryptjs": "^3.0.3",
+  "jsonwebtoken": "^9.0.3",
+  "jspdf": "^4.0.0",
+  "next": "^14.2.35",
+  "prisma": "^5.22.0",
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "recharts": "^3.7.0",
+
+  "pdf-lib": "^1.17.1",
+  "qrcode": "^1.5.4",
+  "xlsx": "^0.18.5",
+  "nodemailer": "^6.9.14"
+},
+
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
