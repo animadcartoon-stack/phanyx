@@ -133,10 +133,10 @@ async function main() {
   // MATRÍCULA (por turmaId)
   // =========================
   const matriculaExistente = await prisma.matricula.findFirst({
-    where: {
-      alunoId: aluno.id,
-      turmaId: turma.id,
-    },
+   where: {
+  alunoId: aluno.id,
+  cursoId: curso.id
+},
   });
 
   if (!matriculaExistente) {
@@ -144,7 +144,7 @@ async function main() {
     data: {
       instituicaoId: instituicaoId,
       alunoId: aluno.id,
-      turmaId: turma.id,
+      turmaId: curso.id,
     },
   });
 
