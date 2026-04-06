@@ -3,9 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 
 type LayoutProfissional =
-  | "FORMAX_MODERNO"
-  | "FORMAX_ACADEMICO"
-  | "FORMAX_CLASSICO"
+  | "PHANYX_MODERNO"
+  | "PHANYX_ACADEMICO"
+  | "PHANYX_CLASSICO"
   | "PERSONALIZADO_CLASSICO"
   | "PERSONALIZADO_MODERNO"
   | "PERSONALIZADO_MARCA";
@@ -53,7 +53,6 @@ function normalizarLayoutProfissional(estilo?: string): LayoutProfissional {
       return estilo;
 
     case "INSTITUCIONAL":
-      return "PHANYX_MODERNO";
     case "CLASSICO":
       return "PHANYX_CLASSICO";
     case "MINIMALISTA":
@@ -67,7 +66,7 @@ function normalizarLayoutProfissional(estilo?: string): LayoutProfissional {
       return "PERSONALIZADO_MARCA";
 
     default:
-      return "PHANYX_MODERNO";
+      return "PERSONALIZADO_MODERNO";
   }
 }
 
@@ -405,7 +404,7 @@ export default function ConfigInstituicaoPage() {
       );
     }
 
-    if (layoutSelecionado === "FORMAX_CLASSICO") {
+    if (layoutSelecionado === "PHANYX_CLASSICO") {
       return (
         <div className="relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-4 w-full bg-[#1b1b1b]" />
@@ -563,7 +562,7 @@ export default function ConfigInstituicaoPage() {
       if (atual !== layoutSelecionado) return;
     }, 0);
 
-    if (layout === "FORMAX_MODERNO") {
+    if (layout === "PHANYX_MODERNO") {
       return (
         <div className="relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-full w-4 bg-slate-900" />
@@ -583,7 +582,7 @@ export default function ConfigInstituicaoPage() {
       );
     }
 
-    if (layout === "FORMAX_ACADEMICO") {
+    if (layout === "PHANYX_ACADEMICO") {
       return (
         <div className="relative h-full w-full bg-white px-4 py-3">
           <div className="mx-auto mb-2 h-8 w-8 rounded-full border bg-white" />
@@ -602,7 +601,7 @@ export default function ConfigInstituicaoPage() {
       );
     }
 
-    if (layout === "FORMAX_CLASSICO") {
+    if (layout === "PHANYX_CLASSICO") {
       return (
         <div className="relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-3 w-full bg-[#1b1b1b]" />
@@ -1024,16 +1023,16 @@ Cidade e data:
               <div className="mb-6 grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setModoLayout("FORMAX")}
+                  onClick={() => setModoLayout("PHANYX")}
                   className={`rounded-xl border p-4 text-left transition ${
-                    modoLayout === "FORMAX"
+                    modoLayout === "PHANYX"
                       ? "border-blue-600 bg-blue-50"
                       : "border-slate-200 bg-white"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="font-semibold text-slate-800">
-                      Modelo pronto FORMAX
+                      Modelo pronto PHANYX
                     </div>
                     <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white">
                       RECOMENDADO
@@ -1095,11 +1094,11 @@ Cidade e data:
                     </p>
                   </div>
                 )}
-                {modoLayout === "FORMAX" && (
+                {modoLayout === "PHANYX" && (
                   <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4">
                     <div className="mb-3">
                       <h4 className="text-base font-semibold text-slate-800">
-                        Modelos FORMAX prontos
+                        Modelos PHANYX prontos
                       </h4>
                       <p className="mt-1 text-xs text-slate-600">
                         Layouts profissionais do sistema. Funcionam mesmo sem enviar imagem de papel timbrado.
@@ -1108,8 +1107,8 @@ Cidade e data:
 
                     <div className="grid gap-4">
                       <LayoutCard
-                        value="FORMAX_MODERNO"
-                        titulo="FORMAX — Executivo Premium"
+                        value="PHANYX_MODERNO"
+                        titulo="PHANYX — Executivo Premium"
                         subtitulo="Visual forte, faixa escura e acabamento moderno"
                         bullets={[
                           "Faixa superior escura",
@@ -1120,8 +1119,8 @@ Cidade e data:
                       />
 
                       <LayoutCard
-                        value="FORMAX_ACADEMICO"
-                        titulo="FORMAX — Acadêmico Elegante"
+                        value="PHANYX_ACADEMICO"
+                        titulo="PHANYX — Acadêmico Elegante"
                         subtitulo="Clean, profissional e com cara de instituição tradicional"
                         bullets={[
                           "Linhas finas",
@@ -1132,8 +1131,8 @@ Cidade e data:
                       />
 
                       <LayoutCard
-                        value="FORMAX_CLASSICO"
-                        titulo="FORMAX — Clássico Institucional"
+                        value="PHANYX_CLASSICO"
+                        titulo="PHANYX — Clássico Institucional"
                         subtitulo="Cabeçalho forte, rodapé marcante e apresentação premium"
                         bullets={[
                           "Cabeçalho marcante",
