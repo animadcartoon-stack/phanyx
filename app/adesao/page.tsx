@@ -3,6 +3,8 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 type Plano = "ESSENCIAL" | "PROFISSIONAL" | "ENTERPRISE";
 
 function getValorPlano(plano: string) {
