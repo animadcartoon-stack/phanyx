@@ -1,7 +1,9 @@
 "use client";
 
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+
+type Plano = "ESSENCIAL" | "PROFISSIONAL" | "ENTERPRISE";
 
 function getValorPlano(plano: string) {
   const p = plano.toUpperCase();
@@ -13,11 +15,17 @@ function getValorPlano(plano: string) {
   return "R$ 99,00";
 }
 
-export default function AdesaoPage() {
+function AdesaoContent() {
   const searchParams = useSearchParams();
   const planoQuery = searchParams.get("plano") || "PROFISSIONAL";
 
-  const plano = useMemo(() => planoQuery.toUpperCase(), [planoQuery]);
+  const plano = useMemo<Plano>(() => {
+    const p = planoQuery.toUpperCase();
+
+    if (p === "ESSENCIAL") return "ESSENCIAL";
+    if (p === "ENTERPRISE") return "ENTERPRISE";
+    return "PROFISSIONAL";
+  }, [planoQuery]);
 
   const [nomeResponsavel, setNomeResponsavel] = useState("");
   const [nomeInstituicao, setNomeInstituicao] = useState("");
@@ -33,13 +41,13 @@ export default function AdesaoPage() {
   const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
 
   useEffect(() => {
-  setAdesaoId(null);
-  setPixCode("");
-  setErro("");
-  setCopiado(false);
-  setStatusPagamento("PENDING");
-  setPagamentoConfirmado(false);
-}, [plano]);
+    setAdesaoId(null);
+    setPixCode("");
+    setErro("");
+    setCopiado(false);
+    setStatusPagamento("PENDING");
+    setPagamentoConfirmado(false);
+  }, [plano]);
 
   async function criarAdesao() {
     try {
@@ -68,16 +76,12 @@ export default function AdesaoPage() {
 
       const data = await res.json();
 
-if (!res.ok) {
-  console.error("ERRO ADESAO FRONT:", data);
+      if (!res.ok) {
+        console.error("ERRO ADESAO FRONT:", data);
 
-  setErro(
-    data?.detalhe ||
-      data?.error ||
-      "Erro ao criar a adesão."
-  );
-  return;
-}
+        setErro(data?.detalhe || data?.error || "Erro ao criar a adesão.");
+        return;
+      }
 
       setAdesaoId(data.adesao.id);
       setPixCode(data.adesao.pixCode || "");
@@ -102,36 +106,35 @@ if (!res.ok) {
     setTimeout(() => setCopiado(false), 2000);
   }
 
-useEffect(() => {
-  if (!adesaoId || pagamentoConfirmado) return;
+  useEffect(() => {
+    if (!adesaoId || pagamentoConfirmado) return;
 
-  const interval = setInterval(async () => {
-    try {
-      const res = await fetch(`/api/adesao/status/${adesaoId}`);
-      const json = await res.json();
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/adesao/status/${adesaoId}`);
+        const json = await res.json();
 
-      if (!res.ok) return;
+        if (!res.ok) return;
 
-      const status = json?.adesao?.status || "PENDING";
-      setStatusPagamento(status);
+        const status = json?.adesao?.status || "PENDING";
+        setStatusPagamento(status);
 
-      if (status === "PAGO") {
-        setPagamentoConfirmado(true);
-        clearInterval(interval);
+        if (status === "PAGO") {
+          setPagamentoConfirmado(true);
+          clearInterval(interval);
 
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+        }
+      } catch (error) {
+        console.error("Erro ao consultar status da adesão:", error);
       }
-    } catch (error) {
-      console.error("Erro ao consultar status da adesão:", error);
-    }
-  }, 5000);
+    }, 5000);
 
-  return () => clearInterval(interval);
-}, [adesaoId, pagamentoConfirmado]);
-
+    return () => clearInterval(interval);
+  }, [adesaoId, pagamentoConfirmado]);
 
   return (
     <div className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -149,14 +152,15 @@ useEffect(() => {
           </p>
         </div>
 
-{pagamentoConfirmado ? (
-  <div className="mb-8 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-emerald-200">
-    <h3 className="text-xl font-bold">Pagamento confirmado ✅</h3>
-    <p className="mt-2 text-sm leading-6">
-      Sua instituição foi ativada com sucesso. O acesso administrativo será enviado automaticamente para o email informado.
-    </p>
-  </div>
-) : null}
+        {pagamentoConfirmado ? (
+          <div className="mb-8 rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-6 text-emerald-200">
+            <h3 className="text-xl font-bold">Pagamento confirmado ✅</h3>
+            <p className="mt-2 text-sm leading-6">
+              Sua instituição foi ativada com sucesso. O acesso administrativo
+              será enviado automaticamente para o email informado.
+            </p>
+          </div>
+        ) : null}
 
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
@@ -232,7 +236,7 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="mt-6 rounded-xl border border-slate-700 bg-slate-950 p-4 text-sm break-all text-slate-300">
+              <div className="mt-6 break-all rounded-xl border border-slate-700 bg-slate-950 p-4 text-sm text-slate-300">
                 {pixCode || "O código Pix aparecerá aqui."}
               </div>
 
@@ -245,31 +249,50 @@ useEffect(() => {
               </button>
 
               {pagamentoConfirmado ? (
-  <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
-    Pagamento confirmado com sucesso. Sua instituição está sendo ativada automaticamente.
-  </div>
-) : adesaoId ? (
-  <div className="mt-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-4 text-sm text-blue-200">
-    Aguardando confirmação automática do pagamento...
-    <div className="mt-2 text-xs text-blue-300/80">
-      Status atual: {statusPagamento}
-    </div>
-  </div>
-) : null}
+                <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
+                  Pagamento confirmado com sucesso. Sua instituição está sendo
+                  ativada automaticamente.
+                </div>
+              ) : adesaoId ? (
+                <div className="mt-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-4 text-sm text-blue-200">
+                  Aguardando confirmação automática do pagamento...
+                  <div className="mt-2 text-xs text-blue-300/80">
+                    Status atual: {statusPagamento}
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
               <h2 className="text-2xl font-bold">Acesso institucional</h2>
 
               <p className="mt-3 text-sm leading-7 text-slate-400">
-  Depois da confirmação, o sistema criará automaticamente:
-  instituição, admin principal, senha inicial temporária e envio
-  de email de acesso.
-</p>
+                Depois da confirmação, o sistema criará automaticamente:
+                instituição, admin principal, senha inicial temporária e envio
+                de email de acesso.
+              </p>
             </div>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdesaoPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-950 px-6 py-10 text-white">
+          <div className="mx-auto max-w-5xl">
+            <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 text-center shadow-2xl">
+              Carregando adesão...
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <AdesaoContent />
+    </Suspense>
   );
 }
