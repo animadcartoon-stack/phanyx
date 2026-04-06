@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import QRCode from "qrcode";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 type LayoutProfissional =
   | "PHANYX_MODERNO"
   | "PHANYX_ACADEMICO"
