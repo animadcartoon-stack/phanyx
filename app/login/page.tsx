@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type Portal = "admin" | "professor" | "aluno";
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
 
   const portal = useMemo<Portal>(() => {
@@ -57,19 +57,16 @@ export default function LoginPage() {
       });
 
       const json = await res.json();
-if (json.user?.precisaTrocarSenha) {
-  window.location.href = "/primeiro-acesso";
-  return;
-}
+
       if (!res.ok) {
         setErro(json.error || "Email ou senha inválidos");
         return;
       }
 
-if (json.user?.precisaTrocarSenha) {
-  window.location.href = "/primeiro-acesso";
-  return;
-}
+      if (json.user?.precisaTrocarSenha) {
+        window.location.href = "/primeiro-acesso";
+        return;
+      }
 
       if (json.user?.role === "admin") {
         window.location.href = "/admin";
@@ -137,5 +134,13 @@ if (json.user?.precisaTrocarSenha) {
         </button>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
