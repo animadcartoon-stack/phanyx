@@ -28,9 +28,9 @@ export default function HistoricoPage() {
 
   // 📈 Dados do gráfico
   const dadosGrafico = notas.map((nota) => {
-    const disciplina = disciplinas.find(
-      (d) => d.id === nota.disciplinaId
-    );
+  const disciplina = disciplinas.find(
+    (d) => Number(d.id) === nota.disciplinaId
+  );
 
     return {
       nome: disciplina?.nome || "Disciplina",
@@ -85,7 +85,7 @@ export default function HistoricoPage() {
       {/* 📋 Lista de provas */}
       {notas.map((nota) => {
         const disciplina = disciplinas.find(
-          (d) => d.id === nota.disciplinaId
+          (d) => Number(d.id) === nota.disciplinaId
         );
 
         return (
