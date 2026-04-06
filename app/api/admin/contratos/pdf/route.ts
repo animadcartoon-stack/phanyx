@@ -43,20 +43,20 @@ function quebrarTextoEmLinhas(
 
 function normalizarEstilo(estilo?: string) {
   switch (estilo) {
-    case "FORMAX_MODERNO":
-    case "FORMAX_ACADEMICO":
-    case "FORMAX_CLASSICO":
+    case "PHANYX_MODERNO":
+    case "PHANYX_ACADEMICO":
+    case "PHANYX_CLASSICO":
     case "PERSONALIZADO_CLASSICO":
     case "PERSONALIZADO_MODERNO":
     case "PERSONALIZADO_MARCA":
       return estilo;
 
     case "INSTITUCIONAL":
-      return "FORMAX_MODERNO";
+      return "PHANYX_MODERNO";
     case "MINIMALISTA":
-      return "FORMAX_ACADEMICO";
+      return "PHANYX_ACADEMICO";
     case "CLASSICO":
-      return "FORMAX_CLASSICO";
+      return "PHANYX_CLASSICO";
 
     case "SEM_COR":
       return "PERSONALIZADO_CLASSICO";
@@ -66,7 +66,7 @@ function normalizarEstilo(estilo?: string) {
       return "PERSONALIZADO_MARCA";
 
     default:
-      return "FORMAX_MODERNO";
+      return "PHANYX_MODERNO";
   }
 }
 
@@ -87,7 +87,7 @@ async function gerarCodigoValidacaoUnico(
 
   for (let tentativa = 0; tentativa < 10; tentativa++) {
     const sufixoSeguro = crypto.randomBytes(4).toString("hex").toUpperCase();
-    const codigo = `FORMAX-${siglaInstituicao}-${instituicaoId}-${Date.now()}-${sufixoSeguro}`;
+    const codigo = `PHANYX-${siglaInstituicao}-${instituicaoId}-${Date.now()}-${sufixoSeguro}`;
 
     const existente = await prisma.documentoGerado.findUnique({
       where: { codigoValidacao: codigo },
@@ -104,7 +104,7 @@ async function gerarCodigoValidacaoUnico(
 
 export async function GET(req: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -294,7 +294,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
     }
 
     async function desenharCabecalho(pagina: any) {
-      if (estilo === "FORMAX_MODERNO") {
+      if (estilo === "PHANYX_MODERNO") {
         pagina.drawRectangle({
           x: 0,
           y: pageHeight - 92,
@@ -332,7 +332,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
         return;
       }
 
-      if (estilo === "FORMAX_CLASSICO") {
+      if (estilo === "PHANYX_CLASSICO") {
         pagina.drawRectangle({
           x: 0,
           y: pageHeight - 84,
@@ -362,7 +362,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
         return;
       }
 
-      if (estilo === "FORMAX_ACADEMICO") {
+      if (estilo === "PHANYX_ACADEMICO") {
         await desenharLogo(pagina, margemX, pageHeight - 70, 40, 40);
 
         pagina.drawText(nomeInstituicao, {
@@ -397,7 +397,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
       numeroPagina: number,
       totalPaginas: number
     ) {
-      if (estilo === "FORMAX_MODERNO") {
+      if (estilo === "PHANYX_MODERNO") {
         pagina.drawRectangle({
           x: 0,
           y: 0,
@@ -431,7 +431,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
             color: rgb(0.93, 0.95, 0.98),
           });
         }
-      } else if (estilo === "FORMAX_CLASSICO") {
+      } else if (estilo === "PHANYX_CLASSICO") {
         pagina.drawRectangle({
           x: 0,
           y: 0,
@@ -506,7 +506,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
         size: 8,
         font,
         color:
-          estilo === "FORMAX_MODERNO" || estilo === "FORMAX_CLASSICO"
+          estilo === "PHANYX_MODERNO" || estilo === "PHANYX_CLASSICO"
             ? rgb(1, 1, 1)
             : rgb(0.45, 0.45, 0.45),
       });
@@ -515,9 +515,9 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
     await desenharCabecalho(page);
 
     y =
-      estilo === "FORMAX_MODERNO"
+      estilo === "PHANYX_MODERNO"
         ? pageHeight - 132
-        : estilo === "FORMAX_CLASSICO"
+        : estilo === "PHANYX_CLASSICO"
         ? pageHeight - 126
         : pageHeight - 118;
 
@@ -527,7 +527,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
       size: 15,
       font: bold,
       color:
-        estilo === "FORMAX_MODERNO"
+        estilo === "PHANYX_MODERNO"
           ? rgb(0.12, 0.22, 0.4)
           : rgb(0.08, 0.08, 0.08),
     });
@@ -548,9 +548,9 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
           await desenharCabecalho(page);
 
           y =
-            estilo === "FORMAX_MODERNO"
+            estilo === "PHANYX_MODERNO"
               ? pageHeight - 132
-              : estilo === "FORMAX_CLASSICO"
+              : estilo === "PHANYX_CLASSICO"
               ? pageHeight - 126
               : pageHeight - 118;
         }
