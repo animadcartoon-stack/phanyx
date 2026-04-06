@@ -92,6 +92,21 @@ async function main() {
       },
     }));
 
+// =========================
+// CURSO
+// =========================
+const curso =
+  (await prisma.curso.findFirst({
+    where: { nome: "Bacharel Livre em Teologia", instituicaoId },
+  })) ??
+  (await prisma.curso.create({
+    data: {
+      nome: "Bacharel Livre em Teologia",
+      instituicaoId,
+      ativo: true,
+    },
+  }));
+
   // =========================
   // DISCIPLINA
   // =========================
@@ -103,7 +118,7 @@ async function main() {
     data: {
       nome: "Direito Constitucional",
       instituicaoId,
-      // se quiser: descricao, cargaHoraria, semestre...
+      cursoId: curso.id,
     },
   }));
 
@@ -129,22 +144,22 @@ async function main() {
       },
     }));
 
-  // =========================
-  // MATRÍCULA (por turmaId)
-  // =========================
-  const matriculaExistente = await prisma.matricula.findFirst({
-   where: {
-  alunoId: aluno.id,
-  cursoId: curso.id
-},
-  });
+ // =========================
+// MATRÍCULA (por cursoId)
+// =========================
+const matriculaExistente = await prisma.matricula.findFirst({
+  where: {
+    alunoId: aluno.id,
+    cursoId: curso.id,
+  },
+});
 
-  if (!matriculaExistente) {
+if (!matriculaExistente) {
   await prisma.matricula.create({
     data: {
-      instituicaoId: instituicaoId,
+      instituicaoId,
       alunoId: aluno.id,
-      turmaId: curso.id,
+      cursoId: curso.id,
     },
   });
 
