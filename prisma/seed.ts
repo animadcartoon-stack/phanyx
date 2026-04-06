@@ -14,7 +14,13 @@ async function main() {
   const instituicao =
     (await prisma.instituicao.findFirst({ where: { nome: "IBE" } })) ??
    (await prisma.instituicao.create({
-  data: { nome: "IBE", slug: "ibe", ativo: true },
+  data: {
+  nome: "IBE",
+  slug: "ibe",
+  ativo: true,
+  createdAt: new Date(),
+  updatedAt: new Date(),
+},
 }));
 
   const instituicaoId = instituicao.id;
