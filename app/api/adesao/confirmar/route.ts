@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { enviarEmailAcesso } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function gerarSlugInstituicao(nome: string) {
   return nome
     .normalize("NFD")
