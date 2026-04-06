@@ -11,14 +11,15 @@ export default function DetalheProvaPage() {
   const router = useRouter();
 
   const disciplinaId = String(params.disciplinaId);
+const disciplinaIdNumero = Number(disciplinaId);
 
-  const nota = notas.find(
-    (n) => n.disciplinaId === disciplinaId
-  );
+const nota = notas.find(
+  (n) => n.disciplinaId === disciplinaIdNumero
+);
 
-  const disciplina = disciplinas.find(
-    (d) => d.id === disciplinaId
-  );
+const disciplina = disciplinas.find(
+  (d) => d.id === disciplinaId
+);
 
   if (!nota || !disciplina) {
     return (
