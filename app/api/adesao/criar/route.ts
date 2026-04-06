@@ -7,6 +7,9 @@ import {
 } from "@/lib/asaas";
 import { enviarEmailCobranca } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function getValorPlano(plano: string) {
   const planoNormalizado = String(plano).trim().toUpperCase();
 
