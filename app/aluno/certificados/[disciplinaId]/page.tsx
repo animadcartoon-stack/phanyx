@@ -19,9 +19,11 @@ const disciplinaId =
   const { disciplinas } = useProfessor();
   const { user } = useAuth();
 
-  const certificado = certificados.find(
-    (c) => c.disciplinaId === disciplinaId
-  );
+  const disciplinaIdNumero = Number(disciplinaId);
+
+const certificado = certificados.find(
+  (c) => c.disciplinaId === disciplinaIdNumero
+);
 
   const disciplina = disciplinas.find(
     (d) => d.id === disciplinaId
