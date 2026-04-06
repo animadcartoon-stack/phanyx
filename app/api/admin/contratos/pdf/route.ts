@@ -5,6 +5,9 @@ import { getUserFromToken } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
 import crypto from "node:crypto";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function quebrarTextoEmLinhas(
   texto: string,
   maxWidth: number,
