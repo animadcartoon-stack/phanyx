@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET() {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
 
   if (!user) {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -19,7 +19,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
 
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
