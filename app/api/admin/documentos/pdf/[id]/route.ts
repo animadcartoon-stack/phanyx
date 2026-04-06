@@ -4,9 +4,9 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import QRCode from "qrcode";
 
 type LayoutProfissional =
-  | "FORMAX_MODERNO"
-  | "FORMAX_ACADEMICO"
-  | "FORMAX_CLASSICO"
+  | "PHANYX_MODERNO"
+  | "PHANYX_ACADEMICO"
+  | "PHANYX_CLASSICO"
   | "PERSONALIZADO_CLASSICO"
   | "PERSONALIZADO_MODERNO"
   | "PERSONALIZADO_MARCA";
@@ -32,20 +32,20 @@ async function gerarQrCodeImagem(pdfDoc: PDFDocument, texto: string) {
 
 function normalizarLayoutProfissional(estilo?: string): LayoutProfissional {
   switch (estilo) {
-    case "FORMAX_MODERNO":
-    case "FORMAX_ACADEMICO":
-    case "FORMAX_CLASSICO":
+    case "PHANYX_MODERNO":
+    case "PHANYX_ACADEMICO":
+    case "PHANYX_CLASSICO":
     case "PERSONALIZADO_CLASSICO":
     case "PERSONALIZADO_MODERNO":
     case "PERSONALIZADO_MARCA":
       return estilo;
 
     case "INSTITUCIONAL":
-      return "FORMAX_MODERNO";
+      return "PHANYX_MODERNO";
     case "CLASSICO":
-      return "FORMAX_CLASSICO";
+      return "PHANYX_CLASSICO";
     case "MINIMALISTA":
-      return "FORMAX_ACADEMICO";
+      return "PHANYX_ACADEMICO";
 
     case "SEM_COR":
       return "PERSONALIZADO_CLASSICO";
@@ -55,7 +55,7 @@ function normalizarLayoutProfissional(estilo?: string): LayoutProfissional {
       return "PERSONALIZADO_MARCA";
 
     default:
-      return "FORMAX_MODERNO";
+      return "PHANYX_MODERNO";
   }
 }
 
@@ -121,7 +121,7 @@ function gerarCodigoValidacao(docId: number, criadoEm?: Date | string | null) {
   const hh = String(dataBase.getHours()).padStart(2, "0");
   const mi = String(dataBase.getMinutes()).padStart(2, "0");
 
-  return `FORMAX-${yyyy}${mm}${dd}-${docId}-${hh}${mi}`;
+  return `PHANYX-${yyyy}${mm}${dd}-${docId}-${hh}${mi}`;
 }
 
 export async function GET(
@@ -168,7 +168,7 @@ export async function GET(
     );
 
     const nomeInstituicao =
-      config?.nomeFantasia || doc.instituicao?.nome || "FORMAX";
+      config?.nomeFantasia || doc.instituicao?.nome || "PHANYX";
     const cnpj = config?.cnpj || "-";
     const telefone = config?.telefone || "-";
     const email = config?.email || "-";
@@ -220,15 +220,15 @@ const linkValidacao = `${urlBase.protocol}//${urlBase.host}/validar-documento?co
 // 📱 QR Code
 const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     const usarFonteTexto =
-      layoutSelecionado === "FORMAX_ACADEMICO" ||
-      layoutSelecionado === "FORMAX_CLASSICO" ||
+      layoutSelecionado === "PHANYX_ACADEMICO" ||
+      layoutSelecionado === "PHANYX_CLASSICO" ||
       estiloDocumentoLegado === "classico"
         ? serif
         : font;
 
     const fontTitulo =
-      layoutSelecionado === "FORMAX_ACADEMICO" ||
-      layoutSelecionado === "FORMAX_CLASSICO" ||
+      layoutSelecionado === "PHANYX_ACADEMICO" ||
+      layoutSelecionado === "PHANYX_CLASSICO" ||
       estiloDocumentoLegado === "classico"
         ? serifBold
         : bold;
@@ -308,7 +308,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
       }
     }
 
-    function desenharModeloFormaxModerno(pagina: any) {
+    function desenharModeloPhanyxModerno(pagina: any) {
   // Faixa superior principal
   pagina.drawRectangle({
     x: 0,
@@ -362,7 +362,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
   });
 }
 
-    function desenharModeloFormaxAcademico(pagina: any) {
+    function desenharModeloPhanyxAcademico(pagina: any) {
       if (imagemLogo) {
         pagina.drawImage(imagemLogo, {
           x: pageWidth / 2 - 110,
@@ -392,7 +392,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
       desenharTextoRodapeInstitucional(pagina, 26);
     }
 
-    function desenharModeloFormaxClassico(pagina: any) {
+    function desenharModeloPhanyxClassico(pagina: any) {
       pagina.drawRectangle({
         x: 0,
         y: pageHeight - 16,
@@ -562,18 +562,18 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     }
 
     function desenharPapelTimbrado(pagina: any) {
-      if (layoutSelecionado === "FORMAX_MODERNO") {
-        desenharModeloFormaxModerno(pagina);
+      if (layoutSelecionado === "PHANYX_MODERNO") {
+        desenharModeloPhanyxModerno(pagina);
         return;
       }
 
-      if (layoutSelecionado === "FORMAX_ACADEMICO") {
-        desenharModeloFormaxAcademico(pagina);
+      if (layoutSelecionado === "PHANYX_ACADEMICO") {
+        desenharModeloPhanyxAcademico(pagina);
         return;
       }
 
-      if (layoutSelecionado === "FORMAX_CLASSICO") {
-        desenharModeloFormaxClassico(pagina);
+      if (layoutSelecionado === "PHANYX_CLASSICO") {
+        desenharModeloPhanyxClassico(pagina);
         return;
       }
 
@@ -602,7 +602,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     }
 
     async function desenharCabecalho(pagina: any) {
-            if (layoutSelecionado === "FORMAX_MODERNO") {
+            if (layoutSelecionado === "PHANYX_MODERNO") {
         await tentarDesenharLogo(pagina, margemX, pageHeight - 64, 36, 36);
 
         pagina.drawText(nomeInstituicao, {
@@ -639,7 +639,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
         return;
       }
 
-      if (layoutSelecionado === "FORMAX_ACADEMICO") {
+      if (layoutSelecionado === "PHANYX_ACADEMICO") {
         await tentarDesenharLogo(
           pagina,
           pageWidth / 2 - 24,
@@ -675,7 +675,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
         return;
       }
 
-      if (layoutSelecionado === "FORMAX_CLASSICO") {
+      if (layoutSelecionado === "PHANYX_CLASSICO") {
         await tentarDesenharLogo(pagina, margemX, pageHeight - 112, 50, 50);
 
         pagina.drawText(nomeInstituicao, {
@@ -938,7 +938,7 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
         color: rgb(0.85, 0.85, 0.85),
       });
 
-      const rodapeTexto = "Documento gerado automaticamente pelo sistema FORMAX";
+      const rodapeTexto = "Documento gerado automaticamente pelo sistema PHANYX";
       const larguraRodape = font.widthOfTextAtSize(rodapeTexto, 8);
 
       pagina.drawText(rodapeTexto, {
@@ -965,9 +965,9 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
     }
 
     function obterYInicial() {
-      if (layoutSelecionado === "FORMAX_MODERNO") return pageHeight - 172;
-      if (layoutSelecionado === "FORMAX_ACADEMICO") return pageHeight - 194;
-      if (layoutSelecionado === "FORMAX_CLASSICO") return pageHeight - 190;
+      if (layoutSelecionado === "PHANYX_MODERNO") return pageHeight - 172;
+      if (layoutSelecionado === "PHANYX_ACADEMICO") return pageHeight - 194;
+      if (layoutSelecionado === "PHANYX_CLASSICO") return pageHeight - 190;
       if (layoutSelecionado === "PERSONALIZADO_MODERNO") return pageHeight - 170;
       if (layoutSelecionado === "PERSONALIZADO_MARCA") return pageHeight - 186;
       if (layoutSelecionado === "PERSONALIZADO_CLASSICO") return pageHeight - 175;
@@ -1289,7 +1289,7 @@ await prisma.documentoGerado.update({
       color: rgb(0.28, 0.28, 0.32),
     });
 
-    page.drawText("Conferência interna pelo sistema FORMAX.", {
+    page.drawText("Conferência interna pelo sistema PHANYX.", {
       x: margemX + 10,
       y: y - 60,
       size: 8,

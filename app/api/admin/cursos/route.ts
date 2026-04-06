@@ -8,7 +8,7 @@ function podeGerenciarCurso(role?: string) {
 
 export async function GET() {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(
@@ -39,7 +39,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || !podeGerenciarCurso(user.role)) {
       return NextResponse.json(
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
 
 export async function PUT(req: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || !podeGerenciarCurso(user.role)) {
       return NextResponse.json(

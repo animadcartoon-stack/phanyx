@@ -56,7 +56,7 @@ export default function PrimeiroAcessoPage() {
       <div className="w-full max-w-md rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
         <div className="mb-6">
           <p className="text-sm uppercase tracking-[0.2em] text-blue-400">
-            FORMAX
+            PHANYX
           </p>
           <h1 className="mt-2 text-3xl font-bold">
             Primeiro acesso

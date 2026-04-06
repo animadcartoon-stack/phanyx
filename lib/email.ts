@@ -104,7 +104,7 @@ export async function enviarEmailCobranca({
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: "Cobrança FORMAX gerada com sucesso",
+    subject: "Cobrança PHANYX gerada com sucesso",
     html: `
       <div style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#eef2f7;padding:32px 16px;">
@@ -116,7 +116,7 @@ export async function enviarEmailCobranca({
                   <td style="padding:20px 28px;background:#ffffff;border-bottom:1px solid #e5e7eb;">
                     <img
                       src="${logoUrl}"
-                      alt="FORMAX"
+                      alt="PHANYX"
                       style="height:34px;display:block;"
                     />
                   </td>
@@ -139,7 +139,7 @@ export async function enviarEmailCobranca({
                             Plataforma acadêmica SaaS
                           </div>
                           <h1 style="margin:8px 0 0 0;font-size:34px;line-height:1.2;color:#ffffff;">
-                            Cobrança FORMAX
+                            Cobrança PHANYX
                           </h1>
                           <p style="margin:10px 0 0 0;color:#dbeafe;font-size:15px;line-height:1.6;">
                             Sua adesão para a instituição <strong>${instituicao}</strong> foi iniciada.
@@ -164,7 +164,7 @@ export async function enviarEmailCobranca({
                     </h2>
 
                     <p style="margin:0 0 22px 0;font-size:15px;line-height:1.7;color:#374151;">
-                      Sua cobrança da FORMAX foi gerada. Abaixo estão os dados principais para você concluir a contratação da plataforma.
+                      Sua cobrança da PHANYX foi gerada. Abaixo estão os dados principais para você concluir a contratação da plataforma.
                     </p>
 
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0 12px;">
@@ -207,7 +207,7 @@ export async function enviarEmailCobranca({
                             Descrição
                           </div>
                           <div style="font-size:15px;color:#111827;font-weight:bold;">
-                            ${descricao || "Adesão FORMAX"}
+                            ${descricao || "Adesão PHANYX"}
                           </div>
                         </td>
                       </tr>
@@ -247,7 +247,7 @@ export async function enviarEmailCobranca({
                 <tr>
                   <td style="padding:20px 32px;background:#f8fafc;border-top:1px solid #e5e7eb;">
                     <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.7;text-align:center;">
-                      FORMAX • Plataforma acadêmica SaaS<br/>
+                      PHANYX • Plataforma acadêmica SaaS<br/>
                       Este é um email automático de cobrança.
                     </p>
                   </td>
@@ -277,7 +277,7 @@ export async function enviarEmailAcesso({
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: "🚀 Seu acesso ao FORMAX foi liberado",
+    subject: "🚀 Seu acesso ao PHANYX foi liberado",
     html: `
       <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b1120;padding:32px 16px;">
@@ -289,7 +289,7 @@ export async function enviarEmailAcesso({
                   <td style="padding:20px 28px;background:#ffffff;">
                     <img
                       src="${logoUrl}"
-                      alt="FORMAX"
+                      alt="PHANYX"
                       style="height:34px;display:block;"
                     />
                   </td>
@@ -304,11 +304,11 @@ export async function enviarEmailAcesso({
                     />
 
                     <div style="font-size:12px;letter-spacing:1.5px;color:#bfdbfe;font-weight:bold;text-transform:uppercase;">
-                      FORMAX
+                      PHANYX
                     </div>
 
                     <h1 style="margin:12px 0 0 0;color:#ffffff;font-size:32px;line-height:1.2;">
-                      Bem-vindo ao FORMAX
+                      Bem-vindo ao PHANYX
                     </h1>
 
                     <p style="margin:12px 0 0 0;color:#dbeafe;font-size:16px;line-height:1.7;">
@@ -374,7 +374,7 @@ export async function enviarEmailAcesso({
                 <tr>
                   <td style="padding:20px 32px;background:#0b1220;border-top:1px solid #1e293b;">
                     <p style="margin:0;color:#64748b;font-size:12px;line-height:1.7;">
-                      FORMAX · Plataforma acadêmica SaaS<br/>
+                      PHANYX · Plataforma acadêmica SaaS<br/>
                       Este é um email automático de liberação de acesso.
                     </p>
                   </td>

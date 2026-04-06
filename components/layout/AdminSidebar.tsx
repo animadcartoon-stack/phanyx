@@ -63,7 +63,7 @@ export default function AdminSidebar() {
     href="/master"
     className="block rounded-lg px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-blue-600 hover:opacity-90 mt-4"
   >
-    🔥 Painel Master FORMAX
+    🔥 Painel Master PHANYX
   </a>
 )}
 

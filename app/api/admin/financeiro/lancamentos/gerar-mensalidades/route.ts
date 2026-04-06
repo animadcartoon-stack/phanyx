@@ -15,7 +15,7 @@ function montarVencimento(ano: number, mes: number, dia: number) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (
       !user ||

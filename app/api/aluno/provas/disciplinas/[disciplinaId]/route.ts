@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { disciplinaId: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || (user.role !== "ALUNO" && user.role !== "aluno")) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

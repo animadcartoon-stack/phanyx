@@ -4,7 +4,7 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = "admin@formax.com";
+  const email = "admin@phanyx.com";
   const senhaHash = await bcrypt.hash("123456", 10);
 
   const existente = await prisma.user.findUnique({
@@ -15,7 +15,7 @@ async function main() {
     await prisma.user.update({
       where: { email },
       data: {
-        nome: "Admin FORMAX",
+        nome: "Admin PHANYX",
         senha: senhaHash,
         role: "ADMIN",
         instituicaoId: 1,
@@ -27,7 +27,7 @@ async function main() {
   } else {
     await prisma.user.create({
       data: {
-        nome: "Admin FORMAX",
+        nome: "Admin PHANYX",
         email,
         senha: senhaHash,
         role: "ADMIN",

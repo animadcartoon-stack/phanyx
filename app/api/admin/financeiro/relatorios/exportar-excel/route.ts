@@ -5,7 +5,7 @@ import * as XLSX from "xlsx";
 
 export async function GET(req: NextRequest) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return new Response("Sem permissão", { status: 403 });

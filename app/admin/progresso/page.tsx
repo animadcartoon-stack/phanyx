@@ -12,9 +12,6 @@ export default function ProgressoAlunoPage() {
   const [aluno, setAluno] = useState("João da Silva");
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([
-    { nome: "Antigo Testamento", totalAulas: 20, assistidas: 5 },
-    { nome: "Novo Testamento", totalAulas: 18, assistidas: 10 },
-    { nome: "Teologia Sistemática", totalAulas: 25, assistidas: 0 },
   ]);
 
   function assistirAula(index: number) {
@@ -29,7 +26,7 @@ export default function ProgressoAlunoPage() {
     <main className="p-6">
       <h1 className="text-2xl font-bold mb-2">Progresso do Aluno</h1>
       <p className="mb-6 text-gray-600">
-        Acompanhamento acadêmico — IBE
+        Acompanhamento acadêmico — PHANYX
       </p>
 
       <div className="bg-white p-4 rounded shadow mb-6">

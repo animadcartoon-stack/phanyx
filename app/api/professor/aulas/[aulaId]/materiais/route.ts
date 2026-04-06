@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export async function POST(req: Request, { params }: { params: { aulaId: string } }) {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
   if (!user || user.role !== "professor") return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
 
   const aulaId = Number(params.aulaId);

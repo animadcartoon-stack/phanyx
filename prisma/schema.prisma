@@ -1111,8 +1111,8 @@ model Lead {
   instituicaoNome  String?
   instituicaoId    Int?
   cargo            String?
-  origem           String   @default("SITE_FORMAX")
-  tipo             String   @default("FORMAX") // FORMAX ou INSTITUICAO
+  origem           String   @default("SITE_PHANYX")
+  tipo             String   @default("PHANYX") // PHANYX ou INSTITUICAO
   interesse        String?
   observacoes      String?
   status           String   @default("NOVO") // NOVO, CONTATO, PROPOSTA, FECHADO, PERDIDO

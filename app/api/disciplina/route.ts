@@ -5,7 +5,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 // LISTAR DISCIPLINAS
 export async function GET() {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(
@@ -46,7 +46,7 @@ export async function GET() {
 // CRIAR DISCIPLINA
 export async function POST(request: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(

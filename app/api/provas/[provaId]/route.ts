@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET(_req: Request, { params }: { params: { provaId: string } }) {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
   if (!user) return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
 
   const provaId = Number(params.provaId);

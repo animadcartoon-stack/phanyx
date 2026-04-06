@@ -9,7 +9,7 @@ export async function POST(
   ctx: { params: { provaId: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

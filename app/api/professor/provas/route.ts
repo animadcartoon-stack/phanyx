@@ -4,7 +4,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET() {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -51,7 +51,7 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

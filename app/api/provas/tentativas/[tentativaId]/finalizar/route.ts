@@ -7,7 +7,7 @@ export async function POST(
   { params }: { params: Promise<{ tentativaId: string }> }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });

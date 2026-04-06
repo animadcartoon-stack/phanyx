@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ turmaId: string }> }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
@@ -76,7 +76,7 @@ export async function POST(
   { params }: { params: Promise<{ turmaId: string }> }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });

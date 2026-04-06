@@ -8,7 +8,7 @@ function podeGerenciar(role?: string) {
 
 const STATUS_VALIDOS = ["NOVO", "CONTATO", "PROPOSTA", "FECHADO", "PERDIDO"] as const;
 const PRIORIDADES_VALIDAS = ["BAIXA", "MEDIA", "ALTA"] as const;
-const TIPOS_VALIDOS = ["FORMAX", "INSTITUICAO"] as const;
+const TIPOS_VALIDOS = ["PHANYX", "INSTITUICAO"] as const;
 
 function normalizarStatus(valor: unknown) {
   const texto = String(valor || "").trim().toUpperCase();
@@ -22,7 +22,7 @@ function normalizarPrioridade(valor: unknown) {
 
 function normalizarTipo(valor: unknown) {
   const texto = String(valor || "").trim().toUpperCase();
-  return TIPOS_VALIDOS.includes(texto as any) ? texto : "FORMAX";
+  return TIPOS_VALIDOS.includes(texto as any) ? texto : "PHANYX";
 }
 
 export async function GET(req: Request) {

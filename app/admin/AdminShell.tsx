@@ -56,29 +56,29 @@ useEffect(() => {
   }
 
   window.addEventListener(
-    "formax:abrir-menu-configuracoes",
+    "phanyx:abrir-menu-configuracoes",
     abrirMenuConfiguracoes as EventListener
   );
   window.addEventListener(
-    "formax:abrir-menu-academico",
+    "phanyx:abrir-menu-academico",
     abrirMenuAcademico as EventListener
   );
   window.addEventListener(
-    "formax:resetar-menu-tour",
+    "phanyx:resetar-menu-tour",
     abrirMenuPainel as EventListener
   );
 
   return () => {
     window.removeEventListener(
-      "formax:abrir-menu-configuracoes",
+      "phanyx:abrir-menu-configuracoes",
       abrirMenuConfiguracoes as EventListener
     );
     window.removeEventListener(
-      "formax:abrir-menu-academico",
+      "phanyx:abrir-menu-academico",
       abrirMenuAcademico as EventListener
     );
     window.removeEventListener(
-      "formax:resetar-menu-tour",
+      "phanyx:resetar-menu-tour",
       abrirMenuPainel as EventListener
     );
   };
@@ -139,18 +139,18 @@ useEffect(() => {
   const sectionTitleClass =
     "text-xs text-gray-500 font-semibold uppercase tracking-wide";
 
-  const emailsComercialFormax = ["atendimento@institutobatista.com"];
+  const emailsComercialPhanyx = ["atendimento@institutobatista.com"];
 
-  const podeVerComercialFormax =
+  const podeVerComercialPhanyx =
     !carregandoUsuario &&
     !!usuario?.email &&
-    emailsComercialFormax.includes(usuario.email);
+    emailsComercialPhanyx.includes(usuario.email);
 
   const podeVerPainelMaster =
     !carregandoUsuario && Boolean(usuario?.isMasterAdmin);
 
   function abrirTourAdmin() {
-    window.dispatchEvent(new CustomEvent("formax:abrir-tour-admin"));
+    window.dispatchEvent(new CustomEvent("phanyx:abrir-tour-admin"));
   }
 
   return (
@@ -159,7 +159,7 @@ useEffect(() => {
         <div>
           <div className="mb-8">
             <h2 className="text-xl font-semibold">
-              FORMAX
+              PHANYX
               <span className="block text-sm text-gray-500 font-normal">
                 Painel Administrativo
               </span>
@@ -190,7 +190,7 @@ useEffect(() => {
                   onClick={() => toggleMenu("master")}
                   className={buttonClass}
                 >
-                  <span className={sectionTitleClass}>🔥 Master FORMAX</span>
+                  <span className={sectionTitleClass}>🔥 Master PHANYX</span>
                   <span>{menuAberto === "master" ? "▾" : "▸"}</span>
                 </button>
 
@@ -204,14 +204,14 @@ useEffect(() => {
               </div>
             )}
 
-            {podeVerComercialFormax && (
+            {podeVerComercialPhanyx && (
               <div className="border-t pt-2 mt-2">
                 <button
                   type="button"
                   onClick={() => toggleMenu("comercial")}
                   className={buttonClass}
                 >
-                  <span className={sectionTitleClass}>💼 Comercial FORMAX</span>
+                  <span className={sectionTitleClass}>💼 Comercial PHANYX</span>
                   <span>{menuAberto === "comercial" ? "▾" : "▸"}</span>
                 </button>
 
@@ -221,7 +221,7 @@ useEffect(() => {
                       href="/admin/leads"
                       className={getLinkClass("/admin/leads")}
                     >
-                      📈 Leads FORMAX
+                      📈 Leads PHANYX
                     </Link>
                   </div>
                 )}

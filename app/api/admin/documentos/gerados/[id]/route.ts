@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

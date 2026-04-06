@@ -91,7 +91,7 @@ export default function AuditoriaPage() {
                   <td className={item.suspeito ? "text-yellow-600 font-bold" : ""}>
   {item.suspeito ? "⚠ Suspeito" : item.valido ? "✔ Válido" : "✖ Inválido"}
 </td>
-
+<td>{item.risco ?? 0}</td>
                   <td>{item.ip || "-"}</td>
 
                   <td>

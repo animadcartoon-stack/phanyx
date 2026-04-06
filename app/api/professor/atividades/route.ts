@@ -4,7 +4,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET(_req: NextRequest) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
@@ -65,7 +65,7 @@ export async function GET(_req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });

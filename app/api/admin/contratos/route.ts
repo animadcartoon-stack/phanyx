@@ -142,7 +142,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
 export async function GET(req: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -193,7 +193,7 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

@@ -26,7 +26,7 @@ async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      "User-Agent": "FORMAX",
+      "User-Agent": "PHANYX",
       access_token: apiKey,
       ...(init?.headers || {}),
     },

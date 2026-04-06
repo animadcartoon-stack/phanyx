@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET(request: Request) {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
 
   if (!user) {
     return NextResponse.json(

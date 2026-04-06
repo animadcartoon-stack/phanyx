@@ -4,7 +4,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET() {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (
       !user ||
@@ -45,7 +45,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (
       !user ||

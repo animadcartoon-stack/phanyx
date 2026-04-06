@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: Promise<{ tentativaId: string }> }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });

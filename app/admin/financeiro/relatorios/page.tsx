@@ -207,7 +207,7 @@ const config = await resConfig.json();
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
-    doc.text(config?.nomeFantasia || "FORMAX", 34, 14);
+    doc.text(config?.nomeFantasia || "PHANYX", 34, 14);
 
     doc.setFont("helvetica", "normal");
 doc.setFontSize(10);
@@ -432,7 +432,7 @@ doc.text(
       doc.setFontSize(8);
       doc.setTextColor(100, 116, 139);
       doc.text(
-  `${config?.nomeFantasia || "FORMAX"} • Relatório Financeiro Institucional`,
+  `${config?.nomeFantasia || "PHANYX"} • Relatório Financeiro Institucional`,
   14,
   292
 );

@@ -4,7 +4,7 @@ export default function SuportePage() {
       <div className="max-w-3xl mx-auto">
 
         <h1 className="text-3xl font-bold mb-6">
-          Suporte FORMAX
+          Suporte PHANYX
         </h1>
 
         <p className="text-slate-300 mb-10">

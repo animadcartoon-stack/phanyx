@@ -136,7 +136,7 @@ const diferenciais = [
   {
     titulo: "Estrutura pronta para crescer",
     descricao:
-      "O FORMAX foi construído para sair do nível interno e alcançar padrão de produto comercial SaaS para instituições de ensino.",
+      "O PHANYX foi construído para sair do nível interno e alcançar padrão de produto comercial SaaS para instituições de ensino.",
   },
   {
     titulo: "Base acadêmica e operacional forte",
@@ -199,7 +199,7 @@ const depoimentos = [
   {
     titulo: "Organização operacional",
     texto:
-      "O FORMAX foi pensado para transmitir estrutura, clareza e profissionalismo já no primeiro contato com a instituição.",
+      "O PHANYX foi pensado para transmitir estrutura, clareza e profissionalismo já no primeiro contato com a instituição.",
   },
   {
     titulo: "Mais confiança comercial",
@@ -217,7 +217,7 @@ const whatsappBase = "https://wa.me/5548988101240?text=";
 
 function montarLinkComercial(plano: string) {
   const mensagem = encodeURIComponent(
-    `Olá! Quero saber mais sobre o plano ${plano} do FORMAX.`
+    `Olá! Quero saber mais sobre o plano ${plano} do PHANYX.`
   );
   return `${whatsappBase}${mensagem}`;
 }
@@ -234,7 +234,7 @@ export default function PlanosPage() {
           <div className="relative mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12 lg:py-24">
             <div className="mx-auto max-w-5xl text-center">
               <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
-                Planos FORMAX • Plataforma acadêmica SaaS nível profissional
+                Planos PHANYX • Plataforma acadêmica SaaS nível profissional
               </div>
 
               <h1 className="mt-6 text-4xl font-bold leading-tight md:text-5xl xl:text-6xl">
@@ -245,7 +245,7 @@ export default function PlanosPage() {
               </h1>
 
               <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-blue-100">
-                O FORMAX foi pensado para entregar a solidez de uma plataforma
+                O PHANYX foi pensado para entregar a solidez de uma plataforma
                 acadêmica robusta, com experiência moderna, estrutura
                 multi-instituição, recursos EAD, financeiro, documentos validados
                 e base para evolução contínua.
@@ -262,7 +262,7 @@ export default function PlanosPage() {
                 </a>
 
                 <a
-                  href={montarLinkComercial("FORMAX")}
+                  href={montarLinkComercial("PHANYX")}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
@@ -605,7 +605,7 @@ export default function PlanosPage() {
                 Posicionamento comercial
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Uma proposta mais forte para vender o FORMAX com confiança
+                Uma proposta mais forte para vender o PHANYX com confiança
               </h2>
               <p className="mt-4 text-lg text-slate-600">
                 Os planos não servem apenas para cobrar. Eles ajudam a comunicar
@@ -672,7 +672,7 @@ export default function PlanosPage() {
                   Leve sua instituição para uma operação mais moderna e profissional
                 </h2>
                 <p className="mt-4 text-lg text-blue-100">
-                  O FORMAX foi desenhado para ser mais do que um painel interno:
+                  O PHANYX foi desenhado para ser mais do que um painel interno:
                   ele é uma base de produto, gestão, ensino digital, segurança e
                   crescimento.
                 </p>
@@ -680,7 +680,7 @@ export default function PlanosPage() {
 
               <div className="flex flex-col gap-4">
                 <a
-                  href={montarLinkComercial("FORMAX")}
+                  href={montarLinkComercial("PHANYX")}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-500"
@@ -714,7 +714,7 @@ export default function PlanosPage() {
               </p>
 
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Quer ver o FORMAX em operação?
+                Quer ver o PHANYX em operação?
               </h2>
 
               <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-600">

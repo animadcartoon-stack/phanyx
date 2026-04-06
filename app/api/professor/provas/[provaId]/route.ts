@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { provaId: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -73,7 +73,7 @@ export async function PATCH(
   { params }: { params: { provaId: string } }
 ) {
   try {
-    const user = getUserFromToken() ?? null;
+    const user = await getUserFromToken() ?? null;
 
     if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

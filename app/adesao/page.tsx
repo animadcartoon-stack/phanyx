@@ -138,10 +138,10 @@ useEffect(() => {
       <div className="mx-auto max-w-5xl">
         <div className="mb-8 text-center">
           <p className="text-sm uppercase tracking-[0.2em] text-blue-300">
-            Adesão institucional FORMAX
+            Adesão institucional PHANYX
           </p>
           <h1 className="mt-3 text-4xl font-bold">
-            Contrate o FORMAX para sua instituição
+            Contrate o PHANYX para sua instituição
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-slate-300">
             Preencha os dados da instituição, gere o pagamento e receba o acesso

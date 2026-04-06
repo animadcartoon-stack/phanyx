@@ -4,7 +4,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 // LISTAR
 export async function GET() {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
 
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -20,7 +20,7 @@ export async function GET() {
 
 // DESBLOQUEAR
 export async function PATCH(req: Request) {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
 
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

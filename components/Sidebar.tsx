@@ -4,7 +4,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-white border-r h-screen fixed left-0 top-0">
       <div className="p-6 font-bold text-xl text-blue-600">
-        IBE Plataforma
+        PHANYX Sistema Acadêmico Inteligente
       </div>
 
       <nav className="px-4 space-y-2 text-gray-700">

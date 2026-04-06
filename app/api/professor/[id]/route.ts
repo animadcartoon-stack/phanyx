@@ -7,7 +7,7 @@ export async function GET(
   context: { params: { id: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(
@@ -51,7 +51,7 @@ export async function PUT(
   context: { params: { id: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(
@@ -130,7 +130,7 @@ export async function DELETE(
   context: { params: { id: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(

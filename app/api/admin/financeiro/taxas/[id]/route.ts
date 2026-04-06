@@ -30,7 +30,7 @@ export async function PUT(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -112,7 +112,7 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

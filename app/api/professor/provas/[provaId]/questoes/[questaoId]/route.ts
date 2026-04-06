@@ -9,7 +9,7 @@ export async function PATCH(
   ctx: { params: { provaId: string; questaoId: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
 if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
   return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
@@ -126,7 +126,7 @@ export async function DELETE(
   ctx: { params: { provaId: string; questaoId: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
 if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
   return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

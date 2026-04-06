@@ -13,7 +13,11 @@ export async function GET(
     const turma = await prisma.turma.findUnique({
       where: { id: Number(id) },
       include: {
-        disciplina: true,
+        disciplina: {
+          include: {
+            curso: true,
+          },
+        },
         professor: true,
         _count: {
           select: {
@@ -80,6 +84,13 @@ export async function PUT(
         semestre: body.semestre,
         periodoLetivo: body.periodoLetivo || null,
         ativa: Boolean(body.ativa),
+        statusTurma: body.statusTurma || "AGUARDANDO",
+        capacidadeMinima:
+          body.capacidadeMinima !== undefined &&
+          body.capacidadeMinima !== null &&
+          String(body.capacidadeMinima).trim() !== ""
+            ? Number(body.capacidadeMinima)
+            : null,
         capacidadeMaxima:
           body.capacidadeMaxima !== undefined &&
           body.capacidadeMaxima !== null &&
@@ -90,7 +101,11 @@ export async function PUT(
         professorId: Number(body.professorId),
       },
       include: {
-        disciplina: true,
+        disciplina: {
+          include: {
+            curso: true,
+          },
+        },
         professor: true,
         _count: {
           select: {

@@ -7,7 +7,7 @@ export async function PUT(
   context: { params: { id: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
@@ -84,7 +84,7 @@ export async function DELETE(
   context: { params: { id: string } }
 ) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });

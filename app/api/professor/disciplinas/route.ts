@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export async function GET() {
-  const user = getUserFromToken();
+  const user = await getUserFromToken();
 
   if (!user || user.role !== "PROFESSOR") {
     return NextResponse.json({ error: "Sem permissão" }, { status: 403 });

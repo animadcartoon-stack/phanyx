@@ -32,7 +32,7 @@ export default function Header() {
           >
             <Image
               src="/icon.png"
-              alt="FORMAX"
+              alt="PHANYX"
               fill
               className="object-contain p-1.5"
             />
@@ -44,7 +44,7 @@ export default function Header() {
                 isHome ? "text-white" : "text-slate-900"
               }`}
             >
-              FORMAX
+              PHANYX
             </div>
             <div
               className={`truncate text-[11px] ${
@@ -89,7 +89,7 @@ export default function Header() {
 
         <div className="flex items-center gap-2 md:gap-3">
           <a
-            href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20FORMAX."
+            href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
             target="_blank"
             rel="noreferrer"
             className={`hidden rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition md:inline-flex ${

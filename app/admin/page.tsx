@@ -34,7 +34,7 @@ type TourStep = {
   destaque?: string;
 };
 
-const TOUR_STORAGE_KEY = "formax_admin_tour_oculto_v2";
+const TOUR_STORAGE_KEY = "phanyx_admin_tour_oculto_v2";
 
 const tourSteps: TourStep[] = [
   {
@@ -140,16 +140,16 @@ function AdminTour({
     }
 
     if (step.id === "configuracoes") {
-      window.dispatchEvent(new CustomEvent("formax:abrir-menu-configuracoes"));
+      window.dispatchEvent(new CustomEvent("phanyx:abrir-menu-configuracoes"));
     } else if (
       step.id === "departamentos" ||
       step.id === "professores" ||
       step.id === "alunos" ||
       step.id === "matriculas"
     ) {
-      window.dispatchEvent(new CustomEvent("formax:abrir-menu-academico"));
+      window.dispatchEvent(new CustomEvent("phanyx:abrir-menu-academico"));
     } else {
-      window.dispatchEvent(new CustomEvent("formax:resetar-menu-tour"));
+      window.dispatchEvent(new CustomEvent("phanyx:resetar-menu-tour"));
     }
 
     const timer = setTimeout(atualizarPosicao, 220);
@@ -367,7 +367,7 @@ function AdminTour({
             </h3>
 
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              Você concluiu o tour inicial do FORMAX. Agora sua equipe já pode
+              Você concluiu o tour inicial do PHANYX. Agora sua equipe já pode
               seguir a implantação com muito mais segurança.
             </p>
 
@@ -628,9 +628,9 @@ export default function AdminDashboardPage() {
       setTourAberto(true);
     }
 
-    window.addEventListener("formax:abrir-tour-admin", abrirTour);
+    window.addEventListener("phanyx:abrir-tour-admin", abrirTour);
     return () =>
-      window.removeEventListener("formax:abrir-tour-admin", abrirTour);
+      window.removeEventListener("phanyx:abrir-tour-admin", abrirTour);
   }, []);
 
   function fecharTour(naoMostrarNovamente?: boolean) {
@@ -850,7 +850,7 @@ export default function AdminDashboardPage() {
 
                   <p className="mt-1 text-sm text-slate-600">
                     Use o tutorial guiado para conhecer rapidamente as áreas
-                    principais do FORMAX.
+                    principais do PHANYX.
                   </p>
                 </div>
               </div>

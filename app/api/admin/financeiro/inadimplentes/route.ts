@@ -73,7 +73,7 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
 
 export async function GET(_req: NextRequest) {
   try {
-    const user = getUserFromToken();
+    const user = await getUserFromToken();
 
     if (
       !user ||

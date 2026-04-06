@@ -88,29 +88,37 @@ const { confirm } = useConfirmDialog();
   }
 }
   async function encerrarProva(provaId: number) {
-    const confirmou = window.confirm("Tem certeza que deseja encerrar esta prova?");
-    if (!confirmou) return;
+  const confirmou = await confirm({
+    title: "Encerrar prova",
+    message: "Tem certeza que deseja encerrar esta prova?",
+    confirmText: "Encerrar",
+    cancelText: "Cancelar",
+    confirmVariant: "primary",
+  });
 
-    try {
+  if (!confirmou) return;
+
+  try {
     setAcaoLoading({ provaId, acao: "encerrar" });
 
-      const res = await fetch(`/api/professor/provas/${provaId}/encerrar`, {
-        method: "POST",
-      });
+    const res = await fetch(`/api/professor/provas/${provaId}/encerrar`, {
+      method: "POST",
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao encerrar prova");
-      }
-
-      await carregarProvas();
-    } catch (e: any) {
-      showToast(e.message || "Erro ao encerrar prova", "error");
-    } finally {
-      setAcaoLoading({ provaId, acao: "encerrar" });
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao encerrar prova");
     }
+
+    await carregarProvas();
+    showToast("Prova encerrada com sucesso", "success");
+  } catch (e: any) {
+    showToast(e.message || "Erro ao encerrar prova", "error");
+  } finally {
+    setAcaoLoading(null);
   }
+}
 
   async function excluirProva(provaId: number) {
   const confirmou = await confirm({

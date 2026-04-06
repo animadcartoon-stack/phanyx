@@ -154,7 +154,7 @@ export default async function AlunoLayout({
             </div>
 
             <div className="pt-2 text-xs text-gray-400">
-              FORMAX • Controle acadêmico e financeiro
+              PHANYX • Controle acadêmico e financeiro
             </div>
           </div>
         </div>

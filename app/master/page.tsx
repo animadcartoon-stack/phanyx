@@ -168,7 +168,7 @@ function MasterPage() {
       {
         titulo: "Instituições",
         valor: data.resumo.totalInstituicoes,
-        descricao: "Total geral de instituições já criadas no FORMAX.",
+        descricao: "Total geral de instituições já criadas no PHANYX.",
       },
       {
         titulo: "Adesões",
@@ -203,7 +203,7 @@ function MasterPage() {
       <div className="mx-auto max-w-7xl space-y-8">
         <section className="overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 p-8 shadow-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-300">
-            Painel master FORMAX
+            Painel master PHANYX
           </p>
 
           <div className="mt-3 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -213,7 +213,7 @@ function MasterPage() {
               </h1>
               <p className="mt-4 text-lg leading-8 text-slate-300">
                 Acompanhe instituições, adesões, conversão comercial e a
-                expansão operacional do FORMAX em um só painel.
+                expansão operacional do PHANYX em um só painel.
               </p>
             </div>
 

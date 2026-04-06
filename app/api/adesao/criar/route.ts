@@ -143,7 +143,7 @@ export async function POST(req: Request) {
         billingType: "PIX",
         value: Number(valor),
         dueDate,
-        description: `Adesão FORMAX - ${plano}`,
+        description: `Adesão PHANYX - ${plano}`,
         externalReference: String(adesao.id),
       });
 
@@ -178,7 +178,7 @@ const linkCobranca = cobrancaAny?.invoiceUrl || null;
           instituicao: nomeInstituicao,
           valor,
           vencimento: formatarDataISO(cobrancaAny?.dueDate || dueDate),
-          descricao: `Adesão FORMAX - ${plano}`,
+          descricao: `Adesão PHANYX - ${plano}`,
           linkCobranca,
         });
       } catch (emailError) {

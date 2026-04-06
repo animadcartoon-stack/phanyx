@@ -62,7 +62,7 @@ const STATUS_COLUNAS = [
 
 const STATUS_OPTIONS = ["NOVO", "CONTATO", "PROPOSTA", "FECHADO", "PERDIDO"];
 const PRIORIDADE_OPTIONS = ["BAIXA", "MEDIA", "ALTA"];
-const TIPO_OPTIONS = ["FORMAX", "INSTITUICAO"];
+const TIPO_OPTIONS = ["PHANYX", "INSTITUICAO"];
 const TIPO_INTERACAO_OPTIONS = [
   "WHATSAPP",
   "LIGACAO",
@@ -78,8 +78,8 @@ const FORM_INICIAL: LeadForm = {
   instituicaoNome: "",
   instituicaoId: "",
   cargo: "",
-  origem: "SITE_FORMAX",
-  tipo: "FORMAX",
+  origem: "SITE_PHANYX",
+  tipo: "PHANYX",
   interesse: "",
   observacoes: "",
   status: "NOVO",
@@ -251,7 +251,7 @@ export default function AdminLeadsPage() {
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [filtroOrigem, setFiltroOrigem] = useState("");
-  const [filtroTipo, setFiltroTipo] = useState("FORMAX");
+  const [filtroTipo, setFiltroTipo] = useState("PHANYX");
   const [filtroFollowUp, setFiltroFollowUp] = useState("");
   const [leadSelecionado, setLeadSelecionado] = useState<Lead | null>(null);
 
@@ -352,8 +352,8 @@ export default function AdminLeadsPage() {
           ? String(lead.instituicaoId)
           : "",
       cargo: lead.cargo || "",
-      origem: lead.origem || "SITE_FORMAX",
-      tipo: lead.tipo || "FORMAX",
+      origem: lead.origem || "SITE_PHANYX",
+      tipo: lead.tipo || "PHANYX",
       interesse: lead.interesse || "",
       observacoes: lead.observacoes || "",
       status: lead.status || "NOVO",
@@ -599,10 +599,10 @@ export default function AdminLeadsPage() {
               CRM Comercial
             </p>
             <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900 md:text-5xl">
-              Painel de Leads FORMAX
+              Painel de Leads PHANYX
             </h1>
             <p className="mt-4 max-w-4xl text-lg leading-8 text-slate-600">
-              Gerencie os leads comerciais da FORMAX e, futuramente, os leads internos
+              Gerencie os leads comerciais da PHANYX e, futuramente, os leads internos
               das instituições que aderirem à plataforma. Organize o funil, mova etapas
               e acompanhe oportunidades com visão estratégica.
             </p>
@@ -671,7 +671,7 @@ export default function AdminLeadsPage() {
             Recurso SaaS em evolução
           </p>
           <p className="mt-1 text-sm leading-6 text-blue-700">
-            Leads do tipo <strong>FORMAX</strong> representam oportunidades comerciais da
+            Leads do tipo <strong>PHANYX</strong> representam oportunidades comerciais da
             plataforma. Leads do tipo <strong>INSTITUICAO</strong> preparam o CRM interno
             das instituições e podem ser liberados futuramente como funcionalidade de plano premium.
           </p>
@@ -705,7 +705,7 @@ export default function AdminLeadsPage() {
               onChange={(e) => setFiltroTipo(e.target.value)}
               className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3.5 outline-none transition focus:border-blue-500"
             >
-              <option value="FORMAX">Leads FORMAX (CRM comercial)</option>
+              <option value="PHANYX">Leads PHANYX (CRM comercial)</option>
               <option value="INSTITUICAO">Leads das instituições (premium)</option>
               <option value="">Todos os tipos</option>
             </select>
@@ -798,8 +798,8 @@ export default function AdminLeadsPage() {
 
                               <p className="mt-1 text-sm text-slate-500">
                                 {lead.instituicaoNome ||
-                                  (lead.tipo === "FORMAX"
-                                    ? "Lead comercial FORMAX"
+                                  (lead.tipo === "PHANYX"
+                                    ? "Lead comercial PHANYX"
                                     : "Instituição não informada")}
                               </p>
                             </div>
@@ -847,8 +847,8 @@ export default function AdminLeadsPage() {
                             <p>💼 {lead.cargo || "Cargo não informado"}</p>
                             <p>
                               🏢{" "}
-                              {lead.tipo === "FORMAX"
-                                ? "Lead comercial da FORMAX"
+                              {lead.tipo === "PHANYX"
+                                ? "Lead comercial da PHANYX"
                                 : lead.instituicaoNome || "Instituição não informada"}
                             </p>
                             <p>🏷 Origem: {lead.origem}</p>
@@ -890,7 +890,7 @@ export default function AdminLeadsPage() {
 
                   {criandoNovo ? (
                     <p className="mt-2 text-sm text-slate-500">
-                      O cadastro manual inicia por padrão como lead <strong>FORMAX</strong>, mas
+                      O cadastro manual inicia por padrão como lead <strong>PHANYX</strong>, mas
                       você pode alterar para <strong>INSTITUICAO</strong> no formulário.
                     </p>
                   ) : null}
@@ -1009,7 +1009,7 @@ export default function AdminLeadsPage() {
                     ))}
                   </select>
                   <p className="mt-2 text-xs leading-5 text-slate-500">
-                    Use <strong>FORMAX</strong> para oportunidades comerciais da plataforma e{" "}
+                    Use <strong>PHANYX</strong> para oportunidades comerciais da plataforma e{" "}
                     <strong>INSTITUICAO</strong> para leads internos da instituição.
                   </p>
                 </div>
