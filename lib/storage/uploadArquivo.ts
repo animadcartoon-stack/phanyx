@@ -2,12 +2,6 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { randomUUID } from "crypto";
 import { r2Client } from "./r2";
 
-const bucketName = process.env.R2_BUCKET_NAME;
-
-if (!bucketName) {
-  throw new Error("R2_BUCKET_NAME não configurado no .env");
-}
-
 type UploadArquivoInput = {
   file: File;
   pasta?: string;
@@ -34,6 +28,13 @@ export async function uploadArquivo({
   file,
   pasta = "geral",
 }: UploadArquivoInput): Promise<UploadArquivoOutput> {
+
+  const bucketName = process.env.R2_BUCKET_NAME;
+
+  if (!bucketName) {
+    throw new Error("R2_BUCKET_NAME não configurado no .env");
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
 
