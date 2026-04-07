@@ -21,31 +21,54 @@ export async function GET(req: NextRequest) {
     }
 
     const atividades: any[] = await prisma.atividade.findMany({
+
       where: {
         status: "PUBLICADA",
       },
       include: {
-        disciplina: true,
-        turma: true,
-      },
+  disciplina: true,
+  turma: true,
+  entregas: {
+    where: {
+      alunoId: aluno.id,
+    },
+    take: 1,
+  },
+},
       orderBy: {
         createdAt: "desc",
       } as any,
+      
     });
 
-    const items = atividades.map((atividade) => ({
-      id: atividade.id,
-      titulo: atividade.titulo,
-      descricao: atividade.descricao,
-      prazo: atividade.prazo,
-      status: atividade.status,
-      notaMaxima: atividade.notaMaxima,
-      disciplinaNome:
-        atividade.disciplina?.nome ||
-        atividade.disciplina?.titulo ||
-        `Disciplina ${atividade.disciplinaId}`,
-      turmaNome: atividade.turma?.nome || null,
-    }));
+    const items = atividades.map((atividade) => {
+  const entrega = atividade.entregas?.[0] || null;
+
+  return {
+    id: atividade.id,
+    titulo: atividade.titulo,
+    descricao: atividade.descricao,
+    prazo: atividade.prazo,
+    status: atividade.status,
+    notaMaxima: atividade.notaMaxima,
+
+    disciplinaNome:
+      atividade.disciplina?.nome ||
+      atividade.disciplina?.titulo ||
+      `Disciplina ${atividade.disciplinaId}`,
+
+    turmaNome: atividade.turma?.nome || null,
+
+    entrega: entrega
+      ? {
+          texto: entrega.texto,
+          link: entrega.link,
+          arquivoUrl: entrega.arquivoUrl,
+          entregueEm: entrega.entregueEm,
+        }
+      : null,
+  };
+});
 
     return NextResponse.json({
       ok: true,
