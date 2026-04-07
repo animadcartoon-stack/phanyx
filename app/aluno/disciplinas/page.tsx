@@ -57,39 +57,67 @@ export default function DisciplinasAluno() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">📘 Minhas Disciplinas</h1>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">
+              📘 Minhas Disciplinas
+            </h1>
+            <p className="mt-2 text-sm text-slate-500">
+              Visualize suas disciplinas, acompanhe aulas cadastradas e consulte
+              o histórico de chamadas registradas.
+            </p>
+          </div>
+
+          <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+            {loading ? "Carregando..." : `${disciplinasMatriculadas.length} disciplina(s)`}
+          </span>
+        </div>
+      </div>
 
       {loading ? (
-        <p className="text-gray-600">Carregando disciplinas...</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+          Carregando disciplinas...
+        </div>
       ) : disciplinasMatriculadas.length === 0 ? (
-        <p className="text-gray-600">
+        <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500 shadow-sm">
           Você ainda não está matriculado em nenhuma disciplina.
-        </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {disciplinasMatriculadas.map((disciplina) => (
             <div
               key={`${disciplina.id}-${disciplina.turmaId ?? "sem-turma"}`}
-              onClick={() =>
-                router.push(`/aluno/disciplina/${disciplina.id}`)
-              }
-              className="cursor-pointer rounded-xl border bg-white p-6 shadow transition hover:border-blue-500 hover:shadow-lg"
+              onClick={() => router.push(`/aluno/disciplina/${disciplina.id}`)}
+              className="cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
             >
-              <h2 className="text-lg font-semibold">{disciplina.nome}</h2>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="text-lg font-semibold text-slate-900">
+                  {disciplina.nome}
+                </h2>
 
-              <p className="mt-2 text-sm text-gray-600">
-                {disciplina.totalAulas ?? 0} aulas
-              </p>
+                <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                  {disciplina.totalAulas ?? 0} aula(s)
+                </span>
+              </div>
 
-              <p className="mt-1 text-sm text-gray-500">
-                Chamadas registradas: {disciplina.totalPresencas ?? 0}
-              </p>
-
-              {disciplina.turmaNome && (
-                <p className="mt-1 text-sm text-gray-500">
-                  Turma: {disciplina.turmaNome}
+              <div className="mt-4 space-y-2 text-sm text-slate-600">
+                <p>
+                  <strong className="font-medium text-slate-800">
+                    Chamadas registradas:
+                  </strong>{" "}
+                  {disciplina.totalPresencas ?? 0}
                 </p>
-              )}
+
+                <p>
+                  <strong className="font-medium text-slate-800">Turma:</strong>{" "}
+                  {disciplina.turmaNome || "Não informada"}
+                </p>
+              </div>
+
+              <div className="mt-5 inline-flex items-center text-sm font-semibold text-blue-600">
+                Acessar disciplina →
+              </div>
             </div>
           ))}
         </div>
