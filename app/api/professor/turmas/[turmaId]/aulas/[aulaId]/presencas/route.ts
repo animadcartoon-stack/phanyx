@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
 type PresencaInput = {
-  id: number | string;
+  id?: number | string;
+  alunoId?: number | string;
   status: string;
   observacao?: string | null;
 };
@@ -317,16 +318,17 @@ export async function POST(
 
     await prisma.$transaction(
       presencas.map((presenca: PresencaInput) => {
-        const alunoId = Number(presenca.id);
+        const alunoId = Number(presenca.id || presenca.alunoId);
         const status = String(presenca.status || "").trim();
         const observacao =
           presenca.observacao !== undefined && presenca.observacao !== null
             ? String(presenca.observacao).trim() || null
             : null;
 
-        if (!Number.isFinite(alunoId) || alunoId <= 0) {
-          throw new Error("Aluno inválido na chamada");
-        }
+        if (!alunoId || !Number.isFinite(alunoId) || alunoId <= 0) {
+  console.log("ERRO alunoId:", presenca);
+  throw new Error("Aluno inválido na chamada");
+}
 
         if (!alunoIdsPermitidos.has(alunoId)) {
           throw new Error("Há aluno fora desta turma na chamada");
