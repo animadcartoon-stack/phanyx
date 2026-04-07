@@ -26,11 +26,11 @@ export async function POST(
         instituicaoId: auth.instituicaoId,
       },
       select: {
-  id: true,
-  instituicaoId: true,
-  titulo: true,
-  prazo: true,
-},
+        id: true,
+        instituicaoId: true,
+        nome: true,
+      },
+    });
 
     if (!aluno) {
       return NextResponse.json(
@@ -40,26 +40,18 @@ export async function POST(
     }
 
     const atividade = await prisma.atividade.findFirst({
-      
       where: {
         id: atividadeId,
         instituicaoId: auth.instituicaoId,
         status: "PUBLICADA",
       },
       select: {
-  id: true,
-  instituicaoId: true,
-  titulo: true,
-  prazo: true, 
-},
+        id: true,
+        instituicaoId: true,
+        titulo: true,
+        prazo: true,
+      },
     });
-
-if (atividade.prazo && new Date() > new Date(atividade.prazo)) {
-  return NextResponse.json(
-    { error: "Prazo da atividade encerrado" },
-    { status: 403 }
-  );
-}
 
     if (!atividade) {
       return NextResponse.json(
@@ -68,31 +60,38 @@ if (atividade.prazo && new Date() > new Date(atividade.prazo)) {
       );
     }
 
+    if (atividade.prazo && new Date() > new Date(atividade.prazo)) {
+      return NextResponse.json(
+        { error: "Prazo da atividade encerrado" },
+        { status: 403 }
+      );
+    }
+
     const body = await req.json();
 
-const parsed = entregarAtividadeSchema.safeParse({
-  texto: body?.texto ?? "",
-  link: body?.link ?? "",
-  arquivoUrl: body?.arquivoUrl ?? "",
-});
+    const parsed = entregarAtividadeSchema.safeParse({
+      texto: body?.texto ?? "",
+      link: body?.link ?? "",
+      arquivoUrl: body?.arquivoUrl ?? "",
+    });
 
-if (!parsed.success) {
-  return NextResponse.json(
-    { error: "Dados inválidos", details: parsed.error.flatten() },
-    { status: 400 }
-  );
-}
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Dados inválidos", details: parsed.error.flatten() },
+        { status: 400 }
+      );
+    }
 
-const textoFinal = parsed.data.texto?.trim() || null;
-const linkFinal = parsed.data.link?.trim() || null;
-const arquivoUrl = parsed.data.arquivoUrl?.trim() || null;
+    const textoFinal = parsed.data.texto?.trim() || null;
+    const linkFinal = parsed.data.link?.trim() || null;
+    const arquivoUrl = parsed.data.arquivoUrl?.trim() || null;
 
-if (!textoFinal && !linkFinal && !arquivoUrl) {
-  return NextResponse.json(
-    { error: "Envie pelo menos texto, link ou arquivo" },
-    { status: 400 }
-  );
-}
+    if (!textoFinal && !linkFinal && !arquivoUrl) {
+      return NextResponse.json(
+        { error: "Envie pelo menos texto, link ou arquivo" },
+        { status: 400 }
+      );
+    }
 
     const entrega = await prisma.entregaAtividade.upsert({
       where: {
