@@ -317,43 +317,56 @@ const prazoEncerrado = Boolean(
     </p>
 
     {atividadeSelecionada.entrega && (
-      <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-        <p className="font-semibold">Você já enviou esta atividade.</p>
+  <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+    <p className="font-semibold">Você já enviou esta atividade.</p>
 
-        {atividadeSelecionada.entrega.texto && (
-          <p className="mt-1">
-            <strong>Texto:</strong> preenchido
-          </p>
-        )}
-
-        {atividadeSelecionada.entrega.link && (
-          <p className="mt-1">
-            <strong>Link:</strong> preenchido
-          </p>
-        )}
-
-        {atividadeSelecionada.entrega.arquivoUrl && (
-          <p className="mt-1">
-            <strong>Arquivo enviado:</strong>{" "}
-            <a
-              href={atividadeSelecionada.entrega.arquivoUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-blue-600 underline"
-            >
-              abrir arquivo atual
-            </a>
-          </p>
-        )}
-
-        {atividadeSelecionada.entrega.entregueEm && (
-          <p className="mt-1">
-            <strong>Último envio:</strong>{" "}
-            {formatarData(atividadeSelecionada.entrega.entregueEm)}
-          </p>
-        )}
+    {atividadeSelecionada.entrega.texto && (
+      <div className="mt-2">
+        <p>
+          <strong>Texto enviado:</strong>
+        </p>
+        <p className="mt-1 whitespace-pre-wrap text-slate-700">
+          {atividadeSelecionada.entrega.texto}
+        </p>
       </div>
     )}
+
+    {atividadeSelecionada.entrega.link && (
+      <p className="mt-2">
+        <strong>Link enviado:</strong>{" "}
+        <a
+          href={atividadeSelecionada.entrega.link}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-600 underline"
+        >
+          {atividadeSelecionada.entrega.link}
+        </a>
+      </p>
+    )}
+
+    {atividadeSelecionada.entrega.arquivoUrl && (
+      <p className="mt-2">
+        <strong>Arquivo enviado:</strong>{" "}
+        <a
+          href={atividadeSelecionada.entrega.arquivoUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-600 underline"
+        >
+          abrir arquivo atual
+        </a>
+      </p>
+    )}
+
+    {atividadeSelecionada.entrega.entregueEm && (
+      <p className="mt-2">
+        <strong>Último envio:</strong>{" "}
+        {formatarData(atividadeSelecionada.entrega.entregueEm)}
+      </p>
+    )}
+  </div>
+)}
 
     {prazoEncerrado && (
       <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
