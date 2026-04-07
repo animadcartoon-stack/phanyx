@@ -158,6 +158,8 @@ export async function POST(req: NextRequest) {
         notaMaxima,
         turmaId: turma.id,
         instituicaoId: user.instituicaoId,
+        status: "PUBLICADA",
+        publicadaAt: new Date(),    
         anexos: anexo
           ? {
               create: {
