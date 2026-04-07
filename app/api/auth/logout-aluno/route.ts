@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-export async function POST(request: Request) {
+function buildLogoutResponse(request: Request) {
   const loginUrl = new URL("/login?portal=aluno", request.url);
 
   const response = NextResponse.redirect(loginUrl, 303);
@@ -14,4 +14,12 @@ export async function POST(request: Request) {
   });
 
   return response;
+}
+
+export async function GET(request: Request) {
+  return buildLogoutResponse(request);
+}
+
+export async function POST(request: Request) {
+  return buildLogoutResponse(request);
 }

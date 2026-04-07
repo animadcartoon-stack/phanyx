@@ -170,6 +170,14 @@ export default async function AlunoLayout({
         <main className="flex-1 ml-64 p-8">
   <div className="mb-6 flex justify-end">
     
+    <form action="/api/auth/logout-aluno" method="post">
+  <button
+    type="submit"
+    className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
+  >
+    Sair
+  </button>
+</form>
   </div>
 
   {children}
