@@ -48,10 +48,11 @@ export async function POST(
         status: "PUBLICADA",
       },
       select: {
-        id: true,
-        instituicaoId: true,
-        titulo: true,
-      },
+  id: true,
+  instituicaoId: true,
+  titulo: true,
+  prazo: true, 
+},
     });
 
 if (atividade.prazo && new Date() > new Date(atividade.prazo)) {
