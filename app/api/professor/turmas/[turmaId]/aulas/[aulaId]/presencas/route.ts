@@ -24,9 +24,9 @@ export async function GET(
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "PROFESSOR") {
-      return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
-    }
+    if (!user || String(user.role).toUpperCase() !== "PROFESSOR") {
+  return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
+}
 
     const { turmaId: turmaIdParam, aulaId: aulaIdParam } = await params;
     const turmaId = Number(turmaIdParam);
@@ -76,16 +76,17 @@ export async function GET(
     }
 
     const aula = await prisma.aula.findFirst({
-      where: {
-        id: aulaId,
-        turmaId: turma.id,
-      },
-      select: {
-        id: true,
-        titulo: true,
-        turmaId: true,
-      },
-    });
+  where: {
+    id: aulaId,
+    turmaId: turma.id,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    titulo: true,
+    turmaId: true,
+  },
+});
 
     if (!aula) {
       return NextResponse.json(
@@ -209,9 +210,9 @@ export async function POST(
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "PROFESSOR") {
-      return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
-    }
+    if (!user || String(user.role).toUpperCase() !== "PROFESSOR") {
+  return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
+}
 
     const { turmaId: turmaIdParam, aulaId: aulaIdParam } = await params;
     const turmaId = Number(turmaIdParam);
@@ -260,16 +261,17 @@ export async function POST(
     }
 
     const aula = await prisma.aula.findFirst({
-      where: {
-        id: aulaId,
-        turmaId: turma.id,
-      },
-      select: {
-        id: true,
-        titulo: true,
-        turmaId: true,
-      },
-    });
+  where: {
+    id: aulaId,
+    turmaId: turma.id,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    titulo: true,
+    turmaId: true,
+  },
+});
 
     if (!aula) {
       return NextResponse.json(
