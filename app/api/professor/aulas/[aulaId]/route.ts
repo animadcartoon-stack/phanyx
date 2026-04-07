@@ -1,71 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { getUserFromToken } from "@/lib/server-auth";
 
-type TokenPayload = {
-  id?: number;
-  role?: string;
-  email?: string;
-};
-
-function getTokenPayload(token: string): TokenPayload | null {
-  try {
-    return jwt.verify(token, process.env.JWT_SECRET!) as TokenPayload;
-  } catch {
-    return null;
-  }
-}
-
-async function getProfessorAutorizado() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) {
-    return {
-      error: NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 }),
-      professor: null,
-    };
-  }
-
-  const auth = getTokenPayload(token);
-
-  if (!auth || String(auth.role || "").toUpperCase() !== "PROFESSOR" || !auth.id) {
-    return {
-      error: NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 }),
-      professor: null,
-    };
-  }
-
-  const professor = await prisma.professor.findFirst({
-    where: {
-      userId: auth.id,
-    },
-  });
-
-  if (!professor) {
-    return {
-      error: NextResponse.json(
-        { error: "Professor não encontrado" },
-        { status: 404 }
-      ),
-      professor: null,
-    };
-  }
-
-  return {
-    error: null,
-    professor,
-  };
-}
+export const dynamic = "force-dynamic";
 
 export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ aulaId: string }> }
 ) {
   try {
-    const { error, professor } = await getProfessorAutorizado();
-    if (error) return error;
+    const user = await getUserFromToken();
+
+    if (!user || String(user.role).toUpperCase() !== "PROFESSOR") {
+      return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
+    }
 
     const { aulaId: aulaIdParam } = await params;
     const aulaId = Number(aulaIdParam);
@@ -74,11 +22,30 @@ export async function DELETE(
       return NextResponse.json({ error: "Aula inválida" }, { status: 400 });
     }
 
+    const professor = await prisma.professor.findFirst({
+      where: {
+        userId: user.id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!professor) {
+      return NextResponse.json(
+        { error: "Professor não encontrado" },
+        { status: 404 }
+      );
+    }
+
     const aula = await prisma.aula.findFirst({
       where: {
         id: aulaId,
-        disciplina: {
+        instituicaoId: user.instituicaoId,
+        turma: {
           professorId: professor.id,
+          instituicaoId: user.instituicaoId,
         },
       },
       select: {
@@ -95,7 +62,7 @@ export async function DELETE(
 
     await prisma.aula.delete({
       where: {
-        id: aulaId,
+        id: aula.id,
       },
     });
 
