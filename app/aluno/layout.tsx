@@ -36,7 +36,9 @@ export default async function AlunoLayout({
     redirect("/login?portal=aluno");
   }
 
-  if (decoded.role !== "ALUNO" && decoded.role !== "aluno") {
+  if (
+    String(decoded.role).toUpperCase() !== "ALUNO"
+  ) {
     redirect("/login?portal=aluno");
   }
 
@@ -144,13 +146,13 @@ export default async function AlunoLayout({
               </a>
 
               <form action="/api/auth/logout-aluno" method="post">
-  <button
-    type="submit"
-    className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
-  >
-    Sair
-  </button>
-</form>
+                <button
+                  type="submit"
+                  className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
+                >
+                  Sair
+                </button>
+              </form>
             </div>
 
             <div className="pt-2 text-xs text-gray-400">
@@ -167,21 +169,23 @@ export default async function AlunoLayout({
       <Header />
       <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
         <AlunoSidebar />
-        <main className="flex-1 ml-64 p-8">
-  <div className="mb-6 flex justify-end">
-    
-    <form action="/api/auth/logout-aluno" method="post">
-  <button
-    type="submit"
-    className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
-  >
-    Sair
-  </button>
-</form>
-  </div>
 
-  {children}
-</main>
+        <form
+          action="/api/auth/logout-aluno"
+          method="post"
+          className="fixed right-6 top-20 z-[60]"
+        >
+          <button
+            type="submit"
+            className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
+          >
+            Sair
+          </button>
+        </form>
+
+        <main className="flex-1 ml-64 p-8">
+          {children}
+        </main>
       </div>
     </AlunoProvider>
   );
