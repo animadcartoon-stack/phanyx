@@ -25,6 +25,16 @@ type RespostaAtividadesApi = {
   items: AtividadeAluno[];
 };
 
+type RespostaUploadUrlApi = {
+  ok: boolean;
+  uploadUrl: string;
+  key: string;
+  arquivoUrl: string;
+  nomeOriginal: string;
+  mimeType: string;
+  tamanho: number;
+};
+
 export default function TrabalhosAlunoPage() {
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -88,55 +98,100 @@ const prazoEncerrado = Boolean(
     new Date() > new Date(atividadeSelecionada.prazo)
 );
 
-  async function handleEnviar(e: FormEvent) {
-    e.preventDefault();
+  async function handleEnviar(e: FormEvent) {async function handleEnviar(e: FormEvent) {
+  e.preventDefault();
 
-    try {
-      setSalvando(true);
-      setErro("");
-      setMensagem("");
+  try {
+    setSalvando(true);
+    setErro("");
+    setMensagem("");
 
-      if (!atividadeId) {
-        throw new Error("Selecione uma atividade");
+    if (!atividadeId) {
+      throw new Error("Selecione uma atividade");
+    }
+
+    if (!texto.trim() && !link.trim() && !arquivo) {
+      throw new Error("Envie pelo menos texto, link ou arquivo");
+    }
+
+    let arquivoUrl = "";
+
+    if (arquivo) {
+      if (arquivo.size > 500 * 1024 * 1024) {
+        throw new Error("O arquivo excede o limite de 500 MB");
       }
 
-      if (!texto.trim() && !link.trim() && !arquivo) {
-        throw new Error("Envie pelo menos texto, link ou arquivo");
-      }
-
-      const formData = new FormData();
-      formData.append("texto", texto);
-      formData.append("link", link);
-
-      if (arquivo) {
-        formData.append("arquivo", arquivo);
-      }
-
-      const res = await fetch(
-        `/api/aluno/atividades/${atividadeId}/entregar`,
+      const resUploadUrl = await fetch(
+        `/api/aluno/atividades/${atividadeId}/upload-url`,
         {
           method: "POST",
           credentials: "include",
-          body: formData,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nomeOriginal: arquivo.name,
+            mimeType: arquivo.type || "application/octet-stream",
+            tamanho: arquivo.size,
+          }),
         }
       );
 
-      const json = await res.json();
+      const jsonUploadUrl: RespostaUploadUrlApi | { error?: string } =
+        await resUploadUrl.json();
 
-      if (!res.ok) {
-        throw new Error(json?.error || "Erro ao enviar atividade");
+      if (!resUploadUrl.ok || !("uploadUrl" in jsonUploadUrl)) {
+        throw new Error(
+          (jsonUploadUrl as { error?: string })?.error ||
+            "Erro ao preparar upload do arquivo"
+        );
       }
 
-      setMensagem("Trabalho enviado com sucesso!");
-      setTexto("");
-      setLink("");
-      setArquivo(null);
-    } catch (e: any) {
-      setErro(e?.message || "Erro ao enviar atividade");
-    } finally {
-      setSalvando(false);
+      const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": arquivo.type || "application/octet-stream",
+        },
+        body: arquivo,
+      });
+
+      if (!resUploadDireto.ok) {
+        throw new Error("Erro ao enviar arquivo para o storage");
+      }
+
+      arquivoUrl = jsonUploadUrl.arquivoUrl;
     }
+
+    const res = await fetch(`/api/aluno/atividades/${atividadeId}/entregar`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        texto,
+        link,
+        arquivoUrl,
+      }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || "Erro ao enviar atividade");
+    }
+
+    setMensagem("Trabalho enviado com sucesso!");
+    setTexto("");
+    setLink("");
+    setArquivo(null);
+    await carregarAtividades();
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao enviar atividade");
+  } finally {
+    setSalvando(false);
   }
+}
 
   function formatarData(data?: string | null) {
     if (!data) return "Sem prazo";
@@ -410,10 +465,22 @@ const prazoEncerrado = Boolean(
   <label className="inline-flex cursor-pointer items-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">
     Selecionar arquivo
     <input
-      type="file"
-      className="hidden"
-      onChange={(e) => setArquivo(e.target.files?.[0] || null)}
-    />
+  type="file"
+  className="hidden"
+  onChange={(e) => {
+    const file = e.target.files?.[0] || null;
+
+    if (file && file.size > 500 * 1024 * 1024) {
+      setErro("O arquivo excede o limite de 500 MB");
+      setArquivo(null);
+      e.currentTarget.value = "";
+      return;
+    }
+
+    setErro("");
+    setArquivo(file);
+  }}
+/>
   </label>
 
   {arquivo && (
