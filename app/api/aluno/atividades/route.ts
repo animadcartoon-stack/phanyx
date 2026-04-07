@@ -26,8 +26,11 @@ export async function GET(req: NextRequest) {
         status: "PUBLICADA",
       },
       include: {
-  disciplina: true,
-  turma: true,
+  turma: {
+    include: {
+      disciplina: true,
+    },
+  },
   entregas: {
     where: {
       alunoId: aluno.id,
@@ -53,9 +56,9 @@ export async function GET(req: NextRequest) {
     notaMaxima: atividade.notaMaxima,
 
     disciplinaNome:
-      atividade.disciplina?.nome ||
-      atividade.disciplina?.titulo ||
-      `Disciplina ${atividade.disciplinaId}`,
+  atividade.turma?.disciplina?.nome ||
+  atividade.turma?.disciplina?.titulo ||
+  `Disciplina da turma ${atividade.turmaId}`,
 
     turmaNome: atividade.turma?.nome || null,
 
