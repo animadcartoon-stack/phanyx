@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+function isProfessorRole(role: unknown) {
+  return String(role || "").trim().toUpperCase() === "PROFESSOR";
+}
+
 export async function GET(_req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "PROFESSOR") {
+    if (!user || !isProfessorRole(user.role)) {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
     }
 
@@ -67,7 +71,7 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "PROFESSOR") {
+    if (!user || !isProfessorRole(user.role)) {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
     }
 
@@ -147,38 +151,38 @@ export async function POST(req: NextRequest) {
     const anexo = body?.anexo ?? null;
 
     const atividade = await prisma.atividade.create({
-  data: {
-    titulo,
-    descricao,
-    prazo,
-    notaMaxima,
-    turmaId: turma.id,
-    instituicaoId: user.instituicaoId,
-    anexos: anexo
-      ? {
-          create: {
-            titulo: anexo.nomeOriginal || "Anexo da atividade",
-            url: anexo.url,
-            arquivoNome: anexo.nomeOriginal || "arquivo",
-            mimeType: anexo.mimeType || null,
-            tamanho:
-              anexo.tamanho !== undefined && anexo.tamanho !== null
-                ? Number(anexo.tamanho)
-                : null,
-            instituicaoId: user.instituicaoId,
-          },
-        }
-      : undefined,
-  },
-  include: {
-    turma: {
-      include: {
-        disciplina: true,
+      data: {
+        titulo,
+        descricao,
+        prazo,
+        notaMaxima,
+        turmaId: turma.id,
+        instituicaoId: user.instituicaoId,
+        anexos: anexo
+          ? {
+              create: {
+                titulo: anexo.nomeOriginal || "Anexo da atividade",
+                url: anexo.url,
+                arquivoNome: anexo.nomeOriginal || "arquivo",
+                mimeType: anexo.mimeType || null,
+                tamanho:
+                  anexo.tamanho !== undefined && anexo.tamanho !== null
+                    ? Number(anexo.tamanho)
+                    : null,
+                instituicaoId: user.instituicaoId,
+              },
+            }
+          : undefined,
       },
-    },
-    anexos: true,
-  },
-});
+      include: {
+        turma: {
+          include: {
+            disciplina: true,
+          },
+        },
+        anexos: true,
+      },
+    });
 
     return NextResponse.json(
       {

@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+function isProfessorRole(role: unknown) {
+  return String(role || "").trim().toUpperCase() === "PROFESSOR";
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "PROFESSOR") {
+    if (!user || !isProfessorRole(user.role)) {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
     }
 
@@ -34,10 +38,17 @@ export async function GET(req: NextRequest) {
       where: {
         instituicaoId: user.instituicaoId,
         ...(turmaId && Number.isFinite(turmaId)
-          ? { turmaId }
+          ? {
+              turmaId,
+              turma: {
+                professorId: professor.id,
+                instituicaoId: user.instituicaoId,
+              },
+            }
           : {
               turma: {
                 professorId: professor.id,
+                instituicaoId: user.instituicaoId,
               },
             }),
       },
@@ -100,7 +111,17 @@ export async function GET(req: NextRequest) {
         })
       : [];
 
-    const presencasPorAluno = new Map<number, { total: number; presente: number; falta: number; justificada: number; atestado: number }>();
+    const presencasPorAluno = new Map<
+      number,
+      {
+        total: number;
+        presente: number;
+        falta: number;
+        justificada: number;
+        atestado: number;
+      }
+    >();
+
     for (const p of presencas) {
       const atual = presencasPorAluno.get(p.alunoId) || {
         total: 0,
@@ -120,10 +141,11 @@ export async function GET(req: NextRequest) {
     }
 
     const notasPorAlunoTurma = new Map<string, number[]>();
+
     for (const nota of notas) {
       const chave = `${nota.alunoId}-${nota.turmaId}`;
       const atual = notasPorAlunoTurma.get(chave) || [];
-      atual.push(Number(nota.valor ?? nota.nota ?? 0));
+      atual.push(Number((nota as any).valor ?? (nota as any).nota ?? 0));
       notasPorAlunoTurma.set(chave, atual);
     }
 
@@ -131,6 +153,7 @@ export async function GET(req: NextRequest) {
       .map((item) => {
         const aluno = item.matricula?.aluno;
         const turma = item.turma;
+
         if (!aluno || !turma) return null;
 
         const chaveNota = `${aluno.id}-${turma.id}`;
@@ -163,7 +186,7 @@ export async function GET(req: NextRequest) {
           nome: aluno.nome,
           email: aluno.user?.email || null,
           matricula: aluno.matricula || null,
-          statusAluno: aluno.statusAluno || null,
+          statusAluno: (aluno as any).statusAluno || null,
           statusDisciplina: item.status || null,
           turma: {
             id: turma.id,

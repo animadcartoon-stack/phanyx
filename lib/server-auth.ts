@@ -21,6 +21,8 @@ export async function getUserFromToken() {
 
     const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload;
 
+    const roleNormalizada = String(decoded.role || "").trim().toUpperCase();
+
     let plano: string | null = null;
     let isMasterAdmin = false;
 
@@ -48,7 +50,7 @@ export async function getUserFromToken() {
     return {
       id: Number(decoded.id),
       email: decoded.email,
-      role: decoded.role,
+      role: roleNormalizada,
       instituicaoId: decoded.instituicaoId ? Number(decoded.instituicaoId) : null,
       nome: decoded.nome || null,
       plano,
