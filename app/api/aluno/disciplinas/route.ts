@@ -25,9 +25,37 @@ export async function GET() {
     }
 
     const matriculas = await prisma.matricula.findMany({
-      where: { alunoId: aluno.id },
-      orderBy: { id: "desc" },
-    });
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    itens: {
+      include: {
+        turma: {
+          include: {
+            disciplina: true,
+            aulas: {
+              include: {
+                presencas: {
+                  where: {
+                    alunoId: aluno.id,
+                  },
+                },
+              },
+              orderBy: {
+                id: "asc",
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  orderBy: {
+    id: "desc",
+  },
+});
 
     return NextResponse.json(matriculas);
   } catch (error: any) {

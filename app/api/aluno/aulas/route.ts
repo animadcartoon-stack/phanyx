@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -10,33 +12,108 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    // aluno
     const aluno = await prisma.aluno.findFirst({
-      where: { userId: user.id },
+      where: {
+        userId: user.id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+        nome: true,
+      },
     });
 
     if (!aluno) {
-      return NextResponse.json({ error: "Aluno não encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Aluno não encontrado" },
+        { status: 404 }
+      );
     }
 
-    // matrícula + disciplinas
     const matricula = await prisma.matricula.findFirst({
-      where: { alunoId: aluno.id },
+      where: {
+        alunoId: aluno.id,
+        instituicaoId: user.instituicaoId,
+      },
       include: {
-        curso: {
+        curso: true,
+        itens: {
+          where: {
+            instituicaoId: user.instituicaoId,
+          },
           include: {
-            disciplinas: true, // usa seu relacionamento existente
+            turma: {
+              include: {
+                disciplina: true,
+                aulas: {
+                  where: {
+                    instituicaoId: user.instituicaoId,
+                  },
+                  include: {
+                    presencas: {
+                      where: {
+                        alunoId: aluno.id,
+                        instituicaoId: user.instituicaoId,
+                      },
+                    },
+                  },
+                  orderBy: {
+                    id: "asc",
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            id: "asc",
           },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: {
+        createdAt: "desc",
+      },
     });
 
+    const disciplinas =
+      matricula?.itens
+        ?.map((item) => {
+          const turma = item.turma;
+          if (!turma || !turma.disciplina) return null;
+
+          const totalAulas = turma.aulas?.length || 0;
+          const totalPresencas = turma.aulas.filter(
+            (aula) => (aula.presencas?.length || 0) > 0
+          ).length;
+
+          return {
+            id: turma.disciplina.id,
+            nome: turma.disciplina.nome,
+            turmaId: turma.id,
+            turmaNome: turma.nome,
+            totalAulas,
+            totalPresencas,
+            aulas: turma.aulas.map((aula) => ({
+              id: aula.id,
+              titulo: aula.titulo,
+              presenca: aula.presencas?.[0]
+                ? {
+                    id: aula.presencas[0].id,
+                    status: aula.presencas[0].status,
+                    observacao: aula.presencas[0].observacao,
+                  }
+                : null,
+            })),
+          };
+        })
+        .filter(Boolean) || [];
+
     return NextResponse.json({
-      curso: matricula?.curso,
-      disciplinas: matricula?.curso?.disciplinas || [],
+      curso: matricula?.curso || null,
+      disciplinas,
     });
   } catch (error) {
+    console.error("Erro ao buscar aulas do aluno:", error);
+
     return NextResponse.json(
       { error: "Erro ao buscar aulas" },
       { status: 500 }
