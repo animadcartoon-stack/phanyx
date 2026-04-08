@@ -61,10 +61,10 @@ if (!resUploadUrl.ok) {
 
 const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
   method: "PUT",
-  headers: {
-    "Content-Type": "application/octet-stream",
-  },
   body: arquivo,
+  headers: {
+    "Content-Type": arquivo.type || "application/octet-stream",
+  },
 });
 
 if (!resUploadDireto.ok) {
