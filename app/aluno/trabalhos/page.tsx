@@ -121,45 +121,31 @@ async function handleEnviar(e: FormEvent) {
         throw new Error("O arquivo excede o limite de 500 MB");
       }
 
-      const resUploadUrl = await fetch(
-        `/api/aluno/atividades/${atividadeId}/upload-url`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            nomeOriginal: arquivo.name,
-            mimeType: arquivo.type || "application/octet-stream",
-            tamanho: arquivo.size,
-          }),
-        }
-      );
+      if (arquivo) {
+  if (arquivo.size > 500 * 1024 * 1024) {
+    throw new Error("O arquivo excede o limite de 500 MB");
+  }
 
-      const jsonUploadUrl: RespostaUploadUrlApi | { error?: string } =
-        await resUploadUrl.json();
+  const formData = new FormData();
+  formData.append("file", arquivo);
 
-      if (!resUploadUrl.ok || !("uploadUrl" in jsonUploadUrl)) {
-        throw new Error(
-          (jsonUploadUrl as { error?: string })?.error ||
-            "Erro ao preparar upload do arquivo"
-        );
-      }
+  const resUpload = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  });
 
-      const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
-  method: "PUT",
-  headers: {
-    "Content-Type": arquivo.type || "application/octet-stream",
-  },
-  body: arquivo,
-});
+  const jsonUpload = await resUpload.json();
 
-      if (!resUploadDireto.ok) {
-        throw new Error("Erro ao enviar arquivo para o storage");
-      }
+  if (!resUpload.ok) {
+    throw new Error(jsonUpload?.error || "Erro ao enviar arquivo");
+  }
 
-      arquivoUrl = jsonUploadUrl.arquivoUrl;
+  arquivoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url || "";
+
+  if (!arquivoUrl) {
+    throw new Error("Upload concluído, mas a URL do arquivo não foi retornada");
+  }
+}
     }
 
     const res = await fetch(`/api/aluno/atividades/${atividadeId}/entregar`, {

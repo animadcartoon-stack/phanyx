@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       url,
       arquivo: resultado,
     });
+    
   } catch (error) {
     console.error("Erro no upload:", error);
 
