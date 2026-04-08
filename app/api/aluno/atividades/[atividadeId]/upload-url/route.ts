@@ -129,10 +129,10 @@ export async function POST(
     const key = `atividades/${atividade.id}/aluno-${aluno.id}/${randomUUID()}-${nomeSeguro}`;
 
     const command = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: key,
-      ContentType: mimeType || "application/octet-stream",
-    });
+  Bucket: bucketName,
+  Key: key,
+  ContentType: mimeType || "application/octet-stream",
+});
 
     const uploadUrl = await getSignedUrl(r2Client, command, {
       expiresIn: 60 * 10,
