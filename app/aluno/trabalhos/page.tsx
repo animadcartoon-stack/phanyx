@@ -148,12 +148,12 @@ async function handleEnviar(e: FormEvent) {
       }
 
       const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
-        method: "PUT",
-        headers: {
-          "Content-Type": arquivo.type || "application/octet-stream",
-        },
-        body: arquivo,
-      });
+  method: "PUT",
+  headers: {
+    "Content-Type": arquivo.type || "application/octet-stream",
+  },
+  body: arquivo,
+});
 
       if (!resUploadDireto.ok) {
         throw new Error("Erro ao enviar arquivo para o storage");
