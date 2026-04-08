@@ -117,36 +117,63 @@ async function handleEnviar(e: FormEvent) {
     let arquivoUrl = "";
 
     if (arquivo) {
-      if (arquivo.size > 500 * 1024 * 1024) {
-        throw new Error("O arquivo excede o limite de 500 MB");
-      }
-
-      if (arquivo) {
   if (arquivo.size > 500 * 1024 * 1024) {
     throw new Error("O arquivo excede o limite de 500 MB");
   }
 
-  const formData = new FormData();
-  formData.append("file", arquivo);
+  // 1️⃣ pega URL assinada
+  const resUploadUrl = await fetch(
+    `/api/aluno/atividades/${atividadeId}/upload-url`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nomeOriginal: arquivo.name,
+        mimeType: arquivo.type || "application/octet-stream",
+        tamanho: arquivo.size,
+      }),
+    }
+  );
 
-  const resUpload = await fetch("/api/upload", {
-    method: "POST",
-    body: formData,
+  const textoResposta = await resUploadUrl.text();
+
+  let jsonUploadUrl: any = {};
+  try {
+    jsonUploadUrl = textoResposta ? JSON.parse(textoResposta) : {};
+  } catch {
+    throw new Error(
+      textoResposta || `Erro ao gerar upload (${resUploadUrl.status})`
+    );
+  }
+
+  if (!resUploadUrl.ok || !jsonUploadUrl?.uploadUrl) {
+    throw new Error(
+      jsonUploadUrl?.error || "Erro ao gerar upload"
+    );
+  }
+
+  // 2️⃣ envia direto pro R2 (sem passar pela Vercel)
+  const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": arquivo.type || "application/octet-stream",
+    },
+    body: arquivo,
   });
 
-  const jsonUpload = await resUpload.json();
-
-  if (!resUpload.ok) {
-    throw new Error(jsonUpload?.error || "Erro ao enviar arquivo");
+  if (!resUploadDireto.ok) {
+    const erroTexto = await resUploadDireto.text().catch(() => "");
+    throw new Error(
+      erroTexto || `Erro ao enviar arquivo (${resUploadDireto.status})`
+    );
   }
 
-  arquivoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url || "";
-
-  if (!arquivoUrl) {
-    throw new Error("Upload concluído, mas a URL do arquivo não foi retornada");
-  }
+  // 3️⃣ salva URL final
+  arquivoUrl = jsonUploadUrl.arquivoUrl;
 }
-    }
 
     const res = await fetch(`/api/aluno/atividades/${atividadeId}/entregar`, {
       method: "POST",
