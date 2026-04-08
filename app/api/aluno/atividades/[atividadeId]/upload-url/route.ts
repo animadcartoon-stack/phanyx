@@ -172,7 +172,7 @@ const uploadUrl = formatUrl(signedRequest);
 
     const arquivoUrl = `${publicUrlBase}/${key}`;
 
-    return NextResponse.json({
+  return NextResponse.json({
   ok: true,
   uploadUrl,
   key,
