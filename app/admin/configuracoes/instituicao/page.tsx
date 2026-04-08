@@ -205,19 +205,42 @@ export default function ConfigInstituicaoPage() {
       const previewBase64 = await gerarPreviewBase64(file);
       setPreviewPapelTimbrado(previewBase64);
 
-      const formData = new FormData();
-      formData.append("file", file);
+      // 1️⃣ pedir URL de upload
+const resUploadUrl = await fetch("/api/admin/upload-url", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    nomeOriginal: file.name,
+    mimeType: file.type,
+    tamanho: file.size,
+  }),
+});
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+const jsonUploadUrl = await resUploadUrl.json();
 
-      const data = await res.json();
+if (!resUploadUrl.ok) {
+  throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
+}
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar papel timbrado");
-      }
+// 2️⃣ enviar direto pro storage (R2)
+const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+  method: "PUT",
+  headers: {
+    "Content-Type": file.type,
+  },
+  body: file,
+});
+
+if (!resUploadDireto.ok) {
+  throw new Error("Erro ao enviar arquivo para o storage");
+}
+
+// 3️⃣ URL final
+const data = {
+  url: jsonUploadUrl.arquivoUrl,
+};
 
       setForm((prev) => ({
         ...prev,

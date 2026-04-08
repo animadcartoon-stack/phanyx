@@ -61,15 +61,40 @@ export default function AulaProfessorPage() {
 
     if (!arquivo) return;
 
-    const formData = new FormData();
-    formData.append("file", arquivo);
+    const resUploadUrl = await fetch("/api/professor/upload-url", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    nomeOriginal: arquivo.name,
+    mimeType: arquivo.type || "application/octet-stream",
+    tamanho: arquivo.size,
+  }),
+});
 
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+const data = await resUploadUrl.json();
 
-    const data = await res.json();
+if (!resUploadUrl.ok) {
+  throw new Error(data?.error || "Erro ao gerar upload");
+}
+
+const resUploadDireto = await fetch(data.uploadUrl, {
+  method: "PUT",
+  headers: {
+    "Content-Type": arquivo.type || "application/octet-stream",
+  },
+  body: arquivo,
+});
+
+if (!resUploadDireto.ok) {
+  throw new Error("Erro ao enviar arquivo para o storage");
+}
+
+const dataFinal = {
+  nome: arquivo.name,
+  url: data.arquivoUrl,
+};
 
     adicionarMaterial(disciplinaId, aulaId, {
       id: Date.now().toString(),

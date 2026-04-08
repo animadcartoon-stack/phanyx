@@ -41,21 +41,46 @@ export default function NovoMaterialAulaPage() {
       setErro("");
       setMensagem("");
 
-      const formData = new FormData();
-      formData.append("file", arquivo);
+      const resUploadUrl = await fetch("/api/professor/upload-url", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    nomeOriginal: arquivo.name,
+    mimeType: arquivo.type || "application/octet-stream",
+    tamanho: arquivo.size,
+  }),
+});
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+const jsonUploadUrl = await resUploadUrl.json();
 
-      const json = await res.json();
+if (!resUploadUrl.ok) {
+  throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
+}
 
-      if (!res.ok) {
-        throw new Error(json.error || "Erro ao enviar arquivo");
-      }
+const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+  method: "PUT",
+  headers: {
+    "Content-Type": arquivo.type || "application/octet-stream",
+  },
+  body: arquivo,
+});
 
-      setArquivoEnviado(json.arquivo);
+if (!resUploadDireto.ok) {
+  throw new Error("Erro ao enviar arquivo para o storage");
+}
+
+const json = {
+  arquivo: {
+    url: jsonUploadUrl.arquivoUrl,
+  },
+};
+
+      setArquivoEnviado({
+  url: jsonUploadUrl.arquivoUrl,
+  nomeOriginal: arquivo.name,
+});
       setMensagem("Arquivo enviado com sucesso.");
     } catch (e: any) {
       setErro(e.message || "Erro ao enviar arquivo");
