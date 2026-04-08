@@ -180,6 +180,7 @@ const uploadUrl = formatUrl(signedRequest);
   nomeOriginal,
   mimeType: mimeType || "application/octet-stream",
   tamanho,
+  debugAccountId: accountId,
   debugEndpoint: `https://${accountId}.r2.cloudflarestorage.com`,
   debugObjectUrl: objectUrl,
 });
