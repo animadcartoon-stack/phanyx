@@ -73,6 +73,34 @@ export default function ProfessorAtividadeDetalhePage() {
     carregarAtividade();
   }, [atividadeId]);
 
+async function voltarParaRascunho() {
+  try {
+    setAcaoLoading("publicar");
+    setMensagem("");
+    setErro("");
+
+    const res = await fetch(
+      `/api/professor/atividades/${atividadeId}/rascunho`,
+      {
+        method: "POST",
+      }
+    );
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json.error || "Erro ao voltar atividade para rascunho");
+    }
+
+    setMensagem("Atividade voltou para rascunho com sucesso.");
+    await carregarAtividade();
+  } catch (e: any) {
+    setErro(e.message || "Erro ao voltar atividade para rascunho");
+  } finally {
+    setAcaoLoading(null);
+  }
+}
+
   async function publicarAtividade() {
     try {
       setAcaoLoading("publicar");
