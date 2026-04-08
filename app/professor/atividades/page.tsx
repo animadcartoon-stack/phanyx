@@ -184,13 +184,37 @@ export default function ProfessorAtividadesPage() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    <a
-                      href={`/professor/atividades/${atividade.id}`}
-                      className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                    >
-                      Abrir
-                    </a>
-                  </div>
+  <a
+    href={`/professor/atividades/${atividade.id}`}
+    className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+  >
+    Abrir
+  </a>
+
+  {atividade.status === "RASCUNHO" && (
+    <button
+      onClick={async () => {
+        const confirmacao = confirm("Tem certeza que deseja excluir esta atividade?");
+        if (!confirmacao) return;
+
+        const res = await fetch(`/api/professor/atividades/${atividade.id}`, {
+          method: "DELETE",
+        });
+
+        if (!res.ok) {
+          alert("Erro ao excluir atividade");
+          return;
+        }
+
+        alert("Atividade excluída com sucesso");
+        window.location.reload();
+      }}
+      className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+    >
+      Excluir
+    </button>
+  )}
+</div>
                 </div>
               </div>
             ))}
