@@ -9,9 +9,6 @@ export async function atividadePertenceAoProfessor(params: {
     where: {
       id: params.atividadeId,
       instituicaoId: params.instituicaoId,
-      disciplina: {
-        professorId: params.professorId,
-      },
     },
   });
 
