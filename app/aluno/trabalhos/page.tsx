@@ -16,6 +16,8 @@ type AtividadeAluno = {
     link?: string | null;
     arquivoUrl?: string | null;
     entregueEm?: string | null;
+    nota?: number | null;
+feedback?: string | null;
   } | null;
 };
 
@@ -420,6 +422,48 @@ async function handleEnviar(e: FormEvent) {
         </a>
       </p>
     )}
+
+{atividadeSelecionada?.entrega && (
+  <div className="mt-4 p-4 rounded-xl border bg-white shadow-sm">
+    
+    <h3 className="font-semibold text-lg mb-2">
+      📊 Status da Correção
+    </h3>
+
+    <p className="mb-2">
+      <strong>Status:</strong>{" "}
+      {atividadeSelecionada.entrega?.nota != null ? (
+  <span className="text-green-600 font-semibold">
+    Corrigido
+  </span>
+) : (
+  <span className="text-yellow-600 font-semibold">
+    Aguardando correção
+  </span>
+)}
+    </p>
+
+    {atividadeSelecionada.entrega?.nota != null && (
+  <p className="mb-2">
+    <strong>Nota:</strong>{" "}
+    <span className="text-blue-600 font-bold">
+      {atividadeSelecionada.entrega?.nota}
+    </span>
+  </p>
+)}
+
+    {atividadeSelecionada.entrega?.feedback && (
+  <div className="mt-2">
+    <strong>Feedback do professor:</strong>
+    <p className="mt-1 text-gray-700 whitespace-pre-line">
+      {atividadeSelecionada.entrega?.feedback}
+    </p>
+  </div>
+)}
+
+  </div>
+)}
+
   </div>
 )}
 
