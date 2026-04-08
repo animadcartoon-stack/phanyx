@@ -173,14 +173,17 @@ const uploadUrl = formatUrl(signedRequest);
     const arquivoUrl = `${publicUrlBase}/${key}`;
 
     return NextResponse.json({
-      ok: true,
-      uploadUrl,
-      key,
-      arquivoUrl,
-      nomeOriginal,
-      mimeType: mimeType || "application/octet-stream",
-      tamanho,
-    });
+  ok: true,
+  uploadUrl,
+  key,
+  arquivoUrl,
+  nomeOriginal,
+  mimeType: mimeType || "application/octet-stream",
+  tamanho,
+  debugEndpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+  debugObjectUrl: objectUrl,
+});
+
   } catch (e: any) {
     console.error("ERRO AO GERAR URL DE UPLOAD:", e);
 
