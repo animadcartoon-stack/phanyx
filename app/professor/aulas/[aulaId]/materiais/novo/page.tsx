@@ -78,9 +78,13 @@ const json = {
 };
 
       setArquivoEnviado({
-  url: jsonUploadUrl.arquivoUrl,
+  key: jsonUploadUrl.key,
   nomeOriginal: arquivo.name,
+  mimeType: arquivo.type || "application/octet-stream",
+  tamanho: arquivo.size,
+  url: jsonUploadUrl.arquivoUrl,
 });
+
       setMensagem("Arquivo enviado com sucesso.");
     } catch (e: any) {
       setErro(e.message || "Erro ao enviar arquivo");
