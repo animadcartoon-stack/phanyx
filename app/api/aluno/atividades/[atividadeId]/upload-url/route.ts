@@ -143,7 +143,7 @@ if (!accountId || !accessKeyId || !secretAccessKey) {
 
 const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
 const objectUrl = `${endpoint}/${bucketName}/${key}`;
-const contentType = mimeType || "application/octet-stream";
+const contentType = "application/octet-stream";
 
 const presigner = new S3RequestPresigner({
   region: "auto",
