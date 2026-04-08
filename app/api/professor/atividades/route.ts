@@ -42,7 +42,7 @@ export async function GET(_req: NextRequest) {
       include: {
         turma: {
           include: {
-            disciplina: true,
+            
           },
         },
         anexos: true,
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        disciplina: true,
+        
       },
     });
 
@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
       include: {
         turma: {
           include: {
-            disciplina: true,
+            
           },
         },
         anexos: true,
