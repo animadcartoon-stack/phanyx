@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { prisma } from "@/lib/prisma";
 import { getAuth, assertAluno } from "@/lib/auth/getAuth";
-import { r2Client } from "@/lib/storage/r2";
+import { S3RequestPresigner } from "@aws-sdk/s3-request-presigner";
+import { formatUrl } from "@aws-sdk/util-format-url";
+import { Hash } from "@smithy/hash-node";
+import { HttpRequest } from "@smithy/protocol-http";
+import { parseUrl } from "@smithy/url-parser";
 
 function sanitizeFileName(nome: string) {
   return nome
@@ -128,15 +130,45 @@ export async function POST(
     const nomeSeguro = sanitizeFileName(nomeOriginal);
     const key = `atividades/${atividade.id}/aluno-${aluno.id}/${randomUUID()}-${nomeSeguro}`;
 
-    const command = new PutObjectCommand({
-  Bucket: bucketName,
-  Key: key,
-  ContentType: mimeType || "application/octet-stream",
+    const accountId = process.env.R2_ACCOUNT_ID;
+const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+
+if (!accountId || !accessKeyId || !secretAccessKey) {
+  return NextResponse.json(
+    { error: "Credenciais do R2 não configuradas corretamente" },
+    { status: 500 }
+  );
+}
+
+const endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
+const objectUrl = `${endpoint}/${bucketName}/${key}`;
+const contentType = mimeType || "application/octet-stream";
+
+const presigner = new S3RequestPresigner({
+  region: "auto",
+  credentials: {
+    accessKeyId,
+    secretAccessKey,
+  },
+  sha256: Hash.bind(null, "sha256"),
 });
 
-    const uploadUrl = await getSignedUrl(r2Client, command, {
-      expiresIn: 60 * 10,
-    });
+const signedRequest = await presigner.presign(
+  new HttpRequest({
+    ...parseUrl(objectUrl),
+    method: "PUT",
+    headers: {
+      host: `${accountId}.r2.cloudflarestorage.com`,
+      "content-type": contentType,
+    },
+  }),
+  {
+    expiresIn: 60 * 10,
+  }
+);
+
+const uploadUrl = formatUrl(signedRequest);
 
     const arquivoUrl = `${publicUrlBase}/${key}`;
 
