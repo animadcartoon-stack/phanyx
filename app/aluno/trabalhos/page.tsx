@@ -114,7 +114,7 @@ async function handleEnviar(e: FormEvent) {
       throw new Error("Envie pelo menos texto, link ou arquivo");
     }
 
-    let arquivoUrl = "";
+    let arquivoUrl = atividadeSelecionada?.entrega?.arquivoUrl || "";
 
     if (arquivo) {
   if (arquivo.size > 500 * 1024 * 1024) {
@@ -386,10 +386,42 @@ async function handleEnviar(e: FormEvent) {
       </p>
 
       {atividadeSelecionada.entrega && (
-        <div className="mt-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-          <p className="font-semibold">Você já enviou esta atividade.</p>
-        </div>
-      )}
+  <div className="mt-3 space-y-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+    <p className="font-semibold">Você já enviou esta atividade.</p>
+
+    {atividadeSelecionada.entrega.texto && (
+      <p>
+        <strong>Texto:</strong> {atividadeSelecionada.entrega.texto}
+      </p>
+    )}
+
+    {atividadeSelecionada.entrega.link && (
+      <p>
+        <strong>Link:</strong>{" "}
+        <a
+          href={atividadeSelecionada.entrega.link}
+          target="_blank"
+          className="text-blue-600 underline"
+        >
+          {atividadeSelecionada.entrega.link}
+        </a>
+      </p>
+    )}
+
+    {atividadeSelecionada.entrega.arquivoUrl && (
+      <p>
+        <strong>Arquivo:</strong>{" "}
+        <a
+          href={atividadeSelecionada.entrega.arquivoUrl}
+          target="_blank"
+          className="text-blue-600 underline"
+        >
+          Ver arquivo enviado
+        </a>
+      </p>
+    )}
+  </div>
+)}
 
       {prazoEncerrado && (
         <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">

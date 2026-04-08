@@ -341,21 +341,22 @@ export default function ProfessorAtividadeDetalhePage() {
                         )}
 
                         {entrega.arquivoUrl && (
-                          <a
-                            href={entrega.arquivoUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
-                          >
-                            <a
+  <a
+    href={entrega.arquivoUrl}
+    target="_blank"
+    rel="noreferrer"
+    className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
+  >
+    Abrir arquivo
+  </a>
+)}
+
+<a
   href={`/professor/entregas/${entrega.id}`}
   className="rounded-lg border px-3 py-2 font-medium text-gray-700 hover:bg-gray-50"
 >
   Corrigir entrega
 </a>
-                            Abrir arquivo
-                          </a>
-                        )}
                       </div>
 
                       {entrega.feedback && (
