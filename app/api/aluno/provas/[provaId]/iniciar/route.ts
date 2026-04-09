@@ -66,6 +66,51 @@ export async function GET(
     return NextResponse.json({ error: "Prova não encontrada" }, { status: 404 });
   }
 
+  const aulasDaTurma = await prisma.aula.findMany({
+    where: {
+      turmaId: prova.turmaId,
+      instituicaoId: user.instituicaoId,
+      publicada: true,
+    },
+    select: {
+      id: true,
+    },
+    orderBy: {
+      ordem: "asc",
+    },
+  });
+
+  if (aulasDaTurma.length > 0) {
+    const progressos = await prisma.progressoAula.findMany({
+      where: {
+        alunoId: aluno.id,
+        instituicaoId: user.instituicaoId,
+        aulaId: {
+          in: aulasDaTurma.map((aula) => aula.id),
+        },
+        concluida: true,
+      },
+      select: {
+        aulaId: true,
+      },
+    });
+
+    const aulaIdsConcluidas = new Set(progressos.map((p) => p.aulaId));
+
+    const todasConcluidas = aulasDaTurma.every((aula) =>
+      aulaIdsConcluidas.has(aula.id)
+    );
+
+    if (!todasConcluidas) {
+      return NextResponse.json(
+        {
+          error: "Você precisa concluir todas as aulas antes de fazer a prova.",
+        },
+        { status: 403 }
+      );
+    }
+  }
+
   const tentativa = await prisma.tentativaProva.create({
     data: {
       alunoId: aluno.id,
