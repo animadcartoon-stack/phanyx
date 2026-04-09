@@ -270,28 +270,45 @@ async function voltarParaRascunho() {
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={publicarAtividade}
-                    disabled={acaoLoading !== null}
-                    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                  >
-                    {acaoLoading === "publicar"
-                      ? "Publicando..."
-                      : "Publicar"}
-                  </button>
+  {atividade.status === "RASCUNHO" && (
+    <button
+      type="button"
+      onClick={publicarAtividade}
+      disabled={acaoLoading !== null}
+      className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+    >
+      {acaoLoading === "publicar" ? "Publicando..." : "Publicar"}
+    </button>
+  )}
 
-                  <button
-                    type="button"
-                    onClick={encerrarAtividade}
-                    disabled={acaoLoading !== null}
-                    className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-                  >
-                    {acaoLoading === "encerrar"
-                      ? "Encerrando..."
-                      : "Encerrar"}
-                  </button>
-                </div>
+  {atividade.status === "PUBLICADA" && (
+    <>
+      <button
+        type="button"
+        onClick={voltarParaRascunho}
+        disabled={acaoLoading !== null}
+        className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600"
+      >
+        Despublicar
+      </button>
+
+      <button
+        type="button"
+        onClick={encerrarAtividade}
+        disabled={acaoLoading !== null}
+        className="rounded-lg bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+      >
+        Encerrar
+      </button>
+    </>
+  )}
+
+  {atividade.status === "ENCERRADA" && (
+    <span className="text-gray-500 font-medium">
+      Atividade encerrada
+    </span>
+  )}
+</div>
               </div>
             </div>
 
