@@ -7,11 +7,24 @@ export async function GET(req: NextRequest) {
     const auth = getAuth(req);
     assertAluno(auth);
 
-    const presencas = await prisma.presencaAula.findMany({
-      where: {
-        alunoId: auth.userId,
-        instituicaoId: auth.instituicaoId,
-      },
+    // primeiro busca o aluno correto
+const aluno = await prisma.aluno.findFirst({
+  where: {
+    userId: auth.userId,
+    instituicaoId: auth.instituicaoId,
+  },
+});
+
+if (!aluno) {
+  throw new Error("Aluno não encontrado");
+}
+
+// agora sim busca as presenças corretamente
+const presencas = await prisma.presencaAula.findMany({
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: auth.instituicaoId,
+  },
       include: {
         aula: {
           include: {
