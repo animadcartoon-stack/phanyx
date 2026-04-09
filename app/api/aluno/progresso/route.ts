@@ -1,165 +1,141 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getAuth, assertAluno } from "@/lib/auth/getAuth";
 
-type ProgressoItem = {
-  alunoEmail: string;
-  disciplinaId: number;
-  aulaId: number;
-  concluida?: boolean;
-  tempoAssistidoSegundos?: number;
-  tempoMinimoSegundos?: number;
-  updatedAt?: string;
-};
-
-function getFilePath() {
-  return path.join(process.cwd(), "data", "progresso.json");
-}
-
-function garantirArquivo() {
-  const filePath = getFilePath();
-
-  if (!fs.existsSync(filePath)) {
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, "[]");
-  }
-
-  return filePath;
-}
-
-function lerProgresso(): ProgressoItem[] {
-  const filePath = garantirArquivo();
-
+export async function POST(req: NextRequest) {
   try {
-    const raw = fs.readFileSync(filePath, "utf-8");
-    const parsed = JSON.parse(raw);
+    const auth = getAuth(req);
+    assertAluno(auth);
 
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch {
-    return [];
-  }
-}
-
-function salvarProgresso(lista: ProgressoItem[]) {
-  const filePath = garantirArquivo();
-  fs.writeFileSync(filePath, JSON.stringify(lista, null, 2));
-}
-
-export async function POST(req: Request) {
-  try {
     const body = await req.json();
 
-    const alunoEmail = String(body?.alunoEmail ?? "").trim();
-    const disciplinaId = Number(body?.disciplinaId);
     const aulaId = Number(body?.aulaId);
-
-    const tempoAssistidoSegundos = Number(body?.tempoAssistidoSegundos ?? 0);
-    const tempoMinimoSegundos = Number(body?.tempoMinimoSegundos ?? 0);
     const concluir = Boolean(body?.concluir);
 
-    if (!alunoEmail || !Number.isFinite(disciplinaId) || !Number.isFinite(aulaId)) {
+    if (!Number.isFinite(aulaId) || aulaId <= 0) {
       return NextResponse.json(
-        { error: "Dados obrigatórios inválidos." },
+        { error: "Aula inválida." },
         { status: 400 }
       );
     }
 
-    const progresso = lerProgresso();
+    const aluno = await prisma.aluno.findFirst({
+      where: {
+        userId: auth.userId,
+        instituicaoId: auth.instituicaoId,
+      },
+    });
 
-    const index = progresso.findIndex(
-      (p) =>
-        p.alunoEmail === alunoEmail &&
-        p.disciplinaId === disciplinaId &&
-        p.aulaId === aulaId
-    );
-
-    const itemAtual: ProgressoItem =
-      index >= 0
-        ? progresso[index]
-        : {
-            alunoEmail,
-            disciplinaId,
-            aulaId,
-            concluida: false,
-            tempoAssistidoSegundos: 0,
-            tempoMinimoSegundos: 0,
-            updatedAt: new Date().toISOString(),
-          };
-
-    const novoTempoAssistido = Math.max(
-      Number(itemAtual.tempoAssistidoSegundos ?? 0),
-      Number.isFinite(tempoAssistidoSegundos) ? tempoAssistidoSegundos : 0
-    );
-
-    const novoTempoMinimo = Math.max(
-      Number(itemAtual.tempoMinimoSegundos ?? 0),
-      Number.isFinite(tempoMinimoSegundos) ? tempoMinimoSegundos : 0
-    );
-
-    const atualizado: ProgressoItem = {
-      ...itemAtual,
-      tempoAssistidoSegundos: novoTempoAssistido,
-      tempoMinimoSegundos: novoTempoMinimo,
-      updatedAt: new Date().toISOString(),
-    };
-
-    if (concluir) {
-      if (novoTempoMinimo > 0 && novoTempoAssistido < novoTempoMinimo) {
-        return NextResponse.json(
-          {
-            error: "Tempo mínimo de visualização ainda não atingido.",
-            tempoAssistidoSegundos: novoTempoAssistido,
-            tempoMinimoSegundos: novoTempoMinimo,
-          },
-          { status: 400 }
-        );
-      }
-
-      atualizado.concluida = true;
+    if (!aluno) {
+      return NextResponse.json(
+        { error: "Aluno não encontrado." },
+        { status: 404 }
+      );
     }
 
-    if (index >= 0) {
-      progresso[index] = atualizado;
+    const aula = await prisma.aula.findFirst({
+      where: {
+        id: aulaId,
+        instituicaoId: auth.instituicaoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!aula) {
+      return NextResponse.json(
+        { error: "Aula não encontrada." },
+        { status: 404 }
+      );
+    }
+
+    const existente = await prisma.progressoAula.findFirst({
+      where: {
+        alunoId: aluno.id,
+        aulaId: aula.id,
+        instituicaoId: auth.instituicaoId,
+      },
+    });
+
+    let progresso;
+
+    if (existente) {
+      progresso = await prisma.progressoAula.update({
+        where: {
+          id: existente.id,
+        },
+        data: {
+          concluida: concluir ? true : existente.concluida,
+          concluidaEm: concluir ? new Date() : existente.concluidaEm,
+        },
+      });
     } else {
-      progresso.push(atualizado);
+      progresso = await prisma.progressoAula.create({
+        data: {
+          alunoId: aluno.id,
+          aulaId: aula.id,
+          instituicaoId: auth.instituicaoId,
+          concluida: concluir,
+          concluidaEm: concluir ? new Date() : null,
+        },
+      });
     }
-
-    salvarProgresso(progresso);
 
     return NextResponse.json({
       success: true,
-      progresso: atualizado,
+      progresso,
     });
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error("ERRO AO SALVAR PROGRESSO:", err);
     return NextResponse.json(
-      { error: "Erro ao salvar progresso" },
+      { error: err.message || "Erro ao salvar progresso" },
       { status: 500 }
     );
   }
 }
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get("email");
+    const auth = getAuth(req);
+    assertAluno(auth);
 
-    if (!email) {
+    const aluno = await prisma.aluno.findFirst({
+      where: {
+        userId: auth.userId,
+        instituicaoId: auth.instituicaoId,
+      },
+    });
+
+    if (!aluno) {
       return NextResponse.json({ progresso: [] });
     }
 
-    const progresso = lerProgresso();
-
-    const progressoDoAluno = progresso.filter((p) => p.alunoEmail === email);
+    const progresso = await prisma.progressoAula.findMany({
+      where: {
+        alunoId: aluno.id,
+        instituicaoId: auth.instituicaoId,
+      },
+      select: {
+        id: true,
+        aulaId: true,
+        concluida: true,
+        concluidaEm: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+    });
 
     return NextResponse.json({
-      progresso: progressoDoAluno,
+      progresso,
     });
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error("ERRO AO BUSCAR PROGRESSO:", err);
     return NextResponse.json(
-      { error: "Erro ao buscar progresso" },
+      { error: err.message || "Erro ao buscar progresso" },
       { status: 500 }
     );
   }
