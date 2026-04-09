@@ -477,6 +477,8 @@ model ProgressoAula {
   instituicaoId Int
   alunoId       Int
   aulaId        Int
+  tempoAssistidoSegundos Int @default(0)
+  tempoMinimoSegundos    Int @default(0)
   aluno         Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
   aula          Aula        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
   instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)

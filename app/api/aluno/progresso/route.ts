@@ -10,6 +10,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const aulaId = Number(body?.aulaId);
+    const tempoAssistidoSegundos = Number(body?.tempoAssistidoSegundos ?? 0);
+    const tempoMinimoSegundos = Number(body?.tempoMinimoSegundos ?? 0);
     const concluir = Boolean(body?.concluir);
 
     if (!Number.isFinite(aulaId) || aulaId <= 0) {
@@ -58,6 +60,27 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const novoTempoAssistido = Math.max(
+      Number(existente?.tempoAssistidoSegundos ?? 0),
+      Number.isFinite(tempoAssistidoSegundos) ? tempoAssistidoSegundos : 0
+    );
+
+    const novoTempoMinimo = Math.max(
+      Number(existente?.tempoMinimoSegundos ?? 0),
+      Number.isFinite(tempoMinimoSegundos) ? tempoMinimoSegundos : 0
+    );
+
+    if (concluir && novoTempoMinimo > 0 && novoTempoAssistido < novoTempoMinimo) {
+      return NextResponse.json(
+        {
+          error: "Tempo mínimo de visualização ainda não atingido.",
+          tempoAssistidoSegundos: novoTempoAssistido,
+          tempoMinimoSegundos: novoTempoMinimo,
+        },
+        { status: 400 }
+      );
+    }
+
     let progresso;
 
     if (existente) {
@@ -66,6 +89,8 @@ export async function POST(req: NextRequest) {
           id: existente.id,
         },
         data: {
+          tempoAssistidoSegundos: novoTempoAssistido,
+          tempoMinimoSegundos: novoTempoMinimo,
           concluida: concluir ? true : existente.concluida,
           concluidaEm: concluir ? new Date() : existente.concluidaEm,
         },
@@ -76,6 +101,8 @@ export async function POST(req: NextRequest) {
           alunoId: aluno.id,
           aulaId: aula.id,
           instituicaoId: auth.instituicaoId,
+          tempoAssistidoSegundos: novoTempoAssistido,
+          tempoMinimoSegundos: novoTempoMinimo,
           concluida: concluir,
           concluidaEm: concluir ? new Date() : null,
         },
@@ -121,6 +148,8 @@ export async function GET(req: NextRequest) {
         aulaId: true,
         concluida: true,
         concluidaEm: true,
+        tempoAssistidoSegundos: true,
+        tempoMinimoSegundos: true,
         createdAt: true,
         updatedAt: true,
       },
