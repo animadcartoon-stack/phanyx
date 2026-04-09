@@ -90,17 +90,13 @@ export default function DisciplinaAlunoPage() {
   const params = useParams<{ disciplinaId: string }>();
   const disciplinaId = Number(params.disciplinaId);
 
-  const {
-    aulaConcluida,
-    marcarAulaComoConcluida,
-    progressoDisciplina,
-    notas,
-  } = useAluno();
+  const { aulaConcluida, marcarAulaComoConcluida, progressoDisciplina, notas } =
+    useAluno();
 
   const [loading, setLoading] = useState(true);
-const [disciplina, setDisciplina] = useState<DisciplinaApi | null>(null);
-const [erroDisciplina, setErroDisciplina] = useState<string | null>(null);
-const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
+  const [disciplina, setDisciplina] = useState<DisciplinaApi | null>(null);
+  const [erroDisciplina, setErroDisciplina] = useState<string | null>(null);
+  const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
 
   const [provaPublicada, setProvaPublicada] =
     useState<ProvaPublicadaApi | null>(null);
@@ -113,13 +109,107 @@ const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
   const [concluindoAula, setConcluindoAula] = useState(false);
 
   const playerRef = useRef<any>(null);
-  const intervaloRef = useRef<NodeJS.Timeout | null>(null);
+  const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const notaDaDisciplina = useMemo(() => {
     return notas.find(
       (n: any) => String(n.disciplinaId) === String(disciplinaId)
     );
   }, [notas, disciplinaId]);
+
+  const aulasOrdenadas = useMemo(() => {
+    const list = disciplina?.aulas ?? [];
+    return list.slice().sort((a, b) => {
+      const ao = a.ordem ?? 999999;
+      const bo = b.ordem ?? 999999;
+      if (ao !== bo) return ao - bo;
+      return a.id - b.id;
+    });
+  }, [disciplina]);
+
+  const aulaAtual = useMemo(() => {
+    return aulasOrdenadas.find((a) => a.id === aulaAtualId) ?? null;
+  }, [aulasOrdenadas, aulaAtualId]);
+
+  const totalAulas = aulasOrdenadas.length;
+  const progresso = progressoDisciplina(disciplinaId, totalAulas);
+  const concluida = aulaAtual ? aulaConcluida(disciplinaId, aulaAtual.id) : false;
+  const tempoMinimoSegundos = (aulaAtual?.duracaoMin ?? 0) * 60;
+
+  const porcentagemAssistida =
+    tempoMinimoSegundos > 0
+      ? Math.min(
+          100,
+          Math.round((tempoAssistidoSegundos / tempoMinimoSegundos) * 100)
+        )
+      : 100;
+
+  function pararContagem() {
+    if (intervaloRef.current) {
+      clearInterval(intervaloRef.current);
+      intervaloRef.current = null;
+    }
+  }
+
+  function pausarVideoSeEstiverTocando() {
+    try {
+      if (
+        playerRef.current &&
+        typeof playerRef.current.getPlayerState === "function" &&
+        typeof playerRef.current.pauseVideo === "function" &&
+        window.YT &&
+        playerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING
+      ) {
+        playerRef.current.pauseVideo();
+      }
+    } catch (error) {
+      console.error("ERRO AO PAUSAR VÍDEO AO SAIR DA ABA:", error);
+    }
+  }
+
+  function iniciarContagem() {
+    if (intervaloRef.current || concluida) return;
+
+    intervaloRef.current = setInterval(() => {
+      setTempoAssistidoSegundos((prev) => {
+        if (tempoMinimoSegundos > 0 && prev >= tempoMinimoSegundos) {
+          pararContagem();
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 1000);
+  }
+
+  async function concluirAulaAtual() {
+    if (!aulaAtual || concluindoAula) return;
+
+    if (!podeConcluir && !concluida) {
+      alert("Você ainda não assistiu o tempo mínimo desta aula.");
+      return;
+    }
+
+    try {
+      setConcluindoAula(true);
+
+      await marcarAulaComoConcluida({
+        disciplinaId,
+        aulaId: aulaAtual.id,
+        tempoAssistidoSegundos,
+        tempoMinimoSegundos,
+      });
+
+      const proxima = aulasOrdenadas.find(
+        (a) => !aulaConcluida(disciplinaId, a.id) && a.id !== aulaAtual.id
+      );
+
+      if (proxima) setAulaAtualId(proxima.id);
+    } catch (error: any) {
+      alert(error?.message || "Não foi possível concluir a aula.");
+    } finally {
+      setConcluindoAula(false);
+    }
+  }
 
   useEffect(() => {
     let mounted = true;
@@ -128,6 +218,7 @@ const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
       if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
         if (mounted) {
           setDisciplina(null);
+          setErroDisciplina("ID inválido.");
           setLoading(false);
         }
         return;
@@ -139,6 +230,7 @@ const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
       try {
         const res = await fetch(`/api/disciplina/${disciplinaId}`, {
           credentials: "include",
+          cache: "no-store",
         });
 
         const data = await res.json();
@@ -150,30 +242,28 @@ const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
           setErroDisciplina(data?.error || "Não foi possível carregar a disciplina.");
           setLoading(false);
           return;
-}
+        }
 
         setDisciplina(data);
 
-        const aulasOrdenadas = (data?.aulas ?? []).slice().sort(
-          (a: AulaApi, b: AulaApi) => {
-            const ao = a.ordem ?? 999999;
-            const bo = b.ordem ?? 999999;
-            if (ao !== bo) return ao - bo;
-            return a.id - b.id;
-          }
-        );
+        const aulas = (data?.aulas ?? []).slice().sort((a: AulaApi, b: AulaApi) => {
+          const ao = a.ordem ?? 999999;
+          const bo = b.ordem ?? 999999;
+          if (ao !== bo) return ao - bo;
+          return a.id - b.id;
+        });
 
-        const primeiraNaoConcluida = aulasOrdenadas.find(
+        const primeiraNaoConcluida = aulas.find(
           (a: AulaApi) => !aulaConcluida(disciplinaId, a.id)
         );
 
-        setAulaAtualId((primeiraNaoConcluida ?? aulasOrdenadas[0])?.id ?? null);
-      } catch (error: any) {
-  console.error("ERRO AO CARREGAR DISCIPLINA:", error);
-  if (!mounted) return;
-  setDisciplina(null);
-  setErroDisciplina("Erro ao carregar disciplina.");
-} finally {
+        setAulaAtualId((primeiraNaoConcluida ?? aulas[0])?.id ?? null);
+      } catch (error) {
+        console.error("ERRO AO CARREGAR DISCIPLINA:", error);
+        if (!mounted) return;
+        setDisciplina(null);
+        setErroDisciplina("Erro ao carregar disciplina.");
+      } finally {
         if (mounted) setLoading(false);
       }
     }
@@ -185,40 +275,38 @@ const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
     };
   }, [disciplinaId, aulaConcluida]);
 
-useEffect(() => {
-  let mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
-  async function carregarPlano() {
-    try {
-      setLoadingPlano(true);
+    async function carregarPlano() {
+      try {
+        setLoadingPlano(true);
 
-      const res = await fetch("/api/auth/me", {
-        credentials: "include",
-        cache: "no-store",
-      });
+        const res = await fetch("/api/auth/me", {
+          credentials: "include",
+          cache: "no-store",
+        });
 
-      const data: AuthMeResponse = await res.json();
+        const data: AuthMeResponse = await res.json();
 
-      if (!mounted) return;
+        if (!mounted) return;
 
-      const planoRecebido =
-        data?.plano || data?.user?.plano || "ESSENCIAL";
-
-      setPlano(planoRecebido);
-    } catch {
-      if (!mounted) return;
-      setPlano("ESSENCIAL");
-    } finally {
-      if (mounted) setLoadingPlano(false);
+        const planoRecebido = data?.plano || data?.user?.plano || "ESSENCIAL";
+        setPlano(planoRecebido);
+      } catch {
+        if (!mounted) return;
+        setPlano("ESSENCIAL");
+      } finally {
+        if (mounted) setLoadingPlano(false);
+      }
     }
-  }
 
-  carregarPlano();
+    carregarPlano();
 
-  return () => {
-    mounted = false;
-  };
-}, []);
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -266,98 +354,6 @@ useEffect(() => {
     };
   }, [disciplinaId]);
 
-  const aulasOrdenadas = useMemo(() => {
-    const list = disciplina?.aulas ?? [];
-    return list.slice().sort((a, b) => {
-      const ao = a.ordem ?? 999999;
-      const bo = b.ordem ?? 999999;
-      if (ao !== bo) return ao - bo;
-      return a.id - b.id;
-    });
-  }, [disciplina]);
-
-  const aulaAtual = useMemo(() => {
-    return aulasOrdenadas.find((a) => a.id === aulaAtualId) ?? null;
-  }, [aulasOrdenadas, aulaAtualId]);
-
-  const totalAulas = aulasOrdenadas.length;
-  const progresso = progressoDisciplina(disciplinaId, totalAulas);
-  const concluida = aulaAtual ? aulaConcluida(disciplinaId, aulaAtual.id) : false;
-
-  const tempoMinimoSegundos = (aulaAtual?.duracaoMin ?? 0) * 60;
-
-  const porcentagemAssistida =
-    tempoMinimoSegundos > 0
-      ? Math.min(100, Math.round((tempoAssistidoSegundos / tempoMinimoSegundos) * 100))
-      : 100;
-
-  function pararContagem() {
-    if (intervaloRef.current) {
-      clearInterval(intervaloRef.current);
-      intervaloRef.current = null;
-    }
-  }
-
-function pausarVideoSeEstiverTocando() {
-  try {
-    if (
-      playerRef.current &&
-      typeof playerRef.current.getPlayerState === "function" &&
-      typeof playerRef.current.pauseVideo === "function" &&
-      window.YT &&
-      playerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING
-    ) {
-      playerRef.current.pauseVideo();
-    }
-  } catch (error) {
-    console.error("ERRO AO PAUSAR VÍDEO AO SAIR DA ABA:", error);
-  }
-}
-
-  function iniciarContagem() {
-    if (intervaloRef.current || concluida) return;
-
-    intervaloRef.current = setInterval(() => {
-      setTempoAssistidoSegundos((prev) => {
-        if (tempoMinimoSegundos > 0 && prev >= tempoMinimoSegundos) {
-          pararContagem();
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 1000);
-  }
-
-  async function concluirAulaAtual() {
-    if (!aulaAtual || concluindoAula) return;
-
-    if (!podeConcluir && !concluida) {
-      alert("Você ainda não assistiu o tempo mínimo desta aula.");
-      return;
-    }
-
-    try {
-      setConcluindoAula(true);
-
-      await marcarAulaComoConcluida({
-        disciplinaId,
-        aulaId: aulaAtual.id,
-        tempoAssistidoSegundos,
-        tempoMinimoSegundos,
-      });
-
-      const proxima = aulasOrdenadas.find(
-        (a) => !aulaConcluida(disciplinaId, a.id) && a.id !== aulaAtual.id
-      );
-
-      if (proxima) setAulaAtualId(proxima.id);
-    } catch (error: any) {
-      alert(error?.message || "Não foi possível concluir a aula.");
-    } finally {
-      setConcluindoAula(false);
-    }
-  }
-
   useEffect(() => {
     if (concluida) {
       setPodeConcluir(true);
@@ -383,28 +379,6 @@ function pausarVideoSeEstiverTocando() {
       return;
     }
 
-useEffect(() => {
-  function handleVisibilityChange() {
-    if (document.hidden) {
-      pararContagem();
-      pausarVideoSeEstiverTocando();
-    }
-  }
-
-  function handleWindowBlur() {
-    pararContagem();
-    pausarVideoSeEstiverTocando();
-  }
-
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-  window.addEventListener("blur", handleWindowBlur);
-
-  return () => {
-    document.removeEventListener("visibilitychange", handleVisibilityChange);
-    window.removeEventListener("blur", handleWindowBlur);
-  };
-}, []);
-
     const scriptExistente = document.querySelector(
       'script[src="https://www.youtube.com/iframe_api"]'
     );
@@ -426,6 +400,28 @@ useEffect(() => {
 
     window.onYouTubeIframeAPIReady = () => {
       setYoutubePronto(true);
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.hidden) {
+        pararContagem();
+        pausarVideoSeEstiverTocando();
+      }
+    }
+
+    function handleWindowBlur() {
+      pararContagem();
+      pausarVideoSeEstiverTocando();
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleWindowBlur);
     };
   }, []);
 
@@ -464,7 +460,12 @@ useEffect(() => {
             const estado = event.data;
 
             if (estado === window.YT.PlayerState.PLAYING) {
-              iniciarContagem();
+              if (!document.hidden && document.hasFocus()) {
+                iniciarContagem();
+              } else {
+                pararContagem();
+                pausarVideoSeEstiverTocando();
+              }
             } else {
               pararContagem();
             }
@@ -495,12 +496,8 @@ useEffect(() => {
   }
 
   if (!disciplina) {
-  return (
-    <div className="p-8">
-      {erroDisciplina || "Disciplina não encontrada."}
-    </div>
-  );
-}
+    return <div className="p-8">{erroDisciplina || "Disciplina não encontrada."}</div>;
+  }
 
   return (
     <div className="min-h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-[360px_1fr]">
@@ -573,49 +570,49 @@ useEffect(() => {
           </button>
 
           {loadingPlano ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
-  >
-    Carregando plano...
-  </button>
-) : plano === "ESSENCIAL" ? (
-  <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-    Provas disponíveis apenas nos planos Profissional e Enterprise.
-  </div>
-) : loadingProva ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
-  >
-    Carregando prova...
-  </button>
-) : !provaPublicada ? (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
-  >
-    Prova indisponível
-  </button>
-) : progresso === 100 ? (
-  <button
-    onClick={() =>
-      router.push(
-        `/aluno/disciplinas/${disciplinaId}/prova/${provaPublicada.id}`
-      )
-    }
-    className="w-full rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-  >
-    Fazer prova
-  </button>
-) : (
-  <button
-    disabled
-    className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
-  >
-    Prova bloqueada — conclua todas as aulas
-  </button>
-)}
+            <button
+              disabled
+              className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
+            >
+              Carregando plano...
+            </button>
+          ) : plano === "ESSENCIAL" ? (
+            <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+              Provas disponíveis apenas nos planos Profissional e Enterprise.
+            </div>
+          ) : loadingProva ? (
+            <button
+              disabled
+              className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
+            >
+              Carregando prova...
+            </button>
+          ) : !provaPublicada ? (
+            <button
+              disabled
+              className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
+            >
+              Prova indisponível
+            </button>
+          ) : progresso === 100 ? (
+            <button
+              onClick={() =>
+                router.push(
+                  `/aluno/disciplinas/${disciplinaId}/prova/${provaPublicada.id}`
+                )
+              }
+              className="w-full rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+            >
+              Fazer prova
+            </button>
+          ) : (
+            <button
+              disabled
+              className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
+            >
+              Prova bloqueada — conclua todas as aulas
+            </button>
+          )}
         </div>
       </aside>
 
