@@ -62,20 +62,12 @@ export async function GET(
                 },
                 include: {
                   materiais: true,
-                  progressos: {
-                    where: {
-                      alunoId: aluno.id,
-                      instituicaoId: user.instituicaoId,
-                    },
-                    select: {
-                      id: true,
-                      aulaId: true,
-                      concluida: true,
-                      concluidaEm: true,
-                      tempoAssistidoSegundos: true,
-                      tempoMinimoSegundos: true,
-                    },
-                  },
+                  presencas: {
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: user.instituicaoId,
+  },
+},
                 },
               },
               provas: {
@@ -112,7 +104,7 @@ export async function GET(
   }
 
   const aulas = (turma.aulas ?? []).map((aula) => {
-    const progresso = aula.progressos?.[0] ?? null;
+    const presenca = aula.presencas?.[0] ?? null;
 
     return {
       id: aula.id,
@@ -131,21 +123,15 @@ export async function GET(
         mimeType: material.mimeType,
         tamanho: material.tamanho,
       })),
-      progresso: progresso
-        ? {
-            aulaId: progresso.aulaId,
-            concluida: progresso.concluida,
-            concluidaEm: progresso.concluidaEm,
-            tempoAssistidoSegundos: progresso.tempoAssistidoSegundos ?? 0,
-            tempoMinimoSegundos: progresso.tempoMinimoSegundos ?? 0,
-          }
-        : {
-            aulaId: aula.id,
-            concluida: false,
-            concluidaEm: null,
-            tempoAssistidoSegundos: 0,
-            tempoMinimoSegundos: 0,
-          },
+      
+      progresso: {
+  aulaId: aula.id,
+  concluida: !!presenca,
+  concluidaEm: presenca ? presenca.createdAt : null,
+  tempoAssistidoSegundos: 0,
+  tempoMinimoSegundos: 0,
+},
+        
     };
   });
 
