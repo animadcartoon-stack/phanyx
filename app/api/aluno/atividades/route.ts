@@ -2,76 +2,94 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getAuth, assertAluno } from "@/lib/auth/getAuth";
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    const auth = getAuth(req);
+    const auth = getAuth(_req);
     assertAluno(auth);
 
-    const aluno: any = await prisma.aluno.findFirst({
+    const aluno = await prisma.aluno.findFirst({
       where: {
         userId: auth.userId,
+        instituicaoId: auth.instituicaoId,
+      },
+      select: {
+        id: true,
       },
     });
 
     if (!aluno) {
       return NextResponse.json(
-        { error: "Perfil de aluno não encontrado" },
+        { error: "Aluno não encontrado" },
         { status: 404 }
       );
     }
 
-    const atividades: any[] = await prisma.atividade.findMany({
-
+    const matriculas = await prisma.matricula.findMany({
       where: {
-        status: "PUBLICADA",
+        alunoId: aluno.id,
+        instituicaoId: auth.instituicaoId,
+      },
+      select: {
+        itens: {
+          select: {
+            turmaId: true,
+          },
+        },
+      },
+    });
+
+    const turmaIds = matriculas.flatMap((m) => m.itens.map((i) => i.turmaId));
+
+    const atividades = await prisma.atividade.findMany({
+      where: {
+        instituicaoId: auth.instituicaoId,
+        turmaId: { in: turmaIds },
       },
       include: {
-  turma: {
-    include: {
-      disciplina: true,
-    },
-  },
-  entregas: {
-    where: {
-      alunoId: aluno.id,
-    },
-    take: 1,
-  },
-},
+        turma: {
+          include: {
+            disciplina: true,
+          },
+        },
+        entregas: {
+          where: {
+            alunoId: aluno.id,
+          },
+          select: {
+            id: true,
+            texto: true,
+            link: true,
+            arquivoUrl: true,
+            entregueEm: true,
+            nota: true,
+            feedback: true,
+            corrigidaEm: true,
+          },
+          orderBy: {
+            entregueEm: "desc",
+          },
+        },
+      },
       orderBy: {
-        createdAt: "desc",
-      } as any,
-      
+        prazo: "asc",
+      },
     });
 
     const items = atividades.map((atividade) => {
-  const entrega = atividade.entregas?.[0] || null;
+      const entrega = atividade.entregas[0] || null;
 
-  return {
-    id: atividade.id,
-    titulo: atividade.titulo,
-    descricao: atividade.descricao,
-    prazo: atividade.prazo,
-    status: atividade.status,
-    notaMaxima: atividade.notaMaxima,
-
-    disciplinaNome:
-  atividade.turma?.disciplina?.nome ||
-  atividade.turma?.disciplina?.titulo ||
-  `Disciplina da turma ${atividade.turmaId}`,
-
-    turmaNome: atividade.turma?.nome || null,
-
-    entrega: entrega
-      ? {
-          texto: entrega.texto,
-          link: entrega.link,
-          arquivoUrl: entrega.arquivoUrl,
-          entregueEm: entrega.entregueEm,
-        }
-      : null,
-  };
-});
+      return {
+        id: atividade.id,
+        titulo: atividade.titulo,
+        descricao: atividade.descricao,
+        prazo: atividade.prazo,
+        status: atividade.status,
+        notaMaxima: atividade.notaMaxima,
+        turmaNome: atividade.turma?.nome || null,
+        disciplinaNome: atividade.turma?.disciplina?.nome || null,
+        entrega,
+      };
+    });
 
     return NextResponse.json({
       ok: true,
@@ -80,7 +98,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (e: any) {
     return NextResponse.json(
-      { error: e.message || "Erro ao listar atividades do aluno" },
+      { error: e.message || "Erro ao carregar atividades do aluno" },
       { status: 401 }
     );
   }

@@ -12,12 +12,14 @@ type AtividadeAluno = {
   disciplinaNome?: string | null;
   turmaNome?: string | null;
   entrega?: {
+    id?: number;
     texto?: string | null;
     link?: string | null;
     arquivoUrl?: string | null;
     entregueEm?: string | null;
     nota?: number | null;
-feedback?: string | null;
+    feedback?: string | null;
+    corrigidaEm?: string | null;
   } | null;
 };
 
@@ -423,46 +425,45 @@ async function handleEnviar(e: FormEvent) {
       </p>
     )}
 
-{atividadeSelecionada?.entrega && (
-  <div className="mt-4 p-4 rounded-xl border bg-white shadow-sm">
-    
-    <h3 className="font-semibold text-lg mb-2">
-      📊 Status da Correção
-    </h3>
-
-    <p className="mb-2">
-      <strong>Status:</strong>{" "}
-      {atividadeSelecionada.entrega?.nota != null ? (
-  <span className="text-green-600 font-semibold">
-    Corrigido
-  </span>
-) : (
-  <span className="text-yellow-600 font-semibold">
-    Aguardando correção
-  </span>
-)}
-    </p>
-
-    {atividadeSelecionada.entrega?.nota != null && (
-  <p className="mb-2">
-    <strong>Nota:</strong>{" "}
-    <span className="text-blue-600 font-bold">
-      {atividadeSelecionada.entrega?.nota}
-    </span>
+<div className="mt-4 border-t border-slate-200 pt-4">
+  <p className="mb-2 text-sm">
+    <strong>Status:</strong>{" "}
+    {atividadeSelecionada.entrega?.nota != null ? (
+      <span className="font-semibold text-green-600">Corrigido</span>
+    ) : atividadeSelecionada.entrega ? (
+      <span className="font-semibold text-amber-600">Entregue</span>
+    ) : prazoEncerrado ? (
+      <span className="font-semibold text-red-600">Atrasado</span>
+    ) : (
+      <span className="font-semibold text-slate-600">Pendente</span>
+    )}
   </p>
-)}
 
-    {atividadeSelecionada.entrega?.feedback && (
-  <div className="mt-2">
-    <strong>Feedback do professor:</strong>
-    <p className="mt-1 text-gray-700 whitespace-pre-line">
-      {atividadeSelecionada.entrega?.feedback}
+  {atividadeSelecionada.entrega?.nota != null && (
+    <p className="mb-2 text-sm">
+      <strong>Nota:</strong>{" "}
+      <span className="font-bold text-blue-600">
+        {atividadeSelecionada.entrega.nota}
+      </span>
+      {atividadeSelecionada.notaMaxima != null && (
+        <span className="text-slate-500">
+          {" "}/ {atividadeSelecionada.notaMaxima}
+        </span>
+      )}
     </p>
-  </div>
-)}
+  )}
 
-  </div>
-)}
+  {atividadeSelecionada.entrega?.feedback && (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="mb-1 text-sm font-semibold text-slate-800">
+        Feedback do professor
+      </p>
+      <p className="whitespace-pre-line text-sm text-slate-700">
+        {atividadeSelecionada.entrega.feedback}
+      </p>
+    </div>
+  )}
+</div>
 
   </div>
 )}
