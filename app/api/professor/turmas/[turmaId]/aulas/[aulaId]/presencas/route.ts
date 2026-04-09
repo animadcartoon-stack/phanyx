@@ -318,7 +318,7 @@ export async function POST(
 
     await prisma.$transaction(
       presencas.map((presenca: PresencaInput) => {
-        const alunoId = Number(presenca.id || presenca.alunoId);
+        const alunoId = Number(presenca.alunoId);
         const status = String(presenca.status || "").trim();
         const observacao =
           presenca.observacao !== undefined && presenca.observacao !== null

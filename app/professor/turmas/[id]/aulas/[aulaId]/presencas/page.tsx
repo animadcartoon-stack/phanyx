@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type AlunoPresencaApi = {
@@ -78,6 +78,36 @@ function labelStatusItem(status?: string | null) {
   }
 }
 
+function labelPresenca(status?: string) {
+  switch (status) {
+    case "PRESENTE":
+      return "Presente";
+    case "FALTA":
+      return "Falta";
+    case "JUSTIFICADA":
+      return "Justificada";
+    case "ATESTADO":
+      return "Atestado";
+    default:
+      return "Presente";
+  }
+}
+
+function classeStatusPresenca(status?: string) {
+  switch (status) {
+    case "PRESENTE":
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
+    case "FALTA":
+      return "border-red-200 bg-red-50 text-red-700";
+    case "JUSTIFICADA":
+      return "border-amber-200 bg-amber-50 text-amber-700";
+    case "ATESTADO":
+      return "border-blue-200 bg-blue-50 text-blue-700";
+    default:
+      return "border-slate-200 bg-slate-50 text-slate-700";
+  }
+}
+
 export default function PresencasDaAulaPage() {
   const router = useRouter();
   const params = useParams<{ id: string; aulaId: string }>();
@@ -88,6 +118,7 @@ export default function PresencasDaAulaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [erro, setErro] = useState("");
+  const [mensagem, setMensagem] = useState("");
   const [dados, setDados] = useState<RespostaApi | null>(null);
 
   const [statusPorAluno, setStatusPorAluno] = useState<
@@ -101,6 +132,7 @@ export default function PresencasDaAulaPage() {
     try {
       setLoading(true);
       setErro("");
+      setMensagem("");
 
       const res = await fetch(
         `/api/professor/turmas/${turmaId}/aulas/${aulaId}/presencas`,
@@ -153,12 +185,27 @@ export default function PresencasDaAulaPage() {
     carregarDados();
   }, [turmaId, aulaId]);
 
+  function aplicarStatusEmTodos(status: StatusPresenca) {
+    if (!dados) return;
+
+    const novoStatus: Record<number, StatusPresenca> = {};
+    for (const aluno of dados.alunos) {
+      novoStatus[aluno.alunoId] = status;
+    }
+
+    setStatusPorAluno((prev) => ({
+      ...prev,
+      ...novoStatus,
+    }));
+  }
+
   async function salvarChamada() {
     if (!dados) return;
 
     try {
       setSaving(true);
       setErro("");
+      setMensagem("");
 
       const presencas = dados.alunos.map((aluno) => ({
         alunoId: aluno.alunoId,
@@ -182,7 +229,7 @@ export default function PresencasDaAulaPage() {
         throw new Error(data?.error || "Erro ao salvar chamada");
       }
 
-      alert("Chamada salva com sucesso!");
+      setMensagem("Chamada salva com sucesso!");
       await carregarDados();
     } catch (e: any) {
       setErro(e?.message || "Erro ao salvar chamada");
@@ -191,16 +238,38 @@ export default function PresencasDaAulaPage() {
     }
   }
 
+  const resumo = useMemo(() => {
+    const valores = Object.values(statusPorAluno);
+
+    return {
+      total: valores.length,
+      presentes: valores.filter((s) => s === "PRESENTE").length,
+      faltas: valores.filter((s) => s === "FALTA").length,
+      justificadas: valores.filter((s) => s === "JUSTIFICADA").length,
+      atestados: valores.filter((s) => s === "ATESTADO").length,
+    };
+  }, [statusPorAluno]);
+
   if (loading) {
-    return <div className="p-8">Carregando chamada...</div>;
+    return (
+      <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <p className="text-sm text-slate-500">Carregando chamada...</p>
+      </div>
+    );
   }
 
   if (!dados) {
-    return <div className="p-8">Não foi possível carregar a chamada.</div>;
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 shadow-sm">
+        <p className="text-sm text-red-700">
+          Não foi possível carregar a chamada.
+        </p>
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className="space-y-6">
       <button
         onClick={() => router.back()}
         className="text-sm text-blue-600 hover:underline"
@@ -208,92 +277,225 @@ export default function PresencasDaAulaPage() {
         ← Voltar
       </button>
 
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Chamada da aula</h1>
-        <p className="text-gray-600">
-          Turma: <strong>{dados.turma.nome}</strong>
-        </p>
-        <p className="text-gray-600">
-          Aula: <strong>{dados.aula.titulo}</strong>
-        </p>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">
+              Chamada da aula
+            </h1>
+            <p className="mt-2 text-sm text-slate-600">
+              Turma: <strong>{dados.turma.nome}</strong>
+            </p>
+            <p className="text-sm text-slate-600">
+              Aula: <strong>{dados.aula.titulo}</strong>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center">
+              <p className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                Total
+              </p>
+              <p className="mt-1 text-xl font-bold text-slate-900">
+                {resumo.total}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-center">
+              <p className="text-xs font-medium uppercase tracking-wide text-emerald-700">
+                Presentes
+              </p>
+              <p className="mt-1 text-xl font-bold text-emerald-700">
+                {resumo.presentes}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center">
+              <p className="text-xs font-medium uppercase tracking-wide text-red-700">
+                Faltas
+              </p>
+              <p className="mt-1 text-xl font-bold text-red-700">
+                {resumo.faltas}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center">
+              <p className="text-xs font-medium uppercase tracking-wide text-amber-700">
+                Justificadas
+              </p>
+              <p className="mt-1 text-xl font-bold text-amber-700">
+                {resumo.justificadas}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-center">
+              <p className="text-xs font-medium uppercase tracking-wide text-blue-700">
+                Atestados
+              </p>
+              <p className="mt-1 text-xl font-bold text-blue-700">
+                {resumo.atestados}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {erro && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 shadow-sm">
           {erro}
         </div>
       )}
 
-      <div className="bg-white border rounded-lg overflow-hidden">
-        <div className="grid grid-cols-12 gap-3 border-b bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">
-          <div className="col-span-3">Aluno</div>
-          <div className="col-span-2">Matrícula</div>
-          <div className="col-span-2">Status aluno</div>
-          <div className="col-span-2">Status disciplina</div>
-          <div className="col-span-1">Presença</div>
-          <div className="col-span-2">Observação</div>
+      {mensagem && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700 shadow-sm">
+          {mensagem}
+        </div>
+      )}
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">
+              Lançamento da chamada
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Marque a presença individualmente ou use os atalhos rápidos.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => aplicarStatusEmTodos("PRESENTE")}
+              className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-700 hover:bg-emerald-100"
+            >
+              Todos presentes
+            </button>
+
+            <button
+              type="button"
+              onClick={() => aplicarStatusEmTodos("FALTA")}
+              className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700 hover:bg-red-100"
+            >
+              Todos faltaram
+            </button>
+
+            <button
+              type="button"
+              onClick={() => aplicarStatusEmTodos("JUSTIFICADA")}
+              className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-100"
+            >
+              Todos justificados
+            </button>
+          </div>
         </div>
 
         {dados.alunos.length === 0 ? (
-          <div className="p-4 text-sm text-gray-600">
+          <div className="mt-6 rounded-xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
             Nenhum aluno matriculado nesta turma.
           </div>
         ) : (
-          dados.alunos.map((aluno) => (
-            <div
-              key={aluno.alunoId}
-              className="grid grid-cols-12 gap-3 border-b px-4 py-4 text-sm items-start"
-            >
-              <div className="col-span-3">
-                <p className="font-medium text-gray-900">{aluno.nome}</p>
-                <p className="text-gray-500">{aluno.email || "-"}</p>
-              </div>
+          <div className="mt-6 space-y-4">
+            {dados.alunos.map((aluno) => {
+              const statusAtual = statusPorAluno[aluno.alunoId] || "PRESENTE";
 
-              <div className="col-span-2 text-gray-700">
-                {aluno.matricula || "-"}
-              </div>
-
-              <div className="col-span-2 text-gray-700">
-                {labelStatusAluno(aluno.statusAluno)}
-              </div>
-
-              <div className="col-span-2 text-gray-700">
-                {labelStatusItem(aluno.statusItemMatricula)}
-              </div>
-
-              <div className="col-span-1">
-                <select
-                  value={statusPorAluno[aluno.alunoId] || "PRESENTE"}
-                  onChange={(e) =>
-                    setStatusPorAluno((prev) => ({
-                      ...prev,
-                      [aluno.alunoId]: e.target.value as StatusPresenca,
-                    }))
-                  }
-                  className="w-full border rounded-lg p-2 bg-white text-gray-900"
+              return (
+                <div
+                  key={aluno.alunoId}
+                  className="rounded-2xl border border-slate-200 p-4 shadow-sm"
                 >
-                  <option value="PRESENTE">Presente</option>
-                  <option value="FALTA">Falta</option>
-                  <option value="JUSTIFICADA">Justificada</option>
-                  <option value="ATESTADO">Atestado</option>
-                </select>
-              </div>
+                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-base font-semibold text-slate-900">
+                          {aluno.nome}
+                        </h3>
 
-              <div className="col-span-2">
-                <input
-                  value={observacaoPorAluno[aluno.alunoId] || ""}
-                  onChange={(e) =>
-                    setObservacaoPorAluno((prev) => ({
-                      ...prev,
-                      [aluno.alunoId]: e.target.value,
-                    }))
-                  }
-                  className="w-full border rounded-lg p-2 text-gray-900"
-                  placeholder="Observação"
-                />
-              </div>
-            </div>
-          ))
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${classeStatusPresenca(
+                            statusAtual
+                          )}`}
+                        >
+                          {labelPresenca(statusAtual)}
+                        </span>
+                      </div>
+
+                      <div className="mt-2 grid gap-1 text-sm text-slate-600 sm:grid-cols-2">
+                        <p>
+                          <strong className="font-medium text-slate-800">
+                            Matrícula:
+                          </strong>{" "}
+                          {aluno.matricula || "-"}
+                        </p>
+
+                        <p>
+                          <strong className="font-medium text-slate-800">
+                            E-mail:
+                          </strong>{" "}
+                          {aluno.email || "-"}
+                        </p>
+
+                        <p>
+                          <strong className="font-medium text-slate-800">
+                            Status do aluno:
+                          </strong>{" "}
+                          {labelStatusAluno(aluno.statusAluno)}
+                        </p>
+
+                        <p>
+                          <strong className="font-medium text-slate-800">
+                            Status da disciplina:
+                          </strong>{" "}
+                          {labelStatusItem(aluno.statusItemMatricula)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid w-full gap-3 xl:max-w-xl xl:grid-cols-[220px_1fr]">
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-slate-700">
+                          Presença
+                        </label>
+                        <select
+                          value={statusAtual}
+                          onChange={(e) =>
+                            setStatusPorAluno((prev) => ({
+                              ...prev,
+                              [aluno.alunoId]:
+                                e.target.value as StatusPresenca,
+                            }))
+                          }
+                          className="w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 outline-none focus:border-blue-500"
+                        >
+                          <option value="PRESENTE">Presente</option>
+                          <option value="FALTA">Falta</option>
+                          <option value="JUSTIFICADA">Justificada</option>
+                          <option value="ATESTADO">Atestado</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="mb-1 block text-sm font-medium text-slate-700">
+                          Observação
+                        </label>
+                        <input
+                          value={observacaoPorAluno[aluno.alunoId] || ""}
+                          onChange={(e) =>
+                            setObservacaoPorAluno((prev) => ({
+                              ...prev,
+                              [aluno.alunoId]: e.target.value,
+                            }))
+                          }
+                          className="w-full rounded-lg border border-slate-300 p-2 text-sm text-slate-900 outline-none focus:border-blue-500"
+                          placeholder="Ex.: chegou atrasado, apresentou atestado..."
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
       </div>
 
@@ -301,9 +503,9 @@ export default function PresencasDaAulaPage() {
         <button
           onClick={salvarChamada}
           disabled={saving}
-          className="px-4 py-2 bg-emerald-600 text-white rounded-lg disabled:opacity-50"
+          className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
         >
-          {saving ? "Salvando..." : "Salvar chamada"}
+          {saving ? "Salvando chamada..." : "Salvar chamada"}
         </button>
       </div>
     </div>
