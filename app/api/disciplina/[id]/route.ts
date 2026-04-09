@@ -20,23 +20,28 @@ export async function GET(
     }
 
     if (user.role === "ALUNO") {
-      const aluno = await prisma.aluno.findFirst({
-        where: {
-          userId: user.id,
-          instituicaoId: user.instituicaoId,
-        },
-      });
+  const aluno = await prisma.aluno.findFirst({
+    where: {
+      userId: user.id,
+      instituicaoId: user.instituicaoId,
+    },
+  });
 
-      if (!aluno) {
-        return NextResponse.json(
-          { error: "Aluno não encontrado" },
-          { status: 404 }
-        );
-      }
+  if (!aluno) {
+    return NextResponse.json(
+      { error: "Aluno não encontrado" },
+      { status: 404 }
+    );
+  }
 
-      const matricula = await prisma.matricula.findFirst({
+  const matricula = await prisma.matricula.findFirst({
+    where: {
+      alunoId: aluno.id,
+      instituicaoId: user.instituicaoId,
+    },
+    include: {
+      itens: {
         where: {
-          alunoId: aluno.id,
           instituicaoId: user.instituicaoId,
           turma: {
             disciplinaId: id,
@@ -85,83 +90,89 @@ export async function GET(
             },
           },
         },
-      });
-
-      if (!matricula?.turma?.disciplina) {
-        return NextResponse.json(
-          { error: "Disciplina não encontrada" },
-          { status: 404 }
-        );
-      }
-
-      const disciplina = matricula.turma.disciplina;
-      const turma = matricula.turma;
-
-      const aulas = (turma.aulas ?? []).map((aula) => {
-        const progresso = aula.progressos?.[0] ?? null;
-
-        return {
-          id: aula.id,
-          titulo: aula.titulo,
-          descricao: aula.descricao,
-          videoUrl: aula.videoUrl,
-          duracaoMin: aula.duracaoMin,
-          ordem: aula.ordem,
-          publicada: aula.publicada,
-          materiais: (aula.materiais ?? []).map((material) => ({
-            id: material.id,
-            titulo: material.titulo,
-            tipo: material.tipo,
-            url: material.url,
-            arquivoNome: material.arquivoNome,
-            mimeType: material.mimeType,
-            tamanho: material.tamanho,
-          })),
-          progresso: progresso
-            ? {
-                aulaId: progresso.aulaId,
-                concluida: progresso.concluida,
-                concluidaEm: progresso.concluidaEm,
-                tempoAssistidoSegundos:
-                  progresso.tempoAssistidoSegundos ?? 0,
-                tempoMinimoSegundos: progresso.tempoMinimoSegundos ?? 0,
-              }
-            : {
-                aulaId: aula.id,
-                concluida: false,
-                concluidaEm: null,
-                tempoAssistidoSegundos: 0,
-                tempoMinimoSegundos: 0,
-              },
-        };
-      });
-
-      const totalAulas = aulas.length;
-      const aulasConcluidas = aulas.filter(
-        (aula) => aula.progresso?.concluida
-      ).length;
-      const progressoPercentual =
-        totalAulas > 0 ? Math.round((aulasConcluidas / totalAulas) * 100) : 0;
-
-      return NextResponse.json({
-        id: disciplina.id,
-        nome: disciplina.nome,
-        codigo: disciplina.codigo,
-        descricao: disciplina.descricao,
-        cargaHoraria: disciplina.cargaHoraria,
-        semestre: disciplina.semestre,
-        curso: disciplina.curso,
-        turma: {
-          id: turma.id,
-          nome: turma.nome,
-          semestre: turma.semestre,
+        orderBy: {
+          id: "asc",
         },
-        aulas,
-        provaLiberada: totalAulas === 0 ? true : progressoPercentual === 100,
-        progressoPercentual,
-        prova: turma.provas?.[0] ?? null,
-      });
-    }
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  const itemMatricula = matricula?.itens?.[0];
+  const turma = itemMatricula?.turma;
+  const disciplina = turma?.disciplina;
+
+  if (!disciplina || !turma) {
+    return NextResponse.json(
+      { error: "Disciplina não encontrada" },
+      { status: 404 }
+    );
+  }
+
+  const aulas = (turma.aulas ?? []).map((aula) => {
+    const progresso = aula.progressos?.[0] ?? null;
+
+    return {
+      id: aula.id,
+      titulo: aula.titulo,
+      descricao: aula.descricao,
+      videoUrl: aula.videoUrl,
+      duracaoMin: aula.duracaoMin,
+      ordem: aula.ordem,
+      publicada: aula.publicada,
+      materiais: (aula.materiais ?? []).map((material) => ({
+        id: material.id,
+        titulo: material.titulo,
+        tipo: material.tipo,
+        url: material.url,
+        arquivoNome: material.arquivoNome,
+        mimeType: material.mimeType,
+        tamanho: material.tamanho,
+      })),
+      progresso: progresso
+        ? {
+            aulaId: progresso.aulaId,
+            concluida: progresso.concluida,
+            concluidaEm: progresso.concluidaEm,
+            tempoAssistidoSegundos: progresso.tempoAssistidoSegundos ?? 0,
+            tempoMinimoSegundos: progresso.tempoMinimoSegundos ?? 0,
+          }
+        : {
+            aulaId: aula.id,
+            concluida: false,
+            concluidaEm: null,
+            tempoAssistidoSegundos: 0,
+            tempoMinimoSegundos: 0,
+          },
+    };
+  });
+
+  const totalAulas = aulas.length;
+  const aulasConcluidas = aulas.filter((aula) => aula.progresso?.concluida).length;
+  const progressoPercentual =
+    totalAulas > 0 ? Math.round((aulasConcluidas / totalAulas) * 100) : 0;
+
+  return NextResponse.json({
+    id: disciplina.id,
+    nome: disciplina.nome,
+    codigo: disciplina.codigo,
+    descricao: disciplina.descricao,
+    cargaHoraria: disciplina.cargaHoraria,
+    semestre: disciplina.semestre,
+    curso: disciplina.curso,
+    turma: {
+      id: turma.id,
+      nome: turma.nome,
+      semestre: turma.semestre,
+    },
+    aulas,
+    provaLiberada: totalAulas === 0 ? true : progressoPercentual === 100,
+    progressoPercentual,
+    prova: turma.provas?.[0] ?? null,
+  });
+}
 
     if (user.role !== "ADMIN" && user.role !== "PROFESSOR") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
