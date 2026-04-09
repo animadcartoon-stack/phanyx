@@ -19,6 +19,15 @@ type DisciplinaComCount = PrismaDisciplina & {
 
 type AulaConcluida = { disciplinaId: number; aulaId: number };
 
+type ProgressoAula = {
+  disciplinaId: number;
+  aulaId: number;
+  concluida: boolean;
+  tempoAssistidoSegundos: number;
+  tempoMinimoSegundos: number;
+  concluidaEm?: string | null;
+};
+
 type Nota = {
   disciplinaId: number;
   nota: number;
@@ -94,6 +103,7 @@ export function AlunoProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
 
   const [aulasConcluidas, setAulasConcluidas] = useState<AulaConcluida[]>([]);
+  const [progressoAulas, setProgressoAulas] = useState<ProgressoAula[]>([]);
   const [notas, setNotas] = useState<Nota[]>([]);
   const [certificados, setCertificados] = useState<Certificado[]>([]);
   const [respostasAtividades, setRespostasAtividades] = useState<RespostaAtividade[]>([]);
@@ -135,16 +145,29 @@ export function AlunoProvider({ children }: { children: React.ReactNode }) {
     fetch(`/api/aluno/progresso?email=${encodeURIComponent(user.email)}`)
       .then((res) => res.json())
       .then((data) => {
-        const progressoSalvo = data?.progresso ?? [];
-        const aulasFormatadas: AulaConcluida[] = progressoSalvo
-          .filter((p: any) => Boolean(p?.concluida))
-          .map((p: any) => ({
-            disciplinaId: Number(p.disciplinaId),
-            aulaId: Number(p.aulaId),
-          }));
+  const progressoSalvo = data?.progresso ?? [];
 
-        setAulasConcluidas(aulasFormatadas);
-      })
+  const progressoFormatado: ProgressoAula[] = progressoSalvo.map((p: any) => ({
+    disciplinaId: Number(p.disciplinaId),
+    aulaId: Number(p.aulaId),
+    concluida: Boolean(p.concluida),
+    tempoAssistidoSegundos: Number(p.tempoAssistidoSegundos ?? 0),
+    tempoMinimoSegundos: Number(p.tempoMinimoSegundos ?? 0),
+    concluidaEm: p.concluidaEm ?? null,
+  }));
+
+  setProgressoAulas(progressoFormatado);
+
+  // mantém compatibilidade com código antigo
+  const aulasConcluidasCompat: AulaConcluida[] = progressoFormatado
+    .filter((p) => p.concluida)
+    .map((p) => ({
+      disciplinaId: p.disciplinaId,
+      aulaId: p.aulaId,
+    }));
+
+  setAulasConcluidas(aulasConcluidasCompat);
+})
       .catch(() => setAulasConcluidas([]));
   }, [user?.email]);
 
@@ -169,13 +192,11 @@ export function AlunoProvider({ children }: { children: React.ReactNode }) {
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
-        alunoEmail: user.email,
-        disciplinaId,
-        aulaId,
-        tempoAssistidoSegundos,
-        tempoMinimoSegundos,
-        concluir: true,
-      }),
+  aulaId,
+  tempoAssistidoSegundos,
+  tempoMinimoSegundos,
+  concluir: true,
+}),
     });
 
     const data = await res.json().catch(() => null);
@@ -185,6 +206,29 @@ export function AlunoProvider({ children }: { children: React.ReactNode }) {
     }
 
     setAulasConcluidas((prev) => {
+      setProgressoAulas((prev) => {
+  const existente = prev.find((p) => p.aulaId === aulaId);
+
+  if (existente) {
+    return prev.map((p) =>
+      p.aulaId === aulaId
+        ? { ...p, concluida: true }
+        : p
+    );
+  }
+
+  return [
+    ...prev,
+    {
+      disciplinaId,
+      aulaId,
+      concluida: true,
+      tempoAssistidoSegundos,
+      tempoMinimoSegundos,
+      concluidaEm: new Date().toISOString(),
+    },
+  ];
+});
       const jaExiste = prev.some((a) => a.disciplinaId === disciplinaId && a.aulaId === aulaId);
       if (jaExiste) return prev;
       return [...prev, { disciplinaId, aulaId }];
