@@ -198,36 +198,26 @@ function monitorarAvancoIndevido() {
     // primeira leitura
     if (ultimoTempo === 0 && tempoAtual >= 0) {
       ultimoTempoRef.current = tempoAtual;
-      ultimoTempoValidoRef.current = tempoAtual;
-      setTempoAssistidoSegundos(Math.floor(tempoAtual));
-      return;
-    }
 
-    const delta = tempoAtual - ultimoTempo;
-
-    // avanço natural: só aceita progresso normal
-    if (delta >= 0 && delta <= 1.5) {
-      ultimoTempoRef.current = tempoAtual;
-
-      // nunca deixa contar menos que o já validado
-      if (tempoAtual > ultimoTempoValido) {
-        ultimoTempoValidoRef.current = tempoAtual;
-        setTempoAssistidoSegundos(Math.floor(tempoAtual));
+      if (tempoAtual <= ultimoTempoValido + 1.5) {
+        ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
+        setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
       }
 
       return;
     }
 
-    // voltou para trás: não soma nada, só atualiza referência local
+    const delta = tempoAtual - ultimoTempo;
+
+    // voltou para trás: não soma nada
     if (delta < 0) {
       ultimoTempoRef.current = tempoAtual;
       return;
     }
 
     // pulou para frente: bloqueia
-    if (delta > 1.5) {
+    if (delta > 1.5 || tempoAtual > ultimoTempoValido + 1.5) {
       pararContagem();
-      pausarVideoSeEstiverTocando();
 
       try {
         if (typeof playerRef.current.seekTo === "function") {
@@ -235,6 +225,7 @@ function monitorarAvancoIndevido() {
         }
       } catch {}
 
+      pausarVideoSeEstiverTocando();
       ultimoTempoRef.current = ultimoTempoValido;
 
       const agora = Date.now();
@@ -242,7 +233,14 @@ function monitorarAvancoIndevido() {
         ultimoAlertaPuloRef.current = agora;
         alert("Não é permitido avançar a aula para concluir mais rápido.");
       }
+
+      return;
     }
+
+    // avanço natural
+    ultimoTempoRef.current = tempoAtual;
+    ultimoTempoValidoRef.current = Math.max(ultimoTempoValido, tempoAtual);
+    setTempoAssistidoSegundos(Math.floor(ultimoTempoValidoRef.current));
   } catch (error) {
     console.error("ERRO AO MONITORAR AVANÇO DO VÍDEO:", error);
   }
@@ -533,12 +531,30 @@ ultimoAlertaPuloRef.current = 0;
   try {
     if (typeof playerRef.current?.getCurrentTime === "function") {
       const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
-      ultimoTempoRef.current = tempoAtual;
 
-      if (tempoAtual > ultimoTempoValidoRef.current) {
-        ultimoTempoValidoRef.current = tempoAtual;
-        setTempoAssistidoSegundos(Math.floor(tempoAtual));
+      // Se tentou começar muito à frente do último ponto válido, bloqueia na hora
+      if (tempoAtual > ultimoTempoValidoRef.current + 1.5) {
+        pararContagem();
+
+        try {
+          if (typeof playerRef.current.seekTo === "function") {
+            playerRef.current.seekTo(ultimoTempoValidoRef.current, true);
+          }
+        } catch {}
+
+        pausarVideoSeEstiverTocando();
+
+        const agora = Date.now();
+        if (agora - ultimoAlertaPuloRef.current > 1500) {
+          ultimoAlertaPuloRef.current = agora;
+          alert("Não é permitido avançar a aula para concluir mais rápido.");
+        }
+
+        ultimoTempoRef.current = ultimoTempoValidoRef.current;
+        return;
       }
+
+      ultimoTempoRef.current = tempoAtual;
     }
   } catch {}
 
@@ -548,7 +564,8 @@ ultimoAlertaPuloRef.current = 0;
     pararContagem();
     pausarVideoSeEstiverTocando();
   }
-} else {
+}
+ else {
     pararContagem();
 
     try {
