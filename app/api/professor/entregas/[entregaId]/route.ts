@@ -38,36 +38,40 @@ export async function GET(
     }
 
     const entrega = await prisma.entregaAtividade.findFirst({
-      where: {
-        id: entregaId,
-        instituicaoId: auth.instituicaoId,
-      },
-      include: {
-        aluno: {
+  where: {
+    id: entregaId,
+    instituicaoId: auth.instituicaoId,
+  },
+  include: {
+    aluno: {
+      select: {
+        id: true,
+        nome: true,
+        matricula: true,
+        user: {
           select: {
-            id: true,
-            nome: true,
-            matricula: true,
             email: true,
           },
         },
-        atividade: {
+      },
+    },
+    atividade: {
+      select: {
+        id: true,
+        titulo: true,
+        notaMaxima: true,
+        turmaId: true,
+        turma: {
           select: {
             id: true,
-            titulo: true,
-            notaMaxima: true,
-            turmaId: true,
-            turma: {
-              select: {
-                id: true,
-                nome: true,
-                professorId: true,
-              },
-            },
+            nome: true,
+            professorId: true,
           },
         },
       },
-    });
+    },
+  },
+});
 
     if (!entrega) {
       return NextResponse.json(
