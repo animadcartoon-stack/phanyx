@@ -11,6 +11,7 @@ export default function AlunoSidebar() {
     { label: "Disciplinas", href: "/aluno/disciplinas", icon: "📘" },
     { label: "Progresso", href: "/aluno/progresso", icon: "📈" },
     { label: "Trabalhos", href: "/aluno/trabalhos", icon: "📄" },
+    { label: "Presença", href: "/aluno/presencas", icon: "📅" },
     { label: "Boletim", href: "/aluno/boletim", icon: "📋" },   // ← ADICIONE ESTA LINHA
     { label: "Certificados", href: "/aluno/certificados", icon: "🏅" },
   ];
