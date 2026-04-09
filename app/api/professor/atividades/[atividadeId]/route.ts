@@ -25,17 +25,20 @@ export async function GET(
         id: atividadeId,
       },
       include: {
-        disciplina: true,
-        turma: true,
-        entregas: {
-          include: {
-            aluno: true,
-          },
-          orderBy: {
-            entregueEm: "desc",
-          } as any,
-        },
-      },
+  turma: {
+    include: {
+      disciplina: true,
+    },
+  },
+  entregas: {
+    include: {
+      aluno: true,
+    },
+    orderBy: {
+      entregueEm: "desc",
+    } as any,
+  },
+},
     });
 
     if (!atividade) {
