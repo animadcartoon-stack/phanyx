@@ -20,15 +20,16 @@ export async function GET() {
     };
 
     const user = await prisma.user.findUnique({
-      where: { id: decoded.id },
-      select: {
-        id: true,
-        nome: true,
-        email: true,
-        role: true,
-        isMasterAdmin: true,
-      },
-    });
+  where: { id: decoded.id },
+  select: {
+    id: true,
+    nome: true,
+    email: true,
+    role: true,
+    isMasterAdmin: true,
+    instituicaoId: true,
+  },
+});
 
     if (!user) {
       return NextResponse.json(
@@ -39,6 +40,21 @@ export async function GET() {
 
     let statusAluno: string | null = null;
     let bloqueioFinanceiroAtivo = false;
+
+let plano: string | null = null;
+
+if (user.instituicaoId) {
+  const instituicao = await prisma.instituicao.findUnique({
+    where: {
+      id: user.instituicaoId,
+    },
+    select: {
+      plano: true,
+    },
+  });
+
+  plano = instituicao?.plano ?? null;
+}
 
     if (String(user.role).toUpperCase() === "ALUNO") {
       const aluno = await prisma.aluno.findFirst({
@@ -70,13 +86,18 @@ export async function GET() {
     }
 
     return NextResponse.json({
-      user: {
-        ...user,
-        isMasterAdmin: user.isMasterAdmin ?? false,
-        statusAluno,
-        bloqueioFinanceiroAtivo,
-      },
-    });
+  user: {
+    id: user.id,
+    nome: user.nome,
+    email: user.email,
+    role: user.role,
+    plano,
+    isMasterAdmin: user.isMasterAdmin,
+    statusAluno,
+    bloqueioFinanceiroAtivo,
+  },
+});
+
   } catch {
     return NextResponse.json(
       { error: "Token inválido" },

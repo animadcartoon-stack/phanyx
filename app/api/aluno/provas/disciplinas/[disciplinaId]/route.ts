@@ -38,11 +38,13 @@ export async function GET(
     }
 
     const prova = await prisma.prova.findFirst({
-      where: {
-        disciplinaId,
-        instituicaoId: user.instituicaoId,
-        ativa: true,
-      },
+  where: {
+    instituicaoId: user.instituicaoId,
+    ativa: true,
+    turma: {
+      disciplinaId: disciplinaId,
+    },
+  },
       orderBy: {
         createdAt: "desc",
       },
