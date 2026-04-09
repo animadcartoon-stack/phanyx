@@ -109,7 +109,10 @@ export default function DisciplinaAlunoPage() {
   const [concluindoAula, setConcluindoAula] = useState(false);
 
   const playerRef = useRef<any>(null);
-  const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
+const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
+const ultimoTempoRef = useRef(0);
+const ultimoTempoValidoRef = useRef(0);
+const ultimoAlertaPuloRef = useRef(0);
 
   const notaDaDisciplina = useMemo(() => {
     return notas.find(
@@ -168,18 +171,82 @@ export default function DisciplinaAlunoPage() {
   }
 
   function iniciarContagem() {
-    if (intervaloRef.current || concluida) return;
+  if (intervaloRef.current || concluida) return;
 
-    intervaloRef.current = setInterval(() => {
-      setTempoAssistidoSegundos((prev) => {
-        if (tempoMinimoSegundos > 0 && prev >= tempoMinimoSegundos) {
-          pararContagem();
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 1000);
+  intervaloRef.current = setInterval(() => {
+    monitorarAvancoIndevido();
+
+    if (
+      tempoMinimoSegundos > 0 &&
+      ultimoTempoValidoRef.current >= tempoMinimoSegundos
+    ) {
+      pararContagem();
+    }
+  }, 1000);
+}
+
+function monitorarAvancoIndevido() {
+  if (!playerRef.current || typeof playerRef.current.getCurrentTime !== "function") {
+    return;
   }
+
+  try {
+    const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
+    const ultimoTempo = ultimoTempoRef.current || 0;
+    const ultimoTempoValido = ultimoTempoValidoRef.current || 0;
+
+    // primeira leitura
+    if (ultimoTempo === 0 && tempoAtual >= 0) {
+      ultimoTempoRef.current = tempoAtual;
+      ultimoTempoValidoRef.current = tempoAtual;
+      setTempoAssistidoSegundos(Math.floor(tempoAtual));
+      return;
+    }
+
+    const delta = tempoAtual - ultimoTempo;
+
+    // avanço natural: só aceita progresso normal
+    if (delta >= 0 && delta <= 1.5) {
+      ultimoTempoRef.current = tempoAtual;
+
+      // nunca deixa contar menos que o já validado
+      if (tempoAtual > ultimoTempoValido) {
+        ultimoTempoValidoRef.current = tempoAtual;
+        setTempoAssistidoSegundos(Math.floor(tempoAtual));
+      }
+
+      return;
+    }
+
+    // voltou para trás: não soma nada, só atualiza referência local
+    if (delta < 0) {
+      ultimoTempoRef.current = tempoAtual;
+      return;
+    }
+
+    // pulou para frente: bloqueia
+    if (delta > 1.5) {
+      pararContagem();
+      pausarVideoSeEstiverTocando();
+
+      try {
+        if (typeof playerRef.current.seekTo === "function") {
+          playerRef.current.seekTo(ultimoTempoValido, true);
+        }
+      } catch {}
+
+      ultimoTempoRef.current = ultimoTempoValido;
+
+      const agora = Date.now();
+      if (agora - ultimoAlertaPuloRef.current > 1500) {
+        ultimoAlertaPuloRef.current = agora;
+        alert("Não é permitido avançar a aula para concluir mais rápido.");
+      }
+    }
+  } catch (error) {
+    console.error("ERRO AO MONITORAR AVANÇO DO VÍDEO:", error);
+  }
+}
 
   async function concluirAulaAtual() {
     if (!aulaAtual || concluindoAula) return;
@@ -438,6 +505,9 @@ export default function DisciplinaAlunoPage() {
     }
 
     setTempoAssistidoSegundos(0);
+ultimoTempoRef.current = 0;
+ultimoTempoValidoRef.current = 0;
+ultimoAlertaPuloRef.current = 0;
 
     if (!aulaAtual?.videoUrl) return;
     if (!youtubePronto) return;
@@ -457,19 +527,37 @@ export default function DisciplinaAlunoPage() {
         },
         events: {
           onStateChange: (event: any) => {
-            const estado = event.data;
+  const estado = event.data;
 
-            if (estado === window.YT.PlayerState.PLAYING) {
-              if (!document.hidden && document.hasFocus()) {
-                iniciarContagem();
-              } else {
-                pararContagem();
-                pausarVideoSeEstiverTocando();
-              }
-            } else {
-              pararContagem();
-            }
-          },
+  if (estado === window.YT.PlayerState.PLAYING) {
+  try {
+    if (typeof playerRef.current?.getCurrentTime === "function") {
+      const tempoAtual = Number(playerRef.current.getCurrentTime() || 0);
+      ultimoTempoRef.current = tempoAtual;
+
+      if (tempoAtual > ultimoTempoValidoRef.current) {
+        ultimoTempoValidoRef.current = tempoAtual;
+        setTempoAssistidoSegundos(Math.floor(tempoAtual));
+      }
+    }
+  } catch {}
+
+  if (!document.hidden && document.hasFocus()) {
+    iniciarContagem();
+  } else {
+    pararContagem();
+    pausarVideoSeEstiverTocando();
+  }
+} else {
+    pararContagem();
+
+    try {
+      if (typeof playerRef.current?.getCurrentTime === "function") {
+        ultimoTempoRef.current = Number(playerRef.current.getCurrentTime() || 0);
+      }
+    } catch {}
+  }
+},
         },
       });
     };
