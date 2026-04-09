@@ -298,6 +298,22 @@ useEffect(() => {
     }
   }
 
+function pausarVideoSeEstiverTocando() {
+  try {
+    if (
+      playerRef.current &&
+      typeof playerRef.current.getPlayerState === "function" &&
+      typeof playerRef.current.pauseVideo === "function" &&
+      window.YT &&
+      playerRef.current.getPlayerState() === window.YT.PlayerState.PLAYING
+    ) {
+      playerRef.current.pauseVideo();
+    }
+  } catch (error) {
+    console.error("ERRO AO PAUSAR VÍDEO AO SAIR DA ABA:", error);
+  }
+}
+
   function iniciarContagem() {
     if (intervaloRef.current || concluida) return;
 
@@ -366,6 +382,28 @@ useEffect(() => {
       setYoutubePronto(true);
       return;
     }
+
+useEffect(() => {
+  function handleVisibilityChange() {
+    if (document.hidden) {
+      pararContagem();
+      pausarVideoSeEstiverTocando();
+    }
+  }
+
+  function handleWindowBlur() {
+    pararContagem();
+    pausarVideoSeEstiverTocando();
+  }
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  window.addEventListener("blur", handleWindowBlur);
+
+  return () => {
+    document.removeEventListener("visibilitychange", handleVisibilityChange);
+    window.removeEventListener("blur", handleWindowBlur);
+  };
+}, []);
 
     const scriptExistente = document.querySelector(
       'script[src="https://www.youtube.com/iframe_api"]'
