@@ -98,8 +98,9 @@ export default function DisciplinaAlunoPage() {
   } = useAluno();
 
   const [loading, setLoading] = useState(true);
-  const [disciplina, setDisciplina] = useState<DisciplinaApi | null>(null);
-  const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
+const [disciplina, setDisciplina] = useState<DisciplinaApi | null>(null);
+const [erroDisciplina, setErroDisciplina] = useState<string | null>(null);
+const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
 
   const [provaPublicada, setProvaPublicada] =
     useState<ProvaPublicadaApi | null>(null);
@@ -133,6 +134,7 @@ export default function DisciplinaAlunoPage() {
       }
 
       setLoading(true);
+      setErroDisciplina(null);
 
       try {
         const res = await fetch(`/api/disciplina/${disciplinaId}`, {
@@ -145,9 +147,10 @@ export default function DisciplinaAlunoPage() {
 
         if (!res.ok) {
           setDisciplina(null);
+          setErroDisciplina(data?.error || "Não foi possível carregar a disciplina.");
           setLoading(false);
           return;
-        }
+}
 
         setDisciplina(data);
 
@@ -165,11 +168,12 @@ export default function DisciplinaAlunoPage() {
         );
 
         setAulaAtualId((primeiraNaoConcluida ?? aulasOrdenadas[0])?.id ?? null);
-      } catch (error) {
-        console.error("ERRO AO CARREGAR DISCIPLINA:", error);
-        if (!mounted) return;
-        setDisciplina(null);
-      } finally {
+      } catch (error: any) {
+  console.error("ERRO AO CARREGAR DISCIPLINA:", error);
+  if (!mounted) return;
+  setDisciplina(null);
+  setErroDisciplina("Erro ao carregar disciplina.");
+} finally {
         if (mounted) setLoading(false);
       }
     }
@@ -453,8 +457,12 @@ useEffect(() => {
   }
 
   if (!disciplina) {
-    return <div className="p-8">Disciplina não encontrada.</div>;
-  }
+  return (
+    <div className="p-8">
+      {erroDisciplina || "Disciplina não encontrada."}
+    </div>
+  );
+}
 
   return (
     <div className="min-h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-[360px_1fr]">
