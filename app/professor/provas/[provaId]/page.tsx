@@ -51,7 +51,10 @@ export default function ProvaPage() {
         throw new Error(data.error || "Erro ao carregar prova");
       }
 
-      setProva(data);
+      setProva({
+  ...data,
+  status: data.ativa ? "PUBLICADA" : "RASCUNHO",
+});
     } catch (e: any) {
       setErro(e.message || "Erro ao carregar prova");
     } finally {

@@ -52,7 +52,14 @@ export default function ProfessorProvasPage() {
         throw new Error(data.error || "Erro ao carregar provas");
       }
 
-      setProvas(Array.isArray(data) ? data : []);
+      setProvas(
+  Array.isArray(data)
+    ? data.map((p) => ({
+        ...p,
+        status: p.ativa ? "PUBLICADA" : "RASCUNHO",
+      }))
+    : []
+);
     } catch (e: any) {
       setErro(e.message);
       showToast(e.message || "Erro ao carregar provas", "error");
