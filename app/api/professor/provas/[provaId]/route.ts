@@ -213,3 +213,113 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  _req: Request,
+  { params }: { params: { provaId: string } }
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || (user.role !== "PROFESSOR" && user.role !== "professor")) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const professor = await prisma.professor.findFirst({
+      where: {
+        userId: user.id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: { id: true },
+    });
+
+    if (!professor) {
+      return NextResponse.json(
+        { error: "Professor não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const provaId = Number(params.provaId);
+
+    if (!Number.isFinite(provaId) || provaId <= 0) {
+      return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
+    }
+
+    const prova = await prisma.prova.findFirst({
+      where: {
+        id: provaId,
+        instituicaoId: user.instituicaoId,
+        turma: {
+          professorId: professor.id,
+        },
+      },
+      select: {
+        id: true,
+        ativa: true,
+      },
+    });
+
+    if (!prova) {
+      return NextResponse.json(
+        { error: "Prova não encontrada" },
+        { status: 404 }
+      );
+    }
+
+    if (prova.ativa) {
+      return NextResponse.json(
+        { error: "Só é permitido excluir provas em rascunho." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.respostaProva.deleteMany({
+      where: {
+        questao: {
+          provaId,
+        },
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    await prisma.tentativaProva.deleteMany({
+      where: {
+        provaId,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    await prisma.alternativa.deleteMany({
+      where: {
+        questao: {
+          provaId,
+        },
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    await prisma.questao.deleteMany({
+      where: {
+        provaId,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    await prisma.prova.delete({
+      where: {
+        id: provaId,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      message: "Prova excluída com sucesso.",
+    });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: e.message || "Erro ao excluir prova" },
+      { status: 500 }
+    );
+  }
+}
