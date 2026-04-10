@@ -36,6 +36,10 @@ type ProvaPublicadaApi = {
   ativa?: boolean;
 };
 
+type StatusProvaAlunoApi = {
+  jaFinalizou: boolean;
+};
+
 type AuthMeResponse = {
   plano?: string;
   user?: {
@@ -99,8 +103,10 @@ export default function DisciplinaAlunoPage() {
   const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
 
   const [provaPublicada, setProvaPublicada] =
-    useState<ProvaPublicadaApi | null>(null);
-  const [loadingProva, setLoadingProva] = useState(true);
+  useState<ProvaPublicadaApi | null>(null);
+const [loadingProva, setLoadingProva] = useState(true);
+const [jaFinalizouProva, setJaFinalizouProva] = useState(false);
+const [loadingStatusProva, setLoadingStatusProva] = useState(false);
   const [plano, setPlano] = useState<string>("ESSENCIAL");
   const [loadingPlano, setLoadingPlano] = useState(true);
   const [tempoAssistidoSegundos, setTempoAssistidoSegundos] = useState(0);
@@ -419,6 +425,55 @@ function monitorarAvancoIndevido() {
     };
   }, [disciplinaId]);
 
+useEffect(() => {
+  let mounted = true;
+
+  async function carregarStatusProva() {
+    if (!provaPublicada?.id) {
+      if (mounted) {
+        setJaFinalizouProva(false);
+        setLoadingStatusProva(false);
+      }
+      return;
+    }
+
+    try {
+      setLoadingStatusProva(true);
+
+      const res = await fetch(
+        `/api/aluno/provas/${provaPublicada.id}/status`,
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      if (!mounted) return;
+
+      if (!res.ok) {
+        setJaFinalizouProva(false);
+        setLoadingStatusProva(false);
+        return;
+      }
+
+      const data: StatusProvaAlunoApi = await res.json();
+      setJaFinalizouProva(Boolean(data?.jaFinalizou));
+    } catch (error) {
+      console.error("ERRO AO CARREGAR STATUS DA PROVA:", error);
+      if (!mounted) return;
+      setJaFinalizouProva(false);
+    } finally {
+      if (mounted) setLoadingStatusProva(false);
+    }
+  }
+
+  carregarStatusProva();
+
+  return () => {
+    mounted = false;
+  };
+}, [provaPublicada?.id]);
+
   useEffect(() => {
     if (concluida) {
       setPodeConcluir(true);
@@ -675,49 +730,56 @@ ultimoAlertaPuloRef.current = 0;
           </button>
 
           {loadingPlano ? (
-            <button
-              disabled
-              className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
-            >
-              Carregando plano...
-            </button>
-          ) : plano === "ESSENCIAL" ? (
-            <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
-              Provas disponíveis apenas nos planos Profissional e Enterprise.
-            </div>
-          ) : loadingProva ? (
-            <button
-              disabled
-              className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
-            >
-              Carregando prova...
-            </button>
-          ) : !provaPublicada ? (
-            <button
-              disabled
-              className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
-            >
-              Prova indisponível
-            </button>
-          ) : progresso === 100 ? (
-            <button
-              onClick={() =>
-                router.push(
-                  `/aluno/disciplinas/${disciplinaId}/prova/${provaPublicada.id}`
-                )
-              }
-              className="w-full rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
-            >
-              Fazer prova
-            </button>
-          ) : (
-            <button
-              disabled
-              className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
-            >
-              Prova bloqueada — conclua todas as aulas
-            </button>
-          )}
+  <button
+    disabled
+    className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
+  >
+    Carregando plano...
+  </button>
+) : plano === "ESSENCIAL" ? (
+  <div className="rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+    Provas disponíveis apenas nos planos Profissional e Enterprise.
+  </div>
+) : loadingProva || loadingStatusProva ? (
+  <button
+    disabled
+    className="w-full cursor-not-allowed rounded-xl bg-gray-300 px-4 py-2 text-white"
+  >
+    Carregando prova...
+  </button>
+) : !provaPublicada ? (
+  <button
+    disabled
+    className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
+  >
+    Prova indisponível
+  </button>
+) : jaFinalizouProva ? (
+  <button
+    disabled
+    className="w-full cursor-not-allowed rounded-xl bg-slate-500 px-4 py-2 text-white"
+  >
+    Você já fez essa prova
+  </button>
+) : progresso === 100 ? (
+  <button
+    onClick={() =>
+      router.push(
+        `/aluno/disciplinas/${disciplinaId}/prova/${provaPublicada.id}`
+      )
+    }
+    className="w-full rounded-xl bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+  >
+    Fazer prova
+  </button>
+) : (
+  <button
+    disabled
+    className="w-full cursor-not-allowed rounded-xl bg-gray-400 px-4 py-2 text-white"
+  >
+    Prova bloqueada — conclua todas as aulas
+  </button>
+)}
         </div>
       </aside>
 
