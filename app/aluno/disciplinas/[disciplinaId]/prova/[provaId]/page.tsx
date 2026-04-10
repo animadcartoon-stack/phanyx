@@ -55,7 +55,8 @@ export default function ExecutarProvaPage() {
           cache: "no-store",
         });
 
-        const provaData = await r1.json();
+        const text1 = await r1.text();
+const provaData = text1 ? JSON.parse(text1) : null;
 
         if (!r1.ok) {
           setProva(null);
@@ -69,7 +70,8 @@ export default function ExecutarProvaPage() {
           credentials: "include",
         });
 
-        const t = await r2.json();
+        const text2 = await r2.text();
+const t = text2 ? JSON.parse(text2) : null;
 
         if (!r2.ok) {
           throw new Error(t?.error || "Erro ao iniciar prova");
