@@ -129,38 +129,50 @@ export default function ProfessorProvasPage() {
   }
 
   async function excluirProva(provaId: number) {
-    const confirmou = await confirm({
-      title: "Excluir prova",
-      message:
-        "Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.",
-      confirmText: "Excluir",
-      cancelText: "Cancelar",
-      confirmVariant: "danger",
+  const confirmou = await confirm({
+    title: "Excluir prova",
+    message:
+      "Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.",
+    confirmText: "Excluir",
+    cancelText: "Cancelar",
+    confirmVariant: "danger",
+  });
+
+  if (!confirmou) return;
+
+  try {
+    setAcaoLoading({ provaId, acao: "excluir" });
+
+    const res = await fetch(`/api/professor/provas/${provaId}`, {
+      method: "DELETE",
+      credentials: "include",
     });
 
-    if (!confirmou) return;
+    const contentType = res.headers.get("content-type") || "";
+    let data: any = null;
 
-    try {
-      setAcaoLoading({ provaId, acao: "excluir" });
-
-      const res = await fetch(`/api/professor/provas/${provaId}`, {
-        method: "DELETE",
-      });
-
-      const data = await res.json();
+    if (contentType.includes("application/json")) {
+      data = await res.json();
+    } else {
+      const texto = await res.text();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao excluir prova");
+        throw new Error(texto || "Erro ao excluir prova");
       }
-
-      await carregarProvas();
-      showToast("Prova excluída com sucesso", "success");
-    } catch (e: any) {
-      showToast(e.message || "Erro ao excluir prova", "error");
-    } finally {
-      setAcaoLoading(null);
     }
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao excluir prova");
+    }
+
+    await carregarProvas();
+    showToast("Prova excluída com sucesso", "success");
+  } catch (e: any) {
+    showToast(e.message || "Erro ao excluir prova", "error");
+  } finally {
+    setAcaoLoading(null);
   }
+}
 
   const totalProvas = provas.length;
 
