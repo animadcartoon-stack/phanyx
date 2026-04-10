@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import ProfessorSidebar from "@/components/layout/ProfessorSidebar";
 import { ProfessorProvider } from "@/app/context/ProfessorContext";
 import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvider";
+import { ToastProvider } from "@/components/providers/ToastProvider";
 
 export default async function ProfessorLayout({
   children,
@@ -58,7 +59,8 @@ export default async function ProfessorLayout({
   }
 
   return (
-    <ProfessorProvider>
+  <ProfessorProvider>
+    <ToastProvider>
       <ConfirmDialogProvider>
         <Header />
         <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
@@ -79,6 +81,7 @@ export default async function ProfessorLayout({
           </main>
         </div>
       </ConfirmDialogProvider>
-    </ProfessorProvider>
-  );
+    </ToastProvider>
+  </ProfessorProvider>
+);
 }
