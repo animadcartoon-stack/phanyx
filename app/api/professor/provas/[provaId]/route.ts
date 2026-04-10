@@ -32,16 +32,19 @@ export async function GET(
 
     const prova = await prisma.prova.findFirst({
       where: {
-        id: provaId,
-        instituicaoId: user.instituicaoId,
-        disciplina: {
-          professorId: professor.id,
-        },
-      },
-      include: {
-        disciplina: true,
-        turma: true,
-        questoes: {
+  id: provaId,
+  instituicaoId: user.instituicaoId,
+  turma: {
+    professorId: professor.id,
+  },
+},
+include: {
+  turma: {
+    include: {
+      disciplina: true,
+    },
+  },
+  questoes: {
           orderBy: { ordem: "asc" },
           include: {
             alternativas: {
@@ -99,14 +102,14 @@ export async function PATCH(
     const body = await req.json();
 
     const provaExistente = await prisma.prova.findFirst({
-      where: {
-        id: provaId,
-        instituicaoId: user.instituicaoId,
-        disciplina: {
-          professorId: professor.id,
-        },
-      },
-    });
+  where: {
+    id: provaId,
+    instituicaoId: user.instituicaoId,
+    turma: {
+      professorId: professor.id,
+    },
+  },
+});
 
     if (!provaExistente) {
       return NextResponse.json(
@@ -157,9 +160,12 @@ export async function PATCH(
             : provaExistente.turmaId,
       },
       include: {
-        disciplina: true,
-        turma: true,
-        questoes: {
+  turma: {
+    include: {
+      disciplina: true,
+    },
+  },
+  questoes: {
           orderBy: { ordem: "asc" },
           include: {
             alternativas: {
