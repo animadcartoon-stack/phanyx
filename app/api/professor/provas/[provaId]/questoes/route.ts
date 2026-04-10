@@ -78,11 +78,15 @@ export async function POST(
 
    const questao = await prisma.questao.create({
   data: {
-    provaId,
     enunciado,
     tipo: tipoConvertido as any,
     valor: valor ?? 1,
     ordem: last ? last.ordem + 1 : 1,
+    prova: {
+      connect: {
+        id: provaId,
+      },
+    },
     instituicao: {
       connect: {
         id: user.instituicaoId!,
