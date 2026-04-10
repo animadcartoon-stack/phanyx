@@ -11,9 +11,9 @@ export async function provaPertenceAoProfessor(params: {
     where: {
       id: provaId,
       instituicaoId,
-      disciplina: {
-        professorId,
-      },
+      turma: {
+  professorId,
+},
     },
     include: {
       disciplina: true,
