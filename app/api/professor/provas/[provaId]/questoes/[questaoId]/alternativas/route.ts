@@ -15,6 +15,13 @@ export async function POST(
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Instituição do usuário não encontrada" },
+        { status: 400 }
+      );
+    }
+
     const professor = await prisma.professor.findUnique({
       where: { userId: user.id },
     });
@@ -28,6 +35,14 @@ export async function POST(
 
     const provaId = Number(ctx.params.provaId);
     const questaoId = Number(ctx.params.questaoId);
+
+    if (!Number.isFinite(provaId) || provaId <= 0) {
+      return NextResponse.json({ error: "Prova inválida" }, { status: 400 });
+    }
+
+    if (!Number.isFinite(questaoId) || questaoId <= 0) {
+      return NextResponse.json({ error: "Questão inválida" }, { status: 400 });
+    }
 
     const prova: any = await provaPertenceAoProfessor({
       provaId,
@@ -68,6 +83,10 @@ export async function POST(
       where: {
         id: questaoId,
         provaId,
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
       },
     });
 
@@ -78,10 +97,10 @@ export async function POST(
       );
     }
 
-    const last: any = await prisma.alternativa.findFirst({
+    const last = await prisma.alternativa.findFirst({
       where: { questaoId },
-      orderBy: { ordem: "desc" } as any,
-      select: { ordem: true } as any,
+      orderBy: { ordem: "desc" },
+      select: { ordem: true },
     });
 
     if (correta === true) {
@@ -94,10 +113,11 @@ export async function POST(
     const alternativa = await prisma.alternativa.create({
       data: {
         questaoId,
+        instituicaoId: user.instituicaoId,
         texto,
         correta: correta ?? false,
         ordem: last ? last.ordem + 1 : 1,
-      } as any,
+      },
     });
 
     return NextResponse.json(alternativa, { status: 201 });
