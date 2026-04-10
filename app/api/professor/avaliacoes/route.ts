@@ -21,13 +21,15 @@ export async function GET() {
   }
 
   const tentativas = await prisma.tentativaProva.findMany({
-    where: {
-      prova: {
+  where: {
+    prova: {
+      turma: {
         disciplina: {
           professorId: professor.id,
         },
       },
     },
+  },
     include: {
       aluno: {
         include: {
