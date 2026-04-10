@@ -12,6 +12,7 @@
     "@aws-sdk/client-s3": "^3.1003.0",
     "@aws-sdk/s3-request-presigner": "^3.1026.0",
     "@prisma/client": "^5.22.0",
+    "@vercel/blob": "^2.3.3",
     "bcryptjs": "^3.0.3",
     "jsonwebtoken": "^9.0.3",
     "jspdf": "^4.0.0",

@@ -2,14 +2,23 @@
 
 import { useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { upload } from "@vercel/blob/client";
 
 type ArquivoUpload = {
-  key: string;
   url: string;
-  nomeOriginal: string;
-  mimeType: string;
-  tamanho: number;
+  downloadUrl?: string;
+  pathname?: string;
+  contentType?: string;
 };
+
+function sanitizeFileName(name: string) {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .replace(/-+/g, "-")
+    .toLowerCase();
+}
 
 export default function NovoMaterialAulaPage() {
   const params = useParams();
@@ -26,6 +35,7 @@ export default function NovoMaterialAulaPage() {
   const [arquivoEnviado, setArquivoEnviado] = useState<ArquivoUpload | null>(null);
 
   const [uploadingArquivo, setUploadingArquivo] = useState(false);
+  const [progressoUpload, setProgressoUpload] = useState<number>(0);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
@@ -36,47 +46,35 @@ export default function NovoMaterialAulaPage() {
       return;
     }
 
+    if (!aulaId || !Number.isFinite(aulaId)) {
+      setErro("Aula inválida.");
+      return;
+    }
+
     try {
       setUploadingArquivo(true);
+      setProgressoUpload(0);
       setErro("");
       setMensagem("");
 
-      const resUploadUrl = await fetch("/api/professor/upload-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          nomeOriginal: arquivo.name,
-          mimeType: arquivo.type || "application/octet-stream",
-          tamanho: arquivo.size,
-        }),
-      });
+      const safeName = sanitizeFileName(arquivo.name);
+      const pathname = `materiais-aula/${aulaId}/${Date.now()}-${safeName}`;
 
-      const jsonUploadUrl = await resUploadUrl.json();
-
-      if (!resUploadUrl.ok) {
-        throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
-      }
-
-      const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
-        method: "PUT",
-        body: arquivo,
-        headers: {
-          "Content-Type": arquivo.type || "application/octet-stream",
+      const blob = await upload(pathname, arquivo, {
+        access: "public",
+        handleUploadUrl: "/api/professor/upload-url",
+        clientPayload: JSON.stringify({ aulaId }),
+        multipart: true,
+        onUploadProgress(progressEvent) {
+          setProgressoUpload(Math.round(progressEvent.percentage));
         },
       });
-
-      if (!resUploadDireto.ok) {
-        throw new Error("Erro ao enviar arquivo para o storage");
-      }
 
       setArquivoEnviado({
-        key: jsonUploadUrl.key,
-        nomeOriginal: arquivo.name,
-        mimeType: arquivo.type || "application/octet-stream",
-        tamanho: arquivo.size,
-        url: jsonUploadUrl.arquivoUrl,
+        url: blob.url,
+        downloadUrl: blob.downloadUrl,
+        pathname: blob.pathname,
+        contentType: blob.contentType,
       });
 
       setMensagem("Arquivo enviado com sucesso.");
@@ -123,7 +121,7 @@ export default function NovoMaterialAulaPage() {
           url: urlExterna.trim(),
         };
       } else {
-        if (!arquivoEnviado?.url) {
+        if (!arquivo || !arquivoEnviado?.url) {
           throw new Error("Envie o arquivo antes de salvar.");
         }
 
@@ -131,9 +129,9 @@ export default function NovoMaterialAulaPage() {
           titulo,
           tipo: "ARQUIVO",
           url: arquivoEnviado.url,
-          arquivoNome: arquivoEnviado.nomeOriginal,
-          mimeType: arquivoEnviado.mimeType,
-          tamanho: arquivoEnviado.tamanho,
+          arquivoNome: arquivo.name,
+          mimeType: arquivo.type || arquivoEnviado.contentType || "",
+          tamanho: arquivo.size,
         };
       }
 
@@ -156,7 +154,7 @@ export default function NovoMaterialAulaPage() {
 
       setTimeout(() => {
         router.back();
-      }, 1200);
+      }, 1000);
     } catch (e: any) {
       setErro(e.message || "Erro ao salvar material");
     } finally {
@@ -213,7 +211,7 @@ export default function NovoMaterialAulaPage() {
               onChange={(e) => setTitulo(e.target.value)}
               required
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-              placeholder="Ex.: Slides da aula 1"
+              placeholder="Ex.: Apostila da aula"
             />
           </div>
 
@@ -227,6 +225,10 @@ export default function NovoMaterialAulaPage() {
                 setTipo(e.target.value);
                 setErro("");
                 setMensagem("");
+                setArquivo(null);
+                setArquivoEnviado(null);
+                setUrlExterna("");
+                setProgressoUpload(0);
               }}
               className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
@@ -246,19 +248,21 @@ export default function NovoMaterialAulaPage() {
                   Upload do arquivo
                 </h2>
                 <p className="mt-1 text-sm text-gray-500">
-                  Selecione o arquivo e depois envie para a nuvem.
+                  O arquivo será enviado para o storage do PHANYX.
                 </p>
               </div>
 
               <input
                 ref={inputArquivoRef}
                 type="file"
-                accept=".pdf,.ppt,.pptx,.mp4,.mov,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                accept=".pdf,.ppt,.pptx,.mp4,.mov,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.zip,.rar,.mp3,.wav"
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
                   setArquivo(file);
                   setArquivoEnviado(null);
                   setMensagem("");
+                  setErro("");
+                  setProgressoUpload(0);
                 }}
                 className="hidden"
               />
@@ -278,7 +282,7 @@ export default function NovoMaterialAulaPage() {
                   disabled={!arquivo || uploadingArquivo}
                   className="rounded-lg border border-blue-600 px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {uploadingArquivo ? "Enviando arquivo..." : "Enviar arquivo"}
+                  {uploadingArquivo ? "Enviando..." : "Enviar arquivo"}
                 </button>
               </div>
 
@@ -292,14 +296,26 @@ export default function NovoMaterialAulaPage() {
                 )}
               </div>
 
+              {uploadingArquivo && (
+                <div className="space-y-2">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+                    <div
+                      className="h-2 bg-blue-600 transition-all"
+                      style={{ width: `${progressoUpload}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Upload: {progressoUpload}%
+                  </p>
+                </div>
+              )}
+
               {arquivoEnviado && (
                 <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
                   <p>
-                    <strong>Arquivo enviado:</strong> {arquivoEnviado.nomeOriginal}
+                    <strong>Arquivo enviado com sucesso.</strong>
                   </p>
-                  <p>
-                    <strong>Key:</strong> {arquivoEnviado.key}
-                  </p>
+                  <p className="mt-1 break-all">{arquivoEnviado.url}</p>
                 </div>
               )}
             </div>
