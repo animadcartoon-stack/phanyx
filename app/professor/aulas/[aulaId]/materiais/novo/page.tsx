@@ -42,48 +42,42 @@ export default function NovoMaterialAulaPage() {
       setMensagem("");
 
       const resUploadUrl = await fetch("/api/professor/upload-url", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    nomeOriginal: arquivo.name,
-    mimeType: arquivo.type || "application/octet-stream",
-    tamanho: arquivo.size,
-  }),
-});
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nomeOriginal: arquivo.name,
+          mimeType: arquivo.type || "application/octet-stream",
+          tamanho: arquivo.size,
+        }),
+      });
 
-const jsonUploadUrl = await resUploadUrl.json();
+      const jsonUploadUrl = await resUploadUrl.json();
 
-if (!resUploadUrl.ok) {
-  throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
-}
+      if (!resUploadUrl.ok) {
+        throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
+      }
 
-const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
-  method: "PUT",
-  body: arquivo,
-  headers: {
-  "Content-Type": arquivo.type,
-},
-});
+      const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+        method: "PUT",
+        body: arquivo,
+        headers: {
+          "Content-Type": arquivo.type || "application/octet-stream",
+        },
+      });
 
-if (!resUploadDireto.ok) {
-  throw new Error("Erro ao enviar arquivo para o storage");
-}
-
-const json = {
-  arquivo: {
-    url: jsonUploadUrl.arquivoUrl,
-  },
-};
+      if (!resUploadDireto.ok) {
+        throw new Error("Erro ao enviar arquivo para o storage");
+      }
 
       setArquivoEnviado({
-  key: jsonUploadUrl.key,
-  nomeOriginal: arquivo.name,
-  mimeType: arquivo.type || "application/octet-stream",
-  tamanho: arquivo.size,
-  url: jsonUploadUrl.arquivoUrl,
-});
+        key: jsonUploadUrl.key,
+        nomeOriginal: arquivo.name,
+        mimeType: arquivo.type || "application/octet-stream",
+        tamanho: arquivo.size,
+        url: jsonUploadUrl.arquivoUrl,
+      });
 
       setMensagem("Arquivo enviado com sucesso.");
     } catch (e: any) {
@@ -96,7 +90,7 @@ const json = {
   async function handleSalvarMaterial(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!aulaId) {
+    if (!aulaId || !Number.isFinite(aulaId)) {
       setErro("Aula inválida.");
       return;
     }
@@ -106,32 +100,51 @@ const json = {
       setErro("");
       setMensagem("");
 
-      const body =
-        tipo === "link" || tipo === "video"
-          ? {
-              titulo,
-              tipo,
-              url: urlExterna,
-              aulaId,
-            }
-          : {
-              titulo,
-              tipo: "arquivo",
-              url: arquivoEnviado?.url || "",
-              arquivoNome: arquivoEnviado?.nomeOriginal || "",
-              mimeType: arquivoEnviado?.mimeType || "",
-              tamanho: arquivoEnviado?.tamanho || null,
-              aulaId,
-            };
+      let body: any;
 
-     const res = await fetch("/api/professor/materiais", {
-  method: "POST",
-  credentials: "include",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify(body),
-});
+      if (tipo === "link") {
+        if (!urlExterna.trim()) {
+          throw new Error("Informe a URL do link.");
+        }
+
+        body = {
+          titulo,
+          tipo: "LINK",
+          url: urlExterna.trim(),
+        };
+      } else if (tipo === "video") {
+        if (!urlExterna.trim()) {
+          throw new Error("Informe a URL do vídeo.");
+        }
+
+        body = {
+          titulo,
+          tipo: "VIDEO",
+          url: urlExterna.trim(),
+        };
+      } else {
+        if (!arquivoEnviado?.url) {
+          throw new Error("Envie o arquivo antes de salvar.");
+        }
+
+        body = {
+          titulo,
+          tipo: "ARQUIVO",
+          url: arquivoEnviado.url,
+          arquivoNome: arquivoEnviado.nomeOriginal,
+          mimeType: arquivoEnviado.mimeType,
+          tamanho: arquivoEnviado.tamanho,
+        };
+      }
+
+      const res = await fetch(`/api/professor/aulas/${aulaId}/materiais`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
 
       const json = await res.json();
 
@@ -238,9 +251,9 @@ const json = {
               </div>
 
               <input
-  ref={inputArquivoRef}
-  type="file"
-  accept=".pdf,.ppt,.pptx,.mp4,.mov,.png,.jpg,.jpeg,.doc,.docx"
+                ref={inputArquivoRef}
+                type="file"
+                accept=".pdf,.ppt,.pptx,.mp4,.mov,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.zip,.rar"
                 onChange={(e) => {
                   const file = e.target.files?.[0] || null;
                   setArquivo(file);
