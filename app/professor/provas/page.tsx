@@ -387,83 +387,99 @@ export default function ProfessorProvasPage() {
                     </a>
 
                     {prova.status === "RASCUNHO" && (
-                      <button
-                        onClick={() => publicarProva(prova.id)}
-                        disabled={
-                          acaoLoading?.provaId === prova.id &&
-                          acaoLoading?.acao === "publicar"
-                        }
-                        className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-                      >
-                        {acaoLoading?.provaId === prova.id &&
-                        acaoLoading?.acao === "publicar"
-                          ? "Publicando..."
-                          : "Publicar"}
-                      </button>
-                    )}
-
-<button
-  onClick={async () => {
-    if (
-  !(await confirm({
-    title: "Despublicar prova",
-    message: "Deseja despublicar esta prova?",
-    confirmText: "Despublicar",
-    cancelText: "Cancelar",
-    confirmVariant: "primary",
-  }))
-)
-  return;
-
-    const res = await fetch(
-      `/api/professor/provas/${prova.id}/despublicar`,
-      {
-        method: "POST",
+  <>
+    <button
+      onClick={() => publicarProva(prova.id)}
+      disabled={
+        acaoLoading?.provaId === prova.id &&
+        acaoLoading?.acao === "publicar"
       }
-    );
+      className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+    >
+      {acaoLoading?.provaId === prova.id &&
+      acaoLoading?.acao === "publicar"
+        ? "Publicando..."
+        : "Publicar"}
+    </button>
 
-    if (res.ok) {
-      location.reload();
-    } else {
-      alert("Erro ao despublicar prova");
-    }
-  }}
-  className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
->
-  Despublicar
-</button>
+    <button
+      onClick={() => excluirProva(prova.id)}
+      disabled={
+        acaoLoading?.provaId === prova.id &&
+        acaoLoading?.acao === "excluir"
+      }
+      className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+    >
+      {acaoLoading?.provaId === prova.id &&
+      acaoLoading?.acao === "excluir"
+        ? "Excluindo..."
+        : "Excluir"}
+    </button>
+  </>
+)}
 
-                    {prova.status !== "ENCERRADA" && (
-                      <button
-                        onClick={() => encerrarProva(prova.id)}
-                        disabled={
-                          acaoLoading?.provaId === prova.id &&
-                          acaoLoading?.acao === "encerrar"
-                        }
-                        className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
-                      >
-                        {acaoLoading?.provaId === prova.id &&
-                        acaoLoading?.acao === "encerrar"
-                          ? "Encerrando..."
-                          : "Encerrar"}
-                      </button>
-                    )}
+{prova.status === "PUBLICADA" && (
+  <>
+    <button
+      onClick={async () => {
+        if (
+          !(await confirm({
+            title: "Despublicar prova",
+            message: "Deseja despublicar esta prova?",
+            confirmText: "Despublicar",
+            cancelText: "Cancelar",
+            confirmVariant: "primary",
+          }))
+        ) {
+          return;
+        }
 
-                    {prova.status === "RASCUNHO" && (
-                      <button
-                        onClick={() => excluirProva(prova.id)}
-                        disabled={
-                          acaoLoading?.provaId === prova.id &&
-                          acaoLoading?.acao === "excluir"
-                        }
-                        className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                      >
-                        {acaoLoading?.provaId === prova.id &&
-                        acaoLoading?.acao === "excluir"
-                          ? "Excluindo..."
-                          : "Excluir"}
-                      </button>
-                    )}
+        try {
+          const res = await fetch(
+            `/api/professor/provas/${prova.id}/despublicar`,
+            {
+              method: "POST",
+              credentials: "include",
+            }
+          );
+
+          const contentType = res.headers.get("content-type") || "";
+          let data: any = null;
+
+          if (contentType.includes("application/json")) {
+            data = await res.json();
+          }
+
+          if (!res.ok) {
+            throw new Error(data?.error || "Erro ao despublicar prova");
+          }
+
+          await carregarProvas();
+          showToast("Prova despublicada com sucesso", "success");
+        } catch (e: any) {
+          showToast(e.message || "Erro ao despublicar prova", "error");
+        }
+      }}
+      className="rounded-lg bg-gray-500 px-3 py-2 text-sm font-medium text-white hover:bg-gray-600"
+    >
+      Despublicar
+    </button>
+
+    <button
+      onClick={() => encerrarProva(prova.id)}
+      disabled={
+        acaoLoading?.provaId === prova.id &&
+        acaoLoading?.acao === "encerrar"
+      }
+      className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+    >
+      {acaoLoading?.provaId === prova.id &&
+      acaoLoading?.acao === "encerrar"
+        ? "Encerrando..."
+        : "Encerrar"}
+    </button>
+  </>
+)}
                   </div>
                 </div>
               ))}
