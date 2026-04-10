@@ -111,7 +111,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     await prisma.materialAula.create({
       data: {
         aulaId,
-        tipo: "ARQUIVO",
+        tipo: "arquivo",
         titulo: nomeArquivo,
         url: blob.url,
         arquivoNome: nomeArquivo,

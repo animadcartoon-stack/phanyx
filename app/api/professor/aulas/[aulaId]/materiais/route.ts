@@ -55,7 +55,7 @@ export async function POST(
 
     const body = await req.json();
 
-    const tipo = String(body?.tipo || "").trim().toUpperCase();
+    const tipo = String(body?.tipo || "").trim().toLowerCase();
     const titulo = String(body?.titulo || "").trim();
 
     if (!titulo) {
@@ -65,7 +65,7 @@ export async function POST(
       );
     }
 
-    if (!["ARQUIVO", "LINK", "VIDEO"].includes(tipo)) {
+    if (!["arquivo", "pdf", "doc", "ppt", "link", "video"].includes(tipo)) {
       return NextResponse.json(
         { error: "Tipo de material inválido" },
         { status: 400 }
@@ -84,14 +84,14 @@ export async function POST(
         ? Number(body.tamanho)
         : null;
 
-    if ((tipo === "LINK" || tipo === "VIDEO") && !url) {
+    if ((tipo === "link" || tipo === "video") && !url) {
       return NextResponse.json(
         { error: "URL é obrigatória para link ou vídeo" },
         { status: 400 }
       );
     }
 
-    if (tipo === "ARQUIVO" && !url) {
+    if ((tipo === "arquivo" || tipo === "pdf" || tipo === "doc" || tipo === "ppt") && !url) {
       return NextResponse.json(
         { error: "Envie o arquivo antes de salvar o material" },
         { status: 400 }
