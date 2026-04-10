@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Header from "@/components/layout/Header";
 import ProfessorSidebar from "@/components/layout/ProfessorSidebar";
 import { ProfessorProvider } from "@/app/context/ProfessorContext";
+import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvider";
 
 export default async function ProfessorLayout({
   children,
@@ -58,24 +59,26 @@ export default async function ProfessorLayout({
 
   return (
     <ProfessorProvider>
-      <Header />
-      <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
-        <ProfessorSidebar />
-        <main className="flex-1 p-8">
-          <div className="mb-6 flex justify-end">
-            <form action="/api/auth/logout-professor" method="post">
-              <button
-                type="submit"
-                className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
-              >
-                Sair
-              </button>
-            </form>
-          </div>
+      <ConfirmDialogProvider>
+        <Header />
+        <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
+          <ProfessorSidebar />
+          <main className="flex-1 p-8">
+            <div className="mb-6 flex justify-end">
+              <form action="/api/auth/logout-professor" method="post">
+                <button
+                  type="submit"
+                  className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
+                >
+                  Sair
+                </button>
+              </form>
+            </div>
 
-          {children}
-        </main>
-      </div>
+            {children}
+          </main>
+        </div>
+      </ConfirmDialogProvider>
     </ProfessorProvider>
   );
 }

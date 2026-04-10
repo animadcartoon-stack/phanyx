@@ -31,13 +31,13 @@ export default function ProfessorProvasPage() {
   const [provas, setProvas] = useState<Prova[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
-  
-  const [acaoLoading, setAcaoLoading] = useState<{
-  provaId: number;
-  acao: "publicar" | "encerrar" | "excluir";
-} | null>(null);
 
-const { confirm } = useConfirmDialog();
+  const [acaoLoading, setAcaoLoading] = useState<{
+    provaId: number;
+    acao: "publicar" | "encerrar" | "excluir";
+  } | null>(null);
+
+  const { confirm } = useConfirmDialog();
   const { showToast } = useToast();
 
   async function carregarProvas() {
@@ -54,9 +54,9 @@ const { confirm } = useConfirmDialog();
 
       setProvas(Array.isArray(data) ? data : []);
     } catch (e: any) {
-  setErro(e.message);
-  showToast(e.message || "Erro ao carregar provas", "error");
-} finally {
+      setErro(e.message);
+      showToast(e.message || "Erro ao carregar provas", "error");
+    } finally {
       setLoading(false);
     }
   }
@@ -66,92 +66,94 @@ const { confirm } = useConfirmDialog();
   }, []);
 
   async function publicarProva(provaId: number) {
-  try {
-    setAcaoLoading({ provaId, acao: "publicar" });
+    try {
+      setAcaoLoading({ provaId, acao: "publicar" });
 
-    const res = await fetch(`/api/professor/provas/${provaId}/publicar`, {
-      method: "POST",
-    });
+      const res = await fetch(`/api/professor/provas/${provaId}/publicar`, {
+        method: "POST",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data.error || "Erro ao publicar prova");
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao publicar prova");
+      }
+
+      await carregarProvas();
+      showToast("Prova publicada com sucesso", "success");
+    } catch (e: any) {
+      showToast(e.message || "Erro ao publicar prova", "error");
+    } finally {
+      setAcaoLoading(null);
     }
-
-    await carregarProvas();
-    showToast("Prova publicada com sucesso", "success");
-  } catch (e: any) {
-    showToast(e.message || "Erro ao publicar prova", "error");
-  } finally {
-    setAcaoLoading(null);
   }
-}
+
   async function encerrarProva(provaId: number) {
-  const confirmou = await confirm({
-    title: "Encerrar prova",
-    message: "Tem certeza que deseja encerrar esta prova?",
-    confirmText: "Encerrar",
-    cancelText: "Cancelar",
-    confirmVariant: "primary",
-  });
-
-  if (!confirmou) return;
-
-  try {
-    setAcaoLoading({ provaId, acao: "encerrar" });
-
-    const res = await fetch(`/api/professor/provas/${provaId}/encerrar`, {
-      method: "POST",
+    const confirmou = await confirm({
+      title: "Encerrar prova",
+      message: "Tem certeza que deseja encerrar esta prova?",
+      confirmText: "Encerrar",
+      cancelText: "Cancelar",
+      confirmVariant: "primary",
     });
 
-    const data = await res.json();
+    if (!confirmou) return;
 
-    if (!res.ok) {
-      throw new Error(data.error || "Erro ao encerrar prova");
+    try {
+      setAcaoLoading({ provaId, acao: "encerrar" });
+
+      const res = await fetch(`/api/professor/provas/${provaId}/encerrar`, {
+        method: "POST",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao encerrar prova");
+      }
+
+      await carregarProvas();
+      showToast("Prova encerrada com sucesso", "success");
+    } catch (e: any) {
+      showToast(e.message || "Erro ao encerrar prova", "error");
+    } finally {
+      setAcaoLoading(null);
     }
-
-    await carregarProvas();
-    showToast("Prova encerrada com sucesso", "success");
-  } catch (e: any) {
-    showToast(e.message || "Erro ao encerrar prova", "error");
-  } finally {
-    setAcaoLoading(null);
   }
-}
 
   async function excluirProva(provaId: number) {
-  const confirmou = await confirm({
-    title: "Excluir prova",
-    message: "Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.",
-    confirmText: "Excluir",
-    cancelText: "Cancelar",
-    confirmVariant: "danger",
-  });
-
-  if (!confirmou) return;
-
-  try {
-    setAcaoLoading({ provaId, acao: "excluir" });
-
-    const res = await fetch(`/api/professor/provas/${provaId}`, {
-      method: "DELETE",
+    const confirmou = await confirm({
+      title: "Excluir prova",
+      message:
+        "Tem certeza que deseja excluir esta prova? Esta ação não pode ser desfeita.",
+      confirmText: "Excluir",
+      cancelText: "Cancelar",
+      confirmVariant: "danger",
     });
 
-    const data = await res.json();
+    if (!confirmou) return;
 
-    if (!res.ok) {
-      throw new Error(data.error || "Erro ao excluir prova");
+    try {
+      setAcaoLoading({ provaId, acao: "excluir" });
+
+      const res = await fetch(`/api/professor/provas/${provaId}`, {
+        method: "DELETE",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao excluir prova");
+      }
+
+      await carregarProvas();
+      showToast("Prova excluída com sucesso", "success");
+    } catch (e: any) {
+      showToast(e.message || "Erro ao excluir prova", "error");
+    } finally {
+      setAcaoLoading(null);
     }
-
-    await carregarProvas();
-    showToast("Prova excluída com sucesso", "success");
-  } catch (e: any) {
-    showToast(e.message || "Erro ao excluir prova", "error");
-  } finally {
-    setAcaoLoading(null);
   }
-}
 
   const totalProvas = provas.length;
 
@@ -338,6 +340,15 @@ const { confirm } = useConfirmDialog();
                         </strong>{" "}
                         {prova.tempoMin ? `${prova.tempoMin} min` : "Livre"}
                       </span>
+
+                      {prova.createdAt && (
+                        <span>
+                          <strong className="font-medium text-gray-700">
+                            Criada em:
+                          </strong>{" "}
+                          {new Date(prova.createdAt).toLocaleString("pt-BR")}
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -360,12 +371,15 @@ const { confirm } = useConfirmDialog();
                       <button
                         onClick={() => publicarProva(prova.id)}
                         disabled={
-  acaoLoading?.provaId === prova.id &&
-  acaoLoading?.acao === "publicar"
-}
+                          acaoLoading?.provaId === prova.id &&
+                          acaoLoading?.acao === "publicar"
+                        }
                         className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
                       >
-                        Publicar
+                        {acaoLoading?.provaId === prova.id &&
+                        acaoLoading?.acao === "publicar"
+                          ? "Publicando..."
+                          : "Publicar"}
                       </button>
                     )}
 
@@ -373,31 +387,32 @@ const { confirm } = useConfirmDialog();
                       <button
                         onClick={() => encerrarProva(prova.id)}
                         disabled={
-  acaoLoading?.provaId === prova.id &&
-  acaoLoading?.acao === "publicar"
-}
+                          acaoLoading?.provaId === prova.id &&
+                          acaoLoading?.acao === "encerrar"
+                        }
                         className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
                       >
-                        Encerrar
+                        {acaoLoading?.provaId === prova.id &&
+                        acaoLoading?.acao === "encerrar"
+                          ? "Encerrando..."
+                          : "Encerrar"}
                       </button>
                     )}
 
                     {prova.status === "RASCUNHO" && (
-
-                    <button
-
-  onClick={() => excluirProva(prova.id)}
-  disabled={
-    acaoLoading?.provaId === prova.id &&
-    acaoLoading?.acao === "excluir"
-  }
-  className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
->
-  {acaoLoading?.provaId === prova.id &&
-  acaoLoading?.acao === "excluir"
-    ? "Excluindo..."
-    : "Excluir"}
-</button>
+                      <button
+                        onClick={() => excluirProva(prova.id)}
+                        disabled={
+                          acaoLoading?.provaId === prova.id &&
+                          acaoLoading?.acao === "excluir"
+                        }
+                        className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {acaoLoading?.provaId === prova.id &&
+                        acaoLoading?.acao === "excluir"
+                          ? "Excluindo..."
+                          : "Excluir"}
+                      </button>
                     )}
                   </div>
                 </div>
