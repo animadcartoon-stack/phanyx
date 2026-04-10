@@ -96,12 +96,35 @@ export async function POST(request: Request): Promise<NextResponse> {
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        console.log("Upload concluído:", {
-          blobUrl: blob.url,
-          pathname: blob.pathname,
-          tokenPayload,
-        });
+  try {
+    const payload = JSON.parse(tokenPayload || "{}");
+
+    const aulaId = Number(payload?.aulaId);
+
+    if (!aulaId || !Number.isFinite(aulaId)) {
+      throw new Error("Aula inválida no payload");
+    }
+
+    const nomeArquivo =
+      blob.pathname?.split("/").pop() || "arquivo";
+
+    await prisma.materialAula.create({
+      data: {
+        aulaId,
+        tipo: "ARQUIVO",
+        titulo: nomeArquivo,
+        url: blob.url,
+        arquivoNome: nomeArquivo,
+        mimeType: blob.contentType || null,
+        tamanho: null,
       },
+    });
+
+    console.log("Material salvo no banco com sucesso");
+  } catch (e) {
+    console.error("Erro ao salvar material:", e);
+  }
+},
     });
 
     return NextResponse.json(jsonResponse);
