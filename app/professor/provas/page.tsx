@@ -390,6 +390,37 @@ export default function ProfessorProvasPage() {
                       </button>
                     )}
 
+<button
+  onClick={async () => {
+    if (
+  !(await confirm({
+    title: "Despublicar prova",
+    message: "Deseja despublicar esta prova?",
+    confirmText: "Despublicar",
+    cancelText: "Cancelar",
+    confirmVariant: "primary",
+  }))
+)
+  return;
+
+    const res = await fetch(
+      `/api/professor/provas/${prova.id}/despublicar`,
+      {
+        method: "POST",
+      }
+    );
+
+    if (res.ok) {
+      location.reload();
+    } else {
+      alert("Erro ao despublicar prova");
+    }
+  }}
+  className="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600"
+>
+  Despublicar
+</button>
+
                     {prova.status !== "ENCERRADA" && (
                       <button
                         onClick={() => encerrarProva(prova.id)}
