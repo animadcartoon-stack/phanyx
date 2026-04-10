@@ -386,100 +386,122 @@ export default function ProfessorProvasPage() {
                       Tentativas
                     </a>
 
-                    {prova.status === "RASCUNHO" && (
-  <>
-    <button
-      onClick={() => publicarProva(prova.id)}
-      disabled={
-        acaoLoading?.provaId === prova.id &&
+                    <div className="flex flex-wrap gap-2">
+  <a
+    href={`/professor/provas/${prova.id}`}
+    className="rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+  >
+    Editar
+  </a>
+
+  <a
+    href={`/professor/provas/${prova.id}/tentativas`}
+    className="rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+  >
+    Tentativas
+  </a>
+
+  {prova.status === "RASCUNHO" && (
+    <>
+      <button
+        onClick={() => publicarProva(prova.id)}
+        disabled={
+          acaoLoading?.provaId === prova.id &&
+          acaoLoading?.acao === "publicar"
+        }
+        className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+      >
+        {acaoLoading?.provaId === prova.id &&
         acaoLoading?.acao === "publicar"
-      }
-      className="rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
-    >
-      {acaoLoading?.provaId === prova.id &&
-      acaoLoading?.acao === "publicar"
-        ? "Publicando..."
-        : "Publicar"}
-    </button>
+          ? "Publicando..."
+          : "Publicar"}
+      </button>
 
-    <button
-      onClick={() => excluirProva(prova.id)}
-      disabled={
-        acaoLoading?.provaId === prova.id &&
+      <button
+        onClick={() => excluirProva(prova.id)}
+        disabled={
+          acaoLoading?.provaId === prova.id &&
+          acaoLoading?.acao === "excluir"
+        }
+        className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
+      >
+        {acaoLoading?.provaId === prova.id &&
         acaoLoading?.acao === "excluir"
-      }
-      className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
-    >
-      {acaoLoading?.provaId === prova.id &&
-      acaoLoading?.acao === "excluir"
-        ? "Excluindo..."
-        : "Excluir"}
-    </button>
-  </>
-)}
+          ? "Excluindo..."
+          : "Excluir"}
+      </button>
+    </>
+  )}
 
-{prova.status === "PUBLICADA" && (
-  <>
-    <button
-      onClick={async () => {
-        if (
-          !(await confirm({
-            title: "Despublicar prova",
-            message: "Deseja despublicar esta prova?",
-            confirmText: "Despublicar",
-            cancelText: "Cancelar",
-            confirmVariant: "primary",
-          }))
-        ) {
-          return;
-        }
+  {prova.status === "PUBLICADA" && (
+    <>
+      <button
+        onClick={async () => {
+          if (
+            !(await confirm({
+              title: "Despublicar prova",
+              message: "Deseja despublicar esta prova?",
+              confirmText: "Despublicar",
+              cancelText: "Cancelar",
+              confirmVariant: "primary",
+            }))
+          ) {
+            return;
+          }
 
-        try {
-          const res = await fetch(
-            `/api/professor/provas/${prova.id}/despublicar`,
-            {
-              method: "POST",
-              credentials: "include",
+          try {
+            const res = await fetch(
+              `/api/professor/provas/${prova.id}/despublicar`,
+              {
+                method: "POST",
+                credentials: "include",
+              }
+            );
+
+            const contentType = res.headers.get("content-type") || "";
+            let data: any = null;
+
+            if (contentType.includes("application/json")) {
+              data = await res.json();
             }
-          );
 
-          const contentType = res.headers.get("content-type") || "";
-          let data: any = null;
+            if (!res.ok) {
+              throw new Error(data?.error || "Erro ao despublicar prova");
+            }
 
-          if (contentType.includes("application/json")) {
-            data = await res.json();
+            await carregarProvas();
+            showToast("Prova despublicada com sucesso", "success");
+          } catch (e: any) {
+            showToast(e.message || "Erro ao despublicar prova", "error");
           }
+        }}
+        className="rounded-lg bg-gray-500 px-3 py-2 text-sm font-medium text-white hover:bg-gray-600"
+      >
+        Despublicar
+      </button>
 
-          if (!res.ok) {
-            throw new Error(data?.error || "Erro ao despublicar prova");
-          }
-
-          await carregarProvas();
-          showToast("Prova despublicada com sucesso", "success");
-        } catch (e: any) {
-          showToast(e.message || "Erro ao despublicar prova", "error");
+      <button
+        onClick={() => encerrarProva(prova.id)}
+        disabled={
+          acaoLoading?.provaId === prova.id &&
+          acaoLoading?.acao === "encerrar"
         }
-      }}
-      className="rounded-lg bg-gray-500 px-3 py-2 text-sm font-medium text-white hover:bg-gray-600"
-    >
-      Despublicar
-    </button>
-
-    <button
-      onClick={() => encerrarProva(prova.id)}
-      disabled={
-        acaoLoading?.provaId === prova.id &&
+        className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
+      >
+        {acaoLoading?.provaId === prova.id &&
         acaoLoading?.acao === "encerrar"
-      }
-      className="rounded-lg bg-amber-500 px-3 py-2 text-sm font-medium text-white hover:bg-amber-600 disabled:opacity-50"
-    >
-      {acaoLoading?.provaId === prova.id &&
-      acaoLoading?.acao === "encerrar"
-        ? "Encerrando..."
-        : "Encerrar"}
-    </button>
-  </>
-)}
+          ? "Encerrando..."
+          : "Encerrar"}
+      </button>
+    </>
+  )}
+
+  {prova.status === "ENCERRADA" && (
+    <span className="inline-flex items-center rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-600">
+      Prova encerrada
+    </span>
+  )}
+</div>
                   </div>
                 </div>
               ))}
