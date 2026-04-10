@@ -54,12 +54,12 @@ export async function GET(
     }
 
     const aulas = await prisma.aula.findMany({
-  where: {
-    turmaId: turma.id,
-    instituicaoId: user.instituicaoId,
-  },
-  orderBy: [{ ordem: "asc" }, { id: "asc" }],
-});
+      where: {
+        turmaId: turma.id,
+        instituicaoId: user.instituicaoId,
+      },
+      orderBy: [{ ordem: "asc" }, { id: "asc" }],
+    });
 
     return NextResponse.json(aulas);
   } catch (e: any) {
@@ -156,16 +156,16 @@ export async function POST(
     });
 
     const novaAula = await prisma.aula.create({
-  data: {
-    titulo,
-    descricao,
-    duracaoMin,
-    videoUrl,
-    instituicaoId: user.instituicaoId,
-    turmaId: turma.id,
-    ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
-  },
-});
+      data: {
+        titulo,
+        descricao,
+        duracaoMin,
+        videoUrl,
+        instituicaoId: user.instituicaoId,
+        turmaId: turma.id,
+        ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
+      },
+    });
 
     return NextResponse.json(novaAula, { status: 201 });
   } catch (e: any) {

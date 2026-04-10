@@ -177,7 +177,7 @@ export default function AulasDaTurmaPage() {
           titulo,
           descricao,
           duracaoMin: duracaoMin ? Number(duracaoMin) : null,
-          videoUrl: normalizeYoutubeUrl(videoUrl),
+          videoUrl: videoUrl ? normalizeYoutubeUrl(videoUrl) : null,
         }),
       });
 
@@ -232,8 +232,7 @@ export default function AulasDaTurmaPage() {
           Turma: <strong>{turma.nome}</strong>
         </p>
         <p className="text-gray-600">
-          Disciplina:{" "}
-          <strong>{turma.disciplina?.nome || "Disciplina"}</strong>
+          Disciplina: <strong>{turma.disciplina?.nome || "Disciplina"}</strong>
         </p>
       </div>
 
@@ -245,38 +244,38 @@ export default function AulasDaTurmaPage() {
 
       <form
         onSubmit={handleCriarAula}
-        className="space-y-4 bg-white border rounded-lg p-6"
+        className="space-y-4 rounded-lg border bg-white p-6"
       >
         <h2 className="font-semibold text-gray-900">Nova aula</h2>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Título
           </label>
           <input
             value={titulo}
             onChange={(e) => setTitulo(e.target.value)}
-            className="w-full border rounded-lg p-2 text-gray-900"
+            className="w-full rounded-lg border p-2 text-gray-900"
             placeholder="Ex.: Introdução ao Direito Constitucional"
             required
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Descrição
           </label>
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-            className="w-full border rounded-lg p-2 text-gray-900"
+            className="w-full rounded-lg border p-2 text-gray-900"
             rows={4}
             placeholder="Resumo do conteúdo da aula"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Duração (minutos)
           </label>
           <input
@@ -284,28 +283,30 @@ export default function AulasDaTurmaPage() {
             min="1"
             value={duracaoMin}
             onChange={(e) => setDuracaoMin(e.target.value)}
-            className="w-full border rounded-lg p-2 text-gray-900"
+            className="w-full rounded-lg border p-2 text-gray-900"
             placeholder="Ex.: 20"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="mb-1 block text-sm font-medium text-gray-700">
             Link do vídeo
           </label>
           <input
             value={videoUrl}
             onChange={(e) => setVideoUrl(e.target.value)}
-            className="w-full border rounded-lg p-2 text-gray-900"
-            placeholder="Cole qualquer link do YouTube"
-            required
+            className="w-full rounded-lg border p-2 text-gray-900"
+            placeholder="Cole link do YouTube ou deixe em branco"
           />
+          <p className="mt-1 text-xs text-gray-500">
+            O vídeo é opcional. Os materiais e links de apoio serão adicionados depois.
+          </p>
         </div>
 
         <button
           type="submit"
           disabled={saving}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
         >
           {saving ? "Salvando..." : "Adicionar aula"}
         </button>
@@ -320,7 +321,7 @@ export default function AulasDaTurmaPage() {
           aulasOrdenadas.map((aula) => (
             <div
               key={aula.id}
-              className="bg-white border rounded-lg p-4 space-y-2"
+              className="space-y-3 rounded-lg border bg-white p-4"
             >
               <div className="flex items-center justify-between gap-4">
                 <h3 className="font-semibold text-gray-900">
@@ -328,7 +329,7 @@ export default function AulasDaTurmaPage() {
                   {aula.titulo}
                 </h3>
 
-                <div className="flex items-center gap-3 flex-wrap justify-end">
+                <div className="flex flex-wrap items-center gap-2 justify-end">
                   <span className="text-sm text-gray-500">
                     {aula.duracaoMin ? `${aula.duracaoMin} min` : "Sem duração"}
                   </span>
@@ -339,9 +340,18 @@ export default function AulasDaTurmaPage() {
                         `/professor/turmas/${turmaId}/aulas/${aula.id}/presencas`
                       )
                     }
-                    className="px-3 py-1 text-xs bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                    className="rounded bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700"
                   >
                     Fazer chamada
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      router.push(`/professor/aulas/${aula.id}/materiais/novo`)
+                    }
+                    className="rounded bg-indigo-600 px-3 py-1 text-xs text-white hover:bg-indigo-700"
+                  >
+                    Materiais
                   </button>
 
                   <button
@@ -349,7 +359,7 @@ export default function AulasDaTurmaPage() {
                       e.stopPropagation();
                       excluirAula(aula.id, aula.titulo);
                     }}
-                    className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                    className="rounded bg-red-600 px-3 py-1 text-xs text-white hover:bg-red-700"
                   >
                     Excluir
                   </button>
@@ -370,6 +380,11 @@ export default function AulasDaTurmaPage() {
                   Abrir vídeo
                 </a>
               )}
+
+              <div className="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
+                Nesta aula, o professor poderá adicionar arquivos, PDFs, documentos,
+                imagens e links de apoio pelo botão <strong>Materiais</strong>.
+              </div>
             </div>
           ))
         )}
