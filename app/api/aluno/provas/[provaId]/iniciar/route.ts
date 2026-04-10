@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 import { podeUsarProvas } from "@/lib/permissoesPlano";
 
-export async function GET(
+export async function POST(
   _req: Request,
   { params }: { params: { provaId: string } }
 ) {
