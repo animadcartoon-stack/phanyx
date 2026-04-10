@@ -48,25 +48,45 @@ export default function ExecutarProvaPage() {
   useEffect(() => {
     async function boot() {
       setLoading(true);
+
       try {
-        const r1 = await fetch(`/api/provas/${provaId}`, {
+        const r1 = await fetch(`/api/aluno/provas/${provaId}`, {
           credentials: "include",
+          cache: "no-store",
         });
+
         const provaData = await r1.json();
+
+        if (!r1.ok) {
+          setProva(null);
+          return;
+        }
+
         setProva(provaData);
 
-        const r2 = await fetch(`/api/provas/${provaId}/iniciar`, {
+        const r2 = await fetch(`/api/aluno/provas/${provaId}/iniciar`, {
           method: "POST",
           credentials: "include",
         });
+
         const t = await r2.json();
-        setTentativaId(t?.tentativaId ?? null);
+
+        if (!r2.ok) {
+          throw new Error(t?.error || "Erro ao iniciar prova");
+        }
+
+        setTentativaId(t?.tentativaId ?? t?.tentativa?.id ?? null);
+      } catch (e: any) {
+        alert(e?.message || "Erro ao carregar prova.");
+        setProva(null);
       } finally {
         setLoading(false);
       }
     }
 
-    if (Number.isFinite(provaId) && provaId > 0) boot();
+    if (Number.isFinite(provaId) && provaId > 0) {
+      boot();
+    }
   }, [provaId]);
 
   const questoes = useMemo(() => prova?.questoes ?? [], [prova]);
@@ -76,7 +96,7 @@ export default function ExecutarProvaPage() {
 
     const payload = respostas[questaoId] ?? {};
 
-    await fetch(`/api/provas/tentativas/${tentativaId}/responder`, {
+    await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -94,10 +114,13 @@ export default function ExecutarProvaPage() {
         await salvarQuestao(q.id);
       }
 
-      const res = await fetch(`/api/provas/tentativas/${tentativaId}/finalizar`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `/api/aluno/provas/tentativas/${tentativaId}/finalizar`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
 
       const data = await res.json();
 
@@ -113,15 +136,8 @@ export default function ExecutarProvaPage() {
     }
   }
 
-  const notaExibida =
-    resultado?.notaFinal ??
-    resultado?.nota ??
-    0;
-
-  const notaMaximaExibida =
-    resultado?.notaMaxima ??
-    prova?.notaMaxima ??
-    0;
+  const notaExibida = resultado?.notaFinal ?? resultado?.nota ?? 0;
+  const notaMaximaExibida = resultado?.notaMaxima ?? prova?.notaMaxima ?? 0;
 
   if (loading) return <div className="p-8">Carregando prova...</div>;
   if (!prova) return <div className="p-8">Prova não encontrada.</div>;
