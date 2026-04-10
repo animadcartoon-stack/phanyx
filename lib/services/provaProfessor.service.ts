@@ -7,18 +7,25 @@ export async function provaPertenceAoProfessor(params: {
 }) {
   const { provaId, professorId, instituicaoId } = params;
 
-  const prova = await prisma.prova.findFirst({
-    where: {
-      id: provaId,
-      instituicaoId,
-      turma: {
-  professorId,
-},
+ const prova = await prisma.prova.findFirst({
+  where: {
+    id: provaId,
+    instituicaoId,
+    turma: {
+      professorId,
     },
-    include: {
-      disciplina: true,
+  },
+  include: {
+    turma: {
+      include: {
+        disciplina: true,
+      },
     },
-  });
+    questoes: true,
+    tentativas: true,
+    notas: true,
+  },
+});
 
   if (!prova) {
     throw new Error("PROVA_NAO_ENCONTRADA_OU_SEM_PERMISSAO");
