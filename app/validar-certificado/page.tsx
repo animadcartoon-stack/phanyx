@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type CertificadoValidado = {
@@ -11,7 +11,7 @@ type CertificadoValidado = {
   instituicao: { nome: string };
 };
 
-export default function ValidarCertificadoPage() {
+function ValidarCertificadoConteudo() {
   const searchParams = useSearchParams();
   const codigo = searchParams.get("codigo") || "";
 
@@ -28,7 +28,9 @@ export default function ValidarCertificadoPage() {
       }
 
       try {
-        const res = await fetch(`/api/validar-certificado?codigo=${codigo}`);
+        const res = await fetch(
+          `/api/validar-certificado?codigo=${encodeURIComponent(codigo)}`
+        );
         const data = await res.json();
 
         if (!res.ok || !data?.valido) {
@@ -48,37 +50,51 @@ export default function ValidarCertificadoPage() {
   }, [codigo]);
 
   return (
+    <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+      <h1 className="mb-4 text-3xl font-bold text-slate-900">
+        Validação de Certificado
+      </h1>
+
+      {loading && <p>Validando...</p>}
+
+      {!loading && erro && <div className="text-red-600">{erro}</div>}
+
+      {!loading && certificado && (
+        <>
+          <div className="mb-4 font-bold text-green-600">
+            Certificado válido ✅
+          </div>
+
+          <div className="space-y-2">
+            <p>
+              <strong>Código:</strong> {certificado.codigo}
+            </p>
+            <p>
+              <strong>Aluno:</strong> {certificado.aluno.nome}
+            </p>
+            <p>
+              <strong>Disciplina:</strong> {certificado.disciplina.nome}
+            </p>
+            <p>
+              <strong>Instituição:</strong> {certificado.instituicao.nome}
+            </p>
+            <p>
+              <strong>Emitido em:</strong>{" "}
+              {new Date(certificado.emitidoEm).toLocaleDateString("pt-BR")}
+            </p>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function ValidarCertificadoPage() {
+  return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
-      <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-4 text-3xl font-bold text-slate-900">
-          Validação de Certificado
-        </h1>
-
-        {loading && <p>Validando...</p>}
-
-        {!loading && erro && (
-          <div className="text-red-600">{erro}</div>
-        )}
-
-        {!loading && certificado && (
-          <>
-            <div className="mb-4 text-green-600 font-bold">
-              Certificado válido ✅
-            </div>
-
-            <div className="space-y-2">
-              <p><strong>Código:</strong> {certificado.codigo}</p>
-              <p><strong>Aluno:</strong> {certificado.aluno.nome}</p>
-              <p><strong>Disciplina:</strong> {certificado.disciplina.nome}</p>
-              <p><strong>Instituição:</strong> {certificado.instituicao.nome}</p>
-              <p>
-                <strong>Emitido em:</strong>{" "}
-                {new Date(certificado.emitidoEm).toLocaleDateString("pt-BR")}
-              </p>
-            </div>
-          </>
-        )}
-      </div>
+      <Suspense fallback={<div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">Carregando validação...</div>}>
+        <ValidarCertificadoConteudo />
+      </Suspense>
     </main>
   );
 }
