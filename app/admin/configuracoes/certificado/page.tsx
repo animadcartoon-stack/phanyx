@@ -59,9 +59,9 @@ export default function ConfiguracaoCertificadoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.error || "Erro ao enviar arquivo.");
-        return;
-      }
+  alert(data?.detalhe || data?.error || "Erro ao enviar arquivo.");
+  return;
+}
 
       setCertificadoTemplateUrl(data.url || "");
       alert("Modelo do certificado enviado com sucesso.");
