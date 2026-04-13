@@ -162,6 +162,7 @@ export async function POST(req: Request) {
     data: {
       status: "PAGO",
       instituicaoId: instituicao.id,
+      asaasId: asaasPaymentId || adesao.asaasId,
     },
   });
 
@@ -173,7 +174,7 @@ export async function POST(req: Request) {
 
   console.log("ℹ️ Email de acesso existente enviado para:", user.email);
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, reprocessoIgnorado: true });
 }
 
     let senhaTemp = "";
