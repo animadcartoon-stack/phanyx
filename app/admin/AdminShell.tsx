@@ -416,12 +416,19 @@ useEffect(() => {
               {menuAberto === "configuracoes" && (
                 <div className="ml-3 mt-2 flex flex-col space-y-1">
                   <Link
-                    href="/admin/configuracoes/instituicao"
-                    className={getLinkClass("/admin/configuracoes/instituicao")}
-                    data-tour="menu-configuracoes"
-                  >
-                    ⚙️ Instituição
-                  </Link>
+  href="/admin/configuracoes/instituicao"
+  className={getLinkClass("/admin/configuracoes/instituicao")}
+  data-tour="menu-configuracoes"
+>
+  ⚙️ Instituição
+</Link>
+
+<Link
+  href="/admin/configuracoes/certificado"
+  className={getLinkClass("/admin/configuracoes/certificado")}
+>
+  🏅 Certificados
+</Link>
                 </div>
               )}
             </div>
