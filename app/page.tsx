@@ -384,50 +384,6 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* CTA FINAL */}
-        <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
-          <div className="rounded-[32px] border border-gray-200 bg-white p-8 shadow-lg md:p-12">
-            <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-                  Próximo passo
-                </p>
-                <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                  Prepare o PHANYX para vender como uma startup SaaS profissional
-                </h2>
-                <p className="mt-4 text-lg text-gray-600">
-                  A base do produto já está forte. Agora é hora de fortalecer a
-                  marca, apresentar planos, facilitar adesão e transformar a
-                  plataforma em um produto comercial de alto valor percebido.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                <Link
-                  href="/planos"
-                  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-700"
-                >
-                  Conhecer planos do PHANYX
-                </Link>
-
-                <Link
-                  href="/ibe/matricula"
-                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-emerald-700"
-                >
-                  Ir para matrícula do IBE
-                </Link>
-
-                <Link
-                  href="/login"
-                  className="inline-flex items-center justify-center rounded-2xl border border-gray-300 px-6 py-4 text-sm font-semibold text-gray-800 transition hover:bg-gray-50"
-                >
-                  Acessar login do sistema
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
     </>
   );
