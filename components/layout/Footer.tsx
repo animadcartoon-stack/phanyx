@@ -27,7 +27,7 @@ export default function Footer() {
                   Plataforma acadêmica SaaS
                 </div>
               </div>
-            </Link>
+            </div>
 
             <p className="mt-5 max-w-sm text-sm leading-6 text-slate-400 md:leading-7">
               Plataforma acadêmica SaaS para instituições que buscam gestão,
