@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { enviarEmailAcesso } from "@/lib/email";
+import {
+  enviarEmailAcesso,
+  enviarEmailAcessoExistente,
+} from "@/lib/email";
 
 function gerarSlugBase(texto: string) {
   return String(texto || "")
@@ -142,29 +145,36 @@ export async function POST(req: Request) {
     });
 
     if (adesao.status === "PAGO" && user) {
-      console.log("ℹ️ Adesão já estava paga e acesso já existe:", adesao.id);
+  console.log("ℹ️ Adesão já estava paga e acesso já existe:", adesao.id);
 
-      if (user.instituicaoId !== instituicao.id || user.role !== "ADMIN") {
-        user = await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            instituicaoId: instituicao.id,
-            role: "ADMIN",
-          },
-        });
-      }
+  if (user.instituicaoId !== instituicao.id || user.role !== "ADMIN") {
+    user = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        instituicaoId: instituicao.id,
+        role: "ADMIN",
+      },
+    });
+  }
 
-      await prisma.adesaoInstituicao.update({
-        where: { id: adesao.id },
-        data: {
-          status: "PAGO",
-          instituicaoId: instituicao.id,
-          asaasId: asaasPaymentId || adesao.asaasId,
-        },
-      });
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      status: "PAGO",
+      instituicaoId: instituicao.id,
+    },
+  });
 
-      return NextResponse.json({ ok: true, reprocessoIgnorado: true });
-    }
+  await enviarEmailAcessoExistente({
+    email: user.email,
+    nome: adesao.nomeResponsavel,
+    instituicao: instituicao.nome,
+  });
+
+  console.log("ℹ️ Email de acesso existente enviado para:", user.email);
+
+  return NextResponse.json({ ok: true });
+}
 
     let senhaTemp = "";
 
