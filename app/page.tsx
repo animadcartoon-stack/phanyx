@@ -157,38 +157,7 @@ export default function HomePage() {
                       Falar com comercial
                     </a>
 
-                    <div className="flex items-center gap-3">
-  <Link
-    href="/aluno"
-    className="rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-sm font-medium text-blue-100 transition hover:border-blue-400/50 hover:bg-blue-500/20"
-  >
-    Área do aluno
-  </Link>
-
-  <Link
-    href="/professor"
-    className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm font-medium text-cyan-100 transition hover:border-cyan-400/50 hover:bg-cyan-500/20"
-  >
-    Área do professor
-  </Link>
-
-  <Link
-    href="/login"
-    className="rounded-full bg-white px-5 py-2 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
-  >
-    Admin
-  </Link>
-</div>
-                  </div>
-
-                  <div className="mt-3">
-                    <Link
-                      href="/suporte"
-                      className="inline-flex w-fit items-center justify-center rounded-xl border border-blue-400/25 bg-white/5 px-4 py-2 text-sm font-medium text-blue-200 transition hover:border-blue-300/40 hover:bg-white/10 hover:text-white"
-                    >
-                      💬 Suporte e atendimento
-                    </Link>
-                  </div>
+                    </div>
                 </div>
 
                 <div className="mt-6 hidden gap-4 xl:grid xl:grid-cols-3">
@@ -217,7 +186,7 @@ export default function HomePage() {
 
               {/* DIREITA MOBILE/TABLET */}
               <div className="relative lg:hidden">
-                <div className="relative h-[320px] overflow-hidden rounded-[28px] border border-white/10 shadow-2xl">
+                <div className="relative h-[260px] overflow-hidden rounded-[28px] border border-white/10 shadow-2xl sm:h-[300px]">
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
                   <Image
                     src="/images/formax-hero.jpg"
@@ -227,28 +196,28 @@ export default function HomePage() {
                     className="object-cover object-center"
                   />
 
-                  <div className="absolute bottom-4 left-4 right-4 z-20 rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-200">
-                      Plataforma pronta para crescer
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-100">
-                      Mais controle acadêmico, mais credibilidade institucional e uma
-                      experiência moderna para administração, professores e alunos.
-                    </p>
-                  </div>
+                  <div className="absolute bottom-3 left-3 right-3 z-20 rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur md:bottom-4 md:left-4 md:right-4 md:p-4">
+  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-200 md:text-xs">
+    Plataforma pronta para crescer
+  </p>
+  <p className="mt-2 text-xs leading-5 text-slate-100 md:text-sm md:leading-6">
+    Mais controle acadêmico, mais credibilidade institucional e uma
+    experiência moderna para administração, professores e alunos.
+  </p>
+</div>
                 </div>
               </div>
             </div>
           </div>
 
           <a
-            href="https://wa.me/5548988101240"
-            target="_blank"
-            rel="noreferrer"
-            className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400"
-          >
-            💬 Suporte
-          </a>
+  href="https://wa.me/5548988101240"
+  target="_blank"
+  rel="noreferrer"
+  className="fixed bottom-6 right-6 z-50 hidden items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400 md:inline-flex"
+>
+  💬 Suporte
+</a>
         </section>
 
         {/* MÓDULOS */}

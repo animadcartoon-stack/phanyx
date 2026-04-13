@@ -40,17 +40,17 @@ export default function Header() {
 
           <div className="min-w-0">
             <div
-              className={`truncate text-[15px] font-bold tracking-[0.18em] ${
-                isHome ? "text-white" : "text-slate-900"
-              }`}
-            >
+  className={`truncate text-[14px] font-bold tracking-[0.16em] sm:text-[15px] ${
+    isHome ? "text-white" : "text-slate-900"
+  }`}
+>
               PHANYX
             </div>
             <div
-              className={`truncate text-[11px] ${
-                isHome ? "text-blue-100/80" : "text-slate-500"
-              }`}
-            >
+  className={`truncate text-[10px] sm:text-[11px] ${
+    isHome ? "text-blue-100/80" : "text-slate-500"
+  }`}
+>
               Plataforma acadêmica SaaS
             </div>
           </div>
