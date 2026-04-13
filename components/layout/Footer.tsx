@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="mx-auto max-w-7xl px-6 py-14 md:px-10 lg:px-12">
         <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-4">
           <div>
-            <Link href="/" className="flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               <div className="relative h-11 w-11 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-sm">
                 <Image
                   src="/icon.png"
@@ -29,7 +29,7 @@ export default function Footer() {
               </div>
             </Link>
 
-            <p className="mt-5 max-w-sm text-sm leading-7 text-slate-400">
+            <p className="mt-5 max-w-sm text-sm leading-6 text-slate-400 md:leading-7">
               Plataforma acadêmica SaaS para instituições que buscam gestão,
               ensino digital, segurança institucional e escalabilidade real.
             </p>
@@ -108,7 +108,7 @@ export default function Footer() {
                 rel="noreferrer"
                 className="transition hover:text-white"
               >
-                +55 48 98810-1240
+                +55 48 98810-1240 /
                 +55 48 3208-1353
               </a>
 

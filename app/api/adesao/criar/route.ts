@@ -154,7 +154,7 @@ export async function POST(req: Request) {
 
       const cobranca = await criarCobrancaAsaas({
         customer: cliente.id,
-        billingType: formaPagamento,
+        billingType: formaPagamento as "PIX" | "BOLETO" | "CREDIT_CARD",
         value: Number(valor),
         dueDate,
         description: `Adesão PHANYX - ${plano}`,

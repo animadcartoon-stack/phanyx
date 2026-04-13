@@ -35,9 +35,8 @@ function AdesaoContent() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
-  const [formaPagamento, setFormaPagamento] =
+  const [formaPagamento, setFormaPagamento] = useState<"PIX" | "BOLETO" | "CREDIT_CARD">("PIX");
     useState<FormaPagamento>("PIX");
-
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
   const [adesaoId, setAdesaoId] = useState<string | null>(null);
