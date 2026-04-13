@@ -43,6 +43,16 @@ function formatarDataISO(data?: string | null) {
   }
 }
 
+function normalizarFormaPagamento(
+  valor: string
+): "PIX" | "BOLETO" | "CREDIT_CARD" {
+  const forma = String(valor || "PIX").trim().toUpperCase();
+
+  if (forma === "BOLETO") return "BOLETO";
+  if (forma === "CREDIT_CARD") return "CREDIT_CARD";
+  return "PIX";
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -53,6 +63,7 @@ export async function POST(req: Request) {
     const telefone = normalizarTelefone(body?.telefone || "");
     const cpfCnpj = normalizarCpfCnpj(body?.cpfCnpj || "");
     const plano = String(body?.plano || "").trim().toUpperCase();
+    const formaPagamento = normalizarFormaPagamento(body?.formaPagamento || "PIX");
 
     if (!nomeResponsavel) {
       return NextResponse.json(
@@ -105,7 +116,7 @@ export async function POST(req: Request) {
       },
     });
 
-    if (adesaoPendenteExistente?.pixCode && adesaoPendenteExistente?.asaasId) {
+    if (adesaoPendenteExistente?.asaasId) {
       return NextResponse.json({
         success: true,
         reutilizada: true,
@@ -143,7 +154,7 @@ export async function POST(req: Request) {
 
       const cobranca = await criarCobrancaAsaas({
         customer: cliente.id,
-        billingType: "PIX",
+        billingType: formaPagamento,
         value: Number(valor),
         dueDate,
         description: `Adesão PHANYX - ${plano}`,
@@ -156,15 +167,18 @@ export async function POST(req: Request) {
         throw new Error("Asaas não retornou o ID da cobrança.");
       }
 
-      const qrCode = await obterQrCodePixAsaas(asaasId);
-      const pixCode = qrCode?.payload ? String(qrCode.payload) : "";
+      let pixCode = "";
+      if (formaPagamento === "PIX") {
+        const qrCode = await obterQrCodePixAsaas(asaasId);
+        pixCode = qrCode?.payload ? String(qrCode.payload) : "";
 
-      if (!pixCode) {
-        throw new Error("Asaas não retornou o código Pix.");
+        if (!pixCode) {
+          throw new Error("Asaas não retornou o código Pix.");
+        }
       }
 
       const cobrancaAny = cobranca as any;
-const linkCobranca = cobrancaAny?.invoiceUrl || null;
+      const linkCobranca = cobrancaAny?.invoiceUrl || null;
 
       const adesaoAtualizada = await prisma.adesaoInstituicao.update({
         where: { id: adesao.id },
@@ -181,7 +195,7 @@ const linkCobranca = cobrancaAny?.invoiceUrl || null;
           instituicao: nomeInstituicao,
           valor,
           vencimento: formatarDataISO(cobrancaAny?.dueDate || dueDate),
-          descricao: `Adesão PHANYX - ${plano}`,
+          descricao: `Adesão PHANYX - ${plano} (${formaPagamento})`,
           linkCobranca,
         });
       } catch (emailError) {
@@ -191,6 +205,9 @@ const linkCobranca = cobrancaAny?.invoiceUrl || null;
       return NextResponse.json({
         success: true,
         adesao: adesaoAtualizada,
+        formaPagamento,
+        invoiceUrl: linkCobranca,
+        pixCode,
       });
     } catch (err: any) {
       console.error("🔥 ERRO REAL ASAAS:", err);
