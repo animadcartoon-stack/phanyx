@@ -284,13 +284,33 @@ export function AlunoProvider({ children }: { children: React.ReactNode }) {
     });
   }
 
-  function gerarCertificado(disciplinaId: number) {
+ async function gerarCertificado(disciplinaId: number) {
+  try {
+    await fetch("/api/aluno/certificados/gerar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({ disciplinaId }),
+    });
+
     setCertificados((prev) => {
       const jaExiste = prev.some((c) => c.disciplinaId === disciplinaId);
       if (jaExiste) return prev;
-      return [...prev, { disciplinaId, data: new Date().toLocaleDateString("pt-BR") }];
+
+      return [
+        ...prev,
+        {
+          disciplinaId,
+          data: new Date().toLocaleDateString("pt-BR"),
+        },
+      ];
     });
+  } catch (error) {
+    console.error("Erro ao gerar certificado:", error);
   }
+}
 
   function enviarRespostaAtividade(data: {
     atividadeId: string;

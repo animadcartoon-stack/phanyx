@@ -219,24 +219,28 @@ export async function POST(req: Request) {
 
     console.log("✅ Adesão atualizada para PAGO:", adesao.id);
 
-    if (senhaTemp) {
-      try {
-        await enviarEmailAcesso({
-          email: user.email,
-          nome: user.nome,
-          senha: senhaTemp,
-          instituicao: instituicao.nome,
-        });
+    try {
+  if (senhaTemp) {
+    await enviarEmailAcesso({
+      email: user.email,
+      nome: user.nome,
+      senha: senhaTemp,
+      instituicao: instituicao.nome,
+    });
 
-        console.log("✅ Email de acesso enviado para:", user.email);
-      } catch (emailError) {
-        console.error("❌ Erro ao enviar email de acesso:", emailError);
-      }
-    } else {
-      console.log(
-        "ℹ️ Email não reenviado porque o usuário já existia e foi reutilizado."
-      );
-    }
+    console.log("✅ Email de acesso enviado para:", user.email);
+  } else {
+    await enviarEmailAcessoExistente({
+      email: user.email,
+      nome: user.nome,
+      instituicao: instituicao.nome,
+    });
+
+    console.log("✅ Email de acesso existente enviado para:", user.email);
+  }
+} catch (emailError) {
+  console.error("❌ Erro ao enviar email de acesso:", emailError);
+}
 
     return NextResponse.json({
       ok: true,

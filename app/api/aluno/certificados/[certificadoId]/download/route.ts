@@ -23,7 +23,7 @@ export async function GET(
       where: { id },
       include: {
         aluno: true,
-        curso: true,
+        disciplina: true,
         instituicao: true,
       },
     });
@@ -56,19 +56,20 @@ export async function GET(
     const templateArrayBuffer = await templateResponse.arrayBuffer();
 
     const pdfBytes = await gerarCertificadoPdf(
-      new Uint8Array(templateArrayBuffer),
-      {
-        nomeAluno: certificado.aluno?.nome || "Aluno",
-        nomeCurso: certificado.curso?.nome || "Curso",
-        nomeInstituicao: certificado.instituicao?.nome || "Instituição",
-        dataConclusao: certificado.createdAt,
-        cidade: certificado.instituicao?.certificadoCidade || null,
-        coordenadorNome:
-          certificado.instituicao?.certificadoCoordenadorNome || null,
-      }
-    );
+  new Uint8Array(templateArrayBuffer),
+  {
+    nomeAluno: certificado.aluno?.nome || "Aluno",
+    nomeCurso: certificado.disciplina?.nome || "Disciplina",
+    nomeInstituicao: certificado.instituicao?.nome || "Instituição",
+    dataConclusao: certificado.emitidoEm,
+    codigoValidacao: certificado.codigo,
+    cidade: certificado.instituicao?.certificadoCidade || null,
+    coordenadorNome:
+      certificado.instituicao?.certificadoCoordenadorNome || null,
+  }
+);
 
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",

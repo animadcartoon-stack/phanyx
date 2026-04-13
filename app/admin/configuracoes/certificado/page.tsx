@@ -1,12 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function ConfiguracaoCertificadoPage() {
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] = useState("");
   const [certificadoCidade, setCertificadoCidade] = useState("");
+  const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+
+  useEffect(() => {
+    async function carregarConfiguracao() {
+      try {
+        const res = await fetch("/api/admin/configuracoes/certificado", {
+          cache: "no-store",
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data?.error || "Erro ao carregar configuração.");
+          return;
+        }
+
+        setCertificadoTemplateUrl(data?.certificadoTemplateUrl || "");
+        setCertificadoCoordenadorNome(data?.certificadoCoordenadorNome || "");
+        setCertificadoCidade(data?.certificadoCidade || "");
+      } catch (error) {
+        alert("Erro ao carregar configuração do certificado.");
+      } finally {
+        setCarregando(false);
+      }
+    }
+
+    carregarConfiguracao();
+  }, []);
 
   async function salvar() {
     try {
@@ -37,6 +65,15 @@ export default function ConfiguracaoCertificadoPage() {
     } finally {
       setSalvando(false);
     }
+  }
+
+  if (carregando) {
+    return (
+      <div className="mx-auto max-w-3xl p-6">
+        <h1 className="text-2xl font-bold mb-2">Configuração de Certificado</h1>
+        <p className="text-slate-600">Carregando configuração...</p>
+      </div>
+    );
   }
 
   return (

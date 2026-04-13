@@ -157,7 +157,28 @@ export default function HomePage() {
                     >
                       Falar com comercial
                     </a>
+<div className="flex flex-wrap gap-3 mt-4">
+  <a
+    href="/login?portal=aluno"
+    className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
+  >
+    Área do aluno
+  </a>
 
+  <a
+    href="/login?portal=professor"
+    className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
+  >
+    Área do professor
+  </a>
+
+  <a
+    href="/login?portal=admin"
+    className="rounded-xl bg-white text-blue-900 px-4 py-2 text-sm font-semibold hover:bg-gray-100"
+  >
+    Admin
+  </a>
+</div>
                     </div>
                 </div>
 

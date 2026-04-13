@@ -1,17 +1,28 @@
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import QRCode from "qrcode";
 
 type DadosCertificado = {
   nomeAluno: string;
   nomeCurso: string;
   nomeInstituicao: string;
-  dataConclusao: string;
+  dataConclusao: Date | string;
+  codigoValidacao: string;
   cidade?: string | null;
   coordenadorNome?: string | null;
 };
 
 function formatarDataBR(data: Date | string) {
   const d = new Date(data);
+
+  if (Number.isNaN(d.getTime())) {
+    return "";
+  }
+
   return d.toLocaleDateString("pt-BR");
+}
+
+function getBaseUrl() {
+  return process.env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3001";
 }
 
 export async function gerarCertificadoPdf(
@@ -26,7 +37,6 @@ export async function gerarCertificadoPdf(
 
   const { width, height } = page.getSize();
 
-  // Título
   page.drawText("CERTIFICADO", {
     x: width / 2 - 110,
     y: height - 110,
@@ -35,7 +45,6 @@ export async function gerarCertificadoPdf(
     color: rgb(0.1, 0.15, 0.35),
   });
 
-  // Texto principal
   const texto1 = "Certificamos que";
   const texto2 = dados.nomeAluno;
   const texto3 =
@@ -77,6 +86,33 @@ export async function gerarCertificadoPdf(
     size: 14,
     font,
     color: rgb(0.2, 0.2, 0.2),
+  });
+
+  page.drawText(`Código de validação: ${dados.codigoValidacao}`, {
+    x: 90,
+    y: 90,
+    size: 10,
+    font,
+    color: rgb(0.25, 0.25, 0.25),
+  });
+
+  const urlValidacao = `${getBaseUrl()}/validar-certificado?codigo=${encodeURIComponent(
+    dados.codigoValidacao
+  )}`;
+
+  const qrDataUrl = await QRCode.toDataURL(urlValidacao, {
+    margin: 1,
+    width: 140,
+  });
+
+  const qrImageBytes = Uint8Array.from(Buffer.from(qrDataUrl.split(",")[1], "base64"));
+  const qrImage = await pdfDoc.embedPng(qrImageBytes);
+
+  page.drawImage(qrImage, {
+    x: width - 150,
+    y: 60,
+    width: 80,
+    height: 80,
   });
 
   if (dados.coordenadorNome) {
