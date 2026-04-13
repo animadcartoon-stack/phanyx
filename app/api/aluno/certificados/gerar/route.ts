@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { gerarCodigoCertificado } from "@/lib/certificados/assinatura";
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,7 +12,14 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { disciplinaId } = body;
+    const disciplinaId = Number(body?.disciplinaId);
+
+    if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
+      return NextResponse.json(
+        { error: "Disciplina inválida." },
+        { status: 400 }
+      );
+    }
 
     const aluno = await prisma.aluno.findFirst({
       where: {
@@ -21,10 +29,12 @@ export async function POST(req: NextRequest) {
     });
 
     if (!aluno) {
-      return NextResponse.json({ error: "Aluno não encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Aluno não encontrado." },
+        { status: 404 }
+      );
     }
 
-    // 🔒 evita duplicidade
     const existente = await prisma.certificado.findUnique({
       where: {
         alunoId_disciplinaId: {
@@ -35,22 +45,49 @@ export async function POST(req: NextRequest) {
     });
 
     if (existente) {
-      return NextResponse.json({ ok: true, existente: true });
+      return NextResponse.json({
+        ok: true,
+        existente: true,
+        certificadoId: existente.id,
+        codigo: existente.codigo,
+      });
     }
 
-    const certificado = await prisma.certificado.create({
+    const criado = await prisma.certificado.create({
       data: {
         alunoId: aluno.id,
         disciplinaId,
         instituicaoId: user.instituicaoId,
-        codigo: `CERT-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        codigo: `TEMP-${Date.now()}`,
       },
     });
 
-    return NextResponse.json({ ok: true, certificado });
+    const codigoAssinado = gerarCodigoCertificado({
+      id: criado.id,
+      alunoId: criado.alunoId,
+      disciplinaId: criado.disciplinaId,
+      instituicaoId: criado.instituicaoId,
+      emitidoEm: criado.emitidoEm,
+    });
+
+    const certificado = await prisma.certificado.update({
+      where: { id: criado.id },
+      data: {
+        codigo: codigoAssinado,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      certificadoId: certificado.id,
+      codigo: certificado.codigo,
+    });
   } catch (error: any) {
     return NextResponse.json(
-      { error: "Erro ao gerar certificado", detalhe: error.message },
+      {
+        error: "Erro ao gerar certificado",
+        detalhe: error?.message || String(error),
+      },
       { status: 500 }
     );
   }
