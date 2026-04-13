@@ -205,9 +205,7 @@ export default function ProvaPage() {
     // ✅ mantém compatibilidade com seu painel de notas/certificados
     await salvarNota(disciplinaId, notaFinal, aprovado, tempoEmSegundos, []);
 
-    if (aprovado) gerarCertificado(disciplinaId);
-
-    setResultado({ nota: notaFinal, aprovado, tempo: tempoEmSegundos });
+setResultado({ nota: notaFinal, aprovado, tempo: tempoEmSegundos });
   }
 
   // ====== UI STATES ======
@@ -305,8 +303,10 @@ export default function ProvaPage() {
           </p>
 
           {resultado.aprovado && (
-            <p className="text-green-700 font-medium">🎉 Certificado gerado automaticamente!</p>
-          )}
+  <p className="text-green-700 font-medium">
+    🎉 Você foi aprovado nesta prova. A liberação do certificado depende das regras da sua instituição.
+  </p>
+)}
         </div>
 
         <button
