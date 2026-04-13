@@ -99,9 +99,10 @@ export default function Footer() {
                 className="transition hover:text-white"
               >
                 +55 48 98810-1240
+                +55 48 3208-1353
               </a>
 
-              <span>Tubarão / SC • Brasil</span>
+              <span>São José / SC • Brasil</span>
             </div>
           </div>
         </div>
