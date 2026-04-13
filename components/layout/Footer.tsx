@@ -65,6 +65,7 @@ export default function Footer() {
               <Link href="/suporte" className="transition hover:text-white">
                 Suporte
               </Link>
+
               <a
                 href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
                 target="_blank"
@@ -73,8 +74,17 @@ export default function Footer() {
               >
                 Falar com comercial
               </a>
+
               <Link href="/ibe/matricula" className="transition hover:text-white">
                 Matrícula IBE
+              </Link>
+
+              <Link href="/politica-de-privacidade" className="transition hover:text-white">
+                Política de privacidade
+              </Link>
+
+              <Link href="/termos-de-uso" className="transition hover:text-white">
+                Termos de uso
               </Link>
             </div>
           </div>
