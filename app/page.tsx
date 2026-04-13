@@ -60,7 +60,8 @@ const faqs = [
       "Não. O PHANYX foi estruturado como SaaS multi-instituição, permitindo operar várias instituições com separação de dados e organização escalável.",
   },
   {
-    pergunta: "O sistema possui área para aluno, professor e administração?",
+    pergunta:
+      "O sistema possui área para aluno, professor e administração?",
     resposta:
       "Sim. A plataforma foi pensada para atender os principais perfis institucionais com experiência própria para cada tipo de usuário.",
   },
@@ -82,15 +83,12 @@ export default function HomePage() {
       <Header />
 
       <main className="bg-white text-gray-900">
-        {/* HERO */}
         <section className="relative overflow-hidden border-b border-slate-800 bg-[#06133a] text-white">
-          {/* FUNDO */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.25),transparent_35%),radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.18),transparent_30%)]" />
             <div className="absolute inset-0 bg-gradient-to-r from-[#020817] via-[#081a52] to-[#142863]" />
           </div>
 
-          {/* FOTO NA DIREITA COM CORTE DIAGONAL */}
           <div className="absolute right-0 top-0 hidden h-full w-[40%] lg:block">
             <div
               className="absolute inset-0 overflow-hidden"
@@ -115,9 +113,8 @@ export default function HomePage() {
 
           <div className="relative z-10 mx-auto max-w-7xl px-6 pb-12 pt-8 md:px-10 md:pb-14 md:pt-10 lg:px-12 lg:pb-16 lg:pt-12">
             <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-              {/* ESQUERDA */}
               <div className="max-w-2xl -mt-1 md:-mt-2">
-                <div className="inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-blue-200 backdrop-blur mb-3">
+                <div className="mb-3 inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-blue-200 backdrop-blur">
                   Plataforma acadêmica SaaS multi-instituição
                 </div>
 
@@ -134,89 +131,91 @@ export default function HomePage() {
                 </h1>
 
                 <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 md:text-base">
-                  Estruture sua instituição com uma plataforma moderna, escalável e
-                  preparada para universidades, faculdades, escolas técnicas e operações
-                  de ensino a distância. Tudo em um ambiente com experiência
-                  profissional, controle institucional e base SaaS real.
+                  Estruture sua instituição com uma plataforma moderna,
+                  escalável e preparada para universidades, faculdades, escolas
+                  técnicas e operações de ensino a distância. Tudo em um
+                  ambiente com experiência profissional, controle institucional
+                  e base SaaS real.
                 </p>
 
                 <div className="mt-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                     <Link
-  href="/planos"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(37,99,235,0.45)] transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500"
->
-  Ver planos
-</Link>
+                      href="/planos"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(37,99,235,0.45)] transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500"
+                    >
+                      Ver planos
+                    </Link>
 
                     <a
-  href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
-  target="_blank"
-  rel="noopener noreferrer"
+                      href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15"
                     >
                       Falar com comercial
                     </a>
-<div className="flex flex-wrap gap-3 mt-4">
-  <a
-    <div className="mt-4 flex flex-wrap gap-3">
-  <a
-    href="/login?portal=aluno"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
-  >
-    Área do aluno
-  </a>
+                  </div>
 
-  <a
-    href="/login?portal=professor"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
-  >
-    Área do professor
-  </a>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <a
+                      href="/login?portal=aluno"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                    >
+                      Área do aluno
+                    </a>
 
-  <a
-    href="/login?portal=admin"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-gray-100"
-  >
-    Admin
-  </a>
-</div>
-                    </div>
+                    <a
+                      href="/login?portal=professor"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                    >
+                      Área do professor
+                    </a>
+
+                    <a
+                      href="/login?portal=admin"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-gray-100"
+                    >
+                      Admin
+                    </a>
+                  </div>
                 </div>
 
                 <div className="mt-6 hidden gap-4 xl:grid xl:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <p className="text-xl font-bold text-white">Multi-tenant</p>
                     <p className="mt-2 text-sm leading-6 text-slate-200">
-                      Estrutura pronta para várias instituições com separação de dados.
+                      Estrutura pronta para várias instituições com separação de
+                      dados.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <p className="text-xl font-bold text-white">LMS + Gestão</p>
                     <p className="mt-2 text-sm leading-6 text-slate-200">
-                      Acadêmico, ensino digital, documentos e financeiro em um só sistema.
+                      Acadêmico, ensino digital, documentos e financeiro em um
+                      só sistema.
                     </p>
                   </div>
 
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <p className="text-xl font-bold text-white">Segurança</p>
                     <p className="mt-2 text-sm leading-6 text-slate-200">
-                      Auditoria, validação e base antifraude para uso institucional.
+                      Auditoria, validação e base antifraude para uso
+                      institucional.
                     </p>
                   </div>
                 </div>
               </div>
 
-              {/* DIREITA MOBILE/TABLET */}
               <div className="relative lg:hidden">
                 <div className="relative h-[260px] overflow-hidden rounded-[28px] border border-white/10 shadow-2xl sm:h-[300px]">
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
@@ -229,30 +228,30 @@ export default function HomePage() {
                   />
 
                   <div className="absolute bottom-3 left-3 right-3 z-20 rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur md:bottom-4 md:left-4 md:right-4 md:p-4">
-  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-200 md:text-xs">
-    Plataforma pronta para crescer
-  </p>
-  <p className="mt-2 text-xs leading-5 text-slate-100 md:text-sm md:leading-6">
-    Mais controle acadêmico, mais credibilidade institucional e uma
-    experiência moderna para administração, professores e alunos.
-  </p>
-</div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-200 md:text-xs">
+                      Plataforma pronta para crescer
+                    </p>
+                    <p className="mt-2 text-xs leading-5 text-slate-100 md:text-sm md:leading-6">
+                      Mais controle acadêmico, mais credibilidade institucional
+                      e uma experiência moderna para administração, professores e
+                      alunos.
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <a
-  href="https://wa.me/5548988101240"
-  target="_blank"
-  rel="noopener noreferrer"
-  className="fixed bottom-6 right-6 z-50 hidden items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400 md:inline-flex"
->
-  💬 Suporte
-</a>
+            href="https://wa.me/5548988101240"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-6 right-6 z-50 hidden items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400 md:inline-flex"
+          >
+            💬 Suporte
+          </a>
         </section>
 
-        {/* MÓDULOS */}
         <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
@@ -282,7 +281,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* DIFERENCIAIS */}
         <section className="bg-slate-50">
           <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
@@ -295,7 +293,8 @@ export default function HomePage() {
                 </h2>
                 <p className="mt-4 text-lg text-gray-600">
                   Não é apenas uma tela de login. É uma plataforma com visão de
-                  negócio, organização institucional e base para expansão comercial.
+                  negócio, organização institucional e base para expansão
+                  comercial.
                 </p>
               </div>
 
@@ -313,7 +312,6 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* SEGURANÇA */}
         <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
           <div className="rounded-[32px] bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 p-8 text-white md:p-12">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
@@ -323,9 +321,9 @@ export default function HomePage() {
               Mais credibilidade para documentos, acessos e operações sensíveis
             </h2>
             <p className="mt-4 max-w-3xl text-blue-100">
-              O PHANYX evolui com foco em segurança, validação e rastreabilidade,
-              fortalecendo a confiança institucional e ajudando a reduzir riscos
-              em processos importantes.
+              O PHANYX evolui com foco em segurança, validação e
+              rastreabilidade, fortalecendo a confiança institucional e ajudando
+              a reduzir riscos em processos importantes.
             </p>
 
             <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -353,14 +351,14 @@ export default function HomePage() {
               <div className="rounded-2xl border border-white/10 bg-white/10 p-5">
                 <h3 className="font-bold">Bloqueios</h3>
                 <p className="mt-2 text-sm text-blue-100">
-                  Base pronta para contenção manual e automática quando necessário.
+                  Base pronta para contenção manual e automática quando
+                  necessário.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* FAQ */}
         <section className="bg-slate-50">
           <div className="mx-auto max-w-5xl px-6 py-20 md:px-10 lg:px-12">
             <div className="text-center">
@@ -385,7 +383,7 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-            </main>
+      </main>
 
       <Footer />
     </>
