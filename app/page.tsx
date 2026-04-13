@@ -143,23 +143,29 @@ export default function HomePage() {
                 <div className="mt-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                     <Link
-                      href="/planos"
-                      className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(37,99,235,0.45)] transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500"
-                    >
-                      Ver planos
-                    </Link>
+  href="/planos"
+  target="_blank"
+  rel="noopener noreferrer"
+  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(37,99,235,0.45)] transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500"
+>
+  Ver planos
+</Link>
 
                     <a
-                      href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
-                      target="_blank"
-                      rel="noreferrer"
+  href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
+  target="_blank"
+  rel="noopener noreferrer"
                       className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15"
                     >
                       Falar com comercial
                     </a>
 <div className="flex flex-wrap gap-3 mt-4">
   <a
+    <div className="mt-4 flex flex-wrap gap-3">
+  <a
     href="/login?portal=aluno"
+    target="_blank"
+    rel="noopener noreferrer"
     className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
   >
     Área do aluno
@@ -167,6 +173,8 @@ export default function HomePage() {
 
   <a
     href="/login?portal=professor"
+    target="_blank"
+    rel="noopener noreferrer"
     className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
   >
     Área do professor
@@ -174,7 +182,9 @@ export default function HomePage() {
 
   <a
     href="/login?portal=admin"
-    className="rounded-xl bg-white text-blue-900 px-4 py-2 text-sm font-semibold hover:bg-gray-100"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-gray-100"
   >
     Admin
   </a>
@@ -235,7 +245,7 @@ export default function HomePage() {
           <a
   href="https://wa.me/5548988101240"
   target="_blank"
-  rel="noreferrer"
+  rel="noopener noreferrer"
   className="fixed bottom-6 right-6 z-50 hidden items-center gap-2 rounded-full bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-2xl transition hover:bg-green-400 md:inline-flex"
 >
   💬 Suporte
