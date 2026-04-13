@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Image from "next/image";
+import Footer from "@/components/layout/Footer";
 
 const modulos = [
   {
@@ -353,7 +354,9 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-      </main>
+            </main>
+
+      <Footer />
     </>
   );
 }
