@@ -19,11 +19,12 @@ export default function AdminShell({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname()
+  const pathname = usePathname();
 
-  const esconderSidebar =
-  
-  pathname?.includes("/admin/configuracoes/certificado");
+  const esconderSidebar = pathname?.includes(
+    "/admin/configuracoes/certificado"
+  );
+
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) return "comercial";
     if (pathname.startsWith("/admin/financeiro")) return "financeiro";
@@ -45,47 +46,47 @@ export default function AdminShell({
     setMenuAberto(descobrirMenuInicial());
   }, [pathname]);
 
-useEffect(() => {
-  function abrirMenuConfiguracoes() {
-    setMenuAberto("configuracoes");
-  }
+  useEffect(() => {
+    function abrirMenuConfiguracoes() {
+      setMenuAberto("configuracoes");
+    }
 
-  function abrirMenuAcademico() {
-    setMenuAberto("academico");
-  }
+    function abrirMenuAcademico() {
+      setMenuAberto("academico");
+    }
 
-  function abrirMenuPainel() {
-    setMenuAberto(null);
-  }
+    function abrirMenuPainel() {
+      setMenuAberto(null);
+    }
 
-  window.addEventListener(
-    "phanyx:abrir-menu-configuracoes",
-    abrirMenuConfiguracoes as EventListener
-  );
-  window.addEventListener(
-    "phanyx:abrir-menu-academico",
-    abrirMenuAcademico as EventListener
-  );
-  window.addEventListener(
-    "phanyx:resetar-menu-tour",
-    abrirMenuPainel as EventListener
-  );
-
-  return () => {
-    window.removeEventListener(
+    window.addEventListener(
       "phanyx:abrir-menu-configuracoes",
       abrirMenuConfiguracoes as EventListener
     );
-    window.removeEventListener(
+    window.addEventListener(
       "phanyx:abrir-menu-academico",
       abrirMenuAcademico as EventListener
     );
-    window.removeEventListener(
+    window.addEventListener(
       "phanyx:resetar-menu-tour",
       abrirMenuPainel as EventListener
     );
-  };
-}, []);
+
+    return () => {
+      window.removeEventListener(
+        "phanyx:abrir-menu-configuracoes",
+        abrirMenuConfiguracoes as EventListener
+      );
+      window.removeEventListener(
+        "phanyx:abrir-menu-academico",
+        abrirMenuAcademico as EventListener
+      );
+      window.removeEventListener(
+        "phanyx:resetar-menu-tour",
+        abrirMenuPainel as EventListener
+      );
+    };
+  }, []);
 
   useEffect(() => {
     async function carregarUsuario() {
@@ -158,295 +159,307 @@ useEffect(() => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <aside className="w-72 bg-white shadow-lg p-6 flex flex-col justify-between">
-        <div>
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold">
-              PHANYX
-              <span className="block text-sm text-gray-500 font-normal">
-                Painel Administrativo
-              </span>
-            </h2>
+      {!esconderSidebar && (
+        <aside className="w-72 bg-white shadow-lg p-6 flex flex-col justify-between">
+          <div>
+            <div className="mb-8">
+              <h2 className="text-xl font-semibold">
+                PHANYX
+                <span className="block text-sm text-gray-500 font-normal">
+                  Painel Administrativo
+                </span>
+              </h2>
 
-            <button
-              type="button"
-              onClick={abrirTourAdmin}
-              className="mt-4 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
-            >
-              ✨ Abrir tutorial guiado
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={abrirTourAdmin}
+                className="mt-4 w-full rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
+              >
+                ✨ Abrir tutorial guiado
+              </button>
+            </div>
 
-          <nav className="flex flex-col space-y-2">
-            <Link
-              href="/admin"
-              className={getLinkClass("/admin")}
-              data-tour="menu-painel"
-            >
-              📊 Painel Administrativo
-            </Link>
+            <nav className="flex flex-col space-y-2">
+              <Link
+                href="/admin"
+                className={getLinkClass("/admin")}
+                data-tour="menu-painel"
+              >
+                📊 Painel Administrativo
+              </Link>
 
-            {podeVerPainelMaster && (
+              {podeVerPainelMaster && (
+                <div className="border-t pt-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleMenu("master")}
+                    className={buttonClass}
+                  >
+                    <span className={sectionTitleClass}>🔥 Master PHANYX</span>
+                    <span>{menuAberto === "master" ? "▾" : "▸"}</span>
+                  </button>
+
+                  {menuAberto === "master" && (
+                    <div className="ml-3 mt-2 flex flex-col space-y-1">
+                      <Link href="/master" className={getLinkClass("/master")}>
+                        🚀 Painel Master
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {podeVerComercialPhanyx && (
+                <div className="border-t pt-2 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => toggleMenu("comercial")}
+                    className={buttonClass}
+                  >
+                    <span className={sectionTitleClass}>
+                      💼 Comercial PHANYX
+                    </span>
+                    <span>{menuAberto === "comercial" ? "▾" : "▸"}</span>
+                  </button>
+
+                  {menuAberto === "comercial" && (
+                    <div className="ml-3 mt-2 flex flex-col space-y-1">
+                      <Link
+                        href="/admin/leads"
+                        className={getLinkClass("/admin/leads")}
+                      >
+                        📈 Leads PHANYX
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="border-t pt-2 mt-2">
                 <button
                   type="button"
-                  onClick={() => toggleMenu("master")}
+                  onClick={() => toggleMenu("academico")}
                   className={buttonClass}
                 >
-                  <span className={sectionTitleClass}>🔥 Master PHANYX</span>
-                  <span>{menuAberto === "master" ? "▾" : "▸"}</span>
+                  <span className={sectionTitleClass}>🎓 Acadêmico</span>
+                  <span>{menuAberto === "academico" ? "▾" : "▸"}</span>
                 </button>
 
-                {menuAberto === "master" && (
-                  <div className="ml-3 mt-2 flex flex-col space-y-1">
-                    <Link href="/master" className={getLinkClass("/master")}>
-                      🚀 Painel Master
-                    </Link>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {podeVerComercialPhanyx && (
-              <div className="border-t pt-2 mt-2">
-                <button
-                  type="button"
-                  onClick={() => toggleMenu("comercial")}
-                  className={buttonClass}
-                >
-                  <span className={sectionTitleClass}>💼 Comercial PHANYX</span>
-                  <span>{menuAberto === "comercial" ? "▾" : "▸"}</span>
-                </button>
-
-                {menuAberto === "comercial" && (
+                {menuAberto === "academico" && (
                   <div className="ml-3 mt-2 flex flex-col space-y-1">
                     <Link
-                      href="/admin/leads"
-                      className={getLinkClass("/admin/leads")}
+                      href="/admin/alunos"
+                      className={getLinkClass("/admin/alunos")}
+                      data-tour="menu-alunos"
                     >
-                      📈 Leads PHANYX
+                      👨‍🎓 Alunos
+                    </Link>
+
+                    <Link
+                      href="/admin/professores"
+                      className={getLinkClass("/admin/professores")}
+                      data-tour="menu-professores"
+                    >
+                      👨‍🏫 Professores
+                    </Link>
+
+                    <Link
+                      href="/admin/funcionarios"
+                      className={getLinkClass("/admin/funcionarios")}
+                    >
+                      🧑‍💼 Funcionários
+                    </Link>
+
+                    <Link
+                      href="/admin/departamentos"
+                      className={getLinkClass("/admin/departamentos")}
+                      data-tour="menu-departamentos"
+                    >
+                      🏢 Departamentos
+                    </Link>
+
+                    <Link
+                      href="/admin/disciplinas"
+                      className={getLinkClass("/admin/disciplinas")}
+                    >
+                      📚 Disciplinas
+                    </Link>
+
+                    <Link
+                      href="/admin/matriculas"
+                      className={getLinkClass("/admin/matriculas")}
+                      data-tour="menu-matriculas"
+                    >
+                      📝 Matrículas
+                    </Link>
+
+                    <Link
+                      href="/admin/turmas"
+                      className={getLinkClass("/admin/turmas")}
+                    >
+                      🏫 Turmas
                     </Link>
                   </div>
                 )}
               </div>
-            )}
 
-            <div className="border-t pt-2 mt-2">
-              <button
-                type="button"
-                onClick={() => toggleMenu("academico")}
-                className={buttonClass}
-              >
-                <span className={sectionTitleClass}>🎓 Acadêmico</span>
-                <span>{menuAberto === "academico" ? "▾" : "▸"}</span>
-              </button>
+              <div className="border-t pt-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => toggleMenu("financeiro")}
+                  className={buttonClass}
+                >
+                  <span className={sectionTitleClass}>💰 Financeiro</span>
+                  <span>{menuAberto === "financeiro" ? "▾" : "▸"}</span>
+                </button>
 
-              {menuAberto === "academico" && (
-                <div className="ml-3 mt-2 flex flex-col space-y-1">
-                  <Link
-                    href="/admin/alunos"
-                    className={getLinkClass("/admin/alunos")}
-                    data-tour="menu-alunos"
-                  >
-                    👨‍🎓 Alunos
-                  </Link>
+                {menuAberto === "financeiro" && (
+                  <div className="ml-3 mt-2 flex flex-col space-y-1">
+                    <Link
+                      href="/admin/financeiro"
+                      className={getLinkClass("/admin/financeiro")}
+                    >
+                      💰 Visão Geral
+                    </Link>
 
-                  <Link
-                    href="/admin/professores"
-                    className={getLinkClass("/admin/professores")}
-                    data-tour="menu-professores"
-                  >
-                    👨‍🏫 Professores
-                  </Link>
+                    <Link
+                      href="/admin/financeiro/recebimentos"
+                      className={getLinkClass("/admin/financeiro/recebimentos")}
+                    >
+                      💵 Recebimentos
+                    </Link>
 
-                  <Link
-                    href="/admin/funcionarios"
-                    className={getLinkClass("/admin/funcionarios")}
-                  >
-                    🧑‍💼 Funcionários
-                  </Link>
+                    <Link
+                      href="/admin/financeiro/caixa"
+                      className={getLinkClass("/admin/financeiro/caixa")}
+                    >
+                      🏦 Caixa
+                    </Link>
 
-                  <Link
-                    href="/admin/departamentos"
-                    className={getLinkClass("/admin/departamentos")}
-                    data-tour="menu-departamentos"
-                  >
-                    🏢 Departamentos
-                  </Link>
+                    <Link
+                      href="/admin/financeiro/relatorios"
+                      className={getLinkClass("/admin/financeiro/relatorios")}
+                    >
+                      📊 Relatórios
+                    </Link>
 
-                  <Link
-                    href="/admin/disciplinas"
-                    className={getLinkClass("/admin/disciplinas")}
-                  >
-                    📚 Disciplinas
-                  </Link>
+                    <Link
+                      href="/admin/financeiro/inadimplentes"
+                      className={getLinkClass("/admin/financeiro/inadimplentes")}
+                    >
+                      🚨 Inadimplentes
+                    </Link>
 
-                  <Link
-                    href="/admin/matriculas"
-                    className={getLinkClass("/admin/matriculas")}
-                    data-tour="menu-matriculas"
-                  >
-                    📝 Matrículas
-                  </Link>
+                    <Link
+                      href="/admin/financeiro/fechamento-geral"
+                      className={getLinkClass(
+                        "/admin/financeiro/fechamento-geral"
+                      )}
+                    >
+                      📦 Fechamento Geral
+                    </Link>
+                  </div>
+                )}
+              </div>
 
-                  <Link
-                    href="/admin/turmas"
-                    className={getLinkClass("/admin/turmas")}
-                  >
-                    🏫 Turmas
-                  </Link>
-                </div>
-              )}
-            </div>
+              <div className="border-t pt-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => toggleMenu("documentos")}
+                  className={buttonClass}
+                >
+                  <span className={sectionTitleClass}>📄 Documentos</span>
+                  <span>{menuAberto === "documentos" ? "▾" : "▸"}</span>
+                </button>
 
-            <div className="border-t pt-2 mt-2">
-              <button
-                type="button"
-                onClick={() => toggleMenu("financeiro")}
-                className={buttonClass}
-              >
-                <span className={sectionTitleClass}>💰 Financeiro</span>
-                <span>{menuAberto === "financeiro" ? "▾" : "▸"}</span>
-              </button>
+                {menuAberto === "documentos" && (
+                  <div className="ml-3 mt-2 flex flex-col space-y-1">
+                    <Link
+                      href="/admin/contratos"
+                      className={getLinkClass("/admin/contratos")}
+                    >
+                      📄 Contratos
+                    </Link>
 
-              {menuAberto === "financeiro" && (
-                <div className="ml-3 mt-2 flex flex-col space-y-1">
-                  <Link
-                    href="/admin/financeiro"
-                    className={getLinkClass("/admin/financeiro")}
-                  >
-                    💰 Visão Geral
-                  </Link>
+                    <Link
+                      href="/admin/documentos/templates"
+                      className={getLinkClass("/admin/documentos/templates")}
+                    >
+                      🗂️ Templates
+                    </Link>
 
-                  <Link
-                    href="/admin/financeiro/recebimentos"
-                    className={getLinkClass("/admin/financeiro/recebimentos")}
-                  >
-                    💵 Recebimentos
-                  </Link>
+                    <Link
+                      href="/admin/documentos/gerados"
+                      className={getLinkClass("/admin/documentos/gerados")}
+                    >
+                      📚 Gerados
+                    </Link>
 
-                  <Link
-                    href="/admin/financeiro/caixa"
-                    className={getLinkClass("/admin/financeiro/caixa")}
-                  >
-                    🏦 Caixa
-                  </Link>
+                    <Link
+                      href="/admin/documentos/gerar"
+                      className={getLinkClass("/admin/documentos/gerar")}
+                    >
+                      ⚡ Gerar
+                    </Link>
 
-                  <Link
-                    href="/admin/financeiro/relatorios"
-                    className={getLinkClass("/admin/financeiro/relatorios")}
-                  >
-                    📊 Relatórios
-                  </Link>
+                    <Link
+                      href="/admin/validacoes"
+                      className={getLinkClass("/admin/validacoes")}
+                    >
+                      🔐 Validação
+                    </Link>
+                  </div>
+                )}
+              </div>
 
-                  <Link
-                    href="/admin/financeiro/inadimplentes"
-                    className={getLinkClass("/admin/financeiro/inadimplentes")}
-                  >
-                    🚨 Inadimplentes
-                  </Link>
+              <div className="border-t pt-2 mt-2">
+                <button
+                  type="button"
+                  onClick={() => toggleMenu("configuracoes")}
+                  className={buttonClass}
+                >
+                  <span className={sectionTitleClass}>⚙️ Configurações</span>
+                  <span>{menuAberto === "configuracoes" ? "▾" : "▸"}</span>
+                </button>
 
-                  <Link
-                    href="/admin/financeiro/fechamento-geral"
-                    className={getLinkClass("/admin/financeiro/fechamento-geral")}
-                  >
-                    📦 Fechamento Geral
-                  </Link>
-                </div>
-              )}
-            </div>
+                {menuAberto === "configuracoes" && (
+                  <div className="ml-3 mt-2 flex flex-col space-y-1">
+                    <Link
+                      href="/admin/configuracoes/instituicao"
+                      className={getLinkClass(
+                        "/admin/configuracoes/instituicao"
+                      )}
+                      data-tour="menu-configuracoes"
+                    >
+                      ⚙️ Instituição
+                    </Link>
 
-            <div className="border-t pt-2 mt-2">
-              <button
-                type="button"
-                onClick={() => toggleMenu("documentos")}
-                className={buttonClass}
-              >
-                <span className={sectionTitleClass}>📄 Documentos</span>
-                <span>{menuAberto === "documentos" ? "▾" : "▸"}</span>
-              </button>
+                    <Link
+                      href="/admin/configuracoes/certificado"
+                      className={getLinkClass(
+                        "/admin/configuracoes/certificado"
+                      )}
+                    >
+                      🏅 Certificados
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </nav>
+          </div>
 
-              {menuAberto === "documentos" && (
-                <div className="ml-3 mt-2 flex flex-col space-y-1">
-                  <Link
-                    href="/admin/contratos"
-                    className={getLinkClass("/admin/contratos")}
-                  >
-                    📄 Contratos
-                  </Link>
+          <button
+            onClick={handleLogout}
+            className="mt-8 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
+          >
+            Sair
+          </button>
+        </aside>
+      )}
 
-                  <Link
-                    href="/admin/documentos/templates"
-                    className={getLinkClass("/admin/documentos/templates")}
-                  >
-                    🗂️ Templates
-                  </Link>
-
-                  <Link
-                    href="/admin/documentos/gerados"
-                    className={getLinkClass("/admin/documentos/gerados")}
-                  >
-                    📚 Gerados
-                  </Link>
-
-                  <Link
-                    href="/admin/documentos/gerar"
-                    className={getLinkClass("/admin/documentos/gerar")}
-                  >
-                    ⚡ Gerar
-                  </Link>
-
-                  <Link
-                    href="/admin/validacoes"
-                    className={getLinkClass("/admin/validacoes")}
-                  >
-                    🔐 Validação
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t pt-2 mt-2">
-              <button
-                type="button"
-                onClick={() => toggleMenu("configuracoes")}
-                className={buttonClass}
-              >
-                <span className={sectionTitleClass}>⚙️ Configurações</span>
-                <span>{menuAberto === "configuracoes" ? "▾" : "▸"}</span>
-              </button>
-
-              {menuAberto === "configuracoes" && (
-                <div className="ml-3 mt-2 flex flex-col space-y-1">
-                  <Link
-  href="/admin/configuracoes/instituicao"
-  className={getLinkClass("/admin/configuracoes/instituicao")}
-  data-tour="menu-configuracoes"
->
-  ⚙️ Instituição
-</Link>
-
-<Link
-  href="/admin/configuracoes/certificado"
-  className={getLinkClass("/admin/configuracoes/certificado")}
->
-  🏅 Certificados
-</Link>
-                </div>
-              )}
-            </div>
-          </nav>
-        </div>
-
-        <button
-          onClick={handleLogout}
-          className="mt-8 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
-        >
-          Sair
-        </button>
-      </aside>
-
-      <main className="flex-1 p-10">{children}</main>
+      <main className={esconderSidebar ? "flex-1 p-0" : "flex-1 p-10"}>
+        {children}
+      </main>
     </div>
   );
 }
