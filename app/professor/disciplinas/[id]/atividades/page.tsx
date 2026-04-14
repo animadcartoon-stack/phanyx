@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function AtividadesDisciplinaPage() {
   const atividades: any[] = [];
 
@@ -17,11 +19,7 @@ export default function AtividadesDisciplinaPage() {
             </p>
           </div>
 
-          <button
-            className="rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
-          >
-            + Nova atividade
-          </button>
+          import Link from "next/link";
         </div>
       </div>
 
@@ -34,9 +32,13 @@ export default function AtividadesDisciplinaPage() {
             Comece criando sua primeira atividade para os alunos desta disciplina.
           </p>
 
-          <button className="mt-6 rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700">
-            Criar primeira atividade
-          </button>
+          <Link
+  href="/professor/atividades/nova/editar"
+  className="mt-6 inline-block rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+>
+  Criar primeira atividade
+</Link>
+
         </div>
       ) : (
         <div className="grid gap-4">
