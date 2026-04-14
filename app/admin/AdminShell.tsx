@@ -433,7 +433,12 @@ export default function AdminShell({
                     >
                       ⚙️ Instituição
                     </Link>
-
+<Link
+  href="/admin/certificados"
+  className={getLinkClass("/admin/certificados")}
+>
+  🏅 Gestão de Certificados
+</Link>
                     <Link
                       href="/admin/configuracoes/certificado"
                       className={getLinkClass(
