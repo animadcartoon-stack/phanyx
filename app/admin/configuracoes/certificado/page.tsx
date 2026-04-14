@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
 type CampoCertificado = {
   id: number;
@@ -331,18 +332,31 @@ export default function ConfiguracaoCertificadoPage() {
 
   return (
     <div className="mx-auto max-w-7xl p-6">
-      <div className="mb-6">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-          Configurações • Certificados
-        </p>
-        <h1 className="mt-2 text-3xl font-bold text-slate-900">
-          Editor PHANYX de Certificados
-        </h1>
-        <p className="mt-2 text-slate-600">
-          Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
-          exato onde o sistema deverá escrever as informações do aluno.
-        </p>
-      </div>
+      <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+  <div className="max-w-3xl">
+    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+      Configurações • Certificados
+    </p>
+    <h1 className="mt-2 text-3xl font-bold text-slate-900">
+      Editor PHANYX de Certificados
+    </h1>
+    <p className="mt-2 text-slate-600">
+      Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
+      exato onde o sistema deverá escrever as informações do aluno.
+    </p>
+  </div>
+
+  <div className="flex shrink-0 justify-center">
+    <Image
+      src="/images/phanyx-editor-pintando.png"
+      alt="Mascote do Editor PHANYX"
+      width={220}
+      height={220}
+      className="h-auto w-[160px] md:w-[220px]"
+      priority
+    />
+  </div>
+</div>
 
       <div className="grid gap-6">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
