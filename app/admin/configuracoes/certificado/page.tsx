@@ -23,20 +23,6 @@ type CampoCertificado = {
   pagina?: number | null;
 };
 
-const TIPOS_CAMPOS = [
-  "NOME_ALUNO",
-  "NOME_CURSO",
-  "DISCIPLINAS_CONCLUIDAS",
-  "APROVEITAMENTO",
-  "FREQUENCIA_TOTAL",
-  "DATA_EMISSAO",
-  "CIDADE",
-  "NOME_DIRETOR",
-  "ASSINATURA",
-  "QR_CODE",
-  "CODIGO_VALIDACAO",
-];
-
 const FONTES = ["Helvetica", "Times Roman", "Courier"];
 const ORIENTACOES = {
   paisagem: { largura: 1123, altura: 794, label: "Paisagem" },
@@ -66,10 +52,13 @@ export default function ConfiguracaoCertificadoPage() {
     useState<OrientacaoEditor>("paisagem");
   const [zoom, setZoom] = useState(70);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
+
   const [secaoAlunoAberta, setSecaoAlunoAberta] = useState(true);
   const [secaoCursoAberta, setSecaoCursoAberta] = useState(true);
-  const [secaoInstitucionalAberta, setSecaoInstitucionalAberta] = useState(true);
-  const [secaoValidacaoAberta, setSecaoValidacaoAberta] = useState(true); 
+  const [secaoInstitucionalAberta, setSecaoInstitucionalAberta] =
+    useState(true);
+  const [secaoValidacaoAberta, setSecaoValidacaoAberta] = useState(true);
+
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
@@ -214,9 +203,9 @@ export default function ConfiguracaoCertificadoPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-  tipo,
-  x: orientacao === "paisagem" ? 180 : 120,
-  y: 140,
+          tipo,
+          x: orientacao === "paisagem" ? 180 : 120,
+          y: 140,
           largura: larguraInicial,
           altura: alturaInicial,
           fonte: "Helvetica",
@@ -385,17 +374,96 @@ export default function ConfiguracaoCertificadoPage() {
 
   if (carregando) {
     return (
-      <div className="mx-auto max-w-7xl p-6">
-        <h1 className="mb-2 text-3xl font-bold text-slate-900">
-          Editor PHANYX de Certificados
-        </h1>
-        <p className="text-slate-600">Carregando configuração...</p>
+      <div className="p-6 text-sm text-slate-500">
+        Carregando editor de certificados...
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-[1600px] p-6">
+      <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-3 shadow-sm">
+        <div className="flex items-center gap-3">
+          {!mostrarPainelCampos && (
+            <button
+              type="button"
+              onClick={() => setMostrarPainelCampos(true)}
+              className="rounded-lg bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200"
+            >
+              Mostrar campos
+            </button>
+          )}
+
+          <h2 className="text-sm font-semibold text-slate-700">
+            Editor PHANYX
+          </h2>
+
+          <button
+            type="button"
+            className="rounded-lg bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200"
+          >
+            Editar página
+          </button>
+
+          <button
+            type="button"
+            className="rounded-lg bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200"
+          >
+            Redimensionar
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setOrientacao("paisagem")}
+            className={`rounded-lg px-3 py-1 text-sm ${
+              orientacao === "paisagem"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Paisagem
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setOrientacao("retrato")}
+            className={`rounded-lg px-3 py-1 text-sm ${
+              orientacao === "retrato"
+                ? "bg-blue-600 text-white"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+            }`}
+          >
+            Retrato
+          </button>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-500">Zoom</span>
+            <input
+              type="range"
+              min={40}
+              max={120}
+              step={5}
+              value={zoom}
+              onChange={(e) => setZoom(Number(e.target.value))}
+            />
+            <span className="min-w-[44px] text-right text-xs font-medium text-slate-700">
+              {zoom}%
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+          >
+            Baixar
+          </button>
+        </div>
+      </div>
+
       <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
@@ -476,238 +544,185 @@ export default function ConfiguracaoCertificadoPage() {
       </div>
 
       <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <div className="border-b border-slate-200 px-6 py-4">
-          <div className="mb-3 flex flex-wrap items-center gap-3">
-
-{!mostrarPainelCampos && (
-  <button
-    type="button"
-    onClick={() => setMostrarPainelCampos(true)}
-    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-  >
-    Mostrar campos
-  </button>
-)}
-
-            <button
-              type="button"
-              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Editar página
-            </button>
-
-            <button
-              type="button"
-              className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              Redimensionar
-            </button>
-
-            <div className="ml-auto flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-3 py-2">
-              <span className="text-sm text-slate-500">Zoom</span>
-              <input
-                type="range"
-                min={40}
-                max={120}
-                step={5}
-                value={zoom}
-                onChange={(e) => setZoom(Number(e.target.value))}
-              />
-              <span className="min-w-[44px] text-right text-sm font-medium text-slate-700">
-                {zoom}%
-              </span>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setOrientacao("paisagem")}
-              className={`rounded-xl px-4 py-2 text-sm font-medium ${
-                orientacao === "paisagem"
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-300 text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              Modo paisagem
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setOrientacao("retrato")}
-              className={`rounded-xl px-4 py-2 text-sm font-medium ${
-                orientacao === "retrato"
-                  ? "bg-blue-600 text-white"
-                  : "border border-slate-300 text-slate-700 hover:bg-slate-50"
-              }`}
-            >
-              Modo retrato
-            </button>
-          </div>
-        </div>
-
         <div
-  className={`grid min-h-[900px] grid-cols-1 ${
-    mostrarPainelCampos
-      ? "lg:grid-cols-[300px_minmax(760px,1fr)_320px]"
-      : "lg:grid-cols-[minmax(860px,1fr)_320px]"
-  }`}
->
+          className={`grid min-h-[900px] grid-cols-1 ${
+            mostrarPainelCampos
+              ? "lg:grid-cols-[300px_minmax(760px,1fr)_320px]"
+              : "lg:grid-cols-[minmax(860px,1fr)_320px]"
+          }`}
+        >
           {mostrarPainelCampos && (
-  <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-    <div className="mb-4 flex items-start justify-between gap-3">
-      <div>
-        <h2 className="text-lg font-bold text-slate-900">Campos dinâmicos</h2>
-        <p className="mt-1 text-xs text-slate-500">
-          Organize o certificado por grupos e clique para adicionar um campo.
-        </p>
-      </div>
+            <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Campos dinâmicos
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Organize o certificado por grupos e clique para adicionar um
+                    campo.
+                  </p>
+                </div>
 
-      <button
-        type="button"
-        onClick={() => setMostrarPainelCampos(false)}
-        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-      >
-        Fechar
-      </button>
-    </div>
+                <button
+                  type="button"
+                  onClick={() => setMostrarPainelCampos(false)}
+                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+                >
+                  Fechar
+                </button>
+              </div>
 
-    <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
-      Editor PHANYX
-    </div>
+              <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+                Editor PHANYX
+              </div>
 
-    <div className="space-y-4">
-      <div className="rounded-2xl border border-slate-200 bg-white">
-        <button
-          type="button"
-          onClick={() => setSecaoAlunoAberta((prev) => !prev)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left"
-        >
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Informações do aluno
-          </span>
-          <span className="text-slate-500">{secaoAlunoAberta ? "−" : "+"}</span>
-        </button>
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-slate-200 bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setSecaoAlunoAberta((prev) => !prev)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Informações do aluno
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoAlunoAberta ? "−" : "+"}
+                    </span>
+                  </button>
 
-        {secaoAlunoAberta && (
-          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-            {["NOME_ALUNO", "APROVEITAMENTO", "FREQUENCIA_TOTAL"].map((tipo) => (
-              <button
-                key={tipo}
-                type="button"
-                onClick={() => adicionarCampo(tipo)}
-                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                {tipo === "NOME_ALUNO"
-                  ? "Nome do aluno"
-                  : tipo === "APROVEITAMENTO"
-                  ? "Aproveitamento"
-                  : "Frequência total"}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+                  {secaoAlunoAberta && (
+                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                      {[
+                        { tipo: "NOME_ALUNO", label: "Nome do aluno" },
+                        { tipo: "APROVEITAMENTO", label: "Aproveitamento" },
+                        { tipo: "FREQUENCIA_TOTAL", label: "Frequência total" },
+                      ].map((item) => (
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white">
-        <button
-          type="button"
-          onClick={() => setSecaoCursoAberta((prev) => !prev)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left"
-        >
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Informações do curso
-          </span>
-          <span className="text-slate-500">{secaoCursoAberta ? "−" : "+"}</span>
-        </button>
+                <div className="rounded-2xl border border-slate-200 bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setSecaoCursoAberta((prev) => !prev)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Informações do curso
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoCursoAberta ? "−" : "+"}
+                    </span>
+                  </button>
 
-        {secaoCursoAberta && (
-          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-            {["NOME_CURSO", "DISCIPLINAS_CONCLUIDAS"].map((tipo) => (
-              <button
-                key={tipo}
-                type="button"
-                onClick={() => adicionarCampo(tipo)}
-                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                {tipo === "NOME_CURSO"
-                  ? "Nome do curso"
-                  : "Disciplinas concluídas"}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+                  {secaoCursoAberta && (
+                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                      {[
+                        { tipo: "NOME_CURSO", label: "Nome do curso" },
+                        {
+                          tipo: "DISCIPLINAS_CONCLUIDAS",
+                          label: "Disciplinas concluídas",
+                        },
+                      ].map((item) => (
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white">
-        <button
-          type="button"
-          onClick={() => setSecaoInstitucionalAberta((prev) => !prev)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left"
-        >
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Informações institucionais
-          </span>
-          <span className="text-slate-500">
-            {secaoInstitucionalAberta ? "−" : "+"}
-          </span>
-        </button>
+                <div className="rounded-2xl border border-slate-200 bg-white">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSecaoInstitucionalAberta((prev) => !prev)
+                    }
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Informações institucionais
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoInstitucionalAberta ? "−" : "+"}
+                    </span>
+                  </button>
 
-        {secaoInstitucionalAberta && (
-          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-            {["DATA_EMISSAO", "CIDADE", "NOME_DIRETOR", "ASSINATURA"].map((tipo) => (
-              <button
-                key={tipo}
-                type="button"
-                onClick={() => adicionarCampo(tipo)}
-                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                {tipo === "DATA_EMISSAO"
-                  ? "Data de emissão"
-                  : tipo === "CIDADE"
-                  ? "Cidade"
-                  : tipo === "NOME_DIRETOR"
-                  ? "Nome do diretor"
-                  : "Assinatura"}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+                  {secaoInstitucionalAberta && (
+                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                      {[
+                        { tipo: "DATA_EMISSAO", label: "Data de emissão" },
+                        { tipo: "CIDADE", label: "Cidade" },
+                        { tipo: "NOME_DIRETOR", label: "Nome do diretor" },
+                        { tipo: "ASSINATURA", label: "Assinatura" },
+                      ].map((item) => (
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white">
-        <button
-          type="button"
-          onClick={() => setSecaoValidacaoAberta((prev) => !prev)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left"
-        >
-          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Validação
-          </span>
-          <span className="text-slate-500">
-            {secaoValidacaoAberta ? "−" : "+"}
-          </span>
-        </button>
+                <div className="rounded-2xl border border-slate-200 bg-white">
+                  <button
+                    type="button"
+                    onClick={() => setSecaoValidacaoAberta((prev) => !prev)}
+                    className="flex w-full items-center justify-between px-4 py-3 text-left"
+                  >
+                    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+                      Validação
+                    </span>
+                    <span className="text-slate-500">
+                      {secaoValidacaoAberta ? "−" : "+"}
+                    </span>
+                  </button>
 
-        {secaoValidacaoAberta && (
-          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-            {["QR_CODE", "CODIGO_VALIDACAO"].map((tipo) => (
-              <button
-                key={tipo}
-                type="button"
-                onClick={() => adicionarCampo(tipo)}
-                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-              >
-                {tipo === "QR_CODE" ? "QR Code" : "Código de validação"}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  </aside>
-)}
-
+                  {secaoValidacaoAberta && (
+                    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+                      {[
+                        { tipo: "QR_CODE", label: "QR Code" },
+                        {
+                          tipo: "CODIGO_VALIDACAO",
+                          label: "Código de validação",
+                        },
+                      ].map((item) => (
+                        <button
+                          key={item.tipo}
+                          type="button"
+                          onClick={() => adicionarCampo(item.tipo)}
+                          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </aside>
+          )}
 
           <main className="flex min-h-[900px] flex-col bg-[#f3f5f9]">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
@@ -715,10 +730,10 @@ export default function ConfiguracaoCertificadoPage() {
             </div>
 
             <div
-  ref={stageRef}
-  className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
->
-  <div className="mx-auto flex min-h-full w-full items-start justify-center">
+              ref={stageRef}
+              className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
+            >
+              <div className="mx-auto flex min-h-full w-full items-start justify-center">
                 <div
                   ref={canvasRef}
                   onMouseMove={onMouseMoveCanvas}
@@ -735,7 +750,7 @@ export default function ConfiguracaoCertificadoPage() {
                       <iframe
                         src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
                         title="Modelo do certificado"
-                        className="absolute inset-0 h-full w-full pointer-events-none"
+                        className="pointer-events-none absolute inset-0 h-full w-full"
                       />
 
                       <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
@@ -781,12 +796,12 @@ export default function ConfiguracaoCertificadoPage() {
                       }}
                     >
                       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
-  ? "DISCIPLINAS CONCLUÍDAS"
-  : c.tipo === "APROVEITAMENTO"
-  ? "APROVEITAMENTO"
-  : c.tipo === "FREQUENCIA_TOTAL"
-  ? "FREQUÊNCIA TOTAL"
-  : c.tipo}
+                        ? "DISCIPLINAS CONCLUÍDAS"
+                        : c.tipo === "APROVEITAMENTO"
+                        ? "APROVEITAMENTO"
+                        : c.tipo === "FREQUENCIA_TOTAL"
+                        ? "FREQUÊNCIA TOTAL"
+                        : c.tipo}
                     </div>
                   ))}
                 </div>
@@ -966,9 +981,10 @@ export default function ConfiguracaoCertificadoPage() {
               </div>
             ) : (
               <p className="text-sm text-slate-500">
-  Primeiro clique em um campo da esquerda para adicionar ao editor.
-  Depois clique e arraste o campo sobre o certificado para posicionar.
-</p>
+                Primeiro clique em um campo da esquerda para adicionar ao editor.
+                Depois clique e arraste o campo sobre o certificado para
+                posicionar.
+              </p>
             )}
           </aside>
         </div>
