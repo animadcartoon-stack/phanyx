@@ -54,11 +54,10 @@ export default function ConfiguracaoCertificadoPage() {
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
-  const [secaoAlunoAberta, setSecaoAlunoAberta] = useState(true);
-  const [secaoCursoAberta, setSecaoCursoAberta] = useState(true);
-  const [secaoInstitucionalAberta, setSecaoInstitucionalAberta] =
-    useState(true);
-  const [secaoValidacaoAberta, setSecaoValidacaoAberta] = useState(true);
+  const [secaoAlunoAberta, setSecaoAlunoAberta] = useState(false);
+  const [secaoCursoAberta, setSecaoCursoAberta] = useState(false);
+  const [secaoInstitucionalAberta, setSecaoInstitucionalAberta] = useState(false);
+  const [secaoValidacaoAberta, setSecaoValidacaoAberta] = useState(false);
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
