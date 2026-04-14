@@ -50,11 +50,15 @@ export default function ConfiguracaoCertificadoPage() {
 
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
-  const [zoom, setZoom] = useState(70);
+  const [zoom, setZoom] = useState(100);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
   const [secaoAberta, setSecaoAberta] = useState<string | null>(null);
+  const [modoMao, setModoMao] = useState(false);
+  const [espacoPressionado, setEspacoPressionado] = useState(false);
+  const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
+  const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -113,6 +117,30 @@ export default function ConfiguracaoCertificadoPage() {
     carregarConfiguracao();
   }, []);
 
+useEffect(() => {
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.code === "Space") {
+      e.preventDefault();
+      setEspacoPressionado(true);
+    }
+  }
+
+  function handleKeyUp(e: KeyboardEvent) {
+    if (e.code === "Space") {
+      e.preventDefault();
+      setEspacoPressionado(false);
+    }
+  }
+
+  window.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("keyup", handleKeyUp);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("keyup", handleKeyUp);
+  };
+}, []);
+
   const baseCanvas = ORIENTACOES[orientacao];
   const escala = zoom / 100;
   const canvasWidth = Math.round(baseCanvas.largura * escala);
@@ -155,6 +183,36 @@ export default function ConfiguracaoCertificadoPage() {
       setEnviandoArquivo(false);
     }
   }
+
+function iniciarArrastoCanvas(e: React.MouseEvent<HTMLDivElement>) {
+  const maoAtiva = modoMao || espacoPressionado;
+  if (!maoAtiva || !stageRef.current) return;
+
+  setArrastandoCanvas(true);
+  setInicioArrastoCanvas({
+    x: e.clientX,
+    y: e.clientY,
+  });
+}
+
+function moverCanvas(e: React.MouseEvent<HTMLDivElement>) {
+  if (!arrastandoCanvas || !stageRef.current) return;
+
+  const deltaX = e.clientX - inicioArrastoCanvas.x;
+  const deltaY = e.clientY - inicioArrastoCanvas.y;
+
+  stageRef.current.scrollLeft -= deltaX;
+  stageRef.current.scrollTop -= deltaY;
+
+  setInicioArrastoCanvas({
+    x: e.clientX,
+    y: e.clientY,
+  });
+}
+
+function finalizarArrastoCanvas() {
+  setArrastandoCanvas(false);
+}
 
   async function salvarConfiguracao() {
     try {
@@ -517,6 +575,20 @@ async function salvarModeloCompleto() {
           >
             Retrato
           </button>
+
+<button
+  type="button"
+  onClick={() => setModoMao((prev) => !prev)}
+  className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+    modoMao
+      ? "bg-blue-600 text-white"
+      : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+  }`}
+  title="Ferramenta mãozinha (atalho: espaço)"
+>
+  ✋ Mão
+</button>
+
         </div>
 
         <div className="flex items-center gap-4">
@@ -871,9 +943,20 @@ async function salvarModeloCompleto() {
             </div>
 
             <div
-              ref={stageRef}
-              className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
-            >
+  ref={stageRef}
+  onMouseDown={iniciarArrastoCanvas}
+  onMouseMove={moverCanvas}
+  onMouseUp={finalizarArrastoCanvas}
+  onMouseLeave={finalizarArrastoCanvas}
+  className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
+  style={{
+    cursor: modoMao || espacoPressionado
+      ? arrastandoCanvas
+        ? "grabbing"
+        : "grab"
+      : "default",
+  }}
+>
               <div className="mx-auto flex min-h-full w-full items-start justify-center">
                 <div
                   ref={canvasRef}
