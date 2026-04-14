@@ -15,11 +15,16 @@ export default function AtividadesDisciplinaPage() {
               Atividades da disciplina
             </h1>
             <p className="mt-2 text-sm text-slate-600">
-              Crie, gerencie e acompanhe as atividades vinculadas a esta disciplina.
+              Crie, gerencie e acompanhe as atividades vincululadas a esta disciplina.
             </p>
           </div>
 
-          import Link from "next/link";
+          <Link
+            href="/professor/atividades/nova/editar"
+            className="inline-block rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-700"
+          >
+            + Nova atividade
+          </Link>
         </div>
       </div>
 
@@ -33,12 +38,11 @@ export default function AtividadesDisciplinaPage() {
           </p>
 
           <Link
-  href="/professor/atividades/nova/editar"
-  className="mt-6 inline-block rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
->
-  Criar primeira atividade
-</Link>
-
+            href="/professor/atividades/nova/editar"
+            className="mt-6 inline-block rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-700"
+          >
+            Criar primeira atividade
+          </Link>
         </div>
       ) : (
         <div className="grid gap-4">
