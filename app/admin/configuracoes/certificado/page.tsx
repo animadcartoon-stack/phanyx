@@ -38,7 +38,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(null);
-
+  const [previewUrl, setPreviewUrl] = useState("");
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
@@ -77,6 +77,7 @@ export default function ConfiguracaoCertificadoPage() {
         }
 
         setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
+        setPreviewUrl("/images/certificado-preview.png");
         setCertificadoCoordenadorNome(dataConfig?.certificadoCoordenadorNome || "");
         setCertificadoCidade(dataConfig?.certificadoCidade || "");
         setCampos(Array.isArray(dataCampos?.campos) ? dataCampos.campos : []);
@@ -399,7 +400,7 @@ export default function ConfiguracaoCertificadoPage() {
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-slate-900">Canvas do certificado</h2>
+            <h2 className="text-xl font-bold text-slate-900">Editor PHANYX</h2>
             <p className="mt-1 text-sm text-slate-500">
               Fluxo estilo assinatura digital: adicione um campo, arraste no
               canvas e salve o estilo.
@@ -431,13 +432,13 @@ export default function ConfiguracaoCertificadoPage() {
               onMouseLeave={finalizarDrag}
               className="relative min-h-[640px] overflow-hidden rounded-2xl border border-slate-300 bg-white"
               style={{
-                backgroundImage: certificadoTemplateUrl
-                  ? `url("${certificadoTemplateUrl}")`
-                  : "linear-gradient(180deg,#f8fafc,#eef2ff)",
-                backgroundSize: "contain",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "center top",
-              }}
+  backgroundImage: previewUrl
+    ? `url("${previewUrl}")`
+    : "linear-gradient(180deg,#f8fafc,#eef2ff)",
+  backgroundSize: "contain",
+  backgroundRepeat: "no-repeat",
+  backgroundPosition: "center top",
+}}
             >
               <div className="absolute left-4 top-4 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
                 Arraste os campos para posicionar
