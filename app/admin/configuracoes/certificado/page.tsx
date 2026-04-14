@@ -882,9 +882,11 @@ async function salvarModeloCompleto() {
                   onMouseLeave={finalizarDrag}
                   className="relative overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
-                    width: `${canvasWidth}px`,
-                    height: `${canvasHeight}px`,
-                  }}
+  width: `${canvasWidth}px`,
+  height: `${canvasHeight}px`,
+  transform: `scale(${escala})`,
+  transformOrigin: "top left",
+}}
                 >
                   {certificadoTemplateUrl ? (
                     <>
@@ -915,14 +917,14 @@ async function salvarModeloCompleto() {
                           : "border-slate-300 bg-white/95 text-slate-700"
                       }`}
                       style={{
-                        left: `${c.x * escala}px`,
-                        top: `${c.y * escala}px`,
-                        width: `${(c.largura || 220) * escala}px`,
-                        minHeight: `${(c.altura || 40) * escala}px`,
+                        left: `${c.x}px`,
+top: `${c.y}px`,
+width: `${c.largura || 220}px`,
+minHeight: `${c.altura || 40}px`,
                         textAlign:
                           (c.alinhamento as "left" | "center" | "right") ||
                           "left",
-                        fontSize: `${(c.tamanho || 16) * escala}px`,
+                        fontSize: `${c.tamanho || 16}px`,
                         color:
                           campoSelecionadoId === c.id
                             ? "#ffffff"
