@@ -56,7 +56,7 @@ model Instituicao {
   turmas                   Turma[]
   usuarios                 User[]
   adesoes                  AdesaoInstituicao[]
-\  certificadoCampos        CertificadoCampo[]
+  certificadoCampos        CertificadoCampo[]
   certificadoTemplateUrl      String?
   certificadoPreviewUrl       String?
   certificadoTextoPadrao      String?
