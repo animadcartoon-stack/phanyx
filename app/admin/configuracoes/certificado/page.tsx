@@ -63,7 +63,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
   const [zoom, setZoom] = useState(70);
-
+  const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true); 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
@@ -208,9 +208,9 @@ export default function ConfiguracaoCertificadoPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          tipo,
-          x: 80,
-          y: 80,
+  tipo,
+  x: orientacao === "paisagem" ? 180 : 120,
+  y: 140,
           largura: larguraInicial,
           altura: alturaInicial,
           fonte: "Helvetica",
@@ -472,6 +472,15 @@ export default function ConfiguracaoCertificadoPage() {
       <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-6 py-4">
           <div className="mb-3 flex flex-wrap items-center gap-3">
+
+<button
+  type="button"
+  onClick={() => setMostrarPainelCampos((prev) => !prev)}
+  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+>
+  {mostrarPainelCampos ? "Ocultar campos" : "Mostrar campos"}
+</button>
+
             <button
               type="button"
               className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -529,28 +538,41 @@ export default function ConfiguracaoCertificadoPage() {
           </div>
         </div>
 
-        <div className="grid min-h-[900px] grid-cols-1 lg:grid-cols-[260px_1fr_320px]">
-          <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">Campos dinâmicos</h2>
-              <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">
-                Editor PHANYX
-              </span>
-            </div>
+        <div
+  className={`grid min-h-[900px] grid-cols-1 ${
+    mostrarPainelCampos
+      ? "lg:grid-cols-[260px_1fr_320px]"
+      : "lg:grid-cols-[1fr_320px]"
+  }`}
+>
+          {mostrarPainelCampos && (
+  <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+    <div className="mb-4 flex items-center justify-between">
+      <h2 className="text-lg font-bold text-slate-900">Campos dinâmicos</h2>
+      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">
+        Editor PHANYX
+      </span>
+    </div>
 
-            <div className="space-y-2">
-              {TIPOS_CAMPOS.map((tipo) => (
-                <button
-                  key={tipo}
-                  type="button"
-                  onClick={() => adicionarCampo(tipo)}
-                  className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-                >
-                  {tipo}
-                </button>
-              ))}
-            </div>
-          </aside>
+    <p className="mb-4 text-xs leading-5 text-slate-500">
+      Clique em um campo para adicionar ao editor. Depois, arraste o campo
+      dentro do certificado com o mouse.
+    </p>
+
+    <div className="space-y-2">
+      {TIPOS_CAMPOS.map((tipo) => (
+        <button
+          key={tipo}
+          type="button"
+          onClick={() => adicionarCampo(tipo)}
+          className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+        >
+          {tipo}
+        </button>
+      ))}
+    </div>
+  </aside>
+)}
 
           <main className="flex min-h-[900px] flex-col bg-[#f3f5f9]">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
@@ -558,10 +580,10 @@ export default function ConfiguracaoCertificadoPage() {
             </div>
 
             <div
-              ref={stageRef}
-              className="flex-1 overflow-auto p-6"
-            >
-              <div className="mx-auto flex min-h-full items-start justify-center">
+  ref={stageRef}
+  className="flex-1 overflow-auto p-6"
+>
+  <div className="mx-auto flex min-h-full items-start justify-center">
                 <div
                   ref={canvasRef}
                   onMouseMove={onMouseMoveCanvas}
@@ -805,9 +827,9 @@ export default function ConfiguracaoCertificadoPage() {
               </div>
             ) : (
               <p className="text-sm text-slate-500">
-                Selecione um campo no editor para ajustar posição, fonte, cor,
-                alinhamento e dimensões.
-              </p>
+  Primeiro clique em um campo da esquerda para adicionar ao editor.
+  Depois clique e arraste o campo sobre o certificado para posicionar.
+</p>
             )}
           </aside>
         </div>
