@@ -56,8 +56,13 @@ model Instituicao {
   turmas                   Turma[]
   usuarios                 User[]
   adesoes                  AdesaoInstituicao[]
-  certificadoTemplateUrl   String?
-  certificadoTextoPadrao   String?
+\  certificadoCampos        CertificadoCampo[]
+  certificadoTemplateUrl      String?
+  certificadoPreviewUrl       String?
+  certificadoTextoPadrao      String?
+  certificadoAssinaturaUrl    String?
+  certificadoCoordenadorNome  String?
+  certificadoCidade           String?
 }
 
 model User {
@@ -74,9 +79,9 @@ model User {
   aluno              Aluno?
   funcionario        Funcionario?
   professor          Professor?
-  precisaTrocarSenha Boolean      @default(false)
-  isMasterAdmin      Boolean      @default(false)
-  instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  precisaTrocarSenha Boolean @default(false)
+  isMasterAdmin      Boolean @default(false)
+  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@index([instituicaoId])
   @@index([role])
@@ -471,19 +476,19 @@ model MaterialAula {
 }
 
 model ProgressoAula {
-  id                     Int         @id @default(autoincrement())
-  concluida              Boolean     @default(false)
-  concluidaEm            DateTime?
-  createdAt              DateTime    @default(now())
-  updatedAt              DateTime    @updatedAt
-  instituicaoId          Int
-  alunoId                Int
-  aulaId                 Int
-  tempoAssistidoSegundos Int         @default(0)
-  tempoMinimoSegundos    Int         @default(0)
-  aluno                  Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  aula                   Aula        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  instituicao            Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id            Int         @id @default(autoincrement())
+  concluida     Boolean     @default(false)
+  concluidaEm   DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  instituicaoId Int
+  alunoId       Int
+  aulaId        Int
+  tempoAssistidoSegundos Int @default(0)
+  tempoMinimoSegundos    Int @default(0)
+  aluno         Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  aula          Aula        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@unique([alunoId, aulaId])
   @@index([instituicaoId])
@@ -1108,28 +1113,28 @@ model LeadMatriculaIbe {
 }
 
 model Lead {
-  id               Int       @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   nome             String
   email            String
   telefone         String?
   instituicaoNome  String?
   instituicaoId    Int?
   cargo            String?
-  origem           String    @default("SITE_PHANYX")
-  tipo             String    @default("PHANYX") // PHANYX ou INSTITUICAO
+  origem           String   @default("SITE_PHANYX")
+  tipo             String   @default("PHANYX") // PHANYX ou INSTITUICAO
   interesse        String?
   observacoes      String?
-  status           String    @default("NOVO") // NOVO, CONTATO, PROPOSTA, FECHADO, PERDIDO
-  prioridade       String    @default("MEDIA") // BAIXA, MEDIA, ALTA
+  status           String   @default("NOVO") // NOVO, CONTATO, PROPOSTA, FECHADO, PERDIDO
+  prioridade       String   @default("MEDIA") // BAIXA, MEDIA, ALTA
   valorEstimado    Float?
   proximoContatoEm DateTime?
   ultimoContatoEm  DateTime?
   responsavelNome  String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  interacoes LeadInteracao[]
+  interacoes       LeadInteracao[]
 
   @@index([status])
   @@index([origem])
@@ -1141,7 +1146,7 @@ model Lead {
 model LeadInteracao {
   id        Int      @id @default(autoincrement())
   leadId    Int
-  tipo      String // WHATSAPP, LIGACAO, EMAIL, REUNIAO, OBSERVACAO
+  tipo      String   // WHATSAPP, LIGACAO, EMAIL, REUNIAO, OBSERVACAO
   descricao String
   usuario   String?
   createdAt DateTime @default(now())
@@ -1162,8 +1167,8 @@ model CheckoutPagamento {
   pixCode        String?
   asaasId        String?
   asaasPaymentId String?  @unique
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model AdesaoInstituicao {
@@ -1182,7 +1187,28 @@ model AdesaoInstituicao {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  instituicao Instituicao? @relation(fields: [instituicaoId], references: [id])
+  instituicao     Instituicao? @relation(fields: [instituicaoId], references: [id])
+}
+
+model CertificadoCampo {
+  id            Int         @id @default(autoincrement())
+  instituicaoId Int
+  tipo          String
+  x             Float
+  y             Float
+  largura       Float?
+  altura        Float?
+  fonte         String?
+  tamanho       Int?
+  cor           String?
+  alinhamento   String?
+  pagina        Int         @default(1)
+  createdAt     DateTime    @default(now())
+
+  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([tipo])
 }
 
 enum TipoDocumentoAluno {
