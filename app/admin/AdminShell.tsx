@@ -19,8 +19,11 @@ export default function AdminShell({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = usePathname()
 
+  const esconderSidebar =
+  
+  pathname?.includes("/admin/configuracoes/certificado");
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) return "comercial";
     if (pathname.startsWith("/admin/financeiro")) return "financeiro";

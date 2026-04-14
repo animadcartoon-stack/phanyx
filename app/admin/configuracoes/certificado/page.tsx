@@ -65,7 +65,11 @@ export default function ConfiguracaoCertificadoPage() {
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
   const [zoom, setZoom] = useState(70);
-  const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true); 
+  const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
+  const [secaoAlunoAberta, setSecaoAlunoAberta] = useState(true);
+  const [secaoCursoAberta, setSecaoCursoAberta] = useState(true);
+  const [secaoInstitucionalAberta, setSecaoInstitucionalAberta] = useState(true);
+  const [secaoValidacaoAberta, setSecaoValidacaoAberta] = useState(true); 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
@@ -572,93 +576,138 @@ export default function ConfiguracaoCertificadoPage() {
       Editor PHANYX
     </div>
 
-    <div className="space-y-5">
-      <div>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-          Informações do aluno
-        </h3>
-        <div className="space-y-2">
-          {["NOME_ALUNO", "APROVEITAMENTO", "FREQUENCIA_TOTAL"].map((tipo) => (
-            <button
-              key={tipo}
-              type="button"
-              onClick={() => adicionarCampo(tipo)}
-              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              {tipo === "NOME_ALUNO"
-                ? "Nome do aluno"
-                : tipo === "APROVEITAMENTO"
-                ? "Aproveitamento"
-                : "Frequência total"}
-            </button>
-          ))}
-        </div>
+    <div className="space-y-4">
+      <div className="rounded-2xl border border-slate-200 bg-white">
+        <button
+          type="button"
+          onClick={() => setSecaoAlunoAberta((prev) => !prev)}
+          className="flex w-full items-center justify-between px-4 py-3 text-left"
+        >
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Informações do aluno
+          </span>
+          <span className="text-slate-500">{secaoAlunoAberta ? "−" : "+"}</span>
+        </button>
+
+        {secaoAlunoAberta && (
+          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+            {["NOME_ALUNO", "APROVEITAMENTO", "FREQUENCIA_TOTAL"].map((tipo) => (
+              <button
+                key={tipo}
+                type="button"
+                onClick={() => adicionarCampo(tipo)}
+                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                {tipo === "NOME_ALUNO"
+                  ? "Nome do aluno"
+                  : tipo === "APROVEITAMENTO"
+                  ? "Aproveitamento"
+                  : "Frequência total"}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-          Informações do curso
-        </h3>
-        <div className="space-y-2">
-          {["NOME_CURSO", "DISCIPLINAS_CONCLUIDAS"].map((tipo) => (
-            <button
-              key={tipo}
-              type="button"
-              onClick={() => adicionarCampo(tipo)}
-              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              {tipo === "NOME_CURSO"
-                ? "Nome do curso"
-                : "Disciplinas concluídas"}
-            </button>
-          ))}
-        </div>
+      <div className="rounded-2xl border border-slate-200 bg-white">
+        <button
+          type="button"
+          onClick={() => setSecaoCursoAberta((prev) => !prev)}
+          className="flex w-full items-center justify-between px-4 py-3 text-left"
+        >
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Informações do curso
+          </span>
+          <span className="text-slate-500">{secaoCursoAberta ? "−" : "+"}</span>
+        </button>
+
+        {secaoCursoAberta && (
+          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+            {["NOME_CURSO", "DISCIPLINAS_CONCLUIDAS"].map((tipo) => (
+              <button
+                key={tipo}
+                type="button"
+                onClick={() => adicionarCampo(tipo)}
+                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                {tipo === "NOME_CURSO"
+                  ? "Nome do curso"
+                  : "Disciplinas concluídas"}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-          Informações institucionais
-        </h3>
-        <div className="space-y-2">
-          {["DATA_EMISSAO", "CIDADE", "NOME_DIRETOR", "ASSINATURA"].map((tipo) => (
-            <button
-              key={tipo}
-              type="button"
-              onClick={() => adicionarCampo(tipo)}
-              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              {tipo === "DATA_EMISSAO"
-                ? "Data de emissão"
-                : tipo === "CIDADE"
-                ? "Cidade"
-                : tipo === "NOME_DIRETOR"
-                ? "Nome do diretor"
-                : "Assinatura"}
-            </button>
-          ))}
-        </div>
+      <div className="rounded-2xl border border-slate-200 bg-white">
+        <button
+          type="button"
+          onClick={() => setSecaoInstitucionalAberta((prev) => !prev)}
+          className="flex w-full items-center justify-between px-4 py-3 text-left"
+        >
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Informações institucionais
+          </span>
+          <span className="text-slate-500">
+            {secaoInstitucionalAberta ? "−" : "+"}
+          </span>
+        </button>
+
+        {secaoInstitucionalAberta && (
+          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+            {["DATA_EMISSAO", "CIDADE", "NOME_DIRETOR", "ASSINATURA"].map((tipo) => (
+              <button
+                key={tipo}
+                type="button"
+                onClick={() => adicionarCampo(tipo)}
+                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                {tipo === "DATA_EMISSAO"
+                  ? "Data de emissão"
+                  : tipo === "CIDADE"
+                  ? "Cidade"
+                  : tipo === "NOME_DIRETOR"
+                  ? "Nome do diretor"
+                  : "Assinatura"}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      <div>
-        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-          Validação
-        </h3>
-        <div className="space-y-2">
-          {["QR_CODE", "CODIGO_VALIDACAO"].map((tipo) => (
-            <button
-              key={tipo}
-              type="button"
-              onClick={() => adicionarCampo(tipo)}
-              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-            >
-              {tipo === "QR_CODE" ? "QR Code" : "Código de validação"}
-            </button>
-          ))}
-        </div>
+      <div className="rounded-2xl border border-slate-200 bg-white">
+        <button
+          type="button"
+          onClick={() => setSecaoValidacaoAberta((prev) => !prev)}
+          className="flex w-full items-center justify-between px-4 py-3 text-left"
+        >
+          <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Validação
+          </span>
+          <span className="text-slate-500">
+            {secaoValidacaoAberta ? "−" : "+"}
+          </span>
+        </button>
+
+        {secaoValidacaoAberta && (
+          <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+            {["QR_CODE", "CODIGO_VALIDACAO"].map((tipo) => (
+              <button
+                key={tipo}
+                type="button"
+                onClick={() => adicionarCampo(tipo)}
+                className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                {tipo === "QR_CODE" ? "QR Code" : "Código de validação"}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   </aside>
 )}
+
 
           <main className="flex min-h-[900px] flex-col bg-[#f3f5f9]">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
