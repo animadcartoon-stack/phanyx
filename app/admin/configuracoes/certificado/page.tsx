@@ -317,24 +317,11 @@ export default function ConfiguracaoCertificadoPage() {
     );
   }
 
-  async function salvarEstiloCampoSelecionado() {
-    if (!campoSelecionado) return;
-
-    await atualizarCampo(campoSelecionado.id, {
-      largura: campoSelecionado.largura || 220,
-      altura: campoSelecionado.altura || 40,
-      fonte: campoSelecionado.fonte || "Helvetica",
-      tamanho: campoSelecionado.tamanho || 18,
-      cor: campoSelecionado.cor || "#1e3a8a",
-      alinhamento: campoSelecionado.alinhamento || "left",
-    });
-  }
-
   if (carregando) {
     return (
-      <div className="mx-auto max-w-6xl p-6">
+      <div className="mx-auto max-w-7xl p-6">
         <h1 className="mb-2 text-3xl font-bold text-slate-900">
-          Configuração de Certificado
+          Editor PHANYX de Certificados
         </h1>
         <p className="text-slate-600">Carregando configuração...</p>
       </div>
@@ -626,6 +613,7 @@ export default function ConfiguracaoCertificadoPage() {
                     <button
                       type="button"
                       onClick={async () => {
+                        if (!campoSelecionado) return;
                         await atualizarCampo(campoSelecionado.id, {
                           x: campoSelecionado.x,
                           y: campoSelecionado.y,
