@@ -305,12 +305,40 @@ export default function AdminCertificadosPage() {
                         </button>
 
                         <button
-                          type="button"
-                          onClick={() => acaoAindaNaoLigada("Baixar", aluno)}
-                          className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700"
-                        >
-                          Baixar
-                        </button>
+  type="button"
+  onClick={async () => {
+    try {
+      const res = await fetch("/api/admin/certificados/gerar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ alunoId: aluno.id }),
+      });
+
+      if (!res.ok) {
+        const erro = await res.json().catch(() => null);
+        alert(erro?.error || "Não foi possível baixar o certificado.");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `certificado-${aluno.nome}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      alert("Erro ao baixar certificado.");
+    }
+  }}
+  className="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"
+>
+  Baixar
+</button>
 
                         <button
                           type="button"
