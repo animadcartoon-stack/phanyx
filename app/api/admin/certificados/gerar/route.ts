@@ -1,73 +1,90 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || (user.role !== "ADMIN" && user.role !== "admin")) {
-      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const alunoId = Number(body?.alunoId);
-
-    if (!Number.isFinite(alunoId) || alunoId <= 0) {
-      return NextResponse.json({ error: "Aluno inválido." }, { status: 400 });
-    }
+    const { alunoId } = await req.json();
 
     const aluno = await prisma.aluno.findFirst({
       where: {
         id: alunoId,
         instituicaoId: user.instituicaoId,
       },
-      include: {
-        user: true,
-      },
     });
 
     if (!aluno) {
-      return NextResponse.json({ error: "Aluno não encontrado." }, { status: 404 });
+      return NextResponse.json({ error: "Aluno não encontrado" }, { status: 404 });
     }
 
-    const certificadoExistente = await prisma.certificado.findFirst({
+    // 🔥 Buscar modelo salvo
+    const config = await prisma.configuracaoCertificado.findFirst({
       where: {
-        alunoId: aluno.id,
         instituicaoId: user.instituicaoId,
-      },
-      orderBy: {
-        id: "desc",
       },
     });
 
-    if (certificadoExistente) {
-      return NextResponse.json({
-        sucesso: true,
-        reutilizado: true,
-        message: "Certificado já existente para este aluno.",
-        certificadoId: certificadoExistente.id,
-      });
+    if (!config || !config.modelo) {
+      return NextResponse.json({ error: "Modelo não configurado" }, { status: 400 });
     }
 
-    const novoCertificado = await prisma.certificado.create({
+    // 🔥 Criar PDF
+    const pdfDoc = await PDFDocument.create();
+    const page = pdfDoc.addPage([842, 595]); // A4 paisagem
+
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    // 🔥 Inserir dados (simulação inicial)
+    page.drawText(`Nome: ${aluno.nome}`, {
+      x: 200,
+      y: 350,
+      size: 20,
+      font,
+      color: rgb(0, 0, 0),
+    });
+
+    page.drawText(`Curso: Curso de Teologia`, {
+      x: 200,
+      y: 300,
+      size: 18,
+      font,
+    });
+
+    page.drawText(`Data: ${new Date().toLocaleDateString()}`, {
+      x: 200,
+      y: 250,
+      size: 16,
+      font,
+    });
+
+    // 🔥 Gerar PDF
+    const pdfBytes = await pdfDoc.save();
+
+    // 🔥 Salvar no banco
+    await prisma.certificado.create({
       data: {
         alunoId: aluno.id,
         instituicaoId: user.instituicaoId,
+        modelo: JSON.stringify({ gerado: true }),
+        status: "PRONTO",
       },
     });
 
-    return NextResponse.json({
-      sucesso: true,
-      message: "Certificado gerado com sucesso.",
-      certificadoId: novoCertificado.id,
+    return new NextResponse(pdfBytes, {
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="certificado-${aluno.nome}.pdf"`,
+      },
     });
-  } catch (error) {
-    console.error("Erro ao gerar certificado:", error);
 
-    return NextResponse.json(
-      { error: "Erro ao gerar certificado." },
-      { status: 500 }
-    );
+  } catch (error) {
+    return NextResponse.json({ error: "Erro ao gerar certificado" }, { status: 500 });
   }
 }
