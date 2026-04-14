@@ -1211,17 +1211,6 @@ model CertificadoCampo {
   @@index([tipo])
 }
 
-model Certificado {
-  id             Int      @id @default(autoincrement())
-  alunoId        Int
-  instituicaoId  Int
-  modelo         Json
-  status         String   @default("PENDENTE")
-  createdAt      DateTime @default(now())
-
-  aluno          Aluno    @relation(fields: [alunoId], references: [id])
-}
-
 enum TipoDocumentoAluno {
   CONTRATO
   DECLARACAO
