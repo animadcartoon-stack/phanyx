@@ -475,13 +475,15 @@ export default function ConfiguracaoCertificadoPage() {
         <div className="border-b border-slate-200 px-6 py-4">
           <div className="mb-3 flex flex-wrap items-center gap-3">
 
-<button
-  type="button"
-  onClick={() => setMostrarPainelCampos((prev) => !prev)}
-  className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
->
-  {mostrarPainelCampos ? "Ocultar campos" : "Mostrar campos"}
-</button>
+{!mostrarPainelCampos && (
+  <button
+    type="button"
+    onClick={() => setMostrarPainelCampos(true)}
+    className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+  >
+    Mostrar campos
+  </button>
+)}
 
             <button
               type="button"
@@ -543,35 +545,117 @@ export default function ConfiguracaoCertificadoPage() {
         <div
   className={`grid min-h-[900px] grid-cols-1 ${
     mostrarPainelCampos
-      ? "lg:grid-cols-[260px_1fr_320px]"
-      : "lg:grid-cols-[1fr_320px]"
+      ? "lg:grid-cols-[300px_minmax(760px,1fr)_320px]"
+      : "lg:grid-cols-[minmax(860px,1fr)_320px]"
   }`}
 >
           {mostrarPainelCampos && (
   <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-    <div className="mb-4 flex items-center justify-between">
-      <h2 className="text-lg font-bold text-slate-900">Campos dinâmicos</h2>
-      <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-semibold text-blue-700">
-        Editor PHANYX
-      </span>
+    <div className="mb-4 flex items-start justify-between gap-3">
+      <div>
+        <h2 className="text-lg font-bold text-slate-900">Campos dinâmicos</h2>
+        <p className="mt-1 text-xs text-slate-500">
+          Organize o certificado por grupos e clique para adicionar um campo.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setMostrarPainelCampos(false)}
+        className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
+      >
+        Fechar
+      </button>
     </div>
 
-    <p className="mb-4 text-xs leading-5 text-slate-500">
-      Clique em um campo para adicionar ao editor. Depois, arraste o campo
-      dentro do certificado com o mouse.
-    </p>
+    <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+      Editor PHANYX
+    </div>
 
-    <div className="space-y-2">
-      {TIPOS_CAMPOS.map((tipo) => (
-        <button
-          key={tipo}
-          type="button"
-          onClick={() => adicionarCampo(tipo)}
-          className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-        >
-          {tipo}
-        </button>
-      ))}
+    <div className="space-y-5">
+      <div>
+        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+          Informações do aluno
+        </h3>
+        <div className="space-y-2">
+          {["NOME_ALUNO", "APROVEITAMENTO", "FREQUENCIA_TOTAL"].map((tipo) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => adicionarCampo(tipo)}
+              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              {tipo === "NOME_ALUNO"
+                ? "Nome do aluno"
+                : tipo === "APROVEITAMENTO"
+                ? "Aproveitamento"
+                : "Frequência total"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+          Informações do curso
+        </h3>
+        <div className="space-y-2">
+          {["NOME_CURSO", "DISCIPLINAS_CONCLUIDAS"].map((tipo) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => adicionarCampo(tipo)}
+              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              {tipo === "NOME_CURSO"
+                ? "Nome do curso"
+                : "Disciplinas concluídas"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+          Informações institucionais
+        </h3>
+        <div className="space-y-2">
+          {["DATA_EMISSAO", "CIDADE", "NOME_DIRETOR", "ASSINATURA"].map((tipo) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => adicionarCampo(tipo)}
+              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              {tipo === "DATA_EMISSAO"
+                ? "Data de emissão"
+                : tipo === "CIDADE"
+                ? "Cidade"
+                : tipo === "NOME_DIRETOR"
+                ? "Nome do diretor"
+                : "Assinatura"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+          Validação
+        </h3>
+        <div className="space-y-2">
+          {["QR_CODE", "CODIGO_VALIDACAO"].map((tipo) => (
+            <button
+              key={tipo}
+              type="button"
+              onClick={() => adicionarCampo(tipo)}
+              className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              {tipo === "QR_CODE" ? "QR Code" : "Código de validação"}
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
   </aside>
 )}
@@ -583,9 +667,9 @@ export default function ConfiguracaoCertificadoPage() {
 
             <div
   ref={stageRef}
-  className="flex-1 overflow-auto p-6"
+  className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
 >
-  <div className="mx-auto flex min-h-full items-start justify-center">
+  <div className="mx-auto flex min-h-full w-full items-start justify-center">
                 <div
                   ref={canvasRef}
                   onMouseMove={onMouseMoveCanvas}
@@ -648,8 +732,12 @@ export default function ConfiguracaoCertificadoPage() {
                       }}
                     >
                       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
-                        ? "DISCIPLINAS CONCLUÍDAS"
-                        : c.tipo}
+  ? "DISCIPLINAS CONCLUÍDAS"
+  : c.tipo === "APROVEITAMENTO"
+  ? "APROVEITAMENTO"
+  : c.tipo === "FREQUENCIA_TOTAL"
+  ? "FREQUÊNCIA TOTAL"
+  : c.tipo}
                     </div>
                   ))}
                 </div>
