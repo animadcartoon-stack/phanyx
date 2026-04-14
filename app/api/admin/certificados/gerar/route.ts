@@ -66,23 +66,24 @@ export async function POST(req: NextRequest) {
 
     // 🔥 Gerar PDF
     const pdfBytes = await pdfDoc.save();
+const pdfBuffer = Buffer.from(pdfBytes);
 
-    // 🔥 Salvar no banco
-    await prisma.certificado.create({
-      data: {
-        alunoId: aluno.id,
-        instituicaoId: user.instituicaoId,
-        modelo: JSON.stringify({ gerado: true }),
-        status: "PRONTO",
-      },
-    });
+// 🔥 Salvar no banco
+await prisma.certificado.create({
+  data: {
+    alunoId: aluno.id,
+    instituicaoId: user.instituicaoId,
+    modelo: JSON.stringify({ gerado: true }),
+    status: "PRONTO",
+  },
+});
 
-    return new NextResponse(pdfBytes, {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="certificado-${aluno.nome}.pdf"`,
-      },
-    });
+return new NextResponse(pdfBuffer, {
+  headers: {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="certificado-${aluno.nome}.pdf"`,
+  },
+});
 
   } catch (error) {
     return NextResponse.json({ error: "Erro ao gerar certificado" }, { status: 500 });
