@@ -36,15 +36,15 @@ export default function AdminShell({
     return "academico";
   };
 
-  const [menuAberto, setMenuAberto] = useState<string | null>(
+  const [menuAberto, setMenuAberto] = useState<string | null>(null);(
     descobrirMenuInicial()
   );
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
   const [carregandoUsuario, setCarregandoUsuario] = useState(true);
 
   useEffect(() => {
-    setMenuAberto(descobrirMenuInicial());
-  }, [pathname]);
+  setMenuAberto(null);
+}, [pathname]);
 
   useEffect(() => {
     function abrirMenuConfiguracoes() {
