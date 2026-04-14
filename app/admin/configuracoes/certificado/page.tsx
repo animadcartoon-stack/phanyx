@@ -625,7 +625,7 @@ async function salvarModeloCompleto() {
   {menuDownloadAberto && (
     <div className="absolute right-0 top-12 z-50 w-[290px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
       <h3 className="text-xl font-bold text-slate-900">Baixar</h3>
-
+className="absolute px-2 py-1 rounded-md bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm"
       <div className="mt-5">
         <label className="mb-2 block text-sm font-medium text-slate-700">
           Formato de arquivo
@@ -1003,12 +1003,12 @@ async function salvarModeloCompleto() {
                       style={{
                         left: `${c.x}px`,
 top: `${c.y}px`,
-width: `${c.largura || 220}px`,
-minHeight: `${c.altura || 40}px`,
+width: `${c.largura || 140}px`,
+minHeight: `${c.altura || 28}px`,
                         textAlign:
                           (c.alinhamento as "left" | "center" | "right") ||
                           "left",
-                        fontSize: `${c.tamanho || 16}px`,
+                        fontSize: `${c.tamanho || 12}px`,
                         color:
                           campoSelecionadoId === c.id
                             ? "#ffffff"
