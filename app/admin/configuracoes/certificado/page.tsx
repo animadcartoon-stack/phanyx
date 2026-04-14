@@ -16,6 +16,20 @@ type CampoCertificado = {
   pagina?: number | null;
 };
 
+const TIPOS_CAMPOS = [
+  "NOME_ALUNO",
+  "NOME_CURSO",
+  "DISCIPLINAS_CONCLUIDAS",
+  "DATA_EMISSAO",
+  "CIDADE",
+  "NOME_DIRETOR",
+  "ASSINATURA",
+  "QR_CODE",
+  "CODIGO_VALIDACAO",
+];
+
+const FONTES = ["Helvetica", "Times Roman", "Courier"];
+
 export default function ConfiguracaoCertificadoPage() {
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] = useState("");
@@ -53,12 +67,12 @@ export default function ConfiguracaoCertificadoPage() {
         const dataCampos = await resCampos.json();
 
         if (!resConfig.ok) {
-          alert(dataConfig?.error || "Erro ao buscar configuração");
+          alert(dataConfig?.detalhe || dataConfig?.error || "Erro ao buscar configuração");
           return;
         }
 
         if (!resCampos.ok) {
-          alert(dataCampos?.error || "Erro ao buscar campos do certificado");
+          alert(dataCampos?.detalhe || dataCampos?.error || "Erro ao buscar campos");
           return;
         }
 
@@ -128,7 +142,7 @@ export default function ConfiguracaoCertificadoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.error || "Erro ao salvar.");
+        alert(data?.detalhe || data?.error || "Erro ao salvar.");
         return;
       }
 
@@ -149,12 +163,12 @@ export default function ConfiguracaoCertificadoPage() {
         },
         body: JSON.stringify({
           tipo,
-          x: 100,
-          y: 100,
-          largura: 220,
-          altura: 40,
+          x: 80,
+          y: 80,
+          largura: tipo === "DISCIPLINAS_CONCLUIDAS" ? 340 : 220,
+          altura: tipo === "DISCIPLINAS_CONCLUIDAS" ? 110 : 40,
           fonte: "Helvetica",
-          tamanho: 18,
+          tamanho: tipo === "DISCIPLINAS_CONCLUIDAS" ? 14 : 18,
           cor: "#1e3a8a",
           alinhamento: "left",
           pagina: 1,
@@ -175,7 +189,10 @@ export default function ConfiguracaoCertificadoPage() {
     }
   }
 
-  async function salvarPosicaoCampo(id: number, x: number, y: number) {
+  async function atualizarCampo(
+    id: number,
+    payload: Partial<CampoCertificado>
+  ) {
     try {
       setSalvandoCampo(true);
 
@@ -184,21 +201,24 @@ export default function ConfiguracaoCertificadoPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ id, x, y }),
+        body: JSON.stringify({
+          id,
+          ...payload,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.detalhe || data?.error || "Erro ao salvar posição do campo.");
+        alert(data?.detalhe || data?.error || "Erro ao atualizar campo.");
         return;
       }
 
       setCampos((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, x: data.x, y: data.y } : c))
+        prev.map((c) => (c.id === id ? { ...c, ...data } : c))
       );
     } catch {
-      alert("Erro ao salvar posição do campo.");
+      alert("Erro ao atualizar campo.");
     } finally {
       setSalvandoCampo(false);
     }
@@ -246,19 +266,23 @@ export default function ConfiguracaoCertificadoPage() {
     if (!dragRef.current || !canvasRef.current) return;
 
     const canvasRect = canvasRef.current.getBoundingClientRect();
+    const campo = campos.find((c) => c.id === dragRef.current?.campoId);
+    if (!campo) return;
 
-    const novoX = event.clientX - canvasRect.left - dragRef.current.offsetX;
-    const novoY = event.clientY - canvasRect.top - dragRef.current.offsetY;
+    const largura = campo.largura || 220;
+    const altura = campo.altura || 40;
+
+    let novoX = event.clientX - canvasRect.left - dragRef.current.offsetX;
+    let novoY = event.clientY - canvasRect.top - dragRef.current.offsetY;
+
+    novoX = Math.max(0, Math.min(novoX, canvasRect.width - largura));
+    novoY = Math.max(0, Math.min(novoY, canvasRect.height - altura));
 
     setCampos((prev) =>
-      prev.map((campo) =>
-        campo.id === dragRef.current?.campoId
-          ? {
-              ...campo,
-              x: Math.max(0, Math.round(novoX)),
-              y: Math.max(0, Math.round(novoY)),
-            }
-          : campo
+      prev.map((item) =>
+        item.id === dragRef.current?.campoId
+          ? { ...item, x: Math.round(novoX), y: Math.round(novoY) }
+          : item
       )
     );
   }
@@ -267,9 +291,11 @@ export default function ConfiguracaoCertificadoPage() {
     if (!dragRef.current) return;
 
     const campo = campos.find((c) => c.id === dragRef.current?.campoId);
-
     if (campo) {
-      void salvarPosicaoCampo(campo.id, campo.x, campo.y);
+      void atualizarCampo(campo.id, {
+        x: campo.x,
+        y: campo.y,
+      });
     }
 
     dragRef.current = null;
@@ -278,9 +304,35 @@ export default function ConfiguracaoCertificadoPage() {
   const campoSelecionado =
     campos.find((campo) => campo.id === campoSelecionadoId) || null;
 
+  function atualizarCampoLocal<K extends keyof CampoCertificado>(
+    chave: K,
+    valor: CampoCertificado[K]
+  ) {
+    if (!campoSelecionado) return;
+
+    setCampos((prev) =>
+      prev.map((c) =>
+        c.id === campoSelecionado.id ? { ...c, [chave]: valor } : c
+      )
+    );
+  }
+
+  async function salvarEstiloCampoSelecionado() {
+    if (!campoSelecionado) return;
+
+    await atualizarCampo(campoSelecionado.id, {
+      largura: campoSelecionado.largura || 220,
+      altura: campoSelecionado.altura || 40,
+      fonte: campoSelecionado.fonte || "Helvetica",
+      tamanho: campoSelecionado.tamanho || 18,
+      cor: campoSelecionado.cor || "#1e3a8a",
+      alinhamento: campoSelecionado.alinhamento || "left",
+    });
+  }
+
   if (carregando) {
     return (
-      <div className="mx-auto max-w-4xl p-6">
+      <div className="mx-auto max-w-6xl p-6">
         <h1 className="mb-2 text-3xl font-bold text-slate-900">
           Configuração de Certificado
         </h1>
@@ -290,17 +342,17 @@ export default function ConfiguracaoCertificadoPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl p-6">
+    <div className="mx-auto max-w-7xl p-6">
       <div className="mb-6">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
           Configurações • Certificados
         </p>
         <h1 className="mt-2 text-3xl font-bold text-slate-900">
-          Configuração de Certificado
+          Editor PHANYX de Certificados
         </h1>
         <p className="mt-2 text-slate-600">
-          Defina o modelo institucional em PDF e os dados que serão usados
-          automaticamente na emissão dos certificados dos alunos.
+          Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
+          exato onde o sistema deverá escrever as informações do aluno.
         </p>
       </div>
 
@@ -352,36 +404,36 @@ export default function ConfiguracaoCertificadoPage() {
             </div>
 
             <p className="mt-3 text-xs text-slate-500">
-              Use um PDF com o fundo, moldura ou identidade visual que a instituição deseja usar no certificado automático.
+              Depois do upload, use o editor abaixo para posicionar cada campo
+              dinâmico no certificado.
             </p>
           </div>
         </section>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-slate-900">Editor PHANYX</h2>
+            <h2 className="text-xl font-bold text-slate-900">Canvas do certificado</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Clique em um campo, arraste no canvas e o sistema salva a posição.
+              Fluxo estilo assinatura digital: adicione um campo, arraste no
+              canvas e salve o estilo.
             </p>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[240px_1fr_260px]">
+          <div className="grid gap-4 lg:grid-cols-[240px_1fr_300px]">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="mb-3 font-semibold text-slate-900">Campos</p>
+              <p className="mb-3 font-semibold text-slate-900">Campos dinâmicos</p>
 
               <div className="space-y-2">
-                {["NOME_ALUNO", "CURSO", "DATA", "DISCIPLINAS", "ASSINATURA"].map(
-                  (tipo) => (
-                    <button
-                      key={tipo}
-                      type="button"
-                      onClick={() => adicionarCampo(tipo)}
-                      className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-                    >
-                      {tipo}
-                    </button>
-                  )
-                )}
+                {TIPOS_CAMPOS.map((tipo) => (
+                  <button
+                    key={tipo}
+                    type="button"
+                    onClick={() => adicionarCampo(tipo)}
+                    className="block w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+                  >
+                    {tipo}
+                  </button>
+                ))}
               </div>
             </div>
 
@@ -390,10 +442,18 @@ export default function ConfiguracaoCertificadoPage() {
               onMouseMove={onMouseMoveCanvas}
               onMouseUp={finalizarDrag}
               onMouseLeave={finalizarDrag}
-              className="relative min-h-[560px] rounded-2xl border border-slate-300 bg-[linear-gradient(180deg,#f8fafc,#eef2ff)]"
+              className="relative min-h-[640px] overflow-hidden rounded-2xl border border-slate-300 bg-white"
+              style={{
+                backgroundImage: certificadoTemplateUrl
+                  ? `url("${certificadoTemplateUrl}")`
+                  : "linear-gradient(180deg,#f8fafc,#eef2ff)",
+                backgroundSize: "contain",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "center top",
+              }}
             >
               <div className="absolute left-4 top-4 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
-                Canvas do certificado
+                Arraste os campos para posicionar
               </div>
 
               {campos.map((c) => (
@@ -401,66 +461,206 @@ export default function ConfiguracaoCertificadoPage() {
                   key={c.id}
                   onMouseDown={(event) => iniciarDrag(event, c)}
                   onClick={() => setCampoSelecionadoId(c.id)}
-                  className={`absolute select-none rounded-lg border px-3 py-2 text-sm font-semibold shadow-sm ${
+                  className={`absolute select-none rounded-lg border px-3 py-2 shadow-sm ${
                     campoSelecionadoId === c.id
-                      ? "border-blue-600 bg-blue-600 text-white"
-                      : "border-slate-300 bg-white text-slate-700"
+                      ? "border-blue-600 bg-blue-600/90 text-white"
+                      : "border-slate-300 bg-white/95 text-slate-700"
                   }`}
                   style={{
                     left: c.x,
                     top: c.y,
-                    minWidth: c.largura || 180,
-                    textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+                    width: c.largura || 220,
+                    minHeight: c.altura || 40,
+                    textAlign:
+                      (c.alinhamento as "left" | "center" | "right") || "left",
                     fontSize: c.tamanho || 16,
-                    color: campoSelecionadoId === c.id ? "#ffffff" : c.cor || "#1e3a8a",
+                    color:
+                      campoSelecionadoId === c.id ? "#ffffff" : c.cor || "#1e3a8a",
                     cursor: "move",
+                    fontFamily: c.fonte || "Helvetica",
+                    lineHeight: 1.3,
+                    whiteSpace:
+                      c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
                   }}
                 >
-                  {c.tipo}
+                  {c.tipo === "DISCIPLINAS_CONCLUIDAS"
+                    ? "DISCIPLINAS CONCLUÍDAS"
+                    : c.tipo}
                 </div>
               ))}
             </div>
 
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <p className="mb-3 font-semibold text-slate-900">Campo selecionado</p>
+              <p className="mb-3 font-semibold text-slate-900">
+                Campo selecionado
+              </p>
 
               {campoSelecionado ? (
-                <div className="space-y-3 text-sm text-slate-700">
+                <div className="space-y-4 text-sm text-slate-700">
                   <div>
-                    <span className="font-semibold">Tipo:</span> {campoSelecionado.tipo}
-                  </div>
-                  <div>
-                    <span className="font-semibold">X:</span> {campoSelecionado.x}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Y:</span> {campoSelecionado.y}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Fonte:</span>{" "}
-                    {campoSelecionado.fonte || "Helvetica"}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Tamanho:</span>{" "}
-                    {campoSelecionado.tamanho || 18}
+                    <span className="font-semibold">Tipo:</span>{" "}
+                    {campoSelecionado.tipo}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => excluirCampo(campoSelecionado.id)}
-                    className="mt-2 rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
-                  >
-                    Excluir campo
-                  </button>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">
+                        X
+                      </label>
+                      <input
+                        type="number"
+                        value={campoSelecionado.x}
+                        onChange={(e) =>
+                          atualizarCampoLocal("x", Number(e.target.value))
+                        }
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">
+                        Y
+                      </label>
+                      <input
+                        type="number"
+                        value={campoSelecionado.y}
+                        onChange={(e) =>
+                          atualizarCampoLocal("y", Number(e.target.value))
+                        }
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">
+                        Largura
+                      </label>
+                      <input
+                        type="number"
+                        value={campoSelecionado.largura || 220}
+                        onChange={(e) =>
+                          atualizarCampoLocal("largura", Number(e.target.value))
+                        }
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-slate-600">
+                        Altura
+                      </label>
+                      <input
+                        type="number"
+                        value={campoSelecionado.altura || 40}
+                        onChange={(e) =>
+                          atualizarCampoLocal("altura", Number(e.target.value))
+                        }
+                        className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Fonte
+                    </label>
+                    <select
+                      value={campoSelecionado.fonte || "Helvetica"}
+                      onChange={(e) => atualizarCampoLocal("fonte", e.target.value)}
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                    >
+                      {FONTES.map((fonte) => (
+                        <option key={fonte} value={fonte}>
+                          {fonte}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Tamanho
+                    </label>
+                    <input
+                      type="number"
+                      value={campoSelecionado.tamanho || 18}
+                      onChange={(e) =>
+                        atualizarCampoLocal("tamanho", Number(e.target.value))
+                      }
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Cor
+                    </label>
+                    <input
+                      type="color"
+                      value={campoSelecionado.cor || "#1e3a8a"}
+                      onChange={(e) => atualizarCampoLocal("cor", e.target.value)}
+                      className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-medium text-slate-600">
+                      Alinhamento
+                    </label>
+                    <select
+                      value={campoSelecionado.alinhamento || "left"}
+                      onChange={(e) =>
+                        atualizarCampoLocal("alinhamento", e.target.value)
+                      }
+                      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+                    >
+                      <option value="left">Esquerda</option>
+                      <option value="center">Centro</option>
+                      <option value="right">Direita</option>
+                    </select>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await atualizarCampo(campoSelecionado.id, {
+                          x: campoSelecionado.x,
+                          y: campoSelecionado.y,
+                          largura: campoSelecionado.largura || 220,
+                          altura: campoSelecionado.altura || 40,
+                          fonte: campoSelecionado.fonte || "Helvetica",
+                          tamanho: campoSelecionado.tamanho || 18,
+                          cor: campoSelecionado.cor || "#1e3a8a",
+                          alinhamento: campoSelecionado.alinhamento || "left",
+                        });
+                      }}
+                      className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+                    >
+                      Salvar campo
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => excluirCampo(campoSelecionado.id)}
+                      className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+                    >
+                      Excluir
+                    </button>
+                  </div>
+
+                  {salvandoCampo && (
+                    <p className="text-xs font-medium text-blue-600">
+                      Salvando posição/estilo...
+                    </p>
+                  )}
                 </div>
               ) : (
                 <p className="text-sm text-slate-500">
-                  Selecione um campo no canvas para ver os detalhes.
-                </p>
-              )}
-
-              {salvandoCampo && (
-                <p className="mt-4 text-xs font-medium text-blue-600">
-                  Salvando posição...
+                  Selecione um campo no canvas para editar posição, fonte, cor e
+                  alinhamento.
                 </p>
               )}
             </div>

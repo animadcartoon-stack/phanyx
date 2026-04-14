@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+export const runtime = "nodejs";
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -40,7 +42,6 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-
     const tipo = String(body?.tipo || "").trim();
 
     if (!tipo) {
@@ -56,11 +57,11 @@ export async function POST(req: NextRequest) {
         tipo,
         x: Number(body?.x ?? 100),
         y: Number(body?.y ?? 100),
-        largura: Number(body?.largura ?? 180),
-        altura: Number(body?.altura ?? 36),
+        largura: Number(body?.largura ?? 220),
+        altura: Number(body?.altura ?? 40),
         fonte: String(body?.fonte || "Helvetica"),
         tamanho: Number(body?.tamanho ?? 18),
-        cor: String(body?.cor || "#1d4ed8"),
+        cor: String(body?.cor || "#1e3a8a"),
         alinhamento: String(body?.alinhamento || "left"),
         pagina: Number(body?.pagina ?? 1),
       },
