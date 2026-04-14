@@ -520,32 +520,32 @@ async function salvarModeloCompleto() {
 
   return (
     <div className="mx-auto max-w-[1600px] p-6">
-      <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-6 py-3 shadow-sm">
+      <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
             <button
               type="button"
               onClick={() => setMostrarPainelCampos(true)}
-              className="rounded-lg bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200"
+              className="rounded-lg bg-white/20 px-3 py-1 text-sm text-white hover:bg-white/30"
             >
               Mostrar campos
             </button>
           )}
 
-          <h2 className="text-sm font-semibold text-slate-700">
-            Editor PHANYX
-          </h2>
+          <h2 className="text-sm font-semibold text-white">
+  Editor PHANYX
+</h2>
 
           <button
             type="button"
-            className="rounded-lg bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200"
+            className="rounded-lg bg-white/20 px-3 py-1 text-sm text-white hover:bg-white/30"
           >
             Editar página
           </button>
 
           <button
             type="button"
-            className="rounded-lg bg-slate-100 px-3 py-1 text-sm hover:bg-slate-200"
+            className="rounded-lg bg-white/20 px-3 py-1 text-sm text-white hover:bg-white/30"
           >
             Redimensionar
           </button>
@@ -557,8 +557,8 @@ async function salvarModeloCompleto() {
             onClick={() => setOrientacao("paisagem")}
             className={`rounded-lg px-3 py-1 text-sm ${
               orientacao === "paisagem"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-white text-blue-700"
+: "bg-white/20 text-white hover:bg-white/30"
             }`}
           >
             Paisagem
@@ -569,8 +569,8 @@ async function salvarModeloCompleto() {
             onClick={() => setOrientacao("retrato")}
             className={`rounded-lg px-3 py-1 text-sm ${
               orientacao === "retrato"
-                ? "bg-blue-600 text-white"
-                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                ? "bg-white text-blue-700"
+: "bg-white/20 text-white hover:bg-white/30"
             }`}
           >
             Retrato
@@ -580,10 +580,10 @@ async function salvarModeloCompleto() {
   type="button"
   onClick={() => setModoMao((prev) => !prev)}
   className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
-    modoMao
-      ? "bg-blue-600 text-white"
-      : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
-  }`}
+  modoMao
+    ? "bg-white text-blue-700"
+    : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
+}`}
   title="Ferramenta mãozinha (atalho: espaço)"
 >
   ✋ Mão
@@ -593,18 +593,19 @@ async function salvarModeloCompleto() {
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500">Zoom</span>
+            <span className="text-xs text-white/90">Zoom</span>
             <input
-              type="range"
-              min={40}
-              max={120}
-              step={5}
-              value={zoom}
-              onChange={(e) => setZoom(Number(e.target.value))}
-            />
-            <span className="min-w-[44px] text-right text-xs font-medium text-slate-700">
-              {zoom}%
-            </span>
+  type="range"
+  min={40}
+  max={120}
+  step={5}
+  value={zoom}
+  onChange={(e) => setZoom(Number(e.target.value))}
+  className="accent-white"
+/>
+            <span className="min-w-[44px] text-right text-xs font-medium text-white">
+  {zoom}%
+</span>
           </div>
 
           <div className="relative">
