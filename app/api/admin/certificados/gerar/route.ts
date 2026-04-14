@@ -78,10 +78,10 @@ await prisma.certificado.create({
   },
 });
 
-return new NextResponse(pdfBuffer, {
+return new Response(Buffer.from(pdfBytes), {
   headers: {
     "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename="certificado-${aluno.nome}.pdf"`,
+    "Content-Disposition": `attachment; filename=certificado-${aluno.nome}.pdf`,
   },
 });
 
