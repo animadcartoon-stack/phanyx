@@ -52,7 +52,8 @@ export default function ConfiguracaoCertificadoPage() {
     useState<OrientacaoEditor>("paisagem");
   const [zoom, setZoom] = useState(70);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
-
+  const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
+  const [formatoDownload, setFormatoDownload] = useState("png");
   const [secaoAlunoAberta, setSecaoAlunoAberta] = useState(true);
   const [secaoCursoAberta, setSecaoCursoAberta] = useState(true);
   const [secaoInstitucionalAberta, setSecaoInstitucionalAberta] =
@@ -372,6 +373,28 @@ export default function ConfiguracaoCertificadoPage() {
     });
   }
 
+function baixarArquivo() {
+  if (formatoDownload === "png") {
+    alert("Download em PNG será conectado agora no próximo passo.");
+    return;
+  }
+
+  if (formatoDownload === "jpg") {
+    alert("Download em JPG será conectado agora no próximo passo.");
+    return;
+  }
+
+  if (formatoDownload === "pdf") {
+    alert("Download em PDF padrão será conectado agora no próximo passo.");
+    return;
+  }
+
+  if (formatoDownload === "pdf-impressao") {
+    alert("Download em PDF para impressão será conectado agora no próximo passo.");
+    return;
+  }
+}
+
   if (carregando) {
     return (
       <div className="p-6 text-sm text-slate-500">
@@ -455,12 +478,48 @@ export default function ConfiguracaoCertificadoPage() {
             </span>
           </div>
 
-          <button
-            type="button"
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
-          >
-            Baixar
-          </button>
+          <div className="relative">
+  <button
+    type="button"
+    onClick={() => setMenuDownloadAberto((prev) => !prev)}
+    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+  >
+    Baixar
+  </button>
+
+  {menuDownloadAberto && (
+    <div className="absolute right-0 top-12 z-50 w-[290px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
+      <h3 className="text-xl font-bold text-slate-900">Baixar</h3>
+
+      <div className="mt-5">
+        <label className="mb-2 block text-sm font-medium text-slate-700">
+          Formato de arquivo
+        </label>
+
+        <select
+          value={formatoDownload}
+          onChange={(e) => setFormatoDownload(e.target.value)}
+          className="w-full rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm outline-none"
+        >
+          <option value="png">PNG (ideal para imagens)</option>
+          <option value="jpg">JPG (ideal para tamanhos de arquivo pequenos)</option>
+          <option value="pdf">PDF padrão (ideal para documentos)</option>
+          <option value="pdf-impressao">Impressão de PDF (ideal para impressão)</option>
+        </select>
+      </div>
+
+      <div className="mt-5">
+        <button
+          type="button"
+          onClick={baixarArquivo}
+          className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Baixar arquivo
+        </button>
+      </div>
+    </div>
+  )}
+</div>
         </div>
       </div>
 
