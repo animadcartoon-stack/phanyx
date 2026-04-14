@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 
 type CampoCertificado = {
   id: number;
@@ -39,7 +39,7 @@ export default function ConfiguracaoCertificadoPage() {
 
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("");
+
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
@@ -78,7 +78,6 @@ export default function ConfiguracaoCertificadoPage() {
         }
 
         setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-        setPreviewUrl("/images/certificado-preview.png");
         setCertificadoCoordenadorNome(dataConfig?.certificadoCoordenadorNome || "");
         setCertificadoCidade(dataConfig?.certificadoCidade || "");
         setCampos(Array.isArray(dataCampos?.campos) ? dataCampos.campos : []);
@@ -333,30 +332,30 @@ export default function ConfiguracaoCertificadoPage() {
   return (
     <div className="mx-auto max-w-7xl p-6">
       <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-  <div className="max-w-3xl">
-    <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-      Configurações • Certificados
-    </p>
-    <h1 className="mt-2 text-3xl font-bold text-slate-900">
-      Editor PHANYX de Certificados
-    </h1>
-    <p className="mt-2 text-slate-600">
-      Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
-      exato onde o sistema deverá escrever as informações do aluno.
-    </p>
-  </div>
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+            Configurações • Certificados
+          </p>
+          <h1 className="mt-2 text-3xl font-bold text-slate-900">
+            Editor PHANYX de Certificados
+          </h1>
+          <p className="mt-2 text-slate-600">
+            Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
+            exato onde o sistema deverá escrever as informações do aluno.
+          </p>
+        </div>
 
-  <div className="flex shrink-0 justify-center">
-    <Image
-      src="/images/phanyx-editor-pintando.png"
-      alt="Mascote do Editor PHANYX"
-      width={220}
-      height={220}
-      className="h-auto w-[160px] md:w-[220px]"
-      priority
-    />
-  </div>
-</div>
+        <div className="flex shrink-0 justify-center">
+          <Image
+            src="/images/phanyx-editor-pintando.png"
+            alt="Mascote do Editor PHANYX"
+            width={220}
+            height={220}
+            className="h-auto w-[160px] md:w-[220px]"
+            priority
+          />
+        </div>
+      </div>
 
       <div className="grid gap-6">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -444,26 +443,32 @@ export default function ConfiguracaoCertificadoPage() {
               onMouseMove={onMouseMoveCanvas}
               onMouseUp={finalizarDrag}
               onMouseLeave={finalizarDrag}
-              className="relative min-h-[640px] overflow-hidden rounded-2xl border border-slate-300 bg-white"
-              style={{
-  backgroundImage: previewUrl
-    ? `url("${previewUrl}")`
-    : "linear-gradient(180deg,#f8fafc,#eef2ff)",
-  backgroundSize: "contain",
-  backgroundRepeat: "no-repeat",
-  backgroundPosition: "center top",
-}}
+              className="relative min-h-[760px] overflow-hidden rounded-2xl border border-slate-300 bg-white"
             >
-              <div className="absolute left-4 top-4 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
-                Arraste os campos para posicionar
-              </div>
+              {certificadoTemplateUrl ? (
+                <>
+                  <iframe
+                    src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                    title="Modelo do certificado"
+                    className="absolute inset-0 h-full w-full pointer-events-none"
+                  />
+
+                  <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
+                    Modelo carregado • arraste os campos para posicionar
+                  </div>
+                </>
+              ) : (
+                <div className="flex h-full min-h-[760px] items-center justify-center text-sm text-slate-400">
+                  Faça upload do modelo acima para começar a edição.
+                </div>
+              )}
 
               {campos.map((c) => (
                 <div
                   key={c.id}
                   onMouseDown={(event) => iniciarDrag(event, c)}
                   onClick={() => setCampoSelecionadoId(c.id)}
-                  className={`absolute select-none rounded-lg border px-3 py-2 shadow-sm ${
+                  className={`absolute z-20 select-none rounded-lg border px-3 py-2 shadow-sm ${
                     campoSelecionadoId === c.id
                       ? "border-blue-600 bg-blue-600/90 text-white"
                       : "border-slate-300 bg-white/95 text-slate-700"
