@@ -395,6 +395,67 @@ function baixarArquivo() {
   }
 }
 
+async function salvarModeloCompleto() {
+  try {
+    setSalvando(true);
+
+    const resConfig = await fetch("/api/admin/configuracoes/certificado", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        certificadoTemplateUrl,
+        certificadoCoordenadorNome,
+        certificadoCidade,
+      }),
+    });
+
+    const dataConfig = await resConfig.json();
+
+    if (!resConfig.ok) {
+      throw new Error(
+        dataConfig?.detalhe || dataConfig?.error || "Erro ao salvar configuração."
+      );
+    }
+
+    if (campoSelecionado) {
+      const resCampo = await fetch("/api/admin/certificado-campos", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: campoSelecionado.id,
+          x: campoSelecionado.x,
+          y: campoSelecionado.y,
+          largura: campoSelecionado.largura || 220,
+          altura: campoSelecionado.altura || 40,
+          fonte: campoSelecionado.fonte || "Helvetica",
+          tamanho: campoSelecionado.tamanho || 18,
+          cor: campoSelecionado.cor || "#1e3a8a",
+          alinhamento: campoSelecionado.alinhamento || "left",
+        }),
+      });
+
+      const dataCampo = await resCampo.json();
+
+      if (!resCampo.ok) {
+        throw new Error(
+          dataCampo?.detalhe || dataCampo?.error || "Erro ao salvar campo."
+        );
+      }
+    }
+
+    alert("Modelo de certificado salvo com sucesso!");
+  } catch (error: any) {
+    console.error(error);
+    alert(error?.message || "Erro ao salvar modelo.");
+  } finally {
+    setSalvando(false);
+  }
+}
+
   if (carregando) {
     return (
       <div className="p-6 text-sm text-slate-500">
@@ -486,7 +547,12 @@ function baixarArquivo() {
   >
     Baixar
   </button>
-
+<button
+  onClick={salvarModeloCompleto}
+  className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
+>
+  Salvar modelo
+</button>
   {menuDownloadAberto && (
     <div className="absolute right-0 top-12 z-50 w-[290px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
       <h3 className="text-xl font-bold text-slate-900">Baixar</h3>
@@ -536,7 +602,16 @@ function baixarArquivo() {
             exato onde o sistema deverá escrever as informações do aluno.
           </p>
         </div>
-
+<button
+  onClick={() => {
+    document.getElementById("editor-certificado")?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }}
+  className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
+>
+  Ir para editor
+</button>
         <div className="flex shrink-0 justify-center">
           <Image
             src="/images/phanyx-editor-pintando.png"
@@ -602,7 +677,10 @@ function baixarArquivo() {
         </div>
       </div>
 
-      <section className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <section
+  id="editor-certificado"
+  className="rounded-3xl border border-slate-200 bg-white shadow-sm"
+>
         <div
           className={`grid min-h-[900px] grid-cols-1 ${
             mostrarPainelCampos
