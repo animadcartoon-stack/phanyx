@@ -272,12 +272,25 @@ export default function AdminCertificadosPage() {
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-2">
                         <button
-                          type="button"
-                          onClick={() => acaoAindaNaoLigada("Gerar", aluno)}
-                          className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
-                        >
-                          Gerar
-                        </button>
+  onClick={async () => {
+    const res = await fetch("/api/admin/certificados/gerar", {
+      method: "POST",
+      body: JSON.stringify({ alunoId: aluno.id }),
+    });
+
+    const data = await res.json();
+
+    if (data.sucesso) {
+      alert("Certificado gerado com sucesso!");
+      window.location.reload();
+    } else {
+      alert(data.error);
+    }
+  }}
+  className="bg-blue-600 text-white px-3 py-1 rounded"
+>
+  Gerar
+</button>
 
                         <button
                           type="button"
