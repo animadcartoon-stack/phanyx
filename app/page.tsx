@@ -128,19 +128,25 @@ export default function HomePage() {
           </div>
 
           <div className="absolute right-0 top-0 hidden h-full w-[42%] lg:block">
-  <div className="absolute inset-0 overflow-hidden">
-    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/30 to-transparent" />
+  <div
+    className="absolute inset-0 overflow-hidden"
+    style={{
+      clipPath: "polygon(22% 0%, 100% 0%, 100% 100%, 6% 100%)",
+    }}
+  >
+    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
     <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
 
     <Image
       src="/images/formax-hero.jpg"
-      alt="PHANYX plataforma acadêmica para gestão escolar, gestão acadêmica e EAD"
+      alt="PHANYX plataforma acadêmica"
       fill
       priority
-      className="object-cover object-[84%_center] scale-[1.02]"
+      className="object-cover object-[68%_center] scale-[1.04]"
     />
   </div>
 
+  <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
   <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
   <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
 </div>
