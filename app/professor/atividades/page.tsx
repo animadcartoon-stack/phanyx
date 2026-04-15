@@ -60,6 +60,27 @@ export default function ProfessorAtividadesPage() {
     }
   }
 
+function formatarTempoRelativo(data?: string | null) {
+  if (!data) return "";
+
+  try {
+    const agora = new Date().getTime();
+    const criadoEm = new Date(data).getTime();
+    const diffMs = agora - criadoEm;
+
+    const minutos = Math.floor(diffMs / (1000 * 60));
+    const horas = Math.floor(diffMs / (1000 * 60 * 60));
+    const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+    if (minutos < 1) return "agora mesmo";
+    if (minutos < 60) return `há ${minutos} min`;
+    if (horas < 24) return `há ${horas} hora${horas > 1 ? "s" : ""}`;
+    return `há ${dias} dia${dias > 1 ? "s" : ""}`;
+  } catch {
+    return "";
+  }
+}
+
   function getStatusBadge(status: string) {
     if (status === "PUBLICADA") {
       return "bg-green-100 text-green-700";
@@ -186,7 +207,8 @@ export default function ProfessorAtividadesPage() {
     {new Date(atividade.createdAt).toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit",
-    })}
+    })}{" "}
+    • {formatarTempoRelativo(atividade.createdAt)}
   </span>
 )}
 
@@ -199,11 +221,11 @@ export default function ProfessorAtividadesPage() {
 
                   <div className="flex flex-wrap gap-2">
   <a
-    href={`/professor/atividades/${atividade.id}`}
-    className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-  >
-    Abrir
-  </a>
+  href={`/professor/atividades/${atividade.id}/editar`}
+  className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+>
+  Abrir
+</a>
 
   {atividade.status === "RASCUNHO" && (
     <button
