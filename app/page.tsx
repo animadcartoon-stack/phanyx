@@ -171,7 +171,7 @@ export default function HomePage() {
   <div
     className="absolute inset-0 overflow-hidden"
     style={{
-      clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 6% 100%)",
+      clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 2% 100%)",
     }}
   >
     <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
