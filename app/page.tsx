@@ -143,7 +143,7 @@ export default function HomePage() {
   <div
     className="absolute inset-0"
     style={{
-      clipPath: "polygon(35% 0%, 100% 0%, 100% 100%, 2% 100%)",
+      clipPath: "polygon(42% 0%, 100% 0%, 100% 100%, 18% 100%)",
     }}
   >
     <div className="absolute inset-0 bg-gradient-to-r from-[#06133a] via-[#06133a]/95 to-[#06133a]/60" />
