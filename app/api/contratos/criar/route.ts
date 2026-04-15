@@ -1,8 +1,9 @@
+export const dynamic = "force-dynamic";
+
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
-export async function GET() {
+export async function POST() {
   const contrato = await prisma.contrato.create({
     data: {
       alunoId: 1,
