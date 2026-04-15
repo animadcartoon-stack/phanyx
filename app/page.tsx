@@ -60,8 +60,7 @@ const faqs = [
       "Não. O PHANYX foi estruturado como SaaS multi-instituição, permitindo operar várias instituições com separação de dados e organização escalável.",
   },
   {
-    pergunta:
-      "O sistema possui área para aluno, professor e administração?",
+    pergunta: "O sistema possui área para aluno, professor e administração?",
     resposta:
       "Sim. A plataforma foi pensada para atender os principais perfis institucionais com experiência própria para cada tipo de usuário.",
   },
@@ -74,6 +73,45 @@ const faqs = [
     pergunta: "É possível usar para ensino presencial e EAD?",
     resposta:
       "Sim. A proposta do PHANYX é atender operações acadêmicas e também ensino digital, com estrutura para aulas, materiais, progresso e provas.",
+  },
+];
+
+const paginasSeo = [
+  {
+    titulo: "Gestão escolar",
+    descricao:
+      "Conheça a solução PHANYX para gestão escolar com controle acadêmico, financeiro e experiência moderna.",
+    href: "/gestao-escolar",
+  },
+  {
+    titulo: "Gestão acadêmica",
+    descricao:
+      "Veja como o PHANYX organiza cursos, turmas, matrículas, documentos e operação institucional.",
+    href: "/gestao-academica",
+  },
+  {
+    titulo: "Plataforma EAD",
+    descricao:
+      "Aulas, materiais, progresso do aluno, avaliações online e ambiente digital completo para sua instituição.",
+    href: "/plataforma-ead",
+  },
+  {
+    titulo: "Sistema escolar",
+    descricao:
+      "Uma plataforma preparada para escolas, faculdades, cursos livres e operações educacionais escaláveis.",
+    href: "/sistema-escolar",
+  },
+  {
+    titulo: "Moodle para escolas",
+    descricao:
+      "Entenda as diferenças entre o PHANYX e soluções tradicionais para ensino digital e gestão acadêmica.",
+    href: "/moodle-para-escolas",
+  },
+  {
+    titulo: "Software para cursos",
+    descricao:
+      "Uma solução profissional para cursos presenciais, híbridos e EAD com visão SaaS real.",
+    href: "/software-para-cursos",
   },
 ];
 
@@ -101,10 +139,10 @@ export default function HomePage() {
 
               <Image
                 src="/images/formax-hero.jpg"
-                alt="PHANYX plataforma acadêmica"
+                alt="PHANYX plataforma acadêmica para gestão escolar, gestão acadêmica e EAD"
                 fill
                 priority
-                className="object-cover object-center scale-[1.02]"
+                className="object-cover object-[38%_center] scale-[1.02]"
               />
             </div>
 
@@ -119,23 +157,21 @@ export default function HomePage() {
                 </div>
 
                 <h1 className="mt-3 text-3xl font-semibold leading-[1.02] tracking-[-0.03em] text-white md:text-4xl xl:text-[3.1rem]">
-                  <span className="block text-white">PHANYX</span>
-
-                  <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">
-                    gestão acadêmica, EAD
+                  <span className="block text-white">
+                    PHANYX para gestão escolar, gestão acadêmica e plataforma EAD
                   </span>
 
-                  <span className="mt-1 block text-blue-200">
-                    financeiro e segurança institucional
+                  <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">
+                    mais controle institucional, experiência moderna e base SaaS real
                   </span>
                 </h1>
 
                 <p className="mt-5 max-w-xl text-sm leading-7 text-slate-300 md:text-base">
-                  Estruture sua instituição com uma plataforma moderna,
-                  escalável e preparada para universidades, faculdades, escolas
-                  técnicas e operações de ensino a distância. Tudo em um
-                  ambiente com experiência profissional, controle institucional
-                  e base SaaS real.
+                  Estruture sua instituição com uma plataforma moderna, escalável
+                  e preparada para universidades, faculdades, escolas técnicas,
+                  cursos livres e ensino a distância. O PHANYX une gestão
+                  acadêmica, LMS, financeiro, documentos e segurança institucional
+                  em um só ambiente.
                 </p>
 
                 <div className="mt-8">
@@ -224,7 +260,7 @@ export default function HomePage() {
                     alt="PHANYX plataforma acadêmica"
                     fill
                     priority
-                    className="object-cover object-center"
+                    className="object-cover object-[38%_center]"
                   />
 
                   <div className="absolute bottom-3 left-3 right-3 z-20 rounded-2xl border border-white/10 bg-white/10 p-3 backdrop-blur md:bottom-4 md:left-4 md:right-4 md:p-4">
@@ -255,15 +291,15 @@ export default function HomePage() {
         <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
           <div className="max-w-3xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-              Módulos estratégicos
+              Plataforma para instituições de ensino
             </p>
             <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-              Uma base sólida para operar, crescer e vender o PHANYX
+              Um sistema escolar completo para operação, crescimento e venda
             </h2>
             <p className="mt-4 text-lg text-gray-600">
               O PHANYX reúne os pilares principais de uma operação educacional
-              moderna em uma plataforma com visão SaaS e posicionamento
-              institucional.
+              moderna em uma plataforma com visão SaaS, posicionamento
+              institucional e base comercial forte.
             </p>
           </div>
 
@@ -360,6 +396,42 @@ export default function HomePage() {
         </section>
 
         <section className="bg-slate-50">
+          <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
+            <div className="max-w-3xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+                Páginas estratégicas
+              </p>
+              <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+                Conteúdos pensados para posicionamento orgânico no Google
+              </h2>
+              <p className="mt-4 text-lg text-gray-600">
+                Estas páginas ajudam o PHANYX a competir por buscas importantes
+                como gestão escolar, sistema escolar, plataforma EAD e software
+                para cursos.
+              </p>
+            </div>
+
+            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {paginasSeo.map((pagina) => (
+                <Link
+                  key={pagina.href}
+                  href={pagina.href}
+                  className="rounded-[24px] border border-gray-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <h3 className="text-xl font-bold text-gray-900">
+                    {pagina.titulo}
+                  </h3>
+                  <p className="mt-3 text-gray-600">{pagina.descricao}</p>
+                  <span className="mt-5 inline-flex text-sm font-semibold text-blue-700">
+                    Acessar página →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white">
           <div className="mx-auto max-w-5xl px-6 py-20 md:px-10 lg:px-12">
             <div className="text-center">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
@@ -380,6 +452,43 @@ export default function HomePage() {
                   <p className="mt-3 text-gray-600">{faq.resposta}</p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-slate-950">
+          <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12">
+            <div className="rounded-[28px] border border-white/10 bg-white/5 p-8 text-white md:p-10">
+              <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
+                    Pronto para crescer
+                  </p>
+                  <h2 className="mt-3 text-3xl font-bold md:text-4xl">
+                    Leve sua instituição para uma plataforma acadêmica mais forte
+                  </h2>
+                  <p className="mt-4 max-w-3xl text-blue-100">
+                    O PHANYX foi pensado para unir experiência moderna, operação
+                    institucional, crescimento comercial e visão SaaS real.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+                  <Link
+                    href="/planos"
+                    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-blue-500"
+                  >
+                    Ver planos
+                  </Link>
+
+                  <Link
+                    href="/contato"
+                    className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-white/15"
+                  >
+                    Entrar em contato
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </section>
