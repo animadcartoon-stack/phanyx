@@ -139,11 +139,11 @@ export default function HomePage() {
 </div>
 
 {/* FAIXA AZUL (CONTROLÁVEL) */}
-<div className="absolute right-0 top-0 hidden h-full w-[60%] lg:block pointer-events-none">
+<div className="absolute right-0 top-0 hidden h-full w-[48%] lg:block pointer-events-none">
   <div
     className="absolute inset-0"
     style={{
-      clipPath: "polygon(20% 0%, 100% 0%, 100% 100%, 8% 100%)",
+      clipPath: "polygon(26% 0%, 100% 0%, 100% 100%, 12% 100%)",
     }}
   >
     <div className="absolute inset-0 bg-gradient-to-r from-[#06133a] via-[#06133a]/95 to-[#06133a]/60" />
