@@ -25,6 +25,9 @@ export default function ProfessorAtividadesPage() {
   const [atividades, setAtividades] = useState<AtividadeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTipo, setFeedbackTipo] = useState<"sucesso" | "erro" | "">("");
+  const [acaoEmAndamento, setAcaoEmAndamento] = useState<string>("");
 
   async function carregarAtividades() {
     try {
@@ -45,6 +48,16 @@ export default function ProfessorAtividadesPage() {
       setLoading(false);
     }
   }
+
+function mostrarFeedback(tipo: "sucesso" | "erro", mensagem: string) {
+  setFeedbackTipo(tipo);
+  setFeedback(mensagem);
+
+  setTimeout(() => {
+    setFeedback("");
+    setFeedbackTipo("");
+  }, 3000);
+}
 
   useEffect(() => {
     carregarAtividades();
@@ -109,6 +122,18 @@ function formatarTempoRelativo(data?: string | null) {
               Gerencie atividades, prazos e entregas dos alunos.
             </p>
           </div>
+
+{feedback && (
+  <div
+    className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
+      feedbackTipo === "sucesso"
+        ? "border-green-200 bg-green-50 text-green-700"
+        : "border-red-200 bg-red-50 text-red-700"
+    }`}
+  >
+    {feedback}
+  </div>
+)}
 
           <a
             href="/professor/atividades/nova"
@@ -230,54 +255,104 @@ function formatarTempoRelativo(data?: string | null) {
 {atividade.status === "RASCUNHO" && (
   <button
     onClick={async () => {
-      const res = await fetch(`/api/professor/atividades/${atividade.id}/publicar`, {
-  method: "POST",
-});
-      window.location.reload();
+      try {
+        setAcaoEmAndamento(`publicar-${atividade.id}`);
+
+        const res = await fetch(`/api/professor/atividades/${atividade.id}/publicar`, {
+          method: "POST",
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarFeedback("erro", data?.error || "Erro ao publicar atividade");
+          return;
+        }
+
+        mostrarFeedback("sucesso", "Atividade publicada com sucesso");
+        await carregarAtividades();
+      } catch (error) {
+        console.error(error);
+        mostrarFeedback("erro", "Erro ao publicar atividade");
+      } finally {
+        setAcaoEmAndamento("");
+      }
     }}
-    className="bg-green-600 text-white px-3 py-1 rounded-xl text-sm"
+    disabled={acaoEmAndamento === `publicar-${atividade.id}`}
+    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
   >
-    Publicar
+    {acaoEmAndamento === `publicar-${atividade.id}` ? "Publicando..." : "Publicar"}
   </button>
 )}
 
 {atividade.status === "PUBLICADA" && (
   <button
     onClick={async () => {
-      await fetch(`/api/professor/atividades/${atividade.id}/despublicar`, {
-  method: "POST",
-});
-      window.location.reload();
+      try {
+        setAcaoEmAndamento(`despublicar-${atividade.id}`);
+
+        const res = await fetch(`/api/professor/atividades/${atividade.id}/despublicar`, {
+          method: "POST",
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarFeedback("erro", data?.error || "Erro ao voltar para rascunho");
+          return;
+        }
+
+        mostrarFeedback("sucesso", "Atividade voltou para rascunho");
+        await carregarAtividades();
+      } catch (error) {
+        console.error(error);
+        mostrarFeedback("erro", "Erro ao voltar para rascunho");
+      } finally {
+        setAcaoEmAndamento("");
+      }
     }}
-    className="bg-yellow-500 text-white px-3 py-1 rounded-xl text-sm"
+    disabled={acaoEmAndamento === `despublicar-${atividade.id}`}
+    className="rounded-lg bg-yellow-500 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-600 disabled:cursor-not-allowed disabled:opacity-60"
   >
-    Voltar para rascunho
+    {acaoEmAndamento === `despublicar-${atividade.id}`
+      ? "Voltando..."
+      : "Voltar para rascunho"}
   </button>
 )}
 
   {atividade.status === "RASCUNHO" && (
-    <button
-      onClick={async () => {
-        const confirmacao = confirm("Tem certeza que deseja excluir esta atividade?");
-        if (!confirmacao) return;
+  <button
+    onClick={async () => {
+      try {
+        setAcaoEmAndamento(`excluir-${atividade.id}`);
 
         const res = await fetch(`/api/professor/atividades/${atividade.id}`, {
-  method: "DELETE",
-});
+          method: "DELETE",
+        });
 
-if (!res.ok) {
-  alert("Erro ao voltar para rascunho");
-  return;
-}
+        const data = await res.json();
 
-alert("Atividade excluída com sucesso");
-window.location.reload();
-      }}
-      className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-    >
-      Excluir
-    </button>
-  )}
+        if (!res.ok) {
+          mostrarFeedback("erro", data?.error || "Erro ao excluir atividade");
+          return;
+        }
+
+        mostrarFeedback("sucesso", "Atividade excluída com sucesso");
+        await carregarAtividades();
+      } catch (error) {
+        console.error(error);
+        mostrarFeedback("erro", "Erro ao excluir atividade");
+      } finally {
+        setAcaoEmAndamento("");
+      }
+    }}
+    disabled={acaoEmAndamento === `excluir-${atividade.id}`}
+    className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {acaoEmAndamento === `excluir-${atividade.id}` ? "Excluindo..." : "Excluir"}
+  </button>
+)}
+  
 </div>
                 </div>
               </div>
