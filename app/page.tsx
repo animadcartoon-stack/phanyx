@@ -142,7 +142,7 @@ export default function HomePage() {
                 alt="PHANYX plataforma acadêmica para gestão escolar, gestão acadêmica e EAD"
                 fill
                 priority
-                className="object-cover object-[25%_center] scale-[1.05]"
+                className="object-cover object-[-20%_center] scale-[1.08]"
               />
             </div>
 
