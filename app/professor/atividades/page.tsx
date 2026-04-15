@@ -270,7 +270,7 @@ if (!res.ok) {
   return;
 }
 
-alert("Atividade voltou para rascunho");
+alert("Atividade excluída com sucesso");
 window.location.reload();
       }}
       className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
