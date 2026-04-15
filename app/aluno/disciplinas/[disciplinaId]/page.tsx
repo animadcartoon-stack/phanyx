@@ -646,7 +646,7 @@ ultimoAlertaPuloRef.current = 0;
         const agora = Date.now();
         if (agora - ultimoAlertaPuloRef.current > 1500) {
           ultimoAlertaPuloRef.current = agora;
-          alert("Não é permitido avançar a aula para concluir mais rápido.");
+          mostrarToast("aviso", "Não é permitido avançar a aula.");
         }
 
         ultimoTempoRef.current = ultimoTempoValidoRef.current;
