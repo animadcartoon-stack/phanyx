@@ -227,23 +227,51 @@ function formatarTempoRelativo(data?: string | null) {
   Abrir
 </a>
 
+{atividade.status === "RASCUNHO" && (
+  <button
+    onClick={async () => {
+      const res = await fetch(`/api/professor/atividades/${atividade.id}/publicar`, {
+  method: "POST",
+});
+      window.location.reload();
+    }}
+    className="bg-green-600 text-white px-3 py-1 rounded-xl text-sm"
+  >
+    Publicar
+  </button>
+)}
+
+{atividade.status === "PUBLICADA" && (
+  <button
+    onClick={async () => {
+      await fetch(`/api/professor/atividades/${atividade.id}/despublicar`, {
+  method: "POST",
+});
+      window.location.reload();
+    }}
+    className="bg-yellow-500 text-white px-3 py-1 rounded-xl text-sm"
+  >
+    Voltar para rascunho
+  </button>
+)}
+
   {atividade.status === "RASCUNHO" && (
     <button
       onClick={async () => {
         const confirmacao = confirm("Tem certeza que deseja excluir esta atividade?");
         if (!confirmacao) return;
 
-        const res = await fetch(`/api/professor/atividades/${atividade.id}`, {
-          method: "DELETE",
-        });
+        const res = await fetch(`/api/professor/atividades/${atividade.id}/despublicar`, {
+  method: "POST",
+});
 
-        if (!res.ok) {
-          alert("Erro ao excluir atividade");
-          return;
-        }
+if (!res.ok) {
+  alert("Erro ao voltar para rascunho");
+  return;
+}
 
-        alert("Atividade excluída com sucesso");
-        window.location.reload();
+alert("Atividade voltou para rascunho");
+window.location.reload();
       }}
       className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
     >

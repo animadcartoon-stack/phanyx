@@ -19,9 +19,9 @@ export async function POST(
       instituicaoId: auth.instituicaoId,
     });
 
-    if (atividade.status !== "RASCUNHO") {
+    if (atividade.status !== "PUBLICADA") {
       return NextResponse.json(
-        { error: "Só é permitido publicar atividade em RASCUNHO" },
+        { error: "Só é permitido voltar para rascunho atividade PUBLICADA" },
         { status: 400 }
       );
     }
@@ -29,19 +29,19 @@ export async function POST(
     const atualizada = await prisma.atividade.update({
       where: { id: atividadeId },
       data: {
-        status: "PUBLICADA",
-        publicadaAt: new Date(),
+        status: "RASCUNHO",
+        publicadaAt: null,
       },
     });
 
     return NextResponse.json({
       ok: true,
-      message: "Atividade publicada com sucesso",
+      message: "Atividade voltou para rascunho com sucesso",
       atividade: atualizada,
     });
   } catch (e: any) {
     return NextResponse.json(
-      { error: e.message || "Erro ao publicar atividade" },
+      { error: e.message || "Erro ao voltar atividade para rascunho" },
       { status: 401 }
     );
   }
