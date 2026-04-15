@@ -7,6 +7,7 @@ type AtividadeItem = {
   titulo: string;
   descricao?: string | null;
   prazo?: string | null;
+  createdAt?: string | null;
   notaMaxima: number;
   status: string;
   disciplina?: {
@@ -175,6 +176,19 @@ export default function ProfessorAtividadesPage() {
                         </span>
                       )}
                     </div>
+
+{atividade.createdAt && (
+  <span>
+    <strong className="font-medium text-gray-700">
+      Criado em:
+    </strong>{" "}
+    {new Date(atividade.createdAt).toLocaleDateString("pt-BR")} às{" "}
+    {new Date(atividade.createdAt).toLocaleTimeString("pt-BR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}
+  </span>
+)}
 
                     {atividade.descricao && (
                       <p className="text-sm text-gray-600">
