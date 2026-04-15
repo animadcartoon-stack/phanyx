@@ -36,6 +36,8 @@ type CursoSemestre = {
   disciplinas: CursoSemestreDisciplina[];
 };
 
+type FeedbackTipo = "sucesso" | "erro" | "";
+
 export default function CursoDetalhePage() {
   const params = useParams();
   const cursoId = Number(params.id);
@@ -47,6 +49,11 @@ export default function CursoDetalhePage() {
 
   const [editandoCurso, setEditandoCurso] = useState(false);
   const [salvandoCurso, setSalvandoCurso] = useState(false);
+  const [criandoSemestre, setCriandoSemestre] = useState(false);
+  const [salvandoSemestreId, setSalvandoSemestreId] = useState<number | null>(null);
+
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
 
   const [formCurso, setFormCurso] = useState({
     nome: "",
@@ -65,9 +72,23 @@ export default function CursoDetalhePage() {
     descricao: "",
   });
 
-  const [selecionadas, setSelecionadas] = useState<Record<number, number[]>>(
-    {}
-  );
+  const [selecionadas, setSelecionadas] = useState<Record<number, number[]>>({});
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timer = setTimeout(() => {
+      setFeedback("");
+      setFeedbackTipo("");
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+    setFeedbackTipo(tipo);
+    setFeedback(mensagem);
+  }
 
   async function carregarCurso() {
     const res = await fetch("/api/admin/cursos", {
@@ -151,6 +172,7 @@ export default function CursoDetalhePage() {
       await Promise.all([carregarCurso(), carregarDisciplinas(), carregarSemestres()]);
     } catch (error) {
       console.error("Erro ao carregar dados do curso:", error);
+      mostrarFeedback("erro", "Erro ao carregar dados do curso");
     } finally {
       setLoading(false);
     }
@@ -166,6 +188,8 @@ export default function CursoDetalhePage() {
 
     try {
       setSalvandoCurso(true);
+      setFeedback("");
+      setFeedbackTipo("");
 
       const res = await fetch("/api/admin/cursos", {
         method: "PUT",
@@ -197,16 +221,15 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao editar curso");
-        return;
+        throw new Error(data.error || "Erro ao editar curso");
       }
 
       await carregarCurso();
       setEditandoCurso(false);
-      alert("Curso atualizado com sucesso!");
-    } catch (error) {
+      mostrarFeedback("sucesso", "Curso atualizado com sucesso!");
+    } catch (error: any) {
       console.error("Erro ao editar curso:", error);
-      alert("Erro ao editar curso");
+      mostrarFeedback("erro", error?.message || "Erro ao editar curso");
     } finally {
       setSalvandoCurso(false);
     }
@@ -216,6 +239,10 @@ export default function CursoDetalhePage() {
     e.preventDefault();
 
     try {
+      setCriandoSemestre(true);
+      setFeedback("");
+      setFeedbackTipo("");
+
       const res = await fetch("/api/admin/curso-semestres", {
         method: "POST",
         headers: {
@@ -233,8 +260,7 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao criar semestre");
-        return;
+        throw new Error(data.error || "Erro ao criar semestre");
       }
 
       setNovoSemestre({
@@ -244,10 +270,12 @@ export default function CursoDetalhePage() {
       });
 
       await carregarSemestres();
-      alert("Semestre criado com sucesso!");
-    } catch (error) {
+      mostrarFeedback("sucesso", "Semestre criado com sucesso!");
+    } catch (error: any) {
       console.error("Erro ao criar semestre:", error);
-      alert("Erro ao criar semestre");
+      mostrarFeedback("erro", error?.message || "Erro ao criar semestre");
+    } finally {
+      setCriandoSemestre(false);
     }
   }
 
@@ -267,6 +295,10 @@ export default function CursoDetalhePage() {
 
   async function salvarDisciplinas(cursoSemestreId: number) {
     try {
+      setSalvandoSemestreId(cursoSemestreId);
+      setFeedback("");
+      setFeedbackTipo("");
+
       const disciplinaIds = selecionadas[cursoSemestreId] || [];
 
       const res = await fetch("/api/admin/curso-semestre-disciplinas", {
@@ -284,15 +316,16 @@ export default function CursoDetalhePage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao salvar disciplinas");
-        return;
+        throw new Error(data.error || "Erro ao salvar disciplinas");
       }
 
       await carregarSemestres();
-      alert("Disciplinas do semestre salvas com sucesso!");
-    } catch (error) {
+      mostrarFeedback("sucesso", `Disciplinas do semestre ${semestres.find((s) => s.id === cursoSemestreId)?.numero ?? ""} salvas com sucesso!`);
+    } catch (error: any) {
       console.error("Erro ao salvar disciplinas:", error);
-      alert("Erro ao salvar disciplinas");
+      mostrarFeedback("erro", error?.message || "Erro ao salvar disciplinas");
+    } finally {
+      setSalvandoSemestreId(null);
     }
   }
 
@@ -310,6 +343,18 @@ export default function CursoDetalhePage() {
 
   return (
     <div className="space-y-8">
+      {feedback && (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
+            feedbackTipo === "sucesso"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          }`}
+        >
+          {feedback}
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
@@ -438,7 +483,7 @@ export default function CursoDetalhePage() {
                     type="button"
                     onClick={salvarEdicaoCurso}
                     disabled={salvandoCurso}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                   >
                     {salvandoCurso ? "Salvando..." : "Salvar alterações"}
                   </button>
@@ -548,9 +593,10 @@ export default function CursoDetalhePage() {
           <div className="md:col-span-3">
             <button
               type="submit"
-              className="bg-purple-600 text-white px-5 py-2 rounded-lg"
+              disabled={criandoSemestre}
+              className="bg-purple-600 text-white px-5 py-2 rounded-lg disabled:opacity-50"
             >
-              Adicionar semestre
+              {criandoSemestre ? "Adicionando..." : "Adicionar semestre"}
             </button>
           </div>
         </form>
@@ -574,7 +620,7 @@ export default function CursoDetalhePage() {
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
                   Semestre {semestre.numero}
-                  {semestre.titulo ? ` — ${semestre.titulo}` : ""}
+                  {semestre.titulo ? ` - ${semestre.titulo}` : ""}
                 </h3>
 
                 {semestre.descricao ? (
@@ -654,9 +700,12 @@ export default function CursoDetalhePage() {
                     <button
                       type="button"
                       onClick={() => salvarDisciplinas(semestre.id)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+                      disabled={salvandoSemestreId === semestre.id}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                     >
-                      Atualizar disciplinas do semestre {semestre.numero}
+                      {salvandoSemestreId === semestre.id
+                        ? "Salvando..."
+                        : `Atualizar disciplinas do semestre ${semestre.numero}`}
                     </button>
                   </div>
                 </>
