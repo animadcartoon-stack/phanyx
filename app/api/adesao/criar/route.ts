@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import {
   criarClienteAsaas,
   criarCobrancaAsaas,
+  criarAssinaturaCartaoAsaas,
   obterQrCodePixAsaas,
 } from "@/lib/asaas";
 import { enviarEmailCobranca } from "@/lib/email";
@@ -45,11 +46,12 @@ function formatarDataISO(data?: string | null) {
 
 function normalizarFormaPagamento(
   valor: string
-): "PIX" | "BOLETO" | "CREDIT_CARD" {
+): "PIX" | "BOLETO" | "CREDIT_CARD" | "RECORRENTE" {
   const forma = String(valor || "PIX").trim().toUpperCase();
 
   if (forma === "BOLETO") return "BOLETO";
   if (forma === "CREDIT_CARD") return "CREDIT_CARD";
+  if (forma === "RECORRENTE") return "RECORRENTE";
   return "PIX";
 }
 
@@ -152,49 +154,74 @@ export async function POST(req: Request) {
     try {
       const dueDate = new Date().toISOString().split("T")[0];
 
-      const cobranca = await criarCobrancaAsaas({
-        customer: cliente.id,
-        billingType: formaPagamento as "PIX" | "BOLETO" | "CREDIT_CARD",
-        value: Number(valor),
-        dueDate,
-        description: `Adesão PHANYX - ${plano}`,
-        externalReference: String(adesao.id),
-      });
+      let asaasId: string | null = null;
+let pixCode = "";
+let linkCobranca: string | null = null;
+let vencimentoFormatado = formatarDataISO(dueDate);
 
-      const asaasId = cobranca?.id ? String(cobranca.id) : null;
+if (formaPagamento === "RECORRENTE") {
+  const assinatura = await criarAssinaturaCartaoAsaas({
+    customer: cliente.id,
+    billingType: "CREDIT_CARD",
+    value: Number(valor),
+    nextDueDate: dueDate,
+    cycle: "MONTHLY",
+    description: `Assinatura PHANYX - ${plano}`,
+    externalReference: String(adesao.id),
+  });
 
-      if (!asaasId) {
-        throw new Error("Asaas não retornou o ID da cobrança.");
-      }
+  asaasId = assinatura?.id ? String(assinatura.id) : null;
 
-      let pixCode = "";
-      if (formaPagamento === "PIX") {
-        const qrCode = await obterQrCodePixAsaas(asaasId);
-        pixCode = qrCode?.payload ? String(qrCode.payload) : "";
+  if (!asaasId) {
+    throw new Error("Asaas não retornou o ID da assinatura.");
+  }
 
-        if (!pixCode) {
-          throw new Error("Asaas não retornou o código Pix.");
-        }
-      }
+  vencimentoFormatado = formatarDataISO(assinatura?.nextDueDate || dueDate);
+} else {
+  const cobranca = await criarCobrancaAsaas({
+    customer: cliente.id,
+    billingType: formaPagamento as "PIX" | "BOLETO" | "CREDIT_CARD",
+    value: Number(valor),
+    dueDate,
+    description: `Adesão PHANYX - ${plano}`,
+    externalReference: String(adesao.id),
+  });
 
-      const cobrancaAny = cobranca as any;
-      const linkCobranca = cobrancaAny?.invoiceUrl || null;
+  asaasId = cobranca?.id ? String(cobranca.id) : null;
 
-      const adesaoAtualizada = await prisma.adesaoInstituicao.update({
-        where: { id: adesao.id },
-        data: {
-          asaasId,
-          pixCode,
-        },
-      });
+  if (!asaasId) {
+    throw new Error("Asaas não retornou o ID da cobrança.");
+  }
 
+  if (formaPagamento === "PIX") {
+    const qrCode = await obterQrCodePixAsaas(asaasId);
+    pixCode = qrCode?.payload ? String(qrCode.payload) : "";
+
+    if (!pixCode) {
+      throw new Error("Asaas não retornou o código Pix.");
+    }
+  }
+
+  const cobrancaAny = cobranca as any;
+  linkCobranca = cobrancaAny?.invoiceUrl || null;
+  vencimentoFormatado = formatarDataISO(cobrancaAny?.dueDate || dueDate);
+}
+
+const adesaoAtualizada = await prisma.adesaoInstituicao.update({
+  where: { id: adesao.id },
+  data: {
+    asaasId,
+    pixCode,
+  },
+});
+  
       try {
         await enviarEmailCobranca({
           email,
           nome: nomeResponsavel,
           instituicao: nomeInstituicao,
           valor,
-          vencimento: formatarDataISO(cobrancaAny?.dueDate || dueDate),
+          vencimento: vencimentoFormatado,
           descricao: `Adesão PHANYX - ${plano} (${formaPagamento})`,
           linkCobranca,
         });
