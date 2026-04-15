@@ -127,11 +127,11 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#020817] via-[#081a52] to-[#142863]" />
           </div>
 
-          <div className="absolute right-0 top-0 hidden h-full w-[46%] lg:block">
+          <div className="absolute right-0 top-0 hidden h-full w-[42%] lg:block">
   <div
     className="absolute inset-0 overflow-hidden"
     style={{
-      clipPath: "polygon(36% 0%, 100% 0%, 100% 100%, 16% 100%)"
+      clipPath: "polygon(22% 0%, 100% 0%, 100% 100%, 6% 100%)"
     }}
   >
     <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
