@@ -1,4 +1,127 @@
-async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
+type AsaasBillingType = "PIX" | "BOLETO" | "CREDIT_CARD";
+type AsaasCycle =
+  | "WEEKLY"
+  | "BIWEEKLY"
+  | "MONTHLY"
+  | "BIMONTHLY"
+  | "QUARTERLY"
+  | "SEMIANNUALLY"
+  | "YEARLY";
+
+type AsaasCreditCard = {
+  holderName: string;
+  number: string;
+  expiryMonth: string;
+  expiryYear: string;
+  ccv: string;
+};
+
+type AsaasCreditCardHolderInfo = {
+  name: string;
+  email: string;
+  cpfCnpj: string;
+  postalCode: string;
+  addressNumber: string;
+  addressComplement?: string;
+  phone?: string;
+  mobilePhone?: string;
+};
+
+type AsaasCustomerInput = {
+  name: string;
+  email: string;
+  cpfCnpj?: string;
+  phone?: string;
+  mobilePhone?: string;
+  postalCode?: string;
+  address?: string;
+  addressNumber?: string;
+  complement?: string;
+  province?: string;
+  externalReference?: string;
+  notificationDisabled?: boolean;
+};
+
+type AsaasCustomerResponse = {
+  id: string;
+  name: string;
+  email: string;
+  cpfCnpj?: string;
+};
+
+type CriarCobrancaAsaasInput = {
+  customer: string;
+  billingType: AsaasBillingType;
+  value: number;
+  dueDate: string;
+  description?: string;
+  externalReference?: string;
+  postalService?: boolean;
+  installmentCount?: number;
+  installmentValue?: number;
+  creditCard?: AsaasCreditCard;
+  creditCardHolderInfo?: AsaasCreditCardHolderInfo;
+  creditCardToken?: string;
+  remoteIp?: string;
+};
+
+type CriarCobrancaAsaasResponse = {
+  id: string;
+  customer: string;
+  billingType: string;
+  value: number;
+  status: string;
+  invoiceUrl?: string;
+  bankSlipUrl?: string;
+  pixTransaction?: string;
+};
+
+type CriarAssinaturaAsaasInput = {
+  customer: string;
+  billingType: AsaasBillingType;
+  value: number;
+  nextDueDate: string;
+  cycle: AsaasCycle;
+  description?: string;
+  endDate?: string;
+  maxPayments?: number;
+  externalReference?: string;
+  creditCard?: AsaasCreditCard;
+  creditCardHolderInfo?: AsaasCreditCardHolderInfo;
+  creditCardToken?: string;
+  remoteIp?: string;
+};
+
+type CriarAssinaturaAsaasResponse = {
+  id: string;
+  customer: string;
+  billingType: string;
+  value: number;
+  nextDueDate: string;
+  cycle: AsaasCycle;
+  status?: string;
+};
+
+type QrCodePixResponse = {
+  encodedImage?: string;
+  payload?: string;
+  expirationDate?: string;
+};
+
+type AtualizarAssinaturaAsaasInput = Partial<{
+  value: number;
+  nextDueDate: string;
+  cycle: AsaasCycle;
+  description: string;
+  endDate: string;
+  maxPayments: number;
+  creditCard: AsaasCreditCard;
+  creditCardHolderInfo: AsaasCreditCardHolderInfo;
+  creditCardToken: string;
+  remoteIp: string;
+}>;
+
+function getAsaasConfig() {
   const apiKey =
     process.env.ASAAS_API_KEY ||
     process.env.NEXT_PUBLIC_ASAAS_API_KEY ||
@@ -9,11 +132,6 @@ async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
     process.env.NEXT_PUBLIC_ASAAS_BASE_URL ||
     "";
 
-  console.log("DEBUG ASAAS ENV =>", {
-    apiKeyExiste: !!apiKey,
-    baseUrl,
-  });
-
   if (!apiKey) {
     throw new Error("ASAAS_API_KEY não definida no .env");
   }
@@ -21,6 +139,15 @@ async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
   if (!baseUrl) {
     throw new Error("ASAAS_BASE_URL não definida no .env");
   }
+
+  return {
+    apiKey,
+    baseUrl: baseUrl.replace(/\/+$/, ""),
+  };
+}
+
+async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const { apiKey, baseUrl } = getAsaasConfig();
 
   const res = await fetch(`${baseUrl}${path}`, {
     ...init,
@@ -36,7 +163,12 @@ async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const data = await res.json().catch(() => null);
 
   if (!res.ok) {
-    console.error("Erro Asaas:", data);
+    console.error("Erro Asaas:", {
+      path,
+      status: res.status,
+      data,
+    });
+
     throw new Error(
       data?.errors?.[0]?.description ||
         data?.message ||
@@ -47,48 +179,74 @@ async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-export async function criarClienteAsaas(data: {
-  name: string;
-  email: string;
-  cpfCnpj?: string;
-}) {
-  return asaasFetch<{
-    id: string;
-    name: string;
-    email: string;
-    cpfCnpj?: string;
-  }>("/customers", {
+export function getAsaasCycleFromPlano(
+  periodicidade: "MENSAL" | "ANUAL"
+): AsaasCycle {
+  return periodicidade === "ANUAL" ? "YEARLY" : "MONTHLY";
+}
+
+export async function criarClienteAsaas(data: AsaasCustomerInput) {
+  return asaasFetch<AsaasCustomerResponse>("/customers", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
-export async function criarCobrancaAsaas(data: {
-  customer: string;
-  billingType: "PIX" | "BOLETO" | "CREDIT_CARD";
-  value: number;
-  dueDate: string;
-  description?: string;
-  externalReference?: string;
-}) {
-  return asaasFetch<{
-    id: string;
-    customer: string;
-    billingType: string;
-    value: number;
-    status: string;
-  }>("/payments", {
+export async function criarCobrancaAsaas(data: CriarCobrancaAsaasInput) {
+  return asaasFetch<CriarCobrancaAsaasResponse>("/payments", {
     method: "POST",
     body: JSON.stringify(data),
   });
 }
 
 export async function obterQrCodePixAsaas(paymentId: string) {
-  return asaasFetch<{
-    encodedImage?: string;
-    payload?: string;
-    expirationDate?: string;
-  }>(`/payments/${paymentId}/pixQrCode`, {
+  return asaasFetch<QrCodePixResponse>(`/payments/${paymentId}/pixQrCode`, {
+    method: "GET",
+  });
+}
+
+export async function criarAssinaturaAsaas(data: CriarAssinaturaAsaasInput) {
+  return asaasFetch<CriarAssinaturaAsaasResponse>("/subscriptions", {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function criarAssinaturaCartaoAsaas(data: CriarAssinaturaAsaasInput) {
+  if (!data.remoteIp) {
+    throw new Error("remoteIp é obrigatório para criar assinatura no cartão.");
+  }
+
+  if (!data.creditCard && !data.creditCardToken) {
+    throw new Error(
+      "Informe creditCard/creditCardHolderInfo ou creditCardToken para assinatura no cartão."
+    );
+  }
+
+  return criarAssinaturaAsaas({
+    ...data,
+    billingType: "CREDIT_CARD",
+  });
+}
+
+export async function atualizarAssinaturaAsaas(
+  subscriptionId: string,
+  data: AtualizarAssinaturaAsaasInput
+) {
+  return asaasFetch<CriarAssinaturaAsaasResponse>(`/subscriptions/${subscriptionId}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function cancelarAssinaturaAsaas(subscriptionId: string) {
+  return asaasFetch<{ deleted: boolean }>(`/subscriptions/${subscriptionId}`, {
+    method: "DELETE",
+  });
+}
+
+export async function buscarAssinaturaAsaas(subscriptionId: string) {
+  return asaasFetch<CriarAssinaturaAsaasResponse>(`/subscriptions/${subscriptionId}`, {
     method: "GET",
   });
 }
