@@ -127,27 +127,30 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#020817] via-[#081a52] to-[#142863]" />
           </div>
 
-          <div className="absolute right-0 top-0 hidden h-full w-[40%] lg:block">
-            <div
-              className="absolute inset-0 overflow-hidden"
-              style={{
-                clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 0% 100%)",
-              }}
-            >
-              <div className="absolute inset-0 z-10 bg-gradient-to-l from-transparent via-blue-950/20 to-[#06133a]" />
-              <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
+          <div className="absolute right-0 top-0 hidden h-full w-[43%] lg:block">
+  <div
+    className="absolute inset-0 overflow-hidden"
+    style={{
+      clipPath: "polygon(22% 0%, 100% 0%, 100% 100%, 2% 100%)",
+    }}
+  >
+    <div className="absolute inset-0 z-10 bg-gradient-to-l from-transparent via-slate-950/10 to-[#06133a]" />
+    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/35 to-transparent" />
+    <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/78 via-transparent to-transparent" />
+    <div className="absolute inset-0 z-10 bg-gradient-to-b from-white/5 via-transparent to-transparent" />
 
-              <Image
-                src="/images/formax-hero.jpg"
-                alt="PHANYX plataforma acadêmica para gestão escolar, gestão acadêmica e EAD"
-                fill
-                priority
-                className="object-cover object-[28%_center] scale-[1.05]"
-              />
-            </div>
+    <Image
+      src="/images/formax-hero.jpg"
+      alt="PHANYX plataforma acadêmica para gestão escolar, gestão acadêmica e EAD"
+      fill
+      priority
+      className="object-cover object-[30%_center] scale-[1.06]"
+    />
+  </div>
 
-            <div className="absolute left-10 top-1/2 h-72 w-72 -translate-y-1/2 rounded-full bg-blue-500/20 blur-3xl" />
-          </div>
+  <div className="absolute left-6 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
+  <div className="absolute bottom-0 left-0 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl" />
+</div>
 
           <div className="relative z-10 mx-auto max-w-7xl px-6 pb-12 pt-8 md:px-10 md:pb-14 md:pt-10 lg:px-12 lg:pb-16 lg:pt-12">
             <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
