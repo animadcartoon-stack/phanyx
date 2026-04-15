@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type AtividadeResponse = {
@@ -12,6 +12,8 @@ type AtividadeResponse = {
   status: string;
   turmaId: number;
 };
+
+type FeedbackTipo = "sucesso" | "erro" | "";
 
 function toDatetimeLocal(value?: string | null) {
   if (!value) return "";
@@ -49,7 +51,24 @@ export default function EditarAtividadePage() {
   const [carregando, setCarregando] = useState(modoEdicao);
   const [erroCarregamento, setErroCarregamento] = useState("");
 
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
+
+  const [erroTitulo, setErroTitulo] = useState("");
+  const [erroTurmaId, setErroTurmaId] = useState("");
+
   const podeEditar = status === "RASCUNHO";
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timer = setTimeout(() => {
+      setFeedback("");
+      setFeedbackTipo("");
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [feedback]);
 
   useEffect(() => {
     async function carregarAtividade() {
@@ -61,6 +80,8 @@ export default function EditarAtividadePage() {
       try {
         setCarregando(true);
         setErroCarregamento("");
+        setFeedback("");
+        setFeedbackTipo("");
 
         const res = await fetch(`/api/professor/atividades/${atividadeId}`);
         const data = await res.json();
@@ -92,15 +113,43 @@ export default function EditarAtividadePage() {
     carregarAtividade();
   }, [atividadeId, modoEdicao]);
 
+  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+    setFeedbackTipo(tipo);
+    setFeedback(mensagem);
+  }
+
+  function limparErrosCampo() {
+    setErroTitulo("");
+    setErroTurmaId("");
+  }
+
+  function validarFormulario() {
+    let valido = true;
+
+    setErroTitulo("");
+    setErroTurmaId("");
+
+    if (!titulo.trim()) {
+      setErroTitulo("Informe o título da atividade.");
+      valido = false;
+    }
+
+    if (!turmaId || Number(turmaId) <= 0) {
+      setErroTurmaId("Informe um Turma ID válido.");
+      valido = false;
+    }
+
+    return valido;
+  }
+
   async function salvarAtividade() {
     try {
-      if (!titulo.trim()) {
-        alert("Informe o título da atividade.");
-        return;
-      }
+      limparErrosCampo();
+      setFeedback("");
+      setFeedbackTipo("");
 
-      if (!turmaId || Number(turmaId) <= 0) {
-        alert("Informe um Turma ID válido.");
+      if (!validarFormulario()) {
+        mostrarFeedback("erro", "Corrija os campos obrigatórios para continuar.");
         return;
       }
 
@@ -133,20 +182,35 @@ export default function EditarAtividadePage() {
         throw new Error(data?.error || "Erro ao salvar atividade");
       }
 
-      alert(
+      mostrarFeedback(
+        "sucesso",
         modoEdicao
           ? "Atividade atualizada com sucesso!"
           : "Atividade salva com sucesso!"
       );
 
-      router.push("/professor/atividades");
+      setTimeout(() => {
+        router.push("/professor/atividades");
+      }, 700);
     } catch (error: any) {
       console.error(error);
-      alert(error?.message || "Erro ao salvar atividade");
+      mostrarFeedback("erro", error?.message || "Erro ao salvar atividade");
     } finally {
       setSalvando(false);
     }
   }
+
+  const feedbackClasses = useMemo(() => {
+    if (feedbackTipo === "sucesso") {
+      return "border-green-200 bg-green-50 text-green-700";
+    }
+
+    if (feedbackTipo === "erro") {
+      return "border-red-200 bg-red-50 text-red-700";
+    }
+
+    return "";
+  }, [feedbackTipo]);
 
   return (
     <div className="space-y-6 p-6 md:p-8">
@@ -164,6 +228,14 @@ export default function EditarAtividadePage() {
         </p>
       </div>
 
+      {feedback && (
+        <div
+          className={`rounded-3xl border p-4 text-sm shadow-sm ${feedbackClasses}`}
+        >
+          {feedback}
+        </div>
+      )}
+
       {carregando && (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
           Carregando atividade...
@@ -177,133 +249,161 @@ export default function EditarAtividadePage() {
       )}
 
       {!carregando && !erroCarregamento && (
-  <>
-    {!podeEditar && (
-      <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 shadow-sm">
-        Esta atividade está com status <strong>{status}</strong> e, pela regra
-        atual do sistema, só atividades em <strong>RASCUNHO</strong> podem ser
-        editadas.
-      </div>
-    )}
+        <>
+          {!podeEditar && (
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 shadow-sm">
+              Esta atividade está com status <strong>{status}</strong> e, pela
+              regra atual do sistema, só atividades em{" "}
+              <strong>RASCUNHO</strong> podem ser editadas.
+            </div>
+          )}
 
-    <div className="grid gap-6 lg:grid-cols-2">
-          <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Título da atividade
-              </label>
-              <input
-  value={titulo}
-  onChange={(e) => setTitulo(e.target.value)}
-  disabled={!podeEditar}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500"
-                placeholder="Ex: Trabalho sobre escatologia"
-              />
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Título da atividade
+                </label>
+                <input
+                  value={titulo}
+                  onChange={(e) => {
+                    setTitulo(e.target.value);
+                    if (erroTitulo) setErroTitulo("");
+                  }}
+                  disabled={!podeEditar}
+                  className={`mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none ${
+                    erroTitulo
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-slate-300 focus:border-violet-500"
+                  } disabled:bg-slate-100 disabled:text-slate-500`}
+                  placeholder="Ex: Trabalho sobre escatologia"
+                />
+                {erroTitulo && (
+                  <p className="mt-2 text-xs font-medium text-red-600">
+                    {erroTitulo}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Descrição
+                </label>
+                <textarea
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  disabled={!podeEditar}
+                  rows={5}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500 disabled:bg-slate-100 disabled:text-slate-500"
+                  placeholder="Explique o que o aluno precisa fazer..."
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Prazo
+                </label>
+                <input
+                  type="datetime-local"
+                  value={prazo}
+                  onChange={(e) => setPrazo(e.target.value)}
+                  disabled={!podeEditar}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500 disabled:bg-slate-100 disabled:text-slate-500"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Descrição
-              </label>
-              <textarea
-  value={descricao}
-  onChange={(e) => setDescricao(e.target.value)}
-  disabled={!podeEditar}
-                rows={5}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500"
-                placeholder="Explique o que o aluno precisa fazer..."
-              />
-            </div>
+            <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Turma ID
+                </label>
+                <input
+                  type="number"
+                  value={turmaId}
+                  onChange={(e) => {
+                    setTurmaId(e.target.value);
+                    if (erroTurmaId) setErroTurmaId("");
+                  }}
+                  disabled={!podeEditar}
+                  className={`mt-2 w-full rounded-2xl border px-4 py-3 text-sm outline-none ${
+                    erroTurmaId
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-slate-300 focus:border-violet-500"
+                  } disabled:bg-slate-100 disabled:text-slate-500`}
+                  placeholder="Ex: 1"
+                />
+                {erroTurmaId ? (
+                  <p className="mt-2 text-xs font-medium text-red-600">
+                    {erroTurmaId}
+                  </p>
+                ) : (
+                  <p className="mt-2 text-xs text-slate-500">
+                    Por enquanto, informe manualmente o ID da turma.
+                  </p>
+                )}
+              </div>
 
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Prazo
-              </label>
-              <input
-  type="datetime-local"
-  value={prazo}
-  onChange={(e) => setPrazo(e.target.value)}
-  disabled={!podeEditar}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500"
-              />
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Nota máxima
+                </label>
+                <input
+                  type="number"
+                  value={notaMaxima}
+                  onChange={(e) => setNotaMaxima(Number(e.target.value))}
+                  disabled={!podeEditar}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500 disabled:bg-slate-100 disabled:text-slate-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-slate-700">
+                  Status
+                </label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  disabled={!podeEditar}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500 disabled:bg-slate-100 disabled:text-slate-500"
+                >
+                  <option value="RASCUNHO">Rascunho</option>
+                  <option value="PUBLICADA">Publicada</option>
+                  <option value="ENCERRADA">Encerrada</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={salvarAtividade}
+                  disabled={salvando || !podeEditar}
+                  className={`rounded-2xl px-5 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                    podeEditar
+                      ? "bg-violet-600 text-white hover:bg-violet-700"
+                      : "bg-slate-300 text-slate-500"
+                  }`}
+                >
+                  {salvando
+                    ? "Salvando..."
+                    : !podeEditar
+                    ? "Edição bloqueada"
+                    : modoEdicao
+                    ? "Atualizar atividade"
+                    : "Salvar atividade"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => router.push("/professor/atividades")}
+                  className="rounded-2xl border px-5 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
           </div>
-
-          <div className="space-y-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Turma ID
-              </label>
-              <input
-  type="number"
-  value={turmaId}
-  onChange={(e) => setTurmaId(e.target.value)}
-  disabled={!podeEditar}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500"
-                placeholder="Ex: 1"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Nota máxima
-              </label>
-              <input
-  type="number"
-  value={notaMaxima}
-  onChange={(e) => setNotaMaxima(Number(e.target.value))}
-  disabled={!podeEditar}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-semibold text-slate-700">
-                Status
-              </label>
-              <select
-  value={status}
-  onChange={(e) => setStatus(e.target.value)}
-  disabled={!podeEditar}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-violet-500"
-              >
-                <option value="RASCUNHO">Rascunho</option>
-                <option value="PUBLICADA">Publicada</option>
-                <option value="ENCERRADA">Encerrada</option>
-              </select>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-  type="button"
-  onClick={salvarAtividade}
-  disabled={salvando || !podeEditar}
-  className={`rounded-2xl px-5 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-60 ${
-    podeEditar
-      ? "bg-violet-600 text-white hover:bg-violet-700"
-      : "bg-slate-300 text-slate-500"
-  }`}
->
-  {salvando
-    ? "Salvando..."
-    : !podeEditar
-    ? "Edição bloqueada"
-    : modoEdicao
-    ? "Atualizar atividade"
-    : "Salvar atividade"}
-</button>
-
-              <button
-                type="button"
-                onClick={() => router.push("/professor/atividades")}
-                className="rounded-2xl border px-5 py-2 text-sm font-semibold text-slate-700"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-          </>
+        </>
       )}
     </div>
   );
