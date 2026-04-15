@@ -127,15 +127,28 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#020817] via-[#081a52] to-[#142863]" />
           </div>
 
-          {/* IMAGEM (NUNCA MAIS MEXER) */}
-<div className="absolute right-[-6%] top-0 hidden h-full w-[42%] lg:block">
-  <Image
-    src="/images/formax-hero.jpg"
-    alt="PHANYX plataforma acadêmica"
-    fill
-    priority
-    className="object-cover object-[68%_center] scale-[1.04]"
-  />
+          <div className="absolute right-[-6%] top-0 hidden h-full w-[42%] lg:block">
+  <div
+    className="absolute inset-0 overflow-hidden"
+    style={{
+      clipPath: "polygon(16% 0%, 100% 0%, 100% 100%, 8% 100%)",
+    }}
+  >
+    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
+    <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
+
+    <Image
+      src="/images/formax-hero.jpg"
+      alt="PHANYX plataforma acadêmica"
+      fill
+      priority
+      className="object-cover object-[68%_center] scale-[1.04]"
+    />
+  </div>
+
+  <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
+  <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
+  <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
 </div>
 
 {/* FAIXA AZUL (CONTROLÁVEL) */}
