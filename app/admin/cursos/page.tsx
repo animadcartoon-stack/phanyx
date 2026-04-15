@@ -16,6 +16,8 @@ type Curso = {
   quantidadeParcelas?: number | null;
 };
 
+type FeedbackTipo = "sucesso" | "erro" | "";
+
 export default function AdminCursosPage() {
   const searchParams = useSearchParams();
 
@@ -32,6 +34,26 @@ export default function AdminCursosPage() {
     valorMensalidade: "",
     quantidadeParcelas: "",
   });
+
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
+  const [criando, setCriando] = useState(false);
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timer = setTimeout(() => {
+      setFeedback("");
+      setFeedbackTipo("");
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+    setFeedbackTipo(tipo);
+    setFeedback(mensagem);
+  }
 
   async function carregarCursos() {
     try {
@@ -57,6 +79,10 @@ export default function AdminCursosPage() {
     e.preventDefault();
 
     try {
+      setCriando(true);
+      setFeedback("");
+      setFeedbackTipo("");
+
       const res = await fetch("/api/admin/cursos", {
         method: "POST",
         headers: {
@@ -85,8 +111,7 @@ export default function AdminCursosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao criar curso");
-        return;
+        throw new Error(data.error || "Erro ao criar curso");
       }
 
       setForm({
@@ -100,10 +125,12 @@ export default function AdminCursosPage() {
       });
 
       await carregarCursos();
-      alert("Curso criado com sucesso!");
-    } catch (error) {
+      mostrarFeedback("sucesso", "Curso criado com sucesso!");
+    } catch (error: any) {
       console.error("Erro ao criar curso:", error);
-      alert("Erro ao criar curso");
+      mostrarFeedback("erro", error?.message || "Erro ao criar curso");
+    } finally {
+      setCriando(false);
     }
   }
 
@@ -169,6 +196,18 @@ export default function AdminCursosPage() {
 
   return (
     <div className="space-y-8">
+      {feedback && (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
+            feedbackTipo === "sucesso"
+              ? "border-green-200 bg-green-50 text-green-700"
+              : "border-red-200 bg-red-50 text-red-700"
+          }`}
+        >
+          {feedback}
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">🎓 Cursos</h1>
@@ -262,9 +301,10 @@ export default function AdminCursosPage() {
           <div className="md:col-span-2">
             <button
               type="submit"
-              className="rounded-lg bg-purple-600 px-5 py-2 text-white"
+              disabled={criando}
+              className="rounded-lg bg-purple-600 px-5 py-2 text-white disabled:opacity-50"
             >
-              Salvar Curso
+              {criando ? "Salvando..." : "Salvar Curso"}
             </button>
           </div>
         </form>
