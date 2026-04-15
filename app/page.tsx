@@ -143,7 +143,7 @@ export default function HomePage() {
   <div
     className="absolute inset-0"
     style={{
-      clipPath: "polygon(26% 0%, 100% 0%, 100% 100%, 12% 100%)",
+      clipPath: "polygon(35% 0%, 100% 0%, 100% 100%, 18% 100%)",
     }}
   >
     <div className="absolute inset-0 bg-gradient-to-r from-[#06133a] via-[#06133a]/95 to-[#06133a]/60" />
@@ -169,7 +169,7 @@ export default function HomePage() {
       alt="PHANYX plataforma acadêmica"
       fill
       priority
-      className="object-cover object-[68%_center] scale-[1.04]"
+      className="object-cover object-[75%_center] scale-[1.04]"
     />
   </div>
 
