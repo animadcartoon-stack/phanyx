@@ -261,8 +261,8 @@ function formatarTempoRelativo(data?: string | null) {
         const confirmacao = confirm("Tem certeza que deseja excluir esta atividade?");
         if (!confirmacao) return;
 
-        const res = await fetch(`/api/professor/atividades/${atividade.id}/despublicar`, {
-  method: "POST",
+        const res = await fetch(`/api/professor/atividades/${atividade.id}`, {
+  method: "DELETE",
 });
 
 if (!res.ok) {
