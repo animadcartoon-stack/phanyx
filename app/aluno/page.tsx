@@ -184,38 +184,109 @@ function AlunoDashboardPage() {
     return "Boa noite";
   }, []);
 
+  const disciplinaPrincipal = useMemo(() => {
+    return disciplinas?.[0] || null;
+  }, [disciplinas]);
+
+  const ultimaProva = useMemo(() => {
+    return data?.ultimasProvas?.[0] || null;
+  }, [data]);
+
+  const progressoAproveitamento = useMemo(() => {
+    const percentual = Math.round((mediaGeral / 10) * 100);
+    return Math.max(0, Math.min(100, percentual));
+  }, [mediaGeral]);
+
+  const mensagemDesempenho = useMemo(() => {
+    if (mediaGeral >= 8) return "Excelente desempenho. Continue nesse ritmo.";
+    if (mediaGeral >= 7) return "Você está indo muito bem na sua jornada.";
+    if (mediaGeral >= 5) return "Bom progresso. Vale revisar os conteúdos recentes.";
+    return "Hora de reforçar os estudos e retomar o ritmo.";
+  }, [mediaGeral]);
+
+  const proximoPasso = useMemo(() => {
+    if (erro) {
+      return {
+        titulo: "Regularizar acesso",
+        descricao:
+          "Seu painel acadêmico está com acesso restrito no momento. Regularize sua situação para continuar normalmente.",
+        href: "/suporte",
+        label: "Abrir suporte",
+      };
+    }
+
+    if (disciplinaPrincipal) {
+      return {
+        titulo: "Continuar estudos",
+        descricao:
+          "Retome sua rotina acadêmica acessando sua disciplina disponível no momento.",
+        href: `/aluno/disciplina/${disciplinaPrincipal.id}`,
+        label: "Abrir disciplina",
+      };
+    }
+
+    if (ultimaProva) {
+      return {
+        titulo: "Revisar resultados",
+        descricao:
+          "Consulte seu desempenho mais recente e acompanhe sua evolução acadêmica.",
+        href: "/aluno/boletim",
+        label: "Ver boletim",
+      };
+    }
+
+    return {
+      titulo: "Explorar painel",
+      descricao:
+        "Acompanhe seus indicadores acadêmicos e mantenha sua rotina organizada.",
+      href: "/aluno",
+      label: "Atualizar painel",
+    };
+  }, [erro, disciplinaPrincipal, ultimaProva]);
+
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-7xl space-y-6 p-6">
-        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
-          <div className="grid gap-8 px-6 py-8 md:px-8 lg:grid-cols-[1.5fr_0.9fr] lg:items-center">
+        <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
+          <div className="grid gap-8 px-6 py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-200">
                 Painel acadêmico do aluno
               </p>
 
               <h1 className="mt-3 text-3xl font-bold leading-tight md:text-4xl">
-                {saudacao}, acompanhe sua jornada acadêmica com clareza e
-                organização
+                {saudacao}, acompanhe sua jornada acadêmica com clareza,
+                desempenho e foco
               </h1>
 
               <p className="mt-4 max-w-3xl text-sm leading-7 text-blue-100 md:text-base">
-                Visualize seu curso, disciplinas, desempenho, últimas avaliações
-                e atalhos principais em um ambiente pensado para uma experiência
-                acadêmica profissional.
+                Veja seu curso, seu desempenho, suas disciplinas e seus próximos
+                passos em um painel pensado para uma experiência acadêmica
+                moderna, organizada e profissional.
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
                 <a
-                  href="/aluno/boletim"
+                  href={
+                    disciplinaPrincipal
+                      ? `/aluno/disciplina/${disciplinaPrincipal.id}`
+                      : "/aluno/boletim"
+                  }
                   className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
                 >
-                  Ver boletim
+                  {disciplinaPrincipal ? "Continuar estudos" : "Ver boletim"}
+                </a>
+
+                <a
+                  href="/aluno/boletim"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
+                >
+                  Abrir boletim
                 </a>
 
                 <a
                   href="/aluno"
-                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-transparent px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Atualizar painel
                 </a>
@@ -237,13 +308,21 @@ function AlunoDashboardPage() {
 
               <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur">
                 <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
-                  Plano
+                  Aproveitamento atual
                 </p>
                 <p className="mt-2 text-lg font-semibold text-white">
-                  {loadingPlano ? "Carregando..." : plano}
+                  {progressoAproveitamento}%
                 </p>
-                <p className="mt-2 text-sm text-blue-100">
-                  Ambiente acadêmico conectado ao seu perfil.
+
+                <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-white/15">
+                  <div
+                    className="h-full rounded-full bg-white transition-all"
+                    style={{ width: `${progressoAproveitamento}%` }}
+                  />
+                </div>
+
+                <p className="mt-3 text-sm text-blue-100">
+                  Baseado na sua média geral atual.
                 </p>
               </div>
             </div>
@@ -257,16 +336,43 @@ function AlunoDashboardPage() {
         )}
 
         {!loading && erro && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 shadow-sm">
-            <h2 className="text-lg font-semibold text-red-700">
-              Acesso bloqueado
-            </h2>
+          <div className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-rose-50 p-6 shadow-sm">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-red-500">
+                  Acesso restrito
+                </p>
 
-            <p className="mt-2 text-sm text-red-600">{erro}</p>
+                <h2 className="mt-2 text-2xl font-bold text-red-700">
+                  Seu acesso está temporariamente bloqueado
+                </h2>
 
-            <p className="mt-4 text-xs text-red-500">
-              Entre em contato com a instituição para regularizar sua situação.
-            </p>
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-red-600">
+                  {erro}
+                </p>
+
+                <p className="mt-3 text-xs text-red-500">
+                  Entre em contato com a instituição para regularizar sua
+                  situação financeira e liberar novamente o ambiente acadêmico.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="/suporte"
+                  className="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                >
+                  Falar com suporte
+                </a>
+
+                <a
+                  href="/aluno"
+                  className="inline-flex items-center justify-center rounded-xl border border-red-300 bg-white px-5 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"
+                >
+                  Atualizar painel
+                </a>
+              </div>
+            </div>
           </div>
         )}
 
@@ -452,22 +558,78 @@ function AlunoDashboardPage() {
               <div className="space-y-6">
                 <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
+                    Próximo passo
+                  </h2>
+
+                  <div className="mt-4 rounded-2xl bg-slate-50 p-4">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {proximoPasso.titulo}
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {proximoPasso.descricao}
+                    </p>
+
+                    <a
+                      href={proximoPasso.href}
+                      className="mt-4 inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                    >
+                      {proximoPasso.label}
+                    </a>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Progresso visual
+                  </h2>
+
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-slate-700">
+                        Aproveitamento atual
+                      </span>
+                      <span className="font-semibold text-slate-900">
+                        {progressoAproveitamento}%
+                      </span>
+                    </div>
+
+                    <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-blue-600 to-violet-600 transition-all"
+                        style={{ width: `${progressoAproveitamento}%` }}
+                      />
+                    </div>
+
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      {mensagemDesempenho}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                  <h2 className="text-lg font-semibold text-slate-900">
                     Atalhos rápidos
                   </h2>
 
                   <div className="mt-4 space-y-3">
                     <a
-                      href="/aluno/boletim"
+                      href={
+                        disciplinaPrincipal
+                          ? `/aluno/disciplina/${disciplinaPrincipal.id}`
+                          : "/aluno"
+                      }
                       className="block rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
                     >
-                      Abrir boletim
+                      {disciplinaPrincipal
+                        ? "Continuar estudos"
+                        : "Atualizar dashboard"}
                     </a>
 
                     <a
-                      href="/aluno"
+                      href="/aluno/boletim"
                       className="block rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
-                      Atualizar dashboard
+                      Abrir boletim
                     </a>
                   </div>
                 </div>
@@ -513,7 +675,7 @@ function AlunoDashboardPage() {
                     Situação institucional
                   </h2>
 
-                  <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+                  <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
                     Seu ambiente acadêmico está vinculado ao curso e à matrícula
                     ativos no sistema. Sempre que necessário, acompanhe seu
                     boletim, disciplinas e atualizações por este painel.
