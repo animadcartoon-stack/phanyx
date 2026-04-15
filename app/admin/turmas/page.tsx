@@ -50,6 +50,8 @@ interface Turma {
   };
 }
 
+type FeedbackTipo = "sucesso" | "erro" | "";
+
 function AdminTurmasPage() {
   const searchParams = useSearchParams();
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -79,6 +81,29 @@ function AdminTurmasPage() {
   const [editCapacidadeMaxima, setEditCapacidadeMaxima] = useState("");
   const [editDisciplinaId, setEditDisciplinaId] = useState("");
   const [editProfessorId, setEditProfessorId] = useState("");
+
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
+  const [criando, setCriando] = useState(false);
+  const [salvandoId, setSalvandoId] = useState<number | null>(null);
+  const [excluindoId, setExcluindoId] = useState<number | null>(null);
+  const [turmaParaExcluir, setTurmaParaExcluir] = useState<Turma | null>(null);
+
+  useEffect(() => {
+    if (!feedback) return;
+
+    const timer = setTimeout(() => {
+      setFeedback("");
+      setFeedbackTipo("");
+    }, 3500);
+
+    return () => clearTimeout(timer);
+  }, [feedback]);
+
+  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+    setFeedbackTipo(tipo);
+    setFeedback(mensagem);
+  }
 
   async function carregarTurmas() {
     const res = await fetch("/api/turma", {
@@ -110,43 +135,51 @@ function AdminTurmasPage() {
   async function criarTurma(e: React.FormEvent) {
     e.preventDefault();
 
-    const res = await fetch("/api/turma", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        nome,
-        codigo,
-        semestre,
-        periodoLetivo,
-        statusTurma,
-        ativa,
-        capacidadeMinima,
-        capacidadeMaxima,
-        disciplinaId,
-        professorId,
-      }),
-    });
+    try {
+      setCriando(true);
 
-    const data = await res.json();
+      const res = await fetch("/api/turma", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          nome,
+          codigo,
+          semestre,
+          periodoLetivo,
+          statusTurma,
+          ativa,
+          capacidadeMinima,
+          capacidadeMaxima,
+          disciplinaId,
+          professorId,
+        }),
+      });
 
-    if (!res.ok) {
-      alert(data.error || "Erro ao criar turma");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao criar turma");
+      }
+
+      setNome("");
+      setCodigo("");
+      setSemestre("");
+      setPeriodoLetivo("");
+      setStatusTurma("AGUARDANDO");
+      setAtiva(true);
+      setCapacidadeMinima("");
+      setCapacidadeMaxima("");
+      setDisciplinaId("");
+      setProfessorId("");
+
+      await carregarTurmas();
+      mostrarFeedback("sucesso", "Turma criada com sucesso.");
+    } catch (error: any) {
+      mostrarFeedback("erro", error?.message || "Erro ao criar turma");
+    } finally {
+      setCriando(false);
     }
-
-    setNome("");
-    setCodigo("");
-    setSemestre("");
-    setPeriodoLetivo("");
-    setStatusTurma("AGUARDANDO");
-    setAtiva(true);
-    setCapacidadeMinima("");
-    setCapacidadeMaxima("");
-    setDisciplinaId("");
-    setProfessorId("");
-
-    carregarTurmas();
   }
 
   function iniciarEdicao(turma: Turma) {
@@ -172,51 +205,68 @@ function AdminTurmasPage() {
   }
 
   async function salvarEdicao(id: number) {
-    const res = await fetch(`/api/turma/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        nome: editNome,
-        codigo: editCodigo,
-        semestre: editSemestre,
-        periodoLetivo: editPeriodoLetivo,
-        statusTurma: editStatusTurma,
-        ativa: editAtiva,
-        capacidadeMinima: editCapacidadeMinima,
-        capacidadeMaxima: editCapacidadeMaxima,
-        disciplinaId: editDisciplinaId,
-        professorId: editProfessorId,
-      }),
-    });
+    try {
+      setSalvandoId(id);
 
-    const data = await res.json();
+      const res = await fetch(`/api/turma/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          nome: editNome,
+          codigo: editCodigo,
+          semestre: editSemestre,
+          periodoLetivo: editPeriodoLetivo,
+          statusTurma: editStatusTurma,
+          ativa: editAtiva,
+          capacidadeMinima: editCapacidadeMinima,
+          capacidadeMaxima: editCapacidadeMaxima,
+          disciplinaId: editDisciplinaId,
+          professorId: editProfessorId,
+        }),
+      });
 
-    if (!res.ok) {
-      alert(data.error || "Erro ao atualizar turma");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao atualizar turma");
+      }
+
+      setEditandoId(null);
+      await carregarTurmas();
+      mostrarFeedback("sucesso", "Turma atualizada com sucesso.");
+    } catch (error: any) {
+      mostrarFeedback("erro", error?.message || "Erro ao atualizar turma");
+    } finally {
+      setSalvandoId(null);
     }
-
-    setEditandoId(null);
-    carregarTurmas();
   }
 
-  async function deletarTurma(id: number) {
-    if (!confirm("Tem certeza que deseja excluir esta turma?")) return;
+  async function confirmarExclusaoTurma() {
+    if (!turmaParaExcluir) return;
 
-    const res = await fetch(`/api/turma/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
+    try {
+      setExcluindoId(turmaParaExcluir.id);
 
-    const data = await res.json();
+      const res = await fetch(`/api/turma/${turmaParaExcluir.id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
-    if (!res.ok) {
-      alert(data.error || "Erro ao excluir turma");
-      return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao excluir turma");
+      }
+
+      setTurmaParaExcluir(null);
+      await carregarTurmas();
+      mostrarFeedback("sucesso", "Turma excluída com sucesso.");
+    } catch (error: any) {
+      mostrarFeedback("erro", error?.message || "Erro ao excluir turma");
+    } finally {
+      setExcluindoId(null);
     }
-
-    carregarTurmas();
   }
 
   useEffect(() => {
@@ -225,12 +275,12 @@ function AdminTurmasPage() {
     carregarProfessores();
   }, []);
 
-useEffect(() => {
-  const buscaUrl = searchParams.get("busca");
-  if (buscaUrl) {
-    setBusca(buscaUrl);
-  }
-}, [searchParams]);
+  useEffect(() => {
+    const buscaUrl = searchParams.get("busca");
+    if (buscaUrl) {
+      setBusca(buscaUrl);
+    }
+  }, [searchParams]);
 
   const turmasFiltradas = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -286,346 +336,411 @@ useEffect(() => {
   }
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      <h1 className="text-2xl font-bold">🏫 Turmas</h1>
-
-      <form
-        onSubmit={criarTurma}
-        className="bg-white border rounded-lg p-6 space-y-4"
-      >
-        <h2 className="font-semibold">Nova turma</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <input
-            placeholder="Nome da turma"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="w-full border rounded-lg p-2"
-            required
-          />
-
-          <input
-            placeholder="Código da turma"
-            value={codigo}
-            onChange={(e) => setCodigo(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-
-          <input
-            placeholder="Semestre"
-            value={semestre}
-            onChange={(e) => setSemestre(e.target.value)}
-            className="w-full border rounded-lg p-2"
-            required
-          />
-
-          <input
-            placeholder="Período letivo"
-            value={periodoLetivo}
-            onChange={(e) => setPeriodoLetivo(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-
-          <input
-            type="number"
-            min="1"
-            placeholder="Capacidade mínima de alunos"
-            value={capacidadeMinima}
-            onChange={(e) => setCapacidadeMinima(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-
-          <input
-            type="number"
-            min="1"
-            placeholder="Capacidade máxima de alunos"
-            value={capacidadeMaxima}
-            onChange={(e) => setCapacidadeMaxima(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-
-          <select
-            value={statusTurma}
-            onChange={(e) => setStatusTurma(e.target.value as StatusTurma)}
-            className="w-full border rounded-lg p-2"
+    <>
+      <div className="max-w-5xl space-y-6">
+        {feedback && (
+          <div
+            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
+              feedbackTipo === "sucesso"
+                ? "border-green-200 bg-green-50 text-green-700"
+                : "border-red-200 bg-red-50 text-red-700"
+            }`}
           >
-            <option value="AGUARDANDO">Aguardando</option>
-            <option value="A_INICIAR">A iniciar</option>
-            <option value="ATIVA">Ativa</option>
-            <option value="INATIVA">Inativa</option>
-            <option value="CONCLUIDA">Concluída</option>
-            <option value="CANCELADA">Cancelada</option>
-            <option value="NAO_FORMADA">Não formada</option>
-          </select>
-
-          <select
-            value={disciplinaId}
-            onChange={(e) => setDisciplinaId(e.target.value)}
-            className="w-full border rounded-lg p-2"
-            required
-          >
-            <option value="">Selecione a disciplina</option>
-            {disciplinas.map((disciplina) => (
-              <option key={disciplina.id} value={disciplina.id}>
-                {disciplina.nome}
-                {disciplina.curso?.nome ? ` — ${disciplina.curso.nome}` : ""}
-              </option>
-            ))}
-          </select>
-
-          <select
-            value={professorId}
-            onChange={(e) => setProfessorId(e.target.value)}
-            className="w-full border rounded-lg p-2"
-            required
-          >
-            <option value="">Selecione o professor</option>
-            {professores.map((professor) => (
-              <option key={professor.id} value={professor.id}>
-                {professor.nome}
-              </option>
-            ))}
-          </select>
-
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={ativa}
-              onChange={(e) => setAtiva(e.target.checked)}
-            />
-            Turma ativa
-          </label>
-        </div>
-
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-          Criar turma
-        </button>
-      </form>
-
-      <div className="space-y-3">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="font-semibold">Lista de turmas</h2>
-
-          <input
-            type="text"
-            placeholder="Buscar por nome, código, semestre, disciplina, curso ou professor"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="w-full md:w-[520px] border rounded-lg p-2"
-          />
-        </div>
-
-        {turmasFiltradas.length === 0 ? (
-          <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
-            Nenhuma turma encontrada para essa busca.
+            {feedback}
           </div>
-        ) : (
-          turmasFiltradas.map((turma) => {
-            const matriculados = turma._count?.itensMatricula || 0;
-            const capacidadeMinima = turma.capacidadeMinima ?? null;
-            const capacidadeMaxima = turma.capacidadeMaxima ?? null;
-            const vagasRestantes =
-              capacidadeMaxima !== null
-                ? Math.max(capacidadeMaxima - matriculados, 0)
-                : null;
-            const atingiuMinimo =
-              capacidadeMinima !== null
-                ? matriculados >= capacidadeMinima
-                : null;
-
-            return (
-              <div key={turma.id} className="bg-white border rounded-lg p-4">
-                {editandoId === turma.id ? (
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <input
-                        value={editNome}
-                        onChange={(e) => setEditNome(e.target.value)}
-                        className="border p-2 rounded"
-                        placeholder="Nome da turma"
-                      />
-
-                      <input
-                        value={editCodigo}
-                        onChange={(e) => setEditCodigo(e.target.value)}
-                        className="border p-2 rounded"
-                        placeholder="Código da turma"
-                      />
-
-                      <input
-                        value={editSemestre}
-                        onChange={(e) => setEditSemestre(e.target.value)}
-                        className="border p-2 rounded"
-                        placeholder="Semestre"
-                      />
-
-                      <input
-                        value={editPeriodoLetivo}
-                        onChange={(e) => setEditPeriodoLetivo(e.target.value)}
-                        className="border p-2 rounded"
-                        placeholder="Período letivo"
-                      />
-
-                      <input
-                        type="number"
-                        min="1"
-                        value={editCapacidadeMinima}
-                        onChange={(e) => setEditCapacidadeMinima(e.target.value)}
-                        className="border p-2 rounded"
-                        placeholder="Capacidade mínima"
-                      />
-
-                      <input
-                        type="number"
-                        min="1"
-                        value={editCapacidadeMaxima}
-                        onChange={(e) => setEditCapacidadeMaxima(e.target.value)}
-                        className="border p-2 rounded"
-                        placeholder="Capacidade máxima"
-                      />
-
-                      <select
-                        value={editStatusTurma}
-                        onChange={(e) =>
-                          setEditStatusTurma(e.target.value as StatusTurma)
-                        }
-                        className="border p-2 rounded"
-                      >
-                        <option value="AGUARDANDO">Aguardando</option>
-                        <option value="A_INICIAR">A iniciar</option>
-                        <option value="ATIVA">Ativa</option>
-                        <option value="INATIVA">Inativa</option>
-                        <option value="CONCLUIDA">Concluída</option>
-                        <option value="CANCELADA">Cancelada</option>
-                        <option value="NAO_FORMADA">Não formada</option>
-                      </select>
-
-                      <select
-                        value={editDisciplinaId}
-                        onChange={(e) => setEditDisciplinaId(e.target.value)}
-                        className="border p-2 rounded"
-                      >
-                        <option value="">Selecione a disciplina</option>
-                        {disciplinas.map((disciplina) => (
-                          <option key={disciplina.id} value={disciplina.id}>
-                            {disciplina.nome}
-                            {disciplina.curso?.nome
-                              ? ` — ${disciplina.curso.nome}`
-                              : ""}
-                          </option>
-                        ))}
-                      </select>
-
-                      <select
-                        value={editProfessorId}
-                        onChange={(e) => setEditProfessorId(e.target.value)}
-                        className="border p-2 rounded"
-                      >
-                        <option value="">Selecione o professor</option>
-                        {professores.map((professor) => (
-                          <option key={professor.id} value={professor.id}>
-                            {professor.nome}
-                          </option>
-                        ))}
-                      </select>
-
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={editAtiva}
-                          onChange={(e) => setEditAtiva(e.target.checked)}
-                        />
-                        Turma ativa
-                      </label>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => salvarEdicao(turma.id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded"
-                      >
-                        Salvar
-                      </button>
-
-                      <button
-                        onClick={() => setEditandoId(null)}
-                        className="bg-gray-400 text-white px-3 py-1 rounded"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <p className="font-medium">{turma.nome}</p>
-                    <p className="text-sm text-gray-600">
-                      Código: {turma.codigo || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Curso: {turma.disciplina?.curso?.nome || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Disciplina: {turma.disciplina?.nome || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Professor: {turma.professor?.nome || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Semestre: {turma.semestre}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Período letivo: {turma.periodoLetivo || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Status da turma: {labelStatusTurma(turma.statusTurma)}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Ativa: {turma.ativa ? "Sim" : "Não"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Capacidade mínima: {capacidadeMinima ?? "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Capacidade máxima: {capacidadeMaxima ?? "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Matriculados: {matriculados}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Vagas restantes: {vagasRestantes ?? "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Atingiu mínimo:{" "}
-                      {atingiuMinimo === null
-                        ? "-"
-                        : atingiuMinimo
-                        ? "Sim"
-                        : "Não"}
-                    </p>
-
-                    <div className="flex gap-4 mt-3">
-                      <button
-                        onClick={() => iniciarEdicao(turma)}
-                        className="text-blue-600 text-sm"
-                      >
-                        Editar
-                      </button>
-
-                      <button
-                        onClick={() => deletarTurma(turma.id)}
-                        className="text-red-600 text-sm"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            );
-          })
         )}
+
+        <h1 className="text-2xl font-bold">🏫 Turmas</h1>
+
+        <form
+          onSubmit={criarTurma}
+          className="bg-white border rounded-lg p-6 space-y-4"
+        >
+          <h2 className="font-semibold">Nova turma</h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input
+              placeholder="Nome da turma"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              required
+            />
+
+            <input
+              placeholder="Código da turma"
+              value={codigo}
+              onChange={(e) => setCodigo(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+
+            <input
+              placeholder="Semestre"
+              value={semestre}
+              onChange={(e) => setSemestre(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              required
+            />
+
+            <input
+              placeholder="Período letivo"
+              value={periodoLetivo}
+              onChange={(e) => setPeriodoLetivo(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+
+            <input
+              type="number"
+              min="1"
+              placeholder="Capacidade mínima de alunos"
+              value={capacidadeMinima}
+              onChange={(e) => setCapacidadeMinima(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+
+            <input
+              type="number"
+              min="1"
+              placeholder="Capacidade máxima de alunos"
+              value={capacidadeMaxima}
+              onChange={(e) => setCapacidadeMaxima(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            />
+
+            <select
+              value={statusTurma}
+              onChange={(e) => setStatusTurma(e.target.value as StatusTurma)}
+              className="w-full border rounded-lg p-2"
+            >
+              <option value="AGUARDANDO">Aguardando</option>
+              <option value="A_INICIAR">A iniciar</option>
+              <option value="ATIVA">Ativa</option>
+              <option value="INATIVA">Inativa</option>
+              <option value="CONCLUIDA">Concluída</option>
+              <option value="CANCELADA">Cancelada</option>
+              <option value="NAO_FORMADA">Não formada</option>
+            </select>
+
+            <select
+              value={disciplinaId}
+              onChange={(e) => setDisciplinaId(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              required
+            >
+              <option value="">Selecione a disciplina</option>
+              {disciplinas.map((disciplina) => (
+                <option key={disciplina.id} value={disciplina.id}>
+                  {disciplina.nome}
+                  {disciplina.curso?.nome ? ` — ${disciplina.curso.nome}` : ""}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={professorId}
+              onChange={(e) => setProfessorId(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              required
+            >
+              <option value="">Selecione o professor</option>
+              {professores.map((professor) => (
+                <option key={professor.id} value={professor.id}>
+                  {professor.nome}
+                </option>
+              ))}
+            </select>
+
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={ativa}
+                onChange={(e) => setAtiva(e.target.checked)}
+              />
+              Turma ativa
+            </label>
+          </div>
+
+          <button
+            disabled={criando}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50"
+          >
+            {criando ? "Criando..." : "Criar turma"}
+          </button>
+        </form>
+
+        <div className="space-y-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <h2 className="font-semibold">Lista de turmas</h2>
+
+            <input
+              type="text"
+              placeholder="Buscar por nome, código, semestre, disciplina, curso ou professor"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full md:w-[520px] border rounded-lg p-2"
+            />
+          </div>
+
+          {turmasFiltradas.length === 0 ? (
+            <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
+              Nenhuma turma encontrada para essa busca.
+            </div>
+          ) : (
+            turmasFiltradas.map((turma) => {
+              const matriculados = turma._count?.itensMatricula || 0;
+              const capacidadeMinima = turma.capacidadeMinima ?? null;
+              const capacidadeMaxima = turma.capacidadeMaxima ?? null;
+              const vagasRestantes =
+                capacidadeMaxima !== null
+                  ? Math.max(capacidadeMaxima - matriculados, 0)
+                  : null;
+              const atingiuMinimo =
+                capacidadeMinima !== null
+                  ? matriculados >= capacidadeMinima
+                  : null;
+
+              return (
+                <div key={turma.id} className="bg-white border rounded-lg p-4">
+                  {editandoId === turma.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <input
+                          value={editNome}
+                          onChange={(e) => setEditNome(e.target.value)}
+                          className="border p-2 rounded"
+                          placeholder="Nome da turma"
+                        />
+
+                        <input
+                          value={editCodigo}
+                          onChange={(e) => setEditCodigo(e.target.value)}
+                          className="border p-2 rounded"
+                          placeholder="Código da turma"
+                        />
+
+                        <input
+                          value={editSemestre}
+                          onChange={(e) => setEditSemestre(e.target.value)}
+                          className="border p-2 rounded"
+                          placeholder="Semestre"
+                        />
+
+                        <input
+                          value={editPeriodoLetivo}
+                          onChange={(e) => setEditPeriodoLetivo(e.target.value)}
+                          className="border p-2 rounded"
+                          placeholder="Período letivo"
+                        />
+
+                        <input
+                          type="number"
+                          min="1"
+                          value={editCapacidadeMinima}
+                          onChange={(e) => setEditCapacidadeMinima(e.target.value)}
+                          className="border p-2 rounded"
+                          placeholder="Capacidade mínima"
+                        />
+
+                        <input
+                          type="number"
+                          min="1"
+                          value={editCapacidadeMaxima}
+                          onChange={(e) => setEditCapacidadeMaxima(e.target.value)}
+                          className="border p-2 rounded"
+                          placeholder="Capacidade máxima"
+                        />
+
+                        <select
+                          value={editStatusTurma}
+                          onChange={(e) =>
+                            setEditStatusTurma(e.target.value as StatusTurma)
+                          }
+                          className="border p-2 rounded"
+                        >
+                          <option value="AGUARDANDO">Aguardando</option>
+                          <option value="A_INICIAR">A iniciar</option>
+                          <option value="ATIVA">Ativa</option>
+                          <option value="INATIVA">Inativa</option>
+                          <option value="CONCLUIDA">Concluída</option>
+                          <option value="CANCELADA">Cancelada</option>
+                          <option value="NAO_FORMADA">Não formada</option>
+                        </select>
+
+                        <select
+                          value={editDisciplinaId}
+                          onChange={(e) => setEditDisciplinaId(e.target.value)}
+                          className="border p-2 rounded"
+                        >
+                          <option value="">Selecione a disciplina</option>
+                          {disciplinas.map((disciplina) => (
+                            <option key={disciplina.id} value={disciplina.id}>
+                              {disciplina.nome}
+                              {disciplina.curso?.nome
+                                ? ` — ${disciplina.curso.nome}`
+                                : ""}
+                            </option>
+                          ))}
+                        </select>
+
+                        <select
+                          value={editProfessorId}
+                          onChange={(e) => setEditProfessorId(e.target.value)}
+                          className="border p-2 rounded"
+                        >
+                          <option value="">Selecione o professor</option>
+                          {professores.map((professor) => (
+                            <option key={professor.id} value={professor.id}>
+                              {professor.nome}
+                            </option>
+                          ))}
+                        </select>
+
+                        <label className="flex items-center gap-2 text-sm">
+                          <input
+                            type="checkbox"
+                            checked={editAtiva}
+                            onChange={(e) => setEditAtiva(e.target.checked)}
+                          />
+                          Turma ativa
+                        </label>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => salvarEdicao(turma.id)}
+                          disabled={salvandoId === turma.id}
+                          className="bg-green-600 text-white px-3 py-1 rounded disabled:opacity-50"
+                        >
+                          {salvandoId === turma.id ? "Salvando..." : "Salvar"}
+                        </button>
+
+                        <button
+                          onClick={() => setEditandoId(null)}
+                          className="bg-gray-400 text-white px-3 py-1 rounded"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="font-medium">{turma.nome}</p>
+                      <p className="text-sm text-gray-600">
+                        Código: {turma.codigo || "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Curso: {turma.disciplina?.curso?.nome || "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Disciplina: {turma.disciplina?.nome || "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Professor: {turma.professor?.nome || "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Semestre: {turma.semestre}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Período letivo: {turma.periodoLetivo || "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Status da turma: {labelStatusTurma(turma.statusTurma)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Ativa: {turma.ativa ? "Sim" : "Não"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Capacidade mínima: {capacidadeMinima ?? "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Capacidade máxima: {capacidadeMaxima ?? "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Matriculados: {matriculados}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Vagas restantes: {vagasRestantes ?? "-"}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        Atingiu mínimo:{" "}
+                        {atingiuMinimo === null
+                          ? "-"
+                          : atingiuMinimo
+                          ? "Sim"
+                          : "Não"}
+                      </p>
+
+                      <div className="flex gap-4 mt-3">
+                        <button
+                          onClick={() => iniciarEdicao(turma)}
+                          className="text-blue-600 text-sm"
+                        >
+                          Editar
+                        </button>
+
+                        <button
+                          onClick={() => setTurmaParaExcluir(turma)}
+                          className="text-red-600 text-sm"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
-    </div>
+
+      {turmaParaExcluir && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl">
+                🗑️
+              </div>
+
+              <div className="flex-1">
+                <h2 className="text-lg font-bold text-slate-900">
+                  Confirmar exclusão
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Tem certeza que deseja excluir a turma{" "}
+                  <strong>"{turmaParaExcluir.nome}"</strong>?
+                </p>
+                <p className="mt-2 text-sm text-slate-500">
+                  Esta ação não pode ser desfeita.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setTurmaParaExcluir(null)}
+                disabled={excluindoId === turmaParaExcluir.id}
+                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmarExclusaoTurma}
+                disabled={excluindoId === turmaParaExcluir.id}
+                className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {excluindoId === turmaParaExcluir.id
+                  ? "Excluindo..."
+                  : "Confirmar exclusão"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
