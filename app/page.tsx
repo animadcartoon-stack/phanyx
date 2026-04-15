@@ -127,24 +127,17 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-[#020817] via-[#081a52] to-[#142863]" />
           </div>
 
-          <div className="absolute right-0 top-0 hidden h-full w-[39%] lg:block">
-  <div
-    className="absolute inset-0 overflow-hidden"
-    style={{
-      clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 4% 100%)",
-    }}
-  >
-    <div className="absolute inset-0 z-20 bg-gradient-to-r from-[#06133a] via-[#06133a]/55 to-transparent" />
-    <div className="absolute inset-0 z-20 bg-gradient-to-l from-transparent via-slate-950/10 to-transparent" />
-    <div className="absolute inset-0 z-20 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
-    <div className="absolute inset-0 z-20 bg-[radial-gradient(circle_at_78%_35%,rgba(255,255,255,0.18),transparent_22%)]" />
+          <div className="absolute right-0 top-0 hidden h-full w-[42%] lg:block">
+  <div className="absolute inset-0 overflow-hidden">
+    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/30 to-transparent" />
+    <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
 
     <Image
       src="/images/formax-hero.jpg"
       alt="PHANYX plataforma acadêmica para gestão escolar, gestão acadêmica e EAD"
       fill
       priority
-      className="object-cover object-[18%_center] scale-[1.03]"
+      className="object-cover object-[84%_center] scale-[1.02]"
     />
   </div>
 
