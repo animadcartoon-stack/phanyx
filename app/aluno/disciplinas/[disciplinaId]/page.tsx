@@ -145,6 +145,18 @@ const [loadingStatusProva, setLoadingStatusProva] = useState(false);
   const [podeConcluir, setPodeConcluir] = useState(false);
   const [youtubePronto, setYoutubePronto] = useState(false);
   const [concluindoAula, setConcluindoAula] = useState(false);
+  const [toast, setToast] = useState<{
+  tipo: "sucesso" | "erro" | "aviso";
+  mensagem: string;
+} | null>(null);
+
+function mostrarToast(tipo: "sucesso" | "erro" | "aviso", mensagem: string) {
+  setToast({ tipo, mensagem });
+
+  setTimeout(() => {
+    setToast(null);
+  }, 3000);
+}
 
   const playerRef = useRef<any>(null);
 const intervaloRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -269,7 +281,7 @@ function monitorarAvancoIndevido() {
       const agora = Date.now();
       if (agora - ultimoAlertaPuloRef.current > 1500) {
         ultimoAlertaPuloRef.current = agora;
-        alert("Não é permitido avançar a aula para concluir mais rápido.");
+        mostrarToast("aviso", "Não é permitido avançar a aula.");
       }
 
       return;
@@ -288,7 +300,7 @@ function monitorarAvancoIndevido() {
     if (!aulaAtual || concluindoAula) return;
 
     if (!podeConcluir && !concluida) {
-      alert("Você ainda não assistiu o tempo mínimo desta aula.");
+      mostrarToast("aviso", "Assista o tempo mínimo para concluir a aula.");
       return;
     }
 
@@ -308,7 +320,7 @@ function monitorarAvancoIndevido() {
 
       if (proxima) setAulaAtualId(proxima.id);
     } catch (error: any) {
-      alert(error?.message || "Não foi possível concluir a aula.");
+      mostrarToast("erro", error?.message || "Erro ao concluir aula");
     } finally {
       setConcluindoAula(false);
     }
@@ -688,10 +700,27 @@ ultimoAlertaPuloRef.current = 0;
   }
 
   if (!disciplina) {
-    return <div className="p-8">{erroDisciplina || "Disciplina não encontrada."}</div>;
-  }
+  return <div className="p-8">{erroDisciplina || "Disciplina não encontrada."}</div>;
+}
 
-  return (
+return (
+  <>
+    {toast && (
+      <div className="fixed right-6 top-6 z-50">
+        <div
+          className={`rounded-xl px-5 py-3 text-sm font-medium shadow-lg ${
+            toast.tipo === "sucesso"
+              ? "bg-green-600 text-white"
+              : toast.tipo === "erro"
+              ? "bg-red-600 text-white"
+              : "bg-yellow-400 text-black"
+          }`}
+        >
+          {toast.mensagem}
+        </div>
+      </div>
+    )}
+
     <div className="min-h-[calc(100vh-64px)] grid grid-cols-1 lg:grid-cols-[360px_1fr]">
       <aside className="border-r bg-white">
         <div className="border-b p-6">
@@ -925,6 +954,7 @@ ultimoAlertaPuloRef.current = 0;
           String(material.tipo || "").toUpperCase() === "VIDEO";
 
         return (
+          
           <div
             key={material.id}
             className="flex flex-col gap-3 rounded-xl border p-4 md:flex-row md:items-center md:justify-between"
@@ -1017,6 +1047,7 @@ ultimoAlertaPuloRef.current = 0;
           )}
         </div>
       </main>
-    </div>
+        </div>
+  </>
   );
 }
