@@ -251,30 +251,3 @@ export async function buscarAssinaturaAsaas(subscriptionId: string) {
   });
 }
 
-export async function criarAssinaturaAsaas({
-  customerId,
-  valor,
-  descricao,
-}: {
-  customerId: string;
-  valor: number;
-  descricao: string;
-}) {
-  const response = await fetch(`${process.env.ASAAS_BASE_URL}/subscriptions`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      access_token: process.env.ASAAS_API_KEY!,
-    },
-    body: JSON.stringify({
-      customer: customerId,
-      billingType: "CREDIT_CARD",
-      value: valor,
-      nextDueDate: new Date().toISOString().split("T")[0],
-      cycle: "MONTHLY",
-      description: descricao,
-    }),
-  });
-
-  return response.json();
-}
