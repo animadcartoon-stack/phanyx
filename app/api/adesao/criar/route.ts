@@ -176,6 +176,22 @@ if (formaPagamento === "RECORRENTE") {
     cycle: "MONTHLY",
     description: `Assinatura PHANYX - ${plano}`,
     externalReference: String(adesao.id),
+    creditCard: {
+  holderName: nomeResponsavel,
+  number: "4111111111111111",
+  expiryMonth: "12",
+  expiryYear: "2030",
+  ccv: "123",
+},
+
+creditCardHolderInfo: {
+  name: nomeResponsavel,
+  email: email,
+  cpfCnpj: cpfCnpj,
+  postalCode: "88700000",
+  addressNumber: "123",
+  phone: telefone,
+},
   });
 
   asaasId = assinatura?.id ? String(assinatura.id) : null;
