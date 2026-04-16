@@ -264,6 +264,7 @@ type CriarCheckoutAssinaturaInput = {
   addressNumber: string;
   province: string;
   city: string;
+  externalReference: string;
 };
 
 type CriarCheckoutAssinaturaResponse = {
@@ -284,6 +285,7 @@ export async function criarCheckoutAssinaturaAsaas(
 description: `Plano ${data.plano}`,
 
       value: data.value,
+externalReference: data.externalReference,
 
 items: [
   {

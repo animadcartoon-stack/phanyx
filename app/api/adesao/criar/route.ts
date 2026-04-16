@@ -183,6 +183,7 @@ if (formaPagamento === "RECORRENTE") {
   addressNumber: "123",
   province: "Centro",
   city: "Tubarão",
+  externalReference: String(adesao.id),
 });
 
 linkCobranca = checkout.url;
