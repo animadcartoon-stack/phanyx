@@ -256,7 +256,6 @@ type CriarCheckoutAssinaturaInput = {
   value: number;
   plano: string;
   email: string;
-  customerName: string;
 };
 
 type CriarCheckoutAssinaturaResponse = {
