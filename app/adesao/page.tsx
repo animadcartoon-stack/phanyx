@@ -128,11 +128,16 @@ if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
 
         if (!res.ok) return;
 
-        const status = json?.adesao?.status || "PENDING";
-        setStatusPagamento(status);
+        const status =
+  json?.adesao?.status ||
+  json?.status ||
+  "PENDING";
+
+setStatusPagamento(status);
 
         if (status === "PAGO") {
   setPagamentoConfirmado(true);
+  setStatusPagamento("PAGO");
   clearInterval(interval);
 
   window.scrollTo({
@@ -141,9 +146,15 @@ if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
   });
 
   setTimeout(() => {
-    window.location.href = "/login?portal=admin&pagamento=aprovado";
-  }, 1800);
+    window.location.href = `/sucesso?adesao=${adesaoId}`;
+  }, 1200);
 }
+
+if (status === "CANCELADO" || status === "CANCELED" || status === "EXPIRED") {
+  clearInterval(interval);
+  setErro("A cobrança foi cancelada ou expirou. Gere uma nova adesão para continuar.");
+}
+
       } catch (error) {
         console.error("Erro ao consultar status da adesão:", error);
       }
@@ -406,18 +417,20 @@ if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
               ) : null}
 
               {pagamentoConfirmado ? (
-                <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
-                  Pagamento confirmado com sucesso. Sua instituição está sendo
-                  ativada automaticamente.
-                </div>
-              ) : adesaoId ? (
-                <div className="mt-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-4 text-sm text-blue-200">
-                  Aguardando confirmação automática do pagamento...
-                  <div className="mt-2 text-xs text-blue-300/80">
-                    Status atual: {statusPagamento}
-                  </div>
-                </div>
-              ) : null}
+  <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
+    Pagamento confirmado com sucesso. Sua instituição está sendo ativada automaticamente.
+  </div>
+) : adesaoId ? (
+  <div className="mt-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-4 text-sm text-blue-200">
+    Estamos acompanhando automaticamente sua cobrança.
+    <div className="mt-2 text-xs text-blue-300/80">
+      Status atual: {statusPagamento}
+    </div>
+    <div className="mt-1 text-xs text-blue-300/70">
+      Assim que o pagamento for aprovado, você será redirecionada automaticamente.
+    </div>
+  </div>
+) : null}
             </div>
 
             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">

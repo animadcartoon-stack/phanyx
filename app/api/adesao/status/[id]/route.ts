@@ -15,19 +15,50 @@ function normalizarStatus(status?: string | null) {
     .trim()
     .toUpperCase();
 
-  if (valor === "PAYMENT_CONFIRMED" || valor === "PAYMENT_RECEIVED") {
+  if (
+    valor === "PAYMENT_CONFIRMED" ||
+    valor === "PAYMENT_RECEIVED" ||
+    valor === "PAID" ||
+    valor === "RECEIVED" ||
+    valor === "CONFIRMED" ||
+    valor === "PAGO"
+  ) {
     return "PAGO";
   }
 
-  if (valor === "PENDING" || valor === "PENDENTE" || valor === "AGUARDANDO_PAGAMENTO") {
+  if (
+    valor === "PENDING" ||
+    valor === "PENDENTE" ||
+    valor === "AGUARDANDO_PAGAMENTO" ||
+    valor === "AWAITING_PAYMENT"
+  ) {
     return "PENDENTE";
   }
 
-  if (valor === "PAID" || valor === "PAGO") {
-    return "PAGO";
+  if (
+    valor === "PROCESSING" ||
+    valor === "PROCESSANDO" ||
+    valor === "IN_ANALYSIS"
+  ) {
+    return "PROCESSANDO";
   }
 
-  if (valor === "ERROR" || valor === "ERRO") {
+  if (
+    valor === "CANCELED" ||
+    valor === "CANCELADO" ||
+    valor === "CANCELLED" ||
+    valor === "EXPIRED" ||
+    valor === "VENCIDO" ||
+    valor === "OVERDUE"
+  ) {
+    return "CANCELADO";
+  }
+
+  if (
+    valor === "ERROR" ||
+    valor === "ERRO" ||
+    valor === "FAILED"
+  ) {
     return "ERRO";
   }
 
@@ -90,13 +121,15 @@ export async function GET(_req: Request, { params }: Params) {
         valor: Number(adesao.valor),
       },
       fluxo: {
-        pago: statusNormalizado === "PAGO",
-        pendente: statusNormalizado === "PENDENTE",
-        erro: statusNormalizado === "ERRO",
-        possuiPix: Boolean(adesao.pixCode),
-        possuiCobrancaAsaas: Boolean(adesao.asaasId),
-        instituicaoCriada: Boolean(adesao.instituicaoId),
-      },
+  pago: statusNormalizado === "PAGO",
+  pendente: statusNormalizado === "PENDENTE",
+  processando: statusNormalizado === "PROCESSANDO",
+  cancelado: statusNormalizado === "CANCELADO",
+  erro: statusNormalizado === "ERRO",
+  possuiPix: Boolean(adesao.pixCode),
+  possuiCobrancaAsaas: Boolean(adesao.asaasId),
+  instituicaoCriada: Boolean(adesao.instituicaoId),
+},
     });
   } catch (error: any) {
     console.error("ERRO STATUS ADESAO:", error);
