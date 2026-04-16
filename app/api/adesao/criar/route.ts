@@ -134,6 +134,11 @@ const remoteIp =
   email,
   cpfCnpj,
   phone: telefone || undefined,
+
+  postalCode: "88700000",        // pode ser fixo por enquanto
+  address: "Rua Exemplo",        // obrigatório
+  addressNumber: "123",          // obrigatório
+  province: "Centro",            // bairro
 });
 
     if (!cliente?.id) {
