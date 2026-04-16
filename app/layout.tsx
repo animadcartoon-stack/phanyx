@@ -9,10 +9,45 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PHANYX) | Sistema Acadêmico Inteligente",
-  description: "Sistema Acadêmico Inteligente",
+  metadataBase: new URL("https://phanyx.com.br"),
+
+  title: {
+    default: "PHANYX | Sistema de Gestão Escolar Completo",
+    template: "%s | PHANYX",
+  },
+
+  description:
+    "Sistema de gestão escolar completo para escolas, faculdades e EAD. Controle acadêmico, financeiro, alunos, professores, provas e certificados em uma única plataforma.",
+
+  keywords: [
+    "sistema de gestão escolar",
+    "software educacional",
+    "plataforma EAD",
+    "gestão acadêmica",
+    "sistema para escolas",
+    "sistema acadêmico",
+    "controle escolar",
+  ],
+
+  authors: [{ name: "PHANYX" }],
+
   icons: {
     icon: "/icon.png",
+  },
+
+  openGraph: {
+    title: "PHANYX | Sistema de Gestão Escolar",
+    description:
+      "Plataforma completa para gestão escolar, acadêmica e EAD.",
+    url: "https://phanyx.com.br",
+    siteName: "PHANYX",
+    locale: "pt_BR",
+    type: "website",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
   },
 };
 
