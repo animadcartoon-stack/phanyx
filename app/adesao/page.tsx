@@ -271,10 +271,12 @@ function AdesaoContent() {
                         : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
                     }`}
                   >
-                    <span className="flex flex-col items-center text-center">
-  <span>Assinatura mensal</span>
-  <span className="mt-1 text-[11px] font-medium text-blue-100 leading-4">
-    cobrança automática no cartão
+                   <span className="flex flex-col items-center justify-center">
+  <span className="text-sm font-semibold leading-tight">
+    Assinatura
+  </span>
+  <span className="text-[10px] text-blue-100/80">
+    mensal automática
   </span>
 </span>
                   </button>
