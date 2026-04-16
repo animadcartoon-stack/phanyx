@@ -170,6 +170,8 @@ if (formaPagamento === "RECORRENTE") {
   email,
 });
 
+linkCobranca = checkout.url;
+
 asaasId = checkout?.id ? String(checkout.id) : null;
 linkCobranca = checkout?.url || null;
 
