@@ -225,7 +225,7 @@ function AdesaoContent() {
                   Forma de pagamento
                 </label>
 
-                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
                   <button
                     type="button"
                     onClick={() => setFormaPagamento("PIX")}
@@ -271,18 +271,12 @@ function AdesaoContent() {
                         : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
                     }`}
                   >
-                    <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_35%)]" />
-                    <span className="relative flex flex-col items-center">
-                      <span className="inline-flex items-center gap-2">
-                        Assinatura mensal
-                        <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-100">
-                          Stripe-like
-                        </span>
-                      </span>
-                      <span className="mt-1 text-[11px] font-medium text-blue-100">
-                        cartão com cobrança automática
-                      </span>
-                    </span>
+                    <span className="flex flex-col items-center text-center">
+  <span>Assinatura mensal</span>
+  <span className="mt-1 text-[11px] font-medium text-blue-100 leading-4">
+    cobrança automática no cartão
+  </span>
+</span>
                   </button>
                 </div>
 
