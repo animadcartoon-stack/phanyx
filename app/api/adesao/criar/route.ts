@@ -139,7 +139,7 @@ const remoteIp =
   address: "Rua Exemplo",
   addressNumber: "123",
   province: "Centro",
-  city: "Tubarão",       // 👈 AQUI
+  city: "TUBARAO",       
 });
 
     if (!cliente?.id) {
