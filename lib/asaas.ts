@@ -253,10 +253,17 @@ export async function buscarAssinaturaAsaas(subscriptionId: string) {
 }
 
 type CriarCheckoutAssinaturaInput = {
-  customer: string;
   value: number;
   plano: string;
   email: string;
+  nomeResponsavel: string;
+  cpfCnpj: string;
+  telefone: string;
+  postalCode: string;
+  address: string;
+  addressNumber: string;
+  province: string;
+  city: string;
 };
 
 type CriarCheckoutAssinaturaResponse = {
@@ -292,7 +299,17 @@ items: [
   nextDueDate: new Date().toISOString().split("T")[0],
 },
 
-      customer: data.customer,
+      customerData: {
+  name: data.nomeResponsavel,
+  cpfCnpj: data.cpfCnpj,
+  email: data.email,
+  phone: data.telefone,
+  postalCode: data.postalCode,
+  address: data.address,
+  addressNumber: data.addressNumber,
+  province: data.province,
+  city: data.city,
+},
 
       callback: {
         successUrl: "https://phanyx.com.br/sucesso",

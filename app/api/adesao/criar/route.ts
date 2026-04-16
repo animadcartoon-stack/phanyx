@@ -170,11 +170,19 @@ let linkCobranca: string | null = null;
 let vencimentoFormatado = formatarDataISO(dueDate);
 
 if (formaPagamento === "RECORRENTE") {
+  
   const checkout = await criarCheckoutAssinaturaAsaas({
-  customer: cliente.id,
   value: Number(valor),
   plano,
   email,
+  nomeResponsavel,
+  cpfCnpj,
+  telefone: telefone || "",
+  postalCode: "88701-000",
+  address: "Rua Lauro Müller",
+  addressNumber: "123",
+  province: "Centro",
+  city: "Tubarão",
 });
 
 linkCobranca = checkout.url;
