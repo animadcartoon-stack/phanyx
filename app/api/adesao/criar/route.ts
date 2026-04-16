@@ -135,10 +135,11 @@ const remoteIp =
   cpfCnpj,
   phone: telefone || undefined,
 
-  postalCode: "88700000",        // pode ser fixo por enquanto
-  address: "Rua Exemplo",        // obrigatório
-  addressNumber: "123",          // obrigatório
-  province: "Centro",            // bairro
+  postalCode: "88700000",
+  address: "Rua Exemplo",
+  addressNumber: "123",
+  province: "Centro",
+  city: "Tubarão",       // 👈 AQUI
 });
 
     if (!cliente?.id) {

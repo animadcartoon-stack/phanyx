@@ -38,6 +38,7 @@ type AsaasCustomerInput = {
   addressNumber?: string;
   complement?: string;
   province?: string;
+  city?: string;
   externalReference?: string;
   notificationDisabled?: boolean;
 };
