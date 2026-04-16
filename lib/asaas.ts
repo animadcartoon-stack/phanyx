@@ -279,10 +279,10 @@ export async function criarCheckoutAssinaturaAsaas(
 
 items: [
   {
-    title: `Assinatura PHANYX - ${data.plano}`,
+    name: `Assinatura PHANYX - ${data.plano}`,
     description: `Plano ${data.plano} - PHANYX`,
     quantity: 1,
-    unitPrice: data.value,
+    value: data.value,
   },
 ],
 
