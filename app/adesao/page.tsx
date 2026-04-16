@@ -90,6 +90,11 @@ function AdesaoContent() {
         return;
       }
 
+if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
+  window.location.href = data.invoiceUrl;
+  return;
+}
+
       setAdesaoId(data.adesao.id);
       setPixCode(data.pixCode || data.adesao.pixCode || "");
       setInvoiceUrl(data.invoiceUrl || "");
