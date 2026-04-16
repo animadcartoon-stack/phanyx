@@ -272,14 +272,14 @@ export async function criarCheckoutAssinaturaAsaas(
       billingTypes: ["CREDIT_CARD"],
       chargeTypes: ["RECURRENT"],
 
-      name: `Assinatura PHANYX - ${data.plano}`,
+      name: `PHANYX ${data.plano}`,
       description: `Plano ${data.plano} - PHANYX`,
 
       value: data.value,
 
 items: [
   {
-    name: `Assinatura PHANYX - ${data.plano}`,
+    name: `PHANYX ${data.plano}`,
     description: `Plano ${data.plano} - PHANYX`,
     quantity: 1,
     value: data.value,
