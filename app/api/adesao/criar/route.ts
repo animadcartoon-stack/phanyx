@@ -122,12 +122,11 @@ const remoteIp =
     });
 
     if (adesaoPendenteExistente?.asaasId) {
-      return NextResponse.json({
-        success: true,
-        reutilizada: true,
-        adesao: adesaoPendenteExistente,
-      });
-    }
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesaoPendenteExistente.id },
+    data: { status: "CANCELADO" },
+  });
+}
 
     const cliente = await criarClienteAsaas({
   name: nomeResponsavel,
