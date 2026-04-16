@@ -58,7 +58,10 @@ function normalizarFormaPagamento(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
+const remoteIp =
+  req.headers.get("x-forwarded-for")?.split(",")[0] ||
+  req.headers.get("x-real-ip") ||
+  "127.0.0.1";
     const nomeResponsavel = String(body?.nomeResponsavel || "").trim();
     const nomeInstituicao = String(body?.nomeInstituicao || "").trim();
     const email = normalizarEmail(body?.email || "");
@@ -160,10 +163,15 @@ let linkCobranca: string | null = null;
 let vencimentoFormatado = formatarDataISO(dueDate);
 
 if (formaPagamento === "RECORRENTE") {
+  const remoteIp =
+  req.headers.get("x-forwarded-for")?.split(",")[0] ||
+  req.headers.get("x-real-ip") ||
+  "127.0.0.1";
   const assinatura = await criarAssinaturaCartaoAsaas({
     customer: cliente.id,
     billingType: "CREDIT_CARD",
     value: Number(valor),
+    remoteIp,
     nextDueDate: dueDate,
     cycle: "MONTHLY",
     description: `Assinatura PHANYX - ${plano}`,
