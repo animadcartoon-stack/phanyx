@@ -58,6 +58,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+    <meta name="google-site-verification" content="NwoAwG25GlnNtcQGaQ2PAIe0EXXGQl6VrogGfBj563A" />
+  </head>
       <body
         suppressHydrationWarning
         className={`${inter.variable} antialiased bg-gray-100`}
