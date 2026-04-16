@@ -305,3 +305,13 @@ items: [
     url: `https://www.asaas.com/c/${response.id}`,
   } as CriarCheckoutAssinaturaResponse;
 }
+
+export async function atualizarClienteAsaas(
+  customerId: string,
+  data: Partial<AsaasCustomerInput>
+) {
+  return asaasFetch(`/customers/${customerId}`, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
