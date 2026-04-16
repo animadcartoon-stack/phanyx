@@ -135,11 +135,11 @@ const remoteIp =
   cpfCnpj,
   phone: telefone || undefined,
 
-  postalCode: "88700000",
-  address: "Rua Exemplo",
+  postalCode: "88701-000",
+  address: "Rua Lauro Müller",
   addressNumber: "123",
   province: "Centro",
-  city: "TUBARAO",       
+  city: "Tubarão",       
 });
 
     if (!cliente?.id) {
