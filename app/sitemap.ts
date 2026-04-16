@@ -41,6 +41,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
     },
     {
+  url: `${baseUrl}/gestao-escolar`,
+  lastModified: new Date(),
+  priority: 1,
+  changeFrequency: "weekly",
+},
+    {
       url: `${baseUrl}/contato`,
       lastModified: new Date(),
       priority: 0.7,
