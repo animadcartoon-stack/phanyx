@@ -63,7 +63,12 @@ export async function POST(req: Request) {
       );
     }
 
-    if (event !== "PAYMENT_RECEIVED" && event !== "PAYMENT_CONFIRMED") {
+    if (
+  event !== "PAYMENT_RECEIVED" &&
+  event !== "PAYMENT_CONFIRMED" &&
+  event !== "PAYMENT_AUTHORIZED"
+) {
+
       console.log("ℹ️ Evento ignorado:", event);
       return NextResponse.json({ ok: true, ignorado: true });
     }
