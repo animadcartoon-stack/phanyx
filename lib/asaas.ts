@@ -256,6 +256,7 @@ type CriarCheckoutAssinaturaInput = {
   value: number;
   plano: string;
   email: string;
+  customerName: string;
 };
 
 type CriarCheckoutAssinaturaResponse = {
@@ -276,6 +277,15 @@ export async function criarCheckoutAssinaturaAsaas(
       description: `Plano ${data.plano} - PHANYX`,
 
       value: data.value,
+
+items: [
+  {
+    title: `Assinatura PHANYX - ${data.plano}`,
+    description: `Plano ${data.plano} - PHANYX`,
+    quantity: 1,
+    unitPrice: data.value,
+  },
+],
 
       subscription: {
         cycle: "MONTHLY",
