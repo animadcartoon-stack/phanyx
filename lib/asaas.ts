@@ -288,8 +288,9 @@ items: [
 ],
 
       subscription: {
-        cycle: "MONTHLY",
-      },
+  cycle: "MONTHLY",
+  nextDueDate: new Date().toISOString().split("T")[0],
+},
 
       customer: data.customer,
 
