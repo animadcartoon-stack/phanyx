@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import {
   criarClienteAsaas,
   criarCobrancaAsaas,
-  criarAssinaturaCartaoAsaas,
+  criarCheckoutAssinaturaAsaas,
   obterQrCodePixAsaas,
 } from "@/lib/asaas";
 import { enviarEmailCobranca } from "@/lib/email";
@@ -163,44 +163,21 @@ let linkCobranca: string | null = null;
 let vencimentoFormatado = formatarDataISO(dueDate);
 
 if (formaPagamento === "RECORRENTE") {
-  const remoteIp =
-  req.headers.get("x-forwarded-for")?.split(",")[0] ||
-  req.headers.get("x-real-ip") ||
-  "127.0.0.1";
-  const assinatura = await criarAssinaturaCartaoAsaas({
-    customer: cliente.id,
-    billingType: "CREDIT_CARD",
-    value: Number(valor),
-    remoteIp,
-    nextDueDate: dueDate,
-    cycle: "MONTHLY",
-    description: `Assinatura PHANYX - ${plano}`,
-    externalReference: String(adesao.id),
-    creditCard: {
-  holderName: nomeResponsavel,
-  number: "4111111111111111",
-  expiryMonth: "12",
-  expiryYear: "2030",
-  ccv: "123",
-},
+  const checkout = await criarCheckoutAssinaturaAsaas({
+  customer: cliente.id,
+  value: Number(valor),
+  plano,
+  email,
+});
 
-creditCardHolderInfo: {
-  name: nomeResponsavel,
-  email: email,
-  cpfCnpj: cpfCnpj,
-  postalCode: "88102280",
-  addressNumber: "123",
-  phone: telefone,
-},
-  });
+asaasId = checkout?.id ? String(checkout.id) : null;
+linkCobranca = checkout?.url || null;
 
-  asaasId = assinatura?.id ? String(assinatura.id) : null;
+if (!asaasId) {
+  throw new Error("Asaas não retornou o ID do checkout da assinatura.");
+}
 
-  if (!asaasId) {
-    throw new Error("Asaas não retornou o ID da assinatura.");
-  }
-
-  vencimentoFormatado = formatarDataISO(assinatura?.nextDueDate || dueDate);
+vencimentoFormatado = formatarDataISO(dueDate);
 } else {
   const cobranca = await criarCobrancaAsaas({
     customer: cliente.id,

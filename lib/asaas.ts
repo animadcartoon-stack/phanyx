@@ -251,3 +251,47 @@ export async function buscarAssinaturaAsaas(subscriptionId: string) {
   });
 }
 
+type CriarCheckoutAssinaturaInput = {
+  customer: string;
+  value: number;
+  plano: string;
+  email: string;
+};
+
+type CriarCheckoutAssinaturaResponse = {
+  id: string;
+  url: string;
+};
+
+export async function criarCheckoutAssinaturaAsaas(
+  data: CriarCheckoutAssinaturaInput
+) {
+  const response = await asaasFetch<any>("/checkouts", {
+    method: "POST",
+    body: JSON.stringify({
+      billingTypes: ["CREDIT_CARD"],
+      chargeTypes: ["RECURRENT"],
+
+      name: `Assinatura PHANYX - ${data.plano}`,
+      description: `Plano ${data.plano} - PHANYX`,
+
+      value: data.value,
+
+      subscription: {
+        cycle: "MONTHLY",
+      },
+
+      customer: data.customer,
+
+      callback: {
+        successUrl: "https://phanyx.com.br/sucesso",
+        cancelUrl: "https://phanyx.com.br/cancelado",
+      },
+    }),
+  });
+
+  return {
+    id: response.id,
+    url: `https://www.asaas.com/c/${response.id}`,
+  } as CriarCheckoutAssinaturaResponse;
+}
