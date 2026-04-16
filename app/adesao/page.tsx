@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 type Plano = "ESSENCIAL" | "PROFISSIONAL" | "ENTERPRISE";
-type FormaPagamento = "PIX" | "BOLETO" | "CREDIT_CARD";
+type FormaPagamento = "PIX" | "BOLETO" | "CREDIT_CARD" | "RECORRENTE";
 
 function getValorPlano(plano: string) {
   const p = plano.toUpperCase();
@@ -35,7 +35,7 @@ function AdesaoContent() {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
-  const [formaPagamento, setFormaPagamento] = useState<"PIX" | "BOLETO" | "CREDIT_CARD">("PIX");
+  const [formaPagamento, setFormaPagamento] =
     useState<FormaPagamento>("PIX");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
@@ -147,6 +147,7 @@ function AdesaoContent() {
   const ehPix = formaPagamento === "PIX";
   const ehBoletoOuCartao =
     formaPagamento === "BOLETO" || formaPagamento === "CREDIT_CARD";
+  const ehRecorrente = formaPagamento === "RECORRENTE";
 
   return (
     <div className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -224,13 +225,13 @@ function AdesaoContent() {
                   Forma de pagamento
                 </label>
 
-                <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
                   <button
                     type="button"
                     onClick={() => setFormaPagamento("PIX")}
                     className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
                       formaPagamento === "PIX"
-                        ? "border-blue-500 bg-blue-600 text-white"
+                        ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.35)]"
                         : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
                     }`}
                   >
@@ -242,7 +243,7 @@ function AdesaoContent() {
                     onClick={() => setFormaPagamento("BOLETO")}
                     className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
                       formaPagamento === "BOLETO"
-                        ? "border-blue-500 bg-blue-600 text-white"
+                        ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.35)]"
                         : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
                     }`}
                   >
@@ -254,13 +255,48 @@ function AdesaoContent() {
                     onClick={() => setFormaPagamento("CREDIT_CARD")}
                     className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
                       formaPagamento === "CREDIT_CARD"
-                        ? "border-blue-500 bg-blue-600 text-white"
+                        ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.35)]"
                         : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
                     }`}
                   >
                     Cartão
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setFormaPagamento("RECORRENTE")}
+                    className={`group relative overflow-hidden rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+                      formaPagamento === "RECORRENTE"
+                        ? "border-blue-400 bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-[0_14px_45px_rgba(37,99,235,0.45)]"
+                        : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
+                    }`}
+                  >
+                    <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.22),transparent_35%)]" />
+                    <span className="relative flex flex-col items-center">
+                      <span className="inline-flex items-center gap-2">
+                        Assinatura mensal
+                        <span className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.18em] text-blue-100">
+                          Stripe-like
+                        </span>
+                      </span>
+                      <span className="mt-1 text-[11px] font-medium text-blue-100">
+                        cartão com cobrança automática
+                      </span>
+                    </span>
+                  </button>
                 </div>
+
+                {ehRecorrente ? (
+                  <div className="mt-4 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-100">
+                    <p className="font-semibold text-white">
+                      Cobrança automática mensal no cartão
+                    </p>
+                    <p className="mt-1 leading-6 text-blue-100/90">
+                      Ideal para operação SaaS: a cobrança é renovada
+                      automaticamente a cada ciclo mensal.
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </div>
 
@@ -275,7 +311,11 @@ function AdesaoContent() {
               disabled={loading}
               className="mt-8 w-full rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
             >
-              {loading ? "⏳ Gerando cobrança..." : "Gerar cobrança da adesão"}
+              {loading
+                ? "⏳ Gerando cobrança..."
+                : ehRecorrente
+                ? "Gerar assinatura mensal"
+                : "Gerar cobrança da adesão"}
             </button>
           </div>
 
@@ -329,6 +369,34 @@ function AdesaoContent() {
                     {formaPagamento === "BOLETO"
                       ? "Abrir cobrança em boleto"
                       : "Abrir checkout do cartão"}
+                  </a>
+                </div>
+              ) : null}
+
+              {ehRecorrente ? (
+                <div className="mt-6 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-slate-950 p-5">
+                  <p className="text-sm leading-6 text-slate-200">
+                    A assinatura mensal no cartão será criada após a confirmação
+                    dos dados. O retorno da cobrança recorrente aparecerá aqui.
+                  </p>
+
+                  <div className="mt-4 rounded-xl border border-slate-700 bg-slate-950/70 p-4 text-sm text-slate-300">
+                    {invoiceUrl
+                      ? "A assinatura foi iniciada. Use o link abaixo para concluir o fluxo."
+                      : "Aguardando geração da assinatura recorrente."}
+                  </div>
+
+                  <a
+                    href={invoiceUrl || "#"}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={`mt-4 inline-flex w-full items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold transition ${
+                      invoiceUrl
+                        ? "bg-blue-600 text-white hover:bg-blue-500"
+                        : "cursor-not-allowed bg-slate-800 text-slate-500"
+                    }`}
+                  >
+                    Abrir assinatura mensal
                   </a>
                 </div>
               ) : null}
