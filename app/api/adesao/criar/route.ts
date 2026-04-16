@@ -130,10 +130,11 @@ const remoteIp =
     }
 
     const cliente = await criarClienteAsaas({
-      name: nomeResponsavel,
-      email,
-      cpfCnpj,
-    });
+  name: nomeResponsavel,
+  email,
+  cpfCnpj,
+  phone: telefone || undefined,
+});
 
     if (!cliente?.id) {
       throw new Error("Asaas não retornou o ID do cliente.");
