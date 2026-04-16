@@ -318,10 +318,11 @@ items: [
     }),
   });
 
-const baseCheckoutUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://www.asaas.com"
-    : "https://sandbox.asaas.com";
+const { baseUrl } = getAsaasConfig();
+
+const baseCheckoutUrl = baseUrl.includes("sandbox")
+  ? "https://sandbox.asaas.com"
+  : "https://www.asaas.com";
 
 return {
   id: response.id,
