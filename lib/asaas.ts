@@ -326,9 +326,8 @@ const baseCheckoutUrl = baseUrl.includes("sandbox")
 
 return {
   id: response.id,
-  url: `${baseCheckoutUrl}/c/${response.id}`,
+  url: `https://asaas.com/checkoutSession/show?id=${response.id}`,
 } as CriarCheckoutAssinaturaResponse;
-}
 
 export async function atualizarClienteAsaas(
   customerId: string,
