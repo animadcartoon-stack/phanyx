@@ -2,6 +2,20 @@ import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
+export const metadata = {
+  title: "Sistema de Gestão Acadêmica | PHANYX",
+  description:
+    "Sistema de gestão acadêmica para escolas, faculdades e instituições de ensino. Controle cursos, disciplinas, matrículas, notas, histórico escolar e desempenho dos alunos.",
+  keywords: [
+    "gestão acadêmica",
+    "sistema de gestão acadêmica",
+    "software acadêmico",
+    "controle acadêmico",
+    "sistema para faculdade",
+    "sistema para instituição de ensino",
+  ],
+};
+
 const beneficios = [
   {
     titulo: "Organização acadêmica completa",
@@ -66,9 +80,12 @@ export default function GestaoAcademicaPage() {
                 Gestão acadêmica
               </p>
 
-              <h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
-                Sistema de gestão acadêmica para organizar, controlar e escalar sua instituição
-              </h1>
+              <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
+  O PHANYX é um sistema de gestão acadêmica completo para instituições que
+  precisam organizar cursos, disciplinas, turmas, matrículas, notas,
+  histórico escolar e acompanhamento de alunos com mais eficiência,
+  clareza e controle em uma plataforma moderna e escalável.
+</p>
 
               <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
                 O PHANYX permite estruturar toda a operação acadêmica da sua
@@ -216,6 +233,28 @@ export default function GestaoAcademicaPage() {
             </div>
           </div>
         </section>
+
+<section className="hidden">
+  <h2>Sistema de gestão acadêmica online</h2>
+  <p>
+    O PHANYX é um software de gestão acadêmica online para escolas,
+    faculdades e instituições de ensino que precisam controlar alunos,
+    professores, cursos, disciplinas, matrículas e boletins em um só lugar.
+  </p>
+
+  <h2>Software acadêmico completo</h2>
+  <p>
+    A plataforma centraliza histórico escolar, avaliações, notas, desempenho
+    acadêmico e organização institucional com foco em automação e escalabilidade.
+  </p>
+
+  <h2>Controle acadêmico para instituições de ensino</h2>
+  <p>
+    Ideal para operações presenciais, híbridas e EAD, o sistema ajuda a reduzir
+    processos manuais e melhorar a gestão acadêmica da instituição.
+  </p>
+</section>
+
       </main>
 
       <Footer />
