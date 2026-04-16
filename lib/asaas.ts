@@ -318,11 +318,14 @@ items: [
     }),
   });
 
-const baseCheckoutUrl = "https://asaas.com";
+const baseCheckoutUrl =
+  process.env.NODE_ENV === "production"
+    ? "https://www.asaas.com"
+    : "https://sandbox.asaas.com";
 
 return {
   id: response.id,
-  url: `${baseCheckoutUrl}/checkoutSession/show?id=${response.id}`,
+  url: `${baseCheckoutUrl}/c/${response.id}`,
 } as CriarCheckoutAssinaturaResponse;
 }
 
