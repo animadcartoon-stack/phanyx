@@ -318,15 +318,12 @@ items: [
     }),
   });
 
-const baseCheckoutUrl =
-  process.env.NODE_ENV === "production"
-    ? "https://www.asaas.com"
-    : "https://sandbox.asaas.com";
+const baseCheckoutUrl = "https://asaas.com";
 
-  return {
-    id: response.id,
-    url: `https://sandbox.asaas.com/c/${response.id}`,
-  } as CriarCheckoutAssinaturaResponse;
+return {
+  id: response.id,
+  url: `${baseCheckoutUrl}/checkoutSession/show?id=${response.id}`,
+} as CriarCheckoutAssinaturaResponse;
 }
 
 export async function atualizarClienteAsaas(
