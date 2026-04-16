@@ -188,7 +188,7 @@ creditCardHolderInfo: {
   name: nomeResponsavel,
   email: email,
   cpfCnpj: cpfCnpj,
-  postalCode: "88700000",
+  postalCode: "88102280",
   addressNumber: "123",
   phone: telefone,
 },
