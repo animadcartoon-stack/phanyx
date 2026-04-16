@@ -90,16 +90,15 @@ function AdesaoContent() {
         return;
       }
 
-if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
-  window.location.href = data.invoiceUrl;
-  return;
-}
+setAdesaoId(data?.adesao?.id ? String(data.adesao.id) : null);
+setPixCode(data?.pixCode || data?.adesao?.pixCode || "");
+setInvoiceUrl(data?.invoiceUrl || "");
+setStatusPagamento(data?.adesao?.status || "PENDING");
+setPagamentoConfirmado(data?.adesao?.status === "PAGO");
 
-      setAdesaoId(data.adesao.id);
-      setPixCode(data.pixCode || data.adesao.pixCode || "");
-      setInvoiceUrl(data.invoiceUrl || "");
-      setStatusPagamento(data.adesao.status || "PENDING");
-      setPagamentoConfirmado(data.adesao.status === "PAGO");
+if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
+  window.open(data.invoiceUrl, "_blank", "noopener,noreferrer");
+}
 
       window.scrollTo({
         top: document.body.scrollHeight,
@@ -133,14 +132,18 @@ if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
         setStatusPagamento(status);
 
         if (status === "PAGO") {
-          setPagamentoConfirmado(true);
-          clearInterval(interval);
+  setPagamentoConfirmado(true);
+  clearInterval(interval);
 
-          window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-          });
-        }
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+
+  setTimeout(() => {
+    window.location.href = "/login?portal=admin&pagamento=aprovado";
+  }, 1800);
+}
       } catch (error) {
         console.error("Erro ao consultar status da adesão:", error);
       }
