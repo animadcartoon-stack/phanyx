@@ -265,6 +265,33 @@ export default function SistemaEscolarPage() {
   <p className="mt-4 text-lg text-slate-600">
     A plataforma de gestão acadêmica PHANYX foi desenvolvida para atender instituições de ensino que precisam de organização, controle e crescimento. Com tecnologia SaaS, permite expansão multi-institucional com alta performance.
   </p>
+  <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+  <h3 className="text-xl font-bold text-slate-900">
+    Veja também outras soluções do PHANYX
+  </h3>
+
+  <div className="mt-4 flex flex-col gap-3">
+    <Link href="/sistema-escolar" className="text-blue-700 hover:text-blue-600">
+      Sistema de gestão escolar
+    </Link>
+
+    <Link href="/gestao-escolar" className="text-blue-700 hover:text-blue-600">
+      Gestão escolar
+    </Link>
+
+    <Link href="/gestao-academica" className="text-blue-700 hover:text-blue-600">
+      Gestão acadêmica
+    </Link>
+
+    <Link href="/plataforma-ead" className="text-blue-700 hover:text-blue-600">
+      Plataforma EAD
+    </Link>
+
+    <Link href="/software-para-cursos" className="text-blue-700 hover:text-blue-600">
+      Software para cursos
+    </Link>
+  </div>
+</div>
 </section>
 
 <div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6">
