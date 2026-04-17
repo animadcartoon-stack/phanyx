@@ -73,15 +73,24 @@ console.log("🔎 Resumo webhook:", {
     null,
 });
 
-    if (!event || !payment) {
-      console.error("❌ Webhook inválido: sem event ou payment");
-      return NextResponse.json(
-        { error: "Webhook inválido" },
-        { status: 400 }
-      );
-    }
+    if (!event) {
+  console.error("❌ Webhook inválido: sem event");
+  return NextResponse.json(
+    { error: "Webhook inválido: evento ausente" },
+    { status: 400 }
+  );
+}
+
+if (!payment && !subscription) {
+  console.error("❌ Webhook inválido: sem payment e sem subscription");
+  return NextResponse.json(
+    { error: "Webhook inválido: sem payment e sem subscription" },
+    { status: 400 }
+  );
+}
 
     const eventoPagamentoAceito =
+  event === "PAYMENT_CREATED" ||
   event === "PAYMENT_RECEIVED" ||
   event === "PAYMENT_CONFIRMED" ||
   event === "PAYMENT_AUTHORIZED";
@@ -177,6 +186,28 @@ if (event === "SUBSCRIPTION_CREATED" || event === "SUBSCRIPTION_UPDATED") {
     assinaturaVinculada: true,
     adesaoId: adesao.id,
     asaasSubscriptionId,
+  });
+}
+
+if (event === "PAYMENT_CREATED") {
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      status: "PROCESSANDO",
+      asaasId: asaasPaymentId || adesao.asaasId,
+    },
+  });
+
+  console.log("🟡 Pagamento criado e aguardando confirmação:", {
+    adesaoId: adesao.id,
+    asaasPaymentId,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    pagamentoCriado: true,
+    adesaoId: adesao.id,
+    asaasPaymentId,
   });
 }
 
