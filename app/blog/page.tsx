@@ -146,6 +146,22 @@ export default function BlogPage() {
     Veja como estruturar cursos digitais com uma plataforma completa.
   </p>
 </Link>
+<Link href="/blog/melhor-plataforma-para-cursos-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Melhor plataforma para cursos online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como escolher a melhor plataforma para vender cursos online.
+  </p>
+</Link>
+<Link href="/blog/como-vender-cursos-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Como vender cursos online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como criar e vender cursos digitais com uma plataforma profissional.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">

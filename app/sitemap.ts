@@ -32,6 +32,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   url: "https://www.phanyx.com.br/blog/plataforma-para-ensino-online",
   lastModified: new Date(),
 },
+{
+  url: "https://www.phanyx.com.br/blog/melhor-plataforma-para-cursos-online",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/como-vender-cursos-online",
+  lastModified: new Date(),
+},
     {
   url: "https://www.phanyx.com.br/blog/sistema-de-gestao-escolar-online",
   lastModified: new Date(),
