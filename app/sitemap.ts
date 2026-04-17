@@ -17,6 +17,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "daily",
     },
     {
+  url: "https://www.phanyx.com.br/blog/melhor-sistema-academico",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/sistema-escolar-para-pequenas-escolas",
+  lastModified: new Date(),
+},
+    {
+  url: "https://www.phanyx.com.br/blog/sistema-de-gestao-escolar-online",
+  lastModified: new Date(),
+},
+    {
       url: `${baseUrl}/gestao-academica`,
       lastModified: new Date(),
       priority: 1,

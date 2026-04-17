@@ -106,6 +106,30 @@ export default function BlogPage() {
     Veja como organizar cursos técnicos e profissionalizantes com tecnologia.
   </p>
 </Link>
+<Link href="/blog/sistema-de-gestao-escolar-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Sistema de gestão escolar online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como organizar sua instituição com um sistema online completo.
+  </p>
+</Link>
+<Link href="/blog/melhor-sistema-academico" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Melhor sistema acadêmico em 2026
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como escolher a melhor plataforma acadêmica para sua instituição.
+  </p>
+</Link>
+<Link href="/blog/sistema-escolar-para-pequenas-escolas" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Sistema escolar para pequenas escolas
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como pequenas escolas podem se organizar com tecnologia.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">
