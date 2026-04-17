@@ -329,6 +329,8 @@ type CriarCheckoutAssinaturaResponse = {
   url: string;
 };
 
+
+
 export async function criarCheckoutAssinaturaAsaas(
   data: CriarCheckoutAssinaturaInput
 ): Promise<CriarCheckoutAssinaturaResponse> {
@@ -336,7 +338,7 @@ export async function criarCheckoutAssinaturaAsaas(
     method: "POST",
     body: JSON.stringify({
       billingTypes: ["CREDIT_CARD"],
-      chargeTypes: ["RECURRENT"],
+      chargeTypes: ["INSTALLMENT"],
 
       name: "PHANYX",
       description: `Plano ${data.plano}`,
@@ -353,10 +355,9 @@ export async function criarCheckoutAssinaturaAsaas(
       ],
 
       subscription: {
-        cycle: "MONTHLY",
-        nextDueDate: new Date().toISOString().split("T")[0],
-      },
-
+  cycle: "MONTHLY",
+  nextDueDate: new Date().toISOString().split("T")[0],
+},
       customerData: {
         name: data.nomeResponsavel,
         cpfCnpj: data.cpfCnpj,

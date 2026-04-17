@@ -170,6 +170,22 @@ export default function BlogPage() {
     Veja como criar um curso digital do zero.
   </p>
 </Link>
+<Link href="/blog/quanto-custa-criar-um-curso-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Quanto custa criar um curso online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja quanto investir para começar no ensino digital.
+  </p>
+</Link>
+<Link href="/blog/plataforma-para-escolas-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Plataforma para escolas online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como modernizar sua instituição com uma plataforma digital completa.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">

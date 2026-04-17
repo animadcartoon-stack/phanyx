@@ -41,6 +41,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://www.phanyx.com.br/blog/quanto-custa-criar-um-curso-online",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/plataforma-para-escolas-online",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/blog/como-vender-cursos-online",
   lastModified: new Date(),
 },
