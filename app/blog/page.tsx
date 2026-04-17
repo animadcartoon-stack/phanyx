@@ -50,6 +50,30 @@ export default function BlogPage() {
     Compare vantagens e descubra qual opção faz mais sentido para sua instituição.
   </p>
 </Link>
+<Link href="/blog/como-aumentar-matriculas-com-sistema-escolar-moderno" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Como aumentar matrículas com um sistema escolar moderno
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como organizar sua instituição e aumentar conversão de alunos.
+  </p>
+</Link>
+<Link href="/blog/plataforma-ead-para-cursos-livres" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Plataforma EAD para cursos livres
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como estruturar cursos online com uma plataforma profissional.
+  </p>
+</Link>
+<Link href="/blog/software-para-escolas-completo" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Software para escolas completo
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como um sistema pode transformar a gestão educacional.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">

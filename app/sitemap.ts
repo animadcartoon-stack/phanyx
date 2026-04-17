@@ -59,6 +59,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://www.phanyx.com.br/blog/como-aumentar-matriculas-com-sistema-escolar-moderno",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/plataforma-ead-para-cursos-livres",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/software-para-escolas-completo",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/blog/sistema-gestao-escolar",
   lastModified: new Date(),
 },
