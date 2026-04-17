@@ -288,63 +288,64 @@ type CriarCheckoutAssinaturaResponse = {
 
 export async function criarCheckoutAssinaturaAsaas(
   data: CriarCheckoutAssinaturaInput
-) {
+): Promise<CriarCheckoutAssinaturaResponse> {
   const response = await asaasFetch<any>("/checkouts", {
     method: "POST",
     body: JSON.stringify({
       billingTypes: ["CREDIT_CARD"],
       chargeTypes: ["RECURRENT"],
 
-      name: `PHANYX`,
-description: `Plano ${data.plano}`,
-
+      name: "PHANYX",
+      description: `Plano ${data.plano}`,
       value: data.value,
-externalReference: data.externalReference,
+      externalReference: data.externalReference,
 
-items: [
-  {
-    name: `PHANYX`,
-    description: `Plano ${data.plano}`,
-    quantity: 1,
-    value: data.value,
-  },
-],
+      items: [
+        {
+          name: "PHANYX",
+          description: `Plano ${data.plano}`,
+          quantity: 1,
+          value: data.value,
+        },
+      ],
 
       subscription: {
-  cycle: "MONTHLY",
-  nextDueDate: new Date().toISOString().split("T")[0],
-},
+        cycle: "MONTHLY",
+        nextDueDate: new Date().toISOString().split("T")[0],
+      },
 
       customerData: {
-  name: data.nomeResponsavel,
-  cpfCnpj: data.cpfCnpj,
-  email: data.email,
-  phone: data.telefone,
-  postalCode: data.postalCode,
-  address: data.address,
-  addressNumber: data.addressNumber,
-  province: data.province,
-  city: data.city,
-},
+        name: data.nomeResponsavel,
+        cpfCnpj: data.cpfCnpj,
+        email: data.email,
+        phone: data.telefone,
+        postalCode: data.postalCode,
+        address: data.address,
+        addressNumber: data.addressNumber,
+        province: data.province,
+        city: data.city,
+      },
 
       callback: {
-  successUrl: `https://phanyx.com.br/sucesso?checkout=recorrente&ref=${data.externalReference}`,
-  cancelUrl: `https://phanyx.com.br/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
-  autoRedirect: true,
-},
+        successUrl: `https://phanyx.com.br/sucesso?checkout=recorrente&ref=${data.externalReference}`,
+        cancelUrl: `https://phanyx.com.br/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
+        autoRedirect: true,
+      },
     }),
   });
 
-const { baseUrl } = getAsaasConfig();
+  const { baseUrl } = getAsaasConfig();
 
-const baseCheckoutUrl = baseUrl.includes("sandbox")
-  ? "https://sandbox.asaas.com"
-  : "https://www.asaas.com";
+  const baseCheckoutUrl = baseUrl.includes("sandbox")
+    ? "https://sandbox.asaas.com"
+    : "https://www.asaas.com";
 
-return {
-  id: response.id,
-  url: `${baseCheckoutUrl}/checkoutSession/show?id=${response.id}`,
-} as CriarCheckoutAssinaturaResponse;
+  console.log("🟣 RESPOSTA CHECKOUT ASAAS:", JSON.stringify(response, null, 2));
+
+  return {
+    id: response.id,
+    url: `${baseCheckoutUrl}/checkoutSession/show?id=${response.id}`,
+  };
 }
 export async function atualizarClienteAsaas(
   customerId: string,
