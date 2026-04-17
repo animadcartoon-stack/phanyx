@@ -63,7 +63,7 @@ const remoteIp =
   req.headers.get("x-forwarded-for")?.split(",")[0] ||
   req.headers.get("x-real-ip") ||
   "127.0.0.1";
-  
+
     const nomeResponsavel = String(body?.nomeResponsavel || "").trim();
     const nomeInstituicao = String(body?.nomeInstituicao || "").trim();
     const email = normalizarEmail(body?.email || "");
@@ -189,11 +189,11 @@ if (formaPagamento === "RECORRENTE") {
 
 linkCobranca = checkout.url;
 
-asaasId = checkout?.id ? String(checkout.id) : null;
+asaasId = null;
 linkCobranca = checkout?.url || null;
 
-if (!asaasId) {
-  throw new Error("Asaas não retornou o ID do checkout da assinatura.");
+if (!linkCobranca) {
+  throw new Error("Asaas não retornou a URL do checkout da assinatura.");
 }
 
 vencimentoFormatado = formatarDataISO(dueDate);
@@ -230,7 +230,7 @@ vencimentoFormatado = formatarDataISO(dueDate);
 const adesaoAtualizada = await prisma.adesaoInstituicao.update({
   where: { id: adesao.id },
   data: {
-    asaasId,
+    asaasId: formaPagamento === "RECORRENTE" ? null : asaasId,
     pixCode,
     status: "PROCESSANDO",
   },

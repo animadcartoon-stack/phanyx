@@ -318,9 +318,9 @@ items: [
 },
 
       callback: {
-        successUrl: "https://phanyx.com.br/sucesso",
-        cancelUrl: "https://phanyx.com.br/cancelado",
-      },
+  successUrl: `https://phanyx.com.br/sucesso?checkout=recorrente&ref=${data.externalReference}`,
+  cancelUrl: `https://phanyx.com.br/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
+},
     }),
   });
 

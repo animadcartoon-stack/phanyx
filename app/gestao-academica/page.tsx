@@ -80,19 +80,16 @@ export default function GestaoAcademicaPage() {
                 Gestão acadêmica
               </p>
 
+<h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
+  Sistema de gestão acadêmica para escolas, faculdades e instituições de ensino
+</h1>
+
               <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
   O PHANYX é um sistema de gestão acadêmica completo para instituições que
   precisam organizar cursos, disciplinas, turmas, matrículas, notas,
   histórico escolar e acompanhamento de alunos com mais eficiência,
   clareza e controle em uma plataforma moderna e escalável.
 </p>
-
-              <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-                O PHANYX permite estruturar toda a operação acadêmica da sua
-                instituição com mais controle, clareza e eficiência. Gerencie
-                cursos, alunos, disciplinas, notas e processos educacionais em
-                uma plataforma moderna e escalável.
-              </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <Link
@@ -234,24 +231,33 @@ export default function GestaoAcademicaPage() {
           </div>
         </section>
 
-<section className="hidden">
-  <h2>Sistema de gestão acadêmica online</h2>
-  <p>
-    O PHANYX é um software de gestão acadêmica online para escolas,
-    faculdades e instituições de ensino que precisam controlar alunos,
-    professores, cursos, disciplinas, matrículas e boletins em um só lugar.
+<section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
+  <h2 className="text-3xl font-bold text-slate-900">
+    Sistema de gestão acadêmica online completo
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    O PHANYX é um sistema de gestão acadêmica online completo para escolas,
+    faculdades e instituições de ensino que precisam controlar cursos,
+    disciplinas, turmas, matrículas, alunos, notas e histórico escolar
+    em uma única plataforma.
   </p>
 
-  <h2>Software acadêmico completo</h2>
-  <p>
-    A plataforma centraliza histórico escolar, avaliações, notas, desempenho
-    acadêmico e organização institucional com foco em automação e escalabilidade.
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Software acadêmico para organizar a operação institucional
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    Com o PHANYX, a instituição consegue centralizar o controle acadêmico,
+    automatizar processos, acompanhar o desempenho dos alunos e reduzir
+    tarefas manuais com mais clareza, segurança e escalabilidade.
   </p>
 
-  <h2>Controle acadêmico para instituições de ensino</h2>
-  <p>
-    Ideal para operações presenciais, híbridas e EAD, o sistema ajuda a reduzir
-    processos manuais e melhorar a gestão acadêmica da instituição.
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Controle acadêmico para ensino presencial, híbrido e EAD
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    Ideal para instituições presenciais, híbridas e digitais, o sistema
+    oferece estrutura moderna para gestão acadêmica, avaliações, boletins,
+    progresso do aluno e integração com ensino digital.
   </p>
 </section>
 
