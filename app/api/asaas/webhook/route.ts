@@ -52,6 +52,8 @@ export async function POST(req: Request) {
 
 const event = body?.event;
 const payment = body?.payment;
+const subscription = body?.subscription;
+
 const paymentStatus = payment?.status
   ? String(payment.status).trim().toUpperCase()
   : "";
@@ -60,8 +62,15 @@ console.log("🔥 Webhook recebido:", JSON.stringify(body, null, 2));
 console.log("🔎 Resumo webhook:", {
   event,
   paymentStatus,
-  externalReference: payment?.externalReference || null,
+  externalReference:
+    payment?.externalReference ||
+    subscription?.externalReference ||
+    null,
   asaasPaymentId: payment?.id || null,
+  subscriptionId:
+    payment?.subscription ||
+    subscription?.id ||
+    null,
 });
 
     if (!event || !payment) {
@@ -72,37 +81,53 @@ console.log("🔎 Resumo webhook:", {
       );
     }
 
-    const eventoAceito =
+    const eventoPagamentoAceito =
   event === "PAYMENT_RECEIVED" ||
   event === "PAYMENT_CONFIRMED" ||
   event === "PAYMENT_AUTHORIZED";
+
+const eventoAssinaturaAceito =
+  event === "SUBSCRIPTION_CREATED" ||
+  event === "SUBSCRIPTION_UPDATED";
 
 const statusPago =
   paymentStatus === "RECEIVED" ||
   paymentStatus === "CONFIRMED" ||
   paymentStatus === "RECEIVED_IN_CASH";
 
-if (!eventoAceito && !statusPago) {
+if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !statusPago) {
   console.log("ℹ️ Evento ignorado:", { event, paymentStatus });
   return NextResponse.json({ ok: true, ignorado: true });
 }
-    const externalReference = payment?.externalReference
-      ? String(payment.externalReference).trim()
-      : "";
 
-    const asaasPaymentId = payment?.id ? String(payment.id).trim() : "";
+    const externalReference =
+  payment?.externalReference
+    ? String(payment.externalReference).trim()
+    : subscription?.externalReference
+    ? String(subscription.externalReference).trim()
+    : "";
 
-    if (!externalReference && !asaasPaymentId) {
-      console.error("❌ Webhook sem externalReference e sem payment.id");
-      return NextResponse.json(
-        { error: "Webhook sem referência de adesão" },
-        { status: 400 }
-      );
-    }
+const asaasPaymentId = payment?.id ? String(payment.id).trim() : "";
+
+const asaasSubscriptionId =
+  payment?.subscription
+    ? String(payment.subscription).trim()
+    : subscription?.id
+    ? String(subscription.id).trim()
+    : "";
+
+    if (!externalReference && !asaasPaymentId && !asaasSubscriptionId) {
+  console.error("❌ Webhook sem externalReference, payment.id ou subscription.id");
+  return NextResponse.json(
+    { error: "Webhook sem referência suficiente para localizar a adesão" },
+    { status: 400 }
+  );
+}
 
     const filtrosOr: Array<{ id?: string; asaasId?: string }> = [];
-    if (externalReference) filtrosOr.push({ id: externalReference });
-    if (asaasPaymentId) filtrosOr.push({ asaasId: asaasPaymentId });
+if (externalReference) filtrosOr.push({ id: externalReference });
+if (asaasPaymentId) filtrosOr.push({ asaasId: asaasPaymentId });
+if (asaasSubscriptionId) filtrosOr.push({ asaasId: asaasSubscriptionId });
 
     const adesao = await prisma.adesaoInstituicao.findFirst({
       where: {
@@ -132,6 +157,28 @@ if (!eventoAceito && !statusPago) {
       statusAtual: adesao.status,
       instituicaoId: adesao.instituicaoId,
     });
+
+if (event === "SUBSCRIPTION_CREATED" || event === "SUBSCRIPTION_UPDATED") {
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      asaasId: asaasSubscriptionId || adesao.asaasId,
+      status: adesao.status === "PAGO" ? "PAGO" : "PROCESSANDO",
+    },
+  });
+
+  console.log("✅ Assinatura vinculada à adesão:", {
+    adesaoId: adesao.id,
+    asaasSubscriptionId,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    assinaturaVinculada: true,
+    adesaoId: adesao.id,
+    asaasSubscriptionId,
+  });
+}
 
     let instituicao = null;
 

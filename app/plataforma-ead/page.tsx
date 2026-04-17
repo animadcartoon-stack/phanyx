@@ -80,18 +80,16 @@ export default function PlataformaEadPage() {
                 Plataforma EAD
               </p>
 
+<h1 className="mt-4 text-4xl font-bold leading-tight md:text-5xl">
+  Plataforma EAD completa para cursos online, ensino digital e gestão acadêmica
+</h1>
+
               <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
   O PHANYX é uma plataforma EAD completa para instituições e operações de
   ensino digital que precisam criar aulas, acompanhar o progresso dos alunos,
   aplicar avaliações online e integrar a experiência educacional com a gestão
   acadêmica em um só sistema.
 </p>
-
-              <p className="mt-6 max-w-3xl text-base leading-8 text-slate-300 md:text-lg">
-                O PHANYX é uma plataforma EAD completa que permite criar aulas,
-                acompanhar alunos, aplicar avaliações e estruturar cursos online
-                com uma experiência moderna e profissional.
-              </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <Link
@@ -230,24 +228,32 @@ export default function PlataformaEadPage() {
           </div>
         </section>
 
-<section className="hidden">
-  <h2>Plataforma EAD para cursos online</h2>
-  <p>
+<section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
+  <h2 className="text-3xl font-bold text-slate-900">
+    Plataforma EAD para cursos online e ensino digital
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
     O PHANYX é uma plataforma EAD para cursos online, ensino híbrido e
     instituições de ensino que desejam oferecer aulas digitais com mais
-    controle, organização e experiência profissional.
+    controle, organização e experiência profissional em um único ambiente.
   </p>
 
-  <h2>Alternativa moderna ao Moodle</h2>
-  <p>
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Alternativa moderna ao Moodle
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
     A plataforma reúne aulas, materiais, provas, atividades, progresso do aluno
-    e integração com a gestão acadêmica em um ambiente mais intuitivo e moderno.
+    e integração com a gestão acadêmica em uma experiência mais intuitiva,
+    moderna e preparada para operações educacionais escaláveis.
   </p>
 
-  <h2>Sistema para ensino a distância</h2>
-  <p>
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Sistema para ensino a distância com gestão integrada
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
     Ideal para operações EAD, cursos livres e faculdades digitais, o PHANYX
-    ajuda a estruturar a rotina acadêmica e a experiência do aluno em escala.
+    ajuda a estruturar a rotina acadêmica, acompanhar o desempenho dos alunos
+    e centralizar o ensino a distância com mais eficiência.
   </p>
 </section>
 
