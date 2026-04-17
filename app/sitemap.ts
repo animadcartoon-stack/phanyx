@@ -24,6 +24,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   url: "https://www.phanyx.com.br/blog/sistema-escolar-para-pequenas-escolas",
   lastModified: new Date(),
 },
+{
+  url: "https://www.phanyx.com.br/blog/software-educacional-completo",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/plataforma-para-ensino-online",
+  lastModified: new Date(),
+},
     {
   url: "https://www.phanyx.com.br/blog/sistema-de-gestao-escolar-online",
   lastModified: new Date(),

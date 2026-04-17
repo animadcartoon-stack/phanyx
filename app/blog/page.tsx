@@ -130,6 +130,22 @@ export default function BlogPage() {
     Veja como pequenas escolas podem se organizar com tecnologia.
   </p>
 </Link>
+<Link href="/blog/software-educacional-completo" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Software educacional completo
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como um sistema pode transformar a gestão educacional.
+  </p>
+</Link>
+<Link href="/blog/plataforma-para-ensino-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Plataforma para ensino online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como estruturar cursos digitais com uma plataforma completa.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">

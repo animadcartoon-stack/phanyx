@@ -78,23 +78,32 @@ function AdesaoContent() {
       setLoading(true);
       setErro("");
 
+const cartaoNormalizado = {
+  numero: cartao.numero.replace(/\s/g, ""),
+  nomeTitular: cartao.nomeTitular.trim(),
+  mesExpiracao: cartao.mesExpiracao.trim(),
+  anoExpiracao: cartao.anoExpiracao.trim(),
+  cvv: cartao.cvv.trim(),
+  cpfCnpjTitular: cartao.cpfCnpjTitular.replace(/\D/g, ""),
+};
+
       if (!nomeResponsavel || !nomeInstituicao || !email || !cpfCnpj) {
         setErro("Preencha todos os campos obrigatórios.");
         return;
       }
 
       if (
-        formaPagamento === "RECORRENTE" &&
-        (!cartao.numero ||
-          !cartao.nomeTitular ||
-          !cartao.mesExpiracao ||
-          !cartao.anoExpiracao ||
-          !cartao.cvv ||
-          !cartao.cpfCnpjTitular)
-      ) {
-        setErro("Preencha os dados do cartão para a assinatura mensal.");
-        return;
-      }
+  formaPagamento === "RECORRENTE" &&
+  (!cartaoNormalizado.numero ||
+    !cartaoNormalizado.nomeTitular ||
+    !cartaoNormalizado.mesExpiracao ||
+    !cartaoNormalizado.anoExpiracao ||
+    !cartaoNormalizado.cvv ||
+    !cartaoNormalizado.cpfCnpjTitular)
+) {
+  setErro("Preencha os dados do cartão para a assinatura mensal.");
+  return;
+}
 
       const res = await fetch("/api/adesao/criar", {
         method: "POST",
@@ -109,7 +118,7 @@ function AdesaoContent() {
           cpfCnpj,
           plano,
           formaPagamento,
-          cartao: formaPagamento === "RECORRENTE" ? cartao : null,
+          cartao: formaPagamento === "RECORRENTE" ? cartaoNormalizado : null,
         }),
       });
 
