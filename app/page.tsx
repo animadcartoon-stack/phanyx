@@ -5,6 +5,21 @@ import Header from "@/components/layout/Header";
 import Image from "next/image";
 import Footer from "@/components/layout/Footer";
 
+export const metadata = {
+  title: "PHANYX | Sistema de Gestão Escolar, Acadêmica e Plataforma EAD",
+  description:
+    "PHANYX é uma plataforma completa para gestão escolar, gestão acadêmica, ensino EAD, financeiro, documentos e operação institucional escalável.",
+  keywords: [
+    "sistema de gestão escolar",
+    "gestão acadêmica",
+    "plataforma ead",
+    "software para cursos",
+    "sistema escolar",
+    "software educacional",
+    "plataforma acadêmica",
+  ],
+};
+
 const modulos = [
   {
     titulo: "Gestão Acadêmica",
@@ -534,6 +549,43 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+<section className="bg-white">
+  <div className="mx-auto max-w-5xl px-6 py-20 md:px-10 lg:px-12">
+    <h2 className="text-3xl font-bold text-slate-900">
+      Sistema de gestão escolar, gestão acadêmica e plataforma EAD em um só lugar
+    </h2>
+
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      O PHANYX é uma plataforma completa para instituições de ensino que precisam
+      unir gestão escolar, gestão acadêmica, plataforma EAD, controle financeiro,
+      documentos institucionais e experiência digital em um único sistema.
+    </p>
+
+    <h2 className="mt-10 text-3xl font-bold text-slate-900">
+      Software educacional para escolas, faculdades e cursos
+    </h2>
+
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      Ideal para escolas, faculdades, cursos técnicos, cursos livres e operações
+      EAD, o PHANYX ajuda a organizar alunos, professores, turmas, matrículas,
+      avaliações, histórico escolar e rotinas administrativas com mais controle
+      e escalabilidade.
+    </p>
+
+    <h2 className="mt-10 text-3xl font-bold text-slate-900">
+      Plataforma acadêmica com estrutura SaaS real
+    </h2>
+
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      Com arquitetura multi-instituição, áreas separadas para administração,
+      professores e alunos, além de base para crescimento comercial, o PHANYX
+      foi pensado para ser um produto educacional moderno, escalável e pronto
+      para expansão.
+    </p>
+  </div>
+</section>
+
       </main>
 
       <Footer />

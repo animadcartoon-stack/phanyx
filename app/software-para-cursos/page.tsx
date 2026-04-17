@@ -79,6 +79,8 @@ export default function SoftwareParaCursosPage() {
                 Software para cursos
               </p>
 
+
+
 <h1 className="mt-4 text-4xl font-bold md:text-5xl">
   Software para cursos online e presenciais com gestão, ensino digital e controle completo
 </h1>
@@ -221,6 +223,34 @@ export default function SoftwareParaCursosPage() {
     organização, eficiência e visão de crescimento.
   </p>
 </section>
+
+<div className="mt-10 rounded-2xl border border-slate-200 bg-slate-50 p-6">
+  <h3 className="text-xl font-bold text-slate-900">
+    Veja também outras soluções do PHANYX
+  </h3>
+
+  <div className="mt-4 flex flex-col gap-3">
+    <Link href="/sistema-escolar" className="text-blue-700 hover:text-blue-600">
+      Sistema de gestão escolar
+    </Link>
+
+    <Link href="/gestao-escolar" className="text-blue-700 hover:text-blue-600">
+      Gestão escolar
+    </Link>
+
+    <Link href="/gestao-academica" className="text-blue-700 hover:text-blue-600">
+      Gestão acadêmica
+    </Link>
+
+    <Link href="/plataforma-ead" className="text-blue-700 hover:text-blue-600">
+      Plataforma EAD
+    </Link>
+
+    <Link href="/software-para-cursos" className="text-blue-700 hover:text-blue-600">
+      Software para cursos
+    </Link>
+  </div>
+</div>
 
       </main>
 

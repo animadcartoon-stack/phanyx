@@ -131,15 +131,25 @@ function getAsaasConfig() {
     process.env.NEXT_PUBLIC_ASAAS_ACCESS_TOKEN ||
     "";
 
+    console.log("🔎 ENV RAW:", {
+  ASAAS_API_KEY: process.env.ASAAS_API_KEY ? "OK" : "VAZIO",
+  ASAAS_ACCESS_TOKEN: process.env.ASAAS_ACCESS_TOKEN ? "OK" : "VAZIO",
+  ASAAS_TOKEN: process.env.ASAAS_TOKEN ? "OK" : "VAZIO",
+  NEXT_PUBLIC_ASAAS_API_KEY: process.env.NEXT_PUBLIC_ASAAS_API_KEY ? "OK" : "VAZIO",
+  NEXT_PUBLIC_ASAAS_ACCESS_TOKEN: process.env.NEXT_PUBLIC_ASAAS_ACCESS_TOKEN ? "OK" : "VAZIO",
+});
+
   const baseUrl =
     process.env.ASAAS_BASE_URL ||
     process.env.NEXT_PUBLIC_ASAAS_BASE_URL ||
     "https://api-sandbox.asaas.com/v3";
 
   console.log("🔎 ASAAS CONFIG:", {
-    temApiKey: Boolean(apiKey),
-    baseUrl,
-  });
+  temApiKey: Boolean(apiKey),
+  tamanhoApiKey: apiKey ? apiKey.length : 0,
+  inicioApiKey: apiKey ? apiKey.slice(0, 6) : "",
+  baseUrl,
+});
 
   if (!apiKey) {
     throw new Error("Configuração do Asaas ausente no servidor.");
