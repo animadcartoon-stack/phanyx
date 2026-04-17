@@ -280,6 +280,9 @@ export default function HomePage() {
                   </div>
                 </div>
 
+<a href="/blog">Blog</a>
+<a href="/blog/sistema-gestao-escolar">Sistema de gestão escolar</a>
+
                 <div className="mt-6 hidden gap-4 xl:grid xl:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
                     <p className="text-xl font-bold text-white">Multi-tenant</p>

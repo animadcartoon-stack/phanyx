@@ -88,6 +88,10 @@ export default function SistemaEscolarPage() {
                 O PHANYX é um sistema de gestão escolar completo desenvolvido para escolas, faculdades e instituições de ensino que precisam de mais controle, organização e visão estratégica. Com ele, sua instituição pode gerenciar alunos, professores, cursos, financeiro, documentos e ensino digital em uma única plataforma.
               </p>
 
+<a href="/blog/sistema-gestao-escolar">
+  Saiba mais sobre sistema de gestão escolar
+</a>
+
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <Link
                   href="/planos"

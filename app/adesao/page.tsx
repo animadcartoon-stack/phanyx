@@ -79,20 +79,20 @@ function AdesaoContent() {
         return;
       }
 
-if (
-  formaPagamento === "RECORRENTE" &&
-  (
-    !cartaoNumero ||
-    !cartaoNome ||
-    !cartaoMesExpiracao ||
-    !cartaoAnoExpiracao ||
-    !cartaoCvv ||
-    !cartaoCpfTitular
-  )
-) {
-  setErro("Preencha os dados do cartão para a assinatura mensal.");
-  return;
-}
+      if (
+        formaPagamento === "RECORRENTE" &&
+        (
+          !cartaoNumero ||
+          !cartaoNome ||
+          !cartaoMesExpiracao ||
+          !cartaoAnoExpiracao ||
+          !cartaoCvv ||
+          !cartaoCpfTitular
+        )
+      ) {
+        setErro("Preencha os dados do cartão para a assinatura mensal.");
+        return;
+      }
 
       const res = await fetch("/api/adesao/criar", {
         method: "POST",
@@ -108,16 +108,16 @@ if (
           plano,
           formaPagamento,
           cartao:
-  formaPagamento === "RECORRENTE"
-    ? {
-        numero: cartaoNumero,
-        nomeTitular: cartaoNome,
-        mesExpiracao: cartaoMesExpiracao,
-        anoExpiracao: cartaoAnoExpiracao,
-        cvv: cartaoCvv,
-        cpfCnpjTitular: cartaoCpfTitular,
-      }
-    : null,
+            formaPagamento === "RECORRENTE"
+              ? {
+                  numero: cartaoNumero,
+                  nomeTitular: cartaoNome,
+                  mesExpiracao: cartaoMesExpiracao,
+                  anoExpiracao: cartaoAnoExpiracao,
+                  cvv: cartaoCvv,
+                  cpfCnpjTitular: cartaoCpfTitular,
+                }
+              : null,
         }),
       });
 
@@ -129,15 +129,15 @@ if (
         return;
       }
 
-setAdesaoId(data?.adesao?.id ? String(data.adesao.id) : null);
-setPixCode(data?.pixCode || data?.adesao?.pixCode || "");
-setInvoiceUrl(data?.invoiceUrl || "");
-setStatusPagamento(data?.adesao?.status || "PENDING");
-setPagamentoConfirmado(data?.adesao?.status === "PAGO");
+      setAdesaoId(data?.adesao?.id ? String(data.adesao.id) : null);
+      setPixCode(data?.pixCode || data?.adesao?.pixCode || "");
+      setInvoiceUrl(data?.invoiceUrl || "");
+      setStatusPagamento(data?.adesao?.status || "PENDING");
+      setPagamentoConfirmado(data?.adesao?.status === "PAGO");
 
-if (formaPagamento === "RECORRENTE") {
-  setStatusPagamento(data?.adesao?.status || "PROCESSANDO");
-}
+      if (formaPagamento === "RECORRENTE") {
+        setStatusPagamento(data?.adesao?.status || "PROCESSANDO");
+      }
 
       window.scrollTo({
         top: document.body.scrollHeight,
@@ -158,65 +158,65 @@ if (formaPagamento === "RECORRENTE") {
   }
 
   useEffect(() => {
-  if (!adesaoId || pagamentoConfirmado) return;
+    if (!adesaoId || pagamentoConfirmado) return;
 
-  const interval = setInterval(async () => {
-    try {
-      const res = await fetch(`/api/adesao/status/${adesaoId}`);
-      const json = await res.json();
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/adesao/status/${adesaoId}`);
+        const json = await res.json();
 
-      if (!res.ok) return;
+        if (!res.ok) return;
 
-      const status =
-        json?.adesao?.status ||
-        json?.status ||
-        "PENDING";
+        const status =
+          json?.adesao?.status ||
+          json?.status ||
+          "PENDING";
 
-      setStatusPagamento(status);
+        setStatusPagamento(status);
 
-      if (status === "PAGO") {
-        setPagamentoConfirmado(true);
-        setStatusPagamento("PAGO");
-        clearInterval(interval);
+        if (status === "PAGO") {
+          setPagamentoConfirmado(true);
+          setStatusPagamento("PAGO");
+          clearInterval(interval);
 
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
 
-        setTimeout(() => {
-          window.location.href = `/sucesso?adesao=${adesaoId}`;
-        }, 1200);
+          setTimeout(() => {
+            window.location.href = `/sucesso?adesao=${adesaoId}`;
+          }, 1200);
+        }
+
+        if (
+          status === "CANCELADO" ||
+          status === "CANCELED" ||
+          status === "EXPIRED"
+        ) {
+          clearInterval(interval);
+
+          window.scrollTo({
+            top: 0,
+            behavior: "smooth",
+          });
+
+          setTimeout(() => {
+            window.location.href = "/cancelado?motivo=cobranca-expirada";
+          }, 800);
+        }
+
+        if (status === "ERRO") {
+          clearInterval(interval);
+          setErro("Ocorreu um erro ao processar sua cobrança. Gere uma nova adesão para continuar.");
+        }
+      } catch (error) {
+        console.error("Erro ao consultar status da adesão:", error);
       }
+    }, 5000);
 
-      if (
-        status === "CANCELADO" ||
-        status === "CANCELED" ||
-        status === "EXPIRED"
-      ) {
-        clearInterval(interval);
-
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth",
-        });
-
-        setTimeout(() => {
-          window.location.href = "/cancelado?motivo=cobranca-expirada";
-        }, 800);
-      }
-
-      if (status === "ERRO") {
-        clearInterval(interval);
-        setErro("Ocorreu um erro ao processar sua cobrança. Gere uma nova adesão para continuar.");
-      }
-    } catch (error) {
-      console.error("Erro ao consultar status da adesão:", error);
-    }
-  }, 5000);
-
-  return () => clearInterval(interval);
-}, [adesaoId, pagamentoConfirmado]);
+    return () => clearInterval(interval);
+  }, [adesaoId, pagamentoConfirmado]);
 
   const ehPix = formaPagamento === "PIX";
   const ehBoletoOuCartao =
@@ -345,14 +345,14 @@ if (formaPagamento === "RECORRENTE") {
                         : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
                     }`}
                   >
-                   <span className="flex flex-col items-center justify-center">
-  <span className="text-sm font-semibold leading-tight">
-    Assinatura
-  </span>
-  <span className="text-[10px] text-blue-100/80">
-    mensal automática
-  </span>
-</span>
+                    <span className="flex flex-col items-center justify-center">
+                      <span className="text-sm font-semibold leading-tight">
+                        Assinatura
+                      </span>
+                      <span className="text-[10px] text-blue-100/80">
+                        mensal automática
+                      </span>
+                    </span>
                   </button>
                 </div>
 
@@ -446,90 +446,76 @@ if (formaPagamento === "RECORRENTE") {
               {ehRecorrente ? (
                 <div className="mt-6 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-slate-950 p-5">
                   <p className="text-sm leading-6 text-slate-200">
-                    A assinatura mensal no cartão será criada após a confirmação
-                    dos dados. O retorno da cobrança recorrente aparecerá aqui.
+                    A assinatura mensal será criada automaticamente após a validação dos dados do cartão.
                   </p>
 
                   <div className="mt-4 rounded-xl border border-slate-700 bg-slate-950/70 p-4 text-sm text-slate-300">
-                    {invoiceUrl
-                      ? "A assinatura foi iniciada. Use o link abaixo para concluir o fluxo."
-                      : "Aguardando geração da assinatura recorrente."}
+                    {adesaoId
+                      ? "Assinatura enviada ao Asaas. Estamos aguardando a confirmação automática."
+                      : "Aguardando criação da assinatura recorrente."}
                   </div>
 
-<div className="mt-4 grid gap-3 md:grid-cols-2">
-  <input
-    value={cartaoNumero}
-    onChange={(e) => setCartaoNumero(e.target.value)}
-    placeholder="Número do cartão"
-    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-  />
+                  <div className="mt-4 grid gap-3 md:grid-cols-2">
+                    <input
+                      value={cartaoNumero}
+                      onChange={(e) => setCartaoNumero(e.target.value)}
+                      placeholder="Número do cartão"
+                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+                    />
 
-  <input
-    value={cartaoNome}
-    onChange={(e) => setCartaoNome(e.target.value)}
-    placeholder="Nome impresso no cartão"
-    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-  />
+                    <input
+                      value={cartaoNome}
+                      onChange={(e) => setCartaoNome(e.target.value)}
+                      placeholder="Nome impresso no cartão"
+                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+                    />
 
-  <input
-    value={cartaoMesExpiracao}
-    onChange={(e) => setCartaoMesExpiracao(e.target.value)}
-    placeholder="Mês (MM)"
-    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-  />
+                    <input
+                      value={cartaoMesExpiracao}
+                      onChange={(e) => setCartaoMesExpiracao(e.target.value)}
+                      placeholder="Mês (MM)"
+                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+                    />
 
-  <input
-    value={cartaoAnoExpiracao}
-    onChange={(e) => setCartaoAnoExpiracao(e.target.value)}
-    placeholder="Ano (AAAA)"
-    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-  />
+                    <input
+                      value={cartaoAnoExpiracao}
+                      onChange={(e) => setCartaoAnoExpiracao(e.target.value)}
+                      placeholder="Ano (AAAA)"
+                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+                    />
 
-  <input
-    value={cartaoCvv}
-    onChange={(e) => setCartaoCvv(e.target.value)}
-    placeholder="CVV"
-    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-  />
+                    <input
+                      value={cartaoCvv}
+                      onChange={(e) => setCartaoCvv(e.target.value)}
+                      placeholder="CVV"
+                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+                    />
 
-  <input
-    value={cartaoCpfTitular}
-    onChange={(e) => setCartaoCpfTitular(e.target.value)}
-    placeholder="CPF/CNPJ do titular"
-    className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-  />
-</div>
-
-                  <a
-                    href={invoiceUrl || "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`mt-4 inline-flex w-full items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold transition ${
-                      invoiceUrl
-                        ? "bg-blue-600 text-white hover:bg-blue-500"
-                        : "cursor-not-allowed bg-slate-800 text-slate-500"
-                    }`}
-                  >
-                    Abrir assinatura mensal
-                  </a>
+                    <input
+                      value={cartaoCpfTitular}
+                      onChange={(e) => setCartaoCpfTitular(e.target.value)}
+                      placeholder="CPF/CNPJ do titular"
+                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
+                    />
+                  </div>
                 </div>
               ) : null}
 
               {pagamentoConfirmado ? (
-  <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
-    Pagamento confirmado com sucesso. Sua instituição está sendo ativada automaticamente.
-  </div>
-) : adesaoId ? (
-  <div className="mt-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-4 text-sm text-blue-200">
-    Estamos acompanhando automaticamente sua cobrança.
-    <div className="mt-2 text-xs text-blue-300/80">
-      Status atual: {statusPagamento}
-    </div>
-    <div className="mt-1 text-xs text-blue-300/70">
-      Assim que o pagamento for aprovado, você será redirecionada automaticamente.
-    </div>
-  </div>
-) : null}
+                <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
+                  Pagamento confirmado com sucesso. Sua instituição está sendo ativada automaticamente.
+                </div>
+              ) : adesaoId ? (
+                <div className="mt-4 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-4 text-sm text-blue-200">
+                  Estamos acompanhando automaticamente sua cobrança.
+                  <div className="mt-2 text-xs text-blue-300/80">
+                    Status atual: {statusPagamento}
+                  </div>
+                  <div className="mt-1 text-xs text-blue-300/70">
+                    Assim que o pagamento for aprovado, você será redirecionada automaticamente.
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
