@@ -92,6 +92,10 @@ export default function SistemaEscolarPage() {
   Saiba mais sobre sistema de gestão escolar
 </a>
 
+<a href="/blog/sistema-escolar-vs-moodle">
+  Comparação entre sistema escolar e Moodle
+</a>
+
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
                 <Link
                   href="/planos"
