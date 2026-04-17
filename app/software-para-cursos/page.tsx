@@ -79,17 +79,15 @@ export default function SoftwareParaCursosPage() {
                 Software para cursos
               </p>
 
+<h1 className="mt-4 text-4xl font-bold md:text-5xl">
+  Software para cursos online e presenciais com gestão, ensino digital e controle completo
+</h1>
+
               <p className="mt-6 text-lg text-slate-300">
   O PHANYX é um software para cursos online e presenciais que reúne gestão
   acadêmica, plataforma EAD, controle de matrículas, acompanhamento de alunos,
   atividades, avaliações e organização institucional em um sistema moderno e escalável.
 </p>
-
-              <p className="mt-6 text-lg text-slate-300">
-                O PHANYX é uma solução completa para cursos online e presenciais,
-                unindo gestão acadêmica, plataforma EAD e organização
-                institucional em um sistema moderno e escalável.
-              </p>
 
               <div className="mt-8 flex gap-4">
                 <Link
@@ -195,23 +193,32 @@ export default function SoftwareParaCursosPage() {
           </div>
         </section>
 
-<section className="hidden">
-  <h2>Software para cursos online</h2>
-  <p>
-    O PHANYX é um software para cursos online que permite organizar alunos,
-    conteúdos, aulas, avaliações e progresso em um ambiente profissional.
+<section className="max-w-5xl mx-auto px-6 py-16">
+  <h2 className="text-3xl font-bold text-slate-900">
+    Software para cursos online e presenciais
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    O PHANYX é um software para cursos online e presenciais que ajuda instituições
+    a organizar alunos, matrículas, conteúdos, aulas, avaliações e acompanhamento
+    acadêmico em uma plataforma profissional e escalável.
   </p>
 
-  <h2>Sistema para cursos presenciais e digitais</h2>
-  <p>
-    A plataforma atende cursos livres, cursos profissionalizantes, ensino híbrido
-    e operações educacionais que precisam de mais controle acadêmico e administrativo.
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Sistema para cursos livres, técnicos e profissionalizantes
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    A plataforma atende cursos livres, cursos técnicos, operações híbridas e
+    ensino digital com recursos para controle acadêmico, experiência do aluno
+    e gestão institucional em um único ambiente.
   </p>
 
-  <h2>Plataforma de gestão para cursos</h2>
-  <p>
-    Com o PHANYX, instituições podem controlar matrículas, desempenho, histórico,
-    professores e experiência do aluno em um único sistema.
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Plataforma de gestão para cursos com ensino digital integrado
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    Com o PHANYX, instituições podem controlar matrículas, histórico,
+    desempenho, professores, conteúdos e progresso do aluno com mais
+    organização, eficiência e visão de crescimento.
   </p>
 </section>
 
