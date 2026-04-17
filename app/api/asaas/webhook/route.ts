@@ -103,16 +103,26 @@ const eventoAssinaturaAceito =
   event === "SUBSCRIPTION_CREATED" ||
   event === "SUBSCRIPTION_UPDATED";
 
-const eventoCheckoutAceito =
-  event === "CHECKOUT_CREATED" ||
-  event === "CHECKOUT_PAID" ||
-  event === "CHECKOUT_CANCELED" ||
-  event === "CHECKOUT_EXPIRED";
+const eventoCheckoutAceito = false;
 
 const statusPago =
   paymentStatus === "RECEIVED" ||
   paymentStatus === "CONFIRMED" ||
   paymentStatus === "RECEIVED_IN_CASH";
+
+// 🚨 BLOQUEIO TOTAL: só continua se for pagamento confirmado
+if (!statusPago) {
+  console.log("⛔ Evento ignorado (não é pagamento confirmado):", {
+    event,
+    paymentStatus,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    ignorado: true,
+    motivo: "nao_pago",
+  });
+}
 
 if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !eventoCheckoutAceito && !statusPago) {
   console.log("ℹ️ Evento ignorado:", { event, paymentStatus });
@@ -152,6 +162,7 @@ if (externalReference) filtrosOr.push({ id: externalReference });
 if (asaasPaymentId) filtrosOr.push({ asaasId: asaasPaymentId });
 if (asaasSubscriptionId) filtrosOr.push({ asaasId: asaasSubscriptionId });
 if (asaasCheckoutId) filtrosOr.push({ asaasId: asaasCheckoutId });
+
 
     const adesao = await prisma.adesaoInstituicao.findFirst({
       where: {
