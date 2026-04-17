@@ -49,6 +49,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://www.phanyx.com.br/blog/gestao-escolar-digital",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/software-para-gestao-escolar",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/blog/como-vender-cursos-online",
   lastModified: new Date(),
 },

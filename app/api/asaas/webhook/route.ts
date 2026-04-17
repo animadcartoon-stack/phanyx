@@ -103,28 +103,15 @@ const eventoAssinaturaAceito =
   event === "SUBSCRIPTION_CREATED" ||
   event === "SUBSCRIPTION_UPDATED";
 
-const eventoCheckoutAceito = false;
+const eventoCheckoutAceito =
+  event === "CHECKOUT_CREATED";
 
 const statusPago =
   paymentStatus === "RECEIVED" ||
   paymentStatus === "CONFIRMED" ||
   paymentStatus === "RECEIVED_IN_CASH";
 
-// 🚨 BLOQUEIO TOTAL: só continua se for pagamento confirmado
-if (!statusPago) {
-  console.log("⛔ Evento ignorado (não é pagamento confirmado):", {
-    event,
-    paymentStatus,
-  });
-
-  return NextResponse.json({
-    ok: true,
-    ignorado: true,
-    motivo: "nao_pago",
-  });
-}
-
-if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !eventoCheckoutAceito && !statusPago) {
+if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !eventoCheckoutAceito) {
   console.log("ℹ️ Evento ignorado:", { event, paymentStatus });
   return NextResponse.json({ ok: true, ignorado: true });
 }
@@ -256,6 +243,22 @@ if (event === "PAYMENT_CREATED") {
     pagamentoCriado: true,
     adesaoId: adesao.id,
     asaasPaymentId,
+  });
+}
+
+if (!statusPago) {
+  console.log("ℹ️ Evento recebido, mas ainda sem pagamento confirmado:", {
+    event,
+    paymentStatus,
+    adesaoId: adesao.id,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    aguardandoPagamento: true,
+    adesaoId: adesao.id,
+    event,
+    paymentStatus,
   });
 }
 
