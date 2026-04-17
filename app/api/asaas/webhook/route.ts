@@ -140,7 +140,7 @@ const asaasSubscriptionId =
 const asaasCheckoutId = checkout?.id ? String(checkout.id).trim() : "";
 
     if (!externalReference && !asaasPaymentId && !asaasSubscriptionId && !asaasCheckoutId) {
-  console.error("❌ Webhook sem externalReference, payment.id ou subscription.id");
+  console.error("❌ Webhook sem externalReference, payment.id, subscription.id ou checkout.id");
   return NextResponse.json(
     { error: "Webhook sem referência suficiente para localizar a adesão" },
     { status: 400 }
@@ -151,6 +151,7 @@ const asaasCheckoutId = checkout?.id ? String(checkout.id).trim() : "";
 if (externalReference) filtrosOr.push({ id: externalReference });
 if (asaasPaymentId) filtrosOr.push({ asaasId: asaasPaymentId });
 if (asaasSubscriptionId) filtrosOr.push({ asaasId: asaasSubscriptionId });
+if (asaasCheckoutId) filtrosOr.push({ asaasId: asaasCheckoutId });
 
     const adesao = await prisma.adesaoInstituicao.findFirst({
       where: {
