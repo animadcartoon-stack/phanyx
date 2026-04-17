@@ -52,6 +52,43 @@ export default function BlogPage() {
 </Link>
           </div>
         </section>
+        <section className="bg-white">
+  <div className="mx-auto max-w-5xl px-6 py-20">
+    <h2 className="text-3xl font-bold text-slate-900">
+      Blog sobre sistema de gestão escolar, plataforma EAD e gestão acadêmica
+    </h2>
+
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      O blog do PHANYX reúne conteúdos sobre sistema de gestão escolar,
+      plataforma EAD, gestão acadêmica, tecnologia educacional e crescimento
+      de instituições de ensino. O objetivo é ajudar escolas, faculdades e
+      cursos a escolherem soluções mais modernas para organizar sua operação.
+    </p>
+
+    <h2 className="mt-10 text-3xl font-bold text-slate-900">
+      Conteúdos para escolas, faculdades e cursos
+    </h2>
+
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      Aqui você encontra artigos sobre como escolher um sistema escolar,
+      diferenças entre Moodle e plataformas completas, comparação entre
+      sistemas gratuitos e pagos, além de guias para instituições que desejam
+      melhorar a gestão acadêmica e o ensino digital.
+    </p>
+
+    <h2 className="mt-10 text-3xl font-bold text-slate-900">
+      PHANYX como referência em tecnologia educacional
+    </h2>
+
+    <p className="mt-4 text-lg leading-8 text-slate-600">
+      O PHANYX foi desenvolvido para unir gestão escolar, gestão acadêmica,
+      controle financeiro, documentos e plataforma EAD em uma única solução.
+      Por isso, este blog também funciona como um centro de conteúdo para
+      instituições que desejam crescer com mais controle, organização e visão
+      estratégica.
+    </p>
+  </div>
+</section>
       </main>
 
       <Footer />
