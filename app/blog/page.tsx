@@ -202,6 +202,14 @@ export default function BlogPage() {
     Veja como um software pode transformar sua instituição.
   </p>
 </Link>
+<Link href="/blog/sistema-academico-completo" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Sistema acadêmico completo
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como organizar toda a gestão acadêmica da sua instituição.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">
