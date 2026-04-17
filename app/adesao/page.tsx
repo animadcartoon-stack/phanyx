@@ -119,49 +119,65 @@ if (formaPagamento === "RECORRENTE" && data?.invoiceUrl) {
   }
 
   useEffect(() => {
-    if (!adesaoId || pagamentoConfirmado) return;
+  if (!adesaoId || pagamentoConfirmado) return;
 
-    const interval = setInterval(async () => {
-      try {
-        const res = await fetch(`/api/adesao/status/${adesaoId}`);
-        const json = await res.json();
+  const interval = setInterval(async () => {
+    try {
+      const res = await fetch(`/api/adesao/status/${adesaoId}`);
+      const json = await res.json();
 
-        if (!res.ok) return;
+      if (!res.ok) return;
 
-        const status =
-  json?.adesao?.status ||
-  json?.status ||
-  "PENDING";
+      const status =
+        json?.adesao?.status ||
+        json?.status ||
+        "PENDING";
 
-setStatusPagamento(status);
+      setStatusPagamento(status);
 
-        if (status === "PAGO") {
-  setPagamentoConfirmado(true);
-  setStatusPagamento("PAGO");
-  clearInterval(interval);
+      if (status === "PAGO") {
+        setPagamentoConfirmado(true);
+        setStatusPagamento("PAGO");
+        clearInterval(interval);
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
 
-  setTimeout(() => {
-    window.location.href = `/sucesso?adesao=${adesaoId}`;
-  }, 1200);
-}
-
-if (status === "CANCELADO" || status === "CANCELED" || status === "EXPIRED") {
-  clearInterval(interval);
-  setErro("A cobrança foi cancelada ou expirou. Gere uma nova adesão para continuar.");
-}
-
-      } catch (error) {
-        console.error("Erro ao consultar status da adesão:", error);
+        setTimeout(() => {
+          window.location.href = `/sucesso?adesao=${adesaoId}`;
+        }, 1200);
       }
-    }, 5000);
 
-    return () => clearInterval(interval);
-  }, [adesaoId, pagamentoConfirmado]);
+      if (
+        status === "CANCELADO" ||
+        status === "CANCELED" ||
+        status === "EXPIRED"
+      ) {
+        clearInterval(interval);
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth",
+        });
+
+        setTimeout(() => {
+          window.location.href = "/cancelado?motivo=cobranca-expirada";
+        }, 800);
+      }
+
+      if (status === "ERRO") {
+        clearInterval(interval);
+        setErro("Ocorreu um erro ao processar sua cobrança. Gere uma nova adesão para continuar.");
+      }
+    } catch (error) {
+      console.error("Erro ao consultar status da adesão:", error);
+    }
+  }, 5000);
+
+  return () => clearInterval(interval);
+}, [adesaoId, pagamentoConfirmado]);
 
   const ehPix = formaPagamento === "PIX";
   const ehBoletoOuCartao =
