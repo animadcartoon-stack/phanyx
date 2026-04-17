@@ -338,7 +338,7 @@ export async function criarCheckoutAssinaturaAsaas(
     method: "POST",
     body: JSON.stringify({
       billingTypes: ["CREDIT_CARD"],
-      chargeTypes: ["INSTALLMENT"],
+      chargeTypes: ["RECURRENT"],
 
       name: "PHANYX",
       description: `Plano ${data.plano}`,
