@@ -52,6 +52,14 @@ function AdesaoContent() {
   const [cartaoAnoExpiracao, setCartaoAnoExpiracao] = useState("");
   const [cartaoCvv, setCartaoCvv] = useState("");
   const [cartaoCpfTitular, setCartaoCpfTitular] = useState("");
+  const [cartao, setCartao] = useState({
+  numero: "",
+  nomeTitular: "",
+  mesExpiracao: "",
+  anoExpiracao: "",
+  cvv: "",
+  cpfCnpjTitular: "",
+});
 
   useEffect(() => {
     setAdesaoId(null);

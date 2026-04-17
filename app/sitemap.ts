@@ -51,6 +51,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://www.phanyx.com.br/blog/como-escolher-sistema-escolar",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/sistema-escolar-gratis-vs-pago",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/blog/sistema-gestao-escolar",
   lastModified: new Date(),
 },

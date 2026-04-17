@@ -34,7 +34,22 @@ export default function BlogPage() {
                 Descubra como escolher o melhor sistema escolar para sua instituição.
               </p>
             </Link>
-
+<Link href="/blog/como-escolher-sistema-escolar" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Como escolher um sistema de gestão escolar
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Entenda os critérios mais importantes antes de contratar uma plataforma para sua instituição.
+  </p>
+</Link>
+<Link href="/blog/sistema-escolar-gratis-vs-pago" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Sistema escolar grátis vs pago: qual escolher?
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Compare vantagens e descubra qual opção faz mais sentido para sua instituição.
+  </p>
+</Link>
           </div>
         </section>
       </main>

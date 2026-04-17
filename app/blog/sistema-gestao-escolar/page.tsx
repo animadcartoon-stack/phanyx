@@ -66,7 +66,31 @@ export default function ArticlePage() {
           >
             Conhecer o PHANYX
           </a>
+<div className="mt-10 border-t pt-6">
+  <h3 className="text-xl font-bold text-slate-900">
+    Leia também
+  </h3>
 
+  <ul className="mt-4 space-y-2">
+    <li>
+      <a href="/blog/sistema-escolar-vs-moodle" className="text-blue-600 underline">
+        Sistema escolar vs Moodle: qual é melhor?
+      </a>
+    </li>
+
+    <li>
+      <a href="/blog/como-escolher-sistema-escolar" className="text-blue-600 underline">
+        Como escolher um sistema de gestão escolar
+      </a>
+    </li>
+
+    <li>
+      <a href="/blog/sistema-escolar-gratis-vs-pago" className="text-blue-600 underline">
+        Sistema escolar grátis vs pago: qual escolher?
+      </a>
+    </li>
+  </ul>
+</div>
         </section>
       </main>
 
