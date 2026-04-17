@@ -53,24 +53,28 @@ export async function POST(req: Request) {
 const event = body?.event;
 const payment = body?.payment;
 const subscription = body?.subscription;
+const checkout = body?.checkout;
 
 const paymentStatus = payment?.status
   ? String(payment.status).trim().toUpperCase()
   : "";
 
 console.log("🔥 Webhook recebido:", JSON.stringify(body, null, 2));
+
 console.log("🔎 Resumo webhook:", {
   event,
   paymentStatus,
   externalReference:
     payment?.externalReference ||
     subscription?.externalReference ||
+    checkout?.externalReference ||
     null,
   asaasPaymentId: payment?.id || null,
   subscriptionId:
     payment?.subscription ||
     subscription?.id ||
     null,
+  checkoutId: checkout?.id || null,
 });
 
     if (!event) {
@@ -81,10 +85,10 @@ console.log("🔎 Resumo webhook:", {
   );
 }
 
-if (!payment && !subscription) {
-  console.error("❌ Webhook inválido: sem payment e sem subscription");
+if (!payment && !subscription && !checkout) {
+  console.error("❌ Webhook inválido: sem payment, sem subscription e sem checkout");
   return NextResponse.json(
-    { error: "Webhook inválido: sem payment e sem subscription" },
+    { error: "Webhook inválido: sem payment, sem subscription e sem checkout" },
     { status: 400 }
   );
 }
@@ -99,12 +103,18 @@ const eventoAssinaturaAceito =
   event === "SUBSCRIPTION_CREATED" ||
   event === "SUBSCRIPTION_UPDATED";
 
+const eventoCheckoutAceito =
+  event === "CHECKOUT_CREATED" ||
+  event === "CHECKOUT_PAID" ||
+  event === "CHECKOUT_CANCELED" ||
+  event === "CHECKOUT_EXPIRED";
+
 const statusPago =
   paymentStatus === "RECEIVED" ||
   paymentStatus === "CONFIRMED" ||
   paymentStatus === "RECEIVED_IN_CASH";
 
-if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !statusPago) {
+if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !eventoCheckoutAceito && !statusPago) {
   console.log("ℹ️ Evento ignorado:", { event, paymentStatus });
   return NextResponse.json({ ok: true, ignorado: true });
 }
@@ -114,6 +124,8 @@ if (!eventoPagamentoAceito && !eventoAssinaturaAceito && !statusPago) {
     ? String(payment.externalReference).trim()
     : subscription?.externalReference
     ? String(subscription.externalReference).trim()
+    : checkout?.externalReference
+    ? String(checkout.externalReference).trim()
     : "";
 
 const asaasPaymentId = payment?.id ? String(payment.id).trim() : "";
@@ -125,7 +137,9 @@ const asaasSubscriptionId =
     ? String(subscription.id).trim()
     : "";
 
-    if (!externalReference && !asaasPaymentId && !asaasSubscriptionId) {
+const asaasCheckoutId = checkout?.id ? String(checkout.id).trim() : "";
+
+    if (!externalReference && !asaasPaymentId && !asaasSubscriptionId && !asaasCheckoutId) {
   console.error("❌ Webhook sem externalReference, payment.id ou subscription.id");
   return NextResponse.json(
     { error: "Webhook sem referência suficiente para localizar a adesão" },
@@ -166,6 +180,28 @@ if (asaasSubscriptionId) filtrosOr.push({ asaasId: asaasSubscriptionId });
       statusAtual: adesao.status,
       instituicaoId: adesao.instituicaoId,
     });
+
+if (event === "CHECKOUT_CREATED") {
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      status: adesao.status === "PAGO" ? "PAGO" : "PROCESSANDO",
+    },
+  });
+
+  console.log("🟣 Checkout criado para a adesão:", {
+    adesaoId: adesao.id,
+    asaasCheckoutId,
+    externalReference,
+  });
+
+  return NextResponse.json({
+    ok: true,
+    checkoutCriado: true,
+    adesaoId: adesao.id,
+    asaasCheckoutId,
+  });
+}
 
 if (event === "SUBSCRIPTION_CREATED" || event === "SUBSCRIPTION_UPDATED") {
   await prisma.adesaoInstituicao.update({
