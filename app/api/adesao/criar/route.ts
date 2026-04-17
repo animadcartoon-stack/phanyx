@@ -4,7 +4,7 @@ import {
   criarClienteAsaas,
   criarCobrancaAsaas,
   obterQrCodePixAsaas,
-  criarAssinaturaCartaoAsaas,
+  criarCheckoutAssinaturaAsaas,
 } from "@/lib/asaas";
 
 export const dynamic = "force-dynamic";
@@ -116,23 +116,6 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-      formaPagamento === "RECORRENTE" &&
-      (
-        !cartao?.numero ||
-        !cartao?.nomeTitular ||
-        !cartao?.mesExpiracao ||
-        !cartao?.anoExpiracao ||
-        !cartao?.cvv ||
-        !cartao?.cpfCnpjTitular
-      )
-    ) {
-      return NextResponse.json(
-        { error: "Dados do cartão são obrigatórios para a assinatura mensal." },
-        { status: 400 }
-      );
-    }
-
     const valor = getValorPlano(plano);
 
     const adesaoPendenteExistente = await prisma.adesaoInstituicao.findFirst({
@@ -195,44 +178,27 @@ export async function POST(req: Request) {
       let linkCobranca: string | null = null;
       let vencimentoFormatado = formatarDataISO(dueDate);
 
-      if (formaPagamento === "RECORRENTE") {
-        const remoteIp = getRemoteIp(req);
-
-        const assinatura = await criarAssinaturaCartaoAsaas({
-          customer: cliente.id,
-          value: valor,
-          nextDueDate: dueDate,
-          cycle: "MONTHLY",
-          description: `Assinatura PHANYX - ${plano}`,
-          externalReference: String(adesao.id),
-          creditCard: {
-            holderName: String(cartao.nomeTitular).trim(),
-            number: String(cartao.numero).replace(/\s/g, ""),
-            expiryMonth: String(cartao.mesExpiracao).trim(),
-            expiryYear: String(cartao.anoExpiracao).trim(),
-            ccv: String(cartao.cvv).trim(),
-          },
-          creditCardHolderInfo: {
-            name: nomeResponsavel,
-            email,
-            cpfCnpj: normalizarCpfCnpj(cartao.cpfCnpjTitular),
-            postalCode: "88701-000",
-            addressNumber: "123",
-            addressComplement: "",
-            phone: telefone || "48999999999",
-          },
-          remoteIp,
-        });
-
-        asaasId = assinatura.id;
-        linkCobranca = null;
-        vencimentoFormatado = formatarDataISO(dueDate);
+            if (formaPagamento === "RECORRENTE") {
+        const checkout = await criarCheckoutAssinaturaAsaas({
+  value: valor,
+  plano,
+  email,
+  nomeResponsavel,
+  cpfCnpj,
+  telefone: telefone || "48999999999",
+  postalCode: "88701-000",
+  address: "Rua Lauro Müller",
+  addressNumber: "123",
+  province: "Centro",
+  city: "Tubarão",
+  externalReference: String(adesao.id),
+});
 
         await prisma.adesaoInstituicao.update({
           where: { id: adesao.id },
           data: {
-            asaasId: assinatura.id,
-            status: "PROCESSANDO",
+            asaasId: checkout.id,
+            status: "PENDENTE",
           },
         });
 
@@ -241,11 +207,9 @@ export async function POST(req: Request) {
           recorrente: true,
           adesao: {
             id: adesao.id,
-            status: "PROCESSANDO",
+            status: "PENDENTE",
           },
-          assinatura: {
-            id: assinatura.id,
-          },
+          checkoutUrl: checkout.url,
         });
       }
 

@@ -78,33 +78,12 @@ function AdesaoContent() {
       setLoading(true);
       setErro("");
 
-const cartaoNormalizado = {
-  numero: cartao.numero.replace(/\s/g, ""),
-  nomeTitular: cartao.nomeTitular.trim(),
-  mesExpiracao: cartao.mesExpiracao.trim(),
-  anoExpiracao: cartao.anoExpiracao.trim(),
-  cvv: cartao.cvv.trim(),
-  cpfCnpjTitular: cartao.cpfCnpjTitular.replace(/\D/g, ""),
-};
-
       if (!nomeResponsavel || !nomeInstituicao || !email || !cpfCnpj) {
         setErro("Preencha todos os campos obrigatórios.");
         return;
       }
 
-      if (
-  formaPagamento === "RECORRENTE" &&
-  (!cartaoNormalizado.numero ||
-    !cartaoNormalizado.nomeTitular ||
-    !cartaoNormalizado.mesExpiracao ||
-    !cartaoNormalizado.anoExpiracao ||
-    !cartaoNormalizado.cvv ||
-    !cartaoNormalizado.cpfCnpjTitular)
-) {
-  setErro("Preencha os dados do cartão para a assinatura mensal.");
-  return;
-}
-
+      
       const res = await fetch("/api/adesao/criar", {
         method: "POST",
         headers: {
@@ -118,7 +97,6 @@ const cartaoNormalizado = {
           cpfCnpj,
           plano,
           formaPagamento,
-          cartao: formaPagamento === "RECORRENTE" ? cartaoNormalizado : null,
         }),
       });
 
@@ -135,6 +113,11 @@ const cartaoNormalizado = {
       setInvoiceUrl(data?.invoiceUrl || "");
       setStatusPagamento(data?.adesao?.status || "PENDING");
       setPagamentoConfirmado(data?.adesao?.status === "PAGO");
+
+if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
+  window.location.href = data.checkoutUrl;
+  return;
+}
 
       if (formaPagamento === "RECORRENTE") {
         setStatusPagamento(data?.adesao?.status || "PROCESSANDO");
@@ -356,7 +339,7 @@ const cartaoNormalizado = {
                   </button>
                 </div>
 
-                {ehRecorrente ? (
+                {false ? (
                   <div className="mt-4 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-100">
                     <p className="font-semibold text-white">
                       Cobrança automática mensal no cartão

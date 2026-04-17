@@ -162,6 +162,14 @@ export default function BlogPage() {
     Veja como criar e vender cursos digitais com uma plataforma profissional.
   </p>
 </Link>
+<Link href="/blog/como-montar-um-curso-online" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Como montar um curso online
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como criar um curso digital do zero.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">

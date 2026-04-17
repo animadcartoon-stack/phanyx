@@ -37,6 +37,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://www.phanyx.com.br/blog/como-montar-um-curso-online",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/blog/como-vender-cursos-online",
   lastModified: new Date(),
 },
