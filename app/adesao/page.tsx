@@ -46,19 +46,6 @@ function AdesaoContent() {
   const [statusPagamento, setStatusPagamento] = useState("PENDING");
   const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
 
-  const [cartaoNumero, setCartaoNumero] = useState("");
-  const [cartaoNome, setCartaoNome] = useState("");
-  const [cartaoMesExpiracao, setCartaoMesExpiracao] = useState("");
-  const [cartaoAnoExpiracao, setCartaoAnoExpiracao] = useState("");
-  const [cartaoCvv, setCartaoCvv] = useState("");
-  const [cartaoCpfTitular, setCartaoCpfTitular] = useState("");
-  const [cartaoNomeTitular, setCartaoNomeTitular] = useState("");
-  const [cartaoNumeroParcial, setCartaoNumeroParcial] = useState("");
-  const [cartaoValidade, setCartaoValidade] = useState("");
-  const [cartaoAnoCurto, setCartaoAnoCurto] = useState("");
-  const [cartaoMes, setCartaoMes] = useState("");
-  const [cartaoAno, setCartaoAno] = useState("");
-  const [cartaoHolderInfo, setCartaoHolderInfo] = useState("");
   const [cartao, setCartao] = useState({
     numero: "",
     nomeTitular: "",
@@ -76,19 +63,6 @@ function AdesaoContent() {
     setCopiado(false);
     setStatusPagamento("PENDING");
     setPagamentoConfirmado(false);
-    setCartaoNumero("");
-    setCartaoNome("");
-    setCartaoMesExpiracao("");
-    setCartaoAnoExpiracao("");
-    setCartaoCvv("");
-    setCartaoCpfTitular("");
-    setCartaoNomeTitular("");
-    setCartaoNumeroParcial("");
-    setCartaoValidade("");
-    setCartaoAnoCurto("");
-    setCartaoMes("");
-    setCartaoAno("");
-    setCartaoHolderInfo("");
     setCartao({
       numero: "",
       nomeTitular: "",
@@ -111,12 +85,12 @@ function AdesaoContent() {
 
       if (
         formaPagamento === "RECORRENTE" &&
-        (!cartaoNumero ||
-          !cartaoNome ||
-          !cartaoMesExpiracao ||
-          !cartaoAnoExpiracao ||
-          !cartaoCvv ||
-          !cartaoCpfTitular)
+        (!cartao.numero ||
+          !cartao.nomeTitular ||
+          !cartao.mesExpiracao ||
+          !cartao.anoExpiracao ||
+          !cartao.cvv ||
+          !cartao.cpfCnpjTitular)
       ) {
         setErro("Preencha os dados do cartão para a assinatura mensal.");
         return;
@@ -135,17 +109,7 @@ function AdesaoContent() {
           cpfCnpj,
           plano,
           formaPagamento,
-          cartao:
-            formaPagamento === "RECORRENTE"
-              ? {
-                  numero: cartaoNumero,
-                  nomeTitular: cartaoNome,
-                  mesExpiracao: cartaoMesExpiracao,
-                  anoExpiracao: cartaoAnoExpiracao,
-                  cvv: cartaoCvv,
-                  cpfCnpjTitular: cartaoCpfTitular,
-                }
-              : null,
+          cartao: formaPagamento === "RECORRENTE" ? cartao : null,
         }),
       });
 
@@ -484,43 +448,58 @@ function AdesaoContent() {
 
                   <div className="mt-4 grid gap-3 md:grid-cols-2">
                     <input
-                      value={cartaoNumero}
-                      onChange={(e) => setCartaoNumero(e.target.value)}
+                      value={cartao.numero}
+                      onChange={(e) =>
+                        setCartao({ ...cartao, numero: e.target.value })
+                      }
                       placeholder="Número do cartão"
                       className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
                     />
 
                     <input
-                      value={cartaoNome}
-                      onChange={(e) => setCartaoNome(e.target.value)}
+                      value={cartao.nomeTitular}
+                      onChange={(e) =>
+                        setCartao({ ...cartao, nomeTitular: e.target.value })
+                      }
                       placeholder="Nome impresso no cartão"
                       className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
                     />
 
                     <input
-                      value={cartaoMesExpiracao}
-                      onChange={(e) => setCartaoMesExpiracao(e.target.value)}
+                      value={cartao.mesExpiracao}
+                      onChange={(e) =>
+                        setCartao({ ...cartao, mesExpiracao: e.target.value })
+                      }
                       placeholder="Mês (MM)"
                       className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
                     />
 
                     <input
-                      value={cartaoAnoExpiracao}
-                      onChange={(e) => setCartaoAnoExpiracao(e.target.value)}
+                      value={cartao.anoExpiracao}
+                      onChange={(e) =>
+                        setCartao({ ...cartao, anoExpiracao: e.target.value })
+                      }
                       placeholder="Ano (AAAA)"
                       className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
                     />
 
                     <input
-                      value={cartaoCvv}
-                      onChange={(e) => setCartaoCvv(e.target.value)}
+                      value={cartao.cvv}
+                      onChange={(e) =>
+                        setCartao({ ...cartao, cvv: e.target.value })
+                      }
                       placeholder="CVV"
                       className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
                     />
 
                     <input
-                      value={cartaoCpfTitular}
-                      onChange={(e) => setCartaoCpfTitular(e.target.value)}
+                      value={cartao.cpfCnpjTitular}
+                      onChange={(e) =>
+                        setCartao({
+                          ...cartao,
+                          cpfCnpjTitular: e.target.value,
+                        })
+                      }
                       placeholder="CPF/CNPJ do titular"
                       className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
                     />
