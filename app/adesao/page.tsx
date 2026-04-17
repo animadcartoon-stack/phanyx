@@ -52,14 +52,21 @@ function AdesaoContent() {
   const [cartaoAnoExpiracao, setCartaoAnoExpiracao] = useState("");
   const [cartaoCvv, setCartaoCvv] = useState("");
   const [cartaoCpfTitular, setCartaoCpfTitular] = useState("");
+  const [cartaoNomeTitular, setCartaoNomeTitular] = useState("");
+  const [cartaoNumeroParcial, setCartaoNumeroParcial] = useState("");
+  const [cartaoValidade, setCartaoValidade] = useState("");
+  const [cartaoAnoCurto, setCartaoAnoCurto] = useState("");
+  const [cartaoMes, setCartaoMes] = useState("");
+  const [cartaoAno, setCartaoAno] = useState("");
+  const [cartaoHolderInfo, setCartaoHolderInfo] = useState("");
   const [cartao, setCartao] = useState({
-  numero: "",
-  nomeTitular: "",
-  mesExpiracao: "",
-  anoExpiracao: "",
-  cvv: "",
-  cpfCnpjTitular: "",
-});
+    numero: "",
+    nomeTitular: "",
+    mesExpiracao: "",
+    anoExpiracao: "",
+    cvv: "",
+    cpfCnpjTitular: "",
+  });
 
   useEffect(() => {
     setAdesaoId(null);
@@ -75,6 +82,21 @@ function AdesaoContent() {
     setCartaoAnoExpiracao("");
     setCartaoCvv("");
     setCartaoCpfTitular("");
+    setCartaoNomeTitular("");
+    setCartaoNumeroParcial("");
+    setCartaoValidade("");
+    setCartaoAnoCurto("");
+    setCartaoMes("");
+    setCartaoAno("");
+    setCartaoHolderInfo("");
+    setCartao({
+      numero: "",
+      nomeTitular: "",
+      mesExpiracao: "",
+      anoExpiracao: "",
+      cvv: "",
+      cpfCnpjTitular: "",
+    });
   }, [plano, formaPagamento]);
 
   async function criarAdesao() {
@@ -89,14 +111,12 @@ function AdesaoContent() {
 
       if (
         formaPagamento === "RECORRENTE" &&
-        (
-          !cartaoNumero ||
+        (!cartaoNumero ||
           !cartaoNome ||
           !cartaoMesExpiracao ||
           !cartaoAnoExpiracao ||
           !cartaoCvv ||
-          !cartaoCpfTitular
-        )
+          !cartaoCpfTitular)
       ) {
         setErro("Preencha os dados do cartão para a assinatura mensal.");
         return;
@@ -175,10 +195,7 @@ function AdesaoContent() {
 
         if (!res.ok) return;
 
-        const status =
-          json?.adesao?.status ||
-          json?.status ||
-          "PENDING";
+        const status = json?.adesao?.status || json?.status || "PENDING";
 
         setStatusPagamento(status);
 
@@ -216,7 +233,9 @@ function AdesaoContent() {
 
         if (status === "ERRO") {
           clearInterval(interval);
-          setErro("Ocorreu um erro ao processar sua cobrança. Gere uma nova adesão para continuar.");
+          setErro(
+            "Ocorreu um erro ao processar sua cobrança. Gere uma nova adesão para continuar."
+          );
         }
       } catch (error) {
         console.error("Erro ao consultar status da adesão:", error);
