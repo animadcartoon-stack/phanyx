@@ -71,6 +71,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://www.phanyx.com.br/blog/gestao-academica-na-pratica",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/como-reduzir-inadimplencia-escolar-com-tecnologia",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/controle-financeiro-para-escolas",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/sistema-para-cursos-profissionalizantes",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/blog/sistema-gestao-escolar",
   lastModified: new Date(),
 },

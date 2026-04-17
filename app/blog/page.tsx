@@ -74,6 +74,38 @@ export default function BlogPage() {
     Veja como um sistema pode transformar a gestão educacional.
   </p>
 </Link>
+<Link href="/blog/gestao-academica-na-pratica" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Gestão acadêmica na prática
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como organizar sua instituição com gestão acadêmica eficiente.
+  </p>
+</Link>
+<Link href="/blog/como-reduzir-inadimplencia-escolar-com-tecnologia" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Como reduzir inadimplência escolar com tecnologia
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como controlar pagamentos e reduzir atrasos em sua instituição.
+  </p>
+</Link>
+<Link href="/blog/controle-financeiro-para-escolas" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Controle financeiro para escolas
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como organizar o financeiro da sua instituição de ensino.
+  </p>
+</Link>
+<Link href="/blog/sistema-para-cursos-profissionalizantes" className="block border p-6 rounded-lg hover:shadow">
+  <h2 className="text-2xl font-semibold">
+    Sistema para cursos profissionalizantes
+  </h2>
+  <p className="text-slate-600 mt-2">
+    Veja como organizar cursos técnicos e profissionalizantes com tecnologia.
+  </p>
+</Link>
           </div>
         </section>
         <section className="bg-white">
