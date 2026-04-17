@@ -58,10 +58,12 @@ function normalizarFormaPagamento(
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
 const remoteIp =
   req.headers.get("x-forwarded-for")?.split(",")[0] ||
   req.headers.get("x-real-ip") ||
   "127.0.0.1";
+  
     const nomeResponsavel = String(body?.nomeResponsavel || "").trim();
     const nomeInstituicao = String(body?.nomeInstituicao || "").trim();
     const email = normalizarEmail(body?.email || "");
@@ -108,20 +110,20 @@ const remoteIp =
     const valor = getValorPlano(plano);
 
     const adesaoPendenteExistente = await prisma.adesaoInstituicao.findFirst({
-      where: {
-        email,
-        nomeInstituicao,
-        plano,
-        status: {
-          in: ["PENDING", "PENDENTE", "AGUARDANDO_PAGAMENTO"],
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+  where: {
+    email,
+    nomeInstituicao,
+    plano,
+    status: {
+      in: ["PENDING", "PENDENTE", "AGUARDANDO_PAGAMENTO", "PROCESSANDO"],
+    },
+  },
+  orderBy: {
+    createdAt: "desc",
+  },
+});
 
-    if (adesaoPendenteExistente?.asaasId) {
+if (adesaoPendenteExistente) {
   await prisma.adesaoInstituicao.update({
     where: { id: adesaoPendenteExistente.id },
     data: { status: "CANCELADO" },
@@ -146,19 +148,19 @@ const remoteIp =
     }
 
     const adesao = await prisma.adesaoInstituicao.create({
-      data: {
-        nomeResponsavel,
-        nomeInstituicao,
-        email,
-        telefone,
-        cpfCnpj,
-        plano,
-        valor,
-        status: "PENDING",
-        pixCode: "",
-        asaasId: null,
-      },
-    });
+  data: {
+    nomeResponsavel,
+    nomeInstituicao,
+    email,
+    telefone,
+    cpfCnpj,
+    plano,
+    valor,
+    status: "PENDENTE",
+    pixCode: "",
+    asaasId: null,
+  },
+});
 
     try {
       const dueDate = new Date().toISOString().split("T")[0];
@@ -230,6 +232,7 @@ const adesaoAtualizada = await prisma.adesaoInstituicao.update({
   data: {
     asaasId,
     pixCode,
+    status: "PROCESSANDO",
   },
 });
   
@@ -248,12 +251,14 @@ const adesaoAtualizada = await prisma.adesaoInstituicao.update({
       }
 
       return NextResponse.json({
-        success: true,
-        adesao: adesaoAtualizada,
-        formaPagamento,
-        invoiceUrl: linkCobranca,
-        pixCode,
-      });
+  success: true,
+  adesao: adesaoAtualizada,
+  formaPagamento,
+  invoiceUrl: linkCobranca,
+  pixCode,
+  status: adesaoAtualizada.status,
+});
+
     } catch (err: any) {
       console.error("🔥 ERRO REAL ASAAS:", err);
 

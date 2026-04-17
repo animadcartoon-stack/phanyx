@@ -50,10 +50,19 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    console.log("🔥 Webhook recebido:", JSON.stringify(body, null, 2));
+const event = body?.event;
+const payment = body?.payment;
+const paymentStatus = payment?.status
+  ? String(payment.status).trim().toUpperCase()
+  : "";
 
-    const event = body?.event;
-    const payment = body?.payment;
+console.log("🔥 Webhook recebido:", JSON.stringify(body, null, 2));
+console.log("🔎 Resumo webhook:", {
+  event,
+  paymentStatus,
+  externalReference: payment?.externalReference || null,
+  asaasPaymentId: payment?.id || null,
+});
 
     if (!event || !payment) {
       console.error("❌ Webhook inválido: sem event ou payment");
@@ -63,16 +72,20 @@ export async function POST(req: Request) {
       );
     }
 
-    if (
-  event !== "PAYMENT_RECEIVED" &&
-  event !== "PAYMENT_CONFIRMED" &&
-  event !== "PAYMENT_AUTHORIZED"
-) {
+    const eventoAceito =
+  event === "PAYMENT_RECEIVED" ||
+  event === "PAYMENT_CONFIRMED" ||
+  event === "PAYMENT_AUTHORIZED";
 
-      console.log("ℹ️ Evento ignorado:", event);
-      return NextResponse.json({ ok: true, ignorado: true });
-    }
+const statusPago =
+  paymentStatus === "RECEIVED" ||
+  paymentStatus === "CONFIRMED" ||
+  paymentStatus === "RECEIVED_IN_CASH";
 
+if (!eventoAceito && !statusPago) {
+  console.log("ℹ️ Evento ignorado:", { event, paymentStatus });
+  return NextResponse.json({ ok: true, ignorado: true });
+}
     const externalReference = payment?.externalReference
       ? String(payment.externalReference).trim()
       : "";
@@ -171,13 +184,7 @@ export async function POST(req: Request) {
     },
   });
 
-  await enviarEmailAcessoExistente({
-    email: user.email,
-    nome: adesao.nomeResponsavel,
-    instituicao: instituicao.nome,
-  });
-
-  console.log("ℹ️ Email de acesso existente enviado para:", user.email);
+  console.log("ℹ️ Reprocessamento detectado. Nenhum novo email será enviado.");
 
   return NextResponse.json({ ok: true, reprocessoIgnorado: true });
 }
