@@ -46,6 +46,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
   priority: 1,
   changeFrequency: "weekly",
 },
+{
+  url: "https://www.phanyx.com.br/phanyx",
+  lastModified: new Date(),
+},
     {
       url: `${baseUrl}/contato`,
       lastModified: new Date(),

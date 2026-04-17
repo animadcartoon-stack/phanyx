@@ -68,6 +68,28 @@ export default function PhanyxPage() {
             acompanhar alunos, aplicar avaliações e organizar cursos online
             com uma experiência moderna.
           </p>
+          <h2 className="mt-10 text-3xl font-bold">
+  Variações de busca pelo PHANYX
+</h2>
+
+<p className="mt-4 text-lg text-slate-600">
+  Algumas pessoas procuram pela plataforma utilizando grafias diferentes,
+  como por exemplo:
+</p>
+
+<ul className="list-disc ml-6 mt-4 text-slate-600">
+  <li>phanix sistema escolar</li>
+  <li>fanix plataforma de ensino</li>
+  <li>fanics sistema acadêmico</li>
+  <li>panix software para cursos</li>
+  <li>phany sistema educacional</li>
+</ul>
+
+<p className="mt-4 text-lg text-slate-600">
+  Independentemente da forma como você pesquisou, o nome correto da
+  plataforma é <strong>PHANYX</strong>, um sistema completo para gestão
+  escolar, acadêmica e ensino EAD.
+</p>
         </section>
       </main>
 
