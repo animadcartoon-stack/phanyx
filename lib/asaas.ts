@@ -125,20 +125,24 @@ type AtualizarAssinaturaAsaasInput = Partial<{
 function getAsaasConfig() {
   const apiKey =
     process.env.ASAAS_API_KEY ||
+    process.env.ASAAS_ACCESS_TOKEN ||
+    process.env.ASAAS_TOKEN ||
     process.env.NEXT_PUBLIC_ASAAS_API_KEY ||
+    process.env.NEXT_PUBLIC_ASAAS_ACCESS_TOKEN ||
     "";
 
   const baseUrl =
     process.env.ASAAS_BASE_URL ||
     process.env.NEXT_PUBLIC_ASAAS_BASE_URL ||
-    "";
+    "https://api-sandbox.asaas.com/v3";
+
+  console.log("🔎 ASAAS CONFIG:", {
+    temApiKey: Boolean(apiKey),
+    baseUrl,
+  });
 
   if (!apiKey) {
-    throw new Error("ASAAS_API_KEY não definida no .env");
-  }
-
-  if (!baseUrl) {
-    throw new Error("ASAAS_BASE_URL não definida no .env");
+    throw new Error("Configuração do Asaas ausente no servidor.");
   }
 
   return {

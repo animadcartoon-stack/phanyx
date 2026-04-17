@@ -244,23 +244,26 @@ export default function SistemaEscolarPage() {
           </div>
         </section>
 
-        <section className="hidden">
-  <h2>Sistema de gestão escolar online</h2>
-  <p>
-    O PHANYX é um software de gestão escolar online que permite controlar alunos,
-    professores, cursos, turmas, disciplinas e financeiro escolar de forma simples.
+        <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
+  <h2 className="text-3xl font-bold text-slate-900">
+    Sistema de gestão escolar online completo
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    O PHANYX é um sistema de gestão escolar online completo que permite controlar alunos, professores, cursos, turmas, disciplinas e financeiro escolar em uma única plataforma. Ideal para instituições que buscam modernizar sua operação e ganhar mais eficiência.
   </p>
 
-  <h2>Software para escolas e faculdades</h2>
-  <p>
-    Ideal para instituições de ensino presencial e EAD, o sistema oferece controle
-    acadêmico, emissão de documentos, gestão de notas e acompanhamento completo do aluno.
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Software para escolas, faculdades e cursos
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    Este software para escolas e faculdades oferece recursos completos de gestão acadêmica, controle de notas, emissão de documentos, acompanhamento de alunos e integração com ensino digital (EAD). Tudo com segurança e escalabilidade.
   </p>
 
-  <h2>Plataforma de gestão acadêmica</h2>
-  <p>
-    Uma solução completa para gestão acadêmica com recursos modernos, segurança de dados
-    e escalabilidade para crescimento institucional.
+  <h2 className="mt-10 text-3xl font-bold text-slate-900">
+    Plataforma de gestão acadêmica moderna
+  </h2>
+  <p className="mt-4 text-lg text-slate-600">
+    A plataforma de gestão acadêmica PHANYX foi desenvolvida para atender instituições de ensino que precisam de organização, controle e crescimento. Com tecnologia SaaS, permite expansão multi-institucional com alta performance.
   </p>
 </section>
 
