@@ -47,6 +47,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
 },
 {
+  url: "https://www.phanyx.com.br/blog",
+  lastModified: new Date(),
+},
+{
+  url: "https://www.phanyx.com.br/blog/sistema-gestao-escolar",
+  lastModified: new Date(),
+},
+{
   url: "https://www.phanyx.com.br/phanyx",
   lastModified: new Date(),
 },

@@ -5,11 +5,24 @@ import {
   criarCobrancaAsaas,
   criarCheckoutAssinaturaAsaas,
   obterQrCodePixAsaas,
+  criarAssinaturaCartaoAsaas,
 } from "@/lib/asaas";
 import { enviarEmailCobranca } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
+
+function getRemoteIp(req: Request) {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  const realIp = req.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
+  return "127.0.0.1";
+}
 
 function getValorPlano(plano: string) {
   const planoNormalizado = String(plano).trim().toUpperCase();
@@ -146,7 +159,7 @@ if (adesaoPendenteExistente) {
     if (!cliente?.id) {
       throw new Error("Asaas não retornou o ID do cliente.");
     }
-
+    const cartao = body?.cartao || null;
     const adesao = await prisma.adesaoInstituicao.create({
   data: {
     nomeResponsavel,
@@ -171,93 +184,62 @@ let linkCobranca: string | null = null;
 let vencimentoFormatado = formatarDataISO(dueDate);
 
 if (formaPagamento === "RECORRENTE") {
-  
-  const checkout = await criarCheckoutAssinaturaAsaas({
-  value: Number(valor),
-  plano,
-  email,
-  nomeResponsavel,
-  cpfCnpj,
-  telefone: telefone || "",
-  postalCode: "88701-000",
-  address: "Rua Lauro Müller",
-  addressNumber: "123",
-  province: "Centro",
-  city: "Tubarão",
-  externalReference: String(adesao.id),
-});
+  if (!cartao) {
+    throw new Error("Dados do cartão não enviados para a assinatura.");
+  }
 
-linkCobranca = checkout.url;
+  const remoteIp = getRemoteIp(req);
 
-asaasId = null;
-linkCobranca = checkout?.url || null;
-
-if (!linkCobranca) {
-  throw new Error("Asaas não retornou a URL do checkout da assinatura.");
-}
-
-vencimentoFormatado = formatarDataISO(dueDate);
-} else {
-  const cobranca = await criarCobrancaAsaas({
+  const assinatura = await criarAssinaturaCartaoAsaas({
     customer: cliente.id,
-    billingType: formaPagamento as "PIX" | "BOLETO" | "CREDIT_CARD",
-    value: Number(valor),
-    dueDate,
-    description: `Adesão PHANYX - ${plano}`,
+    value: valor,
+    nextDueDate: dueDate,
+    cycle: "MONTHLY",
+    description: `Assinatura PHANYX - ${plano}`,
     externalReference: String(adesao.id),
+    creditCard: {
+      holderName: cartao.nomeTitular,
+      number: cartao.numero,
+      expiryMonth: cartao.mesExpiracao,
+      expiryYear: cartao.anoExpiracao,
+      ccv: cartao.cvv,
+    },
+    creditCardHolderInfo: {
+      name: nomeResponsavel,
+      email,
+      cpfCnpj: cartao.cpfCnpjTitular,
+      postalCode: "88701-000",
+      addressNumber: "123",
+      addressComplement: "",
+      phone: telefone || "48999999999",
+    },
+    remoteIp,
   });
 
-  asaasId = cobranca?.id ? String(cobranca.id) : null;
+  asaasId = assinatura.id;
+  linkCobranca = null;
+  vencimentoFormatado = formatarDataISO(dueDate);
 
-  if (!asaasId) {
-    throw new Error("Asaas não retornou o ID da cobrança.");
-  }
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      asaasId: assinatura.id,
+      status: "PROCESSANDO",
+    },
+  });
 
-  if (formaPagamento === "PIX") {
-    const qrCode = await obterQrCodePixAsaas(asaasId);
-    pixCode = qrCode?.payload ? String(qrCode.payload) : "";
-
-    if (!pixCode) {
-      throw new Error("Asaas não retornou o código Pix.");
-    }
-  }
-
-  const cobrancaAny = cobranca as any;
-  linkCobranca = cobrancaAny?.invoiceUrl || null;
-  vencimentoFormatado = formatarDataISO(cobrancaAny?.dueDate || dueDate);
+  return NextResponse.json({
+    ok: true,
+    recorrente: true,
+    adesao: {
+      id: adesao.id,
+      status: "PROCESSANDO",
+    },
+    assinatura: {
+      id: assinatura.id,
+    },
+  });
 }
-
-const adesaoAtualizada = await prisma.adesaoInstituicao.update({
-  where: { id: adesao.id },
-  data: {
-    asaasId: formaPagamento === "RECORRENTE" ? null : asaasId,
-    pixCode,
-    status: "PROCESSANDO",
-  },
-});
-  
-      try {
-        await enviarEmailCobranca({
-          email,
-          nome: nomeResponsavel,
-          instituicao: nomeInstituicao,
-          valor,
-          vencimento: vencimentoFormatado,
-          descricao: `Adesão PHANYX - ${plano} (${formaPagamento})`,
-          linkCobranca,
-        });
-      } catch (emailError) {
-        console.error("ERRO AO ENVIAR EMAIL DE COBRANÇA:", emailError);
-      }
-
-      return NextResponse.json({
-  success: true,
-  adesao: adesaoAtualizada,
-  formaPagamento,
-  invoiceUrl: linkCobranca,
-  pixCode,
-  status: adesaoAtualizada.status,
-});
 
     } catch (err: any) {
       console.error("🔥 ERRO REAL ASAAS:", err);

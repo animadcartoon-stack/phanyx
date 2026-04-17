@@ -16,6 +16,42 @@ type AsaasCreditCard = {
   ccv: string;
 };
 
+type CriarAssinaturaCartaoAsaasInput = {
+  customer: string;
+  value: number;
+  nextDueDate: string;
+  cycle: "MONTHLY";
+  description: string;
+  externalReference: string;
+  creditCard: {
+    holderName: string;
+    number: string;
+    expiryMonth: string;
+    expiryYear: string;
+    ccv: string;
+  };
+  creditCardHolderInfo: {
+    name: string;
+    email: string;
+    cpfCnpj: string;
+    postalCode: string;
+    addressNumber: string;
+    addressComplement?: string;
+    phone: string;
+  };
+  remoteIp: string;
+};
+
+type CriarAssinaturaCartaoAsaasResponse = {
+  id: string;
+  customer: string;
+  value: number;
+  cycle: string;
+  billingType: string;
+  nextDueDate: string;
+  externalReference?: string;
+};
+
 type AsaasCreditCardHolderInfo = {
   name: string;
   email: string;
@@ -122,6 +158,8 @@ type AtualizarAssinaturaAsaasInput = Partial<{
   remoteIp: string;
 }>;
 
+
+
 function getAsaasConfig() {
   const apiKey =
     process.env.ASAAS_API_KEY ||
@@ -160,6 +198,8 @@ function getAsaasConfig() {
     baseUrl: baseUrl.replace(/\/+$/, ""),
   };
 }
+
+
 
 async function asaasFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const { apiKey, baseUrl } = getAsaasConfig();
@@ -227,20 +267,23 @@ export async function criarAssinaturaAsaas(data: CriarAssinaturaAsaasInput) {
   });
 }
 
-export async function criarAssinaturaCartaoAsaas(data: CriarAssinaturaAsaasInput) {
-  if (!data.remoteIp) {
-    throw new Error("remoteIp é obrigatório para criar assinatura no cartão.");
-  }
-
-  if (!data.creditCard && !data.creditCardToken) {
-    throw new Error(
-      "Informe creditCard/creditCardHolderInfo ou creditCardToken para assinatura no cartão."
-    );
-  }
-
-  return criarAssinaturaAsaas({
-    ...data,
-    billingType: "CREDIT_CARD",
+export async function criarAssinaturaCartaoAsaas(
+  data: CriarAssinaturaCartaoAsaasInput
+): Promise<CriarAssinaturaCartaoAsaasResponse> {
+  return asaasFetch<CriarAssinaturaCartaoAsaasResponse>("/subscriptions", {
+    method: "POST",
+    body: JSON.stringify({
+      customer: data.customer,
+      billingType: "CREDIT_CARD",
+      value: data.value,
+      nextDueDate: data.nextDueDate,
+      cycle: data.cycle,
+      description: data.description,
+      externalReference: data.externalReference,
+      creditCard: data.creditCard,
+      creditCardHolderInfo: data.creditCardHolderInfo,
+      remoteIp: data.remoteIp,
+    }),
   });
 }
 
