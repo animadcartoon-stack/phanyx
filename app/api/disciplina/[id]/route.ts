@@ -182,36 +182,39 @@ export async function GET(
     }
 
     const disciplina = await prisma.disciplina.findFirst({
-  where: {
-  id: Number(id),
-  instituicaoId: user.instituicaoId,
-},
-  include: {
-    curso: true,
-    turmas: {
-      include: {
-        professor: true,
-        _count: {
-  select: {
-    atividades: true,
-    itensMatricula: true,
-    modulos: true,
-    notas: true,
-    provas: true,
-    resultadosFinais: true,
-  },
-},
+      where: {
+        id: Number(id),
+        instituicaoId: user.instituicaoId,
       },
-    },
-  },
-});
+      include: {
+        curso: true,
+        turmas: {
+          include: {
+            professor: true,
+            _count: {
+              select: {
+                atividades: true,
+                itensMatricula: true,
+                modulos: true,
+                notas: true,
+                provas: true,
+                resultadosFinais: true,
+              },
+            },
+          },
+        },
+      },
+    });
 
-if (!disciplina || !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)) {
-  return NextResponse.json(
-    { error: "Disciplina não encontrada" },
-    { status: 404 }
-  );
-}
+    if (
+      !disciplina ||
+      !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)
+    ) {
+      return NextResponse.json(
+        { error: "Disciplina não encontrada" },
+        { status: 404 }
+      );
+    }
 
     return NextResponse.json(disciplina);
   } catch (error: any) {
@@ -246,30 +249,25 @@ export async function PUT(
 
     const body = await request.json();
 
-    const disciplinaExistente = await prisma.disciplina.findUnique({
-  where: { id },
-  include: {
-    curso: true,
-    turmas: {
-      select: {
-        id: true,
-        instituicaoId: true,
+    const disciplinaExistente = await prisma.disciplina.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
       },
-    },
-  },
-});
+      include: {
+        curso: true,
+        turmas: {
+          include: {
+            professor: true,
+          },
+        },
+      },
+    });
 
-if (
-  !disciplinaExistente ||
-  !disciplinaPertenceAInstituicao(disciplinaExistente, user.instituicaoId)
-) {
-  return NextResponse.json(
-    { error: "Disciplina não encontrada" },
-    { status: 404 }
-  );
-}
-
-    if (!disciplinaExistente) {
+    if (
+      !disciplinaExistente ||
+      !disciplinaPertenceAInstituicao(disciplinaExistente, user.instituicaoId)
+    ) {
       return NextResponse.json(
         { error: "Disciplina não encontrada" },
         { status: 404 }
@@ -278,7 +276,11 @@ if (
 
     let cursoIdFinal: number | null | undefined = disciplinaExistente.cursoId;
 
-    if (body.cursoId !== undefined && body.cursoId !== null && body.cursoId !== "") {
+    if (
+      body.cursoId !== undefined &&
+      body.cursoId !== null &&
+      body.cursoId !== ""
+    ) {
       const curso = await prisma.curso.findFirst({
         where: {
           id: Number(body.cursoId),
@@ -300,24 +302,113 @@ if (
       cursoIdFinal = null;
     }
 
-    const disciplinaAtualizada = await prisma.disciplina.update({
-      where: { id },
-      data: {
-        nome: String(body.nome ?? disciplinaExistente.nome).trim(),
-        codigo: body.codigo ?? null,
-        descricao: body.descricao ?? null,
-        cargaHoraria:
-          body.cargaHoraria !== null && body.cargaHoraria !== undefined && body.cargaHoraria !== ""
-            ? Number(body.cargaHoraria)
-            : null,
-        semestre:
-          body.semestre !== null && body.semestre !== undefined && body.semestre !== ""
-            ? Number(body.semestre)
-            : null,
-        cursoId: cursoIdFinal,
+    const vinculosProfessorTurma = Array.isArray(body.vinculosProfessorTurma)
+      ? body.vinculosProfessorTurma
+      : [];
+
+    const turmaIdsRecebidos = vinculosProfessorTurma.map((item: any) =>
+      Number(item.turmaId)
+    );
+
+    const turmasValidas = await prisma.turma.findMany({
+      where: {
+        id: { in: turmaIdsRecebidos.filter((idTurma) => Number.isFinite(idTurma)) },
+        disciplinaId: id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const turmaIdsValidos = new Set(turmasValidas.map((turma) => turma.id));
+
+    for (const vinculo of vinculosProfessorTurma) {
+      const turmaId = Number(vinculo?.turmaId);
+
+      if (!Number.isFinite(turmaId) || !turmaIdsValidos.has(turmaId)) {
+        return NextResponse.json(
+          { error: "Turma inválida para esta disciplina." },
+          { status: 400 }
+        );
+      }
+
+      if (
+        vinculo?.professorId !== null &&
+        vinculo?.professorId !== undefined &&
+        vinculo?.professorId !== ""
+      ) {
+        const professor = await prisma.professor.findFirst({
+          where: {
+            id: Number(vinculo.professorId),
+            instituicaoId: user.instituicaoId,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!professor) {
+          return NextResponse.json(
+            { error: "Professor inválido para esta instituição." },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.disciplina.update({
+        where: { id },
+        data: {
+          nome: String(body.nome ?? disciplinaExistente.nome).trim(),
+          codigo: body.codigo ?? null,
+          descricao: body.descricao ?? null,
+          cargaHoraria:
+            body.cargaHoraria !== null &&
+            body.cargaHoraria !== undefined &&
+            body.cargaHoraria !== ""
+              ? Number(body.cargaHoraria)
+              : null,
+          semestre:
+            body.semestre !== null &&
+            body.semestre !== undefined &&
+            body.semestre !== ""
+              ? Number(body.semestre)
+              : null,
+          cursoId: cursoIdFinal,
+        },
+      });
+
+      for (const vinculo of vinculosProfessorTurma) {
+        await tx.turma.update({
+          where: {
+            id: Number(vinculo.turmaId),
+          },
+          data: {
+            professorId:
+              vinculo.professorId !== null &&
+              vinculo.professorId !== undefined &&
+              vinculo.professorId !== ""
+                ? Number(vinculo.professorId)
+                : null,
+          },
+        });
+      }
+    });
+
+    const disciplinaAtualizada = await prisma.disciplina.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
       },
       include: {
         curso: true,
+        turmas: {
+          include: {
+            professor: true,
+          },
+        },
       },
     });
 
@@ -352,25 +443,31 @@ export async function DELETE(
       return NextResponse.json({ error: "ID inválido" }, { status: 400 });
     }
 
-    const disciplina = await prisma.disciplina.findUnique({
-  where: { id },
-  include: {
-    curso: true,
-    turmas: {
-      select: {
-        id: true,
-        instituicaoId: true,
+    const disciplina = await prisma.disciplina.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
       },
-    },
-  },
-});
+      include: {
+        curso: true,
+        turmas: {
+          select: {
+            id: true,
+            instituicaoId: true,
+          },
+        },
+      },
+    });
 
-if (!disciplina || !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)) {
-  return NextResponse.json(
-    { error: "Disciplina não encontrada" },
-    { status: 404 }
-  );
-}
+    if (
+      !disciplina ||
+      !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)
+    ) {
+      return NextResponse.json(
+        { error: "Disciplina não encontrada" },
+        { status: 404 }
+      );
+    }
 
     if (disciplina.turmas.length > 0) {
       return NextResponse.json(
