@@ -3,12 +3,6 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
-export const metadata = {
-  title: "Curso de Teologia EAD | Bacharel Livre em Teologia",
-  description:
-    "Curso de teologia EAD com formação completa, flexível e reconhecida. Matrículas abertas para 2026. Estude no seu ritmo.",
-};
-
 const modulos = [
   {
     titulo: "Módulo 1",
