@@ -125,6 +125,11 @@ function AdminAlunosPage() {
   const [excluindoId, setExcluindoId] = useState<number | null>(null);
   const [alunoParaExcluir, setAlunoParaExcluir] = useState<Aluno | null>(null);
 
+  const [modalAvisoAberto, setModalAvisoAberto] = useState(false);
+  const [modalAvisoTitulo, setModalAvisoTitulo] = useState("");
+  const [modalAvisoMensagem, setModalAvisoMensagem] = useState("");
+  const [modalAvisoTipo, setModalAvisoTipo] = useState<"sucesso" | "erro">("erro");
+
   useEffect(() => {
     if (!feedback) return;
 
@@ -140,6 +145,17 @@ function AdminAlunosPage() {
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
   }
+
+function abrirModalAviso(
+  tipo: "sucesso" | "erro",
+  titulo: string,
+  mensagem: string
+) {
+  setModalAvisoTipo(tipo);
+  setModalAvisoTitulo(titulo);
+  setModalAvisoMensagem(mensagem);
+  setModalAvisoAberto(true);
+}
 
   async function carregarAlunos() {
     const res = await fetch("/api/aluno", {
@@ -262,22 +278,26 @@ async function confirmarExclusaoAluno() {
     const data = await res.json();
 
     if (!res.ok) {
-      const mensagem = data?.error || "Erro ao deletar aluno";
+      const mensagem = data?.error || "Erro ao deletar aluno.";
       setAlunoParaExcluir(null);
       mostrarFeedback("erro", mensagem);
-      alert(mensagem);
+      abrirModalAviso("erro", "Não foi possível excluir", mensagem);
       return;
     }
 
     setAlunoParaExcluir(null);
     await carregarAlunos();
     mostrarFeedback("sucesso", "Aluno excluído com sucesso.");
-    alert("Aluno excluído com sucesso.");
+    abrirModalAviso(
+      "sucesso",
+      "Aluno excluído",
+      "O aluno foi removido com sucesso."
+    );
   } catch (error: any) {
-    const mensagem = error?.message || "Erro ao deletar aluno";
+    const mensagem = error?.message || "Erro ao deletar aluno.";
     setAlunoParaExcluir(null);
     mostrarFeedback("erro", mensagem);
-    alert(mensagem);
+    abrirModalAviso("erro", "Erro ao excluir", mensagem);
   } finally {
     setExcluindoId(null);
   }
@@ -1137,6 +1157,48 @@ async function confirmarExclusaoAluno() {
                 </p>
               </div>
             </div>
+
+{modalAvisoAberto && (
+  <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/55 p-4">
+    <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="flex items-start gap-4">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl ${
+            modalAvisoTipo === "sucesso"
+              ? "bg-emerald-100"
+              : "bg-red-100"
+          }`}
+        >
+          {modalAvisoTipo === "sucesso" ? "✅" : "⚠️"}
+        </div>
+
+        <div className="flex-1">
+          <h2 className="text-lg font-bold text-slate-900">
+            {modalAvisoTitulo}
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {modalAvisoMensagem}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <button
+          type="button"
+          onClick={() => setModalAvisoAberto(false)}
+          className={`rounded-2xl px-4 py-2 text-sm font-semibold text-white transition ${
+            modalAvisoTipo === "sucesso"
+              ? "bg-emerald-600 hover:bg-emerald-700"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
+        >
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button

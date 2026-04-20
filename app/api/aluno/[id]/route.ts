@@ -312,32 +312,33 @@ export async function DELETE(
       );
     }
 
-    if (
-      contratos.length > 0 ||
-      documentos.length > 0 ||
-      documentosGerados.length > 0 ||
-      certificados.length > 0 ||
-      lancamentos.length > 0 ||
-      pagamentos.length > 0 ||
-      notas.length > 0 ||
-      presencas.length > 0 ||
-      progresso.length > 0 ||
-      tentativas.length > 0 ||
-      respostas.length > 0 ||
-      resultadosFinais.length > 0 ||
-      entregas.length > 0 ||
-      atestados.length > 0 ||
-      cobrancas.length > 0 ||
-      movimentosCaixa.length > 0
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Aluno não pode ser excluído porque ainda possui histórico acadêmico, financeiro ou documental vinculado.",
-        },
-        { status: 400 }
-      );
-    }
+    const pendencias: string[] = [];
+
+if (contratos.length > 0) pendencias.push(`${contratos.length} contrato(s)`);
+if (documentos.length > 0) pendencias.push(`${documentos.length} documento(s) do aluno`);
+if (documentosGerados.length > 0) pendencias.push(`${documentosGerados.length} documento(s) gerado(s)`);
+if (certificados.length > 0) pendencias.push(`${certificados.length} certificado(s)`);
+if (lancamentos.length > 0) pendencias.push(`${lancamentos.length} lançamento(s) financeiro(s)`);
+if (pagamentos.length > 0) pendencias.push(`${pagamentos.length} pagamento(s)`);
+if (notas.length > 0) pendencias.push(`${notas.length} nota(s)`);
+if (presencas.length > 0) pendencias.push(`${presencas.length} presença(s)`);
+if (progresso.length > 0) pendencias.push(`${progresso.length} registro(s) de progresso`);
+if (tentativas.length > 0) pendencias.push(`${tentativas.length} tentativa(s) de prova`);
+if (respostas.length > 0) pendencias.push(`${respostas.length} resposta(s) de prova`);
+if (resultadosFinais.length > 0) pendencias.push(`${resultadosFinais.length} resultado(s) final(is)`);
+if (entregas.length > 0) pendencias.push(`${entregas.length} entrega(s) de atividade`);
+if (atestados.length > 0) pendencias.push(`${atestados.length} atestado(s) médico(s)`);
+if (cobrancas.length > 0) pendencias.push(`${cobrancas.length} cobrança(s)`);
+if (movimentosCaixa.length > 0) pendencias.push(`${movimentosCaixa.length} movimento(s) de caixa`);
+
+if (pendencias.length > 0) {
+  return NextResponse.json(
+    {
+      error: `Aluno não pode ser excluído porque ainda possui vínculos: ${pendencias.join(", ")}.`,
+    },
+    { status: 400 }
+  );
+}
 
     await prisma.$transaction(async (tx) => {
       await tx.aluno.delete({
