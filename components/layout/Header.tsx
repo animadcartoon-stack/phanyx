@@ -13,6 +13,7 @@ export default function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+
   return (
     <header
       className={`sticky top-0 z-50 transition-all duration-300 ${
@@ -56,38 +57,40 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-8 lg:flex">
-          {navItems.map((item) => {
-            const active = pathname === item.href;
+        <nav className="hidden items-center gap-8 md:flex">
+  {navItems.map((item) => {
+    const active = pathname === item.href;
+    const abrirNovaAba =
+      item.href === "/planos" || item.href === "/suporte";
 
-            return (
-              <a
-  key={item.href}
-  href={item.href}
-  target="_blank"
-  rel="noopener noreferrer"
-                className={`relative text-sm font-medium transition ${
-                  isHome
-                    ? active
-                      ? "text-white"
-                      : "text-white/80 hover:text-white"
-                    : active
-                    ? "text-slate-900"
-                    : "text-slate-600 hover:text-slate-900"
-                }`}
-              >
-                {item.label}
-                {active && (
-                  <span
-                    className={`absolute -bottom-2 left-0 h-[2px] w-full rounded-full ${
-                      isHome ? "bg-blue-300" : "bg-blue-600"
-                    }`}
-                  />
-                )}
-              </a>
-            );
-          })}
-        </nav>
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        target={abrirNovaAba ? "_blank" : undefined}
+        rel={abrirNovaAba ? "noopener noreferrer" : undefined}
+        className={`relative text-sm font-medium transition ${
+          isHome
+            ? active
+              ? "text-white"
+              : "text-white/80 hover:text-white"
+            : active
+            ? "text-slate-900"
+            : "text-slate-600 hover:text-slate-900"
+        }`}
+      >
+        {item.label}
+        {active && (
+          <span
+            className={`absolute -bottom-2 left-0 h-[2px] w-full rounded-full ${
+              isHome ? "bg-blue-300" : "bg-blue-600"
+            }`}
+          />
+        )}
+      </Link>
+    );
+  })}
+</nav>
 
         <div className="flex items-center gap-2 md:gap-3">
           <a
