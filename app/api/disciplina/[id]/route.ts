@@ -192,11 +192,15 @@ export async function GET(
       include: {
         professor: true,
         _count: {
-          select: {
-            aulas: true,
-            matriculas: true,
-          },
-        },
+  select: {
+    atividades: true,
+    itensMatricula: true,
+    modulos: true,
+    notas: true,
+    provas: true,
+    resultadosFinais: true,
+  },
+},
       },
     },
   },
