@@ -229,6 +229,14 @@ export default function HomePage() {
                   em um só ambiente.
                 </p>
 
+<p className="mt-6 text-slate-300">
+  Quer iniciar sua formação teológica? Conheça nosso{" "}
+  <a href="/ibe/matricula" className="text-blue-400 underline">
+    curso de teologia EAD
+  </a>{" "}
+  e faça sua matrícula online.
+</p>
+
                 <div className="mt-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                     <Link
@@ -545,6 +553,14 @@ export default function HomePage() {
                   >
                     Entrar em contato
                   </Link>
+
+<a
+  href="/ibe/matricula"
+  className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
+>
+  Fazer matrícula em Teologia
+</a>
+
                 </div>
               </div>
             </div>

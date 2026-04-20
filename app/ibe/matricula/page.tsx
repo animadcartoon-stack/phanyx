@@ -3,6 +3,12 @@
 import Image from "next/image";
 import { useMemo, useState } from "react";
 
+export const metadata = {
+  title: "Curso de Teologia EAD | Bacharel Livre em Teologia",
+  description:
+    "Curso de teologia EAD com formação completa, flexível e reconhecida. Matrículas abertas para 2026. Estude no seu ritmo.",
+};
+
 const modulos = [
   {
     titulo: "Módulo 1",
@@ -324,6 +330,29 @@ export default function IbeMatriculaPage() {
             </div>
           </div>
 
+<section className="mx-auto max-w-5xl px-6 py-16">
+  <h2 className="text-3xl font-bold">
+    Curso de Teologia EAD com formação completa
+  </h2>
+
+  <p className="mt-4 text-lg text-slate-600">
+    O curso de Bacharel Livre em Teologia do IBE oferece uma formação completa
+    para quem deseja aprofundar seus conhecimentos bíblicos e atuar no ministério.
+    Com aulas 100% online, o aluno tem liberdade para estudar no seu ritmo.
+  </p>
+
+  <h3 className="mt-8 text-2xl font-semibold">
+    Por que escolher nosso curso?
+  </h3>
+
+  <ul className="mt-4 list-disc pl-6 text-lg text-slate-600">
+    <li>Curso 100% EAD</li>
+    <li>Flexibilidade de horários</li>
+    <li>Conteúdo teológico aprofundado</li>
+    <li>Suporte ao aluno</li>
+  </ul>
+</section>
+
           {/* GRID HERO */}
           <div className="mt-10 grid items-start gap-10 lg:grid-cols-[0.95fr_1.05fr] xl:gap-14">
             {/* ESQUERDA */}
@@ -331,6 +360,10 @@ export default function IbeMatriculaPage() {
               <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-blue-100 backdrop-blur">
                 Matrícula IBE • Curso Bacharel Livre em Teologia
               </div>
+
+<div className="mt-6 inline-block rounded-xl bg-yellow-400/10 border border-yellow-400/30 px-4 py-2 text-yellow-300 text-sm">
+  ⚠️ Últimas vagas para a turma 2026. Matrículas podem encerrar a qualquer momento.
+</div>
 
               <div className="mt-4 inline-flex items-center rounded-full border border-amber-300/30 bg-gradient-to-r from-amber-200/20 to-yellow-300/10 px-4 py-2 text-sm font-semibold text-amber-100 backdrop-blur">
                 ✨ Matrículas abertas para 2026
@@ -348,6 +381,23 @@ export default function IbeMatriculaPage() {
                 ministerial prática e desenvolvimento espiritual para líderes
                 cristãos comprometidos com Deus, com a Palavra e com a sociedade.
               </p>
+
+<div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+  <div className="bg-slate-800/50 p-4 rounded-xl">
+    <p className="text-2xl font-bold text-white">+1.200</p>
+    <p className="text-slate-300 text-sm">Alunos formados</p>
+  </div>
+
+  <div className="bg-slate-800/50 p-4 rounded-xl">
+    <p className="text-2xl font-bold text-white">+10 anos</p>
+    <p className="text-slate-300 text-sm">De experiência</p>
+  </div>
+
+  <div className="bg-slate-800/50 p-4 rounded-xl">
+    <p className="text-2xl font-bold text-white">100% online</p>
+    <p className="text-slate-300 text-sm">Flexível e acessível</p>
+  </div>
+</div>
 
               <div className="mt-7 grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
@@ -428,12 +478,41 @@ export default function IbeMatriculaPage() {
                   Falar no WhatsApp
                 </a>
 
+<div className="mt-12">
+  <h3 className="text-2xl font-semibold text-white">
+    Ainda está em dúvida?
+  </h3>
+
+  <ul className="mt-4 space-y-2 text-slate-300">
+    <li>✔ Você pode estudar no seu tempo</li>
+    <li>✔ Suporte completo durante o curso</li>
+    <li>✔ Formação sólida e prática</li>
+    <li>✔ Acesso imediato após matrícula</li>
+  </ul>
+</div>
+
                 <a
-                  href="#contato"
-                  className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition hover:-translate-y-0.5 hover:bg-white/10"
-                >
-                  Quero mais informações
-                </a>
+  href="https://wa.me/5548988101240"
+  target="_blank"
+  className="mt-10 inline-block w-full md:w-auto text-center bg-green-500 hover:bg-green-600 transition px-8 py-4 rounded-2xl text-white font-bold text-lg shadow-lg"
+>
+  Quero garantir minha vaga agora
+</a>
+
+<div className="mt-12 p-6 bg-slate-800/50 rounded-2xl">
+  <h3 className="text-xl font-semibold text-white">
+    Prefere falar depois?
+  </h3>
+
+  <p className="text-slate-300 mt-2">
+    Deixe seu contato e nossa equipe te chama.
+  </p>
+
+  <button className="mt-4 px-6 py-3 bg-blue-600 rounded-xl text-white">
+    Deixar meu contato
+  </button>
+</div>
+
               </div>
             </div>
 
@@ -982,7 +1061,24 @@ export default function IbeMatriculaPage() {
     <div className="rounded-xl bg-white/5 px-4 py-3">✔ Tiramos todas as suas dúvidas</div>
     <div className="rounded-xl bg-white/5 px-4 py-3">✔ Orientação completa para matrícula</div>
   </div>
+<div className="mt-16">
+  <h3 className="text-2xl font-semibold text-white">
+    Saiba mais antes de se matricular
+  </h3>
 
+  <ul className="mt-4 space-y-2">
+    <li>
+      <a href="/blog/como-montar-um-curso-online" className="text-blue-400 underline">
+        Como funciona um curso online
+      </a>
+    </li>
+    <li>
+      <a href="/blog/plataforma-ead-para-cursos-livres" className="text-blue-400 underline">
+        O que é EAD na prática
+      </a>
+    </li>
+  </ul>
+</div>
   <p className="text-xs text-slate-400 text-center">
     Atendimento ativo agora • recomendamos iniciar sua conversa
   </p>
