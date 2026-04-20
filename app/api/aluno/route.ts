@@ -4,6 +4,14 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 
+function limparTexto(valor: unknown) {
+  return String(valor ?? "").trim();
+}
+
+function limparSomenteNumeros(valor: unknown) {
+  return String(valor ?? "").replace(/\D/g, "");
+}
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -50,74 +58,185 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
+    const nome = limparTexto(body.nome);
+    const email = limparTexto(body.email).toLowerCase();
+    const matricula = limparTexto(body.matricula);
+    const cpf = limparSomenteNumeros(body.cpf);
+    const rg = limparTexto(body.rg);
+    const telefone = limparTexto(body.telefone);
+
+    if (!nome) {
+      return NextResponse.json(
+        { error: "O nome do aluno é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "O email do aluno é obrigatório." },
+        { status: 400 }
+      );
+    }
+
     const userExistente = await prisma.user.findUnique({
-      where: { email: body.email },
+      where: { email },
     });
 
     if (userExistente) {
       return NextResponse.json(
-        { error: "Email já cadastrado" },
+        { error: "Email já cadastrado." },
         { status: 400 }
       );
+    }
+
+    if (matricula) {
+      const matriculaExistente = await prisma.aluno.findFirst({
+        where: {
+          instituicaoId: user.instituicaoId,
+          matricula,
+        },
+        select: { id: true, nome: true },
+      });
+
+      if (matriculaExistente) {
+        return NextResponse.json(
+          { error: "Já existe um aluno com esta matrícula nesta instituição." },
+          { status: 400 }
+        );
+      }
+    }
+
+    if (cpf) {
+      const cpfExistente = await prisma.aluno.findFirst({
+        where: {
+          instituicaoId: user.instituicaoId,
+          cpf,
+        },
+        select: { id: true, nome: true },
+      });
+
+      if (cpfExistente) {
+        return NextResponse.json(
+          { error: "Já existe um aluno com este CPF nesta instituição." },
+          { status: 400 }
+        );
+      }
     }
 
     const senhaTemporaria = "123456";
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
 
-    const novoUser = await prisma.user.create({
-      data: {
-        nome: body.nome,
-        email: body.email,
-        senha: senhaHash,
-        role: "ALUNO",
-        instituicaoId: user.instituicaoId,
-      },
-    });
+    const novoAluno = await prisma.$transaction(async (tx) => {
+      const novoUser = await tx.user.create({
+        data: {
+          nome,
+          email,
+          senha: senhaHash,
+          role: "ALUNO",
+          instituicaoId: user.instituicaoId,
+        },
+      });
 
-    const novoAluno = await prisma.aluno.create({
-      data: {
-        nome: body.nome,
-        nomeSocial: body.nomeSocial || null,
-        genero: body.genero || null,
-        matricula: body.matricula || null,
-        cpf: body.cpf || null,
-        rg: body.rg || null,
-        telefone: body.telefone || null,
-        dataNascimento: body.dataNascimento
-          ? new Date(body.dataNascimento)
-          : null,
-        cep: body.cep || null,
-        endereco: body.endereco || null,
-        numero: body.numero || null,
-        complemento: body.complemento || null,
-        bairro: body.bairro || null,
-        cidade: body.cidade || null,
-        estado: body.estado || null,
-        documentoUrl: body.documentoUrl || null,
-        nomeResponsavel: body.nomeResponsavel || null,
-        cpfResponsavel: body.cpfResponsavel || null,
-        telefoneResponsavel: body.telefoneResponsavel || null,
-        emailResponsavel: body.emailResponsavel || null,
-        parentescoResponsavel: body.parentescoResponsavel || null,
-        statusAluno: body.statusAluno || "ATIVO",
-        possuiNecessidadeEspecial: !!body.possuiNecessidadeEspecial,
-        descricaoNecessidadeEspecial:
-          body.descricaoNecessidadeEspecial || null,
-        observacoesAcessibilidade:
-          body.observacoesAcessibilidade || null,
-        userId: novoUser.id,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-        user: true,
-      },
+      const alunoCriado = await tx.aluno.create({
+        data: {
+          nome,
+          nomeSocial: limparTexto(body.nomeSocial) || null,
+          genero: limparTexto(body.genero) || null,
+          matricula: matricula || null,
+          cpf: cpf || null,
+          rg: rg || null,
+          telefone: telefone || null,
+          dataNascimento: body.dataNascimento
+            ? new Date(body.dataNascimento)
+            : null,
+          cep: limparTexto(body.cep) || null,
+          endereco: limparTexto(body.endereco) || null,
+          numero: limparTexto(body.numero) || null,
+          complemento: limparTexto(body.complemento) || null,
+          bairro: limparTexto(body.bairro) || null,
+          cidade: limparTexto(body.cidade) || null,
+          estado: limparTexto(body.estado) || null,
+          documentoUrl: limparTexto(body.documentoUrl) || null,
+          nomeResponsavel: limparTexto(body.nomeResponsavel) || null,
+          cpfResponsavel: limparSomenteNumeros(body.cpfResponsavel) || null,
+          telefoneResponsavel: limparTexto(body.telefoneResponsavel) || null,
+          emailResponsavel:
+            limparTexto(body.emailResponsavel).toLowerCase() || null,
+          parentescoResponsavel:
+            limparTexto(body.parentescoResponsavel) || null,
+          statusAluno: limparTexto(body.statusAluno) || "ATIVO",
+          possuiNecessidadeEspecial: !!body.possuiNecessidadeEspecial,
+          descricaoNecessidadeEspecial:
+            limparTexto(body.descricaoNecessidadeEspecial) || null,
+          observacoesAcessibilidade:
+            limparTexto(body.observacoesAcessibilidade) || null,
+          userId: novoUser.id,
+          instituicaoId: user.instituicaoId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      return alunoCriado;
     });
 
     return NextResponse.json(novoAluno);
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error("ERRO AO CRIAR ALUNO:", error);
+
+    if (error?.code === "P2002") {
+      const alvo = Array.isArray(error?.meta?.target)
+        ? error.meta.target.join(", ")
+        : String(error?.meta?.target || "");
+
+      if (alvo.includes("email")) {
+        return NextResponse.json(
+          { error: "Este email já está cadastrado." },
+          { status: 400 }
+        );
+      }
+
+      if (alvo.includes("matricula")) {
+        return NextResponse.json(
+          { error: "Esta matrícula já está cadastrada." },
+          { status: 400 }
+        );
+      }
+
+      if (alvo.includes("cpf")) {
+        return NextResponse.json(
+          { error: "Este CPF já está cadastrado." },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json(
+        { error: "Já existe um cadastro com um dos dados informados." },
+        { status: 400 }
+      );
+    }
+
+    if (error?.code === "P2003") {
+      return NextResponse.json(
+        { error: "Um relacionamento obrigatório do aluno é inválido." },
+        { status: 400 }
+      );
+    }
+
+    if (error?.message) {
+      return NextResponse.json(
+        {
+          error: "Erro ao criar aluno.",
+          detalhe: error.message,
+        },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
-      { error: "Erro ao criar aluno" },
+      { error: "Erro ao criar aluno." },
       { status: 500 }
     );
   }

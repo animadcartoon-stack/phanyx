@@ -2,6 +2,26 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
+function whereDisciplinaDaInstituicao(id: number, instituicaoId: number) {
+  return {
+    id,
+    OR: [
+      {
+        curso: {
+          instituicaoId,
+        },
+      },
+      {
+        turmas: {
+          some: {
+            instituicaoId,
+          },
+        },
+      },
+    ],
+  };
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: { id: string } }
@@ -165,10 +185,7 @@ export async function GET(
     }
 
     const disciplina = await prisma.disciplina.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
+      where: whereDisciplinaDaInstituicao(id, user.instituicaoId),
       include: {
         curso: true,
         turmas: {
@@ -226,10 +243,7 @@ export async function PUT(
     const body = await request.json();
 
     const disciplinaExistente = await prisma.disciplina.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
+      where: whereDisciplinaDaInstituicao(id, user.instituicaoId),
     });
 
     if (!disciplinaExistente) {
@@ -239,9 +253,9 @@ export async function PUT(
       );
     }
 
-    let cursoIdFinal: number | null = null;
+    let cursoIdFinal: number | null | undefined = disciplinaExistente.cursoId;
 
-    if (body.cursoId) {
+    if (body.cursoId !== undefined && body.cursoId !== null && body.cursoId !== "") {
       const curso = await prisma.curso.findFirst({
         where: {
           id: Number(body.cursoId),
@@ -259,6 +273,10 @@ export async function PUT(
       cursoIdFinal = curso.id;
     }
 
+    if (body.cursoId === null || body.cursoId === "") {
+      cursoIdFinal = null;
+    }
+
     const disciplinaAtualizada = await prisma.disciplina.update({
       where: { id },
       data: {
@@ -266,11 +284,11 @@ export async function PUT(
         codigo: body.codigo ?? null,
         descricao: body.descricao ?? null,
         cargaHoraria:
-          body.cargaHoraria !== null && body.cargaHoraria !== undefined
+          body.cargaHoraria !== null && body.cargaHoraria !== undefined && body.cargaHoraria !== ""
             ? Number(body.cargaHoraria)
             : null,
         semestre:
-          body.semestre !== null && body.semestre !== undefined
+          body.semestre !== null && body.semestre !== undefined && body.semestre !== ""
             ? Number(body.semestre)
             : null,
         cursoId: cursoIdFinal,
@@ -312,10 +330,7 @@ export async function DELETE(
     }
 
     const disciplina = await prisma.disciplina.findFirst({
-      where: {
-        id,
-        instituicaoId: user.instituicaoId,
-      },
+      where: whereDisciplinaDaInstituicao(id, user.instituicaoId),
       include: {
         turmas: {
           select: { id: true },
