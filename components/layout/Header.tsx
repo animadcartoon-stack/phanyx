@@ -61,9 +61,11 @@ export default function Header() {
             const active = pathname === item.href;
 
             return (
-              <Link
-                key={item.href}
-                href={item.href}
+              <a
+  key={item.href}
+  href={item.href}
+  target="_blank"
+  rel="noopener noreferrer"
                 className={`relative text-sm font-medium transition ${
                   isHome
                     ? active
@@ -82,7 +84,7 @@ export default function Header() {
                     }`}
                   />
                 )}
-              </Link>
+              </a>
             );
           })}
         </nav>

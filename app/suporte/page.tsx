@@ -19,6 +19,14 @@ export default function SuportePage() {
                 Central de suporte PHANYX
               </h1>
 
+<div className="mt-8 flex justify-center">
+  <img
+    src="/imagens/formix-tutorial.png"
+    alt="Mascote PHANYX suporte"
+    className="w-48 md:w-64 drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
+  />
+</div>
+
               <p className="mt-6 text-lg text-slate-300">
                 Nossa equipe está pronta para ajudar sua instituição com dúvidas,
                 suporte técnico e orientações sobre a plataforma.
