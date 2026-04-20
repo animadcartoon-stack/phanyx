@@ -115,7 +115,7 @@ function AdesaoContent() {
       setPagamentoConfirmado(data?.adesao?.status === "PAGO");
 
 if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
-  window.location.href = data.checkoutUrl;
+  window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
   return;
 }
 
