@@ -63,6 +63,90 @@ export async function GET(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Usuário sem instituição vinculada." },
+        { status: 400 }
+      );
+    }
+
+    const { id } = context.params;
+    const body = await request.json();
+
+    const statusAluno = String(body.statusAluno || "").trim().toUpperCase();
+
+    const statusPermitidos = [
+      "ATIVO",
+      "TRANCADO",
+      "INADIMPLENTE",
+      "TRANSFERIDO",
+      "DESLIGADO",
+      "FORMADO",
+      "CANCELADO",
+      "SUSPENSO",
+      "PAUSA_MEDICA",
+      "FALTANTE",
+    ];
+
+    if (!statusPermitidos.includes(statusAluno)) {
+      return NextResponse.json(
+        { error: "Status do aluno inválido." },
+        { status: 400 }
+      );
+    }
+
+    const aluno = await prisma.aluno.findFirst({
+      where: {
+        id: Number(id),
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!aluno) {
+      return NextResponse.json(
+        { error: "Aluno não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    const atualizado = await prisma.aluno.update({
+      where: { id: Number(id) },
+      data: {
+        statusAluno: statusAluno as any,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Status do aluno atualizado com sucesso.",
+      aluno: atualizado,
+    });
+  } catch (error) {
+    console.error("ERRO AO ATUALIZAR STATUS DO ALUNO:", error);
+    return NextResponse.json(
+      { error: "Erro ao atualizar status do aluno." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: Request,
   context: { params: { id: string } }

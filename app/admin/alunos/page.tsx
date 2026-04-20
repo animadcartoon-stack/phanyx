@@ -157,6 +157,74 @@ function abrirModalAviso(
   setModalAvisoAberto(true);
 }
 
+async function cancelarAluno(id: number) {
+  try {
+    const res = await fetch(`/api/aluno/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        statusAluno: "CANCELADO",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const mensagem = data?.error || "Erro ao cancelar aluno.";
+      mostrarFeedback("erro", mensagem);
+      abrirModalAviso("erro", "Não foi possível cancelar", mensagem);
+      return;
+    }
+
+    await carregarAlunos();
+    mostrarFeedback("sucesso", "Aluno cancelado com sucesso.");
+    abrirModalAviso(
+      "sucesso",
+      "Aluno cancelado",
+      "O aluno foi mantido no sistema com status Cancelado."
+    );
+  } catch (error: any) {
+    const mensagem = error?.message || "Erro ao cancelar aluno.";
+    mostrarFeedback("erro", mensagem);
+    abrirModalAviso("erro", "Erro ao cancelar", mensagem);
+  }
+}
+
+async function reativarAluno(id: number) {
+  try {
+    const res = await fetch(`/api/aluno/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        statusAluno: "ATIVO",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      const mensagem = data?.error || "Erro ao reativar aluno.";
+      mostrarFeedback("erro", mensagem);
+      abrirModalAviso("erro", "Não foi possível reativar", mensagem);
+      return;
+    }
+
+    await carregarAlunos();
+    mostrarFeedback("sucesso", "Aluno reativado com sucesso.");
+    abrirModalAviso(
+      "sucesso",
+      "Aluno reativado",
+      "O aluno voltou a ficar com status Ativo."
+    );
+  } catch (error: any) {
+    const mensagem = error?.message || "Erro ao reativar aluno.";
+    mostrarFeedback("erro", mensagem);
+    abrirModalAviso("erro", "Erro ao reativar", mensagem);
+  }
+}
+
   async function carregarAlunos() {
     const res = await fetch("/api/aluno", {
       credentials: "include",
@@ -352,9 +420,9 @@ async function confirmarExclusaoAluno() {
         "Erro ao criar aluno";
 
       mostrarFeedback("erro", mensagem);
-      alert(mensagem);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
+abrirModalAviso("erro", "Não foi possível criar", mensagem);
+window.scrollTo({ top: 0, behavior: "smooth" });
+return;
     }
 
     setNome("");
@@ -386,13 +454,18 @@ async function confirmarExclusaoAluno() {
 
     await carregarAlunos();
     mostrarFeedback("sucesso", "Aluno criado com sucesso.");
-    alert("Aluno criado com sucesso.");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+abrirModalAviso(
+  "sucesso",
+  "Aluno criado",
+  data?.avisoEmail ||
+    "O aluno foi criado com sucesso no sistema."
+);
+window.scrollTo({ top: 0, behavior: "smooth" });
   } catch (error: any) {
     const mensagem = error?.message || "Erro ao criar aluno";
     mostrarFeedback("erro", mensagem);
-    alert(mensagem);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+abrirModalAviso("erro", "Erro ao criar aluno", mensagem);
+window.scrollTo({ top: 0, behavior: "smooth" });
   } finally {
     setCriando(false);
   }
@@ -510,6 +583,25 @@ async function confirmarExclusaoAluno() {
         return "-";
     }
   }
+
+function classeStatusAluno(status?: StatusAluno) {
+  switch (status) {
+    case "ATIVO":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "CANCELADO":
+      return "bg-slate-100 text-slate-700 border-slate-300";
+    case "TRANCADO":
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    case "INADIMPLENTE":
+      return "bg-red-50 text-red-700 border-red-200";
+    case "SUSPENSO":
+      return "bg-orange-50 text-orange-700 border-orange-200";
+    case "FORMADO":
+      return "bg-blue-50 text-blue-700 border-blue-200";
+    default:
+      return "bg-gray-50 text-gray-700 border-gray-200";
+  }
+}
 
   return (
     <>
@@ -786,7 +878,14 @@ async function confirmarExclusaoAluno() {
             </div>
           ) : (
             alunosFiltrados.map((a) => (
-              <div key={a.id} className="rounded-lg border bg-white p-4">
+              <div
+  key={a.id}
+  className={`rounded-2xl border p-4 shadow-sm transition ${
+    a.statusAluno === "CANCELADO"
+      ? "border-slate-300 bg-slate-50/80"
+      : "border-slate-200 bg-white"
+  }`}
+>
                 {editandoId === a.id ? (
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -1008,9 +1107,15 @@ async function confirmarExclusaoAluno() {
                       Gênero: {a.genero || "-"}
                     </p>
                     <p className="text-sm text-gray-600">{a.user?.email}</p>
-                    <p className="text-sm text-gray-600">
-                      Status: {labelStatusAluno(a.statusAluno)}
-                    </p>
+                    <div className="mt-2">
+  <span
+    className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${classeStatusAluno(
+      a.statusAluno
+    )}`}
+  >
+    {labelStatusAluno(a.statusAluno)}
+  </span>
+</div>
                     <p className="text-sm text-gray-600">
                       Matrícula: {a.matricula || "-"}
                     </p>
@@ -1102,32 +1207,41 @@ async function confirmarExclusaoAluno() {
                     </>
                   ) : (
                     <>
-                      <button
-                        onClick={() => iniciarEdicao(a)}
-                        className="text-sm text-blue-600"
-                      >
-                        Editar
-                      </button>
+  <button
+    onClick={() => iniciarEdicao(a)}
+    className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 transition hover:bg-blue-100"
+  >
+    Editar
+  </button>
 
-                      <button
-                        onClick={() =>
-                          window.open(
-                            `/api/admin/contratos/pdf?alunoId=${a.id}`,
-                            "_blank"
-                          )
-                        }
-                        className="text-sm text-green-600"
-                      >
-                        📄 Baixar contrato
-                      </button>
+  <button
+    onClick={() =>
+      window.open(
+        `/api/admin/contratos/pdf?alunoId=${a.id}`,
+        "_blank"
+      )
+    }
+    className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100"
+  >
+    📄 Baixar contrato
+  </button>
 
-                      <button
-                        onClick={() => setAlunoParaExcluir(a)}
-                        className="text-sm text-red-600"
-                      >
-                        Excluir
-                      </button>
-                    </>
+  {a.statusAluno === "CANCELADO" ? (
+    <button
+      onClick={() => reativarAluno(a.id)}
+      className="rounded-xl border border-emerald-200 bg-white px-3 py-1.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+    >
+      Reativar aluno
+    </button>
+  ) : (
+    <button
+      onClick={() => cancelarAluno(a.id)}
+      className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-1.5 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
+    >
+      Cancelar aluno
+    </button>
+  )}
+</>
                   )}
                 </div>
               </div>
@@ -1135,28 +1249,6 @@ async function confirmarExclusaoAluno() {
           )}
         </div>
       </div>
-
-      {alunoParaExcluir && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl">
-                🗑️
-              </div>
-
-              <div className="flex-1">
-                <h2 className="text-lg font-bold text-slate-900">
-                  Confirmar exclusão
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Tem certeza que deseja excluir o aluno{" "}
-                  <strong>"{alunoParaExcluir.nome}"</strong>?
-                </p>
-                <p className="mt-2 text-sm text-slate-500">
-                  Esta ação não pode ser desfeita.
-                </p>
-              </div>
-            </div>
 
 {modalAvisoAberto && (
   <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/55 p-4">
@@ -1199,30 +1291,7 @@ async function confirmarExclusaoAluno() {
     </div>
   </div>
 )}
-
-            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                onClick={() => setAlunoParaExcluir(null)}
-                disabled={excluindoId === alunoParaExcluir.id}
-                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                Cancelar
-              </button>
-
-              <button
-  onClick={confirmarExclusaoAluno}
-  disabled={excluindoId === alunoParaExcluir?.id}
-  className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
->
-  {excluindoId === alunoParaExcluir?.id
-    ? "Excluindo..."
-    : "Confirmar exclusão"}
-</button>
-            </div>
-          </div>
-        </div>
-      )}
+      
     </>
   );
 }
