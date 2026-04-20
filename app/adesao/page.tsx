@@ -320,14 +320,15 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
                   </button>
 
                   <button
-                    type="button"
-                    onClick={() => setFormaPagamento("RECORRENTE")}
-                    className={`group relative overflow-hidden rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-                      formaPagamento === "RECORRENTE"
-                        ? "border-blue-400 bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-[0_14px_45px_rgba(37,99,235,0.45)]"
-                        : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
-                    }`}
-                  >
+  type="button"
+  onClick={() => setFormaPagamento("RECORRENTE")}
+  className={`hidden group relative overflow-hidden rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
+    formaPagamento === "RECORRENTE"
+      ? "border-blue-400 bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-[0_14px_45px_rgba(37,99,235,0.45)]"
+      : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
+  }`}
+>
+                
                     <span className="flex flex-col items-center justify-center">
                       <span className="text-sm font-semibold leading-tight">
                         Assinatura
