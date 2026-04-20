@@ -42,14 +42,72 @@ export async function GET() {
       },
       include: {
         user: true,
+        matriculas: {
+          orderBy: {
+            createdAt: "desc",
+          },
+          take: 1,
+          include: {
+            curso: true,
+            itens: {
+              include: {
+                turma: {
+                  include: {
+                    disciplina: true,
+                    professor: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    return NextResponse.json(alunos);
-  } catch {
+    const alunosFormatados = alunos.map((aluno) => {
+      const matriculaRecente = aluno.matriculas?.[0] || null;
+
+      return {
+        ...aluno,
+        resumoMatricula: matriculaRecente
+          ? {
+              id: matriculaRecente.id,
+              status: matriculaRecente.status,
+              semestre: matriculaRecente.semestre,
+              curso: matriculaRecente.curso
+                ? {
+                    id: matriculaRecente.curso.id,
+                    nome: matriculaRecente.curso.nome,
+                  }
+                : null,
+              turmas: matriculaRecente.itens.map((item) => ({
+                id: item.turma?.id,
+                nome: item.turma?.nome || null,
+                status: item.status,
+                disciplina: item.turma?.disciplina
+                  ? {
+                      id: item.turma.disciplina.id,
+                      nome: item.turma.disciplina.nome,
+                    }
+                  : null,
+                professor: item.turma?.professor
+                  ? {
+                      id: item.turma.professor.id,
+                      nome: item.turma.professor.nome,
+                    }
+                  : null,
+              })),
+            }
+          : null,
+      };
+    });
+
+    return NextResponse.json(alunosFormatados);
+  } catch (error) {
+    console.error("ERRO AO BUSCAR ALUNOS:", error);
     return NextResponse.json({ error: "Token inválido" }, { status: 401 });
   }
 }
