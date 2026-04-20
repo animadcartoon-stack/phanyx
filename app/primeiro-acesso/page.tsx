@@ -11,6 +11,8 @@ export default function PrimeiroAcessoPage() {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
 
+const [mostrarSenha, setMostrarSenha] = useState(false);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro("");
@@ -85,21 +87,41 @@ router.push("/admin");
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="password"
-            placeholder="Nova senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none"
-          />
+          <div className="relative">
+  <input
+    type={mostrarSenha ? "text" : "password"}
+    placeholder="Nova senha"
+    value={senha}
+    onChange={(e) => setSenha(e.target.value)}
+    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 outline-none"
+  />
 
-          <input
-            type="password"
-            placeholder="Confirmar nova senha"
-            value={confirmarSenha}
-            onChange={(e) => setConfirmarSenha(e.target.value)}
-            className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 outline-none"
-          />
+  <button
+    type="button"
+    onClick={() => setMostrarSenha(!mostrarSenha)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-400 hover:text-white"
+  >
+    {mostrarSenha ? "🙈" : "👁️"}
+  </button>
+</div>
+
+          <div className="relative">
+  <input
+    type={mostrarSenha ? "text" : "password"}
+    placeholder="Confirmar nova senha"
+    value={confirmarSenha}
+    onChange={(e) => setConfirmarSenha(e.target.value)}
+    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 pr-12 outline-none"
+  />
+
+  <button
+    type="button"
+    onClick={() => setMostrarSenha(!mostrarSenha)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-400 hover:text-white"
+  >
+    {mostrarSenha ? "🙈" : "👁️"}
+  </button>
+</div>
 
           {erro ? (
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">
