@@ -247,32 +247,41 @@ function AdminAlunosPage() {
     }
   }
 
-  async function confirmarExclusaoAluno() {
-    if (!alunoParaExcluir) return;
+async function confirmarExclusaoAluno() {
+  if (!alunoParaExcluir) return;
 
-    try {
-      setExcluindoId(alunoParaExcluir.id);
+  try {
+    setExcluindoId(alunoParaExcluir.id);
 
-      const res = await fetch(`/api/aluno/${alunoParaExcluir.id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+    const res = await fetch(`/api/aluno/${alunoParaExcluir.id}`, {
+      method: "DELETE",
+      credentials: "include",
+      cache: "no-store",
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao deletar aluno");
-      }
-
+    if (!res.ok) {
+      const mensagem = data?.error || "Erro ao deletar aluno";
       setAlunoParaExcluir(null);
-      await carregarAlunos();
-      mostrarFeedback("sucesso", "Aluno excluído com sucesso.");
-    } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao deletar aluno");
-    } finally {
-      setExcluindoId(null);
+      mostrarFeedback("erro", mensagem);
+      alert(mensagem);
+      return;
     }
+
+    setAlunoParaExcluir(null);
+    await carregarAlunos();
+    mostrarFeedback("sucesso", "Aluno excluído com sucesso.");
+    alert("Aluno excluído com sucesso.");
+  } catch (error: any) {
+    const mensagem = error?.message || "Erro ao deletar aluno";
+    setAlunoParaExcluir(null);
+    mostrarFeedback("erro", mensagem);
+    alert(mensagem);
+  } finally {
+    setExcluindoId(null);
   }
+}
 
   async function handleCriarAluno(e: React.FormEvent) {
   e.preventDefault();
@@ -1140,15 +1149,14 @@ function AdminAlunosPage() {
               </button>
 
               <button
-                type="button"
-                onClick={confirmarExclusaoAluno}
-                disabled={excluindoId === alunoParaExcluir.id}
-                className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {excluindoId === alunoParaExcluir.id
-                  ? "Excluindo..."
-                  : "Confirmar exclusão"}
-              </button>
+  onClick={confirmarExclusaoAluno}
+  disabled={excluindoId === alunoParaExcluir?.id}
+  className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {excluindoId === alunoParaExcluir?.id
+    ? "Excluindo..."
+    : "Confirmar exclusão"}
+</button>
             </div>
           </div>
         </div>
