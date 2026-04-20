@@ -43,7 +43,25 @@ export default function PrimeiroAcessoPage() {
         return;
       }
 
-      router.push("/admin");
+      const meRes = await fetch("/api/auth/me", {
+  credentials: "include",
+  cache: "no-store",
+});
+
+const meData = await meRes.json();
+const role = String(meData?.user?.role || "").toUpperCase();
+
+if (role === "ALUNO") {
+  router.push("/aluno");
+  return;
+}
+
+if (role === "PROFESSOR") {
+  router.push("/professor");
+  return;
+}
+
+router.push("/admin");
     } catch {
       setErro("Erro ao atualizar senha.");
     } finally {

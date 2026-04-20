@@ -508,3 +508,149 @@ export async function enviarEmailAcesso({
     `,
   });
 }
+type PortalAcesso = "admin" | "professor" | "aluno";
+
+type EnviarEmailPrimeiroAcessoParams = {
+  email: string;
+  nome: string;
+  senha: string;
+  instituicao: string;
+  portal: PortalAcesso;
+};
+
+function getLoginUrlPorPortal(portal: PortalAcesso) {
+  return `${getBaseUrl()}/login?portal=${portal}`;
+}
+
+function getTituloPortal(portal: PortalAcesso) {
+  if (portal === "professor") return "painel do professor";
+  if (portal === "aluno") return "painel do aluno";
+  return "painel administrativo";
+}
+
+export async function enviarEmailPrimeiroAcesso({
+  email,
+  nome,
+  senha,
+  instituicao,
+  portal,
+}: EnviarEmailPrimeiroAcessoParams) {
+  const transporter = criarTransporter();
+
+  const loginUrl = getLoginUrlPorPortal(portal);
+  const logoUrl = getLogoUrl();
+  const imagemFormixUrl = getImagemFormixUrl();
+  const tituloPortal = getTituloPortal(portal);
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: "🚀 Seu acesso ao PHANYX foi liberado",
+    html: `
+      <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b1120;padding:32px 16px;">
+          <tr>
+            <td align="center">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;background:#0f172a;border:1px solid #1e293b;border-radius:24px;overflow:hidden;">
+                
+                <tr>
+                  <td style="padding:20px 28px;background:#ffffff;">
+                    <img
+                      src="${logoUrl}"
+                      alt="PHANYX"
+                      style="height:34px;display:block;"
+                    />
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:34px 32px 24px 32px;background:linear-gradient(135deg,#2563eb 0%,#0f172a 100%);text-align:center;">
+                    <img
+                      src="${imagemFormixUrl}"
+                      alt="Formix dando boas-vindas"
+                      style="height:130px;max-width:130px;display:block;margin:0 auto 16px auto;"
+                    />
+
+                    <div style="font-size:12px;letter-spacing:1.5px;color:#bfdbfe;font-weight:bold;text-transform:uppercase;">
+                      PHANYX
+                    </div>
+
+                    <h1 style="margin:12px 0 0 0;color:#ffffff;font-size:32px;line-height:1.2;">
+                      Bem-vindo ao PHANYX
+                    </h1>
+
+                    <p style="margin:12px 0 0 0;color:#dbeafe;font-size:16px;line-height:1.7;">
+                      Seu acesso à instituição <strong>${instituicao}</strong> foi liberado com sucesso.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:32px;">
+                    <p style="margin:0 0 16px 0;color:#e2e8f0;font-size:16px;line-height:1.7;">
+                      Olá, <strong>${nome}</strong>.
+                    </p>
+
+                    <p style="margin:0 0 24px 0;color:#cbd5e1;font-size:15px;line-height:1.7;">
+                      Abaixo estão os dados do seu primeiro acesso ao <strong>${tituloPortal}</strong>:
+                    </p>
+
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0 12px;">
+                      <tr>
+                        <td style="background:#111827;border:1px solid #334155;border-radius:16px;padding:18px 20px;">
+                          <div style="font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+                            Login
+                          </div>
+                          <div style="font-size:16px;color:#ffffff;font-weight:bold;word-break:break-word;">
+                            ${email}
+                          </div>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="background:#111827;border:1px solid #334155;border-radius:16px;padding:18px 20px;">
+                          <div style="font-size:12px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">
+                            Senha temporária
+                          </div>
+                          <div style="font-size:18px;color:#ffffff;font-weight:bold;letter-spacing:1px;">
+                            ${senha}
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <div style="margin:28px 0;">
+                      <a href="${loginUrl}" style="display:inline-block;background:#2563eb;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 22px;border-radius:14px;font-size:15px;">
+                        Acessar agora
+                      </a>
+                    </div>
+
+                    <div style="background:#082f49;border:1px solid #0c4a6e;border-radius:16px;padding:18px 20px;margin-top:12px;">
+                      <div style="color:#bae6fd;font-size:13px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+                        Importante
+                      </div>
+                      <p style="margin:0;color:#e0f2fe;font-size:14px;line-height:1.7;">
+                        No primeiro acesso, você deverá trocar sua senha por segurança.
+                      </p>
+                    </div>
+
+                    <p style="margin:28px 0 0 0;color:#94a3b8;font-size:13px;line-height:1.7;">
+                      Este é um email automático de liberação de acesso.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:20px 32px;background:#0b1220;border-top:1px solid #1e293b;">
+                    <p style="margin:0;color:#64748b;font-size:12px;line-height:1.7;">
+                      PHANYX · Plataforma acadêmica SaaS
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `,
+  });
+}

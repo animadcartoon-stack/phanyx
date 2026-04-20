@@ -351,13 +351,21 @@ export async function POST(request: Request) {
       ? new Date(body.dataPrimeiroVencimento)
       : new Date();
 
+const statusRecebido = String(body.status || "ATIVA").trim().toUpperCase();
+
+const statusInicialMatricula =
+  statusRecebido === "A_INICIAR" ? "A_INICIAR" : "ATIVA";
+
+const statusInicialItens =
+  statusInicialMatricula === "A_INICIAR" ? "A_CURSAR" : "EM_CURSO";
+
     const matricula = await prisma.matricula.create({
       data: {
         alunoId,
         cursoId: cursoIdFinal,
         semestre: semestreFinal,
         instituicaoId: user.instituicaoId,
-        status: "ATIVA",
+        status: statusInicialMatricula as any,
         valorMatricula: Number.isFinite(valorMatricula) ? valorMatricula : null,
         valorMensalidade: Number.isFinite(valorMensalidade)
           ? valorMensalidade
@@ -370,7 +378,7 @@ export async function POST(request: Request) {
           create: turmaIds.map((turmaId) => ({
             turmaId,
             instituicaoId: user.instituicaoId,
-            status: "A_CURSAR",
+            status: statusInicialItens as any,
           })),
         },
       },

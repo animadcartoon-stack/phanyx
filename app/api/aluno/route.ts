@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { getUserFromToken } from "@/lib/server-auth";
+import { enviarEmailPrimeiroAcesso } from "@/lib/email";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -19,6 +21,11 @@ function parseDataSegura(valor: unknown) {
   if (Number.isNaN(data.getTime())) return null;
 
   return data;
+}
+
+function gerarSenhaTemporaria() {
+  const sufixo = crypto.randomBytes(4).toString("hex");
+  return `Phx@${sufixo}`;
 }
 
 export async function GET() {
@@ -134,7 +141,12 @@ export async function POST(request: Request) {
       }
     }
 
-    const senhaTemporaria = "123456";
+    const instituicao = await prisma.instituicao.findUnique({
+      where: { id: user.instituicaoId },
+      select: { nome: true },
+    });
+
+    const senhaTemporaria = gerarSenhaTemporaria();
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
 
     const novoAluno = await prisma.$transaction(async (tx) => {
@@ -145,6 +157,7 @@ export async function POST(request: Request) {
           senha: senhaHash,
           role: "ALUNO",
           instituicaoId: user.instituicaoId!,
+          precisaTrocarSenha: true,
         },
       });
 
@@ -190,7 +203,27 @@ export async function POST(request: Request) {
       return alunoCriado;
     });
 
-    return NextResponse.json(novoAluno);
+    let avisoEmail: string | null = null;
+
+    try {
+      await enviarEmailPrimeiroAcesso({
+        email,
+        nome,
+        senha: senhaTemporaria,
+        instituicao: instituicao?.nome || "PHANYX",
+        portal: "aluno",
+      });
+    } catch (emailError) {
+      console.error("ERRO AO ENVIAR EMAIL DE ACESSO DO ALUNO:", emailError);
+      avisoEmail =
+        "Aluno criado com sucesso, mas houve erro ao enviar o email de acesso.";
+    }
+
+    return NextResponse.json({
+      ...novoAluno,
+      senhaTemporaria,
+      avisoEmail,
+    });
   } catch (error: any) {
     console.error("ERRO AO CRIAR ALUNO:", error);
 

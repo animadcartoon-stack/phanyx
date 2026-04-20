@@ -107,6 +107,9 @@ function AdminMatriculasPage() {
   const [quantidadeParcelas, setQuantidadeParcelas] = useState<string>("");
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
 
+  const [statusInicialMatricula, setStatusInicialMatricula] =
+  useState<string>("ATIVA");
+
   async function carregarTudo() {
     setLoading(true);
 
@@ -420,7 +423,7 @@ function toggleTurmaEdicao(turmaId: number) {
   cursoId: Number(cursoId),
   semestre: Number(semestreSelecionado.numero),
   turmaIds: turmasSelecionadas,
-
+  status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
   valorMensalidade: Number(valorMensalidade || 0),
   quantidadeParcelas: Number(quantidadeParcelas || 0),
@@ -445,7 +448,7 @@ function toggleTurmaEdicao(turmaId: number) {
       setQuantidadeParcelas("");
       setDataPrimeiroVencimento("");
       setSemestresCurso([]);
-
+      setStatusInicialMatricula("ATIVA");
       await carregarTudo();
     } catch (e: any) {
       alert(e.message);
@@ -727,6 +730,20 @@ function toggleTurmaEdicao(turmaId: number) {
           Selecione aluno, curso, semestre estruturado e as turmas que ele vai
           cursar.
         </p>
+
+<div>
+  <label className="text-sm font-medium text-gray-700">
+    Status inicial da matrícula
+  </label>
+  <select
+    value={statusInicialMatricula}
+    onChange={(e) => setStatusInicialMatricula(e.target.value)}
+    className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
+  >
+    <option value="ATIVA">Ativa</option>
+    <option value="A_INICIAR">A iniciar</option>
+  </select>
+</div>
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>

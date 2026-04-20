@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { enviarEmailPrimeiroAcesso } from "@/lib/email";
 
 // LISTAR
 export async function GET() {
@@ -38,6 +40,15 @@ export async function GET() {
   }
 }
 
+function limparTexto(valor: unknown) {
+  return String(valor ?? "").trim();
+}
+
+function gerarSenhaTemporaria() {
+  const sufixo = crypto.randomBytes(4).toString("hex");
+  return `Phx@${sufixo}`;
+}
+
 // CRIAR
 export async function POST(request: Request) {
   try {
@@ -57,10 +68,34 @@ export async function POST(request: Request) {
       );
     }
 
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Usuário sem instituição vinculada." },
+        { status: 400 }
+      );
+    }
+
     const body = await request.json();
 
+    const nome = limparTexto(body.nome);
+    const email = limparTexto(body.email).toLowerCase();
+
+    if (!nome) {
+      return NextResponse.json(
+        { error: "O nome do professor é obrigatório." },
+        { status: 400 }
+      );
+    }
+
+    if (!email) {
+      return NextResponse.json(
+        { error: "O email do professor é obrigatório." },
+        { status: 400 }
+      );
+    }
+
     const userExistente = await prisma.user.findUnique({
-      where: { email: body.email },
+      where: { email },
     });
 
     if (userExistente) {
@@ -70,22 +105,28 @@ export async function POST(request: Request) {
       );
     }
 
-    const senhaTemporaria = "123456";
+    const instituicao = await prisma.instituicao.findUnique({
+      where: { id: user.instituicaoId },
+      select: { nome: true },
+    });
+
+    const senhaTemporaria = gerarSenhaTemporaria();
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
 
     const novoUser = await prisma.user.create({
       data: {
-        nome: body.nome,
-        email: body.email,
+        nome,
+        email,
         senha: senhaHash,
         role: "PROFESSOR",
         instituicaoId: user.instituicaoId,
+        precisaTrocarSenha: true,
       },
     });
 
     const novoProfessor = await prisma.professor.create({
       data: {
-        nome: body.nome,
+        nome,
         cpf: body.cpf || null,
         rg: body.rg || null,
         telefone: body.telefone || null,
@@ -108,7 +149,30 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(novoProfessor);
+    let avisoEmail: string | null = null;
+
+    try {
+      await enviarEmailPrimeiroAcesso({
+        email,
+        nome,
+        senha: senhaTemporaria,
+        instituicao: instituicao?.nome || "PHANYX",
+        portal: "professor",
+      });
+    } catch (emailError) {
+      console.error(
+        "ERRO AO ENVIAR EMAIL DE ACESSO DO PROFESSOR:",
+        emailError
+      );
+      avisoEmail =
+        "Professor criado com sucesso, mas houve erro ao enviar o email de acesso.";
+    }
+
+    return NextResponse.json({
+      ...novoProfessor,
+      senhaTemporaria,
+      avisoEmail,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
