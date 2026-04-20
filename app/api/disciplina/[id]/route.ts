@@ -5,7 +5,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 function disciplinaPertenceAInstituicao(
   disciplina: {
     curso?: { instituicaoId?: number | null } | null;
-    turmas?: Array<{ instituicaoId?: number | null }>;
+    turmas?: Array<{ instituicaoId?: number | null }> | null;
   } | null,
   instituicaoId: number
 ) {
@@ -181,8 +181,10 @@ export async function GET(
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
-    const disciplina = await prisma.disciplina.findUnique({
-  where: { id },
+    const disciplina = await prisma.disciplina.findFirst({
+  where: {
+  id: Number(id),
+},
   include: {
     curso: true,
     turmas: {
