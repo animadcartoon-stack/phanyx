@@ -427,7 +427,7 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
                 </div>
               ) : null}
 
-              {ehRecorrente ? (
+              {false ? (
                 <div className="mt-6 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-slate-950 p-5">
                   <p className="text-sm leading-6 text-slate-200">
                     A assinatura mensal será criada automaticamente após a validação dos dados do cartão.
