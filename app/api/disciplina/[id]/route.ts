@@ -2,26 +2,21 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
-function whereDisciplinaDaInstituicao(id: number, instituicaoId: number) {
-  return {
-    id,
-    OR: [
-      {
-        curso: {
-          is: {
-            instituicaoId,
-          },
-        },
-      },
-      {
-        turmas: {
-          some: {
-            instituicaoId,
-          },
-        },
-      },
-    ],
-  };
+function disciplinaPertenceAInstituicao(
+  disciplina: {
+    curso?: { instituicaoId?: number | null } | null;
+    turmas?: Array<{ instituicaoId?: number | null }>;
+  } | null,
+  instituicaoId: number
+) {
+  if (!disciplina) return false;
+
+  const cursoDaInstituicao = disciplina.curso?.instituicaoId === instituicaoId;
+  const turmaDaInstituicao =
+    Array.isArray(disciplina.turmas) &&
+    disciplina.turmas.some((turma) => turma.instituicaoId === instituicaoId);
+
+  return cursoDaInstituicao || turmaDaInstituicao;
 }
 
 export async function GET(
@@ -186,30 +181,30 @@ export async function GET(
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
-    const disciplina = await prisma.disciplina.findFirst({
-      where: whereDisciplinaDaInstituicao(id, user.instituicaoId),
+    const disciplina = await prisma.disciplina.findUnique({
+  where: { id },
+  include: {
+    curso: true,
+    turmas: {
       include: {
-        curso: true,
-        turmas: {
-          include: {
-            professor: true,
-            _count: {
-              select: {
-                aulas: true,
-                matriculas: true,
-              },
-            },
+        professor: true,
+        _count: {
+          select: {
+            aulas: true,
+            matriculas: true,
           },
         },
       },
-    });
+    },
+  },
+});
 
-    if (!disciplina) {
-      return NextResponse.json(
-        { error: "Disciplina não encontrada" },
-        { status: 404 }
-      );
-    }
+if (!disciplina || !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)) {
+  return NextResponse.json(
+    { error: "Disciplina não encontrada" },
+    { status: 404 }
+  );
+}
 
     return NextResponse.json(disciplina);
   } catch (error: any) {
@@ -244,9 +239,28 @@ export async function PUT(
 
     const body = await request.json();
 
-    const disciplinaExistente = await prisma.disciplina.findFirst({
-      where: whereDisciplinaDaInstituicao(id, user.instituicaoId),
-    });
+    const disciplinaExistente = await prisma.disciplina.findUnique({
+  where: { id },
+  include: {
+    curso: true,
+    turmas: {
+      select: {
+        id: true,
+        instituicaoId: true,
+      },
+    },
+  },
+});
+
+if (
+  !disciplinaExistente ||
+  !disciplinaPertenceAInstituicao(disciplinaExistente, user.instituicaoId)
+) {
+  return NextResponse.json(
+    { error: "Disciplina não encontrada" },
+    { status: 404 }
+  );
+}
 
     if (!disciplinaExistente) {
       return NextResponse.json(
@@ -331,21 +345,25 @@ export async function DELETE(
       return NextResponse.json({ error: "ID inválido" }, { status: 400 });
     }
 
-    const disciplina = await prisma.disciplina.findFirst({
-      where: whereDisciplinaDaInstituicao(id, user.instituicaoId),
-      include: {
-        turmas: {
-          select: { id: true },
-        },
+    const disciplina = await prisma.disciplina.findUnique({
+  where: { id },
+  include: {
+    curso: true,
+    turmas: {
+      select: {
+        id: true,
+        instituicaoId: true,
       },
-    });
+    },
+  },
+});
 
-    if (!disciplina) {
-      return NextResponse.json(
-        { error: "Disciplina não encontrada" },
-        { status: 404 }
-      );
-    }
+if (!disciplina || !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)) {
+  return NextResponse.json(
+    { error: "Disciplina não encontrada" },
+    { status: 404 }
+  );
+}
 
     if (disciplina.turmas.length > 0) {
       return NextResponse.json(
