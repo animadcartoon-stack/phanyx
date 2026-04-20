@@ -5,20 +5,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 function whereDisciplinaDaInstituicao(id: number, instituicaoId: number) {
   return {
     id,
-    OR: [
-      {
-        curso: {
-          instituicaoId,
-        },
-      },
-      {
-        turmas: {
-          some: {
-            instituicaoId,
-          },
-        },
-      },
-    ],
+    instituicaoId,
   };
 }
 
