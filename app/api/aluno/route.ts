@@ -1,8 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
+import { getUserFromToken } from "@/lib/server-auth";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -24,18 +23,15 @@ function parseDataSegura(valor: unknown) {
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const user = await getUserFromToken();
 
-    if (!token) {
+    if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    const user = jwt.verify(token, process.env.JWT_SECRET!) as any;
-
     const alunos = await prisma.aluno.findMany({
       where: {
-        instituicaoId: user.instituicaoId,
+        instituicaoId: user.instituicaoId ?? undefined,
       },
       include: {
         user: true,
@@ -53,17 +49,21 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const user = await getUserFromToken();
 
-    if (!token) {
+    if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    const user = jwt.verify(token, process.env.JWT_SECRET!) as any;
-
     if (user.role !== "ADMIN") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Usuário sem instituição vinculada." },
+        { status: 400 }
+      );
     }
 
     const body = await request.json();
@@ -144,7 +144,7 @@ export async function POST(request: Request) {
           email,
           senha: senhaHash,
           role: "ALUNO",
-          instituicaoId: user.instituicaoId,
+          instituicaoId: user.instituicaoId!,
         },
       });
 
@@ -180,7 +180,7 @@ export async function POST(request: Request) {
           observacoesAcessibilidade:
             limparTexto(body.observacoesAcessibilidade) || null,
           userId: novoUser.id,
-          instituicaoId: user.instituicaoId,
+          instituicaoId: user.instituicaoId!,
         },
         include: {
           user: true,
