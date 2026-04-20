@@ -302,18 +302,48 @@ export async function PUT(
       cursoIdFinal = null;
     }
 
-    const vinculosProfessorTurma = Array.isArray(body.vinculosProfessorTurma)
-      ? body.vinculosProfessorTurma
-      : [];
+    if (!body.turmaId) {
+      return NextResponse.json(
+        { error: "Selecione uma turma para vincular à disciplina." },
+        { status: 400 }
+      );
+    }
 
-    const turmaIdsRecebidos = vinculosProfessorTurma.map((item: any) =>
-      Number(item.turmaId)
-    );
-
-    const turmasValidas = await prisma.turma.findMany({
+    const turma = await prisma.turma.findFirst({
       where: {
-        id: { in: turmaIdsRecebidos.filter((idTurma) => Number.isFinite(idTurma)) },
-        disciplinaId: id,
+        id: Number(body.turmaId),
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+        disciplinaId: true,
+      },
+    });
+
+    if (!turma) {
+      return NextResponse.json(
+        { error: "Turma inválida para esta instituição." },
+        { status: 400 }
+      );
+    }
+
+    if (turma.disciplinaId && turma.disciplinaId !== id) {
+      return NextResponse.json(
+        { error: "Esta turma já está vinculada a outra disciplina." },
+        { status: 400 }
+      );
+    }
+
+    if (!body.professorId) {
+      return NextResponse.json(
+        { error: "Selecione um professor para a turma." },
+        { status: 400 }
+      );
+    }
+
+    const professor = await prisma.professor.findFirst({
+      where: {
+        id: Number(body.professorId),
         instituicaoId: user.instituicaoId,
       },
       select: {
@@ -321,40 +351,11 @@ export async function PUT(
       },
     });
 
-    const turmaIdsValidos = new Set(turmasValidas.map((turma) => turma.id));
-
-    for (const vinculo of vinculosProfessorTurma) {
-      const turmaId = Number(vinculo?.turmaId);
-
-      if (!Number.isFinite(turmaId) || !turmaIdsValidos.has(turmaId)) {
-        return NextResponse.json(
-          { error: "Turma inválida para esta disciplina." },
-          { status: 400 }
-        );
-      }
-
-      if (
-        vinculo?.professorId !== null &&
-        vinculo?.professorId !== undefined &&
-        vinculo?.professorId !== ""
-      ) {
-        const professor = await prisma.professor.findFirst({
-          where: {
-            id: Number(vinculo.professorId),
-            instituicaoId: user.instituicaoId,
-          },
-          select: {
-            id: true,
-          },
-        });
-
-        if (!professor) {
-          return NextResponse.json(
-            { error: "Professor inválido para esta instituição." },
-            { status: 400 }
-          );
-        }
-      }
+    if (!professor) {
+      return NextResponse.json(
+        { error: "Professor inválido para esta instituição." },
+        { status: 400 }
+      );
     }
 
     await prisma.$transaction(async (tx) => {
@@ -380,21 +381,15 @@ export async function PUT(
         },
       });
 
-      for (const vinculo of vinculosProfessorTurma) {
-        await tx.turma.update({
-          where: {
-            id: Number(vinculo.turmaId),
-          },
-          data: {
-            professorId:
-              vinculo.professorId !== null &&
-              vinculo.professorId !== undefined &&
-              vinculo.professorId !== ""
-                ? Number(vinculo.professorId)
-                : null,
-          },
-        });
-      }
+      await tx.turma.update({
+        where: {
+          id: Number(body.turmaId),
+        },
+        data: {
+          disciplinaId: id,
+          professorId: Number(body.professorId),
+        },
+      });
     });
 
     const disciplinaAtualizada = await prisma.disciplina.findFirst({

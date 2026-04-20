@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type Curso = {
@@ -23,11 +23,12 @@ type ProfessorOption = {
   nome: string;
 };
 
-type TurmaDaDisciplina = {
+type TurmaApi = {
   id: number;
   nome?: string | null;
   codigo?: string | null;
   semestre?: number | null;
+  disciplinaId?: number | null;
   professorId?: number | null;
   professor?: {
     id: number;
@@ -49,15 +50,10 @@ type DisciplinaDetalhe = {
   semestre?: number | null;
   cursoId?: number | null;
   curso?: Curso | null;
-  turmas?: TurmaDaDisciplina[];
+  turmas?: TurmaApi[];
 };
 
-type VinculoProfessorTurma = {
-  turmaId: number;
-  professorId: string;
-};
-
-function nomeProfessor(item: ProfessorApi | TurmaDaDisciplina["professor"] | null | undefined) {
+function nomeProfessor(item: ProfessorApi | TurmaApi["professor"] | null | undefined) {
   if (!item) return "";
   return (
     item.nome ||
@@ -65,6 +61,14 @@ function nomeProfessor(item: ProfessorApi | TurmaDaDisciplina["professor"] | nul
     item.email ||
     item.user?.email ||
     "Professor sem nome"
+  );
+}
+
+function nomeTurma(turma: TurmaApi) {
+  return (
+    turma.nome ||
+    turma.codigo ||
+    `Turma #${turma.id}`
   );
 }
 
@@ -83,16 +87,12 @@ export default function DisciplinaDetalhePage() {
   const [semestre, setSemestre] = useState("");
   const [cursoId, setCursoId] = useState("");
 
+  const [turmaId, setTurmaId] = useState("");
+  const [professorId, setProfessorId] = useState("");
+
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [turmas, setTurmas] = useState<TurmaApi[]>([]);
   const [professores, setProfessores] = useState<ProfessorOption[]>([]);
-  const [turmas, setTurmas] = useState<TurmaDaDisciplina[]>([]);
-  const [vinculosProfessorTurma, setVinculosProfessorTurma] = useState<VinculoProfessorTurma[]>([]);
-
-  const possuiTurmas = turmas.length > 0;
-
-  const professoresOrdenados = useMemo(() => {
-    return [...professores].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-  }, [professores]);
 
   useEffect(() => {
     async function carregar() {
@@ -129,16 +129,16 @@ export default function DisciplinaDetalhePage() {
             : ""
         );
 
-        const turmasDaDisciplina = Array.isArray(disciplina.turmas) ? disciplina.turmas : [];
-        setTurmas(turmasDaDisciplina);
-        setVinculosProfessorTurma(
-          turmasDaDisciplina.map((turma) => ({
-            turmaId: turma.id,
-            professorId:
-              turma.professorId !== null && turma.professorId !== undefined
-                ? String(turma.professorId)
-                : "",
-          }))
+        const turmaAtual = Array.isArray(disciplina.turmas) ? disciplina.turmas[0] : null;
+        setTurmaId(
+          turmaAtual?.id !== null && turmaAtual?.id !== undefined
+            ? String(turmaAtual.id)
+            : ""
+        );
+        setProfessorId(
+          turmaAtual?.professorId !== null && turmaAtual?.professorId !== undefined
+            ? String(turmaAtual.professorId)
+            : ""
         );
 
         try {
@@ -149,6 +149,16 @@ export default function DisciplinaDetalhePage() {
           setCursos(Array.isArray(dataCursos) ? dataCursos : []);
         } catch {
           setCursos([]);
+        }
+
+        try {
+          const resTurmas = await fetch("/api/turma", {
+            credentials: "include",
+          });
+          const dataTurmas = await resTurmas.json();
+          setTurmas(Array.isArray(dataTurmas) ? dataTurmas : []);
+        } catch {
+          setTurmas([]);
         }
 
         try {
@@ -163,7 +173,8 @@ export default function DisciplinaDetalhePage() {
             .map((item: ProfessorApi) => ({
               id: item.id,
               nome: nomeProfessor(item) || `Professor #${item.id}`,
-            }));
+            }))
+            .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 
           setProfessores(normalizados);
         } catch {
@@ -182,14 +193,6 @@ export default function DisciplinaDetalhePage() {
     }
   }, [disciplinaId, router]);
 
-  function alterarProfessorDaTurma(turmaId: number, professorId: string) {
-    setVinculosProfessorTurma((estadoAtual) =>
-      estadoAtual.map((item) =>
-        item.turmaId === turmaId ? { ...item, professorId } : item
-      )
-    );
-  }
-
   async function salvar(e: React.FormEvent) {
     e.preventDefault();
 
@@ -206,10 +209,8 @@ export default function DisciplinaDetalhePage() {
           cargaHoraria: cargaHoraria ? Number(cargaHoraria) : null,
           semestre: semestre ? Number(semestre) : null,
           cursoId: cursoId ? Number(cursoId) : null,
-          vinculosProfessorTurma: vinculosProfessorTurma.map((item) => ({
-            turmaId: item.turmaId,
-            professorId: item.professorId ? Number(item.professorId) : null,
-          })),
+          turmaId: turmaId ? Number(turmaId) : null,
+          professorId: professorId ? Number(professorId) : null,
         }),
       });
 
@@ -242,54 +243,56 @@ export default function DisciplinaDetalhePage() {
 
       <div>
         <h1 className="text-2xl font-bold">✏️ Editar disciplina</h1>
-        <p className="mt-1 text-gray-600">Atualize os dados da disciplina.</p>
+        <p className="mt-1 text-gray-600">
+          Atualize os dados da disciplina e atribua turma e professor.
+        </p>
       </div>
 
       <form
         onSubmit={salvar}
-        className="max-w-3xl space-y-4 rounded-2xl border bg-white p-6 shadow-sm"
+        className="bg-white border rounded-2xl p-6 shadow-sm space-y-4 max-w-3xl"
       >
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Nome
           </label>
           <input
             type="text"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2"
             required
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Código
           </label>
           <input
             type="text"
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2"
             placeholder="Opcional"
           />
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Descrição
           </label>
           <textarea
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
-            className="min-h-[100px] w-full rounded-xl border px-3 py-2"
+            className="w-full border rounded-xl px-3 py-2 min-h-[100px]"
             placeholder="Opcional"
           />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Carga horária
             </label>
             <input
@@ -297,13 +300,13 @@ export default function DisciplinaDetalhePage() {
               min="0"
               value={cargaHoraria}
               onChange={(e) => setCargaHoraria(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2"
+              className="w-full border rounded-xl px-3 py-2"
               placeholder="Opcional"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Semestre
             </label>
             <input
@@ -311,19 +314,19 @@ export default function DisciplinaDetalhePage() {
               min="1"
               value={semestre}
               onChange={(e) => setSemestre(e.target.value)}
-              className="w-full rounded-xl border px-3 py-2"
+              className="w-full border rounded-xl px-3 py-2"
               placeholder="Opcional"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Curso
             </label>
             <select
               value={cursoId}
               onChange={(e) => setCursoId(e.target.value)}
-              className="w-full rounded-xl border bg-white px-3 py-2"
+              className="w-full border rounded-xl px-3 py-2 bg-white"
             >
               <option value="">Sem curso vinculado</option>
               {cursos.map((curso) => (
@@ -335,73 +338,56 @@ export default function DisciplinaDetalhePage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 p-4">
-          <div className="mb-3">
-            <h2 className="text-base font-semibold text-slate-900">
-              Professor por turma
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              A disciplina pode ter uma ou mais turmas. A atribuição do professor
-              é feita por turma.
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Turma
+            </label>
+            <select
+              value={turmaId}
+              onChange={(e) => setTurmaId(e.target.value)}
+              className="w-full border rounded-xl px-3 py-2 bg-white"
+            >
+              <option value="">Selecione uma turma</option>
+              {turmas.map((turma) => (
+                <option key={turma.id} value={turma.id}>
+                  {nomeTurma(turma)}
+                  {turma.semestre ? ` • Semestre ${turma.semestre}` : ""}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-slate-500">
+              Escolha a turma que será vinculada a esta disciplina.
             </p>
           </div>
 
-          {!possuiTurmas ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Esta disciplina ainda não possui turmas vinculadas. Crie uma turma
-              para depois atribuir um professor.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {turmas.map((turma) => {
-                const vinculo = vinculosProfessorTurma.find(
-                  (item) => item.turmaId === turma.id
-                );
-
-                return (
-                  <div
-                    key={turma.id}
-                    className="rounded-xl border border-slate-200 p-4"
-                  >
-                    <div className="mb-3">
-                      <div className="font-medium text-slate-900">
-                        {turma.nome || `Turma #${turma.id}`}
-                      </div>
-                      <div className="text-sm text-slate-500">
-                        {turma.codigo ? `Código: ${turma.codigo}` : `ID da turma: ${turma.id}`}
-                        {turma.semestre ? ` • Semestre ${turma.semestre}` : ""}
-                      </div>
-                    </div>
-
-                    <label className="mb-1 block text-sm font-medium text-gray-700">
-                      Professor responsável
-                    </label>
-                    <select
-                      value={vinculo?.professorId ?? ""}
-                      onChange={(e) =>
-                        alterarProfessorDaTurma(turma.id, e.target.value)
-                      }
-                      className="w-full rounded-xl border bg-white px-3 py-2"
-                    >
-                      <option value="">Sem professor atribuído</option>
-                      {professoresOrdenados.map((professor) => (
-                        <option key={professor.id} value={professor.id}>
-                          {professor.nome}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Professor
+            </label>
+            <select
+              value={professorId}
+              onChange={(e) => setProfessorId(e.target.value)}
+              className="w-full border rounded-xl px-3 py-2 bg-white"
+            >
+              <option value="">Selecione um professor</option>
+              {professores.map((professor) => (
+                <option key={professor.id} value={professor.id}>
+                  {professor.nome}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-slate-500">
+              O professor será atribuído à turma selecionada.
+            </p>
+          </div>
         </div>
 
-        <div className="flex gap-3 pt-2">
+        <div className="pt-2 flex gap-3">
           <button
             type="submit"
             disabled={saving}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
+            className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 disabled:opacity-60"
           >
             {saving ? "Salvando..." : "Salvar alterações"}
           </button>
@@ -409,7 +395,7 @@ export default function DisciplinaDetalhePage() {
           <button
             type="button"
             onClick={() => router.push("/admin/disciplinas")}
-            className="rounded-xl border px-4 py-2"
+            className="border px-4 py-2 rounded-xl"
           >
             Cancelar
           </button>
