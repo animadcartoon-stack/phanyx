@@ -8,7 +8,7 @@ type StatusAdesao = "PAGO" | "PENDENTE" | "PROCESSANDO" | "CANCELADO" | "ERRO";
 
 function SucessoContent() {
   const searchParams = useSearchParams();
-  const adesaoId = searchParams.get("adesao");
+  const adesaoId = searchParams.get("adesao") || searchParams.get("ref");
 
   const [status, setStatus] = useState<StatusAdesao>("PROCESSANDO");
   const [loading, setLoading] = useState(true);
