@@ -184,6 +184,7 @@ export async function GET(
     const disciplina = await prisma.disciplina.findFirst({
   where: {
   id: Number(id),
+  instituicaoId: user.instituicaoId,
 },
   include: {
     curso: true,
