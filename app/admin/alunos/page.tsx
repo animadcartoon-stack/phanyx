@@ -275,86 +275,99 @@ function AdminAlunosPage() {
   }
 
   async function handleCriarAluno(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setCriando(true);
+  try {
+    setCriando(true);
 
-      const res = await fetch("/api/aluno", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          nome,
-          email,
-          nomeSocial,
-          genero,
-          matricula,
-          cpf,
-          rg,
-          telefone,
-          dataNascimento: dataNascimento || null,
-          cep,
-          endereco,
-          numero,
-          complemento,
-          bairro,
-          cidade,
-          estado,
-          documentoUrl,
-          nomeResponsavel,
-          cpfResponsavel,
-          telefoneResponsavel,
-          emailResponsavel,
-          parentescoResponsavel,
-          statusAluno,
-          possuiNecessidadeEspecial,
-          descricaoNecessidadeEspecial,
-          observacoesAcessibilidade,
-        }),
-      });
+    const res = await fetch("/api/aluno", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        nome,
+        email,
+        nomeSocial,
+        genero,
+        matricula,
+        cpf,
+        rg,
+        telefone,
+        dataNascimento: dataNascimento || null,
+        cep,
+        endereco,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        documentoUrl,
+        nomeResponsavel,
+        cpfResponsavel,
+        telefoneResponsavel,
+        emailResponsavel,
+        parentescoResponsavel,
+        statusAluno,
+        possuiNecessidadeEspecial,
+        descricaoNecessidadeEspecial,
+        observacoesAcessibilidade,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar aluno");
-      }
+    if (!res.ok) {
+      const mensagem =
+        data?.error ||
+        data?.detalhe ||
+        "Erro ao criar aluno";
 
-      setNome("");
-      setNomeSocial("");
-      setGenero("");
-      setEmail("");
-      setMatricula("");
-      setCpf("");
-      setRg("");
-      setTelefone("");
-      setDataNascimento("");
-      setCep("");
-      setEndereco("");
-      setNumero("");
-      setComplemento("");
-      setBairro("");
-      setCidade("");
-      setEstado("");
-      setDocumentoUrl("");
-      setNomeResponsavel("");
-      setCpfResponsavel("");
-      setTelefoneResponsavel("");
-      setEmailResponsavel("");
-      setParentescoResponsavel("");
-      setStatusAluno("ATIVO");
-      setPossuiNecessidadeEspecial(false);
-      setDescricaoNecessidadeEspecial("");
-      setObservacoesAcessibilidade("");
-
-      await carregarAlunos();
-      mostrarFeedback("sucesso", "Aluno criado com sucesso.");
-    } catch (error: any) {
-      mostrarFeedback("erro", error?.message || "Erro ao criar aluno");
-    } finally {
-      setCriando(false);
+      mostrarFeedback("erro", mensagem);
+      alert(mensagem);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
     }
+
+    setNome("");
+    setNomeSocial("");
+    setGenero("");
+    setEmail("");
+    setMatricula("");
+    setCpf("");
+    setRg("");
+    setTelefone("");
+    setDataNascimento("");
+    setCep("");
+    setEndereco("");
+    setNumero("");
+    setComplemento("");
+    setBairro("");
+    setCidade("");
+    setEstado("");
+    setDocumentoUrl("");
+    setNomeResponsavel("");
+    setCpfResponsavel("");
+    setTelefoneResponsavel("");
+    setEmailResponsavel("");
+    setParentescoResponsavel("");
+    setStatusAluno("ATIVO");
+    setPossuiNecessidadeEspecial(false);
+    setDescricaoNecessidadeEspecial("");
+    setObservacoesAcessibilidade("");
+
+    await carregarAlunos();
+    mostrarFeedback("sucesso", "Aluno criado com sucesso.");
+    alert("Aluno criado com sucesso.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } catch (error: any) {
+    const mensagem = error?.message || "Erro ao criar aluno";
+    mostrarFeedback("erro", mensagem);
+    alert(mensagem);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  } finally {
+    setCriando(false);
   }
+}
 
   useEffect(() => {
     carregarAlunos();
@@ -717,9 +730,10 @@ function AdminAlunosPage() {
           </div>
 
           <button
-            disabled={criando}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
-          >
+  type="submit"
+  disabled={criando}
+  className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+>
             {criando ? "Criando..." : "Criar aluno"}
           </button>
         </form>

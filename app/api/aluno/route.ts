@@ -12,6 +12,16 @@ function limparSomenteNumeros(valor: unknown) {
   return String(valor ?? "").replace(/\D/g, "");
 }
 
+function parseDataSegura(valor: unknown) {
+  const texto = String(valor ?? "").trim();
+  if (!texto) return null;
+
+  const data = new Date(texto);
+  if (Number.isNaN(data.getTime())) return null;
+
+  return data;
+}
+
 export async function GET() {
   try {
     const cookieStore = await cookies();
@@ -147,9 +157,7 @@ export async function POST(request: Request) {
           cpf: cpf || null,
           rg: rg || null,
           telefone: telefone || null,
-          dataNascimento: body.dataNascimento
-            ? new Date(body.dataNascimento)
-            : null,
+          dataNascimento: parseDataSegura(body.dataNascimento),
           cep: limparTexto(body.cep) || null,
           endereco: limparTexto(body.endereco) || null,
           numero: limparTexto(body.numero) || null,
