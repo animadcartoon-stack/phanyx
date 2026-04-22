@@ -47,16 +47,17 @@ function LoginContent() {
       setErro("");
 
       const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          senha,
-          portal,
-        }),
-      });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  credentials: "include",
+  body: JSON.stringify({
+    email,
+    senha,
+    portal,
+  }),
+});
 
       const json = await res.json();
 
@@ -70,20 +71,24 @@ function LoginContent() {
         return;
       }
 
-      if (json.user?.role === "admin") {
-        window.location.href = "/admin";
-        return;
-      }
+      const role = String(json.user?.role || "").toLowerCase();
 
-      if (json.user?.role === "professor") {
-        window.location.href = "/professor";
-        return;
-      }
+if (
+  ["admin", "gerencia", "secretaria", "coordenador", "financeiro", "suporte"].includes(role)
+) {
+  window.location.href = "/admin";
+  return;
+}
 
-      if (json.user?.role === "aluno") {
-        window.location.href = "/aluno";
-        return;
-      }
+if (role === "professor") {
+  window.location.href = "/professor";
+  return;
+}
+
+if (role === "aluno") {
+  window.location.href = "/aluno";
+  return;
+}
 
       setErro("Perfil de usuário inválido");
     } catch {
