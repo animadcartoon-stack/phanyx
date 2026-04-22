@@ -27,6 +27,48 @@ interface Funcionario {
   } | null;
 }
 
+function formatarCpf(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
+
+  return numeros
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
+
+function formatarTelefone(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 11);
+
+  if (numeros.length <= 10) {
+    return numeros
+      .replace(/^(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d{4})(\d)/, "$1-$2");
+  }
+
+  return numeros
+    .replace(/^(\d{2})(\d)/, "($1) $2")
+    .replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+function traduzirRole(role?: string) {
+  switch (String(role || "").toUpperCase()) {
+    case "ADMIN":
+      return "Admin";
+    case "GERENCIA":
+      return "Gerência";
+    case "SECRETARIA":
+      return "Secretaria";
+    case "COORDENADOR":
+      return "Coordenador";
+    case "FINANCEIRO":
+      return "Financeiro";
+    case "SUPORTE":
+      return "Suporte";
+    default:
+      return role || "-";
+  }
+}
+
 function AdminFuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
@@ -39,9 +81,10 @@ function AdminFuncionariosPage() {
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
-  
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [departamentoId, setDepartamentoId] = useState("");
+
+  const [carregando, setCarregando] = useState(false);
 
   async function carregarFuncionarios() {
     const res = await fetch("/api/funcionario", {
@@ -59,52 +102,73 @@ function AdminFuncionariosPage() {
     setDepartamentos(Array.isArray(data) ? data : []);
   }
 
- async function criarFuncionario(e: React.FormEvent) {
-  e.preventDefault();
+  async function criarFuncionario(e: React.FormEvent) {
+    e.preventDefault();
 
-  const res = await fetch("/api/funcionario", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include",
-    body: JSON.stringify({
-      nome,
-      email,
-      role,
-      cpf,
-      rg,
-      telefone,
-      cargo,
-      codigoFuncionario,
-      departamentoId: departamentoId || null,
-    }),
-  });
+    if (!nome.trim()) {
+      alert("Informe o nome do funcionário.");
+      return;
+    }
 
-  const data = await res.json();
+    if (!email.trim()) {
+      alert("Informe o email do funcionário.");
+      return;
+    }
 
-  if (!res.ok) {
-    alert(data.error || "Erro ao criar funcionário");
-    return;
+    if (!role) {
+      alert("Selecione o perfil de acesso.");
+      return;
+    }
+
+    try {
+      setCarregando(true);
+
+      const res = await fetch("/api/funcionario", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          nome,
+          email,
+          role,
+          cpf,
+          rg,
+          telefone,
+          cargo,
+          codigoFuncionario,
+          departamentoId: departamentoId || null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Erro ao criar funcionário");
+        return;
+      }
+
+      setNome("");
+      setEmail("");
+      setRole("");
+      setCpf("");
+      setRg("");
+      setTelefone("");
+      setCargo("");
+      setCodigoFuncionario("");
+      setDepartamentoId("");
+
+      await carregarFuncionarios();
+
+      if (data?.avisoEmail) {
+        alert(data.avisoEmail);
+        return;
+      }
+
+      alert("Funcionário criado com sucesso e email de acesso enviado.");
+    } finally {
+      setCarregando(false);
+    }
   }
-
-  setNome("");
-  setEmail("");
-  setRole("");
-  setCpf("");
-  setRg("");
-  setTelefone("");
-  setCargo("");
-  setCodigoFuncionario("");
-  setDepartamentoId("");
-
-  await carregarFuncionarios();
-
-  if (data?.avisoEmail) {
-    alert(data.avisoEmail);
-    return;
-  }
-
-  alert("Funcionário criado com sucesso e email de acesso enviado.");
-}
 
   useEffect(() => {
     carregarFuncionarios();
@@ -127,7 +191,6 @@ function AdminFuncionariosPage() {
       const rg = String(funcionario.rg || "").toLowerCase().trim();
       const telefone = String(funcionario.telefone || "").toLowerCase().trim();
       const cargo = String(funcionario.cargo || "").toLowerCase().trim();
-      const setor = String(funcionario.setor || "").toLowerCase().trim();
       const codigoFuncionario = String(funcionario.codigoFuncionario || "")
         .toLowerCase()
         .trim();
@@ -148,7 +211,6 @@ function AdminFuncionariosPage() {
         rg.includes(termoTexto) ||
         telefone.includes(termoTexto) ||
         cargo.includes(termoTexto) ||
-        setor.includes(termoTexto) ||
         codigoFuncionario.includes(termoTexto) ||
         departamento.includes(termoTexto) ||
         (termoNumerico !== "" &&
@@ -189,49 +251,51 @@ function AdminFuncionariosPage() {
           />
 
           <div className="space-y-1">
-  <label className="text-sm font-medium text-slate-700">
-    Perfil de acesso
-  </label>
+            <label className="text-sm font-medium text-slate-700">
+              Perfil de acesso
+            </label>
 
-  <select
-    value={role}
-    onChange={(e) => setRole(e.target.value)}
-    className="w-full border rounded-lg p-2"
-  >
-    <option value="">Selecione o perfil</option>
-    <option value="ADMIN">Admin</option>
-    <option value="GERENCIA">Gerência</option>
-    <option value="SECRETARIA">Secretaria</option>
-    <option value="COORDENADOR">Coordenador</option>
-    <option value="FINANCEIRO">Financeiro</option>
-    <option value="SUPORTE">Suporte</option>
-  </select>
-</div>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full border rounded-lg p-2"
+              required
+            >
+              <option value="">Selecione o perfil</option>
+              <option value="ADMIN">Admin</option>
+              <option value="GERENCIA">Gerência</option>
+              <option value="SECRETARIA">Secretaria</option>
+              <option value="COORDENADOR">Coordenador</option>
+              <option value="FINANCEIRO">Financeiro</option>
+              <option value="SUPORTE">Suporte</option>
+            </select>
+          </div>
 
           <div className="space-y-1">
-  <label className="text-sm font-medium text-slate-700">
-    Departamento
-  </label>
+            <label className="text-sm font-medium text-slate-700">
+              Departamento
+            </label>
 
-  <select
-    value={departamentoId}
-    onChange={(e) => setDepartamentoId(e.target.value)}
-    className="w-full border rounded-lg p-2"
-  >
-    <option value="">Selecione um departamento</option>
-    {departamentos.map((d) => (
-      <option key={d.id} value={d.id}>
-        {d.nome}
-      </option>
-    ))}
-  </select>
-</div>
+            <select
+              value={departamentoId}
+              onChange={(e) => setDepartamentoId(e.target.value)}
+              className="w-full border rounded-lg p-2"
+            >
+              <option value="">Selecione um departamento</option>
+              {departamentos.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.nome}
+                </option>
+              ))}
+            </select>
+          </div>
 
           <input
             placeholder="CPF"
             value={cpf}
-            onChange={(e) => setCpf(e.target.value)}
+            onChange={(e) => setCpf(formatarCpf(e.target.value))}
             className="w-full border rounded-lg p-2"
+            inputMode="numeric"
           />
 
           <input
@@ -244,8 +308,9 @@ function AdminFuncionariosPage() {
           <input
             placeholder="Telefone"
             value={telefone}
-            onChange={(e) => setTelefone(e.target.value)}
+            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
             className="w-full border rounded-lg p-2"
+            inputMode="numeric"
           />
 
           <input
@@ -263,8 +328,12 @@ function AdminFuncionariosPage() {
           />
         </div>
 
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-          Criar funcionário
+        <button
+          type="submit"
+          disabled={carregando}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-60"
+        >
+          {carregando ? "Criando..." : "Criar funcionário"}
         </button>
       </form>
 
@@ -290,14 +359,15 @@ function AdminFuncionariosPage() {
             <div key={f.id} className="bg-white border rounded-lg p-4">
               <p className="font-medium">{f.nome}</p>
               <p className="text-sm text-gray-600">{f.user?.email}</p>
-              <p className="text-sm text-gray-600">Role: {f.user?.role}</p>
+              <p className="text-sm text-gray-600">
+                Perfil de acesso: {traduzirRole(f.user?.role)}
+              </p>
               <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
               <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
               <p className="text-sm text-gray-600">
                 Telefone: {f.telefone || "-"}
               </p>
               <p className="text-sm text-gray-600">Cargo: {f.cargo || "-"}</p>
-              <p className="text-sm text-gray-600">Setor: {f.setor || "-"}</p>
               <p className="text-sm text-gray-600">
                 Código: {f.codigoFuncionario || "-"}
               </p>
