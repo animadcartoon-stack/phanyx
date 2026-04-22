@@ -233,8 +233,12 @@ function AdminMatriculasPage() {
 }
 
   useEffect(() => {
-    carregarTudo();
-  }, []);
+  carregarTudo();
+}, []);
+
+useEffect(() => {
+  console.log("📚 Alunos carregados para matrícula:", alunos);
+}, [alunos]);
 
   useEffect(() => {
   setCursoSemestreId("");
@@ -1025,33 +1029,7 @@ function renderGrupoDisciplina(
   />
 </div>
 
-        <div className="mt-5">
-  <label className="text-sm font-medium text-gray-700">
-    Disciplinas extras contratadas
-  </label>
-  <p className="text-xs text-gray-500 mt-1">
-    Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
-  </p>
-
-  <div className="mt-2 border rounded-2xl p-4 max-h-80 overflow-auto space-y-4">
-    {cursoId && cursoSemestreId ? (
-      disciplinasExtrasAgrupadas.length > 0 ? (
-        disciplinasExtrasAgrupadas.map((grupo) =>
-          renderGrupoDisciplina(grupo, turmasSelecionadas, toggleTurma)
-        )
-      ) : (
-        <p className="text-sm text-gray-500">
-          Nenhuma disciplina extra encontrada para este curso.
-        </p>
-      )
-    ) : (
-      <p className="text-sm text-gray-500">
-        Selecione primeiro o curso e o semestre do curso.
-      </p>
-    )}
-  </div>
-</div>
-
+      
         <div className="mt-4">
           <button
             onClick={criarMatricula}
