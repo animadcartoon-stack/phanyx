@@ -34,7 +34,7 @@ function AdminFuncionariosPage() {
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("SECRETARIA");
+  const [role, setRole] = useState("");
   const [cpf, setCpf] = useState("");
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -89,7 +89,7 @@ function AdminFuncionariosPage() {
 
   setNome("");
   setEmail("");
-  setRole("SECRETARIA");
+  setRole("");
   setCpf("");
   setRg("");
   setTelefone("");
@@ -190,18 +190,32 @@ function AdminFuncionariosPage() {
             required
           />
 
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          >
-            <option value="ADMIN">Admin</option>
-            <option value="GERENCIA">Gerência</option>
-            <option value="SECRETARIA">Secretaria</option>
-            <option value="COORDENADOR">Coordenador</option>
-            <option value="FINANCEIRO">Financeiro</option>
-            <option value="SUPORTE">Suporte</option>
-          </select>
+          <div className="space-y-1">
+  <label className="text-sm font-medium text-slate-700">
+    Perfil de acesso
+  </label>
+
+  <select
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    className="w-full border rounded-lg p-2"
+  >
+    <option value="">Selecione o perfil</option>
+    <option value="ADMIN">Admin</option>
+    <option value="GERENCIA">Gerência</option>
+    <option value="SECRETARIA">Secretaria</option>
+    <option value="COORDENADOR">Coordenador</option>
+    <option value="FINANCEIRO">Financeiro</option>
+    <option value="SUPORTE">Suporte</option>
+  </select>
+</div>
+
+<select
+  value={role}
+  onChange={(e) => setRole(e.target.value)}
+  className="w-full border rounded-lg p-2"
+  required
+></select>
 
           <select
             value={departamentoId}
