@@ -208,18 +208,24 @@ function AdminFuncionariosPage() {
   </select>
 </div>
 
-          <select
-            value={departamentoId}
-            onChange={(e) => setDepartamentoId(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          >
-            <option value="">Selecione um departamento</option>
-            {departamentos.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.nome}
-              </option>
-            ))}
-          </select>
+          <div className="space-y-1">
+  <label className="text-sm font-medium text-slate-700">
+    Departamento
+  </label>
+
+  <select
+    value={departamentoId}
+    onChange={(e) => setDepartamentoId(e.target.value)}
+    className="w-full border rounded-lg p-2"
+  >
+    <option value="">Selecione um departamento</option>
+    {departamentos.map((d) => (
+      <option key={d.id} value={d.id}>
+        {d.nome}
+      </option>
+    ))}
+  </select>
+</div>
 
           <input
             placeholder="CPF"
