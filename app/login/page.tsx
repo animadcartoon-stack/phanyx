@@ -21,6 +21,8 @@ function LoginContent() {
   const [erro, setErro] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+
   const titulo = useMemo(() => {
     if (portal === "professor") return "Login do Professor";
     if (portal === "aluno") return "Login do Aluno";
@@ -114,14 +116,23 @@ function LoginContent() {
           className="w-full border rounded-lg p-2"
         />
 
-        <input
-          type="password"
-          placeholder="Senha"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          onKeyDown={handleEnterKey}
-          className="w-full border rounded-lg p-2"
-        />
+        <div className="relative">
+  <input
+    type={mostrarSenha ? "text" : "password"}
+    value={senha}
+    onChange={(e) => setSenha(e.target.value)}
+    placeholder="Senha"
+    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-12 outline-none"
+  />
+
+  <button
+    type="button"
+    onClick={() => setMostrarSenha(!mostrarSenha)}
+    className="absolute right-4 top-1/2 -translate-y-1/2 text-lg text-slate-500 hover:text-slate-800"
+  >
+    {mostrarSenha ? "🙈" : "👁️"}
+  </button>
+</div>
 
         {erro && <p className="text-red-600 text-sm">{erro}</p>}
 
