@@ -139,13 +139,17 @@ function AdminMatriculasPage() {
         const dataAlunos = await resAlunos.json();
 
         const listaAlunos: AlunoOption[] = (
-          Array.isArray(dataAlunos) ? dataAlunos : []
-        ).map((a: any) => ({
-          id: Number(a.id),
-          nome: String(a.nome ?? "Aluno"),
-        }));
+  Array.isArray(dataAlunos) ? dataAlunos : []
+)
+  .map((a: any) => ({
+    id: Number(a?.id),
+    nome: String(a?.nome ?? "Aluno"),
+  }))
+  .filter((a) => Number.isFinite(a.id) && a.id > 0);
 
-        setAlunos(listaAlunos.filter((a) => Number.isFinite(a.id) && a.id > 0));
+console.log("📚 Lista de alunos pronta para o select:", listaAlunos);
+
+setAlunos(listaAlunos);
       } catch (error) {
         console.error("Erro ao carregar alunos:", error);
         setAlunos([]);

@@ -210,23 +210,33 @@ function AdminAlunosPage() {
   }
 
   async function carregarAlunos() {
-    try {
-      const res = await fetch("/api/aluno", {
-        credentials: "include",
-        cache: "no-store",
-      });
+  try {
+    const res = await fetch("/api/aluno", {
+      credentials: "include",
+      cache: "no-store",
+    });
 
-      if (!res.ok) {
-        console.error("Erro ao buscar alunos");
-        return;
-      }
+    const data = await res.json().catch(() => null);
 
-      const data = await res.json();
-      setAlunos(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Erro ao carregar alunos:", error);
+    if (!res.ok) {
+      console.error("Erro ao buscar alunos:", data);
+      mostrarFeedback(
+        "erro",
+        data?.error || "Não foi possível carregar a lista de alunos."
+      );
+      setAlunos([]);
+      return;
     }
+
+    console.log("📚 /api/aluno retornou:", data);
+
+    setAlunos(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Erro ao carregar alunos:", error);
+    mostrarFeedback("erro", "Erro ao carregar alunos.");
+    setAlunos([]);
   }
+}
 
   async function carregarMatriculas() {
     try {
@@ -356,15 +366,24 @@ function AdminAlunosPage() {
       }
 
       limparFormularioCriacao();
-      await carregarTudo();
 
-      mostrarFeedback("sucesso", "Aluno criado com sucesso.");
-      abrirModalAviso(
-        "sucesso",
-        "Aluno criado",
-        data?.avisoEmail || "O aluno foi criado com sucesso no sistema."
-      );
-      window.scrollTo({ top: 0, behavior: "smooth" });
+if (data?.id) {
+  setAlunos((prev) => [
+    data,
+    ...prev.filter((aluno) => aluno.id !== data.id),
+  ]);
+}
+
+await carregarTudo();
+
+mostrarFeedback("sucesso", "Aluno criado com sucesso.");
+abrirModalAviso(
+  "sucesso",
+  "Aluno criado",
+  data?.avisoEmail || "O aluno foi criado com sucesso no sistema."
+);
+window.scrollTo({ top: 0, behavior: "smooth" });
+
     } catch (error: any) {
       const mensagem = error?.message || "Erro ao criar aluno";
       mostrarFeedback("erro", mensagem);
