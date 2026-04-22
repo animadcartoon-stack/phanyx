@@ -115,25 +115,29 @@ export async function PATCH(
       );
     }
 
-    if (acao !== "bloquear" && acao !== "desbloquear") {
-      return NextResponse.json(
-        { error: "Ação inválida." },
-        { status: 400 }
-      );
+    if (!["bloquear", "desbloquear"].includes(acao)) {
+      return NextResponse.json({ error: "Ação inválida." }, { status: 400 });
     }
 
-    await prisma.user.update({
+    const novoStatusAtivo = acao === "desbloquear";
+
+    const usuarioAtualizado = await prisma.user.update({
       where: { id: funcionario.userId },
       data: {
-        ativo: acao === "desbloquear",
+        ativo: novoStatusAtivo,
+      },
+      select: {
+        id: true,
+        ativo: true,
       },
     });
 
     return NextResponse.json({
       message:
-        acao === "bloquear"
-          ? "Acesso do funcionário bloqueado com sucesso."
-          : "Acesso do funcionário desbloqueado com sucesso.",
+        novoStatusAtivo
+          ? "Acesso do funcionário desbloqueado com sucesso."
+          : "Acesso do funcionário bloqueado com sucesso.",
+      user: usuarioAtualizado,
     });
   } catch (error) {
     console.error(error);

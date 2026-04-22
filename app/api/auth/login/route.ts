@@ -78,6 +78,13 @@ export async function POST(req: Request) {
       );
     }
 
+if (user.ativo === false) {
+  return NextResponse.json(
+    { error: "Seu acesso está bloqueado. Procure a administração da instituição." },
+    { status: 403 }
+  );
+}
+
     const senhaValida = await bcrypt.compare(senha, user.senha);
 
     if (!senhaValida) {
