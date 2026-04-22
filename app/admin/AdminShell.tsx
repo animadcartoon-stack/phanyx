@@ -196,7 +196,7 @@ useEffect(() => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {!esconderSidebar && (
-        <aside className="w-72 bg-white shadow-lg p-6 flex flex-col justify-between">
+        <aside className="w-72 bg-white shadow-lg p-6 flex flex-col h-screen overflow-y-auto">
           <div>
             <div className="mb-8">
               <h2 className="text-xl font-semibold">
@@ -490,12 +490,14 @@ useEffect(() => {
           </div>
 
           <div className="mt-auto pt-6">
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition"
-            >
-              Sair
-            </button>
+            <div className="mt-6 sticky bottom-0 bg-white pt-4">
+  <button
+    onClick={handleLogout}
+    className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition"
+  >
+    Sair
+  </button>
+</div>
           </div>
         </aside>
       )}
