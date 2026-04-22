@@ -737,7 +737,7 @@ const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
   return agruparTurmasPorDisciplina(turmasExtrasEdicao);
 }, [turmasExtrasEdicao]);
 
- function renderGrupoDisciplina(
+function renderGrupoDisciplina(
   grupo: {
     disciplinaId: number | null;
     disciplinaNome: string;
@@ -747,9 +747,14 @@ const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
   onToggle: (turmaId: number) => void
 ) {
   return (
-    <div key={`${grupo.disciplinaId ?? grupo.disciplinaNome}`} className="border rounded-2xl p-4 space-y-3">
+    <div
+      key={`${grupo.disciplinaId ?? grupo.disciplinaNome}`}
+      className="border rounded-2xl p-4 space-y-3"
+    >
       <div>
-        <p className="font-semibold text-gray-900">{grupo.disciplinaNome}</p>
+        <p className="font-semibold text-gray-900">
+          {grupo.disciplinaNome}
+        </p>
         <p className="text-xs text-gray-500">
           Selecione a turma desta disciplina contratada.
         </p>
@@ -767,10 +772,16 @@ const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
               onChange={() => onToggle(t.id)}
               className="mt-1"
             />
+
             <div>
-              <p className="font-medium">Turma: {t.nome}</p>
+              <p className="font-medium">
+                Turma: {t.nome}
+              </p>
+
               <p className="text-sm text-gray-600">
-                {t.professorNome ? `Prof. ${t.professorNome}` : "Professor não informado"}
+                {t.professorNome
+                  ? `Prof. ${t.professorNome}`
+                  : "Professor não informado"}
                 {t.semestre ? ` • Semestre ${t.semestre}` : ""}
               </p>
             </div>
