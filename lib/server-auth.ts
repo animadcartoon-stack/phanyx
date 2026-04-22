@@ -44,7 +44,7 @@ export async function getUserFromToken() {
         precisaTrocarSenha: true,
       },
     });
-
+ 
     isMasterAdmin = Boolean(usuario?.isMasterAdmin);
 
     return {
@@ -60,4 +60,9 @@ export async function getUserFromToken() {
   } catch (error) {
     return null;
   }
+}
+export function isAdminLike(role?: string | null) {
+  const roleNormalizada = String(role || "").trim().toUpperCase();
+
+  return ["ADMIN", "GERENCIA"].includes(roleNormalizada);
 }

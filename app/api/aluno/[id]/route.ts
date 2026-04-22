@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { getUserFromToken } from "@/lib/server-auth";
+import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
@@ -74,9 +74,9 @@ export async function PATCH(
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    if (user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+    if (!isAdminLike(user.role)) {
+  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+}
 
     if (!user.instituicaoId) {
       return NextResponse.json(

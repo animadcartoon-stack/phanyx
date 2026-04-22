@@ -200,6 +200,7 @@ function AdminFuncionariosPage() {
             <option value="COORDENADOR">Coordenador</option>
             <option value="FINANCEIRO">Financeiro</option>
             <option value="SUPORTE">Suporte</option>
+            <option value="GERENCIA">Gerência</option>
           </select>
 
           <select
