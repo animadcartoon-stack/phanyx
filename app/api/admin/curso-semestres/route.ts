@@ -29,12 +29,17 @@ export async function GET(req: Request) {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        disciplinas: {
-          include: {
-            disciplina: true,
-          },
-        },
+  disciplinas: {
+    include: {
+      disciplina: true,
+    },
+    orderBy: {
+      disciplina: {
+        nome: "asc",
       },
+    },
+  },
+},
       orderBy: {
         numero: "asc",
       },

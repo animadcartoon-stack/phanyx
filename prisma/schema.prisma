@@ -216,6 +216,7 @@ model CursoSemestre {
   updatedAt     DateTime                  @updatedAt
   instituicaoId Int
   cursoId       Int
+  cargaMaxima   Int?
   curso         Curso                     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
   instituicao   Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   disciplinas   CursoSemestreDisciplina[]
@@ -318,13 +319,13 @@ model Disciplina {
   nome                      String
   cursoId                   Int?
   instituicaoId             Int
-  cargaHoraria              Int?
   descricao                 String?
   semestre                  Int?
   ativo                     Boolean                         @default(true)
   codigo                    String?
   createdAt                 DateTime                        @default(now())
   updatedAt                 DateTime                        @updatedAt
+  cargaHoraria              Int? // em horas
   certificados              Certificado[]
   semestresCurso            CursoSemestreDisciplina[]
   curso                     Curso?                          @relation(fields: [cursoId], references: [id])

@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
+import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 
 type CursoOption = {
   id: number;
@@ -31,6 +32,7 @@ type CursoSemestreDisciplina = {
     id: number;
     nome: string;
     codigo?: string | null;
+    cargaHoraria?: number | null;
   } | null;
 };
 
@@ -89,7 +91,8 @@ function AdminMatriculasPage() {
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [matriculaEditando, setMatriculaEditando] =
     useState<MatriculaEdicao | null>(null);
-
+  const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
+  const [disciplinasExtrasSelecionadas, setDisciplinasExtrasSelecionadas] = useState<number[]>([]);
   const [matriculas, setMatriculas] = useState<MatriculaApi[]>([]);
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [cursos, setCursos] = useState<CursoOption[]>([]);
@@ -234,14 +237,18 @@ function AdminMatriculasPage() {
   }, []);
 
   useEffect(() => {
-    setCursoSemestreId("");
-    setTurmasSelecionadas([]);
-    carregarSemestresDoCurso(cursoId);
-  }, [cursoId]);
+  setCursoSemestreId("");
+  setTurmasSelecionadas([]);
+  setDisciplinasSelecionadas([]);
+  setDisciplinasExtrasSelecionadas([]);
+  carregarSemestresDoCurso(cursoId);
+}, [cursoId]);
 
   useEffect(() => {
-    setTurmasSelecionadas([]);
-  }, [cursoSemestreId]);
+  setTurmasSelecionadas([]);
+  setDisciplinasSelecionadas([]);
+  setDisciplinasExtrasSelecionadas([]);
+}, [cursoSemestreId]);
 
 useEffect(() => {
   const buscaUrl = searchParams.get("busca");
@@ -264,6 +271,19 @@ useEffect(() => {
       ? semestreSelecionado.disciplinas.map((d) => d.disciplinaId)
       : [];
   }, [semestreSelecionado]);
+
+const disciplinasDoSemestre = useMemo(() => {
+  if (!semestreSelecionado) return [];
+
+  return [...semestreSelecionado.disciplinas]
+    .map((item) => ({
+      id: item.disciplina?.id ?? item.disciplinaId,
+      nome: item.disciplina?.nome ?? "Disciplina",
+      cargaHoraria: item.disciplina?.cargaHoraria ?? 0,
+    }))
+    .filter((d) => Number.isFinite(d.id))
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
+}, [semestreSelecionado]);
 
   const turmasBaseDoSemestre = useMemo(() => {
     if (!cursoId || !semestreSelecionado) return [];
@@ -290,6 +310,26 @@ useEffect(() => {
       return bateCurso && naoEstaNaBase;
     });
   }, [turmas, cursoId, semestreSelecionado, disciplinasDoSemestreIds]);
+
+  const disciplinasExtras = useMemo(() => {
+  const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
+
+  for (const turma of turmasExtrasMesmoCurso) {
+    if (!turma.disciplinaId) continue;
+
+    if (!mapa.has(turma.disciplinaId)) {
+      mapa.set(turma.disciplinaId, {
+        id: turma.disciplinaId,
+        nome: turma.disciplinaNome ?? "Disciplina extra",
+        cargaHoraria: 0,
+      });
+    }
+  }
+
+  return Array.from(mapa.values()).sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  );
+}, [turmasExtrasMesmoCurso]);
 
 const semestreEditandoSelecionado = useMemo(() => {
   if (!matriculaEditando) return null;
@@ -456,6 +496,23 @@ function toggleTurmaEdicao(turmaId: number) {
       setCreating(false);
     }
   }
+
+useEffect(() => {
+  const idsBase = turmasBaseDoSemestre
+    .filter((t) => t.disciplinaId && disciplinasSelecionadas.includes(Number(t.disciplinaId)))
+    .map((t) => t.id);
+
+  const idsExtras = turmasExtrasMesmoCurso
+    .filter((t) => t.disciplinaId && disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId)))
+    .map((t) => t.id);
+
+  setTurmasSelecionadas([...new Set([...idsBase, ...idsExtras])]);
+}, [
+  disciplinasSelecionadas,
+  disciplinasExtrasSelecionadas,
+  turmasBaseDoSemestre,
+  turmasExtrasMesmoCurso,
+]);
 
   async function gerarContratoDaMatricula(matriculaId: number) {
     try {
@@ -952,31 +1009,20 @@ function renderGrupoDisciplina(
           </div>
         ) : null}
 
-        <div className="mt-5">
-  <label className="text-sm font-medium text-gray-700">
-    Disciplinas contratadas do semestre
-  </label>
-  <p className="text-xs text-gray-500 mt-1">
-    Aqui aparecem as disciplinas da grade do semestre escolhido. Marque a turma correspondente a cada disciplina contratada.
-  </p>
+        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+  <MultiSelectDisciplinas
+    titulo="Disciplinas contratadas"
+    disciplinas={disciplinasDoSemestre}
+    selecionadas={disciplinasSelecionadas}
+    setSelecionadas={setDisciplinasSelecionadas}
+  />
 
-  <div className="mt-2 border rounded-2xl p-4 max-h-80 overflow-auto space-y-4">
-    {cursoId && cursoSemestreId ? (
-      disciplinasBaseAgrupadas.length > 0 ? (
-        disciplinasBaseAgrupadas.map((grupo) =>
-          renderGrupoDisciplina(grupo, turmasSelecionadas, toggleTurma)
-        )
-      ) : (
-        <p className="text-sm text-gray-500">
-          Nenhuma disciplina encontrada para este semestre.
-        </p>
-      )
-    ) : (
-      <p className="text-sm text-gray-500">
-        Selecione primeiro o curso e o semestre do curso.
-      </p>
-    )}
-  </div>
+  <MultiSelectDisciplinas
+    titulo="Disciplinas extras curriculares"
+    disciplinas={disciplinasExtras}
+    selecionadas={disciplinasExtrasSelecionadas}
+    setSelecionadas={setDisciplinasExtrasSelecionadas}
+  />
 </div>
 
         <div className="mt-5">
