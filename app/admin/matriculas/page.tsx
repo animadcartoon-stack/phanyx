@@ -690,29 +690,96 @@ function toggleTurmaEdicao(turmaId: number) {
     }
   }
 
-  function renderTurmaCard(t: TurmaOption) {
-    return (
-      <label
-        key={t.id}
-        className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-gray-50"
-      >
-        <input
-          type="checkbox"
-          checked={turmasSelecionadas.includes(t.id)}
-          onChange={() => toggleTurma(t.id)}
-          className="mt-1"
-        />
-        <div>
-          <p className="font-medium">{t.disciplinaNome ?? t.nome}</p>
-          <p className="text-sm text-gray-600">
-            Turma: {t.nome}
-            {t.professorNome ? ` • Prof. ${t.professorNome}` : ""}
-            {t.semestre ? ` • Semestre ${t.semestre}` : ""}
-          </p>
-        </div>
-      </label>
+function agruparTurmasPorDisciplina(lista: TurmaOption[]) {
+  const mapa = new Map<
+    string,
+    {
+      disciplinaId: number | null;
+      disciplinaNome: string;
+      turmas: TurmaOption[];
+    }
+  >();
+
+  for (const turma of lista) {
+    const chave = String(
+      turma.disciplinaId ?? `sem-disciplina-${turma.id}`
     );
+
+    if (!mapa.has(chave)) {
+      mapa.set(chave, {
+        disciplinaId: turma.disciplinaId ?? null,
+        disciplinaNome: turma.disciplinaNome ?? turma.nome,
+        turmas: [],
+      });
+    }
+
+    mapa.get(chave)!.turmas.push(turma);
   }
+
+  return Array.from(mapa.values()).sort((a, b) =>
+    a.disciplinaNome.localeCompare(b.disciplinaNome, "pt-BR")
+  );
+}
+
+const disciplinasBaseAgrupadas = useMemo(() => {
+  return agruparTurmasPorDisciplina(turmasBaseDoSemestre);
+}, [turmasBaseDoSemestre]);
+
+const disciplinasExtrasAgrupadas = useMemo(() => {
+  return agruparTurmasPorDisciplina(turmasExtrasMesmoCurso);
+}, [turmasExtrasMesmoCurso]);
+
+const disciplinasBaseEdicaoAgrupadas = useMemo(() => {
+  return agruparTurmasPorDisciplina(turmasBaseEdicao);
+}, [turmasBaseEdicao]);
+
+const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
+  return agruparTurmasPorDisciplina(turmasExtrasEdicao);
+}, [turmasExtrasEdicao]);
+
+ function renderGrupoDisciplina(
+  grupo: {
+    disciplinaId: number | null;
+    disciplinaNome: string;
+    turmas: TurmaOption[];
+  },
+  turmaIdsSelecionadas: number[],
+  onToggle: (turmaId: number) => void
+) {
+  return (
+    <div key={`${grupo.disciplinaId ?? grupo.disciplinaNome}`} className="border rounded-2xl p-4 space-y-3">
+      <div>
+        <p className="font-semibold text-gray-900">{grupo.disciplinaNome}</p>
+        <p className="text-xs text-gray-500">
+          Selecione a turma desta disciplina contratada.
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        {grupo.turmas.map((t) => (
+          <label
+            key={t.id}
+            className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-gray-50"
+          >
+            <input
+              type="checkbox"
+              checked={turmaIdsSelecionadas.includes(t.id)}
+              onChange={() => onToggle(t.id)}
+              className="mt-1"
+            />
+            <div>
+              <p className="font-medium">Turma: {t.nome}</p>
+              <p className="text-sm text-gray-600">
+                {t.professorNome ? `Prof. ${t.professorNome}` : "Professor não informado"}
+                {t.semestre ? ` • Semestre ${t.semestre}` : ""}
+              </p>
+            </div>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="space-y-6">
@@ -875,52 +942,58 @@ function toggleTurmaEdicao(turmaId: number) {
         ) : null}
 
         <div className="mt-5">
-          <label className="text-sm font-medium text-gray-700">
-            Turmas base do semestre
-          </label>
+  <label className="text-sm font-medium text-gray-700">
+    Disciplinas contratadas do semestre
+  </label>
+  <p className="text-xs text-gray-500 mt-1">
+    Aqui aparecem as disciplinas da grade do semestre escolhido. Marque a turma correspondente a cada disciplina contratada.
+  </p>
 
-          <div className="mt-2 border rounded-2xl p-4 max-h-72 overflow-auto space-y-3">
-            {cursoId && cursoSemestreId ? (
-              turmasBaseDoSemestre.length > 0 ? (
-                turmasBaseDoSemestre.map(renderTurmaCard)
-              ) : (
-                <p className="text-sm text-gray-500">
-                  Nenhuma turma encontrada para as disciplinas deste semestre.
-                </p>
-              )
-            ) : (
-              <p className="text-sm text-gray-500">
-                Selecione primeiro o curso e o semestre do curso.
-              </p>
-            )}
-          </div>
-        </div>
+  <div className="mt-2 border rounded-2xl p-4 max-h-80 overflow-auto space-y-4">
+    {cursoId && cursoSemestreId ? (
+      disciplinasBaseAgrupadas.length > 0 ? (
+        disciplinasBaseAgrupadas.map((grupo) =>
+          renderGrupoDisciplina(grupo, turmasSelecionadas, toggleTurma)
+        )
+      ) : (
+        <p className="text-sm text-gray-500">
+          Nenhuma disciplina encontrada para este semestre.
+        </p>
+      )
+    ) : (
+      <p className="text-sm text-gray-500">
+        Selecione primeiro o curso e o semestre do curso.
+      </p>
+    )}
+  </div>
+</div>
 
         <div className="mt-5">
-          <label className="text-sm font-medium text-gray-700">
-            Turmas extras do mesmo curso
-          </label>
-          <p className="text-xs text-gray-500 mt-1">
-            Use esta área para disciplinas fora da grade padrão daquele
-            semestre.
-          </p>
+  <label className="text-sm font-medium text-gray-700">
+    Disciplinas extras contratadas
+  </label>
+  <p className="text-xs text-gray-500 mt-1">
+    Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
+  </p>
 
-          <div className="mt-2 border rounded-2xl p-4 max-h-72 overflow-auto space-y-3">
-            {cursoId && cursoSemestreId ? (
-              turmasExtrasMesmoCurso.length > 0 ? (
-                turmasExtrasMesmoCurso.map(renderTurmaCard)
-              ) : (
-                <p className="text-sm text-gray-500">
-                  Nenhuma turma extra encontrada para este curso.
-                </p>
-              )
-            ) : (
-              <p className="text-sm text-gray-500">
-                Selecione primeiro o curso e o semestre do curso.
-              </p>
-            )}
-          </div>
-        </div>
+  <div className="mt-2 border rounded-2xl p-4 max-h-80 overflow-auto space-y-4">
+    {cursoId && cursoSemestreId ? (
+      disciplinasExtrasAgrupadas.length > 0 ? (
+        disciplinasExtrasAgrupadas.map((grupo) =>
+          renderGrupoDisciplina(grupo, turmasSelecionadas, toggleTurma)
+        )
+      ) : (
+        <p className="text-sm text-gray-500">
+          Nenhuma disciplina extra encontrada para este curso.
+        </p>
+      )
+    ) : (
+      <p className="text-sm text-gray-500">
+        Selecione primeiro o curso e o semestre do curso.
+      </p>
+    )}
+  </div>
+</div>
 
         <div className="mt-4">
           <button
@@ -1334,91 +1407,63 @@ function toggleTurmaEdicao(turmaId: number) {
       </div>
 
       <div className="mt-5">
-        <label className="text-sm font-medium text-gray-700">
-          Turmas base do semestre
-        </label>
+  <label className="text-sm font-medium text-gray-700">
+    Disciplinas contratadas do semestre
+  </label>
 
-        <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-3">
-          {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
-            turmasBaseEdicao.length > 0 ? (
-              turmasBaseEdicao.map((t) => (
-                <label
-                  key={t.id}
-                  className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-gray-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={matriculaEditando.turmaIds.includes(t.id)}
-                    onChange={() => toggleTurmaEdicao(t.id)}
-                    className="mt-1"
-                  />
-                  <div>
-                    <p className="font-medium">{t.disciplinaNome ?? t.nome}</p>
-                    <p className="text-sm text-gray-600">
-                      Turma: {t.nome}
-                      {t.professorNome ? ` • Prof. ${t.professorNome}` : ""}
-                      {t.semestre ? ` • Semestre ${t.semestre}` : ""}
-                    </p>
-                  </div>
-                </label>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">
-                Nenhuma turma encontrada para as disciplinas deste semestre.
-              </p>
-            )
-          ) : (
-            <p className="text-sm text-gray-500">
-              Selecione primeiro o curso e o semestre do curso.
-            </p>
-          )}
-        </div>
-      </div>
+  <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
+    {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
+      disciplinasBaseEdicaoAgrupadas.length > 0 ? (
+        disciplinasBaseEdicaoAgrupadas.map((grupo) =>
+          renderGrupoDisciplina(
+            grupo,
+            matriculaEditando.turmaIds,
+            toggleTurmaEdicao
+          )
+        )
+      ) : (
+        <p className="text-sm text-gray-500">
+          Nenhuma disciplina encontrada para este semestre.
+        </p>
+      )
+    ) : (
+      <p className="text-sm text-gray-500">
+        Selecione primeiro o curso e o semestre do curso.
+      </p>
+    )}
+  </div>
+</div>
 
       <div className="mt-5">
-        <label className="text-sm font-medium text-gray-700">
-          Turmas extras do mesmo curso
-        </label>
-        <p className="text-xs text-gray-500 mt-1">
-          Use esta área para disciplinas fora da grade padrão daquele semestre.
-        </p>
+  <label className="text-sm font-medium text-gray-700">
+    Disciplinas extras contratadas
+  </label>
+  <p className="text-xs text-gray-500 mt-1">
+    Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
+  </p>
 
-        <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-3">
-          {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
-            turmasExtrasEdicao.length > 0 ? (
-              turmasExtrasEdicao.map((t) => (
-                <label
-                  key={t.id}
-                  className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-gray-50"
-                >
-                  <input
-                    type="checkbox"
-                    checked={matriculaEditando.turmaIds.includes(t.id)}
-                    onChange={() => toggleTurmaEdicao(t.id)}
-                    className="mt-1"
-                  />
-                  <div>
-                    <p className="font-medium">{t.disciplinaNome ?? t.nome}</p>
-                    <p className="text-sm text-gray-600">
-                      Turma: {t.nome}
-                      {t.professorNome ? ` • Prof. ${t.professorNome}` : ""}
-                      {t.semestre ? ` • Semestre ${t.semestre}` : ""}
-                    </p>
-                  </div>
-                </label>
-              ))
-            ) : (
-              <p className="text-sm text-gray-500">
-                Nenhuma turma extra encontrada para este curso.
-              </p>
-            )
-          ) : (
-            <p className="text-sm text-gray-500">
-              Selecione primeiro o curso e o semestre do curso.
-            </p>
-          )}
-        </div>
-      </div>
+  <div className="mt-2 border rounded-2xl p-4 max-h-64 overflow-auto space-y-4">
+    {matriculaEditando.cursoId && matriculaEditando.cursoSemestreId ? (
+      disciplinasExtrasEdicaoAgrupadas.length > 0 ? (
+        disciplinasExtrasEdicaoAgrupadas.map((grupo) =>
+          renderGrupoDisciplina(
+            grupo,
+            matriculaEditando.turmaIds,
+            toggleTurmaEdicao
+          )
+        )
+      ) : (
+        <p className="text-sm text-gray-500">
+          Nenhuma disciplina extra encontrada para este curso.
+        </p>
+      )
+    ) : (
+      <p className="text-sm text-gray-500">
+        Selecione primeiro o curso e o semestre do curso.
+      </p>
+    )}
+  </div>
+</div>
 
       <div className="flex gap-2 mt-6">
         <button
