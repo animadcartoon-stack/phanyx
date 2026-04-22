@@ -17,9 +17,10 @@ interface Funcionario {
   cargo?: string | null;
   setor?: string | null;
   codigoFuncionario?: string | null;
-  user: {
+   user: {
     email: string;
     role: string;
+    ativo?: boolean;
   };
   departamento?: {
     id: number;
@@ -83,7 +84,7 @@ function AdminFuncionariosPage() {
   const [cargo, setCargo] = useState("");
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [departamentoId, setDepartamentoId] = useState("");
-
+  const [editandoId, setEditandoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(false);
 
   async function carregarFuncionarios() {
@@ -100,6 +101,145 @@ function AdminFuncionariosPage() {
     });
     const data = await res.json();
     setDepartamentos(Array.isArray(data) ? data : []);
+  }
+
+  function preencherFormularioParaEdicao(f: Funcionario) {
+    setEditandoId(f.id);
+    setNome(f.nome || "");
+    setEmail(f.user?.email || "");
+    setRole(String(f.user?.role || "").toUpperCase());
+    setCpf(f.cpf || "");
+    setRg(f.rg || "");
+    setTelefone(f.telefone || "");
+    setCargo(f.cargo || "");
+    setCodigoFuncionario(f.codigoFuncionario || "");
+    setDepartamentoId(f.departamento?.id ? String(f.departamento.id) : "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function limparFormulario() {
+    setEditandoId(null);
+    setNome("");
+    setEmail("");
+    setRole("");
+    setCpf("");
+    setRg("");
+    setTelefone("");
+    setCargo("");
+    setCodigoFuncionario("");
+    setDepartamentoId("");
+  }
+
+  async function salvarEdicaoFuncionario(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!editandoId) {
+      return;
+    }
+
+    if (!nome.trim()) {
+      alert("Informe o nome do funcionário.");
+      return;
+    }
+
+    if (!email.trim()) {
+      alert("Informe o email do funcionário.");
+      return;
+    }
+
+    if (!role) {
+      alert("Selecione o perfil de acesso.");
+      return;
+    }
+
+    try {
+      setCarregando(true);
+
+      const res = await fetch(`/api/funcionario/${editandoId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          nome,
+          email,
+          role,
+          cpf,
+          rg,
+          telefone,
+          cargo,
+          codigoFuncionario,
+          departamentoId: departamentoId || null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || "Erro ao atualizar funcionário.");
+        return;
+      }
+
+      alert("Funcionário atualizado com sucesso.");
+      limparFormulario();
+      await carregarFuncionarios();
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function excluirFuncionario(id: number, nome: string) {
+    const confirmado = window.confirm(
+      `Tem certeza que deseja excluir o funcionário "${nome}"?`
+    );
+
+    if (!confirmado) return;
+
+    const res = await fetch(`/api/funcionario/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Erro ao excluir funcionário.");
+      return;
+    }
+
+    alert("Funcionário excluído com sucesso.");
+    await carregarFuncionarios();
+  }
+
+  async function alterarAcessoFuncionario(
+    id: number,
+    acao: "bloquear" | "desbloquear",
+    nome: string
+  ) {
+    const mensagem =
+      acao === "bloquear"
+        ? `Deseja bloquear o acesso de "${nome}"?`
+        : `Deseja desbloquear o acesso de "${nome}"?`;
+
+    const confirmado = window.confirm(mensagem);
+
+    if (!confirmado) return;
+
+    const res = await fetch(`/api/funcionario/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ acao }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Erro ao alterar acesso do funcionário.");
+      return;
+    }
+
+    alert(data.message || "Acesso alterado com sucesso.");
+    await carregarFuncionarios();
   }
 
   async function criarFuncionario(e: React.FormEvent) {
@@ -227,10 +367,12 @@ function AdminFuncionariosPage() {
       <h1 className="text-2xl font-bold">🧑‍💼 Funcionários</h1>
 
       <form
-        onSubmit={criarFuncionario}
-        className="bg-white border rounded-lg p-6 space-y-4"
-      >
-        <h2 className="font-semibold">Novo funcionário</h2>
+  onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
+  className="bg-white border rounded-lg p-6 space-y-4"
+>
+        <h2 className="font-semibold">
+  {editandoId ? "Editar funcionário" : "Novo funcionário"}
+</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
@@ -328,13 +470,31 @@ function AdminFuncionariosPage() {
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={carregando}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-60"
-        >
-          {carregando ? "Criando..." : "Criar funcionário"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+  <button
+    type="submit"
+    disabled={carregando}
+    className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-60"
+  >
+    {carregando
+      ? editandoId
+        ? "Salvando..."
+        : "Criando..."
+      : editandoId
+      ? "Salvar alterações"
+      : "Criar funcionário"}
+  </button>
+
+  {editandoId ? (
+    <button
+      type="button"
+      onClick={limparFormulario}
+      className="px-4 py-2 border rounded-lg"
+    >
+      Cancelar edição
+    </button>
+  ) : null}
+</div>
       </form>
 
       <div className="space-y-3">
@@ -363,6 +523,11 @@ function AdminFuncionariosPage() {
                 <p className="text-sm text-gray-600">
                   Perfil de acesso: {traduzirRole(f.user?.role)}
                 </p>
+
+<p className="text-sm text-gray-600">
+  Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
+</p>
+
                 <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
                 <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
                 <p className="text-sm text-gray-600">
@@ -379,32 +544,36 @@ function AdminFuncionariosPage() {
 
               <div className="flex flex-wrap gap-2">
                 <button
-                  type="button"
-                  className="px-3 py-1.5 rounded-lg border text-sm"
-                >
-                  Editar
-                </button>
+  type="button"
+  onClick={() => preencherFormularioParaEdicao(f)}
+  className="px-3 py-1.5 rounded-lg border text-sm"
+>
+  Editar
+</button>
 
                 <button
-                  type="button"
-                  className="px-3 py-1.5 rounded-lg border border-yellow-500 text-yellow-700 text-sm"
-                >
-                  Bloquear acesso
-                </button>
+  type="button"
+  onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
+  className="px-3 py-1.5 rounded-lg border border-yellow-500 text-yellow-700 text-sm"
+>
+  Bloquear acesso
+</button>
 
                 <button
-                  type="button"
-                  className="px-3 py-1.5 rounded-lg border border-green-600 text-green-700 text-sm"
-                >
-                  Desbloquear acesso
-                </button>
+  type="button"
+  onClick={() => alterarAcessoFuncionario(f.id, "desbloquear", f.nome)}
+  className="px-3 py-1.5 rounded-lg border border-green-600 text-green-700 text-sm"
+>
+  Desbloquear acesso
+</button>
 
                 <button
-                  type="button"
-                  className="px-3 py-1.5 rounded-lg border border-red-600 text-red-700 text-sm"
-                >
-                  Excluir
-                </button>
+  type="button"
+  onClick={() => excluirFuncionario(f.id, f.nome)}
+  className="px-3 py-1.5 rounded-lg border border-red-600 text-red-700 text-sm"
+>
+  Excluir
+</button>
               </div>
             </div>
           ))
