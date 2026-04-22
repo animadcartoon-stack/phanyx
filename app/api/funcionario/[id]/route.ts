@@ -14,8 +14,8 @@ export async function PUT(
     }
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
     const id = Number(context.params.id);
     const body = await request.json();
@@ -79,6 +79,71 @@ export async function PUT(
   }
 }
 
+export async function PATCH(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (!isAdminLike(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const id = Number(context.params.id);
+    const body = await request.json();
+    const acao = String(body?.acao || "").trim().toLowerCase();
+
+    const funcionario = await prisma.funcionario.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
+      },
+      include: {
+        user: true,
+      },
+    });
+
+    if (!funcionario) {
+      return NextResponse.json(
+        { error: "Funcionário não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    if (acao !== "bloquear" && acao !== "desbloquear") {
+      return NextResponse.json(
+        { error: "Ação inválida." },
+        { status: 400 }
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: funcionario.userId },
+      data: {
+        ativo: acao === "desbloquear",
+      },
+    });
+
+    return NextResponse.json({
+      message:
+        acao === "bloquear"
+          ? "Acesso do funcionário bloqueado com sucesso."
+          : "Acesso do funcionário desbloqueado com sucesso.",
+    });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Erro ao alterar acesso do funcionário" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   request: Request,
   context: { params: { id: string } }
@@ -91,8 +156,8 @@ export async function DELETE(
     }
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
     const id = Number(context.params.id);
 
