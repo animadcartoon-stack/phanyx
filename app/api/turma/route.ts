@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
-import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import { isAdminLike } from "@/lib/server-auth";
 
 export async function GET() {
   try {
