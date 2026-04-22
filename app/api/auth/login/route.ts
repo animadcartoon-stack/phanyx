@@ -21,14 +21,15 @@ function podeEntrarNoPortal(portal: Portal, role: string) {
   }
 
   if (portal === "admin") {
-    return [
-      "admin",
-      "secretaria",
-      "coordenador",
-      "financeiro",
-      "suporte",
-    ].includes(roleNormalizada);
-  }
+  return [
+    "admin",
+    "gerencia",
+    "secretaria",
+    "coordenador",
+    "financeiro",
+    "suporte",
+  ].includes(roleNormalizada);
+}
 
   return false;
 }
