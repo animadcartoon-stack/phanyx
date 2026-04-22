@@ -17,7 +17,7 @@ interface Funcionario {
   cargo?: string | null;
   setor?: string | null;
   codigoFuncionario?: string | null;
-  user: {
+   user: {
     email: string;
     role: string;
     ativo?: boolean;
@@ -88,13 +88,13 @@ function AdminFuncionariosPage() {
   const [carregando, setCarregando] = useState(false);
 
   async function carregarFuncionarios() {
-    const res = await fetch("/api/funcionario", {
-      credentials: "include",
-      cache: "no-store",
-    });
-    const data = await res.json();
-    setFuncionarios(Array.isArray(data) ? data : []);
-  }
+  const res = await fetch("/api/funcionario", {
+    credentials: "include",
+    cache: "no-store",
+  });
+  const data = await res.json();
+  setFuncionarios(Array.isArray(data) ? data : []);
+}
 
   async function carregarDepartamentos() {
     const res = await fetch("/api/departamento", {
@@ -134,7 +134,9 @@ function AdminFuncionariosPage() {
   async function salvarEdicaoFuncionario(e: React.FormEvent) {
     e.preventDefault();
 
-    if (!editandoId) return;
+    if (!editandoId) {
+      return;
+    }
 
     if (!nome.trim()) {
       alert("Informe o nome do funcionário.");
@@ -210,40 +212,40 @@ function AdminFuncionariosPage() {
   }
 
   async function alterarAcessoFuncionario(
-    id: number,
-    acao: "bloquear" | "desbloquear",
-    nome: string
-  ) {
-    const mensagem =
-      acao === "bloquear"
-        ? `Deseja bloquear o acesso de "${nome}"?`
-        : `Deseja desbloquear o acesso de "${nome}"?`;
+  id: number,
+  acao: "bloquear" | "desbloquear",
+  nome: string
+) {
+  const mensagem =
+    acao === "bloquear"
+      ? `Deseja bloquear o acesso de "${nome}"?`
+      : `Deseja desbloquear o acesso de "${nome}"?`;
 
-    const confirmado = window.confirm(mensagem);
+  const confirmado = window.confirm(mensagem);
 
-    if (!confirmado) return;
+  if (!confirmado) return;
 
-    try {
-      const res = await fetch(`/api/funcionario/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ acao }),
-      });
+  try {
+    const res = await fetch(`/api/funcionario/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ acao }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        alert(data.error || "Erro ao alterar acesso do funcionário.");
-        return;
-      }
-
-      alert(data.message || "Acesso alterado com sucesso.");
-      await carregarFuncionarios();
-    } catch {
-      alert("Erro de comunicação ao alterar acesso do funcionário.");
+    if (!res.ok) {
+      alert(data.error || "Erro ao alterar acesso do funcionário.");
+      return;
     }
+
+    alert(data.message || "Acesso alterado com sucesso.");
+    await carregarFuncionarios();
+  } catch {
+    alert("Erro de comunicação ao alterar acesso do funcionário.");
   }
+}
 
   async function criarFuncionario(e: React.FormEvent) {
     e.preventDefault();
@@ -326,13 +328,15 @@ function AdminFuncionariosPage() {
 
     return funcionarios.filter((funcionario) => {
       const nome = String(funcionario.nome || "").toLowerCase().trim();
-      const email = String(funcionario.user?.email || "").toLowerCase().trim();
+      const email = String(funcionario.user?.email || "")
+        .toLowerCase()
+        .trim();
       const role = String(funcionario.user?.role || "").toLowerCase().trim();
       const cpf = String(funcionario.cpf || "").toLowerCase().trim();
       const rg = String(funcionario.rg || "").toLowerCase().trim();
       const telefone = String(funcionario.telefone || "").toLowerCase().trim();
       const cargo = String(funcionario.cargo || "").toLowerCase().trim();
-      const codigo = String(funcionario.codigoFuncionario || "")
+      const codigoFuncionario = String(funcionario.codigoFuncionario || "")
         .toLowerCase()
         .trim();
       const departamento = String(funcionario.departamento?.nome || "")
@@ -342,7 +346,7 @@ function AdminFuncionariosPage() {
       const cpfNumerico = cpf.replace(/\D/g, "");
       const rgNumerico = rg.replace(/\D/g, "");
       const telefoneNumerico = telefone.replace(/\D/g, "");
-      const codigoNumerico = codigo.replace(/\D/g, "");
+      const codigoNumerico = codigoFuncionario.replace(/\D/g, "");
 
       return (
         nome.includes(termoTexto) ||
@@ -352,7 +356,7 @@ function AdminFuncionariosPage() {
         rg.includes(termoTexto) ||
         telefone.includes(termoTexto) ||
         cargo.includes(termoTexto) ||
-        codigo.includes(termoTexto) ||
+        codigoFuncionario.includes(termoTexto) ||
         departamento.includes(termoTexto) ||
         (termoNumerico !== "" &&
           (cpfNumerico.includes(termoNumerico) ||
@@ -368,12 +372,12 @@ function AdminFuncionariosPage() {
       <h1 className="text-2xl font-bold">🧑‍💼 Funcionários</h1>
 
       <form
-        onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
-        className="bg-white border rounded-lg p-6 space-y-4"
-      >
+  onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
+  className="bg-white border rounded-lg p-6 space-y-4"
+>
         <h2 className="font-semibold">
-          {editandoId ? "Editar funcionário" : "Novo funcionário"}
-        </h2>
+  {editandoId ? "Editar funcionário" : "Novo funcionário"}
+</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <input
@@ -397,6 +401,7 @@ function AdminFuncionariosPage() {
             <label className="text-sm font-medium text-slate-700">
               Perfil de acesso
             </label>
+
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -417,6 +422,7 @@ function AdminFuncionariosPage() {
             <label className="text-sm font-medium text-slate-700">
               Departamento
             </label>
+
             <select
               value={departamentoId}
               onChange={(e) => setDepartamentoId(e.target.value)}
@@ -470,30 +476,30 @@ function AdminFuncionariosPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          <button
-            type="submit"
-            disabled={carregando}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-60"
-          >
-            {carregando
-              ? editandoId
-                ? "Salvando..."
-                : "Criando..."
-              : editandoId
-              ? "Salvar alterações"
-              : "Criar funcionário"}
-          </button>
+  <button
+    type="submit"
+    disabled={carregando}
+    className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-60"
+  >
+    {carregando
+      ? editandoId
+        ? "Salvando..."
+        : "Criando..."
+      : editandoId
+      ? "Salvar alterações"
+      : "Criar funcionário"}
+  </button>
 
-          {editandoId ? (
-            <button
-              type="button"
-              onClick={limparFormulario}
-              className="px-4 py-2 border rounded-lg"
-            >
-              Cancelar edição
-            </button>
-          ) : null}
-        </div>
+  {editandoId ? (
+    <button
+      type="button"
+      onClick={limparFormulario}
+      className="px-4 py-2 border rounded-lg"
+    >
+      Cancelar edição
+    </button>
+  ) : null}
+</div>
       </form>
 
       <div className="space-y-3">
@@ -509,7 +515,7 @@ function AdminFuncionariosPage() {
           />
         </div>
 
-        {funcionariosFiltrados.length === 0 ? (
+                {funcionariosFiltrados.length === 0 ? (
           <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
             Nenhum funcionário encontrado para essa busca.
           </div>
@@ -522,9 +528,11 @@ function AdminFuncionariosPage() {
                 <p className="text-sm text-gray-600">
                   Perfil de acesso: {traduzirRole(f.user?.role)}
                 </p>
-                <p className="text-sm text-gray-600">
-                  Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
-                </p>
+
+<p className="text-sm text-gray-600">
+  Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
+</p>
+
                 <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
                 <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
                 <p className="text-sm text-gray-600">
@@ -541,49 +549,43 @@ function AdminFuncionariosPage() {
 
               <div className="flex flex-wrap gap-2">
                 <button
-                  type="button"
-                  onClick={() => preencherFormularioParaEdicao(f)}
-                  className="px-3 py-1.5 rounded-lg border text-sm"
-                >
-                  Editar
-                </button>
-
-                {f.user?.ativo === false ? (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alterarAcessoFuncionario(f.id, "desbloquear", f.nome)
-                    }
-                    className="px-3 py-1.5 rounded-lg border border-green-600 text-green-700 text-sm"
-                  >
-                    Desbloquear acesso
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      alterarAcessoFuncionario(f.id, "bloquear", f.nome)
-                    }
-                    className="px-3 py-1.5 rounded-lg border border-yellow-500 text-yellow-700 text-sm"
-                  >
-                    Bloquear acesso
-                  </button>
-                )}
+  type="button"
+  onClick={() => preencherFormularioParaEdicao(f)}
+  className="px-3 py-1.5 rounded-lg border text-sm"
+>
+  Editar
+</button>
 
                 <button
-                  type="button"
-                  onClick={() => excluirFuncionario(f.id, f.nome)}
-                  className="px-3 py-1.5 rounded-lg border border-red-600 text-red-700 text-sm"
-                >
-                  Excluir
-                </button>
+  type="button"
+  onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
+  className="px-3 py-1.5 rounded-lg border border-yellow-500 text-yellow-700 text-sm"
+>
+  Bloquear acesso
+</button>
+
+                <button
+    type="button"
+    onClick={() => alterarAcessoFuncionario(f.id, "desbloquear", f.nome)}
+    className="px-3 py-1.5 rounded-lg border border-green-600 text-green-700 text-sm"
+  >
+    Desbloquear acesso
+  </button>
+
+                <button
+  type="button"
+  onClick={() => excluirFuncionario(f.id, f.nome)}
+  className="px-3 py-1.5 rounded-lg border border-red-600 text-red-700 text-sm"
+>
+  Excluir
+</button>
               </div>
             </div>
           ))
         )}
       </div>
-    </div>
-  );
+    </div>  
+  ); 
 }
 
 export default withAuth(AdminFuncionariosPage, ["admin"]);
