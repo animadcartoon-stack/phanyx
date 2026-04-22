@@ -350,36 +350,68 @@ function AdminFuncionariosPage() {
           />
         </div>
 
-        {funcionariosFiltrados.length === 0 ? (
+                {funcionariosFiltrados.length === 0 ? (
           <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
             Nenhum funcionário encontrado para essa busca.
           </div>
         ) : (
           funcionariosFiltrados.map((f) => (
-            <div key={f.id} className="bg-white border rounded-lg p-4">
-              <p className="font-medium">{f.nome}</p>
-              <p className="text-sm text-gray-600">{f.user?.email}</p>
-              <p className="text-sm text-gray-600">
-                Perfil de acesso: {traduzirRole(f.user?.role)}
-              </p>
-              <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
-              <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
-              <p className="text-sm text-gray-600">
-                Telefone: {f.telefone || "-"}
-              </p>
-              <p className="text-sm text-gray-600">Cargo: {f.cargo || "-"}</p>
-              <p className="text-sm text-gray-600">
-                Código: {f.codigoFuncionario || "-"}
-              </p>
-              <p className="text-sm text-gray-600">
-                Departamento: {f.departamento?.nome || "-"}
-              </p>
+            <div key={f.id} className="bg-white border rounded-lg p-4 space-y-3">
+              <div>
+                <p className="font-medium">{f.nome}</p>
+                <p className="text-sm text-gray-600">{f.user?.email}</p>
+                <p className="text-sm text-gray-600">
+                  Perfil de acesso: {traduzirRole(f.user?.role)}
+                </p>
+                <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
+                <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
+                <p className="text-sm text-gray-600">
+                  Telefone: {f.telefone || "-"}
+                </p>
+                <p className="text-sm text-gray-600">Cargo: {f.cargo || "-"}</p>
+                <p className="text-sm text-gray-600">
+                  Código: {f.codigoFuncionario || "-"}
+                </p>
+                <p className="text-sm text-gray-600">
+                  Departamento: {f.departamento?.nome || "-"}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-lg border text-sm"
+                >
+                  Editar
+                </button>
+
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-lg border border-yellow-500 text-yellow-700 text-sm"
+                >
+                  Bloquear acesso
+                </button>
+
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-lg border border-green-600 text-green-700 text-sm"
+                >
+                  Desbloquear acesso
+                </button>
+
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-lg border border-red-600 text-red-700 text-sm"
+                >
+                  Excluir
+                </button>
+              </div>
             </div>
           ))
         )}
       </div>
-    </div>
-  );
+    </div>  
+  ); 
 }
 
 export default withAuth(AdminFuncionariosPage, ["admin"]);
