@@ -39,7 +39,7 @@ function AdminFuncionariosPage() {
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
-  const [setor, setSetor] = useState("");
+  
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [departamentoId, setDepartamentoId] = useState("");
 
@@ -74,7 +74,6 @@ function AdminFuncionariosPage() {
       rg,
       telefone,
       cargo,
-      setor,
       codigoFuncionario,
       departamentoId: departamentoId || null,
     }),
@@ -94,7 +93,6 @@ function AdminFuncionariosPage() {
   setRg("");
   setTelefone("");
   setCargo("");
-  setSetor("");
   setCodigoFuncionario("");
   setDepartamentoId("");
 
@@ -210,13 +208,6 @@ function AdminFuncionariosPage() {
   </select>
 </div>
 
-<select
-  value={role}
-  onChange={(e) => setRole(e.target.value)}
-  className="w-full border rounded-lg p-2"
-  required
-></select>
-
           <select
             value={departamentoId}
             onChange={(e) => setDepartamentoId(e.target.value)}
@@ -255,13 +246,6 @@ function AdminFuncionariosPage() {
             placeholder="Cargo"
             value={cargo}
             onChange={(e) => setCargo(e.target.value)}
-            className="w-full border rounded-lg p-2"
-          />
-
-          <input
-            placeholder="Setor"
-            value={setor}
-            onChange={(e) => setSetor(e.target.value)}
             className="w-full border rounded-lg p-2"
           />
 
