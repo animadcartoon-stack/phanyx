@@ -13,9 +13,9 @@ export async function PUT(
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    if (user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+    if (!isAdminLike(user.role)) {
+  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+}
 
     const id = Number(context.params.id);
     const body = await request.json();

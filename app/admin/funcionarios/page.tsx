@@ -321,7 +321,7 @@ function AdminFuncionariosPage() {
           />
 
           <input
-            placeholder="Código do funcionário"
+            placeholder="Código do funcionário (opcional)"
             value={codigoFuncionario}
             onChange={(e) => setCodigoFuncionario(e.target.value)}
             className="w-full border rounded-lg p-2"

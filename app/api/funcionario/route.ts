@@ -5,6 +5,30 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { enviarEmailPrimeiroAcesso } from "@/lib/email";
 
+async function gerarCodigoFuncionario(instituicaoId: number) {
+  const ultimoFuncionario = await prisma.funcionario.findFirst({
+    where: {
+      instituicaoId,
+      codigoFuncionario: {
+        not: null,
+      },
+    },
+    orderBy: {
+      id: "desc",
+    },
+    select: {
+      codigoFuncionario: true,
+    },
+  });
+
+  const codigoAtual = String(ultimoFuncionario?.codigoFuncionario || "")
+    .replace(/\D/g, "");
+
+  const proximoNumero = codigoAtual ? Number(codigoAtual) + 1 : 1;
+
+  return String(proximoNumero).padStart(4, "0");
+}
+
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
 }
@@ -65,7 +89,10 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
+    const codigoInformado = String(body.codigoFuncionario || "").trim();
 
+    const codigoFuncionario =
+    codigoInformado || (await gerarCodigoFuncionario(Number(user.instituicaoId)));
     const nome = limparTexto(body.nome);
     const email = limparTexto(body.email).toLowerCase();
     const role = limparTexto(body.role).toUpperCase() || "SECRETARIA";
@@ -134,7 +161,7 @@ export async function POST(request: Request) {
         setor: body.setor || null,
         fotoPerfil: body.fotoPerfil || null,
         documentoUrl: body.documentoUrl || null,
-        codigoFuncionario: body.codigoFuncionario || null,
+        codigoFuncionario,
         departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
         instituicaoId: user.instituicaoId,
         userId: novoUser.id,
