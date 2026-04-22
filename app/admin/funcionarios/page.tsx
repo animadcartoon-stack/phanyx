@@ -196,11 +196,11 @@ function AdminFuncionariosPage() {
             className="w-full border rounded-lg p-2"
           >
             <option value="ADMIN">Admin</option>
+            <option value="GERENCIA">Gerência</option>
             <option value="SECRETARIA">Secretaria</option>
             <option value="COORDENADOR">Coordenador</option>
             <option value="FINANCEIRO">Financeiro</option>
             <option value="SUPORTE">Suporte</option>
-            <option value="GERENCIA">Gerência</option>
           </select>
 
           <select
