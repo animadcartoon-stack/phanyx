@@ -180,7 +180,7 @@ function getAsaasConfig() {
   const baseUrl =
     process.env.ASAAS_BASE_URL ||
     process.env.NEXT_PUBLIC_ASAAS_BASE_URL ||
-    "https://api-sandbox.asaas.com/v3";
+    "https://api.asaas.com/v3";
 
   console.log("🔎 ASAAS CONFIG:", {
   temApiKey: Boolean(apiKey),
