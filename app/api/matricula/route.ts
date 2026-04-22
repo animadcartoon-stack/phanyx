@@ -15,11 +15,29 @@ function toPositiveNumberOrNull(value: unknown): number | null {
   return n;
 }
 
+function toDateOrNull(value: unknown): Date | null {
+  if (!value) return null;
+  const d = new Date(String(value));
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function uniqueNumbers(values: number[]) {
+  return Array.from(new Set(values.filter((v) => Number.isFinite(v) && v > 0)));
+}
+
+type TipoItemMatricula =
+  | "GRADE_PRINCIPAL"
+  | "EXTRA_MESMO_CURSO"
+  | "EXTRA_OUTRO_CURSO";
+
 type MatriculaBody = {
   id?: number | string;
   alunoId?: number | string;
   cursoId?: number | string;
+  cursoSemestreId?: number | string;
+  periodoMatriculaId?: number | string;
   semestre?: number | string;
+  periodoLetivo?: string;
   turmaId?: number | string;
   turmaIds?: Array<number | string>;
   valorMatricula?: number | string;
@@ -32,7 +50,237 @@ type MatriculaBody = {
   nomeSocial?: string;
   genero?: string;
   status?: string;
+  realizadaPeloAluno?: boolean;
 };
+
+type TurmaComDisciplina = {
+  id: number;
+  nome: string;
+  semestre: string;
+  disciplinaId: number;
+  disciplina: {
+    id: number;
+    nome: string;
+    cursoId: number | null;
+    semestre: number | null;
+  };
+};
+
+async function buscarDisciplinasAprovadasDoAluno(
+  alunoId: number,
+  instituicaoId: number
+) {
+  const resultados = await prisma.resultadoFinal.findMany({
+    where: {
+      alunoId,
+      instituicaoId,
+      situacao: "APROVADO",
+    },
+    select: {
+      disciplinaId: true,
+    },
+  });
+
+  return new Set(resultados.map((r) => r.disciplinaId));
+}
+
+async function validarPreRequisitos(
+  alunoId: number,
+  instituicaoId: number,
+  disciplinaIdsSelecionadas: number[]
+) {
+  const disciplinaIdsUnicas = uniqueNumbers(disciplinaIdsSelecionadas);
+
+  if (disciplinaIdsUnicas.length === 0) {
+    return { ok: true as const };
+  }
+
+  const preRequisitos = await prisma.disciplinaPreRequisito.findMany({
+    where: {
+      instituicaoId,
+      disciplinaId: { in: disciplinaIdsUnicas },
+    },
+    include: {
+      disciplina: {
+        select: { id: true, nome: true },
+      },
+      prerequisito: {
+        select: { id: true, nome: true },
+      },
+    },
+  });
+
+  if (preRequisitos.length === 0) {
+    return { ok: true as const };
+  }
+
+  const aprovadas = await buscarDisciplinasAprovadasDoAluno(alunoId, instituicaoId);
+
+  const faltantes = preRequisitos.filter(
+    (item) => !aprovadas.has(item.prerequisitoId)
+  );
+
+  if (faltantes.length === 0) {
+    return { ok: true as const };
+  }
+
+  const mensagens = faltantes.map(
+    (item) =>
+      `"${item.disciplina.nome}" exige "${item.prerequisito.nome}" concluída/aprovada`
+  );
+
+  return {
+    ok: false as const,
+    error:
+      "O aluno não pode se matricular em algumas disciplinas por falta de pré-requisito: " +
+      mensagens.join("; "),
+  };
+}
+
+async function buscarDisciplinaIdsDaGradeDoSemestre(
+  instituicaoId: number,
+  cursoId: number | null,
+  semestre: number | null,
+  cursoSemestreId?: number | null
+) {
+  if (!cursoId) return new Set<number>();
+
+  let cursoSemestre = null;
+
+  if (cursoSemestreId) {
+    cursoSemestre = await prisma.cursoSemestre.findFirst({
+      where: {
+        id: cursoSemestreId,
+        cursoId,
+        instituicaoId,
+      },
+      select: { id: true },
+    });
+  }
+
+  if (!cursoSemestre && semestre !== null) {
+    cursoSemestre = await prisma.cursoSemestre.findFirst({
+      where: {
+        cursoId,
+        instituicaoId,
+        numero: semestre,
+      },
+      select: { id: true },
+    });
+  }
+
+  if (!cursoSemestre) return new Set<number>();
+
+  const itens = await prisma.cursoSemestreDisciplina.findMany({
+    where: {
+      instituicaoId,
+      cursoSemestreId: cursoSemestre.id,
+    },
+    select: {
+      disciplinaId: true,
+    },
+  });
+
+  return new Set(itens.map((item) => item.disciplinaId));
+}
+
+async function buscarDisciplinaIdsExtrasPermitidas(
+  instituicaoId: number,
+  cursoId: number | null
+) {
+  if (!cursoId) return new Set<number>();
+
+  const itens = await prisma.cursoDisciplinaExtraPermitida.findMany({
+    where: {
+      instituicaoId,
+      cursoId,
+    },
+    select: {
+      disciplinaId: true,
+    },
+  });
+
+  return new Set(itens.map((item) => item.disciplinaId));
+}
+
+function montarResumoContratacao(
+  turmas: Array<{
+    turma: {
+      nome: string;
+      disciplina: { nome: string };
+    };
+    tipoItem: TipoItemMatricula;
+  }>
+) {
+  const linhas = turmas.map((item) => {
+    const rotuloTipo =
+      item.tipoItem === "GRADE_PRINCIPAL"
+        ? "Grade principal"
+        : item.tipoItem === "EXTRA_MESMO_CURSO"
+        ? "Extra do mesmo curso"
+        : "Extra de outro curso";
+
+    return `- ${item.turma.disciplina.nome} (Turma: ${item.turma.nome}) — ${rotuloTipo}`;
+  });
+
+  return linhas.join("\n");
+}
+
+async function classificarItensMatricula(params: {
+  instituicaoId: number;
+  cursoIdFinal: number | null;
+  semestreFinal: number | null;
+  cursoSemestreId?: number | null;
+  turmas: TurmaComDisciplina[];
+}) {
+  const {
+    instituicaoId,
+    cursoIdFinal,
+    semestreFinal,
+    cursoSemestreId,
+    turmas,
+  } = params;
+
+  const disciplinaIdsGrade = await buscarDisciplinaIdsDaGradeDoSemestre(
+    instituicaoId,
+    cursoIdFinal,
+    semestreFinal,
+    cursoSemestreId ?? null
+  );
+
+  const disciplinaIdsExtrasPermitidas = await buscarDisciplinaIdsExtrasPermitidas(
+    instituicaoId,
+    cursoIdFinal
+  );
+
+  const itens = turmas.map((turma) => {
+    let tipoItem: TipoItemMatricula;
+
+    if (disciplinaIdsGrade.has(turma.disciplinaId)) {
+      tipoItem = "GRADE_PRINCIPAL";
+    } else if (
+      cursoIdFinal &&
+      turma.disciplina.cursoId &&
+      turma.disciplina.cursoId === cursoIdFinal
+    ) {
+      tipoItem = "EXTRA_MESMO_CURSO";
+    } else if (disciplinaIdsExtrasPermitidas.has(turma.disciplinaId)) {
+      tipoItem = "EXTRA_OUTRO_CURSO";
+    } else {
+      throw new Error(
+        `A disciplina "${turma.disciplina.nome}" não pertence à grade principal nem às disciplinas extras permitidas para este curso.`
+      );
+    }
+
+    return {
+      turmaId: turma.id,
+      disciplinaId: turma.disciplinaId,
+      tipoItem,
+    };
+  });
+
+  return itens;
+}
 
 export async function GET() {
   try {
@@ -41,6 +289,25 @@ export async function GET() {
     if (!user) {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
+
+    const includeMatricula = {
+      aluno: true,
+      curso: true,
+      cursoSemestre: true,
+      periodoMatricula: true,
+      itens: {
+        include: {
+          disciplina: true,
+          turma: {
+            include: {
+              disciplina: true,
+              professor: true,
+              _count: { select: { aulas: true } },
+            },
+          },
+        },
+      },
+    } as const;
 
     if (user.role === "ALUNO") {
       const aluno = await prisma.aluno.findFirst({
@@ -60,47 +327,19 @@ export async function GET() {
           alunoId: aluno.id,
           instituicaoId: user.instituicaoId,
         },
-        include: {
-          aluno: true,
-          curso: true,
-          itens: {
-            include: {
-              turma: {
-                include: {
-                  disciplina: true,
-                  professor: true,
-                  _count: { select: { aulas: true } },
-                },
-              },
-            },
-          },
-        },
+        include: includeMatricula,
         orderBy: { id: "desc" },
       });
 
       return NextResponse.json(matriculas);
     }
 
-    if (user.role === "ADMIN") {
+    if (user.role === "ADMIN" || user.role === "SUPER_ADMIN") {
       const matriculas = await prisma.matricula.findMany({
         where: {
           instituicaoId: user.instituicaoId,
         },
-        include: {
-          aluno: true,
-          curso: true,
-          itens: {
-            include: {
-              turma: {
-                include: {
-                  disciplina: true,
-                  professor: true,
-                  _count: { select: { aulas: true } },
-                },
-              },
-            },
-          },
-        },
+        include: includeMatricula,
         orderBy: { id: "desc" },
       });
 
@@ -131,21 +370,7 @@ export async function GET() {
             },
           },
         },
-        include: {
-          aluno: true,
-          curso: true,
-          itens: {
-            include: {
-              turma: {
-                include: {
-                  disciplina: true,
-                  professor: true,
-                  _count: { select: { aulas: true } },
-                },
-              },
-            },
-          },
-        },
+        include: includeMatricula,
         orderBy: { id: "desc" },
       });
 
@@ -166,7 +391,7 @@ export async function POST(request: Request) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
+    if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
@@ -174,6 +399,8 @@ export async function POST(request: Request) {
 
     const alunoId = Number(body.alunoId);
     const cursoIdBody = body.cursoId ? Number(body.cursoId) : null;
+    const cursoSemestreId = toPositiveNumberOrNull(body.cursoSemestreId);
+    const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
     const semestreBody =
       body.semestre !== undefined &&
       body.semestre !== null &&
@@ -189,13 +416,15 @@ export async function POST(request: Request) {
       ? [body.turmaId]
       : [];
 
-    const turmaIds = turmaIdsRaw
-      .map((id) => Number(id))
-      .filter((id) => Number.isFinite(id) && id > 0);
+    const turmaIds = uniqueNumbers(
+      turmaIdsRaw
+        .map((id) => Number(id))
+        .filter((id) => Number.isFinite(id) && id > 0)
+    );
 
     if (!alunoId || turmaIds.length === 0) {
       return NextResponse.json(
-        { error: "Aluno e turmas são obrigatórios" },
+        { error: "Aluno e disciplinas/turmas são obrigatórios" },
         { status: 400 }
       );
     }
@@ -235,6 +464,23 @@ export async function POST(request: Request) {
     if (turmas.length !== turmaIds.length) {
       return NextResponse.json(
         { error: "Uma ou mais turmas são inválidas para esta instituição" },
+        { status: 400 }
+      );
+    }
+
+    const disciplinaIdsSelecionadas = uniqueNumbers(
+      turmas.map((turma) => turma.disciplinaId)
+    );
+
+    const validacaoPreReq = await validarPreRequisitos(
+      alunoId,
+      user.instituicaoId,
+      disciplinaIdsSelecionadas
+    );
+
+    if (!validacaoPreReq.ok) {
+      return NextResponse.json(
+        { error: validacaoPreReq.error },
         { status: 400 }
       );
     }
@@ -311,6 +557,23 @@ export async function POST(request: Request) {
       );
     }
 
+    const periodoMatricula =
+      periodoMatriculaId !== null
+        ? await prisma.periodoMatricula.findFirst({
+            where: {
+              id: periodoMatriculaId,
+              instituicaoId: user.instituicaoId,
+            },
+          })
+        : null;
+
+    if (periodoMatriculaId && !periodoMatricula) {
+      return NextResponse.json(
+        { error: "Período de matrícula inválido para esta instituição" },
+        { status: 400 }
+      );
+    }
+
     const existe = await prisma.matricula.findFirst({
       where: {
         alunoId,
@@ -328,6 +591,14 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    const itensClassificados = await classificarItensMatricula({
+      instituicaoId: user.instituicaoId,
+      cursoIdFinal,
+      semestreFinal,
+      cursoSemestreId,
+      turmas: turmas as TurmaComDisciplina[],
+    });
 
     const valorMatricula = Number(
       body.valorMatricula ??
@@ -347,22 +618,33 @@ export async function POST(request: Request) {
         0
     );
 
-    const dataPrimeiroVencimento = body.dataPrimeiroVencimento
-      ? new Date(body.dataPrimeiroVencimento)
-      : new Date();
+    const dataPrimeiroVencimento =
+      toDateOrNull(body.dataPrimeiroVencimento) ??
+      toDateOrNull(body.primeiroVencimento) ??
+      new Date();
 
-const statusRecebido = String(body.status || "ATIVA").trim().toUpperCase();
+    const statusRecebido = String(body.status || "ATIVA").trim().toUpperCase();
 
-const statusInicialMatricula =
-  statusRecebido === "A_INICIAR" ? "A_INICIAR" : "ATIVA";
+    const statusInicialMatricula =
+      statusRecebido === "A_INICIAR" ? "A_INICIAR" : "ATIVA";
 
-const statusInicialItens =
-  statusInicialMatricula === "A_INICIAR" ? "A_CURSAR" : "EM_CURSO";
+    const statusInicialItens =
+      statusInicialMatricula === "A_INICIAR" ? "A_CURSAR" : "EM_CURSO";
+
+    const periodoLetivoFinal =
+      String(body.periodoLetivo || "").trim() ||
+      periodoMatricula?.periodoLetivo ||
+      (semestreFinal !== null ? `${semestreFinal}` : null);
 
     const matricula = await prisma.matricula.create({
       data: {
         alunoId,
         cursoId: cursoIdFinal,
+        cursoSemestreId,
+        periodoMatriculaId,
+        periodoLetivo: periodoLetivoFinal || null,
+        realizadaPeloAluno: Boolean(body.realizadaPeloAluno),
+        confirmadaEm: new Date(),
         semestre: semestreFinal,
         instituicaoId: user.instituicaoId,
         status: statusInicialMatricula as any,
@@ -375,8 +657,10 @@ const statusInicialItens =
           : null,
         primeiroVencimento: dataPrimeiroVencimento,
         itens: {
-          create: turmaIds.map((turmaId) => ({
-            turmaId,
+          create: itensClassificados.map((item) => ({
+            turmaId: item.turmaId,
+            disciplinaId: item.disciplinaId,
+            tipoItem: item.tipoItem as any,
             instituicaoId: user.instituicaoId,
             status: statusInicialItens as any,
           })),
@@ -385,8 +669,11 @@ const statusInicialItens =
       include: {
         aluno: true,
         curso: true,
+        cursoSemestre: true,
+        periodoMatricula: true,
         itens: {
           include: {
+            disciplina: true,
             turma: {
               include: {
                 disciplina: true,
@@ -398,9 +685,12 @@ const statusInicialItens =
       },
     });
 
-    const nomesTurmas = matricula.itens
-      .map((item) => item.turma?.disciplina?.nome ?? item.turma?.nome ?? "Turma")
-      .join(", ");
+    const resumoContratacao = montarResumoContratacao(
+      matricula.itens.map((item) => ({
+        turma: item.turma,
+        tipoItem: item.tipoItem as TipoItemMatricula,
+      }))
+    );
 
     const contratoTexto = `
 CONTRATO DE MATRÍCULA
@@ -410,7 +700,10 @@ Aluno: ${aluno.nome ?? "Aluno"}
 Email: ${aluno.user?.email ?? "-"}
 Curso: ${curso?.nome ?? "Curso não informado"}
 Semestre: ${semestreFinal ?? "-"}
-Disciplinas/Turmas contratadas: ${nomesTurmas || "-"}
+Período letivo: ${periodoLetivoFinal ?? "-"}
+Disciplinas contratadas:
+${resumoContratacao || "-"}
+
 Data da matrícula: ${new Date().toLocaleDateString("pt-BR")}
 
 CLÁUSULAS:
@@ -430,6 +723,7 @@ Assinatura da instituição: ________________________________
         conteudo: contratoTexto,
         alunoId,
         instituicaoId: user.instituicaoId,
+        matriculaId: matricula.id,
       },
     });
 
@@ -574,8 +868,11 @@ export async function PATCH(request: Request) {
       include: {
         aluno: true,
         curso: true,
+        cursoSemestre: true,
+        periodoMatricula: true,
         itens: {
           include: {
+            disciplina: true,
             turma: {
               include: {
                 disciplina: true,
@@ -604,7 +901,7 @@ export async function DELETE(request: Request) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
+    if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
@@ -644,6 +941,13 @@ export async function DELETE(request: Request) {
       },
     });
 
+    await prisma.documentoAluno.deleteMany({
+      where: {
+        matriculaId: id,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
     await prisma.matricula.delete({
       where: { id },
     });
@@ -662,7 +966,7 @@ export async function PUT(request: Request) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
+    if (!user || (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN")) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
@@ -671,6 +975,8 @@ export async function PUT(request: Request) {
     const id = Number(body.id);
     const alunoId = toPositiveNumberOrNull(body.alunoId);
     const cursoId = toPositiveNumberOrNull(body.cursoId);
+    const cursoSemestreId = toPositiveNumberOrNull(body.cursoSemestreId);
+    const periodoMatriculaId = toPositiveNumberOrNull(body.periodoMatriculaId);
     const semestre = toPositiveNumberOrNull(body.semestre);
 
     const turmaIdsRaw = Array.isArray(body.turmaIds)
@@ -679,9 +985,11 @@ export async function PUT(request: Request) {
       ? [body.turmaId]
       : [];
 
-    const turmaIds = turmaIdsRaw
-      .map((turmaId) => Number(turmaId))
-      .filter((turmaId) => Number.isFinite(turmaId) && turmaId > 0);
+    const turmaIds = uniqueNumbers(
+      turmaIdsRaw
+        .map((turmaId) => Number(turmaId))
+        .filter((turmaId) => Number.isFinite(turmaId) && turmaId > 0)
+    );
 
     const valorPagoMatricula = toPositiveNumberOrNull(body.valorPagoMatricula);
     const valorMensalidade = toPositiveNumberOrNull(body.valorMensalidade);
@@ -689,9 +997,9 @@ export async function PUT(request: Request) {
       body.quantidadeMensalidades ?? body.quantidadeParcelas
     );
 
-    const primeiroVencimento = body.primeiroVencimento
-      ? new Date(body.primeiroVencimento)
-      : null;
+    const primeiroVencimento =
+      toDateOrNull(body.primeiroVencimento) ??
+      toDateOrNull(body.dataPrimeiroVencimento);
 
     const nomeSocial =
       body.nomeSocial !== undefined ? String(body.nomeSocial || "") : undefined;
@@ -722,6 +1030,10 @@ export async function PUT(request: Request) {
       );
     }
 
+    const alunoIdFinal = alunoId ?? matriculaExistente.alunoId;
+    const cursoIdFinal = cursoId ?? matriculaExistente.cursoId ?? null;
+    const semestreFinal = semestre ?? matriculaExistente.semestre ?? null;
+
     if (alunoId) {
       const alunoExiste = await prisma.aluno.findFirst({
         where: {
@@ -739,10 +1051,10 @@ export async function PUT(request: Request) {
       }
     }
 
-    if (cursoId) {
+    if (cursoIdFinal) {
       const cursoExiste = await prisma.curso.findFirst({
         where: {
-          id: cursoId,
+          id: cursoIdFinal,
           instituicaoId: user.instituicaoId,
         },
         select: { id: true },
@@ -756,29 +1068,73 @@ export async function PUT(request: Request) {
       }
     }
 
-    if (turmaIds.length > 0) {
-      const turmasValidas = await prisma.turma.findMany({
+    let itensClassificados: Array<{
+      turmaId: number;
+      disciplinaId: number;
+      tipoItem: TipoItemMatricula;
+    }> = [];
+
+    if (Array.isArray(body.turmaIds) || body.turmaId !== undefined) {
+      const turmas = await prisma.turma.findMany({
         where: {
           id: { in: turmaIds },
           instituicaoId: user.instituicaoId,
         },
-        select: { id: true },
+        include: {
+          disciplina: {
+            include: {
+              curso: true,
+            },
+          },
+        },
       });
 
-      if (turmasValidas.length !== turmaIds.length) {
+      if (turmas.length !== turmaIds.length) {
         return NextResponse.json(
           { error: "Uma ou mais turmas são inválidas para esta instituição" },
           { status: 400 }
         );
       }
+
+      const disciplinaIdsSelecionadas = uniqueNumbers(
+        turmas.map((turma) => turma.disciplinaId)
+      );
+
+      const validacaoPreReq = await validarPreRequisitos(
+        alunoIdFinal,
+        user.instituicaoId,
+        disciplinaIdsSelecionadas
+      );
+
+      if (!validacaoPreReq.ok) {
+        return NextResponse.json(
+          { error: validacaoPreReq.error },
+          { status: 400 }
+        );
+      }
+
+      itensClassificados = await classificarItensMatricula({
+        instituicaoId: user.instituicaoId,
+        cursoIdFinal,
+        semestreFinal,
+        cursoSemestreId: cursoSemestreId ?? matriculaExistente.cursoSemestreId ?? null,
+        turmas: turmas as TurmaComDisciplina[],
+      });
     }
 
     await prisma.matricula.update({
       where: { id },
       data: {
-        alunoId: alunoId ?? matriculaExistente.alunoId,
-        cursoId,
-        semestre,
+        alunoId: alunoIdFinal,
+        cursoId: cursoIdFinal,
+        cursoSemestreId: cursoSemestreId ?? matriculaExistente.cursoSemestreId ?? null,
+        periodoMatriculaId:
+          periodoMatriculaId ?? matriculaExistente.periodoMatriculaId ?? null,
+        periodoLetivo:
+          String(body.periodoLetivo || "").trim() ||
+          matriculaExistente.periodoLetivo ||
+          null,
+        semestre: semestreFinal,
         valorMatricula: valorPagoMatricula,
         valorMensalidade,
         quantidadeMensalidades,
@@ -794,19 +1150,19 @@ export async function PUT(request: Request) {
         },
       });
 
-      if (turmaIds.length > 0) {
+      if (itensClassificados.length > 0) {
         await prisma.itemMatricula.createMany({
-          data: turmaIds.map((turmaId) => ({
+          data: itensClassificados.map((item) => ({
             matriculaId: id,
-            turmaId,
+            turmaId: item.turmaId,
+            disciplinaId: item.disciplinaId,
+            tipoItem: item.tipoItem as any,
             instituicaoId: user.instituicaoId,
             status: "A_CURSAR" as any,
           })),
         });
       }
     }
-
-    const alunoIdFinal = alunoId ?? matriculaExistente.alunoId;
 
     if (nomeSocial !== undefined || genero !== undefined) {
       await prisma.aluno.updateMany({
@@ -830,8 +1186,11 @@ export async function PUT(request: Request) {
       include: {
         aluno: true,
         curso: true,
+        cursoSemestre: true,
+        periodoMatricula: true,
         itens: {
           include: {
+            disciplina: true,
             turma: {
               include: {
                 disciplina: true,

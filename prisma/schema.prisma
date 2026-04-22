@@ -8,61 +8,64 @@ datasource db {
 }
 
 model Instituicao {
-  id                       Int                       @id @default(autoincrement())
-  nome                     String
-  ativo                    Boolean                   @default(true)
-  createdAt                DateTime                  @default(now())
-  dominio                  String?                   @unique
-  slug                     String                    @unique
-  updatedAt                DateTime
-  plano                    String                    @default("ESSENCIAL")
-  alternativas             Alternativa[]
-  alunos                   Aluno[]
-  atestadosMedicos         AtestadoMedico[]
-  atividades               Atividade[]
-  anexosAtividade          AtividadeAnexo[]
-  aulas                    Aula[]
-  caixas                   Caixa[]
-  certificados             Certificado[]
-  cobrancas                Cobranca[]
-  configuracaoInstituicao  ConfiguracaoInstituicao?
-  contratos                Contrato[]
-  cursos                   Curso[]
-  cursoSemestres           CursoSemestre[]
-  cursoSemestreDisciplinas CursoSemestreDisciplina[]
-  Departamento             Departamento[]
-  disciplinas              Disciplina[]
-  documentosAlunos         DocumentoAluno[]
-  documentosGerados        DocumentoGerado[]
-  documentoTemplates       DocumentoTemplate[]
-  entregas                 EntregaAtividade[]
-  Funcionario              Funcionario[]
-  itensMatricula           ItemMatricula[]
-  lancamentosFinanceiros   LancamentoFinanceiro[]
-  materiaisAula            MaterialAula[]
-  matriculas               Matricula[]
-  modulos                  Modulo[]
-  movimentosCaixa          MovimentoCaixa[]
-  notas                    Nota[]
-  pagamentos               Pagamento[]
-  presencasAula            PresencaAula[]
-  professores              Professor[]
-  progressoAulas           ProgressoAula[]
-  provas                   Prova[]
-  questoes                 Questao[]
-  respostas                RespostaProva[]
-  resultadosFinais         ResultadoFinal[]
-  tentativas               TentativaProva[]
-  turmas                   Turma[]
-  usuarios                 User[]
-  adesoes                  AdesaoInstituicao[]
-  certificadoCampos        CertificadoCampo[]
-  certificadoTemplateUrl      String?
-  certificadoPreviewUrl       String?
-  certificadoTextoPadrao      String?
-  certificadoAssinaturaUrl    String?
-  certificadoCoordenadorNome  String?
-  certificadoCidade           String?
+  id                         Int                             @id @default(autoincrement())
+  nome                       String
+  ativo                      Boolean                         @default(true)
+  createdAt                  DateTime                        @default(now())
+  dominio                    String?                         @unique
+  slug                       String                          @unique
+  updatedAt                  DateTime
+  plano                      String                          @default("ESSENCIAL")
+  alternativas               Alternativa[]
+  alunos                     Aluno[]
+  atestadosMedicos           AtestadoMedico[]
+  atividades                 Atividade[]
+  anexosAtividade            AtividadeAnexo[]
+  aulas                      Aula[]
+  caixas                     Caixa[]
+  certificados               Certificado[]
+  cobrancas                  Cobranca[]
+  configuracaoInstituicao    ConfiguracaoInstituicao?
+  contratos                  Contrato[]
+  cursos                     Curso[]
+  cursoSemestres             CursoSemestre[]
+  cursoSemestreDisciplinas   CursoSemestreDisciplina[]
+  Departamento               Departamento[]
+  disciplinas                Disciplina[]
+  documentosAlunos           DocumentoAluno[]
+  documentosGerados          DocumentoGerado[]
+  documentoTemplates         DocumentoTemplate[]
+  entregas                   EntregaAtividade[]
+  Funcionario                Funcionario[]
+  itensMatricula             ItemMatricula[]
+  lancamentosFinanceiros     LancamentoFinanceiro[]
+  materiaisAula              MaterialAula[]
+  matriculas                 Matricula[]
+  modulos                    Modulo[]
+  movimentosCaixa            MovimentoCaixa[]
+  notas                      Nota[]
+  pagamentos                 Pagamento[]
+  presencasAula              PresencaAula[]
+  professores                Professor[]
+  progressoAulas             ProgressoAula[]
+  provas                     Prova[]
+  questoes                   Questao[]
+  respostas                  RespostaProva[]
+  resultadosFinais           ResultadoFinal[]
+  tentativas                 TentativaProva[]
+  turmas                     Turma[]
+  usuarios                   User[]
+  adesoes                    AdesaoInstituicao[]
+  certificadoCampos          CertificadoCampo[]
+  periodosMatricula          PeriodoMatricula[]
+  disciplinaPreRequisitos    DisciplinaPreRequisito[]
+  cursosDisciplinasExtras    CursoDisciplinaExtraPermitida[]
+  certificadoTemplateUrl     String?
+  certificadoPreviewUrl      String?
+  certificadoTextoPadrao     String?
+  certificadoAssinaturaUrl   String?
+  certificadoCoordenadorNome String?
+  certificadoCidade          String?
 }
 
 model User {
@@ -79,9 +82,9 @@ model User {
   aluno              Aluno?
   funcionario        Funcionario?
   professor          Professor?
-  precisaTrocarSenha Boolean @default(false)
-  isMasterAdmin      Boolean @default(false)
-  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  precisaTrocarSenha Boolean      @default(false)
+  isMasterAdmin      Boolean      @default(false)
+  instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@index([instituicaoId])
   @@index([role])
@@ -179,23 +182,25 @@ model Professor {
 }
 
 model Curso {
-  id                  Int               @id @default(autoincrement())
-  nome                String
-  descricao           String?
-  ativo               Boolean           @default(true)
-  createdAt           DateTime          @default(now())
-  instituicaoId       Int
-  codigo              String?
-  updatedAt           DateTime          @updatedAt
-  quantidadeParcelas  Int?
-  valorMatricula      Float?
-  valorMensalidade    Float?
-  quantidadeSemestres Int?
-  instituicao         Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  semestres           CursoSemestre[]
-  disciplinas         Disciplina[]
-  documentosGerados   DocumentoGerado[]
-  matriculas          Matricula[]
+  id                          Int                             @id @default(autoincrement())
+  nome                        String
+  descricao                   String?
+  ativo                       Boolean                         @default(true)
+  createdAt                   DateTime                        @default(now())
+  instituicaoId               Int
+  codigo                      String?
+  updatedAt                   DateTime                        @updatedAt
+  quantidadeParcelas          Int?
+  valorMatricula              Float?
+  valorMensalidade            Float?
+  quantidadeSemestres         Int?
+  instituicao                 Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  semestres                   CursoSemestre[]
+  disciplinas                 Disciplina[]
+  documentosGerados           DocumentoGerado[]
+  matriculas                  Matricula[]
+  periodosMatricula           PeriodoMatricula[]
+  disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -214,6 +219,7 @@ model CursoSemestre {
   curso         Curso                     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
   instituicao   Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   disciplinas   CursoSemestreDisciplina[]
+  matriculas    Matricula[]
 
   @@unique([cursoId, numero])
   @@index([instituicaoId])
@@ -308,23 +314,27 @@ model DocumentoAluno {
 }
 
 model Disciplina {
-  id               Int                       @id @default(autoincrement())
-  nome             String
-  cursoId          Int?
-  instituicaoId    Int
-  cargaHoraria     Int?
-  descricao        String?
-  semestre         Int?
-  ativo            Boolean                   @default(true)
-  codigo           String?
-  createdAt        DateTime                  @default(now())
-  updatedAt        DateTime                  @updatedAt
-  certificados     Certificado[]
-  semestresCurso   CursoSemestreDisciplina[]
-  curso            Curso?                    @relation(fields: [cursoId], references: [id])
-  instituicao      Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  resultadosFinais ResultadoFinal[]
-  turmas           Turma[]
+  id                        Int                             @id @default(autoincrement())
+  nome                      String
+  cursoId                   Int?
+  instituicaoId             Int
+  cargaHoraria              Int?
+  descricao                 String?
+  semestre                  Int?
+  ativo                     Boolean                         @default(true)
+  codigo                    String?
+  createdAt                 DateTime                        @default(now())
+  updatedAt                 DateTime                        @updatedAt
+  certificados              Certificado[]
+  semestresCurso            CursoSemestreDisciplina[]
+  curso                     Curso?                          @relation(fields: [cursoId], references: [id])
+  instituicao               Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  resultadosFinais          ResultadoFinal[]
+  turmas                    Turma[]
+  itensMatricula            ItemMatricula[]
+  prerequisitosDaDisciplina DisciplinaPreRequisito[]        @relation("DisciplinaPrincipal")
+  liberaOutrasDisciplinas   DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
+  permitidaComoExtraEm      CursoDisciplinaExtraPermitida[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -385,6 +395,13 @@ model Matricula {
   documentosGerados      DocumentoGerado[]
   itens                  ItemMatricula[]
   lancamentosFinanceiros LancamentoFinanceiro[]
+  cursoSemestreId        Int?
+  periodoMatriculaId     Int?
+  periodoLetivo          String?
+  realizadaPeloAluno     Boolean                @default(false)
+  confirmadaEm           DateTime?
+  cursoSemestre          CursoSemestre?         @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula       PeriodoMatricula?      @relation(fields: [periodoMatriculaId], references: [id])
   aluno                  Aluno                  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
   curso                  Curso?                 @relation(fields: [cursoId], references: [id])
   instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -392,6 +409,9 @@ model Matricula {
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([cursoId])
+  @@index([cursoSemestreId])
+  @@index([periodoMatriculaId])
+  @@index([periodoLetivo])
 }
 
 model ItemMatricula {
@@ -401,16 +421,22 @@ model ItemMatricula {
   instituicaoId Int
   matriculaId   Int
   turmaId       Int
+  disciplinaId  Int
+  tipoItem      TipoItemMatricula   @default(GRADE_PRINCIPAL)
   status        StatusItemMatricula @default(A_CURSAR)
-  instituicao   Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  matricula     Matricula           @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
-  turma         Turma               @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula   @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
 
   @@unique([matriculaId, turmaId])
   @@index([instituicaoId])
   @@index([matriculaId])
   @@index([turmaId])
+  @@index([disciplinaId])
   @@index([status])
+  @@index([tipoItem])
 }
 
 model Modulo {
@@ -476,19 +502,19 @@ model MaterialAula {
 }
 
 model ProgressoAula {
-  id            Int         @id @default(autoincrement())
-  concluida     Boolean     @default(false)
-  concluidaEm   DateTime?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  instituicaoId Int
-  alunoId       Int
-  aulaId        Int
-  tempoAssistidoSegundos Int @default(0)
-  tempoMinimoSegundos    Int @default(0)
-  aluno         Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  aula          Aula        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id                     Int         @id @default(autoincrement())
+  concluida              Boolean     @default(false)
+  concluidaEm            DateTime?
+  createdAt              DateTime    @default(now())
+  updatedAt              DateTime    @updatedAt
+  instituicaoId          Int
+  alunoId                Int
+  aulaId                 Int
+  tempoAssistidoSegundos Int         @default(0)
+  tempoMinimoSegundos    Int         @default(0)
+  aluno                  Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  aula                   Aula        @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  instituicao            Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@unique([alunoId, aulaId])
   @@index([instituicaoId])
@@ -1113,28 +1139,28 @@ model LeadMatriculaIbe {
 }
 
 model Lead {
-  id               Int      @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   nome             String
   email            String
   telefone         String?
   instituicaoNome  String?
   instituicaoId    Int?
   cargo            String?
-  origem           String   @default("SITE_PHANYX")
-  tipo             String   @default("PHANYX") // PHANYX ou INSTITUICAO
+  origem           String    @default("SITE_PHANYX")
+  tipo             String    @default("PHANYX") // PHANYX ou INSTITUICAO
   interesse        String?
   observacoes      String?
-  status           String   @default("NOVO") // NOVO, CONTATO, PROPOSTA, FECHADO, PERDIDO
-  prioridade       String   @default("MEDIA") // BAIXA, MEDIA, ALTA
+  status           String    @default("NOVO") // NOVO, CONTATO, PROPOSTA, FECHADO, PERDIDO
+  prioridade       String    @default("MEDIA") // BAIXA, MEDIA, ALTA
   valorEstimado    Float?
   proximoContatoEm DateTime?
   ultimoContatoEm  DateTime?
   responsavelNome  String?
 
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  interacoes       LeadInteracao[]
+  interacoes LeadInteracao[]
 
   @@index([status])
   @@index([origem])
@@ -1146,7 +1172,7 @@ model Lead {
 model LeadInteracao {
   id        Int      @id @default(autoincrement())
   leadId    Int
-  tipo      String   // WHATSAPP, LIGACAO, EMAIL, REUNIAO, OBSERVACAO
+  tipo      String // WHATSAPP, LIGACAO, EMAIL, REUNIAO, OBSERVACAO
   descricao String
   usuario   String?
   createdAt DateTime @default(now())
@@ -1167,8 +1193,8 @@ model CheckoutPagamento {
   pixCode        String?
   asaasId        String?
   asaasPaymentId String?  @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model AdesaoInstituicao {
@@ -1187,11 +1213,11 @@ model AdesaoInstituicao {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  instituicao     Instituicao? @relation(fields: [instituicaoId], references: [id])
+  instituicao Instituicao? @relation(fields: [instituicaoId], references: [id])
 }
 
 model CertificadoCampo {
-  id            Int         @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   instituicaoId Int
   tipo          String
   x             Float
@@ -1202,13 +1228,76 @@ model CertificadoCampo {
   tamanho       Int?
   cor           String?
   alinhamento   String?
-  pagina        Int         @default(1)
-  createdAt     DateTime    @default(now())
+  pagina        Int      @default(1)
+  createdAt     DateTime @default(now())
 
-  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@index([instituicaoId])
   @@index([tipo])
+}
+
+model DisciplinaPreRequisito {
+  id             Int      @id @default(autoincrement())
+  instituicaoId  Int
+  disciplinaId   Int
+  prerequisitoId Int
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  instituicao  Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  disciplina   Disciplina  @relation("DisciplinaPrincipal", fields: [disciplinaId], references: [id], onDelete: Cascade)
+  prerequisito Disciplina  @relation("DisciplinaPreRequisito", fields: [prerequisitoId], references: [id], onDelete: Cascade)
+
+  @@unique([disciplinaId, prerequisitoId])
+  @@index([instituicaoId])
+  @@index([disciplinaId])
+  @@index([prerequisitoId])
+}
+
+model CursoDisciplinaExtraPermitida {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  cursoId       Int
+  disciplinaId  Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  curso       Curso       @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  @@unique([cursoId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([cursoId])
+  @@index([disciplinaId])
+}
+
+model PeriodoMatricula {
+  id                       Int                  @id @default(autoincrement())
+  instituicaoId            Int
+  cursoId                  Int?
+  periodoLetivo            String
+  semestreNumero           Int?
+  titulo                   String?
+  dataInicio               DateTime
+  dataFim                  DateTime
+  ativo                    Boolean              @default(true)
+  permiteAluno             Boolean              @default(true)
+  bloqueiaAlunoForaDoPrazo Boolean              @default(true)
+  tipo                     TipoPeriodoMatricula @default(REMATRICULA)
+  createdAt                DateTime             @default(now())
+  updatedAt                DateTime             @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  curso       Curso?      @relation(fields: [cursoId], references: [id])
+  matriculas  Matricula[]
+
+  @@index([instituicaoId])
+  @@index([cursoId])
+  @@index([periodoLetivo])
+  @@index([ativo])
+  @@index([dataInicio, dataFim])
 }
 
 enum TipoDocumentoAluno {
@@ -1405,4 +1494,15 @@ enum LeadPrioridade {
   BAIXA
   MEDIA
   ALTA
+}
+
+enum TipoItemMatricula {
+  GRADE_PRINCIPAL
+  EXTRA_MESMO_CURSO
+  EXTRA_OUTRO_CURSO
+}
+
+enum TipoPeriodoMatricula {
+  MATRICULA_INICIAL
+  REMATRICULA
 }
