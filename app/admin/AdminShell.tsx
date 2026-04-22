@@ -24,6 +24,42 @@ export default function AdminShell({
   const esconderSidebar = pathname?.includes(
     "/admin/configuracoes/certificado"
   );
+useEffect(() => {
+  let timeout: NodeJS.Timeout;
+
+  const tempoInatividade = 5 * 60 * 1000; // 5 minutos
+  // se quiser testar com 1 minuto:
+  // const tempoInatividade = 1 * 60 * 1000;
+
+  const resetTimer = () => {
+    clearTimeout(timeout);
+
+    timeout = setTimeout(async () => {
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      alert("Sessão encerrada por segurança devido à inatividade.");
+      window.location.href = "/login?portal=admin";
+    }, tempoInatividade);
+  };
+
+  window.addEventListener("mousemove", resetTimer);
+  window.addEventListener("keydown", resetTimer);
+  window.addEventListener("click", resetTimer);
+  window.addEventListener("scroll", resetTimer);
+
+  resetTimer();
+
+  return () => {
+    clearTimeout(timeout);
+    window.removeEventListener("mousemove", resetTimer);
+    window.removeEventListener("keydown", resetTimer);
+    window.removeEventListener("click", resetTimer);
+    window.removeEventListener("scroll", resetTimer);
+  };
+}, []);
 
   const descobrirMenuInicial = () => {
     if (pathname.startsWith("/admin/leads")) return "comercial";
@@ -450,15 +486,17 @@ export default function AdminShell({
                   </div>
                 )}
               </div>
-            </nav>
+                       </nav>
           </div>
 
-          <button
-            onClick={handleLogout}
-            className="mt-8 bg-red-500 text-white py-2 rounded-lg hover:bg-red-600"
-          >
-            Sair
-          </button>
+          <div className="mt-auto pt-6">
+            <button
+              onClick={handleLogout}
+              className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold hover:bg-red-600 transition"
+            >
+              Sair
+            </button>
+          </div>
         </aside>
       )}
 
