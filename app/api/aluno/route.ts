@@ -106,10 +106,17 @@ export async function GET() {
     });
 
     return NextResponse.json(alunosFormatados);
-  } catch (error) {
-    console.error("ERRO AO BUSCAR ALUNOS:", error);
-    return NextResponse.json({ error: "Token inválido" }, { status: 401 });
-  }
+  } catch (error: any) {
+  console.error("ERRO AO BUSCAR ALUNOS:", error);
+
+  return NextResponse.json(
+    {
+      error: "Erro ao buscar alunos.",
+      detalhe: error?.message || "Erro interno",
+    },
+    { status: 500 }
+  );
+}
 }
 
 export async function POST(request: Request) {
