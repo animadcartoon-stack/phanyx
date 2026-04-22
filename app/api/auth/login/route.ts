@@ -9,6 +9,30 @@ function normalizarRole(role: string) {
   return role.trim().toLowerCase();
 }
 
+function podeEntrarNoPortal(portal: Portal, role: string) {
+  const roleNormalizada = String(role || "").trim().toLowerCase();
+
+  if (portal === "aluno") {
+    return roleNormalizada === "aluno";
+  }
+
+  if (portal === "professor") {
+    return roleNormalizada === "professor";
+  }
+
+  if (portal === "admin") {
+    return [
+      "admin",
+      "secretaria",
+      "coordenador",
+      "financeiro",
+      "suporte",
+    ].includes(roleNormalizada);
+  }
+
+  return false;
+}
+
 function mensagemPortalIncorreto(portal: Portal) {
   if (portal === "admin") {
     return "Este acesso é exclusivo da instituição/administração.";
@@ -72,12 +96,12 @@ export async function POST(req: Request) {
 
     const roleNormalizada = normalizarRole(user.role);
 
-    if (roleNormalizada !== portalNormalizado) {
-      return NextResponse.json(
-        { error: mensagemPortalIncorreto(portalNormalizado) },
-        { status: 403 }
-      );
-    }
+if (!podeEntrarNoPortal(portalNormalizado, roleNormalizada)) {
+  return NextResponse.json(
+    { error: mensagemPortalIncorreto(portalNormalizado) },
+    { status: 403 }
+  );
+}
 
     const token = jwt.sign(
       {

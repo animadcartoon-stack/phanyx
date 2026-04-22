@@ -125,7 +125,7 @@ export default function Header() {
                 : "bg-slate-950 text-white hover:bg-slate-800"
             }`}
           >
-            Entrar
+            Área administrativa
           </Link>
         </div>
       </div>
