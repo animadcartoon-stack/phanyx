@@ -41,6 +41,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
   lastModified: new Date(),
 },
 {
+  url: "https://phanyx.com.br/blog/melhor-plataforma-ead-para-escolas",
+}
+{
   url: "https://www.phanyx.com.br/blog/sistema-academico-completo",
   lastModified: new Date(),
 },
