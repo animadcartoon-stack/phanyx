@@ -59,47 +59,54 @@ function AdminFuncionariosPage() {
     setDepartamentos(Array.isArray(data) ? data : []);
   }
 
-  async function criarFuncionario(e: React.FormEvent) {
-    e.preventDefault();
+ async function criarFuncionario(e: React.FormEvent) {
+  e.preventDefault();
 
-    const res = await fetch("/api/funcionario", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        nome,
-        email,
-        role,
-        cpf,
-        rg,
-        telefone,
-        cargo,
-        setor,
-        codigoFuncionario,
-        departamentoId: departamentoId || null,
-      }),
-    });
+  const res = await fetch("/api/funcionario", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+    body: JSON.stringify({
+      nome,
+      email,
+      role,
+      cpf,
+      rg,
+      telefone,
+      cargo,
+      setor,
+      codigoFuncionario,
+      departamentoId: departamentoId || null,
+    }),
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.error || "Erro ao criar funcionário");
-      return;
-    }
-
-    setNome("");
-    setEmail("");
-    setRole("SECRETARIA");
-    setCpf("");
-    setRg("");
-    setTelefone("");
-    setCargo("");
-    setSetor("");
-    setCodigoFuncionario("");
-    setDepartamentoId("");
-
-    carregarFuncionarios();
+  if (!res.ok) {
+    alert(data.error || "Erro ao criar funcionário");
+    return;
   }
+
+  setNome("");
+  setEmail("");
+  setRole("SECRETARIA");
+  setCpf("");
+  setRg("");
+  setTelefone("");
+  setCargo("");
+  setSetor("");
+  setCodigoFuncionario("");
+  setDepartamentoId("");
+
+  await carregarFuncionarios();
+
+  if (data?.avisoEmail) {
+    alert(data.avisoEmail);
+    return;
+  }
+
+  alert("Funcionário criado com sucesso e email de acesso enviado.");
+}
 
   useEffect(() => {
     carregarFuncionarios();
