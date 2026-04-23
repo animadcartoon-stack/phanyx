@@ -444,45 +444,47 @@ export async function DELETE(
         instituicaoId: user.instituicaoId,
       },
       include: {
-        curso: true,
         turmas: {
-          select: {
-            id: true,
-            instituicaoId: true,
-          },
+          select: { id: true },
         },
       },
     });
 
-    if (
-      !disciplina ||
-      !disciplinaPertenceAInstituicao(disciplina, user.instituicaoId)
-    ) {
+    if (!disciplina) {
       return NextResponse.json(
         { error: "Disciplina não encontrada" },
         { status: 404 }
       );
     }
 
-    if (disciplina.turmas.length > 0) {
-      return NextResponse.json(
-        {
-          error:
-            "Não é possível excluir a disciplina porque ela possui turmas vinculadas.",
-        },
-        { status: 400 }
-      );
-    }
+    await prisma.$transaction(async (tx) => {
+      // 🔹 Remove vínculo das turmas
+      if (disciplina.turmas.length > 0) {
+        await tx.turma.updateMany({
+          where: {
+            disciplinaId: id,
+            instituicaoId: user.instituicaoId,
+          },
+          data: {
+            disciplinaId: null,
+          },
+        });
+      }
 
-    await prisma.disciplina.delete({
-      where: { id },
+      // 🔹 Agora pode deletar a disciplina
+      await tx.disciplina.delete({
+        where: { id },
+      });
     });
 
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error("ERRO API DISCIPLINA DELETE:", error);
+
     return NextResponse.json(
-      { error: error.message || "Erro ao excluir disciplina" },
+      {
+        error: error?.message || "Erro ao excluir disciplina",
+      },
       { status: 500 }
     );
   }
