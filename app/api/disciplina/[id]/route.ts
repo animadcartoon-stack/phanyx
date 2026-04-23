@@ -198,11 +198,10 @@ export async function GET(
       include: {
         curso: true,
         turmaDisciplinas: {
-          include: {
-            turma: {
-              include: {
-                professor: true,
-                _count: {
+  include: {
+    turma: {
+      include: {
+        _count: {
                   select: {
                     atividades: true,
                     itensMatricula: true,
@@ -330,32 +329,6 @@ export async function PUT(
   );
 }
 
-    if (!body.professorId) {
-      return NextResponse.json(
-        { error: "Selecione um professor para a turma." },
-        { status: 400 }
-      );
-    }
-
-    const professorId = Number(body.professorId);
-
-    const professor = await prisma.professor.findFirst({
-      where: {
-        id: professorId,
-        instituicaoId: user.instituicaoId,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!professor) {
-      return NextResponse.json(
-        { error: "Professor inválido para esta instituição." },
-        { status: 400 }
-      );
-    }
-
     await prisma.$transaction(async (tx) => {
       await tx.disciplina.update({
         where: { id },
@@ -397,17 +370,6 @@ if (turmaIds.length > 0) {
   });
 }
 
-if (professorId) {
-  await tx.turma.updateMany({
-    where: {
-      id: { in: turmaIds },
-      instituicaoId: user.instituicaoId,
-    },
-    data: {
-      professorId,
-    },
-  });
-}
     });
 
     const disciplinaAtualizada = await prisma.disciplina.findFirst({
@@ -418,14 +380,10 @@ if (professorId) {
       include: {
         curso: true,
         turmaDisciplinas: {
-          include: {
-            turma: {
-              include: {
-                professor: true,
-              },
-            },
-          },
-        },
+  include: {
+    turma: true,
+  },
+},
       },
     });
 

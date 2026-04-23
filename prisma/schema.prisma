@@ -55,6 +55,7 @@ model Instituicao {
   tentativas                 TentativaProva[]
   turmas                     Turma[]
   usuarios                   User[]
+  polos                      Polo[]
   adesoes                    AdesaoInstituicao[]
   TurmaDisciplina            TurmaDisciplina[]
   certificadoCampos          CertificadoCampo[]
@@ -175,11 +176,14 @@ model Professor {
   instituicao       Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   turmas            Turma[]
+  poloId            Int?
+  polo              Polo?        @relation(fields: [poloId], references: [id])
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
   @@index([nome])
   @@index([cpf])
+  @@index([poloId])
 }
 
 model Curso {
@@ -368,11 +372,14 @@ model Turma {
   instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professor        Professor?        @relation(fields: [professorId], references: [id])
   disciplinas      TurmaDisciplina[]
+  poloId           Int?
+  polo             Polo?             @relation(fields: [poloId], references: [id])
 
   @@unique([instituicaoId, nome, semestre])
   @@index([instituicaoId])
   @@index([professorId])
   @@index([statusTurma])
+  @@index([poloId])
 }
 
 model TurmaDisciplina {
@@ -1316,6 +1323,28 @@ model PeriodoMatricula {
   @@index([periodoLetivo])
   @@index([ativo])
   @@index([dataInicio, dataFim])
+}
+
+model Polo {
+  id            Int          @id @default(autoincrement())
+  nome          String
+  codigo        String?
+  descricao     String?
+  cidade        String?
+  estado        String?
+  endereco      String?
+  ativo         Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  instituicaoId Int
+
+  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professores   Professor[]
+  turmas        Turma[]
+
+  @@unique([instituicaoId, nome])
+  @@unique([instituicaoId, codigo])
+  @@index([instituicaoId])
 }
 
 enum TipoDocumentoAluno {
