@@ -652,9 +652,9 @@ window.scrollTo({ top: 0, behavior: "smooth" });
 
   const alunosComResumo = useMemo<AlunoComResumo[]>(() => {
     return alunos.map((aluno) => ({
-      ...aluno,
-      resumoMatricula: mapaMatriculasPorAluno.get(aluno.id) || null,
-    }));
+  ...aluno,
+  resumoMatricula: mapaMatriculasPorAluno.get(aluno.id) || null,
+}));
   }, [alunos, mapaMatriculasPorAluno]);
 
   const alunosFiltrados = useMemo(() => {

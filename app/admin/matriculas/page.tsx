@@ -86,6 +86,11 @@ type MatriculaEdicao = {
 function AdminMatriculasPage() {
   const searchParams = useSearchParams();
   const [busca, setBusca] = useState("");
+
+  const [filtroPeriodoMatricula, setFiltroPeriodoMatricula] = useState<
+  "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
+>("HOJE");
+
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [removingId, setRemovingId] = useState<number | null>(null);
@@ -380,9 +385,37 @@ const turmasExtrasEdicao = useMemo(() => {
   });
 }, [turmas, matriculaEditando, semestreEditandoSelecionado, disciplinasEditandoIds]);
 
+function dataNoPeriodo(dataIso?: string, periodo?: "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS") {
+  if (!dataIso) return periodo === "TODAS";
+
+  const data = new Date(dataIso);
+  if (Number.isNaN(data.getTime())) return false;
+
+  const agora = new Date();
+
+  const inicioHoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate());
+  const inicioAmanha = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + 1);
+  const inicioOntem = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 1);
+  const inicio7Dias = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() - 6);
+  const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+
+  switch (periodo) {
+    case "HOJE":
+      return data >= inicioHoje && data < inicioAmanha;
+    case "ONTEM":
+      return data >= inicioOntem && data < inicioHoje;
+    case "7_DIAS":
+      return data >= inicio7Dias && data < inicioAmanha;
+    case "MES":
+      return data >= inicioMes && data < inicioAmanha;
+    case "TODAS":
+    default:
+      return true;
+  }
+}
+
 const matriculasFiltradas = useMemo(() => {
   const termo = busca.trim().toLowerCase();
-  if (!termo) return matriculas;
 
   return matriculas.filter((m) => {
     const id = String(m.id || "").toLowerCase();
@@ -405,17 +438,20 @@ const matriculasFiltradas = useMemo(() => {
           .toLowerCase()
       : "";
 
-    return (
+    const bateBusca =
+      !termo ||
       id.includes(termo) ||
       aluno.includes(termo) ||
       curso.includes(termo) ||
       status.includes(termo) ||
       semestre.includes(termo) ||
-      itensTexto.includes(termo)
-    );
-  });
-}, [matriculas, busca]);
+      itensTexto.includes(termo);
 
+    const batePeriodo = dataNoPeriodo(m.createdAt, filtroPeriodoMatricula);
+
+    return bateBusca && batePeriodo;
+  });
+}, [matriculas, busca, filtroPeriodoMatricula]);
   const podeCriar = useMemo(() => {
     const a = Number(alunoId);
     const c = Number(cursoId);
@@ -1051,17 +1087,47 @@ function renderGrupoDisciplina(
 
       <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-  <div className="flex flex-col gap-3 md:flex-row md:items-center">
-    <h2 className="text-lg font-semibold">Matrículas cadastradas</h2>
+  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+  
+  {/* ESQUERDA */}
+  <h2 className="text-lg font-semibold">Matrículas cadastradas</h2>
 
+  {/* MEIO (busca + filtro) */}
+  <div className="flex gap-2 w-full md:w-auto">
     <input
       type="text"
       placeholder="Buscar por aluno, curso, turma, disciplina, professor, status ou ID"
       value={busca}
       onChange={(e) => setBusca(e.target.value)}
-      className="w-full md:w-[520px] border rounded-xl px-3 py-2"
+      className="w-full md:w-[400px] border rounded-xl px-3 py-2"
     />
+
+    <select
+      value={filtroPeriodoMatricula}
+      onChange={(e) =>
+        setFiltroPeriodoMatricula(
+          e.target.value as "HOJE" | "ONTEM" | "7_DIAS" | "MES" | "TODAS"
+        )
+      }
+      className="w-[180px] border rounded-xl px-3 py-2 bg-white"
+    >
+      <option value="HOJE">Hoje</option>
+      <option value="ONTEM">Ontem</option>
+      <option value="7_DIAS">7 dias</option>
+      <option value="MES">Mês</option>
+      <option value="TODAS">Todas</option>
+    </select>
   </div>
+
+  {/* DIREITA */}
+  <button
+    onClick={carregarTudo}
+    className="px-3 py-2 rounded-xl border bg-white hover:border-blue-400 transition"
+  >
+    Recarregar
+  </button>
+
+</div>
 
   <button
             onClick={carregarTudo}
