@@ -244,8 +244,12 @@ function AdminProfessoresPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao deletar professor");
-      }
+  throw new Error(
+    data?.detalhe ||
+      data?.error ||
+      "Erro ao deletar professor"
+  );
+}
 
       setProfessorParaExcluir(null);
       await carregarProfessores();

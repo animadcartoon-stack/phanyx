@@ -56,6 +56,7 @@ model Instituicao {
   turmas                     Turma[]
   usuarios                   User[]
   adesoes                    AdesaoInstituicao[]
+  TurmaDisciplina            TurmaDisciplina[]
   certificadoCampos          CertificadoCampo[]
   periodosMatricula          PeriodoMatricula[]
   disciplinaPreRequisitos    DisciplinaPreRequisito[]
@@ -325,7 +326,7 @@ model Disciplina {
   codigo                    String?
   createdAt                 DateTime                        @default(now())
   updatedAt                 DateTime                        @updatedAt
-  cargaHoraria              Int? // em horas
+  cargaHoraria              Int?
   certificados              Certificado[]
   semestresCurso            CursoSemestreDisciplina[]
   curso                     Curso?                          @relation(fields: [cursoId], references: [id])
@@ -336,6 +337,7 @@ model Disciplina {
   prerequisitosDaDisciplina DisciplinaPreRequisito[]        @relation("DisciplinaPrincipal")
   liberaOutrasDisciplinas   DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
   permitidaComoExtraEm      CursoDisciplinaExtraPermitida[]
+  turmaDisciplinas          TurmaDisciplina[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -344,20 +346,20 @@ model Disciplina {
 }
 
 model Turma {
-  id               Int              @id @default(autoincrement())
+  id               Int               @id @default(autoincrement())
   nome             String
   semestre         String
   disciplinaId     Int
   professorId      Int
   instituicaoId    Int
-  ativa            Boolean          @default(true)
+  ativa            Boolean           @default(true)
   codigo           String?
-  createdAt        DateTime         @default(now())
+  createdAt        DateTime          @default(now())
   periodoLetivo    String?
-  updatedAt        DateTime         @updatedAt
+  updatedAt        DateTime          @updatedAt
   capacidadeMaxima Int?
   capacidadeMinima Int?
-  statusTurma      StatusTurma      @default(AGUARDANDO)
+  statusTurma      StatusTurma       @default(AGUARDANDO)
   atividades       Atividade[]
   aulas            Aula[]
   itensMatricula   ItemMatricula[]
@@ -365,15 +367,34 @@ model Turma {
   notas            Nota[]
   provas           Prova[]
   resultadosFinais ResultadoFinal[]
-  disciplina       Disciplina       @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  instituicao      Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  professor        Professor        @relation(fields: [professorId], references: [id])
+  disciplina       Disciplina        @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor        Professor         @relation(fields: [professorId], references: [id])
+  disciplinas      TurmaDisciplina[]
 
   @@unique([instituicaoId, nome, semestre, disciplinaId])
   @@index([instituicaoId])
   @@index([disciplinaId])
   @@index([professorId])
   @@index([statusTurma])
+}
+
+model TurmaDisciplina {
+  id            Int      @id @default(autoincrement())
+  turmaId       Int
+  disciplinaId  Int
+  instituicaoId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([turmaId, disciplinaId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([instituicaoId])
 }
 
 model Matricula {
