@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
@@ -97,10 +97,9 @@ function AdminMatriculasPage() {
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [cursos, setCursos] = useState<CursoOption[]>([]);
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
-  const [semestresCurso, setSemestresCurso] = useState<CursoSemestreOption[]>(
-    []
-  );
+  const [semestresCurso, setSemestresCurso] = useState<CursoSemestreOption[]>([]);
 
+  const [matriculaExpandidaId, setMatriculaExpandidaId] = useState<number | null>(null);
   const [alunoId, setAlunoId] = useState<string>("");
   const [cursoId, setCursoId] = useState<string>("");
   const [cursoSemestreId, setCursoSemestreId] = useState<string>("");
@@ -210,7 +209,7 @@ setAlunos(listaAlunos);
     }
   }
 
-async function carregarSemestresDoCurso(cursoIdValue: string) {
+  async function carregarSemestresDoCurso(cursoIdValue: string) {
   if (!cursoIdValue) {
     setSemestresCurso([]);
     return [];
@@ -220,22 +219,12 @@ async function carregarSemestresDoCurso(cursoIdValue: string) {
     const res = await fetch(
       `/api/admin/curso-semestres?cursoId=${Number(cursoIdValue)}`,
       {
-        credentials: "include",
         cache: "no-store",
       }
     );
 
     const data = await res.json();
-
-    if (!res.ok) {
-      console.error("Erro ao carregar semestres do curso:", data);
-      setSemestresCurso([]);
-      return [];
-    }
-
     const lista = Array.isArray(data) ? data : [];
-
-    console.log("📘 Semestres carregados:", lista);
 
     setSemestresCurso(lista);
     return lista;
@@ -1083,172 +1072,213 @@ function renderGrupoDisciplina(
         </div>
 
         {loading ? (
-          <div className="p-6 text-gray-600">Carregando...</div>
-        ) : matriculasFiltradas.length === 0 ? (
-          <div className="p-6 text-gray-600">Nenhuma matrícula encontrada.</div>
-        ) : (
-          <div className="divide-y">
-            {matriculasFiltradas.map((m) => {
-              const alunoNome = m.aluno?.nome ?? "Aluno";
-              const cursoNome = m.curso?.nome ?? "Curso";
-              const itens = Array.isArray(m.itens) ? m.itens : [];
+  <div className="p-6 text-gray-600">Carregando...</div>
+) : matriculasFiltradas.length === 0 ? (
+  <div className="p-6 text-gray-600">Nenhuma matrícula encontrada.</div>
+) : (
+  <div className="overflow-x-auto">
+    <table className="min-w-full text-sm">
+      <thead className="bg-gray-50 border-b">
+        <tr className="text-left">
+          <th className="px-4 py-3 font-semibold text-gray-700">Aluno</th>
+          <th className="px-4 py-3 font-semibold text-gray-700">Curso</th>
+          <th className="px-4 py-3 font-semibold text-gray-700">Semestre</th>
+          <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
+          <th className="px-4 py-3 font-semibold text-gray-700">Disciplinas</th>
+          <th className="px-4 py-3 font-semibold text-gray-700">Ações</th>
+        </tr>
+      </thead>
 
-              return (
-                <div key={m.id} className="p-5">
-                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="min-w-0">
-                      <div className="space-y-2">
-                        <p className="font-semibold">
-                          {alunoNome}{" "}
-                          <span className="text-gray-400">→</span> {cursoNome}
-                          {m.semestre ? ` • ${m.semestre}º semestre` : ""}
-                        </p>
+      <tbody>
+        {matriculasFiltradas.map((m) => {
+          const alunoNome = m.aluno?.nome ?? "Aluno";
+          const cursoNome = m.curso?.nome ?? "Curso";
+          const itens = Array.isArray(m.itens) ? m.itens : [];
+          const expandida = matriculaExpandidaId === m.id;
 
-                        <div>
-                          <span
-                            className={`inline-block text-xs px-3 py-1 rounded-full ${
-                              m.status === "ATIVA"
-                                ? "bg-green-100 text-green-700"
-                                : m.status === "A_INICIAR"
-                                ? "bg-blue-100 text-blue-700"
-                                : m.status === "TRANCADA"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : m.status === "SUSPENSA"
-                                ? "bg-orange-100 text-orange-700"
-                                : m.status === "CONCLUIDA"
-                                ? "bg-purple-100 text-purple-700"
-                                : "bg-red-100 text-red-700"
-                            }`}
-                          >
-                            {m.status || "ATIVA"}
-                          </span>
-                        </div>
+          return (
+            <React.Fragment key={m.id}>
+              <tr key={`linha-${m.id}`} className="border-b align-top hover:bg-gray-50">
+                <td className="px-4 py-3">
+                  <div className="font-medium text-gray-900">{alunoNome}</div>
+                  <div className="text-xs text-gray-500">ID #{m.id}</div>
+                </td>
+
+                <td className="px-4 py-3 text-gray-700">{cursoNome}</td>
+
+                <td className="px-4 py-3 text-gray-700">
+                  {m.semestre ? `${m.semestre}º semestre` : "-"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <span
+                    className={`inline-block text-xs px-3 py-1 rounded-full ${
+                      m.status === "ATIVA"
+                        ? "bg-green-100 text-green-700"
+                        : m.status === "A_INICIAR"
+                        ? "bg-blue-100 text-blue-700"
+                        : m.status === "TRANCADA"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : m.status === "SUSPENSA"
+                        ? "bg-orange-100 text-orange-700"
+                        : m.status === "CONCLUIDA"
+                        ? "bg-purple-100 text-purple-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {m.status || "ATIVA"}
+                  </span>
+                </td>
+
+                <td className="px-4 py-3 text-gray-700">
+                  {itens.length} disciplina(s)
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() =>
+                        setMatriculaExpandidaId(expandida ? null : m.id)
+                      }
+                      className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400"
+                    >
+                      {expandida ? "Ocultar detalhes" : "Ver detalhes"}
+                    </button>
+
+                    <button
+                      onClick={() => abrirEdicao(m)}
+                      className="px-3 py-2 rounded-xl text-sm font-semibold transition border bg-yellow-500 text-white hover:bg-yellow-600"
+                    >
+                      ✏️ Editar
+                    </button>
+
+                    <button
+                      onClick={() => abrirPdfContratoDaMatricula(m.id)}
+                      className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400 hover:text-green-700"
+                    >
+                      📄 Contrato
+                    </button>
+
+                    <button
+                      onClick={() => assinarContratoDaMatricula(m.id)}
+                      className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400 hover:text-blue-700"
+                    >
+                      ✍️ Assinar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              {expandida && (
+                <tr key={`detalhes-${m.id}`} className="border-b bg-gray-50">
+                  <td colSpan={6} className="px-4 py-4">
+                    <div className="space-y-4">
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
+                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400"
+                        >
+                          A iniciar
+                        </button>
+
+                        <button
+                          onClick={() => alterarStatusMatricula(m.id, "ATIVA")}
+                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400"
+                        >
+                          Ativar
+                        </button>
+
+                        <button
+                          onClick={() => alterarStatusMatricula(m.id, "TRANCADA")}
+                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-yellow-400"
+                        >
+                          Trancar
+                        </button>
+
+                        <button
+                          onClick={() => alterarStatusMatricula(m.id, "SUSPENSA")}
+                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-orange-400"
+                        >
+                          Suspender
+                        </button>
+
+                        <button
+                          onClick={() => alterarStatusMatricula(m.id, "CONCLUIDA")}
+                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400"
+                        >
+                          Concluir
+                        </button>
+
+                        <button
+                          onClick={() => alterarStatusMatricula(m.id, "CANCELADA")}
+                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600"
+                        >
+                          Cancelar
+                        </button>
+
+                        <button
+                          onClick={() => excluirMatricula(m.id)}
+                          disabled={removingId === m.id}
+                          className={[
+                            "px-4 py-2 rounded-xl text-sm font-semibold transition border",
+                            removingId === m.id
+                              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                              : "bg-white hover:border-red-400 hover:text-red-600",
+                          ].join(" ")}
+                        >
+                          {removingId === m.id ? "Excluindo..." : "Excluir"}
+                        </button>
                       </div>
 
-                      <div className="mt-2 space-y-2">
+                      <div>
                         {itens.length === 0 ? (
                           <p className="text-sm text-gray-500">
                             Nenhuma disciplina vinculada.
                           </p>
                         ) : (
-                          itens.map((item) => {
-                            const turma = item.turma;
-                            const disciplinaNome =
-                              turma?.disciplina?.nome ?? "Disciplina";
-                            const turmaNome = turma?.nome ?? "Turma";
-                            const profNome = turma?.professor?.nome ?? "—";
-                            const qtdAulas = turma?._count?.aulas ?? 0;
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {itens.map((item) => {
+                              const turma = item.turma;
+                              const disciplinaNome =
+                                turma?.disciplina?.nome ?? "Disciplina";
+                              const turmaNome = turma?.nome ?? "Turma";
+                              const profNome = turma?.professor?.nome ?? "—";
+                              const qtdAulas = turma?._count?.aulas ?? 0;
 
-                            return (
-                              <div
-                                key={item.id}
-                                className="text-sm text-gray-600 border rounded-xl p-3"
-                              >
-                                <p className="font-medium text-gray-800">
-                                  {disciplinaNome}
-                                </p>
-                                <p>
-                                  Turma: {turmaNome} • Prof: {profNome} • Aulas:{" "}
-                                  {qtdAulas}
-                                </p>
-                                <p className="mt-1">
-                                  Status da disciplina:{" "}
-                                  <span className="font-medium text-gray-800">
-                                    {labelStatusItem(item.status)}
-                                  </span>
-                                </p>
-                              </div>
-                            );
-                          })
+                              return (
+                                <div
+                                  key={item.id}
+                                  className="text-sm text-gray-600 border rounded-xl p-3 bg-white"
+                                >
+                                  <p className="font-medium text-gray-800">
+                                    {disciplinaNome}
+                                  </p>
+                                  <p>
+                                    Turma: {turmaNome} • Prof: {profNome} • Aulas: {qtdAulas}
+                                  </p>
+                                  <p className="mt-1">
+                                    Status da disciplina:{" "}
+                                    <span className="font-medium text-gray-800">
+                                      {labelStatusItem(item.status)}
+                                    </span>
+                                  </p>
+                                </div>
+                              );
+                            })}
+                          </div>
                         )}
                       </div>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <button
-                        onClick={() =>
-                          alterarStatusMatricula(m.id, "A_INICIAR")
-                        }
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400"
-                      >
-                        A iniciar
-                      </button>
-
-                      <button
-                        onClick={() => alterarStatusMatricula(m.id, "ATIVA")}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400"
-                      >
-                        Ativar
-                      </button>
-
-                      <button
-                        onClick={() => alterarStatusMatricula(m.id, "TRANCADA")}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-yellow-400"
-                      >
-                        Trancar
-                      </button>
-
-                      <button
-                        onClick={() => alterarStatusMatricula(m.id, "SUSPENSA")}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-orange-400"
-                      >
-                        Suspender
-                      </button>
-
-                      <button
-                        onClick={() => alterarStatusMatricula(m.id, "CONCLUIDA")}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400"
-                      >
-                        Concluir
-                      </button>
-
-                      <button
-                        onClick={() => alterarStatusMatricula(m.id, "CANCELADA")}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-red-400 hover:text-red-600"
-                      >
-                        Cancelar
-                      </button>
-
-                      <button
-                        onClick={() => assinarContratoDaMatricula(m.id)}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400 hover:text-blue-700"
-                      >
-                        ✍️ Assinar contrato
-                      </button>
-
-                      <button
-                        onClick={() => abrirPdfContratoDaMatricula(m.id)}
-                        className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-green-400 hover:text-green-700"
-                      >
-                        📄 Contrato
-                      </button>
-
-                      <button
-                        onClick={() => abrirEdicao(m)}
-                        className="px-3 py-2 rounded-xl text-sm font-semibold transition border bg-yellow-500 text-white hover:bg-yellow-600"
-                      >
-                        ✏️ Editar
-                      </button>
-
-                      <button
-                        onClick={() => excluirMatricula(m.id)}
-                        disabled={removingId === m.id}
-                        className={[
-                          "px-4 py-2 rounded-xl text-sm font-semibold transition border",
-                          removingId === m.id
-                            ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                            : "bg-white hover:border-red-400 hover:text-red-600",
-                        ].join(" ")}
-                      >
-                        {removingId === m.id ? "Excluindo..." : "Excluir"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  </td>
+                </tr>
+              )}
+            </React.Fragment>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+)}
       </div>
 
       {matriculaEditando && (
