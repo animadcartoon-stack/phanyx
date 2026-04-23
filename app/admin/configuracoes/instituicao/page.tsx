@@ -81,8 +81,8 @@ export default function ConfigInstituicaoPage() {
   const [mensagem, setMensagem] = useState("");
   const [previewPapelTimbrado, setPreviewPapelTimbrado] = useState("");
   const [modoLayout, setModoLayout] = useState<
-    "PHANYX" | "PERSONALIZADO" | "SIMPLES"
-  >("PHANYX");
+  "PHANYX" | "PERSONALIZADO" | "SIMPLES"
+>("SIMPLES");
   const [previewAmpliada, setPreviewAmpliada] = useState(false);
 
   const inputFileLogoRef = useRef<HTMLInputElement | null>(null);
@@ -1035,6 +1035,24 @@ Cidade e data:
               </h3>
 
               <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
+
+<button
+                  type="button"
+                  onClick={() => setModoLayout("SIMPLES")}
+                  className={`rounded-xl border p-3 text-left transition ${
+                    modoLayout === "SIMPLES"
+                      ? "border-slate-800 bg-slate-100"
+                      : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <div className="text-sm font-semibold text-slate-800">
+                    Sem papel
+                  </div>
+                  <p className="mt-1 text-[11px] text-slate-600">
+                    Layout simples
+                  </p>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setModoLayout("PHANYX")}
@@ -1069,22 +1087,6 @@ Cidade e data:
                   </p>
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => setModoLayout("SIMPLES")}
-                  className={`rounded-xl border p-3 text-left transition ${
-                    modoLayout === "SIMPLES"
-                      ? "border-slate-800 bg-slate-100"
-                      : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-slate-800">
-                    Sem papel
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    Layout simples
-                  </p>
-                </button>
               </div>
 
               {modoLayout === "PHANYX" && (
