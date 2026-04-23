@@ -319,31 +319,16 @@ export async function PUT(
       cursoIdFinal = null;
     }
 
-    if (!body.turmaId) {
-      return NextResponse.json(
-        { error: "Selecione uma turma para vincular à disciplina." },
-        { status: 400 }
-      );
-    }
+    const turmaIds = Array.isArray(body.turmaIds)
+  ? body.turmaIds.map((id: any) => Number(id)).filter((id: number) => Number.isFinite(id))
+  : [];
 
-    const turmaId = Number(body.turmaId);
-
-    const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        instituicaoId: user.instituicaoId,
-      },
-      select: {
-        id: true,
-      },
-    });
-
-    if (!turma) {
-      return NextResponse.json(
-        { error: "Turma inválida para esta instituição." },
-        { status: 400 }
-      );
-    }
+    if (turmaIds.length === 0) {
+  return NextResponse.json(
+    { error: "Selecione pelo menos uma turma." },
+    { status: 400 }
+  );
+}
 
     if (!body.professorId) {
       return NextResponse.json(
@@ -394,40 +379,35 @@ export async function PUT(
         },
       });
 
-      await tx.turma.update({
-        where: {
-          id: turmaId,
-        },
-        data: {
-          professorId,
-        },
-      });
-
       await tx.turmaDisciplina.deleteMany({
-        where: {
-          disciplinaId: id,
-          turmaId: {
-            not: turmaId,
-          },
-        },
-      });
+  where: {
+    disciplinaId: id,
+    instituicaoId: user.instituicaoId,
+  },
+});
 
-      await tx.turmaDisciplina.upsert({
-        where: {
-          turmaId_disciplinaId: {
-            turmaId,
-            disciplinaId: id,
-          },
-        },
-        update: {
-          instituicaoId: user.instituicaoId,
-        },
-        create: {
-          turmaId,
-          disciplinaId: id,
-          instituicaoId: user.instituicaoId,
-        },
-      });
+if (turmaIds.length > 0) {
+  await tx.turmaDisciplina.createMany({
+    data: turmaIds.map((turmaId: number) => ({
+      turmaId,
+      disciplinaId: id,
+      instituicaoId: user.instituicaoId,
+    })),
+    skipDuplicates: true,
+  });
+}
+
+if (professorId) {
+  await tx.turma.updateMany({
+    where: {
+      id: { in: turmaIds },
+      instituicaoId: user.instituicaoId,
+    },
+    data: {
+      professorId,
+    },
+  });
+}
     });
 
     const disciplinaAtualizada = await prisma.disciplina.findFirst({

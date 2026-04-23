@@ -92,12 +92,20 @@ export default function DisciplinaDetalhePage() {
   const [semestre, setSemestre] = useState("");
   const [cursoId, setCursoId] = useState("");
 
-  const [turmaId, setTurmaId] = useState("");
+  const [turmaIds, setTurmaIds] = useState<string[]>([]);
   const [professorId, setProfessorId] = useState("");
 
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [turmas, setTurmas] = useState<TurmaApi[]>([]);
   const [professores, setProfessores] = useState<ProfessorOption[]>([]);
+
+function alternarTurma(id: number) {
+  setTurmaIds((atual) =>
+    atual.includes(String(id))
+      ? atual.filter((item) => item !== String(id))
+      : [...atual, String(id)]
+  );
+}
 
   useEffect(() => {
     async function carregar() {
@@ -134,21 +142,23 @@ export default function DisciplinaDetalhePage() {
             : ""
         );
 
-        const vinculoAtual = Array.isArray(disciplina.turmaDisciplinas)
-  ? disciplina.turmaDisciplinas[0]
-  : null;
+        const vinculos = Array.isArray(disciplina.turmaDisciplinas)
+  ? disciplina.turmaDisciplinas
+  : [];
 
-const turmaAtual = vinculoAtual?.turma ?? null;
-
-setTurmaId(
-  turmaAtual?.id !== null && turmaAtual?.id !== undefined
-    ? String(turmaAtual.id)
-    : ""
+setTurmaIds(
+  vinculos
+    .map((item) => item?.turmaId)
+    .filter((id): id is number => Number.isFinite(id))
+    .map(String)
 );
 
+const primeiroProfessorId =
+  vinculos.find((item) => item?.turma?.professorId)?.turma?.professorId ?? null;
+
 setProfessorId(
-  turmaAtual?.professorId !== null && turmaAtual?.professorId !== undefined
-    ? String(turmaAtual.professorId)
+  primeiroProfessorId !== null && primeiroProfessorId !== undefined
+    ? String(primeiroProfessorId)
     : ""
 );
 
@@ -171,12 +181,6 @@ setProfessorId(
 } catch {
   setTurmas([]);
 }
-          const dataTurmas = await resTurmas.json();
-          setTurmas(Array.isArray(dataTurmas) ? dataTurmas : []);
-        } catch {
-          setTurmas([]);
-        }
-
         try {
           const resProfessores = await fetch("/api/professor", {
             credentials: "include",
@@ -225,8 +229,8 @@ setProfessorId(
           cargaHoraria: cargaHoraria ? Number(cargaHoraria) : null,
           semestre: semestre ? Number(semestre) : null,
           cursoId: cursoId ? Number(cursoId) : null,
-          turmaId: turmaId ? Number(turmaId) : null,
-          professorId: professorId ? Number(professorId) : null,
+          turmaIds: turmaIds.map(Number),
+professorId: professorId ? Number(professorId) : null,
         }),
       });
 
@@ -356,26 +360,45 @@ setProfessorId(
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Turma
-            </label>
-            <select
-              value={turmaId}
-              onChange={(e) => setTurmaId(e.target.value)}
-              className="w-full border rounded-xl px-3 py-2 bg-white"
-            >
-              <option value="">Selecione uma turma</option>
-              {turmas.map((turma) => (
-                <option key={turma.id} value={turma.id}>
-                  {nomeTurma(turma)}
-                  {turma.semestre ? ` • Semestre ${turma.semestre}` : ""}
-                </option>
-              ))}
-            </select>
-            <p className="mt-1 text-xs text-slate-500">
-              Escolha a turma que será vinculada a esta disciplina.
-            </p>
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Turmas
+  </label>
+
+  <div className="rounded-xl border bg-white p-3 max-h-56 overflow-y-auto space-y-2">
+    {turmas.length === 0 ? (
+      <p className="text-sm text-slate-500">Nenhuma turma encontrada.</p>
+    ) : (
+      turmas.map((turma) => (
+        <label
+          key={turma.id}
+          className="flex items-start gap-3 rounded-lg border p-2 cursor-pointer hover:bg-slate-50"
+        >
+          <input
+            type="checkbox"
+            checked={turmaIds.includes(String(turma.id))}
+            onChange={() => alternarTurma(turma.id)}
+            className="mt-1"
+          />
+
+          <div className="text-sm">
+            <div className="font-medium text-slate-800">
+              {nomeTurma(turma)}
+            </div>
+
+            <div className="text-slate-500">
+              {turma.semestre ? `Semestre: ${turma.semestre}` : "Sem semestre"}
+              {turma.professor?.nome ? ` • Prof.: ${turma.professor.nome}` : ""}
+            </div>
           </div>
+        </label>
+      ))
+    )}
+  </div>
+
+  <p className="mt-1 text-xs text-slate-500">
+    Você pode vincular esta disciplina a várias turmas.
+  </p>
+</div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
