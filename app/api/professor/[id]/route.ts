@@ -147,11 +147,17 @@ export async function DELETE(
     }
 
     const { id } = context.params;
+    const professorId = Number(id);
 
     const professor = await prisma.professor.findFirst({
       where: {
-        id: Number(id),
+        id: professorId,
         instituicaoId: user.instituicaoId,
+      },
+      include: {
+        turmas: {
+          select: { id: true },
+        },
       },
     });
 
@@ -162,21 +168,40 @@ export async function DELETE(
       );
     }
 
-    await prisma.professor.delete({
-      where: { id: Number(id) },
-    });
+    await prisma.$transaction(async (tx) => {
+      if (professor.turmas.length > 0) {
+        await tx.turma.updateMany({
+          where: {
+            professorId: professorId,
+            instituicaoId: user.instituicaoId,
+          },
+          data: {
+            professorId: null,
+          },
+        });
+      }
 
-    await prisma.user.delete({
-      where: { id: professor.userId },
+      await tx.professor.delete({
+        where: { id: professorId },
+      });
+
+      await tx.user.delete({
+        where: { id: professor.userId },
+      });
     });
 
     return NextResponse.json({
       message: "Professor deletado com sucesso",
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+    console.error("Erro ao deletar professor:", error);
+
     return NextResponse.json(
-      { error: "Erro ao deletar professor" },
+      {
+        error:
+          error?.message ||
+          "Erro ao deletar professor",
+      },
       { status: 500 }
     );
   }

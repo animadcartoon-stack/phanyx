@@ -21,7 +21,7 @@ export default function SuportePage() {
 
 <div className="mt-8 flex justify-center">
   <img
-    src="/imagens/formix-tutorial.png"
+    src="/images/formix-tutorial.png"
     alt="Mascote PHANYX suporte"
     className="w-48 md:w-64 drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
   />
