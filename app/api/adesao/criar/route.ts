@@ -25,6 +25,7 @@ function getRemoteIp(req: Request) {
 function getValorPlano(plano: string) {
   const planoNormalizado = String(plano).trim().toUpperCase();
 
+  if (planoNormalizado === "TESTE") return 5;
   if (planoNormalizado === "ESSENCIAL") return 49;
   if (planoNormalizado === "PROFISSIONAL") return 99;
   if (planoNormalizado === "ENTERPRISE") return 199;
