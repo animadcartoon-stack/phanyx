@@ -9,6 +9,14 @@ function podeGerenciarCurso(role?: string) {
   return role === "ADMIN" || role === "SUPER_ADMIN";
 }
 
+function normalizarPoloIds(valor: unknown): number[] {
+  if (!Array.isArray(valor)) return [];
+
+  return valor
+    .map((id) => Number(id))
+    .filter((id) => Number.isFinite(id) && id > 0);
+}
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -23,6 +31,13 @@ export async function GET() {
     const cursos = await prisma.curso.findMany({
       where: {
         instituicaoId: user.instituicaoId,
+      },
+      include: {
+        cursosPolos: {
+          include: {
+            polo: true,
+          },
+        },
       },
       orderBy: {
         id: "desc",
@@ -51,6 +66,13 @@ export async function POST(req: Request) {
       );
     }
 
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Usuário sem instituição vinculada." },
+        { status: 400 }
+      );
+    }
+
     const body = await req.json();
 
     const {
@@ -61,6 +83,7 @@ export async function POST(req: Request) {
       valorMatricula,
       valorMensalidade,
       quantidadeParcelas,
+      poloIds,
     } = body;
 
     if (!nome || !String(nome).trim()) {
@@ -82,6 +105,25 @@ export async function POST(req: Request) {
         { error: "Já existe um curso com este nome" },
         { status: 400 }
       );
+    }
+
+    const poloIdsNormalizados = normalizarPoloIds(poloIds);
+
+    if (poloIdsNormalizados.length > 0) {
+      const polosValidos = await prisma.polo.findMany({
+        where: {
+          id: { in: poloIdsNormalizados },
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
+
+      if (polosValidos.length !== poloIdsNormalizados.length) {
+        return NextResponse.json(
+          { error: "Um ou mais polos são inválidos para esta instituição." },
+          { status: 400 }
+        );
+      }
     }
 
     const novoCurso = await prisma.curso.create({
@@ -106,6 +148,19 @@ export async function POST(req: Request) {
             ? Number(quantidadeParcelas)
             : null,
         instituicaoId: user.instituicaoId,
+        cursosPolos: {
+          create: poloIdsNormalizados.map((poloId) => ({
+            poloId,
+            instituicaoId: user.instituicaoId!,
+          })),
+        },
+      },
+      include: {
+        cursosPolos: {
+          include: {
+            polo: true,
+          },
+        },
       },
     });
 
@@ -131,6 +186,13 @@ export async function PUT(req: Request) {
       );
     }
 
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Usuário sem instituição vinculada." },
+        { status: 400 }
+      );
+    }
+
     const body = await req.json();
 
     const {
@@ -143,6 +205,7 @@ export async function PUT(req: Request) {
       valorMensalidade,
       quantidadeParcelas,
       ativo,
+      poloIds,
     } = body;
 
     if (!id) {
@@ -190,32 +253,81 @@ export async function PUT(req: Request) {
       );
     }
 
-    const cursoAtualizado = await prisma.curso.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        nome: String(nome).trim(),
-        codigo: codigo ? String(codigo).trim() : null,
-        descricao: descricao ? String(descricao).trim() : null,
-        quantidadeSemestres:
-          quantidadeSemestres !== null && quantidadeSemestres !== undefined
-            ? Number(quantidadeSemestres)
-            : null,
-        valorMatricula:
-          valorMatricula !== null && valorMatricula !== undefined
-            ? Number(valorMatricula)
-            : null,
-        valorMensalidade:
-          valorMensalidade !== null && valorMensalidade !== undefined
-            ? Number(valorMensalidade)
-            : null,
-        quantidadeParcelas:
-          quantidadeParcelas !== null && quantidadeParcelas !== undefined
-            ? Number(quantidadeParcelas)
-            : null,
-        ativo: typeof ativo === "boolean" ? ativo : cursoExistente.ativo,
-      },
+    const poloIdsNormalizados = normalizarPoloIds(poloIds);
+
+    if (poloIdsNormalizados.length > 0) {
+      const polosValidos = await prisma.polo.findMany({
+        where: {
+          id: { in: poloIdsNormalizados },
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
+
+      if (polosValidos.length !== poloIdsNormalizados.length) {
+        return NextResponse.json(
+          { error: "Um ou mais polos são inválidos para esta instituição." },
+          { status: 400 }
+        );
+      }
+    }
+
+    const cursoAtualizado = await prisma.$transaction(async (tx) => {
+      const curso = await tx.curso.update({
+        where: {
+          id: Number(id),
+        },
+        data: {
+          nome: String(nome).trim(),
+          codigo: codigo ? String(codigo).trim() : null,
+          descricao: descricao ? String(descricao).trim() : null,
+          quantidadeSemestres:
+            quantidadeSemestres !== null && quantidadeSemestres !== undefined
+              ? Number(quantidadeSemestres)
+              : null,
+          valorMatricula:
+            valorMatricula !== null && valorMatricula !== undefined
+              ? Number(valorMatricula)
+              : null,
+          valorMensalidade:
+            valorMensalidade !== null && valorMensalidade !== undefined
+              ? Number(valorMensalidade)
+              : null,
+          quantidadeParcelas:
+            quantidadeParcelas !== null && quantidadeParcelas !== undefined
+              ? Number(quantidadeParcelas)
+              : null,
+          ativo: typeof ativo === "boolean" ? ativo : cursoExistente.ativo,
+        },
+      });
+
+      await tx.cursoPolo.deleteMany({
+        where: {
+          cursoId: Number(id),
+          instituicaoId: user.instituicaoId,
+        },
+      });
+
+      if (poloIdsNormalizados.length > 0) {
+        await tx.cursoPolo.createMany({
+          data: poloIdsNormalizados.map((poloId) => ({
+            cursoId: Number(id),
+            poloId,
+            instituicaoId: user.instituicaoId!,
+          })),
+        });
+      }
+
+      return tx.curso.findUnique({
+        where: { id: curso.id },
+        include: {
+          cursosPolos: {
+            include: {
+              polo: true,
+            },
+          },
+        },
+      });
     });
 
     return NextResponse.json(cursoAtualizado);
