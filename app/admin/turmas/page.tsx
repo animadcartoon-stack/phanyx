@@ -87,8 +87,6 @@ function AdminTurmasPage() {
   const [salvandoId, setSalvandoId] = useState<number | null>(null);
   const [excluindoId, setExcluindoId] = useState<number | null>(null);
   const [turmaParaExcluir, setTurmaParaExcluir] = useState<Turma | null>(null);
-const [cursoId, setCursoId] = useState("");
-
 
   useEffect(() => {
     if (!feedback) return;
@@ -143,7 +141,6 @@ const [cursoId, setCursoId] = useState("");
   ativa,
   capacidadeMinima,
   capacidadeMaxima,
-  cursoId: cursoId ? Number(cursoId) : null,
   disciplinaIds: disciplinasSelecionadas,
 }),
       });
@@ -162,7 +159,6 @@ const [cursoId, setCursoId] = useState("");
       setAtiva(true);
       setCapacidadeMinima("");
       setCapacidadeMaxima("");
-      setCursoId("");
       setDisciplinasSelecionadas([]);
 
       await carregarTurmas();

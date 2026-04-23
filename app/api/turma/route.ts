@@ -20,8 +20,7 @@ export async function GET() {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        curso: true,
-        turmaDisciplinas: {
+        disciplinas: {
           include: {
             disciplina: {
               include: {
@@ -43,12 +42,16 @@ export async function GET() {
 
     const turmasFormatadas = turmas.map((turma) => ({
       ...turma,
-      disciplinas: turma.turmaDisciplinas.map((item) => item.disciplina),
+      disciplinas: turma.disciplinas.map((item) => item.disciplina),
+      curso:
+        turma.disciplinas.length > 0
+          ? turma.disciplinas[0].disciplina.curso ?? null
+          : null,
     }));
 
     return NextResponse.json(turmasFormatadas);
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao buscar turmas:", error);
     return NextResponse.json(
       { error: "Erro ao buscar turmas" },
       { status: 500 }
@@ -95,16 +98,9 @@ export async function POST(request: NextRequest) {
         ? Number(body.capacidadeMaxima)
         : null;
 
-    const cursoId =
-      body?.cursoId !== undefined &&
-      body?.cursoId !== null &&
-      String(body.cursoId).trim() !== ""
-        ? Number(body.cursoId)
-        : null;
-
     const disciplinaIds = Array.isArray(body?.disciplinaIds)
       ? body.disciplinaIds
-          .map((id: any) => Number(id))
+          .map((id: unknown) => Number(id))
           .filter((id: number) => Number.isFinite(id) && id > 0)
       : [];
 
@@ -144,12 +140,11 @@ export async function POST(request: NextRequest) {
         semestre,
         periodoLetivo: periodoLetivo || null,
         ativa,
-        statusTurma,
+        statusTurma: statusTurma as any,
         capacidadeMinima,
         capacidadeMaxima,
-        cursoId,
         instituicaoId: user.instituicaoId,
-        turmaDisciplinas: {
+        disciplinas: {
           create: disciplinaIds.map((disciplinaId: number) => ({
             disciplinaId,
             instituicaoId: user.instituicaoId,
@@ -157,8 +152,7 @@ export async function POST(request: NextRequest) {
         },
       },
       include: {
-        curso: true,
-        turmaDisciplinas: {
+        disciplinas: {
           include: {
             disciplina: {
               include: {
@@ -175,11 +169,23 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(novaTurma, { status: 201 });
+    const turmaFormatada = {
+      ...novaTurma,
+      disciplinas: novaTurma.disciplinas.map((item) => item.disciplina),
+      curso:
+        novaTurma.disciplinas.length > 0
+          ? novaTurma.disciplinas[0].disciplina.curso ?? null
+          : null,
+    };
+
+    return NextResponse.json(turmaFormatada, { status: 201 });
   } catch (error) {
-    console.error(error);
+    console.error("Erro ao criar turma:", error);
     return NextResponse.json(
-      { error: "Erro ao criar turma" },
+      {
+        error: "Erro ao criar turma",
+        detalhes: error instanceof Error ? error.message : "Erro desconhecido",
+      },
       { status: 500 }
     );
   }
