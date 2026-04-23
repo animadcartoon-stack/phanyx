@@ -210,7 +210,7 @@ setAlunos(listaAlunos);
     }
   }
 
-  async function carregarSemestresDoCurso(cursoIdValue: string) {
+async function carregarSemestresDoCurso(cursoIdValue: string) {
   if (!cursoIdValue) {
     setSemestresCurso([]);
     return [];
@@ -220,12 +220,22 @@ setAlunos(listaAlunos);
     const res = await fetch(
       `/api/admin/curso-semestres?cursoId=${Number(cursoIdValue)}`,
       {
+        credentials: "include",
         cache: "no-store",
       }
     );
 
     const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Erro ao carregar semestres do curso:", data);
+      setSemestresCurso([]);
+      return [];
+    }
+
     const lista = Array.isArray(data) ? data : [];
+
+    console.log("📘 Semestres carregados:", lista);
 
     setSemestresCurso(lista);
     return lista;
