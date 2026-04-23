@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/components/auth/withAuth";
 
+interface Polo {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+}
+
 interface Professor {
   id: number;
   nome: string;
@@ -19,6 +25,8 @@ interface Professor {
   fotoPerfil?: string | null;
   documentoUrl?: string | null;
   slug?: string | null;
+  poloId?: number | null;
+  polo?: Polo | null;
   user: {
     email: string;
   };
@@ -30,6 +38,7 @@ function AdminProfessoresPage() {
   const searchParams = useSearchParams();
 
   const [professores, setProfessores] = useState<Professor[]>([]);
+  const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
 
   const [nome, setNome] = useState("");
@@ -46,6 +55,7 @@ function AdminProfessoresPage() {
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [documentoUrl, setDocumentoUrl] = useState("");
   const [slug, setSlug] = useState("");
+  const [poloId, setPoloId] = useState("");
 
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
@@ -62,6 +72,7 @@ function AdminProfessoresPage() {
   const [editFotoPerfil, setEditFotoPerfil] = useState("");
   const [editDocumentoUrl, setEditDocumentoUrl] = useState("");
   const [editSlug, setEditSlug] = useState("");
+  const [editPoloId, setEditPoloId] = useState("");
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
@@ -108,6 +119,26 @@ function AdminProfessoresPage() {
     }
   }
 
+  async function carregarPolos() {
+    const res = await fetch("/api/admin/polos", {
+      credentials: "include",
+    });
+
+    if (!res.ok) {
+      console.error("Erro ao buscar polos");
+      setPolos([]);
+      return;
+    }
+
+    const data = await res.json();
+
+    if (Array.isArray(data)) {
+      setPolos(data);
+    } else {
+      setPolos([]);
+    }
+  }
+
   async function handleCriarProfessor(e: React.FormEvent) {
     e.preventDefault();
 
@@ -133,6 +164,7 @@ function AdminProfessoresPage() {
           fotoPerfil,
           documentoUrl,
           slug,
+          poloId: poloId ? Number(poloId) : null,
         }),
       });
 
@@ -156,6 +188,7 @@ function AdminProfessoresPage() {
       setFotoPerfil("");
       setDocumentoUrl("");
       setSlug("");
+      setPoloId("");
 
       await carregarProfessores();
       mostrarFeedback("sucesso", "Professor criado com sucesso.");
@@ -186,6 +219,11 @@ function AdminProfessoresPage() {
     setEditFotoPerfil(professor.fotoPerfil || "");
     setEditDocumentoUrl(professor.documentoUrl || "");
     setEditSlug(professor.slug || "");
+    setEditPoloId(
+      professor.poloId !== null && professor.poloId !== undefined
+        ? String(professor.poloId)
+        : ""
+    );
   }
 
   async function salvarEdicao(id: number) {
@@ -211,6 +249,7 @@ function AdminProfessoresPage() {
           fotoPerfil: editFotoPerfil,
           documentoUrl: editDocumentoUrl,
           slug: editSlug,
+          poloId: editPoloId ? Number(editPoloId) : null,
         }),
       });
 
@@ -244,12 +283,8 @@ function AdminProfessoresPage() {
       const data = await res.json();
 
       if (!res.ok) {
-  throw new Error(
-    data?.detalhe ||
-      data?.error ||
-      "Erro ao deletar professor"
-  );
-}
+        throw new Error(data?.detalhe || data?.error || "Erro ao deletar professor");
+      }
 
       setProfessorParaExcluir(null);
       await carregarProfessores();
@@ -263,6 +298,7 @@ function AdminProfessoresPage() {
 
   useEffect(() => {
     carregarProfessores();
+    carregarPolos();
   }, []);
 
   useEffect(() => {
@@ -301,6 +337,7 @@ function AdminProfessoresPage() {
         .toLowerCase()
         .trim();
       const slugTexto = String(professor.slug || "").toLowerCase().trim();
+      const poloTexto = String(professor.polo?.nome || "").toLowerCase().trim();
 
       const cpfNumerico = cpfTexto.replace(/\D/g, "");
       const rgNumerico = rgTexto.replace(/\D/g, "");
@@ -318,6 +355,7 @@ function AdminProfessoresPage() {
         formacaoTexto.includes(termoTexto) ||
         codigoFuncionarioTexto.includes(termoTexto) ||
         slugTexto.includes(termoTexto) ||
+        poloTexto.includes(termoTexto) ||
         (termoNumerico !== "" &&
           (cpfNumerico.includes(termoNumerico) ||
             rgNumerico.includes(termoNumerico) ||
@@ -367,6 +405,19 @@ function AdminProfessoresPage() {
               className="w-full rounded-lg border p-2"
               required
             />
+
+            <select
+              value={poloId}
+              onChange={(e) => setPoloId(e.target.value)}
+              className="w-full rounded-lg border p-2"
+            >
+              <option value="">Selecione o polo</option>
+              {polos.map((polo) => (
+                <option key={polo.id} value={polo.id}>
+                  {polo.nome}
+                </option>
+              ))}
+            </select>
 
             <input
               placeholder="CPF"
@@ -467,7 +518,7 @@ function AdminProfessoresPage() {
 
             <input
               type="text"
-              placeholder="Buscar por nome, email, CPF, telefone, código ou especialidade"
+              placeholder="Buscar por nome, email, CPF, telefone, código, especialidade ou polo"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full rounded-lg border p-2 md:w-[460px]"
@@ -496,6 +547,20 @@ function AdminProfessoresPage() {
                         className="rounded border p-2"
                         placeholder="Email"
                       />
+
+                      <select
+                        value={editPoloId}
+                        onChange={(e) => setEditPoloId(e.target.value)}
+                        className="rounded border p-2"
+                      >
+                        <option value="">Selecione o polo</option>
+                        {polos.map((polo) => (
+                          <option key={polo.id} value={polo.id}>
+                            {polo.nome}
+                          </option>
+                        ))}
+                      </select>
+
                       <input
                         value={editCpf}
                         onChange={(e) => setEditCpf(e.target.value)}
@@ -592,6 +657,9 @@ function AdminProfessoresPage() {
                   <>
                     <p className="font-medium">{p.nome}</p>
                     <p className="text-sm text-gray-600">{p.user?.email}</p>
+                    <p className="text-sm text-gray-600">
+                      Polo: {p.polo?.nome || "-"}
+                    </p>
                     <p className="text-sm text-gray-600">CPF: {p.cpf || "-"}</p>
                     <p className="text-sm text-gray-600">RG: {p.rg || "-"}</p>
                     <p className="text-sm text-gray-600">

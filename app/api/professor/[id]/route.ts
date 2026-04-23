@@ -26,6 +26,7 @@ export async function GET(
       include: {
         user: true,
         turmas: true,
+        polo: true,
       },
     });
 
@@ -84,6 +85,30 @@ export async function PUT(
       );
     }
 
+    const poloId =
+      body.poloId !== undefined &&
+      body.poloId !== null &&
+      String(body.poloId).trim() !== ""
+        ? Number(body.poloId)
+        : null;
+
+    if (poloId !== null) {
+      const polo = await prisma.polo.findFirst({
+        where: {
+          id: poloId,
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
+
+      if (!polo) {
+        return NextResponse.json(
+          { error: "Polo inválido para esta instituição." },
+          { status: 400 }
+        );
+      }
+    }
+
     await prisma.professor.update({
       where: { id: Number(id) },
       data: {
@@ -102,6 +127,7 @@ export async function PUT(
         fotoPerfil: body.fotoPerfil || null,
         documentoUrl: body.documentoUrl || null,
         slug: body.slug || null,
+        poloId,
       },
     });
 
@@ -162,7 +188,6 @@ export async function DELETE(
       );
     }
 
-    // 🔥 DESVINCULA professor das turmas antes
     await prisma.turma.updateMany({
       where: {
         professorId: professorId,
@@ -173,7 +198,6 @@ export async function DELETE(
       },
     });
 
-    // 🔥 AGORA pode deletar
     await prisma.professor.delete({
       where: { id: professorId },
     });

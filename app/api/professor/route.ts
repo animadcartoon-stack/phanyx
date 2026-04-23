@@ -24,6 +24,7 @@ export async function GET() {
       include: {
         user: true,
         turmas: true,
+        polo: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -79,6 +80,12 @@ export async function POST(request: Request) {
 
     const nome = limparTexto(body.nome);
     const email = limparTexto(body.email).toLowerCase();
+    const poloId =
+      body.poloId !== undefined &&
+      body.poloId !== null &&
+      String(body.poloId).trim() !== ""
+        ? Number(body.poloId)
+        : null;
 
     if (!nome) {
       return NextResponse.json(
@@ -92,6 +99,23 @@ export async function POST(request: Request) {
         { error: "O email do professor é obrigatório." },
         { status: 400 }
       );
+    }
+
+    if (poloId !== null) {
+      const polo = await prisma.polo.findFirst({
+        where: {
+          id: poloId,
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
+
+      if (!polo) {
+        return NextResponse.json(
+          { error: "Polo inválido para esta instituição." },
+          { status: 400 }
+        );
+      }
     }
 
     const userExistente = await prisma.user.findUnique({
@@ -141,11 +165,13 @@ export async function POST(request: Request) {
         fotoPerfil: body.fotoPerfil || null,
         documentoUrl: body.documentoUrl || null,
         slug: body.slug || null,
+        poloId,
         userId: novoUser.id,
         instituicaoId: user.instituicaoId,
       },
       include: {
         user: true,
+        polo: true,
       },
     });
 
