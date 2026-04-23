@@ -66,8 +66,7 @@ function AdminTurmasPage() {
   const [ativa, setAtiva] = useState(true);
   const [capacidadeMinima, setCapacidadeMinima] = useState("");
   const [capacidadeMaxima, setCapacidadeMaxima] = useState("");
-  const [disciplinaId, setDisciplinaId] = useState("");
-  const [professorId, setProfessorId] = useState("");
+  const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
 
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
@@ -88,6 +87,8 @@ function AdminTurmasPage() {
   const [salvandoId, setSalvandoId] = useState<number | null>(null);
   const [excluindoId, setExcluindoId] = useState<number | null>(null);
   const [turmaParaExcluir, setTurmaParaExcluir] = useState<Turma | null>(null);
+const [cursoId, setCursoId] = useState("");
+
 
   useEffect(() => {
     if (!feedback) return;
@@ -151,8 +152,7 @@ function AdminTurmasPage() {
           ativa,
           capacidadeMinima,
           capacidadeMaxima,
-          disciplinaId,
-          professorId,
+          disciplinaIds: disciplinasSelecionadas,
         }),
       });
 
@@ -170,8 +170,8 @@ function AdminTurmasPage() {
       setAtiva(true);
       setCapacidadeMinima("");
       setCapacidadeMaxima("");
-      setDisciplinaId("");
-      setProfessorId("");
+      setCursoId("");
+      setDisciplinasSelecionadas([]);
 
       await carregarTurmas();
       mostrarFeedback("sucesso", "Turma criada com sucesso.");
@@ -382,12 +382,25 @@ function AdminTurmasPage() {
               required
             />
 
-            <input
-              placeholder="Período letivo"
-              value={periodoLetivo}
-              onChange={(e) => setPeriodoLetivo(e.target.value)}
-              className="w-full border rounded-lg p-2"
-            />
+            <select
+  value={periodoLetivo}
+  onChange={(e) => setPeriodoLetivo(e.target.value)}
+  className="w-full border rounded-lg p-2"
+>
+  <option value="">Selecione o período</option>
+  <option>Matutino</option>
+  <option>Vespertino</option>
+  <option>Noturno</option>
+  <option>Integral</option>
+  <option>Matutino/Vespertino</option>
+  <option>Matutino/Noturno</option>
+  <option>Vespertino/Noturno</option>
+  <option>EAD Livre</option>
+  <option>EAD Matutino</option>
+  <option>EAD Vespertino</option>
+  <option>EAD Noturno</option>
+  <option>EAD Integral</option>
+</select>
 
             <input
               type="number"
@@ -421,34 +434,32 @@ function AdminTurmasPage() {
               <option value="NAO_FORMADA">Não formada</option>
             </select>
 
-            <select
-              value={disciplinaId}
-              onChange={(e) => setDisciplinaId(e.target.value)}
-              className="w-full border rounded-lg p-2"
-              required
-            >
-              <option value="">Selecione a disciplina</option>
-              {disciplinas.map((disciplina) => (
-                <option key={disciplina.id} value={disciplina.id}>
-                  {disciplina.nome}
-                  {disciplina.curso?.nome ? ` — ${disciplina.curso.nome}` : ""}
-                </option>
-              ))}
-            </select>
+            <div className="col-span-2">
+  <label className="block mb-2 text-sm font-medium">
+    Disciplinas da turma
+  </label>
 
-            <select
-              value={professorId}
-              onChange={(e) => setProfessorId(e.target.value)}
-              className="w-full border rounded-lg p-2"
-              required
-            >
-              <option value="">Selecione o professor</option>
-              {professores.map((professor) => (
-                <option key={professor.id} value={professor.id}>
-                  {professor.nome}
-                </option>
-              ))}
-            </select>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-auto border p-2 rounded">
+    {disciplinas.map((disciplina) => (
+      <label key={disciplina.id} className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={disciplinasSelecionadas.includes(disciplina.id)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setDisciplinasSelecionadas([...disciplinasSelecionadas, disciplina.id]);
+            } else {
+              setDisciplinasSelecionadas(
+                disciplinasSelecionadas.filter((id) => id !== disciplina.id)
+              );
+            }
+          }}
+        />
+        {disciplina.nome}
+      </label>
+    ))}
+  </div>
+</div>
 
             <label className="flex items-center gap-2 text-sm">
               <input

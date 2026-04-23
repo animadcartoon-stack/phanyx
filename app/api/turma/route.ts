@@ -64,7 +64,12 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    if (!body.nome || !body.semestre || !body.disciplinaId || !body.professorId) {
+    if (!body.nome || !body.semestre || !body.disciplinaIds?.length) {
+  return NextResponse.json(
+    { error: "Nome, semestre e disciplinas são obrigatórios" },
+    { status: 400 }
+  );
+} {
       return NextResponse.json(
         { error: "Nome, semestre, disciplina e professor são obrigatórios" },
         { status: 400 }
@@ -108,8 +113,9 @@ export async function POST(request: Request) {
             ? Number(body.capacidadeMaxima)
             : null,
         instituicaoId: user.instituicaoId,
-        disciplinaId: Number(body.disciplinaId),
-        professorId: Number(body.professorId),
+        disciplinas: {
+  connect: body.disciplinaIds.map((id: number) => ({ id })),
+},
       },
       include: {
         disciplina: {
