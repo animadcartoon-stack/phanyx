@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+type Polo = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+};
+
 type Curso = {
   id: number;
   nome: string;
@@ -14,6 +20,11 @@ type Curso = {
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
   quantidadeParcelas?: number | null;
+  cursosPolos?: {
+    id: number;
+    poloId: number;
+    polo?: Polo | null;
+  }[];
 };
 
 type FeedbackTipo = "sucesso" | "erro" | "";
@@ -22,8 +33,10 @@ export default function AdminCursosPage() {
   const searchParams = useSearchParams();
 
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [polos, setPolos] = useState<Polo[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
+  const [polosAbertos, setPolosAbertos] = useState(false);
 
   const [form, setForm] = useState({
     nome: "",
@@ -34,6 +47,8 @@ export default function AdminCursosPage() {
     valorMensalidade: "",
     quantidadeParcelas: "",
   });
+
+  const [polosSelecionados, setPolosSelecionados] = useState<number[]>([]);
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
@@ -75,6 +90,32 @@ export default function AdminCursosPage() {
     }
   }
 
+  async function carregarPolos() {
+    try {
+      const res = await fetch("/api/admin/polos", {
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Erro ao carregar polos");
+      }
+
+      const data = await res.json();
+      setPolos(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error("Erro ao carregar polos:", error);
+      setPolos([]);
+    }
+  }
+
+  function alternarPolo(id: number) {
+    setPolosSelecionados((atual) =>
+      atual.includes(id)
+        ? atual.filter((item) => item !== id)
+        : [...atual, id]
+    );
+  }
+
   async function criarCurso(e: React.FormEvent) {
     e.preventDefault();
 
@@ -105,6 +146,7 @@ export default function AdminCursosPage() {
           quantidadeParcelas: form.quantidadeParcelas
             ? Number(form.quantidadeParcelas)
             : null,
+          poloIds: polosSelecionados,
         }),
       });
 
@@ -123,6 +165,8 @@ export default function AdminCursosPage() {
         valorMensalidade: "",
         quantidadeParcelas: "",
       });
+      setPolosSelecionados([]);
+      setPolosAbertos(false);
 
       await carregarCursos();
       mostrarFeedback("sucesso", "Curso criado com sucesso!");
@@ -136,6 +180,7 @@ export default function AdminCursosPage() {
 
   useEffect(() => {
     carregarCursos();
+    carregarPolos();
   }, []);
 
   useEffect(() => {
@@ -168,6 +213,11 @@ export default function AdminCursosPage() {
         .toLowerCase()
         .trim();
       const ativo = curso.ativo ? "ativo" : "inativo";
+      const polosTexto = String(
+        curso.cursosPolos?.map((item) => item.polo?.nome || "").join(" | ") || ""
+      )
+        .toLowerCase()
+        .trim();
 
       const quantidadeSemestresNumerico =
         quantidadeSemestres.replace(/\D/g, "");
@@ -185,6 +235,7 @@ export default function AdminCursosPage() {
         valorMensalidade.includes(termoTexto) ||
         quantidadeParcelas.includes(termoTexto) ||
         ativo.includes(termoTexto) ||
+        polosTexto.includes(termoTexto) ||
         (termoNumerico !== "" &&
           (quantidadeSemestresNumerico.includes(termoNumerico) ||
             valorMatriculaNumerico.includes(termoNumerico) ||
@@ -300,6 +351,58 @@ export default function AdminCursosPage() {
 
           <div className="md:col-span-2">
             <button
+              type="button"
+              onClick={() => setPolosAbertos((prev) => !prev)}
+              className="flex w-full items-center justify-between rounded-lg border px-4 py-3 text-left"
+            >
+              <span className="font-medium text-gray-800">
+                Polos onde este curso será ofertado
+                {polosSelecionados.length > 0
+                  ? ` (${polosSelecionados.length} selecionado(s))`
+                  : ""}
+              </span>
+              <span className="text-sm text-gray-500">
+                {polosAbertos ? "▲ Fechar" : "▼ Abrir"}
+              </span>
+            </button>
+
+            {polosAbertos && (
+              <div className="mt-2 max-h-52 overflow-auto rounded-lg border p-3">
+                {polos.length === 0 ? (
+                  <p className="text-sm text-gray-500">
+                    Nenhum polo cadastrado. Se a instituição não trabalhar com polos,
+                    você pode deixar sem seleção por enquanto.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    {polos.map((polo) => (
+                      <label
+                        key={polo.id}
+                        className="flex items-center gap-2 rounded px-2 py-1 hover:bg-gray-50"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={polosSelecionados.includes(polo.id)}
+                          onChange={() => alternarPolo(polo.id)}
+                        />
+                        <span>
+                          {polo.nome}
+                          {polo.codigo ? ` — ${polo.codigo}` : ""}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            <p className="mt-1 text-xs text-slate-500">
+              O curso continua sendo da instituição, mas pode ser ofertado em quantos polos desejar.
+            </p>
+          </div>
+
+          <div className="md:col-span-2">
+            <button
               type="submit"
               disabled={criando}
               className="rounded-lg bg-purple-600 px-5 py-2 text-white disabled:opacity-50"
@@ -316,7 +419,7 @@ export default function AdminCursosPage() {
 
           <input
             type="text"
-            placeholder="Buscar por nome, código, descrição, valores ou parcelas"
+            placeholder="Buscar por nome, código, descrição, valores, parcelas ou polos"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             className="w-full rounded-lg border p-2 md:w-[460px]"
@@ -376,6 +479,15 @@ export default function AdminCursosPage() {
                         {curso.quantidadeParcelas != null
                           ? curso.quantidadeParcelas
                           : "Não informado"}
+                      </p>
+                      <p>
+                        Polos:{" "}
+                        {curso.cursosPolos && curso.cursosPolos.length > 0
+                          ? curso.cursosPolos
+                              .map((item) => item.polo?.nome)
+                              .filter(Boolean)
+                              .join(", ")
+                          : "Sem polos vinculados"}
                       </p>
                     </div>
 
