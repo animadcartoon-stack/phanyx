@@ -46,13 +46,16 @@ export async function GET(req: Request) {
     });
 
     return NextResponse.json(semestres);
-  } catch (error) {
-    console.error("Erro ao buscar semestres do curso:", error);
-    return NextResponse.json(
-      { error: "Erro ao buscar semestres do curso" },
-      { status: 500 }
-    );
-  }
+  } catch (error: any) {
+  console.error("Erro ao buscar semestres do curso:", error);
+  return NextResponse.json(
+    {
+      error: "Erro ao buscar semestres do curso",
+      detalhe: error?.message || "Erro interno",
+    },
+    { status: 500 }
+  );
+}
 }
 
 export async function POST(req: Request) {
