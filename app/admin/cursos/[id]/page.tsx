@@ -147,24 +147,33 @@ export default function CursoDetalhePage() {
   }
 
   async function carregarSemestres() {
-    const res = await fetch(`/api/admin/curso-semestres?cursoId=${cursoId}`, {
-      credentials: "include",
-      cache: "no-store",
-    });
+  const res = await fetch(`/api/admin/curso-semestres?cursoId=${cursoId}`, {
+    credentials: "include",
+    cache: "no-store",
+  });
 
-    if (!res.ok) {
-      throw new Error("Erro ao carregar semestres do curso");
-    }
+  const data = await res.json();
 
-    const data: CursoSemestre[] = await res.json();
-    setSemestres(Array.isArray(data) ? data : []);
-
-    const mapa: Record<number, number[]> = {};
-    (Array.isArray(data) ? data : []).forEach((semestre) => {
-      mapa[semestre.id] = semestre.disciplinas.map((d) => d.disciplinaId);
-    });
-    setSelecionadas(mapa);
+  if (!res.ok) {
+    console.error("Erro ao carregar semestres do curso:", data);
+    throw new Error(data?.detalhe || data?.error || "Erro ao carregar semestres do curso");
   }
+
+  const lista: CursoSemestre[] = Array.isArray(data) ? data : [];
+
+  console.log("📘 Semestres carregados na página do curso:", lista);
+
+  setSemestres(lista);
+
+  const mapa: Record<number, number[]> = {};
+  lista.forEach((semestre) => {
+    mapa[semestre.id] = Array.isArray(semestre.disciplinas)
+      ? semestre.disciplinas.map((d) => d.disciplinaId)
+      : [];
+  });
+
+  setSelecionadas(mapa);
+}
 
   async function carregarTudo() {
     try {
@@ -261,17 +270,34 @@ export default function CursoDetalhePage() {
 
 if (!res.ok) {
   console.error("Erro ao criar semestre:", data);
-  throw new Error(data.error || "Erro ao criar semestre");
+  throw new Error(data?.detalhe || data?.error || "Erro ao criar semestre");
 }
 
-      setNovoSemestre({
-        numero: "",
-        titulo: "",
-        descricao: "",
-      });
+setNovoSemestre({
+  numero: "",
+  titulo: "",
+  descricao: "",
+});
 
-      await carregarSemestres();
-      mostrarFeedback("sucesso", "Semestre criado com sucesso!");
+const semestreCriado: CursoSemestre = {
+  ...data,
+  disciplinas: Array.isArray(data?.disciplinas) ? data.disciplinas : [],
+};
+
+setSemestres((prev) => {
+  const semDuplicado = prev.filter((s) => s.id !== semestreCriado.id);
+  return [...semDuplicado, semestreCriado].sort((a, b) => a.numero - b.numero);
+});
+
+setSelecionadas((prev) => ({
+  ...prev,
+  [semestreCriado.id]: Array.isArray(semestreCriado.disciplinas)
+    ? semestreCriado.disciplinas.map((d) => d.disciplinaId)
+    : [],
+}));
+
+await carregarSemestres();
+mostrarFeedback("sucesso", "Semestre criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar semestre:", error);
       mostrarFeedback("erro", error?.message || "Erro ao criar semestre");
