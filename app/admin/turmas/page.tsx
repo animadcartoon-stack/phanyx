@@ -55,7 +55,7 @@ function AdminTurmasPage() {
   const searchParams = useSearchParams();
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  const [professores, setProfessores] = useState<Professor[]>([]);
+  
   const [busca, setBusca] = useState("");
   const [nome, setNome] = useState("");
   const [codigo, setCodigo] = useState("");
@@ -122,15 +122,6 @@ const [cursoId, setCursoId] = useState("");
 
     const data = await res.json();
     setDisciplinas(Array.isArray(data) ? data : []);
-  }
-
-  async function carregarProfessores() {
-    const res = await fetch("/api/professor", {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    setProfessores(Array.isArray(data) ? data : []);
   }
 
   async function criarTurma(e: React.FormEvent) {
@@ -201,8 +192,8 @@ const [cursoId, setCursoId] = useState("");
         ? String(turma.capacidadeMaxima)
         : ""
     );
-    setEditDisciplinaId(String(turma.disciplinaId || ""));
-    setEditProfessorId(String(turma.professorId || ""));
+    setEditDisciplinaId("");
+setEditProfessorId("");
   }
 
   async function salvarEdicao(id: number) {
@@ -222,8 +213,7 @@ const [cursoId, setCursoId] = useState("");
           ativa: editAtiva,
           capacidadeMinima: editCapacidadeMinima,
           capacidadeMaxima: editCapacidadeMaxima,
-          disciplinaId: editDisciplinaId,
-          professorId: editProfessorId,
+          
         }),
       });
 
@@ -273,7 +263,6 @@ const [cursoId, setCursoId] = useState("");
   useEffect(() => {
     carregarTurmas();
     carregarDisciplinas();
-    carregarProfessores();
   }, []);
 
   useEffect(() => {
@@ -454,7 +443,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     </span>
   </button>
 
-  {disciplinasAbertas && (
+    {disciplinasAbertas && (
     <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-auto border p-2 rounded">
       {disciplinas.map((disciplina) => (
         <label key={disciplina.id} className="flex items-center gap-2 text-sm">
@@ -477,35 +466,15 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     </div>
   )}
 </div>
-    {disciplinas.map((disciplina) => (
-      <label key={disciplina.id} className="flex items-center gap-2 text-sm">
-        <input
-          type="checkbox"
-          checked={disciplinasSelecionadas.includes(disciplina.id)}
-          onChange={(e) => {
-            if (e.target.checked) {
-              setDisciplinasSelecionadas([...disciplinasSelecionadas, disciplina.id]);
-            } else {
-              setDisciplinasSelecionadas(
-                disciplinasSelecionadas.filter((id) => id !== disciplina.id)
-              );
-            }
-          }}
-        />
-        {disciplina.nome}
-      </label>
-    ))}
-  </div>
-</div>
 
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={ativa}
-                onChange={(e) => setAtiva(e.target.checked)}
-              />
-              Turma ativa
-            </label>
+<label className="flex items-center gap-2 text-sm">
+  <input
+    type="checkbox"
+    checked={ativa}
+    onChange={(e) => setAtiva(e.target.checked)}
+  />
+  Turma ativa
+</label>
           </div>
 
           <button
@@ -522,7 +491,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
 
             <input
               type="text"
-              placeholder="Buscar por nome, código, semestre, disciplina, curso ou professor"
+              placeholder="Buscar por nome, código, semestre, disciplinas ou curso"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full md:w-[520px] border rounded-lg p-2"
@@ -614,34 +583,9 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                           <option value="NAO_FORMADA">Não formada</option>
                         </select>
 
-                        <select
-                          value={editDisciplinaId}
-                          onChange={(e) => setEditDisciplinaId(e.target.value)}
-                          className="border p-2 rounded"
-                        >
-                          <option value="">Selecione a disciplina</option>
-                          {disciplinas.map((disciplina) => (
-                            <option key={disciplina.id} value={disciplina.id}>
-                              {disciplina.nome}
-                              {disciplina.curso?.nome
-                                ? ` — ${disciplina.curso.nome}`
-                                : ""}
-                            </option>
-                          ))}
-                        </select>
-
-                        <select
-                          value={editProfessorId}
-                          onChange={(e) => setEditProfessorId(e.target.value)}
-                          className="border p-2 rounded"
-                        >
-                          <option value="">Selecione o professor</option>
-                          {professores.map((professor) => (
-                            <option key={professor.id} value={professor.id}>
-                              {professor.nome}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="rounded border p-2 text-sm text-gray-600 md:col-span-2">
+  A edição completa de disciplinas da turma será ajustada na próxima etapa.
+</div>
 
                         <label className="flex items-center gap-2 text-sm">
                           <input
