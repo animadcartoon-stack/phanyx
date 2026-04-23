@@ -154,11 +154,6 @@ export async function DELETE(
         id: professorId,
         instituicaoId: user.instituicaoId,
       },
-      include: {
-        turmas: {
-          select: { id: true },
-        },
-      },
     });
 
     if (!professor) {
@@ -169,17 +164,15 @@ export async function DELETE(
     }
 
     await prisma.$transaction(async (tx) => {
-      if (professor.turmas.length > 0) {
-        await tx.turma.updateMany({
-          where: {
-            professorId: professorId,
-            instituicaoId: user.instituicaoId,
-          },
-          data: {
-            professorId: null,
-          },
-        });
-      }
+      await tx.turma.updateMany({
+        where: {
+          professorId,
+          instituicaoId: user.instituicaoId,
+        },
+        data: {
+          professorId: null,
+        },
+      });
 
       await tx.professor.delete({
         where: { id: professorId },
@@ -198,9 +191,8 @@ export async function DELETE(
 
     return NextResponse.json(
       {
-        error:
-          error?.message ||
-          "Erro ao deletar professor",
+        error: "Erro ao deletar professor",
+        detalhe: error?.message || "Erro interno",
       },
       { status: 500 }
     );
