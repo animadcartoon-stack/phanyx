@@ -68,7 +68,9 @@ model Instituicao {
   certificadoAssinaturaUrl   String?
   certificadoCoordenadorNome String?
   certificadoCidade          String?
+  cursosPolos                CursoPolo[]
 }
+
 
 model User {
   id                 Int          @id @default(autoincrement())
@@ -206,6 +208,7 @@ model Curso {
   matriculas                  Matricula[]
   periodosMatricula           PeriodoMatricula[]
   disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
+  cursosPolos                 CursoPolo[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -1341,10 +1344,28 @@ model Polo {
   instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professores   Professor[]
   turmas        Turma[]
+  cursosPolos   CursoPolo[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
   @@index([instituicaoId])
+}
+
+model CursoPolo {
+  id            Int          @id @default(autoincrement())
+  cursoId       Int
+  poloId        Int
+  instituicaoId Int
+  createdAt     DateTime     @default(now())
+
+  curso         Curso        @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  polo          Polo         @relation(fields: [poloId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([cursoId, poloId])
+  @@index([instituicaoId])
+  @@index([cursoId])
+  @@index([poloId])
 }
 
 enum TipoDocumentoAluno {
