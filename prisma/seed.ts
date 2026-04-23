@@ -12,16 +12,18 @@ async function main() {
   // INSTITUIÇÃO
   // =========================
   const instituicao =
-    (await prisma.instituicao.findFirst({ where: { nome: "IBE" } })) ??
-   (await prisma.instituicao.create({
-  data: {
-  nome: "IBE",
-  slug: "ibe",
-  ativo: true,
-  createdAt: new Date(),
-  updatedAt: new Date(),
-},
-}));
+    (await prisma.instituicao.findFirst({
+      where: { nome: "IBE" },
+    })) ??
+    (await prisma.instituicao.create({
+      data: {
+        nome: "IBE",
+        slug: "ibe",
+        ativo: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    }));
 
   const instituicaoId = instituicao.id;
 
@@ -29,7 +31,9 @@ async function main() {
   // ADMIN
   // =========================
   const admin =
-    (await prisma.user.findUnique({ where: { email: "admin@ibe.com" } })) ??
+    (await prisma.user.findUnique({
+      where: { email: "admin@ibe.com" },
+    })) ??
     (await prisma.user.create({
       data: {
         nome: "Administrador",
@@ -40,11 +44,16 @@ async function main() {
       },
     }));
 
+  // evita warning de variável não usada
+  void admin;
+
   // =========================
   // PROFESSOR (User + Professor)
   // =========================
   const professorUser =
-    (await prisma.user.findUnique({ where: { email: "prof@ibe.com" } })) ??
+    (await prisma.user.findUnique({
+      where: { email: "prof@ibe.com" },
+    })) ??
     (await prisma.user.create({
       data: {
         nome: "Professor Marcos",
@@ -71,7 +80,9 @@ async function main() {
   // ALUNO (User + Aluno)
   // =========================
   const alunoUser =
-    (await prisma.user.findUnique({ where: { email: "aluno@ibe.com" } })) ??
+    (await prisma.user.findUnique({
+      where: { email: "aluno@ibe.com" },
+    })) ??
     (await prisma.user.create({
       data: {
         nome: "Aluno Teste",
@@ -83,7 +94,9 @@ async function main() {
     }));
 
   const aluno =
-    (await prisma.aluno.findUnique({ where: { userId: alunoUser.id } })) ??
+    (await prisma.aluno.findUnique({
+      where: { userId: alunoUser.id },
+    })) ??
     (await prisma.aluno.create({
       data: {
         nome: "Aluno Teste",
@@ -92,81 +105,110 @@ async function main() {
       },
     }));
 
-// =========================
-// CURSO
-// =========================
-const curso =
-  (await prisma.curso.findFirst({
-    where: { nome: "Bacharel Livre em Teologia", instituicaoId },
-  })) ??
-  (await prisma.curso.create({
-    data: {
-      nome: "Bacharel Livre em Teologia",
-      instituicaoId,
-      ativo: true,
-    },
-  }));
+  // =========================
+  // CURSO
+  // =========================
+  const curso =
+    (await prisma.curso.findFirst({
+      where: {
+        nome: "Bacharel Livre em Teologia",
+        instituicaoId,
+      },
+    })) ??
+    (await prisma.curso.create({
+      data: {
+        nome: "Bacharel Livre em Teologia",
+        instituicaoId,
+        ativo: true,
+      },
+    }));
 
   // =========================
   // DISCIPLINA
   // =========================
   const disciplina =
-  (await prisma.disciplina.findFirst({
-    where: { nome: "Direito Constitucional", instituicaoId },
-  })) ??
-  (await prisma.disciplina.create({
-    data: {
-      nome: "Direito Constitucional",
-      instituicaoId,
-      cursoId: curso.id,
-    },
-  }));
+    (await prisma.disciplina.findFirst({
+      where: {
+        nome: "Direito Constitucional",
+        instituicaoId,
+      },
+    })) ??
+    (await prisma.disciplina.create({
+      data: {
+        nome: "Direito Constitucional",
+        instituicaoId,
+        cursoId: curso.id,
+      },
+    }));
 
   // =========================
-  // TURMA (obrigatória para matrícula)
+  // TURMA
   // =========================
   const turma =
     (await prisma.turma.findFirst({
       where: {
-        disciplinaId: disciplina.id,
         instituicaoId,
         professorId: professor.id,
         nome: "Turma A",
+        semestre: "2025.1",
       },
     })) ??
     (await prisma.turma.create({
       data: {
         nome: "Turma A",
         semestre: "2025.1",
-        disciplinaId: disciplina.id,
         professorId: professor.id,
         instituicaoId,
       },
     }));
 
- // =========================
-// MATRÍCULA (por cursoId)
-// =========================
-const matriculaExistente = await prisma.matricula.findFirst({
-  where: {
-    alunoId: aluno.id,
-    cursoId: curso.id,
-  },
-});
+  // =========================
+  // VÍNCULO TURMA <-> DISCIPLINA
+  // =========================
+  const turmaDisciplinaExistente = await prisma.turmaDisciplina.findFirst({
+    where: {
+      turmaId: turma.id,
+      disciplinaId: disciplina.id,
+    },
+  });
 
-if (!matriculaExistente) {
-  await prisma.matricula.create({
-    data: {
-      instituicaoId,
+  if (!turmaDisciplinaExistente) {
+    await prisma.turmaDisciplina.create({
+      data: {
+        turmaId: turma.id,
+        disciplinaId: disciplina.id,
+        instituicaoId,
+      },
+    });
+
+    console.log("✅ Vínculo turma-disciplina criado.");
+  } else {
+    console.log("ℹ️ Vínculo turma-disciplina já existe.");
+  }
+
+  // =========================
+  // MATRÍCULA (por cursoId)
+  // =========================
+  const matriculaExistente = await prisma.matricula.findFirst({
+    where: {
       alunoId: aluno.id,
       cursoId: curso.id,
     },
   });
 
-  console.log("✅ Matrícula criada.");
-} else {
-  console.log("ℹ️ Matrícula já existe.");
-}
+  if (!matriculaExistente) {
+    await prisma.matricula.create({
+      data: {
+        instituicaoId,
+        alunoId: aluno.id,
+        cursoId: curso.id,
+      },
+    });
+
+    console.log("✅ Matrícula criada.");
+  } else {
+    console.log("ℹ️ Matrícula já existe.");
+  }
 
   console.log("🎉 Seed finalizado com sucesso!");
 }
