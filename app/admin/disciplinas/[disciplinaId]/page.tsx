@@ -50,7 +50,12 @@ type DisciplinaDetalhe = {
   semestre?: number | null;
   cursoId?: number | null;
   curso?: Curso | null;
-  turmas?: TurmaApi[];
+  turmaDisciplinas?: {
+    id: number;
+    turmaId: number;
+    disciplinaId: number;
+    turma?: TurmaApi | null;
+  }[];
 };
 
 function nomeProfessor(item: ProfessorApi | TurmaApi["professor"] | null | undefined) {
@@ -129,17 +134,23 @@ export default function DisciplinaDetalhePage() {
             : ""
         );
 
-        const turmaAtual = Array.isArray(disciplina.turmas) ? disciplina.turmas[0] : null;
-        setTurmaId(
-          turmaAtual?.id !== null && turmaAtual?.id !== undefined
-            ? String(turmaAtual.id)
-            : ""
-        );
-        setProfessorId(
-          turmaAtual?.professorId !== null && turmaAtual?.professorId !== undefined
-            ? String(turmaAtual.professorId)
-            : ""
-        );
+        const vinculoAtual = Array.isArray(disciplina.turmaDisciplinas)
+  ? disciplina.turmaDisciplinas[0]
+  : null;
+
+const turmaAtual = vinculoAtual?.turma ?? null;
+
+setTurmaId(
+  turmaAtual?.id !== null && turmaAtual?.id !== undefined
+    ? String(turmaAtual.id)
+    : ""
+);
+
+setProfessorId(
+  turmaAtual?.professorId !== null && turmaAtual?.professorId !== undefined
+    ? String(turmaAtual.professorId)
+    : ""
+);
 
         try {
           const resCursos = await fetch("/api/curso", {
@@ -152,9 +163,14 @@ export default function DisciplinaDetalhePage() {
         }
 
         try {
-          const resTurmas = await fetch("/api/turma", {
-            credentials: "include",
-          });
+  const resTurmas = await fetch("/api/admin/turmas", {
+    credentials: "include",
+  });
+  const dataTurmas = await resTurmas.json();
+  setTurmas(Array.isArray(dataTurmas) ? dataTurmas : []);
+} catch {
+  setTurmas([]);
+}
           const dataTurmas = await resTurmas.json();
           setTurmas(Array.isArray(dataTurmas) ? dataTurmas : []);
         } catch {
