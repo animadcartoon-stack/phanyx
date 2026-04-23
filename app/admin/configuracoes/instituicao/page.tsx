@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";import Link from "next/link";
-
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 type LayoutProfissional =
   | "PHANYX_MODERNO"
@@ -52,20 +52,17 @@ function normalizarLayoutProfissional(estilo?: string): LayoutProfissional {
     case "PERSONALIZADO_MODERNO":
     case "PERSONALIZADO_MARCA":
       return estilo;
-
     case "INSTITUCIONAL":
     case "CLASSICO":
       return "PHANYX_CLASSICO";
     case "MINIMALISTA":
       return "PHANYX_ACADEMICO";
-
     case "SEM_COR":
       return "PERSONALIZADO_CLASSICO";
     case "COLORIDO":
       return "PERSONALIZADO_MODERNO";
     case "MARCA_DAGUA":
       return "PERSONALIZADO_MARCA";
-
     default:
       return "PERSONALIZADO_MODERNO";
   }
@@ -84,8 +81,8 @@ export default function ConfigInstituicaoPage() {
   const [mensagem, setMensagem] = useState("");
   const [previewPapelTimbrado, setPreviewPapelTimbrado] = useState("");
   const [modoLayout, setModoLayout] = useState<
-  "PHANYX" | "PERSONALIZADO" | "SIMPLES"
->("PHANYX");
+    "PHANYX" | "PERSONALIZADO" | "SIMPLES"
+  >("PHANYX");
   const inputFileLogoRef = useRef<HTMLInputElement | null>(null);
   const inputFilePapelRef = useRef<HTMLInputElement | null>(null);
 
@@ -206,42 +203,39 @@ export default function ConfigInstituicaoPage() {
       const previewBase64 = await gerarPreviewBase64(file);
       setPreviewPapelTimbrado(previewBase64);
 
-      // 1️⃣ pedir URL de upload
-const resUploadUrl = await fetch("/api/admin/upload-url", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    nomeOriginal: file.name,
-    mimeType: file.type,
-    tamanho: file.size,
-  }),
-});
+      const resUploadUrl = await fetch("/api/admin/upload-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nomeOriginal: file.name,
+          mimeType: file.type,
+          tamanho: file.size,
+        }),
+      });
 
-const jsonUploadUrl = await resUploadUrl.json();
+      const jsonUploadUrl = await resUploadUrl.json();
 
-if (!resUploadUrl.ok) {
-  throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
-}
+      if (!resUploadUrl.ok) {
+        throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
+      }
 
-// 2️⃣ enviar direto pro storage (R2)
-const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
-  method: "PUT",
-  headers: {
-    "Content-Type": file.type,
-  },
-  body: file,
-});
+      const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+        },
+        body: file,
+      });
 
-if (!resUploadDireto.ok) {
-  throw new Error("Erro ao enviar arquivo para o storage");
-}
+      if (!resUploadDireto.ok) {
+        throw new Error("Erro ao enviar arquivo para o storage");
+      }
 
-// 3️⃣ URL final
-const data = {
-  url: jsonUploadUrl.arquivoUrl,
-};
+      const data = {
+        url: jsonUploadUrl.arquivoUrl,
+      };
 
       setForm((prev) => ({
         ...prev,
@@ -580,12 +574,6 @@ const data = {
   }
 
   function renderMiniatura(layout: LayoutProfissional) {
-    const atual = layoutSelecionado;
-
-    setTimeout(() => {
-      if (atual !== layoutSelecionado) return;
-    }, 0);
-
     if (layout === "PHANYX_MODERNO") {
       return (
         <div className="relative h-full w-full overflow-hidden bg-white">
@@ -994,27 +982,6 @@ Cidade e data:
           </div>
         </div>
 
-<div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-  <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-    <div>
-      <h3 className="text-base font-semibold text-slate-800">
-        🏢 Polos / Unidades
-      </h3>
-      <p className="mt-1 text-sm text-slate-600">
-        Se sua instituição possui filiais, campi ou unidades, cadastre aqui os
-        polos que serão usados depois em turmas e professores.
-      </p>
-    </div>
-
-    <Link
-      href="/admin/polos"
-      className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-    >
-      Gerenciar polos
-    </Link>
-  </div>
-</div>
-
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-lg font-semibold text-slate-800">Logo</h2>
 
@@ -1061,7 +1028,7 @@ Cidade e data:
             </div>
 
             <div className="mt-2 border-t pt-4">
-                            <h3 className="mb-3 text-lg font-semibold text-slate-800">
+              <h3 className="mb-3 text-lg font-semibold text-slate-800">
                 Papel Timbrado e Layout Profissional
               </h3>
 
@@ -1107,28 +1074,27 @@ Cidade e data:
                   </p>
                 </button>
 
-                
                 <button
-  type="button"
-  onClick={() => setModoLayout("SIMPLES")}
-  className={`rounded-xl border p-4 text-left transition ${
-    modoLayout === "SIMPLES"
-      ? "border-slate-800 bg-slate-100"
-      : "border-slate-200 bg-white"
-  }`}
->
-  <div className="font-semibold text-slate-800">
-    Sem papel timbrado
-  </div>
+                  type="button"
+                  onClick={() => setModoLayout("SIMPLES")}
+                  className={`rounded-xl border p-4 text-left transition ${
+                    modoLayout === "SIMPLES"
+                      ? "border-slate-800 bg-slate-100"
+                      : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <div className="font-semibold text-slate-800">
+                    Sem papel timbrado
+                  </div>
 
-  <p className="mt-2 text-xs text-slate-600">
-    Layout simples, sem identidade visual.
-  </p>
-</button>
-
+                  <p className="mt-2 text-xs text-slate-600">
+                    Layout simples, sem identidade visual.
+                  </p>
+                </button>
               </div>
+
               <div className="mt-4 space-y-6">
-                              {modoLayout === "SIMPLES" && (
+                {modoLayout === "SIMPLES" && (
                   <div className="rounded-2xl border border-slate-200 bg-white p-4">
                     <h4 className="text-base font-semibold text-slate-800">
                       Layout simples
@@ -1139,6 +1105,7 @@ Cidade e data:
                     </p>
                   </div>
                 )}
+
                 {modoLayout === "PHANYX" && (
                   <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4">
                     <div className="mb-3">
@@ -1268,41 +1235,41 @@ Cidade e data:
                 )}
               </div>
 
-                            {modoLayout === "PERSONALIZADO" && (
+              {modoLayout === "PERSONALIZADO" && (
                 <div className="mt-5">
-                <input
-                  ref={inputFilePapelRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/jpg,image/webp"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    await enviarPapelTimbrado(file);
-                  }}
-                />
+                  <input
+                    ref={inputFilePapelRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      await enviarPapelTimbrado(file);
+                    }}
+                  />
 
-                <button
-                  type="button"
-                  onClick={() => inputFilePapelRef.current?.click()}
-                  disabled={enviandoPapelTimbrado}
-                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-                >
-                  {enviandoPapelTimbrado
-                    ? "Enviando papel timbrado..."
-                    : "Selecionar papel timbrado"}
-                </button>
+                  <button
+                    type="button"
+                    onClick={() => inputFilePapelRef.current?.click()}
+                    disabled={enviandoPapelTimbrado}
+                    className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {enviandoPapelTimbrado
+                      ? "Enviando papel timbrado..."
+                      : "Selecionar papel timbrado"}
+                  </button>
 
-                <p className="mt-2 text-xs text-slate-500">
-                  Formatos aceitos: PNG, JPG, JPEG e WEBP. Use preferência em retrato.
-                </p>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Formatos aceitos: PNG, JPG, JPEG e WEBP. Use preferência em retrato.
+                  </p>
 
-                                <div className="mt-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
-                  {nomeArquivoPapelTimbrado
-                    ? `Arquivo selecionado: ${nomeArquivoPapelTimbrado}`
-                    : "Nenhum arquivo de papel timbrado enviado ainda"}
+                  <div className="mt-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                    {nomeArquivoPapelTimbrado
+                      ? `Arquivo selecionado: ${nomeArquivoPapelTimbrado}`
+                      : "Nenhum arquivo de papel timbrado enviado ainda"}
+                  </div>
                 </div>
-              </div>
               )}
 
               <div className="mt-4">
@@ -1316,12 +1283,33 @@ Cidade e data:
                   </div>
                 </div>
 
-                                <p className="mt-2 text-center text-xs text-slate-500">
+                <p className="mt-2 text-center text-xs text-slate-500">
                   A prévia muda conforme o modelo selecionado.
                 </p>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="max-w-3xl">
+            <h2 className="text-lg font-semibold text-slate-800">
+              🏢 Polos / Unidades
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Se sua instituição possui filiais, campi ou unidades, cadastre os
+              polos que serão usados depois em turmas e professores.
+            </p>
+          </div>
+
+          <Link
+            href="/admin/polos"
+            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+          >
+            Gerenciar polos
+          </Link>
         </div>
       </div>
     </div>
