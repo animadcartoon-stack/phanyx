@@ -146,22 +146,12 @@ export async function DELETE(
       );
     }
 
-    const { id } = context.params;
-    const professorId = Number(id);
+    const professorId = Number(context.params.id);
 
     const professor = await prisma.professor.findFirst({
       where: {
         id: professorId,
         instituicaoId: user.instituicaoId,
-      },
-      include: {
-        turmas: {
-          select: {
-            id: true,
-            nome: true,
-            semestre: true,
-          },
-        },
       },
     });
 
@@ -172,32 +162,31 @@ export async function DELETE(
       );
     }
 
-    if (professor.turmas.length > 0) {
-      return NextResponse.json(
-        {
-          error:
-            "Este professor não pode ser excluído porque ainda está vinculado a turma(s). Remova ou troque o professor dessas turmas antes de excluir.",
-          turmas: professor.turmas,
-        },
-        { status: 400 }
-      );
-    }
+    // 🔥 DESVINCULA professor das turmas antes
+    await prisma.turma.updateMany({
+      where: {
+        professorId: professorId,
+        instituicaoId: user.instituicaoId,
+      },
+      data: {
+        professorId: null,
+      },
+    });
 
-    await prisma.$transaction(async (tx) => {
-      await tx.professor.delete({
-        where: { id: professorId },
-      });
+    // 🔥 AGORA pode deletar
+    await prisma.professor.delete({
+      where: { id: professorId },
+    });
 
-      await tx.user.delete({
-        where: { id: professor.userId },
-      });
+    await prisma.user.delete({
+      where: { id: professor.userId },
     });
 
     return NextResponse.json({
       message: "Professor deletado com sucesso",
     });
   } catch (error: any) {
-    console.error("Erro ao deletar professor:", error);
+    console.error(error);
 
     return NextResponse.json(
       {
