@@ -83,6 +83,8 @@ export default function ConfigInstituicaoPage() {
   const [modoLayout, setModoLayout] = useState<
     "PHANYX" | "PERSONALIZADO" | "SIMPLES"
   >("PHANYX");
+  const [previewAmpliada, setPreviewAmpliada] = useState(false);
+
   const inputFileLogoRef = useRef<HTMLInputElement | null>(null);
   const inputFilePapelRef = useRef<HTMLInputElement | null>(null);
 
@@ -233,13 +235,9 @@ export default function ConfigInstituicaoPage() {
         throw new Error("Erro ao enviar arquivo para o storage");
       }
 
-      const data = {
-        url: jsonUploadUrl.arquivoUrl,
-      };
-
       setForm((prev) => ({
         ...prev,
-        papelTimbradoUrl: data.url,
+        papelTimbradoUrl: jsonUploadUrl.arquivoUrl,
       }));
 
       setMensagem("Papel timbrado enviado com sucesso.");
@@ -543,28 +541,20 @@ export default function ConfigInstituicaoPage() {
             estiloPapelTimbrado: value,
           }))
         }
-        className={`rounded-2xl border p-4 text-left transition ${
+        className={`rounded-xl border p-3 text-left transition ${
           ativo
             ? "border-blue-600 bg-blue-50 shadow-sm"
             : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
         }`}
       >
-        <div className="mb-3 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="h-[180px] w-full">{renderMiniatura(value)}</div>
+        <div className="mb-2 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+          <div className="h-[96px] w-full">{renderMiniatura(value)}</div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <div
-            className={`h-3 w-3 rounded-full ${
-              ativo ? "bg-blue-600" : "bg-slate-300"
-            }`}
-          />
-          <div className="text-sm font-semibold text-slate-800">{titulo}</div>
-        </div>
+        <div className="text-sm font-semibold text-slate-800">{titulo}</div>
+        <div className="mt-1 text-[11px] text-slate-500">{subtitulo}</div>
 
-        <div className="mt-1 text-xs text-slate-500">{subtitulo}</div>
-
-        <div className="mt-3 space-y-1 text-xs text-slate-700">
+        <div className="mt-2 space-y-0.5 text-[11px] text-slate-700">
           {bullets.map((item) => (
             <div key={item}>✓ {item}</div>
           ))}
@@ -577,17 +567,17 @@ export default function ConfigInstituicaoPage() {
     if (layout === "PHANYX_MODERNO") {
       return (
         <div className="relative h-full w-full overflow-hidden bg-white">
-          <div className="absolute left-0 top-0 h-full w-4 bg-slate-900" />
-          <div className="absolute left-0 top-0 h-10 w-full bg-[#0e2f5a]" />
-          <div className="absolute bottom-0 right-0 h-4 w-[55%] bg-[#0e2f5a]" />
-          <div className="absolute bottom-0 right-[18%] h-2 w-[32%] bg-[#2b6cb0]" />
-          <div className="absolute bottom-0 right-[8%] h-1.5 w-[20%] bg-[#63b3ed]" />
-          <div className="absolute left-6 top-5 right-4 rounded-lg bg-white p-3 shadow-sm">
-            <div className="mb-2 h-2 w-28 rounded bg-slate-300" />
-            <div className="space-y-1.5">
-              <div className="h-1.5 w-full rounded bg-slate-200" />
-              <div className="h-1.5 w-5/6 rounded bg-slate-200" />
-              <div className="h-1.5 w-full rounded bg-slate-200" />
+          <div className="absolute left-0 top-0 h-full w-3 bg-slate-900" />
+          <div className="absolute left-0 top-0 h-7 w-full bg-[#0e2f5a]" />
+          <div className="absolute bottom-0 right-0 h-3 w-[55%] bg-[#0e2f5a]" />
+          <div className="absolute bottom-0 right-[18%] h-1.5 w-[32%] bg-[#2b6cb0]" />
+          <div className="absolute bottom-0 right-[8%] h-1 w-[20%] bg-[#63b3ed]" />
+          <div className="absolute left-4 top-4 right-3 rounded-lg bg-white p-2 shadow-sm">
+            <div className="mb-1.5 h-2 w-20 rounded bg-slate-300" />
+            <div className="space-y-1">
+              <div className="h-1 w-full rounded bg-slate-200" />
+              <div className="h-1 w-5/6 rounded bg-slate-200" />
+              <div className="h-1 w-full rounded bg-slate-200" />
             </div>
           </div>
         </div>
@@ -596,19 +586,17 @@ export default function ConfigInstituicaoPage() {
 
     if (layout === "PHANYX_ACADEMICO") {
       return (
-        <div className="relative h-full w-full bg-white px-4 py-3">
-          <div className="mx-auto mb-2 h-8 w-8 rounded-full border bg-white" />
+        <div className="relative h-full w-full bg-white px-3 py-2">
+          <div className="mx-auto mb-2 h-6 w-6 rounded-full border bg-white" />
           <div className="border-b border-slate-300 pb-2 text-center">
-            <div className="mx-auto h-2 w-28 rounded bg-slate-300" />
-            <div className="mx-auto mt-2 h-1.5 w-20 rounded bg-slate-200" />
+            <div className="mx-auto h-1.5 w-20 rounded bg-slate-300" />
+            <div className="mx-auto mt-1.5 h-1 w-14 rounded bg-slate-200" />
           </div>
-          <div className="mt-4 space-y-1.5">
-            <div className="h-1.5 w-full rounded bg-slate-200" />
-            <div className="h-1.5 w-full rounded bg-slate-200" />
-            <div className="h-1.5 w-4/5 rounded bg-slate-200" />
-            <div className="h-1.5 w-full rounded bg-slate-200" />
+          <div className="mt-3 space-y-1">
+            <div className="h-1 w-full rounded bg-slate-200" />
+            <div className="h-1 w-full rounded bg-slate-200" />
+            <div className="h-1 w-4/5 rounded bg-slate-200" />
           </div>
-          <div className="absolute bottom-3 left-4 right-4 h-[1px] bg-slate-300" />
         </div>
       );
     }
@@ -616,15 +604,15 @@ export default function ConfigInstituicaoPage() {
     if (layout === "PHANYX_CLASSICO") {
       return (
         <div className="relative h-full w-full overflow-hidden bg-white">
-          <div className="absolute left-0 top-0 h-3 w-full bg-[#1b1b1b]" />
-          <div className="absolute right-0 top-0 h-3 w-16 bg-[#1693d1]" />
-          <div className="absolute bottom-0 left-0 h-10 w-full bg-[#1b1b1b]" />
-          <div className="absolute left-4 top-5 h-2 w-24 rounded bg-slate-300" />
-          <div className="absolute right-4 top-5 h-8 w-20 rounded border border-slate-200" />
-          <div className="absolute left-4 right-4 top-11 space-y-1.5">
-            <div className="h-1.5 w-full rounded bg-slate-200" />
-            <div className="h-1.5 w-5/6 rounded bg-slate-200" />
-            <div className="h-1.5 w-full rounded bg-slate-200" />
+          <div className="absolute left-0 top-0 h-2.5 w-full bg-[#1b1b1b]" />
+          <div className="absolute right-0 top-0 h-2.5 w-12 bg-[#1693d1]" />
+          <div className="absolute bottom-0 left-0 h-8 w-full bg-[#1b1b1b]" />
+          <div className="absolute left-3 top-4 h-1.5 w-16 rounded bg-slate-300" />
+          <div className="absolute right-3 top-4 h-6 w-14 rounded border border-slate-200" />
+          <div className="absolute left-3 right-3 top-8 space-y-1">
+            <div className="h-1 w-full rounded bg-slate-200" />
+            <div className="h-1 w-5/6 rounded bg-slate-200" />
+            <div className="h-1 w-full rounded bg-slate-200" />
           </div>
         </div>
       );
@@ -640,12 +628,12 @@ export default function ConfigInstituicaoPage() {
               className="absolute inset-0 m-auto max-h-[70%] max-w-[70%] object-contain opacity-15"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
+            <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400">
               Sem imagem
             </div>
           )}
-          <div className="absolute left-4 right-4 top-4 h-2 rounded bg-slate-300" />
-          <div className="absolute left-4 right-4 bottom-4 h-2 rounded bg-slate-200" />
+          <div className="absolute left-3 right-3 top-3 h-1.5 rounded bg-slate-300" />
+          <div className="absolute left-3 right-3 bottom-3 h-1.5 rounded bg-slate-200" />
         </div>
       );
     }
@@ -653,15 +641,15 @@ export default function ConfigInstituicaoPage() {
     if (layout === "PERSONALIZADO_MODERNO") {
       return (
         <div className="relative h-full w-full bg-white">
-          <div className="absolute left-0 top-0 h-full w-4 bg-slate-800" />
+          <div className="absolute left-0 top-0 h-full w-3 bg-slate-800" />
           {previewSrc ? (
             <img
               src={previewSrc}
               alt="Miniatura"
-              className="absolute left-4 top-0 h-full w-[calc(100%-16px)] object-cover"
+              className="absolute left-3 top-0 h-full w-[calc(100%-12px)] object-cover"
             />
           ) : (
-            <div className="absolute left-4 right-0 top-0 bottom-0 flex items-center justify-center text-xs text-slate-400">
+            <div className="absolute left-3 right-0 top-0 bottom-0 flex items-center justify-center text-[10px] text-slate-400">
               Sem imagem
             </div>
           )}
@@ -671,7 +659,7 @@ export default function ConfigInstituicaoPage() {
 
     return (
       <div className="relative h-full w-full bg-white">
-        <div className="absolute top-0 h-3 w-full bg-slate-300" />
+        <div className="absolute top-0 h-2.5 w-full bg-slate-300" />
         {previewSrc ? (
           <img
             src={previewSrc}
@@ -679,7 +667,7 @@ export default function ConfigInstituicaoPage() {
             className="absolute inset-0 m-auto h-[75%] w-[85%] object-contain grayscale"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
+          <div className="absolute inset-0 flex items-center justify-center text-[10px] text-slate-400">
             Sem imagem
           </div>
         )}
@@ -692,259 +680,282 @@ export default function ConfigInstituicaoPage() {
   }
 
   return (
-    <div className="max-w-7xl space-y-6 p-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">
-          🏢 Configurações da Instituição
-        </h1>
-        <p className="mt-1 text-sm text-slate-600">
-          Defina os dados institucionais usados em documentos, relatórios, PDFs e contratos.
-        </p>
-      </div>
+    <>
+      {previewAmpliada && (
+        <div className="fixed inset-0 z-[9999] bg-slate-950/70 p-4">
+          <div className="mx-auto flex h-full max-w-5xl flex-col justify-center">
+            <div className="mb-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setPreviewAmpliada(false)}
+                className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-800"
+              >
+                Fechar visualização
+              </button>
+            </div>
 
-      {mensagem && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
-          {mensagem}
+            <div className="mx-auto flex max-h-[88vh] w-full items-center justify-center rounded-2xl bg-white p-4 shadow-2xl">
+              <div className="h-[80vh] w-[56vh] max-w-full overflow-hidden rounded-lg border bg-white shadow-sm">
+                {renderPreviewPapelTimbrado()}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="xl:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">
-            Dados institucionais
-          </h2>
+      <div className="max-w-7xl space-y-6 p-6">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            🏢 Configurações da Instituição
+          </h1>
+          <p className="mt-1 text-sm text-slate-600">
+            Defina os dados institucionais usados em documentos, relatórios, PDFs e contratos.
+          </p>
+        </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Nome fantasia
-              </label>
-              <input
-                value={form.nomeFantasia || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, nomeFantasia: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Ex.: IBE"
-              />
-            </div>
+        {mensagem && (
+          <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
+            {mensagem}
+          </div>
+        )}
 
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Razão social
-              </label>
-              <input
-                value={form.razaoSocial || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, razaoSocial: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Ex.: Instituto Batista de Educação"
-              />
-            </div>
+        <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <h2 className="mb-4 text-lg font-semibold text-slate-800">
+              Dados institucionais
+            </h2>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                CNPJ
-              </label>
-              <input
-                value={form.cnpj || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, cnpj: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="00.000.000/0000-00"
-              />
-            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Nome fantasia
+                </label>
+                <input
+                  value={form.nomeFantasia || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, nomeFantasia: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Ex.: IBE"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Telefone
-              </label>
-              <input
-                value={form.telefone || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, telefone: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="(00) 00000-0000"
-              />
-            </div>
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Razão social
+                </label>
+                <input
+                  value={form.razaoSocial || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, razaoSocial: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Ex.: Instituto Batista de Educação"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                E-mail
-              </label>
-              <input
-                value={form.email || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, email: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="contato@instituicao.com"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  CNPJ
+                </label>
+                <input
+                  value={form.cnpj || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, cnpj: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="00.000.000/0000-00"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                CEP
-              </label>
-              <input
-                value={form.cep || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, cep: e.target.value }))
-                }
-                onBlur={(e) => buscarEnderecoPorCep(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="00000-000"
-              />
-              {buscandoCep && (
-                <p className="mt-1 text-xs text-slate-500">
-                  Buscando endereço pelo CEP...
-                </p>
-              )}
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Telefone
+                </label>
+                <input
+                  value={form.telefone || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, telefone: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Estado
-              </label>
-              <input
-                value={form.estado || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, estado: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="SC"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  E-mail
+                </label>
+                <input
+                  value={form.email || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="contato@instituicao.com"
+                />
+              </div>
 
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Endereço
-              </label>
-              <input
-                value={form.endereco || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, endereco: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Rua, número, bairro"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  CEP
+                </label>
+                <input
+                  value={form.cep || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, cep: e.target.value }))
+                  }
+                  onBlur={(e) => buscarEnderecoPorCep(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="00000-000"
+                />
+                {buscandoCep && (
+                  <p className="mt-1 text-xs text-slate-500">
+                    Buscando endereço pelo CEP...
+                  </p>
+                )}
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Número
-              </label>
-              <input
-                value={form.numero || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, numero: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Ex.: 398"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Estado
+                </label>
+                <input
+                  value={form.estado || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, estado: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="SC"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Cidade
-              </label>
-              <input
-                value={form.cidade || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, cidade: e.target.value }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="São José"
-              />
-            </div>
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Endereço
+                </label>
+                <input
+                  value={form.endereco || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, endereco: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Rua, número, bairro"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Responsável legal
-              </label>
-              <input
-                value={form.responsavelNome || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    responsavelNome: e.target.value,
-                  }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Nome do responsável"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Número
+                </label>
+                <input
+                  value={form.numero || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, numero: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Ex.: 398"
+                />
+              </div>
 
-            <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Cargo do responsável
-              </label>
-              <input
-                value={form.responsavelCargo || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    responsavelCargo: e.target.value,
-                  }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Diretor(a)"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Cidade
+                </label>
+                <input
+                  value={form.cidade || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, cidade: e.target.value }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="São José"
+                />
+              </div>
 
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Cidade de assinatura
-              </label>
-              <input
-                value={form.cidadeAssinatura || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    cidadeAssinatura: e.target.value,
-                  }))
-                }
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Ex.: Florianópolis"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Responsável legal
+                </label>
+                <input
+                  value={form.responsavelNome || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      responsavelNome: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Nome do responsável"
+                />
+              </div>
 
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Observações contratuais
-              </label>
-              <textarea
-                value={form.observacoesContrato || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    observacoesContrato: e.target.value,
-                  }))
-                }
-                rows={3}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder="Informações adicionais do contrato"
-              />
-            </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Cargo do responsável
+                </label>
+                <input
+                  value={form.responsavelCargo || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      responsavelCargo: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Diretor(a)"
+                />
+              </div>
 
-            <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-slate-700">
-                Modelo de contrato
-              </label>
-              <textarea
-                value={form.contratoTemplate || ""}
-                onChange={(e) =>
-                  setForm((prev) => ({
-                    ...prev,
-                    contratoTemplate: e.target.value,
-                  }))
-                }
-                rows={12}
-                className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                placeholder={`Exemplo:
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Cidade de assinatura
+                </label>
+                <input
+                  value={form.cidadeAssinatura || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      cidadeAssinatura: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Ex.: Florianópolis"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Observações contratuais
+                </label>
+                <textarea
+                  value={form.observacoesContrato || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      observacoesContrato: e.target.value,
+                    }))
+                  }
+                  rows={3}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder="Informações adicionais do contrato"
+                />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Modelo de contrato
+                </label>
+                <textarea
+                  value={form.contratoTemplate || ""}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      contratoTemplate: e.target.value,
+                    }))
+                  }
+                  rows={9}
+                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  placeholder={`Exemplo:
 CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
 
 Pelo presente instrumento, a instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, celebra contrato com o(a) aluno(a) {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, para o curso {{curso}}.
@@ -957,286 +968,189 @@ Valor contratado:
 
 Cidade e data:
 {{cidadeAssinatura}}, {{dataAtual}}`}
-              />
-
-              <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-600">
-                <p className="mb-1 font-semibold">Variáveis disponíveis:</p>
-                <p className="leading-relaxed">
-                  {"{{nomeInstituicao}}"}, {"{{cnpjInstituicao}}"}, {"{{responsavelLegal}}"},{" "}
-                  {"{{nomeAluno}}"}, {"{{cpfAluno}}"}, {"{{matriculaAluno}}"},{" "}
-                  {"{{curso}}"}, {"{{disciplinas}}"}, {"{{valorContrato}}"},{" "}
-                  {"{{cidadeAssinatura}}"}, {"{{dataAtual}}"}
-                </p>
+                />
               </div>
             </div>
+
+            <div className="mt-6">
+              <button
+                onClick={salvar}
+                disabled={salvando}
+                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
+              >
+                {salvando ? "Salvando..." : "Salvar configurações"}
+              </button>
+            </div>
           </div>
 
-          <div className="mt-6">
-            <button
-              onClick={salvar}
-              disabled={salvando}
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
-            >
-              {salvando ? "Salvando..." : "Salvar configurações"}
-            </button>
-          </div>
-        </div>
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <h2 className="mb-3 text-lg font-semibold text-slate-800">Logo</h2>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">Logo</h2>
+              <div className="flex h-28 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
+                {form.logoUrl ? (
+                  <img
+                    src={form.logoUrl}
+                    alt="Logo da instituição"
+                    className="max-h-20 max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-sm text-slate-500">
+                    Nenhuma logo enviada
+                  </span>
+                )}
+              </div>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex h-40 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
-              {form.logoUrl ? (
-                <img
-                  src={form.logoUrl}
-                  alt="Logo da instituição"
-                  className="max-h-32 max-w-full object-contain"
-                />
-              ) : (
-                <span className="text-sm text-slate-500">
-                  Nenhuma logo enviada
-                </span>
-              )}
+              <input
+                ref={inputFileLogoRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  await enviarLogo(file);
+                }}
+              />
+
+              <button
+                type="button"
+                onClick={() => inputFileLogoRef.current?.click()}
+                disabled={enviandoLogo}
+                className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              >
+                {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
+              </button>
+
+              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
+                {nomeArquivoLogo
+                  ? `Arquivo selecionado: ${nomeArquivoLogo}`
+                  : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
+              </div>
             </div>
 
-            <input
-              ref={inputFileLogoRef}
-              type="file"
-              accept="image/png,image/jpeg,image/jpg,image/webp"
-              className="hidden"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                await enviarLogo(file);
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() => inputFileLogoRef.current?.click()}
-              disabled={enviandoLogo}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-            >
-              {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
-            </button>
-
-            <div className="w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-              {nomeArquivoLogo
-                ? `Arquivo selecionado: ${nomeArquivoLogo}`
-                : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
-            </div>
-
-            <div className="mt-2 border-t pt-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 className="mb-3 text-lg font-semibold text-slate-800">
-                Papel Timbrado e Layout Profissional
+                Papel Timbrado e Layout
               </h3>
 
-              <div className="mb-6 grid grid-cols-2 gap-3">
+              <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <button
                   type="button"
                   onClick={() => setModoLayout("PHANYX")}
-                  className={`rounded-xl border p-4 text-left transition ${
+                  className={`rounded-xl border p-3 text-left transition ${
                     modoLayout === "PHANYX"
                       ? "border-blue-600 bg-blue-50"
                       : "border-slate-200 bg-white"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="font-semibold text-slate-800">
-                      Modelo pronto PHANYX
-                    </div>
-                    <span className="rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-semibold text-white">
-                      RECOMENDADO
-                    </span>
+                  <div className="text-sm font-semibold text-slate-800">
+                    Modelo PHANYX
                   </div>
-
-                  <p className="mt-2 text-xs text-slate-600">
-                    Pronto para uso, visual profissional automático.
+                  <p className="mt-1 text-[11px] text-slate-600">
+                    Pronto para uso
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setModoLayout("PERSONALIZADO")}
-                  className={`rounded-xl border p-4 text-left transition ${
+                  className={`rounded-xl border p-3 text-left transition ${
                     modoLayout === "PERSONALIZADO"
                       ? "border-amber-500 bg-amber-50"
                       : "border-slate-200 bg-white"
                   }`}
                 >
-                  <div className="font-semibold text-slate-800">
-                    Usar papel timbrado próprio
+                  <div className="text-sm font-semibold text-slate-800">
+                    Papel próprio
                   </div>
-
-                  <p className="mt-2 text-xs text-slate-600">
-                    Use sua própria arte institucional.
+                  <p className="mt-1 text-[11px] text-slate-600">
+                    Arte institucional
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setModoLayout("SIMPLES")}
-                  className={`rounded-xl border p-4 text-left transition ${
+                  className={`rounded-xl border p-3 text-left transition ${
                     modoLayout === "SIMPLES"
                       ? "border-slate-800 bg-slate-100"
                       : "border-slate-200 bg-white"
                   }`}
                 >
-                  <div className="font-semibold text-slate-800">
-                    Sem papel timbrado
+                  <div className="text-sm font-semibold text-slate-800">
+                    Sem papel
                   </div>
-
-                  <p className="mt-2 text-xs text-slate-600">
-                    Layout simples, sem identidade visual.
+                  <p className="mt-1 text-[11px] text-slate-600">
+                    Layout simples
                   </p>
                 </button>
               </div>
 
-              <div className="mt-4 space-y-6">
-                {modoLayout === "SIMPLES" && (
-                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                    <h4 className="text-base font-semibold text-slate-800">
-                      Layout simples
-                    </h4>
+              {modoLayout === "PHANYX" && (
+                <div className="grid gap-3">
+                  <LayoutCard
+                    value="PHANYX_MODERNO"
+                    titulo="PHANYX — Executivo"
+                    subtitulo="Moderno"
+                    bullets={["Faixa escura", "Barra lateral", "Premium"]}
+                  />
 
-                    <p className="mt-1 text-xs text-slate-600">
-                      Documento sem papel timbrado, sem identidade visual.
-                    </p>
-                  </div>
-                )}
+                  <LayoutCard
+                    value="PHANYX_ACADEMICO"
+                    titulo="PHANYX — Acadêmico"
+                    subtitulo="Elegante"
+                    bullets={["Linhas finas", "Mais limpo", "Formal"]}
+                  />
 
-                {modoLayout === "PHANYX" && (
-                  <div className="rounded-2xl border border-blue-200 bg-blue-50/60 p-4">
-                    <div className="mb-3">
-                      <h4 className="text-base font-semibold text-slate-800">
-                        Modelos PHANYX prontos
-                      </h4>
-                      <p className="mt-1 text-xs text-slate-600">
-                        Layouts profissionais do sistema. Funcionam mesmo sem enviar imagem de papel timbrado.
-                      </p>
-                    </div>
-
-                    <div className="grid gap-4">
-                      <LayoutCard
-                        value="PHANYX_MODERNO"
-                        titulo="PHANYX — Executivo Premium"
-                        subtitulo="Visual forte, faixa escura e acabamento moderno"
-                        bullets={[
-                          "Faixa superior escura",
-                          "Barra lateral",
-                          "Logo integrado",
-                          "Visual premium",
-                        ]}
-                      />
-
-                      <LayoutCard
-                        value="PHANYX_ACADEMICO"
-                        titulo="PHANYX — Acadêmico Elegante"
-                        subtitulo="Clean, profissional e com cara de instituição tradicional"
-                        bullets={[
-                          "Linhas finas",
-                          "Mais limpo",
-                          "Estilo acadêmico",
-                          "Excelente para documentos formais",
-                        ]}
-                      />
-
-                      <LayoutCard
-                        value="PHANYX_CLASSICO"
-                        titulo="PHANYX — Clássico Institucional"
-                        subtitulo="Cabeçalho forte, rodapé marcante e apresentação premium"
-                        bullets={[
-                          "Cabeçalho marcante",
-                          "Rodapé forte",
-                          "Assinatura visual elegante",
-                          "Visual institucional premium",
-                        ]}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {modoLayout === "PERSONALIZADO" && (
-                  <>
-                    <div className="mt-3">
-                      <label className="flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          type="checkbox"
-                          checked={form.usarPapelTimbrado || false}
-                          onChange={(e) =>
-                            setForm((prev) => ({
-                              ...prev,
-                              usarPapelTimbrado: e.target.checked,
-                            }))
-                          }
-                        />
-                        Ativar uso da imagem enviada nos modelos personalizados
-                      </label>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        Quando ativado, o sistema usará sua arte institucional no documento.
-                      </p>
-                    </div>
-
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="mb-3">
-                        <h4 className="text-base font-semibold text-slate-800">
-                          Modelos personalizados da instituição
-                        </h4>
-                        <p className="mt-1 text-xs text-slate-600">
-                          Esses modelos usam a imagem de papel timbrado enviada pela instituição.
-                        </p>
-                      </div>
-
-                      <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
-                        Para os modelos personalizados ficarem bonitos, envie uma imagem de papel timbrado antes.
-                      </div>
-
-                      <div className="grid gap-4">
-                        <LayoutCard
-                          value="PERSONALIZADO_CLASSICO"
-                          titulo="Personalizado — Clássico"
-                          subtitulo="Usa sua arte enviada em versão discreta"
-                          bullets={[
-                            "Mais sóbrio",
-                            "Bom para documentos internos",
-                            "Visual em escala neutra",
-                            "Depende da sua imagem",
-                          ]}
-                        />
-
-                        <LayoutCard
-                          value="PERSONALIZADO_MODERNO"
-                          titulo="Personalizado — Moderno"
-                          subtitulo="Usa sua arte enviada com mais presença visual"
-                          bullets={[
-                            "Mais colorido",
-                            "Mais forte visualmente",
-                            "Combina com papel timbrado pronto",
-                            "Depende da sua imagem",
-                          ]}
-                        />
-
-                        <LayoutCard
-                          value="PERSONALIZADO_MARCA"
-                          titulo="Personalizado — Marca d'água"
-                          subtitulo="Usa sua arte como fundo leve no centro do documento"
-                          bullets={[
-                            "Fundo discreto",
-                            "Boa leitura",
-                            "Estilo elegante",
-                            "Depende da sua imagem",
-                          ]}
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                  <LayoutCard
+                    value="PHANYX_CLASSICO"
+                    titulo="PHANYX — Clássico"
+                    subtitulo="Institucional"
+                    bullets={["Cabeçalho forte", "Rodapé forte", "Premium"]}
+                  />
+                </div>
+              )}
 
               {modoLayout === "PERSONALIZADO" && (
-                <div className="mt-5">
+                <div className="space-y-4">
+                  <label className="flex items-center gap-2 text-sm text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={form.usarPapelTimbrado || false}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          usarPapelTimbrado: e.target.checked,
+                        }))
+                      }
+                    />
+                    Ativar uso da imagem enviada
+                  </label>
+
+                  <div className="grid gap-3">
+                    <LayoutCard
+                      value="PERSONALIZADO_CLASSICO"
+                      titulo="Personalizado — Clássico"
+                      subtitulo="Discreto"
+                      bullets={["Sóbrio", "Escala neutra"]}
+                    />
+
+                    <LayoutCard
+                      value="PERSONALIZADO_MODERNO"
+                      titulo="Personalizado — Moderno"
+                      subtitulo="Mais visual"
+                      bullets={["Colorido", "Mais forte"]}
+                    />
+
+                    <LayoutCard
+                      value="PERSONALIZADO_MARCA"
+                      titulo="Personalizado — Marca d'água"
+                      subtitulo="Elegante"
+                      bullets={["Fundo leve", "Boa leitura"]}
+                    />
+                  </div>
+
                   <input
                     ref={inputFilePapelRef}
                     type="file"
@@ -1253,29 +1167,41 @@ Cidade e data:
                     type="button"
                     onClick={() => inputFilePapelRef.current?.click()}
                     disabled={enviandoPapelTimbrado}
-                    className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+                    className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
                   >
                     {enviandoPapelTimbrado
                       ? "Enviando papel timbrado..."
                       : "Selecionar papel timbrado"}
                   </button>
 
-                  <p className="mt-2 text-xs text-slate-500">
-                    Formatos aceitos: PNG, JPG, JPEG e WEBP. Use preferência em retrato.
-                  </p>
-
-                  <div className="mt-2 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
+                  <div className="rounded-lg bg-slate-50 p-3 text-xs text-slate-600">
                     {nomeArquivoPapelTimbrado
                       ? `Arquivo selecionado: ${nomeArquivoPapelTimbrado}`
-                      : "Nenhum arquivo de papel timbrado enviado ainda"}
+                      : "Nenhum arquivo enviado ainda"}
                   </div>
                 </div>
               )}
 
-              <div className="mt-4">
-                <label className="mb-2 block text-sm font-medium text-slate-700">
-                  Pré-visualização
-                </label>
+              {modoLayout === "SIMPLES" && (
+                <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm text-slate-600">
+                  Documento sem papel timbrado e sem identidade visual.
+                </div>
+              )}
+
+              <div className="mt-5">
+                <div className="mb-2 flex items-center justify-between">
+                  <label className="block text-sm font-medium text-slate-700">
+                    Pré-visualização
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewAmpliada(true)}
+                    className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                  >
+                    Ampliar
+                  </button>
+                </div>
 
                 <div className="flex justify-center">
                   <div className="h-[297px] w-[210px] overflow-hidden rounded-lg border bg-white shadow-sm">
@@ -1290,28 +1216,28 @@ Cidade e data:
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="max-w-3xl">
-            <h2 className="text-lg font-semibold text-slate-800">
-              🏢 Polos / Unidades
-            </h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Se sua instituição possui filiais, campi ou unidades, cadastre os
-              polos que serão usados depois em turmas e professores.
-            </p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-3xl">
+              <h2 className="text-lg font-semibold text-slate-800">
+                🏢 Polos / Unidades
+              </h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Se sua instituição possui filiais, campi ou unidades, cadastre os
+                polos que serão usados depois em turmas e professores.
+              </p>
+            </div>
+
+            <Link
+              href="/admin/polos"
+              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+            >
+              Gerenciar polos
+            </Link>
           </div>
-
-          <Link
-            href="/admin/polos"
-            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-          >
-            Gerenciar polos
-          </Link>
         </div>
       </div>
-    </div>
+    </>
   );
 }
