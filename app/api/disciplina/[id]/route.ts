@@ -5,16 +5,26 @@ import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 function disciplinaPertenceAInstituicao(
   disciplina: {
     curso?: { instituicaoId?: number | null } | null;
-    turmas?: Array<{ instituicaoId?: number | null }> | null;
+    turmaDisciplinas?:
+      | Array<{
+          instituicaoId?: number | null;
+          turma?: { instituicaoId?: number | null } | null;
+        }>
+      | null;
   } | null,
   instituicaoId: number
 ) {
   if (!disciplina) return false;
 
   const cursoDaInstituicao = disciplina.curso?.instituicaoId === instituicaoId;
+
   const turmaDaInstituicao =
-    Array.isArray(disciplina.turmas) &&
-    disciplina.turmas.some((turma) => turma.instituicaoId === instituicaoId);
+    Array.isArray(disciplina.turmaDisciplinas) &&
+    disciplina.turmaDisciplinas.some(
+      (vinculo) =>
+        vinculo.instituicaoId === instituicaoId ||
+        vinculo.turma?.instituicaoId === instituicaoId
+    );
 
   return cursoDaInstituicao || turmaDaInstituicao;
 }
@@ -63,19 +73,16 @@ export async function GET(
           itens: {
             where: {
               instituicaoId: user.instituicaoId,
-              turma: {
-                disciplinaId: id,
-                instituicaoId: user.instituicaoId,
-              },
+              disciplinaId: id,
             },
             include: {
+              disciplina: {
+                include: {
+                  curso: true,
+                },
+              },
               turma: {
                 include: {
-                  disciplina: {
-                    include: {
-                      curso: true,
-                    },
-                  },
                   aulas: {
                     where: {
                       instituicaoId: user.instituicaoId,
@@ -111,17 +118,17 @@ export async function GET(
       });
 
       const itemMatricula = matricula?.itens?.[0];
-      const turma = itemMatricula?.turma;
-      const disciplina = turma?.disciplina;
+      const turma = itemMatricula?.turma ?? null;
+      const disciplina = itemMatricula?.disciplina ?? null;
 
-      if (!disciplina || !turma) {
+      if (!disciplina) {
         return NextResponse.json(
           { error: "Disciplina não encontrada" },
           { status: 404 }
         );
       }
 
-      const aulas = (turma.aulas ?? []).map((aula) => {
+      const aulas = (turma?.aulas ?? []).map((aula) => {
         const presenca = aula.presencas?.[0] ?? null;
 
         return {
@@ -166,11 +173,13 @@ export async function GET(
         cargaHoraria: disciplina.cargaHoraria,
         semestre: disciplina.semestre,
         curso: disciplina.curso,
-        turma: {
-          id: turma.id,
-          nome: turma.nome,
-          semestre: turma.semestre,
-        },
+        turma: turma
+          ? {
+              id: turma.id,
+              nome: turma.nome,
+              semestre: turma.semestre,
+            }
+          : null,
         aulas,
         provaLiberada: totalAulas === 0 ? true : progressoPercentual === 100,
         progressoPercentual,
@@ -183,22 +192,26 @@ export async function GET(
 
     const disciplina = await prisma.disciplina.findFirst({
       where: {
-        id: Number(id),
+        id,
         instituicaoId: user.instituicaoId,
       },
       include: {
         curso: true,
-        turmas: {
+        turmaDisciplinas: {
           include: {
-            professor: true,
-            _count: {
-              select: {
-                atividades: true,
-                itensMatricula: true,
-                modulos: true,
-                notas: true,
-                provas: true,
-                resultadosFinais: true,
+            turma: {
+              include: {
+                professor: true,
+                _count: {
+                  select: {
+                    atividades: true,
+                    itensMatricula: true,
+                    modulos: true,
+                    notas: true,
+                    provas: true,
+                    resultadosFinais: true,
+                  },
+                },
               },
             },
           },
@@ -238,8 +251,8 @@ export async function PUT(
     }
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
     const id = Number(params.id);
 
@@ -256,9 +269,13 @@ export async function PUT(
       },
       include: {
         curso: true,
-        turmas: {
+        turmaDisciplinas: {
           include: {
-            professor: true,
+            turma: {
+              include: {
+                professor: true,
+              },
+            },
           },
         },
       },
@@ -309,27 +326,21 @@ export async function PUT(
       );
     }
 
+    const turmaId = Number(body.turmaId);
+
     const turma = await prisma.turma.findFirst({
       where: {
-        id: Number(body.turmaId),
+        id: turmaId,
         instituicaoId: user.instituicaoId,
       },
       select: {
         id: true,
-        disciplinaId: true,
       },
     });
 
     if (!turma) {
       return NextResponse.json(
         { error: "Turma inválida para esta instituição." },
-        { status: 400 }
-      );
-    }
-
-    if (turma.disciplinaId && turma.disciplinaId !== id) {
-      return NextResponse.json(
-        { error: "Esta turma já está vinculada a outra disciplina." },
         { status: 400 }
       );
     }
@@ -341,9 +352,11 @@ export async function PUT(
       );
     }
 
+    const professorId = Number(body.professorId);
+
     const professor = await prisma.professor.findFirst({
       where: {
-        id: Number(body.professorId),
+        id: professorId,
         instituicaoId: user.instituicaoId,
       },
       select: {
@@ -383,11 +396,36 @@ export async function PUT(
 
       await tx.turma.update({
         where: {
-          id: Number(body.turmaId),
+          id: turmaId,
         },
         data: {
+          professorId,
+        },
+      });
+
+      await tx.turmaDisciplina.deleteMany({
+        where: {
           disciplinaId: id,
-          professorId: Number(body.professorId),
+          turmaId: {
+            not: turmaId,
+          },
+        },
+      });
+
+      await tx.turmaDisciplina.upsert({
+        where: {
+          turmaId_disciplinaId: {
+            turmaId,
+            disciplinaId: id,
+          },
+        },
+        update: {
+          instituicaoId: user.instituicaoId,
+        },
+        create: {
+          turmaId,
+          disciplinaId: id,
+          instituicaoId: user.instituicaoId,
         },
       });
     });
@@ -399,9 +437,13 @@ export async function PUT(
       },
       include: {
         curso: true,
-        turmas: {
+        turmaDisciplinas: {
           include: {
-            professor: true,
+            turma: {
+              include: {
+                professor: true,
+              },
+            },
           },
         },
       },
@@ -444,7 +486,7 @@ export async function DELETE(
         instituicaoId: user.instituicaoId,
       },
       include: {
-        turmas: {
+        turmaDisciplinas: {
           select: { id: true },
         },
       },
@@ -458,20 +500,15 @@ export async function DELETE(
     }
 
     await prisma.$transaction(async (tx) => {
-      // 🔹 Remove vínculo das turmas
-      if (disciplina.turmas.length > 0) {
-        await tx.turma.updateMany({
+      if (disciplina.turmaDisciplinas.length > 0) {
+        await tx.turmaDisciplina.deleteMany({
           where: {
             disciplinaId: id,
             instituicaoId: user.instituicaoId,
           },
-          data: {
-            disciplinaId: null,
-          },
         });
       }
 
-      // 🔹 Agora pode deletar a disciplina
       await tx.disciplina.delete({
         where: { id },
       });
