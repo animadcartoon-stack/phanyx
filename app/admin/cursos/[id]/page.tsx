@@ -259,9 +259,10 @@ export default function CursoDetalhePage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar semestre");
-      }
+if (!res.ok) {
+  console.error("Erro ao criar semestre:", data);
+  throw new Error(data.error || "Erro ao criar semestre");
+}
 
       setNovoSemestre({
         numero: "",

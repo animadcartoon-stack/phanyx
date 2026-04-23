@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
+import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -59,9 +59,9 @@ export async function POST(req: Request) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+    if (!user || !isAdminLike(user.role)) {
+  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+}
 
     const body = await req.json();
     const { cursoId, numero, titulo, descricao } = body;
