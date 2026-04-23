@@ -41,10 +41,9 @@ interface Turma {
   statusTurma?: StatusTurma;
   capacidadeMinima?: number | null;
   capacidadeMaxima?: number | null;
-  disciplinaId: number;
-  professorId: number;
-  disciplina?: Disciplina | null;
-  professor?: Professor | null;
+  cursoId?: number | null;
+  curso?: Curso | null;
+  disciplinas?: Disciplina[];
   _count?: {
     itensMatricula: number;
   };
@@ -67,6 +66,7 @@ function AdminTurmasPage() {
   const [capacidadeMinima, setCapacidadeMinima] = useState("");
   const [capacidadeMaxima, setCapacidadeMaxima] = useState("");
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
+  const [disciplinasAbertas, setDisciplinasAbertas] = useState(false);
 
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
@@ -144,16 +144,17 @@ const [cursoId, setCursoId] = useState("");
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          nome,
-          codigo,
-          semestre,
-          periodoLetivo,
-          statusTurma,
-          ativa,
-          capacidadeMinima,
-          capacidadeMaxima,
-          disciplinaIds: disciplinasSelecionadas,
-        }),
+  nome,
+  codigo,
+  semestre,
+  periodoLetivo,
+  statusTurma,
+  ativa,
+  capacidadeMinima,
+  capacidadeMaxima,
+  cursoId: cursoId ? Number(cursoId) : null,
+  disciplinaIds: disciplinasSelecionadas,
+}),
       });
 
       const data = await res.json();
@@ -292,9 +293,12 @@ const [cursoId, setCursoId] = useState("");
       const codigo = String(turma.codigo || "").toLowerCase();
       const semestre = String(turma.semestre || "").toLowerCase();
       const periodoLetivo = String(turma.periodoLetivo || "").toLowerCase();
-      const disciplina = String(turma.disciplina?.nome || "").toLowerCase();
-      const curso = String(turma.disciplina?.curso?.nome || "").toLowerCase();
-      const professor = String(turma.professor?.nome || "").toLowerCase();
+      const disciplina = String(
+  turma.disciplinas?.map((d) => d.nome).join(" | ") || ""
+).toLowerCase();
+
+const curso = String(turma.curso?.nome || "").toLowerCase();
+      
       const status = String(turma.statusTurma || "").toLowerCase();
       const capacidadeMinima = String(turma.capacidadeMinima || "").toLowerCase();
       const capacidadeMaxima = String(turma.capacidadeMaxima || "").toLowerCase();
@@ -306,7 +310,6 @@ const [cursoId, setCursoId] = useState("");
         periodoLetivo.includes(termo) ||
         disciplina.includes(termo) ||
         curso.includes(termo) ||
-        professor.includes(termo) ||
         status.includes(termo) ||
         capacidadeMinima.includes(termo) ||
         capacidadeMaxima.includes(termo)
@@ -435,11 +438,45 @@ const [cursoId, setCursoId] = useState("");
             </select>
 
             <div className="col-span-2">
-  <label className="block mb-2 text-sm font-medium">
-    Disciplinas da turma
-  </label>
+  <button
+    type="button"
+    onClick={() => setDisciplinasAbertas((prev) => !prev)}
+    className="flex w-full items-center justify-between rounded-lg border p-3 text-left"
+  >
+    <span className="text-sm font-medium">
+      Disciplinas da turma
+      {disciplinasSelecionadas.length > 0
+        ? ` (${disciplinasSelecionadas.length} selecionada(s))`
+        : ""}
+    </span>
+    <span className="text-sm text-gray-500">
+      {disciplinasAbertas ? "▲ Fechar" : "▼ Abrir"}
+    </span>
+  </button>
 
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-auto border p-2 rounded">
+  {disciplinasAbertas && (
+    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-auto border p-2 rounded">
+      {disciplinas.map((disciplina) => (
+        <label key={disciplina.id} className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={disciplinasSelecionadas.includes(disciplina.id)}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setDisciplinasSelecionadas([...disciplinasSelecionadas, disciplina.id]);
+              } else {
+                setDisciplinasSelecionadas(
+                  disciplinasSelecionadas.filter((id) => id !== disciplina.id)
+                );
+              }
+            }}
+          />
+          {disciplina.nome}
+        </label>
+      ))}
+    </div>
+  )}
+</div>
     {disciplinas.map((disciplina) => (
       <label key={disciplina.id} className="flex items-center gap-2 text-sm">
         <input
@@ -640,14 +677,14 @@ const [cursoId, setCursoId] = useState("");
                         Código: {turma.codigo || "-"}
                       </p>
                       <p className="text-sm text-gray-600">
-                        Curso: {turma.disciplina?.curso?.nome || "-"}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Disciplina: {turma.disciplina?.nome || "-"}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Professor: {turma.professor?.nome || "-"}
-                      </p>
+  Curso: {turma.curso?.nome || "-"}
+</p>
+<p className="text-sm text-gray-600">
+  Disciplinas:{" "}
+  {turma.disciplinas && turma.disciplinas.length > 0
+    ? turma.disciplinas.map((d) => d.nome).join(", ")
+    : "-"}
+</p>
                       <p className="text-sm text-gray-600">
                         Semestre: {turma.semestre}
                       </p>
