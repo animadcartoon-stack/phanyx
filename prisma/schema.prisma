@@ -332,7 +332,6 @@ model Disciplina {
   curso                     Curso?                          @relation(fields: [cursoId], references: [id])
   instituicao               Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   resultadosFinais          ResultadoFinal[]
-  turmas                    Turma[]
   itensMatricula            ItemMatricula[]
   prerequisitosDaDisciplina DisciplinaPreRequisito[]        @relation("DisciplinaPrincipal")
   liberaOutrasDisciplinas   DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
@@ -349,8 +348,7 @@ model Turma {
   id               Int               @id @default(autoincrement())
   nome             String
   semestre         String
-  disciplinaId     Int
-  professorId      Int
+  professorId      Int?
   instituicaoId    Int
   ativa            Boolean           @default(true)
   codigo           String?
@@ -367,14 +365,12 @@ model Turma {
   notas            Nota[]
   provas           Prova[]
   resultadosFinais ResultadoFinal[]
-  disciplina       Disciplina        @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
   instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  professor        Professor         @relation(fields: [professorId], references: [id])
+  professor        Professor?        @relation(fields: [professorId], references: [id])
   disciplinas      TurmaDisciplina[]
 
-  @@unique([instituicaoId, nome, semestre, disciplinaId])
+  @@unique([instituicaoId, nome, semestre])
   @@index([instituicaoId])
-  @@index([disciplinaId])
   @@index([professorId])
   @@index([statusTurma])
 }
