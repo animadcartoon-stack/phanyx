@@ -130,7 +130,8 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     const busca = String(searchParams.get("busca") || "").trim().toLowerCase();
     const status = String(searchParams.get("status") || "").trim();
     const tipo = String(searchParams.get("tipo") || "").trim();
-    const poloId = searchParams.get("poloId");
+    const poloId = String(searchParams.get("poloId") || "").trim();
+    
 
     const lancamentos = await prisma.lancamentoFinanceiro.findMany({
       where: {

@@ -284,6 +284,8 @@ model LancamentoFinanceiro {
   vencimento      DateTime?
   pagoEm          DateTime?
   status          StatusLancamentoFinanceiro @default(PENDENTE)
+  poloId          Int?
+  polo            Polo?                      @relation(fields: [poloId], references: [id])
   observacao      String?
   createdAt       DateTime                   @default(now())
   updatedAt       DateTime                   @updatedAt
@@ -1351,12 +1353,13 @@ model Polo {
   instituicaoId Int
 
   instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  professores   Professor[]
-  turmas        Turma[]
-  alunos        Aluno[]
-  cursosPolos   CursoPolo[]
-  matriculas    Matricula[]
-  cobrancas     Cobranca[]
+  professores             Professor[]
+  turmas                  Turma[]
+  alunos                  Aluno[]
+  cursosPolos             CursoPolo[]
+  matriculas              Matricula[]
+  cobrancas               Cobranca[]
+  lancamentosFinanceiros  LancamentoFinanceiro[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])

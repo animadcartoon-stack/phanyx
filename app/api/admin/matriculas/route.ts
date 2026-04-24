@@ -77,20 +77,22 @@ export async function POST(req: Request) {
       Number(valorPagoMatricula) > 0
     ) {
       await prisma.lancamentoFinanceiro.create({
-        data: {
-                    alunoId: Number(alunoId),
-          matriculaId: matricula.id,
-          instituicaoId: user.instituicaoId,
-          poloId,
-          tipo: "MATRICULA",
-          valorOriginal: Number(valorPagoMatricula),
-          valorFinal: Number(valorPagoMatricula),
-          status: "PENDENTE",
-          vencimento: dataPrimeiroVencimento
-            ? new Date(dataPrimeiroVencimento)
-            : new Date(),
-        },
-      });
+  data: {
+    alunoId: Number(alunoId),
+    matriculaId: matricula.id,
+    instituicaoId: user.instituicaoId,
+
+    poloId,
+
+    tipo: "MATRICULA",
+    valorOriginal: Number(valorPagoMatricula),
+    valorFinal: Number(valorPagoMatricula),
+    status: "PENDENTE",
+    vencimento: dataPrimeiroVencimento
+      ? new Date(dataPrimeiroVencimento)
+      : new Date(),
+  },
+});
     }
 
     if (
