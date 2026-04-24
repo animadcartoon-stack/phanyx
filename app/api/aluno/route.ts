@@ -87,7 +87,7 @@ export async function GET() {
                     id: matriculaRecente.curso.id,
                     nome: matriculaRecente.curso.nome,
                   }
-                : null,
+                : null, // force deploy novo
               turmas: matriculaRecente.itens.map((item) => ({
                 id: item.turma?.id,
                 nome: item.turma?.nome || null,
