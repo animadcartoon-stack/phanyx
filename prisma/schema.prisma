@@ -71,7 +71,6 @@ model Instituicao {
   cursosPolos                CursoPolo[]
 }
 
-
 model User {
   id                 Int          @id @default(autoincrement())
   nome               String
@@ -182,7 +181,7 @@ model Professor {
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   turmas            Turma[]
   poloId            Int?
-  polo              Polo?        @relation(fields: [poloId], references: [id])
+  polo              Polo?       @relation(fields: [poloId], references: [id])
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -210,6 +209,7 @@ model Curso {
   disciplinas                 Disciplina[]
   documentosGerados           DocumentoGerado[]
   matriculas                  Matricula[]
+  turmas                      Turma[]
   periodosMatricula           PeriodoMatricula[]
   disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
   cursosPolos                 CursoPolo[]
@@ -370,6 +370,7 @@ model Turma {
   updatedAt        DateTime          @updatedAt
   capacidadeMaxima Int?
   capacidadeMinima Int?
+  cursoId          Int
   statusTurma      StatusTurma       @default(AGUARDANDO)
   atividades       Atividade[]
   aulas            Aula[]
@@ -378,6 +379,7 @@ model Turma {
   notas            Nota[]
   provas           Prova[]
   resultadosFinais ResultadoFinal[]
+  curso            Curso             @relation(fields: [cursoId], references: [id])
   instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professor        Professor?        @relation(fields: [professorId], references: [id])
   disciplinas      TurmaDisciplina[]
@@ -1340,7 +1342,7 @@ model PeriodoMatricula {
 }
 
 model Polo {
-  id            Int          @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   nome          String
   codigo        String?
   cnpj          String?
@@ -1348,19 +1350,19 @@ model Polo {
   cidade        String?
   estado        String?
   endereco      String?
-  ativo         Boolean      @default(true)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   instituicaoId Int
 
-  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  professores             Professor[]
-  turmas                  Turma[]
-  alunos                  Aluno[]
-  cursosPolos             CursoPolo[]
-  matriculas              Matricula[]
-  cobrancas               Cobranca[]
-  lancamentosFinanceiros  LancamentoFinanceiro[]
+  instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professores            Professor[]
+  turmas                 Turma[]
+  alunos                 Aluno[]
+  cursosPolos            CursoPolo[]
+  matriculas             Matricula[]
+  cobrancas              Cobranca[]
+  lancamentosFinanceiros LancamentoFinanceiro[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -1369,15 +1371,15 @@ model Polo {
 }
 
 model CursoPolo {
-  id            Int          @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   cursoId       Int
   poloId        Int
   instituicaoId Int
-  createdAt     DateTime     @default(now())
+  createdAt     DateTime @default(now())
 
-  curso         Curso        @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  polo          Polo         @relation(fields: [poloId], references: [id], onDelete: Cascade)
-  instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  curso       Curso       @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  polo        Polo        @relation(fields: [poloId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@unique([cursoId, poloId])
   @@index([instituicaoId])

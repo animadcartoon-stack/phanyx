@@ -56,6 +56,8 @@ function AdminTurmasPage() {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [polos, setPolos] = useState<any[]>([]);
+  const [cursos, setCursos] = useState<Curso[]>([]);
+  const [cursoId, setCursoId] = useState("");
   const [poloId, setPoloId] = useState("");
   const [busca, setBusca] = useState("");
   const [nome, setNome] = useState("");
@@ -132,6 +134,15 @@ async function carregarPolos() {
   setPolos(Array.isArray(data) ? data : []);
 }
 
+async function carregarCursos() {
+  const res = await fetch("/api/curso", {
+    credentials: "include",
+  });
+
+  const data = await res.json();
+  setCursos(Array.isArray(data) ? data : []);
+}
+
   async function criarTurma(e: React.FormEvent) {
     e.preventDefault();
 
@@ -146,6 +157,7 @@ async function carregarPolos() {
   nome,
   codigo,
   semestre,
+  cursoId,
   periodoLetivo,
   statusTurma,
   ativa,
@@ -165,6 +177,7 @@ async function carregarPolos() {
       setNome("");
       setCodigo("");
       setSemestre("");
+      setCursoId("");
       setPeriodoLetivo("");
       setStatusTurma("AGUARDANDO");
       setAtiva(true);
@@ -271,6 +284,7 @@ setEditProfessorId("");
   carregarTurmas();
   carregarDisciplinas();
   carregarPolos();
+  carregarCursos();
 }, []);
 
   useEffect(() => {
@@ -373,6 +387,20 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
               onChange={(e) => setCodigo(e.target.value)}
               className="w-full border rounded-lg p-2"
             />
+
+<select
+  value={cursoId}
+  onChange={(e) => setCursoId(e.target.value)}
+  className="w-full border rounded-lg p-2"
+  required
+>
+  <option value="">Selecione o curso</option>
+  {cursos.map((curso) => (
+    <option key={curso.id} value={curso.id}>
+      {curso.nome}
+    </option>
+  ))}
+</select>
 
             <input
               placeholder="Semestre"

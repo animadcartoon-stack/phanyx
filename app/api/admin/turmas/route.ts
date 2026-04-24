@@ -40,6 +40,12 @@ export async function GET() {
             nome: true,
             codigo: true,
             cursoId: true,
+            curso: {
+  select: {
+    id: true,
+    nome: true,
+  },
+},
           },
           disciplinas: {
   include: {
@@ -83,7 +89,13 @@ export async function GET() {
       periodoLetivo: turma.periodoLetivo,
       ativa: turma.ativa,
 disciplinas: turma.disciplinas,
-      cursoId: turma.disciplina?.cursoId ?? null,
+      cursoId: turma.cursoId ?? turma.disciplina?.cursoId ?? null,
+curso: turma.curso
+  ? {
+      id: turma.curso.id,
+      nome: turma.curso.nome,
+    }
+  : null,
 
       disciplina: turma.disciplina
         ? {
