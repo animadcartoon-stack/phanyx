@@ -284,6 +284,7 @@ if (poloId !== null) {
             limparTexto(body.observacoesAcessibilidade) || null,
           userId: novoUser.id,
           instituicaoId: user.instituicaoId!,
+          poloId,
         },
         include: {
           user: true,
