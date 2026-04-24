@@ -32,6 +32,12 @@ type Lancamento = {
     nome: string;
     matricula?: string | null;
   } | null;
+  polo?: {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+  cnpj?: string | null;
+} | null;
 };
 
 type Polo = {
@@ -797,9 +803,21 @@ doc.save(nomeArquivo);
               <div className="mt-4 space-y-3">
                 {dados.lancamentos.map((item) => (
                   <div key={item.id} className="border rounded-lg p-4">
-                    <div className="grid grid-cols-1 md:grid-cols-6 gap-3 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-7 gap-3 text-sm">
                       <div>
                         <p className="text-gray-500">Aluno</p>
+                        <div>
+  <p className="text-gray-500">Polo</p>
+  <p className="font-medium">
+    {(item as any).polo?.nome || "-"}
+  </p>
+</div>
+
+<div>
+  <p className="text-gray-500">Polo</p>
+  <p className="font-medium">{item.polo?.nome || "-"}</p>
+</div>
+
                         <p className="font-medium">{item.aluno?.nome || "-"}</p>
                       </div>
 

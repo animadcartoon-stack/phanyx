@@ -47,14 +47,15 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     const lancamentos = await prisma.lancamentoFinanceiro.findMany({
       where: whereBase,
       include: {
-        aluno: true,
-        pagamentos: true,
-      },
+  aluno: true,
+  pagamentos: true,
+  polo: true, 
+},
       orderBy: {
         createdAt: "desc",
       },
     });
-    
+
 // buscar configuração da instituição
 const config = await prisma.configuracaoFinanceiraInstituicao.upsert({
   where: {
