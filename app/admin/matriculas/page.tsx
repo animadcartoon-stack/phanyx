@@ -1082,7 +1082,9 @@ function renderGrupoDisciplina(
   >
     <option value="">Selecione a turma...</option>
 
-    {turmasBaseDoSemestre.map((t) => (
+    {turmas
+  .filter((t) => Number(t.cursoId) === Number(cursoId))
+  .map((t) => (
       <option key={t.id} value={String(t.id)}>
         {t.nome}
         {t.semestre ? ` — ${t.semestre}` : ""}
