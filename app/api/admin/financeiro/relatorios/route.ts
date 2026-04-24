@@ -27,10 +27,12 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
 
     const inicioStr = String(searchParams.get("inicio") || "").trim();
     const fimStr = String(searchParams.get("fim") || "").trim();
+    const poloId = String(searchParams.get("poloId") || "").trim();
 
     const whereBase: any = {
-      instituicaoId: user.instituicaoId,
-    };
+  instituicaoId: user.instituicaoId,
+  ...(poloId ? { poloId: Number(poloId) } : {}),
+};
 
     if (inicioStr || fimStr) {
       whereBase.createdAt = {};
@@ -52,17 +54,7 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
         createdAt: "desc",
       },
     });
-
-    const alunosComAtraso = await prisma.lancamentoFinanceiro.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-    status: "ATRASADO",
-  },
-  select: {
-    alunoId: true,
-  },
-});
-
+    
 // buscar configuração da instituição
 const config = await prisma.configuracaoFinanceiraInstituicao.upsert({
   where: {

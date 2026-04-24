@@ -34,6 +34,12 @@ type Lancamento = {
   } | null;
 };
 
+type Polo = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+};
+
 type RespostaApi = {
   resumo: {
     quantidadeLancamentos: number;
@@ -112,6 +118,8 @@ export default function AdminFinanceiroRelatoriosPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [dados, setDados] = useState<RespostaApi | null>(null);
+  const [poloId, setPoloId] = useState("");
+  const [polos, setPolos] = useState<Polo[]>([]);
 
   async function carregar() {
     try {
@@ -121,6 +129,7 @@ export default function AdminFinanceiroRelatoriosPage() {
       const query = new URLSearchParams();
       if (inicio) query.set("inicio", inicio);
       if (fim) query.set("fim", fim);
+      if (poloId) query.set("poloId", poloId);
 
       const res = await fetch(
         `/api/admin/financeiro/relatorios?${query.toString()}`,
@@ -145,10 +154,30 @@ export default function AdminFinanceiroRelatoriosPage() {
     }
   }
 
-  useEffect(() => {
-    carregar();
-  }, [inicio, fim]);
+async function carregarPolos() {
+  try {
+    const res = await fetch("/api/admin/polos", {
+      credentials: "include",
+      cache: "no-store",
+    });
 
+    const data = await res.json();
+
+    if (res.ok) {
+      setPolos(Array.isArray(data) ? data : []);
+    }
+  } catch (error) {
+    console.error("Erro ao carregar polos:", error);
+  }
+}
+
+  useEffect(() => {
+  carregar();
+}, [inicio, fim, poloId]);
+
+useEffect(() => {
+  carregarPolos();
+}, []);
   function exportarCsv() {
     const query = new URLSearchParams();
     if (inicio) query.set("inicio", inicio);
@@ -572,7 +601,7 @@ doc.save(nomeArquivo);
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
           <label className="text-sm font-medium text-gray-700">
             Data inicial
@@ -597,6 +626,24 @@ doc.save(nomeArquivo);
           />
         </div>
       </div>
+
+<div>
+  <label className="text-sm font-medium text-gray-700">
+    Polo
+  </label>
+  <select
+    value={poloId}
+    onChange={(e) => setPoloId(e.target.value)}
+    className="mt-1 w-full border rounded-lg p-2 bg-white"
+  >
+    <option value="">Todos os polos</option>
+    {polos.map((polo) => (
+      <option key={polo.id} value={polo.id}>
+        {polo.nome}
+      </option>
+    ))}
+  </select>
+</div>
 
       {erro && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
