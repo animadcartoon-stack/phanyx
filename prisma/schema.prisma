@@ -127,7 +127,9 @@ model Aluno {
   possuiNecessidadeEspecial    Boolean                @default(false)
   genero                       String?
   nomeSocial                   String?
+  poloId                       Int?
   instituicao                  Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                         Polo?                  @relation(fields: [poloId], references: [id])
   user                         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   atestadosMedicos             AtestadoMedico[]
   certificados                 Certificado[]
@@ -153,6 +155,7 @@ model Aluno {
   @@index([nome])
   @@index([cpf])
   @@index([statusAluno])
+  @@index([poloId])
 }
 
 model Professor {
@@ -1344,6 +1347,7 @@ model Polo {
   instituicao   Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professores   Professor[]
   turmas        Turma[]
+  alunos        Aluno[]
   cursosPolos   CursoPolo[]
 
   @@unique([instituicaoId, nome])
