@@ -51,15 +51,6 @@ interface Turma {
 
 type FeedbackTipo = "sucesso" | "erro" | "";
 
-async function carregarPolos() {
-  const res = await fetch("/api/polo", {
-    credentials: "include",
-  });
-
-  const data = await res.json();
-  setPolos(Array.isArray(data) ? data : []);
-}
-
 function AdminTurmasPage() {
   const searchParams = useSearchParams();
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -131,6 +122,15 @@ function AdminTurmasPage() {
     const data = await res.json();
     setDisciplinas(Array.isArray(data) ? data : []);
   }
+
+async function carregarPolos() {
+  const res = await fetch("/api/admin/polos", {
+    credentials: "include",
+  });
+
+  const data = await res.json();
+  setPolos(Array.isArray(data) ? data : []);
+}
 
   async function criarTurma(e: React.FormEvent) {
     e.preventDefault();
