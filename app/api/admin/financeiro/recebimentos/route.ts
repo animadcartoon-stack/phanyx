@@ -130,15 +130,18 @@ if (!podeUsarFinanceiroCompleto(user.plano || "ESSENCIAL")) {
     const busca = String(searchParams.get("busca") || "").trim().toLowerCase();
     const status = String(searchParams.get("status") || "").trim();
     const tipo = String(searchParams.get("tipo") || "").trim();
+    const poloId = searchParams.get("poloId");
 
     const lancamentos = await prisma.lancamentoFinanceiro.findMany({
       where: {
-        instituicaoId: user.instituicaoId,
-        ...(status ? { status: status as any } : {}),
-        ...(tipo ? { tipo: tipo as any } : {}),
-      },
+  instituicaoId: user.instituicaoId,
+  ...(status ? { status: status as any } : {}),
+  ...(tipo ? { tipo: tipo as any } : {}),
+  ...(poloId ? { poloId: Number(poloId) } : {}),
+},
       include: {
-        aluno: {
+  polo: true,
+  aluno: {
           include: {
             user: true,
           },
@@ -560,7 +563,8 @@ if (novoTotalPago >= valorFinal) {
         id: lancamento.id,
       },
       include: {
-        aluno: {
+  polo: true,
+  aluno: {
           include: {
             user: true,
           },

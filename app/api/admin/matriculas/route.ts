@@ -23,19 +23,40 @@ export async function POST(req: Request) {
       dataPrimeiroVencimento,
     } = body;
 
-    if (!alunoId || !cursoId || !semestre) {
+        if (!alunoId || !cursoId || !semestre) {
       return NextResponse.json(
         { error: "Dados obrigatórios não informados" },
         { status: 400 }
       );
     }
 
+    const aluno = await prisma.aluno.findFirst({
+      where: {
+        id: Number(alunoId),
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+        poloId: true,
+      },
+    });
+
+    if (!aluno) {
+      return NextResponse.json(
+        { error: "Aluno não encontrado nesta instituição" },
+        { status: 404 }
+      );
+    }
+
+    const poloId = aluno.poloId ?? null;
+
     const matricula = await prisma.matricula.create({
-      data: {
+            data: {
         alunoId: Number(alunoId),
         cursoId: Number(cursoId),
         semestre: Number(semestre),
         instituicaoId: user.instituicaoId,
+        poloId,
         status: "ATIVA",
       },
     });
@@ -57,9 +78,10 @@ export async function POST(req: Request) {
     ) {
       await prisma.lancamentoFinanceiro.create({
         data: {
-          alunoId: Number(alunoId),
+                    alunoId: Number(alunoId),
           matriculaId: matricula.id,
           instituicaoId: user.instituicaoId,
+          poloId,
           tipo: "MATRICULA",
           valorOriginal: Number(valorPagoMatricula),
           valorFinal: Number(valorPagoMatricula),
@@ -84,10 +106,11 @@ export async function POST(req: Request) {
         const vencimento = new Date(dataInicial);
         vencimento.setMonth(vencimento.getMonth() + i);
 
-        lancamentos.push({
+                lancamentos.push({
           alunoId: Number(alunoId),
           matriculaId: matricula.id,
           instituicaoId: user.instituicaoId,
+          poloId,
           tipo: "MENSALIDADE",
           valorOriginal: Number(valorMensalidade),
           valorFinal: Number(valorMensalidade),

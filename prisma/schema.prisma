@@ -411,6 +411,7 @@ model Matricula {
   alunoId                Int
   createdAt              DateTime               @default(now())
   instituicaoId          Int
+  poloId                 Int?
   status                 StatusMatricula        @default(ATIVA)
   updatedAt              DateTime               @updatedAt
   cursoId                Int?
@@ -436,6 +437,7 @@ model Matricula {
   aluno                  Aluno                  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
   curso                  Curso?                 @relation(fields: [cursoId], references: [id])
   instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                   Polo?                  @relation(fields: [poloId], references: [id])
 
   @@index([instituicaoId])
   @@index([alunoId])
@@ -443,6 +445,7 @@ model Matricula {
   @@index([cursoSemestreId])
   @@index([periodoMatriculaId])
   @@index([periodoLetivo])
+  @@index([poloId])
 }
 
 model ItemMatricula {
@@ -1113,6 +1116,8 @@ model Cobranca {
   alunoId        Int
   valor          Float
   dataVencimento DateTime
+  poloId         Int?
+  polo           Polo?       @relation(fields: [poloId], references: [id])
   status         String      @default("PENDENTE")
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
@@ -1350,6 +1355,8 @@ model Polo {
   turmas        Turma[]
   alunos        Aluno[]
   cursosPolos   CursoPolo[]
+  matriculas    Matricula[]
+  cobrancas     Cobranca[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
