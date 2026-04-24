@@ -434,59 +434,77 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
               <option value="NAO_FORMADA">Não formada</option>
             </select>
 
-            <div className="col-span-2">
-  <button
-    type="button"
-    onClick={() => setDisciplinasAbertas((prev) => !prev)}
-    className="flex w-full items-center justify-between rounded-lg border p-3 text-left"
-  >
-
-<select
-  value={poloId}
-  onChange={(e) => setPoloId(e.target.value)}
-  className="w-full border rounded-lg p-2"
->
-  <option value="">Selecione o polo</option>
-  {polos.map((polo) => (
-    <option key={polo.id} value={polo.id}>
-      {polo.nome}
-    </option>
-  ))}
-</select>
-
-    <span className="text-sm font-medium">
-      Disciplinas da turma
-      {disciplinasSelecionadas.length > 0
-        ? ` (${disciplinasSelecionadas.length} selecionada(s))`
-        : ""}
-    </span>
-    <span className="text-sm text-gray-500">
-      {disciplinasAbertas ? "▲ Fechar" : "▼ Abrir"}
-    </span>
-  </button>
+            <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+  <div>
+    <button
+      type="button"
+      onClick={() => setDisciplinasAbertas((prev) => !prev)}
+      className="flex w-full items-center justify-between rounded-lg border p-3 text-left"
+    >
+      <span className="text-sm font-medium">
+        Disciplinas da turma
+        {disciplinasSelecionadas.length > 0
+          ? ` (${disciplinasSelecionadas.length} selecionada(s))`
+          : ""}
+      </span>
+      <span className="text-sm text-gray-500">
+        {disciplinasAbertas ? "▲ Fechar" : "▼ Abrir"}
+      </span>
+    </button>
 
     {disciplinasAbertas && (
-    <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-auto border p-2 rounded">
-      {disciplinas.map((disciplina) => (
-        <label key={disciplina.id} className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={disciplinasSelecionadas.includes(disciplina.id)}
-            onChange={(e) => {
-              if (e.target.checked) {
-                setDisciplinasSelecionadas([...disciplinasSelecionadas, disciplina.id]);
-              } else {
-                setDisciplinasSelecionadas(
-                  disciplinasSelecionadas.filter((id) => id !== disciplina.id)
-                );
-              }
-            }}
-          />
-          {disciplina.nome}
-        </label>
+      <div className="mt-2 max-h-40 overflow-auto rounded border p-2">
+        <div className="grid grid-cols-1 gap-2">
+          {disciplinas.map((disciplina) => (
+            <label
+              key={disciplina.id}
+              className="flex items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={disciplinasSelecionadas.includes(disciplina.id)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setDisciplinasSelecionadas([
+                      ...disciplinasSelecionadas,
+                      disciplina.id,
+                    ]);
+                  } else {
+                    setDisciplinasSelecionadas(
+                      disciplinasSelecionadas.filter(
+                        (id) => id !== disciplina.id
+                      )
+                    );
+                  }
+                }}
+              />
+              {disciplina.nome}
+            </label>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+
+  <div>
+    <label className="flex w-full items-center justify-between rounded-lg border p-3 text-left">
+      <span className="text-sm font-medium">Polo da turma</span>
+      <span className="text-sm text-gray-500">▼ Selecionar</span>
+    </label>
+
+    <select
+      value={poloId}
+      onChange={(e) => setPoloId(e.target.value)}
+      className="mt-2 w-full rounded-lg border p-2"
+    >
+      <option value="">Selecione o polo</option>
+      {polos.map((polo) => (
+        <option key={polo.id} value={polo.id}>
+          {polo.nome}
+        </option>
       ))}
-    </div>
-  )}
+    </select>
+  </div>
 </div>
 
 <label className="flex items-center gap-2 text-sm">
