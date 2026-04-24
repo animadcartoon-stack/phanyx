@@ -370,7 +370,7 @@ model Turma {
   updatedAt        DateTime          @updatedAt
   capacidadeMaxima Int?
   capacidadeMinima Int?
-  cursoId          Int
+  cursoId          Int?
   statusTurma      StatusTurma       @default(AGUARDANDO)
   atividades       Atividade[]
   aulas            Aula[]
@@ -379,7 +379,7 @@ model Turma {
   notas            Nota[]
   provas           Prova[]
   resultadosFinais ResultadoFinal[]
-  curso            Curso             @relation(fields: [cursoId], references: [id])
+  curso            Curso?            @relation(fields: [cursoId], references: [id])
   instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professor        Professor?        @relation(fields: [professorId], references: [id])
   disciplinas      TurmaDisciplina[]
