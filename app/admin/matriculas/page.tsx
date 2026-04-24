@@ -1115,13 +1115,23 @@ function renderGrupoDisciplina(
 
     {turmas
   .filter((t) => {
+    if (!cursoId) return false;
+
     const cursoSelecionado = cursos.find((c) => c.id === Number(cursoId));
 
-    return (
-      Number(t.cursoId) === Number(cursoId) ||
+    const batePorId =
+      t.cursoId !== null &&
+      t.cursoId !== undefined &&
+      Number(t.cursoId) === Number(cursoId);
+
+    const batePorNome =
       String(t.cursoNome || "").trim().toLowerCase() ===
-        String(cursoSelecionado?.nome || "").trim().toLowerCase()
-    );
+      String(cursoSelecionado?.nome || "").trim().toLowerCase();
+
+    const semCursoInformado =
+      t.cursoId === null || t.cursoId === undefined || Number.isNaN(Number(t.cursoId));
+
+    return batePorId || batePorNome || semCursoInformado;
   })
   .map((t) => (
     <option key={t.id} value={String(t.id)}>
