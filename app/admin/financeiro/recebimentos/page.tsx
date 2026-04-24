@@ -9,6 +9,13 @@ type PagamentoItem = {
   pagoEm?: string | null;
 };
 
+type Polo = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+  cnpj?: string | null;
+};
+
 type DocumentoFinanceiroGerado = {
   id: number;
   titulo: string;
@@ -35,6 +42,7 @@ type RecebimentoItem = {
   pagoEm?: string | null;
   status: string;
   observacao?: string | null;
+  polo?: Polo | null;
   aluno?: {
     id: number;
     nome: string;
@@ -52,6 +60,8 @@ export default function AdminFinanceiroRecebimentosPage() {
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
   const [tipo, setTipo] = useState("");
+  const [poloId, setPoloId] = useState("");
+  const [polos, setPolos] = useState<Polo[]>([]);
   const [recebimentos, setRecebimentos] = useState<RecebimentoItem[]>([]);
 
   const [documentosGerados, setDocumentosGerados] = useState<
@@ -85,6 +95,7 @@ export default function AdminFinanceiroRecebimentosPage() {
       if (busca.trim()) query.set("busca", busca.trim());
       if (status) query.set("status", status);
       if (tipo) query.set("tipo", tipo);
+      if (poloId) query.set("poloId", poloId);
 
       const res = await fetch(
         `/api/admin/financeiro/recebimentos?${query.toString()}`,
@@ -109,9 +120,27 @@ export default function AdminFinanceiroRecebimentosPage() {
     }
   }
 
+async function carregarPolos() {
+  try {
+    const res = await fetch("/api/admin/polos", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setPolos(Array.isArray(data) ? data : []);
+    }
+  } catch (error) {
+    console.error("Erro ao carregar polos:", error);
+  }
+}
+
   useEffect(() => {
-    carregarRecebimentos();
-  }, []);
+  carregarRecebimentos();
+  carregarPolos();
+}, []);
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -119,7 +148,7 @@ export default function AdminFinanceiroRecebimentosPage() {
     }, 300);
 
     return () => clearTimeout(t);
-  }, [busca, status, tipo]);
+  }, [busca, status, tipo, poloId]);
 
   
 
@@ -388,7 +417,7 @@ function calcularValorFinalLote(item: RecebimentoItem) {
   </div>
 </div>
 
-      <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <input
           type="text"
           placeholder="Buscar por aluno, matrícula, descrição ou status"
@@ -423,6 +452,19 @@ function calcularValorFinalLote(item: RecebimentoItem) {
           <option value="OUTRO">Outro</option>
         </select>
       </div>
+
+<select
+  value={poloId}
+  onChange={(e) => setPoloId(e.target.value)}
+  className="border rounded-lg p-2 bg-white"
+>
+  <option value="">Todos os polos</option>
+  {polos.map((polo) => (
+    <option key={polo.id} value={polo.id}>
+      {polo.nome}
+    </option>
+  ))}
+</select>
 
       <div className="bg-white border rounded-xl p-4 space-y-4">
         <div className="flex items-center justify-between">
@@ -597,6 +639,9 @@ function calcularValorFinalLote(item: RecebimentoItem) {
                 <div>
                   <p className="font-medium">{item.aluno?.nome || "-"}</p>
                   <p className="text-gray-500">{item.aluno?.matricula || "-"}</p>
+                  <p className="text-gray-500">
+  Polo: {item.polo?.nome || "-"}
+</p>
                 </div>
 
                 <div>{item.tipo}</div>
