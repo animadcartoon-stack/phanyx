@@ -545,9 +545,12 @@ useEffect(() => {
     .filter((t) => t.disciplinaId && disciplinasSelecionadas.includes(Number(t.disciplinaId)))
     .map((t) => t.id);
 
-  const idsExtras = turmasExtrasMesmoCurso
-    .filter((t) => t.disciplinaId && disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId)))
-    .map((t) => t.id);
+  const idsExtras =
+    disciplinasExtrasSelecionadas.length > 0
+      ? turmasExtrasMesmoCurso
+          .filter((t) => t.disciplinaId && disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId)))
+          .map((t) => t.id)
+      : [];
 
   setTurmasSelecionadas([...new Set([...idsBase, ...idsExtras])]);
 }, [
