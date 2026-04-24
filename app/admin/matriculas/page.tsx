@@ -196,8 +196,8 @@ setAlunos(listaAlunos);
         const dataTurmas = await resTurmas.json();
 
         const listaTurmas: TurmaOption[] = (
-          Array.isArray(dataTurmas) ? dataTurmas : []
-        .map((t: any) => {
+  Array.isArray(dataTurmas) ? dataTurmas : []
+).map((t: any) => {
   const primeiraDisciplina =
     Array.isArray(t.disciplinas) && t.disciplinas.length > 0
       ? t.disciplinas[0]?.disciplina
@@ -216,7 +216,7 @@ setAlunos(listaAlunos);
       primeiraDisciplina?.curso?.id ??
       null,
   };
-}));
+});
 
         setTurmas(listaTurmas.filter((t) => Number.isFinite(t.id) && t.id > 0));
       } catch (error) {
