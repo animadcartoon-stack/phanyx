@@ -518,9 +518,10 @@ const cargaHorariaExcedida =
       c > 0 &&
       Number(cursoSemestreId) > 0 &&
 disciplinasSelecionadas.length > 0 &&
+turmasSelecionadas.length > 0 &&
 !cargaHorariaExcedida
     );
-  }, [alunoId, cursoId, cursoSemestreId, disciplinasSelecionadas, cargaHorariaExcedida]);
+  }, [alunoId, cursoId, cursoSemestreId, disciplinasSelecionadas, turmasSelecionadas, cargaHorariaExcedida]);
 
   function toggleTurma(turmaId: number) {
     setTurmasSelecionadas((prev) =>
@@ -549,7 +550,30 @@ function toggleTurmaEdicao(turmaId: number) {
     if (!podeCriar || !semestreSelecionado) return;
 
     setCreating(true);
+const turmaIdsParaEnviar = [
+  ...turmasBaseDoSemestre
+    .filter((t) =>
+      t.disciplinaId &&
+      disciplinasSelecionadas.includes(Number(t.disciplinaId))
+    )
+    .map((t) => t.id),
 
+  ...turmasExtrasMesmoCurso
+    .filter((t) =>
+      t.disciplinaId &&
+      disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId))
+    )
+    .map((t) => t.id),
+];
+
+console.log("DEBUG MATRÍCULA", {
+  alunoId,
+  cursoId,
+  cursoSemestreId,
+  disciplinasSelecionadas,
+  turmasBaseDoSemestre,
+  turmaIdsParaEnviar,
+});
     try {
       const res = await fetch("/api/matricula", {
         method: "POST",
@@ -560,21 +584,7 @@ function toggleTurmaEdicao(turmaId: number) {
   cursoId: Number(cursoId),
   cursoSemestreId: Number(cursoSemestreId),
   semestre: Number(semestreSelecionado.numero),
-  turmaIds: [
-    ...turmasBaseDoSemestre
-      .filter((t) =>
-        t.disciplinaId &&
-        disciplinasSelecionadas.includes(Number(t.disciplinaId))
-      )
-      .map((t) => t.id),
-
-    ...turmasExtrasMesmoCurso
-      .filter((t) =>
-        t.disciplinaId &&
-        disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId))
-      )
-      .map((t) => t.id),
-  ],
+  turmaIds: turmasSelecionadas,
   status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
   valorMensalidade: Number(valorMensalidade || 0),
@@ -1053,6 +1063,35 @@ function renderGrupoDisciplina(
               ))}
             </select>
           </div>
+
+<div>
+  <label className="text-sm font-medium text-gray-700">
+    Turma do aluno
+  </label>
+
+  <select
+    value={turmasSelecionadas[0] ? String(turmasSelecionadas[0]) : ""}
+    onChange={(e) => {
+      const turmaId = Number(e.target.value);
+      setTurmasSelecionadas(
+        Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : []
+      );
+    }}
+    className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
+    disabled={!cursoId || !cursoSemestreId}
+  >
+    <option value="">Selecione a turma...</option>
+
+    {turmasBaseDoSemestre.map((t) => (
+      <option key={t.id} value={String(t.id)}>
+        {t.nome}
+        {t.semestre ? ` — ${t.semestre}` : ""}
+        {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
+      </option>
+    ))}
+  </select>
+</div>
+
 <div>
   <label className="text-sm font-medium text-gray-700">
     Valor da mensalidade
