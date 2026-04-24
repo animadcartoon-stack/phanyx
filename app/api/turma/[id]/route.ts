@@ -9,17 +9,21 @@ export async function GET(
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const turmaId = Number(context.params.id);
 
     const turma = await prisma.turma.findUnique({
-      where: { id: Number(id) },
+      where: { id: turmaId },
       include: {
-        disciplina: {
+        polo: true,
+        disciplinas: {
           include: {
-            curso: true,
+            disciplina: {
+              include: {
+                curso: true,
+              },
+            },
           },
         },
-        professor: true,
         _count: {
           select: {
             itensMatricula: true,
@@ -35,7 +39,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(turma);
+    return NextResponse.json({
+      ...turma,
+      disciplinas: turma.disciplinas.map((item) => item.disciplina),
+      curso:
+        turma.disciplinas.length > 0
+          ? turma.disciplinas[0].disciplina.curso ?? null
+          : null,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -60,14 +71,17 @@ export async function PUT(
     const user = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
-    const { id } = context.params;
+    const turmaId = Number(context.params.id);
     const body = await request.json();
 
-    const turmaExistente = await prisma.turma.findUnique({
-      where: { id: Number(id) },
+    const turmaExistente = await prisma.turma.findFirst({
+      where: {
+        id: turmaId,
+        instituicaoId: user.instituicaoId,
+      },
     });
 
     if (!turmaExistente) {
@@ -77,8 +91,32 @@ export async function PUT(
       );
     }
 
+    const poloId =
+      body?.poloId !== undefined &&
+      body?.poloId !== null &&
+      String(body.poloId).trim() !== ""
+        ? Number(body.poloId)
+        : null;
+
+    if (poloId !== null) {
+      const polo = await prisma.polo.findFirst({
+        where: {
+          id: poloId,
+          instituicaoId: user.instituicaoId,
+        },
+        select: { id: true },
+      });
+
+      if (!polo) {
+        return NextResponse.json(
+          { error: "Polo inválido para esta instituição." },
+          { status: 400 }
+        );
+      }
+    }
+
     const turmaAtualizada = await prisma.turma.update({
-      where: { id: Number(id) },
+      where: { id: turmaId },
       data: {
         nome: body.nome,
         codigo: body.codigo || null,
@@ -86,6 +124,7 @@ export async function PUT(
         periodoLetivo: body.periodoLetivo || null,
         ativa: Boolean(body.ativa),
         statusTurma: body.statusTurma || "AGUARDANDO",
+        poloId,
         capacidadeMinima:
           body.capacidadeMinima !== undefined &&
           body.capacidadeMinima !== null &&
@@ -98,16 +137,18 @@ export async function PUT(
           String(body.capacidadeMaxima).trim() !== ""
             ? Number(body.capacidadeMaxima)
             : null,
-        disciplinaId: Number(body.disciplinaId),
-        professorId: Number(body.professorId),
       },
       include: {
-        disciplina: {
+        polo: true,
+        disciplinas: {
           include: {
-            curso: true,
+            disciplina: {
+              include: {
+                curso: true,
+              },
+            },
           },
         },
-        professor: true,
         _count: {
           select: {
             itensMatricula: true,
@@ -116,7 +157,14 @@ export async function PUT(
       },
     });
 
-    return NextResponse.json(turmaAtualizada);
+    return NextResponse.json({
+      ...turmaAtualizada,
+      disciplinas: turmaAtualizada.disciplinas.map((item) => item.disciplina),
+      curso:
+        turmaAtualizada.disciplinas.length > 0
+          ? turmaAtualizada.disciplinas[0].disciplina.curso ?? null
+          : null,
+    });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -141,13 +189,16 @@ export async function DELETE(
     const user = jwt.verify(token, process.env.JWT_SECRET!) as any;
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
 
-    const { id } = context.params;
+    const turmaId = Number(context.params.id);
 
-    const turmaExistente = await prisma.turma.findUnique({
-      where: { id: Number(id) },
+    const turmaExistente = await prisma.turma.findFirst({
+      where: {
+        id: turmaId,
+        instituicaoId: user.instituicaoId,
+      },
     });
 
     if (!turmaExistente) {
@@ -157,8 +208,15 @@ export async function DELETE(
       );
     }
 
+    await prisma.turmaDisciplina.deleteMany({
+      where: {
+        turmaId,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
     await prisma.turma.delete({
-      where: { id: Number(id) },
+      where: { id: turmaId },
     });
 
     return NextResponse.json({ message: "Turma excluída com sucesso" });
