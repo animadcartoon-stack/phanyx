@@ -211,10 +211,11 @@ setAlunos(listaAlunos);
     disciplinaNome: primeiraDisciplina?.nome ?? null,
     professorNome: t?.professor?.nome ?? null,
     cursoId:
-      primeiraDisciplina?.cursoId ??
-      t?.cursoId ??
-      primeiraDisciplina?.curso?.id ??
-      null,
+  t?.cursoId ??
+  t?.curso?.id ??
+  primeiraDisciplina?.cursoId ??
+  primeiraDisciplina?.curso?.id ??
+  null,
   };
 });
 
@@ -585,6 +586,11 @@ console.log("DEBUG MATRÍCULA", {
   cursoSemestreId: Number(cursoSemestreId),
   semestre: Number(semestreSelecionado.numero),
   turmaIds: turmasSelecionadas,
+disciplinaIds: [
+  ...disciplinasSelecionadas,
+  ...disciplinasExtrasSelecionadas,
+],
+
   status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
   valorMensalidade: Number(valorMensalidade || 0),
@@ -618,26 +624,6 @@ console.log("DEBUG MATRÍCULA", {
       setCreating(false);
     }
   }
-
-useEffect(() => {
-  const idsBase = turmasBaseDoSemestre
-    .filter((t) => t.disciplinaId && disciplinasSelecionadas.includes(Number(t.disciplinaId)))
-    .map((t) => t.id);
-
-  const idsExtras =
-    disciplinasExtrasSelecionadas.length > 0
-      ? turmasExtrasMesmoCurso
-          .filter((t) => t.disciplinaId && disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId)))
-          .map((t) => t.id)
-      : [];
-
-  setTurmasSelecionadas([...new Set([...idsBase, ...idsExtras])]);
-}, [
-  disciplinasSelecionadas,
-  disciplinasExtrasSelecionadas,
-  turmasBaseDoSemestre,
-  turmasExtrasMesmoCurso,
-]);
 
   async function gerarContratoDaMatricula(matriculaId: number) {
     try {
@@ -1078,7 +1064,7 @@ function renderGrupoDisciplina(
       );
     }}
     className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-    disabled={!cursoId || !cursoSemestreId}
+    disabled={!cursoId}
   >
     <option value="">Selecione a turma...</option>
 

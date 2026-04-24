@@ -40,6 +40,7 @@ type MatriculaBody = {
   periodoLetivo?: string;
   turmaId?: number | string;
   turmaIds?: Array<number | string>;
+  disciplinaIds?: Array<number | string>;
   valorMatricula?: number | string;
   valorPagoMatricula?: number | string;
   valorMensalidade?: number | string;
@@ -446,20 +447,46 @@ export async function POST(request: Request) {
       );
     }
 
-    const turmas = await prisma.turma.findMany({
-      where: {
-        id: { in: turmaIds },
-        instituicaoId: user.instituicaoId,
-      },
+    const disciplinaIdsBody = uniqueNumbers(
+  Array.isArray(body.disciplinaIds)
+    ? body.disciplinaIds.map((id) => Number(id))
+    : []
+);
+
+const turmas = await prisma.turma.findMany({
+  where: {
+    id: { in: turmaIds },
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    disciplinas: {
       include: {
         disciplina: {
           include: {
             curso: true,
           },
         },
-        professor: true,
       },
-    });
+    },
+    professor: true,
+  },
+});
+
+const turmasComDisciplinas = turmas.flatMap((turma) =>
+  turma.disciplinas
+    .filter((td) =>
+      disciplinaIdsBody.length > 0
+        ? disciplinaIdsBody.includes(td.disciplinaId)
+        : true
+    )
+    .map((td) => ({
+      id: turma.id,
+      nome: turma.nome,
+      semestre: turma.semestre,
+      disciplinaId: td.disciplinaId,
+      disciplina: td.disciplina,
+    }))
+);
 
     if (turmas.length !== turmaIds.length) {
       return NextResponse.json(
@@ -469,7 +496,7 @@ export async function POST(request: Request) {
     }
 
     const disciplinaIdsSelecionadas = uniqueNumbers(
-      turmas.map((turma) => turma.disciplinaId)
+      turmasComDisciplinas.map((turma) => turma.disciplinaId)
     );
 
     const validacaoPreReq = await validarPreRequisitos(
@@ -597,7 +624,7 @@ export async function POST(request: Request) {
       cursoIdFinal,
       semestreFinal,
       cursoSemestreId,
-      turmas: turmas as TurmaComDisciplina[],
+      turmas: turmasComDisciplinas as TurmaComDisciplina[],
     });
 
     const valorMatricula = Number(
