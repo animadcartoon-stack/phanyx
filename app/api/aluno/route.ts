@@ -53,11 +53,15 @@ export async function GET() {
             itens: {
               include: {
                 turma: {
-                  include: {
-                    disciplina: true,
-                    professor: true,
-                  },
-                },
+  include: {
+    professor: true,
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
               },
             },
           },
@@ -88,12 +92,12 @@ export async function GET() {
                 id: item.turma?.id,
                 nome: item.turma?.nome || null,
                 status: item.status,
-                disciplina: item.turma?.disciplina
-                  ? {
-                      id: item.turma.disciplina.id,
-                      nome: item.turma.disciplina.nome,
-                    }
-                  : null,
+                disciplina: item.turma?.disciplinas?.[0]?.disciplina
+  ? {
+      id: item.turma.disciplinas[0].disciplina.id,
+      nome: item.turma.disciplinas[0].disciplina.nome,
+    }
+  : null,
                 professor: item.turma?.professor
                   ? {
                       id: item.turma.professor.id,
