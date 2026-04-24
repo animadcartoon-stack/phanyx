@@ -435,6 +435,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
             </select>
 
             <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+  <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
   <div>
     <button
       type="button"
@@ -453,7 +454,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     </button>
 
     {disciplinasAbertas && (
-      <div className="mt-2 max-h-40 overflow-auto rounded border p-2">
+      <div className="mt-2 max-h-48 overflow-auto rounded border p-2">
         <div className="grid grid-cols-1 gap-2">
           {disciplinas.map((disciplina) => (
             <label
@@ -488,11 +489,11 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
 
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
-  Polo da turma
-</label>
+      Polo da turma
+    </label>
 
-<select
-  value={poloId}
+    <select
+      value={poloId}
       onChange={(e) => setPoloId(e.target.value)}
       className="w-full rounded-lg border p-3"
     >
@@ -504,6 +505,8 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
       ))}
     </select>
   </div>
+</div>
+
 </div>
 
 <label className="flex items-center gap-2 text-sm">
