@@ -124,14 +124,14 @@ export async function POST(request: NextRequest) {
         capacidadeMinima,
         capacidadeMaxima,
         instituicaoId: user.instituicaoId,
-        poloId, // 🔥 AQUI SALVA
-        disciplinas: {
-          create: disciplinaIds.map((id: number) => ({
-            disciplinaId: id,
-            instituicaoId: user.instituicaoId,
-            cursoId: body.cursoId ? Number(body.cursoId) : null,
-          })),
-        },
+        poloId,
+cursoId: body.cursoId ? Number(body.cursoId) : null,
+disciplinas: {
+  create: disciplinaIds.map((id: number) => ({
+    disciplinaId: id,
+    instituicaoId: user.instituicaoId,
+  })),
+},
       },
       include: {
         polo: true, // 🔥 RETORNA
