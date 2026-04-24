@@ -41,6 +41,18 @@ export async function GET() {
             codigo: true,
             cursoId: true,
           },
+          disciplinas: {
+  include: {
+    disciplina: {
+      select: {
+        id: true,
+        nome: true,
+        codigo: true,
+        cursoId: true,
+      },
+    },
+  },
+},
         },
         professor: {
           include: {
@@ -70,7 +82,7 @@ export async function GET() {
       semestre: turma.semestre,
       periodoLetivo: turma.periodoLetivo,
       ativa: turma.ativa,
-
+disciplinas: turma.disciplinas,
       cursoId: turma.disciplina?.cursoId ?? null,
 
       disciplina: turma.disciplina
