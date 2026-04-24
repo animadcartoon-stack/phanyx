@@ -41,7 +41,8 @@ export async function GET() {
         instituicaoId: user.instituicaoId ?? undefined,
       },
       include: {
-        user: true,
+  user: true,
+  polo: true,
         matriculas: {
           orderBy: {
             createdAt: "desc",
@@ -146,6 +147,12 @@ export async function POST(request: Request) {
     const cpf = limparSomenteNumeros(body.cpf);
     const rg = limparTexto(body.rg);
     const telefone = limparTexto(body.telefone);
+    const poloId =
+      body.poloId !== undefined &&
+      body.poloId !== null &&
+      String(body.poloId).trim() !== ""
+    ? Number(body.poloId)
+    : null;
 
     if (!nome) {
       return NextResponse.json(
@@ -206,6 +213,23 @@ export async function POST(request: Request) {
       }
     }
 
+if (poloId !== null) {
+  const polo = await prisma.polo.findFirst({
+    where: {
+      id: poloId,
+      instituicaoId: user.instituicaoId,
+    },
+    select: { id: true },
+  });
+
+  if (!polo) {
+    return NextResponse.json(
+      { error: "Polo inválido para esta instituição." },
+      { status: 400 }
+    );
+  }
+}
+
     const instituicao = await prisma.instituicao.findUnique({
       where: { id: user.instituicaoId },
       select: { nome: true },
@@ -222,6 +246,7 @@ export async function POST(request: Request) {
           senha: senhaHash,
           role: "ALUNO",
           instituicaoId: user.instituicaoId!,
+          poloId,
           precisaTrocarSenha: true,
         },
       });

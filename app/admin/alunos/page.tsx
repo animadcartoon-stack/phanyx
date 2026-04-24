@@ -47,10 +47,18 @@ interface Aluno {
   possuiNecessidadeEspecial?: boolean;
   descricaoNecessidadeEspecial?: string | null;
   observacoesAcessibilidade?: string | null;
-  user: {
+    poloId?: number | null;
+    polo?: Polo | null;
+    user: {
     email: string;
   };
 }
+
+type Polo = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+};
 
 type TurmaOption = {
   id: number;
@@ -83,7 +91,7 @@ function AdminAlunosPage() {
   const [alunos, setAlunos] = useState<Aluno[]>([]);
   const [matriculas, setMatriculas] = useState<any[]>([]);
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
-
+  const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<string>("TODOS");
   const [filtroSituacaoAcademica, setFiltroSituacaoAcademica] =
@@ -130,6 +138,7 @@ function AdminAlunosPage() {
   const [emailResponsavel, setEmailResponsavel] = useState("");
   const [parentescoResponsavel, setParentescoResponsavel] = useState("");
   const [statusAluno, setStatusAluno] = useState<StatusAluno>("ATIVO");
+  const [poloId, setPoloId] = useState("");
   const [possuiNecessidadeEspecial, setPossuiNecessidadeEspecial] =
     useState(false);
   const [descricaoNecessidadeEspecial, setDescricaoNecessidadeEspecial] =
@@ -162,6 +171,7 @@ function AdminAlunosPage() {
   const [editParentescoResponsavel, setEditParentescoResponsavel] =
     useState("");
   const [editStatusAluno, setEditStatusAluno] = useState<StatusAluno>("ATIVO");
+  const [editPoloId, setEditPoloId] = useState("");
   const [editPossuiNecessidadeEspecial, setEditPossuiNecessidadeEspecial] =
     useState(false);
   const [editDescricaoNecessidadeEspecial, setEditDescricaoNecessidadeEspecial] =
@@ -205,9 +215,14 @@ function AdminAlunosPage() {
     setModalAvisoAberto(true);
   }
 
-  async function carregarTudo() {
-    await Promise.all([carregarAlunos(), carregarMatriculas(), carregarTurmas()]);
-  }
+ async function carregarTudo() {
+  await Promise.all([
+    carregarAlunos(),
+    carregarMatriculas(),
+    carregarTurmas(),
+    carregarPolos(),
+  ]);
+}
 
   async function carregarAlunos() {
   try {
@@ -286,6 +301,25 @@ function AdminAlunosPage() {
     }
   }
 
+async function carregarPolos() {
+  try {
+    const res = await fetch("/api/admin/polos", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error("Erro ao buscar polos");
+      return;
+    }
+
+    const data = await res.json();
+    setPolos(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Erro ao carregar polos:", error);
+  }
+}
+
   function limparFormularioCriacao() {
     setNome("");
     setNomeSocial("");
@@ -310,6 +344,7 @@ function AdminAlunosPage() {
     setEmailResponsavel("");
     setParentescoResponsavel("");
     setStatusAluno("ATIVO");
+    setPoloId("");
     setPossuiNecessidadeEspecial(false);
     setDescricaoNecessidadeEspecial("");
     setObservacoesAcessibilidade("");
@@ -349,6 +384,7 @@ function AdminAlunosPage() {
           emailResponsavel,
           parentescoResponsavel,
           statusAluno,
+          poloId: poloId ? Number(poloId) : null,
           possuiNecessidadeEspecial,
           descricaoNecessidadeEspecial,
           observacoesAcessibilidade,
@@ -423,6 +459,11 @@ window.scrollTo({ top: 0, behavior: "smooth" });
     setEditEmailResponsavel(aluno.emailResponsavel || "");
     setEditParentescoResponsavel(aluno.parentescoResponsavel || "");
     setEditStatusAluno(aluno.statusAluno || "ATIVO");
+    setEditPoloId(
+  aluno.poloId !== null && aluno.poloId !== undefined
+    ? String(aluno.poloId)
+    : ""
+);
     setEditPossuiNecessidadeEspecial(!!aluno.possuiNecessidadeEspecial);
     setEditDescricaoNecessidadeEspecial(
       aluno.descricaoNecessidadeEspecial || ""
@@ -464,6 +505,7 @@ window.scrollTo({ top: 0, behavior: "smooth" });
           emailResponsavel: editEmailResponsavel,
           parentescoResponsavel: editParentescoResponsavel,
           statusAluno: editStatusAluno,
+          poloId: editPoloId ? Number(editPoloId) : null,
           possuiNecessidadeEspecial: editPossuiNecessidadeEspecial,
           descricaoNecessidadeEspecial: editDescricaoNecessidadeEspecial,
           observacoesAcessibilidade: editObservacoesAcessibilidade,
@@ -967,6 +1009,19 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                   <option value="FALTANTE">Faltante</option>
                 </select>
 
+<select
+  value={poloId}
+  onChange={(e) => setPoloId(e.target.value)}
+  className="w-full rounded-xl border p-2.5"
+>
+  <option value="">Selecione o polo do aluno</option>
+  {polos.map((polo) => (
+    <option key={polo.id} value={polo.id}>
+      {polo.nome}
+    </option>
+  ))}
+</select>
+
                 <input
                   placeholder="CEP"
                   value={cep}
@@ -1463,6 +1518,20 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                       <option value="PAUSA_MEDICA">Pausa médica</option>
                       <option value="FALTANTE">Faltante</option>
                     </select>
+
+<select
+  value={editPoloId}
+  onChange={(e) => setEditPoloId(e.target.value)}
+  className="rounded-xl border p-2.5"
+>
+  <option value="">Selecione o polo do aluno</option>
+  {polos.map((polo) => (
+    <option key={polo.id} value={polo.id}>
+      {polo.nome}
+    </option>
+  ))}
+</select>
+
                     <input
                       value={editCep}
                       onChange={(e) => setEditCep(e.target.value)}
@@ -1694,6 +1763,12 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                           <strong>Telefone:</strong>{" "}
                           {alunoSelecionado.telefone || "-"}
                         </p>
+
+<p>
+  <strong>Polo:</strong>{" "}
+  {alunoSelecionado.polo?.nome || "-"}
+</p>
+
                       </div>
                     </div>
 
