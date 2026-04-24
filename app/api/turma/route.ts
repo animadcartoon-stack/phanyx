@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
         capacidadeMaxima,
         instituicaoId: user.instituicaoId,
         poloId,
-cursoId: body.cursoId ? Number(body.cursoId) : null,
+
 disciplinas: {
   create: disciplinaIds.map((id: number) => ({
     disciplinaId: id,
