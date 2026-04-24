@@ -434,13 +434,12 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
               <option value="NAO_FORMADA">Não formada</option>
             </select>
 
-            <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
-  <div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
+<div className="col-span-2 grid grid-cols-1 gap-4 md:grid-cols-2">
   <div>
     <button
       type="button"
       onClick={() => setDisciplinasAbertas((prev) => !prev)}
-      className="flex w-full items-center justify-between rounded-lg border p-3 text-left"
+      className="flex h-[46px] w-full items-center justify-between rounded-lg border p-3 text-left"
     >
       <span className="text-sm font-medium">
         Disciplinas da turma
@@ -488,16 +487,12 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
   </div>
 
   <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      Polo da turma
-    </label>
-
     <select
       value={poloId}
       onChange={(e) => setPoloId(e.target.value)}
-      className="w-full rounded-lg border p-3"
+      className="h-[46px] w-full rounded-lg border p-3"
     >
-      <option value="">Selecione o polo</option>
+      <option value="">Polo da turma</option>
       {polos.map((polo) => (
         <option key={polo.id} value={polo.id}>
           {polo.nome}
@@ -505,8 +500,6 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
       ))}
     </select>
   </div>
-</div>
-
 </div>
 
 <label className="flex items-center gap-2 text-sm">

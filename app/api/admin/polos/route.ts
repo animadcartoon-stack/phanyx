@@ -105,3 +105,43 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (!isAdminLike(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const body = await req.json();
+
+    const id = Number(body?.id);
+
+    const polo = await prisma.polo.update({
+      where: { id },
+      data: {
+        nome: body.nome,
+        codigo: body.codigo || null,
+        cnpj: body.cnpj || null,
+        cidade: body.cidade || null,
+        estado: body.estado || null,
+        endereco: body.endereco || null,
+        descricao: body.descricao || null,
+        ativo: body.ativo,
+      },
+    });
+
+    return NextResponse.json(polo);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Erro ao atualizar polo" },
+      { status: 500 }
+    );
+  }
+}

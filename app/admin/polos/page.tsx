@@ -36,6 +36,49 @@ function AdminPolosPage() {
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
 
+const [editandoId, setEditandoId] = useState<number | null>(null);
+const [editNome, setEditNome] = useState("");
+const [editCodigo, setEditCodigo] = useState("");
+const [editCnpj, setEditCnpj] = useState("");
+const [editCidade, setEditCidade] = useState("");
+const [editEstado, setEditEstado] = useState("");
+const [editEndereco, setEditEndereco] = useState("");
+const [editDescricao, setEditDescricao] = useState("");
+const [editAtivo, setEditAtivo] = useState(true);
+
+function iniciarEdicao(polo: any) {
+  setEditandoId(polo.id);
+  setEditNome(polo.nome || "");
+  setEditCodigo(polo.codigo || "");
+  setEditCnpj(polo.cnpj || "");
+  setEditCidade(polo.cidade || "");
+  setEditEstado(polo.estado || "");
+  setEditEndereco(polo.endereco || "");
+  setEditDescricao(polo.descricao || "");
+  setEditAtivo(polo.ativo);
+}
+
+async function salvarEdicao() {
+  await fetch("/api/admin/polos", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      id: editandoId,
+      nome: editNome,
+      codigo: editCodigo,
+      cnpj: editCnpj,
+      cidade: editCidade,
+      estado: editEstado,
+      endereco: editEndereco,
+      descricao: editDescricao,
+      ativo: editAtivo,
+    }),
+  });
+
+  setEditandoId(null);
+  carregarPolos();
+}
+
   async function carregarPolos() {
     try {
       setCarregando(true);
@@ -241,6 +284,7 @@ function AdminPolosPage() {
         >
           {criando ? "Criando..." : "Criar polo"}
         </button>
+
       </form>
 
       <div className="space-y-4">
@@ -267,52 +311,169 @@ function AdminPolosPage() {
         ) : (
           <div className="grid grid-cols-1 gap-4">
             {polosFiltrados.map((polo) => (
-              <div
-                key={polo.id}
-                className="rounded-2xl border bg-white p-4 shadow-sm"
-              >
-                <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                  <div className="space-y-1">
-                    <p className="font-semibold text-slate-800">{polo.nome}</p>
-                    <p className="text-sm text-slate-600">
-                      Código: {polo.codigo || "-"}
-                    </p>
+  <div
+    key={polo.id}
+    className="rounded-2xl border bg-white p-4 shadow-sm"
+  >
+    {editandoId === polo.id ? (
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <input
+            value={editNome}
+            onChange={(e) => setEditNome(e.target.value)}
+            className="rounded-xl border px-3 py-2"
+            placeholder="Nome do polo"
+          />
 
-<p className="text-sm text-slate-600">
-  CNPJ: {polo.cnpj || "-"}
-</p>
+          <input
+            value={editCodigo}
+            onChange={(e) => setEditCodigo(e.target.value)}
+            className="rounded-xl border px-3 py-2"
+            placeholder="Código do polo"
+          />
 
-                    <p className="text-sm text-slate-600">
-                      Cidade/Estado:{" "}
-                      {[polo.cidade, polo.estado].filter(Boolean).join(" - ") || "-"}
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      Endereço: {polo.endereco || "-"}
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      Descrição: {polo.descricao || "-"}
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      Status: {polo.ativo ? "Ativo" : "Inativo"}
-                    </p>
-                  </div>
+          <input
+            value={editCnpj}
+            onChange={(e) => setEditCnpj(e.target.value)}
+            className="rounded-xl border px-3 py-2"
+            placeholder="CNPJ do polo"
+          />
 
-                  <div
-                    className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-                      polo.ativo
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {polo.ativo ? "Ativo" : "Inativo"}
-                  </div>
-                </div>
-              </div>
-            ))}
+          <input
+            value={editCidade}
+            onChange={(e) => setEditCidade(e.target.value)}
+            className="rounded-xl border px-3 py-2"
+            placeholder="Cidade"
+          />
+
+          <input
+            value={editEstado}
+            onChange={(e) => setEditEstado(e.target.value)}
+            className="rounded-xl border px-3 py-2"
+            placeholder="Estado"
+          />
+
+          <input
+            value={editEndereco}
+            onChange={(e) => setEditEndereco(e.target.value)}
+            className="rounded-xl border px-3 py-2"
+            placeholder="Endereço"
+          />
+
+          <textarea
+            value={editDescricao}
+            onChange={(e) => setEditDescricao(e.target.value)}
+            className="min-h-[90px] rounded-xl border px-3 py-2 md:col-span-2"
+            placeholder="Descrição"
+          />
+        </div>
+
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={editAtivo}
+            onChange={(e) => setEditAtivo(e.target.checked)}
+          />
+          Polo ativo
+        </label>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={salvarEdicao}
+            className="rounded-xl bg-green-600 px-4 py-2 text-sm text-white"
+          >
+            Salvar
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setEditandoId(null)}
+            className="rounded-xl bg-gray-400 px-4 py-2 text-sm text-white"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+        <div className="space-y-1">
+          <p className="font-semibold text-slate-800">{polo.nome}</p>
+
+          <p className="text-sm text-slate-600">
+            Código: {polo.codigo || "-"}
+          </p>
+
+          <p className="text-sm text-slate-600">
+            CNPJ: {polo.cnpj || "-"}
+          </p>
+
+          <p className="text-sm text-slate-600">
+            Cidade/Estado:{" "}
+            {[polo.cidade, polo.estado].filter(Boolean).join(" - ") || "-"}
+          </p>
+
+          <p className="text-sm text-slate-600">
+            Endereço: {polo.endereco || "-"}
+          </p>
+
+          <p className="text-sm text-slate-600">
+            Descrição: {polo.descricao || "-"}
+          </p>
+
+          <p className="text-sm text-slate-600">
+            Status: {polo.ativo ? "Ativo" : "Inativo"}
+          </p>
+
+          <div className="mt-3 flex gap-4">
+            <button
+              type="button"
+              onClick={() => iniciarEdicao(polo)}
+              className="text-sm font-medium text-blue-600"
+            >
+              Editar
+            </button>
+
+            <button
+              type="button"
+              onClick={async () => {
+                await fetch("/api/admin/polos", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  credentials: "include",
+                  body: JSON.stringify({
+                    ...polo,
+                    ativo: !polo.ativo,
+                  }),
+                });
+
+                await carregarPolos();
+              }}
+              className="text-sm font-medium text-red-600"
+            >
+              {polo.ativo ? "Inativar" : "Ativar"}
+            </button>
+          </div>
+        </div>
+
+        <div
+          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
+            polo.ativo
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-600"
+          }`}
+        >
+          {polo.ativo ? "Ativo" : "Inativo"}
+        </div>
+      </div>
+    )}
+  </div>
+))}
           </div>
         )}
       </div>
     </div>
+
   );
 }
 
