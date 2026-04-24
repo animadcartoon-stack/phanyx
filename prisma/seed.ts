@@ -158,7 +158,8 @@ async function main() {
         nome: "Turma A",
         semestre: "2025.1",
         professorId: professor.id,
-        instituicaoId,
+        instituicaoId: instituicao.id,
+        cursoId: curso.id,
       },
     }));
 
