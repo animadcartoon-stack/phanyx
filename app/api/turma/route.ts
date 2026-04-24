@@ -20,6 +20,7 @@ export async function GET() {
         instituicaoId: user.instituicaoId,
       },
       include: {
+        polo: true, // 🔥 NOVO
         disciplinas: {
           include: {
             disciplina: {
@@ -81,54 +82,33 @@ export async function POST(request: NextRequest) {
     const semestre = String(body?.semestre ?? "").trim();
     const periodoLetivo = String(body?.periodoLetivo ?? "").trim();
     const statusTurma = String(body?.statusTurma ?? "AGUARDANDO").trim();
-    const ativa =
-      body?.ativa !== undefined ? Boolean(body.ativa) : true;
+    const ativa = body?.ativa !== undefined ? Boolean(body.ativa) : true;
+
+    const poloId =
+      body?.poloId && Number(body.poloId) > 0
+        ? Number(body.poloId)
+        : null; // 🔥 NOVO
 
     const capacidadeMinima =
-      body?.capacidadeMinima !== undefined &&
-      body?.capacidadeMinima !== null &&
-      String(body.capacidadeMinima).trim() !== ""
-        ? Number(body.capacidadeMinima)
-        : null;
+      body?.capacidadeMinima ? Number(body.capacidadeMinima) : null;
 
     const capacidadeMaxima =
-      body?.capacidadeMaxima !== undefined &&
-      body?.capacidadeMaxima !== null &&
-      String(body.capacidadeMaxima).trim() !== ""
-        ? Number(body.capacidadeMaxima)
-        : null;
+      body?.capacidadeMaxima ? Number(body.capacidadeMaxima) : null;
 
     const disciplinaIds = Array.isArray(body?.disciplinaIds)
-      ? body.disciplinaIds
-          .map((id: unknown) => Number(id))
-          .filter((id: number) => Number.isFinite(id) && id > 0)
+      ? body.disciplinaIds.map(Number)
       : [];
 
     if (!nome || !semestre || !periodoLetivo) {
       return NextResponse.json(
-        { error: "Nome, semestre e período letivo são obrigatórios" },
+        { error: "Nome, semestre e período são obrigatórios" },
         { status: 400 }
       );
     }
 
     if (disciplinaIds.length === 0) {
       return NextResponse.json(
-        { error: "Selecione pelo menos uma disciplina para a turma" },
-        { status: 400 }
-      );
-    }
-
-    const turmaExistente = await prisma.turma.findFirst({
-      where: {
-        instituicaoId: user.instituicaoId,
-        nome,
-        semestre,
-      },
-    });
-
-    if (turmaExistente) {
-      return NextResponse.json(
-        { error: "Já existe uma turma com esse nome e semestre" },
+        { error: "Selecione pelo menos uma disciplina" },
         { status: 400 }
       );
     }
@@ -138,20 +118,22 @@ export async function POST(request: NextRequest) {
         nome,
         codigo: codigo || null,
         semestre,
-        periodoLetivo: periodoLetivo || null,
-        ativa,
+        periodoLetivo,
         statusTurma: statusTurma as any,
+        ativa,
         capacidadeMinima,
         capacidadeMaxima,
         instituicaoId: user.instituicaoId,
+        poloId, // 🔥 AQUI SALVA
         disciplinas: {
-          create: disciplinaIds.map((disciplinaId: number) => ({
-            disciplinaId,
+          create: disciplinaIds.map((id: number) => ({
+            disciplinaId: id,
             instituicaoId: user.instituicaoId,
           })),
         },
       },
       include: {
+        polo: true, // 🔥 RETORNA
         disciplinas: {
           include: {
             disciplina: {
@@ -169,23 +151,11 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const turmaFormatada = {
-      ...novaTurma,
-      disciplinas: novaTurma.disciplinas.map((item) => item.disciplina),
-      curso:
-        novaTurma.disciplinas.length > 0
-          ? novaTurma.disciplinas[0].disciplina.curso ?? null
-          : null,
-    };
-
-    return NextResponse.json(turmaFormatada, { status: 201 });
+    return NextResponse.json(novaTurma);
   } catch (error) {
     console.error("Erro ao criar turma:", error);
     return NextResponse.json(
-      {
-        error: "Erro ao criar turma",
-        detalhes: error instanceof Error ? error.message : "Erro desconhecido",
-      },
+      { error: "Erro ao criar turma" },
       { status: 500 }
     );
   }

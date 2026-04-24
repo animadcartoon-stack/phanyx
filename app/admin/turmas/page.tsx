@@ -51,11 +51,21 @@ interface Turma {
 
 type FeedbackTipo = "sucesso" | "erro" | "";
 
+async function carregarPolos() {
+  const res = await fetch("/api/polo", {
+    credentials: "include",
+  });
+
+  const data = await res.json();
+  setPolos(Array.isArray(data) ? data : []);
+}
+
 function AdminTurmasPage() {
   const searchParams = useSearchParams();
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
-  
+  const [polos, setPolos] = useState<any[]>([]);
+  const [poloId, setPoloId] = useState("");
   const [busca, setBusca] = useState("");
   const [nome, setNome] = useState("");
   const [codigo, setCodigo] = useState("");
@@ -142,6 +152,7 @@ function AdminTurmasPage() {
   capacidadeMinima,
   capacidadeMaxima,
   disciplinaIds: disciplinasSelecionadas,
+  poloId,
 }),
       });
 
@@ -257,9 +268,10 @@ setEditProfessorId("");
   }
 
   useEffect(() => {
-    carregarTurmas();
-    carregarDisciplinas();
-  }, []);
+  carregarTurmas();
+  carregarDisciplinas();
+  carregarPolos();
+}, []);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
@@ -428,6 +440,20 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     onClick={() => setDisciplinasAbertas((prev) => !prev)}
     className="flex w-full items-center justify-between rounded-lg border p-3 text-left"
   >
+
+<select
+  value={poloId}
+  onChange={(e) => setPoloId(e.target.value)}
+  className="w-full border rounded-lg p-2"
+>
+  <option value="">Selecione o polo</option>
+  {polos.map((polo) => (
+    <option key={polo.id} value={polo.id}>
+      {polo.nome}
+    </option>
+  ))}
+</select>
+
     <span className="text-sm font-medium">
       Disciplinas da turma
       {disciplinasSelecionadas.length > 0
