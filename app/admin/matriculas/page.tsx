@@ -24,6 +24,7 @@ type TurmaOption = {
   disciplinaNome?: string | null;
   professorNome?: string | null;
   cursoId?: number | null;
+  cursoNome?: string | null;
 };
 
 type CursoSemestreDisciplina = {
@@ -111,6 +112,7 @@ function AdminMatriculasPage() {
   const [cursoId, setCursoId] = useState<string>("");
   const [cursoSemestreId, setCursoSemestreId] = useState<string>("");
   const [cursoSemestreIds, setCursoSemestreIds] = useState<number[]>([]);
+  const [semestresAberto, setSemestresAberto] = useState(false);
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
   const [valorPagoMatricula, setValorPagoMatricula] = useState<string>("");
   const [valorMensalidade, setValorMensalidade] = useState<string>("");
@@ -216,6 +218,10 @@ setAlunos(listaAlunos);
   t?.curso?.id ??
   primeiraDisciplina?.cursoId ??
   primeiraDisciplina?.curso?.id ??
+  null,
+cursoNome:
+  t?.curso?.nome ??
+  primeiraDisciplina?.curso?.nome ??
   null,
   };
 });
@@ -1040,31 +1046,50 @@ function renderGrupoDisciplina(
             <label className="text-sm font-medium text-gray-700">
               Semestre do curso
             </label>
-            <div className="mt-1 border rounded-xl p-3 bg-white min-h-[44px]">
-  {semestresCurso.length === 0 ? (
-    <p className="text-sm text-gray-500">
-      Selecione um curso primeiro...
-    </p>
-  ) : (
-    <div className="space-y-2">
-      {semestresCurso.map((s) => (
-        <label key={s.id} className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={cursoSemestreIds.includes(s.id)}
-            onChange={() => {
-              setCursoSemestreIds((prev) =>
-                prev.includes(s.id)
-                  ? prev.filter((id) => id !== s.id)
-                  : [...prev, s.id]
-              );
-            }}
-          />
-          <span>
-            {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
-          </span>
-        </label>
-      ))}
+            <div className="relative mt-1">
+  <button
+    type="button"
+    onClick={() => setSemestresAberto((prev) => !prev)}
+    disabled={!cursoId}
+    className="w-full border rounded-xl px-3 py-2 bg-white text-left flex items-center justify-between"
+  >
+    <span className="truncate">
+      {cursoSemestreIds.length === 0
+        ? "Selecione os semestres..."
+        : `${cursoSemestreIds.length} semestre(s) selecionado(s)`}
+    </span>
+
+    <span>{semestresAberto ? "▴" : "▾"}</span>
+  </button>
+
+  {semestresAberto && (
+    <div className="absolute z-20 mt-1 w-full border rounded-xl bg-white p-3 shadow-lg">
+      {semestresCurso.length === 0 ? (
+        <p className="text-sm text-gray-500">
+          Selecione um curso primeiro...
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {semestresCurso.map((s) => (
+            <label key={s.id} className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={cursoSemestreIds.includes(s.id)}
+                onChange={() => {
+                  setCursoSemestreIds((prev) =>
+                    prev.includes(s.id)
+                      ? prev.filter((id) => id !== s.id)
+                      : [...prev, s.id]
+                  );
+                }}
+              />
+              <span>
+                {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+              </span>
+            </label>
+          ))}
+        </div>
+      )}
     </div>
   )}
 </div>
@@ -1089,7 +1114,15 @@ function renderGrupoDisciplina(
     <option value="">Selecione a turma...</option>
 
     {turmas
-  .filter((t) => Number(t.cursoId) === Number(cursoId))
+  .filter((t) => {
+    const cursoSelecionado = cursos.find((c) => c.id === Number(cursoId));
+
+    return (
+      Number(t.cursoId) === Number(cursoId) ||
+      String(t.cursoNome || "").trim().toLowerCase() ===
+        String(cursoSelecionado?.nome || "").trim().toLowerCase()
+    );
+  })
   .map((t) => (
     <option key={t.id} value={String(t.id)}>
       {t.nome}
