@@ -7,6 +7,7 @@ type Polo = {
   id: number;
   nome: string;
   codigo?: string | null;
+  cnpj?: string | null;
   descricao?: string | null;
   cidade?: string | null;
   estado?: string | null;
@@ -23,6 +24,7 @@ function AdminPolosPage() {
 
   const [nome, setNome] = useState("");
   const [codigo, setCodigo] = useState("");
+  const [cnpj, setCnpj] = useState("");
   const [descricao, setDescricao] = useState("");
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
@@ -83,6 +85,7 @@ function AdminPolosPage() {
         body: JSON.stringify({
           nome,
           codigo,
+          cnpj,
           descricao,
           cidade,
           estado,
@@ -99,6 +102,7 @@ function AdminPolosPage() {
 
       setNome("");
       setCodigo("");
+      setCnpj("");
       setDescricao("");
       setCidade("");
       setEstado("");
@@ -125,6 +129,7 @@ function AdminPolosPage() {
       return (
         String(polo.nome || "").toLowerCase().includes(termo) ||
         String(polo.codigo || "").toLowerCase().includes(termo) ||
+        String(polo.cnpj || "").toLowerCase().includes(termo) ||
         String(polo.cidade || "").toLowerCase().includes(termo) ||
         String(polo.estado || "").toLowerCase().includes(termo) ||
         String(polo.endereco || "").toLowerCase().includes(termo) ||
@@ -177,6 +182,14 @@ function AdminPolosPage() {
             onChange={(e) => setCodigo(e.target.value)}
             className="w-full rounded-xl border px-3 py-2"
           />
+
+<input
+  type="text"
+  placeholder="CNPJ do polo"
+  value={cnpj}
+  onChange={(e) => setCnpj(e.target.value)}
+  className="w-full rounded-xl border px-3 py-2"
+/>
 
           <input
             type="text"
@@ -262,6 +275,11 @@ function AdminPolosPage() {
                     <p className="text-sm text-slate-600">
                       Código: {polo.codigo || "-"}
                     </p>
+
+<p className="text-sm text-slate-600">
+  CNPJ: {polo.cnpj || "-"}
+</p>
+
                     <p className="text-sm text-slate-600">
                       Cidade/Estado:{" "}
                       {[polo.cidade, polo.estado].filter(Boolean).join(" - ") || "-"}

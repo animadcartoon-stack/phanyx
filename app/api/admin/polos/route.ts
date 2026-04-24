@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
 
     const nome = String(body?.nome ?? "").trim();
     const codigo = String(body?.codigo ?? "").trim();
+    const cnpj = String(body?.cnpj ?? "").trim();
     const descricao = String(body?.descricao ?? "").trim();
     const cidade = String(body?.cidade ?? "").trim();
     const estado = String(body?.estado ?? "").trim();
@@ -67,9 +68,10 @@ export async function POST(req: NextRequest) {
       where: {
         instituicaoId: user.instituicaoId,
         OR: [
-          { nome },
-          ...(codigo ? [{ codigo }] : []),
-        ],
+  { nome },
+  ...(codigo ? [{ codigo }] : []),
+  ...(cnpj ? [{ cnpj }] : []),
+],
       },
     });
 
@@ -84,6 +86,7 @@ export async function POST(req: NextRequest) {
       data: {
         nome,
         codigo: codigo || null,
+        cnpj: cnpj || null,
         descricao: descricao || null,
         cidade: cidade || null,
         estado: estado || null,

@@ -1335,6 +1335,7 @@ model Polo {
   id            Int          @id @default(autoincrement())
   nome          String
   codigo        String?
+  cnpj          String?
   descricao     String?
   cidade        String?
   estado        String?
@@ -1353,6 +1354,7 @@ model Polo {
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
   @@index([instituicaoId])
+  @@index([cnpj])
 }
 
 model CursoPolo {
