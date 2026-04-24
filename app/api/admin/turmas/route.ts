@@ -16,17 +16,11 @@ export async function GET() {
     const user = await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Não autenticado" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
     if (!podeVerTurmas(user.role)) {
-      return NextResponse.json(
-        { error: "Sem permissão" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
     const turmas = await prisma.turma.findMany({
@@ -34,31 +28,31 @@ export async function GET() {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        disciplina: {
+        curso: {
           select: {
             id: true,
             nome: true,
-            codigo: true,
-            cursoId: true,
-            curso: {
-  select: {
-    id: true,
-    nome: true,
-  },
-},
           },
-          disciplinas: {
-  include: {
-    disciplina: {
-      select: {
-        id: true,
-        nome: true,
-        codigo: true,
-        cursoId: true,
-      },
-    },
-  },
-},
+        },
+        disciplinas: {
+          include: {
+            disciplina: {
+              select: {
+                id: true,
+                nome: true,
+                codigo: true,
+                cursoId: true,
+                semestre: true,
+                cargaHoraria: true,
+                curso: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+              },
+            },
+          },
         },
         professor: {
           include: {
@@ -70,9 +64,16 @@ export async function GET() {
             },
           },
         },
+        polo: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
         _count: {
           select: {
             aulas: true,
+            itensMatricula: true,
           },
         },
       },
@@ -88,23 +89,23 @@ export async function GET() {
       semestre: turma.semestre,
       periodoLetivo: turma.periodoLetivo,
       ativa: turma.ativa,
-disciplinas: turma.disciplinas,
-      cursoId: turma.cursoId ?? turma.disciplina?.cursoId ?? null,
-curso: turma.curso
-  ? {
-      id: turma.curso.id,
-      nome: turma.curso.nome,
-    }
-  : null,
+      statusTurma: turma.statusTurma,
+      capacidadeMinima: turma.capacidadeMinima,
+      capacidadeMaxima: turma.capacidadeMaxima,
 
-      disciplina: turma.disciplina
+      cursoId: turma.cursoId,
+      curso: turma.curso
         ? {
-            id: turma.disciplina.id,
-            nome: turma.disciplina.nome,
-            codigo: turma.disciplina.codigo,
-            cursoId: turma.disciplina.cursoId,
+            id: turma.curso.id,
+            nome: turma.curso.nome,
           }
         : null,
+
+      disciplinas: turma.disciplinas.map((td) => ({
+        id: td.id,
+        disciplinaId: td.disciplinaId,
+        disciplina: td.disciplina,
+      })),
 
       professor: turma.professor
         ? {
@@ -116,8 +117,16 @@ curso: turma.curso
           }
         : null,
 
+      polo: turma.polo
+        ? {
+            id: turma.polo.id,
+            nome: turma.polo.nome,
+          }
+        : null,
+
       _count: {
         aulas: turma._count?.aulas ?? 0,
+        itensMatricula: turma._count?.itensMatricula ?? 0,
       },
     }));
 
