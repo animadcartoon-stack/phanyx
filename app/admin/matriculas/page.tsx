@@ -510,10 +510,10 @@ const cargaHorariaExcedida =
       Number.isFinite(c) &&
       c > 0 &&
       Number(cursoSemestreId) > 0 &&
-      turmasSelecionadas.length > 0 &&
+disciplinasSelecionadas.length > 0 &&
 !cargaHorariaExcedida
     );
-  }, [alunoId, cursoId, cursoSemestreId, turmasSelecionadas, cargaHorariaExcedida]);
+  }, [alunoId, cursoId, cursoSemestreId, disciplinasSelecionadas, cargaHorariaExcedida]);
 
   function toggleTurma(turmaId: number) {
     setTurmasSelecionadas((prev) =>
