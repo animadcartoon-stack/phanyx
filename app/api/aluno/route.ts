@@ -256,7 +256,7 @@ if (poloId !== null) {
           nomeSocial: limparTexto(body.nomeSocial) || null,
           genero: limparTexto(body.genero) || null,
           matricula: matricula || null,
-          poloId,
+          poloId: poloId || null,
           cpf: cpf || null,
           rg: rg || null,
           telefone: telefone || null,
@@ -284,7 +284,7 @@ if (poloId !== null) {
             limparTexto(body.observacoesAcessibilidade) || null,
           userId: novoUser.id,
           instituicaoId: user.instituicaoId!,
-          poloId,
+          
         },
         include: {
           user: true,
