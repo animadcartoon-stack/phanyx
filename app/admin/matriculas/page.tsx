@@ -558,8 +558,23 @@ function toggleTurmaEdicao(turmaId: number) {
         body: JSON.stringify({
   alunoId: Number(alunoId),
   cursoId: Number(cursoId),
+  cursoSemestreId: Number(cursoSemestreId),
   semestre: Number(semestreSelecionado.numero),
-  turmaIds: turmasSelecionadas,
+  turmaIds: [
+    ...turmasBaseDoSemestre
+      .filter((t) =>
+        t.disciplinaId &&
+        disciplinasSelecionadas.includes(Number(t.disciplinaId))
+      )
+      .map((t) => t.id),
+
+    ...turmasExtrasMesmoCurso
+      .filter((t) =>
+        t.disciplinaId &&
+        disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId))
+      )
+      .map((t) => t.id),
+  ],
   status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
   valorMensalidade: Number(valorMensalidade || 0),
