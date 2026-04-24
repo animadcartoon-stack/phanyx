@@ -153,11 +153,16 @@ disciplinas: {
     });
 
     return NextResponse.json(novaTurma);
-  } catch (error) {
-    console.error("Erro ao criar turma:", error);
-    return NextResponse.json(
-      { error: "Erro ao criar turma" },
-      { status: 500 }
-    );
-  }
+  } catch (error: any) {
+  console.error("ERRO REAL AO CRIAR TURMA:", error);
+
+  return NextResponse.json(
+    {
+      error: "Erro ao criar turma",
+      detalhe: error?.message || "Erro interno desconhecido",
+      codigo: error?.code || null,
+    },
+    { status: 500 }
+  );
+}
 }
