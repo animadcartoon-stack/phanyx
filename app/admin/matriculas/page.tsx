@@ -1118,6 +1118,33 @@ function renderGrupoDisciplina(
   />
 </div>
 
+{limiteCargaHoraria > 0 && (
+  <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
+    <div className="font-semibold">
+      Carga horária selecionada: {cargaHorariaTotalSelecionada}h / {limiteCargaHoraria}h
+    </div>
+
+    <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-blue-100">
+      <div
+        className={`h-full rounded-full ${
+          cargaHorariaExcedida ? "bg-red-500" : "bg-blue-600"
+        }`}
+        style={{
+          width: `${Math.min(
+            100,
+            Math.round((cargaHorariaTotalSelecionada / limiteCargaHoraria) * 100)
+          )}%`,
+        }}
+      />
+    </div>
+
+    {!cargaHorariaExcedida && (
+      <p className="mt-2 text-blue-700">
+        Ainda disponível: {limiteCargaHoraria - cargaHorariaTotalSelecionada}h
+      </p>
+    )}
+  </div>
+)}
       
         <div className="mt-4">
           {cargaHorariaExcedida && (
