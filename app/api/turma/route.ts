@@ -45,9 +45,10 @@ export async function GET() {
       ...turma,
       disciplinas: turma.disciplinas.map((item) => item.disciplina),
       curso:
-        turma.disciplinas.length > 0
-          ? turma.disciplinas[0].disciplina.curso ?? null
-          : null,
+  turma.curso ??
+  (turma.disciplinas.length > 0
+    ? turma.disciplinas[0].disciplina.curso ?? null
+    : null),
     }));
 
     return NextResponse.json(turmasFormatadas);
