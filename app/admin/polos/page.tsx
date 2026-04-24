@@ -191,21 +191,23 @@ function AdminPolosPage() {
   className="w-full rounded-xl border px-3 py-2"
 />
 
-          <input
-            type="text"
-            placeholder="Cidade"
-            value={cidade}
-            onChange={(e) => setCidade(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
-          />
+<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+  <input
+    type="text"
+    placeholder="Cidade"
+    value={cidade}
+    onChange={(e) => setCidade(e.target.value)}
+    className="w-full rounded-xl border px-3 py-2"
+  />
 
-          <input
-            type="text"
-            placeholder="Estado"
-            value={estado}
-            onChange={(e) => setEstado(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
-          />
+  <input
+    type="text"
+    placeholder="Estado"
+    value={estado}
+    onChange={(e) => setEstado(e.target.value)}
+    className="w-full rounded-xl border px-3 py-2"
+  />
+</div>
 
           <input
             type="text"
