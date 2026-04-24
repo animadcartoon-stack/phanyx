@@ -8,6 +8,7 @@ import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
 type CursoOption = {
   id: number;
   nome: string;
+  cargaHorariaMaximaSemestre?: number | null;
 };
 
 type AlunoOption = {
@@ -67,6 +68,7 @@ type MatriculaApi = {
   }>;
   createdAt?: string;
 };
+
 
 type MatriculaEdicao = {
   id: number;
@@ -168,11 +170,16 @@ setAlunos(listaAlunos);
         const dataCursos = await resCursos.json();
 
         const listaCursos: CursoOption[] = (
-          Array.isArray(dataCursos) ? dataCursos : []
-        ).map((c: any) => ({
-          id: Number(c.id),
-          nome: String(c.nome ?? "Curso"),
-        }));
+  Array.isArray(dataCursos) ? dataCursos : []
+).map((c: any) => ({
+  id: Number(c.id),
+  nome: String(c.nome ?? "Curso"),
+  cargaHorariaMaximaSemestre:
+    c?.cargaHorariaMaximaSemestre !== undefined &&
+    c?.cargaHorariaMaximaSemestre !== null
+      ? Number(c.cargaHorariaMaximaSemestre)
+      : null,
+}));
 
         setCursos(listaCursos.filter((c) => Number.isFinite(c.id) && c.id > 0));
       } catch (error) {
@@ -452,6 +459,45 @@ const matriculasFiltradas = useMemo(() => {
     return bateBusca && batePeriodo;
   });
 }, [matriculas, busca, filtroPeriodoMatricula]);
+const cursoSelecionadoObj = useMemo(() => {
+  return cursos.find((c) => c.id === Number(cursoId)) ?? null;
+}, [cursos, cursoId]);
+
+const limiteCargaHoraria = Number(
+  cursoSelecionadoObj?.cargaHorariaMaximaSemestre || 0
+);
+
+const cargaHorariaTotalSelecionada = useMemo(() => {
+  const ids = [...disciplinasSelecionadas, ...disciplinasExtrasSelecionadas];
+
+  return ids.reduce((total, disciplinaId) => {
+    const disciplinaBase = disciplinasDoSemestre.find(
+      (d) => d.id === disciplinaId
+    );
+
+    const disciplinaExtra = disciplinasExtras.find(
+      (d) => d.id === disciplinaId
+    );
+
+    return (
+      total +
+      Number(
+        disciplinaBase?.cargaHoraria ??
+          disciplinaExtra?.cargaHoraria ??
+          0
+      )
+    );
+  }, 0);
+}, [
+  disciplinasSelecionadas,
+  disciplinasExtrasSelecionadas,
+  disciplinasDoSemestre,
+  disciplinasExtras,
+]);
+
+const cargaHorariaExcedida =
+  limiteCargaHoraria > 0 &&
+  cargaHorariaTotalSelecionada > limiteCargaHoraria;
   const podeCriar = useMemo(() => {
     const a = Number(alunoId);
     const c = Number(cursoId);
@@ -464,9 +510,10 @@ const matriculasFiltradas = useMemo(() => {
       Number.isFinite(c) &&
       c > 0 &&
       Number(cursoSemestreId) > 0 &&
-      turmasSelecionadas.length > 0
+      turmasSelecionadas.length > 0 &&
+!cargaHorariaExcedida
     );
-  }, [alunoId, cursoId, cursoSemestreId, turmasSelecionadas]);
+  }, [alunoId, cursoId, cursoSemestreId, turmasSelecionadas, cargaHorariaExcedida]);
 
   function toggleTurma(turmaId: number) {
     setTurmasSelecionadas((prev) =>
@@ -1073,6 +1120,13 @@ function renderGrupoDisciplina(
 
       
         <div className="mt-4">
+          {cargaHorariaExcedida && (
+  <div className="mb-4 rounded-xl bg-red-100 border border-red-300 p-4 text-red-700 font-medium">
+    ⚠️ Carga horária excedida para este semestre.
+    <br />
+    Limite: {limiteCargaHoraria}h | Selecionado: {cargaHorariaTotalSelecionada}h
+  </div>
+)}
           <button
             onClick={criarMatricula}
             disabled={!podeCriar || creating}
