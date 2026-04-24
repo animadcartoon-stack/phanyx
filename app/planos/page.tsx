@@ -8,7 +8,7 @@ const planos = [
   nome: "Essencial",
   subtitulo: "Para instituições em fase inicial de estruturação digital",
   preco: "R$ 49",
-  periodo: "/mês + R$ 3 por aluno ativo",
+  periodo: "/mês + R$ 3 por aluno ativo + 1 polo incluso",
   destaque: false,
   descricao:
     "Plano ideal para instituições que precisam organizar sua base acadêmica com um modelo acessível, profissional e escalável conforme o número de alunos ativos.",
@@ -20,6 +20,8 @@ const planos = [
     "Base acadêmica organizada por instituição",
     "Suporte inicial para operação",
     "Modelo comercial escalável por aluno ativo",
+    "1 polo incluso no plano",
+    "Polos adicionais com taxa mensal por unidade",
   ],
   idealPara:
     "Escolas técnicas, cursos livres, seminários menores e instituições em início de implantação",
@@ -33,7 +35,7 @@ const planos = [
   nome: "Profissional",
   subtitulo: "Para instituições que querem operação forte e maior valor percebido",
   preco: "R$ 99",
-  periodo: "/mês + R$ 5 por aluno ativo",
+  periodo: "/mês + R$ 5 por aluno ativo + até 3 polos inclusos",
   destaque: true,
   descricao:
     "Plano mais indicado para instituições que precisam de uma operação acadêmica mais completa, com LMS, financeiro, documentos validados e crescimento escalável baseado em alunos ativos.",
@@ -45,6 +47,8 @@ const planos = [
     "Documentos com QR Code e validação pública",
     "Arquitetura multi-instituição (SaaS)",
     "Experiência mais robusta para operação educacional",
+    "Até 3 polos inclusos no plano",
+    "Polos adicionais com taxa mensal por unidade",
   ],
   idealPara:
     "Faculdades, EADs, institutos, seminários e operações acadêmicas em crescimento",
@@ -58,7 +62,7 @@ const planos = [
   nome: "Enterprise",
   subtitulo: "Para instituições que precisam de mais escala, prioridade e recursos avançados",
   preco: "R$ 199",
-  periodo: "/mês + R$ 7 por aluno ativo",
+  periodo: "/mês + R$ 7 por aluno ativo + polos sob negociação",
   destaque: false,
   descricao:
     "Plano ideal para operações maiores que precisam de mais capacidade institucional, prioridade de suporte, personalização ampliada e recursos avançados com cobrança automática.",
@@ -70,6 +74,8 @@ const planos = [
     "Maior capacidade de expansão institucional",
     "Personalização ampliada",
     "Modelo automático para operações maiores",
+    "Gestão multi-polos avançada",
+    "Condições comerciais personalizadas por volume de polos",
   ],
   idealPara:
     "Universidades, grupos educacionais, operações com mais alunos e instituições com maior exigência",
@@ -398,9 +404,10 @@ export default function PlanosPage() {
               </p>
 
               <p className="mt-4 text-sm text-slate-500">
-                * Cobrança variável baseada na quantidade de alunos ativos da
-                instituição. Implantação inicial e condições comerciais podem
-                variar conforme o porte e a necessidade do projeto.
+                * Cobrança variável baseada na quantidade de alunos ativos e na
+quantidade de polos/unidades da instituição. Cada plano possui uma
+franquia inicial de polos, e polos adicionais podem gerar taxa mensal
+por unidade.
               </p>
             </div>
 
