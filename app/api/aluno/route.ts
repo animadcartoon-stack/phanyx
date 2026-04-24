@@ -240,16 +240,15 @@ if (poloId !== null) {
 
     const novoAluno = await prisma.$transaction(async (tx) => {
       const novoUser = await tx.user.create({
-        data: {
-          nome,
-          email,
-          senha: senhaHash,
-          role: "ALUNO",
-          instituicaoId: user.instituicaoId!,
-          poloId,
-          precisaTrocarSenha: true,
-        },
-      });
+  data: {
+    nome,
+    email,
+    senha: senhaHash,
+    role: "ALUNO",
+    instituicaoId: user.instituicaoId!,
+    precisaTrocarSenha: true,
+  },
+});
 
       const alunoCriado = await tx.aluno.create({
         data: {
@@ -257,6 +256,7 @@ if (poloId !== null) {
           nomeSocial: limparTexto(body.nomeSocial) || null,
           genero: limparTexto(body.genero) || null,
           matricula: matricula || null,
+          poloId,
           cpf: cpf || null,
           rg: rg || null,
           telefone: telefone || null,
