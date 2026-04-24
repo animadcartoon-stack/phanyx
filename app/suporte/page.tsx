@@ -7,34 +7,33 @@ export default function SuportePage() {
       <Header />
 
       <main className="bg-white text-slate-900">
-        {/* HERO */}
-        <section className="border-b border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
-          <div className="mx-auto max-w-7xl px-6 py-16 md:px-10 lg:px-12 lg:py-20">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
-                Suporte
-              </p>
+       {/* HERO */}
+<section className="border-b border-slate-200 bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 text-white">
+  <div className="mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 md:grid-cols-2 md:px-10 lg:px-12 lg:py-20">
+    <div>
+      <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-200">
+        Suporte
+      </p>
 
-              <h1 className="mt-4 text-4xl font-bold md:text-5xl">
-                Central de suporte PHANYX
-              </h1>
+      <h1 className="mt-4 text-4xl font-bold md:text-5xl">
+        Central de suporte PHANYX
+      </h1>
 
-<div className="mt-8 flex justify-center">
-  <img
-    src="/images/formix-tutorial.png"
-    alt="Mascote PHANYX suporte"
-    className="w-48 md:w-64 drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
-  />
-</div>
+      <p className="mt-6 text-lg text-slate-300">
+        Nossa equipe está pronta para ajudar sua instituição com dúvidas,
+        suporte técnico e orientações sobre a plataforma.
+      </p>
+    </div>
 
-              <p className="mt-6 text-lg text-slate-300">
-                Nossa equipe está pronta para ajudar sua instituição com dúvidas,
-                suporte técnico e orientações sobre a plataforma.
-              </p>
-            </div>
-          </div>
-        </section>
-
+    <div className="flex justify-center md:justify-end">
+      <img
+        src="/images/formix-tutorial.png"
+        alt="Mascote PHANYX suporte"
+        className="w-64 md:w-80 lg:w-96 drop-shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
+      />
+    </div>
+  </div>
+</section>
         {/* CARDS */}
         <section className="mx-auto max-w-5xl px-6 py-16 md:px-10 lg:px-12">
           <div className="grid gap-6 md:grid-cols-2">
