@@ -110,6 +110,7 @@ function AdminMatriculasPage() {
   const [alunoId, setAlunoId] = useState<string>("");
   const [cursoId, setCursoId] = useState<string>("");
   const [cursoSemestreId, setCursoSemestreId] = useState<string>("");
+  const [cursoSemestreIds, setCursoSemestreIds] = useState<number[]>([]);
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
   const [valorPagoMatricula, setValorPagoMatricula] = useState<string>("");
   const [valorMensalidade, setValorMensalidade] = useState<string>("");
@@ -284,25 +285,27 @@ useEffect(() => {
   }
 }, [searchParams]);
 
-  const semestreSelecionado = useMemo(() => {
+  const semestresSelecionados = useMemo(() => {
+  return semestresCurso.filter((s) => cursoSemestreIds.includes(s.id));
+}, [semestresCurso, cursoSemestreIds]);
 
-
-
-    return (
-      semestresCurso.find((s) => s.id === Number(cursoSemestreId)) ?? null
-    );
-  }, [semestresCurso, cursoSemestreId]);
+const semestreSelecionado = semestresSelecionados[0] ?? null;
 
   const disciplinasDoSemestreIds = useMemo(() => {
-    return semestreSelecionado
-      ? semestreSelecionado.disciplinas.map((d) => d.disciplinaId)
-      : [];
-  }, [semestreSelecionado]);
+  return Array.from(
+    new Set(
+      semestresSelecionados.flatMap((s) =>
+        s.disciplinas.map((d) => d.disciplinaId)
+      )
+    )
+  );
+}, [semestresSelecionados]);
 
 const disciplinasDoSemestre = useMemo(() => {
-  if (!semestreSelecionado) return [];
+  if (semestresSelecionados.length === 0) return [];
 
-  return [...semestreSelecionado.disciplinas]
+  return semestresSelecionados
+    .flatMap((s) => s.disciplinas)
     .map((item) => ({
       id: item.disciplina?.id ?? item.disciplinaId,
       nome: item.disciplina?.nome ?? "Disciplina",
@@ -310,7 +313,7 @@ const disciplinasDoSemestre = useMemo(() => {
     }))
     .filter((d) => Number.isFinite(d.id))
     .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-}, [semestreSelecionado]);
+}, [semestresSelecionados]);
 
   const turmasBaseDoSemestre = useMemo(() => {
     if (!cursoId || !semestreSelecionado) return [];
@@ -517,12 +520,12 @@ const cargaHorariaExcedida =
       a > 0 &&
       Number.isFinite(c) &&
       c > 0 &&
-      Number(cursoSemestreId) > 0 &&
+      cursoSemestreIds.length > 0 &&
 disciplinasSelecionadas.length > 0 &&
 turmasSelecionadas.length > 0 &&
 !cargaHorariaExcedida
     );
-  }, [alunoId, cursoId, cursoSemestreId, disciplinasSelecionadas, turmasSelecionadas, cargaHorariaExcedida]);
+  }, [alunoId, cursoId, cursoSemestreIds, disciplinasSelecionadas, turmasSelecionadas, cargaHorariaExcedida]);
 
   function toggleTurma(turmaId: number) {
     setTurmasSelecionadas((prev) =>
@@ -583,8 +586,10 @@ console.log("DEBUG MATRÍCULA", {
         body: JSON.stringify({
   alunoId: Number(alunoId),
   cursoId: Number(cursoId),
-  cursoSemestreId: Number(cursoSemestreId),
-  semestre: Number(semestreSelecionado.numero),
+  cursoSemestreId: cursoSemestreIds[0] ?? null,
+cursoSemestreIds,
+semestre: semestresSelecionados[0]?.numero ?? null,
+semestres: semestresSelecionados.map((s) => s.numero),
   turmaIds: turmasSelecionadas,
 disciplinaIds: [
   ...disciplinasSelecionadas,
@@ -1035,19 +1040,34 @@ function renderGrupoDisciplina(
             <label className="text-sm font-medium text-gray-700">
               Semestre do curso
             </label>
-            <select
-              value={cursoSemestreId}
-              onChange={(e) => setCursoSemestreId(e.target.value)}
-              className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-              disabled={!cursoId}
-            >
-              <option value="">Selecione...</option>
-              {semestresCurso.map((s) => (
-                <option key={s.id} value={String(s.id)}>
-                  {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
-                </option>
-              ))}
-            </select>
+            <div className="mt-1 border rounded-xl p-3 bg-white min-h-[44px]">
+  {semestresCurso.length === 0 ? (
+    <p className="text-sm text-gray-500">
+      Selecione um curso primeiro...
+    </p>
+  ) : (
+    <div className="space-y-2">
+      {semestresCurso.map((s) => (
+        <label key={s.id} className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={cursoSemestreIds.includes(s.id)}
+            onChange={() => {
+              setCursoSemestreIds((prev) =>
+                prev.includes(s.id)
+                  ? prev.filter((id) => id !== s.id)
+                  : [...prev, s.id]
+              );
+            }}
+          />
+          <span>
+            {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+          </span>
+        </label>
+      ))}
+    </div>
+  )}
+</div>
           </div>
 
 <div>
@@ -1071,12 +1091,12 @@ function renderGrupoDisciplina(
     {turmas
   .filter((t) => Number(t.cursoId) === Number(cursoId))
   .map((t) => (
-      <option key={t.id} value={String(t.id)}>
-        {t.nome}
-        {t.semestre ? ` — ${t.semestre}` : ""}
-        {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
-      </option>
-    ))}
+    <option key={t.id} value={String(t.id)}>
+      {t.nome}
+      {t.semestre ? ` — ${t.semestre}` : ""}
+      {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
+    </option>
+  ))}
   </select>
 </div>
 
