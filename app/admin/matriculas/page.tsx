@@ -216,7 +216,7 @@ setAlunos(listaAlunos);
       primeiraDisciplina?.curso?.id ??
       null,
   };
-});
+}));
 
         setTurmas(listaTurmas.filter((t) => Number.isFinite(t.id) && t.id > 0));
       } catch (error) {
