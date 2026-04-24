@@ -487,15 +487,14 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
   </div>
 
   <div>
-    <label className="flex w-full items-center justify-between rounded-lg border p-3 text-left">
-      <span className="text-sm font-medium">Polo da turma</span>
-      <span className="text-sm text-gray-500">▼ Selecionar</span>
-    </label>
+    <label className="mb-1 block text-sm font-medium text-gray-700">
+  Polo da turma
+</label>
 
-    <select
-      value={poloId}
+<select
+  value={poloId}
       onChange={(e) => setPoloId(e.target.value)}
-      className="mt-2 w-full rounded-lg border p-2"
+      className="w-full rounded-lg border p-3"
     >
       <option value="">Selecione o polo</option>
       {polos.map((polo) => (
