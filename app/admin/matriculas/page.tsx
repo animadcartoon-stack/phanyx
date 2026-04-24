@@ -198,25 +198,25 @@ setAlunos(listaAlunos);
         const listaTurmas: TurmaOption[] = (
           Array.isArray(dataTurmas) ? dataTurmas : []
         .map((t: any) => {
-         const primeiraDisciplina =
-  Array.isArray(t?.disciplinas) && t.disciplinas.length > 0
-    ? t.disciplinas[0]?.disciplina
-    : t?.disciplina;
+  const primeiraDisciplina =
+    Array.isArray(t.disciplinas) && t.disciplinas.length > 0
+      ? t.disciplinas[0]?.disciplina
+      : t.disciplina;
 
-return {
-  id: Number(t.id),
-  nome: String(t.nome ?? "Turma"),
-  semestre: t?.semestre ?? null,
-  disciplinaId: primeiraDisciplina?.id ?? null,
-  disciplinaNome: primeiraDisciplina?.nome ?? null,
-  professorNome: t?.professor?.nome ?? null,
-  cursoId:
-    primeiraDisciplina?.cursoId ??
-    t?.cursoId ??
-    primeiraDisciplina?.curso?.id ??
-    null,
-};
-        }));
+  return {
+    id: Number(t.id),
+    nome: String(t.nome ?? "Turma"),
+    semestre: t?.semestre ?? null,
+    disciplinaId: primeiraDisciplina?.id ?? null,
+    disciplinaNome: primeiraDisciplina?.nome ?? null,
+    professorNome: t?.professor?.nome ?? null,
+    cursoId:
+      primeiraDisciplina?.cursoId ??
+      t?.cursoId ??
+      primeiraDisciplina?.curso?.id ??
+      null,
+  };
+});
 
         setTurmas(listaTurmas.filter((t) => Number.isFinite(t.id) && t.id > 0));
       } catch (error) {
