@@ -469,7 +469,7 @@ model ItemMatricula {
   turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
   disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
 
-  @@unique([matriculaId, turmaId])
+  @@unique([matriculaId, turmaId, disciplinaId])
   @@index([instituicaoId])
   @@index([matriculaId])
   @@index([turmaId])
