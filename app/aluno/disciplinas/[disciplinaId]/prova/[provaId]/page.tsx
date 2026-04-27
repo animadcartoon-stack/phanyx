@@ -138,8 +138,15 @@ const t = text2 ? JSON.parse(text2) : null;
     }
   }
 
-  const notaExibida = resultado?.notaFinal ?? resultado?.nota ?? 0;
-  const notaMaximaExibida = resultado?.notaMaxima ?? prova?.notaMaxima ?? 0;
+  const notaExibida = Number(resultado?.notaFinal ?? resultado?.nota ?? 0);
+const notaMaximaExibida = Number(resultado?.notaMaxima ?? prova?.notaMaxima ?? 10);
+
+const aprovado =
+  typeof resultado?.aprovado === "boolean"
+    ? resultado.aprovado
+    : notaMaximaExibida > 0
+      ? notaExibida >= notaMaximaExibida * 0.6
+      : false;
 
   if (loading) return <div className="p-8">Carregando prova...</div>;
   if (!prova) return <div className="p-8">Prova não encontrada.</div>;
@@ -161,10 +168,10 @@ const t = text2 ? JSON.parse(text2) : null;
 
             <p
               className={`text-lg font-semibold ${
-                resultado?.aprovado ? "text-green-600" : "text-red-600"
+                aprovado ? "text-green-600" : "text-red-600"
               }`}
             >
-              {resultado?.aprovado ? "Aprovado ✅" : "Reprovado ❌"}
+              {aprovado ? "Aprovado ✅" : "Reprovado ❌"}
             </p>
           </div>
 
