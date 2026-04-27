@@ -360,7 +360,31 @@ function monitorarAvancoIndevido() {
         }
 
         setDisciplina(data);
+// 🔥 NOVO: buscar progresso salvo no banco
+try {
+  const resProgresso = await fetch("/api/aluno/progresso", {
+    credentials: "include",
+    cache: "no-store",
+  });
 
+  if (resProgresso.ok) {
+    const progressoData = await resProgresso.json();
+
+    // 🔥 Atualiza o contexto com progresso real
+    if (Array.isArray(progressoData)) {
+      progressoData.forEach((item: any) => {
+        marcarAulaComoConcluida({
+          disciplinaId: item.disciplinaId,
+          aulaId: item.aulaId,
+          tempoAssistidoSegundos: item.tempoAssistidoSegundos || 0,
+          tempoMinimoSegundos: item.tempoMinimoSegundos || 0,
+        });
+      });
+    }
+  }
+} catch (e) {
+  console.error("Erro ao carregar progresso:", e);
+}
         const aulas = (data?.aulas ?? []).slice().sort((a: AulaApi, b: AulaApi) => {
           const ao = a.ordem ?? 999999;
           const bo = b.ordem ?? 999999;
