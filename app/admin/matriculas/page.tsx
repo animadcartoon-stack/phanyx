@@ -25,8 +25,14 @@ type TurmaOption = {
   professorNome?: string | null;
   cursoId?: number | null;
   cursoNome?: string | null;
+  disciplinas?: {
+    id: number;
+    nome: string;
+    codigo?: string | null;
+    cargaHoraria?: number | null;
+    cursoId?: number | null;
+  }[];
 };
-
 type CursoSemestreDisciplina = {
   id: number;
   disciplinaId: number;
@@ -222,6 +228,15 @@ cursoNome:
   t?.curso?.nome ??
   primeiraDisciplina?.curso?.nome ??
   null,
+  disciplinas: Array.isArray(t.disciplinas)
+  ? t.disciplinas.map((d: any) => ({
+      id: Number(d?.disciplina?.id ?? d?.id),
+      nome: String(d?.disciplina?.nome ?? d?.nome ?? "Disciplina"),
+      codigo: d?.disciplina?.codigo ?? d?.codigo ?? null,
+      cargaHoraria: d?.disciplina?.cargaHoraria ?? d?.cargaHoraria ?? 0,
+      cursoId: d?.disciplina?.cursoId ?? d?.cursoId ?? null,
+    }))
+  : [],
   };
 });
 
