@@ -439,21 +439,25 @@ async function buscarTurmasComDisciplinas(params: {
     },
   });
 
-  const turmasComDisciplinas = turmas.flatMap((turma) =>
-    turma.disciplinas
-      .filter((td) =>
-        disciplinaIdsBody.length > 0
-          ? disciplinaIdsBody.includes(td.disciplinaId)
-          : true
-      )
-      .map((td) => ({
-        id: turma.id,
-        nome: turma.nome,
-        semestre: turma.semestre,
-        disciplinaId: td.disciplinaId,
-        disciplina: td.disciplina,
-      }))
-  );
+  const turmasComDisciplinas = turmas.flatMap((turma) => {
+  const disciplinasFiltradas =
+    disciplinaIdsBody.length > 0
+      ? turma.disciplinas.filter((td) =>
+          disciplinaIdsBody.includes(td.disciplinaId)
+        )
+      : turma.disciplinas;
+
+  const disciplinasParaUsar =
+    disciplinasFiltradas.length > 0 ? disciplinasFiltradas : turma.disciplinas;
+
+  return disciplinasParaUsar.map((td) => ({
+    id: turma.id,
+    nome: turma.nome,
+    semestre: turma.semestre,
+    disciplinaId: td.disciplinaId,
+    disciplina: td.disciplina,
+  }));
+});
 
   return { turmas, turmasComDisciplinas };
 }
@@ -667,15 +671,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const itensClassificados = removerItensDuplicadosPorTurma(
-      await classificarItensMatricula({
-        instituicaoId: user.instituicaoId,
-        cursoIdFinal,
-        semestreFinal,
-        cursoSemestreId,
-        turmas: turmasComDisciplinas as TurmaComDisciplina[],
-      })
-    );
+    const itensClassificados = await classificarItensMatricula({
+  instituicaoId: user.instituicaoId,
+  cursoIdFinal,
+  semestreFinal,
+  cursoSemestreId,
+  turmas: turmasComDisciplinas as TurmaComDisciplina[],
+});
 
     const valorMatricula = Number(
       body.valorMatricula ??

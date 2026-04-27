@@ -84,6 +84,10 @@ export async function POST(request: NextRequest) {
     const periodoLetivo = String(body?.periodoLetivo ?? "").trim();
     const statusTurma = String(body?.statusTurma ?? "AGUARDANDO").trim();
     const ativa = body?.ativa !== undefined ? Boolean(body.ativa) : true;
+    const cursoId =
+  body?.cursoId && Number(body.cursoId) > 0
+    ? Number(body.cursoId)
+    : null;
 
     const poloId =
       body?.poloId && Number(body.poloId) > 0
@@ -125,7 +129,8 @@ export async function POST(request: NextRequest) {
         capacidadeMinima,
         capacidadeMaxima,
         instituicaoId: user.instituicaoId,
-        poloId,
+cursoId,
+poloId,
 
 disciplinas: {
   create: disciplinaIds.map((id: number) => ({
