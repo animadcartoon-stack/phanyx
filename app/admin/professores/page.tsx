@@ -46,6 +46,7 @@ function AdminProfessoresPage() {
   const [polos, setPolos] = useState<Polo[]>([]);
   const [disciplinas, setDisciplinas] = useState<DisciplinaOpcao[]>([]);
   const [disciplinasAberto, setDisciplinasAberto] = useState(false);
+  const [editDisciplinasAberto, setEditDisciplinasAberto] = useState(false);
   const [busca, setBusca] = useState("");
 
   const [nome, setNome] = useState("");
@@ -664,12 +665,57 @@ carregarDisciplinas();
                         className="rounded border p-2"
                         placeholder="Titulação"
                       />
-                      <input
-                        value={editEspecialidade}
-                        onChange={(e) => setEditEspecialidade(e.target.value)}
-                        className="rounded border p-2"
-                        placeholder="Especialidade"
-                      />
+                      <div className="rounded border p-2 md:col-span-2">
+  <button
+    type="button"
+    onClick={() => setEditDisciplinasAberto((prev) => !prev)}
+    className="flex w-full items-center justify-between text-left"
+  >
+    <span>
+      {editEspecialidade
+        ? `Disciplinas: ${editEspecialidade}`
+        : "Selecionar disciplinas do professor"}
+    </span>
+    <span>{editDisciplinasAberto ? "▲" : "▼"}</span>
+  </button>
+
+  {editDisciplinasAberto && (
+    <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-lg bg-slate-50 p-3">
+      {disciplinas.length === 0 ? (
+        <p className="text-sm text-gray-500">Nenhuma disciplina encontrada.</p>
+      ) : (
+        disciplinas.map((disciplina) => {
+          const selecionadas = editEspecialidade
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+          const checked = selecionadas.includes(disciplina.nome);
+
+          return (
+            <label
+              key={disciplina.id}
+              className="flex items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={(e) => {
+                  const novas = e.target.checked
+                    ? [...selecionadas, disciplina.nome]
+                    : selecionadas.filter((nome) => nome !== disciplina.nome);
+
+                  setEditEspecialidade(novas.join(", "));
+                }}
+              />
+              {disciplina.nome}
+            </label>
+          );
+        })
+      )}
+    </div>
+  )}
+</div>
                       <input
                         value={editFormacao}
                         onChange={(e) => setEditFormacao(e.target.value)}
