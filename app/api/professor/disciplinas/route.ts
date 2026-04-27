@@ -28,11 +28,13 @@ export async function GET() {
     }
 
     const turmasDoProfessor = await prisma.turma.findMany({
-      where: {
-        professorId: professor.id,
-        instituicaoId: user.instituicaoId,
-      },
-      select: {
+  where: {
+    professorId: professor.id,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    disciplinas: {
+      include: {
         disciplina: {
           select: {
             id: true,
@@ -41,25 +43,29 @@ export async function GET() {
           },
         },
       },
-      orderBy: {
-        id: "desc",
-      },
-    });
+    },
+  },
+  orderBy: {
+    id: "desc",
+  },
+});
 
     const mapa = new Map<number, { id: number; nome: string; descricao: string | null }>();
 
-    for (const item of turmasDoProfessor) {
-      const disciplina = item.disciplina;
-      if (!disciplina) continue;
+    for (const turma of turmasDoProfessor) {
+  for (const item of turma.disciplinas) {
+    const disciplina = item.disciplina;
+          if (!disciplina) continue;
 
-      if (!mapa.has(disciplina.id)) {
-        mapa.set(disciplina.id, {
-          id: disciplina.id,
-          nome: disciplina.nome,
-          descricao: disciplina.descricao ?? null,
-        });
-      }
+    if (!mapa.has(disciplina.id)) {
+      mapa.set(disciplina.id, {
+        id: disciplina.id,
+        nome: disciplina.nome,
+        descricao: disciplina.descricao ?? null,
+      });
     }
+  }
+}
 
     const disciplinas = Array.from(mapa.values()).sort((a, b) =>
       a.nome.localeCompare(b.nome, "pt-BR")
