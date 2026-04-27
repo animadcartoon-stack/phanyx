@@ -89,21 +89,33 @@ export async function POST(
     return NextResponse.json({ error: "Questão inválida" }, { status: 400 });
   }
 
-  const db: any = prisma;
+  const existente = await prisma.respostaProva.findFirst({
+  where: {
+    tentativaId,
+    questaoId,
+    instituicaoId: user.instituicaoId,
+  },
+  select: { id: true },
+});
 
-  const existente = await db.resposta.findFirst({
-    where: { tentativaId, questaoId },
-    select: { id: true },
-  });
-
-  const saved = existente
-    ? await db.resposta.update({
-        where: { id: existente.id },
-        data: { alternativaId, respostaTexto },
-      })
-    : await db.resposta.create({
-        data: { tentativaId, questaoId, alternativaId, respostaTexto },
-      });
+const saved = existente
+  ? await prisma.respostaProva.update({
+      where: { id: existente.id },
+      data: {
+        alternativaId,
+        respostaTexto,
+      },
+    })
+  : await prisma.respostaProva.create({
+      data: {
+        tentativaId,
+        questaoId,
+        alternativaId,
+        respostaTexto,
+        alunoId: aluno.id,
+        instituicaoId: user.instituicaoId,
+      },
+    });
 
   return NextResponse.json(saved);
 }
