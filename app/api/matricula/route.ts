@@ -461,12 +461,16 @@ const turmas = await prisma.turma.findMany({
   include: {
     disciplinas: {
       include: {
-        disciplina: {
-          include: {
-            curso: true,
-          },
+  disciplinas: {
+    include: {
+      disciplina: {
+        include: {
+          curso: true,
         },
       },
+    },
+  },
+},
     },
     professor: true,
   },
@@ -1219,12 +1223,16 @@ export async function PUT(request: Request) {
           include: {
             disciplina: true,
             turma: {
-              include: {
-                disciplina: true,
-                professor: true,
-                _count: { select: { aulas: true } },
-              },
-            },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+    professor: true,
+    _count: { select: { aulas: true } },
+  },
+},
           },
         },
       },

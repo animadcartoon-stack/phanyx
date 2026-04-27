@@ -1113,14 +1113,14 @@ function renderGrupoDisciplina(
   >
     <option value="">Selecione a turma...</option>
 
-    {turmas
-  .map((t) => (
-    <option key={t.id} value={String(t.id)}>
-      {t.nome}
-      {t.semestre ? ` — ${t.semestre}` : ""}
-      {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
-    </option>
-  ))}
+    {turmas.map((t) => (
+  <option key={t.id} value={String(t.id)}>
+    {t.nome}
+    {t.semestre ? ` — ${t.semestre}` : ""}
+    {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
+  </option>
+))}
+   
   </select>
 </div>
 
