@@ -125,7 +125,11 @@ function AlunoDashboardPage() {
         return;
       }
 
-      setTotalDisciplinasMatriculadas(json.length);
+      const total = json.reduce((acc: number, matricula: any) => {
+  return acc + (matricula.itens?.length || 0);
+}, 0);
+
+setTotalDisciplinasMatriculadas(total);
     } catch {
       setTotalDisciplinasMatriculadas(0);
     }

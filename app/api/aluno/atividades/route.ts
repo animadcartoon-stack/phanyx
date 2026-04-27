@@ -47,10 +47,14 @@ export async function GET(_req: NextRequest) {
       },
       include: {
         turma: {
-          include: {
-            disciplina: true,
-          },
-        },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
         entregas: {
           where: {
             alunoId: aluno.id,
@@ -86,7 +90,8 @@ export async function GET(_req: NextRequest) {
         status: atividade.status,
         notaMaxima: atividade.notaMaxima,
         turmaNome: atividade.turma?.nome || null,
-        disciplinaNome: atividade.turma?.disciplina?.nome || null,
+        disciplinaNome:
+  atividade.turma?.disciplinas?.[0]?.disciplina?.nome || null,
         entrega,
       };
     });

@@ -6,14 +6,14 @@ export async function GET() {
   try {
     const user = await getUserFromToken();
 
-    if (!user) {
+    if (!user || user.role !== "ALUNO") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    // 1. pega aluno
     const aluno = await prisma.aluno.findFirst({
       where: {
         userId: user.id,
+        instituicaoId: user.instituicaoId,
       },
     });
 
@@ -21,13 +21,19 @@ export async function GET() {
       return NextResponse.json({ error: "Aluno não encontrado" }, { status: 404 });
     }
 
-    // 2. pega matrícula + curso
     const matricula = await prisma.matricula.findFirst({
       where: {
         alunoId: aluno.id,
+        instituicaoId: user.instituicaoId,
       },
       include: {
         curso: true,
+        itens: {
+          include: {
+            disciplina: true,
+            turma: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -39,6 +45,8 @@ export async function GET() {
       matricula,
     });
   } catch (error) {
+    console.error("Erro ao buscar matrícula do aluno:", error);
+
     return NextResponse.json(
       { error: "Erro ao buscar matrícula" },
       { status: 500 }
