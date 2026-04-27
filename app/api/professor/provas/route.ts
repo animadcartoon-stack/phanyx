@@ -109,11 +109,10 @@ export async function POST(req: Request) {
     }
 
     const turma = await prisma.turma.findFirst({
-      where: {
-        id: Number(turmaId),
-        instituicaoId: user.instituicaoId,
-        professorId: professor.id,
-      },
+  where: {
+    id: Number(turmaId),
+    instituicaoId: user.instituicaoId,
+  },
       include: {
         disciplinas: {
   include: {
