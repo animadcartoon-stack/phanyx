@@ -55,10 +55,14 @@ export async function POST(
         },
       },
       turma: {
-        include: {
-          disciplina: true,
-        },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
       },
+    },
+  },
+},
     },
   });
 
@@ -160,9 +164,9 @@ export async function POST(
       id: prova.id,
       titulo: (prova as any).titulo ?? "Prova",
       notaMaxima: (prova as any).notaMaxima ?? 10,
-      disciplinaId: (prova as any).turma?.disciplina?.id ?? null,
+      disciplinaId: (prova as any).turma?.disciplinas?.[0]?.disciplina?.id ?? null,
       turmaId: (prova as any).turmaId,
-      disciplinaNome: (prova as any).turma?.disciplina?.nome ?? null,
+      disciplinaNome: (prova as any).turma?.disciplinas?.[0]?.disciplina?.nome ?? null,
       questoes: questoesOrdenadas,
     },
   });
