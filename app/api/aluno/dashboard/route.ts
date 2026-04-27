@@ -67,10 +67,14 @@ export async function GET() {
         prova: {
           include: {
             turma: {
-              include: {
-                disciplina: true,
-              },
-            },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
           },
         },
       },
@@ -92,10 +96,14 @@ export async function GET() {
     const disciplinasMap = new Map<number, string>();
 
 for (const tentativa of provasUnicas) {
-  const disciplina = tentativa.prova?.turma?.disciplina;
+  const disciplinasDaTurma = tentativa.prova?.turma?.disciplinas ?? [];
+
+for (const item of disciplinasDaTurma) {
+  const disciplina = item.disciplina;
   if (disciplina?.id) {
     disciplinasMap.set(disciplina.id, disciplina.nome);
   }
+}
 }
 
 const totalDisciplinas = disciplinasMap.size;
@@ -116,8 +124,8 @@ const totalDisciplinas = disciplinasMap.size;
       provaId: tentativa.provaId,
       titulo: tentativa.prova?.titulo || `Prova ${tentativa.provaId}`,
       disciplinaNome:
-        tentativa.prova?.turma?.disciplina?.nome ||
-        `Disciplina ${tentativa.prova?.turma?.disciplinaId ?? ""}`,
+  tentativa.prova?.turma?.disciplinas?.[0]?.disciplina?.nome ||
+  "Disciplina",
       nota: tentativa.notaFinal ?? 0,
       notaMaxima: tentativa.prova?.notaMaxima ?? 10,
       finishedAt: tentativa.createdAt,
