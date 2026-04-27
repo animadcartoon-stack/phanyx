@@ -202,10 +202,9 @@ setAlunos(listaAlunos);
   Array.isArray(dataTurmas) ? dataTurmas : []
 ).map((t: any) => {
   const primeiraDisciplina =
-    Array.isArray(t.disciplinas) && t.disciplinas.length > 0
-      ? t.disciplinas[0]?.disciplina
-      : t.disciplina;
-
+  Array.isArray(t.disciplinas) && t.disciplinas.length > 0
+    ? t.disciplinas[0]?.disciplina ?? t.disciplinas[0]
+    : t.disciplina;
   return {
     id: Number(t.id),
     nome: String(t.nome ?? "Turma"),
