@@ -249,7 +249,7 @@ export async function POST(
       },
       select: {
         id: true,
-        disciplinaId: true,
+        
       },
     });
 
