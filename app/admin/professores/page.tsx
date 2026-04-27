@@ -10,6 +10,11 @@ interface Polo {
   codigo?: string | null;
 }
 
+interface DisciplinaOpcao {
+  id: number;
+  nome: string;
+}
+
 interface Professor {
   id: number;
   nome: string;
@@ -39,6 +44,8 @@ function AdminProfessoresPage() {
 
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
+  const [disciplinas, setDisciplinas] = useState<DisciplinaOpcao[]>([]);
+  const [disciplinasAberto, setDisciplinasAberto] = useState(false);
   const [busca, setBusca] = useState("");
 
   const [nome, setNome] = useState("");
@@ -138,6 +145,26 @@ function AdminProfessoresPage() {
       setPolos([]);
     }
   }
+
+async function carregarDisciplinas() {
+  const res = await fetch("/api/disciplina", {
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    console.error("Erro ao buscar disciplinas");
+    setDisciplinas([]);
+    return;
+  }
+
+  const data = await res.json();
+
+  if (Array.isArray(data)) {
+    setDisciplinas(data);
+  } else {
+    setDisciplinas([]);
+  }
+}
 
   async function handleCriarProfessor(e: React.FormEvent) {
     e.preventDefault();
@@ -298,7 +325,8 @@ function AdminProfessoresPage() {
 
   useEffect(() => {
     carregarProfessores();
-    carregarPolos();
+carregarPolos();
+carregarDisciplinas();
   }, []);
 
   useEffect(() => {
@@ -454,12 +482,57 @@ function AdminProfessoresPage() {
               className="w-full rounded-lg border p-2"
             />
 
-            <input
-              placeholder="Especialidade"
-              value={especialidade}
-              onChange={(e) => setEspecialidade(e.target.value)}
-              className="w-full rounded-lg border p-2"
-            />
+            <div className="rounded-lg border p-2 md:col-span-2">
+  <button
+    type="button"
+    onClick={() => setDisciplinasAberto((prev) => !prev)}
+    className="flex w-full items-center justify-between text-left"
+  >
+    <span>
+      {especialidade
+        ? `Disciplinas: ${especialidade}`
+        : "Selecionar disciplinas do professor"}
+    </span>
+    <span>{disciplinasAberto ? "▲" : "▼"}</span>
+  </button>
+
+  {disciplinasAberto && (
+    <div className="mt-3 max-h-56 space-y-2 overflow-y-auto rounded-lg bg-slate-50 p-3">
+      {disciplinas.length === 0 ? (
+        <p className="text-sm text-gray-500">Nenhuma disciplina encontrada.</p>
+      ) : (
+        disciplinas.map((disciplina) => {
+          const selecionadas = especialidade
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+
+          const checked = selecionadas.includes(disciplina.nome);
+
+          return (
+            <label
+              key={disciplina.id}
+              className="flex items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={(e) => {
+                  const novas = e.target.checked
+                    ? [...selecionadas, disciplina.nome]
+                    : selecionadas.filter((nome) => nome !== disciplina.nome);
+
+                  setEspecialidade(novas.join(", "));
+                }}
+              />
+              {disciplina.nome}
+            </label>
+          );
+        })
+      )}
+    </div>
+  )}
+</div>
 
             <input
               placeholder="Formação"
