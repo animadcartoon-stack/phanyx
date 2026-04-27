@@ -115,19 +115,48 @@ export async function POST(
     }
   }
 
-  const tentativa = await prisma.tentativaProva.create({
+  const tentativaExistente = await prisma.tentativaProva.findFirst({
+  where: {
+    alunoId: aluno.id,
+    provaId: prova.id,
+    instituicaoId: user.instituicaoId,
+  },
+  orderBy: {
+    tentativaNumero: "desc",
+  },
+  select: {
+    id: true,
+    alunoId: true,
+    provaId: true,
+    finalizada: true,
+    tentativaNumero: true,
+  },
+});
+
+if (tentativaExistente?.finalizada) {
+  return NextResponse.json(
+    { error: "Você já finalizou esta prova." },
+    { status: 409 }
+  );
+}
+
+const tentativa =
+  tentativaExistente ??
+  (await prisma.tentativaProva.create({
     data: {
       alunoId: aluno.id,
       provaId: prova.id,
       instituicaoId: user.instituicaoId,
+      tentativaNumero: 1,
     },
     select: {
       id: true,
       alunoId: true,
       provaId: true,
       finalizada: true,
+      tentativaNumero: true,
     },
-  });
+  }));
 
   const questoesOrdenadas = (prova.questoes ?? [])
     .slice()
