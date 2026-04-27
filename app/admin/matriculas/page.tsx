@@ -306,19 +306,16 @@ const semestreSelecionado = semestresSelecionados[0] ?? null;
   );
 }, [semestresSelecionados]);
 
-const disciplinasDoSemestre = useMemo(() => {
-  if (semestresSelecionados.length === 0) return [];
+const turmaSelecionadaObj = useMemo(() => {
+  return turmas.find((t) => t.id === Number(turmasSelecionadas[0]));
+}, [turmas, turmasSelecionadas]);
 
-  return semestresSelecionados
-    .flatMap((s) => s.disciplinas)
-    .map((item) => ({
-      id: item.disciplina?.id ?? item.disciplinaId,
-      nome: item.disciplina?.nome ?? "Disciplina",
-      cargaHoraria: item.disciplina?.cargaHoraria ?? 0,
-    }))
-    .filter((d) => Number.isFinite(d.id))
-    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-}, [semestresSelecionados]);
+const disciplinasDoSemestre = useMemo(() => {
+  if (!turmaSelecionadaObj) return [];
+
+  // 🔥 PUXA DIRETO DA TURMA
+  return (turmaSelecionadaObj as any).disciplinas || [];
+}, [turmaSelecionadaObj]);
 
   const turmasBaseDoSemestre = useMemo(() => {
     if (!cursoId || !semestreSelecionado) return [];
@@ -595,7 +592,7 @@ console.log("DEBUG MATRÍCULA", {
 cursoSemestreIds,
 semestre: semestresSelecionados[0]?.numero ?? null,
 semestres: semestresSelecionados.map((s) => s.numero),
-  turmaIds: turmasSelecionadas,
+  turmaIds: turmaIdsParaEnviar,
 disciplinaIds: [
   ...disciplinasSelecionadas,
   ...disciplinasExtrasSelecionadas,
