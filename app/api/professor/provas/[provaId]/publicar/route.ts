@@ -69,23 +69,27 @@ export async function POST(
     }
 
     const updated = await prisma.prova.update({
-      where: { id: provaId },
-      data: {
-        ativa: true,
-      },
+  where: { id: provaId },
+  data: {
+    ativa: true,
+  },
+  include: {
+    turma: {
       include: {
-        turma: {
+        disciplinas: {
           include: {
             disciplina: true,
           },
         },
-        questoes: {
-          select: {
-            id: true,
-          },
-        },
       },
-    });
+    },
+    questoes: {
+      select: {
+        id: true,
+      },
+    },
+  },
+});
 
     return NextResponse.json({
       ...updated,
