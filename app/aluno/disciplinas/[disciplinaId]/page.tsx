@@ -371,16 +371,20 @@ try {
     const progressoData = await resProgresso.json();
 
     // 🔥 Atualiza o contexto com progresso real
-    if (Array.isArray(progressoData)) {
-      progressoData.forEach((item: any) => {
-        marcarAulaComoConcluida({
-          disciplinaId: item.disciplinaId,
-          aulaId: item.aulaId,
-          tempoAssistidoSegundos: item.tempoAssistidoSegundos || 0,
-          tempoMinimoSegundos: item.tempoMinimoSegundos || 0,
-        });
-      });
-    }
+   const listaProgresso = Array.isArray(progressoData?.progresso)
+  ? progressoData.progresso
+  : [];
+
+listaProgresso
+  .filter((item: any) => item.concluida === true)
+  .forEach((item: any) => {
+    marcarAulaComoConcluida({
+      disciplinaId,
+      aulaId: item.aulaId,
+      tempoAssistidoSegundos: item.tempoAssistidoSegundos || 0,
+      tempoMinimoSegundos: item.tempoMinimoSegundos || 0,
+    });
+  });
   }
 } catch (e) {
   console.error("Erro ao carregar progresso:", e);
