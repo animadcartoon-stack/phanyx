@@ -54,10 +54,14 @@ export async function GET(req: NextRequest) {
       },
       include: {
         turma: {
-          include: {
-            disciplina: true,
-          },
-        },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
         matricula: {
           include: {
             aluno: {
@@ -194,9 +198,9 @@ export async function GET(req: NextRequest) {
             semestre: turma.semestre || null,
           },
           disciplina: {
-            id: turma.disciplina?.id || null,
-            nome: turma.disciplina?.nome || null,
-          },
+  id: turma.disciplinas?.[0]?.disciplina?.id || null,
+  nome: turma.disciplinas?.[0]?.disciplina?.nome || null,
+},
           notas: notasAluno,
           media,
           frequencia: {
@@ -230,8 +234,12 @@ export async function GET(req: NextRequest) {
         professorId: professor.id,
       },
       include: {
-        disciplina: true,
-      },
+  disciplinas: {
+    include: {
+      disciplina: true,
+    },
+  },
+},
       orderBy: {
         nome: "asc",
       },
@@ -242,7 +250,7 @@ export async function GET(req: NextRequest) {
       turmas: turmasProfessor.map((turma) => ({
         id: turma.id,
         nome: turma.nome,
-        disciplinaNome: turma.disciplina?.nome || null,
+        disciplinaNome: turma.disciplinas?.[0]?.disciplina?.nome || null,
       })),
     });
   } catch (e: any) {

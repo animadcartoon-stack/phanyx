@@ -54,9 +54,13 @@ export async function GET() {
         instituicaoId: decoded.instituicaoId,
       },
       include: {
-        disciplina: true,
-        itensMatricula: true,
-      },
+  disciplinas: {
+    include: {
+      disciplina: true,
+    },
+  },
+  itensMatricula: true,
+},
       orderBy: { id: "desc" },
     });
 
@@ -66,8 +70,9 @@ export async function GET() {
         nome: t.nome,
         semestre: t.semestre,
         alunos: t.itensMatricula.length,
-        disciplinaId: t.disciplinaId,
-        disciplina: t.disciplina,
+        disciplinaId: t.disciplinas?.[0]?.disciplinaId ?? null,
+disciplina: t.disciplinas?.[0]?.disciplina ?? null,
+disciplinas: t.disciplinas.map((item) => item.disciplina),
       }))
     );
   } catch (e: any) {

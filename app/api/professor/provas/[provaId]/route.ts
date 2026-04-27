@@ -43,10 +43,14 @@ export async function GET(
       },
       include: {
         turma: {
-          include: {
-            disciplina: true,
-          },
-        },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
         questoes: {
           orderBy: { ordem: "asc" },
           include: {
@@ -190,10 +194,14 @@ export async function PATCH(
       },
       include: {
         turma: {
-          include: {
-            disciplina: true,
-          },
-        },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
         questoes: {
           orderBy: { ordem: "asc" },
           include: {

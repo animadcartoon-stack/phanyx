@@ -51,8 +51,12 @@ export async function GET() {
   },
   include: {
     turma: {
+  include: {
+    disciplinas: {
       include: {
         disciplina: true,
+      },
+    },
       },
     },
     tentativas: {

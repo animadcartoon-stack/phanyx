@@ -37,7 +37,11 @@ export async function GET() {
       include: {
         turma: {
           include: {
-            disciplina: true,
+            disciplinas: {
+  include: {
+    disciplina: true,
+  },
+},
           },
         },
         questoes: {
@@ -111,7 +115,11 @@ export async function POST(req: Request) {
         professorId: professor.id,
       },
       include: {
-        disciplina: true,
+        disciplinas: {
+  include: {
+    disciplina: true,
+  },
+},
       },
     });
 
@@ -138,7 +146,11 @@ export async function POST(req: Request) {
       include: {
         turma: {
           include: {
-            disciplina: true,
+            disciplinas: {
+  include: {
+    disciplina: true,
+  },
+},
           },
         },
       },

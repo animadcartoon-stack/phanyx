@@ -42,7 +42,11 @@ export async function GET(_req: NextRequest) {
       include: {
         turma: {
           include: {
-            disciplina: true,
+            disciplinas: {
+  include: {
+    disciplina: true,
+  },
+},
           },
         },
         anexos: true,
@@ -55,7 +59,8 @@ export async function GET(_req: NextRequest) {
     return NextResponse.json(
       atividades.map((atividade) => ({
         ...atividade,
-        disciplina: atividade.turma?.disciplina || null,
+        disciplina: atividade.turma?.disciplinas?.[0]?.disciplina || null,
+disciplinas: atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
       }))
     );
   } catch (e: any) {
@@ -137,7 +142,11 @@ export async function POST(req: NextRequest) {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        disciplina: true,
+        disciplinas: {
+  include: {
+    disciplina: true,
+  },
+},
       },
     });
 
@@ -179,7 +188,11 @@ export async function POST(req: NextRequest) {
       include: {
         turma: {
           include: {
-            disciplina: true,
+            disciplinas: {
+  include: {
+    disciplina: true,
+  },
+},
           },
         },
         anexos: true,
@@ -189,7 +202,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ...atividade,
-        disciplina: atividade.turma?.disciplina || null,
+        disciplina: atividade.turma?.disciplinas?.[0]?.disciplina || null,
+disciplinas: atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
       },
       { status: 201 }
     );
