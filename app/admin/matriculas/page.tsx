@@ -326,10 +326,16 @@ const turmaSelecionadaObj = useMemo(() => {
 }, [turmas, turmasSelecionadas]);
 
 const disciplinasDoSemestre = useMemo(() => {
-  if (!turmaSelecionadaObj) return [];
+  if (!turmaSelecionadaObj?.disciplinas?.length) return [];
 
-  // 🔥 PUXA DIRETO DA TURMA
-  return (turmaSelecionadaObj as any).disciplinas || [];
+  return turmaSelecionadaObj.disciplinas
+    .map((d) => ({
+      id: Number(d.id),
+      nome: d.nome,
+      cargaHoraria: d.cargaHoraria ?? 0,
+    }))
+    .filter((d) => Number.isFinite(d.id))
+    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
 }, [turmaSelecionadaObj]);
 
   const turmasBaseDoSemestre = useMemo(() => {
@@ -607,7 +613,8 @@ console.log("DEBUG MATRÍCULA", {
 cursoSemestreIds,
 semestre: semestresSelecionados[0]?.numero ?? null,
 semestres: semestresSelecionados.map((s) => s.numero),
-  turmaIds: turmaIdsParaEnviar,
+  turmaIds: turmasSelecionadas,
+turmaId: turmasSelecionadas[0] ?? null,
 disciplinaIds: [
   ...disciplinasSelecionadas,
   ...disciplinasExtrasSelecionadas,
