@@ -47,10 +47,9 @@ export async function GET(
 
     const prova = await prisma.prova.findFirst({
       where: {
-        id: provaId,
-        instituicaoId: user.instituicaoId,
-        ativa: true,
-      },
+  id: provaId,
+  instituicaoId: user.instituicaoId,
+},
       include: {
         questoes: {
           orderBy: {
