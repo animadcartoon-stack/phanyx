@@ -17,10 +17,14 @@ export async function provaPertenceAoProfessor(params: {
   },
   include: {
     turma: {
+  include: {
+    disciplinas: {
       include: {
         disciplina: true,
       },
     },
+  },
+},
     questoes: true,
     tentativas: true,
     notas: true,
