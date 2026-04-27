@@ -440,15 +440,19 @@ async function buscarTurmasComDisciplinas(params: {
   });
 
   const turmasComDisciplinas = turmas.flatMap((turma) => {
-  const disciplinasFiltradas =
-    disciplinaIdsBody.length > 0
-      ? turma.disciplinas.filter((td) =>
-          disciplinaIdsBody.includes(td.disciplinaId)
-        )
-      : turma.disciplinas;
+  let disciplinasParaUsar = turma.disciplinas;
 
-  const disciplinasParaUsar =
-    disciplinasFiltradas.length > 0 ? disciplinasFiltradas : turma.disciplinas;
+// Se veio disciplina do front, tenta filtrar
+if (disciplinaIdsBody.length > 0) {
+  const filtradas = turma.disciplinas.filter((td) =>
+    disciplinaIdsBody.includes(td.disciplinaId)
+  );
+
+  // 🔥 Se não encontrou nenhuma, NÃO quebra — usa todas da turma
+  if (filtradas.length > 0) {
+    disciplinasParaUsar = filtradas;
+  }
+}
 
   return disciplinasParaUsar.map((td) => ({
     id: turma.id,
