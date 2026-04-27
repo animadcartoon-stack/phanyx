@@ -81,7 +81,8 @@ function AdminTurmasPage() {
   const [editAtiva, setEditAtiva] = useState(true);
   const [editCapacidadeMinima, setEditCapacidadeMinima] = useState("");
   const [editCapacidadeMaxima, setEditCapacidadeMaxima] = useState("");
-  const [editDisciplinaId, setEditDisciplinaId] = useState("");
+  const [editDisciplinasSelecionadas, setEditDisciplinasSelecionadas] = useState<number[]>([]);
+  const [editDisciplinasAbertas, setEditDisciplinasAbertas] = useState(false);
   const [editProfessorId, setEditProfessorId] = useState("");
 
   const [feedback, setFeedback] = useState("");
@@ -212,7 +213,12 @@ async function carregarCursos() {
         ? String(turma.capacidadeMaxima)
         : ""
     );
-    setEditDisciplinaId("");
+    setEditDisciplinasSelecionadas(
+  Array.isArray(turma.disciplinas)
+    ? turma.disciplinas.map((d: any) => Number(d.id)).filter((id) => Number.isFinite(id))
+    : []
+);
+setEditDisciplinasAbertas(false);
 setEditProfessorId("");
   }
 
@@ -233,7 +239,7 @@ setEditProfessorId("");
           ativa: editAtiva,
           capacidadeMinima: editCapacidadeMinima,
           capacidadeMaxima: editCapacidadeMaxima,
-          
+          disciplinaIds: editDisciplinasSelecionadas,
         }),
       });
 
@@ -646,8 +652,53 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                           <option value="NAO_FORMADA">Não formada</option>
                         </select>
 
-                        <div className="rounded border p-2 text-sm text-gray-600 md:col-span-2">
-  A edição completa de disciplinas da turma será ajustada na próxima etapa.
+                        <div className="md:col-span-2">
+  <button
+    type="button"
+    onClick={() => setEditDisciplinasAbertas((prev) => !prev)}
+    className="flex h-[46px] w-full items-center justify-between rounded-lg border p-3 text-left"
+  >
+    <span className="text-sm font-medium">
+      Disciplinas da turma
+      {editDisciplinasSelecionadas.length > 0
+        ? ` (${editDisciplinasSelecionadas.length} selecionada(s))`
+        : ""}
+    </span>
+    <span className="text-sm text-gray-500">
+      {editDisciplinasAbertas ? "▲ Fechar" : "▼ Abrir"}
+    </span>
+  </button>
+
+  {editDisciplinasAbertas && (
+    <div className="mt-2 max-h-48 overflow-auto rounded border p-2">
+      <div className="grid grid-cols-1 gap-2">
+        {disciplinas.map((disciplina) => (
+          <label
+            key={disciplina.id}
+            className="flex items-center gap-2 text-sm"
+          >
+            <input
+              type="checkbox"
+              checked={editDisciplinasSelecionadas.includes(disciplina.id)}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setEditDisciplinasSelecionadas((prev) => [
+                    ...prev,
+                    disciplina.id,
+                  ]);
+                } else {
+                  setEditDisciplinasSelecionadas((prev) =>
+                    prev.filter((id) => id !== disciplina.id)
+                  );
+                }
+              }}
+            />
+            {disciplina.nome}
+          </label>
+        ))}
+      </div>
+    </div>
+  )}
 </div>
 
                         <label className="flex items-center gap-2 text-sm">
