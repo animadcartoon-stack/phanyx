@@ -89,6 +89,11 @@ export async function POST(request: NextRequest) {
     ? Number(body.cursoId)
     : null;
 
+const professorId =
+  body?.professorId && Number(body.professorId) > 0
+    ? Number(body.professorId)
+    : null;
+
     const poloId =
       body?.poloId && Number(body.poloId) > 0
         ? Number(body.poloId)
@@ -131,6 +136,7 @@ export async function POST(request: NextRequest) {
         instituicaoId: user.instituicaoId,
 cursoId,
 poloId,
+professorId,
 
 disciplinas: {
   create: disciplinaIds.map((id: number) => ({
@@ -140,7 +146,13 @@ disciplinas: {
 },
       },
       include: {
-        polo: true, // 🔥 RETORNA
+        polo: true, 
+        professor: {
+  select: {
+    id: true,
+    nome: true,
+  },
+},
         disciplinas: {
           include: {
             disciplina: {

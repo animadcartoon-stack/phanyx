@@ -43,6 +43,8 @@ interface Turma {
   capacidadeMaxima?: number | null;
   cursoId?: number | null;
   curso?: Curso | null;
+  professorId?: number | null;
+  professor?: Professor | null;
   disciplinas?: Disciplina[];
   _count?: {
     itensMatricula: number;
@@ -56,6 +58,8 @@ function AdminTurmasPage() {
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [polos, setPolos] = useState<any[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
+  const [professorId, setProfessorId] = useState("");
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [cursoId, setCursoId] = useState("");
   const [poloId, setPoloId] = useState("");
@@ -135,6 +139,15 @@ async function carregarPolos() {
   setPolos(Array.isArray(data) ? data : []);
 }
 
+async function carregarProfessores() {
+  const res = await fetch("/api/professor", {
+    credentials: "include",
+  });
+
+  const data = await res.json();
+  setProfessores(Array.isArray(data) ? data : []);
+}
+
 async function carregarCursos() {
   const res = await fetch("/api/curso", {
     credentials: "include",
@@ -166,6 +179,7 @@ async function carregarCursos() {
   capacidadeMaxima,
   disciplinaIds: disciplinasSelecionadas,
   poloId,
+  professorId,
 }),
       });
 
@@ -179,6 +193,8 @@ async function carregarCursos() {
       setCodigo("");
       setSemestre("");
       setCursoId("");
+      setProfessorId("");
+      setPoloId("");
       setPeriodoLetivo("");
       setStatusTurma("AGUARDANDO");
       setAtiva(true);
@@ -219,7 +235,9 @@ async function carregarCursos() {
     : []
 );
 setEditDisciplinasAbertas(false);
-setEditProfessorId("");
+setEditProfessorId(
+  turma.professorId ? String(turma.professorId) : ""
+);
   }
 
   async function salvarEdicao(id: number) {
@@ -240,6 +258,7 @@ setEditProfessorId("");
           capacidadeMinima: editCapacidadeMinima,
           capacidadeMaxima: editCapacidadeMaxima,
           disciplinaIds: editDisciplinasSelecionadas,
+          professorId: editProfessorId,
         }),
       });
 
@@ -291,6 +310,7 @@ setEditProfessorId("");
   carregarDisciplinas();
   carregarPolos();
   carregarCursos();
+  carregarProfessores();
 }, []);
 
   useEffect(() => {
@@ -407,7 +427,18 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     </option>
   ))}
 </select>
-
+<select
+  value={professorId}
+  onChange={(e) => setProfessorId(e.target.value)}
+  className="w-full border rounded-lg p-2"
+>
+  <option value="">Professor responsável</option>
+  {professores.map((professor) => (
+    <option key={professor.id} value={professor.id}>
+      {professor.nome}
+    </option>
+  ))}
+</select>
             <input
               placeholder="Semestre"
               value={semestre}
@@ -710,7 +741,18 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                           Turma ativa
                         </label>
                       </div>
-
+<select
+  value={editProfessorId}
+  onChange={(e) => setEditProfessorId(e.target.value)}
+  className="border p-2 rounded"
+>
+  <option value="">Professor responsável</option>
+  {professores.map((professor) => (
+    <option key={professor.id} value={professor.id}>
+      {professor.nome}
+    </option>
+  ))}
+</select>
                       <div className="flex gap-2">
                         <button
                           onClick={() => salvarEdicao(turma.id)}
@@ -737,6 +779,11 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                       <p className="text-sm text-gray-600">
   Curso: {turma.curso?.nome || "-"}
 </p>
+
+<p className="text-sm text-gray-600">
+  Professor: {turma.professor?.nome || "-"}
+</p>
+
 <p className="text-sm text-gray-600">
   Disciplinas:{" "}
   {turma.disciplinas && turma.disciplinas.length > 0
