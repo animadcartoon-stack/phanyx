@@ -133,7 +133,8 @@ export default function DisciplinaAlunoPage() {
   const [disciplina, setDisciplina] = useState<DisciplinaApi | null>(null);
   const [erroDisciplina, setErroDisciplina] = useState<string | null>(null);
   const [aulaAtualId, setAulaAtualId] = useState<number | null>(null);
-
+  const [aulasConcluidasBanco, setAulasConcluidasBanco] = useState<number[]>([]);
+  
   const [provaPublicada, setProvaPublicada] =
   useState<ProvaPublicadaApi | null>(null);
 const [loadingProva, setLoadingProva] = useState(true);
@@ -185,8 +186,19 @@ const ultimoAlertaPuloRef = useRef(0);
   }, [aulasOrdenadas, aulaAtualId]);
 
   const totalAulas = aulasOrdenadas.length;
-  const progresso = progressoDisciplina(disciplinaId, totalAulas);
-  const concluida = aulaAtual ? aulaConcluida(disciplinaId, aulaAtual.id) : false;
+  const totalConcluidasBanco = aulasOrdenadas.filter((aula) =>
+  aulasConcluidasBanco.includes(aula.id)
+).length;
+
+const progresso =
+  totalAulas > 0
+    ? Math.round((totalConcluidasBanco / totalAulas) * 100)
+    : progressoDisciplina(disciplinaId, totalAulas);
+
+const concluida = aulaAtual
+  ? aulaConcluida(disciplinaId, aulaAtual.id) ||
+    aulasConcluidasBanco.includes(aulaAtual.id)
+  : false;
   const tempoMinimoSegundos = (aulaAtual?.duracaoMin ?? 0) * 60;
 
   const porcentagemAssistida =
@@ -314,6 +326,10 @@ function monitorarAvancoIndevido() {
         tempoMinimoSegundos,
       });
 
+setAulasConcluidasBanco((prev) =>
+  prev.includes(aulaAtual.id) ? prev : [...prev, aulaAtual.id]
+);
+
       const proxima = aulasOrdenadas.find(
         (a) => !aulaConcluida(disciplinaId, a.id) && a.id !== aulaAtual.id
       );
@@ -361,6 +377,25 @@ function monitorarAvancoIndevido() {
 
         setDisciplina(data);
 
+const resProgresso = await fetch("/api/aluno/progresso", {
+  credentials: "include",
+  cache: "no-store",
+});
+
+let idsConcluidas: number[] = [];
+
+if (resProgresso.ok) {
+  const progressoData = await resProgresso.json();
+
+  idsConcluidas = Array.isArray(progressoData?.progresso)
+    ? progressoData.progresso
+        .filter((item: any) => item.concluida === true)
+        .map((item: any) => Number(item.aulaId))
+    : [];
+
+  setAulasConcluidasBanco(idsConcluidas);
+}
+
         const aulas = (data?.aulas ?? []).slice().sort((a: AulaApi, b: AulaApi) => {
           const ao = a.ordem ?? 999999;
           const bo = b.ordem ?? 999999;
@@ -369,8 +404,10 @@ function monitorarAvancoIndevido() {
         });
 
         const primeiraNaoConcluida = aulas.find(
-          (a: AulaApi) => !aulaConcluida(disciplinaId, a.id)
-        );
+  (a: AulaApi) =>
+    !aulaConcluida(disciplinaId, a.id) &&
+    !idsConcluidas.includes(a.id)
+);
 
         setAulaAtualId((primeiraNaoConcluida ?? aulas[0])?.id ?? null);
       } catch (error) {
@@ -746,7 +783,9 @@ return (
 
         <div className="space-y-2 p-3">
           {aulasOrdenadas.map((aula, idx) => {
-            const done = aulaConcluida(disciplinaId, aula.id);
+            const done =
+  aulaConcluida(disciplinaId, aula.id) ||
+  aulasConcluidasBanco.includes(aula.id);
             const active = aula.id === aulaAtualId;
 
             return (
