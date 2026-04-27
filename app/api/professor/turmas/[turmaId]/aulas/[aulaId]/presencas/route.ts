@@ -63,10 +63,9 @@ export async function GET(
         professorId: professor.id,
       },
       select: {
-        id: true,
-        nome: true,
-        disciplinaId: true,
-      },
+  id: true,
+  nome: true,
+},
     });
 
     if (!turma) {
