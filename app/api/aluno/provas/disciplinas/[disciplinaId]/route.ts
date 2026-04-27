@@ -42,8 +42,12 @@ export async function GET(
     instituicaoId: user.instituicaoId,
     ativa: true,
     turma: {
+  disciplinas: {
+    some: {
       disciplinaId: disciplinaId,
     },
+  },
+},
   },
       orderBy: {
         createdAt: "desc",
