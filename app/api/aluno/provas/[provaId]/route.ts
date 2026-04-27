@@ -69,10 +69,14 @@ export async function GET(
           },
         },
         turma: {
-          include: {
-            disciplina: true,
-          },
-        },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
       },
     });
 
