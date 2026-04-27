@@ -64,11 +64,20 @@ export default function AulasDaTurmaPage() {
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
+
   const [aulaParaExcluir, setAulaParaExcluir] = useState<{
     id: number;
     titulo: string;
   } | null>(null);
+
   const [excluindoId, setExcluindoId] = useState<number | null>(null);
+
+  const [aulaEditando, setAulaEditando] = useState<AulaApi | null>(null);
+  const [editTitulo, setEditTitulo] = useState("");
+  const [editDescricao, setEditDescricao] = useState("");
+  const [editDuracaoMin, setEditDuracaoMin] = useState("");
+  const [editVideoUrl, setEditVideoUrl] = useState("");
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
   useEffect(() => {
     if (!feedback) return;
@@ -84,6 +93,53 @@ export default function AulasDaTurmaPage() {
   function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
+  }
+
+  function abrirEdicao(aula: AulaApi) {
+    setAulaEditando(aula);
+    setEditTitulo(aula.titulo || "");
+    setEditDescricao(aula.descricao || "");
+    setEditDuracaoMin(aula.duracaoMin ? String(aula.duracaoMin) : "");
+    setEditVideoUrl(aula.videoUrl || "");
+  }
+
+  async function salvarEdicaoAula(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!aulaEditando) return;
+
+    try {
+      setSalvandoEdicao(true);
+      setErro("");
+
+      const res = await fetch(`/api/professor/aulas/${aulaEditando.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          titulo: editTitulo,
+          descricao: editDescricao,
+          duracaoMin: editDuracaoMin ? Number(editDuracaoMin) : null,
+          videoUrl: editVideoUrl ? normalizeYoutubeUrl(editVideoUrl) : null,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao editar aula");
+      }
+
+      setAulaEditando(null);
+      mostrarFeedback("sucesso", "Aula editada com sucesso!");
+      await carregarDados();
+    } catch (e: any) {
+      mostrarFeedback("erro", e?.message || "Erro ao editar aula");
+    } finally {
+      setSalvandoEdicao(false);
+    }
   }
 
   async function excluirAulaConfirmada() {
@@ -377,6 +433,13 @@ export default function AulasDaTurmaPage() {
                     </span>
 
                     <button
+                      onClick={() => abrirEdicao(aula)}
+                      className="rounded bg-amber-500 px-3 py-1 text-xs text-white hover:bg-amber-600"
+                    >
+                      Editar
+                    </button>
+
+                    <button
                       onClick={() =>
                         router.push(
                           `/professor/turmas/${turmaId}/aulas/${aula.id}/presencas`
@@ -436,6 +499,93 @@ export default function AulasDaTurmaPage() {
           )}
         </div>
       </div>
+
+      {aulaEditando && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
+          <form
+            onSubmit={salvarEdicaoAula}
+            className="w-full max-w-2xl space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">Editar aula</h2>
+
+              <button
+                type="button"
+                onClick={() => setAulaEditando(null)}
+                className="rounded-full px-3 py-1 text-xl text-slate-500 hover:bg-slate-100"
+              >
+                ×
+              </button>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Título
+              </label>
+              <input
+                value={editTitulo}
+                onChange={(e) => setEditTitulo(e.target.value)}
+                className="w-full rounded-lg border p-2 text-gray-900"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Descrição
+              </label>
+              <textarea
+                value={editDescricao}
+                onChange={(e) => setEditDescricao(e.target.value)}
+                className="w-full rounded-lg border p-2 text-gray-900"
+                rows={4}
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Duração (minutos)
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={editDuracaoMin}
+                onChange={(e) => setEditDuracaoMin(e.target.value)}
+                className="w-full rounded-lg border p-2 text-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Link do vídeo
+              </label>
+              <input
+                value={editVideoUrl}
+                onChange={(e) => setEditVideoUrl(e.target.value)}
+                className="w-full rounded-lg border p-2 text-gray-900"
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setAulaEditando(null)}
+                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                disabled={salvandoEdicao}
+                className="rounded-2xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+              >
+                {salvandoEdicao ? "Salvando..." : "Salvar alterações"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {aulaParaExcluir && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
