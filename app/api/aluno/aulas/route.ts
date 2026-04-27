@@ -38,29 +38,22 @@ export async function GET() {
       include: {
         curso: true,
         itens: {
+  where: {
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    disciplina: true,
+    turma: {
+      include: {
+        aulas: {
           where: {
             instituicaoId: user.instituicaoId,
           },
           include: {
-            turma: {
-              include: {
-                disciplina: true,
-                aulas: {
-                  where: {
-                    instituicaoId: user.instituicaoId,
-                  },
-                  include: {
-                    presencas: {
-                      where: {
-                        alunoId: aluno.id,
-                        instituicaoId: user.instituicaoId,
-                      },
-                    },
-                  },
-                  orderBy: {
-                    id: "asc",
-                  },
-                },
+            presencas: {
+              where: {
+                alunoId: aluno.id,
+                instituicaoId: user.instituicaoId,
               },
             },
           },
@@ -68,6 +61,13 @@ export async function GET() {
             id: "asc",
           },
         },
+      },
+    },
+  },
+  orderBy: {
+    id: "asc",
+  },
+},
       },
       orderBy: {
         createdAt: "desc",
@@ -78,7 +78,8 @@ export async function GET() {
       matricula?.itens
         ?.map((item) => {
           const turma = item.turma;
-          if (!turma || !turma.disciplina) return null;
+          const disciplina = item.disciplina;
+if (!turma || !disciplina) return null;
 
           const totalAulas = turma.aulas?.length || 0;
           const totalPresencas = turma.aulas.filter(
@@ -86,8 +87,8 @@ export async function GET() {
           ).length;
 
           return {
-            id: turma.disciplina.id,
-            nome: turma.disciplina.nome,
+            id: disciplina.id,
+nome: disciplina.nome,
             turmaId: turma.id,
             turmaNome: turma.nome,
             totalAulas,

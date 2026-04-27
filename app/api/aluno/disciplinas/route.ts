@@ -31,26 +31,31 @@ export async function GET() {
   },
   include: {
     itens: {
+  include: {
+    disciplina: true,
+    turma: {
       include: {
-        turma: {
+        disciplinas: {
           include: {
             disciplina: true,
-            aulas: {
-              include: {
-                presencas: {
-                  where: {
-                    alunoId: aluno.id,
-                  },
-                },
-              },
-              orderBy: {
-                id: "asc",
+          },
+        },
+        aulas: {
+          include: {
+            presencas: {
+              where: {
+                alunoId: aluno.id,
               },
             },
+          },
+          orderBy: {
+            id: "asc",
           },
         },
       },
     },
+  },
+},
   },
   orderBy: {
     id: "desc",

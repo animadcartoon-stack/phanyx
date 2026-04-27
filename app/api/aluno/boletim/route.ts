@@ -53,10 +53,14 @@ export async function GET() {
         prova: {
           include: {
             turma: {
-              include: {
-                disciplina: true,
-              },
-            },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
           },
         },
       },
@@ -80,7 +84,8 @@ export async function GET() {
     const disciplinasMap = new Map<number, any>();
 
     for (const tentativa of tentativasUnicas) {
-      const disciplina = tentativa.prova?.turma?.disciplina;
+      const disciplina =
+  tentativa.prova?.turma?.disciplinas?.[0]?.disciplina;
       if (!disciplina) continue;
 
       const disciplinaId = disciplina.id;
