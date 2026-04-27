@@ -654,3 +654,4 @@ export async function enviarEmailPrimeiroAcesso({
     `,
   });
 }
+export { criarTransporter };

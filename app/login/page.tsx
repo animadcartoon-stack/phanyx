@@ -148,6 +148,14 @@ if (role === "aluno") {
         >
           {loading ? "Entrando..." : "Entrar"}
         </button>
+
+<a
+  href={`/esqueci-senha?portal=${portal}`}
+  className="block text-center text-sm text-blue-600 hover:underline"
+>
+  Esqueci minha senha
+</a>
+
       </div>
     </main>
   );
