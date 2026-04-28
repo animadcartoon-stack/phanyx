@@ -201,7 +201,7 @@ async function carregarCursos() {
       setAtiva(true);
       setCapacidadeMinima("");
       setCapacidadeMaxima("");
-      setDisciplinasSelecionadas([]);
+      setEditDisciplinasSelecionadas([]);
       setProfessoresPorDisciplina({});
 
       await carregarTurmas();
@@ -511,7 +511,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
       <span className="text-sm font-medium">
         Disciplinas da turma
         {disciplinasSelecionadas.length > 0
-          ? ` (${disciplinasSelecionadas.length} selecionada(s))`
+          ? ` (${editDisciplinasSelecionadas.length} selecionada(s))`
           : ""}
       </span>
       <span className="text-sm text-gray-500">
@@ -519,11 +519,11 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
       </span>
     </button>
 
-    {disciplinasAbertas && (
+    {editDisciplinasAbertas && (
   <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
     <div className="grid grid-cols-1 gap-3">
       {disciplinas.map((disciplina) => {
-        const selecionada = disciplinasSelecionadas.includes(disciplina.id);
+        const selecionada = editDisciplinasSelecionadas.includes(disciplina.id);
 
         return (
           <div
@@ -536,12 +536,12 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                 checked={selecionada}
                 onChange={(e) => {
                   if (e.target.checked) {
-                    setDisciplinasSelecionadas((prev) => [
+                    setEditDisciplinasSelecionadas((prev) => [
                       ...prev,
                       disciplina.id,
                     ]);
                   } else {
-                    setDisciplinasSelecionadas((prev) =>
+                    setEditDisciplinasSelecionadas((prev) =>
                       prev.filter((id) => id !== disciplina.id)
                     );
 
@@ -733,36 +733,69 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     </span>
   </button>
 
-  {editDisciplinasAbertas && (
-    <div className="mt-2 max-h-48 overflow-auto rounded border p-2">
-      <div className="grid grid-cols-1 gap-2">
-        {disciplinas.map((disciplina) => (
-          <label
+  {disciplinasAbertas && (
+  <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
+    <div className="grid grid-cols-1 gap-3">
+      {disciplinas.map((disciplina) => {
+        const selecionada = editDisciplinasSelecionadas.includes(disciplina.id);
+
+        return (
+          <div
             key={disciplina.id}
-            className="flex items-center gap-2 text-sm"
+            className="rounded-lg border bg-gray-50 p-3"
           >
-            <input
-              type="checkbox"
-              checked={editDisciplinasSelecionadas.includes(disciplina.id)}
-              onChange={(e) => {
-                if (e.target.checked) {
-                  setEditDisciplinasSelecionadas((prev) => [
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input
+                type="checkbox"
+                checked={selecionada}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setEditDisciplinasSelecionadas((prev) => [
+                      ...prev,
+                      disciplina.id,
+                    ]);
+                  } else {
+                    setEditDisciplinasSelecionadas((prev) =>
+                      prev.filter((id) => id !== disciplina.id)
+                    );
+
+                    setProfessoresPorDisciplina((prev) => {
+                      const novo = { ...prev };
+                      delete novo[disciplina.id];
+                      return novo;
+                    });
+                  }
+                }}
+              />
+
+              <span>{disciplina.nome}</span>
+            </label>
+
+            {selecionada && (
+              <select
+                value={professoresPorDisciplina[disciplina.id] || ""}
+                onChange={(e) =>
+                  setProfessoresPorDisciplina((prev) => ({
                     ...prev,
-                    disciplina.id,
-                  ]);
-                } else {
-                  setEditDisciplinasSelecionadas((prev) =>
-                    prev.filter((id) => id !== disciplina.id)
-                  );
+                    [disciplina.id]: e.target.value,
+                  }))
                 }
-              }}
-            />
-            {disciplina.nome}
-          </label>
-        ))}
-      </div>
+                className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+              >
+                <option value="">Professor desta disciplina</option>
+                {professores.map((professor) => (
+                  <option key={professor.id} value={professor.id}>
+                    {professor.nome}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        );
+      })}
     </div>
-  )}
+  </div>
+)}
 </div>
 
                         <label className="flex items-center gap-2 text-sm">
