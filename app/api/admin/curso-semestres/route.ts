@@ -109,3 +109,54 @@ export async function POST(req: Request) {
     );
   }
 }
+export async function PUT(req: Request) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || !isAdminLike(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const id = Number(body.id);
+
+    if (!Number.isFinite(id) || id <= 0) {
+      return NextResponse.json({ error: "Semestre inválido" }, { status: 400 });
+    }
+
+    const semestreExistente = await prisma.cursoSemestre.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: { id: true },
+    });
+
+    if (!semestreExistente) {
+      return NextResponse.json(
+        { error: "Semestre não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const atualizado = await prisma.cursoSemestre.update({
+      where: { id },
+      data: {
+        cargaMinima: body.cargaMinima !== "" && body.cargaMinima !== null && body.cargaMinima !== undefined
+          ? Number(body.cargaMinima)
+          : null,
+        cargaMaxima: body.cargaMaxima !== "" && body.cargaMaxima !== null && body.cargaMaxima !== undefined
+          ? Number(body.cargaMaxima)
+          : null,
+      },
+    });
+
+    return NextResponse.json(atualizado);
+  } catch (error: any) {
+    console.error("Erro ao atualizar carga do semestre:", error);
+    return NextResponse.json(
+      { error: error?.message || "Erro ao atualizar semestre" },
+      { status: 500 }
+    );
+  }
+}

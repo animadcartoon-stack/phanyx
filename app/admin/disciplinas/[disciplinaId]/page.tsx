@@ -36,7 +36,6 @@ type DisciplinaDetalhe = {
   professorId: number;
   professor?: Professor | null;
 }[];
-
 prerequisitosDaDisciplina?: {
   id: number;
   prerequisitoId: number;

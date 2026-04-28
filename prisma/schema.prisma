@@ -237,6 +237,7 @@ model CursoSemestre {
   instituicaoId Int
   cursoId       Int
   cargaMaxima   Int?
+  cargaMinima   Int?
   curso         Curso                     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
   instituicao   Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   disciplinas   CursoSemestreDisciplina[]

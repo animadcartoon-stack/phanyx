@@ -646,6 +646,45 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
             >
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
+
+<div className="mt-3 grid grid-cols-2 gap-3">
+  <input
+    type="number"
+    placeholder="Carga mínima (h)"
+    className="border rounded-lg px-3 py-2 text-sm"
+    value={(semestre as any).cargaMinima ?? ""}
+    onChange={(e) => {
+      const valor = e.target.value;
+
+      setSemestres((prev) =>
+        prev.map((s) =>
+          s.id === semestre.id
+            ? { ...s, cargaMinima: valor }
+            : s
+        )
+      );
+    }}
+  />
+
+  <input
+    type="number"
+    placeholder="Carga máxima (h)"
+    className="border rounded-lg px-3 py-2 text-sm"
+    value={(semestre as any).cargaMaxima ?? ""}
+    onChange={(e) => {
+      const valor = e.target.value;
+
+      setSemestres((prev) =>
+        prev.map((s) =>
+          s.id === semestre.id
+            ? { ...s, cargaMaxima: valor }
+            : s
+        )
+      );
+    }}
+  />
+</div>
+
                   Semestre {semestre.numero}
                   {semestre.titulo ? ` - ${semestre.titulo}` : ""}
                 </h3>
@@ -734,6 +773,40 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
                         ? "Salvando..."
                         : `Atualizar disciplinas do semestre ${semestre.numero}`}
                     </button>
+
+<button
+  type="button"
+  onClick={async () => {
+    try {
+      const res = await fetch("/api/admin/curso-semestres", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          id: semestre.id,
+          cargaMinima: Number((semestre as any).cargaMinima || 0),
+          cargaMaxima: Number((semestre as any).cargaMaxima || 0),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao salvar carga");
+      }
+
+      mostrarFeedback("sucesso", "Carga horária salva!");
+    } catch (err: any) {
+      mostrarFeedback("erro", err.message);
+    }
+  }}
+  className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg"
+>
+  Salvar carga
+</button>
+
                   </div>
                 </>
               )}
