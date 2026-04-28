@@ -56,7 +56,7 @@ export default function CursoDetalhePage() {
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
-
+  
   const [formCurso, setFormCurso] = useState({
     nome: "",
     codigo: "",
@@ -75,6 +75,7 @@ export default function CursoDetalhePage() {
   });
 
   const [selecionadas, setSelecionadas] = useState<Record<number, number[]>>({});
+  const [semestresAbertos, setSemestresAbertos] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     if (!feedback) return;
@@ -360,6 +361,38 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
 
 async function salvarCargaSemestre(semestre: CursoSemestre) {
   try {
+    const cargaMinimaVazia =
+  semestre.cargaMinima === "" ||
+  semestre.cargaMinima === null ||
+  semestre.cargaMinima === undefined;
+
+const cargaMaximaVazia =
+  semestre.cargaMaxima === "" ||
+  semestre.cargaMaxima === null ||
+  semestre.cargaMaxima === undefined;
+
+if (cargaMinimaVazia || cargaMaximaVazia) {
+  alert("Preencha a carga mínima e a carga máxima antes de salvar.");
+  return;
+}
+
+const cargaMinimaNumero = Number(semestre.cargaMinima);
+const cargaMaximaNumero = Number(semestre.cargaMaxima);
+
+if (
+  !Number.isFinite(cargaMinimaNumero) ||
+  !Number.isFinite(cargaMaximaNumero) ||
+  cargaMinimaNumero <= 0 ||
+  cargaMaximaNumero <= 0
+) {
+  alert("A carga mínima e a carga máxima precisam ser maiores que zero.");
+  return;
+}
+
+if (cargaMinimaNumero > cargaMaximaNumero) {
+  alert("A carga mínima não pode ser maior que a carga máxima.");
+  return;
+}
     setSalvandoSemestreId(semestre.id);
     setFeedback("");
     setFeedbackTipo("");
@@ -372,18 +405,8 @@ async function salvarCargaSemestre(semestre: CursoSemestre) {
       credentials: "include",
       body: JSON.stringify({
         id: semestre.id,
-        cargaMinima:
-          semestre.cargaMinima !== "" &&
-          semestre.cargaMinima !== null &&
-          semestre.cargaMinima !== undefined
-            ? Number(semestre.cargaMinima)
-            : null,
-        cargaMaxima:
-          semestre.cargaMaxima !== "" &&
-          semestre.cargaMaxima !== null &&
-          semestre.cargaMaxima !== undefined
-            ? Number(semestre.cargaMaxima)
-            : null,
+        cargaMinima: cargaMinimaNumero,
+cargaMaxima: cargaMaximaNumero,
       }),
     });
 
@@ -719,6 +742,27 @@ async function salvarCargaSemestre(semestre: CursoSemestre) {
               key={semestre.id}
               className="bg-white border rounded-xl p-6 shadow-sm"
             >
+              <button
+  type="button"
+  onClick={() =>
+    setSemestresAbertos((prev) => ({
+      ...prev,
+      [semestre.id]: !prev[semestre.id],
+    }))
+  }
+  className="mb-4 flex w-full items-center justify-between rounded-lg border bg-slate-50 px-4 py-3 text-left"
+>
+  <span className="font-bold text-gray-900">
+    Semestre {semestre.numero}
+    {semestre.titulo ? ` - ${semestre.titulo}` : ""}
+  </span>
+
+  <span className="text-sm text-gray-500">
+    {semestresAbertos[semestre.id] ? "▲ Fechar" : "▼ Abrir"}
+  </span>
+</button>
+{semestresAbertos[semestre.id] && (
+  <>
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
 
@@ -874,6 +918,8 @@ async function salvarCargaSemestre(semestre: CursoSemestre) {
                   </div>
                 </>
               )}
+                </>
+)}
             </div>
           );
         })
