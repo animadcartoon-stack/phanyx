@@ -63,7 +63,11 @@ export async function GET() {
         professorId: professor.id,
       },
       include: {
-        disciplina: true,
+        disciplina: {
+  include: {
+    curso: true,
+  },
+},
       },
     },
     itensMatricula: true,
@@ -72,22 +76,26 @@ export async function GET() {
 });
 
     return NextResponse.json(
-      turmas.map((t) => ({
-        id: t.id,
-        nome: t.nome,
-        semestre: t.semestre,
-        alunos: t.itensMatricula.length,
-        disciplinaId: t.disciplinas?.[0]?.disciplinaId ?? null,
-disciplina: t.disciplinas?.[0]?.disciplina ?? null,
-disciplinas: t.disciplinas.map((item) => ({
-  ...item.disciplina,
-  turmaDisciplinaId: item.id,
-  professorId: item.professorId,
-  status: item.status,
-  dataInicio: item.dataInicio,
-  dataFim: item.dataFim,
-})),
-      }))
+      turmas.flatMap((t) =>
+  t.disciplinas.map((item) => ({
+    id: t.id,
+    turmaDisciplinaId: item.id,
+    nome: t.nome,
+    semestre: t.semestre,
+    periodoLetivo: t.periodoLetivo,
+    statusTurma: t.statusTurma,
+    alunos: t.itensMatricula.length,
+
+    curso: item.disciplina?.curso ?? null,
+
+    disciplinaId: item.disciplinaId,
+    disciplina: item.disciplina,
+
+    statusDisciplina: item.status,
+    dataInicio: item.dataInicio,
+    dataFim: item.dataFim,
+  }))
+)
     );
   } catch (e: any) {
     console.error("ERRO API PROFESSOR TURMAS:", e);

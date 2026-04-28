@@ -5,9 +5,23 @@ import { useRouter } from "next/navigation";
 
 type Turma = {
   id: number;
+  turmaDisciplinaId: number;
   nome: string;
   semestre: string;
+  periodoLetivo?: string | null;
+  statusTurma?: string | null;
   alunos: number;
+  curso?: {
+    id: number;
+    nome: string;
+  } | null;
+  disciplina?: {
+    id: number;
+    nome: string;
+  } | null;
+  statusDisciplina?: string | null;
+  dataInicio?: string | null;
+  dataFim?: string | null;
 };
 
 export default function TurmasProfessorPage() {
@@ -100,15 +114,46 @@ export default function TurmasProfessorPage() {
               onClick={() => router.push(`/professor/turmas/${turma.id}`)}
               className="cursor-pointer"
             >
-              <h2 className="text-xl font-bold">{turma.nome}</h2>
+              <h2 className="text-xl font-bold">Turma: {turma.nome}</h2>
 
-              <p className="text-gray-600">
-                Semestre: {turma.semestre}
-              </p>
+<p className="text-gray-700">
+  <strong>Curso:</strong> {turma.curso?.nome || "—"}
+</p>
 
-              <p className="text-gray-600">
-                👨‍🎓 {turma.alunos} alunos
-              </p>
+<p className="text-gray-700">
+  <strong>Disciplina:</strong> {turma.disciplina?.nome || "—"}
+</p>
+
+<p className="text-gray-700">
+  <strong>Status:</strong>{" "}
+  {turma.statusDisciplina || turma.statusTurma || "—"}
+</p>
+
+<p className="text-gray-700">
+  <strong>Início:</strong>{" "}
+  {turma.dataInicio
+    ? new Date(turma.dataInicio).toLocaleDateString("pt-BR")
+    : "—"}
+</p>
+
+<p className="text-gray-700">
+  <strong>Fim:</strong>{" "}
+  {turma.dataFim
+    ? new Date(turma.dataFim).toLocaleDateString("pt-BR")
+    : "—"}
+</p>
+
+<p className="text-gray-700">
+  <strong>Período:</strong> {turma.periodoLetivo || "—"}
+</p>
+
+<p className="text-gray-700">
+  <strong>Semestre:</strong> {turma.semestre || "—"}
+</p>
+
+<p className="text-gray-600">
+  👨‍🎓 {turma.alunos} alunos
+</p>
             </div>
 
             <div className="flex flex-col gap-2">
