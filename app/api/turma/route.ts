@@ -87,7 +87,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-
+    const dataInicio = body?.dataInicio ? new Date(body.dataInicio) : null;
+    const dataFim = body?.dataFim ? new Date(body.dataFim) : null;
     const nome = String(body?.nome ?? "").trim();
     const codigo = String(body?.codigo ?? "").trim();
     const semestre = String(body?.semestre ?? "").trim();
@@ -150,15 +151,16 @@ const professoresPorDisciplina =
         capacidadeMinima,
         capacidadeMaxima,
         instituicaoId: user.instituicaoId,
-cursoId,
-poloId,
-professorId,
-
-disciplinas: {
-  create: disciplinaIds.map((id: number) => ({
-    disciplinaId: id,
-    professorId:
-      professoresPorDisciplina[id] && Number(professoresPorDisciplina[id]) > 0
+        dataInicio,
+        dataFim,
+        cursoId,
+        poloId,
+        professorId,
+        disciplinas: {
+        create: disciplinaIds.map((id: number) => ({
+        disciplinaId: id,
+        professorId:
+        professoresPorDisciplina[id] && Number(professoresPorDisciplina[id]) > 0
         ? Number(professoresPorDisciplina[id])
         : null,
     instituicaoId: user.instituicaoId,

@@ -76,9 +76,13 @@ function AdminTurmasPage() {
   const [disciplinasAbertas, setDisciplinasAbertas] = useState(false);
   const [professoresPorDisciplina, setProfessoresPorDisciplina] = useState<Record<number, string>>({});
   const [datasInicioPorDisciplina, setDatasInicioPorDisciplina] = useState<Record<number, string>>({});
-const [datasFimPorDisciplina, setDatasFimPorDisciplina] = useState<Record<number, string>>({});
-const [statusPorDisciplina, setStatusPorDisciplina] = useState<Record<number, string>>({});
+  const [datasFimPorDisciplina, setDatasFimPorDisciplina] = useState<Record<number, string>>({});
+  const [statusPorDisciplina, setStatusPorDisciplina] = useState<Record<number, string>>({});
   const [editandoId, setEditandoId] = useState<number | null>(null);
+
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+
   const [editNome, setEditNome] = useState("");
   const [editCodigo, setEditCodigo] = useState("");
   const [editSemestre, setEditSemestre] = useState("");
@@ -183,10 +187,12 @@ async function carregarCursos() {
   disciplinaIds: disciplinasSelecionadas,
   professoresPorDisciplina,
   datasInicioPorDisciplina,
-datasFimPorDisciplina,
-statusPorDisciplina,
+  datasFimPorDisciplina,
+  statusPorDisciplina,
   poloId,
   professorId,
+  dataInicio,
+  dataFim,
 }),
       });
 
@@ -457,7 +463,19 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
               className="w-full border rounded-lg p-2"
               required
             />
+<input
+  type="date"
+  value={dataInicio}
+  onChange={(e) => setDataInicio(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
 
+<input
+  type="date"
+  value={dataFim}
+  onChange={(e) => setDataFim(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
             <select
   value={periodoLetivo}
   onChange={(e) => setPeriodoLetivo(e.target.value)}

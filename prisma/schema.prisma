@@ -378,6 +378,8 @@ model Turma {
   capacidadeMaxima Int?
   capacidadeMinima Int?
   cursoId          Int?
+  dataInicio       DateTime?
+  dataFim          DateTime?
   statusTurma      StatusTurma       @default(AGUARDANDO)
   atividades       Atividade[]
   aulas            Aula[]
