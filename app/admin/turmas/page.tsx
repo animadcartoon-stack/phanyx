@@ -511,7 +511,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
       <span className="text-sm font-medium">
         Disciplinas da turma
         {disciplinasSelecionadas.length > 0
-          ? ` (${editDisciplinasSelecionadas.length} selecionada(s))`
+  ? ` (${disciplinasSelecionadas.length} selecionada(s))`
           : ""}
       </span>
       <span className="text-sm text-gray-500">
@@ -519,11 +519,11 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
       </span>
     </button>
 
-    {editDisciplinasAbertas && (
+    {disciplinasAbertas && (
   <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
     <div className="grid grid-cols-1 gap-3">
       {disciplinas.map((disciplina) => {
-        const selecionada = editDisciplinasSelecionadas.includes(disciplina.id);
+        const selecionada = disciplinasSelecionadas.includes(disciplina.id);
 
         return (
           <div
@@ -536,12 +536,12 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                 checked={selecionada}
                 onChange={(e) => {
                   if (e.target.checked) {
-                    setEditDisciplinasSelecionadas((prev) => [
+                    setDisciplinasSelecionadas((prev) => [
                       ...prev,
                       disciplina.id,
                     ]);
                   } else {
-                    setEditDisciplinasSelecionadas((prev) =>
+                    setDisciplinasSelecionadas((prev) =>
                       prev.filter((id) => id !== disciplina.id)
                     );
 
