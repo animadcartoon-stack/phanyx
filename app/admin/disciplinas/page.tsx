@@ -17,6 +17,7 @@ interface Professor {
 interface Disciplina {
   id: number;
   nome: string;
+  semestre?: number | null;
   curso?: Curso | null;
   professor?: Professor | null;
   professorId?: number | null;
@@ -177,7 +178,29 @@ function AdminDisciplinasPage() {
       );
     });
   }, [disciplinas, busca]);
+  const disciplinasPorCursoESemestre = useMemo(() => {
+    const grupos: Record<string, Record<string, Disciplina[]>> = {};
 
+    disciplinasFiltradas.forEach((disciplina) => {
+      const cursoNome = disciplina.curso?.nome || "Sem curso vinculado";
+      const semestreNome =
+        disciplina.semestre !== null && disciplina.semestre !== undefined
+          ? `Semestre ${disciplina.semestre}`
+          : "Sem semestre definido";
+
+      if (!grupos[cursoNome]) {
+        grupos[cursoNome] = {};
+      }
+
+      if (!grupos[cursoNome][semestreNome]) {
+        grupos[cursoNome][semestreNome] = [];
+      }
+
+      grupos[cursoNome][semestreNome].push(disciplina);
+    });
+
+    return grupos;
+  }, [disciplinasFiltradas]);
   return (
     <>
       <div className="space-y-6">
@@ -265,45 +288,73 @@ function AdminDisciplinasPage() {
           </form>
         )}
 
-        <div className="overflow-hidden rounded-lg bg-white shadow">
-          <table className="w-full text-left">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="p-3">ID</th>
-                <th className="p-3">Nome</th>
-                <th className="p-3">Curso</th>
-<th className="p-3">Professor</th>
-<th className="p-3">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {disciplinasFiltradas.map((d) => (
-                <tr key={d.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{d.id}</td>
-                  <td className="p-3">{d.nome}</td>
-                  <td className="p-3">{d.curso?.nome ?? "—"}</td>
-<td className="p-3">{d.professor?.nome ?? "—"}</td>
-<td className="space-x-2 p-3">
-                    <button
-                      onClick={() => router.push(`/admin/disciplinas/${d.id}`)}
-                      className="text-blue-600 hover:underline"
+                <div className="space-y-4">
+          {Object.entries(disciplinasPorCursoESemestre).map(
+            ([cursoNome, semestres]) => (
+              <div key={cursoNome} className="rounded-lg border bg-white p-4 shadow">
+                <h2 className="text-lg font-bold text-slate-900">
+                  🎓 {cursoNome}
+                </h2>
+
+                <div className="mt-4 space-y-3">
+                  {Object.entries(semestres).map(([semestreNome, lista]) => (
+                    <details
+                      key={semestreNome}
+                      open
+                      className="rounded-lg border bg-slate-50 p-3"
                     >
-                      Editar
-                    </button>
-                    <button
-                      onClick={() => setDisciplinaParaExcluir(d)}
-                      className="text-red-600 hover:underline"
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      <summary className="cursor-pointer font-semibold text-slate-800">
+                        {semestreNome} — {lista.length} disciplina(s)
+                      </summary>
+
+                      <div className="mt-3 overflow-hidden rounded-lg border bg-white">
+                        <table className="w-full text-left text-sm">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="p-3">ID</th>
+                              <th className="p-3">Nome</th>
+                              <th className="p-3">Professor</th>
+                              <th className="p-3">Ações</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {lista.map((d) => (
+                              <tr key={d.id} className="border-t hover:bg-gray-50">
+                                <td className="p-3">{d.id}</td>
+                                <td className="p-3">{d.nome}</td>
+                                <td className="p-3">{d.professor?.nome ?? "—"}</td>
+                                <td className="space-x-2 p-3">
+                                  <button
+                                    onClick={() =>
+                                      router.push(`/admin/disciplinas/${d.id}`)
+                                    }
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    Editar
+                                  </button>
+
+                                  <button
+                                    onClick={() => setDisciplinaParaExcluir(d)}
+                                    className="text-red-600 hover:underline"
+                                  >
+                                    Excluir
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </details>
+                  ))}
+                </div>
+              </div>
+            )
+          )}
 
           {disciplinasFiltradas.length === 0 && (
-            <div className="p-4 text-gray-500">
+            <div className="rounded-lg bg-white p-4 text-gray-500 shadow">
               Nenhuma disciplina encontrada para essa busca.
             </div>
           )}
