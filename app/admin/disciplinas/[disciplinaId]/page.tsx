@@ -37,6 +37,10 @@ type DisciplinaDetalhe = {
   professor?: Professor | null;
 }[];
 
+prerequisitosDaDisciplina?: {
+  id: number;
+  prerequisitoId: number;
+}[];
   curso?: Curso | null;
   turmaDisciplinas?: {
     id: number;
@@ -145,6 +149,16 @@ setProfessoresHabilitadosIds(
         .map(String)
     : []
 );
+
+setPreRequisitoIds(
+  Array.isArray(disciplina.prerequisitosDaDisciplina)
+    ? disciplina.prerequisitosDaDisciplina
+        .map((item) => item.prerequisitoId)
+        .filter((id): id is number => Number.isFinite(id))
+        .map(String)
+    : []
+);
+
         const vinculos = Array.isArray(disciplina.turmaDisciplinas)
           ? disciplina.turmaDisciplinas
           : [];

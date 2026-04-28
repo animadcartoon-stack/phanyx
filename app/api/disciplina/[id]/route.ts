@@ -203,6 +203,11 @@ export async function GET(
       nome: true,
     },
   },
+  prerequisitosDaDisciplina: {
+  include: {
+    prerequisito: true,
+  },
+},
   professoresHabilitados: {
   include: {
     professor: {
@@ -378,7 +383,11 @@ const professoresHabilitadosIds = Array.isArray(body.professoresHabilitadosIds)
       .map((id: any) => Number(id))
       .filter((id: number) => Number.isFinite(id) && id > 0)
   : [];
-
+const preRequisitoIds = Array.isArray(body.preRequisitoIds)
+  ? body.preRequisitoIds
+      .map((id: any) => Number(id))
+      .filter((id: number) => Number.isFinite(id) && id > 0 && id !== Number(params.id))
+  : [];
 if (professoresHabilitadosIds.length > 0) {
   const professoresValidos = await prisma.professor.findMany({
     where: {
@@ -426,6 +435,24 @@ await tx.professorDisciplina.deleteMany({
     instituicaoId: user.instituicaoId,
   },
 });
+
+await tx.disciplinaPreRequisito.deleteMany({
+  where: {
+    disciplinaId: id,
+    instituicaoId: user.instituicaoId,
+  },
+});
+
+if (preRequisitoIds.length > 0) {
+  await tx.disciplinaPreRequisito.createMany({
+    data: preRequisitoIds.map((preId: number) => ({
+      disciplinaId: id,
+      prerequisitoId: preId,
+      instituicaoId: user.instituicaoId,
+    })),
+    skipDuplicates: true,
+  });
+}
 
 if (professoresHabilitadosIds.length > 0) {
   await tx.professorDisciplina.createMany({
