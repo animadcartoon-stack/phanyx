@@ -809,7 +809,9 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
         throw new Error(data.error || "Erro ao salvar carga");
       }
 
-      mostrarFeedback("sucesso", "Carga horária salva!");
+      await carregarSemestres();
+alert("Carga horária salva com sucesso!");
+mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
     } catch (err: any) {
       mostrarFeedback("erro", err.message);
     }
