@@ -75,6 +75,9 @@ function AdminTurmasPage() {
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
   const [disciplinasAbertas, setDisciplinasAbertas] = useState(false);
   const [professoresPorDisciplina, setProfessoresPorDisciplina] = useState<Record<number, string>>({});
+  const [datasInicioPorDisciplina, setDatasInicioPorDisciplina] = useState<Record<number, string>>({});
+const [datasFimPorDisciplina, setDatasFimPorDisciplina] = useState<Record<number, string>>({});
+const [statusPorDisciplina, setStatusPorDisciplina] = useState<Record<number, string>>({});
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
   const [editCodigo, setEditCodigo] = useState("");
@@ -179,6 +182,9 @@ async function carregarCursos() {
   capacidadeMaxima,
   disciplinaIds: disciplinasSelecionadas,
   professoresPorDisciplina,
+  datasInicioPorDisciplina,
+datasFimPorDisciplina,
+statusPorDisciplina,
   poloId,
   professorId,
 }),
@@ -203,6 +209,9 @@ async function carregarCursos() {
       setCapacidadeMaxima("");
       setEditDisciplinasSelecionadas([]);
       setProfessoresPorDisciplina({});
+      setDatasInicioPorDisciplina({});
+      setDatasFimPorDisciplina({});
+      setStatusPorDisciplina({});
 
       await carregarTurmas();
       mostrarFeedback("sucesso", "Turma criada com sucesso.");
@@ -772,24 +781,69 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
             </label>
 
             {selecionada && (
-              <select
-                value={professoresPorDisciplina[disciplina.id] || ""}
-                onChange={(e) =>
-                  setProfessoresPorDisciplina((prev) => ({
-                    ...prev,
-                    [disciplina.id]: e.target.value,
-                  }))
-                }
-                className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
-              >
-                <option value="">Professor desta disciplina</option>
-                {professores.map((professor) => (
-                  <option key={professor.id} value={professor.id}>
-                    {professor.nome}
-                  </option>
-                ))}
-              </select>
-            )}
+  <>
+    <select
+      value={professoresPorDisciplina[disciplina.id] || ""}
+      onChange={(e) =>
+        setProfessoresPorDisciplina((prev) => ({
+          ...prev,
+          [disciplina.id]: e.target.value,
+        }))
+      }
+      className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+    >
+      <option value="">Professor desta disciplina</option>
+      {professores.map((professor) => (
+        <option key={professor.id} value={professor.id}>
+          {professor.nome}
+        </option>
+      ))}
+    </select>
+
+    <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-3">
+      <input
+        type="date"
+        value={datasInicioPorDisciplina[disciplina.id] || ""}
+        onChange={(e) =>
+          setDatasInicioPorDisciplina((prev) => ({
+            ...prev,
+            [disciplina.id]: e.target.value,
+          }))
+        }
+        className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+      />
+
+      <input
+        type="date"
+        value={datasFimPorDisciplina[disciplina.id] || ""}
+        onChange={(e) =>
+          setDatasFimPorDisciplina((prev) => ({
+            ...prev,
+            [disciplina.id]: e.target.value,
+          }))
+        }
+        className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+      />
+
+      <select
+        value={statusPorDisciplina[disciplina.id] || ""}
+        onChange={(e) =>
+          setStatusPorDisciplina((prev) => ({
+            ...prev,
+            [disciplina.id]: e.target.value,
+          }))
+        }
+        className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+      >
+        <option value="">Status</option>
+        <option value="A_INICIAR">A iniciar</option>
+        <option value="EM_ANDAMENTO">Em andamento</option>
+        <option value="ENCERRADA">Encerrada</option>
+        <option value="CONCLUIDA">Concluída</option>
+      </select>
+    </div>
+  </>
+)}
           </div>
         );
       })}
