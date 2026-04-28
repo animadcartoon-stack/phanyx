@@ -203,6 +203,16 @@ export async function GET(
       nome: true,
     },
   },
+  professoresHabilitados: {
+  include: {
+    professor: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+  },
+},
   turmaDisciplinas: {
   include: {
     turma: {
@@ -363,6 +373,29 @@ if (body.professorId === null || body.professorId === "") {
   );
 }
 
+const professoresHabilitadosIds = Array.isArray(body.professoresHabilitadosIds)
+  ? body.professoresHabilitadosIds
+      .map((id: any) => Number(id))
+      .filter((id: number) => Number.isFinite(id) && id > 0)
+  : [];
+
+if (professoresHabilitadosIds.length > 0) {
+  const professoresValidos = await prisma.professor.findMany({
+    where: {
+      id: { in: professoresHabilitadosIds },
+      instituicaoId: user.instituicaoId,
+    },
+    select: { id: true },
+  });
+
+  if (professoresValidos.length !== professoresHabilitadosIds.length) {
+    return NextResponse.json(
+      { error: "Um ou mais professores são inválidos para esta instituição." },
+      { status: 400 }
+    );
+  }
+}
+
     await prisma.$transaction(async (tx) => {
       await tx.disciplina.update({
         where: { id },
@@ -386,6 +419,24 @@ if (body.professorId === null || body.professorId === "") {
           professorId: professorIdFinal,
         },
       });
+
+await tx.professorDisciplina.deleteMany({
+  where: {
+    disciplinaId: id,
+    instituicaoId: user.instituicaoId,
+  },
+});
+
+if (professoresHabilitadosIds.length > 0) {
+  await tx.professorDisciplina.createMany({
+    data: professoresHabilitadosIds.map((professorId: number) => ({
+      professorId,
+      disciplinaId: id,
+      instituicaoId: user.instituicaoId,
+    })),
+    skipDuplicates: true,
+  });
+}
 
       await tx.turmaDisciplina.deleteMany({
   where: {
@@ -414,8 +465,18 @@ if (turmaIds.length > 0) {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        curso: true,
-        turmaDisciplinas: {
+  curso: true,
+  professoresHabilitados: {
+    include: {
+      professor: {
+        select: {
+          id: true,
+          nome: true,
+        },
+      },
+    },
+  },
+  turmaDisciplinas: {
   include: {
     turma: true,
   },

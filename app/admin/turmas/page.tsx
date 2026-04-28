@@ -191,8 +191,7 @@ async function carregarCursos() {
   statusPorDisciplina,
   poloId,
   professorId,
-  dataInicio,
-  dataFim,
+  
 }),
       });
 
@@ -463,19 +462,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
               className="w-full border rounded-lg p-2"
               required
             />
-<input
-  type="date"
-  value={dataInicio}
-  onChange={(e) => setDataInicio(e.target.value)}
-  className="w-full border rounded-lg p-2"
-/>
 
-<input
-  type="date"
-  value={dataFim}
-  onChange={(e) => setDataFim(e.target.value)}
-  className="w-full border rounded-lg p-2"
-/>
             <select
   value={periodoLetivo}
   onChange={(e) => setPeriodoLetivo(e.target.value)}

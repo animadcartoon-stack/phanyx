@@ -151,8 +151,6 @@ const professoresPorDisciplina =
         capacidadeMinima,
         capacidadeMaxima,
         instituicaoId: user.instituicaoId,
-        dataInicio,
-        dataFim,
         cursoId,
         poloId,
         professorId,

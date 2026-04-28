@@ -69,6 +69,7 @@ model Instituicao {
   certificadoCoordenadorNome String?
   certificadoCidade          String?
   cursosPolos                CursoPolo[]
+  professoresDisciplinas     ProfessorDisciplina[]
 }
 
 model User {
@@ -181,11 +182,13 @@ model Professor {
   titulacao         String?
   instituicao       Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  turmas            Turma[]
-  turmaDisciplinas  TurmaDisciplina[]
-  disciplinasPadrao Disciplina[]
-  poloId            Int?
-  polo              Polo?       @relation(fields: [poloId], references: [id])
+
+  turmas                 Turma[]
+  turmaDisciplinas       TurmaDisciplina[]
+  disciplinasPadrao      Disciplina[]
+  disciplinasHabilitadas ProfessorDisciplina[]
+  poloId                 Int?
+  polo                   Polo?                 @relation(fields: [poloId], references: [id])
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -356,6 +359,7 @@ model Disciplina {
   liberaOutrasDisciplinas   DisciplinaPreRequisito[]        @relation("DisciplinaPreRequisito")
   permitidaComoExtraEm      CursoDisciplinaExtraPermitida[]
   turmaDisciplinas          TurmaDisciplina[]
+  professoresHabilitados    ProfessorDisciplina[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -403,7 +407,7 @@ model Turma {
 }
 
 model TurmaDisciplina {
-  id            Int      @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   turmaId       Int
   disciplinaId  Int
   professorId   Int?
@@ -411,8 +415,8 @@ model TurmaDisciplina {
   dataInicio    DateTime?
   dataFim       DateTime?
   status        String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
   disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
@@ -1400,6 +1404,24 @@ model CursoPolo {
   @@index([instituicaoId])
   @@index([cursoId])
   @@index([poloId])
+}
+
+model ProfessorDisciplina {
+  id            Int      @id @default(autoincrement())
+  professorId   Int
+  disciplinaId  Int
+  instituicaoId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  professor   Professor   @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([professorId, disciplinaId])
+  @@index([professorId])
+  @@index([disciplinaId])
+  @@index([instituicaoId])
 }
 
 enum TipoDocumentoAluno {

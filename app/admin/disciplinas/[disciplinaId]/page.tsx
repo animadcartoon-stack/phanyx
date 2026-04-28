@@ -31,6 +31,12 @@ type DisciplinaDetalhe = {
   cursoId?: number | null;
   professorId?: number | null;
   professor?: Professor | null;
+  professoresHabilitados?: {
+  id: number;
+  professorId: number;
+  professor?: Professor | null;
+}[];
+
   curso?: Curso | null;
   turmaDisciplinas?: {
     id: number;
@@ -59,7 +65,7 @@ export default function DisciplinaDetalhePage() {
   const [semestre, setSemestre] = useState("");
   const [cursoId, setCursoId] = useState("");
   const [professorId, setProfessorId] = useState("");
-
+  const [professoresHabilitadosIds, setProfessoresHabilitadosIds] = useState<string[]>([]);
   const [turmaIds, setTurmaIds] = useState<string[]>([]);
 
   const [cursos, setCursos] = useState<Curso[]>([]);
@@ -73,6 +79,14 @@ export default function DisciplinaDetalhePage() {
         : [...atual, String(id)]
     );
   }
+
+function alternarProfessor(id: number) {
+  setProfessoresHabilitadosIds((atual) =>
+    atual.includes(String(id))
+      ? atual.filter((item) => item !== String(id))
+      : [...atual, String(id)]
+  );
+}
 
   useEffect(() => {
     async function carregar() {
@@ -114,7 +128,14 @@ setProfessorId(
     ? String(disciplina.professorId)
     : ""
 );
-
+setProfessoresHabilitadosIds(
+  Array.isArray(disciplina.professoresHabilitados)
+    ? disciplina.professoresHabilitados
+        .map((item) => item.professorId)
+        .filter((id): id is number => Number.isFinite(id))
+        .map(String)
+    : []
+);
         const vinculos = Array.isArray(disciplina.turmaDisciplinas)
           ? disciplina.turmaDisciplinas
           : [];
@@ -186,6 +207,7 @@ try {
           cursoId: cursoId ? Number(cursoId) : null,
           turmaIds: turmaIds.map(Number),
           professorId: professorId ? Number(professorId) : null,
+          professoresHabilitadosIds: professoresHabilitadosIds.map(Number),
         }),
       });
 
@@ -311,22 +333,37 @@ try {
               ))}
             </select>
 
-<div>
-  <label className="block text-sm font-medium text-gray-700 mb-1">
-    Professor da disciplina
+<div className="pt-2">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Professores habilitados para esta disciplina
   </label>
-  <select
-    value={professorId}
-    onChange={(e) => setProfessorId(e.target.value)}
-    className="w-full border rounded-xl px-3 py-2 bg-white"
-  >
-    <option value="">Sem professor vinculado</option>
-    {professores.map((professor) => (
-      <option key={professor.id} value={professor.id}>
-        {professor.nome}
-      </option>
-    ))}
-  </select>
+
+  <div className="rounded-xl border bg-white p-3 max-h-56 overflow-y-auto space-y-2">
+    {professores.length === 0 ? (
+      <p className="text-sm text-slate-500">Nenhum professor encontrado.</p>
+    ) : (
+      professores.map((professor) => (
+        <label
+          key={professor.id}
+          className="flex items-center gap-3 rounded-lg border p-2 cursor-pointer hover:bg-slate-50"
+        >
+          <input
+            type="checkbox"
+            checked={professoresHabilitadosIds.includes(String(professor.id))}
+            onChange={() => alternarProfessor(professor.id)}
+          />
+
+          <span className="text-sm font-medium text-slate-800">
+            {professor.nome}
+          </span>
+        </label>
+      ))
+    )}
+  </div>
+
+  <p className="mt-1 text-xs text-slate-500">
+    Marque todos os professores que podem lecionar esta disciplina.
+  </p>
 </div>
 
           </div>
