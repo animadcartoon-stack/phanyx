@@ -74,7 +74,7 @@ function AdminTurmasPage() {
   const [capacidadeMaxima, setCapacidadeMaxima] = useState("");
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
   const [disciplinasAbertas, setDisciplinasAbertas] = useState(false);
-
+  const [professoresPorDisciplina, setProfessoresPorDisciplina] = useState<Record<number, string>>({});
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
   const [editCodigo, setEditCodigo] = useState("");
@@ -178,6 +178,7 @@ async function carregarCursos() {
   capacidadeMinima,
   capacidadeMaxima,
   disciplinaIds: disciplinasSelecionadas,
+  professoresPorDisciplina,
   poloId,
   professorId,
 }),
@@ -201,6 +202,7 @@ async function carregarCursos() {
       setCapacidadeMinima("");
       setCapacidadeMaxima("");
       setDisciplinasSelecionadas([]);
+      setProfessoresPorDisciplina({});
 
       await carregarTurmas();
       mostrarFeedback("sucesso", "Turma criada com sucesso.");
@@ -518,37 +520,68 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     </button>
 
     {disciplinasAbertas && (
-      <div className="mt-2 max-h-48 overflow-auto rounded border p-2">
-        <div className="grid grid-cols-1 gap-2">
-          {disciplinas.map((disciplina) => (
-            <label
-              key={disciplina.id}
-              className="flex items-center gap-2 text-sm"
-            >
+  <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
+    <div className="grid grid-cols-1 gap-3">
+      {disciplinas.map((disciplina) => {
+        const selecionada = disciplinasSelecionadas.includes(disciplina.id);
+
+        return (
+          <div
+            key={disciplina.id}
+            className="rounded-lg border bg-gray-50 p-3"
+          >
+            <label className="flex items-center gap-2 text-sm font-medium">
               <input
                 type="checkbox"
-                checked={disciplinasSelecionadas.includes(disciplina.id)}
+                checked={selecionada}
                 onChange={(e) => {
                   if (e.target.checked) {
-                    setDisciplinasSelecionadas([
-                      ...disciplinasSelecionadas,
+                    setDisciplinasSelecionadas((prev) => [
+                      ...prev,
                       disciplina.id,
                     ]);
                   } else {
-                    setDisciplinasSelecionadas(
-                      disciplinasSelecionadas.filter(
-                        (id) => id !== disciplina.id
-                      )
+                    setDisciplinasSelecionadas((prev) =>
+                      prev.filter((id) => id !== disciplina.id)
                     );
+
+                    setProfessoresPorDisciplina((prev) => {
+                      const novo = { ...prev };
+                      delete novo[disciplina.id];
+                      return novo;
+                    });
                   }
                 }}
               />
-              {disciplina.nome}
+
+              <span>{disciplina.nome}</span>
             </label>
-          ))}
-        </div>
-      </div>
-    )}
+
+            {selecionada && (
+              <select
+                value={professoresPorDisciplina[disciplina.id] || ""}
+                onChange={(e) =>
+                  setProfessoresPorDisciplina((prev) => ({
+                    ...prev,
+                    [disciplina.id]: e.target.value,
+                  }))
+                }
+                className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+              >
+                <option value="">Professor desta disciplina</option>
+                {professores.map((professor) => (
+                  <option key={professor.id} value={professor.id}>
+                    {professor.nome}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  </div>
+)}
   </div>
 
   <div>

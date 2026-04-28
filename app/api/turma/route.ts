@@ -119,6 +119,12 @@ const professorId =
       ? body.disciplinaIds.map(Number)
       : [];
 
+const professoresPorDisciplina =
+  body?.professoresPorDisciplina &&
+  typeof body.professoresPorDisciplina === "object"
+    ? body.professoresPorDisciplina
+    : {};
+
     if (!nome || !semestre || !periodoLetivo) {
       return NextResponse.json(
         { error: "Nome, semestre e período são obrigatórios" },
@@ -151,7 +157,10 @@ professorId,
 disciplinas: {
   create: disciplinaIds.map((id: number) => ({
     disciplinaId: id,
-    professorId,
+    professorId:
+      professoresPorDisciplina[id] && Number(professoresPorDisciplina[id]) > 0
+        ? Number(professoresPorDisciplina[id])
+        : null,
     instituicaoId: user.instituicaoId,
   })),
 },
@@ -165,14 +174,20 @@ disciplinas: {
   },
 },
         disciplinas: {
-          include: {
-            disciplina: {
-              include: {
-                curso: true,
-              },
-            },
-          },
-        },
+  include: {
+    professor: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+    disciplina: {
+      include: {
+        curso: true,
+      },
+    },
+  },
+},
         _count: {
           select: {
             itensMatricula: true,
