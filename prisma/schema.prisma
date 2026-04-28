@@ -71,7 +71,6 @@ model Instituicao {
   cursosPolos                CursoPolo[]
   professoresDisciplinas     ProfessorDisciplina[]
   turmaSemestres             TurmaSemestre[]
-  
 }
 
 model User {
@@ -222,7 +221,6 @@ model Curso {
   periodosMatricula           PeriodoMatricula[]
   disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
   cursosPolos                 CursoPolo[]
-  semestresConfigurados       CursoSemestre[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -363,8 +361,6 @@ model Disciplina {
   permitidaComoExtraEm      CursoDisciplinaExtraPermitida[]
   turmaDisciplinas          TurmaDisciplina[]
   professoresHabilitados    ProfessorDisciplina[]
-  preRequisitos DisciplinaPreRequisito[] @relation("DisciplinaPreRequisitos")
-  usadaComoPreRequisito DisciplinaPreRequisito[] @relation("DisciplinaComoPreRequisito")
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
