@@ -49,20 +49,27 @@ export async function GET() {
     }
 
     const turmas = await prisma.turma.findMany({
-      where: {
+  where: {
+    instituicaoId: decoded.instituicaoId,
+    disciplinas: {
+      some: {
         professorId: professor.id,
-        instituicaoId: decoded.instituicaoId,
       },
-      include: {
-  disciplinas: {
-    include: {
-      disciplina: true,
     },
   },
-  itensMatricula: true,
-},
-      orderBy: { id: "desc" },
-    });
+  include: {
+    disciplinas: {
+      where: {
+        professorId: professor.id,
+      },
+      include: {
+        disciplina: true,
+      },
+    },
+    itensMatricula: true,
+  },
+  orderBy: { id: "desc" },
+});
 
     return NextResponse.json(
       turmas.map((t) => ({
@@ -72,7 +79,14 @@ export async function GET() {
         alunos: t.itensMatricula.length,
         disciplinaId: t.disciplinas?.[0]?.disciplinaId ?? null,
 disciplina: t.disciplinas?.[0]?.disciplina ?? null,
-disciplinas: t.disciplinas.map((item) => item.disciplina),
+disciplinas: t.disciplinas.map((item) => ({
+  ...item.disciplina,
+  turmaDisciplinaId: item.id,
+  professorId: item.professorId,
+  status: item.status,
+  dataInicio: item.dataInicio,
+  dataFim: item.dataFim,
+})),
       }))
     );
   } catch (e: any) {
