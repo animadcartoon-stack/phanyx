@@ -162,6 +162,7 @@ const professoresPorDisciplina =
         ? Number(professoresPorDisciplina[id])
         : null,
     instituicaoId: user.instituicaoId,
+    turmaSemestreId: novoSemestre.id,
   })),
 },
       },
@@ -195,6 +196,18 @@ const professoresPorDisciplina =
         },
       },
     });
+
+// Criar semestre da turma
+const novoSemestre = await prisma.turmaSemestre.create({
+  data: {
+    turmaId: novaTurma.id,
+    instituicaoId: user.instituicaoId,
+    numero: Number(semestre) || 1,
+    dataInicio: dataInicio ? new Date(dataInicio) : null,
+    dataFim: dataFim ? new Date(dataFim) : null,
+    status: "A_INICIAR",
+  },
+});
 
     return NextResponse.json(novaTurma);
   } catch (error: any) {

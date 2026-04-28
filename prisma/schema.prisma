@@ -70,6 +70,7 @@ model Instituicao {
   certificadoCidade          String?
   cursosPolos                CursoPolo[]
   professoresDisciplinas     ProfessorDisciplina[]
+  turmaSemestres             TurmaSemestre[]
 }
 
 model User {
@@ -396,6 +397,7 @@ model Turma {
   instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   professor        Professor?        @relation(fields: [professorId], references: [id])
   disciplinas      TurmaDisciplina[]
+  semestres        TurmaSemestre[]
   poloId           Int?
   polo             Polo?             @relation(fields: [poloId], references: [id])
 
@@ -407,16 +409,18 @@ model Turma {
 }
 
 model TurmaDisciplina {
-  id            Int       @id @default(autoincrement())
-  turmaId       Int
-  disciplinaId  Int
-  professorId   Int?
-  instituicaoId Int
-  dataInicio    DateTime?
-  dataFim       DateTime?
-  status        String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id              Int            @id @default(autoincrement())
+  turmaId         Int
+  disciplinaId    Int
+  professorId     Int?
+  instituicaoId   Int
+  dataInicio      DateTime?
+  dataFim         DateTime?
+  status          String?
+  turmaSemestreId Int?
+  turmaSemestre   TurmaSemestre? @relation(fields: [turmaSemestreId], references: [id], onDelete: SetNull)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
 
   turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
   disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
@@ -1421,6 +1425,27 @@ model ProfessorDisciplina {
   @@unique([professorId, disciplinaId])
   @@index([professorId])
   @@index([disciplinaId])
+  @@index([instituicaoId])
+}
+
+model TurmaSemestre {
+  id            Int       @id @default(autoincrement())
+  turmaId       Int
+  instituicaoId Int
+  numero        Int
+  dataInicio    DateTime?
+  dataFim       DateTime?
+
+  disciplinas TurmaDisciplina[]
+
+  status    String   @default("A_INICIAR")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([turmaId])
   @@index([instituicaoId])
 }
 
