@@ -416,84 +416,109 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <input
-                    type="text"
-                    value={formCurso.codigo}
-                    onChange={(e) =>
-                      setFormCurso({ ...formCurso, codigo: e.target.value })
-                    }
-                    className="border rounded-lg px-4 py-2"
-                    placeholder="Código"
-                  />
+  <div>
+    <label className="mb-1 block text-sm font-medium text-gray-700">
+      Código do curso
+    </label>
+    <input
+      type="text"
+      value={formCurso.codigo}
+      onChange={(e) =>
+        setFormCurso({ ...formCurso, codigo: e.target.value })
+      }
+      className="w-full border rounded-lg px-4 py-2"
+      placeholder="Ex: TEO-001"
+    />
+  </div>
 
-                  <input
-                    type="number"
-                    value={formCurso.quantidadeSemestres}
-                    onChange={(e) =>
-                      setFormCurso({
-                        ...formCurso,
-                        quantidadeSemestres: e.target.value,
-                      })
-                    }
-                    className="border rounded-lg px-4 py-2"
-                    placeholder="Quantidade de semestres"
-                  />
+  <div>
+    <label className="mb-1 block text-sm font-medium text-gray-700">
+      Quantidade de semestres do curso
+    </label>
+    <input
+      type="number"
+      value={formCurso.quantidadeSemestres}
+      onChange={(e) =>
+        setFormCurso({
+          ...formCurso,
+          quantidadeSemestres: e.target.value,
+        })
+      }
+      className="w-full border rounded-lg px-4 py-2"
+      placeholder="Ex: 6"
+    />
+  </div>
 
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formCurso.valorMatricula}
-                    onChange={(e) =>
-                      setFormCurso({
-                        ...formCurso,
-                        valorMatricula: e.target.value,
-                      })
-                    }
-                    className="border rounded-lg px-4 py-2"
-                    placeholder="Valor da matrícula"
-                  />
+  <div>
+    <label className="mb-1 block text-sm font-medium text-gray-700">
+      Valor da matrícula
+    </label>
+    <input
+      type="number"
+      step="0.01"
+      value={formCurso.valorMatricula}
+      onChange={(e) =>
+        setFormCurso({
+          ...formCurso,
+          valorMatricula: e.target.value,
+        })
+      }
+      className="w-full border rounded-lg px-4 py-2"
+      placeholder="Ex: 20"
+    />
+  </div>
 
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={formCurso.valorMensalidade}
-                    onChange={(e) =>
-                      setFormCurso({
-                        ...formCurso,
-                        valorMensalidade: e.target.value,
-                      })
-                    }
-                    className="border rounded-lg px-4 py-2"
-                    placeholder="Valor da mensalidade"
-                  />
+  <div>
+    <label className="mb-1 block text-sm font-medium text-gray-700">
+      Valor da mensalidade
+    </label>
+    <input
+      type="number"
+      step="0.01"
+      value={formCurso.valorMensalidade}
+      onChange={(e) =>
+        setFormCurso({
+          ...formCurso,
+          valorMensalidade: e.target.value,
+        })
+      }
+      className="w-full border rounded-lg px-4 py-2"
+      placeholder="Ex: 99.50"
+    />
+  </div>
 
-                  <input
-                    type="number"
-                    value={formCurso.quantidadeParcelas}
-                    onChange={(e) =>
-                      setFormCurso({
-                        ...formCurso,
-                        quantidadeParcelas: e.target.value,
-                      })
-                    }
-                    className="border rounded-lg px-4 py-2"
-                    placeholder="Quantidade de parcelas"
-                  />
+  <div>
+    <label className="mb-1 block text-sm font-medium text-gray-700">
+      Quantidade de parcelas
+    </label>
+    <input
+      type="number"
+      value={formCurso.quantidadeParcelas}
+      onChange={(e) =>
+        setFormCurso({
+          ...formCurso,
+          quantidadeParcelas: e.target.value,
+        })
+      }
+      className="w-full border rounded-lg px-4 py-2"
+      placeholder="Ex: 6"
+    />
+  </div>
 
-                  <label className="flex items-center gap-2 border rounded-lg px-4 py-2">
-                    <input
-                      type="checkbox"
-                      checked={formCurso.ativo}
-                      onChange={(e) =>
-                        setFormCurso({
-                          ...formCurso,
-                          ativo: e.target.checked,
-                        })
-                      }
-                    />
-                    Curso ativo
-                  </label>
-                </div>
+  <label className="flex items-center gap-2 border rounded-lg px-4 py-2 mt-6">
+    <input
+      type="checkbox"
+      checked={formCurso.ativo}
+      onChange={(e) =>
+        setFormCurso({
+          ...formCurso,
+          ativo: e.target.checked,
+        })
+      }
+    />
+    Curso ativo
+  </label>
+</div>
 
                 <textarea
                   value={formCurso.descricao}
