@@ -647,42 +647,54 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
 
-<div className="mt-3 grid grid-cols-2 gap-3">
-  <input
-    type="number"
-    placeholder="Carga mínima (h)"
-    className="border rounded-lg px-3 py-2 text-sm"
-    value={(semestre as any).cargaMinima ?? ""}
-    onChange={(e) => {
-      const valor = e.target.value;
+<div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+  
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Carga mínima permitida no semestre (horas)
+    </label>
+    <input
+      type="number"
+      placeholder="Ex: 200"
+      className="border rounded-lg px-3 py-2 text-sm w-full"
+      value={(semestre as any).cargaMinima ?? ""}
+      onChange={(e) => {
+        const valor = e.target.value;
 
-      setSemestres((prev) =>
-        prev.map((s) =>
-          s.id === semestre.id
-            ? { ...s, cargaMinima: valor }
-            : s
-        )
-      );
-    }}
-  />
+        setSemestres((prev) =>
+          prev.map((s) =>
+            s.id === semestre.id
+              ? { ...s, cargaMinima: valor }
+              : s
+          )
+        );
+      }}
+    />
+  </div>
 
-  <input
-    type="number"
-    placeholder="Carga máxima (h)"
-    className="border rounded-lg px-3 py-2 text-sm"
-    value={(semestre as any).cargaMaxima ?? ""}
-    onChange={(e) => {
-      const valor = e.target.value;
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Carga máxima permitida no semestre (horas)
+    </label>
+    <input
+      type="number"
+      placeholder="Ex: 400"
+      className="border rounded-lg px-3 py-2 text-sm w-full"
+      value={(semestre as any).cargaMaxima ?? ""}
+      onChange={(e) => {
+        const valor = e.target.value;
 
-      setSemestres((prev) =>
-        prev.map((s) =>
-          s.id === semestre.id
-            ? { ...s, cargaMaxima: valor }
-            : s
-        )
-      );
-    }}
-  />
+        setSemestres((prev) =>
+          prev.map((s) =>
+            s.id === semestre.id
+              ? { ...s, cargaMaxima: valor }
+              : s
+          )
+        );
+      }}
+    />
+  </div>
+
 </div>
 
                   Semestre {semestre.numero}
