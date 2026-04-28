@@ -469,13 +469,15 @@ function professoresDaDisciplina(disciplina: Disciplina) {
     </option>
   ))}
 </select>
-            <input
-              placeholder="Semestre"
-              value={semestre}
-              onChange={(e) => setSemestre(e.target.value)}
-              className="w-full border rounded-lg p-2"
-              required
-            />
+            <div>
+  <label className="text-sm text-gray-600">Semestre da turma</label>
+  <input
+    value={semestre}
+    onChange={(e) => setSemestre(e.target.value)}
+    className="w-full border rounded-lg p-2"
+    required
+  />
+</div>
 
             <select
   value={periodoLetivo}
@@ -497,23 +499,26 @@ function professoresDaDisciplina(disciplina: Disciplina) {
   <option>EAD Integral</option>
 </select>
 
-            <input
-              type="number"
-              min="1"
-              placeholder="Capacidade mínima de alunos"
-              value={capacidadeMinima}
-              onChange={(e) => setCapacidadeMinima(e.target.value)}
-              className="w-full border rounded-lg p-2"
-            />
-
-            <input
-              type="number"
-              min="1"
-              placeholder="Capacidade máxima de alunos"
-              value={capacidadeMaxima}
-              onChange={(e) => setCapacidadeMaxima(e.target.value)}
-              className="w-full border rounded-lg p-2"
-            />
+            <div>
+  <label className="text-sm text-gray-600">Capacidade mínima</label>
+  <input
+    type="number"
+    min="1"
+    value={capacidadeMinima}
+    onChange={(e) => setCapacidadeMinima(e.target.value)}
+    className="w-full border rounded-lg p-2"
+  />
+</div>
+            <div>
+  <label className="text-sm text-gray-600">Capacidade máxima</label>
+  <input
+    type="number"
+    min="1"
+    value={capacidadeMaxima}
+    onChange={(e) => setCapacidadeMaxima(e.target.value)}
+    className="w-full border rounded-lg p-2"
+  />
+</div>
 
             <select
               value={statusTurma}
@@ -696,12 +701,14 @@ function professoresDaDisciplina(disciplina: Disciplina) {
                           placeholder="Código da turma"
                         />
 
-                        <input
-                          value={editSemestre}
-                          onChange={(e) => setEditSemestre(e.target.value)}
-                          className="border p-2 rounded"
-                          placeholder="Semestre"
-                        />
+                        <div>
+  <label className="text-sm text-gray-600">Semestre da turma</label>
+  <input
+    value={editSemestre}
+    onChange={(e) => setEditSemestre(e.target.value)}
+    className="w-full border rounded-lg p-2"
+  />
+</div>
 
                         <input
                           value={editPeriodoLetivo}
@@ -761,7 +768,7 @@ function professoresDaDisciplina(disciplina: Disciplina) {
     </span>
   </button>
 
-  {disciplinasAbertas && (
+ {editDisciplinasAbertas && (
   <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
     <div className="grid grid-cols-1 gap-3">
       {disciplinas.map((disciplina) => {

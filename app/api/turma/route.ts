@@ -87,44 +87,60 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const dataInicio = body?.dataInicio ? new Date(body.dataInicio) : null;
-    const dataFim = body?.dataFim ? new Date(body.dataFim) : null;
+
     const nome = String(body?.nome ?? "").trim();
     const codigo = String(body?.codigo ?? "").trim();
     const semestre = String(body?.semestre ?? "").trim();
     const periodoLetivo = String(body?.periodoLetivo ?? "").trim();
     const statusTurma = String(body?.statusTurma ?? "AGUARDANDO").trim();
     const ativa = body?.ativa !== undefined ? Boolean(body.ativa) : true;
-    const cursoId =
-  body?.cursoId && Number(body.cursoId) > 0
-    ? Number(body.cursoId)
-    : null;
 
-const professorId =
-  body?.professorId && Number(body.professorId) > 0
-    ? Number(body.professorId)
-    : null;
+    const cursoId =
+      body?.cursoId && Number(body.cursoId) > 0 ? Number(body.cursoId) : null;
+
+    const professorId =
+      body?.professorId && Number(body.professorId) > 0
+        ? Number(body.professorId)
+        : null;
 
     const poloId =
-      body?.poloId && Number(body.poloId) > 0
-        ? Number(body.poloId)
-        : null; // 🔥 NOVO
+      body?.poloId && Number(body.poloId) > 0 ? Number(body.poloId) : null;
 
-    const capacidadeMinima =
-      body?.capacidadeMinima ? Number(body.capacidadeMinima) : null;
+    const capacidadeMinima = body?.capacidadeMinima
+      ? Number(body.capacidadeMinima)
+      : null;
 
-    const capacidadeMaxima =
-      body?.capacidadeMaxima ? Number(body.capacidadeMaxima) : null;
+    const capacidadeMaxima = body?.capacidadeMaxima
+      ? Number(body.capacidadeMaxima)
+      : null;
 
     const disciplinaIds = Array.isArray(body?.disciplinaIds)
-      ? body.disciplinaIds.map(Number)
+      ? body.disciplinaIds.map(Number).filter((id: number) => Number.isFinite(id))
       : [];
 
-const professoresPorDisciplina =
-  body?.professoresPorDisciplina &&
-  typeof body.professoresPorDisciplina === "object"
-    ? body.professoresPorDisciplina
-    : {};
+    const professoresPorDisciplina =
+      body?.professoresPorDisciplina &&
+      typeof body.professoresPorDisciplina === "object"
+        ? body.professoresPorDisciplina
+        : {};
+
+    const datasInicioPorDisciplina =
+      body?.datasInicioPorDisciplina &&
+      typeof body.datasInicioPorDisciplina === "object"
+        ? body.datasInicioPorDisciplina
+        : {};
+
+    const datasFimPorDisciplina =
+      body?.datasFimPorDisciplina &&
+      typeof body.datasFimPorDisciplina === "object"
+        ? body.datasFimPorDisciplina
+        : {};
+
+    const statusPorDisciplina =
+      body?.statusPorDisciplina &&
+      typeof body.statusPorDisciplina === "object"
+        ? body.statusPorDisciplina
+        : {};
 
     if (!nome || !semestre || !periodoLetivo) {
       return NextResponse.json(
@@ -140,86 +156,99 @@ const professoresPorDisciplina =
       );
     }
 
-    const novaTurma = await prisma.turma.create({
-      data: {
-        nome,
-        codigo: codigo || null,
-        semestre,
-        periodoLetivo,
-        statusTurma: statusTurma as any,
-        ativa,
-        capacidadeMinima,
-        capacidadeMaxima,
-        instituicaoId: user.instituicaoId,
-        cursoId,
-        poloId,
-        professorId,
-        disciplinas: {
-        create: disciplinaIds.map((id: number) => ({
-        disciplinaId: id,
-        professorId:
-        professoresPorDisciplina[id] && Number(professoresPorDisciplina[id]) > 0
-        ? Number(professoresPorDisciplina[id])
-        : null,
-    instituicaoId: user.instituicaoId,
-    turmaSemestreId: novoSemestre.id,
-  })),
-},
-      },
-      include: {
-        polo: true, 
-        professor: {
-  select: {
-    id: true,
-    nome: true,
-  },
-},
-        disciplinas: {
-  include: {
-    professor: {
-      select: {
-        id: true,
-        nome: true,
-      },
-    },
-    disciplina: {
-      include: {
-        curso: true,
-      },
-    },
-  },
-},
-        _count: {
-          select: {
-            itensMatricula: true,
+    const novaTurma = await prisma.$transaction(async (tx) => {
+      const turmaCriada = await tx.turma.create({
+        data: {
+          nome,
+          codigo: codigo || null,
+          semestre,
+          periodoLetivo,
+          statusTurma: statusTurma as any,
+          ativa,
+          capacidadeMinima,
+          capacidadeMaxima,
+          instituicaoId: user.instituicaoId,
+          cursoId,
+          poloId,
+          professorId,
+        },
+      });
+
+      const novoSemestre = await tx.turmaSemestre.create({
+        data: {
+          turmaId: turmaCriada.id,
+          instituicaoId: user.instituicaoId,
+          numero: Number(semestre) || 1,
+          status: "A_INICIAR",
+        },
+      });
+
+      await tx.turmaDisciplina.createMany({
+        data: disciplinaIds.map((id: number) => ({
+          turmaId: turmaCriada.id,
+          disciplinaId: id,
+          professorId:
+            professoresPorDisciplina[id] &&
+            Number(professoresPorDisciplina[id]) > 0
+              ? Number(professoresPorDisciplina[id])
+              : null,
+          dataInicio: datasInicioPorDisciplina[id]
+            ? new Date(datasInicioPorDisciplina[id])
+            : null,
+          dataFim: datasFimPorDisciplina[id]
+            ? new Date(datasFimPorDisciplina[id])
+            : null,
+          status: statusPorDisciplina[id] || "A_INICIAR",
+          instituicaoId: user.instituicaoId,
+          turmaSemestreId: novoSemestre.id,
+        })),
+      });
+
+      return tx.turma.findUnique({
+        where: { id: turmaCriada.id },
+        include: {
+          polo: true,
+          professor: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+          disciplinas: {
+            include: {
+              professor: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+              disciplina: {
+                include: {
+                  curso: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              itensMatricula: true,
+            },
           },
         },
-      },
+      });
     });
-
-// Criar semestre da turma
-const novoSemestre = await prisma.turmaSemestre.create({
-  data: {
-    turmaId: novaTurma.id,
-    instituicaoId: user.instituicaoId,
-    numero: Number(semestre) || 1,
-    dataInicio: dataInicio ? new Date(dataInicio) : null,
-    dataFim: dataFim ? new Date(dataFim) : null,
-    status: "A_INICIAR",
-  },
-});
 
     return NextResponse.json(novaTurma);
   } catch (error: any) {
-  console.error("ERRO REAL AO CRIAR TURMA:", error);
+    console.error("ERRO REAL AO CRIAR TURMA:", error);
 
-  return NextResponse.json(
-    {
-      error: "Erro ao criar turma",
-      detalhe: error?.message || "Erro interno desconhecido",
-      codigo: error?.code || null,
-    },
-    { status: 500 }
-  );
-}
+    return NextResponse.json(
+      {
+        error: "Erro ao criar turma",
+        detalhe: error?.message || "Erro interno desconhecido",
+        codigo: error?.code || null,
+      },
+      { status: 500 }
+    );
+  }
 }
