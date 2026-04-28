@@ -14,6 +14,8 @@ interface Disciplina {
   id: number;
   nome: string;
   codigo?: string | null;
+  cursoId?: number | null;
+  semestre?: number | null;
   curso?: Curso | null;
   professoresHabilitados?: {
     professorId: number;
@@ -383,6 +385,33 @@ function professoresDaDisciplina(disciplina: Disciplina) {
 
   return habilitados.length > 0 ? habilitados : professores;
 }
+
+function numeroSemestre(valor: string) {
+  const texto = String(valor || "").trim();
+
+  if (!texto) return null;
+
+  const primeiroNumero = texto.match(/\d+/)?.[0];
+  const numero = primeiroNumero ? Number(primeiroNumero) : null;
+
+  return Number.isFinite(numero) ? numero : null;
+}
+
+const disciplinasFiltradas = useMemo(() => {
+  const cursoSelecionado = cursoId ? Number(cursoId) : null;
+  const semestreSelecionado = numeroSemestre(semestre);
+
+  return disciplinas.filter((disciplina) => {
+    const mesmoCurso =
+      !cursoSelecionado || Number(disciplina.cursoId) === cursoSelecionado;
+
+    const mesmoSemestre =
+      !semestreSelecionado ||
+      Number(disciplina.semestre) === semestreSelecionado;
+
+    return mesmoCurso && mesmoSemestre;
+  });
+}, [disciplinas, cursoId, semestre]);
 
   function labelStatusTurma(status?: StatusTurma) {
     switch (status) {
@@ -771,7 +800,7 @@ function professoresDaDisciplina(disciplina: Disciplina) {
  {editDisciplinasAbertas && (
   <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
     <div className="grid grid-cols-1 gap-3">
-      {disciplinas.map((disciplina) => {
+      {disciplinasFiltradas.map((disciplina) => {
         const selecionada = editDisciplinasSelecionadas.includes(disciplina.id);
 
         return (
