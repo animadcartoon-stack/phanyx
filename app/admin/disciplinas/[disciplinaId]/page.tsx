@@ -8,6 +8,11 @@ type Curso = {
   nome: string;
 };
 
+type Professor = {
+  id: number;
+  nome: string;
+};
+
 type TurmaApi = {
   id: number;
   nome?: string | null;
@@ -24,6 +29,8 @@ type DisciplinaDetalhe = {
   cargaHoraria?: number | null;
   semestre?: number | null;
   cursoId?: number | null;
+  professorId?: number | null;
+  professor?: Professor | null;
   curso?: Curso | null;
   turmaDisciplinas?: {
     id: number;
@@ -51,10 +58,12 @@ export default function DisciplinaDetalhePage() {
   const [cargaHoraria, setCargaHoraria] = useState("");
   const [semestre, setSemestre] = useState("");
   const [cursoId, setCursoId] = useState("");
+  const [professorId, setProfessorId] = useState("");
 
   const [turmaIds, setTurmaIds] = useState<string[]>([]);
 
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
   const [turmas, setTurmas] = useState<TurmaApi[]>([]);
 
   function alternarTurma(id: number) {
@@ -100,6 +109,12 @@ export default function DisciplinaDetalhePage() {
             : ""
         );
 
+setProfessorId(
+  disciplina.professorId !== null && disciplina.professorId !== undefined
+    ? String(disciplina.professorId)
+    : ""
+);
+
         const vinculos = Array.isArray(disciplina.turmaDisciplinas)
           ? disciplina.turmaDisciplinas
           : [];
@@ -120,6 +135,16 @@ export default function DisciplinaDetalhePage() {
         } catch {
           setCursos([]);
         }
+
+try {
+  const resProfessores = await fetch("/api/professor", {
+    credentials: "include",
+  });
+  const dataProfessores = await resProfessores.json();
+  setProfessores(Array.isArray(dataProfessores) ? dataProfessores : []);
+} catch {
+  setProfessores([]);
+}
 
         try {
           const resTurmas = await fetch("/api/turma", {
@@ -160,6 +185,7 @@ export default function DisciplinaDetalhePage() {
           semestre: semestre ? Number(semestre) : null,
           cursoId: cursoId ? Number(cursoId) : null,
           turmaIds: turmaIds.map(Number),
+          professorId: professorId ? Number(professorId) : null,
         }),
       });
 
@@ -284,6 +310,25 @@ export default function DisciplinaDetalhePage() {
                 </option>
               ))}
             </select>
+
+<div>
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Professor da disciplina
+  </label>
+  <select
+    value={professorId}
+    onChange={(e) => setProfessorId(e.target.value)}
+    className="w-full border rounded-xl px-3 py-2 bg-white"
+  >
+    <option value="">Sem professor vinculado</option>
+    {professores.map((professor) => (
+      <option key={professor.id} value={professor.id}>
+        {professor.nome}
+      </option>
+    ))}
+  </select>
+</div>
+
           </div>
         </div>
 

@@ -183,6 +183,7 @@ model Professor {
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   turmas            Turma[]
   turmaDisciplinas  TurmaDisciplina[]
+  disciplinasPadrao Disciplina[]
   poloId            Int?
   polo              Polo?       @relation(fields: [poloId], references: [id])
 
@@ -345,6 +346,8 @@ model Disciplina {
   cargaHoraria              Int?
   certificados              Certificado[]
   semestresCurso            CursoSemestreDisciplina[]
+  professorId               Int?
+  professor                 Professor?                      @relation(fields: [professorId], references: [id])
   curso                     Curso?                          @relation(fields: [cursoId], references: [id])
   instituicao               Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   resultadosFinais          ResultadoFinal[]
@@ -358,6 +361,7 @@ model Disciplina {
   @@unique([instituicaoId, codigo])
   @@index([instituicaoId])
   @@index([cursoId])
+  @@index([professorId])
 }
 
 model Turma {

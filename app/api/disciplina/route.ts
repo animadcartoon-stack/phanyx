@@ -73,6 +73,28 @@ export async function POST(request: Request) {
 
     let cursoIdFinal: number | null = null;
 
+let professorIdFinal: number | null = null;
+
+if (body.professorId) {
+  const professorId = Number(body.professorId);
+
+  const professor = await prisma.professor.findFirst({
+    where: {
+      id: professorId,
+      instituicaoId: user.instituicaoId,
+    },
+  });
+
+  if (!professor) {
+    return NextResponse.json(
+      { error: "Professor inválido para esta instituição" },
+      { status: 400 }
+    );
+  }
+
+  professorIdFinal = professor.id;
+}
+
     if (body.cursoId) {
       const cursoId = Number(body.cursoId);
 
@@ -95,13 +117,20 @@ export async function POST(request: Request) {
 
     const novaDisciplina = await prisma.disciplina.create({
       data: {
-        nome: String(body.nome).trim(),
-        cursoId: cursoIdFinal,
-        instituicaoId: user.instituicaoId,
-      },
-      include: {
-        curso: true,
-      },
+  nome: String(body.nome).trim(),
+  cursoId: cursoIdFinal,
+  professorId: professorIdFinal,
+  instituicaoId: user.instituicaoId,
+},
+include: {
+  curso: true,
+  professor: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+},
     });
 
     return NextResponse.json(novaDisciplina, { status: 201 });

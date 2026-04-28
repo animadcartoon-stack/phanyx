@@ -196,8 +196,14 @@ export async function GET(
         instituicaoId: user.instituicaoId,
       },
       include: {
-        curso: true,
-        turmaDisciplinas: {
+  curso: true,
+  professor: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+  turmaDisciplinas: {
   include: {
     turma: {
       include: {
@@ -318,6 +324,34 @@ export async function PUT(
       cursoIdFinal = null;
     }
 
+let professorIdFinal: number | null = disciplinaExistente.professorId ?? null;
+
+if (
+  body.professorId !== undefined &&
+  body.professorId !== null &&
+  body.professorId !== ""
+) {
+  const professor = await prisma.professor.findFirst({
+    where: {
+      id: Number(body.professorId),
+      instituicaoId: user.instituicaoId,
+    },
+  });
+
+  if (!professor) {
+    return NextResponse.json(
+      { error: "Professor inválido para esta instituição" },
+      { status: 400 }
+    );
+  }
+
+  professorIdFinal = professor.id;
+}
+
+if (body.professorId === null || body.professorId === "") {
+  professorIdFinal = null;
+}
+
     const turmaIds = Array.isArray(body.turmaIds)
   ? body.turmaIds.map((id: any) => Number(id)).filter((id: number) => Number.isFinite(id))
   : [];
@@ -349,6 +383,7 @@ export async function PUT(
               ? Number(body.semestre)
               : null,
           cursoId: cursoIdFinal,
+          professorId: professorIdFinal,
         },
       });
 
@@ -362,10 +397,11 @@ export async function PUT(
 if (turmaIds.length > 0) {
   await tx.turmaDisciplina.createMany({
     data: turmaIds.map((turmaId: number) => ({
-      turmaId,
-      disciplinaId: id,
-      instituicaoId: user.instituicaoId,
-    })),
+  turmaId,
+  disciplinaId: id,
+  professorId: professorIdFinal,
+  instituicaoId: user.instituicaoId,
+})),
     skipDuplicates: true,
   });
 }

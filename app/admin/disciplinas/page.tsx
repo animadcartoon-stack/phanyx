@@ -9,10 +9,17 @@ interface Curso {
   nome: string;
 }
 
+interface Professor {
+  id: number;
+  nome: string;
+}
+
 interface Disciplina {
   id: number;
   nome: string;
   curso?: Curso | null;
+  professor?: Professor | null;
+  professorId?: number | null;
 }
 
 type FeedbackTipo = "sucesso" | "erro" | "";
@@ -23,9 +30,11 @@ function AdminDisciplinasPage() {
 
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
   const [mostrarForm, setMostrarForm] = useState(false);
   const [nome, setNome] = useState("");
   const [cursoId, setCursoId] = useState<string>("");
+  const [professorId, setProfessorId] = useState<string>("");
   const [busca, setBusca] = useState("");
 
   const [feedback, setFeedback] = useState("");
@@ -67,6 +76,15 @@ function AdminDisciplinasPage() {
     } catch {
       setCursos([]);
     }
+    try {
+  const resProfessores = await fetch("/api/professor", {
+    credentials: "include",
+  });
+  const dataProfessores = await resProfessores.json();
+  setProfessores(Array.isArray(dataProfessores) ? dataProfessores : []);
+} catch {
+  setProfessores([]);
+}
   }
 
   async function handleCriarDisciplina(e: React.FormEvent) {
@@ -80,9 +98,10 @@ function AdminDisciplinasPage() {
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({
-          nome,
-          cursoId: cursoId ? Number(cursoId) : null,
-        }),
+  nome,
+  cursoId: cursoId ? Number(cursoId) : null,
+  professorId: professorId ? Number(professorId) : null,
+}),
       });
 
       const data = await res.json();
@@ -93,6 +112,7 @@ function AdminDisciplinasPage() {
 
       setNome("");
       setCursoId("");
+      setProfessorId("");
       setMostrarForm(false);
       await carregarDados();
       mostrarFeedback("sucesso", "Disciplina criada com sucesso.");
@@ -223,6 +243,19 @@ function AdminDisciplinasPage() {
               ))}
             </select>
 
+<select
+  value={professorId}
+  onChange={(e) => setProfessorId(e.target.value)}
+  className="w-full rounded border p-2"
+>
+  <option value="">Sem professor vinculado</option>
+  {professores.map((professor) => (
+    <option key={professor.id} value={professor.id}>
+      {professor.nome}
+    </option>
+  ))}
+</select>
+
             <button
               disabled={criando}
               className="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
@@ -239,7 +272,8 @@ function AdminDisciplinasPage() {
                 <th className="p-3">ID</th>
                 <th className="p-3">Nome</th>
                 <th className="p-3">Curso</th>
-                <th className="p-3">Ações</th>
+<th className="p-3">Professor</th>
+<th className="p-3">Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -248,7 +282,8 @@ function AdminDisciplinasPage() {
                   <td className="p-3">{d.id}</td>
                   <td className="p-3">{d.nome}</td>
                   <td className="p-3">{d.curso?.nome ?? "—"}</td>
-                  <td className="space-x-2 p-3">
+<td className="p-3">{d.professor?.nome ?? "—"}</td>
+<td className="space-x-2 p-3">
                     <button
                       onClick={() => router.push(`/admin/disciplinas/${d.id}`)}
                       className="text-blue-600 hover:underline"
