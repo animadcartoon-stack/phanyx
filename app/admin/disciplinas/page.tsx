@@ -37,7 +37,7 @@ function AdminDisciplinasPage() {
   const [cursoId, setCursoId] = useState<string>("");
   const [professorId, setProfessorId] = useState<string>("");
   const [busca, setBusca] = useState("");
-
+  const [cursosAbertos, setCursosAbertos] = useState<Record<string, boolean>>({});
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
   const [criando, setCriando] = useState(false);
@@ -292,17 +292,29 @@ function AdminDisciplinasPage() {
           {Object.entries(disciplinasPorCursoESemestre).map(
             ([cursoNome, semestres]) => (
               <div key={cursoNome} className="rounded-lg border bg-white p-4 shadow">
-                <h2 className="text-lg font-bold text-slate-900">
-                  🎓 {cursoNome}
-                </h2>
+                <button
+  type="button"
+  onClick={() =>
+    setCursosAbertos((prev) => ({
+      ...prev,
+      [cursoNome]: !prev[cursoNome],
+    }))
+  }
+  className="flex w-full items-center justify-between text-left text-base font-bold text-slate-900"
+>
+  <span>🎓 {cursoNome}</span>
+  <span className="text-sm text-slate-500">
+    {cursosAbertos[cursoNome] ? "▲ Fechar" : "▼ Abrir"}
+  </span>
+</button>
 
-                <div className="mt-4 space-y-3">
+{cursosAbertos[cursoNome] && (
+  <div className="mt-3 space-y-2">
                   {Object.entries(semestres).map(([semestreNome, lista]) => (
                     <details
-                      key={semestreNome}
-                      open
-                      className="rounded-lg border bg-slate-50 p-3"
-                    >
+  key={semestreNome}
+  className="rounded-lg border bg-slate-50 p-3"
+>
                       <summary className="cursor-pointer font-semibold text-slate-800">
                         {semestreNome} — {lista.length} disciplina(s)
                       </summary>
@@ -348,7 +360,8 @@ function AdminDisciplinasPage() {
                       </div>
                     </details>
                   ))}
-                </div>
+                  </div>
+)}
               </div>
             )
           )}
