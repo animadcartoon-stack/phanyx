@@ -22,14 +22,20 @@ export async function GET() {
       include: {
         polo: true, // 🔥 NOVO
         disciplinas: {
-          include: {
-            disciplina: {
-              include: {
-                curso: true,
-              },
-            },
-          },
-        },
+  include: {
+    professor: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+    disciplina: {
+      include: {
+        curso: true,
+      },
+    },
+  },
+},
         _count: {
           select: {
             itensMatricula: true,
@@ -43,7 +49,11 @@ export async function GET() {
 
     const turmasFormatadas = turmas.map((turma) => ({
       ...turma,
-      disciplinas: turma.disciplinas.map((item) => item.disciplina),
+      disciplinas: turma.disciplinas.map((item) => ({
+  ...item.disciplina,
+  professorId: item.professorId,
+  professor: item.professor,
+})),
       curso:
   turma.curso ??
   (turma.disciplinas.length > 0
@@ -141,6 +151,7 @@ professorId,
 disciplinas: {
   create: disciplinaIds.map((id: number) => ({
     disciplinaId: id,
+    professorId,
     instituicaoId: user.instituicaoId,
   })),
 },
