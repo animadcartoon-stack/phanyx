@@ -156,6 +156,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+const semestreNumero = Number(String(semestre).match(/\d+/)?.[0] || 0);
+
+const disciplinasValidas = await prisma.disciplina.findMany({
+  where: {
+    id: { in: disciplinaIds },
+    instituicaoId: user.instituicaoId,
+    cursoId,
+    semestre: semestreNumero || undefined,
+  },
+  select: {
+    id: true,
+  },
+});
+
+if (disciplinasValidas.length !== disciplinaIds.length) {
+  return NextResponse.json(
+    {
+      error:
+        "Uma ou mais disciplinas não pertencem ao curso e semestre selecionados.",
+    },
+    { status: 400 }
+  );
+}
+
     const novaTurma = await prisma.$transaction(async (tx) => {
       const turmaCriada = await tx.turma.create({
         data: {
