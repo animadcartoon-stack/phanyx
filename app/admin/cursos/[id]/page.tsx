@@ -33,6 +33,8 @@ type CursoSemestre = {
   numero: number;
   titulo?: string | null;
   descricao?: string | null;
+  cargaMinima?: number | string | null;
+  cargaMaxima?: number | string | null;
   disciplinas: CursoSemestreDisciplina[];
 };
 
@@ -355,6 +357,54 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
       setSalvandoSemestreId(null);
     }
   }
+
+async function salvarCargaSemestre(semestre: CursoSemestre) {
+  try {
+    setSalvandoSemestreId(semestre.id);
+    setFeedback("");
+    setFeedbackTipo("");
+
+    const res = await fetch("/api/admin/curso-semestres", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        id: semestre.id,
+        cargaMinima:
+          semestre.cargaMinima !== "" &&
+          semestre.cargaMinima !== null &&
+          semestre.cargaMinima !== undefined
+            ? Number(semestre.cargaMinima)
+            : null,
+        cargaMaxima:
+          semestre.cargaMaxima !== "" &&
+          semestre.cargaMaxima !== null &&
+          semestre.cargaMaxima !== undefined
+            ? Number(semestre.cargaMaxima)
+            : null,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao salvar carga horária");
+    }
+
+    await carregarSemestres();
+
+    alert("Carga horária salva com sucesso!");
+    mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
+  } catch (error: any) {
+    console.error("Erro ao salvar carga horária:", error);
+    alert(error?.message || "Erro ao salvar carga horária");
+    mostrarFeedback("erro", error?.message || "Erro ao salvar carga horária");
+  } finally {
+    setSalvandoSemestreId(null);
+  }
+}
 
   const semestresOrdenados = useMemo(() => {
     return [...semestres].sort((a, b) => a.numero - b.numero);
@@ -809,42 +859,15 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
                       {salvandoSemestreId === semestre.id
                         ? "Salvando..."
                         : `Atualizar disciplinas do semestre ${semestre.numero}`}
-                    </button>
-
-<button
+                   <button
   type="button"
-  onClick={async () => {
-    try {
-      const res = await fetch("/api/admin/curso-semestres", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          id: semestre.id,
-          cargaMinima: Number((semestre as any).cargaMinima || 0),
-          cargaMaxima: Number((semestre as any).cargaMaxima || 0),
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao salvar carga");
-      }
-
-      await carregarSemestres();
-alert("Carga horária salva com sucesso!");
-mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
-    } catch (err: any) {
-      mostrarFeedback("erro", err.message);
-    }
-  }}
-  className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg"
+  onClick={() => salvarCargaSemestre(semestre)}
+  disabled={salvandoSemestreId === semestre.id}
+  className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
 >
-  Salvar carga
+  {salvandoSemestreId === semestre.id ? "Salvando..." : "Salvar carga"}
 </button>
+
 
                   </div>
                 </>
