@@ -500,7 +500,7 @@ const cursoSelecionadoObj = useMemo(() => {
 const limiteCargaHoraria = Number(
   cursoSelecionadoObj?.cargaHorariaMaximaSemestre || 0
 );
-
+const cargaMinimaSemestre = 1; // pode depois vir do backend
 const cargaHorariaTotalSelecionada = useMemo(() => {
   const ids = [...disciplinasSelecionadas, ...disciplinasExtrasSelecionadas];
 
@@ -529,25 +529,30 @@ const cargaHorariaTotalSelecionada = useMemo(() => {
   disciplinasExtras,
 ]);
 
+const cargaHorariaAbaixoMinimo =
+  cargaHorariaTotalSelecionada < cargaMinimaSemestre;
+
 const cargaHorariaExcedida =
   limiteCargaHoraria > 0 &&
   cargaHorariaTotalSelecionada > limiteCargaHoraria;
   const podeCriar = useMemo(() => {
+
     const a = Number(alunoId);
     const c = Number(cursoId);
 
 
 
-    return (
-      Number.isFinite(a) &&
-      a > 0 &&
-      Number.isFinite(c) &&
-      c > 0 &&
-      cursoSemestreIds.length > 0 &&
-disciplinasSelecionadas.length > 0 &&
-turmasSelecionadas.length > 0 &&
-!cargaHorariaExcedida
-    );
+   return (
+  Number.isFinite(a) &&
+  a > 0 &&
+  Number.isFinite(c) &&
+  c > 0 &&
+  cursoSemestreIds.length > 0 &&
+  disciplinasSelecionadas.length > 0 &&
+  turmasSelecionadas.length > 0 &&
+  !cargaHorariaExcedida &&
+  !cargaHorariaAbaixoMinimo
+);
   }, [alunoId, cursoId, cursoSemestreIds, disciplinasSelecionadas, turmasSelecionadas, cargaHorariaExcedida]);
 
   function toggleTurma(turmaId: number) {
@@ -575,7 +580,15 @@ function toggleTurmaEdicao(turmaId: number) {
 
   async function criarMatricula() {
     if (!podeCriar || !semestreSelecionado) return;
+if (cargaHorariaExcedida) {
+  alert("A carga horária ultrapassa o limite permitido.");
+  return;
+}
 
+if (cargaHorariaAbaixoMinimo) {
+  alert("A carga horária está abaixo do mínimo permitido.");
+  return;
+}
     setCreating(true);
 const turmaIdsParaEnviar = [
   ...turmasBaseDoSemestre
@@ -1258,7 +1271,13 @@ function renderGrupoDisciplina(
 )}
       
         <div className="mt-4">
-          {cargaHorariaExcedida && (
+         {cargaHorariaAbaixoMinimo && (
+  <div className="mb-4 rounded-xl bg-yellow-100 border border-yellow-300 p-4 text-yellow-700 font-medium">
+    ⚠️ A carga horária está abaixo do mínimo exigido.
+  </div>
+)}
+
+{cargaHorariaExcedida && (
   <div className="mb-4 rounded-xl bg-red-100 border border-red-300 p-4 text-red-700 font-medium">
     ⚠️ Carga horária excedida para este semestre.
     <br />
