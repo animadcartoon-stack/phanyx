@@ -67,10 +67,11 @@ export default function DisciplinaDetalhePage() {
   const [professorId, setProfessorId] = useState("");
   const [professoresHabilitadosIds, setProfessoresHabilitadosIds] = useState<string[]>([]);
   const [turmaIds, setTurmaIds] = useState<string[]>([]);
-
+  const [preRequisitoIds, setPreRequisitoIds] = useState<string[]>([]);
   const [cursos, setCursos] = useState<Curso[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [turmas, setTurmas] = useState<TurmaApi[]>([]);
+  const [disciplinas, setDisciplinas] = useState<DisciplinaDetalhe[]>([]);
 
   function alternarTurma(id: number) {
     setTurmaIds((atual) =>
@@ -82,6 +83,14 @@ export default function DisciplinaDetalhePage() {
 
 function alternarProfessor(id: number) {
   setProfessoresHabilitadosIds((atual) =>
+    atual.includes(String(id))
+      ? atual.filter((item) => item !== String(id))
+      : [...atual, String(id)]
+  );
+}
+
+function alternarPreRequisito(id: number) {
+  setPreRequisitoIds((atual) =>
     atual.includes(String(id))
       ? atual.filter((item) => item !== String(id))
       : [...atual, String(id)]
@@ -166,7 +175,15 @@ try {
 } catch {
   setProfessores([]);
 }
-
+try {
+  const resDisciplinas = await fetch("/api/disciplina", {
+    credentials: "include",
+  });
+  const dataDisciplinas = await resDisciplinas.json();
+  setDisciplinas(Array.isArray(dataDisciplinas) ? dataDisciplinas : []);
+} catch {
+  setDisciplinas([]);
+}
         try {
           const resTurmas = await fetch("/api/turma", {
             credentials: "include",
@@ -208,6 +225,7 @@ try {
           turmaIds: turmaIds.map(Number),
           professorId: professorId ? Number(professorId) : null,
           professoresHabilitadosIds: professoresHabilitadosIds.map(Number),
+          preRequisitoIds: preRequisitoIds.map(Number),
         }),
       });
 
@@ -367,7 +385,43 @@ try {
 </div>
 
           </div>
+
         </div>
+
+<div className="pt-2">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Pré-requisitos desta disciplina
+  </label>
+
+  <div className="rounded-xl border bg-white p-3 max-h-56 overflow-y-auto space-y-2">
+    {disciplinas.length === 0 ? (
+      <p className="text-sm text-slate-500">Nenhuma disciplina encontrada.</p>
+    ) : (
+      disciplinas
+        .filter((disciplina) => disciplina.id !== disciplinaId)
+        .map((disciplina) => (
+          <label
+            key={disciplina.id}
+            className="flex items-center gap-3 rounded-lg border p-2 cursor-pointer hover:bg-slate-50"
+          >
+            <input
+              type="checkbox"
+              checked={preRequisitoIds.includes(String(disciplina.id))}
+              onChange={() => alternarPreRequisito(disciplina.id)}
+            />
+
+            <span className="text-sm font-medium text-slate-800">
+              {disciplina.nome}
+            </span>
+          </label>
+        ))
+    )}
+  </div>
+
+  <p className="mt-1 text-xs text-slate-500">
+    Marque as disciplinas que o aluno precisa concluir antes de cursar esta.
+  </p>
+</div>
 
         <div className="pt-2">
           <label className="block text-sm font-medium text-gray-700 mb-2">
