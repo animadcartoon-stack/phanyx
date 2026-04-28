@@ -859,7 +859,9 @@ async function salvarCargaSemestre(semestre: CursoSemestre) {
                       {salvandoSemestreId === semestre.id
                         ? "Salvando..."
                         : `Atualizar disciplinas do semestre ${semestre.numero}`}
-                   <button
+                    </button>
+
+<button
   type="button"
   onClick={() => salvarCargaSemestre(semestre)}
   disabled={salvandoSemestreId === semestre.id}
