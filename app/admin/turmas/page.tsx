@@ -15,6 +15,10 @@ interface Disciplina {
   nome: string;
   codigo?: string | null;
   curso?: Curso | null;
+  professoresHabilitados?: {
+    professorId: number;
+    professor?: Professor | null;
+  }[];
 }
 
 interface Professor {
@@ -370,6 +374,16 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
     });
   }, [turmas, busca]);
 
+function professoresDaDisciplina(disciplina: Disciplina) {
+  const habilitados = Array.isArray(disciplina.professoresHabilitados)
+    ? disciplina.professoresHabilitados
+        .map((item) => item.professor)
+        .filter((professor): professor is Professor => !!professor)
+    : [];
+
+  return habilitados.length > 0 ? habilitados : professores;
+}
+
   function labelStatusTurma(status?: StatusTurma) {
     switch (status) {
       case "AGUARDANDO":
@@ -583,7 +597,7 @@ const curso = String(turma.curso?.nome || "").toLowerCase();
                 className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
               >
                 <option value="">Professor desta disciplina</option>
-                {professores.map((professor) => (
+                {professoresDaDisciplina(disciplina).map((professor) => (
                   <option key={professor.id} value={professor.id}>
                     {professor.nome}
                   </option>
