@@ -124,8 +124,14 @@ export async function PUT(
         periodoLetivo: body.periodoLetivo || null,
         ativa: Boolean(body.ativa),
         statusTurma: body.statusTurma || "AGUARDANDO",
-        poloId,
-        capacidadeMinima:
+poloId,
+professorId:
+  body?.professorId !== undefined &&
+  body?.professorId !== null &&
+  String(body.professorId).trim() !== ""
+    ? Number(body.professorId)
+    : null,
+capacidadeMinima:
           body.capacidadeMinima !== undefined &&
           body.capacidadeMinima !== null &&
           String(body.capacidadeMinima).trim() !== ""
