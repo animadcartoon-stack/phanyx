@@ -287,8 +287,8 @@ export default function IbeMatriculaPage() {
   <div className="absolute right-[-140px] top-8 h-[520px] w-[520px] rounded-full bg-emerald-400/20 blur-[130px]" />
   <div className="absolute bottom-[-240px] left-[34%] h-[620px] w-[620px] rounded-full bg-cyan-400/14 blur-[140px]" />
 
-  <div className="absolute left-[7%] top-[35%] h-36 w-36 rotate-12 rounded-[42px] border border-white/10 bg-white/[0.035] backdrop-blur" />
-  <div className="absolute right-[7%] top-[25%] h-48 w-48 -rotate-12 rounded-[54px] border border-white/10 bg-white/[0.04] backdrop-blur" />
+  <div className="absolute left-[7%] top-[35%] h-36 w-36 rotate-12 rounded-[42px] border border-white/10 bg-white/[0.035] backdrop-blur animate-[float_7s_ease-in-out_infinite]" />
+<div className="absolute right-[7%] top-[25%] h-48 w-48 -rotate-12 rounded-[54px] border border-white/10 bg-white/[0.04] backdrop-blur animate-[float_9s_ease-in-out_infinite]" />
   <div className="absolute inset-0 opacity-[0.12] bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
   <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.05),transparent_20%,rgba(0,0,0,0.24)_100%)]" />
 
@@ -361,7 +361,7 @@ export default function IbeMatriculaPage() {
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <a
             href="#matricula"
-            className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition hover:-translate-y-0.5 hover:bg-green-400"
+            className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-green-400 animate-[pulse_2.8s_ease-in-out_infinite]"
           >
             Começar minha matrícula agora
           </a>
@@ -398,7 +398,7 @@ export default function IbeMatriculaPage() {
       <div className="relative lg:translate-x-8 lg:-translate-y-8 xl:translate-x-10 xl:-translate-y-10">
         <div className="absolute -inset-6 rounded-[42px] bg-cyan-300/10 blur-3xl" />
 
-        <div className="relative rounded-[34px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_34px_100px_rgba(0,0,0,0.62)] backdrop-blur transition duration-500 hover:-translate-y-2 hover:shadow-[0_42px_120px_rgba(0,0,0,0.75)]">
+        <div className="relative rounded-[34px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_34px_100px_rgba(0,0,0,0.62)] backdrop-blur transition duration-500 hover:-translate-y-2 hover:scale-[1.01] hover:shadow-[0_42px_120px_rgba(0,0,0,0.75)]">
           <div className="overflow-hidden rounded-[26px] bg-black ring-1 ring-white/10">
             <div className="aspect-video w-full">
               <iframe
@@ -927,6 +927,16 @@ export default function IbeMatriculaPage() {
           </div>
         </div>
       </section>
+      <style jsx global>{`
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(12deg);
+    }
+    50% {
+      transform: translateY(-12px) rotate(12deg);
+    }
+  }
+`}</style>
     </main>
   );
 }
