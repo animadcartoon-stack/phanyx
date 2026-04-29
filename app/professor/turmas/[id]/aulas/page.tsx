@@ -207,8 +207,15 @@ const turmaEncontrada = listaTurmas.find(
 );
 
       if (!turmaEncontrada) {
-        throw new Error("Turma não encontrada");
-      }
+  console.warn("Turma não encontrada na lista, usando fallback");
+
+  setTurma({
+    id: turmaId,
+    nome: `Turma ${turmaId}`,
+  } as TurmaApi);
+} else {
+  setTurma(turmaEncontrada);
+}
 
       setTurma(turmaEncontrada);
 
