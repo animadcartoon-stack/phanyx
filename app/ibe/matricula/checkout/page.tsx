@@ -7,6 +7,7 @@ export default function IbeCheckoutPage() {
   const [email, setEmail] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [disciplinas, setDisciplinas] = useState<number[]>([]);
+  const [cpf, setCpf] = useState("");
 
   const listaDisciplinas = [
     { id: 1, nome: "Antigo Testamento", valor: 120 },
@@ -37,6 +38,7 @@ body: JSON.stringify({
   nome,
   email,
   whatsapp,
+  cpf,
   disciplinas,
   valorTotal: total,
 }),
@@ -80,7 +82,12 @@ console.log("Resposta da API matrícula IBE:", data);
           className="w-full rounded border p-3"
           onChange={(e) => setWhatsapp(e.target.value)}
         />
-
+<input
+  placeholder="CPF"
+  className="w-full rounded border p-3"
+  value={cpf}
+  onChange={(e) => setCpf(e.target.value)}
+/>
         <div>
           <h2 className="font-semibold mb-2">Escolha as disciplinas</h2>
 

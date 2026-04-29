@@ -22,14 +22,15 @@ export async function POST(req: Request) {
     const nome = String(body.nome || "").trim();
     const email = String(body.email || "").trim();
     const whatsapp = String(body.whatsapp || "").trim();
+    const cpf = String(body.cpf || "").replace(/\D/g, "");
     const valorTotal = Number(body.valorTotal || 0);
 
-    if (!nome || !email || !whatsapp) {
-      return NextResponse.json(
-        { error: "Nome, email e WhatsApp são obrigatórios." },
-        { status: 400 }
-      );
-    }
+    if (!nome || !email || !whatsapp || !cpf) {
+  return NextResponse.json(
+    { error: "Nome, email, WhatsApp e CPF são obrigatórios." },
+    { status: 400 }
+  );
+}
 
     if (!valorTotal || valorTotal <= 0) {
       return NextResponse.json(
@@ -45,10 +46,11 @@ export async function POST(req: Request) {
         access_token: ASAAS_API_KEY,
       },
       body: JSON.stringify({
-        name: nome,
-        email,
-        mobilePhone: whatsapp.replace(/\D/g, ""),
-      }),
+  name: nome,
+  email,
+  mobilePhone: whatsapp.replace(/\D/g, ""),
+  cpfCnpj: cpf,
+}),
     });
 
     const cliente = await clienteRes.json();
