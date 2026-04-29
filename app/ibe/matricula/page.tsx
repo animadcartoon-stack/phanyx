@@ -335,7 +335,7 @@ export default function IbeMatriculaPage() {
     </div>
 
     {/* CONTEÚDO PRINCIPAL */}
-    <div className="mt-8 grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] xl:gap-16">
+    <div className="mt-8 grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] xl:gap-16">
       {/* TEXTO */}
       <div>
         <div className="inline-flex items-center rounded-full border border-yellow-300/30 bg-yellow-300/10 px-4 py-2 text-sm font-semibold text-yellow-200">
@@ -395,10 +395,10 @@ export default function IbeMatriculaPage() {
       </div>
 
       {/* VÍDEO */}
-      <div className="relative">
+      <div className="relative lg:translate-x-8 lg:-translate-y-8 xl:translate-x-10 xl:-translate-y-10">
         <div className="absolute -inset-6 rounded-[42px] bg-cyan-300/10 blur-3xl" />
 
-        <div className="relative rounded-[34px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_34px_100px_rgba(0,0,0,0.62)] backdrop-blur transition duration-500 hover:-translate-y-1 hover:shadow-[0_42px_120px_rgba(0,0,0,0.75)]">
+        <div className="relative rounded-[34px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_34px_100px_rgba(0,0,0,0.62)] backdrop-blur transition duration-500 hover:-translate-y-2 hover:shadow-[0_42px_120px_rgba(0,0,0,0.75)]">
           <div className="overflow-hidden rounded-[26px] bg-black ring-1 ring-white/10">
             <div className="aspect-video w-full">
               <iframe
