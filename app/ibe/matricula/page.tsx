@@ -278,315 +278,166 @@ export default function IbeMatriculaPage() {
         <span>Quero falar no WhatsApp</span>
       </a>
 
-            {/* HERO */}
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.16),_transparent_30%),linear-gradient(135deg,#020617_0%,#0b1f63_45%,#12338a_100%)] text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(96,165,250,0.10),_transparent_24%)]" />
+            {/* HERO PREMIUM */}
+<section className="relative overflow-hidden bg-[#080b1f] text-white">
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.35),transparent_32%),radial-gradient(circle_at_85%_35%,rgba(34,197,94,0.18),transparent_28%)]" />
 
-        <div className="relative mx-auto max-w-7xl px-6 pb-14 pt-8 md:px-10 lg:px-12 lg:pb-20 lg:pt-10">
-          {/* TOPO */}
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center gap-4 md:gap-5">
-              <Image
-                src="/ibe/logo-branca.png"
-                alt="IBE Instituto Batista de Educação"
-                width={230}
-                height={90}
-                className="h-auto w-[150px] object-contain md:w-[210px]"
-                priority
-              />
+  <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 lg:px-12 lg:py-10">
+    {/* TOPO */}
+    <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex items-center gap-4">
+        <Image
+          src="/ibe/logo-branca.png"
+          alt="IBE Instituto Batista de Educação"
+          width={230}
+          height={90}
+          className="h-auto w-[150px] object-contain md:w-[210px]"
+          priority
+        />
 
-              <div className="hidden md:block">
-                <p className="text-sm text-white/75">
-                  Instituto Batista de Educação Ltda
-                </p>
-                <p className="text-xs uppercase tracking-[0.24em] text-blue-300">
-                  Formação Teológica de Excelência
-                </p>
-              </div>
+        <div className="hidden md:block">
+          <p className="text-sm text-white/75">
+            Instituto Batista de Educação Ltda
+          </p>
+          <p className="text-xs uppercase tracking-[0.24em] text-blue-300">
+            Formação Teológica de Excelência
+          </p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <a
+          href="#matricula"
+          className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-5 py-3 text-sm font-bold text-white shadow-[0_12px_35px_rgba(34,197,94,0.35)] transition hover:-translate-y-0.5 hover:bg-green-400"
+        >
+          Quero me matricular
+        </a>
+
+        <a
+          href={linkWhatsappPadrao}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15"
+        >
+          Falar no WhatsApp
+        </a>
+      </div>
+    </div>
+
+    {/* CONTEÚDO PRINCIPAL */}
+    <div className="mt-14 grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] xl:gap-16">
+      {/* TEXTO */}
+      <div>
+        <div className="inline-flex items-center rounded-full border border-yellow-300/30 bg-yellow-300/10 px-4 py-2 text-sm font-semibold text-yellow-200">
+          🎓 Matrículas abertas para 2026
+        </div>
+
+        <h1 className="mt-6 text-4xl font-black leading-[1.02] tracking-[-0.04em] md:text-5xl xl:text-6xl">
+          Bacharel Livre em Teologia
+          <span className="block bg-gradient-to-r from-blue-200 via-white to-blue-300 bg-clip-text text-transparent">
+            100% EAD e com formação completa
+          </span>
+        </h1>
+
+        <p className="mt-6 max-w-xl text-base leading-8 text-slate-200 md:text-lg">
+          Estude teologia com profundidade, flexibilidade e orientação direta.
+          Uma formação bíblica sólida para quem deseja crescer no ministério,
+          na liderança cristã e na vida espiritual.
+        </p>
+
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <a
+            href="#matricula"
+            className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition hover:-translate-y-0.5 hover:bg-green-400"
+          >
+            Quero garantir minha vaga agora
+          </a>
+
+          <a
+            href={linkWhatsappPadrao}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-7 py-4 text-base font-semibold text-white transition hover:bg-white/15"
+          >
+            Tirar dúvidas no WhatsApp
+          </a>
+        </div>
+
+        <div className="mt-8 grid grid-cols-3 gap-3">
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+            <p className="text-2xl font-black">+1.200</p>
+            <p className="mt-1 text-xs text-slate-300">alunos formados</p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+            <p className="text-2xl font-black">+10 anos</p>
+            <p className="mt-1 text-xs text-slate-300">de experiência</p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
+            <p className="text-2xl font-black">100%</p>
+            <p className="mt-1 text-xs text-slate-300">online</p>
+          </div>
+        </div>
+
+        <p className="mt-6 text-sm text-slate-300">
+          ✔ Aulas gravadas • ✔ Estude no seu ritmo • ✔ Atendimento direto da equipe
+        </p>
+      </div>
+
+      {/* VÍDEO EM EVIDÊNCIA */}
+      <div className="relative">
+        <div className="absolute -inset-6 rounded-[42px] bg-blue-500/20 blur-3xl" />
+
+        <div className="relative rounded-[34px] border border-white/15 bg-white/10 p-4 shadow-[0_35px_100px_rgba(0,0,0,0.65)] backdrop-blur">
+          <div className="mb-4 flex items-center justify-between gap-3 px-2">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-200">
+                Assista antes de se matricular
+              </p>
+              <p className="mt-1 text-sm text-slate-300">
+                Conheça a proposta do curso em vídeo.
+              </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              <a
-                href={linkWhatsappPadrao}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_35px_rgba(34,197,94,0.30)] transition hover:-translate-y-0.5 hover:bg-green-400"
-              >
-                Falar no WhatsApp
-              </a>
+            <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-bold text-white">
+              Vídeo oficial
+            </span>
+          </div>
 
-              <a
-                href="#contato"
-                className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-5 py-3 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/15"
-              >
-                Deixar meu contato
-              </a>
+          <div className="overflow-hidden rounded-[26px] bg-black shadow-2xl ring-1 ring-white/10">
+            <div className="aspect-video w-full">
+              <iframe
+                className="h-full w-full"
+                src="https://www.youtube.com/embed/KEBx6SLeNBc"
+                title="Apresentação do curso de Teologia IBE"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             </div>
           </div>
 
-<section className="mx-auto max-w-5xl px-6 py-16">
-  <h2 className="text-3xl font-bold">
-    Curso de Teologia EAD com formação completa
-  </h2>
-
-  <p className="mt-4 text-lg text-slate-600">
-    O curso de Bacharel Livre em Teologia do IBE oferece uma formação completa
-    para quem deseja aprofundar seus conhecimentos bíblicos e atuar no ministério.
-    Com aulas 100% online, o aluno tem liberdade para estudar no seu ritmo.
-  </p>
-
-  <h3 className="mt-8 text-2xl font-semibold">
-    Por que escolher nosso curso?
-  </h3>
-
-  <ul className="mt-4 list-disc pl-6 text-lg text-slate-600">
-    <li>Curso 100% EAD</li>
-    <li>Flexibilidade de horários</li>
-    <li>Conteúdo teológico aprofundado</li>
-    <li>Suporte ao aluno</li>
-  </ul>
-</section>
-
-          {/* GRID HERO */}
-          <div className="mt-10 grid items-start gap-10 lg:grid-cols-[0.95fr_1.05fr] xl:gap-14">
-            {/* ESQUERDA */}
-            <div className="max-w-2xl pt-2">
-              <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium text-blue-100 backdrop-blur">
-                Matrícula IBE • Curso Bacharel Livre em Teologia
-              </div>
-
-<div className="mt-6 inline-block rounded-xl bg-yellow-400/10 border border-yellow-400/30 px-4 py-2 text-yellow-300 text-sm">
-  ⚠️ Últimas vagas para a turma 2026. Matrículas podem encerrar a qualquer momento.
-</div>
-
-              <div className="mt-4 inline-flex items-center rounded-full border border-amber-300/30 bg-gradient-to-r from-amber-200/20 to-yellow-300/10 px-4 py-2 text-sm font-semibold text-amber-100 backdrop-blur">
-                ✨ Matrículas abertas para 2026
-              </div>
-
-              <h1 className="mt-6 text-4xl font-semibold leading-[1.03] tracking-[-0.04em] md:text-5xl xl:text-6xl">
-                <span className="block text-white">Bacharel Livre</span>
-                <span className="mt-2 block bg-gradient-to-r from-blue-300 via-blue-200 to-blue-400 bg-clip-text text-transparent">
-                  em Teologia
-                </span>
-              </h1>
-
-              <p className="mt-6 max-w-xl text-base leading-8 text-slate-200 md:text-lg">
-                Formação teológica completa com base bíblica sólida, preparação
-                ministerial prática e desenvolvimento espiritual para líderes
-                cristãos comprometidos com Deus, com a Palavra e com a sociedade.
-              </p>
-
-<div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-  <div className="bg-slate-800/50 p-4 rounded-xl">
-    <p className="text-2xl font-bold text-white">+1.200</p>
-    <p className="text-slate-300 text-sm">Alunos formados</p>
-  </div>
-
-  <div className="bg-slate-800/50 p-4 rounded-xl">
-    <p className="text-2xl font-bold text-white">+10 anos</p>
-    <p className="text-slate-300 text-sm">De experiência</p>
-  </div>
-
-  <div className="bg-slate-800/50 p-4 rounded-xl">
-    <p className="text-2xl font-bold text-white">100% online</p>
-    <p className="text-slate-300 text-sm">Flexível e acessível</p>
-  </div>
-</div>
-
-              <div className="mt-7 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-                  <p className="text-sm font-semibold text-white">100% EAD</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-200">
-                    Aulas gravadas para estudar no seu ritmo.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-                  <p className="text-sm font-semibold text-white">Flexibilidade real</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-200">
-                    Concilie estudo, rotina, trabalho e ministério.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-                  <p className="text-sm font-semibold text-white">Atendimento direto</p>
-                  <p className="mt-2 text-sm leading-6 text-slate-200">
-                    Orientação rápida para matrícula e próximos passos.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-8 rounded-[26px] border border-blue-300/20 bg-blue-400/10 p-5 backdrop-blur">
-                <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">
-                  Experiência EAD Premium
-                </p>
-
-                <p className="mt-3 text-base leading-7 text-white md:text-lg">
-                  <strong>Faculdade 100% EAD</strong>, com aulas gravadas,
-                  disponíveis para você estudar quando e onde quiser, com total
-                  flexibilidade para organizar sua rotina.
-                </p>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm font-semibold text-white">
-                      ⏱ Estude no seu tempo
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-200">
-                      Organize seus horários e acompanhe no ritmo ideal para você.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm font-semibold text-white">
-                      📍 Onde você quiser
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-200">
-                      Estude de casa ou de qualquer lugar, com praticidade.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <p className="text-sm font-semibold text-white">
-                      🎥 Aulas gravadas
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-slate-200">
-                      Revise o conteúdo sempre que precisar.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <p className="mt-6 text-sm text-slate-300">
-                Estrutura em 6 módulos • Carga horária total de 2.616 horas •
-                Atendimento direto com a equipe de matrícula
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4">
-                <a
-                  href={linkWhatsappPadrao}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_12px_40px_rgba(34,197,94,0.35)] transition hover:-translate-y-0.5 hover:bg-green-400"
-                >
-                  Falar no WhatsApp
-                </a>
-
-<div className="mt-12">
-  <h3 className="text-2xl font-semibold text-white">
-    Ainda está em dúvida?
-  </h3>
-
-  <ul className="mt-4 space-y-2 text-slate-300">
-    <li>✔ Você pode estudar no seu tempo</li>
-    <li>✔ Suporte completo durante o curso</li>
-    <li>✔ Formação sólida e prática</li>
-    <li>✔ Acesso imediato após matrícula</li>
-  </ul>
-</div>
-
-                <a
-  href="https://wa.me/5548988101240"
-  target="_blank"
-  className="mt-10 inline-block w-full md:w-auto text-center bg-green-500 hover:bg-green-600 transition px-8 py-4 rounded-2xl text-white font-bold text-lg shadow-lg"
->
-  Quero garantir minha vaga agora
-</a>
-
-<div className="mt-12 p-6 bg-slate-800/50 rounded-2xl">
-  <h3 className="text-xl font-semibold text-white">
-    Prefere falar depois?
-  </h3>
-
-  <p className="text-slate-300 mt-2">
-    Deixe seu contato e nossa equipe te chama.
-  </p>
-
-  <button className="mt-4 px-6 py-3 bg-blue-600 rounded-xl text-white">
-    Deixar meu contato
-  </button>
-</div>
-
-              </div>
+          <div className="mt-5 grid gap-3 rounded-[26px] bg-white p-5 text-slate-900 md:grid-cols-3">
+            <div>
+              <p className="text-sm font-bold">Curso 100% EAD</p>
+              <p className="mt-1 text-xs text-slate-500">Aulas gravadas</p>
             </div>
 
-            {/* DIREITA */}
-            <div className="relative">
-              <div className="absolute -inset-6 rounded-[42px] bg-blue-500/10 blur-3xl" />
+            <div>
+              <p className="text-sm font-bold">6 módulos</p>
+              <p className="mt-1 text-xs text-slate-500">Formação estruturada</p>
+            </div>
 
-              <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-white/10 p-4 shadow-[0_30px_80px_rgba(0,0,0,0.55)] backdrop-blur">
-                <div className="overflow-hidden rounded-[26px] bg-black shadow-2xl">
-                  <div className="aspect-video w-full">
-                    <iframe
-                      className="h-full w-full"
-                      src="https://www.youtube.com/embed/KEBx6SLeNBc"
-                      title="Apresentação do curso de Teologia IBE"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                </div>
-
-                {/* BLOCO DE CONVERSÃO ABAIXO DO VÍDEO */}
-                <div className="mt-5 rounded-[26px] border border-white/40 bg-white/95 p-5 text-slate-900 shadow-xl md:p-6">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-blue-700">
-                      Matrículas abertas • 2026
-                    </span>
-                    <span className="inline-flex rounded-full bg-green-50 px-3 py-1 text-[11px] font-semibold text-green-700">
-                      Atendimento direto pelo WhatsApp
-                    </span>
-                  </div>
-
-                  <h2 className="mt-4 text-2xl font-bold leading-tight md:text-[30px]">
-                    Comece sua formação teológica com flexibilidade, apoio e propósito
-                  </h2>
-
-                  <p className="mt-4 text-sm leading-7 text-slate-600 md:text-[15px]">
-                    Fale com a equipe do IBE e receba orientação completa para iniciar sua matrícula
-                    no curso de Bacharel Livre em Teologia. O atendimento é simples, direto e preparado
-                    para ajudar você em cada etapa.
-                  </p>
-
-                  <div className="mt-5 grid gap-3">
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                      ✔ Curso 100% EAD com aulas gravadas
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                      ✔ Estude no seu ritmo, de qualquer lugar
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-                      ✔ Atendimento direto com a equipe de matrícula
-                    </div>
-                  </div>
-
-                  <div className="mt-6 grid gap-3 sm:grid-cols-2">
-                    <a
-                      href={linkWhatsappPadrao}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-green-400"
-                    >
-                      Quero iniciar agora
-                    </a>
-
-                    <a
-                      href="#contato"
-                      className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
-                    >
-                      Falar com a equipe
-                    </a>
-                  </div>
-
-                  <p className="mt-4 text-xs leading-5 text-slate-500">
-                    Vagas com atendimento ativo • recomendamos entrar em contato hoje para receber orientação completa
-                  </p>
-                </div>
-              </div>
+            <div>
+              <p className="text-sm font-bold">2.616 h/a</p>
+              <p className="mt-1 text-xs text-slate-500">Carga total</p>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* TRANSIÇÃO PREMIUM */}
 <section className="bg-white py-16">
