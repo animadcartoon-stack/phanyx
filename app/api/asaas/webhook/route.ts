@@ -112,7 +112,105 @@ if (externalReference?.startsWith("IBE_MATRICULA_")) {
 
   console.log("✅ Pagamento confirmado - liberar matrícula IBE");
 
-  // 👉 PRÓXIMO PASSO VAI AQUI
+  const preMatricula = await prisma.matriculaOnlineIbe.findUnique({
+  where: { externalReference },
+});
+
+if (!preMatricula) {
+  return NextResponse.json(
+    { error: "Pré-matrícula não encontrada" },
+    { status: 404 }
+  );
+}
+
+// evitar duplicação
+if (preMatricula.status === "PAGO") {
+  return NextResponse.json({ ok: true, jaProcessado: true });
+}
+
+const instituicaoId = 1; // IBE
+
+const senhaTemp = gerarSenhaTemporaria();
+const senhaHash = await bcrypt.hash(senhaTemp, 10);
+
+// 1. USER
+let user = await prisma.user.findUnique({
+  where: { email: preMatricula.email },
+});
+
+if (!user) {
+  user = await prisma.user.create({
+    data: {
+      nome: preMatricula.nome,
+      email: preMatricula.email,
+      senha: senhaHash,
+      role: "ALUNO",
+      instituicaoId,
+      precisaTrocarSenha: true,
+    },
+  });
+}
+
+// 2. ALUNO
+let aluno = await prisma.aluno.findFirst({
+  where: {
+    userId: user.id,
+    instituicaoId,
+  },
+});
+
+if (!aluno) {
+  aluno = await prisma.aluno.create({
+    data: {
+      nome: preMatricula.nome,
+      telefone: preMatricula.whatsapp,
+      instituicaoId,
+      userId: user.id,
+      statusAluno: "ATIVO",
+      matricula: `IBE-${Date.now().toString().slice(-6)}`,
+    },
+  });
+}
+
+// 3. MATRÍCULA
+const matricula = await prisma.matricula.create({
+  data: {
+    alunoId: aluno.id,
+    instituicaoId,
+    status: "ATIVA",
+    realizadaPeloAluno: true,
+    confirmadaEm: new Date(),
+    valorMatricula: preMatricula.valorTotal,
+  },
+});
+
+// 4. MARCAR COMO PAGO
+await prisma.matriculaOnlineIbe.update({
+  where: { id: preMatricula.id },
+  data: {
+    status: "PAGO",
+    asaasPaymentId:
+      asaasPaymentId || preMatricula.asaasPaymentId,
+  },
+});
+
+// 5. EMAIL
+try {
+  await enviarEmailAcesso({
+    email: user.email,
+    nome: user.nome,
+    senha: senhaTemp,
+    instituicao: "Instituto Batista de Educação",
+  });
+} catch (e) {
+  console.error("Erro ao enviar email:", e);
+}
+
+return NextResponse.json({
+  ok: true,
+  alunoId: aluno.id,
+  matriculaId: matricula.id,
+});
 
 }
 
