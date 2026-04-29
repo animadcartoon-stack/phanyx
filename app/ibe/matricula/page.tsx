@@ -279,8 +279,8 @@ export default function IbeMatriculaPage() {
       </a>
 
             {/* HERO PREMIUM */}
-<section className="relative overflow-hidden bg-[#080b1f] text-white">
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.35),transparent_32%),radial-gradient(circle_at_85%_35%,rgba(34,197,94,0.18),transparent_28%)]" />
+<section className="relative overflow-hidden bg-[linear-gradient(135deg,#020617_0%,#06143d_38%,#0f2f5f_68%,#04111f_100%)] text-white">
+  <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(59,130,246,0.42),transparent_30%),radial-gradient(circle_at_82%_24%,rgba(34,197,94,0.24),transparent_26%),radial-gradient(circle_at_55%_92%,rgba(14,165,233,0.18),transparent_32%)]" />
 
   <div className="relative mx-auto max-w-7xl px-6 py-6 md:px-10 lg:px-12 lg:py-8">
     {/* TOPO */}
@@ -345,7 +345,7 @@ export default function IbeMatriculaPage() {
           na liderança cristã e na vida espiritual.
         </p>
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
           <a
             href="#matricula"
             className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition hover:-translate-y-0.5 hover:bg-green-400"
