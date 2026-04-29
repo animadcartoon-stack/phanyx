@@ -1450,6 +1450,20 @@ model TurmaSemestre {
   @@index([instituicaoId])
 }
 
+model MatriculaOnlineIbe {
+  id                String   @id @default(cuid())
+  nome              String
+  email             String
+  whatsapp          String
+  valorTotal        Decimal  @db.Decimal(10, 2)
+  disciplinasIds    String
+  status            String   @default("AGUARDANDO_PAGAMENTO")
+  externalReference String   @unique
+  asaasPaymentId    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
 enum TipoDocumentoAluno {
   CONTRATO
   DECLARACAO

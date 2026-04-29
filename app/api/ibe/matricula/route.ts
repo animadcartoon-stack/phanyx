@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 const ASAAS_API_URL =
   process.env.ASAAS_ENV === "production"
@@ -67,6 +68,18 @@ export async function POST(req: Request) {
 
     const externalReference = `IBE_MATRICULA_${Date.now()}`;
 
+await prisma.matriculaOnlineIbe.create({
+  data: {
+    nome,
+    email,
+    whatsapp,
+    valorTotal,
+    disciplinasIds: JSON.stringify(body.disciplinas || []),
+    externalReference,
+    status: "AGUARDANDO_PAGAMENTO",
+  },
+});
+
 const pagamentoRes = await fetch(`${ASAAS_API_URL}/payments`, {
   method: "POST",
   headers: {
@@ -97,6 +110,7 @@ const pagamentoRes = await fetch(`${ASAAS_API_URL}/payments`, {
   externalReference,
   checkoutUrl: pagamento.invoiceUrl || pagamento.bankSlipUrl,
 });
+
   } catch (error: any) {
     console.error("Erro matrícula IBE:", error);
     return NextResponse.json(
