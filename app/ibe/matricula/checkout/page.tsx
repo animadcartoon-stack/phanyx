@@ -50,8 +50,12 @@ if (!res.ok) {
 }
 
     if (data.checkoutUrl) {
-      window.location.href = data.checkoutUrl;
-    }
+  window.location.href = data.checkoutUrl;
+  return;
+}
+
+alert(data?.error || "Pagamento criado, mas o Asaas não retornou link de pagamento.");
+console.log("Resposta da API matrícula IBE:", data);
   }
 
   return (
