@@ -325,7 +325,7 @@ export default function IbeMatriculaPage() {
     </div>
 
     {/* CONTEÚDO PRINCIPAL */}
-    <div className="mt-14 grid items-center gap-10 lg:grid-cols-[0.92fr_1.08fr] xl:gap-16">
+    <div className="mt-8 grid items-start gap-10 lg:grid-cols-[0.92fr_1.08fr] xl:gap-16">
       {/* TEXTO */}
       <div>
         <div className="inline-flex items-center rounded-full border border-yellow-300/30 bg-yellow-300/10 px-4 py-2 text-sm font-semibold text-yellow-200">
@@ -386,7 +386,7 @@ export default function IbeMatriculaPage() {
       </div>
 
       {/* VÍDEO EM EVIDÊNCIA */}
-      <div className="relative">
+      <div className="relative -mt-4 lg:-mt-6">
         <div className="absolute -inset-6 rounded-[42px] bg-blue-500/20 blur-3xl" />
 
         <div className="relative rounded-[34px] border border-white/15 bg-white/10 p-4 shadow-[0_35px_100px_rgba(0,0,0,0.65)] backdrop-blur">
