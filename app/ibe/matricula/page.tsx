@@ -279,8 +279,21 @@ export default function IbeMatriculaPage() {
       </a>
 
             {/* HERO PREMIUM */}
-<section className="relative overflow-hidden bg-[linear-gradient(135deg,#020617_0%,#06143d_38%,#0f2f5f_68%,#04111f_100%)] text-white">
-  <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(59,130,246,0.38),transparent_28%),radial-gradient(circle_at_84%_18%,rgba(34,197,94,0.22),transparent_24%),radial-gradient(circle_at_50%_95%,rgba(14,165,233,0.18),transparent_34%)]" />
+<section className="relative overflow-hidden bg-[#050816] text-white">
+  {/* fundo premium Apple */}
+  <div className="absolute inset-0 bg-[linear-gradient(135deg,#050816_0%,#071a3d_38%,#0b3a55_68%,#04111f_100%)]" />
+
+  <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-blue-500/25 blur-[110px]" />
+  <div className="absolute right-[-120px] top-10 h-[480px] w-[480px] rounded-full bg-emerald-400/20 blur-[120px]" />
+  <div className="absolute bottom-[-220px] left-[35%] h-[560px] w-[560px] rounded-full bg-cyan-400/15 blur-[130px]" />
+
+  <div className="absolute left-[7%] top-[34%] h-32 w-32 rounded-[36px] border border-white/10 bg-white/[0.035] rotate-12 backdrop-blur" />
+  <div className="absolute right-[7%] top-[26%] h-44 w-44 rounded-[48px] border border-white/10 bg-white/[0.04] -rotate-12 backdrop-blur" />
+  <div className="absolute right-[42%] bottom-[12%] h-28 w-28 rounded-full border border-cyan-200/10 bg-cyan-200/[0.035]" />
+
+  <div className="absolute inset-0 opacity-[0.16] bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
+
+  <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),transparent_20%,rgba(0,0,0,0.22)_100%)]" />
 
 <div className="absolute -left-28 top-24 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
 <div className="absolute right-10 top-28 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
