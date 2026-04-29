@@ -386,7 +386,7 @@ export default function IbeMatriculaPage() {
       </div>
 
       {/* VÍDEO EM EVIDÊNCIA */}
-      <div className="relative -mt-20 lg:-mt-28">
+      <div className="relative -mt-10 lg:-mt-14">
         <div className="absolute -inset-6 rounded-[42px] bg-blue-500/20 blur-3xl" />
 
         <div className="relative rounded-[34px] border border-white/15 bg-white/10 p-4 shadow-[0_35px_100px_rgba(0,0,0,0.65)] backdrop-blur">
