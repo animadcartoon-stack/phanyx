@@ -259,14 +259,28 @@ export default function PresencasDaAulaPage() {
   }
 
   if (!dados) {
-    return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 p-8 shadow-sm">
-        <p className="text-sm text-red-700">
-          Não foi possível carregar a chamada.
+  return (
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-8 shadow-sm">
+      <p className="text-sm font-semibold text-red-700">
+        Não foi possível carregar a chamada.
+      </p>
+
+      {erro ? (
+        <p className="mt-2 text-sm text-red-700">
+          Detalhe: {erro}
         </p>
-      </div>
-    );
-  }
+      ) : null}
+
+      <button
+        type="button"
+        onClick={carregarDados}
+        className="mt-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white"
+      >
+        Tentar novamente
+      </button>
+    </div>
+  );
+}
 
   return (
     <div className="space-y-6">
