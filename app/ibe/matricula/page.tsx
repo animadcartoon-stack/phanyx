@@ -342,7 +342,7 @@ export default function IbeMatriculaPage() {
           🎓 Matrículas abertas para 2026
         </div>
 
-        <h1 className="mt-6 text-4xl font-black leading-[1.02] tracking-[-0.04em] md:text-5xl xl:text-6xl">
+        <h1 className="mt-4 text-3xl font-black leading-[1.05] tracking-[-0.03em] md:text-4xl xl:text-5xl">
           Bacharel Livre em Teologia
           <span className="block bg-gradient-to-r from-blue-200 via-white to-blue-300 bg-clip-text text-transparent">
             100% EAD e com formação completa
@@ -355,7 +355,7 @@ export default function IbeMatriculaPage() {
           na liderança cristã e na vida espiritual.
         </p>
 
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <a
             href="#matricula"
             className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition hover:-translate-y-0.5 hover:bg-green-400"
