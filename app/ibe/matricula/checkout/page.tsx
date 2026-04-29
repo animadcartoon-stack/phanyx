@@ -30,15 +30,24 @@ export default function IbeCheckoutPage() {
   async function handleSubmit() {
     const res = await fetch("/api/ibe/matricula", {
       method: "POST",
-      body: JSON.stringify({
-        nome,
-        email,
-        whatsapp,
-        disciplinas,
-      }),
+      headers: {
+  "Content-Type": "application/json",
+},
+body: JSON.stringify({
+  nome,
+  email,
+  whatsapp,
+  disciplinas,
+  valorTotal: total,
+}),
     });
 
     const data = await res.json();
+
+if (!res.ok) {
+  alert(data?.error || "Erro ao iniciar pagamento.");
+  return;
+}
 
     if (data.checkoutUrl) {
       window.location.href = data.checkoutUrl;
