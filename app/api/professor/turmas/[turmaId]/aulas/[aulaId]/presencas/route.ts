@@ -123,6 +123,14 @@ if (turma.professorId !== professor.id) {
       },
     });
 
+if (itensMatricula.length === 0) {
+  return NextResponse.json({
+    turma,
+    aula,
+    alunos: [],
+  });
+}
+
     const alunoIds = itensMatricula
       .map((item) => item.matricula?.aluno?.id)
       .filter((id): id is number => typeof id === "number" && Number.isFinite(id));
