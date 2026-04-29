@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function IbeCheckoutPage() {
   const [nome, setNome] = useState("");
@@ -11,12 +11,14 @@ export default function IbeCheckoutPage() {
   const [disciplinas, setDisciplinas] = useState<number[]>([]);
   const [carregando, setCarregando] = useState(false);
 
-  const listaDisciplinas = [
-    { id: 1, nome: "Antigo Testamento", valor: 120 },
-    { id: 2, nome: "Novo Testamento", valor: 120 },
-    { id: 3, nome: "Teologia Sistemática", valor: 150 },
-    { id: 4, nome: "Missões", valor: 100 },
-  ];
+  const [listaDisciplinas, setListaDisciplinas] = useState<any[]>([]);
+
+  useEffect(() => {
+  fetch("/api/ibe/disciplinas")
+    .then((res) => res.json())
+    .then((data) => setListaDisciplinas(Array.isArray(data) ? data : []))
+    .catch(() => setListaDisciplinas([]));
+}, []);
 
   function toggleDisciplina(id: number) {
     setDisciplinas((prev) =>
@@ -26,7 +28,7 @@ export default function IbeCheckoutPage() {
 
   const total = listaDisciplinas
     .filter((d) => disciplinas.includes(d.id))
-    .reduce((acc, d) => acc + d.valor, 0);
+    .reduce((acc, d) => acc + Number(d.valor ?? 120), 0);
 
   async function handleSubmit() {
     if (carregando) return;
@@ -165,7 +167,7 @@ export default function IbeCheckoutPage() {
                   </div>
 
                   <span className="font-bold text-emerald-700">
-                    R$ {d.valor}
+                    R$ {Number(d.valor ?? 120).toFixed(2).replace(".", ",")}
                   </span>
                 </label>
               ))}
