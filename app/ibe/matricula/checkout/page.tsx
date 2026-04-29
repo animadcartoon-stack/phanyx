@@ -39,6 +39,18 @@ export default function IbeCheckoutPage() {
       .catch(() => setModulos([]));
   }, []);
 
+useEffect(() => {
+  const modulosComSelecao = modulos
+    .filter((m) =>
+      m.disciplinas.some((d) => disciplinas.includes(d.id))
+    )
+    .map((m) => m.numero);
+
+  if (modulosComSelecao.length) {
+    setModulosAbertos(modulosComSelecao);
+  }
+}, [disciplinas]);
+
   function toggleDisciplina(id: number) {
     setDisciplinas((prev) =>
       prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
@@ -52,6 +64,16 @@ export default function IbeCheckoutPage() {
         : [...prev, numero]
     );
   }
+
+function selecionarCursoCompleto() {
+  const ids = todasDisciplinas.map((d) => d.id);
+  setDisciplinas(ids);
+}
+
+function selecionarModulo(disciplinasDoModulo: Disciplina[]) {
+  const ids = disciplinasDoModulo.map((d) => d.id);
+  setDisciplinas((prev) => Array.from(new Set([...prev, ...ids])));
+}
 
   const todasDisciplinas = modulos.flatMap((m) => m.disciplinas);
 
@@ -142,7 +164,7 @@ export default function IbeCheckoutPage() {
                 Seja bem-vindo ao Instituto Batista de Educação.
               </p>
               <p className="mt-2 text-sm leading-relaxed">
-                Escolha as disciplinas que deseja aderir. O curso é 100% EAD,
+                Monte sua grade de estudos. O curso é 100% EAD,
                 possui carga total de 2.616 horas e oferece certificado após
                 conclusão e aprovação conforme as regras acadêmicas.
               </p>
@@ -200,8 +222,17 @@ export default function IbeCheckoutPage() {
               Escolha as disciplinas que deseja aderir
             </h2>
             <p className="mb-4 text-sm text-slate-600">
-              Abra cada módulo para visualizar as disciplinas correspondentes.
+              Selecione as disciplinas que deseja cursar neste momento.
+Você pode avançar por módulos conforme sua disponibilidade.
             </p>
+
+<button
+  type="button"
+  onClick={selecionarCursoCompleto}
+  className="mb-4 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
+>
+  Selecionar curso completo
+</button>
 
             <div className="space-y-4">
               {modulos.map((modulo) => {
@@ -231,24 +262,45 @@ export default function IbeCheckoutPage() {
 
                     {aberto && (
                       <div className="space-y-3 p-4">
+
+<div className="px-4 pt-4">
+  <button
+    type="button"
+    onClick={() => selecionarModulo(modulo.disciplinas)}
+    className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
+  >
+    Selecionar todas do Módulo {modulo.numero}
+  </button>
+</div>
+
                         {modulo.disciplinas.length === 0 && (
                           <p className="text-sm text-slate-500">
                             Nenhuma disciplina cadastrada neste módulo.
                           </p>
                         )}
 
-                        {modulo.disciplinas.map((d) => (
-                          <label
-                            key={d.id}
-                            className="block cursor-pointer rounded-xl border border-slate-200 p-4 hover:border-emerald-500 hover:bg-emerald-50"
-                          >
+{modulo.disciplinas.map((d) => {
+  const bloqueada =
+    d.prerequisitos &&
+    d.prerequisitos.some((pre) => !disciplinas.includes(pre.id));
+
+  return (
+    <label
+      key={d.id}
+      className={`block rounded-xl border border-slate-200 p-4 ${
+        bloqueada
+          ? "cursor-not-allowed bg-slate-100 opacity-50"
+          : "cursor-pointer hover:border-emerald-500 hover:bg-emerald-50"
+      }`}
+    >
                             <div className="flex items-center justify-between gap-4">
                               <div className="flex items-center gap-3">
                                 <input
-                                  type="checkbox"
-                                  checked={disciplinas.includes(d.id)}
-                                  onChange={() => toggleDisciplina(d.id)}
-                                />
+  type="checkbox"
+  disabled={bloqueada}
+  checked={disciplinas.includes(d.id)}
+  onChange={() => toggleDisciplina(d.id)}
+/>
                                 <div>
                                   <span className="font-medium text-slate-800">
                                     {d.nome}
@@ -284,7 +336,8 @@ export default function IbeCheckoutPage() {
                               </span>
                             </div>
                           </label>
-                        ))}
+  );
+})}
                       </div>
                     )}
                   </div>
@@ -304,6 +357,14 @@ export default function IbeCheckoutPage() {
           />
 
           <h2 className="text-xl font-bold">Resumo da matrícula</h2>
+
+          <div className="mt-4 text-sm text-slate-300">
+  {todasDisciplinas
+    .filter((d) => disciplinas.includes(d.id))
+    .map((d) => (
+      <p key={d.id}>• {d.nome}</p>
+    ))}
+</div>
 
           <div className="mt-6 space-y-3 text-sm text-slate-300">
             <p>
@@ -331,7 +392,7 @@ export default function IbeCheckoutPage() {
             disabled={carregando}
             className="mt-6 w-full rounded-xl bg-emerald-500 p-4 font-bold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {carregando ? "Gerando pagamento..." : "Finalizar matrícula"}
+            {carregando ? "🔄 Redirecionando para pagamento..." : "Finalizar matrícula"}
           </button>
 
           <p className="mt-4 text-center text-xs text-slate-400">
