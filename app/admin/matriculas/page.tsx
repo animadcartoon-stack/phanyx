@@ -49,6 +49,8 @@ type CursoSemestreOption = {
   numero: number;
   titulo?: string | null;
   descricao?: string | null;
+  cargaMinima?: number | null;
+  cargaMaxima?: number | null;
   disciplinas: CursoSemestreDisciplina[];
 };
 
@@ -497,10 +499,8 @@ const cursoSelecionadoObj = useMemo(() => {
   return cursos.find((c) => c.id === Number(cursoId)) ?? null;
 }, [cursos, cursoId]);
 
-const limiteCargaHoraria = Number(
-  cursoSelecionadoObj?.cargaHorariaMaximaSemestre || 0
-);
-const cargaMinimaSemestre = 1; // pode depois vir do backend
+const cargaMinimaSemestre = Number(semestreSelecionado?.cargaMinima || 0);
+const limiteCargaHoraria = Number(semestreSelecionado?.cargaMaxima || 0);
 const cargaHorariaTotalSelecionada = useMemo(() => {
   const ids = [...disciplinasSelecionadas, ...disciplinasExtrasSelecionadas];
 
@@ -553,7 +553,15 @@ const cargaHorariaExcedida =
   !cargaHorariaExcedida &&
   !cargaHorariaAbaixoMinimo
 );
-  }, [alunoId, cursoId, cursoSemestreIds, disciplinasSelecionadas, turmasSelecionadas, cargaHorariaExcedida]);
+  }, [
+  alunoId,
+  cursoId,
+  cursoSemestreIds,
+  disciplinasSelecionadas,
+  turmasSelecionadas,
+  cargaHorariaExcedida,
+  cargaHorariaAbaixoMinimo,
+]);
 
   function toggleTurma(turmaId: number) {
     setTurmasSelecionadas((prev) =>
@@ -579,17 +587,27 @@ function toggleTurmaEdicao(turmaId: number) {
 }
 
   async function criarMatricula() {
-    if (!podeCriar || !semestreSelecionado) return;
-if (cargaHorariaExcedida) {
-  alert("A carga horária ultrapassa o limite permitido.");
+  if (!semestreSelecionado) {
+    alert("Selecione o semestre do curso.");
+    return;
+  }
+
+  if (cargaHorariaAbaixoMinimo) {
+    alert("A carga horária está abaixo do mínimo permitido.");
+    return;
+  }
+
+  if (cargaHorariaExcedida) {
+    alert("A carga horária ultrapassa o limite permitido.");
+    return;
+  }
+
+  if (!podeCriar) {
+  alert("Preencha aluno, curso, semestre, turma e disciplinas antes de matricular.");
   return;
 }
 
-if (cargaHorariaAbaixoMinimo) {
-  alert("A carga horária está abaixo do mínimo permitido.");
-  return;
-}
-    setCreating(true);
+setCreating(true);
 const turmaIdsParaEnviar = [
   ...turmasBaseDoSemestre
     .filter((t) =>

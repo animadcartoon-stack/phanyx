@@ -36,6 +36,12 @@ export default function MultiSelectDisciplinas({
     );
   }, [disciplinasOrdenadas, busca]);
 
+const cargaHorariaSelecionada = useMemo(() => {
+  return disciplinas
+    .filter((d) => selecionadas.includes(d.id))
+    .reduce((total, d) => total + Number(d.cargaHoraria || 0), 0);
+}, [disciplinas, selecionadas]);
+
   const todasSelecionadas =
     disciplinas.length > 0 &&
     disciplinas.every((d) => selecionadas.includes(d.id));
@@ -72,8 +78,8 @@ export default function MultiSelectDisciplinas({
           <span className="font-semibold text-gray-900">{titulo}</span>
           <span className="text-xs text-gray-500">
             {selecionadas.length > 0
-              ? `${selecionadas.length} disciplina(s) selecionada(s)`
-              : "Nenhuma disciplina selecionada"}
+  ? `${selecionadas.length} disciplina(s) selecionada(s) • ${cargaHorariaSelecionada}h selecionadas`
+  : "Nenhuma disciplina selecionada"}
           </span>
         </div>
 
