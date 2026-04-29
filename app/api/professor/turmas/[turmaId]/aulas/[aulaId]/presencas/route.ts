@@ -60,25 +60,18 @@ export async function GET(
   where: {
     id: turmaId,
     instituicaoId: user.instituicaoId,
+    professorId: professor.id,
   },
   select: {
     id: true,
     nome: true,
-    professorId: true, // 👈 IMPORTANTE
   },
 });
 
-    if (!turma) {
+if (!turma) {
   return NextResponse.json(
-    { error: "Turma não encontrada" },
+    { error: "Turma não encontrada ou sem permissão" },
     { status: 404 }
-  );
-}
-
-if (turma.professorId !== professor.id) {
-  return NextResponse.json(
-    { error: "Sem permissão nesta turma" },
-    { status: 403 }
   );
 }
 
@@ -260,25 +253,18 @@ export async function POST(
   where: {
     id: turmaId,
     instituicaoId: user.instituicaoId,
+    professorId: professor.id,
   },
   select: {
     id: true,
     nome: true,
-    professorId: true, // 👈 IMPORTANTE
   },
 });
 
-    if (!turma) {
+if (!turma) {
   return NextResponse.json(
-    { error: "Turma não encontrada" },
+    { error: "Turma não encontrada ou sem permissão" },
     { status: 404 }
-  );
-}
-
-if (turma.professorId !== professor.id) {
-  return NextResponse.json(
-    { error: "Sem permissão nesta turma" },
-    { status: 403 }
   );
 }
 
