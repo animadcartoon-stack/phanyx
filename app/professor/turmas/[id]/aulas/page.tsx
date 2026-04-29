@@ -196,9 +196,15 @@ export default function AulasDaTurmaPage() {
         throw new Error(turmasData?.error || "Erro ao carregar turmas");
       }
 
-      const turmaEncontrada = (Array.isArray(turmasData) ? turmasData : []).find(
-        (t: TurmaApi) => Number(t.id) === turmaId
-      );
+      const listaTurmas = Array.isArray(turmasData)
+  ? turmasData
+  : Array.isArray(turmasData?.turmas)
+  ? turmasData.turmas
+  : [];
+
+const turmaEncontrada = listaTurmas.find(
+  (t: TurmaApi) => Number(t.id) === turmaId
+);
 
       if (!turmaEncontrada) {
         throw new Error("Turma não encontrada");

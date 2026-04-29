@@ -158,14 +158,14 @@ export default function TurmasProfessorPage() {
 
             <div className="flex flex-col gap-2">
               <button
-                onClick={() => router.push(`/professor/turmas/${turma.turmaDisciplinaId}`)}
+                onClick={() => router.push(`/professor/turmas/${turma.id}`)}
                 className="text-left text-blue-600 hover:underline"
               >
                 👉 Ver alunos
               </button>
 
               <button
-                onClick={() => router.push(`/professor/turmas/${turma.turmaDisciplinaId}/aulas`)}
+                onClick={() => router.push(`/professor/turmas/${turma.id}/aulas`)}
                 className="text-left text-blue-600 hover:underline"
               >
                 🎥 Gerenciar aulas
