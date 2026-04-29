@@ -29,6 +29,12 @@ export default function IbeCheckoutPage() {
     .reduce((acc, d) => acc + d.valor, 0);
 
   async function handleSubmit() {
+
+if (!nome || !email || !whatsapp || !cpf) {
+  alert("Preencha nome, email, WhatsApp e CPF.");
+  return;
+}
+
     const res = await fetch("/api/ibe/matricula", {
       method: "POST",
       headers: {
@@ -94,9 +100,10 @@ console.log("Resposta da API matrícula IBE:", data);
           {listaDisciplinas.map((d) => (
             <label key={d.id} className="flex gap-2 py-2">
               <input
-                type="checkbox"
-                onChange={() => toggleDisciplina(d.id)}
-              />
+  type="checkbox"
+  checked={disciplinas.includes(d.id)}
+  onChange={() => toggleDisciplina(d.id)}
+/>
               {d.nome} - R$ {d.valor}
             </label>
           ))}
