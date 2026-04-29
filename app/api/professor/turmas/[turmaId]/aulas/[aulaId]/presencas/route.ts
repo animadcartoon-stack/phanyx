@@ -60,7 +60,6 @@ export async function GET(
   where: {
     id: turmaId,
     instituicaoId: user.instituicaoId,
-    professorId: professor.id,
   },
   select: {
     id: true,
@@ -253,7 +252,6 @@ export async function POST(
   where: {
     id: turmaId,
     instituicaoId: user.instituicaoId,
-    professorId: professor.id,
   },
   select: {
     id: true,
