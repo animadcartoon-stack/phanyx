@@ -116,6 +116,8 @@ if (externalReference?.startsWith("IBE_MATRICULA_")) {
   where: { externalReference },
 });
 
+
+
 if (!preMatricula) {
   return NextResponse.json(
     { error: "Pré-matrícula não encontrada" },
@@ -123,7 +125,7 @@ if (!preMatricula) {
   );
 }
 
-// evitar duplicação
+
 if (preMatricula.status === "PAGO") {
   return NextResponse.json({ ok: true, jaProcessado: true });
 }
@@ -183,6 +185,21 @@ const matricula = await prisma.matricula.create({
     valorMatricula: preMatricula.valorTotal,
   },
 });
+
+const disciplinasIds = JSON.parse(preMatricula.disciplinasIds || "[]");
+
+for (const disciplinaId of disciplinasIds) {
+  await prisma.itemMatricula.create({
+    data: {
+      matriculaId: matricula.id,
+      disciplinaId: Number(disciplinaId),
+      turmaId: 1,
+      instituicaoId,
+      tipoItem: "GRADE_PRINCIPAL",
+      status: "EM_CURSO",
+    },
+  });
+}
 
 // 4. MARCAR COMO PAGO
 await prisma.matriculaOnlineIbe.update({
