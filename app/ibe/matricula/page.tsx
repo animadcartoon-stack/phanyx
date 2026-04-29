@@ -317,7 +317,7 @@ export default function IbeMatriculaPage() {
 
       <div className="flex flex-wrap gap-3">
         <a
-          href="#matricula"
+          href="/ibe/matricula/checkout"
           className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-5 py-3 text-sm font-bold text-white shadow-[0_12px_35px_rgba(34,197,94,0.35)] transition hover:-translate-y-0.5 hover:bg-green-400"
         >
           Quero me matricular
