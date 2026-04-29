@@ -8,6 +8,7 @@ export default function IbeCheckoutPage() {
   const [whatsapp, setWhatsapp] = useState("");
   const [disciplinas, setDisciplinas] = useState<number[]>([]);
   const [cpf, setCpf] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
   const listaDisciplinas = [
     { id: 1, nome: "Antigo Testamento", valor: 120 },
@@ -35,6 +36,9 @@ if (!nome || !email || !whatsapp || !cpf) {
   return;
 }
 
+if (carregando) return;
+setCarregando(true);
+
     const res = await fetch("/api/ibe/matricula", {
       method: "POST",
       headers: {
@@ -54,6 +58,7 @@ body: JSON.stringify({
 
 if (!res.ok) {
   alert(data?.error || "Erro ao iniciar pagamento.");
+  setCarregando(false);
   return;
 }
 
@@ -61,6 +66,8 @@ if (!res.ok) {
   window.location.href = data.checkoutUrl;
   return;
 }
+
+setCarregando(false);
 
 alert(data?.error || "Pagamento criado, mas o Asaas não retornou link de pagamento.");
 console.log("Resposta da API matrícula IBE:", data);
@@ -114,11 +121,12 @@ console.log("Resposta da API matrícula IBE:", data);
         </div>
 
         <button
-          onClick={handleSubmit}
-          className="w-full rounded bg-green-500 p-4 text-white font-bold"
-        >
-          Ir para pagamento
-        </button>
+  onClick={handleSubmit}
+  disabled={carregando}
+  className="w-full rounded bg-green-500 p-4 text-white font-bold disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {carregando ? "Gerando pagamento..." : "Ir para pagamento"}
+</button>
       </div>
     </main>
   );
