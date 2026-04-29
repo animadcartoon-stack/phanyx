@@ -282,7 +282,7 @@ export default function IbeMatriculaPage() {
 <section className="relative overflow-hidden bg-[#080b1f] text-white">
   <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(37,99,235,0.35),transparent_32%),radial-gradient(circle_at_85%_35%,rgba(34,197,94,0.18),transparent_28%)]" />
 
-  <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 lg:px-12 lg:py-10">
+  <div className="relative mx-auto max-w-7xl px-6 py-6 md:px-10 lg:px-12 lg:py-8">
     {/* TOPO */}
     <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex items-center gap-4">
@@ -405,17 +405,38 @@ export default function IbeMatriculaPage() {
             </span>
           </div>
 
-          <div className="overflow-hidden rounded-[26px] bg-black shadow-2xl ring-1 ring-white/10">
-            <div className="aspect-video w-full">
-              <iframe
-                className="h-full w-full"
-                src="https://www.youtube.com/embed/KEBx6SLeNBc"
-                title="Apresentação do curso de Teologia IBE"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
+         <div className="group relative overflow-hidden rounded-[28px] bg-black shadow-[0_30px_90px_rgba(0,0,0,0.75)] ring-1 ring-white/10">
+  <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/55 via-transparent to-black/20" />
+
+  <div className="absolute left-5 top-5 z-20 rounded-full bg-black/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
+    ▶ Apresentação oficial
+  </div>
+
+  <div className="absolute bottom-5 left-5 right-5 z-20 flex items-end justify-between gap-4 pointer-events-none">
+    <div>
+      <p className="text-lg font-black text-white drop-shadow md:text-xl">
+        Conheça o Bacharel Livre em Teologia
+      </p>
+      <p className="mt-1 text-sm text-white/80">
+        Assista antes de iniciar sua matrícula
+      </p>
+    </div>
+
+    <div className="hidden h-14 w-14 items-center justify-center rounded-full bg-red-600 text-2xl text-white shadow-2xl md:flex">
+      ▶
+    </div>
+  </div>
+
+  <div className="aspect-video w-full transition duration-500 group-hover:scale-[1.02]">
+    <iframe
+      className="h-full w-full"
+      src="https://www.youtube.com/embed/KEBx6SLeNBc"
+      title="Apresentação do curso de Teologia IBE"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allowFullScreen
+    />
+  </div>
+</div>
 
           <div className="mt-5 grid gap-3 rounded-[26px] bg-white p-5 text-slate-900 md:grid-cols-3">
             <div>
