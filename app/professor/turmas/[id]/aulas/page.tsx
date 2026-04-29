@@ -48,8 +48,8 @@ function normalizeYoutubeUrl(url: string) {
 
 export default function AulasDaTurmaPage() {
   const router = useRouter();
-  const params = useParams<{ turmaId: string }>();
-  const turmaId = Number(params.turmaId);
+  const params = useParams<{ id: string }>();
+  const turmaId = Number(params.id);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
