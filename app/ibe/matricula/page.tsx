@@ -279,31 +279,18 @@ export default function IbeMatriculaPage() {
       </a>
 
             {/* HERO PREMIUM */}
-<section className="relative overflow-hidden bg-[#050816] text-white">
-  {/* fundo premium Apple */}
-  <div className="absolute inset-0 bg-[linear-gradient(135deg,#050816_0%,#071a3d_38%,#0b3a55_68%,#04111f_100%)]" />
+{/* HERO FINAL PREMIUM */}
+<section className="relative overflow-hidden bg-[#030712] text-white">
+  {/* fundo premium */}
+  <div className="absolute inset-0 bg-[linear-gradient(135deg,#030712_0%,#071739_42%,#0a3d57_72%,#031018_100%)]" />
+  <div className="absolute -left-44 -top-44 h-[540px] w-[540px] rounded-full bg-blue-500/25 blur-[120px]" />
+  <div className="absolute right-[-140px] top-8 h-[520px] w-[520px] rounded-full bg-emerald-400/20 blur-[130px]" />
+  <div className="absolute bottom-[-240px] left-[34%] h-[620px] w-[620px] rounded-full bg-cyan-400/14 blur-[140px]" />
 
-  <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-blue-500/25 blur-[110px]" />
-  <div className="absolute right-[-120px] top-10 h-[480px] w-[480px] rounded-full bg-emerald-400/20 blur-[120px]" />
-  <div className="absolute bottom-[-220px] left-[35%] h-[560px] w-[560px] rounded-full bg-cyan-400/15 blur-[130px]" />
-
-  <div className="absolute left-[7%] top-[34%] h-32 w-32 rounded-[36px] border border-white/10 bg-white/[0.035] rotate-12 backdrop-blur" />
-  <div className="absolute right-[7%] top-[26%] h-44 w-44 rounded-[48px] border border-white/10 bg-white/[0.04] -rotate-12 backdrop-blur" />
-  <div className="absolute right-[42%] bottom-[12%] h-28 w-28 rounded-full border border-cyan-200/10 bg-cyan-200/[0.035]" />
-
-  <div className="absolute inset-0 opacity-[0.16] bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
-
-  <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.06),transparent_20%,rgba(0,0,0,0.22)_100%)]" />
-
-<div className="absolute -left-28 top-24 h-80 w-80 rounded-full bg-blue-500/10 blur-3xl" />
-<div className="absolute right-10 top-28 h-72 w-72 rounded-full bg-emerald-400/10 blur-3xl" />
-<div className="absolute bottom-[-140px] left-1/3 h-96 w-96 rounded-full bg-cyan-400/10 blur-3xl" />
-
-<div className="absolute left-[8%] top-[20%] h-32 w-32 rounded-[40px] border border-white/10 bg-white/[0.03] rotate-12" />
-<div className="absolute right-[7%] top-[16%] h-44 w-44 rounded-[50px] border border-white/10 bg-white/[0.04] -rotate-12" />
-<div className="absolute right-[38%] bottom-[10%] h-28 w-28 rounded-full border border-blue-300/10 bg-blue-300/[0.04]" />
-
-<div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04),transparent_18%,rgba(0,0,0,0.18)_100%)]" />
+  <div className="absolute left-[7%] top-[35%] h-36 w-36 rotate-12 rounded-[42px] border border-white/10 bg-white/[0.035] backdrop-blur" />
+  <div className="absolute right-[7%] top-[25%] h-48 w-48 -rotate-12 rounded-[54px] border border-white/10 bg-white/[0.04] backdrop-blur" />
+  <div className="absolute inset-0 opacity-[0.12] bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:80px_80px]" />
+  <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.05),transparent_20%,rgba(0,0,0,0.24)_100%)]" />
 
   <div className="relative mx-auto max-w-7xl px-6 py-6 md:px-10 lg:px-12 lg:py-8">
     {/* TOPO */}
@@ -348,7 +335,7 @@ export default function IbeMatriculaPage() {
     </div>
 
     {/* CONTEÚDO PRINCIPAL */}
-    <div className="mt-8 grid items-start gap-10 lg:grid-cols-[0.92fr_1.08fr] xl:gap-16">
+    <div className="mt-8 grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] xl:gap-16">
       {/* TEXTO */}
       <div>
         <div className="inline-flex items-center rounded-full border border-yellow-300/30 bg-yellow-300/10 px-4 py-2 text-sm font-semibold text-yellow-200">
@@ -357,12 +344,15 @@ export default function IbeMatriculaPage() {
 
         <h1 className="mt-4 text-3xl font-black leading-[1.05] tracking-[-0.03em] md:text-4xl xl:text-5xl">
           Bacharel Livre em Teologia
-          <span className="block bg-gradient-to-r from-blue-200 via-white to-blue-300 bg-clip-text text-transparent">
-            100% EAD e com formação completa
+          <span className="block text-blue-200">
+            100% EAD
+          </span>
+          <span className="block">
+            com formação completa
           </span>
         </h1>
 
-        <p className="mt-6 max-w-xl text-base leading-8 text-slate-200 md:text-lg">
+        <p className="mt-5 max-w-xl text-base leading-8 text-slate-200 md:text-lg">
           Estude teologia com profundidade, flexibilidade e orientação direta.
           Uma formação bíblica sólida para quem deseja crescer no ministério,
           na liderança cristã e na vida espiritual.
@@ -373,7 +363,7 @@ export default function IbeMatriculaPage() {
             href="#matricula"
             className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition hover:-translate-y-0.5 hover:bg-green-400"
           >
-            Quero garantir minha vaga agora
+            Começar minha matrícula agora
           </a>
 
           <a
@@ -382,67 +372,63 @@ export default function IbeMatriculaPage() {
             rel="noreferrer"
             className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-7 py-4 text-base font-semibold text-white transition hover:bg-white/15"
           >
-            Tirar dúvidas no WhatsApp
+            Falar com especialista
           </a>
         </div>
 
-        <div className="mt-8 grid grid-cols-3 gap-3">
+        <div className="mt-6 grid grid-cols-3 gap-3">
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-            <p className="text-2xl font-black">+1.200</p>
+            <p className="text-xl font-black md:text-2xl">+1.200</p>
             <p className="mt-1 text-xs text-slate-300">alunos formados</p>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-            <p className="text-2xl font-black">+10 anos</p>
+            <p className="text-xl font-black md:text-2xl">+10 anos</p>
             <p className="mt-1 text-xs text-slate-300">de experiência</p>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
-            <p className="text-2xl font-black">100%</p>
+            <p className="text-xl font-black md:text-2xl">100%</p>
             <p className="mt-1 text-xs text-slate-300">online</p>
           </div>
         </div>
-
-        <p className="mt-6 text-sm text-slate-300">
-          ✔ Aulas gravadas • ✔ Estude no seu ritmo • ✔ Atendimento direto da equipe
-        </p>
       </div>
 
-      {/* VÍDEO EM EVIDÊNCIA */}
-      <div className="relative mt-2 lg:mt-0">
-  <div className="absolute -inset-5 rounded-[42px] bg-white/5 blur-2xl" />
+      {/* VÍDEO */}
+      <div className="relative">
+        <div className="absolute -inset-6 rounded-[42px] bg-cyan-300/10 blur-3xl" />
 
-  <div className="relative rounded-[34px] border border-white/10 bg-white/[0.06] p-3 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur">
-    <div className="overflow-hidden rounded-[26px] bg-black ring-1 ring-white/10">
-      <div className="aspect-video w-full">
-        <iframe
-          className="h-full w-full"
-          src="https://www.youtube.com/embed/KEBx6SLeNBc?autoplay=1&mute=1&loop=1&playlist=KEBx6SLeNBc&controls=1&rel=0&modestbranding=1"
-          title="Apresentação do curso de Teologia IBE"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowFullScreen
-        />
-      </div>
-    </div>
+        <div className="relative rounded-[34px] border border-white/10 bg-white/[0.07] p-3 shadow-[0_34px_100px_rgba(0,0,0,0.62)] backdrop-blur transition duration-500 hover:-translate-y-1 hover:shadow-[0_42px_120px_rgba(0,0,0,0.75)]">
+          <div className="overflow-hidden rounded-[26px] bg-black ring-1 ring-white/10">
+            <div className="aspect-video w-full">
+              <iframe
+                className="h-full w-full"
+                src="https://www.youtube.com/embed/KEBx6SLeNBc?autoplay=1&mute=1&loop=1&playlist=KEBx6SLeNBc&controls=1&rel=0&modestbranding=1"
+                title="Apresentação do curso de Teologia IBE"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            </div>
+          </div>
 
-    <div className="mt-4 grid gap-3 rounded-[24px] bg-white p-4 text-slate-900 md:grid-cols-3">
-      <div>
-        <p className="text-sm font-bold">Curso 100% EAD</p>
-        <p className="mt-1 text-xs text-slate-500">Aulas gravadas</p>
-      </div>
+          <div className="mt-4 grid gap-3 rounded-[24px] bg-white p-4 text-slate-900 md:grid-cols-3">
+            <div>
+              <p className="text-sm font-bold">Curso 100% EAD</p>
+              <p className="mt-1 text-xs text-slate-500">Aulas gravadas</p>
+            </div>
 
-      <div>
-        <p className="text-sm font-bold">6 módulos</p>
-        <p className="mt-1 text-xs text-slate-500">Formação estruturada</p>
-      </div>
+            <div>
+              <p className="text-sm font-bold">6 módulos</p>
+              <p className="mt-1 text-xs text-slate-500">Formação estruturada</p>
+            </div>
 
-      <div>
-        <p className="text-sm font-bold">2.616 h/a</p>
-        <p className="mt-1 text-xs text-slate-500">Carga total</p>
+            <div>
+              <p className="text-sm font-bold">2.616 h/a</p>
+              <p className="mt-1 text-xs text-slate-500">Carga total</p>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
     </div>
   </div>
 </section>
