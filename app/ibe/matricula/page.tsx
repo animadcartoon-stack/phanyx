@@ -386,7 +386,7 @@ export default function IbeMatriculaPage() {
       </div>
 
       {/* VÍDEO EM EVIDÊNCIA */}
-      <div className="relative -mt-4 lg:-mt-6">
+      <div className="relative -mt-20 lg:-mt-28">
         <div className="absolute -inset-6 rounded-[42px] bg-blue-500/20 blur-3xl" />
 
         <div className="relative rounded-[34px] border border-white/15 bg-white/10 p-4 shadow-[0_35px_100px_rgba(0,0,0,0.65)] backdrop-blur">
@@ -430,9 +430,9 @@ export default function IbeMatriculaPage() {
   <div className="aspect-video w-full transition duration-500 group-hover:scale-[1.02]">
     <iframe
       className="h-full w-full"
-      src="https://www.youtube.com/embed/KEBx6SLeNBc"
+      src="https://www.youtube.com/embed/KEBx6SLeNBc?autoplay=1&mute=1&loop=1&playlist=KEBx6SLeNBc&controls=1&rel=0&modestbranding=1"
       title="Apresentação do curso de Teologia IBE"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowFullScreen
     />
   </div>
