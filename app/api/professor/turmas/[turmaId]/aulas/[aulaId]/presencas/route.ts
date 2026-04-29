@@ -57,23 +57,30 @@ export async function GET(
     }
 
     const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        instituicaoId: user.instituicaoId,
-        professorId: professor.id,
-      },
-      select: {
-  id: true,
-  nome: true,
-},
-    });
+  where: {
+    id: turmaId,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    nome: true,
+    professorId: true, // 👈 IMPORTANTE
+  },
+});
 
     if (!turma) {
-      return NextResponse.json(
-        { error: "Turma não encontrada ou sem permissão" },
-        { status: 404 }
-      );
-    }
+  return NextResponse.json(
+    { error: "Turma não encontrada" },
+    { status: 404 }
+  );
+}
+
+if (turma.professorId !== professor.id) {
+  return NextResponse.json(
+    { error: "Sem permissão nesta turma" },
+    { status: 403 }
+  );
+}
 
     const aula = await prisma.aula.findFirst({
   where: {
@@ -242,23 +249,30 @@ export async function POST(
     }
 
     const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        instituicaoId: user.instituicaoId,
-        professorId: professor.id,
-      },
-      select: {
-        id: true,
-        
-      },
-    });
+  where: {
+    id: turmaId,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    nome: true,
+    professorId: true, // 👈 IMPORTANTE
+  },
+});
 
     if (!turma) {
-      return NextResponse.json(
-        { error: "Turma não encontrada ou sem permissão" },
-        { status: 404 }
-      );
-    }
+  return NextResponse.json(
+    { error: "Turma não encontrada" },
+    { status: 404 }
+  );
+}
+
+if (turma.professorId !== professor.id) {
+  return NextResponse.json(
+    { error: "Sem permissão nesta turma" },
+    { status: 403 }
+  );
+}
 
     const aula = await prisma.aula.findFirst({
   where: {
