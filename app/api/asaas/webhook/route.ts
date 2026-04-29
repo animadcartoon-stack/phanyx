@@ -94,6 +94,28 @@ export async function POST(req: Request) {
       asaasCheckoutId,
     } = obterReferencia(body);
 
+    // 🚀 NOVO BLOCO — MATRÍCULA IBE
+if (externalReference?.startsWith("IBE_MATRICULA_")) {
+  console.log("🎓 Pagamento de matrícula IBE detectado");
+
+  const pagamentoConfirmado =
+    paymentStatus === "RECEIVED" ||
+    paymentStatus === "CONFIRMED" ||
+    paymentStatus === "RECEIVED_IN_CASH" ||
+    event === "PAYMENT_RECEIVED" ||
+    event === "PAYMENT_CONFIRMED";
+
+  if (!pagamentoConfirmado) {
+    console.log("⏳ Matrícula aguardando pagamento...");
+    return NextResponse.json({ ok: true });
+  }
+
+  console.log("✅ Pagamento confirmado - liberar matrícula IBE");
+
+  // 👉 PRÓXIMO PASSO VAI AQUI
+
+}
+
     console.log("🔎 Resumo webhook:", {
       event,
       paymentStatus,

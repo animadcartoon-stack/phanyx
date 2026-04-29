@@ -65,20 +65,23 @@ export async function POST(req: Request) {
 
     const dueDate = vencimento.toISOString().slice(0, 10);
 
-    const pagamentoRes = await fetch(`${ASAAS_API_URL}/payments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        access_token: ASAAS_API_KEY,
-      },
-      body: JSON.stringify({
-        customer: cliente.id,
-        billingType: "UNDEFINED",
-        value: valorTotal,
-        dueDate,
-        description: "Matrícula online IBE - Bacharel Livre em Teologia",
-      }),
-    });
+    const externalReference = `IBE_MATRICULA_${Date.now()}`;
+
+const pagamentoRes = await fetch(`${ASAAS_API_URL}/payments`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    access_token: ASAAS_API_KEY,
+  },
+  body: JSON.stringify({
+    customer: cliente.id,
+    billingType: "UNDEFINED",
+    value: valorTotal,
+    dueDate,
+    description: "Matrícula online IBE - Bacharel Livre em Teologia",
+    externalReference,
+  }),
+});
 
     const pagamento = await pagamentoRes.json();
 
@@ -90,9 +93,10 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      paymentId: pagamento.id,
-      checkoutUrl: pagamento.invoiceUrl || pagamento.bankSlipUrl,
-    });
+  paymentId: pagamento.id,
+  externalReference,
+  checkoutUrl: pagamento.invoiceUrl || pagamento.bankSlipUrl,
+});
   } catch (error: any) {
     console.error("Erro matrícula IBE:", error);
     return NextResponse.json(
