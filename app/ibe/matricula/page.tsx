@@ -386,76 +386,40 @@ export default function IbeMatriculaPage() {
       </div>
 
       {/* VÍDEO EM EVIDÊNCIA */}
-      <div className="relative -mt-10 lg:-mt-14">
-        <div className="absolute -inset-6 rounded-[42px] bg-blue-500/20 blur-3xl" />
+      <div className="relative mt-2 lg:mt-0">
+  <div className="absolute -inset-5 rounded-[42px] bg-white/5 blur-2xl" />
 
-        <div className="relative rounded-[34px] border border-white/15 bg-white/10 p-4 shadow-[0_35px_100px_rgba(0,0,0,0.65)] backdrop-blur">
-          <div className="mb-4 flex items-center justify-between gap-3 px-2">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-200">
-                Assista antes de se matricular
-              </p>
-              <p className="mt-1 text-sm text-slate-300">
-                Conheça a proposta do curso em vídeo.
-              </p>
-            </div>
-
-            <span className="rounded-full bg-green-500 px-3 py-1 text-xs font-bold text-white">
-              Vídeo oficial
-            </span>
-          </div>
-
-         <div className="group relative overflow-hidden rounded-[28px] bg-black shadow-[0_30px_90px_rgba(0,0,0,0.75)] ring-1 ring-white/10">
-  <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/55 via-transparent to-black/20" />
-
-  <div className="absolute left-5 top-5 z-20 rounded-full bg-black/55 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-white backdrop-blur">
-    ▶ Apresentação oficial
-  </div>
-
-  <div className="absolute bottom-5 left-5 right-5 z-20 flex items-end justify-between gap-4 pointer-events-none">
-    <div>
-      <p className="text-lg font-black text-white drop-shadow md:text-xl">
-        Conheça o Bacharel Livre em Teologia
-      </p>
-      <p className="mt-1 text-sm text-white/80">
-        Assista antes de iniciar sua matrícula
-      </p>
+  <div className="relative rounded-[34px] border border-white/10 bg-white/[0.06] p-3 shadow-[0_28px_90px_rgba(0,0,0,0.55)] backdrop-blur">
+    <div className="overflow-hidden rounded-[26px] bg-black ring-1 ring-white/10">
+      <div className="aspect-video w-full">
+        <iframe
+          className="h-full w-full"
+          src="https://www.youtube.com/embed/KEBx6SLeNBc?autoplay=1&mute=1&loop=1&playlist=KEBx6SLeNBc&controls=1&rel=0&modestbranding=1"
+          title="Apresentação do curso de Teologia IBE"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      </div>
     </div>
 
-    <div className="hidden h-14 w-14 items-center justify-center rounded-full bg-red-600 text-2xl text-white shadow-2xl md:flex">
-      ▶
-    </div>
-  </div>
+    <div className="mt-4 grid gap-3 rounded-[24px] bg-white p-4 text-slate-900 md:grid-cols-3">
+      <div>
+        <p className="text-sm font-bold">Curso 100% EAD</p>
+        <p className="mt-1 text-xs text-slate-500">Aulas gravadas</p>
+      </div>
 
-  <div className="aspect-video w-full transition duration-500 group-hover:scale-[1.02]">
-    <iframe
-      className="h-full w-full"
-      src="https://www.youtube.com/embed/KEBx6SLeNBc?autoplay=1&mute=1&loop=1&playlist=KEBx6SLeNBc&controls=1&rel=0&modestbranding=1"
-      title="Apresentação do curso de Teologia IBE"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowFullScreen
-    />
+      <div>
+        <p className="text-sm font-bold">6 módulos</p>
+        <p className="mt-1 text-xs text-slate-500">Formação estruturada</p>
+      </div>
+
+      <div>
+        <p className="text-sm font-bold">2.616 h/a</p>
+        <p className="mt-1 text-xs text-slate-500">Carga total</p>
+      </div>
+    </div>
   </div>
 </div>
-
-          <div className="mt-5 grid gap-3 rounded-[26px] bg-white p-5 text-slate-900 md:grid-cols-3">
-            <div>
-              <p className="text-sm font-bold">Curso 100% EAD</p>
-              <p className="mt-1 text-xs text-slate-500">Aulas gravadas</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-bold">6 módulos</p>
-              <p className="mt-1 text-xs text-slate-500">Formação estruturada</p>
-            </div>
-
-            <div>
-              <p className="text-sm font-bold">2.616 h/a</p>
-              <p className="mt-1 text-xs text-slate-500">Carga total</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
