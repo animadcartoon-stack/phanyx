@@ -24,7 +24,28 @@ type CampoCertificado = {
   pagina?: number | null;
 };
 
-const FONTES = ["Helvetica", "Times Roman", "Courier"];
+const FONTES = [
+  "Arial",
+  "Arial Black",
+  "Calibri",
+  "Cambria",
+  "Candara",
+  "Comic Sans MS",
+  "Consolas",
+  "Courier New",
+  "Georgia",
+  "Helvetica",
+  "Impact",
+  "Lucida Console",
+  "Lucida Sans Unicode",
+  "Microsoft Sans Serif",
+  "Palatino Linotype",
+  "Segoe UI",
+  "Tahoma",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana",
+];
 const ORIENTACOES = {
   paisagem: { largura: 1123, altura: 794, label: "Paisagem" },
   retrato: { largura: 794, altura: 1123, label: "Retrato" },
@@ -381,8 +402,7 @@ function finalizarArrastoCanvas() {
 
     const largura = campo.largura || 220;
     const altura = campo.altura || 40;
-    const [previewAberto, setPreviewAberto] = useState(false);
-
+    
     let novoX =
       (event.clientX - canvasRect.left) / escala - dragRef.current.offsetX;
     let novoY =
@@ -1006,7 +1026,10 @@ async function salvarModeloCompleto() {
                   {campos.map((c) => (
                     <div
                       key={c.id}
-                      onMouseDown={(event) => iniciarDrag(event, c)}
+                      onMouseDown={(event) => {
+  event.stopPropagation();
+  iniciarDrag(event, c);
+}}
                       onClick={() => setCampoSelecionadoId(c.id)}
                       className={`absolute z-20 select-none rounded-md border px-2 py-1 text-[10px] shadow-sm ${
                         campoSelecionadoId === c.id
@@ -1151,10 +1174,14 @@ minHeight: `${c.altura || 22}px`,
                     className="w-full rounded-xl border border-slate-300 px-3 py-2"
                   >
                     {FONTES.map((fonte) => (
-                      <option key={fonte} value={fonte}>
-                        {fonte}
-                      </option>
-                    ))}
+  <option
+    key={fonte}
+    value={fonte}
+    style={{ fontFamily: fonte }}
+  >
+    {fonte}
+  </option>
+))}
                   </select>
                 </div>
 
@@ -1301,7 +1328,14 @@ minHeight: `${c.altura || 22}px`,
         Fechar
       </button>
 
-      <div className="relative mx-auto overflow-hidden rounded-xl border bg-white">
+      <div
+  className="relative mx-auto overflow-hidden rounded-xl border bg-white"
+  style={{
+    width: `${baseCanvas.largura}px`,
+    height: `${baseCanvas.altura}px`,
+    maxWidth: "100%",
+  }}
+>
         
         {certificadoTemplateUrl && (
           <iframe
