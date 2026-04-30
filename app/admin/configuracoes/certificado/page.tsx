@@ -30,6 +30,11 @@ type CampoCertificado = {
   marcador?: string | null;
   imagemUrl?: string | null;
   opacity?: number | null;
+  objectFit?: string | null;
+  rotate?: number | null;
+  flipX?: boolean | null;
+  flipY?: boolean | null;
+  filter?: string | null;
 };
 
 const FONTES = [
@@ -952,7 +957,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
             <img
               src={(img as any).imagemUrl}
               alt="Imagem enviada"
-              className="h-full w-full object-contain"
+              className="h-full w-full"
             />
           </div>
 
@@ -1214,10 +1219,17 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         draggable={false}
         className="h-full w-full object-contain"
         style={{
-          background: "transparent",
-          pointerEvents: "none",
-          opacity: c.opacity || 1,
-        }}
+  background: "transparent",
+  pointerEvents: "none",
+  opacity: c.opacity || 1,
+  objectFit: (c as any).objectFit || "contain",
+  filter: (c as any).filter || "none",
+  transform: `
+    rotate(${(c as any).rotate || 0}deg)
+    scaleX(${(c as any).flipX ? -1 : 1})
+    scaleY(${(c as any).flipY ? -1 : 1})
+  `,
+}}
       />
 
       {campoSelecionadoId === c.id && (
@@ -1385,6 +1397,132 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           <p className="mb-2 text-xs font-semibold text-slate-500">
             Transparência
           </p>
+          <div>
+            <div>
+  <p className="mb-2 text-xs font-semibold text-slate-500">
+    Ajustes da imagem
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal("rotate" as any, Number(campoSelecionado?.rotate || 0) - 15)
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      ↺ Girar
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal("rotate" as any, Number(campoSelecionado?.rotate || 0) + 15)
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      ↻ Girar
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal("flipX" as any, !campoSelecionado?.flipX)
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      ↔ Inverter H
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal("flipY" as any, !campoSelecionado?.flipY)
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      ↕ Inverter V
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("objectFit" as any, "contain")}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Inteira
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("objectFit" as any, "cover")}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Cortar
+    </button>
+  </div>
+</div>
+
+<div>
+  <p className="mb-2 text-xs font-semibold text-slate-500">
+    Filtros
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("filter" as any, "none")}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Normal
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("filter" as any, "grayscale(1)")}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      P&B
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("filter" as any, "sepia(1)")}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Sépia
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("filter" as any, "contrast(1.25) saturate(1.3)")}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Vivo
+    </button>
+  </div>
+</div>
+  <p className="mb-2 text-xs font-semibold text-slate-500">
+    Encaixe da imagem
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("objectFit" as any, "contain" as any)}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Mostrar inteira
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("objectFit" as any, "cover" as any)}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      Cortar/preencher
+    </button>
+  </div>
+</div>
           <input
             type="range"
             min={0.1}
@@ -1587,119 +1725,71 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                   </select>
                 </div>
 
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <div className="flex flex-wrap gap-2 pt-3">
+                <div className="rounded-2xl border border-slate-200 bg-white">
   <button
     type="button"
-    onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1)}
-    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
+    onClick={() => setOpcoesTextoAberto((prev) => !prev)}
+    className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700"
   >
-    🔼 Trazer pra frente
+    Opções do campo
+    <span>{opcoesTextoAberto ? "−" : "+"}</span>
   </button>
 
-  <button
-    type="button"
-    onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1)}
-    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
-  >
-    🔽 Enviar pra trás
-  </button>
+  {opcoesTextoAberto && (
+    <div className="space-y-4 border-t border-slate-100 p-4">
+      <div className="grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">🔼 Frente</button>
+        <button type="button" onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">🔽 Trás</button>
+        <button type="button" onClick={() => atualizarCampoLocal("ordem", 999)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">⏫ Topo</button>
+        <button type="button" onClick={() => atualizarCampoLocal("ordem", 0)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">⏬ Fundo</button>
+      </div>
 
-  <button
-    type="button"
-    onClick={() => atualizarCampoLocal("ordem", 999)}
-    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
-  >
-    ⏫ Frente total
-  </button>
+      {campoSelecionado.tipo !== "IMAGEM" && (
+        <>
+          <div>
+            <p className="mb-2 text-xs font-semibold text-slate-500">
+              Espaçamento entre linhas
+            </p>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => atualizarCampoLocal("lineHeight", Math.max(0.8, Number(campoSelecionado?.lineHeight || 1.3) - 0.1))} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">Aproximar ↑</button>
+              <button type="button" onClick={() => atualizarCampoLocal("lineHeight", Math.min(3, Number(campoSelecionado?.lineHeight || 1.3) + 0.1))} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">Afastar ↓</button>
+            </div>
+          </div>
 
-  <button
-    type="button"
-    onClick={() => atualizarCampoLocal("ordem", 0)}
-    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
-  >
-    ⏬ Fundo total
-  </button>
+          <div>
+            <p className="mb-2 text-xs font-semibold text-slate-500">
+              Marcador da lista
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button type="button" onClick={() => atualizarCampoLocal("marcador", null)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">Nenhum</button>
+              <button type="button" onClick={() => atualizarCampoLocal("marcador", "•")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">• Bolinha</button>
+              <button type="button" onClick={() => atualizarCampoLocal("marcador", "➤")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">➤ Setinha</button>
+              <button type="button" onClick={() => atualizarCampoLocal("marcador", "-")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">- Traço</button>
+            </div>
+          </div>
+        </>
+      )}
+
+      <div className="flex gap-2 pt-2">
+        <button
+          type="button"
+          onClick={salvarCampoSelecionado}
+          className="flex-1 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+        >
+          Salvar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => excluirCampo(campoSelecionado.id)}
+          className="flex-1 rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
+        >
+          Excluir
+        </button>
+      </div>
+    </div>
+  )}
 </div>
-<hr className="my-1" />
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("lineHeight", 1.2);
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  Espaçamento normal
-</button>
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("lineHeight", 1.8);
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  Espaçamento maior
-</button>
-
-<hr className="my-1" />
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", null);
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  Sem marcador
-</button>
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", "•");
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  • Bolinha
-</button>
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", "➤");
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  ➤ Setinha
-</button>
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", "-");
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  - Tracinho
-</button>
-                  <button
-                    type="button"
-                    onClick={salvarCampoSelecionado}
-                    className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
-                  >
-                    Salvar campo
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => excluirCampo(campoSelecionado.id)}
-                    className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700"
-                  >
-                    Excluir
-                  </button>
-                </div>
               </div>
             ) : (
               <p className="text-sm text-slate-500">
@@ -1805,13 +1895,20 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         src={(c as any).imagemUrl}
         className="absolute"
         style={{
-          left: `${c.x}px`,
-          top: `${c.y}px`,
-          width: `${c.largura || 150}px`,
-          height: `${c.altura || 150}px`,
-          objectFit: "contain",
-          zIndex: c.ordem || 10,
-        }}
+  left: `${c.x}px`,
+  top: `${c.y}px`,
+  width: `${c.largura || 150}px`,
+  height: `${c.altura || 150}px`,
+  objectFit: (c as any).objectFit || "contain",
+  opacity: c.opacity || 1,
+  filter: (c as any).filter || "none",
+  transform: `
+    rotate(${(c as any).rotate || 0}deg)
+    scaleX(${(c as any).flipX ? -1 : 1})
+    scaleY(${(c as any).flipY ? -1 : 1})
+  `,
+  zIndex: c.ordem || 10,
+}}
       />
     );
   }
