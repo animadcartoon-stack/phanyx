@@ -360,7 +360,7 @@ export default function IbeMatriculaPage() {
 
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <a
-            href="#matricula"
+            href="/ibe/matricula/checkout"
             className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-7 py-4 text-base font-bold text-white shadow-[0_18px_50px_rgba(34,197,94,0.42)] transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:bg-green-400 animate-[pulse_2.8s_ease-in-out_infinite]"
           >
             Começar minha matrícula agora
