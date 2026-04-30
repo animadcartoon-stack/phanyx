@@ -1,5 +1,6 @@
 "use client";
 
+
 import Image from "next/image";
 import {
   useEffect,
@@ -32,6 +33,7 @@ const ORIENTACOES = {
 type OrientacaoEditor = keyof typeof ORIENTACOES;
 
 export default function ConfiguracaoCertificadoPage() {
+  const [previewAberto, setPreviewAberto] = useState(false);
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
     useState("");
@@ -379,6 +381,7 @@ function finalizarArrastoCanvas() {
 
     const largura = campo.largura || 220;
     const altura = campo.altura || 40;
+    const [previewAberto, setPreviewAberto] = useState(false);
 
     let novoX =
       (event.clientX - canvasRect.left) / escala - dragRef.current.offsetX;
@@ -616,17 +619,27 @@ async function salvarModeloCompleto() {
   >
     Baixar
   </button>
+
 <button
   onClick={salvarModeloCompleto}
   className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
 >
   Salvar modelo
 </button>
+
+<button
+  type="button"
+  onClick={() => setPreviewAberto(true)}
+  className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+>
+  Visualizar
+</button>
+
   {menuDownloadAberto && (
     <div className="absolute right-0 top-12 z-50 w-[290px] rounded-2xl border border-slate-200 bg-white p-4 shadow-xl">
       <h3 className="text-xl font-bold text-slate-900">Baixar</h3>
-className="absolute px-2 py-1 rounded-md bg-white/80 backdrop-blur-sm border border-slate-200 shadow-sm"
-      <div className="mt-5">
+
+<div className="mt-5">
         <label className="mb-2 block text-sm font-medium text-slate-700">
           Formato de arquivo
         </label>
@@ -995,7 +1008,7 @@ className="absolute px-2 py-1 rounded-md bg-white/80 backdrop-blur-sm border bor
                       key={c.id}
                       onMouseDown={(event) => iniciarDrag(event, c)}
                       onClick={() => setCampoSelecionadoId(c.id)}
-                      className={`absolute z-20 select-none rounded-lg border px-3 py-2 shadow-sm ${
+                      className={`absolute z-20 select-none rounded-md border px-2 py-1 text-[10px] shadow-sm ${
                         campoSelecionadoId === c.id
                           ? "border-blue-600 bg-blue-600/90 text-white"
                           : "border-slate-300 bg-white/95 text-slate-700"
@@ -1004,7 +1017,7 @@ className="absolute px-2 py-1 rounded-md bg-white/80 backdrop-blur-sm border bor
                         left: `${c.x}px`,
 top: `${c.y}px`,
 width: `${c.largura || 140}px`,
-minHeight: `${c.altura || 28}px`,
+minHeight: `${c.altura || 22}px`,
                         textAlign:
                           (c.alinhamento as "left" | "center" | "right") ||
                           "left",
@@ -1276,6 +1289,57 @@ minHeight: `${c.altura || 28}px`,
           </div>
         </div>
       </div>
+      {previewAberto && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-6">
+    <div className="relative w-full max-w-5xl rounded-2xl bg-white p-4 shadow-2xl">
+      
+      <button
+        type="button"
+        onClick={() => setPreviewAberto(false)}
+        className="absolute right-4 top-4 rounded-lg bg-red-600 px-3 py-1 text-sm font-bold text-white"
+      >
+        Fechar
+      </button>
+
+      <div className="relative mx-auto overflow-hidden rounded-xl border bg-white">
+        
+        {certificadoTemplateUrl && (
+          <iframe
+            src={`${certificadoTemplateUrl}#toolbar=0`}
+            className="pointer-events-none absolute inset-0 h-full w-full"
+          />
+        )}
+
+        {campos.map((c) => (
+          <div
+            key={c.id}
+            className="absolute"
+            style={{
+              left: `${c.x}px`,
+              top: `${c.y}px`,
+              width: `${c.largura || 140}px`,
+              fontSize: `${c.tamanho || 12}px`,
+              fontFamily: c.fonte || "Helvetica",
+              color: c.cor || "#1e3a8a",
+              textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+            }}
+          >
+            {c.tipo === "NOME_ALUNO"
+              ? "Nome do Aluno"
+              : c.tipo === "NOME_CURSO"
+              ? "Nome do Curso"
+              : c.tipo === "DATA_EMISSAO"
+              ? "30/04/2026"
+              : c.tipo === "ASSINATURA"
+              ? "Assinatura"
+              : c.tipo}
+          </div>
+        ))}
+
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
