@@ -95,7 +95,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(70);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
@@ -653,7 +653,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
             <span className="text-xs text-white/90">Zoom</span>
             <input
   type="range"
-  min={40}
+  min={50}
   max={120}
   step={5}
   value={zoom}
