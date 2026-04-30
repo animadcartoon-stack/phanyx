@@ -71,6 +71,11 @@ const ORIENTACOES = {
 type OrientacaoEditor = keyof typeof ORIENTACOES;
 
 export default function ConfiguracaoCertificadoPage() {
+  const [menuContexto, setMenuContexto] = useState<{
+  x: number;
+  y: number;
+  campoId: number;
+} | null>(null);
   const [previewAberto, setPreviewAberto] = useState(false);
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
@@ -502,6 +507,7 @@ async function salvarModeloCompleto() {
         certificadoTemplateUrl,
         certificadoCoordenadorNome,
         certificadoCidade,
+        ordem: campoSelecionado.ordem || 1,
       }),
     });
 
@@ -1050,7 +1056,15 @@ async function salvarModeloCompleto() {
   event.stopPropagation();
   iniciarDrag(event, c);
 }}
-                      onClick={() => setCampoSelecionadoId(c.id)}
+                      onContextMenu={(e) => {
+  e.preventDefault();
+  setCampoSelecionadoId(c.id);
+  setMenuContexto({
+    x: e.clientX,
+    y: e.clientY,
+    campoId: c.id,
+  });
+}}
                       className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
                         campoSelecionadoId === c.id
                           ? "border-blue-600 bg-blue-600/90 text-white"
@@ -1295,6 +1309,39 @@ textDecoration: c.sublinhado ? "underline" : "none",
                 </div>
 
                 <div className="flex flex-wrap gap-2 pt-2">
+                  <div className="flex flex-wrap gap-2 pt-3">
+  <button
+    type="button"
+    onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1)}
+    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
+  >
+    🔼 Trazer pra frente
+  </button>
+
+  <button
+    type="button"
+    onClick={() => atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1)}
+    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
+  >
+    🔽 Enviar pra trás
+  </button>
+
+  <button
+    type="button"
+    onClick={() => atualizarCampoLocal("ordem", 999)}
+    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
+  >
+    ⏫ Frente total
+  </button>
+
+  <button
+    type="button"
+    onClick={() => atualizarCampoLocal("ordem", 0)}
+    className="px-3 py-1 rounded border text-xs bg-white hover:bg-gray-100"
+  >
+    ⏬ Fundo total
+  </button>
+</div>
                   <button
                     type="button"
                     onClick={salvarCampoSelecionado}
@@ -1443,6 +1490,37 @@ textDecoration: c.sublinhado ? "underline" : "none",
         ))}
       </div>
     </div>
+  </div>
+)}
+{menuContexto && (
+  <div
+    style={{
+      position: "fixed",
+      top: menuContexto.y,
+      left: menuContexto.x,
+      zIndex: 9999,
+    }}
+    className="bg-white border shadow-lg rounded-lg p-2 text-sm"
+  >
+    <button
+      onClick={() => {
+        atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1);
+        setMenuContexto(null);
+      }}
+      className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+    >
+      Trazer pra frente
+    </button>
+
+    <button
+      onClick={() => {
+        atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1);
+        setMenuContexto(null);
+      }}
+      className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+    >
+      Enviar pra trás
+    </button>
   </div>
 )}
     </div>
