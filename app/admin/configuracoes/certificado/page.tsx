@@ -528,6 +528,9 @@ async function salvarModeloCompleto() {
           tamanho: campoSelecionado.tamanho || 18,
           cor: campoSelecionado.cor || "#1e3a8a",
           alinhamento: campoSelecionado.alinhamento || "left",
+          negrito: campoSelecionado.negrito || false,
+          italico: campoSelecionado.italico || false,
+          sublinhado: campoSelecionado.sublinhado || false,
         }),
       });
 
@@ -1047,7 +1050,7 @@ async function salvarModeloCompleto() {
   iniciarDrag(event, c);
 }}
                       onClick={() => setCampoSelecionadoId(c.id)}
-                      className={`absolute z-20 select-none rounded-md border px-2 py-1 text-[10px] shadow-sm ${
+                      className={`absolute z-20 select-none rounded-md border px-2 py-1 text-[9px] shadow-sm ${
                         campoSelecionadoId === c.id
                           ? "border-blue-600 bg-blue-600/90 text-white"
                           : "border-slate-300 bg-white/95 text-slate-700"
@@ -1055,8 +1058,8 @@ async function salvarModeloCompleto() {
                       style={{
                         left: `${c.x}px`,
 top: `${c.y}px`,
-width: `${c.largura || 140}px`,
-minHeight: `${c.altura || 22}px`,
+width: `${c.largura || 120}px`,
+minHeight: `${c.altura || 18}px`,
                         textAlign:
                           (c.alinhamento as "left" | "center" | "right") ||
                           "left",
@@ -1067,6 +1070,9 @@ minHeight: `${c.altura || 22}px`,
                             : c.cor || "#1e3a8a",
                         cursor: "move",
                         fontFamily: c.fonte || "Helvetica",
+                        fontWeight: c.negrito ? "bold" : "normal",
+fontStyle: c.italico ? "italic" : "normal",
+textDecoration: c.sublinhado ? "underline" : "none",
                         lineHeight: 1.3,
                         whiteSpace:
                           c.tipo === "DISCIPLINAS_CONCLUIDAS"
@@ -1200,7 +1206,49 @@ minHeight: `${c.altura || 22}px`,
 ))}
                   </select>
                 </div>
+<div className="mt-3 flex gap-2">
+  <button
+    type="button"
+    onClick={() =>
+      atualizarCampoLocal("negrito", !campoSelecionado.negrito)
+    }
+    className={`px-3 py-1 rounded border text-sm ${
+      campoSelecionado.negrito
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-700"
+    }`}
+  >
+    B
+  </button>
 
+  <button
+    type="button"
+    onClick={() =>
+      atualizarCampoLocal("italico", !campoSelecionado.italico)
+    }
+    className={`px-3 py-1 rounded border text-sm italic ${
+      campoSelecionado.italico
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-700"
+    }`}
+  >
+    I
+  </button>
+
+  <button
+    type="button"
+    onClick={() =>
+      atualizarCampoLocal("sublinhado", !campoSelecionado.sublinhado)
+    }
+    className={`px-3 py-1 rounded border text-sm underline ${
+      campoSelecionado.sublinhado
+        ? "bg-blue-600 text-white"
+        : "bg-white text-gray-700"
+    }`}
+  >
+    U
+  </button>
+</div>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600">
                     Tamanho
@@ -1332,30 +1380,27 @@ minHeight: `${c.altura || 22}px`,
           </div>
         </div>
       </div>
-      {previewAberto && (
-  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 p-6">
-    <div className="relative w-full max-w-5xl rounded-2xl bg-white p-4 shadow-2xl">
-      
-      <button
-        type="button"
-        onClick={() => setPreviewAberto(false)}
-        className="absolute right-4 top-4 rounded-lg bg-red-600 px-3 py-1 text-sm font-bold text-white"
-      >
-        Fechar
-      </button>
+ {previewAberto && (
+  <div className="fixed inset-0 z-[999] bg-black/75 p-6">
+    <button
+      type="button"
+      onClick={() => setPreviewAberto(false)}
+      className="fixed right-6 top-6 z-[1000] rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-700"
+    >
+      Fechar ✕
+    </button>
 
+    <div className="h-full w-full overflow-auto rounded-2xl bg-slate-900 p-8">
       <div
-  className="relative mx-auto overflow-hidden rounded-xl border bg-white"
-  style={{
-    width: `${baseCanvas.largura}px`,
-    height: `${baseCanvas.altura}px`,
-    maxWidth: "100%",
-  }}
->
-        
+        className="relative mx-auto overflow-hidden rounded-xl border-4 border-white bg-white shadow-2xl"
+        style={{
+          width: `${baseCanvas.largura}px`,
+          height: `${baseCanvas.altura}px`,
+        }}
+      >
         {certificadoTemplateUrl && (
           <iframe
-            src={`${certificadoTemplateUrl}#toolbar=0`}
+            src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
             className="pointer-events-none absolute inset-0 h-full w-full"
           />
         )}
@@ -1368,24 +1413,32 @@ minHeight: `${c.altura || 22}px`,
               left: `${c.x}px`,
               top: `${c.y}px`,
               width: `${c.largura || 140}px`,
+              minHeight: `${c.altura || 22}px`,
               fontSize: `${c.tamanho || 12}px`,
               fontFamily: c.fonte || "Helvetica",
               color: c.cor || "#1e3a8a",
-              textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+              textAlign:
+                (c.alinhamento as "left" | "center" | "right") || "left",
+              fontWeight: "normal",
+              whiteSpace:
+                c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
             }}
           >
             {c.tipo === "NOME_ALUNO"
-              ? "Nome do Aluno"
+              ? "José Exemplo da Silva"
               : c.tipo === "NOME_CURSO"
-              ? "Nome do Curso"
+              ? "Bacharel Livre em Teologia"
               : c.tipo === "DATA_EMISSAO"
               ? "30/04/2026"
               : c.tipo === "ASSINATURA"
-              ? "Assinatura"
+              ? "Pr. Roberto Ramos"
+              : c.tipo === "DISCIPLINAS_CONCLUIDAS"
+              ? "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+              : c.tipo === "APROVEITAMENTO"
+              ? "100%"
               : c.tipo}
           </div>
         ))}
-
       </div>
     </div>
   </div>
