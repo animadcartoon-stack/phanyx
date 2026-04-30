@@ -818,7 +818,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
   className="rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
         <div
-          className={`grid min-h-[900px] grid-cols-1 ${
+          className={`grid min-h-[720px] grid-cols-1 ${
             mostrarPainelCampos
               ? "lg:grid-cols-[300px_minmax(760px,1fr)_320px]"
               : "lg:grid-cols-[minmax(860px,1fr)_320px]"
@@ -1005,7 +1005,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
             </aside>
           )}
 
-          <main className="flex min-h-[900px] flex-col bg-[#f3f5f9]">
+          <main className="flex min-h-[720px] flex-col bg-[#f3f5f9]">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
               Área de edição do modelo da instituição
             </div>
@@ -1016,7 +1016,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
+  className="flex-1 overflow-auto bg-[#f3f5f9] p-3"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
