@@ -84,7 +84,7 @@ export default function ConfiguracaoCertificadoPage() {
     useState("");
   const [certificadoCidade, setCertificadoCidade] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
-
+  const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
     null
@@ -581,7 +581,10 @@ setTimeout(() => setMensagemSucesso(""), 2500);
   }
 
   return (
-    <div className="mx-auto max-w-[1600px] p-6">
+    <div
+  className="mx-auto max-w-[1600px] p-6"
+  onClick={() => setMenuContexto(null)}
+>
       <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
@@ -1378,69 +1381,75 @@ textDecoration: c.sublinhado ? "underline" : "none",
     ⏬ Fundo total
   </button>
 </div>
-<hr className="my-1" />
+<div className="rounded-2xl border border-slate-200 bg-white">
+  <button
+    type="button"
+    onClick={() => setOpcoesTextoAberto((prev) => !prev)}
+    className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700"
+  >
+    Opções de texto
+    <span>{opcoesTextoAberto ? "−" : "+"}</span>
+  </button>
 
-<button
-  onClick={() => {
-    atualizarCampoLocal("lineHeight", 1.2);
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  Espaçamento normal
-</button>
+  {opcoesTextoAberto && (
+    <div className="space-y-3 border-t border-slate-100 p-4">
+      <div>
+        <p className="mb-2 text-xs font-semibold text-slate-500">
+          Espaçamento entre linhas
+        </p>
 
-<button
-  onClick={() => {
-    atualizarCampoLocal("lineHeight", 1.8);
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  Espaçamento maior
-</button>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              atualizarCampoLocal(
+                "lineHeight",
+                Math.max(0.8, Number(campoSelecionado?.lineHeight || 1.3) - 0.1)
+              )
+            }
+            className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+          >
+            Aproximar ↑
+          </button>
 
-<hr className="my-1" />
+          <button
+            type="button"
+            onClick={() =>
+              atualizarCampoLocal(
+                "lineHeight",
+                Math.min(3, Number(campoSelecionado?.lineHeight || 1.3) + 0.1)
+              )
+            }
+            className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+          >
+            Afastar ↓
+          </button>
+        </div>
+      </div>
 
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", null);
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  Sem marcador
-</button>
+      <div>
+        <p className="mb-2 text-xs font-semibold text-slate-500">
+          Marcador da lista
+        </p>
 
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", "•");
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  • Bolinha
-</button>
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", "→");
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  → Setinha
-</button>
-
-<button
-  onClick={() => {
-    atualizarCampoLocal("marcador", "-");
-    setMenuContexto(null);
-  }}
-  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
->
-  - Tracinho
-</button>
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => atualizarCampoLocal("marcador", null)} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">
+            Nenhum
+          </button>
+          <button type="button" onClick={() => atualizarCampoLocal("marcador", "•")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">
+            • Bolinha
+          </button>
+          <button type="button" onClick={() => atualizarCampoLocal("marcador", "➤")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">
+            ➤ Setinha
+          </button>
+          <button type="button" onClick={() => atualizarCampoLocal("marcador", "-")} className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100">
+            - Traço
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
                   <button
                     type="button"
                     onClick={salvarCampoSelecionado}
@@ -1597,6 +1606,7 @@ zIndex: c.ordem || 1,
 )}
 {menuContexto && (
   <div
+  onClick={(e) => e.stopPropagation()}
     style={{
       position: "fixed",
       top: menuContexto.y,
@@ -1633,8 +1643,8 @@ zIndex: c.ordem || 1,
       • Bolinha
     </button>
 
-    <button onClick={() => { atualizarCampoLocal("marcador", "→"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
-      → Setinha
+    <button onClick={() => { atualizarCampoLocal("marcador", "➤"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      ➤ Setinha
     </button>
 
     <button onClick={() => { atualizarCampoLocal("marcador", "-"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
