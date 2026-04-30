@@ -88,6 +88,8 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
+    const lineHeight = body?.lineHeight;
+    const marcador = body?.marcador;
     const id = Number(body?.id);
 
     if (!Number.isFinite(id) || id <= 0) {
@@ -114,6 +116,7 @@ export async function PATCH(req: NextRequest) {
     const campoAtualizado = await prisma.certificadoCampo.update({
       where: { id },
       data: {
+
         x: typeof body?.x === "number" ? body.x : campoExistente.x,
         y: typeof body?.y === "number" ? body.y : campoExistente.y,
         largura:
@@ -137,10 +140,21 @@ export async function PATCH(req: NextRequest) {
             ? body.cor
             : campoExistente.cor,
         alinhamento:
-          typeof body?.alinhamento === "string"
-            ? body.alinhamento
-            : campoExistente.alinhamento,
-      },
+        typeof body?.alinhamento === "string"
+      ? body.alinhamento
+      : campoExistente.alinhamento,
+
+  // 👇 AQUI É O QUE FALTAVA
+  lineHeight:
+    typeof lineHeight === "number"
+      ? lineHeight
+      : campoExistente.lineHeight,
+
+  marcador:
+    typeof marcador === "string"
+      ? marcador
+      : campoExistente.marcador,
+},
     });
 
     return NextResponse.json(campoAtualizado);
