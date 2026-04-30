@@ -115,8 +115,8 @@ export default function ConfiguracaoCertificadoPage() {
   const url = URL.createObjectURL(file);
 
   const novoCampo: any = {
-    id: Date.now(),
-    tipo: "IMAGEM",
+  id: Math.floor(Math.random() * 1000000),
+  tipo: "IMAGEM",
     x: 150,
     y: 150,
     largura: 150,
@@ -1109,73 +1109,97 @@ setTimeout(() => setMensagemSucesso(""), 2500);
                     </div>
                   )}
 
-                  {campos.map((c) => (
-                    <div
-                      key={c.id}
-                      onMouseDown={(event) => {
-  event.stopPropagation();
-  iniciarDrag(event, c);
-}}
-                      onContextMenu={(e) => {
-  e.preventDefault();
-  setCampoSelecionadoId(c.id);
-  setMenuContexto({
-    x: e.clientX,
-    y: e.clientY,
-    campoId: c.id,
-  });
-}}
-                      className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
-                        campoSelecionadoId === c.id
-                          ? "border-blue-600 bg-blue-600/90 text-white"
-                          : "border-blue-300 bg-transparent text-blue-900"
-                      }`}
-                      style={{
-                        left: `${c.x}px`,
-top: `${c.y}px`,
-width: `${c.largura || 120}px`,
-minHeight: `${c.altura || 18}px`,
-zIndex: c.ordem || 1,
-                        textAlign:
-                          (c.alinhamento as "left" | "center" | "right") ||
-                          "left",
-                        fontSize: `${c.tamanho || 12}px`,
-                        color:
-                          campoSelecionadoId === c.id
-                            ? "#ffffff"
-                            : c.cor || "#1e3a8a",
-                        cursor: "move",
-                        fontFamily: c.fonte || "Helvetica",
-                        fontWeight: c.negrito ? "bold" : "normal",
-fontStyle: c.italico ? "italic" : "normal",
-textDecoration: c.sublinhado ? "underline" : "none",
-                        lineHeight: c.lineHeight || 1.3,
-                        whiteSpace:
-                          c.tipo === "DISCIPLINAS_CONCLUIDAS"
-                            ? "pre-wrap"
-                            : "nowrap",
-                      }}
-                    >
-                      {c.tipo === "DISCIPLINAS_CONCLUIDAS"
-  ? c.marcador
-    ? `${c.marcador} Disciplina 1\n${c.marcador} Disciplina 2\n${c.marcador} Disciplina 3`
-    : "Disciplina 1\nDisciplina 2\nDisciplina 3"
-  : c.tipo === "APROVEITAMENTO"
-  ? "100%"
-  : c.tipo === "FREQUENCIA_TOTAL"
-  ? "FREQUÊNCIA TOTAL"
-  : c.tipo === "NOME_ALUNO"
-  ? "Nome do aluno"
-  : c.tipo === "NOME_CURSO"
-  ? "Nome do curso"
-  : c.tipo === "DATA_EMISSAO"
-  ? "00/00/0000"
-  : c.tipo === "ASSINATURA"
-  ? "Nome do diretor"
-  : c.tipo}
-                    </div>
-                  ))}
-                </div>
+   {campos.map((c) => {
+  if (c.tipo === "IMAGEM") {
+    return (
+      <img
+        key={c.id}
+        src={(c as any).imagemUrl}
+        style={{
+          position: "absolute",
+          left: `${c.x}px`,
+          top: `${c.y}px`,
+          width: `${c.largura || 150}px`,
+          height: `${c.altura || 150}px`,
+          objectFit: "contain",
+          cursor: "move",
+        }}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+          iniciarDrag(event as any, c);
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      key={c.id}
+      onMouseDown={(event) => {
+        event.stopPropagation();
+        iniciarDrag(event, c);
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setCampoSelecionadoId(c.id);
+        setMenuContexto({
+          x: e.clientX,
+          y: e.clientY,
+          campoId: c.id,
+        });
+      }}
+      className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
+        campoSelecionadoId === c.id
+          ? "border-blue-600 bg-blue-600/90 text-white"
+          : "border-blue-300 bg-transparent text-blue-900"
+      }`}
+      style={{
+        left: `${c.x}px`,
+        top: `${c.y}px`,
+        width: `${c.largura || 120}px`,
+        minHeight: `${c.altura || 18}px`,
+        zIndex: c.ordem || 1,
+        textAlign:
+          (c.alinhamento as "left" | "center" | "right") || "left",
+        fontSize: `${c.tamanho || 12}px`,
+        color:
+          campoSelecionadoId === c.id
+            ? "#ffffff"
+            : c.cor || "#1e3a8a",
+        cursor: "move",
+        fontFamily: c.fonte || "Helvetica",
+        fontWeight: c.negrito ? "bold" : "normal",
+        fontStyle: c.italico ? "italic" : "normal",
+        textDecoration: c.sublinhado ? "underline" : "none",
+        lineHeight: c.lineHeight || 1.3,
+        whiteSpace:
+          c.tipo === "DISCIPLINAS_CONCLUIDAS"
+            ? "pre-wrap"
+            : "nowrap",
+      }}
+    >
+      {c.tipo === "DISCIPLINAS_CONCLUIDAS"
+        ? c.marcador
+          ? `${c.marcador} Disciplina 1\n${c.marcador} Disciplina 2\n${c.marcador} Disciplina 3`
+          : "Disciplina 1\nDisciplina 2\nDisciplina 3"
+        : c.tipo === "APROVEITAMENTO"
+        ? "100%"
+        : c.tipo === "FREQUENCIA_TOTAL"
+        ? "FREQUÊNCIA TOTAL"
+        : c.tipo === "NOME_ALUNO"
+        ? "Nome do aluno"
+        : c.tipo === "NOME_CURSO"
+        ? "Nome do curso"
+        : c.tipo === "DATA_EMISSAO"
+        ? "00/00/0000"
+        : c.tipo === "ASSINATURA"
+        ? "Nome do diretor"
+        : c.tipo}
+    </div>
+  );
+})}
+  
+</div>
               </div>
             </div>
 
