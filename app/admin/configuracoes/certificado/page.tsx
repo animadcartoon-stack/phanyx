@@ -1890,26 +1890,26 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         {campos.map((c) => {
   if (c.tipo === "IMAGEM") {
     return (
-      <img
-        key={c.id}
-        src={(c as any).imagemUrl}
-        className="absolute"
-        style={{
-  left: `${c.x}px`,
-  top: `${c.y}px`,
-  width: `${c.largura || 150}px`,
-  height: `${c.altura || 150}px`,
-  objectFit: (c as any).objectFit || "contain",
-  opacity: c.opacity || 1,
-  filter: (c as any).filter || "none",
-  transform: `
-    rotate(${(c as any).rotate || 0}deg)
-    scaleX(${(c as any).flipX ? -1 : 1})
-    scaleY(${(c as any).flipY ? -1 : 1})
-  `,
-  zIndex: c.ordem || 10,
-}}
-      />
+     <div className="h-full w-full overflow-hidden rounded-lg">
+  <img
+    src={(c as any).imagemUrl}
+    alt="Imagem do certificado"
+    draggable={false}
+    className="h-full w-full"
+    style={{
+      background: "transparent",
+      pointerEvents: "none",
+      opacity: c.opacity || 1,
+      objectFit: (c as any).objectFit || "contain",
+      filter: (c as any).filter || "none",
+      transform: `
+        rotate(${(c as any).rotate || 0}deg)
+        scaleX(${(c as any).flipX ? -1 : 1})
+        scaleY(${(c as any).flipY ? -1 : 1})
+      `,
+    }}
+  />
+</div>
     );
   }
 
