@@ -1025,7 +1025,13 @@ setTimeout(() => setMensagemSucesso(""), 2500);
     : "default",
 }}
 >
-              <div className="mx-auto flex min-h-full w-full items-start justify-center">
+              <div
+  className="mx-auto flex min-h-full w-full items-start justify-center"
+  style={{
+    minWidth: `${canvasWidth}px`,
+    minHeight: `${canvasHeight}px`,
+  }}
+>
                 <div
                   ref={canvasRef}
                   onMouseMove={onMouseMoveCanvas}
