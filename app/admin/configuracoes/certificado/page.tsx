@@ -572,7 +572,7 @@ async function salvarModeloCompleto() {
       );
     }
 
-    if (campoSelecionado) {
+    if (campoSelecionado && campoSelecionado.tipo !== "IMAGEM") {
       const resCampo = await fetch("/api/admin/certificado-campos", {
         method: "PATCH",
         headers: {
@@ -606,7 +606,12 @@ async function salvarModeloCompleto() {
 setTimeout(() => setMensagemSucesso(""), 2500);
     }
 
-    alert("Modelo de certificado salvo com sucesso!");
+    setMensagemSucesso(
+  campoSelecionado?.tipo === "IMAGEM"
+    ? "Modelo salvo. A imagem aparece na prévia, mas ainda não foi salva definitivamente."
+    : "Modelo de certificado salvo com sucesso!"
+);
+setTimeout(() => setMensagemSucesso(""), 3000);
   } catch (error: any) {
     console.error(error);
     alert(error?.message || "Erro ao salvar modelo.");
