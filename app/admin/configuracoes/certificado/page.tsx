@@ -107,7 +107,26 @@ export default function ConfiguracaoCertificadoPage() {
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
+  
+  const handleUploadImagem = (e: any) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
+  const url = URL.createObjectURL(file);
+
+  const novoCampo: any = {
+    id: Date.now(),
+    tipo: "IMAGEM",
+    x: 150,
+    y: 150,
+    largura: 150,
+    altura: 150,
+    imagemUrl: url,
+    ordem: 10,
+  };
+
+  setCampos((prev) => [...prev, novoCampo]);
+};
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
@@ -864,6 +883,19 @@ setTimeout(() => setMensagemSucesso(""), 2500);
                 Editor PHANYX
               </div>
 
+<div className="mb-4">
+  <label className="block text-xs font-bold text-slate-500 mb-2">
+    Upload de imagem
+  </label>
+
+  <input
+    type="file"
+    accept="image/png, image/jpeg"
+    onChange={handleUploadImagem}
+    className="block w-full text-xs"
+  />
+</div>
+
               <div className="space-y-4">
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
@@ -1030,7 +1062,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-[#f3f5f9] p-3"
+  className="flex-1 overflow-auto bg-[#f3f5f9] flex items-center justify-center"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -1040,11 +1072,11 @@ setTimeout(() => setMensagemSucesso(""), 2500);
 }}
 >
               <div
-  className="flex w-full justify-center items-center"
-  style={{
-    minWidth: `${canvasWidth}px`,
-    minHeight: `${canvasHeight}px`,
-  }}
+  className="flex items-center justify-center"
+ style={{
+  width: `${canvasWidth}px`,
+  height: `${canvasHeight}px`,
+}}
 >
                 <div
                   ref={canvasRef}
