@@ -474,6 +474,7 @@ negrito: campoSelecionado.negrito || false,
 italico: campoSelecionado.italico || false,
 sublinhado: campoSelecionado.sublinhado || false,
     });
+    alert("Campo salvo com sucesso!");
   }
 
 function baixarArquivo() {
