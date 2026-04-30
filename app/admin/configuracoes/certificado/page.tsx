@@ -92,7 +92,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [salvando, setSalvando] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
-
+  const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
   const [zoom, setZoom] = useState(100);
@@ -474,7 +474,8 @@ negrito: campoSelecionado.negrito || false,
 italico: campoSelecionado.italico || false,
 sublinhado: campoSelecionado.sublinhado || false,
     });
-    alert("Campo salvo com sucesso!");
+    setMensagemSucesso("Campo salvo com sucesso!");
+    setTimeout(() => setMensagemSucesso(""), 2500);
   }
 
 function baixarArquivo() {
@@ -553,7 +554,8 @@ async function salvarModeloCompleto() {
           dataCampo?.detalhe || dataCampo?.error || "Erro ao salvar campo."
         );
       }
-      alert("Campo salvo com sucesso!");
+      setMensagemSucesso("Campo salvo com sucesso!");
+setTimeout(() => setMensagemSucesso(""), 2500);
     }
 
     alert("Modelo de certificado salvo com sucesso!");
@@ -1449,8 +1451,8 @@ textDecoration: c.sublinhado ? "underline" : "none",
       <div
         className="relative mx-auto overflow-hidden rounded-xl border-4 border-white bg-white shadow-2xl"
         style={{
-  width: `${canvasWidth}px`,
-  height: `${canvasHeight}px`,
+  width: `${baseCanvas.largura}px`,
+  height: `${baseCanvas.altura}px`,
 }}
       >
         {certificadoTemplateUrl && (
@@ -1465,11 +1467,11 @@ textDecoration: c.sublinhado ? "underline" : "none",
             key={c.id}
             className="absolute"
            style={{
-  left: `${c.x * escala}px`,
-top: `${c.y * escala}px`,
-width: `${(c.largura || 120) * escala}px`,
-minHeight: `${(c.altura || 18) * escala}px`,
-fontSize: `${(c.tamanho || 12) * escala}px`,
+  left: `${c.x}px`,
+top: `${c.y}px`,
+width: `${c.largura || 120}px`,
+minHeight: `${c.altura || 18}px`,
+fontSize: `${c.tamanho || 12}px`,
 zIndex: c.ordem || 1,
   fontFamily: c.fonte || "Helvetica",
   color: c.cor || "#1e3a8a",
@@ -1528,6 +1530,11 @@ zIndex: c.ordem || 1,
     >
       Enviar pra trás
     </button>
+  </div>
+)}
+{mensagemSucesso && (
+  <div className="fixed right-6 top-24 z-[9999] rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-xl">
+    {mensagemSucesso}
   </div>
 )}
     </div>
