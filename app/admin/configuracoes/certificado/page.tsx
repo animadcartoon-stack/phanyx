@@ -1123,12 +1123,20 @@ textDecoration: c.sublinhado ? "underline" : "none",
                     >
                       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
   ? c.marcador
-    ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
-    : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+    ? `${c.marcador} Disciplina 1\n${c.marcador} Disciplina 2\n${c.marcador} Disciplina 3`
+    : "Disciplina 1\nDisciplina 2\nDisciplina 3"
   : c.tipo === "APROVEITAMENTO"
-  ? "APROVEITAMENTO"
+  ? "100%"
   : c.tipo === "FREQUENCIA_TOTAL"
   ? "FREQUÊNCIA TOTAL"
+  : c.tipo === "NOME_ALUNO"
+  ? "Nome do aluno"
+  : c.tipo === "NOME_CURSO"
+  ? "Nome do curso"
+  : c.tipo === "DATA_EMISSAO"
+  ? "00/00/0000"
+  : c.tipo === "ASSINATURA"
+  ? "Nome do diretor"
   : c.tipo}
                     </div>
                   ))}
@@ -1597,24 +1605,40 @@ zIndex: c.ordem || 1,
     }}
     className="bg-white border shadow-lg rounded-lg p-2 text-sm"
   >
-    <button
-      onClick={() => {
-        atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1);
-        setMenuContexto(null);
-      }}
-      className="block w-full text-left px-3 py-1 hover:bg-gray-100"
-    >
+    <button onClick={() => { atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
       Trazer pra frente
     </button>
 
-    <button
-      onClick={() => {
-        atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1);
-        setMenuContexto(null);
-      }}
-      className="block w-full text-left px-3 py-1 hover:bg-gray-100"
-    >
+    <button onClick={() => { atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
       Enviar pra trás
+    </button>
+
+    <hr className="my-1" />
+
+    <button onClick={() => { atualizarCampoLocal("lineHeight", 1.2); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      Espaçamento normal
+    </button>
+
+    <button onClick={() => { atualizarCampoLocal("lineHeight", 1.8); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      Espaçamento maior
+    </button>
+
+    <hr className="my-1" />
+
+    <button onClick={() => { atualizarCampoLocal("marcador", null); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      Sem marcador
+    </button>
+
+    <button onClick={() => { atualizarCampoLocal("marcador", "•"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      • Bolinha
+    </button>
+
+    <button onClick={() => { atualizarCampoLocal("marcador", "→"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      → Setinha
+    </button>
+
+    <button onClick={() => { atualizarCampoLocal("marcador", "-"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+      - Tracinho
     </button>
   </div>
 )}
