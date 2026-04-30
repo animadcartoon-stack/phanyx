@@ -28,6 +28,8 @@ type CampoCertificado = {
   ordem?: number | null;
   lineHeight?: number | null;
   marcador?: string | null;
+  imagemUrl?: string | null;
+  opacity?: number | null;
 };
 
 const FONTES = [
@@ -85,6 +87,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [certificadoCidade, setCertificadoCidade] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
+  const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
     null
@@ -1213,8 +1216,46 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         style={{
           background: "transparent",
           pointerEvents: "none",
+          opacity: c.opacity || 1,
         }}
       />
+
+      {campoSelecionadoId === c.id && (
+        <div
+          onMouseDown={(e) => {
+            e.stopPropagation();
+
+            const startX = e.clientX;
+            const startY = e.clientY;
+            const startW = c.largura || 150;
+            const startH = c.altura || 150;
+
+            const move = (ev: globalThis.MouseEvent) => {
+              setCampos((prev) =>
+                prev.map((item) =>
+                  item.id === c.id
+                    ? {
+                        ...item,
+                        largura: Math.max(40, startW + ev.clientX - startX),
+                        altura: Math.max(40, startH + ev.clientY - startY),
+                      }
+                    : item
+                )
+              );
+            };
+
+            const up = () => {
+              window.removeEventListener("mousemove", move);
+              window.removeEventListener("mouseup", up);
+            };
+
+            window.addEventListener("mousemove", move);
+            window.addEventListener("mouseup", up);
+          }}
+          className="absolute bottom-[-6px] right-[-6px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+          title="Redimensionar"
+        />
+      )}
     </div>
   );
 }
@@ -1315,18 +1356,66 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
             <h2 className="mb-4 text-lg font-bold text-slate-900">
               Campo selecionado
-              {campoSelecionado?.tipo === "IMAGEM" && (
-  <button
-    onClick={() => excluirCampo(campoSelecionado.id)}
-    className="mt-3 w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600"
-  >
-    🗑️ Excluir imagem
-  </button>
-)}
             </h2>
 
             {campoSelecionado ? (
               <div className="space-y-4 text-sm text-slate-700">
+                {campoSelecionado.tipo === "IMAGEM" && (
+  <div className="rounded-2xl border border-slate-200 bg-white">
+    <button
+      type="button"
+      onClick={() => setOpcoesImagemAberto((prev) => !prev)}
+      className="flex w-full items-center justify-between px-4 py-3 text-sm font-semibold text-slate-700"
+    >
+      Opções da imagem
+      <span>{opcoesImagemAberto ? "−" : "+"}</span>
+    </button>
+
+    {opcoesImagemAberto && (
+      <div className="space-y-4 border-t border-slate-100 p-4">
+        <div className="rounded-xl bg-slate-50 p-3">
+          <img
+            src={(campoSelecionado as any).imagemUrl}
+            alt="Prévia da imagem"
+            className="mx-auto h-24 w-full object-contain"
+          />
+        </div>
+
+        <div>
+          <p className="mb-2 text-xs font-semibold text-slate-500">
+            Transparência
+          </p>
+          <input
+            type="range"
+            min={0.1}
+            max={1}
+            step={0.05}
+            value={campoSelecionado.opacity || 1}
+            onChange={(e) =>
+              atualizarCampoLocal("opacity", Number(e.target.value))
+            }
+            className="w-full"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCampos((prev) =>
+              prev.filter((c) => c.id !== campoSelecionado.id)
+            );
+            setCampoSelecionadoId(null);
+            setMensagemSucesso("Imagem removida.");
+            setTimeout(() => setMensagemSucesso(""), 2500);
+          }}
+          className="w-full rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
+        >
+          🗑️ Remover imagem
+        </button>
+      </div>
+    )}
+  </div>
+)}
                 <div>
                   <span className="font-semibold">Tipo:</span>{" "}
                   {campoSelecionado.tipo}
@@ -1578,12 +1667,12 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 
 <button
   onClick={() => {
-    atualizarCampoLocal("marcador", "→");
+    atualizarCampoLocal("marcador", "➤");
     setMenuContexto(null);
   }}
   className="block w-full text-left px-3 py-1 hover:bg-gray-100"
 >
-  → Setinha
+  ➤ Setinha
 </button>
 
 <button
