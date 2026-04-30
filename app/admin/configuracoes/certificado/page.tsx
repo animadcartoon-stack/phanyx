@@ -483,22 +483,28 @@ function finalizarArrastoCanvas() {
   }
 
   function finalizarDrag() {
-    if (!dragRef.current) return;
+  if (!dragRef.current) return;
 
-    const campo = campos.find((c) => c.id === dragRef.current?.campoId);
+  const campo = campos.find((c) => c.id === dragRef.current?.campoId);
 
-    if (campo) {
-      void atualizarCampo(campo.id, {
-        x: campo.x,
-        y: campo.y,
-      });
-    }
-
-    dragRef.current = null;
+  if (campo && campo.tipo !== "IMAGEM") {
+    void atualizarCampo(campo.id, {
+      x: campo.x,
+      y: campo.y,
+    });
   }
+
+  dragRef.current = null;
+}
 
   async function salvarCampoSelecionado() {
     if (!campoSelecionado) return;
+
+if (campoSelecionado.tipo === "IMAGEM") {
+  setMensagemSucesso("Imagem ajustada no editor.");
+  setTimeout(() => setMensagemSucesso(""), 2500);
+  return;
+}
 
     await atualizarCampo(campoSelecionado.id, {
       x: campoSelecionado.x,
@@ -901,17 +907,58 @@ setTimeout(() => setMensagemSucesso(""), 2500);
                 Editor PHANYX
               </div>
 
-<div className="mb-4">
-  <label className="block text-xs font-bold text-slate-500 mb-2">
-    Upload de imagem
+<div className="mb-4 rounded-2xl border border-dashed border-blue-300 bg-white p-4 shadow-sm">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+    Imagens do certificado
+  </p>
+
+  <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
+    <span className="text-2xl">🖼️</span>
+    <span className="mt-1 text-sm font-semibold text-blue-700">
+      Adicionar PNG/JPEG
+    </span>
+    <span className="mt-1 text-[11px] text-slate-500">
+      Pode adicionar várias imagens
+    </span>
+
+    <input
+      type="file"
+      accept="image/png, image/jpeg"
+      multiple
+      onChange={handleUploadImagem}
+      className="hidden"
+    />
   </label>
 
-  <input
-    type="file"
-    accept="image/png, image/jpeg"
-    onChange={handleUploadImagem}
-    className="block w-full text-xs"
-  />
+  <div className="mt-3 space-y-2">
+    {campos
+      .filter((c) => c.tipo === "IMAGEM")
+      .map((img) => (
+        <button
+          key={img.id}
+          type="button"
+          onClick={() => setCampoSelecionadoId(img.id)}
+          className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 text-left hover:bg-slate-100"
+        >
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-white">
+            <img
+              src={(img as any).imagemUrl}
+              alt="Imagem enviada"
+              className="h-full w-full object-contain"
+            />
+          </div>
+
+          <div className="min-w-0">
+            <p className="truncate text-xs font-semibold text-slate-700">
+              Imagem adicionada
+            </p>
+            <p className="text-[11px] text-slate-500">
+              Clique para selecionar
+            </p>
+          </div>
+        </button>
+      ))}
+  </div>
 </div>
 
               <div className="space-y-4">
@@ -1129,26 +1176,43 @@ setTimeout(() => setMensagemSucesso(""), 2500);
 
    {campos.map((c) => {
   if (c.tipo === "IMAGEM") {
-    return (
+  return (
+    <div
+      key={c.id}
+      onMouseDown={(event) => {
+        event.stopPropagation();
+        setCampoSelecionadoId(c.id);
+        iniciarDrag(event as any, c);
+      }}
+      className="absolute z-20 select-none"
+      style={{
+        left: `${c.x}px`,
+        top: `${c.y}px`,
+        width: `${c.largura || 150}px`,
+        height: `${c.altura || 150}px`,
+        cursor: "move",
+        zIndex: c.ordem || 10,
+        border:
+          campoSelecionadoId === c.id
+            ? "2px solid #2563eb"
+            : "1px dashed #93c5fd",
+        borderRadius: "10px",
+        background: "transparent",
+      }}
+    >
       <img
-        key={c.id}
         src={(c as any).imagemUrl}
+        alt="Imagem do certificado"
+        draggable={false}
+        className="h-full w-full object-contain"
         style={{
-          position: "absolute",
-          left: `${c.x}px`,
-          top: `${c.y}px`,
-          width: `${c.largura || 150}px`,
-          height: `${c.altura || 150}px`,
-          objectFit: "contain",
-          cursor: "move",
-        }}
-        onMouseDown={(event) => {
-          event.stopPropagation();
-          iniciarDrag(event as any, c);
+          background: "transparent",
+          pointerEvents: "none",
         }}
       />
-    );
-  }
+    </div>
+  );
+}
 
   return (
     <div
