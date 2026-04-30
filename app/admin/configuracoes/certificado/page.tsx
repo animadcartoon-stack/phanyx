@@ -1017,7 +1017,13 @@ async function salvarModeloCompleto() {
     : "default",
 }}
 >
-              <div className="mx-auto flex min-h-full w-full items-start justify-center">
+              <div
+  className="mx-auto flex min-h-full w-full items-start justify-center"
+  style={{
+    minWidth: `${canvasWidth}px`,
+    minHeight: `${canvasHeight}px`,
+  }}
+>
                 <div
                   ref={canvasRef}
                   onMouseMove={onMouseMoveCanvas}
@@ -1025,8 +1031,8 @@ async function salvarModeloCompleto() {
                   onMouseLeave={finalizarDrag}
                   className="relative overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
-  width: `${canvasWidth}px`,
-  height: `${canvasHeight}px`,
+  width: `${baseCanvas.largura}px`,
+  height: `${baseCanvas.altura}px`,
   transform: `scale(${escala})`,
   transformOrigin: "top left",
 }}
