@@ -653,7 +653,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
             <span className="text-xs text-white/90">Zoom</span>
             <input
   type="range"
-  min={50}
+  min={40}
   max={120}
   step={5}
   value={zoom}
