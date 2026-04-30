@@ -165,6 +165,9 @@ export async function POST(request: Request) {
         departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
         instituicaoId: user.instituicaoId,
         userId: novoUser.id,
+        statusFuncionario: body.statusFuncionario || "ATIVO",
+        motivoStatus: body.motivoStatus || null,
+        ativo: (body.statusFuncionario || "ATIVO") === "ATIVO",
       },
       include: {
         user: true,

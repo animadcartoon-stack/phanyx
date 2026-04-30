@@ -115,7 +115,7 @@ const paginasSeo = [
     href: "/sistema-escolar",
   },
   {
-    titulo: "Moodle para escolas",
+    titulo: "Sistema para escolas",
     descricao:
       "Entenda as diferenças entre o PHANYX e soluções tradicionais para ensino digital e gestão acadêmica.",
     href: "/moodle-para-escolas",

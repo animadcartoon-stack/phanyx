@@ -17,11 +17,16 @@ interface Funcionario {
   cargo?: string | null;
   setor?: string | null;
   codigoFuncionario?: string | null;
-   user: {
+
+  statusFuncionario?: string;
+  motivoStatus?: string;
+
+  user: {
     email: string;
     role: string;
     ativo?: boolean;
   };
+
   departamento?: {
     id: number;
     nome: string;
@@ -83,6 +88,8 @@ function AdminFuncionariosPage() {
   const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
+  const [statusFuncionario, setStatusFuncionario] = useState("ATIVO");
+  const [motivoStatus, setMotivoStatus] = useState("");
   const [departamentoId, setDepartamentoId] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(false);
@@ -170,6 +177,8 @@ function AdminFuncionariosPage() {
           cargo,
           codigoFuncionario,
           departamentoId: departamentoId || null,
+          statusFuncionario,
+          motivoStatus,
         }),
       });
 
@@ -186,29 +195,6 @@ function AdminFuncionariosPage() {
     } finally {
       setCarregando(false);
     }
-  }
-
-  async function excluirFuncionario(id: number, nome: string) {
-    const confirmado = window.confirm(
-      `Tem certeza que deseja excluir o funcionário "${nome}"?`
-    );
-
-    if (!confirmado) return;
-
-    const res = await fetch(`/api/funcionario/${id}`, {
-      method: "DELETE",
-      credentials: "include",
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data.error || "Erro ao excluir funcionário.");
-      return;
-    }
-
-    alert("Funcionário excluído com sucesso.");
-    await carregarFuncionarios();
   }
 
   async function alterarAcessoFuncionario(
@@ -282,6 +268,8 @@ function AdminFuncionariosPage() {
           cargo,
           codigoFuncionario,
           departamentoId: departamentoId || null,
+          statusFuncionario,
+          motivoStatus,
         }),
       });
 
@@ -475,6 +463,30 @@ function AdminFuncionariosPage() {
           />
         </div>
 
+<div className="space-y-1">
+  <label className="text-sm font-medium">Status</label>
+
+  <select
+    value={statusFuncionario}
+    onChange={(e) => setStatusFuncionario(e.target.value)}
+    className="w-full border rounded-lg p-2"
+  >
+    <option value="ATIVO">Ativo</option>
+    <option value="DEMITIDO">Demitido</option>
+    <option value="AFASTADO">Afastado</option>
+    <option value="ADVERTENCIA">Advertência</option>
+    <option value="FERIAS">Férias</option>
+    <option value="READMITIDO">Readmitido</option>
+  </select>
+</div>
+
+<input
+  placeholder="Motivo (opcional)"
+  value={motivoStatus}
+  onChange={(e) => setMotivoStatus(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
+
         <div className="flex flex-wrap gap-2">
   <button
     type="submit"
@@ -533,6 +545,16 @@ function AdminFuncionariosPage() {
   Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
 </p>
 
+<p className="text-sm text-gray-600">
+  Status: {f.statusFuncionario || "ATIVO"}
+</p>
+
+{f.motivoStatus && (
+  <p className="text-sm text-gray-600">
+    Motivo: {f.motivoStatus}
+  </p>
+)}
+
                 <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
                 <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
                 <p className="text-sm text-gray-600">
@@ -572,13 +594,6 @@ function AdminFuncionariosPage() {
     Desbloquear acesso
   </button>
 
-                <button
-  type="button"
-  onClick={() => excluirFuncionario(f.id, f.nome)}
-  className="px-3 py-1.5 rounded-lg border border-red-600 text-red-700 text-sm"
->
-  Excluir
-</button>
               </div>
             </div>
           ))
