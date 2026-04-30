@@ -1443,9 +1443,9 @@ textDecoration: c.sublinhado ? "underline" : "none",
       <div
         className="relative mx-auto overflow-hidden rounded-xl border-4 border-white bg-white shadow-2xl"
         style={{
-          width: `${baseCanvas.largura}px`,
-          height: `${baseCanvas.altura}px`,
-        }}
+  width: `${canvasWidth}px`,
+  height: `${canvasHeight}px`,
+}}
       >
         {certificadoTemplateUrl && (
           <iframe
@@ -1459,11 +1459,12 @@ textDecoration: c.sublinhado ? "underline" : "none",
             key={c.id}
             className="absolute"
            style={{
-  left: `${c.x}px`,
-  top: `${c.y}px`,
-  width: `${c.largura || 140}px`,
-  minHeight: `${c.altura || 22}px`,
-  fontSize: `${c.tamanho || 12}px`,
+  left: `${c.x * escala}px`,
+top: `${c.y * escala}px`,
+width: `${(c.largura || 140) * escala}px`,
+minHeight: `${(c.altura || 22) * escala}px`,
+fontSize: `${(c.tamanho || 12) * escala}px`,
+zIndex: c.ordem || 1,
   fontFamily: c.fonte || "Helvetica",
   color: c.cor || "#1e3a8a",
   textAlign:
