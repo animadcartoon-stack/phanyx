@@ -1295,6 +1295,8 @@ model CertificadoCampo {
   tamanho       Int?
   cor           String?
   alinhamento   String?
+  lineHeight    Float?
+  marcador      String?
   pagina        Int      @default(1)
   ordem         Int      @default(0)
   createdAt     DateTime @default(now())

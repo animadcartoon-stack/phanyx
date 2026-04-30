@@ -26,6 +26,8 @@ type CampoCertificado = {
   italico?: boolean;
   sublinhado?: boolean;
   ordem?: number | null;
+  lineHeight?: number | null;
+  marcador?: string | null;
 };
 
 const FONTES = [
@@ -471,9 +473,11 @@ function finalizarArrastoCanvas() {
       cor: campoSelecionado.cor || "#1e3a8a",
       alinhamento: campoSelecionado.alinhamento || "left",
       ordem: campoSelecionado.ordem || 1,
-negrito: campoSelecionado.negrito || false,
-italico: campoSelecionado.italico || false,
-sublinhado: campoSelecionado.sublinhado || false,
+      negrito: campoSelecionado.negrito || false,
+      italico: campoSelecionado.italico || false,
+      sublinhado: campoSelecionado.sublinhado || false,
+      lineHeight: campoSelecionado.lineHeight || 1.3,
+      marcador: campoSelecionado.marcador || null,
     });
     setMensagemSucesso("Campo salvo com sucesso!");
     setTimeout(() => setMensagemSucesso(""), 2500);
@@ -1110,7 +1114,7 @@ zIndex: c.ordem || 1,
                         fontWeight: c.negrito ? "bold" : "normal",
 fontStyle: c.italico ? "italic" : "normal",
 textDecoration: c.sublinhado ? "underline" : "none",
-                        lineHeight: 1.3,
+                        lineHeight: c.lineHeight || 1.3,
                         whiteSpace:
                           c.tipo === "DISCIPLINAS_CONCLUIDAS"
                             ? "pre-wrap"
@@ -1118,12 +1122,14 @@ textDecoration: c.sublinhado ? "underline" : "none",
                       }}
                     >
                       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
-                        ? "DISCIPLINAS CONCLUÍDAS"
-                        : c.tipo === "APROVEITAMENTO"
-                        ? "APROVEITAMENTO"
-                        : c.tipo === "FREQUENCIA_TOTAL"
-                        ? "FREQUÊNCIA TOTAL"
-                        : c.tipo}
+  ? c.marcador
+    ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
+    : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+  : c.tipo === "APROVEITAMENTO"
+  ? "APROVEITAMENTO"
+  : c.tipo === "FREQUENCIA_TOTAL"
+  ? "FREQUÊNCIA TOTAL"
+  : c.tipo}
                     </div>
                   ))}
                 </div>
@@ -1364,6 +1370,69 @@ textDecoration: c.sublinhado ? "underline" : "none",
     ⏬ Fundo total
   </button>
 </div>
+<hr className="my-1" />
+
+<button
+  onClick={() => {
+    atualizarCampoLocal("lineHeight", 1.2);
+    setMenuContexto(null);
+  }}
+  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+>
+  Espaçamento normal
+</button>
+
+<button
+  onClick={() => {
+    atualizarCampoLocal("lineHeight", 1.8);
+    setMenuContexto(null);
+  }}
+  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+>
+  Espaçamento maior
+</button>
+
+<hr className="my-1" />
+
+<button
+  onClick={() => {
+    atualizarCampoLocal("marcador", null);
+    setMenuContexto(null);
+  }}
+  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+>
+  Sem marcador
+</button>
+
+<button
+  onClick={() => {
+    atualizarCampoLocal("marcador", "•");
+    setMenuContexto(null);
+  }}
+  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+>
+  • Bolinha
+</button>
+
+<button
+  onClick={() => {
+    atualizarCampoLocal("marcador", "→");
+    setMenuContexto(null);
+  }}
+  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+>
+  → Setinha
+</button>
+
+<button
+  onClick={() => {
+    atualizarCampoLocal("marcador", "-");
+    setMenuContexto(null);
+  }}
+  className="block w-full text-left px-3 py-1 hover:bg-gray-100"
+>
+  - Tracinho
+</button>
                   <button
                     type="button"
                     onClick={salvarCampoSelecionado}
@@ -1492,7 +1561,7 @@ zIndex: c.ordem || 1,
   color: c.cor || "#1e3a8a",
   textAlign:
     (c.alinhamento as "left" | "center" | "right") || "left",
-  lineHeight: 1.3,
+  lineHeight: c.lineHeight || 1.3,
   whiteSpace:
     c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
 }}
@@ -1506,7 +1575,9 @@ zIndex: c.ordem || 1,
               : c.tipo === "ASSINATURA"
               ? "Pr. Roberto Ramos"
               : c.tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+? c.marcador
+  ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
+  : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
               : c.tipo === "APROVEITAMENTO"
               ? "100%"
               : c.tipo}
