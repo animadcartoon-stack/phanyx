@@ -35,6 +35,7 @@ type CampoCertificado = {
   flipX?: boolean | null;
   flipY?: boolean | null;
   filter?: string | null;
+  forma?: "RETANGULO" | "CIRCULO" | "LINHA" | null;
 };
 
 const FONTES = [
@@ -924,7 +925,85 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
     Imagens do certificado
   </p>
+<div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+    Formas geométricas
+  </p>
 
+  <div className="grid grid-cols-3 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        setCampos((prev) => [
+          ...prev,
+          {
+            id: Math.floor(Math.random() * 1000000),
+            tipo: "FORMA",
+            forma: "RETANGULO",
+            x: 120,
+            y: 120,
+            largura: 160,
+            altura: 80,
+            cor: "#1d4ed8",
+            opacity: 0.4,
+            ordem: 5,
+          } as any,
+        ])
+      }
+      className="rounded-xl border bg-slate-50 px-2 py-3 text-xs hover:bg-slate-100"
+    >
+      ▭ Retângulo
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setCampos((prev) => [
+          ...prev,
+          {
+            id: Math.floor(Math.random() * 1000000),
+            tipo: "FORMA",
+            forma: "CIRCULO",
+            x: 140,
+            y: 140,
+            largura: 100,
+            altura: 100,
+            cor: "#1d4ed8",
+            opacity: 0.4,
+            ordem: 5,
+          } as any,
+        ])
+      }
+      className="rounded-xl border bg-slate-50 px-2 py-3 text-xs hover:bg-slate-100"
+    >
+      ○ Círculo
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        setCampos((prev) => [
+          ...prev,
+          {
+            id: Math.floor(Math.random() * 1000000),
+            tipo: "FORMA",
+            forma: "LINHA",
+            x: 160,
+            y: 160,
+            largura: 180,
+            altura: 4,
+            cor: "#1d4ed8",
+            opacity: 1,
+            ordem: 5,
+          } as any,
+        ])
+      }
+      className="rounded-xl border bg-slate-50 px-2 py-3 text-xs hover:bg-slate-100"
+    >
+      ━ Linha
+    </button>
+  </div>
+</div>
   <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
     <span className="text-2xl">🖼️</span>
     <span className="mt-1 text-sm font-semibold text-blue-700">
@@ -1187,90 +1266,123 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                     </div>
                   )}
 
-   {campos.map((c) => {
+  {campos.map((c) => {
   if (c.tipo === "IMAGEM") {
-  return (
-    <div
-      key={c.id}
-      onMouseDown={(event) => {
-        event.stopPropagation();
-        setCampoSelecionadoId(c.id);
-        iniciarDrag(event as any, c);
-      }}
-      className="absolute z-20 select-none"
-      style={{
-        left: `${c.x}px`,
-        top: `${c.y}px`,
-        width: `${c.largura || 150}px`,
-        height: `${c.altura || 150}px`,
-        cursor: "move",
-        zIndex: c.ordem || 10,
-        border:
-          campoSelecionadoId === c.id
-            ? "2px solid #2563eb"
-            : "1px dashed #93c5fd",
-        borderRadius: "10px",
-        background: "transparent",
-      }}
-    >
-      <img
-        src={(c as any).imagemUrl}
-        alt="Imagem do certificado"
-        draggable={false}
-        className="h-full w-full object-contain"
+    return (
+      <div
+        key={c.id}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+          setCampoSelecionadoId(c.id);
+          iniciarDrag(event as any, c);
+        }}
+        className="absolute z-20 select-none"
         style={{
-  background: "transparent",
-  pointerEvents: "none",
-  opacity: c.opacity || 1,
-  objectFit: (c as any).objectFit || "contain",
-  filter: (c as any).filter || "none",
-  transform: `
-    rotate(${(c as any).rotate || 0}deg)
-    scaleX(${(c as any).flipX ? -1 : 1})
-    scaleY(${(c as any).flipY ? -1 : 1})
-  `,
-}}
-      />
-
-      {campoSelecionadoId === c.id && (
-        <div
-          onMouseDown={(e) => {
-            e.stopPropagation();
-
-            const startX = e.clientX;
-            const startY = e.clientY;
-            const startW = c.largura || 150;
-            const startH = c.altura || 150;
-
-            const move = (ev: globalThis.MouseEvent) => {
-              setCampos((prev) =>
-                prev.map((item) =>
-                  item.id === c.id
-                    ? {
-                        ...item,
-                        largura: Math.max(40, startW + ev.clientX - startX),
-                        altura: Math.max(40, startH + ev.clientY - startY),
-                      }
-                    : item
-                )
-              );
-            };
-
-            const up = () => {
-              window.removeEventListener("mousemove", move);
-              window.removeEventListener("mouseup", up);
-            };
-
-            window.addEventListener("mousemove", move);
-            window.addEventListener("mouseup", up);
+          left: `${c.x}px`,
+          top: `${c.y}px`,
+          width: `${c.largura || 150}px`,
+          height: `${c.altura || 150}px`,
+          cursor: "move",
+          zIndex: c.ordem || 10,
+          border:
+            campoSelecionadoId === c.id
+              ? "2px solid #2563eb"
+              : "1px dashed #93c5fd",
+          borderRadius: "10px",
+          background: "transparent",
+        }}
+      >
+        <img
+          src={(c as any).imagemUrl}
+          alt="Imagem do certificado"
+          draggable={false}
+          className="h-full w-full"
+          style={{
+            background: "transparent",
+            pointerEvents: "none",
+            opacity: c.opacity || 1,
+            objectFit: (c as any).objectFit || "contain",
+            filter: (c as any).filter || "none",
+            transform: `
+              rotate(${(c as any).rotate || 0}deg)
+              scaleX(${(c as any).flipX ? -1 : 1})
+              scaleY(${(c as any).flipY ? -1 : 1})
+            `,
           }}
-          className="absolute bottom-[-6px] right-[-6px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
-          title="Redimensionar"
         />
-      )}
-    </div>
-  );
-}
+
+        {campoSelecionadoId === c.id && (
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const startW = c.largura || 150;
+              const startH = c.altura || 150;
+
+              const move = (ev: globalThis.MouseEvent) => {
+                setCampos((prev) =>
+                  prev.map((item) =>
+                    item.id === c.id
+                      ? {
+                          ...item,
+                          largura: Math.max(40, startW + ev.clientX - startX),
+                          altura: Math.max(40, startH + ev.clientY - startY),
+                        }
+                      : item
+                  )
+                );
+              };
+
+              const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+              };
+
+              window.addEventListener("mousemove", move);
+              window.addEventListener("mouseup", up);
+            }}
+            className="absolute bottom-[-6px] right-[-6px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+            title="Redimensionar"
+          />
+        )}
+      </div>
+    );
+  }
+
+  if (c.tipo === "FORMA") {
+    return (
+      <div
+        key={c.id}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+          setCampoSelecionadoId(c.id);
+          iniciarDrag(event as any, c);
+        }}
+        className="absolute z-20 select-none"
+        style={{
+          left: `${c.x}px`,
+          top: `${c.y}px`,
+          width: `${c.largura || 100}px`,
+          height: `${c.altura || 80}px`,
+          background:
+            c.forma === "LINHA" ? "transparent" : c.cor || "#1d4ed8",
+          opacity: c.opacity || 1,
+          borderRadius: c.forma === "CIRCULO" ? "9999px" : "6px",
+          cursor: "move",
+          zIndex: c.ordem || 5,
+          transform: `rotate(${(c as any).rotate || 0}deg)`,
+          border:
+            c.forma === "LINHA"
+              ? `2px solid ${c.cor || "#1d4ed8"}`
+              : campoSelecionadoId === c.id
+              ? "2px solid #2563eb"
+              : "1px dashed #93c5fd",
+        }}
+      />
+    );
+  }
 
   return (
     <div
@@ -1303,9 +1415,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           (c.alinhamento as "left" | "center" | "right") || "left",
         fontSize: `${c.tamanho || 12}px`,
         color:
-          campoSelecionadoId === c.id
-            ? "#ffffff"
-            : c.cor || "#1e3a8a",
+          campoSelecionadoId === c.id ? "#ffffff" : c.cor || "#1e3a8a",
         cursor: "move",
         fontFamily: c.fonte || "Helvetica",
         fontWeight: c.negrito ? "bold" : "normal",
@@ -1313,9 +1423,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         textDecoration: c.sublinhado ? "underline" : "none",
         lineHeight: c.lineHeight || 1.3,
         whiteSpace:
-          c.tipo === "DISCIPLINAS_CONCLUIDAS"
-            ? "pre-wrap"
-            : "nowrap",
+          c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
       }}
     >
       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
@@ -1461,7 +1569,55 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     </button>
   </div>
 </div>
+<div>
+  <p className="mb-2 text-xs font-semibold text-slate-500">
+    Camadas
+  </p>
 
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal(
+          "ordem",
+          Number(campoSelecionado?.ordem || 10) + 1
+        )
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      🔼 Trazer frente
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal(
+          "ordem",
+          Math.max(0, Number(campoSelecionado?.ordem || 10) - 1)
+        )
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      🔽 Enviar trás
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("ordem", 999)}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      ⏫ Frente total
+    </button>
+
+    <button
+      type="button"
+      onClick={() => atualizarCampoLocal("ordem", 0)}
+      className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+    >
+      ⏬ Fundo total
+    </button>
+  </div>
+</div>
 <div>
   <p className="mb-2 text-xs font-semibold text-slate-500">
     Filtros
@@ -1887,29 +2043,30 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           />
         )}
 
-        {campos.map((c) => {
+{campos.map((c) => {
   if (c.tipo === "IMAGEM") {
     return (
-     <div className="h-full w-full overflow-hidden rounded-lg">
-  <img
-    src={(c as any).imagemUrl}
-    alt="Imagem do certificado"
-    draggable={false}
-    className="h-full w-full"
-    style={{
-      background: "transparent",
-      pointerEvents: "none",
-      opacity: c.opacity || 1,
-      objectFit: (c as any).objectFit || "contain",
-      filter: (c as any).filter || "none",
-      transform: `
-        rotate(${(c as any).rotate || 0}deg)
-        scaleX(${(c as any).flipX ? -1 : 1})
-        scaleY(${(c as any).flipY ? -1 : 1})
-      `,
-    }}
-  />
-</div>
+      <img
+        key={c.id}
+        src={(c as any).imagemUrl}
+        alt="Imagem"
+        className="absolute"
+        style={{
+          left: `${c.x}px`,
+          top: `${c.y}px`,
+          width: `${c.largura || 150}px`,
+          height: `${c.altura || 150}px`,
+          objectFit: (c as any).objectFit || "contain",
+          opacity: c.opacity || 1,
+          filter: (c as any).filter || "none",
+          transform: `
+            rotate(${(c as any).rotate || 0}deg)
+            scaleX(${(c as any).flipX ? -1 : 1})
+            scaleY(${(c as any).flipY ? -1 : 1})
+          `,
+          zIndex: c.ordem || 10,
+        }}
+      />
     );
   }
 
