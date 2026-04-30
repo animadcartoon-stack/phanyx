@@ -96,6 +96,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
   const [zoom, setZoom] = useState(100);
+  const [modoAmplo, setModoAmplo] = useState(false);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
@@ -607,7 +608,13 @@ setTimeout(() => setMensagemSucesso(""), 2500);
             Redimensionar
           </button>
         </div>
-
+<button
+  type="button"
+  onClick={() => setModoAmplo((prev) => !prev)}
+  className="rounded-lg bg-white/20 px-3 py-2 text-sm font-medium text-white hover:bg-white/30"
+>
+  {modoAmplo ? "Mostrar painéis" : "Tela ampla"}
+</button>
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -824,7 +831,7 @@ setTimeout(() => setMensagemSucesso(""), 2500);
               : "lg:grid-cols-[minmax(860px,1fr)_320px]"
           }`}
         >
-          {mostrarPainelCampos && (
+          {mostrarPainelCampos && !modoAmplo && (
             <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
@@ -1144,7 +1151,8 @@ textDecoration: c.sublinhado ? "underline" : "none",
             </div>
           </main>
 
-          <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
+          {!modoAmplo && (
+<aside className="border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
             <h2 className="mb-4 text-lg font-bold text-slate-900">
               Campo selecionado
             </h2>
@@ -1381,6 +1389,7 @@ textDecoration: c.sublinhado ? "underline" : "none",
               </p>
             )}
           </aside>
+          )}
         </div>
       </section>
 
