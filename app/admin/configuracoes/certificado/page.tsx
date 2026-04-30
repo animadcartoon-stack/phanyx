@@ -22,30 +22,46 @@ type CampoCertificado = {
   cor?: string | null;
   alinhamento?: string | null;
   pagina?: number | null;
+  negrito?: boolean;
+  italico?: boolean;
+  sublinhado?: boolean;
 };
 
 const FONTES = [
+  // Padrão
   "Arial",
-  "Arial Black",
   "Calibri",
-  "Cambria",
-  "Candara",
-  "Comic Sans MS",
-  "Consolas",
-  "Courier New",
-  "Georgia",
-  "Helvetica",
-  "Impact",
-  "Lucida Console",
-  "Lucida Sans Unicode",
-  "Microsoft Sans Serif",
-  "Palatino Linotype",
-  "Segoe UI",
-  "Tahoma",
   "Times New Roman",
-  "Trebuchet MS",
   "Verdana",
+  "Tahoma",
+  "Georgia",
+
+  // Modernas
+  "Poppins",
+  "Montserrat",
+  "Roboto",
+  "Open Sans",
+  "Lato",
+
+  // Elegantes
+  "Playfair Display",
+  "Merriweather",
+  "Libre Baskerville",
+
+  // Cursivas / caligrafia
+  "Dancing Script",
+  "Great Vibes",
+  "Pacifico",
+  "Satisfy",
+  "Allura",
+  "Alex Brush",
+  "Sacramento",
+
+  // Manuscritas
+  "Indie Flower",
+  "Caveat",
 ];
+
 const ORIENTACOES = {
   paisagem: { largura: 1123, altura: 794, label: "Paisagem" },
   retrato: { largura: 794, altura: 1123, label: "Retrato" },
