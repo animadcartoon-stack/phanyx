@@ -136,59 +136,65 @@ export default function ConfiguracaoCertificadoPage() {
   } | null>(null);
 
   useEffect(() => {
-    async function carregarConfiguracao() {
-      try {
-        const [resConfig, resCampos] = await Promise.all([
-          fetch("/api/admin/configuracoes/certificado", {
-            cache: "no-store",
-          }),
-          fetch("/api/admin/certificado-campos", {
-            cache: "no-store",
-          }),
-        ]);
+  async function carregarConfiguracao() {
+    try {
+      const [resConfig, resCampos] = await Promise.all([
+        fetch("/api/admin/configuracoes/certificado", {
+          cache: "no-store",
+        }),
+        fetch("/api/admin/certificado-campos", {
+          cache: "no-store",
+        }),
+      ]);
 
-        const dataConfig = await resConfig.json();
-        const dataCampos = await resCampos.json();
+      const dataConfig = await resConfig.json();
+      const dataCampos = await resCampos.json();
 
-        if (!resConfig.ok) {
-          alert(
-            dataConfig?.detalhe ||
-              dataConfig?.error ||
-              "Erro ao buscar configuração."
-          );
-          return;
-        }
-
-        if (!resCampos.ok) {
-          alert(
-            dataCampos?.detalhe ||
-              dataCampos?.error ||
-              "Erro ao buscar campos."
-          );
-          return;
-        }
-
-        setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-        setCertificadoCoordenadorNome(
-          dataConfig?.certificadoCoordenadorNome || ""
+      if (!resConfig.ok) {
+        alert(
+          dataConfig?.detalhe ||
+            dataConfig?.error ||
+            "Erro ao buscar configuração."
         );
-        setCertificadoCidade(dataConfig?.certificadoCidade || "");
-        setCampos(Array.isArray(dataCampos?.campos) ? dataCampos.campos : []);
-      } catch {
-        alert("Erro ao carregar configuração do certificado.");
-      } finally {
-        setCarregando(false);
+        return;
       }
-    }
 
-    carregarConfiguracao();
-  }, []);
+      if (!resCampos.ok) {
+        alert(
+          dataCampos?.detalhe ||
+            dataCampos?.error ||
+            "Erro ao buscar campos."
+        );
+        return;
+      }
+
+      setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
+      setCertificadoCoordenadorNome(
+        dataConfig?.certificadoCoordenadorNome || ""
+      );
+      setCertificadoCidade(dataConfig?.certificadoCidade || "");
+      setCampos(Array.isArray(dataCampos?.campos) ? dataCampos.campos : []);
+    } catch {
+      alert("Erro ao carregar configuração do certificado.");
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  carregarConfiguracao();
+}, []);
 
 useEffect(() => {
   function handleKeyDown(e: KeyboardEvent) {
     if (e.code === "Space") {
       e.preventDefault();
       setEspacoPressionado(true);
+    }
+
+    if (e.key === "Delete" || e.key === "Backspace") {
+      if (campoSelecionadoId) {
+        excluirCampo(campoSelecionadoId);
+      }
     }
   }
 
@@ -206,7 +212,7 @@ useEffect(() => {
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   };
-}, []);
+}, [campoSelecionadoId]);
 
   const baseCanvas = ORIENTACOES[orientacao];
   const escala = zoom / 100;
@@ -388,26 +394,38 @@ function finalizarArrastoCanvas() {
   }
 
   async function excluirCampo(id: number) {
-    try {
-      const res = await fetch(`/api/admin/certificado-campos?id=${id}`, {
-        method: "DELETE",
-      });
+  const campo = campos.find((c) => c.id === id);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        alert(data?.detalhe || data?.error || "Erro ao excluir campo.");
-        return;
-      }
-
-      setCampos((prev) => prev.filter((c) => c.id !== id));
-      if (campoSelecionadoId === id) {
-        setCampoSelecionadoId(null);
-      }
-    } catch {
-      alert("Erro ao excluir campo.");
+  if (campo?.tipo === "IMAGEM") {
+    setCampos((prev) => prev.filter((c) => c.id !== id));
+    if (campoSelecionadoId === id) {
+      setCampoSelecionadoId(null);
     }
+    setMensagemSucesso("Imagem excluída com sucesso!");
+    setTimeout(() => setMensagemSucesso(""), 2500);
+    return;
   }
+
+  try {
+    const res = await fetch(`/api/admin/certificado-campos?id=${id}`, {
+      method: "DELETE",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data?.detalhe || data?.error || "Erro ao excluir campo.");
+      return;
+    }
+
+    setCampos((prev) => prev.filter((c) => c.id !== id));
+    if (campoSelecionadoId === id) {
+      setCampoSelecionadoId(null);
+    }
+  } catch {
+    alert("Erro ao excluir campo.");
+  }
+}
 
   function atualizarCampoLocal<K extends keyof CampoCertificado>(
     chave: K,
@@ -1228,6 +1246,14 @@ setTimeout(() => setMensagemSucesso(""), 2500);
 <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
             <h2 className="mb-4 text-lg font-bold text-slate-900">
               Campo selecionado
+              {campoSelecionado?.tipo === "IMAGEM" && (
+  <button
+    onClick={() => excluirCampo(campoSelecionado.id)}
+    className="mt-3 w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600"
+  >
+    🗑️ Excluir imagem
+  </button>
+)}
             </h2>
 
             {campoSelecionado ? (
@@ -1613,43 +1639,64 @@ setTimeout(() => setMensagemSucesso(""), 2500);
           />
         )}
 
-        {campos.map((c) => (
-          <div
-            key={c.id}
-            className="absolute"
-           style={{
-  left: `${c.x}px`,
-top: `${c.y}px`,
-width: `${c.largura || 120}px`,
-minHeight: `${c.altura || 18}px`,
-fontSize: `${c.tamanho || 12}px`,
-zIndex: c.ordem || 1,
-  fontFamily: c.fonte || "Helvetica",
-  color: c.cor || "#1e3a8a",
-  textAlign:
-    (c.alinhamento as "left" | "center" | "right") || "left",
-  lineHeight: c.lineHeight || 1.3,
-  whiteSpace:
-    c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-}}
-          >
-            {c.tipo === "NOME_ALUNO"
-              ? "José Exemplo da Silva"
-              : c.tipo === "NOME_CURSO"
-              ? "Bacharel Livre em Teologia"
-              : c.tipo === "DATA_EMISSAO"
-              ? "30/04/2026"
-              : c.tipo === "ASSINATURA"
-              ? "Pr. Roberto Ramos"
-              : c.tipo === "DISCIPLINAS_CONCLUIDAS"
-? c.marcador
-  ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
-  : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
-              : c.tipo === "APROVEITAMENTO"
-              ? "100%"
-              : c.tipo}
-          </div>
-        ))}
+        {campos.map((c) => {
+  if (c.tipo === "IMAGEM") {
+    return (
+      <img
+        key={c.id}
+        src={(c as any).imagemUrl}
+        className="absolute"
+        style={{
+          left: `${c.x}px`,
+          top: `${c.y}px`,
+          width: `${c.largura || 150}px`,
+          height: `${c.altura || 150}px`,
+          objectFit: "contain",
+          zIndex: c.ordem || 10,
+        }}
+      />
+    );
+  }
+
+  return (
+    <div
+      key={c.id}
+      className="absolute"
+      style={{
+        left: `${c.x}px`,
+        top: `${c.y}px`,
+        width: `${c.largura || 120}px`,
+        minHeight: `${c.altura || 18}px`,
+        fontSize: `${c.tamanho || 12}px`,
+        zIndex: c.ordem || 1,
+        fontFamily: c.fonte || "Helvetica",
+        color: c.cor || "#1e3a8a",
+        textAlign:
+          (c.alinhamento as "left" | "center" | "right") || "left",
+        lineHeight: c.lineHeight || 1.3,
+        whiteSpace:
+          c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
+      }}
+    >
+      {c.tipo === "NOME_ALUNO"
+        ? "José Exemplo da Silva"
+        : c.tipo === "NOME_CURSO"
+        ? "Bacharel Livre em Teologia"
+        : c.tipo === "DATA_EMISSAO"
+        ? "30/04/2026"
+        : c.tipo === "ASSINATURA"
+        ? "Pr. Roberto Ramos"
+        : c.tipo === "DISCIPLINAS_CONCLUIDAS"
+        ? c.marcador
+          ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
+          : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+        : c.tipo === "APROVEITAMENTO"
+        ? "100%"
+        : c.tipo}
+    </div>
+  );
+})}
+
       </div>
     </div>
   </div>
