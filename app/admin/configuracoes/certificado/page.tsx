@@ -469,6 +469,10 @@ function finalizarArrastoCanvas() {
       tamanho: campoSelecionado.tamanho || 18,
       cor: campoSelecionado.cor || "#1e3a8a",
       alinhamento: campoSelecionado.alinhamento || "left",
+      ordem: campoSelecionado.ordem || 1,
+negrito: campoSelecionado.negrito || false,
+italico: campoSelecionado.italico || false,
+sublinhado: campoSelecionado.sublinhado || false,
     });
   }
 
@@ -504,11 +508,10 @@ async function salvarModeloCompleto() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        certificadoTemplateUrl,
-        certificadoCoordenadorNome,
-        certificadoCidade,
-        ordem: campoSelecionado.ordem || 1,
-      }),
+  certificadoTemplateUrl,
+  certificadoCoordenadorNome,
+  certificadoCidade,
+}),
     });
 
     const dataConfig = await resConfig.json();
@@ -538,6 +541,7 @@ async function salvarModeloCompleto() {
           negrito: campoSelecionado.negrito || false,
           italico: campoSelecionado.italico || false,
           sublinhado: campoSelecionado.sublinhado || false,
+          ordem: campoSelecionado.ordem || 1,
         }),
       });
 
@@ -548,6 +552,7 @@ async function salvarModeloCompleto() {
           dataCampo?.detalhe || dataCampo?.error || "Erro ao salvar campo."
         );
       }
+      alert("Campo salvo com sucesso!");
     }
 
     alert("Modelo de certificado salvo com sucesso!");
@@ -1017,13 +1022,7 @@ async function salvarModeloCompleto() {
     : "default",
 }}
 >
-              <div
-  className="mx-auto flex min-h-full w-full items-start justify-center"
-  style={{
-    minWidth: `${canvasWidth}px`,
-    minHeight: `${canvasHeight}px`,
-  }}
->
+              <div className="mx-auto flex min-h-full w-full items-start justify-center">
                 <div
                   ref={canvasRef}
                   onMouseMove={onMouseMoveCanvas}
