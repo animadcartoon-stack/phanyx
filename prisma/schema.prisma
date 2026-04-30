@@ -1296,6 +1296,7 @@ model CertificadoCampo {
   cor           String?
   alinhamento   String?
   pagina        Int      @default(1)
+  ordem         Int      @default(0)
   createdAt     DateTime @default(now())
 
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)

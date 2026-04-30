@@ -25,6 +25,7 @@ type CampoCertificado = {
   negrito?: boolean;
   italico?: boolean;
   sublinhado?: boolean;
+  ordem?: number | null;
 };
 
 const FONTES = [
@@ -1003,12 +1004,12 @@ async function salvarModeloCompleto() {
   onMouseLeave={finalizarArrastoCanvas}
   className="flex-1 overflow-auto bg-[#f3f5f9] p-8"
   style={{
-    cursor: modoMao || espacoPressionado
-      ? arrastandoCanvas
-        ? "grabbing"
-        : "grab"
-      : "default",
-  }}
+  cursor: modoMao || espacoPressionado
+    ? arrastandoCanvas
+      ? "grabbing"
+      : "grab"
+    : "default",
+}}
 >
               <div className="mx-auto flex min-h-full w-full items-start justify-center">
                 <div
@@ -1050,16 +1051,17 @@ async function salvarModeloCompleto() {
   iniciarDrag(event, c);
 }}
                       onClick={() => setCampoSelecionadoId(c.id)}
-                      className={`absolute z-20 select-none rounded-md border px-2 py-1 text-[9px] shadow-sm ${
+                      className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
                         campoSelecionadoId === c.id
                           ? "border-blue-600 bg-blue-600/90 text-white"
-                          : "border-slate-300 bg-white/95 text-slate-700"
+                          : "border-blue-300 bg-transparent text-blue-900"
                       }`}
                       style={{
                         left: `${c.x}px`,
 top: `${c.y}px`,
 width: `${c.largura || 120}px`,
 minHeight: `${c.altura || 18}px`,
+zIndex: c.ordem || 1,
                         textAlign:
                           (c.alinhamento as "left" | "center" | "right") ||
                           "left",
@@ -1409,20 +1411,20 @@ textDecoration: c.sublinhado ? "underline" : "none",
           <div
             key={c.id}
             className="absolute"
-            style={{
-              left: `${c.x}px`,
-              top: `${c.y}px`,
-              width: `${c.largura || 140}px`,
-              minHeight: `${c.altura || 22}px`,
-              fontSize: `${c.tamanho || 12}px`,
-              fontFamily: c.fonte || "Helvetica",
-              color: c.cor || "#1e3a8a",
-              textAlign:
-                (c.alinhamento as "left" | "center" | "right") || "left",
-              fontWeight: "normal",
-              whiteSpace:
-                c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-            }}
+           style={{
+  left: `${c.x}px`,
+  top: `${c.y}px`,
+  width: `${c.largura || 140}px`,
+  minHeight: `${c.altura || 22}px`,
+  fontSize: `${c.tamanho || 12}px`,
+  fontFamily: c.fonte || "Helvetica",
+  color: c.cor || "#1e3a8a",
+  textAlign:
+    (c.alinhamento as "left" | "center" | "right") || "left",
+  lineHeight: 1.3,
+  whiteSpace:
+    c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
+}}
           >
             {c.tipo === "NOME_ALUNO"
               ? "José Exemplo da Silva"
