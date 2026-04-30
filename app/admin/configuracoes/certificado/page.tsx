@@ -95,7 +95,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [orientacao, setOrientacao] =
     useState<OrientacaoEditor>("paisagem");
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(60);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
