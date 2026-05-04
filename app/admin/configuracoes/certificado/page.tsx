@@ -143,6 +143,43 @@ function refazer() {
     return prev.slice(1);
   });
 }
+
+function registrarHistoricoAntesDaAcao() {
+  setHistorico((prev) => [...prev, campos]);
+  setFuturo([]);
+}
+
+useEffect(() => {
+  function handleUndoRedo(e: KeyboardEvent) {
+    const alvo = e.target as HTMLElement | null;
+    const tag = alvo?.tagName?.toLowerCase();
+
+    if (
+      tag === "input" ||
+      tag === "textarea" ||
+      alvo?.isContentEditable
+    ) {
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+      e.preventDefault();
+
+      if (e.shiftKey) {
+        refazer();
+      } else {
+        desfazer();
+      }
+    }
+  }
+
+  window.addEventListener("keydown", handleUndoRedo, true);
+
+  return () => {
+    window.removeEventListener("keydown", handleUndoRedo, true);
+  };
+}, [campos, historico, futuro]);
+
 function atualizarCamposComHistorico(
   atualizador:
     | CampoCertificado[]
@@ -569,6 +606,8 @@ function iniciarCrop(
   e.stopPropagation();
   e.preventDefault();
 
+  registrarHistoricoAntesDaAcao();
+
   const startX = e.clientX;
   const startY = e.clientY;
 
@@ -723,6 +762,8 @@ function iniciarCropTodos(e: React.MouseEvent, campo: CampoCertificado) {
   e.stopPropagation();
   e.preventDefault();
 
+  registrarHistoricoAntesDaAcao();
+
   const startX = e.clientX;
   const startY = e.clientY;
 
@@ -786,6 +827,8 @@ function iniciarCropTodos(e: React.MouseEvent, campo: CampoCertificado) {
 function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
   e.stopPropagation();
   e.preventDefault();
+
+  registrarHistoricoAntesDaAcao();
 
   const elemento = (e.currentTarget.parentElement as HTMLElement);
   if (!elemento) return;
@@ -1772,6 +1815,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           <div
             onMouseDown={(e) => {
               e.stopPropagation();
+
+registrarHistoricoAntesDaAcao();
 
               const startX = e.clientX;
               const startY = e.clientY;
