@@ -36,6 +36,9 @@ type CampoCertificado = {
   flipY?: boolean | null;
   filter?: string | null;
   forma?: "RETANGULO" | "CIRCULO" | "LINHA" | null;
+  cor2?: string | null;
+  usarGradiente?: boolean | null;
+  direcaoGradiente?: string | null;
 };
 
 const FONTES = [
@@ -1489,7 +1492,13 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         className="h-full w-full"
         style={{
           background:
-            c.forma === "LINHA" ? "transparent" : c.cor || "#1d4ed8",
+  c.forma === "LINHA"
+    ? "transparent"
+    : (c as any).usarGradiente
+    ? `linear-gradient(${(c as any).direcaoGradiente || "90deg"}, ${
+        c.cor || "#1d4ed8"
+      }, ${(c as any).cor2 || "#60a5fa"})`
+    : c.cor || "#1d4ed8",
           border:
             c.forma === "LINHA"
               ? `3px solid ${c.cor || "#1d4ed8"}`
@@ -1505,19 +1514,13 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         <>
           {/* girar */}
           <button
-            type="button"
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              atualizarCampoLocal(
-                "rotate" as any,
-                Number((c as any).rotate || 0) + 15
-              );
-            }}
-            className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
-            title="Girar"
-          >
-            ↻
-          </button>
+  type="button"
+  onMouseDown={(e) => iniciarRotacao(e, c)}
+  className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
+  title="Arraste para rotacionar"
+>
+  ↻
+</button>
 
           {/* canto inferior direito */}
           <div
@@ -2179,6 +2182,91 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           </div>
         </>
       )}
+
+{campoSelecionado?.tipo === "FORMA" && (
+  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <p className="mb-3 text-sm font-semibold text-slate-700">
+      Aparência da forma
+    </p>
+
+    <div className="space-y-3">
+      <div>
+        <p className="mb-1 text-xs font-semibold text-slate-500">
+          Cor principal
+        </p>
+        <input
+          type="color"
+          value={campoSelecionado?.cor || "#1d4ed8"}
+          onChange={(e) => atualizarCampoLocal("cor", e.target.value)}
+          className="h-10 w-full cursor-pointer rounded-lg border"
+        />
+      </div>
+
+      <div>
+        <p className="mb-1 text-xs font-semibold text-slate-500">
+          Transparência
+        </p>
+        <input
+          type="range"
+          min={0.1}
+          max={1}
+          step={0.05}
+          value={campoSelecionado?.opacity || 1}
+          onChange={(e) =>
+            atualizarCampoLocal("opacity" as any, Number(e.target.value))
+          }
+          className="w-full"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={() =>
+          atualizarCampoLocal(
+            "usarGradiente" as any,
+            !(campoSelecionado as any)?.usarGradiente
+          )
+        }
+        className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+      >
+        {(campoSelecionado as any)?.usarGradiente
+          ? "Desativar degradê"
+          : "Ativar degradê"}
+      </button>
+
+      {(campoSelecionado as any)?.usarGradiente && (
+        <>
+          <div>
+            <p className="mb-1 text-xs font-semibold text-slate-500">
+              Segunda cor
+            </p>
+            <input
+              type="color"
+              value={(campoSelecionado as any)?.cor2 || "#60a5fa"}
+              onChange={(e) =>
+                atualizarCampoLocal("cor2" as any, e.target.value)
+              }
+              className="h-10 w-full cursor-pointer rounded-lg border"
+            />
+          </div>
+
+          <select
+            value={(campoSelecionado as any)?.direcaoGradiente || "90deg"}
+            onChange={(e) =>
+              atualizarCampoLocal("direcaoGradiente" as any, e.target.value)
+            }
+            className="w-full rounded-xl border px-3 py-2 text-sm"
+          >
+            <option value="90deg">Esquerda para direita</option>
+            <option value="180deg">Cima para baixo</option>
+            <option value="45deg">Diagonal</option>
+            <option value="135deg">Diagonal invertida</option>
+          </select>
+        </>
+      )}
+    </div>
+  </div>
+)}
 
       <div className="flex gap-2 pt-2">
         <button
