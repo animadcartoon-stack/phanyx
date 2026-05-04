@@ -1994,6 +1994,94 @@ registrarHistoricoAntesDaAcao();
     borderRadius: c.forma === "CIRCULO" ? "9999px" : "8px",
   }}
 />
+
+{selecionado && (c as any).usarGradiente && (
+  <div className="pointer-events-none absolute inset-0 z-[9998]">
+    {(((c as any).degradeStops || [
+      { cor: c.cor || "#1d4ed8", posicao: 0 },
+      { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
+    ]) as any[]).map((stop, index) => (
+      <button
+        key={index}
+        type="button"
+        className="pointer-events-auto absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow"
+        style={{
+          left: `${stop.posicao}%`,
+          background: stop.cor,
+        }}
+        title={`Ponto ${index + 1}`}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+
+          const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+          if (!rect) return;
+
+          const move = (ev: globalThis.MouseEvent) => {
+            const posicao = Math.max(
+              0,
+              Math.min(100, ((ev.clientX - rect.left) / rect.width) * 100)
+            );
+
+            setCampos((prev) =>
+              prev.map((item) => {
+                if (item.id !== c.id) return item;
+
+                const stops = [
+                  ...(((item as any).degradeStops || [
+                    { cor: item.cor || "#1d4ed8", posicao: 0 },
+                    { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
+                  ]) as any[]),
+                ];
+
+                stops[index] = {
+                  ...stops[index],
+                  posicao: Math.round(posicao),
+                };
+
+                return {
+                  ...item,
+                  degradeStops: stops.sort((a, b) => a.posicao - b.posicao),
+                } as any;
+              })
+            );
+          };
+
+          const up = () => {
+            window.removeEventListener("mousemove", move);
+            window.removeEventListener("mouseup", up);
+          };
+
+          window.addEventListener("mousemove", move);
+          window.addEventListener("mouseup", up);
+        }}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          const novaCor = prompt("Digite a cor em HEX. Exemplo: #ff0000", stop.cor);
+          if (!novaCor) return;
+
+          setCampos((prev) =>
+            prev.map((item) => {
+              if (item.id !== c.id) return item;
+
+              const stops = [
+                ...(((item as any).degradeStops || [
+                  { cor: item.cor || "#1d4ed8", posicao: 0 },
+                  { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
+                ]) as any[]),
+              ];
+
+              stops[index] = { ...stops[index], cor: novaCor };
+
+              return { ...item, degradeStops: stops } as any;
+            })
+          );
+        }}
+      />
+    ))}
+  </div>
+)}
+
       {selecionado && (
         <>
           {/* girar */}
@@ -2888,9 +2976,8 @@ registrarHistoricoAntesDaAcao();
 />
    </>
 )}
+
 </div>
-
-
       <div className="flex gap-2 pt-2">
         <button
           type="button"
