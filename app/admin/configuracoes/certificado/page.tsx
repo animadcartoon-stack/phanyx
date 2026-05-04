@@ -535,6 +535,15 @@ function iniciarCrop(
     bottom: 0,
   };
 
+const cropBaseW =
+  (campo as any).cropBaseW ||
+  larguraInicial + cropInicial.left + cropInicial.right;
+
+const cropBaseH =
+  (campo as any).cropBaseH ||
+  alturaInicial + cropInicial.top + cropInicial.bottom;
+
+  
   const move = (ev: globalThis.MouseEvent) => {
     const dx = ev.clientX - startX;
     const dy = ev.clientY - startY;
@@ -591,6 +600,8 @@ if (direcao === "right") {
           largura: Math.max(40, Math.round(novaLargura)),
           altura: Math.max(40, Math.round(novaAltura)),
           crop: novoCrop,
+cropBaseW,
+cropBaseH,
         };
       })
     );
@@ -1514,8 +1525,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           style={{
             top: `-${c.crop?.top || 0}px`,
             left: `-${c.crop?.left || 0}px`,
-            width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
-            height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
+            width: `${(c as any).cropBaseW || (c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
+height: `${(c as any).cropBaseH || (c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
             background: "transparent",
             pointerEvents: "none",
             opacity: c.opacity || 1,
