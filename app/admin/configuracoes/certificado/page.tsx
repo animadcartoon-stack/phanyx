@@ -218,32 +218,34 @@ function atualizarCamposComHistorico(
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
   
-  const handleUploadImagem = (e: any) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+ const handleUploadImagem = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = Array.from(e.target.files || []);
+  if (files.length === 0) return;
 
-  const url = URL.createObjectURL(file);
+  registrarHistoricoAntesDaAcao();
 
-  const novoCampo: any = {
-  id: Math.floor(Math.random() * 1000000),
-  tipo: "IMAGEM",
-    x: 150,
-    y: 150,
-    largura: 150,
-    altura: 150,
-    imagemUrl: url,
-    ordem: 10,
-    crop: {
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    cropBaseW: 150,
-    cropBaseH: 150,
-},
-  };
+  const novasImagens: CampoCertificado[] = files.map((file, index) => {
+    const url = URL.createObjectURL(file);
 
-  atualizarCamposComHistorico((prev) => [...prev, novoCampo]);
+    return {
+      id: Date.now() + index,
+      tipo: "IMAGEM",
+      x: 150 + index * 20,
+      y: 150 + index * 20,
+      largura: 150,
+      altura: 150,
+      imagemUrl: url,
+      ordem: 10 + index,
+      crop: { top: 0, left: 0, right: 0, bottom: 0 },
+      cropBaseW: 150,
+      cropBaseH: 150,
+    } as CampoCertificado;
+  });
+
+  setCampos((prev) => [...prev, ...novasImagens]);
+  setCampoSelecionadoId(novasImagens[novasImagens.length - 1].id);
+
+  e.target.value = "";
 };
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -539,16 +541,18 @@ function finalizarArrastoCanvas() {
   const campo = campos.find((c) => c.id === id);
 
   if (campo?.tipo === "IMAGEM") {
-    registrarHistoricoAntesDaAcao();
+  registrarHistoricoAntesDaAcao();
 
-setCampos((prev) => prev.filter((c) => c.id !== id));
-    if (campoSelecionadoId === id) {
-      setCampoSelecionadoId(null);
-    }
-    setMensagemSucesso("Imagem excluída com sucesso!");
-    setTimeout(() => setMensagemSucesso(""), 2500);
-    return;
+  setCampos((prev) => prev.filter((c) => c.id !== id));
+
+  if (campoSelecionadoId === id) {
+    setCampoSelecionadoId(null);
   }
+
+  setMensagemSucesso("Imagem excluída com sucesso!");
+  setTimeout(() => setMensagemSucesso(""), 2500);
+  return;
+}
 
   try {
     const res = await fetch(`/api/admin/certificado-campos?id=${id}`, {
