@@ -550,17 +550,21 @@ function iniciarCrop(
         let novaAltura = alturaInicial;
 
         if (direcao === "left") {
-          const delta = Math.max(-cropInicial.left, Math.min(dx, larguraInicial - 40));
-          novoCrop.left = cropInicial.left + delta;
-          novoX = xInicial + delta;
-          novaLargura = larguraInicial - delta;
-        }
+  const maxDelta = larguraInicial - 40;
+  const delta = Math.max(-cropInicial.left, Math.min(dx, maxDelta));
 
-        if (direcao === "right") {
-  const delta = Math.max(-cropInicial.right, Math.min(-dx, larguraInicial - 40));
-  novoCrop.right = cropInicial.right + delta;
+  novoCrop.left = cropInicial.left + delta;
+  novoX = xInicial + delta;
   novaLargura = larguraInicial - delta;
+}
+
+if (direcao === "right") {
+  const maxDelta = larguraInicial - 40;
+  const delta = Math.max(-cropInicial.right, Math.min(-dx, maxDelta));
+
+  novoCrop.right = cropInicial.right + delta;
   novoX = xInicial;
+  novaLargura = larguraInicial - delta;
 }
 
         if (direcao === "top") {
@@ -1506,7 +1510,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           style={{
             top: `-${c.crop?.top || 0}px`,
             left: `-${c.crop?.left || 0}px`,
-            width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
+            width: `${Math.max(40, (c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0))}px`,
             height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
             background: "transparent",
             pointerEvents: "none",
