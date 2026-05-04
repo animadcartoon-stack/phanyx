@@ -104,6 +104,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [certificadoCidade, setCertificadoCidade] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
+  const [painelCampoAberto, setPainelCampoAberto] = useState(true);
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
@@ -967,6 +968,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
       </div>
 
       <section
+      
   id="editor-certificado"
   className="rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
@@ -1418,7 +1420,17 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         />
 
         {campoSelecionadoId === c.id && (
-          <div
+  <>
+    <button
+      type="button"
+      onMouseDown={(e) => iniciarRotacao(e, c)}
+      className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
+      title="Rotacionar livremente"
+    >
+      ↻
+    </button>
+
+    <div
             onMouseDown={(e) => {
               e.stopPropagation();
 
@@ -1442,25 +1454,19 @@ setTimeout(() => setMensagemSucesso(""), 3000);
               };
 
               const up = () => {
-                window.removeEventListener("mousemove", move);
-                window.removeEventListener("mouseup", up);
-              };
-<button
-  type="button"
-  onMouseDown={(e) => iniciarRotacao(e, c)}
-  className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
-  title="Rotacionar livremente"
->
-  ↻
-</button>
+  window.removeEventListener("mousemove", move);
+  window.removeEventListener("mouseup", up);
+};
+
               window.addEventListener("mousemove", move);
               window.addEventListener("mouseup", up);
             }}
             
             className="absolute bottom-[-6px] right-[-6px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
-            title="Redimensionar"
+                       title="Redimensionar"
           />
-        )}
+  </>
+)}
       </div>
     );
   }
@@ -1740,10 +1746,16 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 
           {!modoAmplo && (
 <aside className="border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
-            <h2 className="mb-4 text-lg font-bold text-slate-900">
-              Campo selecionado
-            </h2>
+            <button
+  type="button"
+  onClick={() => setPainelCampoAberto((prev) => !prev)}
+  className="mb-4 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-lg font-bold text-slate-900 shadow-sm"
+>
+  <span>Campo selecionado</span>
+  <span>{painelCampoAberto ? "−" : "+"}</span>
+</button>
 
+  
             {campoSelecionado ? (
               <div className="space-y-4 text-sm text-slate-700">
                 {campoSelecionado.tipo === "IMAGEM" && (
@@ -2293,11 +2305,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         >
           Excluir
         </button>
-      </div>
+            </div>
     </div>
   )}
 </div>
-              </div>
+</div>
             ) : (
               <p className="text-sm text-slate-500">
                 Primeiro clique em um campo da esquerda para adicionar ao editor.
@@ -2306,7 +2318,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
               </p>
             )}
           </aside>
-          )}
+        )}
+
         </div>
       </section>
 
