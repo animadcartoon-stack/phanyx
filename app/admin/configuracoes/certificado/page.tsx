@@ -932,76 +932,91 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 
   <div className="grid grid-cols-3 gap-2">
     <button
-      type="button"
-      onClick={() =>
-        setCampos((prev) => [
-          ...prev,
-          {
-            id: Math.floor(Math.random() * 1000000),
-            tipo: "FORMA",
-            forma: "RETANGULO",
-            x: 120,
-            y: 120,
-            largura: 160,
-            altura: 80,
-            cor: "#1d4ed8",
-            opacity: 0.4,
-            ordem: 5,
-          } as any,
-        ])
-      }
-      className="rounded-xl border bg-slate-50 px-2 py-3 text-xs hover:bg-slate-100"
-    >
-      ▭ Retângulo
-    </button>
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        tipo: "FORMA",
+        forma: "RETANGULO",
+        x: 120,
+        y: 120,
+        largura: 180,
+        altura: 90,
+        cor: "#1d4ed8",
+        opacity: 0.35,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="h-5 w-8 rounded-md border-2 border-blue-700 bg-blue-200/50" />
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Retângulo
+  </span>
+</button>
 
-    <button
-      type="button"
-      onClick={() =>
-        setCampos((prev) => [
-          ...prev,
-          {
-            id: Math.floor(Math.random() * 1000000),
-            tipo: "FORMA",
-            forma: "CIRCULO",
-            x: 140,
-            y: 140,
-            largura: 100,
-            altura: 100,
-            cor: "#1d4ed8",
-            opacity: 0.4,
-            ordem: 5,
-          } as any,
-        ])
-      }
-      className="rounded-xl border bg-slate-50 px-2 py-3 text-xs hover:bg-slate-100"
-    >
-      ○ Círculo
-    </button>
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 1,
+        tipo: "FORMA",
+        forma: "CIRCULO",
+        x: 140,
+        y: 140,
+        largura: 110,
+        altura: 110,
+        cor: "#1d4ed8",
+        opacity: 0.35,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="h-7 w-7 rounded-full border-2 border-blue-700 bg-blue-200/50" />
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Círculo
+  </span>
+</button>
 
-    <button
-      type="button"
-      onClick={() =>
-        setCampos((prev) => [
-          ...prev,
-          {
-            id: Math.floor(Math.random() * 1000000),
-            tipo: "FORMA",
-            forma: "LINHA",
-            x: 160,
-            y: 160,
-            largura: 180,
-            altura: 4,
-            cor: "#1d4ed8",
-            opacity: 1,
-            ordem: 5,
-          } as any,
-        ])
-      }
-      className="rounded-xl border bg-slate-50 px-2 py-3 text-xs hover:bg-slate-100"
-    >
-      ━ Linha
-    </button>
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 2,
+        tipo: "FORMA",
+        forma: "LINHA",
+        x: 160,
+        y: 160,
+        largura: 180,
+        altura: 4,
+        cor: "#1d4ed8",
+        opacity: 1,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="h-1 w-9 rounded-full bg-blue-700" />
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Linha
+  </span>
+</button>
   </div>
 </div>
   <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
