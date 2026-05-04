@@ -44,6 +44,8 @@ type CampoCertificado = {
   left: number;
   right: number;
   bottom: number;
+  cropBaseW?: number | null;
+  cropBaseH?: number | null;
 };
 };
 
@@ -155,6 +157,8 @@ export default function ConfiguracaoCertificadoPage() {
     left: 0,
     right: 0,
     bottom: 0,
+    cropBaseW: 150,
+    cropBaseH: 150,
 },
   };
 
@@ -1516,30 +1520,23 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         background: "transparent",
       }}
     >
-      <div className="relative h-full w-full overflow-hidden rounded-[8px]">
-        <img
-          src={(c as any).imagemUrl}
-          alt="Imagem do certificado"
-          draggable={false}
-          className="absolute"
-          style={{
-            top: `-${c.crop?.top || 0}px`,
-            left: `-${c.crop?.left || 0}px`,
-            width: `${(c as any).cropBaseW || (c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
-height: `${(c as any).cropBaseH || (c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
-            background: "transparent",
-            pointerEvents: "none",
-            opacity: c.opacity || 1,
-            objectFit: "cover",
-            filter: (c as any).filter || "none",
-            transform: `
-  translate(-${c.crop?.left || 0}px, -${c.crop?.top || 0}px)
-  scaleX(${(c as any).flipX ? -1 : 1})
-  scaleY(${(c as any).flipY ? -1 : 1})
-`,
-          }}
-        />
-      </div>
+      <div
+  className="relative h-full w-full overflow-hidden rounded-[8px]"
+  style={{
+    backgroundImage: `url(${(c as any).imagemUrl})`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: `${(c as any).cropBaseW || (c.largura || 150)}px ${
+      (c as any).cropBaseH || (c.altura || 150)
+    }px`,
+    backgroundPosition: `-${c.crop?.left || 0}px -${c.crop?.top || 0}px`,
+    opacity: c.opacity || 1,
+    filter: (c as any).filter || "none",
+    transform: `
+      scaleX(${(c as any).flipX ? -1 : 1})
+      scaleY(${(c as any).flipY ? -1 : 1})
+    `,
+  }}
+/>
 
       {selecionadoImagem && (
         <>
