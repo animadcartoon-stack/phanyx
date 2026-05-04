@@ -1670,7 +1670,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 {/* CORTAR 4 LADOS JUNTOS */}
 <div
   onMouseDown={(e) => iniciarCropTodos(e, c)}
-  className="absolute left-[-12px] top-[-12px] z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-sm font-bold text-white shadow"
+  className="absolute left-[-12px] top-[-12px] z-[9999] flex h-7 w-7 cursor-nwse-resize items-center justify-center rounded-md bg-blue-600 hover:bg-blue-700 active:scale-95 text-sm font-bold text-white shadow-lg transition"
   title="Cortar os 4 lados juntos"
 >
   ┍
