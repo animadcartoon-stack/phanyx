@@ -620,6 +620,60 @@ cropBaseH,
   window.addEventListener("mouseup", up);
 }
 
+function iniciarCropPro(
+  e: React.MouseEvent,
+  campo: CampoCertificado
+) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  const startX = e.clientX;
+  const startY = e.clientY;
+
+  const cropInicial = campo.crop || {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  };
+
+  const larguraInicial = campo.largura || 150;
+  const alturaInicial = campo.altura || 150;
+
+  const move = (ev: globalThis.MouseEvent) => {
+    const dx = ev.clientX - startX;
+    const dy = ev.clientY - startY;
+
+    setCampos((prev) =>
+      prev.map((item) => {
+        if (item.id !== campo.id) return item;
+
+        const fator = Math.max(dx, dy);
+
+        const novoCrop = {
+          top: Math.max(0, cropInicial.top + fator),
+          bottom: Math.max(0, cropInicial.bottom + fator),
+          left: Math.max(0, cropInicial.left + fator),
+          right: Math.max(0, cropInicial.right + fator),
+        };
+
+        return {
+          ...item,
+          crop: novoCrop,
+        };
+      })
+    );
+  };
+
+  const up = () => {
+    window.removeEventListener("mousemove", move);
+    window.removeEventListener("mouseup", up);
+  };
+
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", up);
+}
+
 function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
   e.stopPropagation();
   e.preventDefault();
@@ -1710,6 +1764,14 @@ cropBaseH: Math.max(40, startH + ev.clientY - startY) + (item.crop?.top || 0) + 
 >
   ↻
 </button>
+
+{/* CENTRAL (CROP PRO) */}
+<div
+  onMouseDown={(e) => iniciarCropPro(e, c)}
+  className="absolute inset-0 flex items-center justify-center pointer-events-none"
+>
+  <div className="w-6 h-6 bg-purple-500 rounded-full cursor-move pointer-events-auto shadow-lg" />
+</div>
 
           {/* canto inferior direito */}
           <div
