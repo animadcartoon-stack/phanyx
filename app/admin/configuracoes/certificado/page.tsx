@@ -523,10 +523,10 @@ function iniciarCrop(
   const startX = e.clientX;
   const startY = e.clientY;
 
-  const larguraInicial = campo.largura || 150;
-  const alturaInicial = campo.altura || 150;
   const xInicial = campo.x;
   const yInicial = campo.y;
+  const larguraInicial = campo.largura || 150;
+  const alturaInicial = campo.altura || 150;
 
   const cropInicial = campo.crop || {
     top: 0,
@@ -544,43 +544,34 @@ function iniciarCrop(
         if (item.id !== campo.id) return item;
 
         const novoCrop = { ...cropInicial };
-
         let novoX = xInicial;
         let novoY = yInicial;
         let novaLargura = larguraInicial;
         let novaAltura = alturaInicial;
 
         if (direcao === "left") {
-  const delta = Math.max(
-    -cropInicial.left,
-    Math.min(dx, larguraInicial - 40)
-  );
+          const delta = Math.max(-cropInicial.left, Math.min(dx, larguraInicial - 40));
+          novoCrop.left = cropInicial.left + delta;
+          novoX = xInicial + delta;
+          novaLargura = larguraInicial - delta;
+        }
 
-  novoCrop.left = Math.max(0, cropInicial.left + delta);
-  novoX = xInicial + delta;
-  novaLargura = larguraInicial - delta;
-}
-
-if (direcao === "right") {
-  const delta = Math.max(
-    -cropInicial.right,
-    Math.min(-dx, larguraInicial - 40)
-  );
-
-  novoCrop.right = Math.max(0, cropInicial.right + delta);
-  novaLargura = larguraInicial - delta;
-}
+        if (direcao === "right") {
+          const delta = Math.max(-cropInicial.right, Math.min(-dx, larguraInicial - 40));
+          novoCrop.right = cropInicial.right + delta;
+          novaLargura = larguraInicial - delta;
+        }
 
         if (direcao === "top") {
-          const delta = Math.min(dy, alturaInicial - 40);
-          novoCrop.top = Math.max(0, cropInicial.top + delta);
+          const delta = Math.max(-cropInicial.top, Math.min(dy, alturaInicial - 40));
+          novoCrop.top = cropInicial.top + delta;
           novoY = yInicial + delta;
           novaAltura = alturaInicial - delta;
         }
 
         if (direcao === "bottom") {
-          const delta = Math.min(-dy, alturaInicial - 40);
-          novoCrop.bottom = Math.max(0, cropInicial.bottom + delta);
+          const delta = Math.max(-cropInicial.bottom, Math.min(-dy, alturaInicial - 40));
+          novoCrop.bottom = cropInicial.bottom + delta;
           novaAltura = alturaInicial - delta;
         }
 
@@ -1546,7 +1537,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
               e.stopPropagation();
               excluirCampo(c.id);
             }}
-            className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
+            className="absolute right-1 top-1 z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
             title="Excluir imagem"
           >
             ✕
