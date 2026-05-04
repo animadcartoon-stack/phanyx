@@ -523,6 +523,11 @@ function iniciarCrop(
   const startX = e.clientX;
   const startY = e.clientY;
 
+  const larguraInicial = campo.largura || 150;
+  const alturaInicial = campo.altura || 150;
+  const xInicial = campo.x;
+  const yInicial = campo.y;
+
   const cropInicial = campo.crop || {
     top: 0,
     left: 0,
@@ -540,12 +545,45 @@ function iniciarCrop(
 
         const novoCrop = { ...cropInicial };
 
-        if (direcao === "top") novoCrop.top = Math.max(0, cropInicial.top + dy);
-if (direcao === "bottom") novoCrop.bottom = Math.max(0, cropInicial.bottom - dy);
-if (direcao === "left") novoCrop.left = Math.max(0, cropInicial.left + dx);
-if (direcao === "right") novoCrop.right = Math.max(0, cropInicial.right - dx);
+        let novoX = xInicial;
+        let novoY = yInicial;
+        let novaLargura = larguraInicial;
+        let novaAltura = alturaInicial;
 
-        return { ...item, crop: novoCrop };
+        if (direcao === "left") {
+          const delta = Math.min(dx, larguraInicial - 40);
+          novoCrop.left = Math.max(0, cropInicial.left + delta);
+          novoX = xInicial + delta;
+          novaLargura = larguraInicial - delta;
+        }
+
+        if (direcao === "right") {
+          const delta = Math.min(-dx, larguraInicial - 40);
+          novoCrop.right = Math.max(0, cropInicial.right + delta);
+          novaLargura = larguraInicial - delta;
+        }
+
+        if (direcao === "top") {
+          const delta = Math.min(dy, alturaInicial - 40);
+          novoCrop.top = Math.max(0, cropInicial.top + delta);
+          novoY = yInicial + delta;
+          novaAltura = alturaInicial - delta;
+        }
+
+        if (direcao === "bottom") {
+          const delta = Math.min(-dy, alturaInicial - 40);
+          novoCrop.bottom = Math.max(0, cropInicial.bottom + delta);
+          novaAltura = alturaInicial - delta;
+        }
+
+        return {
+          ...item,
+          x: Math.round(novoX),
+          y: Math.round(novoY),
+          largura: Math.max(40, Math.round(novaLargura)),
+          altura: Math.max(40, Math.round(novaAltura)),
+          crop: novoCrop,
+        };
       })
     );
   };
