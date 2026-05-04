@@ -1922,8 +1922,11 @@ registrarHistoricoAntesDaAcao();
         transform: `rotate(${(c as any).rotate || 0}deg)`,
 
         boxShadow: c.sombraAtiva
-        ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px rgba(0,0,0,${c.sombraOpacidade ?? 0.4})`
-        : "none",
+  ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px ${hexToRgba(
+      c.sombraCor || "#000000",
+      c.sombraOpacidade ?? 0.4
+    )}`
+  : "none",
 
       }}
     >
