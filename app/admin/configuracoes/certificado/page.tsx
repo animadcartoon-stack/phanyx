@@ -2519,27 +2519,41 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 {campos.map((c) => {
   if (c.tipo === "IMAGEM") {
     return (
-      <img
-        key={c.id}
-        src={(c as any).imagemUrl}
-        alt="Imagem"
-        className="absolute"
-        style={{
-          left: `${c.x}px`,
-          top: `${c.y}px`,
-          width: `${c.largura || 150}px`,
-          height: `${c.altura || 150}px`,
-          objectFit: (c as any).objectFit || "contain",
-          opacity: c.opacity || 1,
-          filter: (c as any).filter || "none",
-          transform: `
-            rotate(${(c as any).rotate || 0}deg)
-            scaleX(${(c as any).flipX ? -1 : 1})
-            scaleY(${(c as any).flipY ? -1 : 1})
-          `,
-          zIndex: c.ordem || 10,
-        }}
-      />
+      <div
+  key={c.id}
+  className="absolute"
+  style={{
+    left: `${c.x}px`,
+    top: `${c.y}px`,
+    width: `${c.largura || 150}px`,
+    height: `${c.altura || 150}px`,
+    zIndex: c.ordem || 10,
+  }}
+>
+  <div className="relative h-full w-full overflow-hidden">
+    <img
+      src={(c as any).imagemUrl}
+      alt="Imagem"
+      draggable={false}
+      className="absolute"
+      style={{
+        top: `-${c.crop?.top || 0}px`,
+        left: `-${c.crop?.left || 0}px`,
+        width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
+        height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
+        objectFit: "cover",
+        opacity: c.opacity || 1,
+        filter: (c as any).filter || "none",
+        transform: `
+          rotate(${(c as any).rotate || 0}deg)
+          scaleX(${(c as any).flipX ? -1 : 1})
+          scaleY(${(c as any).flipY ? -1 : 1})
+        `,
+        pointerEvents: "none",
+      }}
+    />
+  </div>
+</div>
     );
   }
 
