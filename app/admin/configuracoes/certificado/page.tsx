@@ -2770,6 +2770,40 @@ registrarHistoricoAntesDaAcao();
           : "Ativar degradê"}
       </button>
 
+      {(campoSelecionado as any)?.usarGradiente && (
+        <>
+          <div>
+            <p className="mb-1 text-xs font-semibold text-slate-500">
+              Segunda cor
+            </p>
+            <input
+              type="color"
+              value={(campoSelecionado as any)?.cor2 || "#60a5fa"}
+              onChange={(e) =>
+                atualizarCampoLocal("cor2" as any, e.target.value)
+              }
+              className="h-10 w-full cursor-pointer rounded-lg border"
+            />
+          </div>
+
+          <select
+            value={(campoSelecionado as any)?.direcaoGradiente || "90deg"}
+            onChange={(e) =>
+              atualizarCampoLocal("direcaoGradiente" as any, e.target.value)
+            }
+            className="w-full rounded-xl border px-3 py-2 text-sm"
+          >
+            <option value="90deg">Esquerda para direita</option>
+            <option value="180deg">Cima para baixo</option>
+            <option value="45deg">Diagonal</option>
+            <option value="135deg">Diagonal invertida</option>
+          </select>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
   <button
   type="button"
@@ -2856,40 +2890,6 @@ registrarHistoricoAntesDaAcao();
 )}
 </div>
 
-
-      {(campoSelecionado as any)?.usarGradiente && (
-        <>
-          <div>
-            <p className="mb-1 text-xs font-semibold text-slate-500">
-              Segunda cor
-            </p>
-            <input
-              type="color"
-              value={(campoSelecionado as any)?.cor2 || "#60a5fa"}
-              onChange={(e) =>
-                atualizarCampoLocal("cor2" as any, e.target.value)
-              }
-              className="h-10 w-full cursor-pointer rounded-lg border"
-            />
-          </div>
-
-          <select
-            value={(campoSelecionado as any)?.direcaoGradiente || "90deg"}
-            onChange={(e) =>
-              atualizarCampoLocal("direcaoGradiente" as any, e.target.value)
-            }
-            className="w-full rounded-xl border px-3 py-2 text-sm"
-          >
-            <option value="90deg">Esquerda para direita</option>
-            <option value="180deg">Cima para baixo</option>
-            <option value="45deg">Diagonal</option>
-            <option value="135deg">Diagonal invertida</option>
-          </select>
-        </>
-      )}
-    </div>
-  </div>
-)}
 
       <div className="flex gap-2 pt-2">
         <button
