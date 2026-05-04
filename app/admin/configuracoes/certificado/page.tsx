@@ -1741,7 +1741,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         boxShadow: c.sombraAtiva
         ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px ${hexToRgba(
         c.sombraCor || "#000000",
-        c.sombraOpacidade ?? 0.4
+        (c.sombraOpacidade ?? 40) / 100
     )}`
   : "none",
       }}
@@ -1924,7 +1924,7 @@ registrarHistoricoAntesDaAcao();
         boxShadow: c.sombraAtiva
   ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px ${hexToRgba(
       c.sombraCor || "#000000",
-      c.sombraOpacidade ?? 0.4
+      (c.sombraOpacidade ?? 40) / 100
     )}`
   : "none",
 
