@@ -1756,9 +1756,10 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 </button>
 
   
-            {painelCampoAberto && (
-  campoSelecionado ? (
-              <div className="space-y-4 text-sm text-slate-700">
+            {campoSelecionado ? (
+  <div className="space-y-4 text-sm text-slate-700">
+    {painelCampoAberto && (
+      <>
                 {campoSelecionado.tipo === "IMAGEM" && (
   <div className="rounded-2xl border border-slate-200 bg-white">
     <button
@@ -2159,7 +2160,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                     <option value="right">Direita</option>
                   </select>
                 </div>
-
+      </>
+    )}
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
     type="button"
@@ -2317,7 +2319,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                 Depois clique e arraste o campo sobre o certificado para
                 posicionar.
               </p>
-                        ))}
+                        )
+}
           </aside>
         )}
 
