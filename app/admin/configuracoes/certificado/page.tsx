@@ -144,6 +144,23 @@ export default function ConfiguracaoCertificadoPage() {
     offsetY: number;
   } | null>(null);
 
+useEffect(() => {
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Delete" && campoSelecionadoId) {
+      setCampos((prev) =>
+        prev.filter((c) => c.id !== campoSelecionadoId)
+      );
+      setCampoSelecionadoId(null);
+    }
+  };
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, [campoSelecionadoId]);
+
   useEffect(() => {
   async function carregarConfiguracao() {
     try {
@@ -372,7 +389,14 @@ function finalizarArrastoCanvas() {
     payload: Partial<CampoCertificado>
   ) {
     try {
-      setSalvandoCampo(true);
+  if (payload.tipo === "IMAGEM" || payload.tipo === "FORMA") {
+    setCampos((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, ...payload } : c))
+    );
+    return;
+  }
+
+  setSalvandoCampo(true);
 
       const res = await fetch("/api/admin/certificado-campos", {
         method: "PATCH",
@@ -1385,47 +1409,189 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     );
   }
 
-  if (c.tipo === "FORMA") {
-    return (
+ if (c.tipo === "FORMA") {
+  const selecionado = campoSelecionadoId === c.id;
+
+  return (
+    <div
+      key={c.id}
+      onMouseDown={(event) => {
+        event.stopPropagation();
+        setCampoSelecionadoId(c.id);
+        iniciarDrag(event as any, c);
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setCampoSelecionadoId(c.id);
+        setMenuContexto({
+          x: e.clientX,
+          y: e.clientY,
+          campoId: c.id,
+        });
+      }}
+      className="absolute z-20 select-none"
+      style={{
+        left: `${c.x}px`,
+        top: `${c.y}px`,
+        width: `${c.largura || 100}px`,
+        height: `${c.altura || 80}px`,
+        cursor: "move",
+        zIndex: c.ordem || 5,
+        transform: `rotate(${(c as any).rotate || 0}deg)`,
+      }}
+    >
       <div
-        key={c.id}
-        onMouseDown={(event) => {
-          event.stopPropagation();
-          setCampoSelecionadoId(c.id);
-          iniciarDrag(event as any, c);
-        }}
-        onContextMenu={(e) => {
-  e.preventDefault();
-  setCampoSelecionadoId(c.id);
-  setMenuContexto({
-    x: e.clientX,
-    y: e.clientY,
-    campoId: c.id,
-  });
-}}
-        className="absolute z-20 select-none"
+        className="h-full w-full"
         style={{
-          left: `${c.x}px`,
-          top: `${c.y}px`,
-          width: `${c.largura || 100}px`,
-          height: `${c.altura || 80}px`,
           background:
             c.forma === "LINHA" ? "transparent" : c.cor || "#1d4ed8",
-          opacity: c.opacity || 1,
-          borderRadius: c.forma === "CIRCULO" ? "9999px" : "6px",
-          cursor: "move",
-          zIndex: c.ordem || 5,
-          transform: `rotate(${(c as any).rotate || 0}deg)`,
           border:
             c.forma === "LINHA"
-              ? `2px solid ${c.cor || "#1d4ed8"}`
-              : campoSelecionadoId === c.id
+              ? `3px solid ${c.cor || "#1d4ed8"}`
+              : selecionado
               ? "2px solid #2563eb"
               : "1px dashed #93c5fd",
+          borderRadius: c.forma === "CIRCULO" ? "9999px" : "8px",
+          opacity: c.opacity || 1,
         }}
       />
-    );
-  }
+
+      {selecionado && (
+        <>
+          {/* girar */}
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              atualizarCampoLocal(
+                "rotate" as any,
+                Number((c as any).rotate || 0) + 15
+              );
+            }}
+            className="absolute left-1/2 top-[-34px] h-7 w-7 -translate-x-1/2 rounded-full bg-blue-600 text-xs text-white shadow"
+            title="Girar"
+          >
+            ↻
+          </button>
+
+          {/* canto inferior direito */}
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const startW = c.largura || 100;
+              const startH = c.altura || 80;
+
+              const move = (ev: globalThis.MouseEvent) => {
+                setCampos((prev) =>
+                  prev.map((item) =>
+                    item.id === c.id
+                      ? {
+                          ...item,
+                          largura: Math.max(20, startW + ev.clientX - startX),
+                          altura: Math.max(4, startH + ev.clientY - startY),
+                        }
+                      : item
+                  )
+                );
+              };
+
+              const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+              };
+
+              window.addEventListener("mousemove", move);
+              window.addEventListener("mouseup", up);
+            }}
+            className="absolute bottom-[-7px] right-[-7px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+            title="Redimensionar"
+          />
+
+          {/* direita */}
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+
+              const startX = e.clientX;
+              const startW = c.largura || 100;
+
+              const move = (ev: globalThis.MouseEvent) => {
+                setCampos((prev) =>
+                  prev.map((item) =>
+                    item.id === c.id
+                      ? {
+                          ...item,
+                          largura: Math.max(20, startW + ev.clientX - startX),
+                        }
+                      : item
+                  )
+                );
+              };
+
+              const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+              };
+
+              window.addEventListener("mousemove", move);
+              window.addEventListener("mouseup", up);
+            }}
+            className="absolute right-[-6px] top-1/2 h-4 w-4 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+            title="Ajustar largura"
+          />
+
+          {/* baixo */}
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+
+              const startY = e.clientY;
+              const startH = c.altura || 80;
+
+              const move = (ev: globalThis.MouseEvent) => {
+                setCampos((prev) =>
+                  prev.map((item) =>
+                    item.id === c.id
+                      ? {
+                          ...item,
+                          altura: Math.max(4, startH + ev.clientY - startY),
+                        }
+                      : item
+                  )
+                );
+              };
+
+              const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+              };
+
+              window.addEventListener("mousemove", move);
+              window.addEventListener("mouseup", up);
+            }}
+            className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+            title="Ajustar altura"
+          />
+        </>
+      )}
+      {/* botão excluir */}
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    setCampos((prev) => prev.filter((item) => item.id !== c.id));
+  }}
+  className="absolute right-[-10px] top-[-10px] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow"
+  title="Excluir"
+>
+  ✕
+</button>
+    </div>
+  );
+}
 
   return (
     <div
