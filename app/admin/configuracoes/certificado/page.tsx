@@ -674,6 +674,70 @@ function iniciarCropPro(
   window.addEventListener("mouseup", up);
 }
 
+function iniciarCropTodos(e: React.MouseEvent, campo: CampoCertificado) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  const startX = e.clientX;
+  const startY = e.clientY;
+
+  const xInicial = campo.x;
+  const yInicial = campo.y;
+  const larguraInicial = campo.largura || 150;
+  const alturaInicial = campo.altura || 150;
+
+  const cropInicial = campo.crop || { top: 0, left: 0, right: 0, bottom: 0 };
+
+  const move = (ev: globalThis.MouseEvent) => {
+    const dx = ev.clientX - startX;
+    const dy = ev.clientY - startY;
+
+    const bruto = Math.max(dx, dy);
+
+    const maxParaDentro = Math.min(
+      (larguraInicial - 40) / 2,
+      (alturaInicial - 40) / 2
+    );
+
+    const maxParaFora = -Math.min(
+      cropInicial.top,
+      cropInicial.bottom,
+      cropInicial.left,
+      cropInicial.right
+    );
+
+    const delta = Math.max(maxParaFora, Math.min(bruto, maxParaDentro));
+
+    setCampos((prev) =>
+      prev.map((item) =>
+        item.id === campo.id
+          ? {
+              ...item,
+              x: Math.round(xInicial + delta),
+              y: Math.round(yInicial + delta),
+              largura: Math.max(40, Math.round(larguraInicial - delta * 2)),
+              altura: Math.max(40, Math.round(alturaInicial - delta * 2)),
+              crop: {
+                top: Math.max(0, cropInicial.top + delta),
+                bottom: Math.max(0, cropInicial.bottom + delta),
+                left: Math.max(0, cropInicial.left + delta),
+                right: Math.max(0, cropInicial.right + delta),
+              },
+            }
+          : item
+      )
+    );
+  };
+
+  const up = () => {
+    window.removeEventListener("mousemove", move);
+    window.removeEventListener("mouseup", up);
+  };
+
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", up);
+}
+
 function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
   e.stopPropagation();
   e.preventDefault();
@@ -1661,26 +1725,35 @@ setTimeout(() => setMensagemSucesso(""), 3000);
               const startH = c.altura || 150;
 
               const move = (ev: globalThis.MouseEvent) => {
-                setCampos((prev) =>
-                  prev.map((item) =>
-                    item.id === c.id
-                      ? {
-                          ...item,
-                          largura: Math.max(40, startW + ev.clientX - startX),
-altura: Math.max(40, startH + ev.clientY - startY),
-crop: item.crop || {
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-},
-cropBaseW: Math.max(40, startW + ev.clientX - startX) + (item.crop?.left || 0) + (item.crop?.right || 0),
-cropBaseH: Math.max(40, startH + ev.clientY - startY) + (item.crop?.top || 0) + (item.crop?.bottom || 0),
-                        }
-                      : item
-                  )
-                );
-              };
+  const novoW = Math.max(40, startW + ev.clientX - startX);
+  const proporcao = startW / startH;
+
+  const novoH = ev.shiftKey
+    ? Math.max(40, novoW / proporcao)
+    : Math.max(40, startH + ev.clientY - startY);
+
+  setCampos((prev) =>
+    prev.map((item) =>
+      item.id === c.id
+        ? {
+            ...item,
+            largura: novoW,
+            altura: novoH,
+            crop: item.crop || {
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            },
+            cropBaseW:
+              novoW + (item.crop?.left || 0) + (item.crop?.right || 0),
+            cropBaseH:
+              novoH + (item.crop?.top || 0) + (item.crop?.bottom || 0),
+          }
+        : item
+    )
+  );
+};
 
               const up = () => {
                 window.removeEventListener("mousemove", move);
@@ -1874,6 +1947,13 @@ cropBaseH: Math.max(40, startH + ev.clientY - startY) + (item.crop?.top || 0) + 
             className="absolute bottom-[-6px] left-1/2 h-4 w-4 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
             title="Ajustar altura"
           />
+          <div
+  onMouseDown={(e) => iniciarCropTodos(e, c)}
+  className="absolute left-[-10px] top-[-10px] z-[9999] flex h-6 w-6 cursor-nwse-resize items-center justify-center rounded-md bg-purple-600 text-xs font-bold text-white shadow"
+  title="Corte pelos 4 lados"
+>
+  ┍
+</div>
         </>
       )}
       {/* botão excluir */}
