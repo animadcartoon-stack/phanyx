@@ -550,8 +550,10 @@ function iniciarCrop(
         let novaAltura = alturaInicial;
 
         if (direcao === "left") {
-  const maxDelta = larguraInicial - 40;
-  const delta = Math.max(-cropInicial.left, Math.min(dx, maxDelta));
+  const delta = Math.max(
+    -cropInicial.left,
+    Math.min(ev.clientX - startX, larguraInicial - 40)
+  );
 
   novoCrop.left = cropInicial.left + delta;
   novoX = xInicial + delta;
@@ -559,8 +561,10 @@ function iniciarCrop(
 }
 
 if (direcao === "right") {
-  const maxDelta = larguraInicial - 40;
-  const delta = Math.max(-cropInicial.right, Math.min(-dx, maxDelta));
+  const delta = Math.max(
+    -cropInicial.right,
+    Math.min(startX - ev.clientX, larguraInicial - 40)
+  );
 
   novoCrop.right = cropInicial.right + delta;
   novoX = xInicial;
@@ -1510,7 +1514,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           style={{
             top: `-${c.crop?.top || 0}px`,
             left: `-${c.crop?.left || 0}px`,
-            width: `${Math.max(40, (c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0))}px`,
+            width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
             height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
             background: "transparent",
             pointerEvents: "none",
@@ -1518,9 +1522,10 @@ setTimeout(() => setMensagemSucesso(""), 3000);
             objectFit: "cover",
             filter: (c as any).filter || "none",
             transform: `
-              scaleX(${(c as any).flipX ? -1 : 1})
-              scaleY(${(c as any).flipY ? -1 : 1})
-            `,
+  translate(-${c.crop?.left || 0}px, -${c.crop?.top || 0}px)
+  scaleX(${(c as any).flipX ? -1 : 1})
+  scaleY(${(c as any).flipY ? -1 : 1})
+`,
           }}
         />
       </div>
