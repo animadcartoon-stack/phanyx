@@ -551,17 +551,25 @@ function iniciarCrop(
         let novaAltura = alturaInicial;
 
         if (direcao === "left") {
-          const delta = Math.min(dx, larguraInicial - 40);
-          novoCrop.left = Math.max(0, cropInicial.left + delta);
-          novoX = xInicial + delta;
-          novaLargura = larguraInicial - delta;
-        }
+  const delta = Math.max(
+    -cropInicial.left,
+    Math.min(dx, larguraInicial - 40)
+  );
 
-        if (direcao === "right") {
-          const delta = Math.min(-dx, larguraInicial - 40);
-          novoCrop.right = Math.max(0, cropInicial.right + delta);
-          novaLargura = larguraInicial - delta;
-        }
+  novoCrop.left = Math.max(0, cropInicial.left + delta);
+  novoX = xInicial + delta;
+  novaLargura = larguraInicial - delta;
+}
+
+if (direcao === "right") {
+  const delta = Math.max(
+    -cropInicial.right,
+    Math.min(-dx, larguraInicial - 40)
+  );
+
+  novoCrop.right = Math.max(0, cropInicial.right + delta);
+  novaLargura = larguraInicial - delta;
+}
 
         if (direcao === "top") {
           const delta = Math.min(dy, alturaInicial - 40);
