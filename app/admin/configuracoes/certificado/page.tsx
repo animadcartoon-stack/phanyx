@@ -1,6 +1,5 @@
 "use client";
 
-
 import Image from "next/image";
 import {
   useEffect,
@@ -145,7 +144,7 @@ function refazer() {
 }
 
 function registrarHistoricoAntesDaAcao() {
-  setHistorico((prev) => [...prev, campos]);
+  setHistorico((prev) => [...prev, JSON.parse(JSON.stringify(campos))]);
   setFuturo([]);
 }
 
@@ -540,7 +539,9 @@ function finalizarArrastoCanvas() {
   const campo = campos.find((c) => c.id === id);
 
   if (campo?.tipo === "IMAGEM") {
-    atualizarCamposComHistorico((prev) => prev.filter((c) => c.id !== id));
+    registrarHistoricoAntesDaAcao();
+
+setCampos((prev) => prev.filter((c) => c.id !== id));
     if (campoSelecionadoId === id) {
       setCampoSelecionadoId(null);
     }
