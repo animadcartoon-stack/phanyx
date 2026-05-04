@@ -16,6 +16,12 @@ type CampoCertificado = {
   y: number;
   largura?: number | null;
   altura?: number | null;
+  sombraAtiva?: boolean | null;
+  sombraX?: number | null;
+  sombraY?: number | null;
+  sombraBlur?: number | null;
+  sombraCor?: string | null;
+  sombraOpacidade?: number | null;
   fonte?: string | null;
   tamanho?: number | null;
   cor?: string | null;
@@ -1729,6 +1735,10 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
         borderRadius: "10px",
         background: "transparent",
+        boxShadow: c.sombraAtiva
+
+        ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px rgba(0,0,0,${c.sombraOpacidade ?? 0.4})`
+        : "none",
       }}
     >
       <div
@@ -1905,6 +1915,11 @@ registrarHistoricoAntesDaAcao();
         cursor: "move",
         zIndex: c.ordem || 5,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
+
+        boxShadow: c.sombraAtiva
+        ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px rgba(0,0,0,${c.sombraOpacidade ?? 0.4})`
+        : "none",
+
       }}
     >
       <div
