@@ -496,7 +496,7 @@ function finalizarArrastoCanvas() {
 
   const campo = campos.find((c) => c.id === dragRef.current?.campoId);
 
-  if (campo && campo.tipo !== "IMAGEM") {
+  if (campo && campo.tipo !== "IMAGEM" && campo.tipo !== "FORMA") {
     void atualizarCampo(campo.id, {
       x: campo.x,
       y: campo.y,
@@ -508,6 +508,16 @@ function finalizarArrastoCanvas() {
 
   async function salvarCampoSelecionado() {
     if (!campoSelecionado) return;
+
+if (campoSelecionado.tipo === "IMAGEM" || campoSelecionado.tipo === "FORMA") {
+  setMensagemSucesso(
+    campoSelecionado.tipo === "IMAGEM"
+      ? "Imagem ajustada no editor."
+      : "Forma ajustada no editor."
+  );
+  setTimeout(() => setMensagemSucesso(""), 2500);
+  return;
+}
 
 if (campoSelecionado.tipo === "IMAGEM") {
   setMensagemSucesso("Imagem ajustada no editor.");
@@ -1291,6 +1301,15 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           setCampoSelecionadoId(c.id);
           iniciarDrag(event as any, c);
         }}
+        onContextMenu={(e) => {
+  e.preventDefault();
+  setCampoSelecionadoId(c.id);
+  setMenuContexto({
+    x: e.clientX,
+    y: e.clientY,
+    campoId: c.id,
+  });
+}}
         className="absolute z-20 select-none"
         style={{
           left: `${c.x}px`,
@@ -1375,6 +1394,15 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           setCampoSelecionadoId(c.id);
           iniciarDrag(event as any, c);
         }}
+        onContextMenu={(e) => {
+  e.preventDefault();
+  setCampoSelecionadoId(c.id);
+  setMenuContexto({
+    x: e.clientX,
+    y: e.clientY,
+    campoId: c.id,
+  });
+}}
         className="absolute z-20 select-none"
         style={{
           left: `${c.x}px`,
@@ -2139,13 +2167,49 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     }}
     className="bg-white border shadow-lg rounded-lg p-2 text-sm"
   >
-    <button onClick={() => { atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
-      Trazer pra frente
-    </button>
+    <button
+  type="button"
+  onClick={() => {
+    atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1);
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  🔼 Avançar uma camada
+</button>
 
-    <button onClick={() => { atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) - 1); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
-      Enviar pra trás
-    </button>
+<button
+  type="button"
+  onClick={() => {
+    atualizarCampoLocal("ordem", Math.max(0, (campoSelecionado?.ordem || 1) - 1));
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  🔽 Recuar uma camada
+</button>
+
+<button
+  type="button"
+  onClick={() => {
+    atualizarCampoLocal("ordem", 999);
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  ⏫ Trazer para frente de tudo
+</button>
+
+<button
+  type="button"
+  onClick={() => {
+    atualizarCampoLocal("ordem", 0);
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  ⏬ Enviar para trás de tudo
+</button>
 
     <hr className="my-1" />
 
