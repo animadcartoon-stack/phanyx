@@ -488,6 +488,43 @@ function finalizarArrastoCanvas() {
     setCampoSelecionadoId(campo.id);
   }
 
+function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
+  e.stopPropagation();
+  e.preventDefault();
+
+  const elemento = (e.currentTarget.parentElement as HTMLElement);
+  if (!elemento) return;
+
+  const rect = elemento.getBoundingClientRect();
+  const centroX = rect.left + rect.width / 2;
+  const centroY = rect.top + rect.height / 2;
+
+  const mover = (ev: globalThis.MouseEvent) => {
+    const angulo =
+      Math.atan2(ev.clientY - centroY, ev.clientX - centroX) *
+      (180 / Math.PI);
+
+    setCampos((prev) =>
+      prev.map((item) =>
+        item.id === campo.id
+          ? {
+              ...item,
+              rotate: Math.round(angulo + 90),
+            }
+          : item
+      )
+    );
+  };
+
+  const soltar = () => {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  };
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
   function onMouseMoveCanvas(event: MouseEvent<HTMLDivElement>) {
     if (!dragRef.current || !canvasRef.current) return;
 
@@ -1342,6 +1379,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           height: `${c.altura || 150}px`,
           cursor: "move",
           zIndex: c.ordem || 10,
+          transform: `rotate(${(c as any).rotate || 0}deg)`,
           border:
             campoSelecionadoId === c.id
               ? "2px solid #2563eb"
@@ -1362,10 +1400,9 @@ setTimeout(() => setMensagemSucesso(""), 3000);
             objectFit: (c as any).objectFit || "contain",
             filter: (c as any).filter || "none",
             transform: `
-              rotate(${(c as any).rotate || 0}deg)
-              scaleX(${(c as any).flipX ? -1 : 1})
-              scaleY(${(c as any).flipY ? -1 : 1})
-            `,
+  scaleX(${(c as any).flipX ? -1 : 1})
+  scaleY(${(c as any).flipY ? -1 : 1})
+`,
           }}
         />
 
@@ -1397,10 +1434,18 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                 window.removeEventListener("mousemove", move);
                 window.removeEventListener("mouseup", up);
               };
-
+<button
+  type="button"
+  onMouseDown={(e) => iniciarRotacao(e, c)}
+  className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
+  title="Rotacionar livremente"
+>
+  ↻
+</button>
               window.addEventListener("mousemove", move);
               window.addEventListener("mouseup", up);
             }}
+            
             className="absolute bottom-[-6px] right-[-6px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
             title="Redimensionar"
           />
