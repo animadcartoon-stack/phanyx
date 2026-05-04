@@ -1970,9 +1970,9 @@ registrarHistoricoAntesDaAcao();
           { cor: c.cor || "#1d4ed8", posicao: 0 },
           { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
         ])
-          .map((stop: any) =>
-            `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`
-          )
+         .map((stop: any) =>
+  `${stop.cor} ${stop.posicao}%`
+)
           .join(", ")})`
       : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${((c as any).degradeStops || [
           { cor: c.cor || "#1d4ed8", posicao: 0 },
