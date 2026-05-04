@@ -136,7 +136,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [painelCampoAberto, setPainelCampoAberto] = useState(true);
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
-  
+  const [sombraAberta, setSombraAberta] = useState(true);
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
 const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
 const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
@@ -2771,7 +2771,23 @@ registrarHistoricoAntesDaAcao();
       </button>
 
 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
-  <p className="text-sm font-semibold text-slate-700">Sombra projetada</p>
+  <button
+  type="button"
+  onClick={() => setSombraAberta((prev) => !prev)}
+  className="w-full flex items-center justify-between text-sm font-semibold text-left"
+>
+  Sombra projetada
+  <span
+  className={`transition-transform ${
+    sombraAberta ? "rotate-180" : ""
+  }`}
+>
+  ▼
+</span>
+</button>
+
+{sombraAberta && (
+  <>
 
   <button
     type="button"
@@ -2824,18 +2840,22 @@ registrarHistoricoAntesDaAcao();
   />
 
   <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
-  <input
-    type="range"
-    min={0}
-    max={1}
-    step={0.05}
-    value={campoSelecionado?.sombraOpacidade ?? 0.4}
-    onChange={(e) =>
-      atualizarCampoLocal("sombraOpacidade", Number(e.target.value))
-    }
-    className="w-full"
-  />
+  <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
+<input
+  type="range"
+  min={0}
+  max={100}
+  step={1}
+  value={campoSelecionado?.sombraOpacidade ?? 40}
+  onChange={(e) =>
+    atualizarCampoLocal("sombraOpacidade", Number(e.target.value))
+  }
+  className="w-full"
+/>
+   </>
+)}
 </div>
+
 
       {(campoSelecionado as any)?.usarGradiente && (
         <>
