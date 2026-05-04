@@ -51,6 +51,9 @@ type CampoCertificado = {
   bottom: number;
   cropBaseW?: number | null;
   cropBaseH?: number | null;
+  degradeTipo?: "linear" | "radial" | null;
+  degradeAngulo?: number | null;
+  degradeStops?: { cor: string; posicao: number }[] | null;
 };
 };
 
@@ -1736,9 +1739,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         borderRadius: "10px",
         background: "transparent",
         boxShadow: c.sombraAtiva
-
-        ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px rgba(0,0,0,${c.sombraOpacidade ?? 0.4})`
-        : "none",
+        ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px ${hexToRgba(
+        c.sombraCor || "#000000",
+        c.sombraOpacidade ?? 0.4
+    )}`
+  : "none",
       }}
     >
       <div
@@ -1926,14 +1931,27 @@ registrarHistoricoAntesDaAcao();
   className="h-full w-full"
   style={{
     background:
-      c.forma === "LINHA"
-        ? "transparent"
-        : (c as any).usarGradiente
-        ? `linear-gradient(${(c as any).direcaoGradiente || "90deg"}, ${hexToRgba(
-            c.cor || "#1d4ed8",
-            c.opacity || 1
-          )}, ${hexToRgba((c as any).cor2 || "#60a5fa", c.opacity || 1)})`
-        : hexToRgba(c.cor || "#1d4ed8", c.opacity || 1),
+  c.forma === "LINHA"
+    ? "transparent"
+    : (c as any).usarGradiente
+    ? (c as any).degradeTipo === "radial"
+      ? `radial-gradient(circle, ${((c as any).degradeStops || [
+          { cor: c.cor || "#1d4ed8", posicao: 0 },
+          { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
+        ])
+          .map((stop: any) =>
+            `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`
+          )
+          .join(", ")})`
+      : `linear-gradient(${(c as any).degradeAngulo ?? 90}deg, ${((c as any).degradeStops || [
+          { cor: c.cor || "#1d4ed8", posicao: 0 },
+          { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
+        ])
+          .map((stop: any) =>
+            `${hexToRgba(stop.cor, c.opacity || 1)} ${stop.posicao}%`
+          )
+          .join(", ")})`
+    : hexToRgba(c.cor || "#1d4ed8", c.opacity || 1),
 
     border:
       c.forma === "LINHA"
@@ -2733,6 +2751,14 @@ registrarHistoricoAntesDaAcao();
   >
     {campoSelecionado?.sombraAtiva ? "Desativar sombra" : "Ativar sombra"}
   </button>
+
+<label className="mt-3 block text-xs text-slate-500">Cor da sombra</label>
+<input
+  type="color"
+  value={campoSelecionado?.sombraCor || "#000000"}
+  onChange={(e) => atualizarCampoLocal("sombraCor", e.target.value)}
+  className="h-10 w-full cursor-pointer rounded-xl border border-slate-300"
+/>
 
   <label className="mt-3 block text-xs text-slate-500">Horizontal</label>
   <input
