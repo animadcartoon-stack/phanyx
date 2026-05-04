@@ -2015,8 +2015,8 @@ registrarHistoricoAntesDaAcao();
         : "1px dashed #93c5fd",
 
     borderRadius: c.forma === "CIRCULO" ? "9999px" : "8px",
-  }}
-/>
+    }}
+>
 
 {selecionado && (c as any).usarGradiente && (
   <div className="pointer-events-none absolute inset-0 z-[9998]">
@@ -2104,6 +2104,8 @@ registrarHistoricoAntesDaAcao();
     ))}
   </div>
 )}
+
+</div>
 
       {selecionado && (
         <>
