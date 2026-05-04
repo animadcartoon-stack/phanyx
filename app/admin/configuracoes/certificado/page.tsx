@@ -83,6 +83,14 @@ const ORIENTACOES = {
 
 type OrientacaoEditor = keyof typeof ORIENTACOES;
 
+function hexToRgba(hex: string, alpha: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export default function ConfiguracaoCertificadoPage() {
   const [menuContexto, setMenuContexto] = useState<{
   x: number;
@@ -1489,27 +1497,28 @@ setTimeout(() => setMensagemSucesso(""), 3000);
       }}
     >
       <div
-        className="h-full w-full"
-        style={{
-          background:
-  c.forma === "LINHA"
-    ? "transparent"
-    : (c as any).usarGradiente
-    ? `linear-gradient(${(c as any).direcaoGradiente || "90deg"}, ${
-        c.cor || "#1d4ed8"
-      }, ${(c as any).cor2 || "#60a5fa"})`
-    : c.cor || "#1d4ed8",
-          border:
-            c.forma === "LINHA"
-              ? `3px solid ${c.cor || "#1d4ed8"}`
-              : selecionado
-              ? "2px solid #2563eb"
-              : "1px dashed #93c5fd",
-          borderRadius: c.forma === "CIRCULO" ? "9999px" : "8px",
-          opacity: c.opacity || 1,
-        }}
-      />
+  className="h-full w-full"
+  style={{
+    background:
+      c.forma === "LINHA"
+        ? "transparent"
+        : (c as any).usarGradiente
+        ? `linear-gradient(${(c as any).direcaoGradiente || "90deg"}, ${hexToRgba(
+            c.cor || "#1d4ed8",
+            c.opacity || 1
+          )}, ${hexToRgba((c as any).cor2 || "#60a5fa", c.opacity || 1)})`
+        : hexToRgba(c.cor || "#1d4ed8", c.opacity || 1),
 
+    border:
+      c.forma === "LINHA"
+        ? `3px solid ${c.cor || "#1d4ed8"}`
+        : selecionado
+        ? "2px solid #2563eb"
+        : "1px dashed #93c5fd",
+
+    borderRadius: c.forma === "CIRCULO" ? "9999px" : "8px",
+  }}
+/>
       {selecionado && (
         <>
           {/* girar */}
