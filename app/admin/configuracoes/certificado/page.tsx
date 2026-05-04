@@ -1756,7 +1756,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 </button>
 
   
-            {campoSelecionado ? (
+            {painelCampoAberto && (
+  campoSelecionado ? (
               <div className="space-y-4 text-sm text-slate-700">
                 {campoSelecionado.tipo === "IMAGEM" && (
   <div className="rounded-2xl border border-slate-200 bg-white">
@@ -2316,7 +2317,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                 Depois clique e arraste o campo sobre o certificado para
                 posicionar.
               </p>
-            )}
+                        ))}
           </aside>
         )}
 
