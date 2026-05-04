@@ -1613,13 +1613,15 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                       ? {
                           ...item,
                           largura: Math.max(40, startW + ev.clientX - startX),
-                          altura: Math.max(40, startH + ev.clientY - startY),
-                          crop: item.crop || {
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                          },
+altura: Math.max(40, startH + ev.clientY - startY),
+crop: item.crop || {
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+},
+cropBaseW: Math.max(40, startW + ev.clientX - startX) + (item.crop?.left || 0) + (item.crop?.right || 0),
+cropBaseH: Math.max(40, startH + ev.clientY - startY) + (item.crop?.top || 0) + (item.crop?.bottom || 0),
                         }
                       : item
                   )
@@ -2129,6 +2131,34 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     >
       Cortar/preencher
     </button>
+    <button
+  type="button"
+  onClick={() => {
+    if (!campoSelecionado) return;
+
+    const largura = campoSelecionado.largura || 150;
+    const altura = campoSelecionado.altura || 150;
+    const tamanho = Math.min(largura, altura);
+
+    const corteHorizontal = Math.max(0, (largura - tamanho) / 2);
+    const corteVertical = Math.max(0, (altura - tamanho) / 2);
+
+    atualizarCampoLocal("crop" as any, {
+      top: corteVertical,
+      bottom: corteVertical,
+      left: corteHorizontal,
+      right: corteHorizontal,
+    });
+
+    atualizarCampoLocal("cropBaseW" as any, largura);
+    atualizarCampoLocal("cropBaseH" as any, altura);
+    atualizarCampoLocal("largura" as any, tamanho);
+    atualizarCampoLocal("altura" as any, tamanho);
+  }}
+  className="rounded-lg border bg-white px-3 py-2 text-xs hover:bg-slate-100"
+>
+  Corte quadrado
+</button>
   </div>
 </div>
           <input
