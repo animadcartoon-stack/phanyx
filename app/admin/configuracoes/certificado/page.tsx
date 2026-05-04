@@ -1493,6 +1493,35 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     </button>
   )}
 
+{/* CONTROLES DE CORTE */}
+{campoSelecionadoId === c.id && (
+  <>
+    {/* TOP */}
+    <div
+      onMouseDown={(e) => iniciarCrop(e, c, "top")}
+      className="absolute top-[-6px] left-1/2 h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
+    />
+
+    {/* BOTTOM */}
+    <div
+      onMouseDown={(e) => iniciarCrop(e, c, "bottom")}
+      className="absolute bottom-[-6px] left-1/2 h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
+    />
+
+    {/* LEFT */}
+    <div
+      onMouseDown={(e) => iniciarCrop(e, c, "left")}
+      className="absolute left-[-6px] top-1/2 h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"
+    />
+
+    {/* RIGHT */}
+    <div
+      onMouseDown={(e) => iniciarCrop(e, c, "right")}
+      className="absolute right-[-6px] top-1/2 h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"
+    />
+  </>
+)}
+
 </div>
 
         {campoSelecionadoId === c.id && (
