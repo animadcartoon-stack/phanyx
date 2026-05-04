@@ -540,9 +540,9 @@ function iniciarCrop(
         const novoCrop = { ...cropInicial };
 
         if (direcao === "top") novoCrop.top = Math.max(0, cropInicial.top + dy);
-        if (direcao === "bottom") novoCrop.bottom = Math.max(0, cropInicial.bottom - dy);
-        if (direcao === "left") novoCrop.left = Math.max(0, cropInicial.left + dx);
-        if (direcao === "right") novoCrop.right = Math.max(0, cropInicial.right - dx);
+if (direcao === "bottom") novoCrop.bottom = Math.max(0, cropInicial.bottom - dy);
+if (direcao === "left") novoCrop.left = Math.max(0, cropInicial.left + dx);
+if (direcao === "right") novoCrop.right = Math.max(0, cropInicial.right - dx);
 
         return { ...item, crop: novoCrop };
       })
@@ -1468,7 +1468,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     className="h-full w-full"
     style={{
       background: "transparent",
-      pointerEvents: "none",
+      pointerEvents: "auto",
       opacity: c.opacity || 1,
       objectFit: (c as any).objectFit || "contain",
       filter: (c as any).filter || "none",
@@ -1549,10 +1549,16 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                   prev.map((item) =>
                     item.id === c.id
                       ? {
-                          ...item,
-                          largura: Math.max(40, startW + ev.clientX - startX),
-                          altura: Math.max(40, startH + ev.clientY - startY),
-                        }
+    ...item,
+    largura: Math.max(40, startW + ev.clientX - startX),
+    altura: Math.max(40, startH + ev.clientY - startY),
+    crop: item.crop || {
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+    },
+  }
                       : item
                   )
                 );
