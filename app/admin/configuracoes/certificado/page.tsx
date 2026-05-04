@@ -39,6 +39,12 @@ type CampoCertificado = {
   cor2?: string | null;
   usarGradiente?: boolean | null;
   direcaoGradiente?: string | null;
+  crop?: {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+};
 };
 
 const FONTES = [
@@ -144,6 +150,12 @@ export default function ConfiguracaoCertificadoPage() {
     altura: 150,
     imagemUrl: url,
     ordem: 10,
+    crop: {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+},
   };
 
   setCampos((prev) => [...prev, novoCampo]);
@@ -499,6 +511,52 @@ function finalizarArrastoCanvas() {
 
     setCampoSelecionadoId(campo.id);
   }
+
+function iniciarCrop(
+  e: React.MouseEvent,
+  campo: CampoCertificado,
+  direcao: "top" | "bottom" | "left" | "right"
+) {
+  e.stopPropagation();
+
+  const startX = e.clientX;
+  const startY = e.clientY;
+
+  const cropInicial = campo.crop || {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  };
+
+  const move = (ev: globalThis.MouseEvent) => {
+    const dx = ev.clientX - startX;
+    const dy = ev.clientY - startY;
+
+    setCampos((prev) =>
+      prev.map((item) => {
+        if (item.id !== campo.id) return item;
+
+        const novoCrop = { ...cropInicial };
+
+        if (direcao === "top") novoCrop.top = Math.max(0, cropInicial.top + dy);
+        if (direcao === "bottom") novoCrop.bottom = Math.max(0, cropInicial.bottom - dy);
+        if (direcao === "left") novoCrop.left = Math.max(0, cropInicial.left + dx);
+        if (direcao === "right") novoCrop.right = Math.max(0, cropInicial.right - dx);
+
+        return { ...item, crop: novoCrop };
+      })
+    );
+  };
+
+  const up = () => {
+    window.removeEventListener("mousemove", move);
+    window.removeEventListener("mouseup", up);
+  };
+
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", up);
+}
 
 function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
   e.stopPropagation();
@@ -1401,23 +1459,41 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           background: "transparent",
         }}
       >
-        <img
-          src={(c as any).imagemUrl}
-          alt="Imagem do certificado"
-          draggable={false}
-          className="h-full w-full"
-          style={{
-            background: "transparent",
-            pointerEvents: "none",
-            opacity: c.opacity || 1,
-            objectFit: (c as any).objectFit || "contain",
-            filter: (c as any).filter || "none",
-            transform: `
-  scaleX(${(c as any).flipX ? -1 : 1})
-  scaleY(${(c as any).flipY ? -1 : 1})
-`,
-          }}
-        />
+        <div className="relative w-full h-full">
+  
+  <img
+    src={(c as any).imagemUrl}
+    alt="Imagem do certificado"
+    draggable={false}
+    className="h-full w-full"
+    style={{
+      background: "transparent",
+      pointerEvents: "none",
+      opacity: c.opacity || 1,
+      objectFit: (c as any).objectFit || "contain",
+      filter: (c as any).filter || "none",
+      transform: `
+        scaleX(${(c as any).flipX ? -1 : 1})
+        scaleY(${(c as any).flipY ? -1 : 1})
+      `,
+    }}
+  />
+
+  {/* BOTÃO DE EXCLUIR */}
+  {campoSelecionadoId === c.id && (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        excluirCampo(c.id);
+      }}
+      className="absolute -top-3 -right-3 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white text-xs shadow hover:bg-red-700"
+    >
+      ✕
+    </button>
+  )}
+
+</div>
 
         {campoSelecionadoId === c.id && (
   <>
