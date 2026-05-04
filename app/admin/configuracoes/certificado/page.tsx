@@ -2721,6 +2721,63 @@ registrarHistoricoAntesDaAcao();
           : "Ativar degradê"}
       </button>
 
+<div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
+  <p className="text-sm font-semibold text-slate-700">Sombra projetada</p>
+
+  <button
+    type="button"
+    onClick={() =>
+      atualizarCampoLocal("sombraAtiva", !campoSelecionado?.sombraAtiva)
+    }
+    className="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50"
+  >
+    {campoSelecionado?.sombraAtiva ? "Desativar sombra" : "Ativar sombra"}
+  </button>
+
+  <label className="mt-3 block text-xs text-slate-500">Horizontal</label>
+  <input
+    type="range"
+    min={-80}
+    max={80}
+    value={campoSelecionado?.sombraX ?? 10}
+    onChange={(e) => atualizarCampoLocal("sombraX", Number(e.target.value))}
+    className="w-full"
+  />
+
+  <label className="mt-3 block text-xs text-slate-500">Vertical</label>
+  <input
+    type="range"
+    min={-80}
+    max={80}
+    value={campoSelecionado?.sombraY ?? 10}
+    onChange={(e) => atualizarCampoLocal("sombraY", Number(e.target.value))}
+    className="w-full"
+  />
+
+  <label className="mt-3 block text-xs text-slate-500">Desfoque</label>
+  <input
+    type="range"
+    min={0}
+    max={80}
+    value={campoSelecionado?.sombraBlur ?? 20}
+    onChange={(e) => atualizarCampoLocal("sombraBlur", Number(e.target.value))}
+    className="w-full"
+  />
+
+  <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
+  <input
+    type="range"
+    min={0}
+    max={1}
+    step={0.05}
+    value={campoSelecionado?.sombraOpacidade ?? 0.4}
+    onChange={(e) =>
+      atualizarCampoLocal("sombraOpacidade", Number(e.target.value))
+    }
+    className="w-full"
+  />
+</div>
+
       {(campoSelecionado as any)?.usarGradiente && (
         <>
           <div>
