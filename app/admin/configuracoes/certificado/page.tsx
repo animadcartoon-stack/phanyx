@@ -1471,136 +1471,124 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                   )}
 
   {campos.map((c) => {
-  if (c.tipo === "IMAGEM") {
-    return (
-      <div
-        key={c.id}
-        onMouseDown={(event) => {
-          event.stopPropagation();
-          setCampoSelecionadoId(c.id);
-          iniciarDrag(event as any, c);
-        }}
-        onContextMenu={(e) => {
-  e.preventDefault();
-  setCampoSelecionadoId(c.id);
-  setMenuContexto({
-    x: e.clientX,
-    y: e.clientY,
-    campoId: c.id,
-  });
-}}
-        className="absolute z-20 select-none"
-        style={{
-          left: `${c.x}px`,
-          top: `${c.y}px`,
-          width: `${c.largura || 150}px`,
-          height: `${c.altura || 150}px`,
-          cursor: "move",
-          zIndex: c.ordem || 10,
-          transform: `rotate(${(c as any).rotate || 0}deg)`,
-          border:
-            campoSelecionadoId === c.id
-              ? "2px solid #2563eb"
-              : "1px dashed #93c5fd",
-          borderRadius: "10px",
-          background: "transparent",
-        }}
-      >
-        <div className="relative h-full w-full overflow-hidden">
-  <img
-    src={(c as any).imagemUrl}
-    alt="Imagem do certificado"
-    draggable={false}
-    className="absolute"
-    style={{
-      top: `-${c.crop?.top || 0}px`,
-      left: `-${c.crop?.left || 0}px`,
-      width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
-      height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
-      background: "transparent",
-      pointerEvents: "none",
-      opacity: c.opacity || 1,
-      objectFit: "cover",
-      filter: (c as any).filter || "none",
-      transform: `
-        scaleX(${(c as any).flipX ? -1 : 1})
-        scaleY(${(c as any).flipY ? -1 : 1})
-      `,
-    }}
-  />
+ if (c.tipo === "IMAGEM") {
+  const selecionadoImagem = campoSelecionadoId === c.id;
 
-  {/* BOTÃO DE EXCLUIR */}
-  {campoSelecionadoId === c.id && (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        excluirCampo(c.id);
+  return (
+    <div
+      key={c.id}
+      onMouseDown={(event) => {
+        event.stopPropagation();
+        setCampoSelecionadoId(c.id);
+        iniciarDrag(event as any, c);
       }}
-      className="absolute -top-3 -right-3 z-50 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white text-xs shadow hover:bg-red-700"
+      onContextMenu={(e) => {
+        e.preventDefault();
+        setCampoSelecionadoId(c.id);
+        setMenuContexto({
+          x: e.clientX,
+          y: e.clientY,
+          campoId: c.id,
+        });
+      }}
+      className="absolute z-20 select-none"
+      style={{
+        left: `${c.x}px`,
+        top: `${c.y}px`,
+        width: `${c.largura || 150}px`,
+        height: `${c.altura || 150}px`,
+        cursor: "move",
+        zIndex: c.ordem || 10,
+        transform: `rotate(${(c as any).rotate || 0}deg)`,
+        border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
+        borderRadius: "10px",
+        background: "transparent",
+      }}
     >
-      ✕
-    </button>
-  )}
+      <div className="relative h-full w-full overflow-hidden rounded-[8px]">
+        <img
+          src={(c as any).imagemUrl}
+          alt="Imagem do certificado"
+          draggable={false}
+          className="absolute"
+          style={{
+            top: `-${c.crop?.top || 0}px`,
+            left: `-${c.crop?.left || 0}px`,
+            width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
+            height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
+            background: "transparent",
+            pointerEvents: "none",
+            opacity: c.opacity || 1,
+            objectFit: "cover",
+            filter: (c as any).filter || "none",
+            transform: `
+              scaleX(${(c as any).flipX ? -1 : 1})
+              scaleY(${(c as any).flipY ? -1 : 1})
+            `,
+          }}
+        />
+      </div>
 
-{/* CONTROLES DE CORTE */}
-{campoSelecionadoId === c.id && (
-  <>
-    {/* TOP */}
-    <div
-      onMouseDown={(e) => {
-  e.stopPropagation();
-  e.preventDefault();
-  iniciarCrop(e, c, "top");
-}}
-      className="absolute top-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
-    />
+      {selecionadoImagem && (
+        <>
+          <button
+            type="button"
+            onMouseDown={(e) => iniciarRotacao(e, c)}
+            className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
+            title="Rotacionar livremente"
+          >
+            ↻
+          </button>
 
-    {/* BOTTOM */}
-    <div
-      onMouseDown={(e) => {
-  e.stopPropagation();
-  e.preventDefault();
-  iniciarCrop(e, c, "bottom");
-}}
-      className="absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
-    />
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              excluirCampo(c.id);
+            }}
+            className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
+            title="Excluir imagem"
+          >
+            ✕
+          </button>
 
-    {/* LEFT */}
-    <div
-      onMouseDown={(e) => {
-  e.stopPropagation();
-  e.preventDefault();
-  iniciarCrop(e, c, "left");
-}}
-      className="absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"
-    />
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              iniciarCrop(e, c, "top");
+            }}
+            className="absolute left-1/2 top-[-6px] z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
+          />
 
-    {/* RIGHT */}
-    <div
-      onMouseDown={(e) => {
-  e.stopPropagation();
-  e.preventDefault();
-  iniciarCrop(e, c, "right");
-}}
-      className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"    />
-  </>
-)}
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              iniciarCrop(e, c, "bottom");
+            }}
+            className="absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize rounded bg-blue-500/60"
+          />
 
-</div>
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              iniciarCrop(e, c, "left");
+            }}
+            className="absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
+          />
 
-        {campoSelecionadoId === c.id && (
-  <>
-    <button
-      type="button"
-      onMouseDown={(e) => iniciarRotacao(e, c)}
-      className="absolute left-1/2 top-[-36px] flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full bg-blue-600 text-xs text-white shadow"
-      title="Rotacionar livremente"
-    >
-      ↻
-    </button>
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              iniciarCrop(e, c, "right");
+            }}
+            className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize rounded bg-blue-500/60"
+          />
 
-    <div
+          <div
             onMouseDown={(e) => {
               e.stopPropagation();
 
@@ -1614,38 +1602,37 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                   prev.map((item) =>
                     item.id === c.id
                       ? {
-    ...item,
-    largura: Math.max(40, startW + ev.clientX - startX),
-    altura: Math.max(40, startH + ev.clientY - startY),
-    crop: item.crop || {
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-    },
-  }
+                          ...item,
+                          largura: Math.max(40, startW + ev.clientX - startX),
+                          altura: Math.max(40, startH + ev.clientY - startY),
+                          crop: item.crop || {
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                          },
+                        }
                       : item
                   )
                 );
               };
 
               const up = () => {
-  window.removeEventListener("mousemove", move);
-  window.removeEventListener("mouseup", up);
-};
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+              };
 
               window.addEventListener("mousemove", move);
               window.addEventListener("mouseup", up);
             }}
-            
-            className="absolute bottom-[-6px] right-[-6px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
-                       title="Redimensionar"
+            className="absolute bottom-[-7px] right-[-7px] z-[9999] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+            title="Aumentar/diminuir tudo junto"
           />
-  </>
-)}
-      </div>
-    );
-  }
+        </>
+      )}
+    </div>
+  );
+}
 
  if (c.tipo === "FORMA") {
   const selecionado = campoSelecionadoId === c.id;
