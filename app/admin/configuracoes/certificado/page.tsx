@@ -44,17 +44,22 @@ type CampoCertificado = {
   cor2?: string | null;
   usarGradiente?: boolean | null;
   direcaoGradiente?: string | null;
-  crop?: {
-  top: number;
-  left: number;
-  right: number;
-  bottom: number;
+    crop?: {
+    top: number;
+    left: number;
+    right: number;
+    bottom: number;
+  };
+
   cropBaseW?: number | null;
   cropBaseH?: number | null;
+
   degradeTipo?: "linear" | "radial" | null;
   degradeAngulo?: number | null;
   degradeStops?: { cor: string; posicao: number }[] | null;
-};
+
+  sombraAngulo?: number | null;
+  sombraDistancia?: number | null;
 };
 
 const FONTES = [
@@ -105,6 +110,15 @@ function hexToRgba(hex: string, alpha: number) {
   const b = parseInt(hex.slice(5, 7), 16);
 
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function calcularSombra(angulo: number, distancia: number) {
+  const rad = (angulo * Math.PI) / 180;
+
+  return {
+    x: Math.cos(rad) * distancia,
+    y: Math.sin(rad) * distancia,
+  };
 }
 
 export default function ConfiguracaoCertificadoPage() {
@@ -1738,12 +1752,19 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
         borderRadius: "10px",
         background: "transparent",
-        boxShadow: c.sombraAtiva
-        ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px ${hexToRgba(
-        c.sombraCor || "#000000",
-        (c.sombraOpacidade ?? 40) / 100
-    )}`
-  : "none",
+        boxShadow: (() => {
+  if (!c.sombraAtiva) return "none";
+
+  const { x, y } = calcularSombra(
+    (c as any).sombraAngulo ?? 45,
+    (c as any).sombraDistancia ?? 20
+  );
+
+  return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
+    c.sombraCor || "#000000",
+    (c.sombraOpacidade ?? 40) / 100
+  )}`;
+})(),
       }}
     >
       <div
@@ -1921,12 +1942,19 @@ registrarHistoricoAntesDaAcao();
         zIndex: c.ordem || 5,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
 
-        boxShadow: c.sombraAtiva
-  ? `${c.sombraX || 0}px ${c.sombraY || 0}px ${c.sombraBlur || 20}px ${hexToRgba(
-      c.sombraCor || "#000000",
-      (c.sombraOpacidade ?? 40) / 100
-    )}`
-  : "none",
+        boxShadow: (() => {
+  if (!c.sombraAtiva) return "none";
+
+  const { x, y } = calcularSombra(
+    (c as any).sombraAngulo ?? 45,
+    (c as any).sombraDistancia ?? 20
+  );
+
+  return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
+    c.sombraCor || "#000000",
+    (c.sombraOpacidade ?? 40) / 100
+  )}`;
+})(),
 
       }}
     >
@@ -2763,25 +2791,27 @@ registrarHistoricoAntesDaAcao();
   className="h-10 w-full cursor-pointer rounded-xl border border-slate-300"
 />
 
-  <label className="mt-3 block text-xs text-slate-500">Horizontal</label>
-  <input
-    type="range"
-    min={-80}
-    max={80}
-    value={campoSelecionado?.sombraX ?? 10}
-    onChange={(e) => atualizarCampoLocal("sombraX", Number(e.target.value))}
-    className="w-full"
-  />
+  <label className="text-xs text-gray-600">Ângulo</label>
+<input
+  type="range"
+  min={0}
+  max={360}
+  value={(campoSelecionado as any)?.sombraAngulo ?? 45}
+  onChange={(e) =>
+    atualizarCampoLocal("sombraAngulo", Number(e.target.value) as any)
+  }
+/>
 
-  <label className="mt-3 block text-xs text-slate-500">Vertical</label>
-  <input
-    type="range"
-    min={-80}
-    max={80}
-    value={campoSelecionado?.sombraY ?? 10}
-    onChange={(e) => atualizarCampoLocal("sombraY", Number(e.target.value))}
-    className="w-full"
-  />
+<label className="text-xs text-gray-600 mt-2">Distância</label>
+<input
+  type="range"
+  min={0}
+  max={100}
+  value={(campoSelecionado as any)?.sombraDistancia ?? 20}
+  onChange={(e) =>
+    atualizarCampoLocal("sombraDistancia", Number(e.target.value) as any)
+  }
+/>
 
   <label className="mt-3 block text-xs text-slate-500">Desfoque</label>
   <input
