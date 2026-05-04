@@ -557,10 +557,11 @@ function iniciarCrop(
         }
 
         if (direcao === "right") {
-          const delta = Math.max(-cropInicial.right, Math.min(-dx, larguraInicial - 40));
-          novoCrop.right = cropInicial.right + delta;
-          novaLargura = larguraInicial - delta;
-        }
+  const delta = Math.max(-cropInicial.right, Math.min(-dx, larguraInicial - 40));
+  novoCrop.right = cropInicial.right + delta;
+  novaLargura = larguraInicial - delta;
+  novoX = xInicial;
+}
 
         if (direcao === "top") {
           const delta = Math.max(-cropInicial.top, Math.min(dy, alturaInicial - 40));
@@ -2586,18 +2587,18 @@ setTimeout(() => setMensagemSucesso(""), 3000);
       draggable={false}
       className="absolute"
       style={{
-        top: `-${c.crop?.top || 0}px`,
-        left: `-${c.crop?.left || 0}px`,
+        top: "0px",
+        left: "0px",
         width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
         height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
         objectFit: "cover",
         opacity: c.opacity || 1,
         filter: (c as any).filter || "none",
         transform: `
-          rotate(${(c as any).rotate || 0}deg)
-          scaleX(${(c as any).flipX ? -1 : 1})
-          scaleY(${(c as any).flipY ? -1 : 1})
-        `,
+  translate(-${c.crop?.left || 0}px, -${c.crop?.top || 0}px)
+  scaleX(${(c as any).flipX ? -1 : 1})
+  scaleY(${(c as any).flipY ? -1 : 1})
+`,
         pointerEvents: "none",
       }}
     />
