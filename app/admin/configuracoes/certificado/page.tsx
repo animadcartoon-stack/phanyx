@@ -1960,8 +1960,31 @@ registrarHistoricoAntesDaAcao();
     >
       <div
   className="h-full w-full"
+  onDoubleClick={(e) => {
+    if (!(c as any).usarGradiente) return;
+
+    e.stopPropagation();
+    e.preventDefault();
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const posicao = Math.round(
+      Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100))
+    );
+
+    const stops = [
+      ...(((c as any).degradeStops || [
+        { cor: c.cor || "#1d4ed8", posicao: 0 },
+        { cor: (c as any).cor2 || "#60a5fa", posicao: 100 },
+      ]) as any[]),
+      { cor: "#ffffff", posicao },
+    ].sort((a, b) => a.posicao - b.posicao);
+
+    atualizarCampoLocal("degradeStops" as any, stops);
+  }}
+  title={(c as any).usarGradiente ? "Dê dois cliques para adicionar ponto de degradê" : undefined}
+
   style={{
-    background:
+  background:
   c.forma === "LINHA"
     ? "transparent"
     : (c as any).usarGradiente
