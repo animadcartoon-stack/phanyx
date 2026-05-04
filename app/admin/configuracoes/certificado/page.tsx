@@ -114,7 +114,52 @@ export default function ConfiguracaoCertificadoPage() {
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [painelCampoAberto, setPainelCampoAberto] = useState(true);
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
+  
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
+const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
+const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
+function desfazer() {
+  setHistorico((prev) => {
+    if (prev.length === 0) return prev;
+
+    const ultimo = prev[prev.length - 1];
+
+    setFuturo((fut) => [campos, ...fut]);
+    setCampos(ultimo);
+
+    return prev.slice(0, -1);
+  });
+}
+
+function refazer() {
+  setFuturo((prev) => {
+    if (prev.length === 0) return prev;
+
+    const proximo = prev[0];
+
+    setHistorico((hist) => [...hist, campos]);
+    setCampos(proximo);
+
+    return prev.slice(1);
+  });
+}
+function atualizarCamposComHistorico(
+  atualizador:
+    | CampoCertificado[]
+    | ((prev: CampoCertificado[]) => CampoCertificado[])
+) {
+  setCampos((prev) => {
+    setHistorico((hist) => [...hist, prev]);
+    setFuturo([]);
+
+    if (typeof atualizador === "function") {
+      return atualizador(prev);
+    }
+
+    return atualizador;
+  });
+}
+  
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
     null
   );
@@ -162,7 +207,7 @@ export default function ConfiguracaoCertificadoPage() {
 },
   };
 
-  setCampos((prev) => [...prev, novoCampo]);
+  atualizarCamposComHistorico((prev) => [...prev, novoCampo]);
 };
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
@@ -175,7 +220,7 @@ export default function ConfiguracaoCertificadoPage() {
 useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === "Delete" && campoSelecionadoId) {
-      setCampos((prev) =>
+      atualizarCamposComHistorico((prev) =>
         prev.filter((c) => c.id !== campoSelecionadoId)
       );
       setCampoSelecionadoId(null);
@@ -458,7 +503,7 @@ function finalizarArrastoCanvas() {
   const campo = campos.find((c) => c.id === id);
 
   if (campo?.tipo === "IMAGEM") {
-    setCampos((prev) => prev.filter((c) => c.id !== id));
+    atualizarCamposComHistorico((prev) => prev.filter((c) => c.id !== id));
     if (campoSelecionadoId === id) {
       setCampoSelecionadoId(null);
     }
