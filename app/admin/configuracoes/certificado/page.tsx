@@ -1460,18 +1460,21 @@ setTimeout(() => setMensagemSucesso(""), 3000);
           background: "transparent",
         }}
       >
-        <div className="relative w-full h-full">
-  
+        <div className="relative h-full w-full overflow-hidden">
   <img
     src={(c as any).imagemUrl}
     alt="Imagem do certificado"
     draggable={false}
-    className="h-full w-full"
+    className="absolute"
     style={{
+      top: `-${c.crop?.top || 0}px`,
+      left: `-${c.crop?.left || 0}px`,
+      width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
+      height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
       background: "transparent",
-      pointerEvents: "auto",
+      pointerEvents: "none",
       opacity: c.opacity || 1,
-      objectFit: (c as any).objectFit || "contain",
+      objectFit: "cover",
       filter: (c as any).filter || "none",
       transform: `
         scaleX(${(c as any).flipX ? -1 : 1})
