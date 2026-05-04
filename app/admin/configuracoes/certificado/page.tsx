@@ -518,6 +518,7 @@ function iniciarCrop(
   direcao: "top" | "bottom" | "left" | "right"
 ) {
   e.stopPropagation();
+  e.preventDefault();
 
   const startX = e.clientX;
   const startY = e.clientY;
@@ -1498,27 +1499,42 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   <>
     {/* TOP */}
     <div
-      onMouseDown={(e) => iniciarCrop(e, c, "top")}
-      className="absolute top-[-6px] left-1/2 h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
+      onMouseDown={(e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  iniciarCrop(e, c, "top");
+}}
+      className="absolute top-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
     />
 
     {/* BOTTOM */}
     <div
-      onMouseDown={(e) => iniciarCrop(e, c, "bottom")}
-      className="absolute bottom-[-6px] left-1/2 h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
+      onMouseDown={(e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  iniciarCrop(e, c, "bottom");
+}}
+      className="absolute bottom-[-6px] left-1/2 z-[9999] h-3 w-12 -translate-x-1/2 cursor-ns-resize bg-blue-500/40 rounded"
     />
 
     {/* LEFT */}
     <div
-      onMouseDown={(e) => iniciarCrop(e, c, "left")}
-      className="absolute left-[-6px] top-1/2 h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"
+      onMouseDown={(e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  iniciarCrop(e, c, "left");
+}}
+      className="absolute left-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"
     />
 
     {/* RIGHT */}
     <div
-      onMouseDown={(e) => iniciarCrop(e, c, "right")}
-      className="absolute right-[-6px] top-1/2 h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"
-    />
+      onMouseDown={(e) => {
+  e.stopPropagation();
+  e.preventDefault();
+  iniciarCrop(e, c, "right");
+}}
+      className="absolute right-[-6px] top-1/2 z-[9999] h-12 w-3 -translate-y-1/2 cursor-ew-resize bg-blue-500/40 rounded"    />
   </>
 )}
 
