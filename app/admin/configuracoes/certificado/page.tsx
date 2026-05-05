@@ -41,7 +41,7 @@ type CampoCertificado = {
   flipX?: boolean | null;
   flipY?: boolean | null;
   filter?: string | null;
-  forma?: "RETANGULO" | "CIRCULO" | "LINHA" | "ESTRELA" | null;
+  forma?: "RETANGULO" | "QUADRADO" | "CIRCULO" | "LINHA" | "ESTRELA" | null;
   raioBorda?: number | null;
   pontasEstrela?: number | null;
   profundidadeEstrela?: number | null;
@@ -1513,6 +1513,35 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   </span>
   <span className="mt-2 text-[11px] font-semibold text-slate-700">
     Retângulo
+  </span>
+</button>
+
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 4,
+        tipo: "FORMA",
+        forma: "QUADRADO",
+        x: 130,
+        y: 130,
+        largura: 120,
+        altura: 120,
+        cor: "#1d4ed8",
+        opacity: 0.35,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="h-7 w-7 rounded-md border-2 border-blue-700 bg-blue-200/50" />
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Quadrado
   </span>
 </button>
 
