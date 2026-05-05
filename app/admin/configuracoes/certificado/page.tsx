@@ -1838,7 +1838,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 
   {campos.map((c) => {
  if (c.tipo === "IMAGEM") {
-  const selecionadoImagem = campoSelecionadoId === c.id;
+  const selecionadoImagem = camposSelecionadosIds.includes(c.id);
 
   return (
     <div
@@ -1880,20 +1880,29 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         zIndex: c.ordem || 10,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
         border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
+
         borderRadius: "10px",
         background: "transparent",
-        boxShadow: (() => {
-  if (!c.sombraAtiva) return "none";
+       boxShadow: (() => {
+  const sombraBase = (() => {
+    if (!c.sombraAtiva) return "";
 
-  const { x, y } = calcularSombra(
-    (c as any).sombraAngulo ?? 45,
-    (c as any).sombraDistancia ?? 20
-  );
+    const { x, y } = calcularSombra(
+      (c as any).sombraAngulo ?? 45,
+      (c as any).sombraDistancia ?? 20
+    );
 
-  return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
-    c.sombraCor || "#000000",
-    (c.sombraOpacidade ?? 40) / 100
-  )}`;
+    return `${x}px ${y}px ${c.sombraBlur || 20}px ${hexToRgba(
+      c.sombraCor || "#000000",
+      (c.sombraOpacidade ?? 40) / 100
+    )}`;
+  })();
+
+  const glowSelecao = selecionadoImagem
+    ? "0 0 0 3px rgba(37, 99, 235, 0.25)"
+    : "";
+
+  return [glowSelecao, sombraBase].filter(Boolean).join(", ") || "none";
 })(),
       }}
     >
@@ -2043,7 +2052,7 @@ registrarHistoricoAntesDaAcao();
 }
 
  if (c.tipo === "FORMA") {
-  const selecionado = campoSelecionadoId === c.id;
+  const selecionado = camposSelecionadosIds.includes(c.id);
 
   return (
     <div
