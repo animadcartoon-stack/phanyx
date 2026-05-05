@@ -112,6 +112,30 @@ function hexToRgba(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
+function hexToRgb(hex: string) {
+  const limpo = hex.replace("#", "");
+  const bigint = parseInt(limpo, 16);
+
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255,
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number) {
+  return (
+    "#" +
+    [r, g, b]
+      .map((valor) =>
+        Math.max(0, Math.min(255, valor))
+          .toString(16)
+          .padStart(2, "0")
+      )
+      .join("")
+  );
+}
+
 function calcularSombra(angulo: number, distancia: number) {
   const rad = (angulo * Math.PI) / 180;
 
@@ -138,9 +162,17 @@ export default function ConfiguracaoCertificadoPage() {
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [sombraAberta, setSombraAberta] = useState(true);
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
-const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
-const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
-function desfazer() {
+  const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
+  const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
+
+  const [menuPontoGradiente, setMenuPontoGradiente] = useState<{
+  campoId: number;
+  pontoIndex: number;
+  x: number;
+  y: number;
+  } | null>(null);
+
+  function desfazer() {
   setHistorico((prev) => {
     if (prev.length === 0) return prev;
 
@@ -202,7 +234,7 @@ useEffect(() => {
   };
 }, [campos, historico, futuro]);
 
-function atualizarCamposComHistorico(
+  function atualizarCamposComHistorico(
   atualizador:
     | CampoCertificado[]
     | ((prev: CampoCertificado[]) => CampoCertificado[])
@@ -1966,6 +1998,7 @@ registrarHistoricoAntesDaAcao();
     >
       <div
   className="h-full w-full"
+
   onDoubleClick={(e) => {
     if (!(c as any).usarGradiente) return;
 
@@ -2033,6 +2066,17 @@ registrarHistoricoAntesDaAcao();
       <button
         key={index}
         type="button"
+
+        onClick={(e) => {
+  e.stopPropagation();
+  setMenuPontoGradiente({
+    campoId: c.id,
+    pontoIndex: index,
+    x: e.clientX,
+    y: e.clientY,
+  });
+}}
+
         className="pointer-events-auto absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-blue-700 shadow-[0_0_0_3px_white] cursor-pointer"
         style={{
           left: `${stop.posicao}%`,
@@ -2351,20 +2395,81 @@ registrarHistoricoAntesDaAcao();
         </button>
       </div>
 
-      <input
-        type="color"
-        value={editorCorGradiente.cor}
-        onChange={(e) =>
-          setEditorCorGradiente((prev) =>
-            prev ? { ...prev, cor: e.target.value } : prev
-          )
-        }
-        className="h-32 w-full cursor-pointer rounded-xl border"
-      />
+      <div className="relative overflow-hidden rounded-2xl border border-slate-200">
+  <div
+    className="h-32 w-full"
+    style={{
+      background: editorCorGradiente.cor,
+    }}
+  />
 
-      <label className="mt-4 block text-xs font-semibold text-slate-500">
-        Código da cor
-      </label>
+  <input
+    type="color"
+    value={editorCorGradiente.cor}
+    onChange={(e) =>
+      setEditorCorGradiente((prev) =>
+        prev ? { ...prev, cor: e.target.value } : prev
+      )
+    }
+    className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+  />
+
+  <div className="absolute bottom-2 left-2 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-slate-700 shadow">
+    Clique para abrir o disco de cores
+  </div>
+</div>
+
+<div className="mt-4 grid grid-cols-3 gap-2">
+  {(["r", "g", "b"] as const).map((canal) => {
+    const rgb = hexToRgb(editorCorGradiente.cor || "#ffffff");
+
+    return (
+      <div key={canal}>
+        <label className="mb-1 block text-xs font-semibold uppercase text-slate-500">
+          {canal}
+        </label>
+        <input
+          type="number"
+          min={0}
+          max={255}
+          value={rgb[canal]}
+          onChange={(e) => {
+            const valor = Number(e.target.value);
+            const novoRgb = {
+              ...rgb,
+              [canal]: valor,
+            };
+
+            setEditorCorGradiente((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    cor: rgbToHex(novoRgb.r, novoRgb.g, novoRgb.b),
+                  }
+                : prev
+            );
+          }}
+          className="w-full rounded-xl border px-2 py-2 text-sm"
+        />
+      </div>
+    );
+  })}
+</div>
+
+<label className="mt-4 block text-xs font-semibold text-slate-500">
+  Código da cor
+</label>
+<input
+  type="text"
+  value={editorCorGradiente.cor}
+  onChange={(e) =>
+    setEditorCorGradiente((prev) =>
+      prev ? { ...prev, cor: e.target.value } : prev
+    )
+  }
+  className="mt-1 w-full rounded-xl border px-3 py-2 text-sm"
+  placeholder="#ff0000"
+/>
       <input
         type="text"
         value={editorCorGradiente.cor}
@@ -2407,6 +2512,113 @@ registrarHistoricoAntesDaAcao();
         Aplicar cor
       </button>
     </div>
+  </div>
+)}
+
+{menuPontoGradiente && (
+  <div
+    className="fixed z-[99999] w-52 rounded-2xl border border-blue-100 bg-white p-2 shadow-2xl"
+    style={{
+      left: menuPontoGradiente.x + 12,
+      top: menuPontoGradiente.y + 12,
+    }}
+  >
+    <button
+      type="button"
+      onClick={() => {
+        const campo = campos.find((item) => item.id === menuPontoGradiente.campoId);
+        if (!campo) return;
+
+        const stops = [
+          ...(((campo as any).degradeStops || [
+            { cor: campo.cor || "#1d4ed8", posicao: 0 },
+            { cor: (campo as any).cor2 || "#60a5fa", posicao: 100 },
+          ]) as any[]),
+        ];
+
+        const base = stops[menuPontoGradiente.pontoIndex] || {
+          cor: "#ffffff",
+          posicao: 50,
+        };
+
+        stops.splice(menuPontoGradiente.pontoIndex + 1, 0, {
+          cor: base.cor,
+          posicao: Math.min(100, base.posicao + 8),
+        });
+
+        atualizarCampoLocal(
+          "degradeStops" as any,
+          stops.sort((a, b) => a.posicao - b.posicao)
+        );
+
+        setMenuPontoGradiente(null);
+      }}
+      className="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-blue-50"
+    >
+      ✨ Duplicar ponto
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        const campo = campos.find((item) => item.id === menuPontoGradiente.campoId);
+        if (!campo) return;
+
+        const stops = [
+          ...(((campo as any).degradeStops || [
+            { cor: campo.cor || "#1d4ed8", posicao: 0 },
+            { cor: (campo as any).cor2 || "#60a5fa", posicao: 100 },
+          ]) as any[]),
+        ];
+
+        const base = stops[menuPontoGradiente.pontoIndex] || {
+          posicao: 50,
+        };
+
+        stops.splice(menuPontoGradiente.pontoIndex + 1, 0, {
+          cor: "#ffffff",
+          posicao: Math.min(100, base.posicao + 10),
+        });
+
+        atualizarCampoLocal(
+          "degradeStops" as any,
+          stops.sort((a, b) => a.posicao - b.posicao)
+        );
+
+        setMenuPontoGradiente(null);
+      }}
+      className="w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-blue-50"
+    >
+      ➕ Adicionar ponto
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        const campo = campos.find((item) => item.id === menuPontoGradiente.campoId);
+        if (!campo) return;
+
+        const stops = [
+          ...(((campo as any).degradeStops || [
+            { cor: campo.cor || "#1d4ed8", posicao: 0 },
+            { cor: (campo as any).cor2 || "#60a5fa", posicao: 100 },
+          ]) as any[]),
+        ];
+
+        if (stops.length <= 2) {
+          setMenuPontoGradiente(null);
+          return;
+        }
+
+        stops.splice(menuPontoGradiente.pontoIndex, 1);
+
+        atualizarCampoLocal("degradeStops" as any, stops);
+        setMenuPontoGradiente(null);
+      }}
+      className="w-full rounded-xl px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+    >
+      🗑️ Deletar ponto
+    </button>
   </div>
 )}
 
