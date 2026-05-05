@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import FormaVetorial from "./components/FormaVetorial";
 import {
   useEffect,
   useMemo,
@@ -1725,7 +1726,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now() + 2,
         tipo: "FORMA",
         forma: "LINHA",
-        pontosForma: criarPontosIniciaisForma("LINHA"),
+        
         x: 160,
         y: 160,
         largura: 180,
@@ -2389,9 +2390,9 @@ if (!camposSelecionadosIds.includes(c.id)) {
       }}
     >
       <div
-  className="h-full w-full"
-
+  className="relative h-full w-full"
   onDoubleClick={(e) => {
+        
     if (!(c as any).usarGradiente) return;
 
     e.stopPropagation();
@@ -2413,11 +2414,12 @@ if (!camposSelecionadosIds.includes(c.id)) {
     atualizarCampoLocal("degradeStops" as any, stops);
   }}
   title={(c as any).usarGradiente ? "Dê dois cliques para adicionar ponto de degradê" : undefined}
-
-  style={{
+style={{
   background:
-  c.forma === "LINHA"
+  c.pontosForma && c.pontosForma.length > 0
     ? "transparent"
+    : c.forma === "LINHA"
+      ? "transparent"
     : (c as any).usarGradiente
     ? (c as any).degradeTipo === "radial"
       ? `radial-gradient(circle, ${((c as any).degradeStops || [
@@ -4000,6 +4002,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
         )}
 
 {campos.map((c) => {
+ 
   if (c.tipo === "IMAGEM") {
     return (
       <div
