@@ -2271,11 +2271,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
         cursor: "move",
         zIndex: c.ordem || 5,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
-        clipPath:
-  c.forma === "ESTRELA"
-    ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
-    : "none",
-
+        
         boxShadow: (() => {
   if (!c.sombraAtiva) return "none";
 
@@ -2353,6 +2349,11 @@ if (!camposSelecionadosIds.includes(c.id)) {
   c.forma === "CIRCULO"
     ? "9999px"
     : `${(c as any).raioBorda ?? 8}px`,
+    clipPath:
+    
+  c.forma === "ESTRELA"
+    ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
+    : "none",
     }}
 >
 
