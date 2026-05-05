@@ -689,7 +689,7 @@ function finalizarArrastoCanvas() {
   async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
 
-  if (campo?.tipo === "IMAGEM") {
+  if (campo?.tipo === "IMAGEM" || campo?.tipo === "FORMA") {
   registrarHistoricoAntesDaAcao();
 
   setCampos((prev) => prev.filter((c) => c.id !== id));
