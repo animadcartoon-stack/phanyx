@@ -31,6 +31,7 @@ type CampoCertificado = {
   italico?: boolean;
   sublinhado?: boolean;
   ordem?: number | null;
+  grupoId?: string | null;
   lineHeight?: number | null;
   marcador?: string | null;
   imagemUrl?: string | null;
@@ -40,7 +41,11 @@ type CampoCertificado = {
   flipX?: boolean | null;
   flipY?: boolean | null;
   filter?: string | null;
-  forma?: "RETANGULO" | "CIRCULO" | "LINHA" | null;
+  forma?: "RETANGULO" | "CIRCULO" | "LINHA" | "ESTRELA" | null;
+  raioBorda?: number | null;
+  pontasEstrela?: number | null;
+  profundidadeEstrela?: number | null;
+  arredondarEstrela?: number | null;
   cor2?: string | null;
   usarGradiente?: boolean | null;
   direcaoGradiente?: string | null;
@@ -203,6 +208,37 @@ function registrarHistoricoAntesDaAcao() {
   setFuturo([]);
 }
 
+function agruparCamposSelecionados() {
+  if (camposSelecionadosIds.length < 2) return;
+
+  registrarHistoricoAntesDaAcao();
+
+  const novoGrupoId = `grupo-${Date.now()}`;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      camposSelecionadosIds.includes(campo.id)
+        ? { ...campo, grupoId: novoGrupoId }
+        : campo
+    )
+  );
+}
+
+function desagruparCampoSelecionado() {
+  if (!campoSelecionado) return;
+
+  registrarHistoricoAntesDaAcao();
+
+  const grupoId = campoSelecionado.grupoId;
+  if (!grupoId) return;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.grupoId === grupoId ? { ...campo, grupoId: null } : campo
+    )
+  );
+}
+
 useEffect(() => {
   function handleUndoRedo(e: KeyboardEvent) {
     const alvo = e.target as HTMLElement | null;
@@ -250,11 +286,11 @@ useEffect(() => {
     return atualizador;
   });
 }
-  
+  const [camposSelecionadosIds, setCamposSelecionadosIds] = useState<number[]>([]); 
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
     null
   );
-
+  
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
@@ -2058,7 +2094,10 @@ registrarHistoricoAntesDaAcao();
         ? "2px solid #2563eb"
         : "1px dashed #93c5fd",
 
-    borderRadius: c.forma === "CIRCULO" ? "9999px" : "8px",
+    borderRadius:
+  c.forma === "CIRCULO"
+    ? "9999px"
+    : `${(c as any).raioBorda ?? 8}px`,
     }}
 >
 
@@ -3187,6 +3226,21 @@ setEditorCorGradiente({
         <p className="mb-1 text-xs font-semibold text-slate-500">
           Transparência
         </p>
+
+<label className="mt-3 block text-xs text-slate-500">
+  Arredondamento dos cantos
+</label>
+<input
+  type="range"
+  min={0}
+  max={80}
+  value={(campoSelecionado as any)?.raioBorda ?? 8}
+  onChange={(e) =>
+    atualizarCampoLocal("raioBorda" as any, Number(e.target.value))
+  }
+  className="w-full"
+/>
+
         <input
           type="range"
           min={0.1}
@@ -3591,6 +3645,32 @@ setEditorCorGradiente({
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
 >
   ⏬ Enviar para trás de tudo
+</button>
+
+<hr className="my-1" />
+
+<button
+  type="button"
+  onClick={() => {
+    agruparCamposSelecionados();
+    setMenuContexto(null);
+  }}
+  disabled={camposSelecionadosIds.length < 2}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+>
+  🔗 Agrupar seleção
+</button>
+
+<button
+  type="button"
+  onClick={() => {
+    desagruparCampoSelecionado();
+    setMenuContexto(null);
+  }}
+  disabled={!campoSelecionado?.grupoId}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+>
+  🔓 Desagrupar
 </button>
 
     <hr className="my-1" />
