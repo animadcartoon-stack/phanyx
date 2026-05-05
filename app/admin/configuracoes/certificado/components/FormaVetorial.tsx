@@ -135,7 +135,7 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
   }
 
   return (
-    <div className="absolute inset-0 overflow-visible">
+    <div className="pointer-events-none absolute inset-0 overflow-visible">
       <svg
         className="absolute inset-0 h-full w-full"
         viewBox="0 0 100 100"
