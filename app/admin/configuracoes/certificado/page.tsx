@@ -25,6 +25,17 @@ type CampoCertificado = {
   fonte?: string | null;
   tamanho?: number | null;
   cor?: string | null;
+  preenchimentoCor?: string | null;
+  contornoCor?: string | null;
+  contornoEspessura?: number | null;
+  mostrarPreenchimento?: boolean | null;
+  mostrarContorno?: boolean | null;
+  ladosOcultos?: {
+  topo?: boolean;
+  direita?: boolean;
+  baixo?: boolean;
+  esquerda?: boolean;
+} | null;
   alinhamento?: string | null;
   pagina?: number | null;
   negrito?: boolean;
@@ -463,9 +474,41 @@ useEffect(() => {
   const canvasHeight = Math.round(baseCanvas.altura * escala);
 
   const campoSelecionado = useMemo(
+
+
     () => campos.find((campo) => campo.id === campoSelecionadoId) || null,
     [campos, campoSelecionadoId]
   );
+
+  const caixaDoGrupoSelecionado = useMemo(() => {
+  const ids =
+    campoSelecionado?.grupoId
+      ? campos
+          .filter((campo) => campo.grupoId === campoSelecionado.grupoId)
+          .map((campo) => campo.id)
+      : camposSelecionadosIds;
+
+  if (ids.length < 2) return null;
+
+  const itens = campos.filter((campo) => ids.includes(campo.id));
+  if (itens.length < 2) return null;
+
+  const minX = Math.min(...itens.map((campo) => campo.x));
+  const minY = Math.min(...itens.map((campo) => campo.y));
+  const maxX = Math.max(
+    ...itens.map((campo) => campo.x + (campo.largura || 120))
+  );
+  const maxY = Math.max(
+    ...itens.map((campo) => campo.y + (campo.altura || 40))
+  );
+
+  return {
+    x: minX,
+    y: minY,
+    largura: maxX - minX,
+    altura: maxY - minY,
+  };
+}, [campos, camposSelecionadosIds, campoSelecionado]);
 
   async function fazerUploadModelo() {
     if (!arquivoModelo) {
@@ -694,21 +737,54 @@ function finalizarArrastoCanvas() {
     );
   }
 
-  function iniciarDrag(
+function idsAlvoDaAcao() {
+  const campo = campos.find((item) => item.id === campoSelecionadoId);
+
+  if (campo?.grupoId) {
+    return campos
+      .filter((item) => item.grupoId === campo.grupoId)
+      .map((item) => item.id);
+  }
+
+  return camposSelecionadosIds.length > 1
+    ? camposSelecionadosIds
+    : campoSelecionadoId
+    ? [campoSelecionadoId]
+    : [];
+}
+
+function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
+  const ids = idsAlvoDaAcao();
+
+  setCampos((prev) =>
+    prev.map((item) =>
+      ids.includes(item.id) ? ({ ...item, [chave]: valor } as any) : item
+    )
+  );
+}
+  
+ function iniciarDrag(
   event: MouseEvent<HTMLDivElement>,
   campo: CampoCertificado
 ) {
   const rect = event.currentTarget.getBoundingClientRect();
 
   const idsDoGrupo = campo.grupoId
-    ? campos.filter((item) => item.grupoId === campo.grupoId).map((item) => item.id)
+    ? campos
+        .filter((item) => item.grupoId === campo.grupoId)
+        .map((item) => item.id)
+    : camposSelecionadosIds.length > 1 &&
+      camposSelecionadosIds.includes(campo.id)
+    ? camposSelecionadosIds
     : [campo.id];
+
+  registrarHistoricoAntesDaAcao();
 
   dragRef.current = {
     campoId: campo.id,
     offsetX: (event.clientX - rect.left) / escala,
     offsetY: (event.clientY - rect.top) / escala,
-    grupoId: campo.grupoId,
+    grupoId: campo.grupoId || (idsDoGrupo.length > 1 ? "selecao-temporaria" : null),
     inicioX: campo.x,
     inicioY: campo.y,
     posicoesIniciais: campos
@@ -1896,6 +1972,19 @@ setTimeout(() => setMensagemSucesso(""), 3000);
                       Faça upload do modelo acima para começar a edição.
                     </div>
                   )}
+
+{caixaDoGrupoSelecionado && (
+  <div
+    className="pointer-events-none absolute z-[9998] rounded-xl border-2 border-blue-600"
+    style={{
+      left: `${caixaDoGrupoSelecionado.x}px`,
+      top: `${caixaDoGrupoSelecionado.y}px`,
+      width: `${caixaDoGrupoSelecionado.largura}px`,
+      height: `${caixaDoGrupoSelecionado.altura}px`,
+      boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.12)",
+    }}
+  />
+)}
 
   {campos.map((c) => {
  if (c.tipo === "IMAGEM") {
@@ -3776,7 +3865,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
     <button
   type="button"
   onClick={() => {
-    atualizarCampoLocal("ordem", (campoSelecionado?.ordem || 1) + 1);
+    atualizarCamposAlvo("ordem", (campoSelecionado?.ordem || 1) + 1);
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -3787,7 +3876,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
 <button
   type="button"
   onClick={() => {
-    atualizarCampoLocal("ordem", Math.max(0, (campoSelecionado?.ordem || 1) - 1));
+    atualizarCamposAlvo("ordem", Math.max(0, (campoSelecionado?.ordem || 1) - 1));
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -3798,7 +3887,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
 <button
   type="button"
   onClick={() => {
-    atualizarCampoLocal("ordem", 999);
+    atualizarCamposAlvo("ordem", 999);
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -3809,7 +3898,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
 <button
   type="button"
   onClick={() => {
-    atualizarCampoLocal("ordem", 0);
+    atualizarCamposAlvo("ordem", 0);
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
