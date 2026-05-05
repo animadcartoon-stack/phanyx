@@ -1806,10 +1806,23 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     <div
       key={c.id}
       onMouseDown={(event) => {
-        event.stopPropagation();
-        setCampoSelecionadoId(c.id);
-        iniciarDrag(event as any, c);
-      }}
+  event.stopPropagation();
+
+  if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    setCamposSelecionadosIds((prev) =>
+      prev.includes(c.id)
+        ? prev.filter((id) => id !== c.id)
+        : [...prev, c.id]
+    );
+
+    setCampoSelecionadoId(c.id);
+    return;
+  }
+
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds([c.id]);
+  iniciarDrag(event as any, c);
+}}
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
@@ -1998,10 +2011,23 @@ registrarHistoricoAntesDaAcao();
     <div
       key={c.id}
       onMouseDown={(event) => {
-        event.stopPropagation();
-        setCampoSelecionadoId(c.id);
-        iniciarDrag(event as any, c);
-      }}
+  event.stopPropagation();
+
+  if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    setCamposSelecionadosIds((prev) =>
+      prev.includes(c.id)
+        ? prev.filter((id) => id !== c.id)
+        : [...prev, c.id]
+    );
+
+    setCampoSelecionadoId(c.id);
+    return;
+  }
+
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds([c.id]);
+  iniciarDrag(event as any, c);
+}}
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
