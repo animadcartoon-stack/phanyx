@@ -1895,6 +1895,10 @@ setTimeout(() => setMensagemSucesso(""), 3000);
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
+
+if (!camposSelecionadosIds.includes(c.id)) {
+  setCamposSelecionadosIds([c.id]);
+}
         setMenuContexto({
           x: e.clientX,
           y: e.clientY,
@@ -2109,6 +2113,10 @@ registrarHistoricoAntesDaAcao();
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
+
+if (!camposSelecionadosIds.includes(c.id)) {
+  setCamposSelecionadosIds([c.id]);
+}
         setMenuContexto({
           x: e.clientX,
           y: e.clientY,
@@ -2490,6 +2498,10 @@ setEditorCorGradiente({
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
+
+if (!camposSelecionadosIds.includes(c.id)) {
+  setCamposSelecionadosIds([c.id]);
+}
         setMenuContexto({
           x: e.clientX,
           y: e.clientY,
@@ -2877,7 +2889,7 @@ setEditorCorGradiente({
     Ajustes da imagem
   </p>
 
-  <div className="grid grid-cols-2 gap-2">
+  <div className="grid grid-cols-4 gap-2">
     <button
       type="button"
       onClick={() =>
