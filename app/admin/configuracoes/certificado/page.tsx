@@ -52,7 +52,7 @@ type CampoCertificado = {
   flipX?: boolean | null;
   flipY?: boolean | null;
   filter?: string | null;
-  forma?: "RETANGULO" | "QUADRADO" | "CIRCULO" | "LINHA" | "ESTRELA" | null;
+  forma?: "RETANGULO" | "QUADRADO" | "CIRCULO" | "LINHA" | "ESTRELA" | "TRIANGULO" | null;
   raioBorda?: number | null;
   pontasEstrela?: number | null;
   profundidadeEstrela?: number | null;
@@ -1711,6 +1711,38 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     Estrela
   </span>
 </button>
+
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 5,
+        tipo: "FORMA",
+        forma: "TRIANGULO",
+        x: 200,
+        y: 200,
+        largura: 140,
+        altura: 140,
+        cor: "#1d4ed8",
+        opacity: 0.55,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span
+      className="h-0 w-0 border-x-[14px] border-b-[24px] border-x-transparent border-b-blue-700"
+    />
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Triângulo
+  </span>
+</button>
+
 </div>
   <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
     <span className="text-2xl">🖼️</span>
@@ -2350,9 +2382,10 @@ if (!camposSelecionadosIds.includes(c.id)) {
     ? "9999px"
     : `${(c as any).raioBorda ?? 8}px`,
     clipPath:
-
   c.forma === "ESTRELA"
     ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
+    : c.forma === "TRIANGULO"
+    ? "polygon(50% 0%, 100% 100%, 0% 100%)"
     : "none",
     }}
 >
@@ -2483,6 +2516,33 @@ setEditorCorGradiente({
 >
   ↻
 </button>
+
+{/* PONTOS DE EDIÇÃO DA FORMA */}
+{c.forma !== "LINHA" && (
+  <>
+    {[
+      { nome: "top-left", x: "-8px", y: "-8px", cursor: "nwse-resize" },
+      { nome: "top", x: "50%", y: "-8px", cursor: "ns-resize" },
+      { nome: "top-right", x: "calc(100% - 8px)", y: "-8px", cursor: "nesw-resize" },
+      { nome: "right", x: "calc(100% - 8px)", y: "50%", cursor: "ew-resize" },
+      { nome: "bottom-right", x: "calc(100% - 8px)", y: "calc(100% - 8px)", cursor: "nwse-resize" },
+      { nome: "bottom", x: "50%", y: "calc(100% - 8px)", cursor: "ns-resize" },
+      { nome: "bottom-left", x: "-8px", y: "calc(100% - 8px)", cursor: "nesw-resize" },
+      { nome: "left", x: "-8px", y: "50%", cursor: "ew-resize" },
+    ].map((ponto) => (
+      <div
+        key={ponto.nome}
+        className="absolute z-[9999] h-4 w-4 rounded-full border-2 border-white bg-orange-500 shadow"
+        style={{
+          left: ponto.x,
+          top: ponto.y,
+          cursor: ponto.cursor,
+        }}
+        title={`Ponto de edição: ${ponto.nome}`}
+      />
+    ))}
+  </>
+)}
 
 {/* CENTRAL (CROP PRO) */}
 <div
