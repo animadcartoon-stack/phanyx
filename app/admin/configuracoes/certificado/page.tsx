@@ -2429,20 +2429,36 @@ setEditorCorGradiente({
 
       <div className="relative overflow-hidden rounded-2xl border border-slate-200">
   <div
-    className="h-32 w-full"
+  className="relative h-32 w-full"
+  style={{
+    background: `
+      linear-gradient(to top, black, transparent),
+      linear-gradient(to right, white, ${corAtual.hex || "#ff0000"})
+    `,
+  }}
+>
+  <div
+    className="absolute h-4 w-4 rounded-full border-2 border-white shadow"
     style={{
-      background: corAtual?.hex || "#ff0000",
+      left: `${(corAtual.r / 255) * 100}%`,
+      top: `${100 - (corAtual.g / 255) * 100}%`,
     }}
   />
+</div>
 
   <input
     type="color"
-    value={editorCorGradiente.cor}
-    onChange={(e) =>
-      setEditorCorGradiente((prev) =>
-        prev ? { ...prev, cor: e.target.value } : prev
-      )
-    }
+    value={corAtual.hex}
+    onChange={(e) => {
+  const cor = e.target.value;
+  const { r, g, b } = hexToRgb(cor);
+
+  setCorAtual({ hex: cor, r, g, b });
+
+  setEditorCorGradiente((prev) =>
+    prev ? { ...prev, cor } : prev
+  );
+}}
     className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
   />
 
