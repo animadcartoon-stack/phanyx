@@ -1485,7 +1485,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     Formas geométricas
   </p>
 
-  <div className="grid grid-cols-3 gap-2">
+  <div className="grid grid-cols-4 gap-2">
     <button
   type="button"
   onClick={() =>
@@ -1573,6 +1573,37 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   </span>
 </button>
   </div>
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 3,
+        tipo: "FORMA",
+        forma: "ESTRELA",
+        x: 180,
+        y: 180,
+        largura: 140,
+        altura: 140,
+        cor: "#1d4ed8",
+        opacity: 0.55,
+        ordem: 5,
+        pontasEstrela: 5,
+        profundidadeEstrela: 45,
+        arredondarEstrela: 0,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="text-2xl text-blue-700">★</span>
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Estrela
+  </span>
+</button>
 </div>
   <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
     <span className="text-2xl">🖼️</span>
@@ -2439,9 +2470,23 @@ setEditorCorGradiente({
     <div
       key={c.id}
       onMouseDown={(event) => {
-        event.stopPropagation();
-        iniciarDrag(event, c);
-      }}
+  event.stopPropagation();
+
+  if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    setCamposSelecionadosIds((prev) =>
+      prev.includes(c.id)
+        ? prev.filter((id) => id !== c.id)
+        : [...prev, c.id]
+    );
+
+    setCampoSelecionadoId(c.id);
+    return;
+  }
+
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds([c.id]);
+  iniciarDrag(event as any, c);
+}}
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
@@ -2452,7 +2497,7 @@ setEditorCorGradiente({
         });
       }}
       className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
-        campoSelecionadoId === c.id
+        camposSelecionadosIds.includes(c.id)
           ? "border-blue-600 bg-blue-600/90 text-white"
           : "border-blue-300 bg-transparent text-blue-900"
       }`}
