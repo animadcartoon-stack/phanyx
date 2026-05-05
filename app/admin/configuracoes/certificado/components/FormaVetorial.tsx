@@ -11,6 +11,11 @@ type CampoForma = {
   id: number;
   forma?: string | null;
   cor?: string | null;
+  preenchimentoCor?: string | null;
+  contornoCor?: string | null;
+  contornoEspessura?: number | null;
+  mostrarPreenchimento?: boolean | null;
+  mostrarContorno?: boolean | null;
   opacity?: number | null;
   largura?: number | null;
   altura?: number | null;
@@ -70,7 +75,11 @@ export default function FormaVetorial({
   onChange,
 }: Props) {
   const pontos = campo.pontosForma || [];
-  const cor = campo.cor || "#1d4ed8";
+  const preenchimentoCor = campo.preenchimentoCor || campo.cor || "#1d4ed8";
+  const contornoCor = campo.contornoCor || campo.cor || "#1d4ed8";
+  const contornoEspessura = campo.contornoEspessura ?? 1.5;
+  const mostrarPreenchimento = campo.mostrarPreenchimento !== false;
+  const mostrarContorno = campo.mostrarContorno !== false;
 
   function moverPonto(pontoId: string, novoX: number, novoY: number) {
     onChange({
@@ -111,12 +120,12 @@ export default function FormaVetorial({
         <path
           d={gerarPath(campo)}
           fill={
-            campo.forma === "LINHA"
-              ? "none"
-              : hexToRgba(cor, campo.opacity ?? 0.55)
-          }
-          stroke={cor}
-          strokeWidth={campo.forma === "LINHA" ? 4 : 1.5}
+  campo.forma === "LINHA" || !mostrarPreenchimento
+    ? "none"
+    : hexToRgba(preenchimentoCor, campo.opacity ?? 0.55)
+}
+stroke={mostrarContorno ? contornoCor : "none"}
+strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessura}
           vectorEffect="non-scaling-stroke"
         />
       </svg>

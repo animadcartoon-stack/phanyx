@@ -3704,15 +3704,83 @@ if (!camposSelecionadosIds.includes(c.id)) {
 
     <div className="space-y-3">
       <div>
-        <p className="mb-1 text-xs font-semibold text-slate-500">
-          Cor principal
-        </p>
-        <input
-          type="color"
-          value={campoSelecionado?.cor || "#1d4ed8"}
-          onChange={(e) => atualizarCampoLocal("cor", e.target.value)}
-          className="h-10 w-full cursor-pointer rounded-lg border"
-        />
+        <div>
+  <p className="mb-1 text-xs font-semibold text-slate-500">
+    Preenchimento
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal(
+          "mostrarPreenchimento" as any,
+          !(campoSelecionado as any)?.mostrarPreenchimento
+        )
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      {(campoSelecionado as any)?.mostrarPreenchimento === false
+        ? "Sem preenchimento"
+        : "Com preenchimento"}
+    </button>
+
+    <input
+      type="color"
+      value={(campoSelecionado as any)?.preenchimentoCor || campoSelecionado?.cor || "#1d4ed8"}
+      onChange={(e) =>
+        atualizarCampoLocal("preenchimentoCor" as any, e.target.value)
+      }
+      className="h-10 w-full cursor-pointer rounded-lg border"
+    />
+  </div>
+</div>
+
+<div>
+  <p className="mb-1 text-xs font-semibold text-slate-500">
+    Contorno
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal(
+          "mostrarContorno" as any,
+          !(campoSelecionado as any)?.mostrarContorno
+        )
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      {(campoSelecionado as any)?.mostrarContorno === false
+        ? "Sem contorno"
+        : "Com contorno"}
+    </button>
+
+    <input
+      type="color"
+      value={(campoSelecionado as any)?.contornoCor || campoSelecionado?.cor || "#1d4ed8"}
+      onChange={(e) =>
+        atualizarCampoLocal("contornoCor" as any, e.target.value)
+      }
+      className="h-10 w-full cursor-pointer rounded-lg border"
+    />
+  </div>
+
+  <label className="mt-3 block text-xs text-slate-500">
+    Espessura do contorno
+  </label>
+  <input
+    type="range"
+    min={0}
+    max={20}
+    value={(campoSelecionado as any)?.contornoEspessura ?? 1.5}
+    onChange={(e) =>
+      atualizarCampoLocal("contornoEspessura" as any, Number(e.target.value))
+    }
+    className="w-full"
+  />
+</div>
       </div>
 
       <div>
