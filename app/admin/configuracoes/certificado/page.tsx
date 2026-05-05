@@ -1270,11 +1270,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   return (
   <div
   className="mx-auto max-w-[1600px] p-6"
-  onClick={() => {
-    setMenuContexto(null);
-    setCamposSelecionadosIds([]);
-    setCampoSelecionadoId(null);
-  }}
+  onClick={() => setMenuContexto(null)}
 >
     
       <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
@@ -1956,10 +1952,17 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 }}
 >
                 <div
-                  ref={canvasRef}
-                  onMouseMove={onMouseMoveCanvas}
-                  onMouseUp={finalizarDrag}
-                  onMouseLeave={finalizarDrag}
+  ref={canvasRef}
+  onMouseDown={(e) => {
+    if (e.target === e.currentTarget) {
+      setCamposSelecionadosIds([]);
+      setCampoSelecionadoId(null);
+      setMenuContexto(null);
+    }
+  }}
+  onMouseMove={onMouseMoveCanvas}
+  onMouseUp={finalizarDrag}
+  onMouseLeave={finalizarDrag}
                   className="relative overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
