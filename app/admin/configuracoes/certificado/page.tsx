@@ -2350,7 +2350,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
     ? "9999px"
     : `${(c as any).raioBorda ?? 8}px`,
     clipPath:
-    
+
   c.forma === "ESTRELA"
     ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
     : "none",
@@ -2502,14 +2502,21 @@ setEditorCorGradiente({
               const startW = c.largura || 100;
               const startH = c.altura || 80;
 
+              const proporcao = startW / startH;
+
               const move = (ev: globalThis.MouseEvent) => {
                 setCampos((prev) =>
                   prev.map((item) =>
                     item.id === c.id
                       ? {
                           ...item,
-                          largura: Math.max(20, startW + ev.clientX - startX),
-                          altura: Math.max(4, startH + ev.clientY - startY),
+                          largura: ev.shiftKey
+  ? Math.max(20, startW + ev.clientX - startX)
+  : Math.max(20, startW + ev.clientX - startX),
+
+altura: ev.shiftKey
+  ? Math.max(4, (startW + ev.clientX - startX) / proporcao)
+  : Math.max(4, startH + ev.clientY - startY),
                         }
                       : item
                   )
