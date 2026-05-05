@@ -278,7 +278,12 @@ useEffect(() => {
   pontoIndex: number;
   cor: string;
 } | null>(null);
-
+  const [corAtual, setCorAtual] = useState({
+  hex: "#ffffff",
+  r: 255,
+  g: 255,
+  b: 255,
+});
   const handleUploadImagem = (e: React.ChangeEvent<HTMLInputElement>) => {
   const files = Array.from(e.target.files || []);
   if (files.length === 0) return;
@@ -2069,6 +2074,23 @@ registrarHistoricoAntesDaAcao();
 
         onClick={(e) => {
   e.stopPropagation();
+
+  const cor = stop.cor || "#ffffff";
+  const { r, g, b } = hexToRgb(cor);
+
+  setCorAtual({
+    hex: cor,
+    r,
+    g,
+    b,
+  });
+
+  setEditorCorGradiente({
+    campoId: c.id,
+    pontoIndex: index,
+    cor,
+  });
+
   setMenuPontoGradiente({
     campoId: c.id,
     pontoIndex: index,
@@ -2132,11 +2154,21 @@ registrarHistoricoAntesDaAcao();
   e.stopPropagation();
   e.preventDefault();
 
-  setEditorCorGradiente({
-    campoId: c.id,
-    pontoIndex: index,
-    cor: stop.cor || "#ffffff",
-  });
+  const cor = stop.cor || "#ffffff";
+const { r, g, b } = hexToRgb(cor);
+
+setCorAtual({
+  hex: cor,
+  r,
+  g,
+  b,
+});
+
+setEditorCorGradiente({
+  campoId: c.id,
+  pontoIndex: index,
+  cor,
+});
 }}
       />
     ))}
@@ -2399,7 +2431,7 @@ registrarHistoricoAntesDaAcao();
   <div
     className="h-32 w-full"
     style={{
-      background: editorCorGradiente.cor,
+      background: corAtual?.hex || "#ff0000",
     }}
   />
 
@@ -2483,34 +2515,35 @@ registrarHistoricoAntesDaAcao();
       />
 
       <button
-        type="button"
-        onClick={() => {
-          setCampos((prev) =>
-            prev.map((item) => {
-              if (item.id !== editorCorGradiente.campoId) return item;
+  type="button"
+  onClick={() => {
+    setCampos((prev) =>
+      prev.map((item) => {
+        if (item.id !== editorCorGradiente.campoId) return item;
 
-              const stops = [
-                ...(((item as any).degradeStops || [
-                  { cor: item.cor || "#1d4ed8", posicao: 0 },
-                  { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
-                ]) as any[]),
-              ];
+        const stops = [
+          ...(((item as any).degradeStops || [
+            { cor: item.cor || "#1d4ed8", posicao: 0 },
+            { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
+          ]) as any[]),
+        ];
 
-              stops[editorCorGradiente.pontoIndex] = {
-                ...stops[editorCorGradiente.pontoIndex],
-                cor: editorCorGradiente.cor,
-              };
+        stops[editorCorGradiente.pontoIndex] = {
+          ...stops[editorCorGradiente.pontoIndex],
+          cor: corAtual.hex,
+        };
 
-              return { ...item, degradeStops: stops } as any;
-            })
-          );
+        return { ...item, degradeStops: stops } as any;
+      })
+    );
 
-          setEditorCorGradiente(null);
-        }}
-        className="mt-4 w-full rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
-      >
-        Aplicar cor
-      </button>
+    setEditorCorGradiente(null);
+    setMenuPontoGradiente(null);
+  }}
+  className="mt-4 w-full rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+>
+  Aplicar cor
+</button>
     </div>
   </div>
 )}
