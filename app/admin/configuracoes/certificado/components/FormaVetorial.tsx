@@ -5,6 +5,10 @@ type PontoForma = {
   x: number;
   y: number;
   tipo?: "reto" | "curvo";
+  inX?: number;
+  inY?: number;
+  outX?: number;
+  outY?: number;
 };
 
 type CampoForma = {
@@ -17,8 +21,6 @@ type CampoForma = {
   mostrarPreenchimento?: boolean | null;
   mostrarContorno?: boolean | null;
   opacity?: number | null;
-  largura?: number | null;
-  altura?: number | null;
   pontosForma?: PontoForma[] | null;
 };
 
@@ -31,10 +33,27 @@ type Props = {
 function hexToRgba(hex: string, alpha: number) {
   const limpo = hex.replace("#", "");
   const bigint = parseInt(limpo, 16);
+
   const r = (bigint >> 16) & 255;
   const g = (bigint >> 8) & 255;
   const b = bigint & 255;
+
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function limitar(v: number) {
+  return Math.max(0, Math.min(100, v));
+}
+
+function criarAlcasPadrao(ponto: PontoForma): PontoForma {
+  return {
+    ...ponto,
+    tipo: "curvo",
+    inX: ponto.inX ?? limitar(ponto.x - 12),
+    inY: ponto.inY ?? ponto.y,
+    outX: ponto.outX ?? limitar(ponto.x + 12),
+    outY: ponto.outY ?? ponto.y,
+  };
 }
 
 function gerarPath(campo: CampoForma) {
@@ -42,7 +61,22 @@ function gerarPath(campo: CampoForma) {
   if (!pontos.length) return "";
 
   if (campo.forma === "LINHA") {
-    return `M ${pontos[0].x} ${pontos[0].y} L ${pontos[pontos.length - 1].x} ${pontos[pontos.length - 1].y}`;
+    let d = `M ${pontos[0].x} ${pontos[0].y}`;
+
+    for (let i = 1; i < pontos.length; i++) {
+      const anterior = pontos[i - 1];
+      const atual = pontos[i];
+
+      if (anterior.tipo === "curvo" || atual.tipo === "curvo") {
+        const p1 = criarAlcasPadrao(anterior);
+        const p2 = criarAlcasPadrao(atual);
+        d += ` C ${p1.outX} ${p1.outY} ${p2.inX} ${p2.inY} ${atual.x} ${atual.y}`;
+      } else {
+        d += ` L ${atual.x} ${atual.y}`;
+      }
+    }
+
+    return d;
   }
 
   let d = `M ${pontos[0].x} ${pontos[0].y}`;
@@ -52,12 +86,21 @@ function gerarPath(campo: CampoForma) {
     const atual = pontos[i];
 
     if (anterior.tipo === "curvo" || atual.tipo === "curvo") {
-      const cx = (anterior.x + atual.x) / 2;
-      const cy = (anterior.y + atual.y) / 2;
-      d += ` Q ${cx} ${cy} ${atual.x} ${atual.y}`;
+      const p1 = criarAlcasPadrao(anterior);
+      const p2 = criarAlcasPadrao(atual);
+      d += ` C ${p1.outX} ${p1.outY} ${p2.inX} ${p2.inY} ${atual.x} ${atual.y}`;
     } else {
       d += ` L ${atual.x} ${atual.y}`;
     }
+  }
+
+  const ultimo = pontos[pontos.length - 1];
+  const primeiro = pontos[0];
+
+  if (ultimo.tipo === "curvo" || primeiro.tipo === "curvo") {
+    const p1 = criarAlcasPadrao(ultimo);
+    const p2 = criarAlcasPadrao(primeiro);
+    d += ` C ${p1.outX} ${p1.outY} ${p2.inX} ${p2.inY} ${primeiro.x} ${primeiro.y}`;
   }
 
   d += " Z";
@@ -82,12 +125,40 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
 
   function moverPonto(pontoId: string, novoX: number, novoY: number) {
     atualizarPontos(
+      pontos.map((ponto) => {
+        if (ponto.id !== pontoId) return ponto;
+
+        const dx = limitar(novoX) - ponto.x;
+        const dy = limitar(novoY) - ponto.y;
+
+        return {
+          ...ponto,
+          x: limitar(novoX),
+          y: limitar(novoY),
+          inX: ponto.inX !== undefined ? limitar(ponto.inX + dx) : undefined,
+          inY: ponto.inY !== undefined ? limitar(ponto.inY + dy) : undefined,
+          outX: ponto.outX !== undefined ? limitar(ponto.outX + dx) : undefined,
+          outY: ponto.outY !== undefined ? limitar(ponto.outY + dy) : undefined,
+        };
+      })
+    );
+  }
+
+  function moverAlca(
+    pontoId: string,
+    lado: "in" | "out",
+    novoX: number,
+    novoY: number
+  ) {
+    atualizarPontos(
       pontos.map((ponto) =>
         ponto.id === pontoId
           ? {
-              ...ponto,
-              x: Math.max(0, Math.min(100, novoX)),
-              y: Math.max(0, Math.min(100, novoY)),
+              ...criarAlcasPadrao(ponto),
+              tipo: "curvo",
+              ...(lado === "in"
+                ? { inX: limitar(novoX), inY: limitar(novoY) }
+                : { outX: limitar(novoX), outY: limitar(novoY) }),
             }
           : ponto
       )
@@ -98,10 +169,16 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
     atualizarPontos(
       pontos.map((ponto) =>
         ponto.id === pontoId
-          ? {
-              ...ponto,
-              tipo: ponto.tipo === "curvo" ? "reto" : "curvo",
-            }
+          ? ponto.tipo === "curvo"
+            ? {
+                ...ponto,
+                tipo: "reto",
+                inX: undefined,
+                inY: undefined,
+                outX: undefined,
+                outY: undefined,
+              }
+            : criarAlcasPadrao(ponto)
           : ponto
       )
     );
@@ -110,40 +187,70 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
   function deletarPonto(pontoId: string) {
     const minimo = campo.forma === "LINHA" ? 2 : 3;
     if (pontos.length <= minimo) return;
-
     atualizarPontos(pontos.filter((ponto) => ponto.id !== pontoId));
   }
 
-  function adicionarPonto(e: React.MouseEvent<SVGSVGElement>) {
+  function adicionarPonto(e: React.MouseEvent<SVGPathElement>) {
     if (!selecionado) return;
 
     e.stopPropagation();
+    e.preventDefault();
 
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const svg = e.currentTarget.ownerSVGElement;
+    if (!svg) return;
+
+    const rect = svg.getBoundingClientRect();
+
+    const x = limitar(((e.clientX - rect.left) / rect.width) * 100);
+    const y = limitar(((e.clientY - rect.top) / rect.height) * 100);
 
     atualizarPontos([
       ...pontos,
       {
         id: `p-${Date.now()}`,
-        x: Math.max(0, Math.min(100, x)),
-        y: Math.max(0, Math.min(100, y)),
+        x,
+        y,
         tipo: "reto",
       },
     ]);
   }
 
+  function iniciarArrastePercentual(
+    e: React.MouseEvent,
+    callback: (x: number, y: number) => void
+  ) {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const rect = e.currentTarget.parentElement?.getBoundingClientRect();
+    if (!rect) return;
+
+    const move = (ev: globalThis.MouseEvent) => {
+      const x = ((ev.clientX - rect.left) / rect.width) * 100;
+      const y = ((ev.clientY - rect.top) / rect.height) * 100;
+      callback(x, y);
+    };
+
+    const up = () => {
+      window.removeEventListener("mousemove", move);
+      window.removeEventListener("mouseup", up);
+    };
+
+    window.addEventListener("mousemove", move);
+    window.addEventListener("mouseup", up);
+  }
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-visible">
       <svg
-        className="absolute inset-0 h-full w-full"
+        className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        onDoubleClick={adicionarPonto}
       >
         <path
           d={gerarPath(campo)}
+          onDoubleClick={adicionarPonto}
+          className="pointer-events-auto cursor-crosshair"
           fill={
             campo.forma === "LINHA" || !mostrarPreenchimento
               ? "none"
@@ -157,55 +264,111 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
           }
           vectorEffect="non-scaling-stroke"
         />
+
+        {selecionado &&
+          pontos.map((ponto) => {
+            const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
+
+            return (
+              <g key={`alcas-${ponto.id}`}>
+                {ponto.tipo === "curvo" && (
+                  <>
+                    <line
+                      x1={ponto.x}
+                      y1={ponto.y}
+                      x2={p.inX}
+                      y2={p.inY}
+                      stroke="#9333ea"
+                      strokeWidth={0.6}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                    <line
+                      x1={ponto.x}
+                      y1={ponto.y}
+                      x2={p.outX}
+                      y2={p.outY}
+                      stroke="#9333ea"
+                      strokeWidth={0.6}
+                      vectorEffect="non-scaling-stroke"
+                    />
+                  </>
+                )}
+              </g>
+            );
+          })}
       </svg>
 
       {selecionado &&
-        pontos.map((ponto) => (
-          <button
-            key={ponto.id}
-            type="button"
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
+        pontos.map((ponto) => {
+          const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
 
-              const rect = e.currentTarget.parentElement?.getBoundingClientRect();
-              if (!rect) return;
+          return (
+            <div key={ponto.id}>
+              {ponto.tipo === "curvo" && (
+                <>
+                  <button
+                    type="button"
+                    onMouseDown={(e) =>
+                      iniciarArrastePercentual(e, (x, y) =>
+                        moverAlca(ponto.id, "in", x, y)
+                      )
+                    }
+                    className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
+                    style={{
+                      left: `${p.inX}%`,
+                      top: `${p.inY}%`,
+                      cursor: "grab",
+                    }}
+                    title="Alça Bézier de entrada"
+                  />
 
-              const move = (ev: globalThis.MouseEvent) => {
-                const novoX = ((ev.clientX - rect.left) / rect.width) * 100;
-                const novoY = ((ev.clientY - rect.top) / rect.height) * 100;
-                moverPonto(ponto.id, novoX, novoY);
-              };
+                  <button
+                    type="button"
+                    onMouseDown={(e) =>
+                      iniciarArrastePercentual(e, (x, y) =>
+                        moverAlca(ponto.id, "out", x, y)
+                      )
+                    }
+                    className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
+                    style={{
+                      left: `${p.outX}%`,
+                      top: `${p.outY}%`,
+                      cursor: "grab",
+                    }}
+                    title="Alça Bézier de saída"
+                  />
+                </>
+              )}
 
-              const up = () => {
-                window.removeEventListener("mousemove", move);
-                window.removeEventListener("mouseup", up);
-              };
-
-              window.addEventListener("mousemove", move);
-              window.addEventListener("mouseup", up);
-            }}
-            onDoubleClick={(e) => {
-              e.stopPropagation();
-              alternarTipoPonto(ponto.id);
-            }}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              deletarPonto(ponto.id);
-            }}
-            className={`absolute z-[99990] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
-              ponto.tipo === "curvo" ? "bg-purple-500" : "bg-orange-500"
-            }`}
-            style={{
-              left: `${ponto.x}%`,
-              top: `${ponto.y}%`,
-              cursor: "grab",
-            }}
-            title="Arraste para deformar. Duplo clique alterna reto/curvo. Botão direito remove."
-          />
-        ))}
-
+              <button
+                type="button"
+                onMouseDown={(e) =>
+                  iniciarArrastePercentual(e, (x, y) =>
+                    moverPonto(ponto.id, x, y)
+                  )
+                }
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  alternarTipoPonto(ponto.id);
+                }}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  deletarPonto(ponto.id);
+                }}
+                className={`pointer-events-auto absolute z-[99992] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
+                  ponto.tipo === "curvo" ? "bg-purple-500" : "bg-orange-500"
+                }`}
+                style={{
+                  left: `${ponto.x}%`,
+                  top: `${ponto.y}%`,
+                  cursor: "grab",
+                }}
+                title="Arraste para deformar. Duplo clique alterna reto/curvo. Botão direito remove."
+              />
+            </div>
+          );
+        })}
     </div>
   );
 }

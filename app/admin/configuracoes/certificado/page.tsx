@@ -2345,8 +2345,7 @@ registrarHistoricoAntesDaAcao();
               window.addEventListener("mousemove", move);
               window.addEventListener("mouseup", up);
             }}
-            className="absolute bottom-[-7px] right-[-7px] z-[9999] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
-            title="Aumentar/diminuir tudo junto"
+className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"            title="Aumentar/diminuir tudo junto"
           />
         </>
       )}
@@ -2471,11 +2470,13 @@ style={{
     : hexToRgba(c.cor || "#1d4ed8", c.opacity || 1),
 
     border:
-      c.forma === "LINHA"
-        ? `3px solid ${c.cor || "#1d4ed8"}`
-        : selecionado
-        ? "2px solid #2563eb"
-        : "1px dashed #93c5fd",
+  c.pontosForma && c.pontosForma.length > 0
+    ? "none"
+    : c.forma === "LINHA"
+    ? `3px solid ${c.cor || "#1d4ed8"}`
+    : selecionado
+    ? "2px solid #2563eb"
+    : "1px dashed #93c5fd",
 
     borderRadius:
   c.forma === "CIRCULO"
@@ -2489,6 +2490,25 @@ style={{
     : "none",
     }}
 >
+
+{c.pontosForma && c.pontosForma.length > 0 && (
+  <FormaVetorial
+    campo={c}
+    selecionado={selecionado}
+    onChange={(campoAtualizado) => {
+      setCampos((prev) =>
+        prev.map((item) => {
+          if (item.id !== c.id) return item;
+
+          return {
+            ...item,
+            ...(campoAtualizado as any),
+          };
+        })
+      );
+    }}
+  />
+)}
 
 {selecionado && (c as any).usarGradiente && (
   <div className="pointer-events-none absolute inset-0 z-[9998]">
@@ -2616,33 +2636,6 @@ setEditorCorGradiente({
 >
   ↻
 </button>
-
-{/* PONTOS DE EDIÇÃO DA FORMA */}
-{c.forma !== "LINHA" && (
-  <>
-    {[
-      { nome: "top-left", x: "-8px", y: "-8px", cursor: "nwse-resize" },
-      { nome: "top", x: "50%", y: "-8px", cursor: "ns-resize" },
-      { nome: "top-right", x: "calc(100% - 8px)", y: "-8px", cursor: "nesw-resize" },
-      { nome: "right", x: "calc(100% - 8px)", y: "50%", cursor: "ew-resize" },
-      { nome: "bottom-right", x: "calc(100% - 8px)", y: "calc(100% - 8px)", cursor: "nwse-resize" },
-      { nome: "bottom", x: "50%", y: "calc(100% - 8px)", cursor: "ns-resize" },
-      { nome: "bottom-left", x: "-8px", y: "calc(100% - 8px)", cursor: "nesw-resize" },
-      { nome: "left", x: "-8px", y: "50%", cursor: "ew-resize" },
-    ].map((ponto) => (
-      <div
-        key={ponto.nome}
-        className="absolute z-[9999] h-4 w-4 rounded-full border-2 border-white bg-orange-500 shadow"
-        style={{
-          left: ponto.x,
-          top: ponto.y,
-          cursor: ponto.cursor,
-        }}
-        title={`Ponto de edição: ${ponto.nome}`}
-      />
-    ))}
-  </>
-)}
 
 {/* CENTRAL (CROP PRO) */}
 <div
