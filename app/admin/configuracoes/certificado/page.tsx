@@ -2620,6 +2620,84 @@ altura: ev.shiftKey
   ✕
 </button>
 
+{c.forma === "LINHA" && (
+  <>
+    {/* PONTO INÍCIO */}
+    <div
+      onMouseDown={(e) => {
+        e.stopPropagation();
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startLeft = c.x;
+        const startTop = c.y;
+        const startW = c.largura || 100;
+        const startH = c.altura || 2;
+
+        const move = (ev: globalThis.MouseEvent) => {
+          setCampos((prev) =>
+            prev.map((item) =>
+              item.id === c.id
+                ? {
+                    ...item,
+                    x: startLeft + (ev.clientX - startX),
+                    y: startTop + (ev.clientY - startY),
+                    largura: startW - (ev.clientX - startX),
+                    altura: startH - (ev.clientY - startY),
+                  }
+                : item
+            )
+          );
+        };
+
+        const up = () => {
+          window.removeEventListener("mousemove", move);
+          window.removeEventListener("mouseup", up);
+        };
+
+        window.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", up);
+      }}
+      className="absolute left-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
+    />
+
+    {/* PONTO FINAL */}
+    <div
+      onMouseDown={(e) => {
+        e.stopPropagation();
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startW = c.largura || 100;
+        const startH = c.altura || 2;
+
+        const move = (ev: globalThis.MouseEvent) => {
+          setCampos((prev) =>
+            prev.map((item) =>
+              item.id === c.id
+                ? {
+                    ...item,
+                    largura: Math.max(2, startW + (ev.clientX - startX)),
+                    altura: Math.max(2, startH + (ev.clientY - startY)),
+                  }
+                : item
+            )
+          );
+        };
+
+        const up = () => {
+          window.removeEventListener("mousemove", move);
+          window.removeEventListener("mouseup", up);
+        };
+
+        window.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", up);
+      }}
+      className="absolute right-[-6px] top-1/2 h-3 w-3 -translate-y-1/2 rounded-full bg-white border border-blue-600 cursor-pointer"
+    />
+  </>
+)}
+
         </>
       )}
       
