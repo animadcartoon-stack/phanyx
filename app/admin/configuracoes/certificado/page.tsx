@@ -241,7 +241,13 @@ function atualizarCamposComHistorico(
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
   
- const handleUploadImagem = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [editorCorGradiente, setEditorCorGradiente] = useState<{
+  campoId: number;
+  pontoIndex: number;
+  cor: string;
+} | null>(null);
+
+  const handleUploadImagem = (e: React.ChangeEvent<HTMLInputElement>) => {
   const files = Array.from(e.target.files || []);
   if (files.length === 0) return;
 
@@ -2027,7 +2033,7 @@ registrarHistoricoAntesDaAcao();
       <button
         key={index}
         type="button"
-        className="pointer-events-auto absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow"
+        className="pointer-events-auto absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-blue-700 shadow-[0_0_0_3px_white] cursor-pointer"
         style={{
           left: `${stop.posicao}%`,
           background: stop.cor,
@@ -2079,27 +2085,15 @@ registrarHistoricoAntesDaAcao();
           window.addEventListener("mouseup", up);
         }}
         onDoubleClick={(e) => {
-          e.stopPropagation();
-          const novaCor = prompt("Digite a cor em HEX. Exemplo: #ff0000", stop.cor);
-          if (!novaCor) return;
+  e.stopPropagation();
+  e.preventDefault();
 
-          setCampos((prev) =>
-            prev.map((item) => {
-              if (item.id !== c.id) return item;
-
-              const stops = [
-                ...(((item as any).degradeStops || [
-                  { cor: item.cor || "#1d4ed8", posicao: 0 },
-                  { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
-                ]) as any[]),
-              ];
-
-              stops[index] = { ...stops[index], cor: novaCor };
-
-              return { ...item, degradeStops: stops } as any;
-            })
-          );
-        }}
+  setEditorCorGradiente({
+    campoId: c.id,
+    pontoIndex: index,
+    cor: stop.cor || "#ffffff",
+  });
+}}
       />
     ))}
   </div>
@@ -2339,6 +2333,83 @@ registrarHistoricoAntesDaAcao();
                 </span>
               )}
             </div>
+
+{editorCorGradiente && (
+  <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/40">
+    <div className="w-[360px] rounded-2xl bg-white p-5 shadow-2xl">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-lg font-bold text-slate-800">
+          Cor do ponto do degradê
+        </h3>
+
+        <button
+          type="button"
+          onClick={() => setEditorCorGradiente(null)}
+          className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600 hover:bg-slate-200"
+        >
+          ✕
+        </button>
+      </div>
+
+      <input
+        type="color"
+        value={editorCorGradiente.cor}
+        onChange={(e) =>
+          setEditorCorGradiente((prev) =>
+            prev ? { ...prev, cor: e.target.value } : prev
+          )
+        }
+        className="h-32 w-full cursor-pointer rounded-xl border"
+      />
+
+      <label className="mt-4 block text-xs font-semibold text-slate-500">
+        Código da cor
+      </label>
+      <input
+        type="text"
+        value={editorCorGradiente.cor}
+        onChange={(e) =>
+          setEditorCorGradiente((prev) =>
+            prev ? { ...prev, cor: e.target.value } : prev
+          )
+        }
+        className="mt-1 w-full rounded-xl border px-3 py-2 text-sm"
+        placeholder="#ff0000"
+      />
+
+      <button
+        type="button"
+        onClick={() => {
+          setCampos((prev) =>
+            prev.map((item) => {
+              if (item.id !== editorCorGradiente.campoId) return item;
+
+              const stops = [
+                ...(((item as any).degradeStops || [
+                  { cor: item.cor || "#1d4ed8", posicao: 0 },
+                  { cor: (item as any).cor2 || "#60a5fa", posicao: 100 },
+                ]) as any[]),
+              ];
+
+              stops[editorCorGradiente.pontoIndex] = {
+                ...stops[editorCorGradiente.pontoIndex],
+                cor: editorCorGradiente.cor,
+              };
+
+              return { ...item, degradeStops: stops } as any;
+            })
+          );
+
+          setEditorCorGradiente(null);
+        }}
+        className="mt-4 w-full rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+      >
+        Aplicar cor
+      </button>
+    </div>
+  </div>
+)}
+
           </main>
 
           {!modoAmplo && (
