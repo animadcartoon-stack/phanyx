@@ -76,6 +76,16 @@ type CampoCertificado = {
 
   sombraAngulo?: number | null;
   sombraDistancia?: number | null;
+  pontosForma?: {
+  id: string;
+  x: number;
+  y: number;
+  tipo?: "reto" | "curvo";
+  inX?: number;
+  inY?: number;
+  outX?: number;
+  outY?: number;
+}[] | null;
 };
 
 const FONTES = [
@@ -159,6 +169,58 @@ function calcularSombra(angulo: number, distancia: number) {
     x: Math.cos(rad) * distancia,
     y: Math.sin(rad) * distancia,
   };
+}
+
+function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
+  if (forma === "LINHA") {
+    return [
+      { id: "p1", x: 0, y: 50, tipo: "reto" as const },
+      { id: "p2", x: 100, y: 50, tipo: "reto" as const },
+    ];
+  }
+
+  if (forma === "TRIANGULO") {
+    return [
+      { id: "p1", x: 50, y: 0, tipo: "reto" as const },
+      { id: "p2", x: 100, y: 100, tipo: "reto" as const },
+      { id: "p3", x: 0, y: 100, tipo: "reto" as const },
+    ];
+  }
+
+  if (forma === "RETANGULO" || forma === "QUADRADO") {
+    return [
+      { id: "p1", x: 0, y: 0, tipo: "reto" as const },
+      { id: "p2", x: 100, y: 0, tipo: "reto" as const },
+      { id: "p3", x: 100, y: 100, tipo: "reto" as const },
+      { id: "p4", x: 0, y: 100, tipo: "reto" as const },
+    ];
+  }
+
+  if (forma === "CIRCULO") {
+    return [
+      { id: "p1", x: 50, y: 0, tipo: "curvo" as const },
+      { id: "p2", x: 100, y: 50, tipo: "curvo" as const },
+      { id: "p3", x: 50, y: 100, tipo: "curvo" as const },
+      { id: "p4", x: 0, y: 50, tipo: "curvo" as const },
+    ];
+  }
+
+  if (forma === "ESTRELA") {
+    return [
+      { id: "p1", x: 50, y: 0, tipo: "reto" as const },
+      { id: "p2", x: 61, y: 35, tipo: "reto" as const },
+      { id: "p3", x: 98, y: 35, tipo: "reto" as const },
+      { id: "p4", x: 68, y: 57, tipo: "reto" as const },
+      { id: "p5", x: 79, y: 91, tipo: "reto" as const },
+      { id: "p6", x: 50, y: 70, tipo: "reto" as const },
+      { id: "p7", x: 21, y: 91, tipo: "reto" as const },
+      { id: "p8", x: 32, y: 57, tipo: "reto" as const },
+      { id: "p9", x: 2, y: 35, tipo: "reto" as const },
+      { id: "p10", x: 39, y: 35, tipo: "reto" as const },
+    ];
+  }
+
+  return null;
 }
 
 export default function ConfiguracaoCertificadoPage() {
@@ -1573,6 +1635,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now(),
         tipo: "FORMA",
         forma: "RETANGULO",
+        pontosForma: criarPontosIniciaisForma("RETANGULO"),
         x: 120,
         y: 120,
         largura: 180,
@@ -1602,6 +1665,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now() + 4,
         tipo: "FORMA",
         forma: "QUADRADO",
+        pontosForma: criarPontosIniciaisForma("QUADRADO"),
         x: 130,
         y: 130,
         largura: 120,
@@ -1631,6 +1695,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now() + 1,
         tipo: "FORMA",
         forma: "CIRCULO",
+        pontosForma: criarPontosIniciaisForma("CIRCULO"),
         x: 140,
         y: 140,
         largura: 110,
@@ -1660,6 +1725,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now() + 2,
         tipo: "FORMA",
         forma: "LINHA",
+        pontosForma: criarPontosIniciaisForma("LINHA"),
         x: 160,
         y: 160,
         largura: 180,
@@ -1689,6 +1755,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now() + 3,
         tipo: "FORMA",
         forma: "ESTRELA",
+        pontosForma: criarPontosIniciaisForma("ESTRELA"),
         x: 180,
         y: 180,
         largura: 140,
@@ -1721,6 +1788,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         id: Date.now() + 5,
         tipo: "FORMA",
         forma: "TRIANGULO",
+        pontosForma: criarPontosIniciaisForma("TRIANGULO"),
         x: 200,
         y: 200,
         largura: 140,
