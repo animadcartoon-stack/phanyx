@@ -1637,6 +1637,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         tipo: "FORMA",
         forma: "RETANGULO",
         pontosForma: criarPontosIniciaisForma("RETANGULO"),
+        mostrarPreenchimento: true,
+mostrarContorno: true,
+preenchimentoCor: "#1d4ed8",
+contornoCor: "#1d4ed8",
+contornoEspessura: 2,
         x: 120,
         y: 120,
         largura: 180,
@@ -1667,6 +1672,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         tipo: "FORMA",
         forma: "QUADRADO",
         pontosForma: criarPontosIniciaisForma("QUADRADO"),
+        mostrarPreenchimento: true,
+mostrarContorno: true,
+preenchimentoCor: "#1d4ed8",
+contornoCor: "#1d4ed8",
+contornoEspessura: 2,
         x: 130,
         y: 130,
         largura: 120,
@@ -1697,6 +1707,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         tipo: "FORMA",
         forma: "CIRCULO",
         pontosForma: criarPontosIniciaisForma("CIRCULO"),
+        mostrarPreenchimento: true,
+mostrarContorno: true,
+preenchimentoCor: "#1d4ed8",
+contornoCor: "#1d4ed8",
+contornoEspessura: 2,
         x: 140,
         y: 140,
         largura: 110,
@@ -1727,6 +1742,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         tipo: "FORMA",
         forma: "LINHA",
         
+        mostrarPreenchimento: true,
+mostrarContorno: true,
+preenchimentoCor: "#1d4ed8",
+contornoCor: "#1d4ed8",
+contornoEspessura: 2,
         x: 160,
         y: 160,
         largura: 180,
@@ -1757,6 +1777,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         tipo: "FORMA",
         forma: "ESTRELA",
         pontosForma: criarPontosIniciaisForma("ESTRELA"),
+        mostrarPreenchimento: true,
+mostrarContorno: true,
+preenchimentoCor: "#1d4ed8",
+contornoCor: "#1d4ed8",
+contornoEspessura: 2,
         x: 180,
         y: 180,
         largura: 140,
@@ -1790,6 +1815,11 @@ setTimeout(() => setMensagemSucesso(""), 3000);
         tipo: "FORMA",
         forma: "TRIANGULO",
         pontosForma: criarPontosIniciaisForma("TRIANGULO"),
+        mostrarPreenchimento: true,
+mostrarContorno: true,
+preenchimentoCor: "#1d4ed8",
+contornoCor: "#1d4ed8",
+contornoEspessura: 2,
         x: 200,
         y: 200,
         largura: 140,
@@ -3715,7 +3745,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
       onClick={() =>
         atualizarCampoLocal(
           "mostrarPreenchimento" as any,
-          !(campoSelecionado as any)?.mostrarPreenchimento
+          (campoSelecionado as any)?.mostrarPreenchimento === false ? true : false
         )
       }
       className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
@@ -3747,7 +3777,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
       onClick={() =>
         atualizarCampoLocal(
           "mostrarContorno" as any,
-          !(campoSelecionado as any)?.mostrarContorno
+          (campoSelecionado as any)?.mostrarContorno === false ? true : false
         )
       }
       className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"

@@ -217,7 +217,7 @@ strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessur
             window.addEventListener("mousemove", move);
             window.addEventListener("mouseup", up);
           }}
-          className="pointer-events-auto absolute bottom-[-10px] right-[-10px] z-[10000] h-5 w-5 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+          className="pointer-events-auto absolute bottom-[-18px] right-[-18px] z-[99999] h-5 w-5 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
           title="Redimensionar forma"
         />
       )}
