@@ -206,49 +206,6 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
           />
         ))}
 
-      {selecionado && (
-        <button
-          type="button"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const startX = e.clientX;
-            const startY = e.clientY;
-            const startW = campo.largura || 120;
-            const startH = campo.altura || 120;
-            const proporcao = startW / startH;
-
-            const move = (ev: globalThis.MouseEvent) => {
-              const deltaX = ev.clientX - startX;
-              const deltaY = ev.clientY - startY;
-
-              let novaLargura = Math.max(20, startW + deltaX);
-              let novaAltura = Math.max(20, startH + deltaY);
-
-              if (ev.shiftKey) {
-                novaAltura = Math.max(20, novaLargura / proporcao);
-              }
-
-              onChange({
-                ...campo,
-                largura: Math.round(novaLargura),
-                altura: Math.round(novaAltura),
-              });
-            };
-
-            const up = () => {
-              window.removeEventListener("mousemove", move);
-              window.removeEventListener("mouseup", up);
-            };
-
-            window.addEventListener("mousemove", move);
-            window.addEventListener("mouseup", up);
-          }}
-          className="absolute bottom-[-12px] right-[-12px] z-[100000] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
-          title="Redimensionar forma"
-        />
-      )}
     </div>
   );
 }

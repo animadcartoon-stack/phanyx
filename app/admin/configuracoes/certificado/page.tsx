@@ -2691,7 +2691,7 @@ altura: ev.shiftKey
               window.addEventListener("mousemove", move);
               window.addEventListener("mouseup", up);
             }}
-            className="absolute bottom-[-7px] right-[-7px] h-4 w-4 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+            className="absolute bottom-[-10px] right-[-10px] z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
             title="Redimensionar"
           />
 
@@ -2779,6 +2779,56 @@ altura: ev.shiftKey
 >
   ✕
 </button>
+
+{selecionado && (
+  <button
+    type="button"
+    onMouseDown={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+
+      const startX = e.clientX;
+      const startY = e.clientY;
+      const startW = c.largura || 120;
+      const startH = c.altura || 120;
+      const proporcao = startW / startH;
+
+      const move = (ev: globalThis.MouseEvent) => {
+        const deltaX = ev.clientX - startX;
+        const deltaY = ev.clientY - startY;
+
+        let novaLargura = Math.max(20, startW + deltaX);
+        let novaAltura = Math.max(20, startH + deltaY);
+
+        if (ev.shiftKey) {
+          novaAltura = Math.max(20, novaLargura / proporcao);
+        }
+
+        setCampos((prev) =>
+          prev.map((item) =>
+            item.id === c.id
+              ? {
+                  ...item,
+                  largura: Math.round(novaLargura),
+                  altura: Math.round(novaAltura),
+                }
+              : item
+          )
+        );
+      };
+
+      const up = () => {
+        window.removeEventListener("mousemove", move);
+        window.removeEventListener("mouseup", up);
+      };
+
+      window.addEventListener("mousemove", move);
+      window.addEventListener("mouseup", up);
+    }}
+    className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+    title="Redimensionar forma inteira"
+  />
+)}
 
 {c.forma === "LINHA" && (
   <>
