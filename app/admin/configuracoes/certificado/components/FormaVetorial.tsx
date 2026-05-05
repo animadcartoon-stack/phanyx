@@ -31,23 +31,18 @@ type Props = {
 function hexToRgba(hex: string, alpha: number) {
   const limpo = hex.replace("#", "");
   const bigint = parseInt(limpo, 16);
-
   const r = (bigint >> 16) & 255;
   const g = (bigint >> 8) & 255;
   const b = bigint & 255;
-
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function gerarPath(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
-
-  if (pontos.length === 0) return "";
+  if (!pontos.length) return "";
 
   if (campo.forma === "LINHA") {
-    const p1 = pontos[0];
-    const p2 = pontos[1];
-    return `M ${p1.x} ${p1.y} L ${p2.x} ${p2.y}`;
+    return `M ${pontos[0].x} ${pontos[0].y} L ${pontos[pontos.length - 1].x} ${pontos[pontos.length - 1].y}`;
   }
 
   let d = `M ${pontos[0].x} ${pontos[0].y}`;
@@ -69,22 +64,25 @@ function gerarPath(campo: CampoForma) {
   return d;
 }
 
-export default function FormaVetorial({
-  campo,
-  selecionado,
-  onChange,
-}: Props) {
+export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
   const pontos = campo.pontosForma || [];
+
   const preenchimentoCor = campo.preenchimentoCor || campo.cor || "#1d4ed8";
   const contornoCor = campo.contornoCor || campo.cor || "#1d4ed8";
-  const contornoEspessura = campo.contornoEspessura ?? 1.5;
+  const contornoEspessura = campo.contornoEspessura ?? 2;
   const mostrarPreenchimento = campo.mostrarPreenchimento !== false;
   const mostrarContorno = campo.mostrarContorno !== false;
 
-  function moverPonto(pontoId: string, novoX: number, novoY: number) {
+  function atualizarPontos(novosPontos: PontoForma[]) {
     onChange({
       ...campo,
-      pontosForma: pontos.map((ponto) =>
+      pontosForma: novosPontos,
+    });
+  }
+
+  function moverPonto(pontoId: string, novoX: number, novoY: number) {
+    atualizarPontos(
+      pontos.map((ponto) =>
         ponto.id === pontoId
           ? {
               ...ponto,
@@ -92,40 +90,71 @@ export default function FormaVetorial({
               y: Math.max(0, Math.min(100, novoY)),
             }
           : ponto
-      ),
-    });
+      )
+    );
   }
 
   function alternarTipoPonto(pontoId: string) {
-    onChange({
-      ...campo,
-      pontosForma: pontos.map((ponto) =>
+    atualizarPontos(
+      pontos.map((ponto) =>
         ponto.id === pontoId
           ? {
               ...ponto,
               tipo: ponto.tipo === "curvo" ? "reto" : "curvo",
             }
           : ponto
-      ),
-    });
+      )
+    );
+  }
+
+  function deletarPonto(pontoId: string) {
+    const minimo = campo.forma === "LINHA" ? 2 : 3;
+    if (pontos.length <= minimo) return;
+
+    atualizarPontos(pontos.filter((ponto) => ponto.id !== pontoId));
+  }
+
+  function adicionarPonto(e: React.MouseEvent<SVGSVGElement>) {
+    if (!selecionado) return;
+
+    e.stopPropagation();
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+
+    atualizarPontos([
+      ...pontos,
+      {
+        id: `p-${Date.now()}`,
+        x: Math.max(0, Math.min(100, x)),
+        y: Math.max(0, Math.min(100, y)),
+        tipo: "reto",
+      },
+    ]);
   }
 
   return (
-    <div className="pointer-events-none absolute inset-0">
+    <div className="absolute inset-0 overflow-visible">
       <svg
-  className="pointer-events-none absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full"
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
+        onDoubleClick={adicionarPonto}
       >
         <path
           d={gerarPath(campo)}
           fill={
-  campo.forma === "LINHA" || !mostrarPreenchimento
-    ? "none"
-    : hexToRgba(preenchimentoCor, campo.opacity ?? 0.55)
-}
-stroke={mostrarContorno ? contornoCor : "none"}
-strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessura}
+            campo.forma === "LINHA" || !mostrarPreenchimento
+              ? "none"
+              : hexToRgba(preenchimentoCor, campo.opacity ?? 0.55)
+          }
+          stroke={mostrarContorno ? contornoCor : "none"}
+          strokeWidth={
+            campo.forma === "LINHA"
+              ? contornoEspessura || 4
+              : contornoEspessura
+          }
           vectorEffect="non-scaling-stroke"
         />
       </svg>
@@ -139,15 +168,12 @@ strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessur
               e.stopPropagation();
               e.preventDefault();
 
-              const rect =
-                e.currentTarget.parentElement?.getBoundingClientRect();
-
+              const rect = e.currentTarget.parentElement?.getBoundingClientRect();
               if (!rect) return;
 
               const move = (ev: globalThis.MouseEvent) => {
                 const novoX = ((ev.clientX - rect.left) / rect.width) * 100;
                 const novoY = ((ev.clientY - rect.top) / rect.height) * 100;
-
                 moverPonto(ponto.id, novoX, novoY);
               };
 
@@ -163,7 +189,12 @@ strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessur
               e.stopPropagation();
               alternarTipoPonto(ponto.id);
             }}
-            className={`pointer-events-auto absolute z-[9999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
+            onContextMenu={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              deletarPonto(ponto.id);
+            }}
+            className={`absolute z-[99990] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
               ponto.tipo === "curvo" ? "bg-purple-500" : "bg-orange-500"
             }`}
             style={{
@@ -171,14 +202,11 @@ strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessur
               top: `${ponto.y}%`,
               cursor: "grab",
             }}
-            title={
-              ponto.tipo === "curvo"
-                ? "Ponto curvo — duplo clique para virar reto"
-                : "Ponto reto — duplo clique para virar curvo"
-            }
+            title="Arraste para deformar. Duplo clique alterna reto/curvo. Botão direito remove."
           />
         ))}
-              {selecionado && (
+
+      {selecionado && (
         <button
           type="button"
           onMouseDown={(e) => {
@@ -217,7 +245,7 @@ strokeWidth={campo.forma === "LINHA" ? contornoEspessura || 4 : contornoEspessur
             window.addEventListener("mousemove", move);
             window.addEventListener("mouseup", up);
           }}
-          className="pointer-events-auto absolute bottom-[-18px] right-[-18px] z-[99999] h-5 w-5 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
+          className="absolute bottom-[-12px] right-[-12px] z-[100000] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow"
           title="Redimensionar forma"
         />
       )}

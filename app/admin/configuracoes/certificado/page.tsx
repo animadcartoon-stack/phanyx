@@ -1741,7 +1741,7 @@ contornoEspessura: 2,
         id: Date.now() + 2,
         tipo: "FORMA",
         forma: "LINHA",
-        
+        pontosForma: criarPontosIniciaisForma("LINHA"),
         mostrarPreenchimento: true,
 mostrarContorno: true,
 preenchimentoCor: "#1d4ed8",
