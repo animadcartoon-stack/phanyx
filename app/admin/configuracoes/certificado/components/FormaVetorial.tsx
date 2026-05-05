@@ -100,7 +100,7 @@ export default function FormaVetorial({
   }
 
   return (
-    <div className="absolute inset-0">
+    <div className="pointer-events-none absolute inset-0">
       <svg
         className="absolute inset-0 h-full w-full"
         viewBox="0 0 100 100"
@@ -152,7 +152,7 @@ export default function FormaVetorial({
               e.stopPropagation();
               alternarTipoPonto(ponto.id);
             }}
-            className={`absolute z-[9999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
+            className={`pointer-events-auto absolute z-[9999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
               ponto.tipo === "curvo" ? "bg-purple-500" : "bg-orange-500"
             }`}
             style={{
