@@ -352,10 +352,14 @@ useEffect(() => {
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
-    campoId: number;
-    offsetX: number;
-    offsetY: number;
-  } | null>(null);
+  campoId: number;
+  offsetX: number;
+  offsetY: number;
+  grupoId?: string | null;
+  inicioX: number;
+  inicioY: number;
+  posicoesIniciais: { id: number; x: number; y: number }[];
+} | null>(null);;
 
 useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -691,19 +695,30 @@ function finalizarArrastoCanvas() {
   }
 
   function iniciarDrag(
-    event: MouseEvent<HTMLDivElement>,
-    campo: CampoCertificado
-  ) {
-    const rect = event.currentTarget.getBoundingClientRect();
+  event: MouseEvent<HTMLDivElement>,
+  campo: CampoCertificado
+) {
+  const rect = event.currentTarget.getBoundingClientRect();
 
-    dragRef.current = {
-      campoId: campo.id,
-      offsetX: (event.clientX - rect.left) / escala,
-      offsetY: (event.clientY - rect.top) / escala,
-    };
+  const idsDoGrupo = campo.grupoId
+    ? campos.filter((item) => item.grupoId === campo.grupoId).map((item) => item.id)
+    : [campo.id];
 
-    setCampoSelecionadoId(campo.id);
-  }
+  dragRef.current = {
+    campoId: campo.id,
+    offsetX: (event.clientX - rect.left) / escala,
+    offsetY: (event.clientY - rect.top) / escala,
+    grupoId: campo.grupoId,
+    inicioX: campo.x,
+    inicioY: campo.y,
+    posicoesIniciais: campos
+      .filter((item) => idsDoGrupo.includes(item.id))
+      .map((item) => ({ id: item.id, x: item.x, y: item.y })),
+  };
+
+  setCampoSelecionadoId(campo.id);
+  setCamposSelecionadosIds(idsDoGrupo);
+}
 
 function iniciarCrop(
   e: React.MouseEvent,
@@ -988,6 +1003,29 @@ function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
     novoX = Math.max(0, Math.min(novoX, baseCanvas.largura - largura));
     novoY = Math.max(0, Math.min(novoY, baseCanvas.altura - altura));
 
+    if (dragRef.current.grupoId) {
+  const deltaX = Math.round(novoX - dragRef.current.inicioX);
+  const deltaY = Math.round(novoY - dragRef.current.inicioY);
+
+  setCampos((prev) =>
+    prev.map((item) => {
+      const posInicial = dragRef.current?.posicoesIniciais.find(
+        (pos) => pos.id === item.id
+      );
+
+      if (!posInicial) return item;
+
+      return {
+        ...item,
+        x: posInicial.x + deltaX,
+        y: posInicial.y + deltaY,
+      };
+    })
+  );
+
+  return;
+}
+    
     setCampos((prev) =>
       prev.map((item) =>
         item.id === dragRef.current?.campoId
