@@ -1268,10 +1268,15 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   }
 
   return (
-    <div
+  <div
   className="mx-auto max-w-[1600px] p-6"
-  onClick={() => setMenuContexto(null)}
+  onClick={() => {
+    setMenuContexto(null);
+    setCamposSelecionadosIds([]);
+    setCampoSelecionadoId(null);
+  }}
 >
+    
       <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
@@ -1922,7 +1927,15 @@ setTimeout(() => setMensagemSucesso(""), 3000);
 
             <div
   ref={stageRef}
-  onMouseDown={iniciarArrastoCanvas}
+  onMouseDown={(e) => {
+  if (e.target === e.currentTarget) {
+    setCamposSelecionadosIds([]);
+    setCampoSelecionadoId(null);
+    setMenuContexto(null);
+  }
+
+  iniciarArrastoCanvas(e);
+}}
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
@@ -2583,20 +2596,22 @@ setEditorCorGradiente({
 >
   ┍
 </div>
-        </>
-      )}
-      {/* botão excluir */}
+
 <button
   type="button"
   onClick={(e) => {
     e.stopPropagation();
-    setCampos((prev) => prev.filter((item) => item.id !== c.id));
+    excluirCampo(c.id);
   }}
-  className="absolute right-[-10px] top-[-10px] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow"
+  className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
   title="Excluir"
 >
   ✕
 </button>
+
+        </>
+      )}
+      
     </div>
   );
 }
