@@ -1480,6 +1480,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
     Imagens do certificado
   </p>
+  </div>
 <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm">
   <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
     Formas geométricas
@@ -1572,7 +1573,7 @@ setTimeout(() => setMensagemSucesso(""), 3000);
     Linha
   </span>
 </button>
-  </div>
+
 <button
   type="button"
   onClick={() =>
@@ -1876,6 +1877,8 @@ setTimeout(() => setMensagemSucesso(""), 3000);
       key={c.id}
       onMouseDown={(event) => {
   event.stopPropagation();
+   
+  if (event.button === 2) return;
 
   if (event.shiftKey || event.ctrlKey || event.metaKey) {
     setCamposSelecionadosIds((prev) =>
@@ -2094,6 +2097,8 @@ registrarHistoricoAntesDaAcao();
       key={c.id}
       onMouseDown={(event) => {
   event.stopPropagation();
+ 
+  if (event.button === 2) return;
 
   if (event.shiftKey || event.ctrlKey || event.metaKey) {
     setCamposSelecionadosIds((prev) =>
@@ -2132,6 +2137,10 @@ if (!camposSelecionadosIds.includes(c.id)) {
         cursor: "move",
         zIndex: c.ordem || 5,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
+        clipPath:
+  c.forma === "ESTRELA"
+    ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
+    : "none",
 
         boxShadow: (() => {
   if (!c.sombraAtiva) return "none";
@@ -2479,6 +2488,8 @@ setEditorCorGradiente({
       key={c.id}
       onMouseDown={(event) => {
   event.stopPropagation();
+ 
+  if (event.button === 2) return;
 
   if (event.shiftKey || event.ctrlKey || event.metaKey) {
     setCamposSelecionadosIds((prev) =>
