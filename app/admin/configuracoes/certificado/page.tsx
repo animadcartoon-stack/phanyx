@@ -360,6 +360,35 @@ useEffect(() => {
     return atualizador;
   });
 }
+
+function gerarPontosEstrela(
+  pontas = 5,
+  raioInterno = 35,
+  raioExterno = 50
+) {
+  const pontos = [];
+
+  const total = pontas * 2;
+
+  for (let i = 0; i < total; i++) {
+    const angulo = (Math.PI * 2 * i) / total - Math.PI / 2;
+
+    const raio =
+      i % 2 === 0
+        ? raioExterno
+        : raioInterno;
+
+    pontos.push({
+      id: crypto.randomUUID(),
+      x: 50 + Math.cos(angulo) * raio,
+      y: 50 + Math.sin(angulo) * raio,
+      tipo: "reto",
+    });
+  }
+
+  return pontos;
+}
+
   const [camposSelecionadosIds, setCamposSelecionadosIds] = useState<number[]>([]); 
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
     null
@@ -1778,10 +1807,10 @@ contornoEspessura: 2,
         forma: "ESTRELA",
         pontosForma: criarPontosIniciaisForma("ESTRELA"),
         mostrarPreenchimento: true,
-mostrarContorno: true,
-preenchimentoCor: "#1d4ed8",
-contornoCor: "#1d4ed8",
-contornoEspessura: 2,
+        mostrarContorno: true,
+        preenchimentoCor: "#1d4ed8",
+        contornoCor: "#1d4ed8",
+        contornoEspessura: 2,
         x: 180,
         y: 180,
         largura: 140,
@@ -1792,6 +1821,9 @@ contornoEspessura: 2,
         pontasEstrela: 5,
         profundidadeEstrela: 45,
         arredondarEstrela: 0,
+        pontas: 5,
+        raioInterno: 45,
+        raioExterno: 100,
       } as any,
     ])
   }
