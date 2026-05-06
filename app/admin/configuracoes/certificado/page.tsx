@@ -277,6 +277,32 @@ function refazer() {
   });
 }
 
+function pontosFormaParaSvg(campo: any) {
+  const pontos = Array.isArray(campo?.pontosForma) ? campo.pontosForma : [];
+
+  if (pontos.length === 0) return "";
+
+  const xs = pontos.map((p: any) => Number(p.x || 0));
+  const ys = pontos.map((p: any) => Number(p.y || 0));
+
+  const minX = Math.min(...xs);
+  const maxX = Math.max(...xs);
+  const minY = Math.min(...ys);
+  const maxY = Math.max(...ys);
+
+  const largura = Math.max(1, maxX - minX);
+  const altura = Math.max(1, maxY - minY);
+
+  return pontos
+    .map((p: any) => {
+      const x = ((Number(p.x || 0) - minX) / largura) * 100;
+      const y = ((Number(p.y || 0) - minY) / altura) * 100;
+
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
 function registrarHistoricoAntesDaAcao() {
   setHistorico((prev) => [...prev, JSON.parse(JSON.stringify(campos))]);
   setFuturo([]);
@@ -4392,7 +4418,27 @@ if (c.tipo === "FORMA") {
   preserveAspectRatio="none"
   className="h-full w-full"
 >
-  {c.forma === "ESTRELA" && (
+  {Array.isArray((c as any).pontosForma) &&
+  (c as any).pontosForma.length > 0 && (
+    <polygon
+      points={pontosFormaParaSvg(c)}
+      fill={
+        (c as any).mostrarPreenchimento === false
+          ? "none"
+          : (c as any).preenchimentoCor || c.cor || "#1d4ed8"
+      }
+      stroke={
+        (c as any).mostrarContorno === false
+          ? "none"
+          : (c as any).contornoCor || c.cor || "#1d4ed8"
+      }
+      strokeWidth={(c as any).contornoEspessura || 1}
+      opacity={c.opacity ?? 1}
+    />
+  )}
+  {(!Array.isArray((c as any).pontosForma) ||
+  (c as any).pontosForma.length === 0) &&
+  c.forma === "ESTRELA" && (
     <polygon
       points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35"
       fill={
@@ -4410,7 +4456,9 @@ if (c.tipo === "FORMA") {
     />
   )}
 
-  {(c.forma === "RETANGULO" || c.forma === "QUADRADO") && (
+  {(!Array.isArray((c as any).pontosForma) ||
+  (c as any).pontosForma.length === 0) &&
+  (c.forma === "RETANGULO" || c.forma === "QUADRADO") && (
     <rect
       x="0"
       y="0"
@@ -4432,7 +4480,9 @@ if (c.tipo === "FORMA") {
     />
   )}
 
-  {c.forma === "TRIANGULO" && (
+  {(!Array.isArray((c as any).pontosForma) ||
+  (c as any).pontosForma.length === 0) &&
+  c.forma === "TRIANGULO" && (
     <polygon
       points="50,0 100,100 0,100"
       fill={
@@ -4450,7 +4500,9 @@ if (c.tipo === "FORMA") {
     />
   )}
 
-  {c.forma === "CIRCULO" && (
+  {(!Array.isArray((c as any).pontosForma) ||
+  (c as any).pontosForma.length === 0) &&
+  c.forma === "CIRCULO" && (
     <circle
       cx="50"
       cy="50"
@@ -4470,7 +4522,9 @@ if (c.tipo === "FORMA") {
     />
   )}
 
-  {c.forma === "LINHA" && (
+  {(!Array.isArray((c as any).pontosForma) ||
+  (c as any).pontosForma.length === 0) &&
+  c.forma === "LINHA" && (
     <line
       x1="0"
       y1="50"
