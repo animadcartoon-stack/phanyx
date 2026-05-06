@@ -544,6 +544,7 @@ useEffect(() => {
     ? dataCampos.campos.map((campo: any) => ({
         ...campo,
         ...(campo.dadosJson || {}),
+        bancoId: campo.id,
         id: campo.id,
       }))
     : []
@@ -806,11 +807,12 @@ function finalizarArrastoCanvas() {
     }
   }
 
-  async function excluirCampo(id: number) {
+ async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
+  const idBanco = Number((campo as any)?.bancoId || campo?.id || id);
 
   try {
-    const res = await fetch(`/api/admin/certificado-campos?id=${id}`, {
+    const res = await fetch(`/api/admin/certificado-campos?id=${idBanco}`, {
       method: "DELETE",
     });
 
@@ -821,10 +823,16 @@ function finalizarArrastoCanvas() {
       return;
     }
 
-    setCampos((prev) => prev.filter((c) => c.id !== id));
+    setCampos((prev) =>
+      prev.filter((c) => c.id !== id && (c as any).bancoId !== idBanco)
+    );
+
     if (campoSelecionadoId === id) {
       setCampoSelecionadoId(null);
     }
+
+    setMensagemSucesso("Campo excluído definitivamente.");
+    setTimeout(() => setMensagemSucesso(""), 2500);
   } catch {
     alert("Erro ao excluir campo.");
   }
