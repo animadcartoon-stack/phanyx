@@ -159,7 +159,7 @@ export async function PATCH(req: NextRequest) {
       dadosJson:
   body?.dadosJson !== undefined
     ? body.dadosJson
-    : campoExistente.d
+    : campoExistente.dadosJson
 },
     });
 
