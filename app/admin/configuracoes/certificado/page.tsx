@@ -519,7 +519,15 @@ useEffect(() => {
         dataConfig?.certificadoCoordenadorNome || ""
       );
       setCertificadoCidade(dataConfig?.certificadoCidade || "");
-      setCampos(Array.isArray(dataCampos?.campos) ? dataCampos.campos : []);
+      setCampos(
+  Array.isArray(dataCampos?.campos)
+    ? dataCampos.campos.map((campo: any) => ({
+        ...campo,
+        ...(campo.dadosJson || {}),
+        id: campo.id,
+      }))
+    : []
+);
     } catch {
       alert("Erro ao carregar configuração do certificado.");
     } finally {
