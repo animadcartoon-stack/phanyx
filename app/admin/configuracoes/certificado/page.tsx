@@ -1289,10 +1289,10 @@ async function salvarModeloCompleto() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  certificadoTemplateUrl,
-  certificadoCoordenadorNome,
-  certificadoCidade,
-}),
+        certificadoTemplateUrl,
+        certificadoCoordenadorNome,
+        certificadoCidade,
+      }),
     });
 
     const dataConfig = await resConfig.json();
@@ -1303,31 +1303,43 @@ async function salvarModeloCompleto() {
       );
     }
 
-    if (
-  campoSelecionado &&
-  campoSelecionado.tipo !== "IMAGEM" &&
-  campoSelecionado.tipo !== "FORMA"
-) {
+    for (const campo of campos) {
+      const idEhTemporario = Number(campo.id) > 1000000000;
+
+      const dadosJson =
+        campo.tipo === "FORMA" || campo.tipo === "IMAGEM"
+          ? {
+              ...campo,
+            }
+          : null;
+
+      const payload = {
+        id: idEhTemporario ? undefined : campo.id,
+        tipo: campo.tipo,
+        x: campo.x,
+        y: campo.y,
+        largura: campo.largura || 220,
+        altura: campo.altura || 40,
+        fonte: campo.fonte || "Helvetica",
+        tamanho: campo.tamanho || 18,
+        cor: campo.cor || "#1e3a8a",
+        alinhamento: campo.alinhamento || "left",
+        negrito: campo.negrito || false,
+        italico: campo.italico || false,
+        sublinhado: campo.sublinhado || false,
+        ordem: campo.ordem || 1,
+        pagina: (campo as any).pagina || 1,
+        lineHeight: (campo as any).lineHeight || 1.3,
+        marcador: (campo as any).marcador || "nenhum",
+        dadosJson,
+      };
+
       const resCampo = await fetch("/api/admin/certificado-campos", {
-        method: "PATCH",
+        method: idEhTemporario ? "POST" : "PATCH",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          id: campoSelecionado.id,
-          x: campoSelecionado.x,
-          y: campoSelecionado.y,
-          largura: campoSelecionado.largura || 220,
-          altura: campoSelecionado.altura || 40,
-          fonte: campoSelecionado.fonte || "Helvetica",
-          tamanho: campoSelecionado.tamanho || 18,
-          cor: campoSelecionado.cor || "#1e3a8a",
-          alinhamento: campoSelecionado.alinhamento || "left",
-          negrito: campoSelecionado.negrito || false,
-          italico: campoSelecionado.italico || false,
-          sublinhado: campoSelecionado.sublinhado || false,
-          ordem: campoSelecionado.ordem || 1,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const dataCampo = await resCampo.json();
@@ -1337,16 +1349,10 @@ async function salvarModeloCompleto() {
           dataCampo?.detalhe || dataCampo?.error || "Erro ao salvar campo."
         );
       }
-      setMensagemSucesso("Campo salvo com sucesso!");
-setTimeout(() => setMensagemSucesso(""), 2500);
     }
 
-    setMensagemSucesso(
-  campoSelecionado?.tipo === "IMAGEM"
-    ? "Modelo salvo. A imagem aparece na prévia, mas ainda não foi salva definitivamente."
-    : "Modelo de certificado salvo com sucesso!"
-);
-setTimeout(() => setMensagemSucesso(""), 3000);
+    setMensagemSucesso("Modelo de certificado salvo com sucesso!");
+    setTimeout(() => setMensagemSucesso(""), 3000);
   } catch (error: any) {
     console.error(error);
     alert(error?.message || "Erro ao salvar modelo.");
@@ -1942,7 +1948,7 @@ contornoEspessura: 2,
                 </>
               )}
             </div>
-            
+
               <div className="space-y-4">
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
