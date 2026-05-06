@@ -545,11 +545,12 @@ useEffect(() => {
         const dados = campo.dadosJson || {};
 
         return {
-          ...campo,
-          ...dados,
-          id: campo.id,
-          bancoId: campo.id,
-        };
+  ...dados,
+  ...campo,
+
+  bancoId: campo.id,
+  id: campo.id,
+};
       })
     : []
 );
@@ -4350,7 +4351,14 @@ if (c.tipo === "FORMA") {
 >
   <div className="relative h-full w-full overflow-hidden">
     <img
-      src={(c as any).imagemUrl}
+      src={
+  (c as any).imagemUrl ||
+  (c as any).url ||
+  (c as any).src ||
+  (c as any).arquivoUrl ||
+  (c as any).previewUrl ||
+  ""
+}
       alt="Imagem"
       draggable={false}
       className="absolute"
@@ -4359,7 +4367,7 @@ if (c.tipo === "FORMA") {
         left: "0px",
         width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
         height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
-        objectFit: "cover",
+        objectFit: (c as any).objectFit || "contain",
         opacity: c.opacity || 1,
         filter: (c as any).filter || "none",
         transform: `
