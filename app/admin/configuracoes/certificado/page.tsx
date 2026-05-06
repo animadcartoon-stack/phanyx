@@ -1303,7 +1303,11 @@ async function salvarModeloCompleto() {
       );
     }
 
-    if (campoSelecionado && campoSelecionado.tipo !== "IMAGEM") {
+    if (
+  campoSelecionado &&
+  campoSelecionado.tipo !== "IMAGEM" &&
+  campoSelecionado.tipo !== "FORMA"
+) {
       const resCampo = await fetch("/api/admin/certificado-campos", {
         method: "PATCH",
         headers: {
