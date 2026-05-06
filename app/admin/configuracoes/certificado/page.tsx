@@ -2375,7 +2375,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              excluirCampo(c.id);
+              excluirCampo((c as any).bancoId || c.id);
             }}
             className="absolute right-1 top-1 z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
             title="Excluir imagem"
@@ -2889,7 +2889,7 @@ altura: ev.shiftKey
   type="button"
   onClick={(e) => {
     e.stopPropagation();
-    excluirCampo(c.id);
+    excluirCampo((c as any).bancoId || c.id);
   }}
   className="absolute right-[-10px] top-[-10px] z-[9999] flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-xs text-white shadow hover:bg-red-700"
   title="Excluir"
