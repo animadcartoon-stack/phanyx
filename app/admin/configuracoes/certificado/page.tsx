@@ -3623,6 +3623,13 @@ if (!camposSelecionadosIds.includes(c.id)) {
           type="button"
           onClick={() => {
   if (!campoSelecionado?.id) return;
+
+  alert(
+    `Apagando ID: ${campoSelecionado.id} / bancoId: ${
+      (campoSelecionado as any).bancoId || "sem bancoId"
+    }`
+  );
+
   excluirCampo(campoSelecionado.id);
 }}
           className="w-full rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
