@@ -20,6 +20,10 @@ type Modulo = {
   disciplinas: Disciplina[];
 };
 
+const VALOR_DISCIPLINA = 110;
+const VALOR_SEMESTRE_COMPLETO = 550;
+const INSTITUICAO_ID_PADRAO = 1; // IBE
+
 export default function IbeCheckoutPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -31,7 +35,7 @@ export default function IbeCheckoutPage() {
   const [modulosAbertos, setModulosAbertos] = useState<number[]>([1]);
 
   useEffect(() => {
-    fetch("/api/ibe/disciplinas")
+    fetch(`/api/ibe/disciplinas?instituicaoId=${INSTITUICAO_ID_PADRAO}`)
       .then((res) => res.json())
       .then((data) => {
         setModulos(Array.isArray(data?.modulos) ? data.modulos : []);
@@ -79,7 +83,7 @@ function selecionarModulo(disciplinasDoModulo: Disciplina[]) {
 
   const total = todasDisciplinas
     .filter((d) => disciplinas.includes(d.id))
-    .reduce((acc, d) => acc + Number(d.valor ?? 120), 0);
+    .reduce((acc, d) => acc + Number(d.valor ?? VALOR_DISCIPLINA), 0);
 
   async function handleSubmit() {
     if (carregando) return;
@@ -330,9 +334,9 @@ Você pode avançar por módulos conforme sua disponibilidade.
 
                               <span className="font-bold text-emerald-700">
                                 R${" "}
-                                {Number(d.valor ?? 120)
-                                  .toFixed(2)
-                                  .replace(".", ",")}
+{Number(d.valor ?? VALOR_DISCIPLINA)
+  .toFixed(2)
+  .replace(".", ",")}
                               </span>
                             </div>
                           </label>
