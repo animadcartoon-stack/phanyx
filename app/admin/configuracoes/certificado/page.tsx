@@ -812,24 +812,51 @@ function finalizarArrastoCanvas() {
     }
   }
 
- async function excluirCampo(id: number) {
+async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
-  const idBanco = Number((campo as any)?.bancoId || id);
+  if (!campo) return;
+
+  const urlSelecionada =
+    (campo as any).imagemUrl ||
+    (campo as any).url ||
+    (campo as any).src ||
+    (campo as any).arquivoUrl ||
+    (campo as any).previewUrl ||
+    "";
+
+  const camposParaExcluir = campos.filter((c) => {
+    const mesmaId = c.id === id || (c as any).bancoId === id;
+
+    const urlCampo =
+      (c as any).imagemUrl ||
+      (c as any).url ||
+      (c as any).src ||
+      (c as any).arquivoUrl ||
+      (c as any).previewUrl ||
+      "";
+
+    const mesmaImagem =
+      campo.tipo === "IMAGEM" &&
+      c.tipo === "IMAGEM" &&
+      urlSelecionada &&
+      urlCampo === urlSelecionada;
+
+    return mesmaId || mesmaImagem;
+  });
 
   try {
-    const res = await fetch(`/api/admin/certificado-campos?id=${idBanco}`, {
-      method: "DELETE",
-    });
+    for (const item of camposParaExcluir) {
+      const idBanco = Number((item as any).bancoId || item.id);
 
-    const data = await res.json();
-
-    if (!res.ok) {
-      alert(data?.detalhe || data?.error || "Erro ao excluir campo.");
-      return;
+      if (Number.isFinite(idBanco) && idBanco > 0) {
+        await fetch(`/api/admin/certificado-campos?id=${idBanco}`, {
+          method: "DELETE",
+        });
+      }
     }
 
     setCampos((prev) =>
-      prev.filter((c) => c.id !== id && (c as any).bancoId !== idBanco)
+      prev.filter((c) => !camposParaExcluir.some((item) => item.id === c.id))
     );
 
     if (campoSelecionadoId === id) {
