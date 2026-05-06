@@ -813,6 +813,11 @@ function finalizarArrastoCanvas() {
 
 async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
+
+  alert(
+  `EXCLUIR CAMPO\nid clicado: ${id}\nbancoId: ${(campo as any)?.bancoId}\ntipo: ${campo?.tipo}`
+);
+
   if (!campo) return;
 
   const urlSelecionada =
