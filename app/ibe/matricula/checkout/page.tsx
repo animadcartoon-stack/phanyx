@@ -33,6 +33,7 @@ export default function IbeCheckoutPage() {
   const [carregando, setCarregando] = useState(false);
   const [modulos, setModulos] = useState<Modulo[]>([]);
   const [modulosAbertos, setModulosAbertos] = useState<number[]>([1]);
+  const [modulosCompletos, setModulosCompletos] = useState<number[]>([]);
 
   useEffect(() => {
     fetch(`/api/ibe/disciplinas?instituicaoId=${INSTITUICAO_ID_PADRAO}`)
@@ -56,10 +57,20 @@ useEffect(() => {
 }, [disciplinas]);
 
   function toggleDisciplina(id: number) {
-    setDisciplinas((prev) =>
-      prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
+  const moduloDaDisciplina = modulos.find((m) =>
+    m.disciplinas.some((d) => d.id === id)
+  );
+
+  setDisciplinas((prev) =>
+    prev.includes(id) ? prev.filter((d) => d !== id) : [...prev, id]
+  );
+
+  if (moduloDaDisciplina) {
+    setModulosCompletos((prev) =>
+      prev.filter((numero) => numero !== moduloDaDisciplina.numero)
     );
   }
+}
 
   function toggleModulo(numero: number) {
     setModulosAbertos((prev) =>
@@ -72,18 +83,39 @@ useEffect(() => {
 function selecionarCursoCompleto() {
   const ids = todasDisciplinas.map((d) => d.id);
   setDisciplinas(ids);
+  setModulosCompletos(modulos.map((m) => m.numero));
 }
 
-function selecionarModulo(disciplinasDoModulo: Disciplina[]) {
+function selecionarModulo(numeroModulo: number, disciplinasDoModulo: Disciplina[]) {
   const ids = disciplinasDoModulo.map((d) => d.id);
+
   setDisciplinas((prev) => Array.from(new Set([...prev, ...ids])));
+
+  setModulosCompletos((prev) =>
+    prev.includes(numeroModulo) ? prev : [...prev, numeroModulo]
+  );
 }
 
   const todasDisciplinas = modulos.flatMap((m) => m.disciplinas);
 
-  const total = todasDisciplinas
-    .filter((d) => disciplinas.includes(d.id))
-    .reduce((acc, d) => acc + Number(d.valor ?? VALOR_DISCIPLINA), 0);
+  const total = modulos.reduce((acc, modulo) => {
+  const idsDoModulo = modulo.disciplinas.map((d) => d.id);
+
+  const selecionadasDoModulo = modulo.disciplinas.filter((d) =>
+    disciplinas.includes(d.id)
+  );
+
+  const moduloInteiroSelecionado =
+    idsDoModulo.length > 0 &&
+    idsDoModulo.every((id) => disciplinas.includes(id)) &&
+    modulosCompletos.includes(modulo.numero);
+
+  if (moduloInteiroSelecionado) {
+    return acc + VALOR_SEMESTRE_COMPLETO;
+  }
+
+  return acc + selecionadasDoModulo.length * VALOR_DISCIPLINA;
+}, 0);
 
   async function handleSubmit() {
     if (carregando) return;
@@ -270,7 +302,7 @@ Você pode avançar por módulos conforme sua disponibilidade.
 <div className="px-4 pt-4">
   <button
     type="button"
-    onClick={() => selecionarModulo(modulo.disciplinas)}
+    onClick={() => selecionarModulo(modulo.numero, modulo.disciplinas)}
     className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
   >
     Selecionar todas do Módulo {modulo.numero}

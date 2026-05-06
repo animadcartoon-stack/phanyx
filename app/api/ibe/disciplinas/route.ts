@@ -60,27 +60,66 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const modulos = curso.semestres.map((semestre) => ({
-      id: semestre.id,
-      numero: semestre.numero,
-      titulo: semestre.titulo || `Módulo ${semestre.numero}`,
-      descricao: semestre.descricao,
-      disciplinas: semestre.disciplinas
-        .map((item) => ({
-          id: item.disciplina.id,
-          nome: item.disciplina.nome,
-          descricao: item.disciplina.descricao,
-          cargaHoraria: item.disciplina.cargaHoraria,
-          valor: VALOR_DISCIPLINA,
-          prerequisitos: item.disciplina.prerequisitosDaDisciplina.map(
-            (pre) => ({
+    const disciplinasDiretas = await prisma.disciplina.findMany({
+      where: {
+        instituicaoId,
+        cursoId: curso.id,
+        ativo: true,
+        semestre: {
+          not: null,
+        },
+      },
+      include: {
+        prerequisitosDaDisciplina: {
+          include: {
+            prerequisito: true,
+          },
+        },
+      },
+      orderBy: [
+        { semestre: "asc" },
+        { nome: "asc" },
+      ],
+    });
+
+    const modulos = curso.semestres.map((semestre) => {
+      const disciplinasVinculadas = semestre.disciplinas.map(
+        (item) => item.disciplina
+      );
+
+      const idsVinculadas = new Set(disciplinasVinculadas.map((d) => d.id));
+
+      const disciplinasPorSemestre = disciplinasDiretas.filter(
+        (disciplina) =>
+          Number(disciplina.semestre) === Number(semestre.numero) &&
+          !idsVinculadas.has(disciplina.id)
+      );
+
+      const todasDoModulo = [
+        ...disciplinasVinculadas,
+        ...disciplinasPorSemestre,
+      ];
+
+      return {
+        id: semestre.id,
+        numero: semestre.numero,
+        titulo: semestre.titulo || `Módulo ${semestre.numero}`,
+        descricao: semestre.descricao,
+        disciplinas: todasDoModulo
+          .map((disciplina) => ({
+            id: disciplina.id,
+            nome: disciplina.nome,
+            descricao: disciplina.descricao,
+            cargaHoraria: disciplina.cargaHoraria,
+            valor: VALOR_DISCIPLINA,
+            prerequisitos: disciplina.prerequisitosDaDisciplina.map((pre) => ({
               id: pre.prerequisito.id,
               nome: pre.prerequisito.nome,
-            })
-          ),
-        }))
-        .sort((a, b) => a.nome.localeCompare(b.nome)),
-    }));
+            })),
+          }))
+          .sort((a, b) => a.nome.localeCompare(b.nome)),
+      };
+    });
 
     return NextResponse.json({
       curso: {
