@@ -145,26 +145,56 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
   }
 
   function moverAlca(
-    pontoId: string,
-    lado: "in" | "out",
-    novoX: number,
-    novoY: number
-  ) {
-    atualizarPontos(
-      pontos.map((ponto) =>
-        ponto.id === pontoId
-          ? {
-              ...criarAlcasPadrao(ponto),
-              tipo: "curvo",
-              ...(lado === "in"
-                ? { inX: limitar(novoX), inY: limitar(novoY) }
-                : { outX: limitar(novoX), outY: limitar(novoY) }),
-            }
-          : ponto
-      )
-    );
-  }
+  pontoId: string,
+  lado: "in" | "out",
+  novoX: number,
+  novoY: number,
+  quebrarTangente = false
+) {
+  atualizarPontos(
+    pontos.map((ponto) => {
+      if (ponto.id !== pontoId) return ponto;
 
+      const base = criarAlcasPadrao(ponto);
+      const x = limitar(novoX);
+      const y = limitar(novoY);
+
+      if (quebrarTangente) {
+        return {
+          ...base,
+          tipo: "curvo",
+          handleMode: "quebrado" as any,
+          ...(lado === "in" ? { inX: x, inY: y } : { outX: x, outY: y }),
+        } as any;
+      }
+
+      const dx = x - base.x;
+      const dy = y - base.y;
+
+      if (lado === "in") {
+        return {
+          ...base,
+          tipo: "curvo",
+          handleMode: "alinhado" as any,
+          inX: x,
+          inY: y,
+          outX: base.x - dx,
+          outY: base.y - dy,
+        } as any;
+      }
+
+      return {
+        ...base,
+        tipo: "curvo",
+        handleMode: "alinhado" as any,
+        outX: x,
+        outY: y,
+        inX: base.x - dx,
+        inY: base.y - dy,
+      } as any;
+    })
+  );
+}
   function alternarTipoPonto(pontoId: string) {
     atualizarPontos(
       pontos.map((ponto) =>
@@ -223,32 +253,41 @@ const y = Math.max(
   }
 
   function iniciarArrastePercentual(
-    e: React.MouseEvent,
-    callback: (x: number, y: number) => void
-  ) {
-    e.stopPropagation();
-    e.preventDefault();
+  e: React.MouseEvent,
+  callback: (x: number, y: number, ev: globalThis.MouseEvent) => void
+) {
+  e.stopPropagation();
+  e.preventDefault();
 
-    const rect = e.currentTarget.parentElement?.getBoundingClientRect();
-    if (!rect) return;
+  const raiz = e.currentTarget.closest(
+    "[data-forma-vetorial-root]"
+  ) as HTMLElement | null;
 
-    const move = (ev: globalThis.MouseEvent) => {
-      const x = ((ev.clientX - rect.left) / rect.width) * 100;
-      const y = ((ev.clientY - rect.top) / rect.height) * 100;
-      callback(x, y);
-    };
+  if (!raiz) return;
 
-    const up = () => {
-      window.removeEventListener("mousemove", move);
-      window.removeEventListener("mouseup", up);
-    };
+  const rect = raiz.getBoundingClientRect();
 
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-  }
+  const move = (ev: globalThis.MouseEvent) => {
+    const x = ((ev.clientX - rect.left) / rect.width) * 100;
+    const y = ((ev.clientY - rect.top) / rect.height) * 100;
+
+    callback(x, y, ev);
+  };
+
+  const up = () => {
+    window.removeEventListener("mousemove", move);
+    window.removeEventListener("mouseup", up);
+  };
+
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", up);
+}
 
   return (
-    <div className="pointer-events-none absolute inset-0 overflow-visible">
+    <div
+  data-forma-vetorial-root
+  className="pointer-events-none absolute inset-0 overflow-visible"
+>
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
         viewBox="0 0 100 100"
@@ -316,9 +355,9 @@ const y = Math.max(
                   <button
                     type="button"
                     onMouseDown={(e) =>
-                      iniciarArrastePercentual(e, (x, y) =>
-                        moverAlca(ponto.id, "in", x, y)
-                      )
+                      iniciarArrastePercentual(e, (x, y, ev) =>
+  moverAlca(ponto.id, "in", x, y, ev.altKey)
+)
                     }
                     className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
                     style={{
@@ -332,9 +371,9 @@ const y = Math.max(
                   <button
                     type="button"
                     onMouseDown={(e) =>
-                      iniciarArrastePercentual(e, (x, y) =>
-                        moverAlca(ponto.id, "out", x, y)
-                      )
+                      iniciarArrastePercentual(e, (x, y, ev) =>
+  moverAlca(ponto.id, "out", x, y, ev.altKey)
+)
                     }
                     className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
                     style={{
