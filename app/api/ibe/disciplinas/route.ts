@@ -1,18 +1,35 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+const VALOR_DISCIPLINA = 110;
+
+export async function GET(req: NextRequest) {
   try {
-    const instituicaoId = 1; // IBE
+    const { searchParams } = new URL(req.url);
+
+    const instituicaoId = Number(searchParams.get("instituicaoId") || 1);
+    const cursoIdParam = searchParams.get("cursoId");
+    const cursoId = cursoIdParam ? Number(cursoIdParam) : null;
+
+    if (!Number.isFinite(instituicaoId) || instituicaoId <= 0) {
+      return NextResponse.json(
+        { error: "Instituição inválida." },
+        { status: 400 }
+      );
+    }
 
     const curso = await prisma.curso.findFirst({
       where: {
         instituicaoId,
-        nome: {
-          contains: "Bacharel Livre em Teologia",
-          mode: "insensitive",
-        },
         ativo: true,
+        ...(cursoId
+          ? { id: cursoId }
+          : {
+              nome: {
+                contains: "Bacharel Livre em Teologia",
+                mode: "insensitive",
+              },
+            }),
       },
       include: {
         semestres: {
@@ -37,7 +54,10 @@ export async function GET() {
     });
 
     if (!curso) {
-      return NextResponse.json([]);
+      return NextResponse.json({
+        curso: null,
+        modulos: [],
+      });
     }
 
     const modulos = curso.semestres.map((semestre) => ({
@@ -51,7 +71,7 @@ export async function GET() {
           nome: item.disciplina.nome,
           descricao: item.disciplina.descricao,
           cargaHoraria: item.disciplina.cargaHoraria,
-          valor: 120,
+          valor: VALOR_DISCIPLINA,
           prerequisitos: item.disciplina.prerequisitosDaDisciplina.map(
             (pre) => ({
               id: pre.prerequisito.id,
@@ -71,7 +91,7 @@ export async function GET() {
       modulos,
     });
   } catch (error) {
-    console.error("Erro ao buscar disciplinas IBE:", error);
+    console.error("Erro ao buscar disciplinas do checkout:", error);
 
     return NextResponse.json(
       { error: "Erro ao buscar disciplinas" },
