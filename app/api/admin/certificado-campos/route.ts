@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
         cor: String(body?.cor || "#1e3a8a"),
         alinhamento: String(body?.alinhamento || "left"),
         pagina: Number(body?.pagina ?? 1),
+        dadosJson: body?.dadosJson ?? null,
       },
     });
 
@@ -154,6 +155,11 @@ export async function PATCH(req: NextRequest) {
     typeof marcador === "string"
       ? marcador
       : campoExistente.marcador,
+
+      dadosJson:
+  body?.dadosJson !== undefined
+    ? body.dadosJson
+    : campoExistente.d
 },
     });
 

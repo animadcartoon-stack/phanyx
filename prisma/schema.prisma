@@ -1295,6 +1295,7 @@ model CertificadoCampo {
   tamanho       Int?
   cor           String?
   alinhamento   String?
+  dadosJson     Json?
   lineHeight    Float?
   marcador      String?
   pagina        Int      @default(1)
