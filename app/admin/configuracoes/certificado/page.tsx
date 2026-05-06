@@ -1409,6 +1409,27 @@ async function salvarModeloCompleto() {
       }
     }
 
+    const resCamposAtualizados = await fetch("/api/admin/certificado-campos", {
+  cache: "no-store",
+});
+
+const dataCamposAtualizados = await resCamposAtualizados.json();
+
+if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
+  setCampos(
+    dataCamposAtualizados.campos.map((campo: any) => {
+      const dados = campo.dadosJson || {};
+
+      return {
+        ...campo,
+        ...dados,
+        bancoId: campo.id,
+        id: campo.id,
+      };
+    })
+  );
+}
+
     setMensagemSucesso("Modelo de certificado salvo com sucesso!");
     setTimeout(() => setMensagemSucesso(""), 3000);
   } catch (error: any) {
