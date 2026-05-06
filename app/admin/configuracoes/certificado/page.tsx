@@ -4176,6 +4176,31 @@ if (!camposSelecionadosIds.includes(c.id)) {
 
 {campos.map((c) => {
  
+if (c.tipo === "FORMA") {
+  return (
+    <div
+      key={c.id}
+      className="absolute"
+      style={{
+        left: `${c.x}px`,
+        top: `${c.y}px`,
+        width: `${c.largura || 120}px`,
+        height: `${c.altura || 120}px`,
+        zIndex: c.ordem || 1,
+        transform: `rotate(${(c as any).rotate || 0}deg)`,
+      }}
+    >
+      <div className="relative h-full w-full">
+        <FormaVetorial
+          campo={c}
+          selecionado={false}
+          onChange={() => {}}
+        />
+      </div>
+    </div>
+  );
+}
+
   if (c.tipo === "IMAGEM") {
 
     return (
