@@ -5,6 +5,7 @@ type PontoForma = {
   x: number;
   y: number;
   tipo?: "reto" | "curvo";
+  handleMode?: "alinhado" | "quebrado";
   inX?: number;
   inY?: number;
   outX?: number;
@@ -53,6 +54,7 @@ function criarAlcasPadrao(ponto: PontoForma): PontoForma {
     inY: ponto.inY ?? ponto.y - 10,
     outX: ponto.outX ?? ponto.x + 25,
     outY: ponto.outY ?? ponto.y + 10,
+    handleMode: ponto.handleMode ?? "alinhado",
   };
 }
 
@@ -144,7 +146,7 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
     );
   }
 
-  function moverAlca(
+function moverAlca(
   pontoId: string,
   lado: "in" | "out",
   novoX: number,
@@ -159,13 +161,18 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
       const x = limitar(novoX);
       const y = limitar(novoY);
 
-      if (quebrarTangente) {
+      const tangenteQuebrada =
+        quebrarTangente || base.handleMode === "quebrado";
+
+      if (tangenteQuebrada) {
         return {
           ...base,
           tipo: "curvo",
-          handleMode: "quebrado" as any,
-          ...(lado === "in" ? { inX: x, inY: y } : { outX: x, outY: y }),
-        } as any;
+          handleMode: "quebrado",
+          ...(lado === "in"
+            ? { inX: x, inY: y }
+            : { outX: x, outY: y }),
+        };
       }
 
       const dx = x - base.x;
@@ -175,23 +182,23 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
         return {
           ...base,
           tipo: "curvo",
-          handleMode: "alinhado" as any,
+          handleMode: "alinhado",
           inX: x,
           inY: y,
           outX: base.x - dx,
           outY: base.y - dy,
-        } as any;
+        };
       }
 
       return {
         ...base,
         tipo: "curvo",
-        handleMode: "alinhado" as any,
+        handleMode: "alinhado",
         outX: x,
         outY: y,
         inX: base.x - dx,
         inY: base.y - dy,
-      } as any;
+      };
     })
   );
 }
