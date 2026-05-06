@@ -451,6 +451,9 @@ function gerarPontosEstrela(
         tipo: "IMAGEM",
         imagemUrl: data.url,
         url: data.url,
+        src: data.url,
+        arquivoUrl: data.url,
+        previewUrl: data.url,
         x: 120,
         y: 120,
         largura: 140,
@@ -1953,7 +1956,13 @@ contornoEspessura: 2,
         >
           <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-white">
             <img
-              src={(img as any).imagemUrl}
+              src={
+  (img as any).imagemUrl ||
+  (img as any).url ||
+  (img as any).src ||
+  (img as any).arquivoUrl ||
+  (img as any).previewUrl
+}
               alt="Imagem enviada"
               className="h-full w-full"
             />
