@@ -3613,31 +3613,9 @@ if (!camposSelecionadosIds.includes(c.id)) {
 
         <button
           type="button"
-          onClick={async () => {
-  if (!campoSelecionado) return;
-
-  try {
-    const res = await fetch(
-      `/api/admin/certificado-campos?id=${campoSelecionado.id}`,
-      {
-        method: "DELETE",
-      }
-    );
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.detalhe || data?.error || "Erro ao remover imagem.");
-    }
-
-    setCampos((prev) => prev.filter((c) => c.id !== campoSelecionado.id));
-    setCampoSelecionadoId(null);
-
-    setMensagemSucesso("Imagem removida definitivamente.");
-    setTimeout(() => setMensagemSucesso(""), 2500);
-  } catch (error: any) {
-    alert(error?.message || "Erro ao remover imagem.");
-  }
+          onClick={() => {
+  if (!campoSelecionado?.id) return;
+  excluirCampo(campoSelecionado.id);
 }}
           className="w-full rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
         >
