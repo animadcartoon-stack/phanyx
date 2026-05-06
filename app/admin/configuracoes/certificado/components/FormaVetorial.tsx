@@ -42,17 +42,17 @@ function hexToRgba(hex: string, alpha: number) {
 }
 
 function limitar(v: number) {
-  return Math.max(0, Math.min(100, v));
+  return Math.max(-200, Math.min(300, v));
 }
 
 function criarAlcasPadrao(ponto: PontoForma): PontoForma {
   return {
     ...ponto,
     tipo: "curvo",
-    inX: ponto.inX ?? limitar(ponto.x - 12),
-    inY: ponto.inY ?? ponto.y,
-    outX: ponto.outX ?? limitar(ponto.x + 12),
-    outY: ponto.outY ?? ponto.y,
+    inX: ponto.inX ?? ponto.x - 25,
+    inY: ponto.inY ?? ponto.y - 10,
+    outX: ponto.outX ?? ponto.x + 25,
+    outY: ponto.outY ?? ponto.y + 10,
   };
 }
 
@@ -201,8 +201,8 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
 
     const rect = svg.getBoundingClientRect();
 
-    const x = limitar(((e.clientX - rect.left) / rect.width) * 100);
-    const y = limitar(((e.clientY - rect.top) / rect.height) * 100);
+    x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)),
+    y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)),
 
     atualizarPontos([
       ...pontos,
