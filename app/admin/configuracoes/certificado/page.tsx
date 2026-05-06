@@ -423,35 +423,52 @@ function gerarPontosEstrela(
   g: 255,
   b: 255,
 });
-  const handleUploadImagem = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const files = Array.from(e.target.files || []);
-  if (files.length === 0) return;
+ const handleUploadImagem = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-  registrarHistoricoAntesDaAcao();
+  try {
+    setEnviandoArquivo(true);
 
-  const novasImagens: CampoCertificado[] = files.map((file, index) => {
-    const url = URL.createObjectURL(file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    return {
-      id: Date.now() + index,
-      tipo: "IMAGEM",
-      x: 150 + index * 20,
-      y: 150 + index * 20,
-      largura: 150,
-      altura: 150,
-      imagemUrl: url,
-      ordem: 10 + index,
-      crop: { top: 0, left: 0, right: 0, bottom: 0 },
-      cropBaseW: 150,
-      cropBaseH: 150,
-    } as CampoCertificado;
-  });
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
 
-  setCampos((prev) => [...prev, ...novasImagens]);
-  setCampoSelecionadoId(novasImagens[novasImagens.length - 1].id);
+    const data = await res.json();
 
-  e.target.value = "";
+    if (!res.ok || !data?.url) {
+      throw new Error(data?.error || "Erro ao enviar imagem.");
+    }
+
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        tipo: "IMAGEM",
+        imagemUrl: data.url,
+        url: data.url,
+        x: 120,
+        y: 120,
+        largura: 140,
+        altura: 140,
+        rotacao: 0,
+        opacity: 1,
+        ordem: 10,
+        pagina: 1,
+      } as any,
+    ]);
+  } catch (error: any) {
+    alert(error?.message || "Erro ao enviar imagem.");
+  } finally {
+    setEnviandoArquivo(false);
+    e.target.value = "";
+  }
 };
+
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const dragRef = useRef<{
