@@ -201,8 +201,15 @@ export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
 
     const rect = svg.getBoundingClientRect();
 
-    x: Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)),
-    y: Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)),
+    const x = Math.max(
+  0,
+  Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)
+);
+
+const y = Math.max(
+  0,
+  Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)
+);
 
     atualizarPontos([
       ...pontos,
