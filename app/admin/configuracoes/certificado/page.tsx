@@ -541,12 +541,17 @@ useEffect(() => {
       setCertificadoCidade(dataConfig?.certificadoCidade || "");
       setCampos(
   Array.isArray(dataCampos?.campos)
-    ? dataCampos.campos.map((campo: any) => ({
-        ...campo,
-        ...(campo.dadosJson || {}),
-        bancoId: campo.id,
-        id: campo.id,
-      }))
+    ? dataCampos.campos.map((campo: any) => {
+        const dados = campo.dadosJson || {};
+
+        return {
+          ...campo,
+          ...dados,
+
+          bancoId: campo.id,
+          id: campo.id,
+        };
+      })
     : []
 );
     } catch {
@@ -809,7 +814,7 @@ function finalizarArrastoCanvas() {
 
  async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
-  const idBanco = Number((campo as any)?.bancoId || campo?.id || id);
+  const idBanco = Number((campo as any)?.bancoId || id);
 
   try {
     const res = await fetch(`/api/admin/certificado-campos?id=${idBanco}`, {
@@ -3623,13 +3628,6 @@ if (!camposSelecionadosIds.includes(c.id)) {
           type="button"
           onClick={() => {
   if (!campoSelecionado?.id) return;
-
-  alert(
-    `Apagando ID: ${campoSelecionado.id} / bancoId: ${
-      (campoSelecionado as any).bancoId || "sem bancoId"
-    }`
-  );
-
   excluirCampo(campoSelecionado.id);
 }}
           className="w-full rounded-xl bg-red-50 px-4 py-2 text-sm font-semibold text-red-600 hover:bg-red-100"
