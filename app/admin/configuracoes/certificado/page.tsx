@@ -1805,7 +1805,7 @@ contornoEspessura: 2,
         id: Date.now() + 3,
         tipo: "FORMA",
         forma: "ESTRELA",
-        pontosForma: criarPontosIniciaisForma("ESTRELA"),
+        pontosForma: gerarPontosEstrela(5, 45, 100),
         mostrarPreenchimento: true,
         mostrarContorno: true,
         preenchimentoCor: "#1d4ed8",
@@ -1819,11 +1819,11 @@ contornoEspessura: 2,
         opacity: 0.55,
         ordem: 5,
         pontasEstrela: 5,
+        raioInterno: 45,
+        raioExterno: 100,
         profundidadeEstrela: 45,
         arredondarEstrela: 0,
         pontas: 5,
-        raioInterno: 45,
-        raioExterno: 100,
       } as any,
     ])
   }
@@ -4177,6 +4177,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
 {campos.map((c) => {
  
   if (c.tipo === "IMAGEM") {
+
     return (
       <div
   key={c.id}

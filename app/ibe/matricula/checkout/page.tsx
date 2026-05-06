@@ -101,6 +101,16 @@ function selecionarModulo(numeroModulo: number, disciplinasDoModulo: Disciplina[
   );
 }
 
+function deselecionarModulo(numeroModulo: number, disciplinasDoModulo: Disciplina[]) {
+  const ids = disciplinasDoModulo.map((d) => d.id);
+
+  setDisciplinas((prev) => prev.filter((id) => !ids.includes(id)));
+
+  setModulosCompletos((prev) =>
+    prev.filter((numero) => numero !== numeroModulo)
+  );
+}
+
   const todasDisciplinas = modulos.flatMap((m) => m.disciplinas);
 
   const total = modulos.reduce((acc, modulo) => {
@@ -314,13 +324,21 @@ Você pode avançar por módulos conforme sua disponibilidade.
                     {aberto && (
                       <div className="space-y-3 p-4">
 
-<div className="px-4 pt-4">
+<div className="flex flex-wrap gap-3 px-4 pt-4">
   <button
     type="button"
     onClick={() => selecionarModulo(modulo.numero, modulo.disciplinas)}
     className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
   >
     Selecionar todas do Módulo {modulo.numero}
+  </button>
+
+  <button
+    type="button"
+    onClick={() => deselecionarModulo(modulo.numero, modulo.disciplinas)}
+    className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-300"
+  >
+    Desselecionar Módulo {modulo.numero}
   </button>
 </div>
 
