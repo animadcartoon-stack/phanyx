@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { upload } from "@vercel/blob/client";
 
 type ArquivoUpload = {
   url: string;
@@ -41,49 +40,60 @@ export default function NovoMaterialAulaPage() {
   const [mensagem, setMensagem] = useState("");
 
   async function handleUploadArquivo() {
-    if (!arquivo) {
-      setErro("Selecione um arquivo para enviar.");
-      return;
-    }
-
-    if (!aulaId || !Number.isFinite(aulaId)) {
-      setErro("Aula inválida.");
-      return;
-    }
-
-    try {
-      setUploadingArquivo(true);
-      setProgressoUpload(0);
-      setErro("");
-      setMensagem("");
-
-      const safeName = sanitizeFileName(arquivo.name);
-      const pathname = `materiais-aula/${aulaId}/${Date.now()}-${safeName}`;
-
-      const blob = await upload(pathname, arquivo, {
-        access: "public",
-        handleUploadUrl: "/api/professor/upload-url",
-        clientPayload: JSON.stringify({ aulaId }),
-        multipart: true,
-        onUploadProgress(progressEvent) {
-          setProgressoUpload(Math.round(progressEvent.percentage));
-        },
-      });
-
-      setArquivoEnviado({
-        url: blob.url,
-        downloadUrl: blob.downloadUrl,
-        pathname: blob.pathname,
-        contentType: blob.contentType,
-      });
-
-      setMensagem("Arquivo enviado com sucesso.");
-    } catch (e: any) {
-      setErro(e.message || "Erro ao enviar arquivo");
-    } finally {
-      setUploadingArquivo(false);
-    }
+  if (!arquivo) {
+    setErro("Selecione um arquivo para enviar.");
+    return;
   }
+
+  if (!aulaId || !Number.isFinite(aulaId)) {
+    setErro("Aula inválida.");
+    return;
+  }
+
+  try {
+    setUploadingArquivo(true);
+    setProgressoUpload(10);
+    setErro("");
+    setMensagem("");
+
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || "Erro ao enviar arquivo.");
+    }
+
+    const url = json?.url || json?.arquivo?.url;
+
+    if (!url) {
+      throw new Error("Upload concluído, mas nenhuma URL foi retornada.");
+    }
+
+    setProgressoUpload(100);
+
+    setArquivoEnviado({
+      url,
+      downloadUrl: url,
+      pathname: arquivo.name,
+      contentType: arquivo.type,
+    });
+
+    setMensagem("Arquivo enviado com sucesso.");
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao enviar arquivo");
+    setProgressoUpload(0);
+  } finally {
+    setUploadingArquivo(false);
+  }
+}
 
   async function handleSalvarMaterial(e: React.FormEvent) {
     e.preventDefault();
