@@ -1361,6 +1361,30 @@ async function salvarModeloCompleto() {
       );
     }
 
+const resCamposBanco = await fetch("/api/admin/certificado-campos", {
+  cache: "no-store",
+});
+
+const dataCamposBanco = await resCamposBanco.json();
+
+if (resCamposBanco.ok && Array.isArray(dataCamposBanco?.campos)) {
+  const idsNaTela = campos
+    .map((campo: any) => Number(campo.bancoId || campo.id))
+    .filter((id) => Number.isFinite(id) && id > 0 && id < 1000000000);
+
+  const camposRemovidos = dataCamposBanco.campos.filter(
+    (campoBanco: any) =>
+      ["IMAGEM", "FORMA"].includes(campoBanco.tipo) &&
+      !idsNaTela.includes(Number(campoBanco.id))
+  );
+
+  for (const removido of camposRemovidos) {
+    await fetch(`/api/admin/certificado-campos?id=${removido.id}`, {
+      method: "DELETE",
+    });
+  }
+}
+
     for (const campo of campos) {
       const idEhTemporario = Number(campo.id) > 1000000000;
 
