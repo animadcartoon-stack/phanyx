@@ -243,7 +243,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [campos, setCampos] = useState<CampoCertificado[]>([]);
   const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
   const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
-
+  const [campoCopiado, setCampoCopiado] = useState<any>(null);
   const [menuPontoGradiente, setMenuPontoGradiente] = useState<{
   campoId: number;
   pontoIndex: number;
@@ -601,10 +601,59 @@ useEffect(() => {
 
   const campoSelecionado = useMemo(
 
-
     () => campos.find((campo) => campo.id === campoSelecionadoId) || null,
     [campos, campoSelecionadoId]
   );
+
+useEffect(() => {
+  function handleCopiarColar(e: KeyboardEvent) {
+    const alvo = e.target as HTMLElement | null;
+    const tag = alvo?.tagName?.toLowerCase();
+
+    if (
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      alvo?.isContentEditable
+    ) {
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+      if (!campoSelecionado) return;
+
+      e.preventDefault();
+      setCampoCopiado(JSON.parse(JSON.stringify(campoSelecionado)));
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+      if (!campoCopiado) return;
+
+      e.preventDefault();
+
+      const novoId = Date.now();
+
+      const novoCampo = {
+        ...JSON.parse(JSON.stringify(campoCopiado)),
+        id: novoId,
+        bancoId: undefined,
+        tempId: novoId,
+        x: Number(campoCopiado.x || 0) + 24,
+        y: Number(campoCopiado.y || 0) + 24,
+      };
+
+      setCampos((prev) => [...prev, novoCampo as any]);
+      setCampoSelecionadoId(novoId);
+      setCamposSelecionadosIds([novoId]);
+    }
+  }
+
+  window.addEventListener("keydown", handleCopiarColar);
+
+  return () => {
+    window.removeEventListener("keydown", handleCopiarColar);
+  };
+}, [campoSelecionado, campoCopiado]);
 
   const caixaDoGrupoSelecionado = useMemo(() => {
   const ids =
@@ -3851,13 +3900,26 @@ if (!camposSelecionadosIds.includes(c.id)) {
                     Tamanho
                   </label>
                   <input
-                    type="number"
-                    value={campoSelecionado.tamanho || 18}
-                    onChange={(e) =>
-                      atualizarCampoLocal("tamanho", Number(e.target.value))
-                    }
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  />
+  type="number"
+  min={6}
+  max={120}
+  value={campoSelecionado.tamanho ?? 18}
+  onChange={(e) => {
+    const novoTamanho = Number(e.target.value);
+
+    atualizarCampoLocal("tamanho", novoTamanho);
+
+    if (
+      campoSelecionado.tipo !== "IMAGEM" &&
+      campoSelecionado.tipo !== "FORMA"
+    ) {
+      atualizarCampo(campoSelecionado.id, {
+        tamanho: novoTamanho,
+      });
+    }
+  }}
+  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+/>
                 </div>
 
                 <div>
