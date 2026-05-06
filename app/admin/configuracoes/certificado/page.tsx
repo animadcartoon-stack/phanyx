@@ -809,20 +809,6 @@ function finalizarArrastoCanvas() {
   async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
 
-  if (campo?.tipo === "IMAGEM" || campo?.tipo === "FORMA") {
-  registrarHistoricoAntesDaAcao();
-
-  setCampos((prev) => prev.filter((c) => c.id !== id));
-
-  if (campoSelecionadoId === id) {
-    setCampoSelecionadoId(null);
-  }
-
-  setMensagemSucesso("Imagem excluída com sucesso!");
-  setTimeout(() => setMensagemSucesso(""), 2500);
-  return;
-}
-
   try {
     const res = await fetch(`/api/admin/certificado-campos?id=${id}`, {
       method: "DELETE",
