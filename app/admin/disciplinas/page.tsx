@@ -310,7 +310,14 @@ function AdminDisciplinasPage() {
 
 {cursosAbertos[cursoNome] && (
   <div className="mt-3 space-y-2">
-                  {Object.entries(semestres).map(([semestreNome, lista]) => (
+                  {Object.entries(semestres)
+  .sort(([a], [b]) => {
+    const numeroA = Number(a.replace(/\D/g, ""));
+    const numeroB = Number(b.replace(/\D/g, ""));
+
+    return numeroA - numeroB;
+  })
+  .map(([semestreNome, lista]) => (
                     <details
   key={semestreNome}
   className="rounded-lg border bg-slate-50 p-3"
