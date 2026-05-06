@@ -399,8 +399,8 @@ function gerarPontosEstrela(
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
-  const [orientacao, setOrientacao] =
-    useState<OrientacaoEditor>("paisagem");
+  const [orientacao, setOrientacao] = useState<OrientacaoEditor>("paisagem");
+  const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(100);
   const [modoAmplo, setModoAmplo] = useState(false);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
@@ -1655,9 +1655,22 @@ setTimeout(() => setMensagemSucesso(""), 3000);
   </p>
   </div>
 <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+  <button
+  type="button"
+  onClick={() => setFormasAbertas((v) => !v)}
+  className="mb-2 flex w-full items-center justify-between text-left"
+>
+  <span className="text-xs font-bold uppercase tracking-wide text-blue-700">
     Formas geométricas
-  </p>
+  </span>
+
+  <span className="text-lg text-slate-500">
+    {formasAbertas ? "−" : "+"}
+  </span>
+</button>
+
+{formasAbertas && (
+  <>
 
   <div className="grid grid-cols-4 gap-2">
     <button
@@ -1924,9 +1937,11 @@ contornoEspessura: 2,
             </p>
           </div>
         </button>
-      ))}
-  </div>
-</div>
+                          ))}
+                  </div>
+                </>
+              )}
+            </div>
 
               <div className="space-y-4">
                 <div className="rounded-2xl border border-slate-200 bg-white">
