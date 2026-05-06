@@ -4387,12 +4387,78 @@ if (c.tipo === "FORMA") {
       }}
     >
       <div className="relative h-full w-full">
-        <FormaVetorial
-          campo={c}
-          selecionado={false}
-          onChange={() => {}}
-        />
-      </div>
+  <svg
+    viewBox="0 0 100 100"
+    preserveAspectRatio="none"
+    className="h-full w-full"
+  >
+    {c.forma === "ESTRELA" && (
+      <polygon
+        points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35"
+        fill={(c as any).mostrarPreenchimento === false
+          ? "none"
+          : c.cor || "#1d4ed8"}
+        stroke={(c as any).mostrarContorno === false
+          ? "none"
+          : (c as any).contornoCor || c.cor || "#1d4ed8"}
+        strokeWidth={(c as any).contornoEspessura || 1}
+        opacity={c.opacity ?? 1}
+      />
+    )}
+
+    {c.forma === "TRIANGULO" && (
+      <polygon
+        points="50,0 100,100 0,100"
+        fill={(c as any).mostrarPreenchimento === false
+          ? "none"
+          : c.cor || "#1d4ed8"}
+        stroke={(c as any).mostrarContorno === false
+          ? "none"
+          : (c as any).contornoCor || c.cor || "#1d4ed8"}
+        strokeWidth={(c as any).contornoEspessura || 1}
+        opacity={c.opacity ?? 1}
+      />
+    )}
+
+    {c.forma === "RETANGULO" && (
+      <rect
+        x="0"
+        y="0"
+        width="100"
+        height="100"
+        fill={(c as any).mostrarPreenchimento === false
+          ? "none"
+          : c.cor || "#1d4ed8"}
+        stroke={(c as any).mostrarContorno === false
+          ? "none"
+          : (c as any).contornoCor || c.cor || "#1d4ed8"}
+        strokeWidth={(c as any).contornoEspessura || 1}
+        opacity={c.opacity ?? 1}
+        rx={(c as any).raioBorda || 0}
+      />
+    )}
+
+    {c.forma === "CIRCULO" ? (
+  <circle
+    cx="50"
+    cy="50"
+    r="48"
+    fill={
+      (c as any).mostrarPreenchimento === false
+        ? "none"
+        : c.cor || "#1d4ed8"
+    }
+    stroke={
+      (c as any).mostrarContorno === false
+        ? "none"
+        : (c as any).contornoCor || c.cor || "#1d4ed8"
+    }
+    strokeWidth={(c as any).contornoEspessura || 1}
+    opacity={c.opacity ?? 1}
+  />
+) : null}
+  </svg>
+</div>
     </div>
   );
 }
