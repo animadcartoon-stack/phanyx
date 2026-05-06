@@ -86,6 +86,11 @@ function selecionarCursoCompleto() {
   setModulosCompletos(modulos.map((m) => m.numero));
 }
 
+function deselecionarTudo() {
+  setDisciplinas([]);
+  setModulosCompletos([]);
+}
+
 function selecionarModulo(numeroModulo: number, disciplinasDoModulo: Disciplina[]) {
   const ids = disciplinasDoModulo.map((d) => d.id);
 
@@ -262,13 +267,23 @@ function selecionarModulo(numeroModulo: number, disciplinasDoModulo: Disciplina[
 Você pode avançar por módulos conforme sua disponibilidade.
             </p>
 
-<button
-  type="button"
-  onClick={selecionarCursoCompleto}
-  className="mb-4 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
->
-  Selecionar curso completo
-</button>
+<div className="mb-4 flex flex-wrap gap-3">
+  <button
+    type="button"
+    onClick={selecionarCursoCompleto}
+    className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700"
+  >
+    Selecionar curso completo
+  </button>
+
+  <button
+    type="button"
+    onClick={deselecionarTudo}
+    className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-300"
+  >
+    Desselecionar tudo
+  </button>
+</div>
 
             <div className="space-y-4">
               {modulos.map((modulo) => {
