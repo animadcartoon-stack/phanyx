@@ -1942,7 +1942,7 @@ contornoEspessura: 2,
                 </>
               )}
             </div>
-
+            
               <div className="space-y-4">
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
