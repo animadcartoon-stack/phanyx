@@ -203,23 +203,24 @@ function moverAlca(
   );
 }
   function alternarTipoPonto(pontoId: string) {
-    atualizarPontos(
-      pontos.map((ponto) =>
-        ponto.id === pontoId
-          ? ponto.tipo === "curvo"
-            ? {
-                ...ponto,
-                tipo: "reto",
-                inX: undefined,
-                inY: undefined,
-                outX: undefined,
-                outY: undefined,
-              }
-            : criarAlcasPadrao(ponto)
-          : ponto
-      )
-    );
-  }
+  atualizarPontos(
+    pontos.map((ponto) =>
+      ponto.id === pontoId
+        ? ponto.tipo === "curvo"
+          ? {
+              ...ponto,
+              tipo: "reto",
+              handleMode: "quebrado",
+              inX: undefined,
+              inY: undefined,
+              outX: undefined,
+              outY: undefined,
+            }
+          : criarAlcasPadrao(ponto)
+        : ponto
+    )
+  );
+}
 
   function deletarPonto(pontoId: string) {
     const minimo = campo.forma === "LINHA" ? 2 : 3;
@@ -248,16 +249,38 @@ const y = Math.max(
   Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)
 );
 
-    atualizarPontos([
-      ...pontos,
-      {
-        id: `p-${Date.now()}`,
-        x,
-        y,
-        tipo: "reto",
-      },
-    ]);
+    let indiceInserir = pontos.length;
+
+let menorDistancia = Infinity;
+
+for (let i = 0; i < pontos.length; i++) {
+  const atual = pontos[i];
+  const proximo = pontos[(i + 1) % pontos.length];
+
+  if (campo.forma === "LINHA" && i === pontos.length - 1) continue;
+
+  const meioX = (atual.x + proximo.x) / 2;
+  const meioY = (atual.y + proximo.y) / 2;
+
+  const distancia = Math.hypot(x - meioX, y - meioY);
+
+  if (distancia < menorDistancia) {
+    menorDistancia = distancia;
+    indiceInserir = i + 1;
   }
+}
+
+const novosPontos = [...pontos];
+
+novosPontos.splice(indiceInserir, 0, {
+  id: `p-${Date.now()}`,
+  x,
+  y,
+  tipo: "reto",
+});
+
+atualizarPontos(novosPontos);
+}
 
   function iniciarArrastePercentual(
   e: React.MouseEvent,
@@ -351,77 +374,78 @@ const y = Math.max(
           })}
       </svg>
 
-      {selecionado &&
-        pontos.map((ponto) => {
-          const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
+{selecionado &&
+  pontos.map((ponto) => {
+    const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
 
-          return (
-            <div key={ponto.id}>
-              {ponto.tipo === "curvo" && (
-                <>
-                  <button
-                    type="button"
-                    onMouseDown={(e) =>
-                      iniciarArrastePercentual(e, (x, y, ev) =>
-  moverAlca(ponto.id, "in", x, y, ev.altKey)
-)
-                    }
-                    className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
-                    style={{
-                      left: `${p.inX}%`,
-                      top: `${p.inY}%`,
-                      cursor: "grab",
-                    }}
-                    title="Alça Bézier de entrada"
-                  />
+    return (
+      <div key={ponto.id}>
+        {ponto.tipo === "curvo" && (
+          <>
+            <button
+              type="button"
+              onMouseDown={(e) =>
+                iniciarArrastePercentual(e, (x, y, ev) =>
+                  moverAlca(ponto.id, "in", x, y, ev.altKey)
+                )
+              }
+              className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
+              style={{
+                left: `${p.inX}%`,
+                top: `${p.inY}%`,
+                cursor: "grab",
+              }}
+              title="Alça Bézier de entrada"
+            />
 
-                  <button
-                    type="button"
-                    onMouseDown={(e) =>
-                      iniciarArrastePercentual(e, (x, y, ev) =>
-  moverAlca(ponto.id, "out", x, y, ev.altKey)
-)
-                    }
-                    className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
-                    style={{
-                      left: `${p.outX}%`,
-                      top: `${p.outY}%`,
-                      cursor: "grab",
-                    }}
-                    title="Alça Bézier de saída"
-                  />
-                </>
-              )}
+            <button
+              type="button"
+              onMouseDown={(e) =>
+                iniciarArrastePercentual(e, (x, y, ev) =>
+                  moverAlca(ponto.id, "out", x, y, ev.altKey)
+                )
+              }
+              className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
+              style={{
+                left: `${p.outX}%`,
+                top: `${p.outY}%`,
+                cursor: "grab",
+              }}
+              title="Alça Bézier de saída"
+            />
+          </>
+        )}
 
-              <button
-                type="button"
-                onMouseDown={(e) =>
-                  iniciarArrastePercentual(e, (x, y) =>
-                    moverPonto(ponto.id, x, y)
-                  )
-                }
-                onDoubleClick={(e) => {
-                  e.stopPropagation();
-                  alternarTipoPonto(ponto.id);
-                }}
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  deletarPonto(ponto.id);
-                }}
-                className={`pointer-events-auto absolute z-[99992] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
-                  ponto.tipo === "curvo" ? "bg-purple-500" : "bg-orange-500"
-                }`}
-                style={{
-                  left: `${ponto.x}%`,
-                  top: `${ponto.y}%`,
-                  cursor: "grab",
-                }}
-                title="Arraste para deformar. Duplo clique alterna reto/curvo. Botão direito remove."
-              />
-            </div>
-          );
-        })}
+        <button
+          type="button"
+          onMouseDown={(e) =>
+            iniciarArrastePercentual(e, (x, y) =>
+              moverPonto(ponto.id, x, y)
+            )
+          }
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            alternarTipoPonto(ponto.id);
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            deletarPonto(ponto.id);
+          }}
+          className={`pointer-events-auto absolute z-[99992] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
+            ponto.tipo === "curvo" ? "bg-purple-500" : "bg-orange-500"
+          }`}
+          style={{
+            left: `${ponto.x}%`,
+            top: `${ponto.y}%`,
+            cursor: "grab",
+          }}
+          title="Arraste para deformar. Duplo clique alterna reto/curvo. Botão direito remove."
+        />
+      </div>
+    );
+  })}
+
     </div>
   );
 }
