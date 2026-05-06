@@ -547,9 +547,8 @@ useEffect(() => {
         return {
           ...campo,
           ...dados,
-
-          bancoId: campo.id,
           id: campo.id,
+          bancoId: campo.id,
         };
       })
     : []
@@ -1739,6 +1738,7 @@ async function salvarModeloCompleto() {
     setCampos((prev) => [
       ...prev,
       {
+        tempId: Date.now(),
         id: Date.now(),
         tipo: "FORMA",
         forma: "RETANGULO",
@@ -1774,6 +1774,7 @@ contornoEspessura: 2,
     setCampos((prev) => [
       ...prev,
       {
+        tempId: Date.now(),
         id: Date.now() + 4,
         tipo: "FORMA",
         forma: "QUADRADO",
@@ -1809,6 +1810,7 @@ contornoEspessura: 2,
     setCampos((prev) => [
       ...prev,
       {
+        tempId: Date.now(),
         id: Date.now() + 1,
         tipo: "FORMA",
         forma: "CIRCULO",
