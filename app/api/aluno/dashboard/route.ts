@@ -133,10 +133,12 @@ const totalDisciplinas = disciplinasMap.size;
 
     return NextResponse.json({
       aluno: {
-        id: aluno.id,
-        userId: aluno.userId,
-        statusAluno: aluno.statusAluno,
-      },
+  id: aluno.id,
+  userId: aluno.userId,
+  nome: aluno.nome,
+  fotoPerfil: aluno.fotoPerfil,
+  statusAluno: aluno.statusAluno,
+},
       resumo: {
         totalDisciplinas,
         totalProvasConcluidas,

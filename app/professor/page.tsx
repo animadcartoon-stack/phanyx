@@ -4,6 +4,11 @@ import { useEffect, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 
 type DashboardResponse = {
+    professor: {
+    id: number;
+    nome?: string;
+    fotoPerfil?: string | null;
+  };
   resumo: {
     totalProvas: number;
     provasRascunho: number;
@@ -79,6 +84,33 @@ function ProfessorDashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">
             Dashboard do Professor
           </h1>
+
+<div className="mt-5 flex items-center gap-4">
+  <div className="h-20 w-20 overflow-hidden rounded-2xl border bg-slate-100">
+    {data?.professor?.fotoPerfil ? (
+      <img
+        src={data.professor.fotoPerfil}
+        alt={data.professor.nome || "Professor"}
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-700">
+        {data?.professor?.nome?.charAt(0)?.toUpperCase() || "P"}
+      </div>
+    )}
+  </div>
+
+  <div>
+    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+      Professor
+    </p>
+
+    <h2 className="text-2xl font-bold text-slate-900">
+      {data?.professor?.nome || "Professor"}
+    </h2>
+  </div>
+</div>
+
           <p className="mt-1 text-sm text-gray-500">
             Acompanhe suas provas, tentativas e desempenho das turmas.
           </p>

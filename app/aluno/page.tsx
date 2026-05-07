@@ -5,9 +5,11 @@ import withAuth from "@/components/auth/withAuth";
 
 type DashboardAlunoResponse = {
   aluno: {
-    id: number;
-    userId: number;
-  };
+  id: number;
+  userId: number;
+  nome?: string;
+  fotoPerfil?: string | null;
+};
   resumo: {
     totalDisciplinas: number;
     totalProvasConcluidas: number;
@@ -257,6 +259,32 @@ setTotalDisciplinasMatriculadas(total);
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-200">
                 Painel acadêmico do aluno
               </p>
+
+<div className="mt-5 flex items-center gap-4">
+  <div className="h-20 w-20 overflow-hidden rounded-2xl border-2 border-white/20 bg-white/10">
+    {data?.aluno?.fotoPerfil ? (
+      <img
+        src={data.aluno.fotoPerfil}
+        alt={data.aluno.nome || "Aluno"}
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-white">
+        {data?.aluno?.nome?.charAt(0)?.toUpperCase() || "A"}
+      </div>
+    )}
+  </div>
+
+  <div>
+    <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
+      Aluno
+    </p>
+
+    <h2 className="text-2xl font-bold text-white">
+      {data?.aluno?.nome || "Aluno"}
+    </h2>
+  </div>
+</div>
 
               <h1 className="mt-3 text-3xl font-bold leading-tight md:text-4xl">
                 {saudacao}, acompanhe sua jornada acadêmica com clareza,

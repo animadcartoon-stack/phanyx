@@ -119,13 +119,22 @@ const mediaGeral =
         titulo: prova.titulo,
         status: prova.status,
         notaMaxima: Number(prova.notaMaxima ?? 10),
-        disciplinaNome: prova.disciplina?.nome ?? "Sem disciplina",
+        disciplinaNome:
+  prova.turma?.disciplinas?.[0]?.disciplina?.nome ?? "Sem disciplina",
         totalTentativas: prova.tentativas?.length ?? 0,
         media,
       };
     });
 
+const professorInfo = {
+  id: professor.id,
+  nome: professor.nome,
+  fotoPerfil: professor.fotoPerfil,
+};
+
     return NextResponse.json({
+  professor: professorInfo,
+
   resumo: {
     totalProvas,
     provasRascunho,

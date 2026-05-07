@@ -122,6 +122,7 @@ model Aluno {
   cpfResponsavel               String?
   emailResponsavel             String?
   nomeResponsavel              String?
+  fotoPerfil                   String?
   parentescoResponsavel        String?
   telefoneResponsavel          String?
   statusAluno                  StatusAluno            @default(ATIVO)
