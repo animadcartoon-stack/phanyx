@@ -35,16 +35,29 @@ export async function POST(
     }
 
     const aula = await prisma.aula.findFirst({
-      where: {
-        id: aulaId,
-        instituicaoId: user.instituicaoId,
-        turma: {
+  where: {
+    id: aulaId,
+    instituicaoId: user.instituicaoId,
+    turma: {
+      instituicaoId: user.instituicaoId,
+      OR: [
+        {
           professorId: professor.id,
-          instituicaoId: user.instituicaoId,
         },
-      },
-      select: { id: true },
-    });
+        {
+          disciplinas: {
+            some: {
+              disciplina: {
+                professorId: professor.id,
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+  select: { id: true },
+});
 
     if (!aula) {
       return NextResponse.json(

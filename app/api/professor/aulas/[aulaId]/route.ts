@@ -40,18 +40,31 @@ export async function DELETE(
     }
 
     const aula = await prisma.aula.findFirst({
-      where: {
-        id: aulaId,
-        instituicaoId: user.instituicaoId,
-        turma: {
+  where: {
+    id: aulaId,
+    instituicaoId: user.instituicaoId,
+    turma: {
+      instituicaoId: user.instituicaoId,
+      OR: [
+        {
           professorId: professor.id,
-          instituicaoId: user.instituicaoId,
         },
-      },
-      select: {
-        id: true,
-      },
-    });
+        {
+          disciplinas: {
+            some: {
+              disciplina: {
+                professorId: professor.id,
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+  select: {
+    id: true,
+  },
+});
 
     if (!aula) {
       return NextResponse.json(
@@ -114,15 +127,28 @@ export async function PUT(
     }
 
     const aula = await prisma.aula.findFirst({
-      where: {
-        id: aulaId,
-        instituicaoId: user.instituicaoId,
-        turma: {
+  where: {
+    id: aulaId,
+    instituicaoId: user.instituicaoId,
+    turma: {
+      instituicaoId: user.instituicaoId,
+      OR: [
+        {
           professorId: professor.id,
-          instituicaoId: user.instituicaoId,
         },
-      },
-    });
+        {
+          disciplinas: {
+            some: {
+              disciplina: {
+                professorId: professor.id,
+              },
+            },
+          },
+        },
+      ],
+    },
+  },
+});
 
     if (!aula) {
       return NextResponse.json(

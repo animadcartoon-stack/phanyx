@@ -35,9 +35,20 @@ export async function GET(_req: NextRequest) {
       where: {
         instituicaoId: user.instituicaoId,
         turma: {
-          professorId: professor.id,
-          instituicaoId: user.instituicaoId,
+  instituicaoId: user.instituicaoId,
+  OR: [
+    { professorId: professor.id },
+    {
+      disciplinas: {
+        some: {
+          disciplina: {
+            professorId: professor.id,
+          },
         },
+      },
+    },
+  ],
+},
       },
       include: {
         turma: {
@@ -136,11 +147,22 @@ export async function POST(req: NextRequest) {
     }
 
     const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        professorId: professor.id,
-        instituicaoId: user.instituicaoId,
+  where: {
+    id: turmaId,
+    instituicaoId: user.instituicaoId,
+    OR: [
+      { professorId: professor.id },
+      {
+        disciplinas: {
+          some: {
+            disciplina: {
+              professorId: professor.id,
+            },
+          },
+        },
       },
+    ],
+  },
       include: {
         disciplinas: {
   include: {
