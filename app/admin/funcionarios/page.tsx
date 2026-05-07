@@ -462,7 +462,19 @@ function AdminFuncionariosPage() {
             className="w-full border rounded-lg p-2"
           />
         </div>
+<div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
+  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+    Dica PHANYX
+  </p>
 
+  <p className="mt-1 text-sm leading-6 text-slate-600">
+    Para que a foto do funcionário fique bem centralizada no perfil,
+    utilize uma imagem quadrada (1:1), preferencialmente em 500x500px
+    ou maior.
+    <br />
+    Formatos aceitos: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5MB.
+  </p>
+</div>
 <div className="space-y-1">
   <label className="text-sm font-medium">Status</label>
 
