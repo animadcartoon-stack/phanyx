@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type Curso = {
   id: number;
@@ -75,6 +76,8 @@ export default function DisciplinaDetalhePage() {
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [turmas, setTurmas] = useState<TurmaApi[]>([]);
   const [disciplinas, setDisciplinas] = useState<DisciplinaDetalhe[]>([]);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   function alternarTurma(id: number) {
     setTurmaIds((atual) =>
@@ -109,7 +112,7 @@ function alternarPreRequisito(id: number) {
         const data = await res.json();
 
         if (!res.ok) {
-          alert(data.error || "Erro ao carregar disciplina");
+          setErro(data.error || "Erro ao carregar disciplina.");
           router.push("/admin/disciplinas");
           return;
         }
@@ -214,7 +217,7 @@ try {
     if (Number.isFinite(disciplinaId) && disciplinaId > 0) {
       carregar();
     } else {
-      alert("ID de disciplina inválido");
+      setErro("ID de disciplina inválido.");
       router.push("/admin/disciplinas");
     }
   }, [disciplinaId, router]);
@@ -245,11 +248,11 @@ try {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao salvar disciplina");
+        setErro(data.error || "Erro ao salvar disciplina.");
         return;
       }
 
-      alert("Disciplina atualizada com sucesso");
+      setSucesso("Disciplina atualizada com sucesso.");
       router.push("/admin/disciplinas");
     } finally {
       setSaving(false);
@@ -261,7 +264,25 @@ try {
   }
 
   return (
-    <div className="space-y-6">
+  <div className="space-y-6">
+
+    {erro && (
+      <PhanyxToast
+        tipo="erro"
+        titulo="Erro"
+        mensagem={erro}
+        onClose={() => setErro("")}
+      />
+    )}
+
+    {sucesso && (
+      <PhanyxToast
+        tipo="sucesso"
+        titulo="Tudo certo"
+        mensagem={sucesso}
+        onClose={() => setSucesso("")}
+      />
+    )}
       <button
         onClick={() => router.push("/admin/disciplinas")}
         className="text-blue-600 hover:underline"
