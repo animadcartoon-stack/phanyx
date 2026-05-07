@@ -808,45 +808,57 @@ async function alterarFoto(file: File | null) {
   if (!file) return;
 
   try {
+    setEnviandoFoto(true);
+
     const formData = new FormData();
     formData.append("file", file);
 
     const upload = await fetch("/api/upload", {
       method: "POST",
-      body: formData,
       credentials: "include",
+      body: formData,
     });
 
     const uploadJson = await upload.json();
 
-    const fotoUrl =
-      uploadJson?.url || uploadJson?.arquivo?.url;
+    if (!upload.ok) {
+      console.error("Erro upload:", uploadJson);
+      return;
+    }
+
+    const fotoUrl = uploadJson?.url || uploadJson?.arquivo?.url;
 
     if (!fotoUrl) {
+      console.error("Upload sem URL:", uploadJson);
       return;
     }
 
     const salvar = await fetch("/api/admin/funcionarios/me", {
-  method: "PUT",
-  credentials: "include",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    ...perfilAdmin,
-    fotoPerfil: fotoUrl,
-  }),
-});
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nome: perfilAdmin?.nome || "Administrador",
+        telefone: perfilAdmin?.telefone || "",
+        cargo: perfilAdmin?.cargo || "Administrativo",
+        fotoPerfil: fotoUrl,
+      }),
+    });
 
-const salvarJson = await salvar.json();
+    const salvarJson = await salvar.json();
 
-if (salvar.ok) {
-  setPerfilAdmin(salvarJson);
-  window.dispatchEvent(new Event("phanyx:perfil-admin-atualizado"));
-}
+    if (!salvar.ok) {
+      console.error("Erro ao salvar foto:", salvarJson);
+      return;
+    }
 
+    setPerfilAdmin(salvarJson);
   } catch (e) {
-    console.error(e);
+    console.error("Erro ao alterar foto:", e);
+  } finally {
+    setEnviandoFoto(false);
   }
 }
 
