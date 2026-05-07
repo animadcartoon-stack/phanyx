@@ -418,27 +418,34 @@ atualizarPontos(novosPontos);
       ? "pointer-events-none absolute inset-0 h-full w-full overflow-hidden"
       : "pointer-events-none absolute inset-0 h-full w-full overflow-visible"
   }
-  viewBox="0 0 100 100"
-  preserveAspectRatio="none"
+  viewBox="-8 -8 116 116"
+  preserveAspectRatio="xMidYMid meet"
 >
         <path
-          d={gerarPath(campo)}
-          onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
-className={modo === "editor" ? "pointer-events-auto cursor-crosshair" : "pointer-events-none"}
-          fill={
-  campo.forma === "LINHA" || !mostrarPreenchimento
-    ? "none"
-    : preenchimentoCor
-}
-opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
-          stroke={mostrarContorno ? contornoCor : "none"}
-          strokeWidth={
-            campo.forma === "LINHA"
-              ? contornoEspessura || 4
-              : contornoEspessura
-          }
-          vectorEffect="non-scaling-stroke"
-        />
+  d={gerarPath(campo)}
+  onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
+  className={
+    modo === "editor"
+      ? "pointer-events-auto cursor-crosshair"
+      : "pointer-events-none"
+  }
+  fill={
+    campo.forma === "LINHA" || !mostrarPreenchimento
+      ? "none"
+      : preenchimentoCor
+  }
+  opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
+  stroke={mostrarContorno ? contornoCor : "none"}
+  strokeWidth={
+    campo.forma === "LINHA"
+      ? contornoEspessura || 4
+      : contornoEspessura
+  }
+  strokeLinejoin="round"
+  strokeLinecap="round"
+  paintOrder="fill stroke markers"
+  vectorEffect="non-scaling-stroke"
+/>
 
 {selecionado && campo.forma === "ESTRELA" && (
   <div className="pointer-events-auto absolute left-1/2 top-[-74px] z-[999999] flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] shadow-xl">
@@ -529,6 +536,32 @@ opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
   </div>
 )}
 
+{selecionado && campo.forma === "ESTRELA" && (
+  <div className="pointer-events-none absolute inset-0 z-[999999]">
+    {pontos.map((ponto) => (
+      <button
+        key={`ponto-estrela-${ponto.id}`}
+        type="button"
+        onMouseDown={(e) =>
+          iniciarArrastePercentual(e, (x, y) =>
+            moverPonto(ponto.id, x, y)
+          )
+        }
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          alternarTipoPonto(ponto.id);
+        }}
+        className="pointer-events-auto absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-purple-600 shadow"
+        style={{
+          left: `${ponto.x}%`,
+          top: `${ponto.y}%`,
+        }}
+        title="Arraste para deformar. Duplo clique alterna reto/curvo."
+      />
+    ))}
+  </div>
+)}
+
         {selecionado &&
           pontos.map((ponto) => {
             const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
@@ -577,7 +610,7 @@ opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
                   moverAlca(ponto.id, "in", x, y, ev.altKey)
                 )
               }
-              className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
+              className="pointer-events-auto absolute z-[999999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500 shadow"
               style={{
                 left: `${p.inX}%`,
                 top: `${p.inY}%`,
@@ -593,7 +626,7 @@ opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
                   moverAlca(ponto.id, "out", x, y, ev.altKey)
                 )
               }
-              className="pointer-events-auto absolute z-[99991] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-purple-300 shadow"
+              className="pointer-events-auto absolute z-[999999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500 shadow"
               style={{
                 left: `${p.outX}%`,
                 top: `${p.outY}%`,
