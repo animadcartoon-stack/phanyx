@@ -198,13 +198,53 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
   }
 
   if (forma === "CIRCULO") {
-    return [
-      { id: "p1", x: 50, y: 0, tipo: "curvo" as const },
-      { id: "p2", x: 100, y: 50, tipo: "curvo" as const },
-      { id: "p3", x: 50, y: 100, tipo: "curvo" as const },
-      { id: "p4", x: 0, y: 50, tipo: "curvo" as const },
-    ];
-  }
+  return [
+    {
+      id: "p1",
+      x: 50,
+      y: 0,
+      tipo: "curvo" as const,
+      inX: 22.386,
+      inY: 0,
+      outX: 77.614,
+      outY: 0,
+      handleMode: "alinhado" as const,
+    },
+    {
+      id: "p2",
+      x: 100,
+      y: 50,
+      tipo: "curvo" as const,
+      inX: 100,
+      inY: 22.386,
+      outX: 100,
+      outY: 77.614,
+      handleMode: "alinhado" as const,
+    },
+    {
+      id: "p3",
+      x: 50,
+      y: 100,
+      tipo: "curvo" as const,
+      inX: 77.614,
+      inY: 100,
+      outX: 22.386,
+      outY: 100,
+      handleMode: "alinhado" as const,
+    },
+    {
+      id: "p4",
+      x: 0,
+      y: 50,
+      tipo: "curvo" as const,
+      inX: 0,
+      inY: 77.614,
+      outX: 0,
+      outY: 22.386,
+      handleMode: "alinhado" as const,
+    },
+  ];
+}
 
   if (forma === "ESTRELA") {
     return [
