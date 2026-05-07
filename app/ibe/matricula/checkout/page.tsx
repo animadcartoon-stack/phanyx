@@ -22,6 +22,7 @@ type Modulo = {
 
 const VALOR_DISCIPLINA = 110;
 const VALOR_SEMESTRE_COMPLETO = 550;
+const VALOR_CURSO_COMPLETO = 3000;
 const INSTITUICAO_ID_PADRAO = 1; // IBE
 
 export default function IbeCheckoutPage() {
@@ -113,24 +114,32 @@ function deselecionarModulo(numeroModulo: number, disciplinasDoModulo: Disciplin
 
   const todasDisciplinas = modulos.flatMap((m) => m.disciplinas);
 
-  const total = modulos.reduce((acc, modulo) => {
-  const idsDoModulo = modulo.disciplinas.map((d) => d.id);
+  const cursoCompletoSelecionado =
+  todasDisciplinas.length > 0 &&
+  todasDisciplinas.every((d) => disciplinas.includes(d.id)) &&
+  modulos.length > 0 &&
+  modulos.every((m) => modulosCompletos.includes(m.numero));
 
-  const selecionadasDoModulo = modulo.disciplinas.filter((d) =>
-    disciplinas.includes(d.id)
-  );
+const total = cursoCompletoSelecionado
+  ? VALOR_CURSO_COMPLETO
+  : modulos.reduce((acc, modulo) => {
+      const idsDoModulo = modulo.disciplinas.map((d) => d.id);
 
-  const moduloInteiroSelecionado =
-    idsDoModulo.length > 0 &&
-    idsDoModulo.every((id) => disciplinas.includes(id)) &&
-    modulosCompletos.includes(modulo.numero);
+      const selecionadasDoModulo = modulo.disciplinas.filter((d) =>
+        disciplinas.includes(d.id)
+      );
 
-  if (moduloInteiroSelecionado) {
-    return acc + VALOR_SEMESTRE_COMPLETO;
-  }
+      const moduloInteiroSelecionado =
+        idsDoModulo.length > 0 &&
+        idsDoModulo.every((id) => disciplinas.includes(id)) &&
+        modulosCompletos.includes(modulo.numero);
 
-  return acc + selecionadasDoModulo.length * VALOR_DISCIPLINA;
-}, 0);
+      if (moduloInteiroSelecionado) {
+        return acc + VALOR_SEMESTRE_COMPLETO;
+      }
+
+      return acc + selecionadasDoModulo.length * VALOR_DISCIPLINA;
+    }, 0);
 
   async function handleSubmit() {
     if (carregando) return;
