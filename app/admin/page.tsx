@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 
 interface Stats {
@@ -450,7 +450,9 @@ export default function AdminDashboardPage() {
 
   const [loading, setLoading] = useState(true);
   const [tourAberto, setTourAberto] = useState(false);
-
+  const inputFotoRef = useRef<HTMLInputElement | null>(null);
+  const [perfilAdmin, setPerfilAdmin] = useState<any>(null);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
   const [busca, setBusca] = useState("");
   const [alunosLista, setAlunosLista] = useState<ItemBusca[]>([]);
   const [professoresLista, setProfessoresLista] = useState<ItemBusca[]>([]);
@@ -458,6 +460,76 @@ export default function AdminDashboardPage() {
   const [disciplinasLista, setDisciplinasLista] = useState<ItemBusca[]>([]);
   const [turmasLista, setTurmasLista] = useState<ItemBusca[]>([]);
   const [matriculasLista, setMatriculasLista] = useState<ItemBusca[]>([]);
+
+async function carregarPerfilAdmin() {
+  try {
+    const res = await fetch("/api/auth/me", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const json = await res.json();
+
+    if (res.ok) {
+      setPerfilAdmin(json?.user || json);
+    }
+  } catch {}
+}
+
+async function alterarFotoFuncionario(file: File | null) {
+  if (!file) return;
+
+  try {
+    setEnviandoFoto(true);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const resUpload = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const jsonUpload = await resUpload.json();
+
+    if (!resUpload.ok) {
+      throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
+    }
+
+    const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
+
+    if (!fotoUrl) {
+      throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
+    }
+
+    const resSalvar = await fetch("/api/funcionario/foto-perfil", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fotoPerfil: fotoUrl,
+      }),
+    });
+
+    const jsonSalvar = await resSalvar.json();
+
+    if (!resSalvar.ok) {
+      throw new Error(jsonSalvar?.error || "Erro ao salvar foto.");
+    }
+
+    setPerfilAdmin((prev: any) => ({
+      ...prev,
+      fotoPerfil: fotoUrl,
+    }));
+  } catch (e: any) {
+    alert(e?.message || "Erro ao alterar foto.");
+  } finally {
+    setEnviandoFoto(false);
+  }
+}
 
   async function carregarStats() {
     try {
@@ -605,8 +677,9 @@ export default function AdminDashboardPage() {
   }
 
   useEffect(() => {
-    carregarStats();
-  }, []);
+  carregarStats();
+  carregarPerfilAdmin();
+}, []);
 
   useEffect(() => {
     try {
@@ -735,6 +808,42 @@ export default function AdminDashboardPage() {
         <section className="relative rounded-[28px] border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
+
+<div className="mb-6 flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+  <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
+    {perfilAdmin?.fotoPerfil ? (
+      <img
+        src={perfilAdmin.fotoPerfil}
+        alt={perfilAdmin?.nome || "Funcionário"}
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
+        {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
+      </div>
+    )}
+  </div>
+
+  <div>
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+      Perfil administrativo
+    </p>
+
+    <h2 className="text-xl font-bold text-slate-900">
+      {perfilAdmin?.nome || "Administrador"}
+    </h2>
+
+    <button
+      type="button"
+      onClick={() => inputFotoRef.current?.click()}
+      disabled={enviandoFoto}
+      className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+    >
+      {enviandoFoto ? "Enviando..." : "Alterar foto"}
+    </button>
+  </div>
+</div>
+
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">
                 Painel da instituição
               </p>
@@ -985,4 +1094,15 @@ export default function AdminDashboardPage() {
       <AdminTour aberto={tourAberto} onClose={fecharTour} />
     </>
   );
+  <input
+  ref={inputFotoRef}
+  type="file"
+  accept="image/png,image/jpeg,image/jpg,image/webp"
+  className="hidden"
+  onChange={(e) => {
+    const file = e.target.files?.[0] || null;
+    alterarFotoFuncionario(file);
+    e.target.value = "";
+  }}
+/>
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 
 type DashboardAlunoResponse = {
@@ -45,6 +45,8 @@ function AlunoDashboardPage() {
   const [loadingPlano, setLoadingPlano] = useState(true);
   const [matricula, setMatricula] = useState<any>(null);
   const [disciplinas, setDisciplinas] = useState<any[]>([]);
+  const inputFotoRef = useRef<HTMLInputElement | null>(null);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
 
   useEffect(() => {
     carregarDashboard();
@@ -53,6 +55,69 @@ function AlunoDashboardPage() {
     carregarMatricula();
     carregarAulas();
   }, []);
+
+async function alterarFotoPerfil(file: File | null) {
+  if (!file) return;
+
+  try {
+    setEnviandoFoto(true);
+    setErro("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const resUpload = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const jsonUpload = await resUpload.json();
+
+    if (!resUpload.ok) {
+      throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
+    }
+
+    const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
+
+    if (!fotoUrl) {
+      throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
+    }
+
+    const resSalvar = await fetch("/api/aluno/foto-perfil", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fotoPerfil: fotoUrl,
+      }),
+    });
+
+    const jsonSalvar = await resSalvar.json();
+
+    if (!resSalvar.ok) {
+      throw new Error(jsonSalvar?.error || "Erro ao salvar foto do perfil.");
+    }
+
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            aluno: {
+              ...prev.aluno,
+              fotoPerfil: fotoUrl,
+            },
+          }
+        : prev
+    );
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao alterar foto.");
+  } finally {
+    setEnviandoFoto(false);
+  }
+}
 
   async function carregarDashboard() {
     try {
@@ -252,6 +317,17 @@ setTotalDisciplinasMatriculadas(total);
 
   return (
     <div className="min-h-screen bg-slate-50">
+      <input
+  ref={inputFotoRef}
+  type="file"
+  accept="image/png,image/jpeg,image/jpg,image/webp"
+  className="hidden"
+  onChange={(e) => {
+    const file = e.target.files?.[0] || null;
+    alterarFotoPerfil(file);
+    e.target.value = "";
+  }}
+/>
       <div className="mx-auto max-w-7xl space-y-6 p-6">
         <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
           <div className="grid gap-8 px-6 py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
@@ -283,6 +359,14 @@ setTotalDisciplinasMatriculadas(total);
     <h2 className="text-2xl font-bold text-white">
       {data?.aluno?.nome || "Aluno"}
     </h2>
+    <button
+  type="button"
+  onClick={() => inputFotoRef.current?.click()}
+  disabled={enviandoFoto}
+  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 disabled:opacity-60"
+>
+  {enviandoFoto ? "Enviando..." : "Alterar foto"}
+</button>
   </div>
 </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 
 type DashboardResponse = {
@@ -34,6 +34,69 @@ function ProfessorDashboardPage() {
   const [data, setData] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const inputFotoRef = useRef<HTMLInputElement | null>(null);
+  const [enviandoFoto, setEnviandoFoto] = useState(false);
+
+async function alterarFotoPerfil(file: File | null) {
+  if (!file) return;
+
+  try {
+    setEnviandoFoto(true);
+    setErro("");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const resUpload = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const jsonUpload = await resUpload.json();
+
+    if (!resUpload.ok) {
+      throw new Error(jsonUpload?.error || "Erro ao enviar imagem.");
+    }
+
+    const fotoUrl = jsonUpload?.url || jsonUpload?.arquivo?.url;
+
+    if (!fotoUrl) {
+      throw new Error("Upload feito, mas a URL da imagem não foi retornada.");
+    }
+
+    const resSalvar = await fetch("/api/professor/foto-perfil", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fotoPerfil: fotoUrl }),
+    });
+
+    const jsonSalvar = await resSalvar.json();
+
+    if (!resSalvar.ok) {
+      throw new Error(jsonSalvar?.error || "Erro ao salvar foto do perfil.");
+    }
+
+    setData((prev) =>
+      prev
+        ? {
+            ...prev,
+            professor: {
+              ...prev.professor,
+              fotoPerfil: fotoUrl,
+            },
+          }
+        : prev
+    );
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao alterar foto.");
+  } finally {
+    setEnviandoFoto(false);
+  }
+}
 
   async function carregarDashboard() {
     try {
@@ -79,6 +142,17 @@ function ProfessorDashboardPage() {
 
   return (
     <div className="p-6">
+      <input
+  ref={inputFotoRef}
+  type="file"
+  accept="image/png,image/jpeg,image/jpg,image/webp"
+  className="hidden"
+  onChange={(e) => {
+    const file = e.target.files?.[0] || null;
+    alterarFotoPerfil(file);
+    e.target.value = "";
+  }}
+/>
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h1 className="text-2xl font-bold text-gray-900">
@@ -108,6 +182,14 @@ function ProfessorDashboardPage() {
     <h2 className="text-2xl font-bold text-slate-900">
       {data?.professor?.nome || "Professor"}
     </h2>
+    <button
+  type="button"
+  onClick={() => inputFotoRef.current?.click()}
+  disabled={enviandoFoto}
+  className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+>
+  {enviandoFoto ? "Enviando..." : "Alterar foto"}
+</button>
   </div>
 </div>
 

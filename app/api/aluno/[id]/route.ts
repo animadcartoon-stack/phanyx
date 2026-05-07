@@ -607,6 +607,7 @@ export async function PUT(
         cidade: limparTexto(body.cidade) || null,
         estado: limparTexto(body.estado) || null,
         documentoUrl: limparTexto(body.documentoUrl) || null,
+        fotoPerfil: limparTexto(body.fotoPerfil) || null,
         nomeResponsavel: limparTexto(body.nomeResponsavel) || null,
         cpfResponsavel: limparSomenteNumeros(body.cpfResponsavel) || null,
         telefoneResponsavel: limparTexto(body.telefoneResponsavel) || null,
