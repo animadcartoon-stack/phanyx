@@ -76,6 +76,10 @@ useEffect(() => {
     descobrirMenuInicial()
   );
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
+  const [funcionario, setFuncionario] = useState<{
+  nome?: string;
+  fotoPerfil?: string | null;
+} | null>(null);
   const [carregandoUsuario, setCarregandoUsuario] = useState(true);
 
   useEffect(() => {
@@ -138,7 +142,26 @@ useEffect(() => {
         }
 
         const data = await res.json();
-        setUsuario(data.user ?? null);
+
+setUsuario(data.user ?? null);
+
+try {
+  const resFuncionario = await fetch("/api/admin/funcionarios/me", {
+    cache: "no-store",
+    credentials: "include",
+  });
+
+  if (resFuncionario.ok) {
+    const funcionarioData = await resFuncionario.json();
+
+    setFuncionario({
+      nome: funcionarioData?.nome,
+      fotoPerfil: funcionarioData?.fotoPerfil,
+    });
+  }
+} catch {
+  setFuncionario(null);
+}
       } catch {
         setUsuario(null);
       } finally {
@@ -214,6 +237,34 @@ useEffect(() => {
                 ✨ Abrir tutorial guiado
               </button>
             </div>
+
+<div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+  <div className="flex items-center gap-3">
+    <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-200">
+      {funcionario?.fotoPerfil ? (
+        <img
+          src={funcionario.fotoPerfil}
+          alt={funcionario.nome || "Funcionário"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
+          {funcionario?.nome?.charAt(0)?.toUpperCase() || "A"}
+        </div>
+      )}
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+        Administrativo
+      </p>
+
+      <p className="truncate text-sm font-bold text-slate-800">
+        {funcionario?.nome || usuario?.nome || "Administrador"}
+      </p>
+    </div>
+  </div>
+</div>
 
             <nav className="flex flex-col space-y-2">
               <Link

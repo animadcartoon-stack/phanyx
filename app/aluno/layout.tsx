@@ -48,11 +48,12 @@ export default async function AlunoLayout({
       instituicaoId: decoded.instituicaoId,
     },
     select: {
-      id: true,
-      nome: true,
-      statusAluno: true,
-      instituicaoId: true,
-    },
+  id: true,
+  nome: true,
+  fotoPerfil: true,
+  statusAluno: true,
+  instituicaoId: true,
+},
   });
 
   if (!aluno) {
@@ -168,7 +169,7 @@ export default async function AlunoLayout({
     <AlunoProvider>
       <Header />
       <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
-        <AlunoSidebar />
+        <AlunoSidebar aluno={aluno} />
 
         <form
           action="/api/auth/logout-aluno"

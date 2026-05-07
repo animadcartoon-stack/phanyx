@@ -4,7 +4,14 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 
-export default function ProfessorSidebar() {
+export default function ProfessorSidebar({
+  professor,
+}: {
+  professor?: {
+    nome?: string;
+    fotoPerfil?: string | null;
+  };
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const { logout } = useAuth();
@@ -20,9 +27,34 @@ export default function ProfessorSidebar() {
 
   return (
     <aside className="w-64 bg-blue-700 text-white min-h-screen flex flex-col">
-      <div className="p-6 text-xl font-bold border-b border-blue-500">
-        👨‍🏫 Professor
-      </div>
+      <div className="p-6 border-b border-blue-500">
+  <div className="text-xl font-bold">👨‍🏫 Professor</div>
+
+  <div className="mt-4 flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3">
+    <div className="h-14 w-14 flex-shrink-0 overflow-hidden rounded-2xl border border-white/20 bg-white/10">
+      {professor?.fotoPerfil ? (
+        <img
+          src={professor.fotoPerfil}
+          alt={professor.nome || "Professor"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center text-xl font-bold text-white">
+          {professor?.nome?.charAt(0)?.toUpperCase() || "P"}
+        </div>
+      )}
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-xs uppercase tracking-[0.18em] text-blue-100">
+        Docente
+      </p>
+      <p className="truncate font-semibold text-white">
+        {professor?.nome || "Professor"}
+      </p>
+    </div>
+  </div>
+</div>
 
       <nav className="flex-1 p-4 space-y-2">
         {menu.map((item) => (

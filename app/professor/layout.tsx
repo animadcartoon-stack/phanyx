@@ -48,10 +48,11 @@ export default async function ProfessorLayout({
       instituicaoId: decoded.instituicaoId,
     },
     select: {
-      id: true,
-      nome: true,
-      instituicaoId: true,
-    },
+  id: true,
+  nome: true,
+  fotoPerfil: true,
+  instituicaoId: true,
+},
   });
 
   if (!professor) {
@@ -64,7 +65,7 @@ export default async function ProfessorLayout({
       <ConfirmDialogProvider>
         <Header />
         <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
-          <ProfessorSidebar />
+          <ProfessorSidebar professor={professor} />
           <main className="flex-1 p-8">
             <div className="mb-6 flex justify-end">
               <form action="/api/auth/logout-professor" method="post">
