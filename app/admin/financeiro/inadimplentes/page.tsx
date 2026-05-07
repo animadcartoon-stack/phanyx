@@ -40,6 +40,14 @@ type FormLancamento = {
 export default function AdminFinanceiroInadimplentesPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [telefoneModalAberto, setTelefoneModalAberto] = useState(false);
+  const [telefoneWhatsApp, setTelefoneWhatsApp] = useState("");
+  const [cobrancaSelecionada, setCobrancaSelecionada] = useState<{
+  alunoId: number;
+  alunoNome: string;
+  lanc: LancamentoAtrasado;
+} | null>(null);
   const [busca, setBusca] = useState("");
   const [dados, setDados] = useState<AlunoInadimplente[]>([]);
   const [abertoId, setAbertoId] = useState<number | null>(null);
@@ -121,44 +129,54 @@ Em caso de dúvida, entre em contato com a instituição.`;
         `Mensagem de cobrança copiada para o lançamento ${lanc.id}.`
       );
 
-      alert("Mensagem de cobrança copiada.");
+      setSucesso("Mensagem de cobrança copiada com sucesso.");
     } catch {
-      alert("Não foi possível copiar a mensagem.");
+      setErro("Não foi possível copiar a mensagem de cobrança.");
     }
   }
 
   async function cobrarNoWhatsApp(
-    alunoId: number,
-    alunoNome: string,
-    lanc: LancamentoAtrasado
-  ) {
-    const mensagem = montarMensagemCobranca(alunoNome, lanc);
+  alunoId: number,
+  alunoNome: string,
+  lanc: LancamentoAtrasado
+) {
+  setErro("");
+  setSucesso("");
+  setTelefoneWhatsApp("");
+  setCobrancaSelecionada({ alunoId, alunoNome, lanc });
+  setTelefoneModalAberto(true);
+}
 
-    const telefoneInformado = window.prompt(
-      `Digite o telefone do WhatsApp de ${alunoNome}.\nEx: 5548999999999`
-    );
+async function confirmarEnvioWhatsApp() {
+  if (!cobrancaSelecionada) return;
 
-    if (!telefoneInformado) return;
+  const telefone = telefoneWhatsApp.replace(/\D/g, "");
 
-    const telefone = telefoneInformado.replace(/\D/g, "");
-
-    if (!telefone) {
-      alert("Telefone inválido.");
-      return;
-    }
-
-    const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
-    window.open(url, "_blank");
-
-    await registrarHistorico(
-      alunoId,
-      alunoNome,
-      lanc.id,
-      "WHATSAPP",
-      "COBRANCA_ENVIADA",
-      `Cobrança enviada/aberta no WhatsApp para o telefone ${telefone}.`
-    );
+  if (!telefone) {
+    setErro("Informe um telefone de WhatsApp válido antes de enviar a cobrança.");
+    return;
   }
+
+  const { alunoId, alunoNome, lanc } = cobrancaSelecionada;
+  const mensagem = montarMensagemCobranca(alunoNome, lanc);
+  const url = `https://wa.me/${telefone}?text=${encodeURIComponent(mensagem)}`;
+
+  window.open(url, "_blank");
+
+  await registrarHistorico(
+    alunoId,
+    alunoNome,
+    lanc.id,
+    "WHATSAPP",
+    "COBRANCA_ENVIADA",
+    `Cobrança enviada/aberta no WhatsApp para o telefone ${telefone}.`
+  );
+
+  setTelefoneModalAberto(false);
+  setTelefoneWhatsApp("");
+  setCobrancaSelecionada(null);
+  setSucesso("Cobrança aberta no WhatsApp com sucesso.");
+}
 
   function getForm(lancamentoId: number): FormLancamento {
     return (
@@ -272,7 +290,7 @@ Em caso de dúvida, entre em contato com a instituição.`;
 
       await carregar();
 
-      alert("Cobrança regularizada com sucesso.");
+      setSucesso("Cobrança regularizada com sucesso.");
     } catch (e: any) {
       setErro(e?.message || "Erro ao registrar pagamento");
       setBaixandoId(null);
@@ -311,6 +329,7 @@ Em caso de dúvida, entre em contato com a instituição.`;
   }, [filtrados]);
 
   return (
+  <>
     <div className="space-y-6 max-w-7xl">
       <div>
         <h1 className="text-2xl font-bold">🚨 Inadimplentes</h1>
@@ -353,6 +372,13 @@ Em caso de dúvida, entre em contato com a instituição.`;
           {erro}
         </div>
       )}
+
+{sucesso && (
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm">
+    <p className="font-semibold">Tudo certo.</p>
+    <p>{sucesso}</p>
+  </div>
+)}
 
       <div className="bg-white border rounded-xl overflow-hidden">
         <div className="grid grid-cols-7 gap-3 border-b bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">
@@ -582,7 +608,56 @@ Em caso de dúvida, entre em contato com a instituição.`;
             </div>
           ))
         )}
+            </div>
+    </div>
+
+    {telefoneModalAberto && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4">
+    <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl">
+      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">
+        PHANYX Financeiro
+      </p>
+
+      <h2 className="mt-2 text-xl font-bold text-slate-900">
+        Enviar cobrança por WhatsApp
+      </h2>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        Informe o telefone com DDD. O PHANYX abrirá o WhatsApp com a mensagem de cobrança já pronta.
+      </p>
+
+      <input
+        value={telefoneWhatsApp}
+        onChange={(e) => setTelefoneWhatsApp(e.target.value)}
+        placeholder="Ex: 5548999999999"
+        className="mt-4 w-full rounded-xl border px-4 py-3 text-sm outline-none focus:border-blue-500"
+      />
+
+      <div className="mt-5 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setTelefoneModalAberto(false);
+            setTelefoneWhatsApp("");
+            setCobrancaSelecionada(null);
+          }}
+          className="rounded-xl border px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={confirmarEnvioWhatsApp}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Abrir WhatsApp
+        </button>
       </div>
     </div>
-  );
+  </div>
+)}
+
+  </>
+);
 }

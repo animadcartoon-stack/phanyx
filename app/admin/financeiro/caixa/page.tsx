@@ -28,6 +28,7 @@ type Caixa = {
 export default function AdminFinanceiroCaixaPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [caixa, setCaixa] = useState<Caixa | null>(null);
 
   const [saldoInicial, setSaldoInicial] = useState("");
@@ -73,6 +74,7 @@ export default function AdminFinanceiroCaixaPage() {
   async function abrirCaixa() {
     try {
       setErro("");
+      setSucesso("");
 
       const res = await fetch("/api/admin/financeiro/caixa", {
         method: "POST",
@@ -94,7 +96,7 @@ export default function AdminFinanceiroCaixaPage() {
       setSaldoInicial("");
       setObservacaoAbertura("");
       await carregarCaixa();
-      alert("Caixa aberto com sucesso!");
+      setSucesso("Caixa aberto com sucesso.");
     } catch (e: any) {
       setErro(e?.message || "Erro ao abrir caixa");
     }
@@ -105,7 +107,7 @@ export default function AdminFinanceiroCaixaPage() {
 
     try {
       setErro("");
-
+      setSucesso("");
       const res = await fetch("/api/admin/financeiro/caixa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -130,7 +132,7 @@ export default function AdminFinanceiroCaixaPage() {
       setValor("");
       setFormaPagamento("PIX");
       await carregarCaixa();
-      alert("Movimento registrado com sucesso!");
+      setSucesso("Movimento registrado com sucesso.");
     } catch (e: any) {
       setErro(e?.message || "Erro ao registrar movimento");
     }
@@ -141,7 +143,7 @@ export default function AdminFinanceiroCaixaPage() {
 
     try {
       setErro("");
-
+      setSucesso("");
       const res = await fetch("/api/admin/financeiro/caixa", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -163,7 +165,7 @@ export default function AdminFinanceiroCaixaPage() {
       setSaldoInformado("");
       setObservacaoFechamento("");
       await carregarCaixa();
-      alert("Caixa fechado com sucesso!");
+      setSucesso("Caixa fechado com sucesso.");
     } catch (e: any) {
       setErro(e?.message || "Erro ao fechar caixa");
     }
@@ -198,6 +200,13 @@ export default function AdminFinanceiroCaixaPage() {
           {erro}
         </div>
       )}
+
+{sucesso && (
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm">
+    <p className="font-semibold">Tudo certo.</p>
+    <p>{sucesso}</p>
+  </div>
+)}
 
       {loading ? (
         <div className="bg-white border rounded-xl p-6 text-gray-600">Carregando caixa...</div>

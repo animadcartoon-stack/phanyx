@@ -57,6 +57,7 @@ type RecebimentoItem = {
 export default function AdminFinanceiroRecebimentosPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
   const [tipo, setTipo] = useState("");
@@ -198,6 +199,7 @@ async function carregarPolos() {
       async function darBaixa(lancamentoId: number) {
     try {
       setErro("");
+      setSucesso("");
       setDocumentosGerados([]);
 
       const recebimento = recebimentos.find((item) => item.id === lancamentoId);
@@ -236,7 +238,7 @@ async function carregarPolos() {
       await carregarRecebimentos();
       await carregarDocumentosFinanceirosDoAluno(recebimento?.aluno?.id || null);
 
-      alert("Baixa registrada com sucesso!");
+      setSucesso("Baixa registrada com sucesso.");
     } catch (e: any) {
       setErro(e?.message || "Erro ao dar baixa");
     }
@@ -251,13 +253,13 @@ async function carregarPolos() {
   async function darBaixaEmLote() {
   try {
     if (selecionados.length === 0) {
-      alert("Selecione pelo menos um lançamento.");
+      setErro("Selecione pelo menos um lançamento antes de fazer a baixa em lote.");
       return;
     }
 
     setBaixandoLote(true);
     setErro("");
-
+    setSucesso("");
     for (const id of selecionados) {
       const item = recebimentos.find((r) => r.id === id);
       if (!item) continue;
@@ -302,7 +304,7 @@ async function carregarPolos() {
 
     await carregarRecebimentos();
 
-    alert("Baixa em lote realizada com sucesso!");
+    setSucesso("Baixa em lote realizada com sucesso.");
   } catch (e: any) {
     console.error(e);
     setErro(e?.message || "Erro na baixa em lote");
@@ -567,7 +569,12 @@ function calcularValorFinalLote(item: RecebimentoItem) {
           {erro}
         </div>
       )}
-
+{sucesso && (
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm">
+    <p className="font-semibold">Tudo certo.</p>
+    <p>{sucesso}</p>
+  </div>
+)}
       {documentosGerados.length > 0 && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
