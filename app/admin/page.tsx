@@ -876,11 +876,13 @@ async function alterarFoto(file: File | null) {
   <input
     ref={inputFotoRef}
     type="file"
-    accept="image/png,image/jpeg,image/webp"
+    accept="image/png,image/jpeg,image/jpg,image/webp"
     className="hidden"
-    onChange={(e) =>
-      alterarFoto(e.target.files?.[0] || null)
-    }
+    onChange={(e) => {
+      const file = e.target.files?.[0] || null;
+      alterarFoto(file);
+      e.target.value = "";
+    }}
   />
 
   <button
@@ -1142,18 +1144,6 @@ async function alterarFoto(file: File | null) {
       </div>
 
       <AdminTour aberto={tourAberto} onClose={fecharTour} />
-    </>
+        </>
   );
-  <input
-  ref={inputFotoRef}
-  type="file"
-  accept="image/png,image/jpeg,image/jpg,image/webp"
-  className="hidden"
-  onChange={(e) => {
-    const file = e.target.files?.[0] || null;
-    alterarFotoFuncionario(file);
-    e.target.value = "";
-  }}
-/>
 }
-const inputFotoRef = useRef<HTMLInputElement | null>(null);
