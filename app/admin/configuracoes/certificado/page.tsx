@@ -246,20 +246,38 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
   ];
 }
 
-  if (forma === "ESTRELA") {
-    return [
-      { id: "p1", x: 50, y: 0, tipo: "reto" as const },
-      { id: "p2", x: 61, y: 35, tipo: "reto" as const },
-      { id: "p3", x: 98, y: 35, tipo: "reto" as const },
-      { id: "p4", x: 68, y: 57, tipo: "reto" as const },
-      { id: "p5", x: 79, y: 91, tipo: "reto" as const },
-      { id: "p6", x: 50, y: 70, tipo: "reto" as const },
-      { id: "p7", x: 21, y: 91, tipo: "reto" as const },
-      { id: "p8", x: 32, y: 57, tipo: "reto" as const },
-      { id: "p9", x: 2, y: 35, tipo: "reto" as const },
-      { id: "p10", x: 39, y: 35, tipo: "reto" as const },
-    ];
+ if (forma === "ESTRELA") {
+  const cx = 50;
+  const cy = 50;
+
+  const pontas = 5;
+  const raioExterno = 50;
+  const raioInterno = 22;
+
+  const pontos = [];
+
+  for (let i = 0; i < pontas * 2; i++) {
+    const angulo =
+      (Math.PI * i) / pontas - Math.PI / 2;
+
+    const raio =
+      i % 2 === 0
+        ? raioExterno
+        : raioInterno;
+
+    const x = cx + Math.cos(angulo) * raio;
+    const y = cy + Math.sin(angulo) * raio;
+
+    pontos.push({
+      id: `p${i + 1}`,
+      x: Number(x.toFixed(2)),
+      y: Number(y.toFixed(2)),
+      tipo: "reto" as const,
+    });
   }
+
+  return pontos;
+}
 
   return null;
 }

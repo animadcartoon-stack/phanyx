@@ -323,13 +323,21 @@ atualizarPontos(novosPontos);
   return (
     <div
   data-forma-vetorial-root
-  className="pointer-events-none absolute inset-0 overflow-visible"
+  className={
+    modo === "preview"
+      ? "pointer-events-none absolute inset-0 overflow-hidden"
+      : "pointer-events-none absolute inset-0 overflow-visible"
+  }
 >
       <svg
-        className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
+  className={
+    modo === "preview"
+      ? "pointer-events-none absolute inset-0 h-full w-full overflow-hidden"
+      : "pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+  }
+  viewBox="0 0 100 100"
+  preserveAspectRatio="none"
+>
         <path
           d={gerarPath(campo)}
           onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
