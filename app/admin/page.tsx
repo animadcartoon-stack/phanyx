@@ -463,7 +463,7 @@ export default function AdminDashboardPage() {
 
 async function carregarPerfilAdmin() {
   try {
-    const res = await fetch("/api/auth/me", {
+    const res = await fetch("/api/admin/funcionarios/me", {
       credentials: "include",
       cache: "no-store",
     });
@@ -471,9 +471,11 @@ async function carregarPerfilAdmin() {
     const json = await res.json();
 
     if (res.ok) {
-      setPerfilAdmin(json?.user || json);
+      setPerfilAdmin(json);
     }
-  } catch {}
+  } catch {
+    setPerfilAdmin(null);
+  }
 }
 
 async function alterarFotoFuncionario(file: File | null) {
@@ -824,18 +826,25 @@ async function alterarFoto(file: File | null) {
       return;
     }
 
-    await fetch("/api/admin/funcionarios/me", {
-      method: "PUT",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        fotoPerfil: fotoUrl,
-      }),
-    });
+    const salvar = await fetch("/api/admin/funcionarios/me", {
+  method: "PUT",
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    ...perfilAdmin,
+    fotoPerfil: fotoUrl,
+  }),
+});
 
-    window.location.reload();
+const salvarJson = await salvar.json();
+
+if (salvar.ok) {
+  setPerfilAdmin(salvarJson);
+  window.dispatchEvent(new Event("phanyx:perfil-admin-atualizado"));
+}
+
   } catch (e) {
     console.error(e);
   }
