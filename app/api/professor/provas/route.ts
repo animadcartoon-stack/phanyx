@@ -27,9 +27,22 @@ export async function GET() {
     const provas = await prisma.prova.findMany({
       where: {
         instituicaoId: user.instituicaoId,
-        turma: {
-          professorId: professor.id,
+       turma: {
+  OR: [
+    {
+      professorId: professor.id,
+    },
+    {
+      disciplinas: {
+        some: {
+          disciplina: {
+            professorId: professor.id,
+          },
         },
+      },
+    },
+  ],
+},
       },
       orderBy: {
         createdAt: "desc",
@@ -112,6 +125,20 @@ export async function POST(req: Request) {
   where: {
     id: Number(turmaId),
     instituicaoId: user.instituicaoId,
+    OR: [
+      {
+        professorId: professor.id,
+      },
+      {
+        disciplinas: {
+          some: {
+            disciplina: {
+              professorId: professor.id,
+            },
+          },
+        },
+      },
+    ],
   },
       include: {
         disciplinas: {

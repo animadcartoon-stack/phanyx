@@ -52,16 +52,29 @@ export async function POST(request: Request): Promise<NextResponse> {
         }
 
         const aula = await prisma.aula.findFirst({
-          where: {
-            id: aulaId,
-            instituicaoId: user.instituicaoId,
-            turma: {
-              professorId: professor.id,
-              instituicaoId: user.instituicaoId,
+  where: {
+    id: aulaId,
+    instituicaoId: user.instituicaoId,
+    turma: {
+      instituicaoId: user.instituicaoId,
+      OR: [
+        {
+          professorId: professor.id,
+        },
+        {
+          disciplinas: {
+            some: {
+              disciplina: {
+                professorId: professor.id,
+              },
             },
           },
-          select: { id: true },
-        });
+        },
+      ],
+    },
+  },
+  select: { id: true },
+});
 
         if (!aula) {
           throw new Error("Aula não encontrada ou sem acesso.");
