@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type UsuarioLogado = {
   id?: number;
@@ -40,8 +41,11 @@ useEffect(() => {
         credentials: "include",
       });
 
-      alert("Sessão encerrada por segurança devido à inatividade.");
-      window.location.href = "/login?portal=admin";
+      setSessaoExpirada(true);
+
+setTimeout(() => {
+  window.location.href = "/login?portal=admin";
+}, 2500);
     }, tempoInatividade);
   };
 
@@ -81,6 +85,7 @@ useEffect(() => {
   fotoPerfil?: string | null;
 } | null>(null);
   const [carregandoUsuario, setCarregandoUsuario] = useState(true);
+  const [sessaoExpirada, setSessaoExpirada] = useState(false);
 
   useEffect(() => {
   setMenuAberto(null);
@@ -561,6 +566,19 @@ try {
       <main className={esconderSidebar ? "flex-1 p-0" : "flex-1 p-10"}>
         {children}
       </main>
+      <PhanyxConfirmModal
+  aberto={sessaoExpirada}
+  titulo="Sessão encerrada"
+  mensagem="Sua sessão foi encerrada por segurança devido à inatividade. Você será redirecionado para o login."
+  textoConfirmar="Ir para o login"
+  textoCancelar="Fechar"
+  onConfirmar={() => {
+    window.location.href = "/login?portal=admin";
+  }}
+  onCancelar={() => {
+    window.location.href = "/login?portal=admin";
+  }}
+/>
     </div>
   );
 }
