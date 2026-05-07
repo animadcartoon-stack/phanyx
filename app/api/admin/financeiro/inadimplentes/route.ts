@@ -10,9 +10,12 @@ async function buscarConfiguracaoFinanceira(instituicaoId: number) {
   });
 
   return {
-    diasTolerancia: Number(config?.diasTolerancia || 0),
-    bloquearAlunoInadimplente: Boolean(config?.bloquearAlunoInadimplente),
-  };
+  diasTolerancia: Number(config?.diasTolerancia || 0),
+  bloquearAlunoInadimplente: Boolean(config?.bloquearAlunoInadimplente),
+  quantidadeMensalidadesParaBloqueio: Number(
+    config?.quantidadeMensalidadesParaBloqueio || 3
+  ),
+};
 }
 
 async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
@@ -40,35 +43,49 @@ async function atualizarAtrasosEInadimplencia(instituicaoId: number) {
   });
 
   if (config.bloquearAlunoInadimplente) {
-    const lancamentosAtrasados = await prisma.lancamentoFinanceiro.findMany({
+  const lancamentosAtrasados = await prisma.lancamentoFinanceiro.findMany({
+    where: {
+      instituicaoId,
+      status: "ATRASADO",
+      tipo: "MENSALIDADE",
+    },
+    select: {
+      alunoId: true,
+    },
+  });
+
+  const contador: Record<number, number> = {};
+
+  for (const item of lancamentosAtrasados) {
+    if (!contador[item.alunoId]) {
+      contador[item.alunoId] = 0;
+    }
+
+    contador[item.alunoId]++;
+  }
+
+  const alunoIds = Object.entries(contador)
+    .filter(
+      ([, quantidade]) =>
+        quantidade >=
+        Number(config.quantidadeMensalidadesParaBloqueio || 3)
+    )
+    .map(([alunoId]) => Number(alunoId));
+
+  if (alunoIds.length > 0) {
+    await prisma.aluno.updateMany({
       where: {
         instituicaoId,
-        status: "ATRASADO",
+        id: {
+          in: alunoIds,
+        },
       },
-      select: {
-        alunoId: true,
+      data: {
+        statusAluno: "INADIMPLENTE" as any,
       },
-      distinct: ["alunoId"],
     });
-
-    const alunoIds = lancamentosAtrasados
-      .map((item) => item.alunoId)
-      .filter((id) => Number.isFinite(id));
-
-    if (alunoIds.length > 0) {
-      await prisma.aluno.updateMany({
-        where: {
-          instituicaoId,
-          id: {
-            in: alunoIds,
-          },
-        },
-        data: {
-          statusAluno: "INADIMPLENTE" as any,
-        },
-      });
-    }
   }
+}
 }
 
 export async function GET(_req: NextRequest) {
