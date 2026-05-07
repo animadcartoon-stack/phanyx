@@ -17,7 +17,7 @@ interface Funcionario {
   cargo?: string | null;
   setor?: string | null;
   codigoFuncionario?: string | null;
-
+  fotoPerfil?: string | null;
   statusFuncionario?: string;
   motivoStatus?: string;
 
@@ -534,41 +534,69 @@ function AdminFuncionariosPage() {
         ) : (
           funcionariosFiltrados.map((f) => (
             <div key={f.id} className="bg-white border rounded-lg p-4 space-y-3">
-              <div>
-                <p className="font-medium">{f.nome}</p>
-                <p className="text-sm text-gray-600">{f.user?.email}</p>
-                <p className="text-sm text-gray-600">
-                  Perfil de acesso: {traduzirRole(f.user?.role)}
-                </p>
+              <div className="flex items-start gap-4">
+  <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100 flex-shrink-0">
+    {f.fotoPerfil ? (
+      <img
+        src={f.fotoPerfil}
+        alt={f.nome}
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
+        {f.nome?.charAt(0)?.toUpperCase() || "F"}
+      </div>
+    )}
+  </div>
 
-<p className="text-sm text-gray-600">
-  Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
-</p>
+  <div>
+    <p className="font-medium">{f.nome}</p>
+    <p className="text-sm text-gray-600">{f.user?.email}</p>
 
-<p className="text-sm text-gray-600">
-  Status: {f.statusFuncionario || "ATIVO"}
-</p>
+    <p className="text-sm text-gray-600">
+      Perfil de acesso: {traduzirRole(f.user?.role)}
+    </p>
 
-{f.motivoStatus && (
-  <p className="text-sm text-gray-600">
-    Motivo: {f.motivoStatus}
-  </p>
-)}
+    <p className="text-sm text-gray-600">
+      Acesso: {f.user?.ativo === false ? "Bloqueado" : "Ativo"}
+    </p>
 
-                <p className="text-sm text-gray-600">CPF: {f.cpf || "-"}</p>
-                <p className="text-sm text-gray-600">RG: {f.rg || "-"}</p>
-                <p className="text-sm text-gray-600">
-                  Telefone: {f.telefone || "-"}
-                </p>
-                <p className="text-sm text-gray-600">Cargo: {f.cargo || "-"}</p>
-                <p className="text-sm text-gray-600">
-                  Código: {f.codigoFuncionario || "-"}
-                </p>
-                <p className="text-sm text-gray-600">
-                  Departamento: {f.departamento?.nome || "-"}
-                </p>
-              </div>
+    <p className="text-sm text-gray-600">
+      Status: {f.statusFuncionario || "ATIVO"}
+    </p>
 
+    {f.motivoStatus && (
+      <p className="text-sm text-gray-600">
+        Motivo: {f.motivoStatus}
+      </p>
+    )}
+
+    <p className="text-sm text-gray-600">
+      CPF: {f.cpf || "-"}
+    </p>
+
+    <p className="text-sm text-gray-600">
+      RG: {f.rg || "-"}
+    </p>
+
+    <p className="text-sm text-gray-600">
+      Telefone: {f.telefone || "-"}
+    </p>
+
+    <p className="text-sm text-gray-600">
+      Cargo: {f.cargo || "-"}
+    </p>
+
+    <p className="text-sm text-gray-600">
+      Código: {f.codigoFuncionario || "-"}
+    </p>
+
+    <p className="text-sm text-gray-600">
+      Departamento: {f.departamento?.nome || "-"}
+    </p>
+  </div>
+</div>
+  
               <div className="flex flex-wrap gap-2">
                 <button
   type="button"
