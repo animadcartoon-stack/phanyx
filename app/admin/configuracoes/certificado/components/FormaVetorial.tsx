@@ -418,10 +418,11 @@ atualizarPontos(novosPontos);
       ? "pointer-events-none absolute inset-0 h-full w-full overflow-hidden"
       : "pointer-events-none absolute inset-0 h-full w-full overflow-visible"
   }
-  viewBox="-8 -8 116 116"
-  preserveAspectRatio="xMidYMid meet"
+  viewBox="-6 -6 112 112"
+  preserveAspectRatio="none"
 >
-        <path
+      {/* PREENCHIMENTO */}
+<path
   d={gerarPath(campo)}
   onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
   className={
@@ -434,17 +435,24 @@ atualizarPontos(novosPontos);
       ? "none"
       : preenchimentoCor
   }
-  opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
+  opacity={campo.forma === "LINHA" ? 1 : campo.opacity ?? 1}
+  stroke="none"
+/>
+
+{/* CONTORNO */}
+<path
+  d={gerarPath(campo)}
+  fill="none"
   stroke={mostrarContorno ? contornoCor : "none"}
   strokeWidth={
     campo.forma === "LINHA"
       ? contornoEspessura || 4
-      : contornoEspessura
+      : Math.max(1, contornoEspessura)
   }
   strokeLinejoin="round"
   strokeLinecap="round"
-  paintOrder="fill stroke markers"
   vectorEffect="non-scaling-stroke"
+  className="pointer-events-none"
 />
 
 {selecionado && campo.forma === "ESTRELA" && (
@@ -562,37 +570,95 @@ atualizarPontos(novosPontos);
   </div>
 )}
 
-        {selecionado &&
-          pontos.map((ponto) => {
-            const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
+        {selecionado && modo === "editor" && (
+  <div className="pointer-events-none absolute inset-0 z-[999999]">
+    {pontos.map((ponto) => {
+      const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
 
-            return (
-              <g key={`alcas-${ponto.id}`}>
-                {ponto.tipo === "curvo" && (
-                  <>
-                    <line
-                      x1={ponto.x}
-                      y1={ponto.y}
-                      x2={p.inX}
-                      y2={p.inY}
-                      stroke="#9333ea"
-                      strokeWidth={0.6}
-                      vectorEffect="non-scaling-stroke"
-                    />
-                    <line
-                      x1={ponto.x}
-                      y1={ponto.y}
-                      x2={p.outX}
-                      y2={p.outY}
-                      stroke="#9333ea"
-                      strokeWidth={0.6}
-                      vectorEffect="non-scaling-stroke"
-                    />
-                  </>
-                )}
-              </g>
-            );
-          })}
+      return (
+        <div key={`controle-${ponto.id}`}>
+          {ponto.tipo === "curvo" && (
+            <>
+              <div
+                className="pointer-events-none absolute h-px bg-purple-400"
+                style={{
+                  left: `${ponto.x}%`,
+                  top: `${ponto.y}%`,
+                  width: `${Math.hypot((p.inX || ponto.x) - ponto.x, (p.inY || ponto.y) - ponto.y)}%`,
+                  transformOrigin: "0 0",
+                  transform: `rotate(${Math.atan2((p.inY || ponto.y) - ponto.y, (p.inX || ponto.x) - ponto.x)}rad)`,
+                }}
+              />
+
+              <div
+                className="pointer-events-none absolute h-px bg-purple-400"
+                style={{
+                  left: `${ponto.x}%`,
+                  top: `${ponto.y}%`,
+                  width: `${Math.hypot((p.outX || ponto.x) - ponto.x, (p.outY || ponto.y) - ponto.y)}%`,
+                  transformOrigin: "0 0",
+                  transform: `rotate(${Math.atan2((p.outY || ponto.y) - ponto.y, (p.outX || ponto.x) - ponto.x)}rad)`,
+                }}
+              />
+
+              <button
+                type="button"
+                onMouseDown={(e) =>
+                  iniciarArrastePercentual(e, (x, y, ev) =>
+                    moverAlca(ponto.id, "in", x, y, ev.altKey)
+                  )
+                }
+                className="pointer-events-auto absolute z-[999999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500 shadow"
+                style={{
+                  left: `${p.inX}%`,
+                  top: `${p.inY}%`,
+                  cursor: "grab",
+                }}
+                title="Alça Bézier de entrada"
+              />
+
+              <button
+                type="button"
+                onMouseDown={(e) =>
+                  iniciarArrastePercentual(e, (x, y, ev) =>
+                    moverAlca(ponto.id, "out", x, y, ev.altKey)
+                  )
+                }
+                className="pointer-events-auto absolute z-[999999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500 shadow"
+                style={{
+                  left: `${p.outX}%`,
+                  top: `${p.outY}%`,
+                  cursor: "grab",
+                }}
+                title="Alça Bézier de saída"
+              />
+            </>
+          )}
+
+          <button
+            type="button"
+            onMouseDown={(e) =>
+              iniciarArrastePercentual(e, (x, y) =>
+                moverPonto(ponto.id, x, y)
+              )
+            }
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              alternarTipoPonto(ponto.id);
+            }}
+            className="pointer-events-auto absolute z-[999999] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-purple-600 shadow"
+            style={{
+              left: `${ponto.x}%`,
+              top: `${ponto.y}%`,
+              cursor: "grab",
+            }}
+            title="Arraste para deformar. Duplo clique alterna reto/curvo."
+          />
+        </div>
+      );
+    })}
+  </div>
+)}
       </svg>
 
 {selecionado &&
