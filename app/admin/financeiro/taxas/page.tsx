@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type Taxa = {
   id: number;
@@ -68,6 +70,17 @@ export default function TaxasAvulsasPage() {
   const [saving, setSaving] = useState(false);
   const [gerandoLancamento, setGerandoLancamento] = useState(false);
   const [mensagem, setMensagem] = useState("");
+
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+
+  const [confirmarExclusaoAberto, setConfirmarExclusaoAberto] =
+  useState(false);
+
+  const [taxaParaExcluir, setTaxaParaExcluir] =
+  useState<number | null>(null);
+
+  const [excluindo, setExcluindo] = useState(false);
 
   useEffect(() => {
     carregarTaxas();
@@ -229,28 +242,46 @@ export default function TaxasAvulsasPage() {
     }
   }
 
-  async function remover(id: number) {
-    const ok = window.confirm("Deseja realmente excluir esta taxa?");
-    if (!ok) return;
+  function remover(id: number) {
+  setTaxaParaExcluir(id);
+  setConfirmarExclusaoAberto(true);
+}
 
-    try {
-      const res = await fetch(`/api/admin/financeiro/taxas/${id}`, {
+async function confirmarExclusao() {
+  if (!taxaParaExcluir) return;
+
+  try {
+    setExcluindo(true);
+    setErro("");
+    setSucesso("");
+
+    const res = await fetch(
+      `/api/admin/financeiro/taxas/${taxaParaExcluir}`,
+      {
         method: "DELETE",
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao excluir taxa");
       }
+    );
 
-      setMensagem("Taxa excluída com sucesso.");
-      await carregarTaxas();
-    } catch (error: any) {
-      setMensagem(error.message || "Erro ao excluir taxa");
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao excluir taxa");
     }
-  }
 
+    setSucesso(
+      "Taxa excluída com sucesso. O cadastro foi removido do sistema."
+    );
+
+    setConfirmarExclusaoAberto(false);
+    setTaxaParaExcluir(null);
+
+    await carregarTaxas();
+  } catch (error: any) {
+    setErro(error.message || "Erro ao excluir taxa");
+  } finally {
+    setExcluindo(false);
+  }
+}
   return (
     <div className="space-y-6 p-6">
       <div>
@@ -260,11 +291,23 @@ export default function TaxasAvulsasPage() {
         </p>
       </div>
 
-      {mensagem && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
-          {mensagem}
-        </div>
-      )}
+      {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível concluir"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
+
+{sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
 
       <form
         onSubmit={salvar}
@@ -588,6 +631,20 @@ export default function TaxasAvulsasPage() {
           </div>
         )}
       </div>
+      <PhanyxConfirmModal
+  aberto={confirmarExclusaoAberto}
+  titulo="Excluir taxa"
+  mensagem="Deseja realmente excluir esta taxa? Essa ação não poderá ser desfeita."
+  textoConfirmar="Excluir taxa"
+  textoCancelar="Cancelar"
+  carregando={excluindo}
+  tipo="perigo"
+  onCancelar={() => {
+    setConfirmarExclusaoAberto(false);
+    setTaxaParaExcluir(null);
+  }}
+  onConfirmar={confirmarExclusao}
+/>
     </div>
   );
 }

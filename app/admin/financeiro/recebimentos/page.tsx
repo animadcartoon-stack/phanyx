@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type PagamentoItem = {
   id: number;
@@ -91,6 +92,7 @@ export default function AdminFinanceiroRecebimentosPage() {
     try {
       setLoading(true);
       setErro("");
+setSucesso("");
 
       const query = new URLSearchParams();
       if (busca.trim()) query.set("busca", busca.trim());
@@ -199,8 +201,9 @@ async function carregarPolos() {
       async function darBaixa(lancamentoId: number) {
     try {
       setErro("");
-      setSucesso("");
-      setDocumentosGerados([]);
+      setErro("");
+setSucesso("");
+setDocumentosGerados([]);
 
       const recebimento = recebimentos.find((item) => item.id === lancamentoId);
 
@@ -238,7 +241,7 @@ async function carregarPolos() {
       await carregarRecebimentos();
       await carregarDocumentosFinanceirosDoAluno(recebimento?.aluno?.id || null);
 
-      setSucesso("Baixa registrada com sucesso.");
+      setSucesso("Baixa registrada com sucesso. O pagamento foi lançado e o saldo do aluno foi atualizado.");
     } catch (e: any) {
       setErro(e?.message || "Erro ao dar baixa");
     }
@@ -304,7 +307,7 @@ async function carregarPolos() {
 
     await carregarRecebimentos();
 
-    setSucesso("Baixa em lote realizada com sucesso.");
+    setSucesso("Baixa em lote realizada com sucesso. Todos os lançamentos selecionados foram processados.");
   } catch (e: any) {
     console.error(e);
     setErro(e?.message || "Erro na baixa em lote");
@@ -565,15 +568,21 @@ function calcularValorFinalLote(item: RecebimentoItem) {
       </div>
 
       {erro && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-          {erro}
-        </div>
-      )}
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível concluir"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
+
 {sucesso && (
-  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700 shadow-sm">
-    <p className="font-semibold">Tudo certo.</p>
-    <p>{sucesso}</p>
-  </div>
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
 )}
       {documentosGerados.length > 0 && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
