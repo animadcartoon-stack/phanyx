@@ -17,9 +17,29 @@ export default function PerfilAdminPage() {
 async function alterarFotoPerfil(file: File | null) {
   if (!file) return;
 
+  const formatosPermitidos = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+  ];
+
+  const tamanhoMaximo = 5 * 1024 * 1024; // 5MB
+
   try {
     setErro("");
     setSucesso("");
+
+    if (!formatosPermitidos.includes(file.type)) {
+      setErro("Formato inválido. Use PNG, JPG, JPEG ou WEBP.");
+      return;
+    }
+
+    if (file.size > tamanhoMaximo) {
+      setErro("A imagem excede o limite de 5MB. Escolha uma foto menor.");
+      return;
+    }
+
     setEnviandoFoto(true);
 
     const formData = new FormData();
@@ -34,7 +54,10 @@ async function alterarFotoPerfil(file: File | null) {
     const jsonUpload = await resUpload.json();
 
     if (!resUpload.ok) {
-      setErro(jsonUpload?.error || "Não foi possível enviar a imagem.");
+      setErro(
+        jsonUpload?.error ||
+          "Não foi possível enviar a imagem. Verifique o formato e o tamanho do arquivo."
+      );
       return;
     }
 
@@ -58,7 +81,10 @@ async function alterarFotoPerfil(file: File | null) {
     const jsonSalvar = await resSalvar.json();
 
     if (!resSalvar.ok) {
-      setErro(jsonSalvar?.error || "A foto foi enviada, mas não foi salva no perfil.");
+      setErro(
+        jsonSalvar?.error ||
+          "A foto foi enviada, mas não foi salva no perfil."
+      );
       return;
     }
 
@@ -177,7 +203,10 @@ async function alterarFotoPerfil(file: File | null) {
     </button>
   </div>
 </div>
-
+<p className="mt-2 text-xs text-slate-500">
+  Formatos aceitos: PNG, JPG, JPEG e WEBP •
+  Tamanho máximo: 5MB
+</p>
         <form onSubmit={salvar} className="mt-8 space-y-6">
             {erro && (
   <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

@@ -2,83 +2,20 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Não autenticado" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
     const funcionario = await prisma.funcionario.findFirst({
       where: {
         userId: user.id,
         instituicaoId: user.instituicaoId,
-      },
-      select: {
-        nome: true,
-        fotoPerfil: true,
-      },
-    });
-
-    return NextResponse.json(funcionario || {});
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: e.message || "Erro ao carregar funcionário" },
-      { status: 500 }
-    );
-  }
-}
-export async function PUT(req: Request) {
-  try {
-    const user = await getUserFromToken();
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "Não autenticado" },
-        { status: 401 }
-      );
-    }
-
-    const body = await req.json();
-
-    const funcionarioExistente = await prisma.funcionario.findFirst({
-      where: {
-        userId: user.id,
-        instituicaoId: user.instituicaoId,
-      },
-    });
-
-    if (!funcionarioExistente) {
-      const usuarioAtualizado = await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          nome: String(body.nome || "").trim(),
-        },
-        select: {
-          id: true,
-          nome: true,
-          email: true,
-        },
-      });
-
-      return NextResponse.json(usuarioAtualizado);
-    }
-
-    const funcionario = await prisma.funcionario.update({
-      where: {
-        id: funcionarioExistente.id,
-      },
-      data: {
-        nome: body.nome,
-        telefone: body.telefone,
-        cargo: body.cargo,
-        fotoPerfil: body.fotoPerfil || null,
       },
       select: {
         id: true,
@@ -89,7 +26,72 @@ export async function PUT(req: Request) {
       },
     });
 
-    return NextResponse.json(funcionario);
+    if (funcionario) {
+      return NextResponse.json(funcionario);
+    }
+
+    return NextResponse.json({
+      id: null,
+      nome: user.nome || "Administrador",
+      telefone: "",
+      cargo: "Administrativo",
+      fotoPerfil: null,
+    });
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: e.message || "Erro ao carregar perfil" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    let funcionario = await prisma.funcionario.findFirst({
+      where: {
+        userId: user.id,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    if (!funcionario) {
+      funcionario = await prisma.funcionario.create({
+        data: {
+          nome: String(body.nome || user.nome || "Administrador").trim(),
+          telefone: body.telefone || null,
+          cargo: body.cargo || "Administrativo",
+          fotoPerfil: body.fotoPerfil || null,
+          userId: user.id,
+          instituicaoId: user.instituicaoId!,
+        },
+      });
+    } else {
+      funcionario = await prisma.funcionario.update({
+        where: { id: funcionario.id },
+        data: {
+          nome: String(body.nome || funcionario.nome || "Administrador").trim(),
+          telefone: body.telefone || null,
+          cargo: body.cargo || null,
+          fotoPerfil: body.fotoPerfil || funcionario.fotoPerfil || null,
+        },
+      });
+    }
+
+    return NextResponse.json({
+      id: funcionario.id,
+      nome: funcionario.nome,
+      telefone: funcionario.telefone,
+      cargo: funcionario.cargo,
+      fotoPerfil: funcionario.fotoPerfil,
+    });
   } catch (e: any) {
     return NextResponse.json(
       { error: e.message || "Erro ao atualizar perfil" },
