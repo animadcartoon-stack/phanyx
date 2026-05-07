@@ -28,6 +28,7 @@ type CampoForma = {
 type Props = {
   campo: CampoForma;
   selecionado: boolean;
+  modo?: "editor" | "preview";
   onChange: (campoAtualizado: CampoForma) => void;
 };
 
@@ -109,7 +110,13 @@ function gerarPath(campo: CampoForma) {
   return d;
 }
 
-export default function FormaVetorial({ campo, selecionado, onChange }: Props) {
+export default function FormaVetorial({
+  campo,
+  selecionado,
+  modo = "editor",
+  onChange,
+}: Props) {
+
   const pontos = campo.pontosForma || [];
 
   const preenchimentoCor = campo.preenchimentoCor || campo.cor || "#1d4ed8";
@@ -325,13 +332,14 @@ atualizarPontos(novosPontos);
       >
         <path
           d={gerarPath(campo)}
-          onDoubleClick={adicionarPonto}
-          className="pointer-events-auto cursor-crosshair"
+          onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
+className={modo === "editor" ? "pointer-events-auto cursor-crosshair" : "pointer-events-none"}
           fill={
-            campo.forma === "LINHA" || !mostrarPreenchimento
-              ? "none"
-              : hexToRgba(preenchimentoCor, campo.opacity ?? 0.55)
-          }
+  campo.forma === "LINHA" || !mostrarPreenchimento
+    ? "none"
+    : preenchimentoCor
+}
+opacity={campo.forma === "LINHA" ? campo.opacity ?? 1 : campo.opacity ?? 0.55}
           stroke={mostrarContorno ? contornoCor : "none"}
           strokeWidth={
             campo.forma === "LINHA"

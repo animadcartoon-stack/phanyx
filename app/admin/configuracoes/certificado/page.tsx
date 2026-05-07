@@ -1940,12 +1940,12 @@ contornoEspessura: 2,
         id: Date.now() + 1,
         tipo: "FORMA",
         forma: "CIRCULO",
-        pontosForma: [],
+        pontosForma: criarPontosIniciaisForma("CIRCULO"),
         mostrarPreenchimento: true,
-mostrarContorno: true,
-preenchimentoCor: "#1d4ed8",
-contornoCor: "#1d4ed8",
-contornoEspessura: 2,
+        mostrarContorno: true,
+        preenchimentoCor: "#1d4ed8",
+        contornoCor: "#1d4ed8",
+        contornoEspessura: 2,
         x: 140,
         y: 140,
         largura: 110,
@@ -2738,9 +2738,10 @@ style={{
 
 {c.pontosForma && c.pontosForma.length > 0 && (
   <FormaVetorial
-    campo={c}
-    selecionado={selecionado}
-    onChange={(campoAtualizado) => {
+  campo={c}
+  selecionado={selecionado}
+  modo="editor"
+  onChange={(campoAtualizado) => {
       setCampos((prev) =>
         prev.map((item) => {
           if (item.id !== c.id) return item;
@@ -4410,135 +4411,16 @@ if (c.tipo === "FORMA") {
         height: `${c.altura || 120}px`,
         zIndex: c.ordem || 1,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
+        transformOrigin: "center center",
+        opacity: c.opacity ?? 1,
       }}
     >
-      <div className="relative h-full w-full">
-  <svg
-  viewBox="0 0 100 100"
-  preserveAspectRatio="none"
-  className="h-full w-full"
->
-  {Array.isArray((c as any).pontosForma) &&
-  (c as any).pontosForma.length > 0 && (
-    <polygon
-      points={pontosFormaParaSvg(c)}
-      fill={
-        (c as any).mostrarPreenchimento === false
-          ? "none"
-          : (c as any).preenchimentoCor || c.cor || "#1d4ed8"
-      }
-      stroke={
-        (c as any).mostrarContorno === false
-          ? "none"
-          : (c as any).contornoCor || c.cor || "#1d4ed8"
-      }
-      strokeWidth={(c as any).contornoEspessura || 1}
-      opacity={c.opacity ?? 1}
-    />
-  )}
-  {(!Array.isArray((c as any).pontosForma) ||
-  (c as any).pontosForma.length === 0) &&
-  c.forma === "ESTRELA" && (
-    <polygon
-      points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35"
-      fill={
-        (c as any).mostrarPreenchimento === false
-          ? "none"
-          : (c as any).preenchimentoCor || c.cor || "#1d4ed8"
-      }
-      stroke={
-        (c as any).mostrarContorno === false
-          ? "none"
-          : (c as any).contornoCor || c.cor || "#1d4ed8"
-      }
-      strokeWidth={(c as any).contornoEspessura || 1}
-      opacity={c.opacity ?? 1}
-    />
-  )}
-
-  {(!Array.isArray((c as any).pontosForma) ||
-  (c as any).pontosForma.length === 0) &&
-  (c.forma === "RETANGULO" || c.forma === "QUADRADO") && (
-    <rect
-      x="0"
-      y="0"
-      width="100"
-      height="100"
-      rx={(c as any).raioBorda || 0}
-      fill={
-        (c as any).mostrarPreenchimento === false
-          ? "none"
-          : (c as any).preenchimentoCor || c.cor || "#1d4ed8"
-      }
-      stroke={
-        (c as any).mostrarContorno === false
-          ? "none"
-          : (c as any).contornoCor || c.cor || "#1d4ed8"
-      }
-      strokeWidth={(c as any).contornoEspessura || 1}
-      opacity={c.opacity ?? 1}
-    />
-  )}
-
-  {(!Array.isArray((c as any).pontosForma) ||
-  (c as any).pontosForma.length === 0) &&
-  c.forma === "TRIANGULO" && (
-    <polygon
-      points="50,0 100,100 0,100"
-      fill={
-        (c as any).mostrarPreenchimento === false
-          ? "none"
-          : (c as any).preenchimentoCor || c.cor || "#1d4ed8"
-      }
-      stroke={
-        (c as any).mostrarContorno === false
-          ? "none"
-          : (c as any).contornoCor || c.cor || "#1d4ed8"
-      }
-      strokeWidth={(c as any).contornoEspessura || 1}
-      opacity={c.opacity ?? 1}
-    />
-  )}
-
-  {(!Array.isArray((c as any).pontosForma) ||
-  (c as any).pontosForma.length === 0) &&
-  c.forma === "CIRCULO" && (
-    <circle
-      cx="50"
-      cy="50"
-      r="48"
-      fill={
-        (c as any).mostrarPreenchimento === false
-          ? "none"
-          : (c as any).preenchimentoCor || c.cor || "#1d4ed8"
-      }
-      stroke={
-        (c as any).mostrarContorno === false
-          ? "none"
-          : (c as any).contornoCor || c.cor || "#1d4ed8"
-      }
-      strokeWidth={(c as any).contornoEspessura || 1}
-      opacity={c.opacity ?? 1}
-    />
-  )}
-
-  {(!Array.isArray((c as any).pontosForma) ||
-  (c as any).pontosForma.length === 0) &&
-  c.forma === "LINHA" && (
-    <line
-      x1="0"
-      y1="50"
-      x2="100"
-      y2="50"
-      stroke={(c as any).contornoCor || c.cor || "#1d4ed8"}
-      strokeWidth={(c as any).contornoEspessura || 3}
-      opacity={c.opacity ?? 1}
-      strokeLinecap="round"
-    />
-  )}
-</svg>
-
-</div>
+      <FormaVetorial
+        campo={c as any}
+        selecionado={false}
+        modo="preview"
+        onChange={() => {}}
+      />
     </div>
   );
 }
