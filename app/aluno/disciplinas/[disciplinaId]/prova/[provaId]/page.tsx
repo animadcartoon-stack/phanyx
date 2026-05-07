@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type Alternativa = { id: number; texto: string };
 type Questao = {
@@ -40,6 +41,7 @@ export default function ExecutarProvaPage() {
   const [prova, setProva] = useState<Prova | null>(null);
   const [tentativaId, setTentativaId] = useState<number | null>(null);
   const [resultado, setResultado] = useState<ResultadoFinal | null>(null);
+  const [erro, setErro] = useState("");
 
   const [respostas, setRespostas] = useState<
     Record<number, { alternativaId?: number; respostaTexto?: string }>
@@ -79,7 +81,7 @@ const t = text2 ? JSON.parse(text2) : null;
 
         setTentativaId(t?.tentativaId ?? t?.tentativa?.id ?? null);
       } catch (e: any) {
-        alert(e?.message || "Erro ao carregar prova.");
+        setErro(e?.message || "Erro ao carregar prova.");
         setProva(null);
       } finally {
         setLoading(false);
@@ -132,7 +134,7 @@ const t = text2 ? JSON.parse(text2) : null;
 
       setResultado(data);
     } catch (e: any) {
-      alert(e?.message || "Erro ao finalizar prova.");
+      setErro(e?.message || "Erro ao finalizar prova.");
     } finally {
       setFinalizando(false);
     }
@@ -190,6 +192,14 @@ const aprovado =
 
   return (
     <div className="p-6 max-w-4xl space-y-6">
+      {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível concluir"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
       <div className="bg-white border rounded-2xl p-6">
         <h1 className="text-2xl font-bold">{prova.titulo}</h1>
         <p className="text-gray-600 mt-1">Responda e finalize para enviar.</p>

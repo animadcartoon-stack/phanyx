@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/lib/withAuth";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type DocumentoGerado = {
   id: number;
@@ -93,6 +94,7 @@ function AdminDocumentosGeradosPage() {
   const [documentos, setDocumentos] = useState<DocumentoGerado[]>([]);
   const [loading, setLoading] = useState(true);
   const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState("");
   const [documentoSelecionado, setDocumentoSelecionado] =
@@ -188,7 +190,7 @@ function AdminDocumentosGeradosPage() {
 
     const win = window.open("", "_blank", "width=900,height=700");
     if (!win) {
-      alert("Não foi possível abrir a janela de impressão.");
+      setErro("Não foi possível abrir a janela de impressão. Verifique se o navegador bloqueou pop-ups.");
       return;
     }
 
@@ -260,6 +262,14 @@ function AdminDocumentosGeradosPage() {
 
   return (
     <div className="space-y-6">
+      {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível imprimir"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
       <div>
         <h1 className="text-2xl font-bold">📚 Documentos gerados</h1>
         <p className="mt-1 text-gray-600">

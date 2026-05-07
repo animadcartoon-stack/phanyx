@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/lib/withAuth";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type TipoDocumentoTemplate =
   | "CONTRATO"
@@ -139,6 +140,7 @@ function AdminDocumentosTemplatesPage() {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
 
   const [filtroBusca, setFiltroBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("");
@@ -210,17 +212,17 @@ function AdminDocumentosTemplatesPage() {
       setMensagem("");
 
       if (!nome.trim()) {
-        alert("Informe o nome do template.");
+        setErro("Informe o nome do template.");
         return;
       }
 
       if (!tipo) {
-        alert("Selecione o tipo do template.");
+        setErro("Selecione o tipo do template.");
         return;
       }
 
       if (!conteudo.trim()) {
-        alert("Informe o conteúdo do template.");
+        setErro("Informe o conteúdo do template.");
         return;
       }
 
@@ -357,7 +359,16 @@ function AdminDocumentosTemplatesPage() {
   }
 
   return (
-    <div className="space-y-6">
+  <div className="space-y-6">
+
+    {erro && (
+      <PhanyxToast
+        tipo="erro"
+        titulo="Não foi possível salvar"
+        mensagem={erro}
+        onClose={() => setErro("")}
+      />
+    )}
       <div>
         <h1 className="text-2xl font-bold">📄 Templates de documentos</h1>
         <p className="mt-1 text-gray-600">

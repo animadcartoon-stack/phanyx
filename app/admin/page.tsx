@@ -527,7 +527,7 @@ async function alterarFotoFuncionario(file: File | null) {
       fotoPerfil: fotoUrl,
     }));
   } catch (e: any) {
-    alert(e?.message || "Erro ao alterar foto.");
+    console.error(e);
   } finally {
     setEnviandoFoto(false);
   }
