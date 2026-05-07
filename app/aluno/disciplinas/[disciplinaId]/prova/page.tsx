@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAluno } from "@/app/context/AlunoContext";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 const NOTA_MINIMA = 7;
 
@@ -57,6 +58,8 @@ export default function ProvaPage() {
   // - MULTIPLA_ESCOLHA: guarda alternativaId (number)
   // - DISCURSIVA: guarda string
   const [respostas, setRespostas] = useState<Record<number, number | string>>({});
+
+  const [erro, setErro] = useState("");
 
   const [resultado, setResultado] = useState<{
     nota: number;
@@ -173,7 +176,7 @@ export default function ProvaPage() {
     });
 
     if (faltando) {
-      alert("Responda todas as perguntas antes de finalizar a prova.");
+      setErro("Responda todas as perguntas antes de finalizar a prova.");
       return;
     }
 
@@ -185,7 +188,7 @@ export default function ProvaPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data?.error ?? "Erro ao finalizar prova.");
+      setErro(data?.error ?? "Erro ao finalizar prova.");
       return;
     }
 
@@ -236,6 +239,14 @@ setResultado({ nota: notaFinal, aprovado, tempo: tempoEmSegundos });
   if (resultado) {
     return (
       <main className="p-8 bg-white text-gray-900 min-h-screen space-y-6">
+        {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível finalizar"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
         <h1 className="text-3xl font-bold">Resultado da Prova</h1>
 
         <div className="bg-white border rounded-lg p-6 space-y-3">

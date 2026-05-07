@@ -4,6 +4,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
+import PhanyxToast from "@/components/ui/PhanyxToast";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type CursoOption = {
   id: number;
@@ -129,7 +131,18 @@ function AdminMatriculasPage() {
 
   const [statusInicialMatricula, setStatusInicialMatricula] =
   useState<string>("ATIVA");
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
+  const [toast, setToast] = useState<{
+  tipo: "sucesso" | "erro";
+  mensagem: string;
+} | null>(null);
+
+  const [confirmModalAberto, setConfirmModalAberto] = useState(false);
+  const [confirmTitulo, setConfirmTitulo] = useState("");
+  const [confirmMensagem, setConfirmMensagem] = useState("");
+  const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
   async function carregarTudo() {
     setLoading(true);
 
@@ -588,22 +601,22 @@ function toggleTurmaEdicao(turmaId: number) {
 
   async function criarMatricula() {
   if (!semestreSelecionado) {
-    alert("Selecione o semestre do curso.");
+    setErro("Selecione o semestre do curso antes de matricular o aluno.");
     return;
   }
 
   if (cargaHorariaAbaixoMinimo) {
-    alert("A carga horária está abaixo do mínimo permitido.");
+    setErro("A carga horária selecionada está abaixo do mínimo permitido para este semestre.");
     return;
   }
 
   if (cargaHorariaExcedida) {
-    alert("A carga horária ultrapassa o limite permitido.");
+    setErro("A carga horária selecionada ultrapassa o limite permitido para este semestre.");
     return;
   }
 
   if (!podeCriar) {
-  alert("Preencha aluno, curso, semestre, turma e disciplinas antes de matricular.");
+  setErro("Preencha aluno, curso, semestre, turma e disciplinas antes de matricular.");
   return;
 }
 
@@ -665,7 +678,7 @@ disciplinaIds: [
         throw new Error(data?.error || "Erro ao criar matrícula.");
       }
 
-      alert("Matrícula criada com sucesso!");
+      setSucesso("Matrícula criada com sucesso.");
 
       setAlunoId("");
       setCursoId("");
@@ -679,7 +692,7 @@ disciplinaIds: [
       setStatusInicialMatricula("ATIVA");
       await carregarTudo();
     } catch (e: any) {
-      alert(e.message);
+      setErro(e.message || "Erro ao criar matrícula.");
     } finally {
       setCreating(false);
     }
@@ -697,14 +710,14 @@ disciplinaIds: [
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.error || "Erro ao gerar contrato.");
+        setErro(data?.error || "Erro ao gerar contrato.");
         return null;
       }
 
       return data;
     } catch (error) {
       console.error("Erro ao gerar contrato:", error);
-      alert("Erro ao gerar contrato.");
+      setErro("Erro ao gerar contrato.");
       return null;
     }
   }
@@ -733,7 +746,7 @@ disciplinaIds: [
         const dataCriado = await resCriado.json();
 
         if (!resCriado.ok || !dataCriado?.tokenAssinatura) {
-          alert("Não foi possível obter o link de assinatura.");
+          setErro("Não foi possível obter o link de assinatura.");
           return;
         }
 
@@ -742,14 +755,14 @@ disciplinaIds: [
       }
 
       if (!data?.tokenAssinatura) {
-        alert("Este contrato ainda não possui token de assinatura.");
+        setErro("Este contrato ainda não possui token de assinatura.");
         return;
       }
 
       window.open(`/assinatura/${data.tokenAssinatura}`, "_blank");
     } catch (error) {
       console.error("Erro ao abrir assinatura:", error);
-      alert("Erro ao abrir assinatura do contrato.");
+      setErro("Erro ao abrir assinatura do contrato.");
     }
   }
 
@@ -842,16 +855,21 @@ disciplinaIds: [
       throw new Error(data?.error || "Erro ao atualizar matrícula");
     }
 
-    alert("Matrícula atualizada com sucesso!");
+    setSucesso("Matrícula atualizada com sucesso.");
     setMatriculaEditando(null);
     await carregarTudo();
   } catch (err: any) {
-    alert(err.message);
+    setErro(err.message || "Erro ao atualizar matrícula.");
   }
 }
 
   async function excluirMatricula(id: number) {
-    if (!confirm("Tem certeza que deseja excluir esta matrícula?")) return;
+    setConfirmTitulo("Excluir matrícula");
+setConfirmMensagem(
+  "Tem certeza que deseja excluir esta matrícula? Esta ação não poderá ser desfeita."
+);
+
+setConfirmAcao(() => async () => {
 
     setRemovingId(id);
     try {
@@ -865,14 +883,22 @@ disciplinaIds: [
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.error ?? "Erro ao excluir matrícula.");
-        return;
-      }
+  setToast({
+    tipo: "erro",
+    mensagem: data?.error ?? "Erro ao excluir matrícula.",
+  });
+
+  return;
+}
 
       setMatriculas((prev) => prev.filter((m) => m.id !== id));
     } finally {
       setRemovingId(null);
     }
+    });
+
+setConfirmModalAberto(true);
+return;
   }
 
   async function alterarStatusMatricula(id: number, status: string) {
@@ -887,15 +913,15 @@ disciplinaIds: [
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.error ?? "Erro ao atualizar status da matrícula.");
+        setErro(data?.error ?? "Erro ao atualizar status da matrícula.");
         return;
       }
 
       await carregarTudo();
-      alert("Status da matrícula atualizado com sucesso!");
+      setSucesso("Status da matrícula atualizado com sucesso.");
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
-      alert("Erro ao atualizar status da matrícula.");
+      setErro("Erro ao atualizar status da matrícula.");
     }
   }
 
@@ -1021,7 +1047,16 @@ function renderGrupoDisciplina(
 }
 
   return (
-    <div className="space-y-6">
+  <div className="space-y-6">
+
+    {toast && (
+      <PhanyxToast
+        tipo={toast.tipo}
+        mensagem={toast.mensagem}
+        onClose={() => setToast(null)}
+      />
+    )}
+
       <div>
         <h1 className="text-2xl font-bold">📌 Matrículas</h1>
         <p className="text-gray-600 mt-1">
@@ -1029,7 +1064,23 @@ function renderGrupoDisciplina(
           contratadas.
         </p>
       </div>
+{erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível concluir"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
 
+{sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
       <div className="bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
         <p className="text-sm text-gray-600 mt-1">
@@ -1860,6 +1911,26 @@ function renderGrupoDisciplina(
     </div>
   </div>
 )}
+
+<PhanyxConfirmModal
+  aberto={confirmModalAberto}
+  titulo={confirmTitulo}
+  mensagem={confirmMensagem}
+  textoConfirmar="Confirmar"
+  textoCancelar="Cancelar"
+  onConfirmar={async () => {
+    setConfirmModalAberto(false);
+
+    if (confirmAcao) {
+      await confirmAcao();
+    }
+  }}
+  onCancelar={() => {
+    setConfirmModalAberto(false);
+    setConfirmAcao(null);
+  }}
+/>
+
     </div>
   );
 }

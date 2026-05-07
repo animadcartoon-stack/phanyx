@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 import {
   useEffect,
   useMemo,
@@ -483,6 +484,7 @@ function gerarPontosEstrela(
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
+  const [mensagemErro, setMensagemErro] = useState("");
   const [orientacao, setOrientacao] = useState<OrientacaoEditor>("paisagem");
   const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(100);
@@ -549,7 +551,7 @@ function gerarPontosEstrela(
       } as any,
     ]);
   } catch (error: any) {
-    alert(error?.message || "Erro ao enviar imagem.");
+    setMensagemErro(error?.message || "Erro ao enviar imagem.");
   } finally {
     setEnviandoArquivo(false);
     e.target.value = "";
@@ -601,20 +603,20 @@ useEffect(() => {
       const dataCampos = await resCampos.json();
 
       if (!resConfig.ok) {
-        alert(
-          dataConfig?.detalhe ||
-            dataConfig?.error ||
-            "Erro ao buscar configuração."
-        );
+        setMensagemErro(
+  dataConfig?.detalhe ||
+    dataConfig?.error ||
+    "Erro ao buscar configuração."
+);
         return;
       }
 
       if (!resCampos.ok) {
-        alert(
-          dataCampos?.detalhe ||
-            dataCampos?.error ||
-            "Erro ao buscar campos."
-        );
+        setMensagemErro(
+  dataCampos?.detalhe ||
+    dataCampos?.error ||
+    "Erro ao buscar campos."
+);
         return;
       }
 
@@ -639,7 +641,7 @@ useEffect(() => {
     : []
 );
     } catch {
-      alert("Erro ao carregar configuração do certificado.");
+      setMensagemErro("Erro ao carregar configuração do certificado.");
     } finally {
       setCarregando(false);
     }
@@ -771,7 +773,7 @@ useEffect(() => {
 
   async function fazerUploadModelo() {
     if (!arquivoModelo) {
-      alert("Selecione um arquivo PDF do modelo.");
+      setMensagemErro("Selecione um arquivo PDF do modelo antes de enviar.");
       return;
     }
 
@@ -789,14 +791,14 @@ useEffect(() => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.detalhe || data?.error || "Erro ao enviar arquivo.");
+        setMensagemErro(data?.detalhe || data?.error || "Erro ao enviar arquivo.");
         return;
       }
 
       setCertificadoTemplateUrl(data.url || "");
-      alert("Modelo do certificado enviado com sucesso.");
+      setMensagemSucesso("Modelo do certificado enviado com sucesso.");
     } catch {
-      alert("Erro ao fazer upload do modelo.");
+      setMensagemErro("Erro ao fazer upload do modelo.");
     } finally {
       setEnviandoArquivo(false);
     }
@@ -851,13 +853,13 @@ function finalizarArrastoCanvas() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.detalhe || data?.error || "Erro ao salvar.");
+        setMensagemErro(data?.detalhe || data?.error || "Erro ao salvar.");
         return;
       }
 
-      alert("Configuração do certificado salva com sucesso.");
+      setMensagemSucesso("Configuração do certificado salva com sucesso.");
     } catch {
-      alert("Erro ao salvar configuração do certificado.");
+      setMensagemErro("Erro ao salvar configuração do certificado.");
     } finally {
       setSalvando(false);
     }
@@ -892,14 +894,14 @@ function finalizarArrastoCanvas() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.detalhe || data?.error || "Erro ao adicionar campo.");
+        setMensagemErro(data?.detalhe || data?.error || "Erro ao adicionar campo.");
         return;
       }
 
       setCampos((prev) => [...prev, data]);
       setCampoSelecionadoId(data.id);
     } catch {
-      alert("Erro ao adicionar campo.");
+      setMensagemErro("Erro ao adicionar campo.");
     }
   }
 
@@ -931,7 +933,7 @@ function finalizarArrastoCanvas() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.detalhe || data?.error || "Erro ao atualizar campo.");
+        setMensagemErro(data?.detalhe || data?.error || "Erro ao atualizar campo.");
         return;
       }
 
@@ -939,7 +941,7 @@ function finalizarArrastoCanvas() {
         prev.map((c) => (c.id === id ? { ...c, ...data } : c))
       );
     } catch {
-      alert("Erro ao atualizar campo.");
+      setMensagemErro("Erro ao atualizar campo.");
     } finally {
       setSalvandoCampo(false);
     }
@@ -947,10 +949,6 @@ function finalizarArrastoCanvas() {
 
 async function excluirCampo(id: number) {
   const campo = campos.find((c) => c.id === id);
-
-  alert(
-  `EXCLUIR CAMPO\nid clicado: ${id}\nbancoId: ${(campo as any)?.bancoId}\ntipo: ${campo?.tipo}`
-);
 
   if (!campo) return;
 
@@ -1004,7 +1002,7 @@ async function excluirCampo(id: number) {
     setMensagemSucesso("Campo excluído definitivamente.");
     setTimeout(() => setMensagemSucesso(""), 2500);
   } catch {
-    alert("Erro ao excluir campo.");
+    setMensagemErro("Erro ao excluir campo.");
   }
 }
 
@@ -1451,22 +1449,30 @@ if (campoSelecionado.tipo === "IMAGEM") {
 
 function baixarArquivo() {
   if (formatoDownload === "png") {
-    alert("Download em PNG será conectado agora no próximo passo.");
+    setMensagemErro(
+      "O download em PNG ainda está em desenvolvimento no Editor PHANYX."
+    );
     return;
   }
 
   if (formatoDownload === "jpg") {
-    alert("Download em JPG será conectado agora no próximo passo.");
+    setMensagemErro(
+      "O download em JPG ainda está em desenvolvimento no Editor PHANYX."
+    );
     return;
   }
 
   if (formatoDownload === "pdf") {
-    alert("Download em PDF padrão será conectado agora no próximo passo.");
+    setMensagemErro(
+      "O download em PDF padrão ainda está em desenvolvimento no Editor PHANYX."
+    );
     return;
   }
 
   if (formatoDownload === "pdf-impressao") {
-    alert("Download em PDF para impressão será conectado agora no próximo passo.");
+    setMensagemErro(
+      "O download em PDF para impressão ainda está em desenvolvimento no Editor PHANYX."
+    );
     return;
   }
 }
@@ -1592,7 +1598,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     setTimeout(() => setMensagemSucesso(""), 3000);
   } catch (error: any) {
     console.error(error);
-    alert(error?.message || "Erro ao salvar modelo.");
+    setMensagemErro(error?.message || "Erro ao salvar modelo.");
   } finally {
     setSalvando(false);
   }
@@ -1611,7 +1617,27 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   className="mx-auto max-w-[1600px] p-6"
   onClick={() => setMenuContexto(null)}
 >
-    
+    {mensagemErro && (
+  <div className="mb-4">
+    <PhanyxToast
+      tipo="erro"
+      titulo="Não foi possível concluir"
+      mensagem={mensagemErro}
+      onClose={() => setMensagemErro("")}
+    />
+  </div>
+)}
+
+{mensagemSucesso && (
+  <div className="mb-4">
+    <PhanyxToast
+      tipo="sucesso"
+      titulo="Tudo certo"
+      mensagem={mensagemSucesso}
+      onClose={() => setMensagemSucesso("")}
+    />
+  </div>
+)}
       <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (

@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 const canais = [
   {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type Template = {
   id: number;
@@ -34,6 +35,7 @@ export default function GerarDocumentoPage() {
 
   const [loading, setLoading] = useState(false);
   const [resultado, setResultado] = useState<any>(null);
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
     carregarDados();
@@ -78,14 +80,14 @@ export default function GerarDocumentoPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao gerar documento");
+        setErro(data.error || "Erro ao gerar documento.");
         return;
       }
 
       setResultado(data);
     } catch (error) {
       console.error(error);
-      alert("Erro ao gerar documento");
+      setErro("Erro ao gerar documento.");
     } finally {
       setLoading(false);
     }
@@ -94,6 +96,15 @@ export default function GerarDocumentoPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">📄 Gerar Documento</h1>
+
+      {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível gerar"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
 
       <div className="bg-white p-6 rounded shadow space-y-4">
 

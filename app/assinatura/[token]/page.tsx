@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type ContratoApi = {
   id: number;
@@ -43,7 +44,8 @@ export default function AssinaturaPorTokenPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mensagem, setMensagem] = useState("");
-
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [contrato, setContrato] = useState<ContratoApi | null>(null);
@@ -120,7 +122,7 @@ export default function AssinaturaPorTokenPage() {
       if (!contrato) return;
 
       if (contrato.status === "ASSINADO") {
-        alert("Este contrato já foi assinado.");
+        setErro("Este contrato já foi assinado.");
         return;
       }
 
@@ -131,12 +133,12 @@ export default function AssinaturaPorTokenPage() {
       const assinaturaBase64 = canvas.toDataURL();
 
       if (!nome.trim()) {
-        alert("Informe o nome completo.");
+        setErro("Informe o nome completo antes de assinar.");
         return;
       }
 
       if (!cpf.trim()) {
-        alert("Informe o CPF.");
+        setErro("Informe o CPF antes de assinar.");
         return;
       }
 
@@ -162,7 +164,7 @@ export default function AssinaturaPorTokenPage() {
         throw new Error(data?.error || "Erro ao assinar");
       }
 
-      setMensagem("Contrato assinado com sucesso!");
+      setSucesso("Contrato assinado com sucesso.");
       await carregarContrato();
     } catch (error: any) {
       console.error(error);
@@ -180,6 +182,23 @@ export default function AssinaturaPorTokenPage() {
 
   return (
     <div className="min-h-screen bg-black px-4 py-8">
+      {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível assinar"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
+
+{sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
       <div className="mx-auto max-w-3xl rounded-2xl bg-white p-6 shadow-xl">
         <h1 className="text-xl font-bold text-gray-900">
           Assinatura de Contrato

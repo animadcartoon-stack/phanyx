@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast"; 
 
 type Disciplina = {
   id: number;
@@ -35,6 +36,7 @@ export default function IbeCheckoutPage() {
   const [modulos, setModulos] = useState<Modulo[]>([]);
   const [modulosAbertos, setModulosAbertos] = useState<number[]>([1]);
   const [modulosCompletos, setModulosCompletos] = useState<number[]>([]);
+  const [erro, setErro] = useState("");
 
   useEffect(() => {
     fetch(`/api/ibe/disciplinas?instituicaoId=${INSTITUICAO_ID_PADRAO}`)
@@ -145,12 +147,12 @@ const total = cursoCompletoSelecionado
     if (carregando) return;
 
     if (!nome.trim() || !email.trim() || !whatsapp.trim() || !cpf.trim()) {
-      alert("Preencha nome, email, WhatsApp e CPF.");
+      setErro("Preencha nome, email, WhatsApp e CPF antes de finalizar a matrícula.");
       return;
     }
 
     if (disciplinas.length === 0) {
-      alert("Selecione pelo menos uma disciplina.");
+      setErro("Selecione pelo menos uma disciplina antes de continuar para o pagamento.");
       return;
     }
 
@@ -175,7 +177,7 @@ const total = cursoCompletoSelecionado
 
     if (!res.ok) {
       setCarregando(false);
-      alert(data?.error || "Erro ao iniciar pagamento.");
+      setErro(data?.error || "Erro ao iniciar pagamento.");
       return;
     }
 
@@ -185,16 +187,26 @@ const total = cursoCompletoSelecionado
     }
 
     setCarregando(false);
-    alert(
-      data?.error ||
-        "Pagamento criado, mas o Asaas não retornou link de pagamento."
-    );
+    setErro(
+  data?.error ||
+    "Pagamento criado, mas o Asaas não retornou o link de pagamento. Tente novamente ou fale com o suporte."
+);
   }
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-6 py-10">
       <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1fr_420px]">
         <section className="rounded-3xl bg-white p-8 shadow-xl">
+          {erro && (
+  <div className="mb-5">
+    <PhanyxToast
+      tipo="erro"
+      titulo="Não foi possível finalizar"
+      mensagem={erro}
+      onClose={() => setErro("")}
+    />
+  </div>
+)}
           <div className="mb-8 flex items-center gap-4">
             <Image
               src="/ibe/logo-preta.png"

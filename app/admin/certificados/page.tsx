@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type AlunoItem = {
   id: number;
@@ -43,6 +44,8 @@ export default function AdminCertificadosPage() {
   const [alunos, setAlunos] = useState<AlunoItem[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoItem | null>(null);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   async function carregarAlunos(termo = "") {
     try {
@@ -59,7 +62,7 @@ export default function AdminCertificadosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data?.error || "Erro ao buscar alunos.");
+        setErro(data?.error || "Erro ao buscar alunos.");
         return;
       }
 
@@ -79,7 +82,7 @@ export default function AdminCertificadosPage() {
 
       setAlunos(lista);
     } catch {
-      alert("Erro ao carregar alunos.");
+      setErro("Erro ao carregar alunos.");
     } finally {
       setCarregando(false);
     }
@@ -117,11 +120,31 @@ export default function AdminCertificadosPage() {
 
   function acaoAindaNaoLigada(nomeAcao: string, aluno: AlunoItem) {
     setAlunoSelecionado(aluno);
-    alert(`${nomeAcao} do certificado de ${aluno.nome} será ligado no próximo passo.`);
+    setSucesso(
+  `${nomeAcao} do certificado de ${aluno.nome} será ligado no próximo passo.`
+);
   }
 
   return (
-    <div className="space-y-6">
+  <div className="space-y-6">
+
+    {erro && (
+      <PhanyxToast
+        tipo="erro"
+        titulo="Não foi possível concluir"
+        mensagem={erro}
+        onClose={() => setErro("")}
+      />
+    )}
+
+    {sucesso && (
+      <PhanyxToast
+        tipo="sucesso"
+        titulo="Tudo certo"
+        mensagem={sucesso}
+        onClose={() => setSucesso("")}
+      />
+    )}
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
           Admin • Certificados
@@ -281,10 +304,10 @@ export default function AdminCertificadosPage() {
     const data = await res.json();
 
     if (data.sucesso) {
-      alert("Certificado gerado com sucesso!");
+      setSucesso("Certificado gerado com sucesso.");
       window.location.reload();
     } else {
-      alert(data.error);
+      setErro(data.error || "Erro ao gerar certificado.");
     }
   }}
   className="bg-blue-600 text-white px-3 py-1 rounded"
@@ -318,7 +341,7 @@ export default function AdminCertificadosPage() {
 
       if (!res.ok) {
         const erro = await res.json().catch(() => null);
-        alert(erro?.error || "Não foi possível baixar o certificado.");
+        setErro(erro?.error || "Não foi possível baixar o certificado.");
         return;
       }
 
@@ -332,7 +355,7 @@ export default function AdminCertificadosPage() {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      alert("Erro ao baixar certificado.");
+      setErro("Erro ao baixar certificado.");
     }
   }}
   className="rounded-lg bg-green-600 px-3 py-2 text-sm font-semibold text-white hover:bg-green-700"

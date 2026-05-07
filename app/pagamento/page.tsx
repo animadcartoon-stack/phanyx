@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast"; 
 
 export default function PagamentoPage() {
   const [pixCode, setPixCode] = useState("");
   const [copiado, setCopiado] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pagamentoId, setPagamentoId] = useState<number | null>(null);
+  const [erro, setErro] = useState("");
 
 async function confirmarPagamento() {
   if (!pagamentoId) return;
@@ -24,7 +26,7 @@ async function confirmarPagamento() {
 
     if (!res.ok || !data?.success) {
       console.error("Erro ao confirmar pagamento:", data);
-      alert("Não foi possível confirmar o pagamento.");
+      setErro("Não foi possível confirmar o pagamento. Verifique se o Pix já foi compensado e tente novamente.");
       return;
     }
 
@@ -32,7 +34,7 @@ async function confirmarPagamento() {
     const senha = "123456";
 
     if (!email) {
-      alert("Usuário criado sem email. Não foi possível entrar automaticamente.");
+      setErro("Pagamento confirmado, mas o usuário foi criado sem email. Procure a instituição para liberar o acesso.");
       return;
     }
 
@@ -49,14 +51,14 @@ async function confirmarPagamento() {
 
     if (!loginRes.ok) {
       console.error("Erro no login automático:", loginData);
-      alert("Pagamento confirmado, mas o login automático falhou.");
+      setErro("Pagamento confirmado, mas o login automático falhou. Tente acessar pela tela de login.");
       return;
     }
 
     window.location.href = "/aluno";
   } catch (error) {
     console.error("Erro ao confirmar pagamento", error);
-    alert("Erro ao concluir o acesso do aluno.");
+    setErro("Erro ao concluir o acesso do aluno. Tente novamente em alguns instantes.");
   }
 }
 
@@ -105,6 +107,16 @@ setPagamentoId(data?.pagamento?.id || null);
   return (
     <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center p-6">
       <div className="bg-gray-900 rounded-2xl p-8 w-full max-w-md shadow-2xl border border-gray-800">
+        {erro && (
+  <div className="mb-5">
+    <PhanyxToast
+      tipo="erro"
+      titulo="Não foi possível concluir"
+      mensagem={erro}
+      onClose={() => setErro("")}
+    />
+  </div>
+)}
         <h1 className="text-2xl font-bold mb-2 text-center">
           Finalizar pagamento
         </h1>
