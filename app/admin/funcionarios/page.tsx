@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
+import PhanyxToast from "@/components/ui/PhanyxToast";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 interface Departamento {
   id: number;
@@ -94,6 +96,17 @@ function AdminFuncionariosPage() {
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(false);
 
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+
+  const [confirmModalAberto, setConfirmModalAberto] = useState(false);
+
+  const [confirmTitulo, setConfirmTitulo] = useState("");
+
+  const [confirmMensagem, setConfirmMensagem] = useState("");
+
+  const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
+
   async function carregarFuncionarios() {
   const res = await fetch("/api/funcionario", {
     credentials: "include",
@@ -146,17 +159,17 @@ function AdminFuncionariosPage() {
     }
 
     if (!nome.trim()) {
-      alert("Informe o nome do funcionário.");
+      setErro("Informe o nome do funcionário antes de continuar.");
       return;
     }
 
     if (!email.trim()) {
-      alert("Informe o email do funcionário.");
+      setErro("Informe o email do funcionário antes de continuar.");
       return;
     }
 
     if (!role) {
-      alert("Selecione o perfil de acesso.");
+      setErro("Selecione o perfil de acesso do funcionário antes de continuar.");
       return;
     }
 
@@ -185,11 +198,11 @@ function AdminFuncionariosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao atualizar funcionário.");
+        setErro(data.error || "Erro ao criar funcionário.");
         return;
       }
 
-      alert("Funcionário atualizado com sucesso.");
+      setSucesso("Funcionário atualizado com sucesso.");
       limparFormulario();
       await carregarFuncionarios();
     } finally {
@@ -197,7 +210,7 @@ function AdminFuncionariosPage() {
     }
   }
 
-  async function alterarAcessoFuncionario(
+ async function alterarAcessoFuncionario(
   id: number,
   acao: "bloquear" | "desbloquear",
   nome: string
@@ -207,47 +220,64 @@ function AdminFuncionariosPage() {
       ? `Deseja bloquear o acesso de "${nome}"?`
       : `Deseja desbloquear o acesso de "${nome}"?`;
 
-  const confirmado = window.confirm(mensagem);
+  setConfirmTitulo(
+    acao === "bloquear"
+      ? "Bloquear acesso"
+      : "Desbloquear acesso"
+  );
 
-  if (!confirmado) return;
+  setConfirmMensagem(mensagem);
 
-  try {
-    const res = await fetch(`/api/funcionario/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ acao }),
-    });
+  setConfirmAcao(() => async () => {
+    try {
+      const res = await fetch(`/api/funcionario/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ acao }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.error || "Erro ao alterar acesso do funcionário.");
-      return;
+      if (!res.ok) {
+        setErro(
+          data.error || "Erro ao alterar acesso do funcionário."
+        );
+        return;
+      }
+
+      setSucesso(
+        data.message || "Acesso alterado com sucesso."
+      );
+
+      await carregarFuncionarios();
+    } catch {
+      setErro(
+        "Erro de comunicação ao alterar acesso do funcionário."
+      );
+    } finally {
+      setConfirmModalAberto(false);
     }
+  });
 
-    alert(data.message || "Acesso alterado com sucesso.");
-    await carregarFuncionarios();
-  } catch {
-    alert("Erro de comunicação ao alterar acesso do funcionário.");
-  }
+  setConfirmModalAberto(true);
 }
 
   async function criarFuncionario(e: React.FormEvent) {
     e.preventDefault();
 
     if (!nome.trim()) {
-      alert("Informe o nome do funcionário.");
+      setErro("Informe o nome do funcionário.");
       return;
     }
 
     if (!email.trim()) {
-      alert("Informe o email do funcionário.");
+      setErro("Informe o email do funcionário.");
       return;
     }
 
     if (!role) {
-      alert("Selecione o perfil de acesso.");
+      setErro("Selecione o perfil de acesso.");
       return;
     }
 
@@ -276,7 +306,7 @@ function AdminFuncionariosPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.error || "Erro ao criar funcionário");
+        setErro(data.error || "Erro ao atualizar funcionário.");
         return;
       }
 
@@ -293,11 +323,11 @@ function AdminFuncionariosPage() {
       await carregarFuncionarios();
 
       if (data?.avisoEmail) {
-        alert(data.avisoEmail);
+        setErro(data.avisoEmail);
         return;
       }
 
-      alert("Funcionário criado com sucesso e email de acesso enviado.");
+      setSucesso("Funcionário criado com sucesso e email de acesso enviado.");
     } finally {
       setCarregando(false);
     }
@@ -359,7 +389,25 @@ function AdminFuncionariosPage() {
     <div className="space-y-6 max-w-5xl">
       <h1 className="text-2xl font-bold">🧑‍💼 Funcionários</h1>
 
-      <form
+{erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível concluir"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
+
+{sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
+
+<form
   onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
   className="bg-white border rounded-lg p-6 space-y-4"
 >
@@ -639,6 +687,22 @@ function AdminFuncionariosPage() {
           ))
         )}
       </div>
+      <PhanyxConfirmModal
+  aberto={confirmModalAberto}
+  titulo={confirmTitulo}
+  mensagem={confirmMensagem}
+  textoConfirmar="Confirmar"
+  textoCancelar="Cancelar"
+  onCancelar={() => {
+    setConfirmModalAberto(false);
+    setConfirmAcao(null);
+  }}
+  onConfirmar={() => {
+    if (confirmAcao) {
+      confirmAcao();
+    }
+  }}
+/>
     </div>  
   ); 
 }
