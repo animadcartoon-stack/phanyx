@@ -802,6 +802,45 @@ async function alterarFotoFuncionario(file: File | null) {
     [stats]
   );
 
+async function alterarFoto(file: File | null) {
+  if (!file) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const upload = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+    const uploadJson = await upload.json();
+
+    const fotoUrl =
+      uploadJson?.url || uploadJson?.arquivo?.url;
+
+    if (!fotoUrl) {
+      return;
+    }
+
+    await fetch("/api/admin/funcionarios/me", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fotoPerfil: fotoUrl,
+      }),
+    });
+
+    window.location.reload();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
   return (
     <>
       <div className="space-y-8">
@@ -833,14 +872,25 @@ async function alterarFotoFuncionario(file: File | null) {
       {perfilAdmin?.nome || "Administrador"}
     </h2>
 
-    <button
-      type="button"
-      onClick={() => inputFotoRef.current?.click()}
-      disabled={enviandoFoto}
-      className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
-    >
-      {enviandoFoto ? "Enviando..." : "Alterar foto"}
-    </button>
+    <>
+  <input
+    ref={inputFotoRef}
+    type="file"
+    accept="image/png,image/jpeg,image/webp"
+    className="hidden"
+    onChange={(e) =>
+      alterarFoto(e.target.files?.[0] || null)
+    }
+  />
+
+  <button
+    type="button"
+    onClick={() => inputFotoRef.current?.click()}
+    className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50"
+  >
+    Alterar foto
+  </button>
+</>
   </div>
 </div>
 
@@ -1106,3 +1156,4 @@ async function alterarFotoFuncionario(file: File | null) {
   }}
 />
 }
+const inputFotoRef = useRef<HTMLInputElement | null>(null);
