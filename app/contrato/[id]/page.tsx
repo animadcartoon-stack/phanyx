@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 export default function AssinarContratoPage() {
   const params = useParams();
@@ -13,6 +14,8 @@ export default function AssinarContratoPage() {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [contratoHtml, setContratoHtml] = useState("");
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   function iniciarDesenho(e: any) {
     setDesenhando(true);
@@ -77,11 +80,11 @@ export default function AssinarContratoPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.error || "Erro ao assinar");
+      setErro(data.error || "Erro ao assinar.");
       return;
     }
 
-    alert("Contrato assinado com sucesso!");
+    setSucesso("Contrato assinado com sucesso.");
   }
 useEffect(() => {
   async function carregarContrato() {
@@ -99,6 +102,23 @@ useEffect(() => {
 }, [contratoId]);
   return (
     <div className="max-w-2xl mx-auto p-6 space-y-6 bg-white text-black rounded-xl mt-6 shadow">
+      {erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível assinar"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
+
+{sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
       <h1 className="text-xl font-bold">Assinatura de Contrato</h1>
 
       <input

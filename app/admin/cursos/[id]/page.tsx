@@ -372,7 +372,7 @@ const cargaMaximaVazia =
   semestre.cargaMaxima === undefined;
 
 if (cargaMinimaVazia || cargaMaximaVazia) {
-  alert("Preencha a carga mínima e a carga máxima antes de salvar.");
+  mostrarFeedback("erro", "Preencha a carga mínima e a carga máxima antes de salvar.");
   return;
 }
 
@@ -385,12 +385,12 @@ if (
   cargaMinimaNumero <= 0 ||
   cargaMaximaNumero <= 0
 ) {
-  alert("A carga mínima e a carga máxima precisam ser maiores que zero.");
+  mostrarFeedback("erro", "A carga mínima e a carga máxima precisam ser maiores que zero.");
   return;
 }
 
 if (cargaMinimaNumero > cargaMaximaNumero) {
-  alert("A carga mínima não pode ser maior que a carga máxima.");
+  mostrarFeedback("erro", "A carga mínima não pode ser maior que a carga máxima.");
   return;
 }
     setSalvandoSemestreId(semestre.id);
@@ -418,11 +418,9 @@ cargaMaxima: cargaMaximaNumero,
 
     await carregarSemestres();
 
-    alert("Carga horária salva com sucesso!");
     mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
   } catch (error: any) {
     console.error("Erro ao salvar carga horária:", error);
-    alert(error?.message || "Erro ao salvar carga horária");
     mostrarFeedback("erro", error?.message || "Erro ao salvar carga horária");
   } finally {
     setSalvandoSemestreId(null);
