@@ -274,7 +274,12 @@ try {
               >
                 📊 Painel Administrativo
               </Link>
-
+<Link
+  href="/admin/perfil"
+  className={getLinkClass("/admin/perfil")}
+>
+  👤 Meu Perfil
+</Link>
               {podeVerPainelMaster && (
                 <div className="border-t pt-2 mt-2">
                   <button

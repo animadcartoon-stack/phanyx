@@ -32,3 +32,35 @@ export async function GET() {
     );
   }
 }
+export async function PUT(req: Request) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Não autenticado" },
+        { status: 401 }
+      );
+    }
+
+    const body = await req.json();
+
+    const funcionario = await prisma.funcionario.update({
+      where: {
+        userId: user.id,
+      },
+      data: {
+        nome: body.nome,
+        telefone: body.telefone,
+        cargo: body.cargo,
+      },
+    });
+
+    return NextResponse.json(funcionario);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: e.message || "Erro ao atualizar perfil" },
+      { status: 500 }
+    );
+  }
+}
