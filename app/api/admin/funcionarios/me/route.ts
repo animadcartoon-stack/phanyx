@@ -45,10 +45,24 @@ export async function PUT(req: Request) {
 
     const body = await req.json();
 
-    const funcionario = await prisma.funcionario.update({
-      where: {
-        userId: user.id,
-      },
+    const funcionarioExistente = await prisma.funcionario.findFirst({
+  where: {
+    userId: user.id,
+    instituicaoId: user.instituicaoId,
+  },
+});
+
+if (!funcionarioExistente) {
+  return NextResponse.json(
+    { error: "Funcionário não encontrado" },
+    { status: 404 }
+  );
+}
+
+const funcionario = await prisma.funcionario.update({
+  where: {
+    id: funcionarioExistente.id,
+  },
       data: {
         nome: body.nome,
         telefone: body.telefone,
