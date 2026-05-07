@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 export default function PerfilAdminPage() {
   const [dados, setDados] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   useEffect(() => {
     carregar();
@@ -25,28 +27,40 @@ export default function PerfilAdminPage() {
   }
 
   async function salvar(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await fetch("/api/admin/funcionarios/me", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(dados),
-      });
+  try {
+    setErro("");
+    setSucesso("");
 
-      if (!res.ok) {
-        alert("Erro ao salvar perfil");
-        return;
-      }
+    const res = await fetch("/api/admin/funcionarios/me", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(dados),
+    });
 
-      alert("Perfil atualizado com sucesso");
-    } catch (e) {
-      console.error(e);
-      alert("Erro ao salvar");
+    const json = await res.json();
+
+    if (!res.ok) {
+      setErro(
+        json?.error ||
+          "Não foi possível salvar o perfil. Verifique os dados e tente novamente."
+      );
+      return;
     }
+
+    setDados(json);
+    setSucesso("Perfil atualizado com sucesso.");
+  } catch (e: any) {
+    setErro(
+      e?.message ||
+        "Não foi possível salvar o perfil por erro de comunicação com o servidor."
+    );
   }
+}
 
   if (loading) {
     return <div className="p-10">Carregando...</div>;
@@ -64,6 +78,21 @@ export default function PerfilAdminPage() {
         </p>
 
         <form onSubmit={salvar} className="mt-8 space-y-6">
+            {erro && (
+  <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+    <strong>Não foi possível salvar.</strong>
+    <br />
+    {erro}
+  </div>
+)}
+
+{sucesso && (
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+    <strong>Tudo certo.</strong>
+    <br />
+    {sucesso}
+  </div>
+)}
           <div>
             <label className="mb-2 block text-sm font-medium">
               Nome

@@ -53,10 +53,21 @@ export async function PUT(req: Request) {
 });
 
 if (!funcionarioExistente) {
-  return NextResponse.json(
-    { error: "Funcionário não encontrado" },
-    { status: 404 }
-  );
+  const usuarioAtualizado = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      nome: String(body.nome || "").trim(),
+    },
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  });
+
+  return NextResponse.json(usuarioAtualizado);
 }
 
 const funcionario = await prisma.funcionario.update({
