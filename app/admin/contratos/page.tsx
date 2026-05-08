@@ -11,6 +11,18 @@ type AlunoOption = {
 };
 
 type ContratoResposta = {
+    matricula?: {
+    id: number;
+    status?: string | null;
+    semestre?: number | null;
+  };
+  contrato?: {
+    id: number;
+    status: string;
+    tokenAssinatura?: string | null;
+    dataCriacao?: string | null;
+    dataAssinatura?: string | null;
+  } | null;
   aluno: {
     id: number;
     nome: string;
@@ -47,6 +59,7 @@ export default function AdminContratosPage() {
   const [loadingContrato, setLoadingContrato] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [contrato, setContrato] = useState<ContratoResposta | null>(null);
+  const [enviandoAssinatura, setEnviandoAssinatura] = useState(false);
 
   async function buscarAlunos() {
     try {
@@ -106,6 +119,40 @@ export default function AdminContratosPage() {
       setLoadingContrato(false);
     }
   }
+
+async function enviarParaAssinatura() {
+  try {
+    if (!contrato?.contrato?.id) {
+      setMensagem("Gere o contrato antes de enviar para assinatura.");
+      return;
+    }
+
+    setEnviandoAssinatura(true);
+    setMensagem("");
+
+    const res = await fetch("/api/admin/documentos/enviar-assinatura", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contratoId: contrato.contrato.id,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar contrato para assinatura");
+    }
+
+    setMensagem("Contrato enviado para assinatura com sucesso.");
+  } catch (error: any) {
+    setMensagem(error?.message || "Erro ao enviar contrato para assinatura");
+  } finally {
+    setEnviandoAssinatura(false);
+  }
+}
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -263,6 +310,20 @@ export default function AdminContratosPage() {
                 >
                   Gerar PDF do contrato
                 </button>
+
+<button
+  type="button"
+  onClick={enviarParaAssinatura}
+  disabled={enviandoAssinatura || contrato?.contrato?.status === "ASSINADO"}
+  className="mt-3 w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+>
+  {contrato?.contrato?.status === "ASSINADO"
+    ? "Contrato já assinado"
+    : enviandoAssinatura
+    ? "Enviando..."
+    : "Enviar para assinatura"}
+</button>
+
               </div>
             </div>
           </div>

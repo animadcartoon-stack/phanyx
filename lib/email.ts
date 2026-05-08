@@ -655,3 +655,100 @@ export async function enviarEmailPrimeiroAcesso({
   });
 }
 export { criarTransporter };
+
+type EnviarEmailAssinaturaContratoParams = {
+  email: string;
+  nome: string;
+  instituicao: string;
+  titulo?: string;
+  linkAssinatura: string;
+};
+
+export async function enviarEmailAssinaturaContrato({
+  email,
+  nome,
+  instituicao,
+  titulo,
+  linkAssinatura,
+}: EnviarEmailAssinaturaContratoParams) {
+  const transporter = criarTransporter();
+
+  const logoUrl = getLogoUrl();
+  const imagemFormixUrl = getImagemFormixUrl();
+
+  await transporter.sendMail({
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: "Assinatura de documento - PHANYX",
+    html: `
+      <div style="margin:0;padding:0;background:#eef2f7;font-family:Arial,Helvetica,sans-serif;">
+        <table width="100%" cellspacing="0" cellpadding="0" style="background:#eef2f7;padding:32px 16px;">
+          <tr>
+            <td align="center">
+              <table width="100%" cellspacing="0" cellpadding="0" style="max-width:720px;background:#ffffff;border-radius:22px;overflow:hidden;border:1px solid #dbe3ef;">
+                <tr>
+                  <td style="padding:20px 28px;background:#ffffff;border-bottom:1px solid #e5e7eb;">
+                    <img src="${logoUrl}" alt="PHANYX" style="height:34px;display:block;" />
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:30px;background:linear-gradient(135deg,#0f172a,#2563eb);text-align:center;">
+                    <img src="${imagemFormixUrl}" alt="PHANYX" style="height:120px;max-width:120px;display:block;margin:0 auto 16px auto;" />
+                    <div style="font-size:12px;letter-spacing:1.5px;color:#bfdbfe;font-weight:bold;text-transform:uppercase;">
+                      Assinatura digital
+                    </div>
+                    <h1 style="margin:12px 0 0 0;color:#ffffff;font-size:30px;line-height:1.2;">
+                      Documento aguardando sua assinatura
+                    </h1>
+                    <p style="margin:12px 0 0 0;color:#dbeafe;font-size:15px;line-height:1.7;">
+                      A instituição <strong>${instituicao}</strong> enviou um documento para assinatura.
+                    </p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:32px;">
+                    <p style="margin:0 0 16px 0;color:#111827;font-size:16px;line-height:1.7;">
+                      Olá, <strong>${nome}</strong>.
+                    </p>
+
+                    <p style="margin:0 0 22px 0;color:#374151;font-size:15px;line-height:1.7;">
+                      Você recebeu um documento ${titulo ? `<strong>${titulo}</strong>` : ""} para ler e assinar eletronicamente pela plataforma PHANYX.
+                    </p>
+
+                    <div style="text-align:center;margin:30px 0;">
+                      <a href="${linkAssinatura}" style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;font-weight:bold;padding:15px 26px;border-radius:14px;font-size:15px;">
+                        Abrir documento para assinatura
+                      </a>
+                    </div>
+
+                    <p style="margin:18px 0 0 0;color:#64748b;font-size:13px;line-height:1.7;text-align:center;">
+                      Se o botão não abrir, copie e cole este link no navegador:<br/>
+                      <span style="color:#2563eb;word-break:break-all;">${linkAssinatura}</span>
+                    </p>
+
+                    <div style="margin-top:28px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:16px 18px;">
+                      <p style="margin:0;color:#1e3a8a;font-size:14px;line-height:1.7;">
+                        Ao assinar, o sistema registrará data, hora, IP e identificação do navegador para segurança e validação do documento.
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:20px 32px;background:#f8fafc;border-top:1px solid #e5e7eb;">
+                    <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.7;text-align:center;">
+                      PHANYX • Plataforma acadêmica SaaS<br/>
+                      Este é um email automático de assinatura de documento.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `,
+  });
+}

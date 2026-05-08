@@ -203,9 +203,24 @@ E por estarem de pleno acordo, firmam o presente contrato.
       dataAtual: formatarDataAtual(),
     });
 
-    const contratoExistente = matricula.contratos?.[0] || null;
-    const contratoFinal = contratoExistente?.conteudo || contratoGerado;
+    let contratoExistente = matricula.contratos?.[0] || null;
 
+if (!contratoExistente) {
+  contratoExistente = await prisma.contrato.create({
+    data: {
+      alunoId: matricula.aluno.id,
+      instituicaoId: user.instituicaoId,
+      matriculaId: matricula.id,
+      conteudo: contratoGerado,
+      status: "PENDENTE",
+    },
+    include: {
+      assinatura: true,
+    },
+  });
+}
+
+const contratoFinal = contratoExistente.conteudo;
     return NextResponse.json({
       matricula: {
         id: matricula.id,
