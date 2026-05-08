@@ -165,6 +165,32 @@ const [alvoCantos, setAlvoCantos] = useState<
   "todos" | "cima" | "baixo" | "esquerda" | "direita"
 >("todos");
 
+function valorAtualDosCantos() {
+  const cantos = (campo as any).cantosArredondados || {};
+
+  if (alvoCantos === "todos") {
+    return campo.raioBorda || 0;
+  }
+
+  if (alvoCantos === "cima") {
+    return cantos.topoEsquerdo ?? cantos.topoDireito ?? 0;
+  }
+
+  if (alvoCantos === "baixo") {
+    return cantos.baixoEsquerdo ?? cantos.baixoDireito ?? 0;
+  }
+
+  if (alvoCantos === "esquerda") {
+    return cantos.topoEsquerdo ?? cantos.baixoEsquerdo ?? 0;
+  }
+
+  if (alvoCantos === "direita") {
+    return cantos.topoDireito ?? cantos.baixoDireito ?? 0;
+  }
+
+  return 0;
+}
+
 function aplicarArredondamentoCantos(
   alvo:
     | "todos"
@@ -431,7 +457,7 @@ function arredondarGrupoEstrela(
       type="range"
       min={0}
       max={50}
-      value={campo.raioBorda || 0}
+      value={valorAtualDosCantos()}
       onChange={(e) =>
   aplicarArredondamentoCantos(alvoCantos, Number(e.target.value))
 }

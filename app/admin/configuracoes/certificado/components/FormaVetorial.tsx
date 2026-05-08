@@ -260,6 +260,18 @@ export default function FormaVetorial({
   const mostrarContorno = campo.mostrarContorno !== false;
   const opacidade = campo.opacity ?? 1;
 
+  const larguraCampo = Number((campo as any).largura || 100);
+  const alturaCampo = Number((campo as any).altura || 100);
+
+  const escalaX = larguraCampo / 100;
+  const escalaY = alturaCampo / 100;
+
+  const rxPonto = 3 / Math.max(escalaX, 0.1);
+  const ryPonto = 3 / Math.max(escalaY, 0.1);
+
+  const rxAlca = 2.3 / Math.max(escalaX, 0.1);
+  const ryAlca = 2.3 / Math.max(escalaY, 0.1);
+
   function atualizarPontos(novosPontos: PontoForma[]) {
     onChange({
       ...campo,
@@ -665,10 +677,11 @@ function subdividirForma() {
                       vectorEffect="non-scaling-stroke"
                     />
 
-                    <circle
-                      cx={p.inX}
-                      cy={p.inY}
-                      r={2.1}
+                    <ellipse
+                    cx={p.inX}
+                    cy={p.inY}
+                    rx={rxAlca}
+                    ry={ryAlca}
                       fill="#22c55e"
                       stroke="#ffffff"
                       strokeWidth={1.2}
@@ -680,10 +693,11 @@ function subdividirForma() {
                       }
                     />
 
-                    <circle
-                      cx={p.outX}
-                      cy={p.outY}
-                      r={2.1}
+                    <ellipse
+                    cx={p.outX}
+                    cy={p.outY}
+                    rx={rxAlca}
+                    ry={ryAlca}
                       fill="#22c55e"
                       stroke="#ffffff"
                       strokeWidth={1.2}
@@ -697,10 +711,11 @@ function subdividirForma() {
                   </>
                 )}
 
-                <circle
+                <ellipse
                   cx={ponto.x}
                   cy={ponto.y}
-                  r={2.8}
+                  rx={rxPonto}
+                  ry={ryPonto}
                   fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
                   stroke="#ffffff"
                   strokeWidth={1.4}
