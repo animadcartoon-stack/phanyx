@@ -415,23 +415,23 @@ export default function FormaVetorial({
         />
 
         <path
-          d={gerarPath(campo)}
-          fill="none"
-          stroke={mostrarContorno ? contornoCor : "none"}
-          strokeWidth={
-  campo.forma === "LINHA"
-    ? contornoEspessura || 4
-    : campo.forma === "ESTRELA"
-    ? Math.max(3, contornoEspessura)
-    : Math.max(1, contornoEspessura)
-}
-          strokeOpacity={opacidade}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-          className="pointer-events-none"
-          paintOrder="stroke fill markers"
-        />
+  d={gerarPath(campo)}
+  fill="none"
+  stroke={mostrarContorno ? contornoCor : "none"}
+  strokeWidth={
+    campo.forma === "LINHA"
+      ? contornoEspessura || 4
+      : campo.forma === "ESTRELA"
+      ? Math.max(4, contornoEspessura)
+      : Math.max(1, contornoEspessura)
+  }
+  strokeOpacity={opacidade}
+  strokeLinejoin="round"
+  strokeLinecap="round"
+  vectorEffect="non-scaling-stroke"
+  paintOrder="stroke fill markers"
+  className="pointer-events-none"
+/>
 
         {selecionado &&
           modo === "editor" &&
@@ -561,7 +561,7 @@ export default function FormaVetorial({
       )}
 
       {selecionado && modo === "editor" && (
-        <div className="absolute inset-0 z-[999999]">
+        <div className="pointer-events-none absolute -inset-8 z-[999999] overflow-visible">
           {pontos.map((ponto) => {
             const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
 
@@ -576,7 +576,7 @@ export default function FormaVetorial({
                           moverAlca(ponto.id, "in", x, y, ev.altKey)
                         )
                       }
-                      className="pointer-events-auto absolute z-[1000000] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500 shadow"
+                      className="pointer-events-auto absolute z-[1000000] h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.7)]"
                       style={{
                         left: `${p.inX}%`,
                         top: `${p.inY}%`,
@@ -592,7 +592,7 @@ export default function FormaVetorial({
                           moverAlca(ponto.id, "out", x, y, ev.altKey)
                         )
                       }
-                      className="pointer-events-auto absolute z-[1000000] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-emerald-500 shadow"
+                      className="pointer-events-auto absolute z-[1000000] h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.7)]"
                       style={{
                         left: `${p.outX}%`,
                         top: `${p.outY}%`,
@@ -619,9 +619,9 @@ export default function FormaVetorial({
                     e.stopPropagation();
                     deletarPonto(ponto.id);
                   }}
-                  className={`pointer-events-auto absolute z-[1000000] h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
-                    ponto.tipo === "curvo" ? "bg-purple-600" : "bg-orange-500"
-                  }`}
+                  className={`pointer-events-auto absolute z-[1000000] h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white shadow-[0_0_0_2px_rgba(37,99,235,0.7)] ${
+  ponto.tipo === "curvo" ? "bg-purple-600" : "bg-orange-500"
+}`}
                   style={{
                     left: `${ponto.x}%`,
                     top: `${ponto.y}%`,
