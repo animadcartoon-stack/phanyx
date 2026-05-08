@@ -353,9 +353,9 @@ export default function FormaVetorial({
   const externo = index % 2 === 0;
 
   return criarAlcasEstrelaSimetrica(
-    ponto,
-    externo ? 8 : 14
-  );
+  ponto,
+  externo ? 10 : 10
+);
 }
 
         return {

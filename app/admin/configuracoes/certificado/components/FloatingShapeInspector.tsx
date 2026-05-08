@@ -117,6 +117,72 @@ const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
   } as any);
 }
 
+function criarTangenteSimetrica(
+  ponto: PontoForma,
+  intensidade: number
+): PontoForma {
+  const centroX = 50;
+  const centroY = 50;
+
+  const anguloRadial = Math.atan2(
+    ponto.y - centroY,
+    ponto.x - centroX
+  );
+
+  const anguloTangente = anguloRadial + Math.PI / 2;
+
+  const dx = Math.cos(anguloTangente) * intensidade;
+  const dy = Math.sin(anguloTangente) * intensidade;
+
+  return {
+    ...ponto,
+    tipo: "curvo",
+    handleMode: "alinhado",
+    inX: ponto.x - dx,
+    inY: ponto.y - dy,
+    outX: ponto.x + dx,
+    outY: ponto.y + dy,
+  };
+}
+
+function arredondarGrupoEstrela(
+  grupo: "internos" | "externos",
+  intensidade: number
+) {
+  if (campo.forma !== "ESTRELA") return;
+
+  const pontos = campo.pontosForma || [];
+
+  onAtualizarCampo({
+    ...campo,
+    pontosForma: pontos.map((ponto, index) => {
+      const externo = index % 2 === 0;
+      const pertence =
+        grupo === "externos"
+          ? externo
+          : !externo;
+
+      if (!pertence) return ponto;
+
+      if (intensidade <= 0) {
+        return {
+          ...ponto,
+          tipo: "reto",
+          inX: undefined,
+          inY: undefined,
+          outX: undefined,
+          outY: undefined,
+        };
+      }
+
+      return criarTangenteSimetrica(
+        ponto,
+        intensidade
+      );
+    }),
+  } as any);
+}
+
   return (
     <div
       className="fixed z-[9999999] w-[280px] rounded-2xl border border-slate-200 bg-white shadow-2xl"
@@ -220,6 +286,40 @@ const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
     value={raioInternoAtual}
     onChange={(e) =>
       atualizarEstrela({ raioInterno: Number(e.target.value) })
+    }
+    className="w-full"
+  />
+</div>
+
+<div className="mt-4">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+    Arredondamento interno
+  </p>
+
+  <input
+    type="range"
+    min={0}
+    max={45}
+    defaultValue={0}
+    onChange={(e) =>
+      arredondarGrupoEstrela("internos", Number(e.target.value))
+    }
+    className="w-full"
+  />
+</div>
+
+<div className="mt-4">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+    Arredondamento das pontas
+  </p>
+
+  <input
+    type="range"
+    min={0}
+    max={45}
+    defaultValue={0}
+    onChange={(e) =>
+      arredondarGrupoEstrela("externos", Number(e.target.value))
     }
     className="w-full"
   />
