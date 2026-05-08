@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import Header from "@/components/layout/Header";
 import AlunoSidebar from "@/components/layout/AlunoSidebar";
 import { AlunoProvider } from "@/app/context/AlunoContext";
+import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 
 export default async function AlunoLayout({
   children,
@@ -185,8 +186,9 @@ export default async function AlunoLayout({
         </form>
 
         <main className="flex-1 ml-64 p-8">
-          {children}
-        </main>
+  <PhanyxFeriadoAviso />
+  {children}
+</main>
       </div>
     </AlunoProvider>
   );

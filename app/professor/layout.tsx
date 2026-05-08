@@ -7,6 +7,7 @@ import ProfessorSidebar from "@/components/layout/ProfessorSidebar";
 import { ProfessorProvider } from "@/app/context/ProfessorContext";
 import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
+import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 
 export default async function ProfessorLayout({
   children,
@@ -67,7 +68,9 @@ export default async function ProfessorLayout({
         <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
           <ProfessorSidebar professor={professor} />
           <main className="flex-1 p-8">
-            <div className="mb-6 flex justify-end">
+  <PhanyxFeriadoAviso />
+
+  <div className="mb-6 flex justify-end">
               <form action="/api/auth/logout-professor" method="post">
                 <button
                   type="submit"
