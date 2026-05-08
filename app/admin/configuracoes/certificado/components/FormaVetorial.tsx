@@ -29,6 +29,7 @@ type Props = {
   campo: CampoForma;
   selecionado: boolean;
   modo?: "editor" | "preview";
+  mostrarHandles?: boolean;
   onChange: (campoAtualizado: CampoForma) => void;
 };
 
@@ -163,6 +164,7 @@ export default function FormaVetorial({
   campo,
   selecionado,
   modo = "editor",
+  mostrarHandles = true,
   onChange,
 }: Props) {
   const pontos = campo.pontosForma || [];
@@ -504,8 +506,9 @@ export default function FormaVetorial({
         />
 
         {selecionado &&
-          modo === "editor" &&
-          pontos.map((ponto) => {
+  modo === "editor" &&
+  mostrarHandles &&
+  pontos.map((ponto) => {
             const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
 
             return (

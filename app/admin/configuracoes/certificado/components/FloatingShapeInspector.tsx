@@ -32,6 +32,7 @@ type Props = {
   onFechar: () => void;
   onMover: (posicao: { x: number; y: number }) => void;
   onAtualizarCampo: (campo: CampoForma) => void;
+  setMostrarHandlesForma?: (valor: boolean | ((prev: boolean) => boolean)) => void;
 };
 
 function gerarPontosEstrela(pontas: number, raioInterno = 22, raioExterno = 44): PontoForma[] {
@@ -58,6 +59,7 @@ export default function FloatingShapeInspector({
   onFechar,
   onMover,
   onAtualizarCampo,
+  setMostrarHandlesForma,
 }: Props) {
   if (!aberto || !campo || campo.tipo !== "FORMA") return null;
 

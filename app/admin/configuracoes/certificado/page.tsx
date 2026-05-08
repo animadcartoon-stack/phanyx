@@ -2855,6 +2855,7 @@ overflow:
       campo={c}
       selecionado={selecionado}
       modo="editor"
+      mostrarHandles={mostrarHandlesForma}
       onChange={(campoAtualizado) => {
         setCampos((prev) =>
           prev.map((item) => {
@@ -3650,6 +3651,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
       )
     );
   }}
+  setMostrarHandlesForma={setMostrarHandlesForma}
 />
 
           </main>
