@@ -185,11 +185,14 @@ function arredondarGrupoEstrela(
 
   return (
     <div
-      className="fixed z-[9999999] w-[280px] rounded-2xl border border-slate-200 bg-white shadow-2xl"
+      className="fixed z-[9999999] min-h-[360px] w-[280px] resize-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
       style={{
-        left: posicao.x,
-        top: posicao.y,
-      }}
+  left: posicao.x,
+  top: posicao.y,
+  height: 620,
+  minHeight: 360,
+  maxHeight: "85vh",
+}}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
@@ -208,7 +211,7 @@ function arredondarGrupoEstrela(
         </button>
       </div>
 
-      <div className="space-y-4 p-4 text-sm text-slate-700">
+      <div className="h-[calc(100%-52px)] space-y-4 overflow-y-auto p-4 text-sm text-slate-700">
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">
             Tipo
