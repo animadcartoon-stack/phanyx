@@ -48,6 +48,30 @@ function criarAlcasPadrao(ponto: PontoForma): PontoForma {
   };
 }
 
+function criarAlcasRadiaisEstrela(
+  ponto: PontoForma,
+  intensidade = 14
+): PontoForma {
+  const centroX = 50;
+  const centroY = 50;
+
+  const anguloRadial = Math.atan2(ponto.y - centroY, ponto.x - centroX);
+  const anguloTangente = anguloRadial + Math.PI / 2;
+
+  const dx = Math.cos(anguloTangente) * intensidade;
+  const dy = Math.sin(anguloTangente) * intensidade;
+
+  return {
+    ...ponto,
+    tipo: "curvo",
+    handleMode: "alinhado",
+    inX: ponto.x - dx,
+    inY: ponto.y - dy,
+    outX: ponto.x + dx,
+    outY: ponto.y + dy,
+  };
+}
+
 function gerarPath(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
   if (!pontos.length) return "";
@@ -289,7 +313,10 @@ export default function FormaVetorial({
 
         if (!pertenceAoGrupo) return ponto;
 
-        if (tipo === "curvo") return criarAlcasPadrao(ponto);
+        if (tipo === "curvo") {
+  const externo = index % 2 === 0;
+  return criarAlcasRadiaisEstrela(ponto, externo ? 12 : 18);
+}
 
         return {
           ...ponto,
