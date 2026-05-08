@@ -20,6 +20,12 @@ type CampoForma = {
   largura?: number | null;
   altura?: number | null;
   raioBorda?: number | null;
+  cantosArredondados?: {
+  topoEsquerdo?: number;
+  topoDireito?: number;
+  baixoDireito?: number;
+  baixoEsquerdo?: number;
+} | null;
   forma?: string | null;
   pontosForma?: PontoForma[] | null;
   preenchimentoCor?: string | null;
@@ -39,6 +45,70 @@ type Props = {
   onAtualizarCampo: (campo: CampoForma) => void;
   setMostrarHandlesForma?: (valor: boolean | ((prev: boolean) => boolean)) => void;
 };
+
+function gerarPathComCantosArredondados(campo: CampoForma) {
+  const pontos = campo.pontosForma || [];
+  const cantos = campo.cantosArredondados || {};
+  const raioPadrao = Math.max(0, Math.min(45, campo.raioBorda || 0));
+
+  if (pontos.length < 3) return "";
+
+  const raioDoPonto = (index: number) => {
+    if (campo.forma === "TRIANGULO") {
+      return raioPadrao;
+    }
+
+    if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? raioPadrao));
+    if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? raioPadrao));
+    if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? raioPadrao));
+    if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? raioPadrao));
+
+    return raioPadrao;
+  };
+
+  let d = "";
+
+  for (let i = 0; i < pontos.length; i++) {
+    const anterior = pontos[(i - 1 + pontos.length) % pontos.length];
+    const atual = pontos[i];
+    const proximo = pontos[(i + 1) % pontos.length];
+
+    const raio = raioDoPonto(i);
+
+    if (raio <= 0) {
+      if (i === 0) {
+        d += `M ${atual.x} ${atual.y}`;
+      } else {
+        d += ` L ${atual.x} ${atual.y}`;
+      }
+      continue;
+    }
+
+    const distAnterior = Math.hypot(atual.x - anterior.x, atual.y - anterior.y);
+    const distProximo = Math.hypot(proximo.x - atual.x, proximo.y - atual.y);
+
+    if (distAnterior === 0 || distProximo === 0) continue;
+
+    const r = Math.min(raio, distAnterior / 2, distProximo / 2);
+
+    const inicioX = atual.x + ((anterior.x - atual.x) / distAnterior) * r;
+    const inicioY = atual.y + ((anterior.y - atual.y) / distAnterior) * r;
+
+    const fimX = atual.x + ((proximo.x - atual.x) / distProximo) * r;
+    const fimY = atual.y + ((proximo.y - atual.y) / distProximo) * r;
+
+    if (i === 0) {
+      d += `M ${inicioX} ${inicioY}`;
+    } else {
+      d += ` L ${inicioX} ${inicioY}`;
+    }
+
+    d += ` Q ${atual.x} ${atual.y} ${fimX} ${fimY}`;
+  }
+
+  d += " Z";
+  return d;
+}
 
 function gerarPontosEstrela(pontas: number, raioInterno = 22, raioExterno = 44): PontoForma[] {
   const total = Math.max(3, pontas) * 2;
@@ -87,6 +157,71 @@ const ehRetanguloOuQuadrado =
   campo.forma === "RETANGULO" || campo.forma === "QUADRADO";
 const ehTriangulo = campo.forma === "TRIANGULO";
 const ehCirculo = campo.forma === "CIRCULO";
+
+function aplicarArredondamentoCantos(
+  alvo:
+    | "todos"
+    | "cima"
+    | "baixo"
+    | "esquerda"
+    | "direita"
+    | "topoEsquerdo"
+    | "topoDireito"
+    | "baixoDireito"
+    | "baixoEsquerdo",
+  valor: number
+) {
+  const atual = (campo as any).cantosArredondados || {};
+
+  const proximo = {
+    topoEsquerdo: atual.topoEsquerdo ?? 0,
+    topoDireito: atual.topoDireito ?? 0,
+    baixoDireito: atual.baixoDireito ?? 0,
+    baixoEsquerdo: atual.baixoEsquerdo ?? 0,
+  };
+
+  if (alvo === "todos") {
+    proximo.topoEsquerdo = valor;
+    proximo.topoDireito = valor;
+    proximo.baixoDireito = valor;
+    proximo.baixoEsquerdo = valor;
+  }
+
+  if (alvo === "cima") {
+    proximo.topoEsquerdo = valor;
+    proximo.topoDireito = valor;
+  }
+
+  if (alvo === "baixo") {
+    proximo.baixoEsquerdo = valor;
+    proximo.baixoDireito = valor;
+  }
+
+  if (alvo === "esquerda") {
+    proximo.topoEsquerdo = valor;
+    proximo.baixoEsquerdo = valor;
+  }
+
+  if (alvo === "direita") {
+    proximo.topoDireito = valor;
+    proximo.baixoDireito = valor;
+  }
+
+  if (
+    alvo === "topoEsquerdo" ||
+    alvo === "topoDireito" ||
+    alvo === "baixoDireito" ||
+    alvo === "baixoEsquerdo"
+  ) {
+    proximo[alvo] = valor;
+  }
+
+  onAtualizarCampo({
+    ...campo,
+    raioBorda: valor,
+    cantosArredondados: proximo,
+  } as any);
+}
 
   function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -279,8 +414,8 @@ function arredondarGrupoEstrela(
     />
   </div>
 </div>
-{ehRetanguloOuQuadrado && (
-  <div className="mt-4">
+{(ehRetanguloOuQuadrado || ehTriangulo) && (
+  <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3">
     <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
       Arredondamento dos cantos
     </p>
@@ -291,10 +426,60 @@ function arredondarGrupoEstrela(
       max={50}
       value={campo.raioBorda || 0}
       onChange={(e) =>
-        atualizarCampoBasico("raioBorda", Number(e.target.value))
+        aplicarArredondamentoCantos("todos", Number(e.target.value))
       }
       className="w-full"
     />
+
+    <div className="mt-3 grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={() => aplicarArredondamentoCantos("todos", campo.raioBorda || 20)}
+        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
+      >
+        Todos
+      </button>
+
+      <button
+        type="button"
+        onClick={() => aplicarArredondamentoCantos("cima", campo.raioBorda || 20)}
+        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
+      >
+        Só cima
+      </button>
+
+      <button
+        type="button"
+        onClick={() => aplicarArredondamentoCantos("baixo", campo.raioBorda || 20)}
+        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
+      >
+        Só baixo
+      </button>
+
+      <button
+        type="button"
+        onClick={() => aplicarArredondamentoCantos("esquerda", campo.raioBorda || 20)}
+        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
+      >
+        Só esquerda
+      </button>
+
+      <button
+        type="button"
+        onClick={() => aplicarArredondamentoCantos("direita", campo.raioBorda || 20)}
+        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
+      >
+        Só direita
+      </button>
+
+      <button
+        type="button"
+        onClick={() => aplicarArredondamentoCantos("todos", 0)}
+        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+      >
+        Pontudo
+      </button>
+    </div>
   </div>
 )}
         {campo.forma === "ESTRELA" && (
