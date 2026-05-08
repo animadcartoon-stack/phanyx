@@ -488,6 +488,8 @@ function gerarPontosEstrela(
     null
   );
   
+  const [mostrarHandlesForma, setMostrarHandlesForma] = useState(true);
+
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
