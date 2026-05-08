@@ -33,7 +33,7 @@ type Props = {
 };
 
 function limitar(v: number) {
-  return Math.max(-8, Math.min(108, v));
+  return Math.max(-80, Math.min(180, v));
 }
 
 function criarAlcasPadrao(ponto: PontoForma): PontoForma {
@@ -397,7 +397,7 @@ export default function FormaVetorial({
     >
       <svg
         className="absolute inset-0 z-10 h-full w-full overflow-visible"
-        viewBox="-8 -8 116 116"
+        viewBox="0 0 100 100"
         preserveAspectRatio="none"
         style={{ overflow: "visible" }}
       >
