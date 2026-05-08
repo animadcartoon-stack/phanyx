@@ -59,10 +59,14 @@ export async function GET(req: Request) {
           itens: {
             include: {
               turma: {
-                include: {
-                  disciplina: true,
-                },
-              },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
             },
           },
           lancamentosFinanceiros: {
@@ -99,10 +103,14 @@ export async function GET(req: Request) {
           itens: {
             include: {
               turma: {
-                include: {
-                  disciplina: true,
-                },
-              },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+},
             },
           },
           lancamentosFinanceiros: {
@@ -144,7 +152,11 @@ export async function GET(req: Request) {
     const disciplinasLista = Array.from(
       new Set(
         matricula.itens
-          .map((item: any) => item.turma?.disciplina?.nome?.trim())
+          .flatMap((item: any) =>
+  (item.turma?.disciplinas || []).map(
+    (td: any) => td.disciplina?.nome?.trim()
+  )
+)
           .filter(Boolean) as string[]
       )
     );
