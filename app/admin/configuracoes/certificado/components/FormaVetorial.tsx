@@ -23,6 +23,12 @@ type CampoForma = {
   mostrarContorno?: boolean | null;
   opacity?: number | null;
   raioBorda?: number | null;
+  cantosArredondados?: {
+  topoEsquerdo?: number;
+  topoDireito?: number;
+  baixoDireito?: number;
+  baixoEsquerdo?: number;
+} | null;
   pontosForma?: PontoForma[] | null;
 };
 
@@ -114,9 +120,13 @@ function controleEntrada(ponto: PontoForma) {
 
 function gerarPathComCantosArredondados(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
-  const raio = Math.max(0, Math.min(45, campo.raioBorda || 0));
+  const temCantosIndividuais = !!campo.cantosArredondados;
 
-  if (pontos.length < 3 || raio <= 0) return "";
+const raioPadrao = temCantosIndividuais
+  ? 0
+  : Math.max(0, Math.min(45, campo.raioBorda || 0));
+
+  if (pontos.length < 3 || raioPadrao <= 0) return "";
 
   let d = "";
 
@@ -128,7 +138,7 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
     const distAnterior = Math.hypot(atual.x - anterior.x, atual.y - anterior.y);
     const distProximo = Math.hypot(proximo.x - atual.x, proximo.y - atual.y);
 
-    const r = Math.min(raio, distAnterior / 2, distProximo / 2);
+    const r = Math.min(raioPadrao, distAnterior / 2, distProximo / 2);
 
     const inicioX = atual.x + ((anterior.x - atual.x) / distAnterior) * r;
     const inicioY = atual.y + ((anterior.y - atual.y) / distAnterior) * r;

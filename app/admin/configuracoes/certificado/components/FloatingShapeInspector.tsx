@@ -1,5 +1,8 @@
 "use client";
 
+
+import { useState } from "react";
+
 type PontoForma = {
   id: string;
   x: number;
@@ -158,6 +161,10 @@ const ehRetanguloOuQuadrado =
 const ehTriangulo = campo.forma === "TRIANGULO";
 const ehCirculo = campo.forma === "CIRCULO";
 
+const [alvoCantos, setAlvoCantos] = useState<
+  "todos" | "cima" | "baixo" | "esquerda" | "direita"
+>("todos");
+
 function aplicarArredondamentoCantos(
   alvo:
     | "todos"
@@ -217,10 +224,10 @@ function aplicarArredondamentoCantos(
   }
 
   onAtualizarCampo({
-    ...campo,
-    raioBorda: valor,
-    cantosArredondados: proximo,
-  } as any);
+  ...campo,
+  raioBorda: alvo === "todos" ? valor : 0,
+  cantosArredondados: proximo,
+} as any);
 }
 
   function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
@@ -426,15 +433,15 @@ function arredondarGrupoEstrela(
       max={50}
       value={campo.raioBorda || 0}
       onChange={(e) =>
-        aplicarArredondamentoCantos("todos", Number(e.target.value))
-      }
+  aplicarArredondamentoCantos(alvoCantos, Number(e.target.value))
+}
       className="w-full"
     />
 
     <div className="mt-3 grid grid-cols-2 gap-2">
       <button
         type="button"
-        onClick={() => aplicarArredondamentoCantos("todos", campo.raioBorda || 20)}
+        onClick={() => setAlvoCantos("todos")}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Todos
@@ -450,7 +457,7 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => aplicarArredondamentoCantos("baixo", campo.raioBorda || 20)}
+        onClick={() => setAlvoCantos("baixo")}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só baixo
@@ -458,7 +465,7 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => aplicarArredondamentoCantos("esquerda", campo.raioBorda || 20)}
+        onClick={() => setAlvoCantos("esquerda")}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só esquerda
@@ -466,7 +473,7 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => aplicarArredondamentoCantos("direita", campo.raioBorda || 20)}
+        onClick={() => setAlvoCantos("direita")}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só direita
