@@ -537,7 +537,7 @@ export default function FormaVetorial({
                     <circle
                       cx={p.inX}
                       cy={p.inY}
-                      r={3.2}
+                      r={2.1}
                       fill="#22c55e"
                       stroke="#ffffff"
                       strokeWidth={1.2}
@@ -552,7 +552,7 @@ export default function FormaVetorial({
                     <circle
                       cx={p.outX}
                       cy={p.outY}
-                      r={3.2}
+                      r={2.1}
                       fill="#22c55e"
                       stroke="#ffffff"
                       strokeWidth={1.2}
@@ -569,7 +569,7 @@ export default function FormaVetorial({
                 <circle
                   cx={ponto.x}
                   cy={ponto.y}
-                  r={4}
+                  r={2.8}
                   fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
                   stroke="#ffffff"
                   strokeWidth={1.4}
