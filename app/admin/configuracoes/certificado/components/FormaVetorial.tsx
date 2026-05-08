@@ -120,13 +120,27 @@ function controleEntrada(ponto: PontoForma) {
 
 function gerarPathComCantosArredondados(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
+  const cantos = campo.cantosArredondados || {};
   const temCantosIndividuais = !!campo.cantosArredondados;
 
-const raioPadrao = temCantosIndividuais
-  ? 0
-  : Math.max(0, Math.min(45, campo.raioBorda || 0));
+  const raioPadrao = temCantosIndividuais
+    ? 0
+    : Math.max(0, Math.min(45, campo.raioBorda || 0));
 
-  if (pontos.length < 3 || raioPadrao <= 0) return "";
+  if (pontos.length < 3) return "";
+
+  function raioDoPonto(index: number) {
+    if (campo.forma === "TRIANGULO") {
+      return Math.max(0, Math.min(45, campo.raioBorda || 0));
+    }
+
+    if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? raioPadrao));
+    if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? raioPadrao));
+    if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? raioPadrao));
+    if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? raioPadrao));
+
+    return raioPadrao;
+  }
 
   let d = "";
 
@@ -135,10 +149,23 @@ const raioPadrao = temCantosIndividuais
     const atual = pontos[i];
     const proximo = pontos[(i + 1) % pontos.length];
 
+    const raio = raioDoPonto(i);
+
+    if (raio <= 0) {
+      if (i === 0) {
+        d += `M ${atual.x} ${atual.y}`;
+      } else {
+        d += ` L ${atual.x} ${atual.y}`;
+      }
+      continue;
+    }
+
     const distAnterior = Math.hypot(atual.x - anterior.x, atual.y - anterior.y);
     const distProximo = Math.hypot(proximo.x - atual.x, proximo.y - atual.y);
 
-    const r = Math.min(raioPadrao, distAnterior / 2, distProximo / 2);
+    if (distAnterior === 0 || distProximo === 0) continue;
+
+    const r = Math.min(raio, distAnterior / 2, distProximo / 2);
 
     const inicioX = atual.x + ((anterior.x - atual.x) / distAnterior) * r;
     const inicioY = atual.y + ((anterior.y - atual.y) / distAnterior) * r;
@@ -430,6 +457,50 @@ export default function FormaVetorial({
     );
   }
 
+  function converterTodosPontos(tipo: "reto" | "curvo") {
+  atualizarPontos(
+    pontos.map((ponto) => {
+      if (tipo === "curvo") {
+        return criarAlcasPadrao(ponto);
+      }
+
+      return {
+        ...ponto,
+        tipo: "reto",
+        handleMode: "quebrado",
+        inX: undefined,
+        inY: undefined,
+        outX: undefined,
+        outY: undefined,
+      };
+    })
+  );
+}
+
+function subdividirForma() {
+  if (pontos.length < 2) return;
+
+  const novosPontos: PontoForma[] = [];
+
+  for (let i = 0; i < pontos.length; i++) {
+    const atual = pontos[i];
+    const proximo = pontos[(i + 1) % pontos.length];
+
+    novosPontos.push(atual);
+
+    if (campo.forma === "LINHA" && i === pontos.length - 1) continue;
+
+    novosPontos.push({
+      id: `p-${Date.now()}-${i}`,
+      x: Number(((atual.x + proximo.x) / 2).toFixed(2)),
+      y: Number(((atual.y + proximo.y) / 2).toFixed(2)),
+      tipo: "reto",
+    });
+  }
+
+  atualizarPontos(novosPontos);
+}
+
   function adicionarPonto(e: React.MouseEvent<SVGPathElement>) {
     if (!selecionado || modo !== "editor") return;
 
@@ -719,7 +790,38 @@ export default function FormaVetorial({
           >
             internos curvos
           </button>
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    converterTodosPontos("curvo");
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  todos curvos
+</button>
 
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    converterTodosPontos("reto");
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  pontudos
+</button>
+
+<button
+  type="button"
+  onClick={(e) => {
+    e.stopPropagation();
+    subdividirForma();
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  subdividir
+</button>
           <button
             type="button"
             onMouseDown={(e) => e.stopPropagation()}
