@@ -467,7 +467,10 @@ function arredondarGrupoEstrela(
     <div className="mt-3 grid grid-cols-2 gap-2">
       <button
         type="button"
-        onClick={() => setAlvoCantos("todos")}
+        onClick={() => {
+  setAlvoCantos("todos");
+  aplicarArredondamentoCantos("todos", valorAtualDosCantos() || 20);
+}}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Todos
@@ -475,7 +478,10 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => aplicarArredondamentoCantos("cima", campo.raioBorda || 20)}
+        onClick={() => {
+  setAlvoCantos("cima");
+  aplicarArredondamentoCantos("cima", valorAtualDosCantos() || 20);
+}}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só cima
@@ -483,7 +489,10 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => setAlvoCantos("baixo")}
+        onClick={() => {
+  setAlvoCantos("baixo");
+  aplicarArredondamentoCantos("baixo", valorAtualDosCantos() || 20);
+}}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só baixo
@@ -491,7 +500,10 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => setAlvoCantos("esquerda")}
+        onClick={() => {
+  setAlvoCantos("esquerda");
+  aplicarArredondamentoCantos("esquerda", valorAtualDosCantos() || 20);
+}}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só esquerda
@@ -499,7 +511,10 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => setAlvoCantos("direita")}
+        onClick={() => {
+  setAlvoCantos("direita");
+  aplicarArredondamentoCantos("direita", valorAtualDosCantos() || 20);
+}}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
       >
         Só direita
@@ -507,7 +522,7 @@ function arredondarGrupoEstrela(
 
       <button
         type="button"
-        onClick={() => aplicarArredondamentoCantos("todos", 0)}
+        onClick={() => aplicarArredondamentoCantos(alvoCantos, 0)}
         className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
       >
         Pontudo
