@@ -33,7 +33,7 @@ type Props = {
 };
 
 function limitar(v: number) {
-  return Math.max(-200, Math.min(300, v));
+  return Math.max(-8, Math.min(108, v));
 }
 
 function criarAlcasPadrao(ponto: PontoForma): PontoForma {

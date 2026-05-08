@@ -65,6 +65,9 @@ export default function FloatingShapeInspector({
     ? Math.max(3, Math.floor((campo.pontosForma?.length || 10) / 2))
     : 0;
 
+const raioInternoAtual = Number((campo as any).raioInterno ?? 22);
+const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
+
   function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
     e.stopPropagation();
@@ -89,14 +92,30 @@ export default function FloatingShapeInspector({
     window.addEventListener("mouseup", soltar);
   }
 
-  function atualizarPontas(novasPontas: number) {
-    if (campo.forma !== "ESTRELA") return;
+  function atualizarEstrela(opcoes: {
+  pontas?: number;
+  raioInterno?: number;
+  raioExterno?: number;
+}) {
+  if (campo.forma !== "ESTRELA") return;
 
-    onAtualizarCampo({
-      ...campo,
-      pontosForma: gerarPontosEstrela(novasPontas),
-    });
-  }
+  const novasPontas = opcoes.pontas ?? pontasAtuais;
+  const novoRaioInterno = opcoes.raioInterno ?? raioInternoAtual;
+  const novoRaioExterno = opcoes.raioExterno ?? raioExternoAtual;
+
+  onAtualizarCampo({
+    ...campo,
+    pontas: novasPontas,
+    pontasEstrela: novasPontas,
+    raioInterno: novoRaioInterno,
+    raioExterno: novoRaioExterno,
+    pontosForma: gerarPontosEstrela(
+      novasPontas,
+      novoRaioInterno,
+      novoRaioExterno
+    ),
+  } as any);
+}
 
   return (
     <div
@@ -142,7 +161,7 @@ export default function FloatingShapeInspector({
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => atualizarPontas(Math.max(3, pontasAtuais - 1))}
+                onClick={() => atualizarEstrela({ pontas: Math.max(3, pontasAtuais - 1) })}
                 className="h-9 w-9 rounded-xl border bg-white font-bold hover:bg-slate-50"
               >
                 −
@@ -154,7 +173,7 @@ export default function FloatingShapeInspector({
 
               <button
                 type="button"
-                onClick={() => atualizarPontas(pontasAtuais + 1)}
+                onClick={() => atualizarEstrela({ pontas: pontasAtuais + 1 })}
                 className="h-9 w-9 rounded-xl border bg-white font-bold hover:bg-slate-50"
               >
                 +
@@ -166,11 +185,45 @@ export default function FloatingShapeInspector({
               min={3}
               max={40}
               value={pontasAtuais}
-              onChange={(e) => atualizarPontas(Number(e.target.value))}
+              onChange={(e) => atualizarEstrela({ pontas: Number(e.target.value) })}
               className="mt-3 w-full"
             />
           </div>
         )}
+
+<div className="mt-4">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+    Raio externo / tamanho das pontas
+  </p>
+
+  <input
+    type="range"
+    min={30}
+    max={54}
+    value={raioExternoAtual}
+    onChange={(e) =>
+      atualizarEstrela({ raioExterno: Number(e.target.value) })
+    }
+    className="w-full"
+  />
+</div>
+
+<div className="mt-4">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+    Raio interno / profundidade
+  </p>
+
+  <input
+    type="range"
+    min={8}
+    max={42}
+    value={raioInternoAtual}
+    onChange={(e) =>
+      atualizarEstrela({ raioInterno: Number(e.target.value) })
+    }
+    className="w-full"
+  />
+</div>
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
