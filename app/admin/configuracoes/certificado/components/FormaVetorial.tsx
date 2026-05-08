@@ -315,8 +315,14 @@ export default function FormaVetorial({
 
     const rect = svg.getBoundingClientRect();
 
-    const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+    const x = Math.max(
+      0,
+      Math.min(100, ((e.clientX - rect.left) / rect.width) * 100)
+    );
+    const y = Math.max(
+      0,
+      Math.min(100, ((e.clientY - rect.top) / rect.height) * 100)
+    );
 
     let indiceInserir = pontos.length;
     let menorDistancia = Infinity;
@@ -390,13 +396,11 @@ export default function FormaVetorial({
       }
     >
       <svg
-  className="absolute inset-0 z-10 h-full w-full overflow-visible"
-  viewBox="0 0 100 100"
-  preserveAspectRatio="none"
-  style={{
-    overflow: "visible",
-  }}
->
+        className="absolute inset-0 z-10 h-full w-full overflow-visible"
+        viewBox="-8 -8 116 116"
+        preserveAspectRatio="none"
+        style={{ overflow: "visible" }}
+      >
         <path
           d={gerarPath(campo)}
           onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
@@ -415,52 +419,108 @@ export default function FormaVetorial({
         />
 
         <path
-  d={gerarPath(campo)}
-  fill="none"
-  stroke={mostrarContorno ? contornoCor : "none"}
-  strokeWidth={
-    campo.forma === "LINHA"
-      ? contornoEspessura || 4
-      : campo.forma === "ESTRELA"
-      ? Math.max(4, contornoEspessura)
-      : Math.max(1, contornoEspessura)
-  }
-  strokeOpacity={opacidade}
-  strokeLinejoin="round"
-  strokeLinecap="round"
-  vectorEffect="non-scaling-stroke"
-  paintOrder="stroke fill markers"
-  className="pointer-events-none"
-/>
+          d={gerarPath(campo)}
+          fill="none"
+          stroke={mostrarContorno ? contornoCor : "none"}
+          strokeWidth={
+            campo.forma === "LINHA"
+              ? contornoEspessura || 4
+              : campo.forma === "ESTRELA"
+              ? Math.max(4, contornoEspessura)
+              : Math.max(1, contornoEspessura)
+          }
+          strokeOpacity={opacidade}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          className="pointer-events-none"
+        />
 
         {selecionado &&
           modo === "editor" &&
           pontos.map((ponto) => {
             const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
 
-            if (ponto.tipo !== "curvo") return null;
-
             return (
-              <g key={`linhas-${ponto.id}`}>
-                <line
-                  x1={ponto.x}
-                  y1={ponto.y}
-                  x2={p.inX}
-                  y2={p.inY}
-                  stroke="#22c55e"
-                  strokeWidth={1}
-                  strokeDasharray="3 3"
-                  vectorEffect="non-scaling-stroke"
-                />
-                <line
-                  x1={ponto.x}
-                  y1={ponto.y}
-                  x2={p.outX}
-                  y2={p.outY}
-                  stroke="#22c55e"
-                  strokeWidth={1}
-                  strokeDasharray="3 3"
-                  vectorEffect="non-scaling-stroke"
+              <g key={`controle-${ponto.id}`}>
+                {ponto.tipo === "curvo" && (
+                  <>
+                    <line
+                      x1={ponto.x}
+                      y1={ponto.y}
+                      x2={p.inX}
+                      y2={p.inY}
+                      stroke="#22c55e"
+                      strokeWidth={1}
+                      strokeDasharray="3 3"
+                      vectorEffect="non-scaling-stroke"
+                    />
+
+                    <line
+                      x1={ponto.x}
+                      y1={ponto.y}
+                      x2={p.outX}
+                      y2={p.outY}
+                      stroke="#22c55e"
+                      strokeWidth={1}
+                      strokeDasharray="3 3"
+                      vectorEffect="non-scaling-stroke"
+                    />
+
+                    <circle
+                      cx={p.inX}
+                      cy={p.inY}
+                      r={3.2}
+                      fill="#22c55e"
+                      stroke="#ffffff"
+                      strokeWidth={1.2}
+                      className="pointer-events-auto cursor-grab"
+                      onMouseDown={(e) =>
+                        iniciarArrastePercentual(e, (x, y, ev) =>
+                          moverAlca(ponto.id, "in", x, y, ev.altKey)
+                        )
+                      }
+                    />
+
+                    <circle
+                      cx={p.outX}
+                      cy={p.outY}
+                      r={3.2}
+                      fill="#22c55e"
+                      stroke="#ffffff"
+                      strokeWidth={1.2}
+                      className="pointer-events-auto cursor-grab"
+                      onMouseDown={(e) =>
+                        iniciarArrastePercentual(e, (x, y, ev) =>
+                          moverAlca(ponto.id, "out", x, y, ev.altKey)
+                        )
+                      }
+                    />
+                  </>
+                )}
+
+                <circle
+                  cx={ponto.x}
+                  cy={ponto.y}
+                  r={4}
+                  fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
+                  stroke="#ffffff"
+                  strokeWidth={1.4}
+                  className="pointer-events-auto cursor-grab"
+                  onMouseDown={(e) =>
+                    iniciarArrastePercentual(e, (x, y) =>
+                      moverPonto(ponto.id, x, y)
+                    )
+                  }
+                  onDoubleClick={(e) => {
+                    e.stopPropagation();
+                    alternarTipoPonto(ponto.id);
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deletarPonto(ponto.id);
+                  }}
                 />
               </g>
             );
@@ -468,7 +528,7 @@ export default function FormaVetorial({
       </svg>
 
       {selecionado && modo === "editor" && campo.forma === "ESTRELA" && (
-        <div className="pointer-events-auto absolute left-1/2 top-[-76px] z-[1000000] flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-700 shadow-xl">
+        <div className="pointer-events-auto absolute left-1/2 top-full z-[1000000] mt-2 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-700 shadow-xl">
           <button
             type="button"
             onMouseDown={(e) => e.stopPropagation()}
@@ -544,94 +604,6 @@ export default function FormaVetorial({
           >
             pontas curvas
           </button>
-
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              converterGrupoEstrela("internos", "reto");
-              converterGrupoEstrela("externos", "reto");
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            tudo reto
-          </button>
-        </div>
-      )}
-
-      {selecionado && modo === "editor" && (
-        <div className="pointer-events-none absolute -inset-8 z-[999999] overflow-visible">
-          {pontos.map((ponto) => {
-            const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
-
-            return (
-              <div key={`controle-${ponto.id}`}>
-                {ponto.tipo === "curvo" && (
-                  <>
-                    <button
-                      type="button"
-                      onMouseDown={(e) =>
-                        iniciarArrastePercentual(e, (x, y, ev) =>
-                          moverAlca(ponto.id, "in", x, y, ev.altKey)
-                        )
-                      }
-                      className="pointer-events-auto absolute z-[1000000] h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.7)]"
-                      style={{
-                        left: `${p.inX}%`,
-                        top: `${p.inY}%`,
-                        cursor: "grab",
-                      }}
-                      title="Alça Bézier de entrada"
-                    />
-
-                    <button
-                      type="button"
-                      onMouseDown={(e) =>
-                        iniciarArrastePercentual(e, (x, y, ev) =>
-                          moverAlca(ponto.id, "out", x, y, ev.altKey)
-                        )
-                      }
-                      className="pointer-events-auto absolute z-[1000000] h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-emerald-500 shadow-[0_0_0_2px_rgba(16,185,129,0.7)]"
-                      style={{
-                        left: `${p.outX}%`,
-                        top: `${p.outY}%`,
-                        cursor: "grab",
-                      }}
-                      title="Alça Bézier de saída"
-                    />
-                  </>
-                )}
-
-                <button
-                  type="button"
-                  onMouseDown={(e) =>
-                    iniciarArrastePercentual(e, (x, y) =>
-                      moverPonto(ponto.id, x, y)
-                    )
-                  }
-                  onDoubleClick={(e) => {
-                    e.stopPropagation();
-                    alternarTipoPonto(ponto.id);
-                  }}
-                  onContextMenu={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    deletarPonto(ponto.id);
-                  }}
-                  className={`pointer-events-auto absolute z-[1000000] h-7 w-7 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white shadow-[0_0_0_2px_rgba(37,99,235,0.7)] ${
-  ponto.tipo === "curvo" ? "bg-purple-600" : "bg-orange-500"
-}`}
-                  style={{
-                    left: `${ponto.x}%`,
-                    top: `${ponto.y}%`,
-                    cursor: "grab",
-                  }}
-                  title="Arraste para deformar. Duplo clique alterna reto/curvo. Botão direito remove."
-                />
-              </div>
-            );
-          })}
         </div>
       )}
     </div>
