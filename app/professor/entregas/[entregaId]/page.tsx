@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 type Entrega = {
   id: number;
@@ -30,6 +31,7 @@ export default function CorrigirEntregaPage() {
   const [entrega, setEntrega] = useState<Entrega | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [nota, setNota] = useState("");
   const [feedback, setFeedback] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -86,10 +88,10 @@ export default function CorrigirEntregaPage() {
         throw new Error(json.error || "Erro ao salvar");
       }
 
-      alert("Correção salva com sucesso!");
+      setSucesso("Correção salva com sucesso.");
       await carregarEntrega();
     } catch (e: any) {
-      alert(e.message);
+      setErro(e?.message || "Erro ao salvar correção.");
     } finally {
       setSalvando(false);
     }
@@ -111,6 +113,23 @@ export default function CorrigirEntregaPage() {
   return (
     <div className="p-6">
       <div className="mx-auto max-w-4xl space-y-6">
+      {sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
+
+{erro && (
+  <PhanyxToast
+    tipo="erro"
+    titulo="Não foi possível salvar"
+    mensagem={erro}
+    onClose={() => setErro("")}
+  />
+)}
         <a
           href="/professor/atividades"
           className="text-sm text-gray-500 hover:underline"

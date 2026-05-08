@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
           {/* CARD PROFESSOR */}
           <div
-            onClick={() => alert("Área do professor em construção")}
+            onClick={() => router.push("/professor")}
             className="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-6"
           >
             <div className="text-4xl mb-4">👨‍🏫</div>
@@ -66,7 +66,7 @@ export default function DashboardPage() {
 
           {/* CARD CURSOS */}
           <div
-            onClick={() => alert("Cursos em breve")}
+            onClick={() => router.push("/admin/cursos")}
             className="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-6"
           >
             <div className="text-4xl mb-4">📚</div>
@@ -80,7 +80,7 @@ export default function DashboardPage() {
 
           {/* CARD BOLETINS */}
           <div
-            onClick={() => alert("Boletins em breve")}
+            onClick={() => router.push("/admin/notas")}
             className="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-6"
           >
             <div className="text-4xl mb-4">📄</div>
@@ -94,7 +94,7 @@ export default function DashboardPage() {
 
           {/* CARD CERTIFICADOS */}
           <div
-            onClick={() => alert("Certificados em breve")}
+            onClick={() => router.push("/admin/certificados")}
             className="cursor-pointer bg-white rounded-xl shadow hover:shadow-lg transition p-6"
           >
             <div className="text-4xl mb-4">🎓</div>

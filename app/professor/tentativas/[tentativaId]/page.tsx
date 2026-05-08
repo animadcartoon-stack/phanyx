@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 
+
 type Alternativa = {
   id: number;
   texto: string;
@@ -61,6 +62,7 @@ export default function TentativaPage() {
   const [tentativa, setTentativa] = useState<Tentativa | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
   const [salvando, setSalvando] = useState(false);
   const [correcoes, setCorrecoes] = useState<EstadoCorrecao[]>([]);
 
@@ -163,7 +165,7 @@ export default function TentativaPage() {
         throw new Error(data.error || "Erro ao corrigir discursivas");
       }
 
-      alert("Correção salva com sucesso");
+      setSucesso("Correção salva com sucesso.");
       await carregarTentativa();
     } catch (e: any) {
       setErro(e.message || "Erro ao corrigir discursivas");
@@ -197,6 +199,11 @@ export default function TentativaPage() {
   return (
     <div className="p-6">
       <div className="mx-auto max-w-6xl space-y-6">
+        {sucesso && (
+  <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+    {sucesso}
+  </div>
+)}
         <div className="flex flex-col gap-4 rounded-2xl border bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
           <div className="space-y-3">
             <a

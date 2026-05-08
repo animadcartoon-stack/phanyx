@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 export default function LancarNotasPage({
   params,
@@ -12,14 +13,23 @@ export default function LancarNotasPage({
 
   const [nota, setNota] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   function salvar() {
-    alert("Nota salva com sucesso (simulado)");
-    router.back();
+    setSucesso("Nota salva com sucesso.");
+setTimeout(() => router.back(), 900);
   }
 
   return (
     <div className="space-y-6 max-w-xl">
+      {sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
       <button
         onClick={() => router.back()}
         className="text-blue-600 hover:underline"

@@ -1,12 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 export default function ProgressoProfessor() {
   const [progresso, setProgresso] = useState(50);
+  const [sucesso, setSucesso] = useState("");
 
   return (
     <div className="p-6 text-black">
+      {sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
       <h1 className="text-2xl font-bold mb-6">
         Lançar Progresso do Aluno
       </h1>
@@ -44,7 +54,7 @@ export default function ProgressoProfessor() {
       <button
   onClick={() => {
     localStorage.setItem("progressoSemestre2", progresso.toString());
-    alert("Progresso salvo e enviado ao aluno");
+    setSucesso("Progresso salvo e enviado ao aluno.");
   }}
   className="px-6 py-2 bg-blue-600 text-white rounded"
 >

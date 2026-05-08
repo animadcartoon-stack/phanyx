@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGrades } from "@/app/context/GradesContext";
+import PhanyxToast from "@/components/ui/PhanyxToast";
 
 
 export default function LancarNotaPage({
@@ -15,6 +16,7 @@ export default function LancarNotaPage({
 
   const [nota, setNota] = useState("");
   const [feedback, setFeedback] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   const aluno = {
     id: params.alunoId,
@@ -33,12 +35,20 @@ export default function LancarNotaPage({
       feedback,
     });
 
-    alert("✅ Nota salva com sucesso!");
-    router.back();
+    setSucesso("Nota salva com sucesso.");
+setTimeout(() => router.back(), 900);
   }
 
   return (
     <main className="p-8 bg-white text-gray-900 min-h-screen space-y-6">
+      {sucesso && (
+  <PhanyxToast
+    tipo="sucesso"
+    titulo="Tudo certo"
+    mensagem={sucesso}
+    onClose={() => setSucesso("")}
+  />
+)}
       <button
         onClick={() => router.back()}
         className="text-blue-600 hover:underline"
