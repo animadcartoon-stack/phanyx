@@ -390,10 +390,13 @@ export default function FormaVetorial({
       }
     >
       <svg
-        className="absolute inset-0 z-10 h-full w-full overflow-visible"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-      >
+  className="absolute inset-0 z-10 h-full w-full overflow-visible"
+  viewBox="0 0 100 100"
+  preserveAspectRatio="none"
+  style={{
+    overflow: "visible",
+  }}
+>
         <path
           d={gerarPath(campo)}
           onDoubleClick={modo === "editor" ? adicionarPonto : undefined}
@@ -416,15 +419,18 @@ export default function FormaVetorial({
           fill="none"
           stroke={mostrarContorno ? contornoCor : "none"}
           strokeWidth={
-            campo.forma === "LINHA"
-              ? contornoEspessura || 4
-              : Math.max(1, contornoEspessura)
-          }
+  campo.forma === "LINHA"
+    ? contornoEspessura || 4
+    : campo.forma === "ESTRELA"
+    ? Math.max(3, contornoEspessura)
+    : Math.max(1, contornoEspessura)
+}
           strokeOpacity={opacidade}
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
           className="pointer-events-none"
+          paintOrder="stroke fill markers"
         />
 
         {selecionado &&
