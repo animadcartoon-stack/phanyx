@@ -401,16 +401,16 @@ const turmaEncontrada = listaTurmas.find(
 
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">
-              Link do vídeo
+              Link da aula, vídeo ou transmissão ao vivo
             </label>
             <input
               value={videoUrl}
               onChange={(e) => setVideoUrl(e.target.value)}
               className="w-full rounded-lg border p-2 text-gray-900"
-              placeholder="Cole link do YouTube ou deixe em branco"
+              placeholder="Cole link do YouTube, Google Meet, Zoom, Teams ou transmissão ao vivo"
             />
             <p className="mt-1 text-xs text-gray-500">
-              O vídeo é opcional. Os materiais e links de apoio serão adicionados depois.
+              Opcional. Use este campo para aula gravada, aula ao vivo ou transmissão. Materiais e links de apoio ficam no botão Materiais.
             </p>
           </div>
 
@@ -499,7 +499,7 @@ const turmaEncontrada = listaTurmas.find(
                     rel="noreferrer"
                     className="inline-block text-sm text-blue-600 hover:underline"
                   >
-                    Abrir vídeo
+                    Abrir aula / transmissão
                   </a>
                 )}
 
