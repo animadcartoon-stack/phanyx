@@ -48,6 +48,30 @@ function criarAlcasPadrao(ponto: PontoForma): PontoForma {
   };
 }
 
+function criarAlcasEstrelaSimetrica(
+  ponto: PontoForma,
+  intensidade: number
+): PontoForma {
+  const centroX = 50;
+  const centroY = 50;
+
+  const anguloRadial = Math.atan2(ponto.y - centroY, ponto.x - centroX);
+  const anguloTangente = anguloRadial + Math.PI / 2;
+
+  const dx = Math.cos(anguloTangente) * intensidade;
+  const dy = Math.sin(anguloTangente) * intensidade;
+
+  return {
+    ...ponto,
+    tipo: "curvo",
+    handleMode: "alinhado",
+    inX: ponto.x - dx,
+    inY: ponto.y - dy,
+    outX: ponto.x + dx,
+    outY: ponto.y + dy,
+  };
+}
+
 function criarAlcasRadiaisEstrela(
   ponto: PontoForma,
   intensidade = 14
@@ -72,28 +96,23 @@ function criarAlcasRadiaisEstrela(
   };
 }
 
+function controleSaida(ponto: PontoForma) {
+  return {
+    x: ponto.outX ?? ponto.x,
+    y: ponto.outY ?? ponto.y,
+  };
+}
+
+function controleEntrada(ponto: PontoForma) {
+  return {
+    x: ponto.inX ?? ponto.x,
+    y: ponto.inY ?? ponto.y,
+  };
+}
+
 function gerarPath(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
   if (!pontos.length) return "";
-
-  if (campo.forma === "LINHA") {
-    let d = `M ${pontos[0].x} ${pontos[0].y}`;
-
-    for (let i = 1; i < pontos.length; i++) {
-      const anterior = pontos[i - 1];
-      const atual = pontos[i];
-
-      if (anterior.tipo === "curvo" || atual.tipo === "curvo") {
-        const p1 = criarAlcasPadrao(anterior);
-        const p2 = criarAlcasPadrao(atual);
-        d += ` C ${p1.outX} ${p1.outY} ${p2.inX} ${p2.inY} ${atual.x} ${atual.y}`;
-      } else {
-        d += ` L ${atual.x} ${atual.y}`;
-      }
-    }
-
-    return d;
-  }
 
   let d = `M ${pontos[0].x} ${pontos[0].y}`;
 
@@ -101,25 +120,42 @@ function gerarPath(campo: CampoForma) {
     const anterior = pontos[i - 1];
     const atual = pontos[i];
 
-    if (anterior.tipo === "curvo" || atual.tipo === "curvo") {
-      const p1 = criarAlcasPadrao(anterior);
-      const p2 = criarAlcasPadrao(atual);
-      d += ` C ${p1.outX} ${p1.outY} ${p2.inX} ${p2.inY} ${atual.x} ${atual.y}`;
+    const temCurva =
+      anterior.tipo === "curvo" ||
+      atual.tipo === "curvo" ||
+      anterior.outX !== undefined ||
+      atual.inX !== undefined;
+
+    if (temCurva) {
+      const c1 = controleSaida(anterior);
+      const c2 = controleEntrada(atual);
+
+      d += ` C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${atual.x} ${atual.y}`;
     } else {
       d += ` L ${atual.x} ${atual.y}`;
     }
   }
 
-  const ultimo = pontos[pontos.length - 1];
-  const primeiro = pontos[0];
+  if (campo.forma !== "LINHA") {
+    const ultimo = pontos[pontos.length - 1];
+    const primeiro = pontos[0];
 
-  if (ultimo.tipo === "curvo" || primeiro.tipo === "curvo") {
-    const p1 = criarAlcasPadrao(ultimo);
-    const p2 = criarAlcasPadrao(primeiro);
-    d += ` C ${p1.outX} ${p1.outY} ${p2.inX} ${p2.inY} ${primeiro.x} ${primeiro.y}`;
+    const temCurva =
+      ultimo.tipo === "curvo" ||
+      primeiro.tipo === "curvo" ||
+      ultimo.outX !== undefined ||
+      primeiro.inX !== undefined;
+
+    if (temCurva) {
+      const c1 = controleSaida(ultimo);
+      const c2 = controleEntrada(primeiro);
+
+      d += ` C ${c1.x} ${c1.y} ${c2.x} ${c2.y} ${primeiro.x} ${primeiro.y}`;
+    }
+
+    d += " Z";
   }
 
-  d += " Z";
   return d;
 }
 
@@ -315,7 +351,11 @@ export default function FormaVetorial({
 
         if (tipo === "curvo") {
   const externo = index % 2 === 0;
-  return criarAlcasRadiaisEstrela(ponto, externo ? 12 : 18);
+
+  return criarAlcasEstrelaSimetrica(
+    ponto,
+    externo ? 8 : 14
+  );
 }
 
         return {
