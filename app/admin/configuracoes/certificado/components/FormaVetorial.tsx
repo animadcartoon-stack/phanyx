@@ -22,6 +22,7 @@ type CampoForma = {
   mostrarPreenchimento?: boolean | null;
   mostrarContorno?: boolean | null;
   opacity?: number | null;
+  raioBorda?: number | null;
   pontosForma?: PontoForma[] | null;
 };
 
@@ -111,9 +112,55 @@ function controleEntrada(ponto: PontoForma) {
   };
 }
 
+function gerarPathComCantosArredondados(campo: CampoForma) {
+  const pontos = campo.pontosForma || [];
+  const raio = Math.max(0, Math.min(45, campo.raioBorda || 0));
+
+  if (pontos.length < 3 || raio <= 0) return "";
+
+  let d = "";
+
+  for (let i = 0; i < pontos.length; i++) {
+    const anterior = pontos[(i - 1 + pontos.length) % pontos.length];
+    const atual = pontos[i];
+    const proximo = pontos[(i + 1) % pontos.length];
+
+    const distAnterior = Math.hypot(atual.x - anterior.x, atual.y - anterior.y);
+    const distProximo = Math.hypot(proximo.x - atual.x, proximo.y - atual.y);
+
+    const r = Math.min(raio, distAnterior / 2, distProximo / 2);
+
+    const inicioX = atual.x + ((anterior.x - atual.x) / distAnterior) * r;
+    const inicioY = atual.y + ((anterior.y - atual.y) / distAnterior) * r;
+
+    const fimX = atual.x + ((proximo.x - atual.x) / distProximo) * r;
+    const fimY = atual.y + ((proximo.y - atual.y) / distProximo) * r;
+
+    if (i === 0) {
+      d += `M ${inicioX} ${inicioY}`;
+    } else {
+      d += ` L ${inicioX} ${inicioY}`;
+    }
+
+    d += ` Q ${atual.x} ${atual.y} ${fimX} ${fimY}`;
+  }
+
+  d += " Z";
+  return d;
+}
+
 function gerarPath(campo: CampoForma) {
   const pontos = campo.pontosForma || [];
   if (!pontos.length) return "";
+
+  if (
+  campo.forma !== "ESTRELA" &&
+  campo.forma !== "LINHA" &&
+  campo.forma !== "CIRCULO" &&
+  (campo.raioBorda || 0) > 0
+) {
+  return gerarPathComCantosArredondados(campo);
+}
 
   let d = `M ${pontos[0].x} ${pontos[0].y}`;
 

@@ -2837,7 +2837,7 @@ overflow:
     }}
 >
 
-{c.pontosForma && c.pontosForma.length > 0 && (
+{c.tipo === "FORMA" && c.pontosForma && c.pontosForma.length > 0 && (
   <div
     onContextMenu={(event) => {
       event.preventDefault();
@@ -2852,10 +2852,10 @@ overflow:
     }}
   >
     <FormaVetorial
-      campo={c}
-      selecionado={selecionado}
-      modo="editor"
-      mostrarHandles={mostrarHandlesForma}
+  campo={c as any}
+  selecionado={selecionado}
+  modo="editor"
+  mostrarHandles={mostrarHandlesForma}
       onChange={(campoAtualizado) => {
         setCampos((prev) =>
           prev.map((item) => {
