@@ -214,6 +214,13 @@ function arredondarGrupoEstrela(
       </div>
 
       <div className="h-[calc(100%-52px)] space-y-4 overflow-y-auto p-4 text-sm text-slate-700">
+        <button
+  type="button"
+  onClick={() => setMostrarHandlesForma?.((prev) => !prev)}
+  className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+>
+  Mostrar / ocultar pontos de edição
+</button>
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">
             Tipo

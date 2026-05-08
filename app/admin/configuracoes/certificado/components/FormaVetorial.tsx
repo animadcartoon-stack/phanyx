@@ -460,8 +460,8 @@ export default function FormaVetorial({
       data-forma-vetorial-root
       className={
         modo === "preview"
-          ? "pointer-events-none absolute inset-0 overflow-hidden"
-          : "pointer-events-none absolute inset-0 overflow-visible"
+  ? "pointer-events-none absolute inset-0 overflow-visible"
+  : "pointer-events-none absolute inset-0 overflow-visible"
       }
     >
       <svg
