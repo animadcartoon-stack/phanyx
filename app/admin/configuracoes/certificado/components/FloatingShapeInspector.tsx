@@ -196,10 +196,10 @@ const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
     Raio externo / tamanho das pontas
   </p>
 
-  <input
+ <input
     type="range"
     min={30}
-    max={54}
+    max={120}
     value={raioExternoAtual}
     onChange={(e) =>
       atualizarEstrela({ raioExterno: Number(e.target.value) })

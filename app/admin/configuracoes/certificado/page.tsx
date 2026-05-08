@@ -2821,11 +2821,17 @@ style={{
     ? "9999px"
     : `${(c as any).raioBorda ?? 8}px`,
     clipPath:
-  c.forma === "ESTRELA"
+  c.pontosForma && c.pontosForma.length > 0
+    ? "none"
+    : c.forma === "ESTRELA"
     ? "polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)"
     : c.forma === "TRIANGULO"
     ? "polygon(50% 0%, 100% 100%, 0% 100%)"
     : "none",
+overflow:
+  c.pontosForma && c.pontosForma.length > 0
+    ? "visible"
+    : "hidden",
     }}
 >
 
