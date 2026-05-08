@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
+import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import {
   useEffect,
@@ -289,6 +290,14 @@ export default function ConfiguracaoCertificadoPage() {
   y: number;
   campoId: number;
 } | null>(null);
+  
+  const [shapeInspectorAberto, setShapeInspectorAberto] = useState(false);
+
+  const [shapeInspectorPosicao, setShapeInspectorPosicao] = useState({
+  x: 520,
+  y: 180,
+});
+
   const [previewAberto, setPreviewAberto] = useState(false);
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
@@ -2821,23 +2830,37 @@ style={{
 >
 
 {c.pontosForma && c.pontosForma.length > 0 && (
-  <FormaVetorial
-  campo={c}
-  selecionado={selecionado}
-  modo="editor"
-  onChange={(campoAtualizado) => {
-      setCampos((prev) =>
-        prev.map((item) => {
-          if (item.id !== c.id) return item;
+  <div
+    onContextMenu={(event) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-          return {
-            ...item,
-            ...(campoAtualizado as any),
-          };
-        })
-      );
+      setCampoSelecionadoId(c.id);
+      setShapeInspectorAberto(true);
+      setShapeInspectorPosicao({
+        x: event.clientX + 12,
+        y: event.clientY + 12,
+      });
     }}
-  />
+  >
+    <FormaVetorial
+      campo={c}
+      selecionado={selecionado}
+      modo="editor"
+      onChange={(campoAtualizado) => {
+        setCampos((prev) =>
+          prev.map((item) => {
+            if (item.id !== c.id) return item;
+
+            return {
+              ...item,
+              ...(campoAtualizado as any),
+            };
+          })
+        );
+      }}
+    />
+  </div>
 )}
 
 {selecionado && (c as any).usarGradiente && (
@@ -3605,6 +3628,21 @@ if (!camposSelecionadosIds.includes(c.id)) {
     </button>
   </div>
 )}
+
+<FloatingShapeInspector
+  aberto={shapeInspectorAberto}
+  campo={campoSelecionado || null}
+  posicao={shapeInspectorPosicao}
+  onFechar={() => setShapeInspectorAberto(false)}
+  onMover={setShapeInspectorPosicao}
+  onAtualizarCampo={(campoAtualizado) => {
+    setCampos((prev) =>
+      prev.map((c) =>
+        c.id === campoAtualizado.id ? (campoAtualizado as any) : c
+      )
+    );
+  }}
+/>
 
           </main>
 
