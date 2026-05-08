@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 
 type UsuarioLogado = {
   id?: number;
@@ -564,8 +565,9 @@ try {
       )}
 
       <main className={esconderSidebar ? "flex-1 p-0" : "flex-1 p-10"}>
-        {children}
-      </main>
+  {!esconderSidebar && <PhanyxFeriadoAviso />}
+  {children}
+</main>
       <PhanyxConfirmModal
   aberto={sessaoExpirada}
   titulo="Sessão encerrada"
