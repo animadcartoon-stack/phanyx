@@ -15,6 +15,11 @@ type PontoForma = {
 type CampoForma = {
   id: number;
   tipo: string;
+  x?: number | null;
+  y?: number | null;
+  largura?: number | null;
+  altura?: number | null;
+  raioBorda?: number | null;
   forma?: string | null;
   pontosForma?: PontoForma[] | null;
   preenchimentoCor?: string | null;
@@ -69,6 +74,19 @@ export default function FloatingShapeInspector({
 
 const raioInternoAtual = Number((campo as any).raioInterno ?? 22);
 const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
+
+function atualizarCampoBasico(chave: keyof CampoForma, valor: any) {
+  onAtualizarCampo({
+    ...campo,
+    [chave]: valor,
+  } as any);
+}
+
+const ehEstrela = campo.forma === "ESTRELA";
+const ehRetanguloOuQuadrado =
+  campo.forma === "RETANGULO" || campo.forma === "QUADRADO";
+const ehTriangulo = campo.forma === "TRIANGULO";
+const ehCirculo = campo.forma === "CIRCULO";
 
   function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -230,6 +248,55 @@ function arredondarGrupoEstrela(
           </div>
         </div>
 
+<div className="grid grid-cols-2 gap-3">
+  <div>
+    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+      Largura
+    </p>
+
+    <input
+      type="number"
+      value={campo.largura || 160}
+      onChange={(e) =>
+        atualizarCampoBasico("largura", Number(e.target.value))
+      }
+      className="w-full rounded-xl border px-3 py-2"
+    />
+  </div>
+
+  <div>
+    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+      Altura
+    </p>
+
+    <input
+      type="number"
+      value={campo.altura || 160}
+      onChange={(e) =>
+        atualizarCampoBasico("altura", Number(e.target.value))
+      }
+      className="w-full rounded-xl border px-3 py-2"
+    />
+  </div>
+</div>
+{ehRetanguloOuQuadrado && (
+  <div className="mt-4">
+    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+      Arredondamento dos cantos
+    </p>
+
+    <input
+      type="range"
+      min={0}
+      max={50}
+      value={campo.raioBorda || 0}
+      onChange={(e) =>
+        atualizarCampoBasico("raioBorda", Number(e.target.value))
+      }
+      className="w-full"
+    />
+  </div>
+)}
         {campo.forma === "ESTRELA" && (
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -269,73 +336,83 @@ function arredondarGrupoEstrela(
           </div>
         )}
 
-<div className="mt-4">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-    Raio externo / tamanho das pontas
-  </p>
+{ehEstrela && (
+  <>
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+        Raio externo / tamanho das pontas
+      </p>
 
- <input
-    type="range"
-    min={30}
-    max={120}
-    value={raioExternoAtual}
-    onChange={(e) =>
-      atualizarEstrela({ raioExterno: Number(e.target.value) })
-    }
-    className="w-full"
-  />
-</div>
+      <input
+        type="range"
+        min={30}
+        max={120}
+        value={raioExternoAtual}
+        onChange={(e) =>
+          atualizarEstrela({ raioExterno: Number(e.target.value) })
+        }
+        className="w-full"
+      />
+    </div>
 
-<div className="mt-4">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-    Raio interno / profundidade
-  </p>
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+        Raio interno / profundidade
+      </p>
 
-  <input
-    type="range"
-    min={8}
-    max={42}
-    value={raioInternoAtual}
-    onChange={(e) =>
-      atualizarEstrela({ raioInterno: Number(e.target.value) })
-    }
-    className="w-full"
-  />
-</div>
+      <input
+        type="range"
+        min={8}
+        max={42}
+        value={raioInternoAtual}
+        onChange={(e) =>
+          atualizarEstrela({ raioInterno: Number(e.target.value) })
+        }
+        className="w-full"
+      />
+    </div>
 
-<div className="mt-4">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-    Arredondamento interno
-  </p>
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+        Arredondamento interno
+      </p>
 
-  <input
-    type="range"
-    min={0}
-    max={45}
-    defaultValue={0}
-    onChange={(e) =>
-      arredondarGrupoEstrela("internos", Number(e.target.value))
-    }
-    className="w-full"
-  />
-</div>
+      <input
+        type="range"
+        min={0}
+        max={40}
+        defaultValue={0}
+        onChange={(e) =>
+  arredondarGrupoEstrela(
+    "internos",
+    Number(e.target.value)
+  )
+}
+        className="w-full"
+      />
+    </div>
 
-<div className="mt-4">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-    Arredondamento das pontas
-  </p>
+    <div className="mt-4">
+      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+        Arredondamento das pontas
+      </p>
 
-  <input
-    type="range"
-    min={0}
-    max={45}
-    defaultValue={0}
-    onChange={(e) =>
-      arredondarGrupoEstrela("externos", Number(e.target.value))
-    }
-    className="w-full"
-  />
-</div>
+      <input
+        type="range"
+        min={0}
+        max={40}
+        defaultValue={0}
+        onChange={(e) =>
+  arredondarGrupoEstrela(
+    "externos",
+    Number(e.target.value)
+  )
+}
+        className="w-full"
+      />
+    </div>
+  </>
+)}
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
