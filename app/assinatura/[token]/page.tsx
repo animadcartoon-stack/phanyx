@@ -132,8 +132,8 @@ function gerarAssinaturaDigitalBase64() {
 
       setContrato(data);
       setNome(data?.aluno?.nome || "");
-      setCpf(data?.aluno?.cpf || "");
-      setAssinaturaDigital(data?.aluno?.nome || "");
+      setCpf(data?.assinatura?.cpf || data?.aluno?.cpf || "");
+      setAssinaturaDigital(data?.assinatura?.nome || data?.aluno?.nome || "");
     } catch (error: any) {
       console.error(error);
       setMensagem(error?.message || "Erro ao carregar contrato");
