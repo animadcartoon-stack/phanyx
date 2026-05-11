@@ -371,6 +371,12 @@ function arredondarGrupoEstrela(
   } as any);
 }
 
+function classeBotaoAlvo(alvo: typeof alvoCantos) {
+  return alvoCantos === alvo
+    ? "rounded-lg border border-blue-600 bg-blue-600 px-2 py-1 text-xs font-semibold text-white"
+    : "rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50";
+}
+
   return (
     <div
       className="fixed z-[9999999] min-h-[360px] w-[280px] resize-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
@@ -465,60 +471,45 @@ function arredondarGrupoEstrela(
     />
 
     <div className="mt-3 grid grid-cols-2 gap-2">
-      <button
-        type="button"
-        onClick={() => {
-  setAlvoCantos("todos");
-  aplicarArredondamentoCantos("todos", valorAtualDosCantos() || 20);
-}}
-        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
-      >
-        Todos
-      </button>
+     <button
+  type="button"
+  onClick={() => setAlvoCantos("todos")}
+  className={classeBotaoAlvo("todos")}
+>
+  Todos
+</button>
 
-      <button
-        type="button"
-        onClick={() => {
-  setAlvoCantos("cima");
-  aplicarArredondamentoCantos("cima", valorAtualDosCantos() || 20);
-}}
-        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
-      >
-        Só cima
-      </button>
+<button
+  type="button"
+  onClick={() => setAlvoCantos("cima")}
+  className={classeBotaoAlvo("cima")}
+>
+  Só cima
+</button>
 
-      <button
-        type="button"
-        onClick={() => {
-  setAlvoCantos("baixo");
-  aplicarArredondamentoCantos("baixo", valorAtualDosCantos() || 20);
-}}
-        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
-      >
-        Só baixo
-      </button>
+<button
+  type="button"
+  onClick={() => setAlvoCantos("baixo")}
+  className={classeBotaoAlvo("baixo")}
+>
+  Só baixo
+</button>
 
-      <button
-        type="button"
-        onClick={() => {
-  setAlvoCantos("esquerda");
-  aplicarArredondamentoCantos("esquerda", valorAtualDosCantos() || 20);
-}}
-        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
-      >
-        Só esquerda
-      </button>
+<button
+  type="button"
+  onClick={() => setAlvoCantos("esquerda")}
+  className={classeBotaoAlvo("esquerda")}
+>
+  Só esquerda
+</button>
 
-      <button
-        type="button"
-        onClick={() => {
-  setAlvoCantos("direita");
-  aplicarArredondamentoCantos("direita", valorAtualDosCantos() || 20);
-}}
-        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50"
-      >
-        Só direita
-      </button>
+<button
+  type="button"
+  onClick={() => setAlvoCantos("direita")}
+  className={classeBotaoAlvo("direita")}
+>
+  Só direita
+</button>
 
       <button
         type="button"
