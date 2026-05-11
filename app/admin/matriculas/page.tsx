@@ -111,6 +111,8 @@ function AdminMatriculasPage() {
     useState<MatriculaEdicao | null>(null);
   const [disciplinasSelecionadas, setDisciplinasSelecionadas] = useState<number[]>([]);
   const [disciplinasExtrasSelecionadas, setDisciplinasExtrasSelecionadas] = useState<number[]>([]);
+  const [disciplinasEdicaoSelecionadas, setDisciplinasEdicaoSelecionadas] = useState<number[]>([]);
+  const [disciplinasExtrasEdicaoSelecionadas, setDisciplinasExtrasEdicaoSelecionadas] = useState<number[]>([]);
   const [matriculas, setMatriculas] = useState<MatriculaApi[]>([]);
   const [alunos, setAlunos] = useState<AlunoOption[]>([]);
   const [cursos, setCursos] = useState<CursoOption[]>([]);
@@ -654,12 +656,12 @@ console.log("DEBUG MATRÍCULA", {
   alunoId: Number(alunoId),
   cursoId: Number(cursoId),
   cursoSemestreId: cursoSemestreIds[0] ?? null,
-cursoSemestreIds,
-semestre: semestresSelecionados[0]?.numero ?? null,
-semestres: semestresSelecionados.map((s) => s.numero),
-  turmaIds: turmasSelecionadas,
-turmaId: turmasSelecionadas[0] ?? null,
-disciplinaIds: [
+  cursoSemestreIds,
+  semestre: semestresSelecionados[0]?.numero ?? null,
+  semestres: semestresSelecionados.map((s) => s.numero),
+  turmaIds: turmaIdsParaEnviar,
+  turmaId: turmaIdsParaEnviar[0] ?? null,
+  disciplinaIds: [
   ...disciplinasSelecionadas,
   ...disciplinasExtrasSelecionadas,
 ],
@@ -779,6 +781,16 @@ disciplinaIds: [
         .filter((id): id is number => Number.isFinite(id))
     : [];
 
+    const disciplinaIdsAtuais = Array.isArray(matricula.itens)
+  ? Array.from(
+      new Set(
+        matricula.itens
+          .map((item: any) => Number(item?.disciplina?.id))
+          .filter((id) => Number.isFinite(id) && id > 0)
+      )
+    )
+  : [];
+
   let semestreEncontrado: any = null;
 
   if (cursoIdAtual) {
@@ -788,6 +800,20 @@ disciplinaIds: [
       semestres?.find((s: any) => Number(s.numero) === Number(semestreAtual)) ??
       null;
   }
+
+const idsGradeDoSemestre = new Set(
+  Array.isArray(semestreEncontrado?.disciplinas)
+    ? semestreEncontrado.disciplinas.map((d: any) => Number(d.disciplinaId))
+    : []
+);
+
+setDisciplinasEdicaoSelecionadas(
+  disciplinaIdsAtuais.filter((id) => idsGradeDoSemestre.has(id))
+);
+
+setDisciplinasExtrasEdicaoSelecionadas(
+  disciplinaIdsAtuais.filter((id) => !idsGradeDoSemestre.has(id))
+);
 
   setMatriculaEditando({
     id: matricula.id,
@@ -830,6 +856,10 @@ disciplinaIds: [
             ? null
             : Number(matriculaEditando.semestre),
         turmaIds: matriculaEditando.turmaIds,
+        disciplinaIds: [
+  ...disciplinasEdicaoSelecionadas,
+  ...disciplinasExtrasEdicaoSelecionadas,
+],
         valorPagoMatricula:
           matriculaEditando.valorPagoMatricula === ""
             ? null
@@ -990,6 +1020,62 @@ const disciplinasBaseEdicaoAgrupadas = useMemo(() => {
 const disciplinasExtrasEdicaoAgrupadas = useMemo(() => {
   return agruparTurmasPorDisciplina(turmasExtrasEdicao);
 }, [turmasExtrasEdicao]);
+
+const disciplinasDoSemestreEdicao = useMemo(() => {
+  if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+
+  const idsPermitidos = new Set(
+    semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
+  );
+
+  const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
+
+  turmas
+    .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+    .forEach((t) => {
+      (t.disciplinas || []).forEach((d) => {
+        if (idsPermitidos.has(Number(d.id))) {
+          mapa.set(Number(d.id), {
+            id: Number(d.id),
+            nome: d.nome,
+            cargaHoraria: d.cargaHoraria ?? 0,
+          });
+        }
+      });
+    });
+
+  return Array.from(mapa.values()).sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  );
+}, [matriculaEditando, semestreEditandoSelecionado, turmas]);
+
+const disciplinasExtrasEdicaoDisponiveis = useMemo(() => {
+  if (!matriculaEditando?.cursoId || !semestreEditandoSelecionado) return [];
+
+  const idsGrade = new Set(
+    semestreEditandoSelecionado.disciplinas.map((d) => Number(d.disciplinaId))
+  );
+
+  const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
+
+  turmas
+    .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+    .forEach((t) => {
+      (t.disciplinas || []).forEach((d) => {
+        if (!idsGrade.has(Number(d.id))) {
+          mapa.set(Number(d.id), {
+            id: Number(d.id),
+            nome: d.nome,
+            cargaHoraria: d.cargaHoraria ?? 0,
+          });
+        }
+      });
+    });
+
+  return Array.from(mapa.values()).sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  );
+}, [matriculaEditando, semestreEditandoSelecionado, turmas]);
 
 function renderGrupoDisciplina(
   grupo: {
@@ -1891,6 +1977,22 @@ function renderGrupoDisciplina(
       </p>
     )}
   </div>
+</div>
+
+<div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+  <MultiSelectDisciplinas
+    titulo="Disciplinas contratadas"
+    disciplinas={disciplinasDoSemestreEdicao}
+    selecionadas={disciplinasEdicaoSelecionadas}
+    setSelecionadas={setDisciplinasEdicaoSelecionadas}
+  />
+
+  <MultiSelectDisciplinas
+    titulo="Disciplinas extras contratadas"
+    disciplinas={disciplinasExtrasEdicaoDisponiveis}
+    selecionadas={disciplinasExtrasEdicaoSelecionadas}
+    setSelecionadas={setDisciplinasExtrasEdicaoSelecionadas}
+  />
 </div>
 
       <div className="flex gap-2 mt-6">
