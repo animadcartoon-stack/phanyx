@@ -49,6 +49,9 @@ export default function AssinaturaPorTokenPage() {
   const [nome, setNome] = useState("");
   const [cpf, setCpf] = useState("");
   const [contrato, setContrato] = useState<ContratoApi | null>(null);
+  const [tipoAssinatura, setTipoAssinatura] = useState<"DESENHO" | "DIGITAL">("DESENHO");
+  const [assinaturaDigital, setAssinaturaDigital] = useState("");
+  const [aceitouTermos, setAceitouTermos] = useState(false);
 
   function iniciarDesenho(e: React.MouseEvent<HTMLCanvasElement>) {
     setDesenhando(true);
@@ -81,6 +84,28 @@ export default function AssinaturaPorTokenPage() {
     ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
   }
 
+function gerarAssinaturaDigitalBase64() {
+  const canvas = document.createElement("canvas");
+  canvas.width = 700;
+  canvas.height = 220;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return "";
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.fillStyle = "#111827";
+  ctx.font = "48px cursive";
+  ctx.fillText(assinaturaDigital.trim(), 40, 120);
+
+  ctx.font = "14px Arial";
+  ctx.fillStyle = "#64748b";
+  ctx.fillText("Assinatura digital gerada pelo PHANYX", 40, 170);
+
+  return canvas.toDataURL("image/png");
+}
+
   function limparAssinatura() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -108,6 +133,7 @@ export default function AssinaturaPorTokenPage() {
       setContrato(data);
       setNome(data?.aluno?.nome || "");
       setCpf(data?.aluno?.cpf || "");
+      setAssinaturaDigital(data?.aluno?.nome || "");
     } catch (error: any) {
       console.error(error);
       setMensagem(error?.message || "Erro ao carregar contrato");
@@ -126,14 +152,31 @@ export default function AssinaturaPorTokenPage() {
         return;
       }
 
-      const canvas = canvasRef.current;
+      let assinaturaBase64 = "";
 
-      if (!canvas) {
-  setErro("Canvas de assinatura não encontrado.");
+if (!aceitouTermos) {
+  setErro("Você precisa declarar que leu e concorda com o documento antes de assinar.");
   return;
 }
 
-      const assinaturaBase64 = canvas.toDataURL("image/png");
+if (tipoAssinatura === "DESENHO") {
+  const canvas = canvasRef.current;
+
+  if (!canvas) {
+    setErro("Canvas de assinatura não encontrado.");
+    return;
+  }
+
+  assinaturaBase64 = canvas.toDataURL("image/png");
+} else {
+  if (!assinaturaDigital.trim()) {
+    setErro("Digite seu nome completo para gerar a assinatura digital.");
+    return;
+  }
+
+  assinaturaBase64 = gerarAssinaturaDigitalBase64();
+}
+
 console.log("ASSINATURA GERADA");
 
       if (!nome.trim()) {
@@ -279,27 +322,108 @@ console.log("ASSINATURA GERADA");
             </div>
 
             <div>
-              <p className="mb-2 text-sm text-gray-600">Assine abaixo:</p>
+              <div className="rounded-2xl border bg-white p-4">
+  <p className="mb-3 text-sm font-semibold text-gray-800">
+    Escolha como deseja assinar
+  </p>
 
-              <canvas
-                ref={canvasRef}
-                width={700}
-                height={220}
-                className="w-full rounded-xl border bg-white"
-                onMouseDown={iniciarDesenho}
-                onMouseUp={pararDesenho}
-                onMouseMove={desenhar}
-                onMouseLeave={pararDesenho}
-              />
+  <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+    <button
+      type="button"
+      onClick={() => setTipoAssinatura("DESENHO")}
+      disabled={contrato.status === "ASSINADO"}
+      className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+        tipoAssinatura === "DESENHO"
+          ? "border-green-500 bg-green-50 text-green-700"
+          : "bg-white text-gray-700"
+      }`}
+    >
+      ✍️ Desenhar assinatura
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setTipoAssinatura("DIGITAL")}
+      disabled={contrato.status === "ASSINADO"}
+      className={`rounded-xl border px-4 py-3 text-sm font-semibold ${
+        tipoAssinatura === "DIGITAL"
+          ? "border-blue-500 bg-blue-50 text-blue-700"
+          : "bg-white text-gray-700"
+      }`}
+    >
+      🔐 Assinatura digital digitada
+    </button>
+  </div>
+
+  {tipoAssinatura === "DESENHO" ? (
+    <div>
+      <p className="mb-2 text-sm text-gray-600">Assine abaixo:</p>
+
+      <canvas
+        ref={canvasRef}
+        width={700}
+        height={220}
+        className="w-full rounded-xl border bg-white"
+        onMouseDown={iniciarDesenho}
+        onMouseUp={pararDesenho}
+        onMouseMove={desenhar}
+        onMouseLeave={pararDesenho}
+      />
+    </div>
+  ) : (
+    <div>
+      <label className="mb-2 block text-sm font-medium text-gray-700">
+        Digite seu nome completo para gerar a assinatura digital
+      </label>
+
+      <input
+        value={assinaturaDigital}
+        onChange={(e) => setAssinaturaDigital(e.target.value)}
+        disabled={contrato.status === "ASSINADO"}
+        className="w-full rounded-xl border px-3 py-3 text-lg"
+        placeholder="Seu nome completo"
+      />
+
+      <div className="mt-4 rounded-xl border bg-slate-50 p-6 text-center">
+        <p className="font-serif text-4xl italic text-slate-900">
+          {assinaturaDigital || "Sua assinatura"}
+        </p>
+        <p className="mt-2 text-xs text-slate-500">
+          Assinatura digital gerada pelo PHANYX
+        </p>
+      </div>
+    </div>
+  )}
+
+  <label className="mt-4 flex items-start gap-3 rounded-xl border bg-slate-50 p-3 text-sm text-slate-700">
+    <input
+      type="checkbox"
+      checked={aceitouTermos}
+      onChange={(e) => setAceitouTermos(e.target.checked)}
+      disabled={contrato.status === "ASSINADO"}
+      className="mt-1"
+    />
+    <span>
+      Declaro que li integralmente este documento, concordo com seus termos
+      e reconheço esta assinatura eletrônica como válida.
+    </span>
+  </label>
+</div>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <button
-                onClick={limparAssinatura}
+  onClick={() => {
+    if (tipoAssinatura === "DESENHO") {
+      limparAssinatura();
+    } else {
+      setAssinaturaDigital(nome);
+    }
+  }}
                 className="rounded-xl bg-gray-500 px-4 py-2 text-white"
                 disabled={contrato.status === "ASSINADO" || saving}
               >
-                Limpar
+                {tipoAssinatura === "DESENHO" ? "Limpar" : "Restaurar nome"}
               </button>
 
               <button
