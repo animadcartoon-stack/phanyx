@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 import {
   enviarEmailAcesso,
   enviarEmailAcessoExistente,
+  enviarEmailPrimeiroAcesso,
+  enviarEmailAssinaturaContrato,
 } from "@/lib/email";
 
 function gerarSlugBase(texto: string) {
@@ -245,16 +247,30 @@ await prisma.matriculaOnlineIbe.update({
   },
 });
 
-// 5. EMAIL
+// 5. EMAIL DE ACESSO + LINK DE ASSINATURA
 try {
-  await enviarEmailAcesso({
+  const baseUrl =
+    process.env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3001";
+
+  const linkAssinatura = `${baseUrl}/assinatura/${contrato.tokenAssinatura}`;
+
+  await enviarEmailPrimeiroAcesso({
     email: user.email,
     nome: user.nome,
     senha: senhaTemp,
     instituicao: "Instituto Batista de Educação",
+    portal: "aluno",
+  });
+
+  await enviarEmailAssinaturaContrato({
+    email: user.email,
+    nome: user.nome,
+    instituicao: "Instituto Batista de Educação",
+    titulo: "Contrato de matrícula - Bacharel Livre em Teologia",
+    linkAssinatura,
   });
 } catch (e) {
-  console.error("Erro ao enviar email:", e);
+  console.error("Erro ao enviar email de acesso/assinatura:", e);
 }
 
 return NextResponse.json({
