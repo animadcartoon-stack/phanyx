@@ -57,18 +57,11 @@ export async function GET(req: Request) {
           },
           curso: true,
           itens: {
-            include: {
-              turma: {
   include: {
-    disciplinas: {
-      include: {
-        disciplina: true,
-      },
-    },
+    disciplina: true,
+    turma: true,
   },
 },
-            },
-          },
           lancamentosFinanceiros: {
             where: {
               status: {
@@ -101,18 +94,11 @@ export async function GET(req: Request) {
           },
           curso: true,
           itens: {
-            include: {
-              turma: {
   include: {
-    disciplinas: {
-      include: {
-        disciplina: true,
-      },
-    },
+    disciplina: true,
+    turma: true,
   },
 },
-            },
-          },
           lancamentosFinanceiros: {
             where: {
               status: {
@@ -150,16 +136,12 @@ export async function GET(req: Request) {
     });
 
     const disciplinasLista = Array.from(
-      new Set(
-        matricula.itens
-          .flatMap((item: any) =>
-  (item.turma?.disciplinas || []).map(
-    (td: any) => td.disciplina?.nome?.trim()
+  new Set(
+    matricula.itens
+      .map((item: any) => item.disciplina?.nome?.trim())
+      .filter(Boolean) as string[]
   )
-)
-          .filter(Boolean) as string[]
-      )
-    );
+);
 
     const turmasLista = Array.from(
       new Set(
@@ -210,6 +192,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
       matriculaAluno: matricula.aluno?.matricula || "-",
       curso: cursoNome,
       disciplinas: disciplinasTexto,
+      cursoNome,
+      disciplinasContratadas: disciplinasTexto,
       valorContrato: formatarMoeda(valorContrato),
       cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
       dataAtual: formatarDataAtual(),
