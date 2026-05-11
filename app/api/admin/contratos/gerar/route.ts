@@ -226,7 +226,7 @@ if (!contratoExistente) {
   });
 }
 
-const contratoFinal = contratoExistente.conteudo;
+const contratoFinal = contratoGerado;
     return NextResponse.json({
       matricula: {
         id: matricula.id,
