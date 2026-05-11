@@ -618,12 +618,23 @@ if (assinaturaAlunoBase64) {
     const assinaturaBytes = Buffer.from(base64Limpo, "base64");
     const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
 
-    page.drawImage(assinaturaImagem, {
-      x: 65,
-      y: linhaY + 6,
-      width: 100,
-      height: 38,
-    });
+    const assinaturaAlunoConfig = {
+  x: 65,
+  y: linhaY + 2,
+  width: 100,
+  height: 34,
+  opacity: 1,
+};
+
+page.drawImage(assinaturaImagem, assinaturaAlunoConfig);
+page.drawImage(assinaturaImagem, {
+  ...assinaturaAlunoConfig,
+  x: assinaturaAlunoConfig.x + 0.4,
+});
+page.drawImage(assinaturaImagem, {
+  ...assinaturaAlunoConfig,
+  y: assinaturaAlunoConfig.y + 0.4,
+});
   } catch (e) {
     console.error("Erro ao desenhar assinatura do aluno no PDF:", e);
   }
@@ -644,12 +655,22 @@ if (assinaturaAlunoBase64) {
     });
 
     if (assinaturaDiretorEmbed) {
-  page.drawImage(assinaturaDiretorEmbed, {
-    x: 305,
-    y: linhaY + 2,
-    width: 125,
-    height: 48,
+  const assinaturaDiretorConfig = {
+    x: 255,
+    y: linhaY + 1,
+    width: 90,
+    height: 28,
     opacity: 1,
+  };
+
+  page.drawImage(assinaturaDiretorEmbed, assinaturaDiretorConfig);
+  page.drawImage(assinaturaDiretorEmbed, {
+    ...assinaturaDiretorConfig,
+    x: assinaturaDiretorConfig.x + 0.4,
+  });
+  page.drawImage(assinaturaDiretorEmbed, {
+    ...assinaturaDiretorConfig,
+    y: assinaturaDiretorConfig.y + 0.4,
   });
 }
 
