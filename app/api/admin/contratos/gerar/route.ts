@@ -70,14 +70,19 @@ export async function GET(req: Request) {
             },
           },
           contratos: {
-            include: {
-              assinatura: true,
-            },
-            orderBy: {
-              id: "desc",
-            },
-            take: 1,
-          },
+  where: {
+    status: {
+      not: "CANCELADO",
+    },
+  },
+  include: {
+    assinatura: true,
+  },
+  orderBy: {
+    id: "desc",
+  },
+  take: 1,
+},
         },
       });
     } else if (Number.isFinite(alunoIdParam) && alunoIdParam > 0) {
@@ -107,14 +112,19 @@ export async function GET(req: Request) {
             },
           },
           contratos: {
-            include: {
-              assinatura: true,
-            },
-            orderBy: {
-              id: "desc",
-            },
-            take: 1,
-          },
+  where: {
+    status: {
+      not: "CANCELADO",
+    },
+  },
+  include: {
+    assinatura: true,
+  },
+  orderBy: {
+    id: "desc",
+  },
+  take: 1,
+},
         },
         orderBy: {
           id: "desc",

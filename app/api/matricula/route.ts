@@ -1215,6 +1215,19 @@ export async function PUT(request: Request) {
       }
     }
 
+    await prisma.contrato.updateMany({
+  where: {
+    matriculaId: id,
+    instituicaoId: user.instituicaoId,
+    status: {
+      in: ["PENDENTE", "ASSINADO"] as any,
+    },
+  },
+  data: {
+    status: "CANCELADO",
+  },
+});
+
     if (nomeSocial !== undefined || genero !== undefined) {
       await prisma.aluno.updateMany({
         where: {
