@@ -720,8 +720,8 @@ function subdividirForma() {
                     />
 
                     <ellipse
-                    cx={p.inX}
-                    cy={p.inY}
+  cx={50 + (p.inX! - 50) * 0.94}
+  cy={50 + (p.inY! - 50) * 0.94}
                     rx={rxAlca}
                     ry={ryAlca}
                       fill="#22c55e"
@@ -736,8 +736,8 @@ function subdividirForma() {
                     />
 
                     <ellipse
-                    cx={p.outX}
-                    cy={p.outY}
+  cx={50 + (p.outX! - 50) * 0.94}
+  cy={50 + (p.outY! - 50) * 0.94}
                     rx={rxAlca}
                     ry={ryAlca}
                       fill="#22c55e"
@@ -754,8 +754,8 @@ function subdividirForma() {
                 )}
 
                 <ellipse
-                  cx={ponto.x}
-                  cy={ponto.y}
+  cx={50 + (ponto.x - 50) * 0.94}
+  cy={50 + (ponto.y - 50) * 0.94}
                   rx={rxPonto}
                   ry={ryPonto}
                   fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
