@@ -591,6 +591,28 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
     y -= 34;
     const linhaY = y;
 
+const assinaturaAlunoBase64 = data?.contrato?.assinatura?.imagem;
+
+if (assinaturaAlunoBase64) {
+  try {
+    const base64Limpo = String(assinaturaAlunoBase64).includes(",")
+      ? String(assinaturaAlunoBase64).split(",")[1]
+      : String(assinaturaAlunoBase64);
+
+    const assinaturaBytes = Buffer.from(base64Limpo, "base64");
+    const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+
+    page.drawImage(assinaturaImagem, {
+      x: 65,
+      y: linhaY + 6,
+      width: 100,
+      height: 38,
+    });
+  } catch (e) {
+    console.error("Erro ao desenhar assinatura do aluno no PDF:", e);
+  }
+}
+
     page.drawLine({
       start: { x: 50, y: linhaY },
       end: { x: 190, y: linhaY },
