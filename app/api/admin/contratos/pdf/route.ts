@@ -233,7 +233,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
     const assinaturaDiretorPath = path.join(
   process.cwd(),
   "public",
-  "imagens",
+  "images",
   "assinaturas",
   "roberto-ramos-da-silva.png"
 );
