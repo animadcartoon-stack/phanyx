@@ -119,7 +119,7 @@ function controleEntrada(ponto: PontoForma) {
 }
 
 function gerarPathComCantosArredondados(campo: CampoForma) {
-  const pontos = campo.pontosForma || [];
+  const pontos = garantirPontosIniciais(campo);
   const cantos = campo.cantosArredondados || {};
   const temCantosIndividuais = !!campo.cantosArredondados;
 
@@ -242,6 +242,48 @@ function gerarPath(campo: CampoForma) {
   }
 
   return d;
+}
+
+function garantirPontosIniciais(campo: CampoForma): PontoForma[] {
+  const pontos = campo.pontosForma || [];
+
+  if (pontos.length >= 3) return pontos;
+
+  if (campo.forma === "RETANGULO" || campo.forma === "QUADRADO") {
+    return [
+      { id: "p-1", x: 0, y: 0, tipo: "reto" },
+      { id: "p-2", x: 100, y: 0, tipo: "reto" },
+      { id: "p-3", x: 100, y: 100, tipo: "reto" },
+      { id: "p-4", x: 0, y: 100, tipo: "reto" },
+    ];
+  }
+
+  if (campo.forma === "TRIANGULO") {
+    return [
+      { id: "p-1", x: 50, y: 0, tipo: "reto" },
+      { id: "p-2", x: 100, y: 100, tipo: "reto" },
+      { id: "p-3", x: 0, y: 100, tipo: "reto" },
+    ];
+  }
+
+  if (campo.forma === "CIRCULO") {
+    return gerarPontosCirculo(8);
+  }
+
+  return pontos;
+}
+
+function gerarPontosCirculo(total: number): PontoForma[] {
+  return Array.from({ length: total }).map((_, index) => {
+    const angulo = (Math.PI * 2 * index) / total - Math.PI / 2;
+
+    return {
+      id: `p-circulo-${index}`,
+      x: Number((50 + Math.cos(angulo) * 50).toFixed(2)),
+      y: Number((50 + Math.sin(angulo) * 50).toFixed(2)),
+      tipo: "reto",
+    };
+  });
 }
 
 export default function FormaVetorial({
