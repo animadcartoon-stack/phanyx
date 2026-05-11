@@ -113,17 +113,18 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const {
-      titulo,
-      descricao,
-      notaMaxima,
-      tempoMin,
-      tentativasMax,
-      disponivelEm,
-      expiraEm,
-      turmaId,
-    } = body;
+  titulo,
+  descricao,
+  notaMaxima,
+  tempoMin,
+  tentativasMax,
+  disponivelEm,
+  expiraEm,
+  turmaId,
+  disciplinaId,
+} = body;
 
-    if (!titulo || !turmaId) {
+   if (!titulo || !turmaId || !body.disciplinaId) {
       return NextResponse.json(
         { error: "Campos obrigatórios: titulo, turmaId" },
         { status: 400 }
@@ -134,38 +135,32 @@ export async function POST(req: Request) {
   where: {
     id: Number(turmaId),
     instituicaoId: user.instituicaoId,
-    OR: [
-      {
-        professorId: professor.id,
-      },
-      {
-        disciplinas: {
-          some: {
-            disciplina: {
-  OR: [
-    { professorId: professor.id },
-    {
-      professoresHabilitados: {
-        some: {
-          professorId: professor.id,
+    disciplinas: {
+      some: {
+        disciplinaId: Number(disciplinaId),
+        disciplina: {
+          OR: [
+            { professorId: professor.id },
+            {
+              professoresHabilitados: {
+                some: {
+                  professorId: professor.id,
+                },
+              },
+            },
+          ],
         },
       },
     },
-  ],
-},
-          },
-        },
-      },
-    ],
   },
-      include: {
-        disciplinas: {
   include: {
-    disciplina: true,
-  },
-},
+    disciplinas: {
+      include: {
+        disciplina: true,
       },
-    });
+    },
+  },
+});
 
     if (!turma) {
       return NextResponse.json(

@@ -86,9 +86,14 @@ export default function NovaProvaPage() {
     e.preventDefault();
 
     if (!disciplinaId) {
-      setErro("Selecione uma disciplina.");
-      return;
-    }
+  setErro("Selecione uma disciplina.");
+  return;
+}
+
+if (!turmaId) {
+  setErro("Selecione uma turma.");
+  return;
+}
 
     if (
       disponivelEm &&
@@ -257,7 +262,7 @@ export default function NovaProvaPage() {
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                     disabled={!disciplinaId}
                   >
-                    <option value="">Sem turma específica</option>
+                    <option value="">Selecione uma turma</option>
                     {turmasFiltradas.map((turma) => (
                       <option key={turma.id} value={turma.id}>
                         {turma.nome || `Turma ${turma.id}`}
