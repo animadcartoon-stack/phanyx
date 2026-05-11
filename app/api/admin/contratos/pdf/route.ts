@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import fs from "fs";
+import path from "path";
 import QRCode from "qrcode";
 import { getUserFromToken } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
@@ -228,6 +230,20 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
       data?.instituicao?.responsavelCargo || "Representante legal";
 
     const pdfDoc = await PDFDocument.create();
+    const assinaturaDiretorPath = path.join(
+  process.cwd(),
+  "public",
+  "imagens",
+  "assinaturas",
+  "roberto-ramos-da-silva.png"
+);
+
+let assinaturaDiretorEmbed = null;
+
+if (fs.existsSync(assinaturaDiretorPath)) {
+    const assinaturaDiretorBytes = fs.readFileSync(assinaturaDiretorPath);
+  assinaturaDiretorEmbed = await pdfDoc.embedPng(assinaturaDiretorBytes);
+}
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -626,6 +642,15 @@ if (assinaturaAlunoBase64) {
       thickness: 1,
       color: rgb(0, 0, 0),
     });
+
+    if (assinaturaDiretorEmbed) {
+  page.drawImage(assinaturaDiretorEmbed, {
+    x: 250,
+    y: linhaY + 6,
+    width: 100,
+    height: 38,
+  });
+}
 
     page.drawLine({
       start: { x: 406, y: linhaY },
