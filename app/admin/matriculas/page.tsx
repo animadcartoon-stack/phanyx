@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import withAuth from "@/lib/withAuth";
 import MultiSelectDisciplinas from "@/components/MultiSelectDisciplinas";
@@ -145,6 +145,11 @@ function AdminMatriculasPage() {
   const [confirmTitulo, setConfirmTitulo] = useState("");
   const [confirmMensagem, setConfirmMensagem] = useState("");
   const [confirmAcao, setConfirmAcao] = useState<(() => void) | null>(null);
+  const canvasSecretariaRef = useRef<HTMLCanvasElement | null>(null);
+  const [modalSecretariaAberto, setModalSecretariaAberto] = useState(false);
+  const [contratoSecretariaId, setContratoSecretariaId] = useState<number | null>(null);
+  const [desenhandoSecretaria, setDesenhandoSecretaria] = useState(false);
+  const [salvandoSecretaria, setSalvandoSecretaria] = useState(false);
   async function carregarTudo() {
     setLoading(true);
 
@@ -771,6 +776,129 @@ console.log("DEBUG MATRÍCULA", {
   async function abrirPdfContratoDaMatricula(matriculaId: number) {
     window.open(`/api/admin/contratos/pdf?matriculaId=${matriculaId}`, "_blank");
   }
+
+  async function abrirAssinaturaSecretaria(matriculaId: number) {
+  try {
+    let res = await fetch(`/api/admin/contratos?matriculaId=${matriculaId}`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    let data = await res.json();
+
+    if (!res.ok || !data?.id) {
+      const criado = await gerarContratoDaMatricula(matriculaId);
+
+      if (!criado?.id) {
+        setErro("Não foi possível localizar ou criar o contrato.");
+        return;
+      }
+
+      data = criado;
+    }
+
+    setContratoSecretariaId(Number(data.id));
+    setModalSecretariaAberto(true);
+
+    setTimeout(() => {
+      const canvas = canvasSecretariaRef.current;
+      const ctx = canvas?.getContext("2d");
+
+      if (canvas && ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }, 100);
+  } catch (error) {
+    console.error("Erro ao abrir assinatura da secretaria:", error);
+    setErro("Erro ao abrir assinatura da secretaria.");
+  }
+}
+
+function iniciarDesenhoSecretaria(e: React.MouseEvent<HTMLCanvasElement>) {
+  setDesenhandoSecretaria(true);
+  desenharSecretaria(e);
+}
+
+function pararDesenhoSecretaria() {
+  setDesenhandoSecretaria(false);
+  const ctx = canvasSecretariaRef.current?.getContext("2d");
+  ctx?.beginPath();
+}
+
+function desenharSecretaria(e: React.MouseEvent<HTMLCanvasElement>) {
+  if (!desenhandoSecretaria) return;
+
+  const canvas = canvasSecretariaRef.current;
+  const ctx = canvas?.getContext("2d");
+
+  if (!ctx || !canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = "round";
+  ctx.strokeStyle = "#000";
+
+  ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function limparAssinaturaSecretaria() {
+  const canvas = canvasSecretariaRef.current;
+  const ctx = canvas?.getContext("2d");
+
+  if (!ctx || !canvas) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+async function salvarAssinaturaSecretaria() {
+  try {
+    if (!contratoSecretariaId) {
+      setErro("Contrato não localizado.");
+      return;
+    }
+
+    const canvas = canvasSecretariaRef.current;
+
+    if (!canvas) {
+      setErro("Campo de assinatura não encontrado.");
+      return;
+    }
+
+    const assinaturaBase64 = canvas.toDataURL("image/png");
+
+    setSalvandoSecretaria(true);
+
+    const res = await fetch("/api/admin/contratos/assinar-secretaria", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        contratoId: contratoSecretariaId,
+        assinaturaBase64,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao salvar assinatura da secretaria.");
+    }
+
+    setSucesso("Assinatura da secretaria salva com sucesso.");
+    setModalSecretariaAberto(false);
+    setContratoSecretariaId(null);
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao salvar assinatura da secretaria.");
+  } finally {
+    setSalvandoSecretaria(false);
+  }
+}
 
   async function abrirEdicao(matricula: MatriculaApi) {
   const cursoIdAtual = matricula.curso?.id ? String(matricula.curso.id) : "";
@@ -1600,6 +1728,14 @@ function renderGrupoDisciplina(
                     >
                       ✍️ Assinar
                     </button>
+
+<button
+  onClick={() => abrirAssinaturaSecretaria(m.id)}
+  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-purple-400 hover:text-purple-700"
+>
+  🖊️ Assinar Secretaria
+</button>
+
                   </div>
                 </td>
               </tr>
@@ -2008,6 +2144,62 @@ function renderGrupoDisciplina(
           className="bg-gray-400 text-white px-4 py-2 rounded-xl"
         >
           Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{modalSecretariaAberto && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold text-gray-900">
+            Assinatura do Atendente / Secretaria
+          </h2>
+          <p className="text-sm text-gray-600">
+            Assine abaixo para registrar a assinatura administrativa no contrato.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setModalSecretariaAberto(false)}
+          className="text-2xl font-bold text-gray-500 hover:text-red-600"
+        >
+          ×
+        </button>
+      </div>
+
+      <canvas
+        ref={canvasSecretariaRef}
+        width={700}
+        height={220}
+        className="w-full rounded-xl border bg-white"
+        onMouseDown={iniciarDesenhoSecretaria}
+        onMouseUp={pararDesenhoSecretaria}
+        onMouseMove={desenharSecretaria}
+        onMouseLeave={pararDesenhoSecretaria}
+      />
+
+      <div className="mt-4 flex flex-wrap gap-3">
+        <button
+          type="button"
+          onClick={limparAssinaturaSecretaria}
+          disabled={salvandoSecretaria}
+          className="rounded-xl bg-gray-500 px-4 py-2 text-white disabled:opacity-50"
+        >
+          Limpar
+        </button>
+
+        <button
+          type="button"
+          onClick={salvarAssinaturaSecretaria}
+          disabled={salvandoSecretaria}
+          className="rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+        >
+          {salvandoSecretaria ? "Salvando..." : "Salvar assinatura"}
         </button>
       </div>
     </div>

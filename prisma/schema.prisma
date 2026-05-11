@@ -1074,6 +1074,13 @@ model Contrato {
   instituicao     Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   matricula       Matricula?     @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
 
+  assinaturaSecretariaImagem    String?
+  assinaturaSecretariaNome      String?
+  assinaturaSecretariaUserId    Int?
+  assinaturaSecretariaEm        DateTime?
+  assinaturaSecretariaIp        String?
+  assinaturaSecretariaUserAgent String?
+
   @@index([matriculaId])
   @@index([alunoId])
   @@index([instituicaoId])

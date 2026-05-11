@@ -645,10 +645,11 @@ if (assinaturaAlunoBase64) {
 
     if (assinaturaDiretorEmbed) {
   page.drawImage(assinaturaDiretorEmbed, {
-    x: 250,
-    y: linhaY + 6,
-    width: 100,
-    height: 38,
+    x: 305,
+    y: linhaY + 2,
+    width: 125,
+    height: 48,
+    opacity: 1,
   });
 }
 
