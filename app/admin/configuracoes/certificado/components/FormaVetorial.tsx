@@ -741,120 +741,126 @@ function subdividirForma() {
       </svg>
 
       {selecionado && modo === "editor" && (
-        <div className="pointer-events-auto absolute left-1/2 top-full z-[1000000] mt-2 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-700 shadow-xl">
-          
-          {campo.forma === "ESTRELA" && (
-  <>
+  <div className="pointer-events-auto absolute left-1/2 top-full z-[1000000] mt-2 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-700 shadow-xl">
+    {campo.forma === "ESTRELA" && (
+      <>
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            atualizarPontosDaEstrela({
+              pontas: Math.max(3, Math.floor(pontos.length / 2) - 1),
+            });
+          }}
+          className="rounded-lg border px-2 py-1 hover:bg-slate-50"
+        >
+          - ponta
+        </button>
 
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              atualizarPontosDaEstrela({
-                pontas: Math.max(3, Math.floor(pontos.length / 2) - 1),
-              });
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            - ponta
-          </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            atualizarPontosDaEstrela({
+              pontas: Math.floor(pontos.length / 2) + 1,
+            });
+          }}
+          className="rounded-lg border px-2 py-1 hover:bg-slate-50"
+        >
+          + ponta
+        </button>
 
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              atualizarPontosDaEstrela({
-                pontas: Math.floor(pontos.length / 2) + 1,
-              });
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            + ponta
-          </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            atualizarPontosDaEstrela({ raioInterno: 34 });
+          }}
+          className="rounded-lg border px-2 py-1 hover:bg-slate-50"
+        >
+          flor
+        </button>
 
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              atualizarPontosDaEstrela({ raioInterno: 34 });
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            flor
-          </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            atualizarPontosDaEstrela({ raioInterno: 14 });
+          }}
+          className="rounded-lg border px-2 py-1 hover:bg-slate-50"
+        >
+          profunda
+        </button>
 
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              atualizarPontosDaEstrela({ raioInterno: 14 });
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            profunda
-          </button>
+        <button
+          type="button"
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            converterGrupoEstrela("internos", "curvo");
+          }}
+          className="rounded-lg border px-2 py-1 hover:bg-slate-50"
+        >
+          internos curvos
+        </button>
+      </>
+    )}
 
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              converterGrupoEstrela("internos", "curvo");
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            internos curvos
-          </button>
-<button
-  type="button"
-  onClick={(e) => {
-    e.stopPropagation();
-    converterTodosPontos("curvo");
-  }}
-  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
->
-  todos curvos
-</button>
-</>
+    <button
+      type="button"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        converterTodosPontos("curvo");
+      }}
+      className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+    >
+      todos curvos
+    </button>
+
+    <button
+      type="button"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        converterTodosPontos("reto");
+      }}
+      className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+    >
+      pontudos
+    </button>
+
+    <button
+      type="button"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        subdividirForma();
+      }}
+      className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+    >
+      subdividir
+    </button>
+
+    {campo.forma === "ESTRELA" && (
+      <button
+        type="button"
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          converterGrupoEstrela("externos", "curvo");
+        }}
+        className="rounded-lg border px-2 py-1 hover:bg-slate-50"
+      >
+        pontas curvas
+      </button>
+    )}
+  </div>
 )}
-<button
-  type="button"
-  onClick={(e) => {
-    e.stopPropagation();
-    converterTodosPontos("reto");
-  }}
-  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
->
-  pontudos
-</button>
-
-<button
-  type="button"
-  onClick={(e) => {
-    e.stopPropagation();
-    subdividirForma();
-  }}
-  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
->
-  subdividir
-</button>
-          <button
-            type="button"
-            onMouseDown={(e) => e.stopPropagation()}
-            onClick={(e) => {
-              e.stopPropagation();
-              converterGrupoEstrela("externos", "curvo");
-            }}
-            className="rounded-lg border px-2 py-1 hover:bg-slate-50"
-          >
-            pontas curvas
-          </button>
-        </div>
-      )}
     </div>
   );
 }
