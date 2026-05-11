@@ -128,9 +128,13 @@ export default function AssinaturaPorTokenPage() {
 
       const canvas = canvasRef.current;
 
-      if (!canvas) return;
+      if (!canvas) {
+  setErro("Canvas de assinatura não encontrado.");
+  return;
+}
 
-      const assinaturaBase64 = canvas.toDataURL();
+      const assinaturaBase64 = canvas.toDataURL("image/png");
+console.log("ASSINATURA GERADA");
 
       if (!nome.trim()) {
         setErro("Informe o nome completo antes de assinar.");
@@ -167,9 +171,9 @@ export default function AssinaturaPorTokenPage() {
       setSucesso("Contrato assinado com sucesso.");
       await carregarContrato();
     } catch (error: any) {
-      console.error(error);
-      setMensagem(error?.message || "Erro ao assinar contrato");
-    } finally {
+  console.error("ERRO ASSINATURA:", error);
+  setErro(error?.message || "Erro ao assinar contrato");
+} finally {
       setSaving(false);
     }
   }

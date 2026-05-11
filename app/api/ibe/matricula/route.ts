@@ -75,6 +75,7 @@ await prisma.matriculaOnlineIbe.create({
     nome,
     email,
     whatsapp,
+    cpf,
     valorTotal,
     disciplinasIds: JSON.stringify(body.disciplinas || []),
     externalReference,

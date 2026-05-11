@@ -1462,6 +1462,7 @@ model MatriculaOnlineIbe {
   nome              String
   email             String
   whatsapp          String
+  cpf               String?
   valorTotal        Decimal  @db.Decimal(10, 2)
   disciplinasIds    String
   status            String   @default("AGUARDANDO_PAGAMENTO")

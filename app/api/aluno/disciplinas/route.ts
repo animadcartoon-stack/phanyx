@@ -24,6 +24,30 @@ export async function GET() {
       );
     }
 
+const contratoPendente = await prisma.contrato.findFirst({
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: user.instituicaoId,
+    status: "PENDENTE",
+  },
+  select: {
+    id: true,
+    tokenAssinatura: true,
+  },
+});
+
+if (contratoPendente) {
+  return NextResponse.json(
+    {
+      bloqueadoPorContrato: true,
+      error:
+        "Você precisa assinar seu contrato de matrícula antes de acessar as aulas.",
+      assinaturaUrl: `/assinatura/${contratoPendente.tokenAssinatura}`,
+    },
+    { status: 403 }
+  );
+}
+
     const matriculas = await prisma.matricula.findMany({
   where: {
     alunoId: aluno.id,

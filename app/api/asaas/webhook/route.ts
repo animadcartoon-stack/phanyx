@@ -163,15 +163,16 @@ let aluno = await prisma.aluno.findFirst({
 
 if (!aluno) {
   aluno = await prisma.aluno.create({
-    data: {
-      nome: preMatricula.nome,
-      telefone: preMatricula.whatsapp,
-      instituicaoId,
-      userId: user.id,
-      statusAluno: "ATIVO",
-      matricula: `IBE-${Date.now().toString().slice(-6)}`,
-    },
-  });
+  data: {
+    nome: preMatricula.nome,
+    cpf: preMatricula.cpf || null,
+    telefone: preMatricula.whatsapp,
+    instituicaoId,
+    userId: user.id,
+    statusAluno: "ATIVO",
+    matricula: `IBE-${Date.now().toString().slice(-6)}`,
+  },
+});
 }
 
 // 3. MATRÍCULA
@@ -186,6 +187,20 @@ const matricula = await prisma.matricula.create({
   },
 });
 
+const turmaIbe = await prisma.turma.findFirst({
+  where: {
+    instituicaoId,
+    ativa: true,
+  },
+  orderBy: {
+    id: "asc",
+  },
+});
+
+if (!turmaIbe) {
+  throw new Error("Nenhuma turma ativa encontrada para a matrícula IBE.");
+}
+
 const disciplinasIds = JSON.parse(preMatricula.disciplinasIds || "[]");
 
 for (const disciplinaId of disciplinasIds) {
@@ -193,13 +208,32 @@ for (const disciplinaId of disciplinasIds) {
     data: {
       matriculaId: matricula.id,
       disciplinaId: Number(disciplinaId),
-      turmaId: 1,
+      turmaId: turmaIbe.id,
       instituicaoId,
       tipoItem: "GRADE_PRINCIPAL",
       status: "EM_CURSO",
     },
   });
 }
+
+const contrato = await prisma.contrato.create({
+  data: {
+    alunoId: aluno.id,
+    instituicaoId,
+    matriculaId: matricula.id,
+    status: "PENDENTE",
+    conteudo: `
+      CONTRATO DE MATRÍCULA - IBE
+
+      Aluno: ${aluno.nome}
+      Matrícula: ${aluno.matricula || ""}
+      Curso: Bacharel Livre em Teologia
+      Valor: R$ ${String(preMatricula.valorTotal)}
+
+      Este contrato deverá ser assinado digitalmente pelo aluno para liberação completa do acesso acadêmico.
+    `,
+  },
+});
 
 // 4. MARCAR COMO PAGO
 await prisma.matriculaOnlineIbe.update({
