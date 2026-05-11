@@ -36,8 +36,17 @@ export async function GET() {
       disciplinas: {
         some: {
           disciplina: {
-            professorId: professor.id,
-          },
+  OR: [
+    { professorId: professor.id },
+    {
+      professoresHabilitados: {
+        some: {
+          professorId: professor.id,
+        },
+      },
+    },
+  ],
+},
         },
       },
     },
@@ -133,8 +142,17 @@ export async function POST(req: Request) {
         disciplinas: {
           some: {
             disciplina: {
-              professorId: professor.id,
-            },
+  OR: [
+    { professorId: professor.id },
+    {
+      professoresHabilitados: {
+        some: {
+          professorId: professor.id,
+        },
+      },
+    },
+  ],
+},
           },
         },
       },

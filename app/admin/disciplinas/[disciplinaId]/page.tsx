@@ -498,15 +498,6 @@ try {
           </p>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Observação
-          </label>
-          <div className="w-full border rounded-xl px-3 py-2 bg-slate-50 text-sm text-slate-600">
-            O vínculo de professor será tratado na próxima etapa junto com a estrutura de polos.
-          </div>
-        </div>
-
         <div className="pt-2 flex gap-3">
           <button
             type="submit"
