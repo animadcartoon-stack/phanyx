@@ -740,8 +740,12 @@ function subdividirForma() {
           })}
       </svg>
 
-      {selecionado && modo === "editor" && campo.forma === "ESTRELA" && (
+      {selecionado && modo === "editor" && (
         <div className="pointer-events-auto absolute left-1/2 top-full z-[1000000] mt-2 flex -translate-x-1/2 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 text-[11px] text-slate-700 shadow-xl">
+          
+          {campo.forma === "ESTRELA" && (
+  <>
+
           <button
             type="button"
             onMouseDown={(e) => e.stopPropagation()}
@@ -815,7 +819,8 @@ function subdividirForma() {
 >
   todos curvos
 </button>
-
+</>
+)}
 <button
   type="button"
   onClick={(e) => {
