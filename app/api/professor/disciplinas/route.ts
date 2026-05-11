@@ -2,11 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken } from "@/lib/server-auth";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "PROFESSOR") {
+    if (!user || String(user.role).toUpperCase() !== "PROFESSOR") {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
@@ -27,49 +29,40 @@ export async function GET() {
       );
     }
 
-    const turmasDoProfessor = await prisma.turma.findMany({
-  where: {
-    professorId: professor.id,
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-    disciplinas: {
-      include: {
-        disciplina: {
-          select: {
-            id: true,
-            nome: true,
-            descricao: true,
+    const disciplinas = await prisma.disciplina.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        OR: [
+          {
+            professorId: professor.id,
           },
-        },
+          {
+            professoresHabilitados: {
+              some: {
+                professorId: professor.id,
+              },
+            },
+          },
+          {
+            turmaDisciplinas: {
+              some: {
+                turma: {
+                  professorId: professor.id,
+                },
+              },
+            },
+          },
+        ],
       },
-    },
-  },
-  orderBy: {
-    id: "desc",
-  },
-});
-
-    const mapa = new Map<number, { id: number; nome: string; descricao: string | null }>();
-
-    for (const turma of turmasDoProfessor) {
-  for (const item of turma.disciplinas) {
-    const disciplina = item.disciplina;
-          if (!disciplina) continue;
-
-    if (!mapa.has(disciplina.id)) {
-      mapa.set(disciplina.id, {
-        id: disciplina.id,
-        nome: disciplina.nome,
-        descricao: disciplina.descricao ?? null,
-      });
-    }
-  }
-}
-
-    const disciplinas = Array.from(mapa.values()).sort((a, b) =>
-      a.nome.localeCompare(b.nome, "pt-BR")
-    );
+      select: {
+        id: true,
+        nome: true,
+        descricao: true,
+      },
+      orderBy: {
+        nome: "asc",
+      },
+    });
 
     return NextResponse.json(disciplinas);
   } catch (e: any) {
