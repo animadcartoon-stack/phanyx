@@ -134,12 +134,12 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
       return Math.max(0, Math.min(45, campo.raioBorda || 0));
     }
 
-    if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? raioPadrao));
-    if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? raioPadrao));
-    if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? raioPadrao));
-    if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? raioPadrao));
+    if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? 0));
+if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? 0));
+if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? 0));
+if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? 0));
 
-    return raioPadrao;
+return 0;
   }
 
   let d = "";
