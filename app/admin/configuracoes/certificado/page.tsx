@@ -303,6 +303,7 @@ export default function ConfiguracaoCertificadoPage() {
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
     useState("");
   const [certificadoCidade, setCertificadoCidade] = useState("");
+  const [certificadoAssinaturaUrl, setCertificadoAssinaturaUrl] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [painelCampoAberto, setPainelCampoAberto] = useState(true);
@@ -601,17 +602,20 @@ useEffect(() => {
   useEffect(() => {
   async function carregarConfiguracao() {
     try {
-      const [resConfig, resCampos] = await Promise.all([
-        fetch("/api/admin/configuracoes/certificado", {
-          cache: "no-store",
-        }),
-        fetch("/api/admin/certificado-campos", {
-          cache: "no-store",
-        }),
-      ]);
-
+      const [resConfig, resCampos, resInstituicao] = await Promise.all([
+  fetch("/api/admin/configuracoes/certificado", {
+    cache: "no-store",
+  }),
+  fetch("/api/admin/certificado-campos", {
+    cache: "no-store",
+  }),
+  fetch("/api/admin/configuracoes/instituicao", {
+    cache: "no-store",
+  }),
+]);
       const dataConfig = await resConfig.json();
       const dataCampos = await resCampos.json();
+      const dataInstituicao = await resInstituicao.json();
 
       if (!resConfig.ok) {
         setMensagemErro(
@@ -636,6 +640,9 @@ useEffect(() => {
         dataConfig?.certificadoCoordenadorNome || ""
       );
       setCertificadoCidade(dataConfig?.certificadoCidade || "");
+      setCertificadoAssinaturaUrl(
+  dataInstituicao?.certificadoAssinaturaUrl || ""
+);
       setCampos(
   Array.isArray(dataCampos?.campos)
     ? dataCampos.campos.map((campo: any) => {
@@ -3347,8 +3354,19 @@ if (!camposSelecionadosIds.includes(c.id)) {
         : c.tipo === "DATA_EMISSAO"
         ? "00/00/0000"
         : c.tipo === "ASSINATURA"
-        ? "Nome do diretor"
-        : c.tipo}
+? certificadoAssinaturaUrl
+  ? ""
+  : "Assinatura"
+: c.tipo}
+
+{c.tipo === "ASSINATURA" && certificadoAssinaturaUrl && (
+  <img
+    src={certificadoAssinaturaUrl}
+    alt="Assinatura do diretor"
+    className="h-full w-full object-contain"
+    draggable={false}
+  />
+)}
     </div>
   );
 })}
