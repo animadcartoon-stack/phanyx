@@ -628,21 +628,25 @@ function toggleTurmaEdicao(turmaId: number) {
 }
 
 setCreating(true);
-const turmaIdsParaEnviar = [
-  ...turmasBaseDoSemestre
-    .filter((t) =>
-      t.disciplinaId &&
-      disciplinasSelecionadas.includes(Number(t.disciplinaId))
-    )
-    .map((t) => t.id),
-
-  ...turmasExtrasMesmoCurso
-    .filter((t) =>
-      t.disciplinaId &&
-      disciplinasExtrasSelecionadas.includes(Number(t.disciplinaId))
-    )
-    .map((t) => t.id),
+const disciplinasIdsParaEnviar = [
+  ...disciplinasSelecionadas,
+  ...disciplinasExtrasSelecionadas,
 ];
+
+const turmaIdsParaEnviar = Array.from(
+  new Set(
+    turmas
+      .filter((turma) => {
+        const pertenceAoCurso = Number(turma.cursoId) === Number(cursoId);
+        const temDisciplinaSelecionada = (turma.disciplinas || []).some((d) =>
+          disciplinasIdsParaEnviar.includes(Number(d.id))
+        );
+
+        return pertenceAoCurso && temDisciplinaSelecionada;
+      })
+      .map((turma) => turma.id)
+  )
+);
 
 console.log("DEBUG MATRÍCULA", {
   alunoId,
@@ -666,10 +670,7 @@ console.log("DEBUG MATRÍCULA", {
   semestres: semestresSelecionados.map((s) => s.numero),
   turmaIds: turmaIdsParaEnviar,
   turmaId: turmaIdsParaEnviar[0] ?? null,
-  disciplinaIds: [
-  ...disciplinasSelecionadas,
-  ...disciplinasExtrasSelecionadas,
-],
+  disciplinaIds: disciplinasIdsParaEnviar,
 
   status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
@@ -1001,6 +1002,28 @@ setDisciplinasExtrasEdicaoSelecionadas(
   async function salvarEdicao() {
   if (!matriculaEditando) return;
 
+const disciplinasIdsEdicaoParaEnviar = [
+  ...disciplinasEdicaoSelecionadas,
+  ...disciplinasExtrasEdicaoSelecionadas,
+];
+
+const turmaIdsEdicaoParaEnviar = Array.from(
+  new Set(
+    turmas
+      .filter((turma) => {
+        const pertenceAoCurso =
+          Number(turma.cursoId) === Number(matriculaEditando.cursoId);
+
+        const temDisciplinaSelecionada = (turma.disciplinas || []).some((d) =>
+          disciplinasIdsEdicaoParaEnviar.includes(Number(d.id))
+        );
+
+        return pertenceAoCurso && temDisciplinaSelecionada;
+      })
+      .map((turma) => turma.id)
+  )
+);
+
   try {
     const res = await fetch("/api/matricula", {
       method: "PUT",
@@ -1020,11 +1043,8 @@ setDisciplinasExtrasEdicaoSelecionadas(
           matriculaEditando.semestre === ""
             ? null
             : Number(matriculaEditando.semestre),
-        turmaIds: matriculaEditando.turmaIds,
-        disciplinaIds: [
-  ...disciplinasEdicaoSelecionadas,
-  ...disciplinasExtrasEdicaoSelecionadas,
-],
+        turmaIds: turmaIdsEdicaoParaEnviar,
+disciplinaIds: disciplinasIdsEdicaoParaEnviar,
         valorPagoMatricula:
           matriculaEditando.valorPagoMatricula === ""
             ? null
@@ -1848,7 +1868,7 @@ function renderGrupoDisciplina(
                             {itens.map((item) => {
                               const turma = item.turma;
                               const disciplinaNome =
-                                turma?.disciplina?.nome ?? "Disciplina";
+  (item as any)?.disciplina?.nome ?? "Disciplina";
                               const turmaNome = turma?.nome ?? "Turma";
                               const profNome = turma?.professor?.nome ?? "—";
                               const qtdAulas = turma?._count?.aulas ?? 0;
