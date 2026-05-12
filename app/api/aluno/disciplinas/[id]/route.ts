@@ -23,25 +23,15 @@ export async function GET(
     }
 
     const aluno = await prisma.aluno.findFirst({
-      where: {
-        userId: auth.userId,
-        instituicaoId: auth.instituicaoId,
-      },
-      include: {
-        itensMatricula: {
   where: {
-    disciplinaId,
-    ...(Number.isFinite(turmaId) && turmaId > 0 ? { turmaId } : {}),
+    userId: auth.userId,
+    instituicaoId: auth.instituicaoId,
   },
-          select: {
-  id: true,
-  status: true,
-  disciplinaId: true,
-  turmaId: true,
-},
-        },
-      },
-    });
+  select: {
+    id: true,
+    nome: true,
+  },
+});
 
     if (!aluno) {
       return NextResponse.json(
@@ -50,7 +40,31 @@ export async function GET(
       );
     }
 
-    const itemMatricula = aluno.itensMatricula?.[0];
+    const matricula = await prisma.matricula.findFirst({
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: auth.instituicaoId,
+  },
+  include: {
+    itens: {
+      where: {
+        disciplinaId,
+        ...(Number.isFinite(turmaId) && turmaId > 0 ? { turmaId } : {}),
+      },
+      select: {
+        id: true,
+        status: true,
+        disciplinaId: true,
+        turmaId: true,
+      },
+    },
+  },
+  orderBy: {
+    createdAt: "desc",
+  },
+});
+
+const itemMatricula = matricula?.itens?.[0];
 
     const turmaIdDaMatricula = (itemMatricula as any)?.turmaId;
 
