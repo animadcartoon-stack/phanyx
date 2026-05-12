@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/limpar-cursos-excluidos",
+      "schedule": "0 3 * * *"
+    }
+  ]
+}
