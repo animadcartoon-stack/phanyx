@@ -23,6 +23,14 @@ type Curso = {
   createdAt?: string | null;
   excluidoEm?: string | null;
   expiraExclusaoEm?: string | null;
+  criadoPor?: {
+  id: number;
+  nome: string;
+} | null;
+  excluidoPor?: {
+  id: number;
+  nome: string;
+} | null;
   cursosPolos?: {
     id: number;
     poloId: number;
@@ -88,6 +96,16 @@ function formatarDataHoraBR(data?: string | null) {
     dateStyle: "short",
     timeStyle: "short",
   });
+}
+
+function obterDataExpiracaoCurso(curso: Curso) {
+  if (curso.expiraExclusaoEm) return curso.expiraExclusaoEm;
+  if (!curso.excluidoEm) return null;
+
+  const excluido = new Date(curso.excluidoEm);
+  if (Number.isNaN(excluido.getTime())) return null;
+
+  return new Date(excluido.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString();
 }
 
 function estaNoUltimoDia(data?: string | null) {
@@ -610,32 +628,44 @@ if (!termoTexto) return cursosPorStatus;
   Criado em: {formatarDataHoraBR(curso.createdAt)}
 </p>
 
-{!curso.ativo && (
-  <>
-    <p>
-      Excluído em: {formatarDataHoraBR(curso.excluidoEm)}
-    </p>
+<p>
+  Criado por: {curso.criadoPor?.nome || "Não informado"}
+</p>
 
-    <p>
-      Disponível para restauração até:{" "}
-      {formatarDataHoraBR(curso.expiraExclusaoEm)}
-    </p>
+{!curso.ativo && (() => {
+  const expiraCurso = obterDataExpiracaoCurso(curso);
 
-    <div
-      className={`mt-3 rounded-xl border p-3 text-sm ${
-        estaNoUltimoDia(curso.expiraExclusaoEm)
-          ? "border-red-200 bg-red-50 text-red-700"
-          : "border-amber-200 bg-amber-50 text-amber-800"
-      }`}
-    >
-      {estaNoUltimoDia(curso.expiraExclusaoEm)
-        ? `⚠️ Último dia para restaurar. Este curso não estará mais disponível após ${formatarDataHoraBR(
-            curso.expiraExclusaoEm
-          )}.`
-        : "Cursos excluídos ficam disponíveis para restauração por até 3 dias. Após esse prazo, poderão ser removidos definitivamente do sistema."}
-    </div>
-  </>
-)}
+  return (
+    <>
+      <p>
+        Excluído em: {formatarDataHoraBR(curso.excluidoEm)}
+      </p>
+
+      <p>
+        Excluído por: {curso.excluidoPor?.nome || "Não informado"}
+      </p>
+
+      <p>
+        Disponível para restauração até:{" "}
+        {formatarDataHoraBR(expiraCurso)}
+      </p>
+
+      <div
+        className={`mt-3 rounded-xl border p-3 text-sm ${
+          estaNoUltimoDia(expiraCurso)
+            ? "border-red-200 bg-red-50 text-red-700"
+            : "border-amber-200 bg-amber-50 text-amber-800"
+        }`}
+      >
+        {estaNoUltimoDia(expiraCurso)
+          ? `⚠️ Último dia para restaurar. Este curso não estará mais disponível após ${formatarDataHoraBR(
+              expiraCurso
+            )}.`
+          : "Cursos excluídos ficam disponíveis para restauração por até 3 dias. Após esse prazo, poderão ser removidos definitivamente do sistema."}
+      </div>
+    </>
+  );
+})()}
 
                     </div>
 
