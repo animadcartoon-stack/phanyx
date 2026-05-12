@@ -55,6 +55,7 @@ export default function AdminCursosPage() {
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
   const [criando, setCriando] = useState(false);
   const [cursoParaExcluir, setCursoParaExcluir] = useState<Curso | null>(null);
+  const [modalErro, setModalErro] = useState("");
   const [excluindoCurso, setExcluindoCurso] = useState(false);
 
   useEffect(() => {
@@ -175,7 +176,7 @@ export default function AdminCursosPage() {
       mostrarFeedback("sucesso", "Curso criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar curso:", error);
-      mostrarFeedback("erro", error?.message || "Erro ao criar curso");
+      setModalErro(error?.message || "Erro ao criar curso");
     } finally {
       setCriando(false);
     }
@@ -657,6 +658,31 @@ if (!termoTexto) return cursosPorStatus;
           className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:opacity-50"
         >
           {excluindoCurso ? "Excluindo..." : "Excluir curso"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+{modalErro && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+      <div className="mb-4">
+        <h3 className="text-xl font-bold text-red-700">
+          Não foi possível salvar
+        </h3>
+
+        <p className="mt-3 text-sm text-slate-700">
+          {modalErro}
+        </p>
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={() => setModalErro("")}
+          className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700"
+        >
+          Entendi
         </button>
       </div>
     </div>
