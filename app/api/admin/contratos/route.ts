@@ -43,14 +43,11 @@ async function montarContratoDaMatricula(matriculaId: number, instituicaoId: num
       },
       curso: true,
       itens: {
-        include: {
-          turma: {
-            include: {
-              disciplina: true,
-            },
-          },
-        },
-      },
+  include: {
+    disciplina: true,
+    turma: true,
+  },
+},
       lancamentosFinanceiros: {
         where: {
           status: {
@@ -74,7 +71,7 @@ async function montarContratoDaMatricula(matriculaId: number, instituicaoId: num
   const disciplinasLista = Array.from(
     new Set(
       matricula.itens
-        .map((item) => item.turma?.disciplina?.nome?.trim())
+        .map((item) => item.disciplina?.nome?.trim())
         .filter(Boolean) as string[]
     )
   );
