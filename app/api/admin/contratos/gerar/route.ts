@@ -241,6 +241,12 @@ const contratoFinal = contratoGerado;
             dataCriacao: contratoExistente.dataCriacao,
             dataAssinatura: contratoExistente.dataAssinatura,
             assinatura: contratoExistente.assinatura || null,
+            assinaturaSecretariaImagem:
+            contratoExistente.assinaturaSecretariaImagem || null,
+            assinaturaSecretariaNome:
+            contratoExistente.assinaturaSecretariaNome || null,
+            assinaturaSecretariaEm:
+            contratoExistente.assinaturaSecretariaEm || null,
           }
         : null,
       aluno: {
