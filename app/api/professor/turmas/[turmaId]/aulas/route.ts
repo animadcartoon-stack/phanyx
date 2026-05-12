@@ -161,13 +161,15 @@ export async function POST(
         ? Number(body.duracaoMin)
         : null;
     const videoUrl = body?.videoUrl ? String(body.videoUrl).trim() : null;
-    const disciplinaId =
-  body?.disciplinaId !== undefined &&
-  body?.disciplinaId !== null &&
-  body?.disciplinaId !== ""
-    ? Number(body.disciplinaId)
-    : null;
+    const disciplinaId = Number(body?.disciplinaId);
 
+if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
+  return NextResponse.json(
+    { error: "Disciplina não informada para esta aula." },
+    { status: 400 }
+  );
+}
+  
     if (!titulo) {
       return NextResponse.json(
         { error: "Título é obrigatório" },
@@ -246,15 +248,15 @@ if (!turmaDisciplina) {
 
     const novaAula = await prisma.aula.create({
       data: {
-        titulo,
-        descricao,
-        duracaoMin,
-        videoUrl,
-        instituicaoId: user.instituicaoId,
-        turmaId: turma.id,
-        disciplinaId,
-        ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
-      },
+  titulo,
+  descricao,
+  duracaoMin,
+  videoUrl,
+  instituicaoId: user.instituicaoId,
+  turmaId: turma.id,
+  disciplinaId,
+  ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
+},
     });
 
     return NextResponse.json(novaAula, { status: 201 });
