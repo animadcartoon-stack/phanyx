@@ -1037,31 +1037,32 @@ model HistoricoCobranca {
 }
 
 model ConfiguracaoInstituicao {
-  id                  Int         @id @default(autoincrement())
-  instituicaoId       Int         @unique
-  nomeFantasia        String?
-  razaoSocial         String?
-  cnpj                String?
-  telefone            String?
-  email               String?
-  endereco            String?
-  cidade              String?
-  estado              String?
-  responsavelNome     String?
-  responsavelCargo    String?
-  logoUrl             String?
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
-  logoPath            String?
-  cidadeAssinatura    String?
-  contratoTemplate    String?
-  observacoesContrato String?
-  numero              String?
-  estiloDocumento     String?     @default("INSTITUCIONAL")
-  papelTimbradoUrl    String?
-  usarPapelTimbrado   Boolean     @default(false)
-  estiloPapelTimbrado String?     @default("SEM_COR")
-  instituicao         Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id                        Int         @id @default(autoincrement())
+  instituicaoId             Int         @unique
+  nomeFantasia              String?
+  razaoSocial               String?
+  cnpj                      String?
+  telefone                  String?
+  email                     String?
+  endereco                  String?
+  cidade                    String?
+  estado                    String?
+  responsavelNome           String?
+  responsavelCargo          String?
+  logoUrl                   String?
+  createdAt                 DateTime    @default(now())
+  updatedAt                 DateTime    @updatedAt
+  logoPath                  String?
+  cidadeAssinatura          String?
+  contratoTemplate          String?
+  observacoesContrato       String?
+  numero                    String?
+  estiloDocumento           String?     @default("INSTITUCIONAL")
+  papelTimbradoUrl          String?
+  certificadoAssinaturaUrl  String?
+  usarPapelTimbrado         Boolean     @default(false)
+  estiloPapelTimbrado       String?     @default("SEM_COR")
+  instituicao               Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 }
 
 model Contrato {
