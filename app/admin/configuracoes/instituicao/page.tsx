@@ -295,7 +295,11 @@ console.log("UPLOAD ASSINATURA:", jsonUploadUrl);
 
     setForm((prev) => ({
       ...prev,
-      certificadoAssinaturaUrl: jsonUploadUrl.arquivoUrl,
+      certificadoAssinaturaUrl:
+  jsonUploadUrl.arquivoUrl ||
+  jsonUploadUrl.url ||
+  jsonUploadUrl.fileUrl ||
+  jsonUploadUrl.publicUrl,
     }));
 
     setMensagem("Assinatura do diretor enviada com sucesso. Clique em Salvar configurações.");
