@@ -20,6 +20,9 @@ type Curso = {
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
   quantidadeParcelas?: number | null;
+  createdAt?: string | null;
+  excluidoEm?: string | null;
+  expiraExclusaoEm?: string | null;
   cursosPolos?: {
     id: number;
     poloId: number;
@@ -73,6 +76,29 @@ export default function AdminCursosPage() {
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
   }
+
+function formatarDataHoraBR(data?: string | null) {
+  if (!data) return "Não informado";
+
+  const d = new Date(data);
+
+  if (Number.isNaN(d.getTime())) return "Não informado";
+
+  return d.toLocaleString("pt-BR", {
+    dateStyle: "short",
+    timeStyle: "short",
+  });
+}
+
+function estaNoUltimoDia(data?: string | null) {
+  if (!data) return false;
+
+  const expira = new Date(data).getTime();
+  const agora = Date.now();
+  const umDia = 24 * 60 * 60 * 1000;
+
+  return expira > agora && expira - agora <= umDia;
+}
 
   async function carregarCursos() {
     try {
@@ -575,6 +601,42 @@ if (!termoTexto) return cursosPorStatus;
                               .join(", ")
                           : "Sem polos vinculados"}
                       </p>
+
+<p>
+  ID do curso: {curso.id}
+</p>
+
+<p>
+  Criado em: {formatarDataHoraBR(curso.createdAt)}
+</p>
+
+{!curso.ativo && (
+  <>
+    <p>
+      Excluído em: {formatarDataHoraBR(curso.excluidoEm)}
+    </p>
+
+    <p>
+      Disponível para restauração até:{" "}
+      {formatarDataHoraBR(curso.expiraExclusaoEm)}
+    </p>
+
+    <div
+      className={`mt-3 rounded-xl border p-3 text-sm ${
+        estaNoUltimoDia(curso.expiraExclusaoEm)
+          ? "border-red-200 bg-red-50 text-red-700"
+          : "border-amber-200 bg-amber-50 text-amber-800"
+      }`}
+    >
+      {estaNoUltimoDia(curso.expiraExclusaoEm)
+        ? `⚠️ Último dia para restaurar. Este curso não estará mais disponível após ${formatarDataHoraBR(
+            curso.expiraExclusaoEm
+          )}.`
+        : "Cursos excluídos ficam disponíveis para restauração por até 3 dias. Após esse prazo, poderão ser removidos definitivamente do sistema."}
+    </div>
+  </>
+)}
+
                     </div>
 
                     <div className="mt-4 flex flex-wrap gap-2">
