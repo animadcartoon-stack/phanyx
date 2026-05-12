@@ -340,3 +340,87 @@ export async function PUT(req: Request) {
     );
   }
 }
+export async function DELETE(req: Request) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || !podeGerenciarCurso(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const id = Number(body.id);
+
+    if (!id) {
+      return NextResponse.json({ error: "ID do curso é obrigatório" }, { status: 400 });
+    }
+
+    const curso = await prisma.curso.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    if (!curso) {
+      return NextResponse.json({ error: "Curso não encontrado" }, { status: 404 });
+    }
+
+    const atualizado = await prisma.curso.update({
+      where: { id },
+      data: { ativo: false },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      curso: atualizado,
+      message: "Curso excluído e enviado para recuperação.",
+    });
+  } catch (error) {
+    console.error("Erro ao excluir curso:", error);
+    return NextResponse.json({ error: "Erro ao excluir curso" }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: Request) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || !podeGerenciarCurso(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const id = Number(body.id);
+    const ativo = Boolean(body.ativo);
+
+    if (!id) {
+      return NextResponse.json({ error: "ID do curso é obrigatório" }, { status: 400 });
+    }
+
+    const curso = await prisma.curso.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    if (!curso) {
+      return NextResponse.json({ error: "Curso não encontrado" }, { status: 404 });
+    }
+
+    const atualizado = await prisma.curso.update({
+      where: { id },
+      data: { ativo },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      curso: atualizado,
+      message: ativo ? "Curso restaurado com sucesso." : "Curso arquivado com sucesso.",
+    });
+  } catch (error) {
+    console.error("Erro ao alterar status do curso:", error);
+    return NextResponse.json({ error: "Erro ao alterar status do curso" }, { status: 500 });
+  }
+}

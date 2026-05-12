@@ -36,6 +36,7 @@ export default function AdminCursosPage() {
   const [polos, setPolos] = useState<Polo[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState<"ATIVOS" | "EXCLUIDOS" | "TODOS">("ATIVOS");
   const [polosAbertos, setPolosAbertos] = useState(false);
 
   const [form, setForm] = useState({
@@ -178,6 +179,56 @@ export default function AdminCursosPage() {
     }
   }
 
+async function excluirCurso(id: number) {
+  const confirmar = window.confirm(
+    "Deseja excluir este curso? Ele será ocultado, mas poderá ser recuperado depois."
+  );
+
+  if (!confirmar) return;
+
+  try {
+    const res = await fetch("/api/admin/cursos", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao excluir curso.");
+    }
+
+    await carregarCursos();
+    mostrarFeedback("sucesso", "Curso excluído. Ele pode ser recuperado em Excluídos.");
+  } catch (error: any) {
+    mostrarFeedback("erro", error?.message || "Erro ao excluir curso.");
+  }
+}
+
+async function restaurarCurso(id: number) {
+  try {
+    const res = await fetch("/api/admin/cursos", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id, ativo: true }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao restaurar curso.");
+    }
+
+    await carregarCursos();
+    mostrarFeedback("sucesso", "Curso restaurado com sucesso.");
+  } catch (error: any) {
+    mostrarFeedback("erro", error?.message || "Erro ao restaurar curso.");
+  }
+}
+
   useEffect(() => {
     carregarCursos();
     carregarPolos();
@@ -194,9 +245,15 @@ export default function AdminCursosPage() {
     const termoTexto = busca.trim().toLowerCase();
     const termoNumerico = busca.replace(/\D/g, "");
 
-    if (!termoTexto) return cursos;
+    const cursosPorStatus = cursos.filter((curso) => {
+  if (filtroStatus === "ATIVOS") return curso.ativo;
+  if (filtroStatus === "EXCLUIDOS") return !curso.ativo;
+  return true;
+});
 
-    return cursos.filter((curso) => {
+if (!termoTexto) return cursosPorStatus;
+
+    return cursosPorStatus.filter((curso) => {
       const nome = String(curso.nome || "").toLowerCase().trim();
       const codigo = String(curso.codigo || "").toLowerCase().trim();
       const descricao = String(curso.descricao || "").toLowerCase().trim();
@@ -243,7 +300,7 @@ export default function AdminCursosPage() {
             quantidadeParcelasNumerico.includes(termoNumerico)))
       );
     });
-  }, [cursos, busca]);
+  }, [cursos, busca, filtroStatus]);
 
   return (
     <div className="space-y-8">
@@ -424,6 +481,19 @@ export default function AdminCursosPage() {
             onChange={(e) => setBusca(e.target.value)}
             className="w-full rounded-lg border p-2 md:w-[460px]"
           />
+
+<select
+  value={filtroStatus}
+  onChange={(e) =>
+    setFiltroStatus(e.target.value as "ATIVOS" | "EXCLUIDOS" | "TODOS")
+  }
+  className="w-full rounded-lg border p-2 md:w-[180px]"
+>
+  <option value="ATIVOS">Ativos</option>
+  <option value="EXCLUIDOS">Excluídos</option>
+  <option value="TODOS">Todos</option>
+</select>
+
         </div>
 
         {loading ? (
@@ -491,14 +561,32 @@ export default function AdminCursosPage() {
                       </p>
                     </div>
 
-                    <div className="mt-4">
-                      <Link
-                        href={`/admin/cursos/${curso.id}`}
-                        className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white"
-                      >
-                        Montar grade curricular
-                      </Link>
-                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+  <Link
+    href={`/admin/cursos/${curso.id}`}
+    className="inline-block rounded-lg bg-blue-600 px-4 py-2 text-white"
+  >
+    Montar grade curricular
+  </Link>
+
+  {curso.ativo ? (
+    <button
+      type="button"
+      onClick={() => excluirCurso(curso.id)}
+      className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+    >
+      Excluir
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={() => restaurarCurso(curso.id)}
+      className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
+    >
+      Restaurar
+    </button>
+  )}
+</div>
                   </div>
 
                   <span
