@@ -256,8 +256,8 @@ setTotalDisciplinasMatriculadas(total);
   }, []);
 
   const disciplinaPrincipal = useMemo(() => {
-    return disciplinas?.[0] || null;
-  }, [disciplinas]);
+  return disciplinas?.find((disc: any) => !disc.bloqueadaPorAulas) || null;
+}, [disciplinas]);
 
   const ultimaProva = useMemo(() => {
     return data?.ultimasProvas?.[0] || null;
@@ -596,12 +596,24 @@ setTotalDisciplinasMatriculadas(total);
                             atividades acadêmicas.
                           </p>
 
-                          <a
-                            href={`/aluno/disciplina/${disc.id}`}
-                            className="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700"
-                          >
-                            Acessar disciplina →
-                          </a>
+                          {disc.bloqueadaPorAulas ? (
+  <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3">
+    <p className="text-sm font-semibold text-amber-800">
+      Aula disponível em breve
+    </p>
+    <p className="mt-1 text-xs leading-5 text-amber-700">
+      {disc.mensagemBloqueio ||
+        "Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente."}
+    </p>
+  </div>
+) : (
+  <a
+    href={`/aluno/disciplina/${disc.id}`}
+    className="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700"
+  >
+    Acessar disciplina →
+  </a>
+)}
                         </div>
                       ))
                     )}

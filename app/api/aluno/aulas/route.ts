@@ -86,13 +86,19 @@ if (!turma || !disciplina) return null;
             (aula) => (aula.presencas?.length || 0) > 0
           ).length;
 
+const bloqueadaPorAulas = totalAulas === 0;
+
           return {
             id: disciplina.id,
-nome: disciplina.nome,
+            nome: disciplina.nome,
             turmaId: turma.id,
             turmaNome: turma.nome,
             totalAulas,
             totalPresencas,
+            bloqueadaPorAulas,
+            mensagemBloqueio: bloqueadaPorAulas
+  ? "Aula disponível em breve. Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente."
+  : null,
             aulas: turma.aulas.map((aula) => ({
               id: aula.id,
               titulo: aula.titulo,
