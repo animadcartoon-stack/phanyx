@@ -29,32 +29,32 @@ export async function GET() {
     }
 
     const cursos = await prisma.curso.findMany({
-      where: {
-  instituicaoId: user.instituicaoId,
-},
+  where: {
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    cursosPolos: {
       include: {
-  criadoPor: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-  excluidoPor: {
-    select: {
-      id: true,
-      nome: true,
-    },
-  },
-  cursosPolos: {
-    include: {
-      polo: true,
-    },
-  },
-},
-      orderBy: {
-        id: "desc",
+        polo: true,
       },
-    });
+    },
+    criadoPor: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+    excluidoPor: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+  },
+  orderBy: {
+    nome: "asc",
+  },
+});
 
     return NextResponse.json(cursos);
   } catch (error) {
