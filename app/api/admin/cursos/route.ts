@@ -107,6 +107,22 @@ export async function POST(req: Request) {
       );
     }
 
+    if (codigo && String(codigo).trim()) {
+  const cursoComCodigo = await prisma.curso.findFirst({
+    where: {
+      instituicaoId: user.instituicaoId,
+      codigo: String(codigo).trim(),
+    },
+  });
+
+  if (cursoComCodigo) {
+    return NextResponse.json(
+      { error: "Já existe um curso cadastrado com este código. Use outro código para continuar." },
+      { status: 400 }
+    );
+  }
+}
+
     const poloIdsNormalizados = normalizarPoloIds(poloIds);
 
     if (poloIdsNormalizados.length > 0) {
