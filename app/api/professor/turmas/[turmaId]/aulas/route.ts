@@ -155,6 +155,12 @@ export async function POST(
         ? Number(body.duracaoMin)
         : null;
     const videoUrl = body?.videoUrl ? String(body.videoUrl).trim() : null;
+    const disciplinaId =
+  body?.disciplinaId !== undefined &&
+  body?.disciplinaId !== null &&
+  body?.disciplinaId !== ""
+    ? Number(body.disciplinaId)
+    : null;
 
     if (!titulo) {
       return NextResponse.json(
@@ -170,10 +176,65 @@ export async function POST(
       return NextResponse.json({ error: "Duração inválida" }, { status: 400 });
     }
 
-    const ultimaAula = await prisma.aula.findFirst({
-      where: {
-        turmaId: turma.id,
+if (
+  disciplinaId === null ||
+  !Number.isFinite(disciplinaId) ||
+  disciplinaId <= 0
+) {
+  return NextResponse.json(
+    { error: "Disciplina inválida para criar a aula" },
+    { status: 400 }
+  );
+}
+
+const turmaDisciplina = await prisma.turmaDisciplina.findFirst({
+  where: {
+    turmaId: turma.id,
+    disciplinaId,
+    instituicaoId: user.instituicaoId,
+    OR: [
+      {
+        professorId: professor.id,
       },
+      {
+        disciplina: {
+          professorId: professor.id,
+        },
+      },
+      {
+        disciplina: {
+          professoresHabilitados: {
+            some: {
+              professorId: professor.id,
+            },
+          },
+        },
+      },
+      {
+        turma: {
+          professorId: professor.id,
+        },
+      },
+    ],
+  },
+  select: {
+    id: true,
+  },
+});
+
+if (!turmaDisciplina) {
+  return NextResponse.json(
+    { error: "Disciplina não pertence a esta turma ou professor sem permissão" },
+    { status: 403 }
+  );
+}
+
+    const ultimaAula = await prisma.aula.findFirst({
+  where: {
+    turmaId: turma.id,
+    disciplinaId,
+    instituicaoId: user.instituicaoId,
+  },
       orderBy: [{ ordem: "desc" }, { id: "desc" }],
     });
 
@@ -185,6 +246,7 @@ export async function POST(
         videoUrl,
         instituicaoId: user.instituicaoId,
         turmaId: turma.id,
+        disciplinaId,
         ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
       },
     });

@@ -1231,6 +1231,78 @@ export async function PUT(request: Request) {
   },
 });
 
+const matriculaAtualizadaParaContrato = await prisma.matricula.findFirst({
+  where: {
+    id,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    aluno: {
+      include: {
+        user: true,
+      },
+    },
+    curso: true,
+    itens: {
+      include: {
+        disciplina: true,
+        turma: true,
+      },
+      orderBy: {
+        id: "asc",
+      },
+    },
+  },
+});
+
+if (matriculaAtualizadaParaContrato) {
+  const resumoContratacaoAtualizado = montarResumoContratacao(
+    matriculaAtualizadaParaContrato.itens.map((item) => ({
+      turma: {
+        nome: item.turma?.nome || "Turma não informada",
+      },
+      disciplina: {
+        nome: item.disciplina?.nome || "Disciplina não informada",
+      },
+      tipoItem: item.tipoItem as TipoItemMatricula,
+    }))
+  );
+
+  const contratoTextoAtualizado = `
+CONTRATO DE MATRÍCULA - ATUALIZAÇÃO
+
+Instituição ID: ${user.instituicaoId}
+Aluno: ${matriculaAtualizadaParaContrato.aluno?.nome ?? "Aluno"}
+Email: ${matriculaAtualizadaParaContrato.aluno?.user?.email ?? "-"}
+Curso: ${matriculaAtualizadaParaContrato.curso?.nome ?? "Curso não informado"}
+Semestre: ${matriculaAtualizadaParaContrato.semestre ?? "-"}
+Período letivo: ${matriculaAtualizadaParaContrato.periodoLetivo ?? "-"}
+Disciplinas contratadas:
+${resumoContratacaoAtualizado || "-"}
+
+Data da atualização: ${new Date().toLocaleDateString("pt-BR")}
+
+CLÁUSULAS:
+1. O aluno declara estar ciente da atualização da matrícula.
+2. As disciplinas acima substituem ou complementam a contratação acadêmica vigente.
+3. O acesso às aulas seguirá a liberação acadêmica e financeira da instituição.
+4. Este contrato substitui o contrato anterior da matrícula para fins de registro documental.
+
+Assinatura do aluno/responsável: __________________________
+Assinatura da instituição: ________________________________
+`;
+
+  await prisma.contrato.create({
+    data: {
+      alunoId: matriculaAtualizadaParaContrato.alunoId,
+      matriculaId: id,
+      instituicaoId: user.instituicaoId,
+      conteudo: contratoTextoAtualizado,
+      status: "PENDENTE",
+    },
+  });
+}
+
     if (nomeSocial !== undefined || genero !== undefined) {
       await prisma.aluno.updateMany({
         where: {

@@ -46,9 +46,10 @@ export async function GET() {
     turma: {
       include: {
         aulas: {
-          where: {
-            instituicaoId: user.instituicaoId,
-          },
+  where: {
+    instituicaoId: user.instituicaoId,
+    publicada: true,
+  },
           include: {
             presencas: {
               where: {
@@ -81,10 +82,14 @@ export async function GET() {
           const disciplina = item.disciplina;
 if (!turma || !disciplina) return null;
 
-          const totalAulas = turma.aulas?.length || 0;
-          const totalPresencas = turma.aulas.filter(
-            (aula) => (aula.presencas?.length || 0) > 0
-          ).length;
+          const aulasDaDisciplina = turma.aulas.filter(
+  (aula) => aula.disciplinaId === disciplina.id
+);
+
+const totalAulas = aulasDaDisciplina.length;
+const totalPresencas = aulasDaDisciplina.filter(
+  (aula) => (aula.presencas?.length || 0) > 0
+).length;
 
 const bloqueadaPorAulas = totalAulas === 0;
 
@@ -99,7 +104,7 @@ const bloqueadaPorAulas = totalAulas === 0;
             mensagemBloqueio: bloqueadaPorAulas
   ? "Aula disponível em breve. Assim que a instituição publicar o conteúdo, esta disciplina será desbloqueada automaticamente."
   : null,
-            aulas: turma.aulas.map((aula) => ({
+            aulas: aulasDaDisciplina.map((aula) => ({
               id: aula.id,
               titulo: aula.titulo,
               presenca: aula.presencas?.[0]

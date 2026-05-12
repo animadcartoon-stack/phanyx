@@ -364,6 +364,7 @@ model Disciplina {
   permitidaComoExtraEm      CursoDisciplinaExtraPermitida[]
   turmaDisciplinas          TurmaDisciplina[]
   professoresHabilitados    ProfessorDisciplina[]
+  aulas                     Aula[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -522,28 +523,33 @@ model Modulo {
 }
 
 model Aula {
-  id            Int             @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   titulo        String
   moduloId      Int?
-  createdAt     DateTime        @default(now())
+  createdAt     DateTime @default(now())
   descricao     String?
   duracaoMin    Int?
   instituicaoId Int
   ordem         Int
-  publicada     Boolean         @default(true)
+  publicada     Boolean  @default(true)
   turmaId       Int
-  updatedAt     DateTime        @updatedAt
+  disciplinaId  Int?
+  updatedAt     DateTime @updatedAt
   videoUrl      String?
-  instituicao   Instituicao     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  modulo        Modulo?         @relation(fields: [moduloId], references: [id])
-  turma         Turma           @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  materiais     MaterialAula[]
-  presencas     PresencaAula[]
-  progresso     ProgressoAula[]
 
-  @@unique([turmaId, ordem])
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  modulo      Modulo?     @relation(fields: [moduloId], references: [id])
+  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina? @relation(fields: [disciplinaId], references: [id], onDelete: SetNull)
+
+  materiais MaterialAula[]
+  presencas PresencaAula[]
+  progresso ProgressoAula[]
+
+  @@unique([turmaId, disciplinaId, ordem])
   @@index([instituicaoId])
   @@index([turmaId])
+  @@index([disciplinaId])
   @@index([moduloId])
 }
 

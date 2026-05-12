@@ -270,11 +270,12 @@ const turmaEncontrada = listaTurmas.find(
         },
         credentials: "include",
         body: JSON.stringify({
-          titulo,
-          descricao,
-          duracaoMin: duracaoMin ? Number(duracaoMin) : null,
-          videoUrl: videoUrl ? normalizeYoutubeUrl(videoUrl) : null,
-        }),
+  titulo,
+  descricao,
+  duracaoMin: duracaoMin ? Number(duracaoMin) : null,
+  videoUrl: videoUrl ? normalizeYoutubeUrl(videoUrl) : null,
+  disciplinaId: turma?.disciplina?.id,
+}),
       });
 
       const data = await res.json();
