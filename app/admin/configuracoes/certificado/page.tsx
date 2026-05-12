@@ -1531,10 +1531,8 @@ if (resCamposBanco.ok && Array.isArray(dataCamposBanco?.campos)) {
     .filter((id) => Number.isFinite(id) && id > 0 && id < 1000000000);
 
   const camposRemovidos = dataCamposBanco.campos.filter(
-    (campoBanco: any) =>
-      ["IMAGEM", "FORMA"].includes(campoBanco.tipo) &&
-      !idsNaTela.includes(Number(campoBanco.id))
-  );
+  (campoBanco: any) => !idsNaTela.includes(Number(campoBanco.id))
+);
 
   for (const removido of camposRemovidos) {
     await fetch(`/api/admin/certificado-campos?id=${removido.id}`, {
