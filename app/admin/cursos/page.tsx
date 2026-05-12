@@ -54,6 +54,8 @@ export default function AdminCursosPage() {
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
   const [criando, setCriando] = useState(false);
+  const [cursoParaExcluir, setCursoParaExcluir] = useState<Curso | null>(null);
+  const [excluindoCurso, setExcluindoCurso] = useState(false);
 
   useEffect(() => {
     if (!feedback) return;
@@ -179,19 +181,21 @@ export default function AdminCursosPage() {
     }
   }
 
-async function excluirCurso(id: number) {
-  const confirmar = window.confirm(
-    "Deseja excluir este curso? Ele será ocultado, mas poderá ser recuperado depois."
-  );
-
-  if (!confirmar) return;
+async function confirmarExclusaoCurso() {
+  if (!cursoParaExcluir) return;
 
   try {
+    setExcluindoCurso(true);
+
     const res = await fetch("/api/admin/cursos", {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       credentials: "include",
-      body: JSON.stringify({ id }),
+      body: JSON.stringify({
+        id: cursoParaExcluir.id,
+      }),
     });
 
     const data = await res.json();
@@ -201,9 +205,20 @@ async function excluirCurso(id: number) {
     }
 
     await carregarCursos();
-    mostrarFeedback("sucesso", "Curso excluído. Ele pode ser recuperado em Excluídos.");
+
+    mostrarFeedback(
+      "sucesso",
+      "Curso excluído com sucesso. Ele pode ser restaurado depois."
+    );
+
+    setCursoParaExcluir(null);
   } catch (error: any) {
-    mostrarFeedback("erro", error?.message || "Erro ao excluir curso.");
+    mostrarFeedback(
+      "erro",
+      error?.message || "Erro ao excluir curso."
+    );
+  } finally {
+    setExcluindoCurso(false);
   }
 }
 
@@ -572,7 +587,7 @@ if (!termoTexto) return cursosPorStatus;
   {curso.ativo ? (
     <button
       type="button"
-      onClick={() => excluirCurso(curso.id)}
+      onClick={() => setCursoParaExcluir(curso)}
       className="rounded-lg bg-red-600 px-4 py-2 text-white hover:bg-red-700"
     >
       Excluir
@@ -604,6 +619,49 @@ if (!termoTexto) return cursosPorStatus;
           </div>
         )}
       </div>
+      {cursoParaExcluir && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4">
+    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+      <div className="mb-4">
+        <h3 className="text-xl font-bold text-slate-900">
+          Excluir curso
+        </h3>
+
+        <p className="mt-2 text-sm text-slate-600">
+          Deseja realmente excluir o curso{" "}
+          <span className="font-semibold">
+            {cursoParaExcluir.nome}
+          </span>
+          ?
+        </p>
+
+        <p className="mt-2 text-xs text-slate-500">
+          O curso será apenas arquivado e poderá ser restaurado depois.
+        </p>
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => setCursoParaExcluir(null)}
+          disabled={excluindoCurso}
+          className="rounded-xl border border-slate-300 px-4 py-2 font-medium text-slate-700 hover:bg-slate-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={confirmarExclusaoCurso}
+          disabled={excluindoCurso}
+          className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+        >
+          {excluindoCurso ? "Excluindo..." : "Excluir curso"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
