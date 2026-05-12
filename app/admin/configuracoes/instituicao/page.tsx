@@ -275,7 +275,6 @@ async function enviarAssinaturaDiretor(file: File) {
     const resUpload = await fetch("/api/upload", {
       method: "POST",
       body: formData,
-      credentials: "include",
     });
 
     const dataUpload = await resUpload.json();
@@ -284,14 +283,10 @@ async function enviarAssinaturaDiretor(file: File) {
       throw new Error(dataUpload?.error || "Erro ao enviar assinatura.");
     }
 
-    const assinaturaUrl =
-      dataUpload?.url ||
-      dataUpload?.arquivo?.url ||
-      dataUpload?.arquivo;
+    const assinaturaUrl = dataUpload?.url || dataUpload?.arquivo?.url;
 
-    if (!assinaturaUrl || typeof assinaturaUrl !== "string") {
-      console.log("RESPOSTA UPLOAD ASSINATURA:", dataUpload);
-      throw new Error("Upload feito, mas a URL da assinatura não foi retornada.");
+    if (!assinaturaUrl) {
+      throw new Error("O upload não retornou a URL da assinatura.");
     }
 
     setForm((prev) => ({
@@ -299,9 +294,23 @@ async function enviarAssinaturaDiretor(file: File) {
       certificadoAssinaturaUrl: assinaturaUrl,
     }));
 
-    setMensagem(
-      "Assinatura do diretor enviada com sucesso. Clique em Salvar configurações."
-    );
+    const resSalvar = await fetch("/api/admin/configuracoes/instituicao", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        ...form,
+        certificadoAssinaturaUrl: assinaturaUrl,
+      }),
+    });
+
+    if (!resSalvar.ok) {
+      throw new Error("A assinatura foi enviada, mas não foi salva na instituição.");
+    }
+
+    setMensagem("Assinatura do diretor enviada e salva com sucesso.");
   } catch (error: any) {
     setMensagem(error?.message || "Erro ao enviar assinatura do diretor.");
   } finally {
