@@ -30,8 +30,8 @@ export async function GET() {
 
     const cursos = await prisma.curso.findMany({
       where: {
-        instituicaoId: user.instituicaoId,
-      },
+  instituicaoId: user.instituicaoId,
+},
       include: {
         cursosPolos: {
           include: {
@@ -382,13 +382,17 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ error: "Curso não encontrado" }, { status: 404 });
     }
 
-    const atualizado = await prisma.curso.update({
-      where: { id },
-      data: {
-  ativo: false,
-  excluidoEm: new Date(),
-},
-    });
+    const agora = new Date();
+const expira = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+const atualizado = await prisma.curso.update({
+  where: { id },
+  data: {
+    ativo: false,
+    excluidoEm: agora,
+    expiraExclusaoEm: expira,
+  },
+});
 
     return NextResponse.json({
       ok: true,
@@ -429,12 +433,13 @@ export async function PATCH(req: Request) {
     }
 
     const atualizado = await prisma.curso.update({
-      where: { id },
-      data: {
-  ativo,
-  excluidoEm: ativo ? null : curso.excluidoEm,
-},
-    });
+  where: { id },
+  data: {
+    ativo,
+    excluidoEm: ativo ? null : curso.excluidoEm,
+    expiraExclusaoEm: ativo ? null : curso.expiraExclusaoEm,
+  },
+});
 
     return NextResponse.json({
       ok: true,
