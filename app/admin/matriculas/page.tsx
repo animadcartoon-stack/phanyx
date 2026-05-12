@@ -1097,17 +1097,22 @@ async function salvarEdicao() {
 
     console.log("RESPOSTA SALVAR EDIÇÃO MATRÍCULA", data);
 
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao atualizar matrícula");
-    }
-
+   if (!res.ok) {
+  throw new Error(data?.error || "Erro ao atualizar matrícula");
+}
     setSucesso("Matrícula atualizada com sucesso.");
     setMatriculaEditando(null);
     await carregarTudo();
-  } catch (err: any) {
-    console.error("ERRO AO SALVAR EDIÇÃO MATRÍCULA:", err);
-    setErro(err?.message || "Erro ao atualizar matrícula.");
-  }
+ } catch (err: any) {
+  console.error("ERRO AO SALVAR EDIÇÃO MATRÍCULA:", err);
+
+  setConfirmTitulo("Matrícula bloqueada");
+  setConfirmMensagem(
+    err?.message || "Não foi possível atualizar a matrícula."
+  );
+  setConfirmAcao(null);
+  setConfirmModalAberto(true);
+}
 }
 
   async function excluirMatricula(id: number) {
@@ -2307,15 +2312,17 @@ function renderGrupoDisciplina(
   aberto={confirmModalAberto}
   titulo={confirmTitulo}
   mensagem={confirmMensagem}
-  textoConfirmar="Confirmar"
-  textoCancelar="Cancelar"
+  textoConfirmar={confirmAcao ? "Confirmar" : "Entendi"}
+  textoCancelar={confirmAcao ? "Cancelar" : ""}
   onConfirmar={async () => {
-    setConfirmModalAberto(false);
+  setConfirmModalAberto(false);
 
-    if (confirmAcao) {
-      await confirmAcao();
-    }
-  }}
+  if (confirmAcao) {
+    await confirmAcao();
+  }
+
+  setConfirmAcao(null);
+}}
   onCancelar={() => {
     setConfirmModalAberto(false);
     setConfirmAcao(null);
