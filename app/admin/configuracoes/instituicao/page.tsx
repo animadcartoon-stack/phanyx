@@ -136,12 +136,13 @@ export default function ConfigInstituicaoPage() {
       );
 
       const payload = {
-        ...form,
-        estiloDocumento: layout,
-        estiloPapelTimbrado: layout,
-        usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
-        papelTimbradoUrl: form.papelTimbradoUrl || "",
-      };
+  ...form,
+  estiloDocumento: layout,
+  estiloPapelTimbrado: layout,
+  usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
+  papelTimbradoUrl: form.papelTimbradoUrl || "",
+  certificadoAssinaturaUrl: form.certificadoAssinaturaUrl || "",
+};
 
       const res = await fetch("/api/admin/configuracoes/instituicao", {
         method: "POST",
