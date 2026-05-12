@@ -295,11 +295,14 @@ function removerItensDuplicadosPorTurma(
     tipoItem: TipoItemMatricula;
   }>
 ) {
-  const vistos = new Set<number>();
+  const vistos = new Set<string>();
 
   return itens.filter((item) => {
-    if (vistos.has(item.turmaId)) return false;
-    vistos.add(item.turmaId);
+    const chave = `${item.turmaId}-${item.disciplinaId}`;
+
+    if (vistos.has(chave)) return false;
+
+    vistos.add(chave);
     return true;
   });
 }
