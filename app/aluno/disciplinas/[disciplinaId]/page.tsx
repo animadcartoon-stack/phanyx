@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useAluno } from "@/app/context/AlunoContext";
 
 declare global {
@@ -125,6 +125,9 @@ export default function DisciplinaAlunoPage() {
   const router = useRouter();
   const params = useParams<{ disciplinaId: string }>();
   const disciplinaId = Number(params.disciplinaId);
+   
+  const searchParams = useSearchParams();
+  const turmaId = Number(searchParams.get("turmaId"));
 
   const { aulaConcluida, marcarAulaComoConcluida, progressoDisciplina, notas } =
     useAluno();
@@ -359,7 +362,9 @@ setAulasConcluidasBanco((prev) =>
       setErroDisciplina(null);
 
       try {
-        const res = await fetch(`/api/disciplina/${disciplinaId}`, {
+        const res = await fetch(
+  `/api/aluno/disciplinas/${disciplinaId}?turmaId=${turmaId}`,
+  {
           credentials: "include",
           cache: "no-store",
         });

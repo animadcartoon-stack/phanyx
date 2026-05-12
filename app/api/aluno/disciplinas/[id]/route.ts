@@ -12,6 +12,9 @@ export async function GET(
 
     const disciplinaId = Number(ctx.params.id);
 
+    const { searchParams } = new URL(req.url);
+    const turmaId = Number(searchParams.get("turmaId"));
+
     if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
       return NextResponse.json(
         { error: "Disciplina inválida" },
@@ -26,14 +29,16 @@ export async function GET(
       },
       include: {
         itensMatricula: {
-          where: {
-            disciplinaId,
-          },
+  where: {
+    disciplinaId,
+    ...(Number.isFinite(turmaId) && turmaId > 0 ? { turmaId } : {}),
+  },
           select: {
-            id: true,
-            status: true,
-            disciplinaId: true,
-          },
+  id: true,
+  status: true,
+  disciplinaId: true,
+  turmaId: true,
+},
         },
       },
     });
@@ -46,6 +51,8 @@ export async function GET(
     }
 
     const itemMatricula = aluno.itensMatricula?.[0];
+
+    const turmaIdDaMatricula = (itemMatricula as any)?.turmaId;
 
     if (!itemMatricula) {
       return NextResponse.json(
@@ -60,25 +67,26 @@ export async function GET(
         instituicaoId: auth.instituicaoId,
       },
       include: {
-        aulas: {
-          orderBy: [
-            { ordem: "asc" },
-            { id: "asc" },
-          ],
-          select: {
-            id: true,
-            titulo: true,
-            descricao: true,
-            duracaoMin: true,
-            ordem: true,
-            videoUrl: true,
-            arquivoUrl: true,
-            materialUrl: true,
-            conteudo: true,
-            tipo: true,
-          },
-        },
-      },
+  aulas: {
+    where: {
+      turmaId: turmaIdDaMatricula,
+      publicada: true,
+    },
+    orderBy: [
+      { ordem: "asc" },
+      { id: "asc" },
+    ],
+    select: {
+      id: true,
+      titulo: true,
+      descricao: true,
+      duracaoMin: true,
+      ordem: true,
+      videoUrl: true,
+      materiais: true,
+    },
+  },
+},
     });
 
     if (!disciplina) {

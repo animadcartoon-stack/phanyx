@@ -88,7 +88,7 @@ export default function DisciplinasAluno() {
           {disciplinasMatriculadas.map((disciplina) => (
             <div
               key={`${disciplina.id}-${disciplina.turmaId ?? "sem-turma"}`}
-              onClick={() => router.push(`/aluno/disciplinas/${disciplina.id}`)}
+              onClick={() => router.push(`/aluno/disciplinas/${disciplina.id}?turmaId=${disciplina.turmaId}`)}
               className="cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-3">
