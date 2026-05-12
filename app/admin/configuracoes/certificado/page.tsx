@@ -4633,25 +4633,29 @@ if (c.tipo === "FORMA") {
           c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
       }}
     >
-      {c.tipo === "ASSINATURA" && certificadoAssinaturaUrl ? (
-  <img
-    src={certificadoAssinaturaUrl}
-    alt="Assinatura do diretor"
-    className="h-full w-full object-contain"
-    draggable={false}
-  />
+      {c.tipo === "ASSINATURA" ? (
+  certificadoAssinaturaUrl ? (
+    <img
+      src={certificadoAssinaturaUrl}
+      alt="Assinatura do diretor"
+      className="h-full w-full object-contain pointer-events-none"
+      draggable={false}
+    />
+  ) : (
+    "Assinatura"
+  )
+) : c.tipo === "NOME_DIRETOR" ? (
+  certificadoCoordenadorNome || "Nome do diretor"
 ) : c.tipo === "NOME_ALUNO" ? (
   "José Exemplo da Silva"
 ) : c.tipo === "NOME_CURSO" ? (
-  "Bacharel Livre em Teologia"
+  "Curso concluído pelo aluno"
 ) : c.tipo === "DATA_EMISSAO" ? (
   "30/04/2026"
-) : c.tipo === "ASSINATURA" ? (
-  "Assinatura"
 ) : c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
   c.marcador
-    ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
-    : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+    ? `${c.marcador} Disciplina 1\n${c.marcador} Disciplina 2\n${c.marcador} Disciplina 3`
+    : "Disciplina 1\nDisciplina 2\nDisciplina 3"
 ) : c.tipo === "APROVEITAMENTO" ? (
   "100%"
 ) : (
