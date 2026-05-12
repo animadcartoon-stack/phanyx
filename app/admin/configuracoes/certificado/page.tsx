@@ -3356,11 +3356,18 @@ if (!camposSelecionadosIds.includes(c.id)) {
         ? "Nome do curso"
         : c.tipo === "DATA_EMISSAO"
         ? "00/00/0000"
-        : c.tipo === "ASSINATURA"
-? certificadoAssinaturaUrl
-  ? ""
-  : "Assinatura"
-: c.tipo}
+        : c.tipo === "ASSINATURA" ? (
+  certificadoAssinaturaUrl ? (
+    <img
+      src={certificadoAssinaturaUrl}
+      alt="Assinatura do diretor"
+      className="h-full w-full object-contain pointer-events-none"
+      draggable={false}
+    />
+  ) : (
+    "Assinatura"
+  )
+) : c.tipo}
 
     </div>
   );
