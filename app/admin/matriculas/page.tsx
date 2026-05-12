@@ -999,32 +999,55 @@ setDisciplinasExtrasEdicaoSelecionadas(
   });
 }
 
-  async function salvarEdicao() {
+async function salvarEdicao() {
   if (!matriculaEditando) return;
 
-const disciplinasIdsEdicaoParaEnviar = [
-  ...disciplinasEdicaoSelecionadas,
-  ...disciplinasExtrasEdicaoSelecionadas,
-];
+  const disciplinasIdsEdicaoParaEnviar = [
+    ...disciplinasEdicaoSelecionadas,
+    ...disciplinasExtrasEdicaoSelecionadas,
+  ];
 
-const turmaIdsEdicaoParaEnviar = Array.from(
-  new Set(
-    turmas
-      .filter((turma) => {
-        const pertenceAoCurso =
-          Number(turma.cursoId) === Number(matriculaEditando.cursoId);
+  const turmaIdsEdicaoParaEnviar = Array.from(
+    new Set(
+      turmas
+        .filter((turma) => {
+          const pertenceAoCurso =
+            Number(turma.cursoId) === Number(matriculaEditando.cursoId);
 
-        const temDisciplinaSelecionada = (turma.disciplinas || []).some((d) =>
-          disciplinasIdsEdicaoParaEnviar.includes(Number(d.id))
-        );
+          const temDisciplinaSelecionada = (turma.disciplinas || []).some((d) =>
+            disciplinasIdsEdicaoParaEnviar.includes(Number(d.id))
+          );
 
-        return pertenceAoCurso && temDisciplinaSelecionada;
-      })
-      .map((turma) => turma.id)
-  )
-);
+          return pertenceAoCurso && temDisciplinaSelecionada;
+        })
+        .map((turma) => turma.id)
+    )
+  );
+
+  console.log("DEBUG SALVAR EDIÇÃO MATRÍCULA", {
+    matriculaId: matriculaEditando.id,
+    cursoId: matriculaEditando.cursoId,
+    semestre: matriculaEditando.semestre,
+    disciplinasIdsEdicaoParaEnviar,
+    turmaIdsEdicaoParaEnviar,
+  });
+
+  if (disciplinasIdsEdicaoParaEnviar.length === 0) {
+    setErro("Selecione pelo menos uma disciplina antes de salvar.");
+    return;
+  }
+
+  if (turmaIdsEdicaoParaEnviar.length === 0) {
+    setErro(
+      "Nenhuma turma foi encontrada para as disciplinas selecionadas. Verifique se as disciplinas estão vinculadas à turma."
+    );
+    return;
+  }
 
   try {
+    setErro("");
+    setSucesso("");
+
     const res = await fetch("/api/matricula", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -1039,12 +1062,19 @@ const turmaIdsEdicaoParaEnviar = Array.from(
           matriculaEditando.cursoId === ""
             ? null
             : Number(matriculaEditando.cursoId),
+        cursoSemestreId:
+          matriculaEditando.cursoSemestreId === ""
+            ? null
+            : Number(matriculaEditando.cursoSemestreId),
         semestre:
           matriculaEditando.semestre === ""
             ? null
             : Number(matriculaEditando.semestre),
+
         turmaIds: turmaIdsEdicaoParaEnviar,
-disciplinaIds: disciplinasIdsEdicaoParaEnviar,
+        turmaId: turmaIdsEdicaoParaEnviar[0] ?? null,
+        disciplinaIds: disciplinasIdsEdicaoParaEnviar,
+
         valorPagoMatricula:
           matriculaEditando.valorPagoMatricula === ""
             ? null
@@ -1057,14 +1087,15 @@ disciplinaIds: disciplinasIdsEdicaoParaEnviar,
           matriculaEditando.quantidadeMensalidades === ""
             ? null
             : Number(matriculaEditando.quantidadeMensalidades),
-        primeiroVencimento:
-          matriculaEditando.primeiroVencimento || null,
+        primeiroVencimento: matriculaEditando.primeiroVencimento || null,
         nomeSocial: matriculaEditando.nomeSocial,
         genero: matriculaEditando.genero,
       }),
     });
 
     const data = await res.json();
+
+    console.log("RESPOSTA SALVAR EDIÇÃO MATRÍCULA", data);
 
     if (!res.ok) {
       throw new Error(data?.error || "Erro ao atualizar matrícula");
@@ -1074,7 +1105,8 @@ disciplinaIds: disciplinasIdsEdicaoParaEnviar,
     setMatriculaEditando(null);
     await carregarTudo();
   } catch (err: any) {
-    setErro(err.message || "Erro ao atualizar matrícula.");
+    console.error("ERRO AO SALVAR EDIÇÃO MATRÍCULA:", err);
+    setErro(err?.message || "Erro ao atualizar matrícula.");
   }
 }
 
@@ -1868,7 +1900,7 @@ function renderGrupoDisciplina(
                             {itens.map((item) => {
                               const turma = item.turma;
                               const disciplinaNome =
-  (item as any)?.disciplina?.nome ?? "Disciplina";
+                              (item as any)?.disciplina?.nome ?? "Disciplina";
                               const turmaNome = turma?.nome ?? "Turma";
                               const profNome = turma?.professor?.nome ?? "—";
                               const qtdAulas = turma?._count?.aulas ?? 0;
