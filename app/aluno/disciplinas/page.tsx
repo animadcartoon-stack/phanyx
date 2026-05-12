@@ -10,6 +10,8 @@ type DisciplinaAluno = {
   turmaNome?: string;
   totalAulas?: number;
   totalPresencas?: number;
+  bloqueadaPorAulas?: boolean;
+  mensagemBloqueio?: string | null;
 };
 
 type AulasAlunoResponse = {
@@ -88,8 +90,16 @@ export default function DisciplinasAluno() {
           {disciplinasMatriculadas.map((disciplina) => (
             <div
               key={`${disciplina.id}-${disciplina.turmaId ?? "sem-turma"}`}
-              onClick={() => router.push(`/aluno/disciplinas/${disciplina.id}?turmaId=${disciplina.turmaId}`)}
-              className="cursor-pointer rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md"
+              onClick={() => {
+  if (disciplina.bloqueadaPorAulas) return;
+  router.push(`/aluno/disciplinas/${disciplina.id}?turmaId=${disciplina.turmaId}`);
+}}
+className={[
+  "rounded-2xl border bg-white p-6 shadow-sm transition",
+  disciplina.bloqueadaPorAulas
+    ? "cursor-not-allowed border-amber-200 bg-amber-50/40"
+    : "cursor-pointer border-slate-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-md",
+].join(" ")}
             >
               <div className="flex items-start justify-between gap-3">
                 <h2 className="text-lg font-semibold text-slate-900">
@@ -115,9 +125,17 @@ export default function DisciplinasAluno() {
                 </p>
               </div>
 
-              <div className="mt-5 inline-flex items-center text-sm font-semibold text-blue-600">
-                Acessar disciplina →
-              </div>
+              {disciplina.bloqueadaPorAulas ? (
+  <div className="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm font-medium text-amber-800">
+    🔒{" "}
+    {disciplina.mensagemBloqueio ||
+      "Assim que a aula for publicada, o acesso será liberado automaticamente."}
+  </div>
+) : (
+  <div className="mt-5 inline-flex items-center text-sm font-semibold text-blue-600">
+    Acessar disciplina →
+  </div>
+)}
             </div>
           ))}
         </div>
