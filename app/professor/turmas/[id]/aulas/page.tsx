@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 
 type TurmaApi = {
   id: number;
@@ -50,6 +50,9 @@ export default function AulasDaTurmaPage() {
   const router = useRouter();
   const params = useParams<{ id: string }>();
   const turmaId = Number(params.id);
+
+  const searchParams = useSearchParams();
+  const disciplinaId = Number(searchParams.get("disciplinaId"));
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -269,12 +272,12 @@ const turmaEncontrada = listaTurmas.find(
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({
+       body: JSON.stringify({
   titulo,
   descricao,
   duracaoMin: duracaoMin ? Number(duracaoMin) : null,
   videoUrl: videoUrl ? normalizeYoutubeUrl(videoUrl) : null,
-  disciplinaId: turma?.disciplina?.id,
+  disciplinaId,
 }),
       });
 

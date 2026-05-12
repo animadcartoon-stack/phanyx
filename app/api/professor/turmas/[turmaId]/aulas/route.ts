@@ -16,6 +16,9 @@ export async function GET(
     const { turmaId: turmaIdParam } = await params;
     const turmaId = Number(turmaIdParam);
 
+    const { searchParams } = new URL(_req.url);
+    const disciplinaId = Number(searchParams.get("disciplinaId"));
+
     if (!Number.isFinite(turmaId) || turmaId <= 0) {
       return NextResponse.json({ error: "Turma inválida" }, { status: 400 });
     }
@@ -66,9 +69,12 @@ export async function GET(
 
     const aulas = await prisma.aula.findMany({
       where: {
-        turmaId: turma.id,
-        instituicaoId: user.instituicaoId,
-      },
+  turmaId: turma.id,
+  instituicaoId: user.instituicaoId,
+  ...(Number.isFinite(disciplinaId) && disciplinaId > 0
+    ? { disciplinaId }
+    : {}),
+},
       orderBy: [{ ordem: "asc" }, { id: "asc" }],
     });
 

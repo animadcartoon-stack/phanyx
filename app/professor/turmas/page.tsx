@@ -169,7 +169,11 @@ function CardTurma({
         </button>
 
         <button
-          onClick={() => router.push(`/professor/turmas/${turma.id}/aulas`)}
+          onClick={() =>
+  router.push(
+    `/professor/turmas/${turma.id}/aulas?disciplinaId=${turma.disciplina?.id}`
+  )
+}
           className="rounded-xl border border-indigo-200 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-50"
         >
           Gerenciar aulas
