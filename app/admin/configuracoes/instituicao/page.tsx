@@ -276,7 +276,7 @@ async function enviarAssinaturaDiretor(file: File) {
     });
 
     const jsonUploadUrl = await resUploadUrl.json();
-
+console.log("UPLOAD ASSINATURA:", jsonUploadUrl);
     if (!resUploadUrl.ok) {
       throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
     }
