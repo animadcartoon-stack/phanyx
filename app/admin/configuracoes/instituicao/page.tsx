@@ -263,7 +263,7 @@ async function enviarAssinaturaDiretor(file: File) {
       return;
     }
 
-    const resUploadUrl = await fetch("/api/admin/upload-url", {
+    const resUploadUrl = await fetch("/api/upload-url", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
