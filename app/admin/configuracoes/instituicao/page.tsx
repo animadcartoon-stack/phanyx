@@ -269,6 +269,7 @@ async function enviarAssinaturaDiretor(file: File) {
     const resUpload = await fetch("/api/upload", {
       method: "POST",
       body: formData,
+      credentials: "include",
     });
 
     const dataUpload = await resUpload.json();
@@ -277,10 +278,14 @@ async function enviarAssinaturaDiretor(file: File) {
       throw new Error(dataUpload?.error || "Erro ao enviar assinatura.");
     }
 
-    const assinaturaUrl = dataUpload?.url;
+    const assinaturaUrl =
+      dataUpload?.url ||
+      dataUpload?.arquivo?.url ||
+      dataUpload?.arquivo;
 
-    if (!assinaturaUrl) {
-      throw new Error("Upload concluído, mas a URL da assinatura não voltou.");
+    if (!assinaturaUrl || typeof assinaturaUrl !== "string") {
+      console.log("RESPOSTA UPLOAD ASSINATURA:", dataUpload);
+      throw new Error("Upload feito, mas a URL da assinatura não foi retornada.");
     }
 
     setForm((prev) => ({
