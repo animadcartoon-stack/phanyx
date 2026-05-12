@@ -1002,45 +1002,36 @@ setDisciplinasExtrasEdicaoSelecionadas(
 async function salvarEdicao() {
   if (!matriculaEditando) return;
 
-  const disciplinasIdsEdicaoParaEnviar = [
-    ...disciplinasEdicaoSelecionadas,
-    ...disciplinasExtrasEdicaoSelecionadas,
-  ];
+  const disciplinasIdsEdicaoParaEnviar = Array.from(
+    new Set([
+      ...disciplinasEdicaoSelecionadas,
+      ...disciplinasExtrasEdicaoSelecionadas,
+    ])
+  );
 
   const turmaIdsEdicaoParaEnviar = Array.from(
     new Set(
-      turmas
-        .filter((turma) => {
-          const pertenceAoCurso =
-            Number(turma.cursoId) === Number(matriculaEditando.cursoId);
-
-          const temDisciplinaSelecionada = (turma.disciplinas || []).some((d) =>
-            disciplinasIdsEdicaoParaEnviar.includes(Number(d.id))
-          );
-
-          return pertenceAoCurso && temDisciplinaSelecionada;
-        })
-        .map((turma) => turma.id)
+      matriculaEditando.turmaIds.filter(
+        (id) => Number.isFinite(Number(id)) && Number(id) > 0
+      )
     )
   );
 
-  console.log("DEBUG SALVAR EDIÇÃO MATRÍCULA", {
-    matriculaId: matriculaEditando.id,
-    cursoId: matriculaEditando.cursoId,
-    semestre: matriculaEditando.semestre,
-    disciplinasIdsEdicaoParaEnviar,
-    turmaIdsEdicaoParaEnviar,
-  });
-
   if (disciplinasIdsEdicaoParaEnviar.length === 0) {
-    setErro("Selecione pelo menos uma disciplina antes de salvar.");
+    setConfirmTitulo("Selecione as disciplinas");
+    setConfirmMensagem("Selecione pelo menos uma disciplina antes de salvar.");
+    setConfirmAcao(null);
+    setConfirmModalAberto(true);
     return;
   }
 
   if (turmaIdsEdicaoParaEnviar.length === 0) {
-    setErro(
-      "Nenhuma turma foi encontrada para as disciplinas selecionadas. Verifique se as disciplinas estão vinculadas à turma."
+    setConfirmTitulo("Selecione a turma");
+    setConfirmMensagem(
+      "Selecione pelo menos uma turma vinculada às disciplinas antes de salvar."
     );
+    setConfirmAcao(null);
+    setConfirmModalAberto(true);
     return;
   }
 
@@ -1070,11 +1061,9 @@ async function salvarEdicao() {
           matriculaEditando.semestre === ""
             ? null
             : Number(matriculaEditando.semestre),
-
         turmaIds: turmaIdsEdicaoParaEnviar,
         turmaId: turmaIdsEdicaoParaEnviar[0] ?? null,
         disciplinaIds: disciplinasIdsEdicaoParaEnviar,
-
         valorPagoMatricula:
           matriculaEditando.valorPagoMatricula === ""
             ? null
@@ -1095,24 +1084,21 @@ async function salvarEdicao() {
 
     const data = await res.json();
 
-    console.log("RESPOSTA SALVAR EDIÇÃO MATRÍCULA", data);
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao atualizar matrícula");
+    }
 
-   if (!res.ok) {
-  throw new Error(data?.error || "Erro ao atualizar matrícula");
-}
     setSucesso("Matrícula atualizada com sucesso.");
     setMatriculaEditando(null);
     await carregarTudo();
- } catch (err: any) {
-  console.error("ERRO AO SALVAR EDIÇÃO MATRÍCULA:", err);
-
-  setConfirmTitulo("Matrícula bloqueada");
-  setConfirmMensagem(
-    err?.message || "Não foi possível atualizar a matrícula."
-  );
-  setConfirmAcao(null);
-  setConfirmModalAberto(true);
-}
+  } catch (err: any) {
+    setConfirmTitulo("Matrícula bloqueada");
+    setConfirmMensagem(
+      err?.message || "Não foi possível atualizar a matrícula."
+    );
+    setConfirmAcao(null);
+    setConfirmModalAberto(true);
+  }
 }
 
   async function excluirMatricula(id: number) {
@@ -2226,15 +2212,17 @@ function renderGrupoDisciplina(
 </div>
 
       <div className="flex gap-2 mt-6">
-        <button
-          onClick={salvarEdicao}
+       <button
+  type="button"
+  onClick={salvarEdicao}
           className="bg-green-600 text-white px-4 py-2 rounded-xl"
         >
           Salvar
         </button>
 
         <button
-          onClick={() => setMatriculaEditando(null)}
+  type="button"
+  onClick={() => setMatriculaEditando(null)}
           className="bg-gray-400 text-white px-4 py-2 rounded-xl"
         >
           Cancelar
