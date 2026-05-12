@@ -222,9 +222,12 @@ const turmaEncontrada = listaTurmas.find(
 
       setTurma(turmaEncontrada);
 
-      const resAulas = await fetch(`/api/professor/turmas/${turmaId}/aulas`, {
-        credentials: "include",
-      });
+      const resAulas = await fetch(
+  `/api/professor/turmas/${turmaId}/aulas?disciplinaId=${disciplinaId}`,
+  {
+    credentials: "include",
+  }
+);
 
       const aulasData = await resAulas.json();
 
@@ -250,7 +253,7 @@ const turmaEncontrada = listaTurmas.find(
     }
 
     carregarDados();
-  }, [turmaId]);
+  }, [turmaId, disciplinaId]);
 
   async function handleCriarAula(e: React.FormEvent) {
     e.preventDefault();

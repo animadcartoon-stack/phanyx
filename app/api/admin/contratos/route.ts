@@ -68,13 +68,16 @@ async function montarContratoDaMatricula(matriculaId: number, instituicaoId: num
     },
   });
 
-  const disciplinasLista = Array.from(
-    new Set(
-      matricula.itens
-        .map((item) => item.disciplina?.nome?.trim())
-        .filter(Boolean) as string[]
-    )
-  );
+  const disciplinasLista = matricula.itens
+  .map((item) => {
+    const disciplinaNome = item.disciplina?.nome?.trim();
+    const turmaNome = item.turma?.nome?.trim();
+
+    if (!disciplinaNome) return null;
+
+    return turmaNome ? `${disciplinaNome} — Turma ${turmaNome}` : disciplinaNome;
+  })
+  .filter(Boolean) as string[];
 
   const turmasLista = Array.from(
     new Set(
