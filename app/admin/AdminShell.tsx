@@ -531,6 +531,14 @@ try {
                     >
                       ⚙️ Instituição
                     </Link>
+
+<Link
+  href="/admin/configuracoes/documentos"
+  className={getLinkClass("/admin/configuracoes/documentos")}
+>
+  📄 Documentos institucionais
+</Link>
+
 <Link
   href="/admin/certificados"
   className={getLinkClass("/admin/certificados")}
