@@ -32,6 +32,7 @@ type ConfigInstituicao = {
   usarPapelTimbrado?: boolean;
   papelTimbradoUrl?: string;
   estiloPapelTimbrado?: string;
+  certificadoAssinaturaUrl?: string;
 };
 
 function gerarPreviewBase64(file: File): Promise<string> {
@@ -74,6 +75,8 @@ export default function ConfigInstituicaoPage() {
   const [salvando, setSalvando] = useState(false);
   const [enviandoLogo, setEnviandoLogo] = useState(false);
   const [enviandoPapelTimbrado, setEnviandoPapelTimbrado] = useState(false);
+  const [enviandoAssinatura, setEnviandoAssinatura] = useState(false);
+  const [nomeArquivoAssinatura, setNomeArquivoAssinatura] = useState("");
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [nomeArquivoLogo, setNomeArquivoLogo] = useState("");
   const [nomeArquivoPapelTimbrado, setNomeArquivoPapelTimbrado] =
@@ -87,6 +90,7 @@ export default function ConfigInstituicaoPage() {
 
   const inputFileLogoRef = useRef<HTMLInputElement | null>(null);
   const inputFilePapelRef = useRef<HTMLInputElement | null>(null);
+  const inputFileAssinaturaRef = useRef<HTMLInputElement | null>(null);
 
   const layoutSelecionado = normalizarLayoutProfissional(
     form.estiloPapelTimbrado || form.estiloDocumento
@@ -247,6 +251,60 @@ export default function ConfigInstituicaoPage() {
       setEnviandoPapelTimbrado(false);
     }
   }
+
+async function enviarAssinaturaDiretor(file: File) {
+  try {
+    setEnviandoAssinatura(true);
+    setMensagem("");
+    setNomeArquivoAssinatura(file.name);
+
+    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+      setMensagem("Envie uma assinatura em PNG, JPG ou JPEG.");
+      return;
+    }
+
+    const resUploadUrl = await fetch("/api/admin/upload-url", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nomeOriginal: file.name,
+        mimeType: file.type,
+        tamanho: file.size,
+      }),
+    });
+
+    const jsonUploadUrl = await resUploadUrl.json();
+
+    if (!resUploadUrl.ok) {
+      throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
+    }
+
+    const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+      method: "PUT",
+      headers: {
+        "Content-Type": file.type,
+      },
+      body: file,
+    });
+
+    if (!resUploadDireto.ok) {
+      throw new Error("Erro ao enviar assinatura para o storage");
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      certificadoAssinaturaUrl: jsonUploadUrl.arquivoUrl,
+    }));
+
+    setMensagem("Assinatura do diretor enviada com sucesso. Clique em Salvar configurações.");
+  } catch {
+    setMensagem("Erro ao enviar assinatura do diretor.");
+  } finally {
+    setEnviandoAssinatura(false);
+  }
+}
 
   async function buscarEnderecoPorCep(cepInformado: string) {
     const cepLimpo = cepInformado.replace(/\D/g, "");
@@ -1028,6 +1086,53 @@ Cidade e data:
                   : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
               </div>
             </div>
+
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+  <h2 className="mb-3 text-lg font-semibold text-slate-800">
+    Assinatura do diretor
+  </h2>
+
+  <div className="flex h-28 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
+    {form.certificadoAssinaturaUrl ? (
+      <img
+        src={form.certificadoAssinaturaUrl}
+        alt="Assinatura do diretor"
+        className="max-h-20 max-w-full object-contain"
+      />
+    ) : (
+      <span className="text-sm text-slate-500">
+        Nenhuma assinatura enviada
+      </span>
+    )}
+  </div>
+
+  <input
+    ref={inputFileAssinaturaRef}
+    type="file"
+    accept="image/png,image/jpeg,image/jpg"
+    className="hidden"
+    onChange={async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      await enviarAssinaturaDiretor(file);
+    }}
+  />
+
+  <button
+    type="button"
+    onClick={() => inputFileAssinaturaRef.current?.click()}
+    disabled={enviandoAssinatura}
+    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+  >
+    {enviandoAssinatura ? "Enviando assinatura..." : "Selecionar assinatura"}
+  </button>
+
+  <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
+    {nomeArquivoAssinatura
+      ? `Arquivo selecionado: ${nomeArquivoAssinatura}`
+      : "Formatos aceitos: PNG, JPG e JPEG. Dê preferência para PNG com fundo transparente."}
+  </div>
+</div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 className="mb-3 text-lg font-semibold text-slate-800">
