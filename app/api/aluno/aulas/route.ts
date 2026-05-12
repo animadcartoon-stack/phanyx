@@ -44,26 +44,27 @@ export async function GET() {
   include: {
     disciplina: true,
     turma: {
+  include: {
+    aulas: {
+      where: {
+        instituicaoId: user.instituicaoId,
+        publicada: true,
+        
+      },
       include: {
-        aulas: {
-  where: {
-    instituicaoId: user.instituicaoId,
-    publicada: true,
-  },
-          include: {
-            presencas: {
-              where: {
-                alunoId: aluno.id,
-                instituicaoId: user.instituicaoId,
-              },
-            },
-          },
-          orderBy: {
-            id: "asc",
+        presencas: {
+          where: {
+            alunoId: aluno.id,
+            instituicaoId: user.instituicaoId,
           },
         },
       },
+      orderBy: {
+        id: "asc",
+      },
     },
+  },
+},
   },
   orderBy: {
     id: "asc",

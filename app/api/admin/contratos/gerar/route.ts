@@ -145,13 +145,18 @@ export async function GET(req: Request) {
       },
     });
 
-    const disciplinasLista = Array.from(
-  new Set(
-    matricula.itens
-      .map((item: any) => item.disciplina?.nome?.trim())
-      .filter(Boolean) as string[]
-  )
-);
+    const disciplinasLista = matricula.itens
+  .map((item) => {
+    const disciplinaNome = item.disciplina?.nome?.trim();
+    const turmaNome = item.turma?.nome?.trim();
+
+    if (!disciplinaNome) return null;
+
+    return turmaNome
+      ? `${disciplinaNome} — Turma ${turmaNome}`
+      : disciplinaNome;
+  })
+  .filter(Boolean);
 
     const turmasLista = Array.from(
       new Set(
