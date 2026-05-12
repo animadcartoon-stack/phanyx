@@ -154,11 +154,16 @@ export default function ConfigInstituicaoPage() {
 
       if (!res.ok) throw new Error();
 
-      setForm((prev) => ({
-        ...prev,
-        estiloDocumento: layout,
-        estiloPapelTimbrado: layout,
-      }));
+const data = await res.json();
+
+setForm((prev) => ({
+  ...prev,
+  ...data,
+  certificadoAssinaturaUrl:
+    data?.certificadoAssinaturaUrl || payload.certificadoAssinaturaUrl || "",
+  estiloDocumento: layout,
+  estiloPapelTimbrado: layout,
+}));
 
       setMensagem("Configurações salvas com sucesso.");
     } catch {
