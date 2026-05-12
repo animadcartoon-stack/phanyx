@@ -900,6 +900,43 @@ async function salvarAssinaturaSecretaria() {
   }
 }
 
+async function assinarDigitalmenteSecretaria() {
+  try {
+    if (!contratoSecretariaId) {
+      setErro("Contrato não localizado.");
+      return;
+    }
+
+    setSalvandoSecretaria(true);
+
+    const res = await fetch("/api/admin/contratos/assinar-secretaria", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        contratoId: contratoSecretariaId,
+        tipoAssinatura: "DIGITAL",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao assinar digitalmente.");
+    }
+
+    setSucesso("Contrato assinado digitalmente pela secretaria.");
+    setModalSecretariaAberto(false);
+    setContratoSecretariaId(null);
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao assinar digitalmente.");
+  } finally {
+    setSalvandoSecretaria(false);
+  }
+}
+
   async function abrirEdicao(matricula: MatriculaApi) {
   const cursoIdAtual = matricula.curso?.id ? String(matricula.curso.id) : "";
   const semestreAtual = matricula.semestre || "";
@@ -2201,6 +2238,14 @@ function renderGrupoDisciplina(
         >
           {salvandoSecretaria ? "Salvando..." : "Salvar assinatura"}
         </button>
+        <button
+  type="button"
+  onClick={assinarDigitalmenteSecretaria}
+  disabled={salvandoSecretaria}
+  className="rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white disabled:opacity-50"
+>
+  🔐 Assinar digitalmente
+</button>
       </div>
     </div>
   </div>

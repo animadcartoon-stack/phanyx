@@ -17,8 +17,9 @@ export async function POST(req: Request) {
 
     const contratoId = Number(body.contratoId);
     const assinaturaBase64 = String(body.assinaturaBase64 || "").trim();
+    const tipoAssinatura = String(body.tipoAssinatura || "DESENHO");
 
-    if (!contratoId || !assinaturaBase64) {
+    if (!contratoId) {
       return NextResponse.json(
         { error: "Contrato e assinatura são obrigatórios." },
         { status: 400 }
@@ -54,7 +55,8 @@ export async function POST(req: Request) {
         id: contratoId,
       },
       data: {
-        assinaturaSecretariaImagem: assinaturaBase64,
+        assinaturaSecretariaImagem:
+        tipoAssinatura === "DIGITAL" ? null : assinaturaBase64,
         assinaturaSecretariaNome: user.nome || user.email || "Secretaria",
         assinaturaSecretariaUserId: user.id,
         assinaturaSecretariaEm: new Date(),
