@@ -152,7 +152,15 @@ export default function ConfigInstituicaoPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+  const dataErro = await res.json().catch(() => null);
+
+  throw new Error(
+    dataErro?.error ||
+      dataErro?.message ||
+      "Erro desconhecido ao salvar configurações."
+  );
+}
 
 const data = await res.json();
 
@@ -166,9 +174,13 @@ setForm((prev) => ({
 }));
 
       setMensagem("Configurações salvas com sucesso.");
-    } catch {
-      setMensagem("Erro ao salvar configurações.");
-    } finally {
+    } catch (error: any) {
+  console.error("ERRO AO SALVAR CONFIGURAÇÕES:", error);
+
+  setMensagem(
+    error?.message || "Erro ao salvar configurações."
+  );
+} finally {
       setSalvando(false);
     }
   }
