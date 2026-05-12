@@ -643,6 +643,12 @@ page.drawImage(assinaturaImagem, {
 const assinaturaSecretariaBase64 =
   data?.contrato?.assinaturaSecretariaImagem;
 
+  const assinaturaSecretariaNome =
+  data?.contrato?.assinaturaSecretariaNome || null;
+
+const assinaturaSecretariaEm =
+  data?.contrato?.assinaturaSecretariaEm || null;
+
 if (assinaturaSecretariaBase64) {
   try {
     const base64Completo = String(assinaturaSecretariaBase64);
@@ -683,6 +689,37 @@ if (assinaturaSecretariaBase64) {
     });
   } catch (e) {
     console.error("Erro ao desenhar assinatura da secretaria:", e);
+  }
+}
+
+if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
+  page.drawText("Assinado digitalmente por:", {
+    x: 428,
+    y: linhaY + 19,
+    size: 7,
+    font,
+    color: rgb(0, 0, 0),
+  });
+
+  page.drawText(String(assinaturaSecretariaNome).slice(0, 34), {
+    x: 428,
+    y: linhaY + 10,
+    size: 8,
+    font: bold,
+    color: rgb(0, 0, 0),
+  });
+
+  if (assinaturaSecretariaEm) {
+    page.drawText(
+      `Em ${new Date(assinaturaSecretariaEm).toLocaleDateString("pt-BR")}`,
+      {
+        x: 428,
+        y: linhaY + 1,
+        size: 7,
+        font,
+        color: rgb(0, 0, 0),
+      }
+    );
   }
 }
 
