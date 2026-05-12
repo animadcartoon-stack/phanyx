@@ -3357,14 +3357,6 @@ if (!camposSelecionadosIds.includes(c.id)) {
   : "Assinatura"
 : c.tipo}
 
-{c.tipo === "ASSINATURA" && certificadoAssinaturaUrl && (
-  <img
-    src={certificadoAssinaturaUrl}
-    alt="Assinatura do diretor"
-    className="h-full w-full object-contain"
-    draggable={false}
-  />
-)}
     </div>
   );
 })}
@@ -4641,21 +4633,30 @@ if (c.tipo === "FORMA") {
           c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
       }}
     >
-      {c.tipo === "NOME_ALUNO"
-        ? "José Exemplo da Silva"
-        : c.tipo === "NOME_CURSO"
-        ? "Bacharel Livre em Teologia"
-        : c.tipo === "DATA_EMISSAO"
-        ? "30/04/2026"
-        : c.tipo === "ASSINATURA"
-        ? "Pr. Roberto Ramos"
-        : c.tipo === "DISCIPLINAS_CONCLUIDAS"
-        ? c.marcador
-          ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
-          : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
-        : c.tipo === "APROVEITAMENTO"
-        ? "100%"
-        : c.tipo}
+      {c.tipo === "ASSINATURA" && certificadoAssinaturaUrl ? (
+  <img
+    src={certificadoAssinaturaUrl}
+    alt="Assinatura do diretor"
+    className="h-full w-full object-contain"
+    draggable={false}
+  />
+) : c.tipo === "NOME_ALUNO" ? (
+  "José Exemplo da Silva"
+) : c.tipo === "NOME_CURSO" ? (
+  "Bacharel Livre em Teologia"
+) : c.tipo === "DATA_EMISSAO" ? (
+  "30/04/2026"
+) : c.tipo === "ASSINATURA" ? (
+  "Assinatura"
+) : c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+  c.marcador
+    ? `${c.marcador} Antigo Testamento A\n${c.marcador} Novo Testamento A\n${c.marcador} Teologia Sistemática`
+    : "Antigo Testamento A\nNovo Testamento A\nTeologia Sistemática"
+) : c.tipo === "APROVEITAMENTO" ? (
+  "100%"
+) : (
+  c.tipo
+)}
     </div>
   );
 })}
