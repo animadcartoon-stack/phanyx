@@ -33,12 +33,24 @@ export async function GET() {
   instituicaoId: user.instituicaoId,
 },
       include: {
-        cursosPolos: {
-          include: {
-            polo: true,
-          },
-        },
-      },
+  criadoPor: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+  excluidoPor: {
+    select: {
+      id: true,
+      nome: true,
+    },
+  },
+  cursosPolos: {
+    include: {
+      polo: true,
+    },
+  },
+},
       orderBy: {
         id: "desc",
       },
@@ -164,6 +176,7 @@ export async function POST(req: Request) {
             ? Number(quantidadeParcelas)
             : null,
         instituicaoId: user.instituicaoId,
+        criadoPorId: user.id,
         cursosPolos: {
           create: poloIdsNormalizados.map((poloId) => ({
             poloId,
@@ -387,11 +400,12 @@ const expira = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
 
 const atualizado = await prisma.curso.update({
   where: { id },
-  data: {
-    ativo: false,
-    excluidoEm: agora,
-    expiraExclusaoEm: expira,
-  },
+ data: {
+  ativo: false,
+  excluidoEm: agora,
+  expiraExclusaoEm: expira,
+  excluidoPorId: user.id,
+},
 });
 
     return NextResponse.json({
@@ -435,10 +449,11 @@ export async function PATCH(req: Request) {
     const atualizado = await prisma.curso.update({
   where: { id },
   data: {
-    ativo,
-    excluidoEm: ativo ? null : curso.excluidoEm,
-    expiraExclusaoEm: ativo ? null : curso.expiraExclusaoEm,
-  },
+  ativo,
+  excluidoEm: ativo ? null : curso.excluidoEm,
+  expiraExclusaoEm: ativo ? null : curso.expiraExclusaoEm,
+  excluidoPorId: ativo ? null : curso.excluidoPorId,
+},
 });
 
     return NextResponse.json({

@@ -92,6 +92,8 @@ model User {
   precisaTrocarSenha Boolean      @default(false)
   isMasterAdmin      Boolean      @default(false)
   instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  cursosCriados      Curso[]      @relation("CursoCriadoPor")
+  cursosExcluidos    Curso[]      @relation("CursoExcluidoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -215,6 +217,10 @@ model Curso {
   cargaHorariaMaximaSemestre  Int?
   excluidoEm                  DateTime?
   expiraExclusaoEm            DateTime?
+  criadoPorId                 Int?
+  excluidoPorId               Int?
+  criadoPor                   User?                           @relation("CursoCriadoPor", fields: [criadoPorId], references: [id])
+  excluidoPor                 User?                           @relation("CursoExcluidoPor", fields: [excluidoPorId], references: [id])
   instituicao                 Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   semestres                   CursoSemestre[]
   disciplinas                 Disciplina[]
