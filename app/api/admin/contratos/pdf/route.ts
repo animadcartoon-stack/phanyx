@@ -640,31 +640,49 @@ page.drawImage(assinaturaImagem, {
   }
 }
 
-const assinaturaSecretariaBase64 = data?.contrato?.assinaturaSecretariaImagem;
+const assinaturaSecretariaBase64 =
+  data?.contrato?.assinaturaSecretariaImagem;
 
 if (assinaturaSecretariaBase64) {
   try {
-    const base64Limpo = String(assinaturaSecretariaBase64).includes(",")
-      ? String(assinaturaSecretariaBase64).split(",")[1]
-      : String(assinaturaSecretariaBase64);
+    const base64Completo = String(assinaturaSecretariaBase64);
+    const base64Limpo = base64Completo.includes(",")
+      ? base64Completo.split(",")[1]
+      : base64Completo;
 
     const assinaturaBytes = Buffer.from(base64Limpo, "base64");
-    const assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+
+    let assinaturaImagem;
+
+    if (base64Completo.includes("image/jpeg") || base64Completo.includes("image/jpg")) {
+      assinaturaImagem = await pdfDoc.embedJpg(assinaturaBytes);
+    } else {
+      assinaturaImagem = await pdfDoc.embedPng(assinaturaBytes);
+    }
 
     const assinaturaSecretariaConfig = {
-      x: 430,
-      y: linhaY + 2,
-      width: 95,
-      height: 34,
+      x: 425,
+      y: linhaY + 6,
+      width: 105,
+      height: 32,
       opacity: 1,
     };
 
     page.drawImage(assinaturaImagem, assinaturaSecretariaConfig);
-    page.drawImage(assinaturaImagem, { ...assinaturaSecretariaConfig, x: assinaturaSecretariaConfig.x + 0.5 });
-    page.drawImage(assinaturaImagem, { ...assinaturaSecretariaConfig, y: assinaturaSecretariaConfig.y + 0.5 });
-    page.drawImage(assinaturaImagem, { ...assinaturaSecretariaConfig, x: assinaturaSecretariaConfig.x - 0.5 });
+    page.drawImage(assinaturaImagem, {
+      ...assinaturaSecretariaConfig,
+      x: assinaturaSecretariaConfig.x + 0.4,
+    });
+    page.drawImage(assinaturaImagem, {
+      ...assinaturaSecretariaConfig,
+      y: assinaturaSecretariaConfig.y + 0.4,
+    });
+    page.drawImage(assinaturaImagem, {
+      ...assinaturaSecretariaConfig,
+      x: assinaturaSecretariaConfig.x - 0.4,
+    });
   } catch (e) {
-    console.error("Erro ao desenhar assinatura da secretaria no PDF:", e);
+    console.error("Erro ao desenhar assinatura da secretaria:", e);
   }
 }
 

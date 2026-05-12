@@ -480,13 +480,6 @@ try {
                     </Link>
 
                     <Link
-                      href="/admin/documentos/templates"
-                      className={getLinkClass("/admin/documentos/templates")}
-                    >
-                      🗂️ Templates
-                    </Link>
-
-                    <Link
                       href="/admin/documentos/gerados"
                       className={getLinkClass("/admin/documentos/gerados")}
                     >
