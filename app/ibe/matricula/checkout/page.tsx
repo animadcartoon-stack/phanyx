@@ -437,7 +437,7 @@ Você pode avançar por módulos conforme sua disponibilidade.
 
 {d.temAulaPublicada === false && (
   <div className="mt-3 rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-xs leading-relaxed text-yellow-800">
-    ⚠️ Esta disciplina pode ser contratada agora, mas as aulas serão liberadas conforme a ordem semestral do curso.
+    ⚠️ ⚠️ Você pode aderir a esta disciplina agora. O acesso às aulas será liberado assim que o conteúdo for publicado pela instituição.
   </div>
 )}
 
@@ -490,7 +490,7 @@ Você pode avançar por módulos conforme sua disponibilidade.
 ) && (
   <div className="rounded-xl border border-yellow-400/30 bg-yellow-500/10 p-3 text-xs leading-relaxed text-yellow-100">
     ⚠️ Atenção: sua seleção inclui disciplinas ainda em preparação.
-    As aulas serão disponibilizadas gradualmente conforme a progressão semestral.
+    ⚠️ Atenção: sua seleção inclui disciplinas que ainda não possuem aula publicada. Você pode aderir agora, mas o acesso será liberado quando a instituição publicar o conteúdo.
   </div>
 )}
           </div>
