@@ -384,7 +384,10 @@ export async function DELETE(req: Request) {
 
     const atualizado = await prisma.curso.update({
       where: { id },
-      data: { ativo: false },
+      data: {
+  ativo: false,
+  excluidoEm: new Date(),
+},
     });
 
     return NextResponse.json({
@@ -427,7 +430,10 @@ export async function PATCH(req: Request) {
 
     const atualizado = await prisma.curso.update({
       where: { id },
-      data: { ativo },
+      data: {
+  ativo,
+  excluidoEm: ativo ? null : curso.excluidoEm,
+},
     });
 
     return NextResponse.json({
