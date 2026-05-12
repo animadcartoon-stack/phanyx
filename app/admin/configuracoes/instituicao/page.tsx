@@ -1092,19 +1092,19 @@ Cidade e data:
     Assinatura do diretor
   </h2>
 
-  <div className="flex h-28 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
-    {form.certificadoAssinaturaUrl ? (
-      <img
-        src={form.certificadoAssinaturaUrl}
-        alt="Assinatura do diretor"
-        className="max-h-20 max-w-full object-contain"
-      />
-    ) : (
-      <span className="text-sm text-slate-500">
-        Nenhuma assinatura enviada
-      </span>
-    )}
-  </div>
+  <div className="flex h-28 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50">
+  {form.certificadoAssinaturaUrl ? (
+    <img
+      src={form.certificadoAssinaturaUrl}
+      alt="Assinatura do diretor"
+      className="max-h-24 max-w-full object-contain"
+    />
+  ) : (
+    <span className="text-sm text-slate-500">
+      Nenhuma assinatura enviada
+    </span>
+  )}
+</div>
 
   <input
     ref={inputFileAssinaturaRef}
