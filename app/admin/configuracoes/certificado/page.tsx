@@ -304,6 +304,7 @@ export default function ConfiguracaoCertificadoPage() {
     useState("");
   const [certificadoCidade, setCertificadoCidade] = useState("");
   const [certificadoAssinaturaUrl, setCertificadoAssinaturaUrl] = useState("");
+  const [nomeDiretorInstituicao, setNomeDiretorInstituicao] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
   const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [painelCampoAberto, setPainelCampoAberto] = useState(true);
@@ -642,6 +643,10 @@ useEffect(() => {
       setCertificadoCidade(dataConfig?.certificadoCidade || "");
       setCertificadoAssinaturaUrl(
   dataInstituicao?.certificadoAssinaturaUrl || ""
+);
+
+setNomeDiretorInstituicao(
+  dataInstituicao?.responsavelNome || dataConfig?.certificadoCoordenadorNome || ""
 );
       setCampos(
   Array.isArray(dataCampos?.campos)
@@ -4645,7 +4650,7 @@ if (c.tipo === "FORMA") {
     "Assinatura"
   )
 ) : c.tipo === "NOME_DIRETOR" ? (
-  certificadoCoordenadorNome || "Nome do diretor"
+  nomeDiretorInstituicao || "Nome do diretor"
 ) : c.tipo === "NOME_ALUNO" ? (
   "José Exemplo da Silva"
 ) : c.tipo === "NOME_CURSO" ? (
