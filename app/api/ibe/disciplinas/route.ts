@@ -3,6 +3,19 @@ import { prisma } from "@/lib/prisma";
 
 const VALOR_DISCIPLINA = 110;
 
+function calcularValorDisciplina(nome: string) {
+  const n = String(nome || "").toUpperCase();
+
+  if (
+    n.includes("TRABALHO DE CONCLUSÃO DE CURSO B") ||
+    n.includes("TCC B")
+  ) {
+    return 220;
+  }
+
+  return 110;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
@@ -82,7 +95,8 @@ export async function GET(req: NextRequest) {
       ],
     });
 
-    const modulos = curso.semestres.map((semestre) => {
+    const modulos = await Promise.all(
+  curso.semestres.map(async (semestre) => {
       const disciplinasVinculadas = semestre.disciplinas.map(
         (item) => item.disciplina
       );
@@ -105,21 +119,42 @@ export async function GET(req: NextRequest) {
         numero: semestre.numero,
         titulo: semestre.titulo || `Módulo ${semestre.numero}`,
         descricao: semestre.descricao,
-        disciplinas: todasDoModulo
-          .map((disciplina) => ({
-            id: disciplina.id,
-            nome: disciplina.nome,
-            descricao: disciplina.descricao,
-            cargaHoraria: disciplina.cargaHoraria,
-            valor: VALOR_DISCIPLINA,
-            prerequisitos: disciplina.prerequisitosDaDisciplina.map((pre) => ({
-              id: pre.prerequisito.id,
-              nome: pre.prerequisito.nome,
-            })),
-          }))
-          .sort((a, b) => a.nome.localeCompare(b.nome)),
-      };
+        disciplinas: await Promise.all(
+  todasDoModulo.map(async (disciplina) => {
+    const totalAulas = await prisma.aula.count({
+      where: {
+        instituicaoId,
+        disciplinaId: disciplina.id,
+        publicada: true,
+      },
     });
+
+    const valorDisciplina =
+      disciplina.nome.toUpperCase().includes("TRABALHO DE CONCLUSÃO DE CURSO B")
+        ? 220
+        : VALOR_DISCIPLINA;
+
+    return {
+      id: disciplina.id,
+      nome: disciplina.nome,
+      descricao: disciplina.descricao,
+      cargaHoraria: disciplina.cargaHoraria,
+      valor: valorDisciplina,
+      temAulaPublicada: totalAulas > 0,
+      avisoAulas:
+        totalAulas > 0
+          ? null
+          : "Aulas em preparação. Esta disciplina pode ser contratada agora, mas será liberada conforme a ordem semestral do curso.",
+      prerequisitos: disciplina.prerequisitosDaDisciplina.map((pre) => ({
+        id: pre.prerequisito.id,
+        nome: pre.prerequisito.nome,
+      })),
+    };
+  })
+).then((lista) => lista.sort((a, b) => a.nome.localeCompare(b.nome))),
+      };
+      })
+);
 
     return NextResponse.json({
       curso: {

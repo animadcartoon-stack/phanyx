@@ -11,6 +11,8 @@ type Disciplina = {
   cargaHoraria?: number | null;
   valor?: number;
   prerequisitos?: { id: number; nome: string }[];
+  temAulaPublicada?: boolean;
+  avisoAulas?: string | null;
 };
 
 type Modulo = {
@@ -23,6 +25,7 @@ type Modulo = {
 
 const VALOR_DISCIPLINA = 110;
 const VALOR_SEMESTRE_COMPLETO = 550;
+const VALOR_SEMESTRE_6_COMPLETO = 660;
 const VALOR_CURSO_COMPLETO = 3000;
 const INSTITUICAO_ID_PADRAO = 1; // IBE
 
@@ -137,10 +140,17 @@ const total = cursoCompletoSelecionado
         modulosCompletos.includes(modulo.numero);
 
       if (moduloInteiroSelecionado) {
-        return acc + VALOR_SEMESTRE_COMPLETO;
+        return acc + (modulo.numero === 6 ? VALOR_SEMESTRE_6_COMPLETO : VALOR_SEMESTRE_COMPLETO);
       }
 
-      return acc + selecionadasDoModulo.length * VALOR_DISCIPLINA;
+      return (
+  acc +
+  selecionadasDoModulo.reduce(
+    (subtotal, disciplina) =>
+      subtotal + Number(disciplina.valor ?? VALOR_DISCIPLINA),
+    0
+  )
+);
     }, 0);
 
   async function handleSubmit() {
@@ -424,6 +434,13 @@ Você pode avançar por módulos conforme sua disponibilidade.
   .toFixed(2)
   .replace(".", ",")}
                               </span>
+
+{d.temAulaPublicada === false && (
+  <div className="mt-3 rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-xs leading-relaxed text-yellow-800">
+    ⚠️ Esta disciplina pode ser contratada agora, mas as aulas serão liberadas conforme a ordem semestral do curso.
+  </div>
+)}
+
                             </div>
                           </label>
   );
@@ -468,6 +485,14 @@ Você pode avançar por módulos conforme sua disponibilidade.
             </p>
 
             <p>Certificado após conclusão e aprovação.</p>
+            {todasDisciplinas.some(
+  (d) => disciplinas.includes(d.id) && d.temAulaPublicada === false
+) && (
+  <div className="rounded-xl border border-yellow-400/30 bg-yellow-500/10 p-3 text-xs leading-relaxed text-yellow-100">
+    ⚠️ Atenção: sua seleção inclui disciplinas ainda em preparação.
+    As aulas serão disponibilizadas gradualmente conforme a progressão semestral.
+  </div>
+)}
           </div>
 
           <div className="mt-8 rounded-2xl bg-white/10 p-5">
