@@ -620,9 +620,9 @@ if (assinaturaAlunoBase64) {
 
     const assinaturaAlunoConfig = {
   x: 65,
-  y: linhaY + 2,
+  y: linhaY + 1,
   width: 100,
-  height: 34,
+  height: 30,
   opacity: 1,
 };
 
@@ -661,10 +661,10 @@ if (assinaturaSecretariaBase64) {
     }
 
     const assinaturaSecretariaConfig = {
-      x: 425,
-      y: linhaY + 6,
+      x: 424,
+      y: linhaY + 1,
       width: 105,
-      height: 32,
+      height: 30,
       opacity: 1,
     };
 
@@ -702,10 +702,10 @@ if (assinaturaSecretariaBase64) {
 
  if (assinaturaDiretorEmbed) {
   const assinaturaDiretorConfig = {
-    x: 250,
-    y: linhaY + 4,
-    width: 115,
-    height: 36,
+    x: 248,
+    y: linhaY + 1,
+    width: 125,
+    height: 32,
     opacity: 1,
   };
 
