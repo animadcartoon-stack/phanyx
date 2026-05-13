@@ -192,11 +192,17 @@ const templateContrato = await prisma.documentoTemplate.findFirst({
         ? disciplinasLista.map((d) => `- ${d}`).join("\n")
         : "- Não informado";
 
-    const valorContrato = matricula.lancamentosFinanceiros.reduce(
-      (acc: number, item: any) =>
-        acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
-      0
-    );
+    const valorLancamentos = matricula.lancamentosFinanceiros.reduce(
+  (acc: number, item: any) =>
+    acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
+  0
+);
+
+const valorContrato =
+  valorLancamentos ||
+  Number(matricula.valorMatricula || 0) ||
+  Number(matricula.valorMensalidade || 0) ||
+  0;
 
     const template =
   templateContrato?.conteudo ||
