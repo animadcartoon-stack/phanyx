@@ -793,7 +793,7 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
       color: rgb(0, 0, 0),
     });
 
- if (assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
+ if (false && assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
   const assinaturaDiretorConfig = {
     x: 248,
     y: linhaY + 1,
