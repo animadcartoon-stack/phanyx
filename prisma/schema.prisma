@@ -950,44 +950,52 @@ model PresencaAula {
 }
 
 model Caixa {
-  id                   Int              @id @default(autoincrement())
-  dataAbertura         DateTime         @default(now())
+  id                   Int         @id @default(autoincrement())
+  dataAbertura         DateTime    @default(now())
   dataFechamento       DateTime?
-  saldoInicial         Float            @default(0)
-  saldoSistema         Float            @default(0)
+  saldoInicial         Float       @default(0)
+  saldoSistema         Float       @default(0)
   saldoInformado       Float?
-  diferenca            Float            @default(0)
+  diferenca            Float       @default(0)
   observacaoAbertura   String?
   observacaoFechamento String?
-  status               StatusCaixa      @default(ABERTO)
-  createdAt            DateTime         @default(now())
-  updatedAt            DateTime         @updatedAt
-  instituicaoId        Int
-  abertoPorId          Int?
-  fechadoPorId         Int?
-  instituicao          Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  movimentos           MovimentoCaixa[]
+  status               StatusCaixa @default(ABERTO)
+
+  origem               String  @default("MANUAL")
+  identificadorOnline  String?
+  fechamentoAutomatico Boolean @default(false)
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  instituicaoId Int
+  abertoPorId   Int?
+  fechadoPorId  Int?
+  instituicao   Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  movimentos    MovimentoCaixa[]
 
   @@index([instituicaoId])
   @@index([status])
 }
 
 model MovimentoCaixa {
-  id             Int                   @id @default(autoincrement())
-  tipo           TipoMovimentoCaixa
-  descricao      String?
-  valor          Float
-  formaPagamento FormaPagamento?
-  createdAt      DateTime              @default(now())
-  updatedAt      DateTime              @updatedAt
-  instituicaoId  Int
-  caixaId        Int
-  alunoId        Int?
-  lancamentoId   Int?
-  aluno          Aluno?                @relation(fields: [alunoId], references: [id])
-  caixa          Caixa                 @relation(fields: [caixaId], references: [id], onDelete: Cascade)
-  instituicao    Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  lancamento     LancamentoFinanceiro? @relation(fields: [lancamentoId], references: [id])
+  id                Int                   @id @default(autoincrement())
+  tipo              TipoMovimentoCaixa
+  descricao         String?
+  valor             Float
+  formaPagamento    FormaPagamento?
+  origem            String?
+  asaasPaymentId    String?               @unique
+  externalReference String?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  instituicaoId     Int
+  caixaId           Int
+  alunoId           Int?
+  lancamentoId      Int?
+  aluno             Aluno?                @relation(fields: [alunoId], references: [id])
+  caixa             Caixa                 @relation(fields: [caixaId], references: [id], onDelete: Cascade)
+  instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  lancamento        LancamentoFinanceiro? @relation(fields: [lancamentoId], references: [id])
 
   @@index([instituicaoId])
   @@index([caixaId])
