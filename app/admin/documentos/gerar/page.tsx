@@ -44,10 +44,19 @@ export default function GerarDocumentoPage() {
   async function carregarDados() {
     try {
       const [tRes, aRes, mRes] = await Promise.all([
-        fetch("/api/admin/documentos/templates"),
-        fetch("/api/admin/alunos"),
-        fetch("/api/admin/matriculas"),
-      ]);
+  fetch("/api/admin/documentos/templates", {
+    credentials: "include",
+    cache: "no-store",
+  }),
+  fetch("/api/aluno", {
+    credentials: "include",
+    cache: "no-store",
+  }),
+  fetch("/api/matricula", {
+    credentials: "include",
+    cache: "no-store",
+  }),
+]);
 
       const tData = await tRes.json();
       const aData = await aRes.json();
