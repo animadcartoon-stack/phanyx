@@ -398,8 +398,17 @@ function AdminDocumentosTemplatesPage() {
   }, [templates, filtroBusca, filtroTipo]);
 
   function aplicarModeloInicial() {
-    setConteudo(templateInicialPorTipo(tipo));
+  setConteudo(templateInicialPorTipo(tipo));
+}
+
+function trocarTipoDocumento(novoTipo: TipoDocumentoTemplate) {
+  setTipo(novoTipo);
+  setConteudo(templateInicialPorTipo(novoTipo));
+
+  if (!nome.trim()) {
+    setNome(`${labelTipo(novoTipo)} padrão`);
   }
+}
 
 function adicionarAssinaturaDiretor() {
   setCamposVisuais((atuais) => [
@@ -547,12 +556,12 @@ function moverCampoVisual(id: string, x: number, y: number) {
                     Tipo do documento
                   </label>
                   <select
-                    value={tipo}
-                    onChange={(e) =>
-                      setTipo(e.target.value as TipoDocumentoTemplate)
-                    }
-                    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white"
-                  >
+  value={tipo}
+  onChange={(e) =>
+    trocarTipoDocumento(e.target.value as TipoDocumentoTemplate)
+  }
+  className="mt-1 w-full rounded-xl border px-3 py-2 bg-white"
+>
                     {TIPOS_DOCUMENTO.map((item) => (
                       <option key={item.value} value={item.value}>
                         {item.label}
