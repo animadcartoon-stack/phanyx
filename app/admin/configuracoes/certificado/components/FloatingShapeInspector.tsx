@@ -204,56 +204,48 @@ function aplicarArredondamentoCantos(
     | "baixoEsquerdo",
   valor: number
 ) {
-  const atual = (campo as any).cantosArredondados || {};
+  const pontos = campo.pontosForma || [];
 
-  const proximo = {
-    topoEsquerdo: atual.topoEsquerdo ?? 0,
-    topoDireito: atual.topoDireito ?? 0,
-    baixoDireito: atual.baixoDireito ?? 0,
-    baixoEsquerdo: atual.baixoEsquerdo ?? 0,
+  const deveCurvar = (ponto: PontoForma, index: number) => {
+    if (alvo === "todos") return true;
+
+    if (alvo === "cima") return ponto.y <= 50;
+    if (alvo === "baixo") return ponto.y >= 50;
+    if (alvo === "esquerda") return ponto.x <= 50;
+    if (alvo === "direita") return ponto.x >= 50;
+
+    if (alvo === "topoEsquerdo") return index === 0;
+    if (alvo === "topoDireito") return index === 1;
+    if (alvo === "baixoDireito") return index === 2;
+    if (alvo === "baixoEsquerdo") return index === 3;
+
+    return false;
   };
 
-  if (alvo === "todos") {
-    proximo.topoEsquerdo = valor;
-    proximo.topoDireito = valor;
-    proximo.baixoDireito = valor;
-    proximo.baixoEsquerdo = valor;
-  }
+  const novosPontos = pontos.map((ponto, index) => {
+    if (!deveCurvar(ponto, index)) return ponto;
 
-  if (alvo === "cima") {
-    proximo.topoEsquerdo = valor;
-    proximo.topoDireito = valor;
-  }
+    if (valor <= 0) {
+      return {
+        ...ponto,
+        tipo: "reto" as const,
+        handleMode: "quebrado" as const,
+        inX: undefined,
+        inY: undefined,
+        outX: undefined,
+        outY: undefined,
+      };
+    }
 
-  if (alvo === "baixo") {
-    proximo.baixoEsquerdo = valor;
-    proximo.baixoDireito = valor;
-  }
-
-  if (alvo === "esquerda") {
-    proximo.topoEsquerdo = valor;
-    proximo.baixoEsquerdo = valor;
-  }
-
-  if (alvo === "direita") {
-    proximo.topoDireito = valor;
-    proximo.baixoDireito = valor;
-  }
-
-  if (
-    alvo === "topoEsquerdo" ||
-    alvo === "topoDireito" ||
-    alvo === "baixoDireito" ||
-    alvo === "baixoEsquerdo"
-  ) {
-    proximo[alvo] = valor;
-  }
+    return criarTangenteSimetrica(ponto, valor);
+  });
 
   onAtualizarCampo({
-  ...campo,
-  raioBorda: alvo === "todos" ? valor : 0,
-  cantosArredondados: proximo,
-} as any);
+    ...campo,
+    raioBorda: 0,
+    cantosArredondados: null,
+    pontosForma: novosPontos,
+  } as any);
 }
 
   function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
