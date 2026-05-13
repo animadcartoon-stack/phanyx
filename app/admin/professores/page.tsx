@@ -469,12 +469,18 @@ carregarDisciplinas();
               className="w-full rounded-lg border p-2"
             />
 
-            <input
-              type="date"
-              value={dataNascimento}
-              onChange={(e) => setDataNascimento(e.target.value)}
-              className="w-full rounded-lg border p-2"
-            />
+            <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Data de nascimento
+  </label>
+
+  <input
+    type="date"
+    value={dataNascimento}
+    onChange={(e) => setDataNascimento(e.target.value)}
+    className="w-full rounded-lg border p-2"
+  />
+</div>
 
             <input
               placeholder="Titulação"
@@ -653,12 +659,18 @@ carregarDisciplinas();
                         className="rounded border p-2"
                         placeholder="Telefone"
                       />
-                      <input
-                        type="date"
-                        value={editDataNascimento}
-                        onChange={(e) => setEditDataNascimento(e.target.value)}
-                        className="rounded border p-2"
-                      />
+                      <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Data de nascimento
+  </label>
+
+  <input
+    type="date"
+    value={editDataNascimento}
+    onChange={(e) => setEditDataNascimento(e.target.value)}
+    className="w-full rounded border p-2"
+  />
+</div>
                       <input
                         value={editTitulacao}
                         onChange={(e) => setEditTitulacao(e.target.value)}
