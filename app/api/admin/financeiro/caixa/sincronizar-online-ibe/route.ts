@@ -2,6 +2,39 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+async function fecharCaixasOnlineIbeAntigos() {
+  const agora = new Date();
+
+  const inicioHoje = new Date(agora);
+  inicioHoje.setHours(0, 0, 0, 0);
+
+  const caixasAntigos = await prisma.caixa.findMany({
+    where: {
+      instituicaoId: 1,
+      origem: "ONLINE_ASAAS_IBE",
+      fechamentoAutomatico: true,
+      status: "ABERTO",
+      dataAbertura: {
+        lt: inicioHoje,
+      },
+    },
+  });
+
+  for (const caixa of caixasAntigos) {
+    await prisma.caixa.update({
+      where: { id: caixa.id },
+      data: {
+        status: "FECHADO",
+        dataFechamento: new Date(),
+        saldoInformado: Number(caixa.saldoSistema || 0),
+        diferenca: 0,
+        observacaoFechamento:
+          "Fechamento automático do Caixa Online Asaas IBE realizado pelo sistema.",
+      },
+    });
+  }
+}
+
 export async function POST() {
   try {
     const user = await getUserFromToken();
@@ -27,6 +60,8 @@ export async function POST() {
         { status: 403 }
       );
     }
+
+    await fecharCaixasOnlineIbeAntigos();
 
     const instituicaoIdIbe = 1;
 
