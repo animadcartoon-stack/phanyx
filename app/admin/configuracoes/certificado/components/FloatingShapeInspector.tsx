@@ -471,9 +471,12 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
     />
 
     <div className="mt-3 grid grid-cols-2 gap-2">
-     <button
+    <button
   type="button"
-  onClick={() => setAlvoCantos("todos")}
+  onClick={() => {
+    setAlvoCantos("todos");
+    aplicarArredondamentoCantos("todos", valorAtualDosCantos() || 20);
+  }}
   className={classeBotaoAlvo("todos")}
 >
   Todos
@@ -481,7 +484,10 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 
 <button
   type="button"
-  onClick={() => setAlvoCantos("cima")}
+  onClick={() => {
+    setAlvoCantos("cima");
+    aplicarArredondamentoCantos("cima", 20);
+  }}
   className={classeBotaoAlvo("cima")}
 >
   Só cima
@@ -489,7 +495,10 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 
 <button
   type="button"
-  onClick={() => setAlvoCantos("baixo")}
+  onClick={() => {
+    setAlvoCantos("baixo");
+    aplicarArredondamentoCantos("baixo", 20);
+  }}
   className={classeBotaoAlvo("baixo")}
 >
   Só baixo
@@ -497,7 +506,10 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 
 <button
   type="button"
-  onClick={() => setAlvoCantos("esquerda")}
+  onClick={() => {
+    setAlvoCantos("esquerda");
+    aplicarArredondamentoCantos("esquerda", 20);
+  }}
   className={classeBotaoAlvo("esquerda")}
 >
   Só esquerda
@@ -505,7 +517,10 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 
 <button
   type="button"
-  onClick={() => setAlvoCantos("direita")}
+  onClick={() => {
+    setAlvoCantos("direita");
+    aplicarArredondamentoCantos("direita", 20);
+  }}
   className={classeBotaoAlvo("direita")}
 >
   Só direita
