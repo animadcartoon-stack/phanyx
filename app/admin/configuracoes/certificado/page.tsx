@@ -2742,13 +2742,14 @@ if (!camposSelecionadosIds.includes(c.id)) {
           campoId: c.id,
         });
       }}
-      className="absolute z-20 select-none"
+      className="absolute z-20 select-none overflow-visible"
       style={{
         left: `${c.x}px`,
         top: `${c.y}px`,
         width: `${c.largura || 100}px`,
         height: `${c.altura || 80}px`,
         cursor: "move",
+        overflow: "visible",
         zIndex: c.ordem || 5,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
         
@@ -2769,7 +2770,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
       }}
     >
       <div
-  className="relative h-full w-full"
+  className="relative h-full w-full overflow-visible"
   onDoubleClick={(e) => {
         
     if (!(c as any).usarGradiente) return;
