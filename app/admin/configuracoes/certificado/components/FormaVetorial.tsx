@@ -531,6 +531,40 @@ export default function FormaVetorial({
   );
 }
 
+function converterPontosPorLado(
+  lado: "cima" | "baixo" | "esquerda" | "direita",
+  tipo: "reto" | "curvo"
+) {
+  atualizarPontos(
+    pontos.map((ponto) => {
+      const pertenceAoLado =
+        lado === "cima"
+          ? ponto.y <= 50
+          : lado === "baixo"
+          ? ponto.y >= 50
+          : lado === "esquerda"
+          ? ponto.x <= 50
+          : ponto.x >= 50;
+
+      if (!pertenceAoLado) return ponto;
+
+      if (tipo === "curvo") {
+        return criarAlcasPadrao(ponto);
+      }
+
+      return {
+        ...ponto,
+        tipo: "reto",
+        handleMode: "quebrado",
+        inX: undefined,
+        inY: undefined,
+        outX: undefined,
+        outY: undefined,
+      };
+    })
+  );
+}
+
 function subdividirForma() {
   if (pontos.length < 2) return;
 
@@ -863,6 +897,54 @@ function subdividirForma() {
     >
       todos curvos
     </button>
+
+<button
+  type="button"
+  onMouseDown={(e) => e.stopPropagation()}
+  onClick={(e) => {
+    e.stopPropagation();
+    converterPontosPorLado("cima", "curvo");
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  cima curva
+</button>
+
+<button
+  type="button"
+  onMouseDown={(e) => e.stopPropagation()}
+  onClick={(e) => {
+    e.stopPropagation();
+    converterPontosPorLado("baixo", "curvo");
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  baixo curva
+</button>
+
+<button
+  type="button"
+  onMouseDown={(e) => e.stopPropagation()}
+  onClick={(e) => {
+    e.stopPropagation();
+    converterPontosPorLado("esquerda", "curvo");
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  esquerda curva
+</button>
+
+<button
+  type="button"
+  onMouseDown={(e) => e.stopPropagation()}
+  onClick={(e) => {
+    e.stopPropagation();
+    converterPontosPorLado("direita", "curvo");
+  }}
+  className="rounded-lg border bg-white px-2 py-1 text-[10px] hover:bg-slate-50"
+>
+  direita curva
+</button>
 
     <button
       type="button"
