@@ -938,9 +938,10 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
 
  if (assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
   const larguraPreview = 276;
-  const linhaPreviewY = 326;
-  const escalaX = 495 / larguraPreview;
-  const escalaY = 1.15;
+const alturaPreview = 390;
+
+const escalaX = 495 / larguraPreview;
+const escalaY = 640 / alturaPreview;
 
   for (const campo of camposAssinaturaDiretor) {
     const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
@@ -950,9 +951,10 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
 
     const x = margemX + Number(campo.x || 0) * escalaX;
     const yPdf =
-      linhaY +
-      (linhaPreviewY - Number(campo.y || 0)) * escalaY -
-      altura / 2;
+  paginaDestino.getHeight() -
+  120 -
+  (Number(campo.y || 0) * escalaY) -
+  altura;
 
     paginaDestino.drawImage(assinaturaDiretorEmbed, {
       x,
