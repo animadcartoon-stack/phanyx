@@ -145,6 +145,23 @@ export async function GET(req: Request) {
       },
     });
 
+const templateContrato = await prisma.documentoTemplate.findFirst({
+  where: {
+    instituicaoId: user.instituicaoId,
+    tipo: "CONTRATO",
+    ativo: true,
+    OR: [
+      { contexto: "MATRICULA" },
+      { contexto: "Matrícula" },
+      { contexto: "matricula" },
+      { contexto: null },
+    ],
+  },
+  orderBy: {
+    atualizadoEm: "desc",
+  },
+});
+
     const disciplinasLista = matricula.itens
   .map((item) => {
     const disciplinaNome = item.disciplina?.nome?.trim();
@@ -182,8 +199,9 @@ export async function GET(req: Request) {
     );
 
     const template =
-      config?.contratoTemplate ||
-      `CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
+  templateContrato?.conteudo ||
+  config?.contratoTemplate ||
+  `CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
 
 A instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, celebra contrato com o(a) aluno(a) {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, para o curso {{curso}}.
 
@@ -205,6 +223,7 @@ E por estarem de pleno acordo, firmam o presente contrato.
       nomeAluno: matricula.aluno?.nome || "-",
       cpfAluno: matricula.aluno?.cpf || "-",
       matriculaAluno: matricula.aluno?.matricula || "-",
+      numeroMatricula: matricula.aluno?.matricula || "-",
       curso: cursoNome,
       disciplinas: disciplinasTexto,
       cursoNome,
@@ -269,6 +288,7 @@ const contratoFinal = contratoGerado;
         cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
         logoUrl: config?.logoUrl || null,
         estiloDocumento: config?.estiloDocumento || "INSTITUCIONAL",
+        assinaturaDiretorUrl: config?.certificadoAssinaturaUrl || null,
         enderecoCompleto: [
           config?.endereco,
           config?.numero,
@@ -284,7 +304,18 @@ const contratoFinal = contratoGerado;
       disciplinas: disciplinasLista,
       valorContrato,
       contratoFinal,
-      observacoesContrato: config?.observacoesContrato || "",
+
+template: templateContrato
+  ? {
+      id: templateContrato.id,
+      nome: templateContrato.nome,
+      camposVisuais: templateContrato.camposVisuais || [],
+    }
+  : null,
+
+camposVisuais: templateContrato?.camposVisuais || [],
+
+observacoesContrato: config?.observacoesContrato || "",
     });
   } catch (error: any) {
     console.error("Erro ao gerar contrato:", error);

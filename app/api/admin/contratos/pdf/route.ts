@@ -230,20 +230,7 @@ const linkValidacao = `${origem}/validar-documento?codigo=${encodeURIComponent(c
       data?.instituicao?.responsavelCargo || "Representante legal";
 
     const pdfDoc = await PDFDocument.create();
-    const assinaturaDiretorPath = path.join(
-  process.cwd(),
-  "public",
-  "images",
-  "assinaturas",
-  "roberto-ramos-da-silva.png"
-);
-
-let assinaturaDiretorEmbed = null;
-
-if (fs.existsSync(assinaturaDiretorPath)) {
-    const assinaturaDiretorBytes = fs.readFileSync(assinaturaDiretorPath);
-  assinaturaDiretorEmbed = await pdfDoc.embedPng(assinaturaDiretorBytes);
-}
+    let assinaturaDiretorEmbed = null;
     const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const bold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -291,6 +278,18 @@ if (fs.existsSync(assinaturaDiretorPath)) {
 if (assinaturaDiretorDinamica) {
   assinaturaDiretorEmbed = assinaturaDiretorDinamica;
 }
+
+const camposVisuaisContrato = Array.isArray(data?.camposVisuais)
+  ? data.camposVisuais
+  : Array.isArray(data?.template?.camposVisuais)
+  ? data.template.camposVisuais
+  : [];
+
+const camposAssinaturaDiretor = camposVisuaisContrato.filter(
+  (campo: any) => campo?.tipo === "ASSINATURA_DIRETOR"
+);
+
+const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
 
     let page = pdfDoc.addPage([pageWidth, pageHeight]);
     let y = pageHeight - 130;
@@ -794,7 +793,7 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
       color: rgb(0, 0, 0),
     });
 
- if (assinaturaDiretorEmbed) {
+ if (assinaturaDiretorEmbed && !temAssinaturaDiretorVisual) {
   const assinaturaDiretorConfig = {
     x: 248,
     y: linhaY + 1,
@@ -936,6 +935,31 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
       font,
       color: rgb(0.35, 0.35, 0.35),
     });
+
+    if (assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
+  const larguraPreview = 276;
+  const alturaPreview = 390;
+
+  for (const campo of camposAssinaturaDiretor) {
+    const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
+
+    const escalaX = pageWidth / larguraPreview;
+    const escalaY = pageHeight / alturaPreview;
+
+    const largura = Number(campo.largura || 160) * escalaX;
+    const altura = Number(campo.altura || 45) * escalaY;
+    const x = Number(campo.x || 0) * escalaX;
+    const yPdf = pageHeight - Number(campo.y || 0) * escalaY - altura;
+
+    paginaDestino.drawImage(assinaturaDiretorEmbed, {
+      x,
+      y: yPdf,
+      width: largura,
+      height: altura,
+      opacity: 1,
+    });
+  }
+}
 
     const totalPaginas = pdfDoc.getPageCount();
 const paginaFinal = pdfDoc.getPage(totalPaginas - 1);
