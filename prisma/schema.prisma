@@ -1120,6 +1120,7 @@ model DocumentoTemplate {
   tipo              TipoDocumentoTemplate
   contexto          String?
   conteudo          String
+  camposVisuais     Json?
   ativo             Boolean               @default(true)
   exigeAssinatura   Boolean               @default(false)
   criadoEm          DateTime              @default(now())

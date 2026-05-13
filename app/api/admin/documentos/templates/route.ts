@@ -44,6 +44,9 @@ export async function POST(req: Request) {
     const conteudo = String(body?.conteudo || "").trim();
     const ativo = Boolean(body?.ativo ?? true);
     const exigeAssinatura = Boolean(body?.exigeAssinatura ?? false);
+    const camposVisuais = Array.isArray(body?.camposVisuais)
+  ? body.camposVisuais
+  : [];
 
     if (!nome) {
       return NextResponse.json(
@@ -75,6 +78,7 @@ export async function POST(req: Request) {
         conteudo,
         ativo,
         exigeAssinatura,
+        camposVisuais,
         instituicaoId: user.instituicaoId,
       },
     });

@@ -110,6 +110,13 @@ export async function PATCH(
         ? Boolean(body.exigeAssinatura)
         : undefined;
 
+        const camposVisuais =
+  body?.camposVisuais !== undefined
+    ? Array.isArray(body.camposVisuais)
+      ? body.camposVisuais
+      : []
+    : undefined;
+
     const atualizado = await prisma.documentoTemplate.update({
       where: { id },
       data: {

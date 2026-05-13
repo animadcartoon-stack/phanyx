@@ -23,8 +23,19 @@ type TemplateDocumento = {
   conteudo: string;
   ativo: boolean;
   exigeAssinatura: boolean;
+  camposVisuais?: CampoVisualContrato[] | null;
   criadoEm?: string;
   atualizadoEm?: string;
+};
+
+type CampoVisualContrato = {
+  id: string;
+  tipo: "ASSINATURA_DIRETOR";
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  pagina: number;
 };
 
 const TIPOS_DOCUMENTO: Array<{
@@ -152,6 +163,7 @@ function AdminDocumentosTemplatesPage() {
   const [conteudo, setConteudo] = useState(MODELO_INICIAL_CONTRATO);
   const [ativo, setAtivo] = useState(true);
   const [exigeAssinatura, setExigeAssinatura] = useState(true);
+  const [camposVisuais, setCamposVisuais] = useState<CampoVisualContrato[]>([]);
 
   async function carregarTemplates() {
     try {
@@ -192,6 +204,7 @@ function AdminDocumentosTemplatesPage() {
     setConteudo(MODELO_INICIAL_CONTRATO);
     setAtivo(true);
     setExigeAssinatura(true);
+    setCamposVisuais([]);
   }
 
   function preencherFormulario(template: TemplateDocumento) {
@@ -203,6 +216,7 @@ function AdminDocumentosTemplatesPage() {
     setConteudo(template.conteudo || "");
     setAtivo(Boolean(template.ativo));
     setExigeAssinatura(Boolean(template.exigeAssinatura));
+    setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -234,6 +248,8 @@ function AdminDocumentosTemplatesPage() {
         conteudo: conteudo.trim(),
         ativo,
         exigeAssinatura,
+        camposVisuais,
+        
       };
 
       const url = editingId
@@ -357,6 +373,29 @@ function AdminDocumentosTemplatesPage() {
   function aplicarModeloInicial() {
     setConteudo(templateInicialPorTipo(tipo));
   }
+
+  function adicionarAssinaturaDiretor() {
+  setCamposVisuais((atuais) => [
+    ...atuais,
+    {
+      id: crypto.randomUUID(),
+      tipo: "ASSINATURA_DIRETOR",
+      x: 180,
+      y: 680,
+      largura: 160,
+      altura: 45,
+      pagina: 1,
+    },
+  ]);
+}
+
+function moverCampoVisual(id: string, x: number, y: number) {
+  setCamposVisuais((atuais) =>
+    atuais.map((campo) =>
+      campo.id === id ? { ...campo, x, y } : campo
+    )
+  );
+}
 
   return (
   <div className="space-y-6">
@@ -541,6 +580,66 @@ function AdminDocumentosTemplatesPage() {
                   placeholder="Digite o conteúdo do documento com as variáveis dinâmicas..."
                 />
               </div>
+
+<div className="rounded-2xl border bg-slate-50 p-4">
+  <div className="mb-3 flex items-center justify-between gap-3">
+    <div>
+      <h3 className="font-semibold text-slate-800">
+        Campos visuais do contrato
+      </h3>
+      <p className="text-xs text-slate-600">
+        Arraste a assinatura para o ponto desejado da página.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      onClick={adicionarAssinaturaDiretor}
+      className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+    >
+      🖋 Adicionar assinatura do diretor
+    </button>
+  </div>
+
+  <div className="relative h-[420px] w-full overflow-hidden rounded-xl border bg-white">
+    <div className="absolute left-1/2 top-4 h-[390px] w-[276px] -translate-x-1/2 border bg-white shadow-sm">
+      <div className="p-4 text-[9px] text-slate-400">
+        Prévia aproximada da página do contrato
+      </div>
+
+      <div className="absolute bottom-16 left-10 right-10 border-t border-slate-500" />
+      <div className="absolute bottom-10 left-10 text-[9px] text-slate-500">
+        Nome do diretor/responsável
+      </div>
+
+      {camposVisuais.map((campo) => (
+        <div
+          key={campo.id}
+          draggable
+          onDragEnd={(e) => {
+            const caixa = e.currentTarget.parentElement?.getBoundingClientRect();
+            if (!caixa) return;
+
+            moverCampoVisual(
+              campo.id,
+              Math.max(0, e.clientX - caixa.left),
+              Math.max(0, e.clientY - caixa.top)
+            );
+          }}
+          className="absolute cursor-move rounded border border-blue-400 bg-blue-50/80 p-1 text-center text-[9px] font-semibold text-blue-700"
+          style={{
+            left: campo.x,
+            top: campo.y,
+            width: campo.largura,
+            height: campo.altura,
+          }}
+        >
+          🖋 Assinatura do diretor
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
 
               <div className="flex flex-wrap gap-3">
                 <button
