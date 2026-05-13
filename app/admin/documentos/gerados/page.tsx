@@ -204,11 +204,24 @@ function AdminDocumentosGeradosPage() {
     }, 300);
   }
 
-  function enviarPorEmail(doc: DocumentoGerado) {
-    const assunto = encodeURIComponent(doc.titulo);
-    const corpo = encodeURIComponent(montarTextoCompartilhamento(doc));
-    window.open(`mailto:?subject=${assunto}&body=${corpo}`, "_self");
+  async function enviarPorEmail(doc: DocumentoGerado) {
+  const assunto = encodeURIComponent(doc.titulo);
+  const corpo = encodeURIComponent(montarTextoCompartilhamento(doc));
+  const link = `mailto:?subject=${assunto}&body=${corpo}`;
+
+  try {
+    await navigator.clipboard.writeText(montarTextoCompartilhamento(doc));
+    setMensagem(
+      "O conteúdo do documento foi copiado. Se o email não abrir automaticamente, cole o texto no seu email."
+    );
+  } catch {
+    setMensagem(
+      "Tentando abrir o email. Se não abrir, verifique se há um aplicativo de email configurado no computador."
+    );
   }
+
+  window.location.href = link;
+}
 
   function enviarPorWhatsApp(doc: DocumentoGerado) {
     const texto = encodeURIComponent(montarTextoCompartilhamento(doc));
@@ -444,12 +457,6 @@ function AdminDocumentosGeradosPage() {
     WhatsApp
   </button>
 
-  <button
-    onClick={() => window.open(`/api/admin/documentos/gerados/${doc.id}`, "_blank")}
-    className="rounded-xl border px-3 py-2 text-sm hover:border-amber-400 hover:text-amber-700"
-  >
-    JSON
-  </button>
 </div>
                     </div>
                   </div>
@@ -460,7 +467,7 @@ function AdminDocumentosGeradosPage() {
         </div>
 
         <div className="min-w-0">
-          <div className="sticky top-4 rounded-2xl border bg-white p-4 shadow-sm min-h-[260px] max-h-[calc(100vh-140px)] overflow-auto">
+          <div className="rounded-2xl border bg-white p-4 shadow-sm min-h-[240px] max-h-[520px] overflow-auto">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">Visualização</h2>

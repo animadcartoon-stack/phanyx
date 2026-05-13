@@ -1113,13 +1113,13 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
       color: rgb(0.85, 0.95, 0.88),
     });
 
-    page.drawText("✔ PAGO", {
-      x: margemX + 8,
-      y: y - 15,
-      size: 10,
-      font: bold,
-      color: rgb(0.1, 0.5, 0.2),
-    });
+    page.drawText("PAGO", {
+  x: margemX + 8,
+  y: y - 15,
+  size: 10,
+  font: bold,
+  color: rgb(0.1, 0.5, 0.2),
+});
 
     y -= 35;
 
