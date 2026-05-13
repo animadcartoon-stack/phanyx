@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type FormAluno = {
+  nome: string;
   nomeSocial: string;
   genero: string;
   cpf: string;
@@ -28,6 +29,7 @@ type FormAluno = {
 };
 
 const vazio: FormAluno = {
+  nome: "",
   nomeSocial: "",
   genero: "",
   cpf: "",
@@ -80,6 +82,7 @@ export default function CompletarCadastroAlunoPage() {
 
       setForm({
         ...vazio,
+        nome: data.nome || "",
         nomeSocial: data.nomeSocial || "",
         genero: data.genero || "",
         cpf: data.cpf || "",
@@ -210,12 +213,18 @@ export default function CompletarCadastroAlunoPage() {
         <h2 className="mb-4 text-lg font-bold">Dados pessoais</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
+  <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Nome social
+  </label>
+
   <input
-    className="rounded-xl border p-3"
-    placeholder="Nome social"
+    className="w-full rounded-xl border p-3"
+    placeholder="Informe seu nome social, se desejar"
     value={form.nomeSocial}
     onChange={(e) => atualizar("nomeSocial", e.target.value)}
   />
+</div>
 
   <select
     className="rounded-xl border p-3"
@@ -266,6 +275,22 @@ export default function CompletarCadastroAlunoPage() {
         <h2 className="mb-4 mt-8 text-lg font-bold">Endereço</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
+            <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Nome completo oficial
+  </label>
+
+  <input
+    className="w-full rounded-xl border bg-slate-100 p-3 text-slate-500"
+    value={form.nome}
+    disabled
+    readOnly
+  />
+
+  <p className="mt-1 text-[11px] text-slate-500">
+    Para alterar o nome oficial, fale com a secretaria.
+  </p>
+</div>
           <input className="rounded-xl border p-3" placeholder="CEP" value={form.cep} onChange={(e) => atualizar("cep", e.target.value)} />
           <input className="rounded-xl border p-3" placeholder="Endereço" value={form.endereco} onChange={(e) => atualizar("endereco", e.target.value)} />
           <input className="rounded-xl border p-3" placeholder="Número" value={form.numero} onChange={(e) => atualizar("numero", e.target.value)} />
