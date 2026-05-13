@@ -434,13 +434,41 @@ function moverCampoVisual(id: string, x: number, y: number) {
   <div className="space-y-6">
 
     {erro && (
-      <PhanyxToast
-        tipo="erro"
-        titulo="Não foi possível salvar"
-        mensagem={erro}
-        onClose={() => setErro("")}
-      />
-    )}
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+    <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">
+            Não foi possível salvar
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            {erro}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setErro("")}
+          className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">
+        Preencha os campos obrigatórios antes de criar ou salvar o template.
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setErro("")}
+        className="mt-5 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700"
+      >
+        Entendi
+      </button>
+    </div>
+  </div>
+)}
       <div>
         <h1 className="text-2xl font-bold">📄 Templates de documentos</h1>
         <p className="mt-1 text-gray-600">
