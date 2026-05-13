@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type FormAluno = {
+  nomeSocial: string;
+  genero: string;
   cpf: string;
   rg: string;
   telefone: string;
@@ -26,6 +28,8 @@ type FormAluno = {
 };
 
 const vazio: FormAluno = {
+  nomeSocial: "",
+  genero: "",
   cpf: "",
   rg: "",
   telefone: "",
@@ -76,6 +80,8 @@ export default function CompletarCadastroAlunoPage() {
 
       setForm({
         ...vazio,
+        nomeSocial: data.nomeSocial || "",
+        genero: data.genero || "",
         cpf: data.cpf || "",
         rg: data.rg || "",
         telefone: data.telefone || "",
@@ -204,11 +210,58 @@ export default function CompletarCadastroAlunoPage() {
         <h2 className="mb-4 text-lg font-bold">Dados pessoais</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
-          <input className="rounded-xl border p-3" placeholder="CPF" value={form.cpf} onChange={(e) => atualizar("cpf", e.target.value)} />
-          <input className="rounded-xl border p-3" placeholder="RG" value={form.rg} onChange={(e) => atualizar("rg", e.target.value)} />
-          <input className="rounded-xl border p-3" placeholder="Telefone" value={form.telefone} onChange={(e) => atualizar("telefone", e.target.value)} />
-          <input className="rounded-xl border p-3" type="date" value={form.dataNascimento} onChange={(e) => atualizar("dataNascimento", e.target.value)} />
-        </div>
+  <input
+    className="rounded-xl border p-3"
+    placeholder="Nome social"
+    value={form.nomeSocial}
+    onChange={(e) => atualizar("nomeSocial", e.target.value)}
+  />
+
+  <select
+    className="rounded-xl border p-3"
+    value={form.genero}
+    onChange={(e) => atualizar("genero", e.target.value)}
+  >
+    <option value="">Gênero</option>
+    <option value="FEMININO">Feminino</option>
+    <option value="MASCULINO">Masculino</option>
+    <option value="NAO_INFORMAR">Prefiro não informar</option>
+    <option value="OUTRO">Outro</option>
+  </select>
+
+  <input
+    className="rounded-xl border p-3"
+    placeholder="CPF"
+    value={form.cpf}
+    onChange={(e) => atualizar("cpf", e.target.value)}
+  />
+
+  <input
+    className="rounded-xl border p-3"
+    placeholder="RG"
+    value={form.rg}
+    onChange={(e) => atualizar("rg", e.target.value)}
+  />
+
+  <input
+    className="rounded-xl border p-3"
+    placeholder="Telefone / WhatsApp"
+    value={form.telefone}
+    onChange={(e) => atualizar("telefone", e.target.value)}
+  />
+
+  <div>
+    <label className="mb-1 block text-xs font-semibold text-slate-600">
+      Data de nascimento
+    </label>
+    <input
+      className="w-full rounded-xl border p-3"
+      type="date"
+      value={form.dataNascimento}
+      onChange={(e) => atualizar("dataNascimento", e.target.value)}
+    />
+  </div>
+</div>
 
         <h2 className="mb-4 mt-8 text-lg font-bold">Endereço</h2>
 

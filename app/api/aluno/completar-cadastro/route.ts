@@ -54,7 +54,9 @@ export async function PATCH(req: Request) {
 
     const atualizado = await prisma.aluno.update({
       where: { id: aluno.id },
-      data: {
+        data: {
+        nomeSocial: body.nomeSocial || null,
+        genero: body.genero || null,
         cpf: body.cpf || null,
         rg: body.rg || null,
         telefone: body.telefone || null,
