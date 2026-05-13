@@ -938,27 +938,30 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
 
  if (assinaturaDiretorEmbed && camposAssinaturaDiretor.length > 0) {
   const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
-
   const campo = camposAssinaturaDiretor[0];
 
-  const larguraPreview = 276;
-  const assinaturaDiretorPreviewX = 98;
-  const assinaturaDiretorPreviewY = 300;
+  const previewWidth = 276;
+  const previewHeight = 390;
 
-  const assinaturaDiretorPdfX = 228;
-  const assinaturaDiretorPdfY = linhaY + 1;
+  const pdfWidth = paginaDestino.getWidth();
+  const pdfHeight = paginaDestino.getHeight();
 
-  const escala = 0.75;
+  const escalaX = pdfWidth / previewWidth;
+  const escalaY = pdfHeight / previewHeight;
 
-  const deslocamentoX = (Number(campo.x || 0) - assinaturaDiretorPreviewX) * escala;
-  const deslocamentoY = (assinaturaDiretorPreviewY - Number(campo.y || 0)) * escala;
+  const x = Number(campo.x || 0) * escalaX;
 
-  const largura = Number(campo.largura || 160) * escala;
-  const altura = Number(campo.altura || 45) * escala;
+  const y =
+    pdfHeight -
+    (Number(campo.y || 0) * escalaY) -
+    (Number(campo.altura || 45) * escalaY);
+
+  const largura = Number(campo.largura || 160) * escalaX;
+  const altura = Number(campo.altura || 45) * escalaY;
 
   paginaDestino.drawImage(assinaturaDiretorEmbed, {
-    x: assinaturaDiretorPdfX + deslocamentoX,
-    y: assinaturaDiretorPdfY + deslocamentoY,
+    x,
+    y,
     width: largura,
     height: altura,
     opacity: 1,
