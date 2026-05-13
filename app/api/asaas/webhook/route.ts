@@ -218,6 +218,72 @@ for (const disciplinaId of disciplinasIds) {
   });
 }
 
+const lancamentoExistente = await prisma.lancamentoFinanceiro.findFirst({
+  where: {
+    instituicaoId,
+    alunoId: aluno.id,
+    matriculaId: matricula.id,
+    descricao: {
+      contains: "Matrícula online IBE",
+    },
+  },
+});
+
+if (!lancamentoExistente) {
+  const lancamento = await prisma.lancamentoFinanceiro.create({
+    data: {
+      tipo: "RECEITA",
+      descricao: "Matrícula online IBE - Bacharel Livre em Teologia",
+      valorOriginal: Number(preMatricula.valorTotal || 0),
+      valorFinal: Number(preMatricula.valorTotal || 0),
+      valorPago: Number(preMatricula.valorTotal || 0),
+      vencimento: new Date(),
+      pagoEm: new Date(),
+      status: "PAGO",
+      observacao: `Pagamento confirmado pelo Asaas. Referência: ${externalReference}`,
+      instituicaoId,
+      alunoId: aluno.id,
+      matriculaId: matricula.id,
+    },
+  });
+
+  const caixaAberto = await prisma.caixa.findFirst({
+    where: {
+      instituicaoId,
+      status: "ABERTO",
+    },
+    orderBy: {
+      dataAbertura: "desc",
+    },
+  });
+
+  if (caixaAberto) {
+    await prisma.movimentoCaixa.create({
+  data: {
+    tipo: "ENTRADA",
+    descricao: "Recebimento matrícula online IBE",
+    valor: Number(preMatricula.valorTotal || 0),
+    formaPagamento: "PIX",
+    instituicaoId,
+    caixaId: caixaAberto.id,
+    alunoId: aluno.id,
+    lancamentoId: lancamento.id,
+  },
+});
+
+    await prisma.caixa.update({
+      where: {
+        id: caixaAberto.id,
+      },
+      data: {
+        saldoSistema:
+          Number(caixaAberto.saldoSistema || 0) +
+          Number(preMatricula.valorTotal || 0),
+      },
+    });
+  }
+}
+
 const contrato = await prisma.contrato.create({
   data: {
     alunoId: aluno.id,

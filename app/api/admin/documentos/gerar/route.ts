@@ -123,9 +123,13 @@ export async function POST(req: Request) {
       );
 
       valorContrato = matricula.lancamentosFinanceiros.reduce(
-        (acc, item) => acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
-        0
-      );
+  (acc, item) => acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),
+  0
+);
+
+if (!valorContrato || valorContrato <= 0) {
+  valorContrato = Number(matricula.valorMatricula || 0);
+}
     } else if (alunoId && Number.isFinite(alunoId) && alunoId > 0) {
       aluno = await prisma.aluno.findFirst({
         where: {
