@@ -86,58 +86,124 @@ function labelTipo(tipo: TipoDocumentoTemplate) {
 function templateInicialPorTipo(tipo: TipoDocumentoTemplate) {
   switch (tipo) {
     case "CONTRATO":
-      return MODELO_INICIAL_CONTRATO;
-    case "DECLARACAO":
-      return MODELO_INICIAL_DECLARACAO;
-    case "RECIBO":
-      return `RECIBO
+      return `CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
 
-Recebemos de {{nomeAluno}} a quantia de {{valorContrato}}, referente a {{referenciaFinanceira}}.
+A instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, celebra o presente contrato com o(a) aluno(a) {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, regularmente matriculado(a) no curso {{curso}}.
+
+DISCIPLINAS CONTRATADAS:
+{{disciplinas}}
+
+VALOR CONTRATADO:
+{{valorContrato}}
+
+O presente contrato regula a prestação dos serviços educacionais conforme as normas institucionais vigentes.
+
+As partes declaram estar de pleno acordo com os termos estabelecidos.
+
+{{cidadeAssinatura}}, {{dataAtual}}.
+
+{{assinaturaDiretor}}
+`;
+
+    case "DECLARACAO":
+      return `DECLARAÇÃO
+
+Declaramos, para os devidos fins, que o(a) aluno(a) {{nomeAluno}}, inscrito(a) sob matrícula {{matriculaAluno}}, CPF {{cpfAluno}}, encontra-se regularmente vinculado(a) à instituição {{nomeInstituicao}}, no curso {{curso}}.
+
+Esta declaração é emitida a pedido do(a) interessado(a) para os fins que se fizerem necessários.
 
 Emitido em {{dataAtual}}.
 
-{{nomeInstituicao}}`;
+{{cidadeAssinatura}}
+
+{{assinaturaDiretor}}
+`;
+
+    case "RECIBO":
+      return `RECIBO DE PAGAMENTO
+
+Recebemos de {{nomeAluno}}, CPF {{cpfAluno}}, a quantia de {{valorContrato}}, referente a {{referenciaFinanceira}}.
+
+Este recibo comprova a quitação do valor mencionado nesta data.
+
+Emitido por {{nomeInstituicao}} em {{dataAtual}}.
+
+{{cidadeAssinatura}}
+
+{{assinaturaDiretor}}
+`;
+
     case "COMPROVANTE":
       return `COMPROVANTE DE PAGAMENTO
 
-Confirmamos o pagamento de {{valorContrato}} realizado por {{nomeAluno}}, referente a {{referenciaFinanceira}}.
+Certificamos que foi identificado pagamento em nome de {{nomeAluno}}, matrícula {{matriculaAluno}}, no valor de {{valorContrato}}, referente a {{referenciaFinanceira}}.
 
-Emitido em {{dataAtual}}.
+Documento emitido para fins de comprovação financeira.
 
-{{nomeInstituicao}}`;
+{{nomeInstituicao}}
+{{dataAtual}}
+
+{{assinaturaDiretor}}
+`;
+
     case "TRANCAMENTO":
-      return `DECLARAÇÃO DE TRANCAMENTO
+      return `DECLARAÇÃO DE TRANCAMENTO DE MATRÍCULA
 
-Declaramos que a matrícula do(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, foi trancada conforme registro institucional.
+Declaramos que a matrícula do(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, CPF {{cpfAluno}}, vinculada ao curso {{curso}}, encontra-se oficialmente trancada conforme registro acadêmico institucional.
+
+Este documento é emitido para fins comprobatórios.
 
 Emitido em {{dataAtual}}.
 
-{{nomeInstituicao}}`;
+{{cidadeAssinatura}}
+
+{{assinaturaDiretor}}
+`;
+
     case "COMPARECIMENTO":
       return `DECLARAÇÃO DE COMPARECIMENTO
 
-Declaramos que o(a) aluno(a) {{nomeAluno}} compareceu à instituição {{nomeInstituicao}} em {{dataAtual}}.
+Declaramos, para os devidos fins, que o(a) aluno(a) {{nomeAluno}}, matrícula {{matriculaAluno}}, compareceu à instituição {{nomeInstituicao}} na data de {{dataAtual}}.
 
-{{cidadeAssinatura}}.`;
+Documento emitido para comprovação de comparecimento.
+
+{{cidadeAssinatura}}
+
+{{assinaturaDiretor}}
+`;
+
     case "HISTORICO":
       return `HISTÓRICO ACADÊMICO
 
 Aluno(a): {{nomeAluno}}
+CPF: {{cpfAluno}}
 Matrícula: {{matriculaAluno}}
 Curso: {{curso}}
 
-Emitido em {{dataAtual}}.
+DISCIPLINAS:
+{{disciplinas}}
 
-{{nomeInstituicao}}`;
+Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
+
+{{assinaturaDiretor}}
+`;
+
+    case "OUTRO":
     default:
       return `DOCUMENTO INSTITUCIONAL
 
 Título: {{tituloDocumento}}
 
 Aluno(a): {{nomeAluno}}
-Data: {{dataAtual}}
+CPF: {{cpfAluno}}
+Matrícula: {{matriculaAluno}}
 
-{{nomeInstituicao}}`;
+Conteúdo personalizado.
+
+Emitido em {{dataAtual}} por {{nomeInstituicao}}.
+
+{{assinaturaDiretor}}
+`;
   }
 }
 
