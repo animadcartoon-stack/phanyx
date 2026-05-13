@@ -940,24 +940,29 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
   const paginaDestino = pdfDoc.getPage(pdfDoc.getPageCount() - 1);
   const campo = camposAssinaturaDiretor[0];
 
-  const previewWidth = 276;
-  const previewHeight = 390;
+  // Medidas do preview novo em app/admin/documentos/templates/page.tsx
+  const previewLinhaX = 40;
+  const previewLinhaY = 92;
 
-  const pdfWidth = paginaDestino.getWidth();
-  const pdfHeight = paginaDestino.getHeight();
+  // Linha REAL do diretor no PDF
+  const pdfLinhaX = 270;
+  const pdfLinhaY = linhaY + 2;
 
-  const escalaX = pdfWidth / previewWidth;
-  const escalaY = pdfHeight / previewHeight;
+  // Escala correta: preview pequeno -> campo real do contrato
+  const escala = 0.55;
 
-  const x = Number(campo.x || 0) * escalaX;
+  const larguraCampo = Number(campo.largura || 180);
+  const alturaCampo = Number(campo.altura || 55);
+
+  const x =
+    pdfLinhaX + (Number(campo.x || 0) - previewLinhaX) * escala;
 
   const y =
-    pdfHeight -
-    (Number(campo.y || 0) * escalaY) -
-    (Number(campo.altura || 45) * escalaY);
+    pdfLinhaY +
+    (previewLinhaY - (Number(campo.y || 0) + alturaCampo)) * escala;
 
-  const largura = Number(campo.largura || 160) * escalaX;
-  const altura = Number(campo.altura || 45) * escalaY;
+  const largura = larguraCampo * escala;
+  const altura = alturaCampo * escala;
 
   paginaDestino.drawImage(assinaturaDiretorEmbed, {
     x,

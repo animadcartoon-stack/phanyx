@@ -1023,35 +1023,25 @@ async function enviarAssinaturaDiretor(file: File) {
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
-                  Modelo de contrato
-                </label>
-                <textarea
-                  value={form.contratoTemplate || ""}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      contratoTemplate: e.target.value,
-                    }))
-                  }
-                  rows={9}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-                  placeholder={`Exemplo:
-CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS
+              <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+  <h3 className="text-sm font-bold text-blue-900">
+    Modelos de contrato
+  </h3>
 
-Pelo presente instrumento, a instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, neste ato representada por {{responsavelLegal}}, celebra contrato com o(a) aluno(a) {{nomeAluno}}, CPF {{cpfAluno}}, matrícula {{matriculaAluno}}, para o curso {{curso}}.
+  <p className="mt-2 text-sm leading-relaxed text-blue-800">
+    Os contratos agora são gerenciados em <strong>Documentos &gt; Templates</strong>.
+    Isso evita duplicidade, conflitos entre contratos e garante que cada instituição
+    possa manter seus próprios modelos, variáveis dinâmicas e assinatura visual
+    corretamente.
+  </p>
 
-Disciplinas contratadas:
-{{disciplinas}}
-
-Valor contratado:
-{{valorContrato}}
-
-Cidade e data:
-{{cidadeAssinatura}}, {{dataAtual}}`}
-                />
-              </div>
+  <Link
+    href="/admin/documentos/templates"
+    className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+  >
+    Gerenciar templates de documentos
+  </Link>
+</div>
             </div>
 
             <div className="mt-6">
