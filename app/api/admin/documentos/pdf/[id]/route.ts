@@ -144,8 +144,13 @@ export async function GET(
     const doc = await prisma.documentoGerado.findUnique({
       where: { id },
       include: {
-        aluno: true,
-        instituicao: {
+  aluno: true,
+  matricula: {
+    include: {
+      lancamentosFinanceiros: true,
+    },
+  },
+  instituicao: {
           include: {
             configuracaoInstituicao: true,
           },
@@ -1025,7 +1030,19 @@ const qrImage = await gerarQrCodeImagem(pdfDoc, linkValidacao);
 
         y -= 34;
 
-    const valorDoc = extrairValorMonetarioDoConteudo(doc.conteudo || "");
+    let valorDoc = extrairValorMonetarioDoConteudo(doc.conteudo || "");
+
+if (!valorDoc || valorDoc <= 0) {
+  valorDoc = Number(doc.matricula?.valorMatricula || 0);
+}
+
+if ((!valorDoc || valorDoc <= 0) && doc.matricula?.lancamentosFinanceiros?.length) {
+  valorDoc = doc.matricula.lancamentosFinanceiros.reduce(
+    (total, item) =>
+      total + Number(item.valorPago ?? item.valorFinal ?? item.valorOriginal ?? 0),
+    0
+  );
+}
 
     const textoValor = `R$ ${valorDoc.toFixed(2)}`;
     const larguraValor = bold.widthOfTextAtSize(textoValor, 26);
