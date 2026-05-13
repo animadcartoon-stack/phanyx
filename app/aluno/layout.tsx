@@ -187,6 +187,27 @@ export default async function AlunoLayout({
 
         <main className="flex-1 ml-64 p-8">
   <PhanyxFeriadoAviso />
+
+  <div className="mb-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
+    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h2 className="text-sm font-bold text-slate-900">
+          Dados cadastrais
+        </h2>
+        <p className="text-xs text-slate-500">
+          Mantenha seus dados atualizados para contratos, documentos e registros acadêmicos.
+        </p>
+      </div>
+
+      <a
+        href="/aluno/completar-cadastro"
+        className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+      >
+        Atualizar meus dados
+      </a>
+    </div>
+  </div>
+
   {children}
 </main>
       </div>
