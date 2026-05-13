@@ -38,6 +38,10 @@ type CampoVisualContrato = {
   pagina: number;
 };
 
+type ConfiguracaoInstituicao = {
+  certificadoAssinaturaUrl?: string | null;
+};
+
 const TIPOS_DOCUMENTO: Array<{
   value: TipoDocumentoTemplate;
   label: string;
@@ -164,6 +168,8 @@ function AdminDocumentosTemplatesPage() {
   const [ativo, setAtivo] = useState(true);
   const [exigeAssinatura, setExigeAssinatura] = useState(true);
   const [camposVisuais, setCamposVisuais] = useState<CampoVisualContrato[]>([]);
+  const [configInstituicao, setConfigInstituicao] =
+  useState<ConfiguracaoInstituicao | null>(null);
 
   async function carregarTemplates() {
     try {
@@ -194,6 +200,27 @@ function AdminDocumentosTemplatesPage() {
   useEffect(() => {
     carregarTemplates();
   }, []);
+
+  useEffect(() => {
+  async function carregarConfigInstituicao() {
+    try {
+      const res = await fetch("/api/admin/configuracoes/instituicao", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setConfigInstituicao(data);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar configuração da instituição:", error);
+    }
+  }
+
+  carregarConfigInstituicao();
+}, []);
 
   function limparFormulario() {
     setEditingId(null);
@@ -613,29 +640,40 @@ function moverCampoVisual(id: string, x: number, y: number) {
       </div>
 
       {camposVisuais.map((campo) => (
-        <div
-          key={campo.id}
-          draggable
-          onDragEnd={(e) => {
-            const caixa = e.currentTarget.parentElement?.getBoundingClientRect();
-            if (!caixa) return;
+        <div     
+  key={campo.id}
+  draggable
+  onDragEnd={(e) => {
+    const caixa = e.currentTarget.parentElement?.getBoundingClientRect();
+    if (!caixa) return;
 
-            moverCampoVisual(
-              campo.id,
-              Math.max(0, e.clientX - caixa.left),
-              Math.max(0, e.clientY - caixa.top)
-            );
-          }}
-          className="absolute cursor-move rounded border border-blue-400 bg-blue-50/80 p-1 text-center text-[9px] font-semibold text-blue-700"
-          style={{
-            left: campo.x,
-            top: campo.y,
-            width: campo.largura,
-            height: campo.altura,
-          }}
-        >
-          🖋 Assinatura do diretor
-        </div>
+    moverCampoVisual(
+      campo.id,
+      Math.max(0, e.clientX - caixa.left),
+      Math.max(0, e.clientY - caixa.top)
+    );
+  }}
+  className="absolute cursor-move rounded border border-blue-400 bg-blue-50/80 p-1 text-center text-[9px] font-semibold text-blue-700"
+  style={{
+    left: campo.x,
+    top: campo.y,
+    width: campo.largura,
+    height: campo.altura,
+  }}
+>
+  {configInstituicao?.certificadoAssinaturaUrl ? (
+    <img
+      src={configInstituicao.certificadoAssinaturaUrl}
+      alt="Assinatura do diretor"
+      className="h-full w-full object-contain pointer-events-none"
+      draggable={false}
+    />
+  ) : (
+    <span className="flex h-full w-full items-center justify-center text-center">
+      🖋 Assinatura do diretor
+    </span>
+  )}
+</div>
       ))}
     </div>
   </div>
