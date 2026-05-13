@@ -401,16 +401,16 @@ function AdminDocumentosTemplatesPage() {
     setConteudo(templateInicialPorTipo(tipo));
   }
 
-  function adicionarAssinaturaDiretor() {
+function adicionarAssinaturaDiretor() {
   setCamposVisuais((atuais) => [
     ...atuais,
     {
       id: crypto.randomUUID(),
       tipo: "ASSINATURA_DIRETOR",
-      x: 58,
-y: 300,
-largura: 160,
-altura: 45,
+      x: 70,
+      y: 18,
+      largura: 180,
+      altura: 55,
       pagina: 1,
     },
   ]);
@@ -674,120 +674,126 @@ function moverCampoVisual(id: string, x: number, y: number) {
     </button>
   </div>
 
-  <div className="relative h-[420px] w-full overflow-hidden rounded-xl border bg-white">
-    <div className="absolute left-1/2 top-4 h-[390px] w-[276px] -translate-x-1/2 border bg-white shadow-sm">
-      <div className="p-4 text-[9px] text-slate-400">
-        Prévia aproximada da página do contrato
-      </div>
+  <div className="rounded-2xl border bg-white p-5">
+  <div className="mx-auto w-full max-w-[520px] rounded-2xl border bg-slate-50 p-5">
+    <div className="mb-3 text-sm font-semibold text-slate-800">
+      Área real da assinatura do diretor
+    </div>
 
-      <div className="absolute bottom-16 left-10 right-10 border-t border-slate-500" />
-      <div className="absolute bottom-10 left-10 text-[9px] text-slate-500">
+    <div className="relative h-[150px] rounded-xl border bg-white">
+      <div className="absolute left-10 right-10 top-[92px] border-t border-slate-700" />
+
+      <div className="absolute left-10 top-[100px] text-xs text-slate-600">
         Nome do diretor/responsável
       </div>
 
       {camposVisuais.map((campo) => (
-       <div
-  key={campo.id}
-  onMouseDown={(e) => {
-    e.preventDefault();
+        <div
+          key={campo.id}
+          onMouseDown={(e) => {
+            e.preventDefault();
 
-    const elemento = e.currentTarget;
-    const folha = elemento.parentElement;
-    if (!folha) return;
+            const elemento = e.currentTarget;
+            const area = elemento.parentElement;
+            if (!area) return;
 
-    const folhaRect = folha.getBoundingClientRect();
+            const areaRect = area.getBoundingClientRect();
+            const elementoRect = elemento.getBoundingClientRect();
 
-    const offsetX = e.clientX - elemento.getBoundingClientRect().left;
-    const offsetY = e.clientY - elemento.getBoundingClientRect().top;
+            const offsetX = e.clientX - elementoRect.left;
+            const offsetY = e.clientY - elementoRect.top;
 
-    function aoMover(ev: MouseEvent) {
-      const novoX = ev.clientX - folhaRect.left - offsetX;
-      const novoY = ev.clientY - folhaRect.top - offsetY;
+            function aoMover(ev: MouseEvent) {
+              const novoX = ev.clientX - areaRect.left - offsetX;
+              const novoY = ev.clientY - areaRect.top - offsetY;
 
-      moverCampoVisual(campo.id, novoX, novoY);
-    }
+              moverCampoVisual(campo.id, novoX, novoY);
+            }
 
-    function aoSoltar() {
-      window.removeEventListener("mousemove", aoMover);
-      window.removeEventListener("mouseup", aoSoltar);
-    }
+            function aoSoltar() {
+              window.removeEventListener("mousemove", aoMover);
+              window.removeEventListener("mouseup", aoSoltar);
+            }
 
-    window.addEventListener("mousemove", aoMover);
-    window.addEventListener("mouseup", aoSoltar);
-  }}
-  className="absolute cursor-move select-none rounded border-2 border-blue-500 bg-blue-50/20"
-  style={{
-    left: campo.x,
-    top: campo.y,
-    width: campo.largura,
-    height: campo.altura,
-  }}
->
-  {configInstituicao?.certificadoAssinaturaUrl ? (
-    <img
-  src={configInstituicao.certificadoAssinaturaUrl}
-  alt="Assinatura do diretor"
-  className="h-full w-full object-contain pointer-events-none contrast-200 brightness-75 saturate-0"
-  draggable={false}
-/>
+            window.addEventListener("mousemove", aoMover);
+            window.addEventListener("mouseup", aoSoltar);
+          }}
+          className="absolute cursor-move select-none rounded border-2 border-blue-500 bg-blue-50/20"
+          style={{
+            left: campo.x,
+            top: campo.y,
+            width: campo.largura,
+            height: campo.altura,
+          }}
+        >
+          {configInstituicao?.certificadoAssinaturaUrl ? (
+            <img
+              src={configInstituicao.certificadoAssinaturaUrl}
+              alt="Assinatura do diretor"
+              className="h-full w-full object-contain pointer-events-none contrast-200 brightness-75 saturate-0"
+              draggable={false}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-blue-400 bg-blue-50 text-center text-[9px] font-semibold text-blue-700">
+              🖋 Assinatura do diretor
+            </div>
+          )}
 
-  ) : (
-    <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-blue-400 bg-blue-50 text-center text-[9px] font-semibold text-blue-700">
-      🖋 Assinatura do diretor
-    </div>
-  )}
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
 
-<button
-  type="button"
-  onMouseDown={(e) => {
-    e.preventDefault();
-    e.stopPropagation();
+              const inicioX = e.clientX;
+              const inicioY = e.clientY;
+              const larguraInicial = campo.largura;
+              const alturaInicial = campo.altura;
 
-    const inicioX = e.clientX;
-    const inicioY = e.clientY;
-    const larguraInicial = campo.largura;
-    const alturaInicial = campo.altura;
+              function aoMover(ev: MouseEvent) {
+                const novaLargura = Math.max(
+                  60,
+                  larguraInicial + (ev.clientX - inicioX)
+                );
 
-    function aoMover(ev: MouseEvent) {
-      const novaLargura = Math.max(
-        60,
-        larguraInicial + (ev.clientX - inicioX)
-      );
+                const novaAltura = Math.max(
+                  20,
+                  alturaInicial + (ev.clientY - inicioY)
+                );
 
-      const novaAltura = Math.max(
-        20,
-        alturaInicial + (ev.clientY - inicioY)
-      );
-
-      setCamposVisuais((atuais) =>
-        atuais.map((item) =>
-          item.id === campo.id
-            ? {
-                ...item,
-                largura: novaLargura,
-                altura: novaAltura,
+                setCamposVisuais((atuais) =>
+                  atuais.map((item) =>
+                    item.id === campo.id
+                      ? {
+                          ...item,
+                          largura: novaLargura,
+                          altura: novaAltura,
+                        }
+                      : item
+                  )
+                );
               }
-            : item
-        )
-      );
-    }
 
-    function aoSoltar() {
-      window.removeEventListener("mousemove", aoMover);
-      window.removeEventListener("mouseup", aoSoltar);
-    }
+              function aoSoltar() {
+                window.removeEventListener("mousemove", aoMover);
+                window.removeEventListener("mouseup", aoSoltar);
+              }
 
-    window.addEventListener("mousemove", aoMover);
-    window.addEventListener("mouseup", aoSoltar);
-  }}
-  className="absolute -bottom-2 -right-2 h-5 w-5 cursor-se-resize rounded-full border-2 border-blue-700 bg-white shadow"
-  title="Redimensionar assinatura"
-/>
-
-</div>
+              window.addEventListener("mousemove", aoMover);
+              window.addEventListener("mouseup", aoSoltar);
+            }}
+            className="absolute -bottom-2 -right-2 h-5 w-5 cursor-se-resize rounded-full border-2 border-blue-700 bg-white shadow"
+            title="Redimensionar assinatura"
+          />
+        </div>
       ))}
     </div>
+
+    <p className="mt-3 text-xs text-slate-500">
+      Posicione a assinatura exatamente como ela deverá aparecer sobre a linha do diretor no contrato.
+    </p>
   </div>
+</div>
 </div>
 
               <div className="flex flex-wrap gap-3">
