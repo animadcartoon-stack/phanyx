@@ -563,7 +563,24 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
 
     y -= 34;
 
-    const paragrafos = String(data?.contratoFinal || "").split("\n");
+    const valorContratoNumerico =
+  Number(data?.matricula?.valorMatricula || 0) ||
+  Number(data?.matricula?.valorPagoMatricula || 0) ||
+  Number(data?.contrato?.valorMatricula || 0) ||
+  Number(data?.contrato?.valorPagoMatricula || 0) ||
+  Number(data?.valorContrato || 0);
+
+const valorContratoFormatado = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+}).format(valorContratoNumerico);
+
+const contratoFinalCorrigido = String(data?.contratoFinal || "").replace(
+  /R\$\s*0,00/g,
+  valorContratoFormatado
+);
+
+const paragrafos = contratoFinalCorrigido.split("\n");
 
     for (const paragrafo of paragrafos) {
       const linhasQuebradas =
@@ -945,11 +962,10 @@ if (!assinaturaSecretariaBase64 && assinaturaSecretariaNome) {
   const previewLinhaY = 92;
 
   // Linha REAL do diretor no PDF
-  const pdfLinhaX = 270;
-  const pdfLinhaY = linhaY + 2;
+  const pdfLinhaX = 228;
+const pdfLinhaY = linhaY + 2;
 
-  // Escala correta: preview pequeno -> campo real do contrato
-  const escala = 0.55;
+const escala = 0.34;
 
   const larguraCampo = Number(campo.largura || 180);
   const alturaCampo = Number(campo.altura || 55);
