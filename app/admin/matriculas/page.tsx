@@ -778,6 +778,58 @@ console.log("DEBUG MATRÍCULA", {
     window.open(`/api/admin/contratos/pdf?matriculaId=${matriculaId}`, "_blank");
   }
 
+  async function gerarDocumentoPhanyxDaMatricula(matriculaId: number) {
+  try {
+    setErro("");
+    setSucesso("");
+
+    const resTemplates = await fetch("/api/admin/documentos/templates", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const templates = await resTemplates.json();
+
+    if (!resTemplates.ok || !Array.isArray(templates)) {
+      setErro("Não foi possível carregar os templates de documentos.");
+      return;
+    }
+
+    const template =
+      templates.find((t: any) => t.ativo && t.tipo === "CONTRATO") ||
+      templates.find((t: any) => t.ativo && t.tipo === "RECIBO") ||
+      templates.find((t: any) => t.ativo);
+
+    if (!template?.id) {
+      setErro("Nenhum template ativo encontrado. Crie um template ativo em Documentos > Templates.");
+      return;
+    }
+
+    const res = await fetch("/api/admin/documentos/gerar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        templateId: template.id,
+        matriculaId,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok || !data?.id) {
+      setErro(data?.error || "Erro ao gerar documento.");
+      return;
+    }
+
+    setSucesso("Documento PHANYX gerado com sucesso.");
+    window.open(`/api/admin/documentos/pdf/${data.id}`, "_blank");
+  } catch (error) {
+    console.error("Erro ao gerar documento PHANYX:", error);
+    setErro("Erro ao gerar documento PHANYX.");
+  }
+}
+
   async function abrirAssinaturaSecretaria(matriculaId: number) {
   try {
     let res = await fetch(`/api/admin/contratos?matriculaId=${matriculaId}`, {
@@ -1801,6 +1853,13 @@ function renderGrupoDisciplina(
                     >
                       📄 Contrato
                     </button>
+
+<button
+  onClick={() => gerarDocumentoPhanyxDaMatricula(m.id)}
+  className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-indigo-400 hover:text-indigo-700"
+>
+  📄 Documento PHANYX
+</button>
 
                     <button
                       onClick={() => assinarContratoDaMatricula(m.id)}
