@@ -90,14 +90,11 @@ export async function POST(req: Request) {
           aluno: true,
           curso: true,
           itens: {
-            include: {
-              turma: {
-                include: {
-                  disciplina: true,
-                },
-              },
-            },
-          },
+  include: {
+    disciplina: true,
+    turma: true,
+  },
+},
           lancamentosFinanceiros: true,
         },
       });
@@ -115,12 +112,12 @@ export async function POST(req: Request) {
         matricula.curso?.nome?.trim() || "Curso não informado";
 
       disciplinasLista = Array.from(
-        new Set(
-          matricula.itens
-            .map((item) => item.turma?.disciplina?.nome?.trim())
-            .filter(Boolean) as string[]
-        )
-      );
+  new Set(
+    matricula.itens
+      .map((item) => item.disciplina?.nome?.trim())
+      .filter(Boolean) as string[]
+  )
+);
 
       valorContrato = matricula.lancamentosFinanceiros.reduce(
   (acc, item) => acc + Number(item.valorFinal ?? item.valorOriginal ?? 0),

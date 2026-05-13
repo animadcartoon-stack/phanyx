@@ -1411,20 +1411,25 @@ function renderGrupoDisciplina(
         </p>
       </div>
 {erro && (
-  <PhanyxToast
-    tipo="erro"
+  <PhanyxConfirmModal
+    aberto={Boolean(erro)}
     titulo="Não foi possível concluir"
     mensagem={erro}
-    onClose={() => setErro("")}
+    textoConfirmar="Entendi"
+    textoCancelar=""
+    onConfirmar={() => setErro("")}
+    onCancelar={() => setErro("")}
   />
 )}
 
 {sucesso && (
-  <PhanyxToast
-    tipo="sucesso"
+  <PhanyxConfirmModal
+    aberto={true}
     titulo="Tudo certo"
     mensagem={sucesso}
-    onClose={() => setSucesso("")}
+    textoConfirmar="OK"
+    onConfirmar={() => setSucesso("")}
+    onCancelar={() => setSucesso("")}
   />
 )}
       <div className="bg-white border rounded-2xl p-5 shadow-sm">
