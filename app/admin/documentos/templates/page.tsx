@@ -480,7 +480,19 @@ function moverCampoVisual(id: string, x: number, y: number) {
 
             <div className="mt-5 space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-700">Nome</label>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+  Nome
+  <span className="group relative inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
+    a
+    <span className="pointer-events-none absolute left-6 top-0 z-50 hidden w-72 rounded-xl border bg-white p-3 text-xs font-normal leading-relaxed text-slate-700 shadow-lg group-hover:block">
+      Este nome é apenas interno, para a equipe administrativa identificar o modelo depois.
+      Ele não aparece no documento gerado para o aluno.
+      <br />
+      <br />
+      Exemplos: Contrato de matrícula padrão, Declaração de vínculo, Recibo financeiro.
+    </span>
+  </span>
+</label>
                 <input
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
