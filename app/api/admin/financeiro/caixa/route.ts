@@ -10,16 +10,18 @@ export async function GET() {
       !user ||
       (user.role !== "ADMIN" &&
         user.role !== "FINANCEIRO" &&
-        user.role !== "SECRETARIA")
+        user.role !== "SECRETARIA" &&
+        user.role !== "SUPER_ADMIN")
     ) {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
     }
 
-    const caixaAbertoDoUsuario = await prisma.caixa.findFirst({
+    const caixaManual = await prisma.caixa.findFirst({
       where: {
         instituicaoId: user.instituicaoId,
         status: "ABERTO",
         abertoPorId: user.id,
+        origem: "MANUAL",
       },
       include: {
         movimentos: {
@@ -33,7 +35,36 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json(caixaAbertoDoUsuario);
+    const podeVerCaixaOnlineIbe =
+      user.instituicaoId === 1 ||
+      user.role === "SUPER_ADMIN" ||
+      Boolean((user as any).isMasterAdmin);
+
+    const caixaOnlineIbe = podeVerCaixaOnlineIbe
+      ? await prisma.caixa.findFirst({
+          where: {
+            instituicaoId: 1,
+            origem: "ONLINE_ASAAS_IBE",
+            status: "ABERTO",
+          },
+          include: {
+            movimentos: {
+              orderBy: {
+                createdAt: "desc",
+              },
+            },
+          },
+          orderBy: {
+            dataAbertura: "desc",
+          },
+        })
+      : null;
+
+    return NextResponse.json({
+      caixaManual,
+      caixaOnlineIbe,
+      podeVerCaixaOnlineIbe,
+    });
   } catch (e: any) {
     console.error("ERRO GET CAIXA:", e);
     return NextResponse.json(
@@ -85,6 +116,7 @@ export async function POST(req: NextRequest) {
         data: {
           instituicaoId: user.instituicaoId,
           abertoPorId: user.id,
+          origem: "MANUAL",
           saldoInicial,
           saldoSistema: saldoInicial,
           observacaoAbertura,

@@ -30,6 +30,8 @@ export default function AdminFinanceiroCaixaPage() {
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [caixa, setCaixa] = useState<Caixa | null>(null);
+  const [caixaOnlineIbe, setCaixaOnlineIbe] = useState<Caixa | null>(null);
+  const [podeVerCaixaOnlineIbe, setPodeVerCaixaOnlineIbe] = useState(false);
 
   const [saldoInicial, setSaldoInicial] = useState("");
   const [observacaoAbertura, setObservacaoAbertura] = useState("");
@@ -58,7 +60,9 @@ export default function AdminFinanceiroCaixaPage() {
         throw new Error(data?.error || "Erro ao carregar caixa");
       }
 
-      setCaixa(data || null);
+      setCaixa(data?.caixaManual || null);
+      setCaixaOnlineIbe(data?.caixaOnlineIbe || null);
+      setPodeVerCaixaOnlineIbe(Boolean(data?.podeVerCaixaOnlineIbe));
     } catch (e: any) {
       setErro(e?.message || "Erro ao carregar caixa");
       setCaixa(null);
@@ -194,6 +198,55 @@ export default function AdminFinanceiroCaixaPage() {
           Abertura, movimentação e fechamento de caixa.
         </p>
       </div>
+
+{podeVerCaixaOnlineIbe && (
+  <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 shadow-sm">
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
+          Caixa automático
+        </p>
+        <h2 className="mt-1 text-xl font-bold text-slate-900">
+          🌐 Caixa Online Asaas IBE
+        </h2>
+        <p className="mt-1 text-sm text-slate-600">
+          Recebe automaticamente os pagamentos feitos na matrícula online IBE.
+        </p>
+      </div>
+
+      <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-blue-700">
+        Somente leitura
+      </span>
+    </div>
+
+    {!caixaOnlineIbe ? (
+      <p className="mt-4 text-sm text-slate-600">
+        Nenhum pagamento online IBE registrado hoje.
+      </p>
+    ) : (
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="rounded-xl bg-white p-4">
+          <p className="text-sm text-slate-500">Status</p>
+          <p className="text-2xl font-bold">{caixaOnlineIbe.status}</p>
+        </div>
+
+        <div className="rounded-xl bg-white p-4">
+          <p className="text-sm text-slate-500">Total online</p>
+          <p className="text-2xl font-bold">
+            R$ {Number(caixaOnlineIbe.saldoSistema || 0).toFixed(2)}
+          </p>
+        </div>
+
+        <div className="rounded-xl bg-white p-4">
+          <p className="text-sm text-slate-500">Pagamentos</p>
+          <p className="text-2xl font-bold">
+            {caixaOnlineIbe.movimentos?.length || 0}
+          </p>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
       {erro && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
