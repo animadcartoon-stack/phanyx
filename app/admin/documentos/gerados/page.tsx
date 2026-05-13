@@ -283,11 +283,11 @@ function AdminDocumentosGeradosPage() {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
-        <div className="xl:col-span-3">
+      <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="min-w-0">
           <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
             <div className="border-b px-5 py-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="flex flex-col gap-4">
                 <div>
                   <h2 className="text-lg font-semibold">Histórico documental</h2>
                   <p className="mt-1 text-sm text-gray-600">
@@ -295,11 +295,11 @@ function AdminDocumentosGeradosPage() {
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 md:flex-row">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_190px_120px]">
                   <input
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
-                    className="rounded-xl border px-3 py-2"
+                    className="min-w-0 rounded-xl border px-3 py-2"
                     placeholder="Buscar por título, aluno, contexto..."
                   />
 
@@ -339,7 +339,7 @@ function AdminDocumentosGeradosPage() {
               <div className="divide-y">
                 {documentosFiltrados.map((doc) => (
                   <div key={doc.id} className="p-5">
-                    <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                       <div className="min-w-0 space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-base font-semibold text-gray-900">
@@ -408,7 +408,7 @@ function AdminDocumentosGeradosPage() {
                         </div>
                       </div>
 
-                      <div className="flex flex-wrap gap-2 xl:w-[320px] xl:justify-end">
+                      <div className="grid grid-cols-2 gap-2 self-start lg:w-[240px]">
   <button
     onClick={() => abrirDocumento(doc.id)}
     className="rounded-xl border px-3 py-2 text-sm hover:border-blue-400 hover:text-blue-700"
@@ -459,8 +459,8 @@ function AdminDocumentosGeradosPage() {
           </div>
         </div>
 
-        <div className="xl:col-span-2">
-          <div className="rounded-2xl border bg-white p-5 shadow-sm min-h-[420px]">
+        <div className="min-w-0">
+          <div className="sticky top-4 rounded-2xl border bg-white p-4 shadow-sm min-h-[260px] max-h-[calc(100vh-140px)] overflow-auto">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">Visualização</h2>
@@ -564,7 +564,7 @@ function AdminDocumentosGeradosPage() {
                   <p className="mb-2 text-sm font-medium text-slate-700">
                     Conteúdo do documento
                   </p>
-                  <div className="max-h-[380px] overflow-auto whitespace-pre-wrap text-sm leading-7 text-slate-800">
+                  <div className="max-h-[300px] overflow-auto whitespace-pre-wrap text-sm leading-7 text-slate-800">
                     {documentoSelecionado.conteudo || "-"}
                   </div>
                 </div>
