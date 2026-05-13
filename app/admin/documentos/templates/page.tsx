@@ -407,10 +407,10 @@ function AdminDocumentosTemplatesPage() {
     {
       id: crypto.randomUUID(),
       tipo: "ASSINATURA_DIRETOR",
-      x: 180,
-      y: 680,
-      largura: 160,
-      altura: 45,
+      x: 58,
+y: 300,
+largura: 160,
+altura: 45,
       pagina: 1,
     },
   ]);
@@ -449,8 +449,8 @@ function moverCampoVisual(id: string, x: number, y: number) {
         </div>
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
-        <div className="xl:col-span-2">
+      <div className="grid grid-cols-1 gap-6">
+        <div>
           <div className="rounded-2xl border bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -709,7 +709,7 @@ function moverCampoVisual(id: string, x: number, y: number) {
           </div>
         </div>
 
-        <div className="xl:col-span-3">
+        <div>
           <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
