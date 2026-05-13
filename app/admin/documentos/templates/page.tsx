@@ -419,7 +419,13 @@ altura: 45,
 function moverCampoVisual(id: string, x: number, y: number) {
   setCamposVisuais((atuais) =>
     atuais.map((campo) =>
-      campo.id === id ? { ...campo, x, y } : campo
+      campo.id === id
+        ? {
+            ...campo,
+            x: Math.max(0, x),
+            y: Math.max(0, y),
+          }
+        : campo
     )
   );
 }
@@ -640,20 +646,36 @@ function moverCampoVisual(id: string, x: number, y: number) {
       </div>
 
       {camposVisuais.map((campo) => (
-        <div     
+       <div
   key={campo.id}
-  draggable
-  onDragEnd={(e) => {
-    const caixa = e.currentTarget.parentElement?.getBoundingClientRect();
-    if (!caixa) return;
+  onMouseDown={(e) => {
+    e.preventDefault();
 
-    moverCampoVisual(
-      campo.id,
-      Math.max(0, e.clientX - caixa.left),
-      Math.max(0, e.clientY - caixa.top)
-    );
+    const elemento = e.currentTarget;
+    const folha = elemento.parentElement;
+    if (!folha) return;
+
+    const folhaRect = folha.getBoundingClientRect();
+
+    const offsetX = e.clientX - elemento.getBoundingClientRect().left;
+    const offsetY = e.clientY - elemento.getBoundingClientRect().top;
+
+    function aoMover(ev: MouseEvent) {
+      const novoX = ev.clientX - folhaRect.left - offsetX;
+      const novoY = ev.clientY - folhaRect.top - offsetY;
+
+      moverCampoVisual(campo.id, novoX, novoY);
+    }
+
+    function aoSoltar() {
+      window.removeEventListener("mousemove", aoMover);
+      window.removeEventListener("mouseup", aoSoltar);
+    }
+
+    window.addEventListener("mousemove", aoMover);
+    window.addEventListener("mouseup", aoSoltar);
   }}
-  className="absolute cursor-move rounded border border-blue-400 bg-blue-50/80 p-1 text-center text-[9px] font-semibold text-blue-700"
+  className="absolute cursor-move select-none rounded border-2 border-blue-500 bg-blue-50/20"
   style={{
     left: campo.x,
     top: campo.y,
@@ -663,16 +685,65 @@ function moverCampoVisual(id: string, x: number, y: number) {
 >
   {configInstituicao?.certificadoAssinaturaUrl ? (
     <img
-      src={configInstituicao.certificadoAssinaturaUrl}
-      alt="Assinatura do diretor"
-      className="h-full w-full object-contain pointer-events-none"
-      draggable={false}
-    />
+  src={configInstituicao.certificadoAssinaturaUrl}
+  alt="Assinatura do diretor"
+  className="h-full w-full object-contain pointer-events-none contrast-200 brightness-75 saturate-0"
+  draggable={false}
+/>
+
   ) : (
-    <span className="flex h-full w-full items-center justify-center text-center">
+    <div className="flex h-full w-full items-center justify-center rounded border border-dashed border-blue-400 bg-blue-50 text-center text-[9px] font-semibold text-blue-700">
       🖋 Assinatura do diretor
-    </span>
+    </div>
   )}
+
+<button
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const inicioX = e.clientX;
+    const inicioY = e.clientY;
+    const larguraInicial = campo.largura;
+    const alturaInicial = campo.altura;
+
+    function aoMover(ev: MouseEvent) {
+      const novaLargura = Math.max(
+        60,
+        larguraInicial + (ev.clientX - inicioX)
+      );
+
+      const novaAltura = Math.max(
+        20,
+        alturaInicial + (ev.clientY - inicioY)
+      );
+
+      setCamposVisuais((atuais) =>
+        atuais.map((item) =>
+          item.id === campo.id
+            ? {
+                ...item,
+                largura: novaLargura,
+                altura: novaAltura,
+              }
+            : item
+        )
+      );
+    }
+
+    function aoSoltar() {
+      window.removeEventListener("mousemove", aoMover);
+      window.removeEventListener("mouseup", aoSoltar);
+    }
+
+    window.addEventListener("mousemove", aoMover);
+    window.addEventListener("mouseup", aoSoltar);
+  }}
+  className="absolute -bottom-2 -right-2 h-5 w-5 cursor-se-resize rounded-full border-2 border-blue-700 bg-white shadow"
+  title="Redimensionar assinatura"
+/>
+
 </div>
       ))}
     </div>
@@ -747,6 +818,7 @@ function moverCampoVisual(id: string, x: number, y: number) {
                   >
                     Recarregar
                   </button>
+
                 </div>
               </div>
             </div>
