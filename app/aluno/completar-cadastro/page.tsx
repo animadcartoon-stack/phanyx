@@ -156,10 +156,43 @@ export default function CompletarCadastroAlunoPage() {
       </div>
 
       {erro && (
-        <div className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          {erro}
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
+    <div className="w-full max-w-md rounded-3xl border border-red-100 bg-white p-6 shadow-2xl">
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-bold text-slate-900">
+            Cadastro incompleto
+          </h2>
+
+          <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            {erro}
+          </p>
         </div>
-      )}
+
+        <button
+          type="button"
+          onClick={() => setErro("")}
+          className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="rounded-2xl bg-blue-50 p-4 text-sm leading-relaxed text-blue-800">
+        Para manter seus contratos, documentos e registros acadêmicos corretos,
+        preencha os dados obrigatórios antes de continuar.
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setErro("")}
+        className="mt-5 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white hover:bg-blue-700"
+      >
+        Entendi
+      </button>
+    </div>
+  </div>
+)}
 
       {sucesso && (
         <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
