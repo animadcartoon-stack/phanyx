@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type TipoDocumentoTemplate =
   | "CONTRATO"
@@ -222,6 +223,7 @@ function AdminDocumentosTemplatesPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [templateParaExcluir, setTemplateParaExcluir] = useState<number | null>(null);
 
   const [filtroBusca, setFiltroBusca] = useState("");
   const [filtroTipo, setFiltroTipo] = useState<string>("");
@@ -382,12 +384,7 @@ function AdminDocumentosTemplatesPage() {
   }
 
   async function excluirTemplate(id: number) {
-    const confirmar = confirm(
-      "Tem certeza que deseja excluir este template?"
-    );
-
-    if (!confirmar) return;
-
+    
     try {
       setDeletingId(id);
       setMensagem("");
@@ -1038,7 +1035,7 @@ function moverCampoVisual(id: string, x: number, y: number) {
                         </button>
 
                         <button
-                          onClick={() => excluirTemplate(template.id)}
+                          onClick={() => setTemplateParaExcluir(template.id)}
                           disabled={deletingId === template.id}
                           className={[
                             "rounded-xl border px-3 py-2 text-sm",
@@ -1060,6 +1057,20 @@ function moverCampoVisual(id: string, x: number, y: number) {
           </div>
         </div>
       </div>
+      {templateParaExcluir && (
+  <PhanyxConfirmModal
+    aberto={true}
+    titulo="Excluir template"
+    mensagem="Tem certeza que deseja excluir este template? Esta ação não poderá ser desfeita."
+    textoConfirmar="Sim, excluir"
+    textoCancelar="Cancelar"
+    onConfirmar={() => {
+      excluirTemplate(templateParaExcluir);
+      setTemplateParaExcluir(null);
+    }}
+    onCancelar={() => setTemplateParaExcluir(null)}
+  />
+)}
     </div>
   );
 }
