@@ -563,12 +563,29 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
 
     y -= 34;
 
-    const valorContratoNumerico =
+    let valorContratoNumerico =
   Number(data?.matricula?.valorMatricula || 0) ||
   Number(data?.matricula?.valorPagoMatricula || 0) ||
   Number(data?.contrato?.valorMatricula || 0) ||
   Number(data?.contrato?.valorPagoMatricula || 0) ||
   Number(data?.valorContrato || 0);
+
+if (!valorContratoNumerico && Number.isFinite(matriculaId) && matriculaId > 0) {
+  const matriculaBanco = await prisma.matricula.findFirst({
+    where: {
+      id: matriculaId,
+      instituicaoId: user.instituicaoId,
+    },
+    select: {
+      valorMatricula: true,
+      valorMensalidade: true,
+    },
+  });
+
+  valorContratoNumerico =
+    Number(matriculaBanco?.valorMatricula || 0) ||
+    Number(matriculaBanco?.valorMensalidade || 0);
+}
 
 const valorContratoFormatado = new Intl.NumberFormat("pt-BR", {
   style: "currency",
