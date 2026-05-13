@@ -128,6 +128,43 @@ const alunosInadimplentes = Object.values(contador).filter(
         0
       );
 
+          // CAIXA ONLINE IBE (ASAAS)
+    const recebimentosOnlineIbe =
+      user.instituicaoId === 1
+        ? await prisma.movimentoCaixa.findMany({
+            where: {
+              instituicaoId: 1,
+              origem: "ONLINE_ASAAS_IBE",
+              tipo: "ENTRADA",
+              ...(inicioStr || fimStr
+                ? {
+                    createdAt: {
+                      ...(inicioStr
+                        ? { gte: new Date(`${inicioStr}T00:00:00`) }
+                        : {}),
+                      ...(fimStr
+                        ? { lte: new Date(`${fimStr}T23:59:59.999`) }
+                        : {}),
+                    },
+                  }
+                : {}),
+            },
+            include: {
+              aluno: true,
+              lancamento: true,
+              caixa: true,
+            },
+            orderBy: {
+              createdAt: "desc",
+            },
+          })
+        : [];
+
+    const totalOnlineIbe = recebimentosOnlineIbe.reduce(
+      (acc, item) => acc + Number(item.valor || 0),
+      0
+    );
+
     const resumoPorTipo = {
       MATRICULA: 0,
       MENSALIDADE: 0,
@@ -145,15 +182,18 @@ const alunosInadimplentes = Object.values(contador).filter(
 
     return NextResponse.json({
       resumo: {
-        quantidadeLancamentos: lancamentos.length,
-        totalLancado,
-        totalPago,
-        totalPendente,
-        totalAtrasado,
-        alunosInadimplentes,
-      },
+  quantidadeLancamentos: lancamentos.length,
+  totalLancado,
+  totalPago,
+  totalPendente,
+  totalAtrasado,
+  alunosInadimplentes,
+  totalOnlineIbe,
+  quantidadeOnlineIbe: recebimentosOnlineIbe.length,
+},
       resumoPorTipo,
       lancamentos,
+      recebimentosOnlineIbe,
     });
   } catch (e: any) {
     console.error("ERRO RELATORIOS FINANCEIROS:", e);

@@ -54,6 +54,8 @@ type RespostaApi = {
     totalPendente: number;
     totalAtrasado: number;
     alunosInadimplentes: number;
+    totalOnlineIbe?: number;
+    quantidadeOnlineIbe?: number;
   };
   resumoPorTipo: {
     MATRICULA: number;
@@ -663,7 +665,7 @@ doc.save(nomeArquivo);
         </div>
       ) : !dados ? null : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-7 gap-4">
             <div className="bg-white border rounded-xl p-4">
               <p className="text-sm text-gray-500">Lançamentos</p>
               <p className="text-2xl font-bold">
@@ -684,6 +686,18 @@ doc.save(nomeArquivo);
                 {formatarMoeda(dados.resumo.totalPago)}
               </p>
             </div>
+
+{Number(dados.resumo.totalOnlineIbe || 0) > 0 && (
+  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <p className="text-sm text-blue-700">Online Asaas IBE</p>
+    <p className="text-2xl font-bold text-blue-800">
+      {formatarMoeda(Number(dados.resumo.totalOnlineIbe || 0))}
+    </p>
+    <p className="mt-1 text-xs text-blue-700">
+      {Number(dados.resumo.quantidadeOnlineIbe || 0)} pagamento(s)
+    </p>
+  </div>
+)}
 
             <div className="bg-white border rounded-xl p-4">
               <p className="text-sm text-gray-500">Pendente</p>
