@@ -147,7 +147,7 @@ export async function POST(request: Request) {
 
     const nome = limparTexto(body.nome);
     const email = limparTexto(body.email).toLowerCase();
-    const matricula = limparTexto(body.matricula);
+    const matriculaInformada = limparTexto(body.matricula);
     const cpf = limparSomenteNumeros(body.cpf);
     const rg = limparTexto(body.rg);
     const telefone = limparTexto(body.telefone);
@@ -183,22 +183,22 @@ export async function POST(request: Request) {
       );
     }
 
-    if (matricula) {
-      const matriculaExistente = await prisma.aluno.findFirst({
-        where: {
-          instituicaoId: user.instituicaoId,
-          matricula,
-        },
-        select: { id: true, nome: true },
-      });
+    if (matriculaInformada) {
+  const matriculaExistente = await prisma.aluno.findFirst({
+    where: {
+      instituicaoId: user.instituicaoId,
+      matricula: matriculaInformada,
+    },
+    select: { id: true, nome: true },
+  });
 
-      if (matriculaExistente) {
-        return NextResponse.json(
-          { error: "Já existe um aluno com esta matrícula nesta instituição." },
-          { status: 400 }
-        );
-      }
-    }
+  if (matriculaExistente) {
+    return NextResponse.json(
+      { error: "Já existe um aluno com esta matrícula nesta instituição." },
+      { status: 400 }
+    );
+  }
+}
 
     if (cpf) {
       const cpfExistente = await prisma.aluno.findFirst({
@@ -243,6 +243,37 @@ if (poloId !== null) {
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
 
     const novoAluno = await prisma.$transaction(async (tx) => {
+
+      let matriculaFinal = matriculaInformada;
+
+if (!matriculaFinal) {
+  const instituicaoAtualizada = await tx.instituicao.update({
+    where: {
+      id: user.instituicaoId!,
+    },
+    data: {
+      proximoNumeroMatricula: {
+        increment: 1,
+      },
+    },
+    select: {
+      proximoNumeroMatricula: true,
+      slug: true,
+    },
+  });
+
+  const numeroGerado = instituicaoAtualizada.proximoNumeroMatricula - 1;
+  const prefixo =
+    instituicaoAtualizada.slug
+      ?.normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^A-Za-z0-9]/g, "")
+      .toUpperCase()
+      .slice(0, 6) || "MAT";
+
+  matriculaFinal = `${prefixo}-${String(numeroGerado).padStart(6, "0")}`;
+}
+
       const novoUser = await tx.user.create({
   data: {
     nome,
@@ -259,7 +290,7 @@ if (poloId !== null) {
           nome,
           nomeSocial: limparTexto(body.nomeSocial) || null,
           genero: limparTexto(body.genero) || null,
-          matricula: matricula || null,
+          matricula: matriculaFinal || null,
           poloId: poloId || null,
           cpf: cpf || null,
           rg: rg || null,

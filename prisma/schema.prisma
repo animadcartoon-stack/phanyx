@@ -12,6 +12,7 @@ model Instituicao {
   nome                       String
   ativo                      Boolean                         @default(true)
   createdAt                  DateTime                        @default(now())
+  proximoNumeroMatricula     Int                             @default(1)
   dominio                    String?                         @unique
   slug                       String                          @unique
   updatedAt                  DateTime

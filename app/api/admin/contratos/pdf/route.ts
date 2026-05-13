@@ -281,6 +281,17 @@ if (fs.existsSync(assinaturaDiretorPath)) {
 
     const imagemLogo = await carregarImagem(data?.instituicao?.logoUrl || "");
 
+    const assinaturaDiretorUrl =
+  data?.instituicao?.certificadoAssinaturaUrl ||
+  data?.instituicao?.assinaturaDiretorUrl ||
+  "";
+
+    const assinaturaDiretorDinamica = await carregarImagem(assinaturaDiretorUrl);
+
+if (assinaturaDiretorDinamica) {
+  assinaturaDiretorEmbed = assinaturaDiretorDinamica;
+}
+
     let page = pdfDoc.addPage([pageWidth, pageHeight]);
     let y = pageHeight - 130;
 
@@ -574,15 +585,61 @@ if (fs.existsSync(assinaturaDiretorPath)) {
               : pageHeight - 118;
         }
 
-        page.drawText(linha || " ", {
-          x: margemX,
-          y,
-          size: 11,
-          font,
-          color: rgb(0, 0, 0),
-        });
+        if (linha.includes("{{assinaturaDiretor}}")) {
+  const partes = linha.split("{{assinaturaDiretor}}");
+  const textoAntes = partes[0] || "";
+  const textoDepois = partes[1] || "";
 
-        y -= 19;
+  const xAssinatura = margemX + font.widthOfTextAtSize(textoAntes, 11);
+
+  if (textoAntes.trim()) {
+    page.drawText(textoAntes, {
+      x: margemX,
+      y,
+      size: 11,
+      font,
+      color: rgb(0, 0, 0),
+    });
+  }
+
+  if (assinaturaDiretorEmbed) {
+    page.drawImage(assinaturaDiretorEmbed, {
+      x: xAssinatura,
+      y: y - 12,
+      width: 125,
+      height: 34,
+      opacity: 1,
+    });
+  } else {
+    page.drawText("Assinatura do diretor", {
+      x: xAssinatura,
+      y,
+      size: 10,
+      font,
+      color: rgb(0, 0, 0),
+    });
+  }
+
+  if (textoDepois.trim()) {
+    page.drawText(textoDepois, {
+      x: xAssinatura + 130,
+      y,
+      size: 11,
+      font,
+      color: rgb(0, 0, 0),
+    });
+  }
+} else {
+  page.drawText(linha || " ", {
+    x: margemX,
+    y,
+    size: 11,
+    font,
+    color: rgb(0, 0, 0),
+  });
+}
+
+y -= 19;
       }
 
       y -= 7;

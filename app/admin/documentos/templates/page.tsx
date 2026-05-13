@@ -510,6 +510,8 @@ function AdminDocumentosTemplatesPage() {
                     "{{nomeAluno}}",
                     "{{cpfAluno}}",
                     "{{matriculaAluno}}",
+                    "{{numeroMatricula}}",
+                    "{{assinaturaDiretor}}",
                     "{{curso}}",
                     "{{disciplinas}}",
                     "{{valorContrato}}",
