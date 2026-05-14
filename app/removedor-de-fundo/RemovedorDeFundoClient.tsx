@@ -24,6 +24,7 @@ export default function RemovedorDeFundoClient() {
   const [contraste, setContraste] = useState(130);
   const [saturacao, setSaturacao] = useState(100);
   const [opacidade, setOpacidade] = useState(100);
+  const [zoomResultado, setZoomResultado] = useState(1);
   const [intensidadeTraco, setIntensidadeTraco] = useState(60);
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
@@ -660,9 +661,11 @@ setProcessando(false);
                   src={imagemFinal}
                   alt="Resultado transparente"
                   className="max-h-[240px] max-w-full object-contain"
-                  style={{
+                 style={{
   opacity: opacidade / 100,
   filter: "none",
+  transform: `scale(${zoomResultado})`,
+  transformOrigin: "center",
 }}
                 />
               ) : (
@@ -672,9 +675,27 @@ setProcessando(false);
 
             {imagemFinal && (
   <div className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-slate-950/60 px-2 py-2">
-    <span className="text-[10px] font-bold text-white/80">
-      Baixar:
-    </span>
+    <div className="flex items-center gap-1">
+  <button
+    type="button"
+    onClick={() => setZoomResultado((z) => Math.max(0.5, z - 0.1))}
+    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+  >
+    -
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setZoomResultado((z) => Math.min(3, z + 0.1))}
+    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+  >
+    +
+  </button>
+</div>
+
+<span className="text-[10px] font-bold text-white/80">
+  Baixar:
+</span>
 
     <button
       onClick={() => baixarImagem("png")}
