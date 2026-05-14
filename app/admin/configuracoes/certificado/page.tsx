@@ -537,6 +537,7 @@ function gerarPontosEstrela(
   const [mensagemErro, setMensagemErro] = useState("");
   const [orientacao, setOrientacao] = useState<OrientacaoEditor>("paisagem");
   const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
+  const [modoFundo, setModoFundo] = useState<"modelo" | "phanyx">("modelo");
   const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(100);
   const [modoAmplo, setModoAmplo] = useState(false);
@@ -2028,6 +2029,32 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   <p className="mb-3 text-xs font-bold uppercase tracking-wide text-blue-700">
     Fundo PHANYX A4
   </p>
+
+<div className="mb-3 grid grid-cols-2 gap-2">
+  <button
+    type="button"
+    onClick={() => setModoFundo("modelo")}
+    className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+      modoFundo === "modelo"
+        ? "border-blue-600 bg-blue-600 text-white"
+        : "bg-white text-slate-700"
+    }`}
+  >
+    Usar modelo
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setModoFundo("phanyx")}
+    className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+      modoFundo === "phanyx"
+        ? "border-blue-600 bg-blue-600 text-white"
+        : "bg-white text-slate-700"
+    }`}
+  >
+    Criar do zero
+  </button>
+</div>
 
   <div className="space-y-3">
     <label className="block text-xs font-semibold text-slate-600">
