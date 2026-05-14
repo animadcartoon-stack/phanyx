@@ -337,8 +337,6 @@ if (parecidoComFundo) {
 
 if (removerBrancoInterno && modo === "objeto") {
   for (let i = 0; i < totalPixels; i++) {
-    if (remover[i]) continue;
-
     const di = i * 4;
 
     const r = data[di];
@@ -346,15 +344,16 @@ if (removerBrancoInterno && modo === "objeto") {
     const b = data[di + 2];
 
     const brilhoPixel = (r + g + b) / 3;
+    const diferencaEntreCanais =
+      Math.max(r, g, b) - Math.min(r, g, b);
 
-    const poucaCor =
-      Math.abs(r - g) < 22 &&
-      Math.abs(r - b) < 22 &&
-      Math.abs(g - b) < 22;
+    const parecidoComBrancoDoFundo =
+      distanciaCor(r, g, b, baseR, baseG, baseB) <= Math.max(18, sensibilidade * 2.4);
 
-    const muitoClaro = brilhoPixel > 220;
+    const ehBrancoOuCinzaClaro =
+      brilhoPixel > 185 && diferencaEntreCanais < 38;
 
-    if (poucaCor && muitoClaro) {
+    if (parecidoComBrancoDoFundo || ehBrancoOuCinzaClaro) {
       remover[i] = 1;
     }
   }
