@@ -2638,6 +2638,7 @@ contornoEspessura: 2,
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
+  backgroundColor: corFundoPagina,
   transform: `scale(${escala})`,
   transformOrigin: "top left",
 }}
