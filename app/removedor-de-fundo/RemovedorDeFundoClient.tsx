@@ -28,6 +28,7 @@ export default function RemovedorDeFundoClient() {
   const [intensidadeTraco, setIntensidadeTraco] = useState(60);
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
+  const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
@@ -333,6 +334,32 @@ if (parecidoComFundo) {
           fila.push([x, y - 1]);
         }
       }
+
+      if (removerBrancoInterno && modo === "objeto") {
+  const toleranciaInterna = Math.max(10, sensibilidade * 1.2);
+
+  for (let i = 0; i < totalPixels; i++) {
+    if (remover[i]) continue;
+
+    const di = i * 4;
+
+    const r = data[di];
+    const g = data[di + 1];
+    const b = data[di + 2];
+
+    const dist = distanciaCor(r, g, b, baseR, baseG, baseB);
+    const brilhoPixel = (r + g + b) / 3;
+    const poucaCor =
+      Math.abs(r - g) < 18 &&
+      Math.abs(r - b) < 18 &&
+      Math.abs(g - b) < 18;
+
+    if (dist <= toleranciaInterna && brilhoPixel > 210 && poucaCor) {
+      remover[i] = 1;
+    }
+  }
+}
+
             if (manterObjetoPrincipal && modo === "objeto") {
         const alphaTemp = new Uint8Array(totalPixels);
 
@@ -435,6 +462,7 @@ setProcessando(false);
   intensidadeTraco,
   modo,
   manterObjetoPrincipal,
+  removerBrancoInterno,
 ]);
 
   function baixarImagem(tipo: DownloadTipo) {
@@ -609,6 +637,15 @@ setProcessando(false);
                 Manter apenas objeto principal
               </label>
             )}
+
+<label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
+  <input
+    type="checkbox"
+    checked={removerBrancoInterno}
+    onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
+  />
+  Remover branco interno
+</label>
 
           </aside>
 
