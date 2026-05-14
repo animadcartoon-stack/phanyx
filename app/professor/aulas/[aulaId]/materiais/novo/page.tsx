@@ -55,6 +55,18 @@ export default function NovoMaterialAulaPage() {
   const precisaArquivo =
     tipo === "arquivo" || tipo === "pdf" || tipo === "doc" || tipo === "ppt";
 
+    function iconeMaterial(tipoMaterial?: string) {
+  const tipo = String(tipoMaterial || "").toUpperCase();
+
+  if (tipo === "PDF") return "📄";
+  if (tipo === "VIDEO") return "🎥";
+  if (tipo === "LINK") return "🔗";
+  if (tipo === "DOC") return "📝";
+  if (tipo === "PPT") return "📊";
+
+  return "📁";
+}
+
   async function carregarMateriais() {
     if (!aulaId || !Number.isFinite(aulaId)) return;
 
@@ -313,72 +325,113 @@ export default function NovoMaterialAulaPage() {
           </div>
         )}
 
-        <section className="rounded-2xl border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900">Materiais salvos</h2>
+        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div className="flex items-start justify-between gap-4">
+    <div>
+      <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-600">
+        Biblioteca da aula
+      </p>
+      <h2 className="mt-1 text-xl font-black text-slate-950">
+        Materiais salvos
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Arquivos, links, vídeos e documentos de apoio desta aula.
+      </p>
+    </div>
 
-          {carregandoMateriais ? (
-            <p className="mt-3 text-sm text-gray-500">Carregando materiais...</p>
-          ) : materiais.length === 0 ? (
-            <p className="mt-3 text-sm text-gray-500">
-              Nenhum material cadastrado nesta aula ainda.
-            </p>
-          ) : (
-            <div className="mt-4 space-y-3">
-              {materiais.map((material) => (
-                <div
-                  key={material.id}
-                  className="rounded-xl border border-slate-200 bg-slate-50 p-4"
-                >
-                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="font-semibold text-slate-900">
-                        {material.titulo}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        Tipo: {material.tipo}
-                        {material.arquivoNome ? ` • ${material.arquivoNome}` : ""}
-                      </p>
-                      {material.url && (
-                        <p className="mt-1 break-all text-xs text-slate-500">
-                          {material.url}
-                        </p>
-                      )}
-                    </div>
+    <span className="rounded-full bg-blue-50 px-4 py-2 text-xs font-bold text-blue-700">
+      {materiais.length} material(is)
+    </span>
+  </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {material.url && (
-                        <a
-                          href={material.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
-                        >
-                          Abrir
-                        </a>
-                      )}
+  {carregandoMateriais ? (
+    <p className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+      Carregando materiais...
+    </p>
+  ) : materiais.length === 0 ? (
+    <div className="mt-5 rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
+        📚
+      </div>
+      <p className="mt-4 font-bold text-slate-800">
+        Nenhum material cadastrado ainda
+      </p>
+      <p className="mt-1 text-sm text-slate-500">
+        Adicione apostilas, vídeos, PDFs, links ou documentos para os alunos.
+      </p>
+    </div>
+  ) : (
+    <div className="mt-5 grid gap-4">
+      {materiais.map((material) => (
+        <div
+          key={material.id}
+          className="group rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+        >
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-2xl">
+                {iconeMaterial(material.tipo)}
+              </div>
 
-                      <button
-                        type="button"
-                        onClick={() => abrirEdicao(material)}
-                        className="rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-600"
-                      >
-                        Editar
-                      </button>
+              <div className="min-w-0">
+                <p className="truncate text-base font-black text-slate-950">
+                  {material.titulo}
+                </p>
 
-                      <button
-                        type="button"
-                        onClick={() => setMaterialExcluir(material)}
-                        className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700"
-                      >
-                        Excluir
-                      </button>
-                    </div>
-                  </div>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                  <span className="rounded-full bg-slate-100 px-2.5 py-1 font-bold text-slate-600">
+                    {material.tipo}
+                  </span>
+
+                  {material.arquivoNome && (
+                    <span className="max-w-[360px] truncate">
+                      {material.arquivoNome}
+                    </span>
+                  )}
                 </div>
-              ))}
+
+                {material.url && (
+                  <p className="mt-2 max-w-xl truncate text-xs text-slate-400">
+                    Link protegido do material salvo
+                  </p>
+                )}
+              </div>
             </div>
-          )}
-        </section>
+
+            <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
+              {material.url && (
+                <a
+                  href={material.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-2xl bg-blue-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  Abrir
+                </a>
+              )}
+
+              <button
+                type="button"
+                onClick={() => abrirEdicao(material)}
+                className="rounded-2xl bg-amber-500 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-amber-600"
+              >
+                Editar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMaterialExcluir(material)}
+                className="rounded-2xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-red-700"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</section>
 
         <form
           onSubmit={handleSalvarMaterial}
