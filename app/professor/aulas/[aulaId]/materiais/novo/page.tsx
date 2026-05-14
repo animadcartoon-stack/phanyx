@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 
 type ArquivoUpload = {
@@ -10,14 +10,16 @@ type ArquivoUpload = {
   contentType?: string;
 };
 
-function sanitizeFileName(name: string) {
-  return name
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .replace(/-+/g, "-")
-    .toLowerCase();
-}
+type MaterialAula = {
+  id: number;
+  tipo: string;
+  titulo: string;
+  url?: string | null;
+  arquivoNome?: string | null;
+  mimeType?: string | null;
+  tamanho?: number | null;
+  createdAt?: string;
+};
 
 export default function NovoMaterialAulaPage() {
   const params = useParams();
@@ -25,6 +27,9 @@ export default function NovoMaterialAulaPage() {
   const inputArquivoRef = useRef<HTMLInputElement | null>(null);
 
   const aulaId = params?.aulaId ? Number(params.aulaId) : null;
+
+  const [materiais, setMateriais] = useState<MaterialAula[]>([]);
+  const [carregandoMateriais, setCarregandoMateriais] = useState(true);
 
   const [titulo, setTitulo] = useState("");
   const [tipo, setTipo] = useState("arquivo");
@@ -39,61 +44,102 @@ export default function NovoMaterialAulaPage() {
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
 
+  const [materialEditando, setMaterialEditando] = useState<MaterialAula | null>(null);
+  const [editTitulo, setEditTitulo] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+
+  const [materialExcluir, setMaterialExcluir] = useState<MaterialAula | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+
+  const precisaArquivo =
+    tipo === "arquivo" || tipo === "pdf" || tipo === "doc" || tipo === "ppt";
+
+  async function carregarMateriais() {
+    if (!aulaId || !Number.isFinite(aulaId)) return;
+
+    try {
+      setCarregandoMateriais(true);
+      setErro("");
+
+      const res = await fetch(`/api/professor/aulas/${aulaId}/materiais`, {
+        credentials: "include",
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao carregar materiais");
+      }
+
+      setMateriais(Array.isArray(json) ? json : []);
+    } catch (e: any) {
+      setErro(e?.message || "Erro ao carregar materiais");
+      setMateriais([]);
+    } finally {
+      setCarregandoMateriais(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarMateriais();
+  }, [aulaId]);
+
   async function handleUploadArquivo() {
-  if (!arquivo) {
-    setErro("Selecione um arquivo para enviar.");
-    return;
-  }
-
-  if (!aulaId || !Number.isFinite(aulaId)) {
-    setErro("Aula inválida.");
-    return;
-  }
-
-  try {
-    setUploadingArquivo(true);
-    setProgressoUpload(10);
-    setErro("");
-    setMensagem("");
-
-    const formData = new FormData();
-    formData.append("file", arquivo);
-
-    const res = await fetch("/api/upload", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
-
-    const json = await res.json();
-
-    if (!res.ok) {
-      throw new Error(json?.error || "Erro ao enviar arquivo.");
+    if (!arquivo) {
+      setErro("Selecione um arquivo para enviar.");
+      return;
     }
 
-    const url = json?.url || json?.arquivo?.url;
-
-    if (!url) {
-      throw new Error("Upload concluído, mas nenhuma URL foi retornada.");
+    if (!aulaId || !Number.isFinite(aulaId)) {
+      setErro("Aula inválida.");
+      return;
     }
 
-    setProgressoUpload(100);
+    try {
+      setUploadingArquivo(true);
+      setProgressoUpload(10);
+      setErro("");
+      setMensagem("");
 
-    setArquivoEnviado({
-      url,
-      downloadUrl: url,
-      pathname: arquivo.name,
-      contentType: arquivo.type,
-    });
+      const formData = new FormData();
+      formData.append("file", arquivo);
 
-    setMensagem("Arquivo enviado com sucesso.");
-  } catch (e: any) {
-    setErro(e?.message || "Erro ao enviar arquivo");
-    setProgressoUpload(0);
-  } finally {
-    setUploadingArquivo(false);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao enviar arquivo.");
+      }
+
+      const url = json?.url || json?.arquivo?.url;
+
+      if (!url) {
+        throw new Error("Upload concluído, mas nenhuma URL foi retornada.");
+      }
+
+      setProgressoUpload(100);
+
+      setArquivoEnviado({
+        url,
+        downloadUrl: url,
+        pathname: arquivo.name,
+        contentType: arquivo.type,
+      });
+
+      setMensagem("Arquivo enviado com sucesso.");
+    } catch (e: any) {
+      setErro(e?.message || "Erro ao enviar arquivo");
+      setProgressoUpload(0);
+    } finally {
+      setUploadingArquivo(false);
+    }
   }
-}
 
   async function handleSalvarMaterial(e: React.FormEvent) {
     e.preventDefault();
@@ -111,25 +157,11 @@ export default function NovoMaterialAulaPage() {
       let body: any;
 
       if (tipo === "link") {
-        if (!urlExterna.trim()) {
-          throw new Error("Informe a URL do link.");
-        }
-
-        body = {
-          titulo,
-          tipo: "LINK",
-          url: urlExterna.trim(),
-        };
+        if (!urlExterna.trim()) throw new Error("Informe a URL do link.");
+        body = { titulo, tipo: "LINK", url: urlExterna.trim() };
       } else if (tipo === "video") {
-        if (!urlExterna.trim()) {
-          throw new Error("Informe a URL do vídeo.");
-        }
-
-        body = {
-          titulo,
-          tipo: "VIDEO",
-          url: urlExterna.trim(),
-        };
+        if (!urlExterna.trim()) throw new Error("Informe a URL do vídeo.");
+        body = { titulo, tipo: "VIDEO", url: urlExterna.trim() };
       } else {
         if (!arquivo || !arquivoEnviado?.url) {
           throw new Error("Envie o arquivo antes de salvar.");
@@ -148,9 +180,7 @@ export default function NovoMaterialAulaPage() {
       const res = await fetch(`/api/professor/aulas/${aulaId}/materiais`, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
 
@@ -160,11 +190,15 @@ export default function NovoMaterialAulaPage() {
         throw new Error(json.error || "Erro ao salvar material");
       }
 
-      setMensagem("Material criado com sucesso.");
+      setTitulo("");
+      setTipo("arquivo");
+      setUrlExterna("");
+      setArquivo(null);
+      setArquivoEnviado(null);
+      setProgressoUpload(0);
 
-      setTimeout(() => {
-        router.back();
-      }, 1000);
+      setMensagem("Material criado com sucesso.");
+      await carregarMateriais();
     } catch (e: any) {
       setErro(e.message || "Erro ao salvar material");
     } finally {
@@ -172,12 +206,83 @@ export default function NovoMaterialAulaPage() {
     }
   }
 
-  const precisaArquivo =
-    tipo === "arquivo" || tipo === "pdf" || tipo === "doc" || tipo === "ppt";
+  function abrirEdicao(material: MaterialAula) {
+    setMaterialEditando(material);
+    setEditTitulo(material.titulo || "");
+    setEditUrl(material.url || "");
+  }
+
+  async function salvarEdicaoMaterial(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!aulaId || !materialEditando) return;
+
+    try {
+      setSalvandoEdicao(true);
+      setErro("");
+      setMensagem("");
+
+      const res = await fetch(`/api/professor/aulas/${aulaId}/materiais`, {
+        method: "PUT",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          materialId: materialEditando.id,
+          titulo: editTitulo,
+          url: editUrl,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao editar material");
+      }
+
+      setMaterialEditando(null);
+      setMensagem("Material editado com sucesso.");
+      await carregarMateriais();
+    } catch (e: any) {
+      setErro(e?.message || "Erro ao editar material");
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  }
+
+  async function excluirMaterialConfirmado() {
+    if (!aulaId || !materialExcluir) return;
+
+    try {
+      setExcluindo(true);
+      setErro("");
+      setMensagem("");
+
+      const res = await fetch(`/api/professor/aulas/${aulaId}/materiais`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ materialId: materialExcluir.id }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao excluir material");
+      }
+
+      setMaterialExcluir(null);
+      setMensagem("Material excluído com sucesso.");
+      await carregarMateriais();
+    } catch (e: any) {
+      setErro(e?.message || "Erro ao excluir material");
+    } finally {
+      setExcluindo(false);
+    }
+  }
 
   return (
     <div className="p-6">
-      <div className="mx-auto max-w-3xl space-y-6">
+      <div className="mx-auto max-w-4xl space-y-6">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <button
             type="button"
@@ -188,34 +293,101 @@ export default function NovoMaterialAulaPage() {
           </button>
 
           <h1 className="mt-3 text-2xl font-bold text-gray-900">
-            Novo material da aula
+            Materiais da aula
           </h1>
 
           <p className="mt-1 text-sm text-gray-500">
-            Adicione um arquivo, link ou vídeo a esta aula.
+            Veja, adicione, edite ou exclua os materiais desta aula.
           </p>
         </div>
+
+        {mensagem && (
+          <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
+            {mensagem}
+          </div>
+        )}
+
+        {erro && (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            {erro}
+          </div>
+        )}
+
+        <section className="rounded-2xl border bg-white p-6 shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900">Materiais salvos</h2>
+
+          {carregandoMateriais ? (
+            <p className="mt-3 text-sm text-gray-500">Carregando materiais...</p>
+          ) : materiais.length === 0 ? (
+            <p className="mt-3 text-sm text-gray-500">
+              Nenhum material cadastrado nesta aula ainda.
+            </p>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {materiais.map((material) => (
+                <div
+                  key={material.id}
+                  className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="font-semibold text-slate-900">
+                        {material.titulo}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        Tipo: {material.tipo}
+                        {material.arquivoNome ? ` • ${material.arquivoNome}` : ""}
+                      </p>
+                      {material.url && (
+                        <p className="mt-1 break-all text-xs text-slate-500">
+                          {material.url}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {material.url && (
+                        <a
+                          href={material.url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+                        >
+                          Abrir
+                        </a>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => abrirEdicao(material)}
+                        className="rounded-lg bg-amber-500 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-600"
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setMaterialExcluir(material)}
+                        className="rounded-lg bg-red-600 px-3 py-2 text-xs font-semibold text-white hover:bg-red-700"
+                      >
+                        Excluir
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
 
         <form
           onSubmit={handleSalvarMaterial}
           className="space-y-6 rounded-2xl border bg-white p-6 shadow-sm"
         >
-          {mensagem && (
-            <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">
-              {mensagem}
-            </div>
-          )}
-
-          {erro && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {erro}
-            </div>
-          )}
+          <h2 className="text-lg font-bold text-gray-900">Adicionar novo material</h2>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Título
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Título</label>
             <input
               value={titulo}
               onChange={(e) => setTitulo(e.target.value)}
@@ -226,9 +398,7 @@ export default function NovoMaterialAulaPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Tipo
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Tipo</label>
             <select
               value={tipo}
               onChange={(e) => {
@@ -314,9 +484,7 @@ export default function NovoMaterialAulaPage() {
                       style={{ width: `${progressoUpload}%` }}
                     />
                   </div>
-                  <p className="text-xs text-gray-500">
-                    Upload: {progressoUpload}%
-                  </p>
+                  <p className="text-xs text-gray-500">Upload: {progressoUpload}%</p>
                 </div>
               )}
 
@@ -331,17 +499,13 @@ export default function NovoMaterialAulaPage() {
             </div>
           ) : (
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                URL
-              </label>
+              <label className="block text-sm font-medium text-gray-700">URL</label>
               <input
                 value={urlExterna}
                 onChange={(e) => setUrlExterna(e.target.value)}
                 required
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                placeholder={
-                  tipo === "video" ? "https://youtube.com/..." : "https://..."
-                }
+                placeholder={tipo === "video" ? "https://youtube.com/..." : "https://..."}
               />
             </div>
           )}
@@ -357,6 +521,107 @@ export default function NovoMaterialAulaPage() {
           </div>
         </form>
       </div>
+
+      {materialEditando && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
+          <form
+            onSubmit={salvarEdicaoMaterial}
+            className="w-full max-w-xl space-y-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold text-slate-900">Editar material</h2>
+              <button
+                type="button"
+                onClick={() => setMaterialEditando(null)}
+                className="rounded-full px-3 py-1 text-xl text-slate-500 hover:bg-slate-100"
+              >
+                ×
+              </button>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                Título
+              </label>
+              <input
+                value={editTitulo}
+                onChange={(e) => setEditTitulo(e.target.value)}
+                className="w-full rounded-lg border p-2 text-gray-900"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700">
+                URL
+              </label>
+              <input
+                value={editUrl}
+                onChange={(e) => setEditUrl(e.target.value)}
+                className="w-full rounded-lg border p-2 text-gray-900"
+                required
+              />
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setMaterialEditando(null)}
+                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="submit"
+                disabled={salvandoEdicao}
+                className="rounded-2xl bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-60"
+              >
+                {salvandoEdicao ? "Salvando..." : "Salvar alterações"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {materialExcluir && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+            <h2 className="text-lg font-bold text-slate-900">
+              Confirmar exclusão
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Tem certeza que deseja excluir o material{" "}
+              <strong>"{materialExcluir.titulo}"</strong>?
+            </p>
+
+            <p className="mt-2 text-sm text-slate-500">
+              Esta ação não pode ser desfeita.
+            </p>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setMaterialExcluir(null)}
+                disabled={excluindo}
+                className="rounded-2xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={excluirMaterialConfirmado}
+                disabled={excluindo}
+                className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {excluindo ? "Excluindo..." : "Confirmar exclusão"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
