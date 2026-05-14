@@ -291,7 +291,7 @@ if (modo === "assinatura") {
         cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length
       );
 
-      const tolerancia = Math.max(8, sensibilidade * 1.15);
+      const tolerancia = Math.max(6, sensibilidade * 0.75);
 
       const fila: Array<[number, number]> = [];
 
