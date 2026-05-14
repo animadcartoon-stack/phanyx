@@ -285,6 +285,43 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
 }
 
 export default function ConfiguracaoCertificadoPage() {
+
+const moldurasPaisagem = [
+  "/molduras-certificado/modo-paisagem/moldura-01.png",
+  "/molduras-certificado/modo-paisagem/moldura-02.png",
+  "/molduras-certificado/modo-paisagem/moldura-03.png",
+  "/molduras-certificado/modo-paisagem/moldura-04.png",
+  "/molduras-certificado/modo-paisagem/moldura-05.png",
+  "/molduras-certificado/modo-paisagem/moldura-06.png",
+  "/molduras-certificado/modo-paisagem/moldura-07.png",
+];
+
+const moldurasRetrato = [
+  "/molduras-certificado/modo-retrato/moldura-08.png",
+  "/molduras-certificado/modo-retrato/moldura-09.png",
+  "/molduras-certificado/modo-retrato/moldura-10.png",
+  "/molduras-certificado/modo-retrato/moldura-11.png",
+  "/molduras-certificado/modo-retrato/moldura-12.png",
+  "/molduras-certificado/modo-retrato/moldura-13.png",
+  "/molduras-certificado/modo-retrato/moldura-14.png",
+];
+
+const figurasDecorativas = [
+  "/figuras/figura-01.png",
+  "/figuras/figura-02.png",
+  "/figuras/figura-03.png",
+  "/figuras/figura-04.png",
+  "/figuras/figura-05.png",
+  "/figuras/figura-06.png",
+  "/figuras/figura-07.png",
+  "/figuras/figura-08.png",
+  "/figuras/figura-09.png",
+  "/figuras/figura-10.png",
+  "/figuras/figura-11.png",
+  "/figuras/figura-12.png",
+  "/figuras/figura-13.png",
+];
+
   const [menuContexto, setMenuContexto] = useState<{
   x: number;
   y: number;
@@ -522,6 +559,53 @@ function gerarPontosEstrela(
   g: 255,
   b: 255,
 });
+
+function adicionarImagemBiblioteca(
+  imagemUrl: string,
+  largura = 180,
+  altura = 180
+) {
+  const novoId = Date.now();
+
+  setCampos((prev) => [
+    ...prev,
+    {
+      id: novoId,
+      tempId: novoId,
+      tipo: "IMAGEM",
+      imagemUrl,
+      url: imagemUrl,
+      src: imagemUrl,
+      arquivoUrl: imagemUrl,
+      previewUrl: imagemUrl,
+      x: 120,
+      y: 120,
+      largura,
+      altura,
+      rotate: 0,
+      opacity: 1,
+      ordem: 10,
+      pagina: 1,
+      crop: {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      },
+      cropBaseW: largura,
+      cropBaseH: altura,
+      sombraAtiva: false,
+      sombraX: 0,
+      sombraY: 0,
+      sombraBlur: 0,
+      sombraCor: "#000000",
+      sombraOpacidade: 0.25,
+    } as any,
+  ]);
+
+  setCampoSelecionadoId(novoId);
+}
+
  const handleUploadImagem = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
