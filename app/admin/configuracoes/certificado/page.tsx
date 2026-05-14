@@ -2024,10 +2024,82 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
               </div>
 
 <div className="mb-4 rounded-2xl border border-dashed border-blue-300 bg-white p-4 shadow-sm">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-blue-700">
+  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-blue-700">
     Imagens do certificado
   </p>
-  </div>
+
+  <details className="mb-3 rounded-xl border bg-slate-50 p-3" open>
+    <summary className="cursor-pointer text-xs font-bold text-slate-700">
+      Molduras paisagem
+    </summary>
+
+    <div className="mt-3 grid grid-cols-3 gap-2">
+      {moldurasPaisagem.map((src, index) => (
+        <button
+          key={src}
+          type="button"
+          onClick={() => adicionarImagemBiblioteca(src, 520, 360)}
+          className="rounded-lg border bg-white p-1 hover:border-blue-500 hover:bg-blue-50"
+          title={`Moldura paisagem ${index + 1}`}
+        >
+          <img
+            src={src}
+            alt={`Moldura paisagem ${index + 1}`}
+            className="h-14 w-full object-contain"
+          />
+        </button>
+      ))}
+    </div>
+  </details>
+
+  <details className="mb-3 rounded-xl border bg-slate-50 p-3">
+    <summary className="cursor-pointer text-xs font-bold text-slate-700">
+      Molduras retrato
+    </summary>
+
+    <div className="mt-3 grid grid-cols-3 gap-2">
+      {moldurasRetrato.map((src, index) => (
+        <button
+          key={src}
+          type="button"
+          onClick={() => adicionarImagemBiblioteca(src, 360, 520)}
+          className="rounded-lg border bg-white p-1 hover:border-blue-500 hover:bg-blue-50"
+          title={`Moldura retrato ${index + 1}`}
+        >
+          <img
+            src={src}
+            alt={`Moldura retrato ${index + 1}`}
+            className="h-16 w-full object-contain"
+          />
+        </button>
+      ))}
+    </div>
+  </details>
+
+  <details className="rounded-xl border bg-slate-50 p-3">
+    <summary className="cursor-pointer text-xs font-bold text-slate-700">
+      Figuras decorativas
+    </summary>
+
+    <div className="mt-3 grid grid-cols-3 gap-2">
+      {figurasDecorativas.map((src, index) => (
+        <button
+          key={src}
+          type="button"
+          onClick={() => adicionarImagemBiblioteca(src, 150, 150)}
+          className="rounded-lg border bg-white p-1 hover:border-blue-500 hover:bg-blue-50"
+          title={`Figura ${index + 1}`}
+        >
+          <img
+            src={src}
+            alt={`Figura ${index + 1}`}
+            className="h-14 w-full object-contain"
+          />
+        </button>
+      ))}
+    </div>
+  </details>
+</div>
 <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm">
   <button
   type="button"
