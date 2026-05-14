@@ -392,7 +392,7 @@ export default function NovoMaterialAulaPage() {
 
                 {material.url && (
                   <p className="mt-2 max-w-xl truncate text-xs text-slate-400">
-                    Link protegido do material salvo
+                    Material armazenado com segurança no PHANYX
                   </p>
                 )}
               </div>
