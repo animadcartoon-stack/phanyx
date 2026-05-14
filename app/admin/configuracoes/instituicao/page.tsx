@@ -1094,11 +1094,26 @@ async function enviarAssinaturaDiretor(file: File) {
                 {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
               </button>
 
-              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-                {nomeArquivoLogo
-                  ? `Arquivo selecionado: ${nomeArquivoLogo}`
-                  : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
-              </div>
+              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
+  <div>
+    {nomeArquivoLogo
+      ? `Arquivo selecionado: ${nomeArquivoLogo}`
+      : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
+  </div>
+
+  <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
+    Se sua logo estiver com fundo branco ou colorido, remova o fundo antes:
+    <a
+      href="https://phanyx.com.br/removedor-de-fundo"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ml-1 font-bold underline"
+    >
+      Abrir removedor PHANYX
+    </a>
+    . Depois faça o upload da imagem transparente.
+  </div>
+</div>
             </div>
 
 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
