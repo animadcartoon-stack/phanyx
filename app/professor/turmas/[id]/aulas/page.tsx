@@ -206,21 +206,18 @@ export default function AulasDaTurmaPage() {
   : [];
 
 const turmaEncontrada = listaTurmas.find(
-  (t: TurmaApi) => Number(t.id) === turmaId
+  (t: TurmaApi) =>
+    Number(t.id) === turmaId &&
+    Number(t.disciplina?.id) === disciplinaId
 );
 
       if (!turmaEncontrada) {
-  console.warn("Turma não encontrada na lista, usando fallback");
-
-  setTurma({
-    id: turmaId,
-    nome: `Turma ${turmaId}`,
-  } as TurmaApi);
-} else {
-  setTurma(turmaEncontrada);
+  throw new Error(
+    "Disciplina não encontrada para este professor nesta turma. Verifique se a disciplina está vinculada ao professor no admin."
+  );
 }
 
-      setTurma(turmaEncontrada);
+setTurma(turmaEncontrada);
 
       const resAulas = await fetch(
   `/api/professor/turmas/${turmaId}/aulas?disciplinaId=${disciplinaId}`,
@@ -262,6 +259,11 @@ const turmaEncontrada = listaTurmas.find(
       setErro("Turma inválida");
       return;
     }
+
+    if (!disciplinaId || !Number.isFinite(disciplinaId)) {
+  setErro("Disciplina inválida. Volte em Minhas Turmas e abra a disciplina correta.");
+  return;
+}
 
     try {
       setSaving(true);

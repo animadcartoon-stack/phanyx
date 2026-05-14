@@ -11,6 +11,7 @@ export default function RemovedorDeFundoClient() {
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
   const [previewAssinatura, setPreviewAssinatura] = useState<string | null>(null);
+  const [fundoPreview, setFundoPreview] = useState<"xadrez" | "verde" | "azul" | "preto" | "branco">("verde");
 
   const [dimensoesImagem, setDimensoesImagem] = useState<{
   largura: number;
@@ -200,6 +201,113 @@ img.onload = () => {
       const height = canvas.height;
       const totalPixels = width * height;
 
+if (modo === "assinatura") {
+  const cinza = new Float32Array(totalPixels);
+
+  for (let i = 0; i < totalPixels; i++) {
+    const di = i * 4;
+    cinza[i] = 0.299 * data[di] + 0.587 * data[di + 1] + 0.114 * data[di + 2];
+  }
+
+  let minX = width;
+  let minY = height;
+  let maxX = 0;
+  let maxY = 0;
+
+  const alphaMask = new Uint8ClampedArray(totalPixels);
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const p = y * width + x;
+
+      const local =
+        (cinza[p - 1] +
+          cinza[p + 1] +
+          cinza[p - width] +
+          cinza[p + width] +
+          cinza[p - width - 1] +
+          cinza[p - width + 1] +
+          cinza[p + width - 1] +
+          cinza[p + width + 1]) /
+        8;
+
+      const diferenca = local - cinza[p];
+
+      if (diferenca > 2.5) {
+        const alpha = Math.min(
+          255,
+          Math.max(90, Math.round(diferenca * (8 + intensidadeTraco / 8)))
+        );
+
+        alphaMask[p] = alpha;
+
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+      }
+    }
+  }
+
+  // Engrossa levemente traços muito finos para não sumirem
+  const alphaExpandido = new Uint8ClampedArray(alphaMask);
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const p = y * width + x;
+
+      if (alphaMask[p] > 0) {
+        alphaExpandido[p - 1] = Math.max(alphaExpandido[p - 1], alphaMask[p] * 0.65);
+        alphaExpandido[p + 1] = Math.max(alphaExpandido[p + 1], alphaMask[p] * 0.65);
+        alphaExpandido[p - width] = Math.max(alphaExpandido[p - width], alphaMask[p] * 0.65);
+        alphaExpandido[p + width] = Math.max(alphaExpandido[p + width], alphaMask[p] * 0.65);
+      }
+    }
+  }
+
+  for (let i = 0; i < totalPixels; i++) {
+    const di = i * 4;
+    const alpha = alphaExpandido[i];
+
+    if (alpha > 0) {
+      data[di] = 0;
+      data[di + 1] = 0;
+      data[di + 2] = 0;
+      data[di + 3] = alpha;
+    } else {
+      data[di + 3] = 0;
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+
+  const resultadoCompleto = canvas.toDataURL("image/png");
+  setImagemFinal(resultadoCompleto);
+
+  if (maxX > minX && maxY > minY) {
+    const padding = 80;
+    const cropX = Math.max(0, minX - padding);
+    const cropY = Math.max(0, minY - padding);
+    const cropW = Math.min(width - cropX, maxX - minX + padding * 2);
+    const cropH = Math.min(height - cropY, maxY - minY + padding * 2);
+
+    const cropCanvas = document.createElement("canvas");
+    const cropCtx = cropCanvas.getContext("2d");
+
+    if (cropCtx) {
+      cropCanvas.width = cropW;
+      cropCanvas.height = cropH;
+      cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+      setPreviewAssinatura(cropCanvas.toDataURL("image/png"));
+    }
+  } else {
+    setPreviewAssinatura(resultadoCompleto);
+  }
+
+  setProcessando(false);
+  return;
+}
+
       const remover = new Uint8Array(totalPixels);
       const visitado = new Uint8Array(totalPixels);
 
@@ -220,9 +328,7 @@ img.onload = () => {
         cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length
       );
 
-      const tolerancia = modo === "assinatura"
-        ? sensibilidade * 4.2
-        : sensibilidade * 3.2;
+      const tolerancia = sensibilidade * 3.2;
 
       const fila: Array<[number, number]> = [];
 
@@ -256,7 +362,7 @@ img.onload = () => {
         const claro = r > 180 && g > 180 && b > 180;
         const parecidoComFundo = dist <= tolerancia;
 
-        if (parecidoComFundo || (modo === "assinatura" && claro)) {
+        if (parecidoComFundo || claro) {
           remover[p] = 1;
 
           fila.push([x + 1, y]);
@@ -303,17 +409,6 @@ img.onload = () => {
         g = sat.g;
         b = sat.b;
 
-        if (modo === "assinatura") {
-          const media = (r + g + b) / 3;
-          const reforco = intensidadeTraco / 100;
-
-          if (media < 220) {
-            r = r * (1 - reforco);
-            g = g * (1 - reforco);
-            b = b * (1 - reforco);
-          }
-        }
-
         data[di] = r;
         data[di + 1] = g;
         data[di + 2] = b;
@@ -349,68 +444,6 @@ img.onload = () => {
 
 const resultadoCompleto = canvas.toDataURL("image/png");
 setImagemFinal(resultadoCompleto);
-
-if (modo === "assinatura") {if (modo === "assinatura") {
-  let minX = width;
-  let minY = height;
-  let maxX = 0;
-  let maxY = 0;
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const di = dataIndex(x, y, width);
-      const alpha = data[di + 3];
-      const r = data[di];
-      const g = data[di + 1];
-      const b = data[di + 2];
-
-      const media = (r + g + b) / 3;
-
-      if (alpha > 20 && media < 235) {
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
-      }
-    }
-  }
-
-  if (maxX > minX && maxY > minY) {
-    const padding = 80;
-    const cropX = Math.max(0, minX - padding);
-    const cropY = Math.max(0, minY - padding);
-    const cropW = Math.min(width - cropX, maxX - minX + padding * 2);
-    const cropH = Math.min(height - cropY, maxY - minY + padding * 2);
-
-    const cropCanvas = document.createElement("canvas");
-    const cropCtx = cropCanvas.getContext("2d");
-
-    if (cropCtx) {
-      cropCanvas.width = cropW;
-      cropCanvas.height = cropH;
-
-      cropCtx.drawImage(
-        canvas,
-        cropX,
-        cropY,
-        cropW,
-        cropH,
-        0,
-        0,
-        cropW,
-        cropH
-      );
-
-      setPreviewAssinatura(cropCanvas.toDataURL("image/png"));
-    }
-  } else {
-    setPreviewAssinatura(resultadoCompleto);
-  }
-}
- 
-} else {
-  setPreviewAssinatura(null);
-}
 
 setProcessando(false);
     };
@@ -503,10 +536,10 @@ setProcessando(false);
           </div>
         )}
 
-        <div className="grid gap-8 lg:grid-cols-[320px_1fr_1fr]">
+        <div className="grid items-start gap-5 lg:grid-cols-[240px_1fr_1fr]">
           <aside className="space-y-5">
-            <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-8 text-center">
-              <div className="text-2xl font-bold text-cyan-300">
+            <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-4 text-center">
+              <div className="text-base font-bold text-cyan-300">
                 Clique para enviar sua imagem
               </div>
               <div className="mt-3 text-sm text-slate-300">
@@ -524,13 +557,13 @@ setProcessando(false);
               />
             </label>
 
-            <div className="rounded-2xl bg-slate-900 p-5">
-              <h3 className="mb-3 text-xl font-bold">Modo</h3>
+            <div className="rounded-2xl bg-slate-900 p-3">
+              <h3 className="mb-2 text-sm font-bold">Modo</h3>
 
               <div className="flex gap-2">
                 <button
                   onClick={() => setModo("assinatura")}
-                  className={`rounded-xl px-4 py-3 font-bold ${
+                  className={`rounded-lg px-3 py-2 text-xs font-bold ${
                     modo === "assinatura"
                       ? "bg-cyan-500 text-black"
                       : "bg-slate-800"
@@ -551,6 +584,36 @@ setProcessando(false);
                 </button>
               </div>
             </div>
+
+{modo === "assinatura" && (
+  <div className="rounded-xl bg-slate-900 p-3">
+    <p className="mb-2 text-xs font-bold text-white">
+      Fundo de visualização
+    </p>
+
+    <div className="grid grid-cols-2 gap-2">
+      {(["verde", "azul", "preto", "branco", "xadrez"] as const).map((cor) => (
+        <button
+          key={cor}
+          type="button"
+          onClick={() => setFundoPreview(cor)}
+          className={`rounded-lg px-2 py-1.5 text-[11px] font-bold ${
+            fundoPreview === cor
+              ? "bg-cyan-400 text-slate-950"
+              : "bg-slate-800 text-white"
+          }`}
+        >
+          {cor}
+        </button>
+      ))}
+    </div>
+
+    <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">
+      Esse fundo aparece somente na visualização. A imagem será salva com fundo transparente.
+    </p>
+  </div>
+)}
+
                         {modo === "objeto" && (
               <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
                 <input
@@ -572,14 +635,8 @@ setProcessando(false);
 <div
   className="flex w-full items-center justify-center rounded-2xl bg-white p-4"
   style={{
-    aspectRatio:
-  modo === "assinatura"
-    ? "3 / 1"
-    : dimensoesImagem
-      ? `${dimensoesImagem.largura} / ${dimensoesImagem.altura}`
-      : "1 / 1",
-    maxHeight: "520px",
-  }}
+  height: modo === "assinatura" ? "260px" : "360px",
+}}
 >              {imagemOriginal ? (
                 <img
                   src={imagemOriginal}
@@ -592,26 +649,36 @@ setProcessando(false);
             </div>
           </div>
 
-          <div className="rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
+          <div className="h-fit rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
             <h2 className="mb-4 text-center text-xl font-black text-cyan-200">
               Resultado transparente
             </h2>
 
             <div
-  className="flex w-full items-center justify-center rounded-2xl bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0] p-4"
+  className={`flex w-full items-center justify-center rounded-2xl p-4 ${
+    modo === "assinatura" && fundoPreview === "verde"
+      ? "bg-emerald-500"
+      : modo === "assinatura" && fundoPreview === "azul"
+        ? "bg-blue-500"
+        : modo === "assinatura" && fundoPreview === "preto"
+          ? "bg-black"
+          : modo === "assinatura" && fundoPreview === "branco"
+            ? "bg-white"
+            : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
+  }`}
   style={{
-    aspectRatio: dimensoesImagem
-      ? `${dimensoesImagem.largura} / ${dimensoesImagem.altura}`
-      : "1 / 1",
-    maxHeight: "520px",
+    height: modo === "assinatura" ? "260px" : "360px",
   }}
 >
               {imagemFinal ? (
                 <img
                   src={modo === "assinatura" ? previewAssinatura || imagemFinal : imagemFinal}
                   alt="Resultado transparente"
-                  className="max-h-[500px] max-w-full object-contain"
-                  style={{ opacity: opacidade / 100 }}
+                  className="max-h-[180px] max-w-full scale-125 object-contain"
+                  style={{
+  opacity: opacidade / 100,
+  filter: "none",
+}}
                 />
               ) : (
                 <p className="text-cyan-100">Resultado aparecerá aqui</p>
@@ -647,8 +714,8 @@ setProcessando(false);
   </div>
 )}
           </div>
-                  <div className="lg:col-span-3 rounded-3xl border border-white/10 bg-slate-900 p-4">
-  <h3 className="mb-3 text-xl font-black text-white">
+                  <div className="lg:col-span-3 rounded-2xl border border-white/10 bg-slate-900 p-3">
+  <h3 className="mb-2 text-base font-black text-white">
     Ajustes da imagem
   </h3>
 
@@ -742,7 +809,7 @@ function Controle({
   onChange: (valor: number) => void;
 }) {
   return (
-    <div className="rounded-xl bg-slate-950/60 p-3">
+    <div className="rounded-lg bg-slate-950/60 p-2">
       <div className="mb-2 flex items-center justify-between gap-3">
         <label className="text-xs font-bold text-white">{label}</label>
         <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-cyan-200">

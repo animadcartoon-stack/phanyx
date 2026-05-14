@@ -31,29 +31,20 @@ export async function GET() {
 
     const disciplinas = await prisma.disciplina.findMany({
       where: {
-        instituicaoId: user.instituicaoId,
-        OR: [
-          {
-            professorId: professor.id,
-          },
-          {
-            professoresHabilitados: {
-              some: {
-                professorId: professor.id,
-              },
-            },
-          },
-          {
-            turmaDisciplinas: {
-              some: {
-                turma: {
-                  professorId: professor.id,
-                },
-              },
-            },
-          },
-        ],
+  instituicaoId: user.instituicaoId,
+  OR: [
+    {
+      professorId: professor.id,
+    },
+    {
+      professoresHabilitados: {
+        some: {
+          professorId: professor.id,
+        },
       },
+    },
+  ],
+},
       select: {
         id: true,
         nome: true,

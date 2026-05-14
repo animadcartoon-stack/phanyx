@@ -39,22 +39,18 @@ export async function DELETE(
       );
     }
 
-    const aula = await prisma.aula.findFirst({
+  const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
     instituicaoId: user.instituicaoId,
-    turma: {
+    disciplina: {
       instituicaoId: user.instituicaoId,
       OR: [
+        { professorId: professor.id },
         {
-          professorId: professor.id,
-        },
-        {
-          disciplinas: {
+          professoresHabilitados: {
             some: {
-              disciplina: {
-                professorId: professor.id,
-              },
+              professorId: professor.id,
             },
           },
         },
@@ -126,22 +122,18 @@ export async function PUT(
       );
     }
 
-    const aula = await prisma.aula.findFirst({
+  const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
     instituicaoId: user.instituicaoId,
-    turma: {
+    disciplina: {
       instituicaoId: user.instituicaoId,
       OR: [
+        { professorId: professor.id },
         {
-          professorId: professor.id,
-        },
-        {
-          disciplinas: {
+          professoresHabilitados: {
             some: {
-              disciplina: {
-                professorId: professor.id,
-              },
+              professorId: professor.id,
             },
           },
         },
