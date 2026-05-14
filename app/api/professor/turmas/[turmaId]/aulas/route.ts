@@ -38,38 +38,46 @@ export async function GET(
       );
     }
 
-    const turma = await prisma.turma.findFirst({
+  if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
+  return NextResponse.json(
+    { error: "Disciplina não informada para listar aulas." },
+    { status: 400 }
+  );
+}
+
+const turmaDisciplina = await prisma.turmaDisciplina.findFirst({
   where: {
-    id: turmaId,
+    turmaId,
+    disciplinaId,
     instituicaoId: user.instituicaoId,
-    OR: [
-      {
-        professorId: professor.id,
-      },
-      {
-        disciplinas: {
-          some: {
-            professorId: professor.id,
+    disciplina: {
+      OR: [
+        { professorId: professor.id },
+        {
+          professoresHabilitados: {
+            some: {
+              professorId: professor.id,
+            },
           },
         },
-      },
-    ],
+      ],
+    },
   },
   select: {
-    id: true,
+    turmaId: true,
   },
 });
 
-    if (!turma) {
-      return NextResponse.json(
-        { error: "Turma não encontrada ou sem permissão" },
-        { status: 404 }
-      );
-    }
+    if (!turmaDisciplina) {
+  return NextResponse.json(
+    { error: "Disciplina não encontrada nesta turma ou professor sem permissão" },
+    { status: 403 }
+  );
+}
 
     const aulas = await prisma.aula.findMany({
       where: {
-  turmaId: turma.id,
+  turmaId,
   instituicaoId: user.instituicaoId,
   ...(Number.isFinite(disciplinaId) && disciplinaId > 0
     ? { disciplinaId }
@@ -121,22 +129,10 @@ export async function POST(
       );
     }
 
-    const turma = await prisma.turma.findFirst({
+  const turma = await prisma.turma.findFirst({
   where: {
     id: turmaId,
     instituicaoId: user.instituicaoId,
-    OR: [
-      {
-        professorId: professor.id,
-      },
-      {
-        disciplinas: {
-          some: {
-            professorId: professor.id,
-          },
-        },
-      },
-    ],
   },
   select: {
     id: true,
@@ -218,11 +214,7 @@ const turmaDisciplina = await prisma.turmaDisciplina.findFirst({
           },
         },
       },
-      {
-        turma: {
-          professorId: professor.id,
-        },
-      },
+      
     ],
   },
   select: {
@@ -239,7 +231,7 @@ if (!turmaDisciplina) {
 
     const ultimaAula = await prisma.aula.findFirst({
   where: {
-    turmaId: turma.id,
+    turmaId,
     disciplinaId,
     instituicaoId: user.instituicaoId,
   },
