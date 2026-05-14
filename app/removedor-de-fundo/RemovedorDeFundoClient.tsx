@@ -291,7 +291,7 @@ if (modo === "assinatura") {
         cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length
       );
 
-      const tolerancia = sensibilidade * 3.2;
+      const tolerancia = Math.max(8, sensibilidade * 1.15);
 
       const fila: Array<[number, number]> = [];
 
@@ -322,10 +322,9 @@ if (modo === "assinatura") {
         const b = data[di + 2];
 
         const dist = distanciaCor(r, g, b, baseR, baseG, baseB);
-        const claro = r > 180 && g > 180 && b > 180;
         const parecidoComFundo = dist <= tolerancia;
 
-        if (parecidoComFundo || claro) {
+if (parecidoComFundo) {
           remover[p] = 1;
 
           fila.push([x + 1, y]);
