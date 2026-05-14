@@ -379,14 +379,6 @@ if (parecidoComFundo) {
       }
 
 if (removerBrancoInterno && modo === "objeto") {
-  const alvoR = corAlvoManual?.r ?? baseR;
-  const alvoG = corAlvoManual?.g ?? baseG;
-  const alvoB = corAlvoManual?.b ?? baseB;
-
-  const toleranciaManual = corAlvoManual
-    ? Math.max(35, sensibilidade * 4)
-    : Math.max(55, sensibilidade * 3);
-
   for (let i = 0; i < totalPixels; i++) {
     const di = i * 4;
 
@@ -394,9 +386,12 @@ if (removerBrancoInterno && modo === "objeto") {
     const g = data[di + 1];
     const b = data[di + 2];
 
-    const distanciaDoAlvo = distanciaCor(r, g, b, alvoR, alvoG, alvoB);
+    const brancoOuQuaseBranco =
+      r > 230 &&
+      g > 230 &&
+      b > 230;
 
-    if (distanciaDoAlvo <= toleranciaManual) {
+    if (brancoOuQuaseBranco) {
       remover[i] = 1;
     }
   }
