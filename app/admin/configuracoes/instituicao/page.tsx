@@ -1141,11 +1141,26 @@ async function enviarAssinaturaDiretor(file: File) {
     {enviandoAssinatura ? "Enviando assinatura..." : "Selecionar assinatura"}
   </button>
 
-  <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
+  <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
+  <div>
     {nomeArquivoAssinatura
       ? `Arquivo selecionado: ${nomeArquivoAssinatura}`
       : "Formatos aceitos: PNG, JPG e JPEG. Dê preferência para PNG com fundo transparente."}
   </div>
+
+  <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
+    Se sua assinatura estiver com fundo branco ou colorido, remova o fundo antes:
+    <a
+      href="https://phanyx.com.br/removedor-de-fundo"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="ml-1 font-bold underline"
+    >
+      Abrir removedor PHANYX
+    </a>
+    . Depois faça o upload da assinatura transparente.
+  </div>
+</div>
 </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
