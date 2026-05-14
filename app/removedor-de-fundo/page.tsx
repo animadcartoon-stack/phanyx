@@ -142,10 +142,10 @@ export default function RemovedorDeFundoPage() {
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-            <h3 className="text-xl font-black">Remoção com IA</h3>
-            <p className="mt-3 text-slate-300">
-              Pensado para fundos brancos, fotos, imagens de pessoas, objetos e artes.
-            </p>
+            <h3 className="text-xl font-black">Recorte inteligente</h3>
+<p className="mt-3 text-slate-300">
+  Reconhecimento automático de fundo para gerar imagens com transparência rapidamente.
+</p>
           </div>
 
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
