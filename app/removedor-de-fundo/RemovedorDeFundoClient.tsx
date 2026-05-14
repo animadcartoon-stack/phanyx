@@ -7,6 +7,7 @@ type ModoRemocao = "assinatura" | "objeto";
 
 export default function RemovedorDeFundoClient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const imagemOriginalRef = useRef<HTMLImageElement | null>(null);
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
@@ -29,6 +30,13 @@ export default function RemovedorDeFundoClient() {
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
+
+  const [corAlvoManual, setCorAlvoManual] = useState<{
+  r: number;
+  g: number;
+  b: number;
+} | null>(null);
+
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
@@ -168,6 +176,33 @@ img.onload = () => {
 
     return new Set(melhorComponente);
   }
+
+  function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
+  if (!imagemOriginalRef.current) return;
+
+  const img = imagemOriginalRef.current;
+  const rect = img.getBoundingClientRect();
+
+  const x = Math.floor(((e.clientX - rect.left) / rect.width) * img.naturalWidth);
+  const y = Math.floor(((e.clientY - rect.top) / rect.height) * img.naturalHeight);
+
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = img.naturalWidth;
+  tempCanvas.height = img.naturalHeight;
+
+  const tempCtx = tempCanvas.getContext("2d");
+  if (!tempCtx) return;
+
+  tempCtx.drawImage(img, 0, 0);
+
+  const pixel = tempCtx.getImageData(x, y, 1, 1).data;
+
+  setCorAlvoManual({
+    r: pixel[0],
+    g: pixel[1],
+    b: pixel[2],
+  });
+}
 
   function removerFundo() {
     if (!imagemOriginal || !canvasRef.current) return;
@@ -336,6 +371,14 @@ if (parecidoComFundo) {
       }
 
 if (removerBrancoInterno && modo === "objeto") {
+  const alvoR = corAlvoManual?.r ?? baseR;
+  const alvoG = corAlvoManual?.g ?? baseG;
+  const alvoB = corAlvoManual?.b ?? baseB;
+
+  const toleranciaManual = corAlvoManual
+    ? Math.max(35, sensibilidade * 4)
+    : Math.max(55, sensibilidade * 3);
+
   for (let i = 0; i < totalPixels; i++) {
     const di = i * 4;
 
@@ -343,25 +386,9 @@ if (removerBrancoInterno && modo === "objeto") {
     const g = data[di + 1];
     const b = data[di + 2];
 
-    const brilhoPixel = (r + g + b) / 3;
-    const diferencaEntreCanais =
-      Math.max(r, g, b) - Math.min(r, g, b);
+    const distanciaDoAlvo = distanciaCor(r, g, b, alvoR, alvoG, alvoB);
 
-    const distanciaDoFundo = distanciaCor(
-      r,
-      g,
-      b,
-      baseR,
-      baseG,
-      baseB
-    );
-
-    const ehBrancoDoFundo =
-      brilhoPixel >= 170 &&
-      diferencaEntreCanais <= 45 &&
-      distanciaDoFundo <= Math.max(55, sensibilidade * 3);
-
-    if (ehBrancoDoFundo) {
+    if (distanciaDoAlvo <= toleranciaManual) {
       remover[i] = 1;
     }
   }
@@ -470,6 +497,7 @@ setProcessando(false);
   modo,
   manterObjetoPrincipal,
   removerBrancoInterno,
+  corAlvoManual,
 ]);
 
   function baixarImagem(tipo: DownloadTipo) {
@@ -654,6 +682,24 @@ setProcessando(false);
   Remover branco interno
 </label>
 
+{modo === "objeto" && removerBrancoInterno && (
+  <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
+    Clique no fundo branco da imagem original para escolher exatamente a cor que deve ser removida.
+
+    {corAlvoManual && (
+      <div className="mt-2 flex items-center gap-2">
+        <span>Cor escolhida:</span>
+        <span
+          className="h-5 w-5 rounded border border-white/30"
+          style={{
+            backgroundColor: `rgb(${corAlvoManual.r}, ${corAlvoManual.g}, ${corAlvoManual.b})`,
+          }}
+        />
+      </div>
+    )}
+  </div>
+)}
+
           </aside>
 
           <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
@@ -668,10 +714,14 @@ setProcessando(false);
 }}
 >              {imagemOriginal ? (
                 <img
-                  src={imagemOriginal}
-                  alt="Imagem original"
-                  className="max-h-[500px] max-w-full object-contain"
-                />
+  ref={imagemOriginalRef}
+  src={imagemOriginal}
+  alt="Imagem original"
+  onClick={modo === "objeto" && removerBrancoInterno ? selecionarCorManual : undefined}
+  className={`max-h-[500px] max-w-full object-contain ${
+    modo === "objeto" && removerBrancoInterno ? "cursor-crosshair" : ""
+  }`}
+/>
               ) : (
                 <p className="text-slate-400">Envie uma imagem para começar</p>
               )}
