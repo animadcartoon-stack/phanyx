@@ -106,7 +106,7 @@ export async function POST(
 
     const body = await req.json();
 
-    const tipo = String(body?.tipo || "").trim().toUpperCase();
+    const tipo = String(body?.tipo || "").trim().toLowerCase();
     const titulo = String(body?.titulo || "").trim();
 
     if (!titulo) {
@@ -116,7 +116,7 @@ export async function POST(
       );
     }
 
-    if (!["ARQUIVO", "PDF", "DOC", "PPT", "LINK", "VIDEO"].includes(tipo)) {
+    if (!["arquivo", "pdf", "doc", "ppt", "link", "video"].includes(tipo)) {
       return NextResponse.json(
         { error: "Tipo de material inválido" },
         { status: 400 }
