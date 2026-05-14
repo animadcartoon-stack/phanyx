@@ -536,6 +536,7 @@ function gerarPontosEstrela(
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [mensagemErro, setMensagemErro] = useState("");
   const [orientacao, setOrientacao] = useState<OrientacaoEditor>("paisagem");
+  const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
   const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(100);
   const [modoAmplo, setModoAmplo] = useState(false);
@@ -2025,6 +2026,38 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
 
 <div className="mb-4 rounded-2xl border border-dashed border-blue-300 bg-white p-4 shadow-sm">
   <p className="mb-3 text-xs font-bold uppercase tracking-wide text-blue-700">
+    Fundo PHANYX A4
+  </p>
+
+  <div className="space-y-3">
+    <label className="block text-xs font-semibold text-slate-600">
+      Cor do fundo
+    </label>
+
+    <input
+      type="color"
+      value={corFundoPagina}
+      onChange={(e) => setCorFundoPagina(e.target.value)}
+      className="h-10 w-full cursor-pointer rounded-xl border border-slate-300 bg-white"
+    />
+
+    <div className="grid grid-cols-5 gap-2">
+      {["#ffffff", "#f8fafc", "#fef3c7", "#eff6ff", "#f0fdf4"].map((cor) => (
+        <button
+          key={cor}
+          type="button"
+          onClick={() => setCorFundoPagina(cor)}
+          className="h-8 rounded-lg border border-slate-300 shadow-sm"
+          style={{ backgroundColor: cor }}
+          title={cor}
+        />
+      ))}
+    </div>
+  </div>
+</div>
+
+<div className="mb-4 rounded-2xl border border-dashed border-blue-300 bg-white p-4 shadow-sm">
+  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-blue-700">
     Imagens do certificado
   </p>
 
@@ -2636,6 +2669,7 @@ contornoEspessura: 2,
       width: `${caixaDoGrupoSelecionado.largura}px`,
       height: `${caixaDoGrupoSelecionado.altura}px`,
       boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.12)",
+      backgroundColor: corFundoPagina,
     }}
   />
 )}
