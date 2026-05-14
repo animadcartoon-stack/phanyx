@@ -335,9 +335,7 @@ if (parecidoComFundo) {
         }
       }
 
-      if (removerBrancoInterno && modo === "objeto") {
-  const toleranciaInterna = Math.max(10, sensibilidade * 1.2);
-
+if (removerBrancoInterno && modo === "objeto") {
   for (let i = 0; i < totalPixels; i++) {
     if (remover[i]) continue;
 
@@ -347,14 +345,16 @@ if (parecidoComFundo) {
     const g = data[di + 1];
     const b = data[di + 2];
 
-    const dist = distanciaCor(r, g, b, baseR, baseG, baseB);
     const brilhoPixel = (r + g + b) / 3;
-    const poucaCor =
-      Math.abs(r - g) < 18 &&
-      Math.abs(r - b) < 18 &&
-      Math.abs(g - b) < 18;
 
-    if (brilhoPixel > 225 && poucaCor) {
+    const poucaCor =
+      Math.abs(r - g) < 22 &&
+      Math.abs(r - b) < 22 &&
+      Math.abs(g - b) < 22;
+
+    const muitoClaro = brilhoPixel > 220;
+
+    if (poucaCor && muitoClaro) {
       remover[i] = 1;
     }
   }
