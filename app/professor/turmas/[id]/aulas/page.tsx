@@ -502,15 +502,18 @@ setTurma(turmaEncontrada);
                 )}
 
                 {aula.videoUrl && (
-                  <a
-                    href={aula.videoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-block text-sm text-blue-600 hover:underline"
-                  >
-                    Abrir aula / transmissão
-                  </a>
-                )}
+  <a
+    href={aula.videoUrl.replace(
+      "https://www.youtube.com/embed/",
+      "https://www.youtube.com/watch?v="
+    )}
+    target="_blank"
+    rel="noreferrer"
+    className="inline-block text-sm text-blue-600 hover:underline"
+  >
+    Abrir aula / transmissão
+  </a>
+)}
 
                 <div className="rounded-md bg-slate-50 p-3 text-xs text-slate-600">
                   Nesta aula, o professor poderá adicionar arquivos, PDFs, documentos,

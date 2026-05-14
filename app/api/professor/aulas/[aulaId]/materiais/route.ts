@@ -34,22 +34,17 @@ export async function POST(
       );
     }
 
-    const aula = await prisma.aula.findFirst({
+  const aula = await prisma.aula.findFirst({
   where: {
     id: aulaId,
     instituicaoId: user.instituicaoId,
-    turma: {
-      instituicaoId: user.instituicaoId,
+    disciplina: {
       OR: [
+        { professorId: professor.id },
         {
-          professorId: professor.id,
-        },
-        {
-          disciplinas: {
+          professoresHabilitados: {
             some: {
-              disciplina: {
-                professorId: professor.id,
-              },
+              professorId: professor.id,
             },
           },
         },
