@@ -197,11 +197,19 @@ img.onload = () => {
 
   const pixel = tempCtx.getImageData(x, y, 1, 1).data;
 
-  setCorAlvoManual({
-    r: pixel[0],
-    g: pixel[1],
-    b: pixel[2],
-  });
+  const r = pixel[0];
+const g = pixel[1];
+const b = pixel[2];
+
+const brilhoPixel = (r + g + b) / 3;
+const diferencaEntreCanais = Math.max(r, g, b) - Math.min(r, g, b);
+
+if (brilhoPixel < 170 || diferencaEntreCanais > 55) {
+  setAviso("Clique em uma área clara do fundo branco, não na moldura.");
+  return;
+}
+
+setCorAlvoManual({ r, g, b });
 }
 
   function removerFundo() {
