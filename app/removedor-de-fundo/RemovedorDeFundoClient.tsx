@@ -10,7 +10,7 @@ export default function RemovedorDeFundoClient() {
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
-  const [previewAssinatura, setPreviewAssinatura] = useState<string | null>(null);
+  
   const [fundoPreview, setFundoPreview] = useState<"xadrez" | "verde" | "azul" | "preto" | "branco">("verde");
 
   const [dimensoesImagem, setDimensoesImagem] = useState<{
@@ -29,11 +29,12 @@ export default function RemovedorDeFundoClient() {
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
+  const [aviso, setAviso] = useState<string | null>(null);
 
   function carregarImagem(file: File) {
     setErro("");
     setImagemFinal(null);
-    setPreviewAssinatura(null);
+    
 
     if (!file.type.startsWith("image/")) {
       setErro("Envie apenas arquivos de imagem.");
@@ -201,108 +202,69 @@ img.onload = () => {
       const height = canvas.height;
       const totalPixels = width * height;
 
+      let pixelsTransparentes = 0;
+
+for (let i = 0; i < totalPixels; i++) {
+  const alpha = data[i * 4 + 3];
+
+  if (alpha < 250) {
+    pixelsTransparentes++;
+  }
+}
+
+const percentualTransparente =
+  (pixelsTransparentes / totalPixels) * 100;
+
+if (percentualTransparente > 5) {
+  setAviso(
+    "Essa imagem já está sem fundo. Envie outra imagem com fundo para remover."
+  );
+  setImagemFinal(null);
+  setProcessando(false);
+  return;
+}
+
 if (modo === "assinatura") {
-  const cinza = new Float32Array(totalPixels);
+  const cantos = [
+    dataIndex(0, 0, width),
+    dataIndex(width - 1, 0, width),
+    dataIndex(0, height - 1, width),
+    dataIndex(width - 1, height - 1, width),
+  ];
+
+  const fundoR = Math.round(cantos.reduce((s, i) => s + data[i], 0) / cantos.length);
+  const fundoG = Math.round(cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length);
+  const fundoB = Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length);
+
+  const toleranciaFundo = 45;
 
   for (let i = 0; i < totalPixels; i++) {
     const di = i * 4;
-    cinza[i] = 0.299 * data[di] + 0.587 * data[di + 1] + 0.114 * data[di + 2];
-  }
 
-  let minX = width;
-  let minY = height;
-  let maxX = 0;
-  let maxY = 0;
+    const r = data[di];
+    const g = data[di + 1];
+    const b = data[di + 2];
 
-  const alphaMask = new Uint8ClampedArray(totalPixels);
+    const distancia = Math.sqrt(
+      Math.pow(r - fundoR, 2) +
+      Math.pow(g - fundoG, 2) +
+      Math.pow(b - fundoB, 2)
+    );
 
-  for (let y = 1; y < height - 1; y++) {
-    for (let x = 1; x < width - 1; x++) {
-      const p = y * width + x;
-
-      const local =
-        (cinza[p - 1] +
-          cinza[p + 1] +
-          cinza[p - width] +
-          cinza[p + width] +
-          cinza[p - width - 1] +
-          cinza[p - width + 1] +
-          cinza[p + width - 1] +
-          cinza[p + width + 1]) /
-        8;
-
-      const diferenca = local - cinza[p];
-
-      if (diferenca > 2.5) {
-        const alpha = Math.min(
-          255,
-          Math.max(90, Math.round(diferenca * (8 + intensidadeTraco / 8)))
-        );
-
-        alphaMask[p] = alpha;
-
-        minX = Math.min(minX, x);
-        minY = Math.min(minY, y);
-        maxX = Math.max(maxX, x);
-        maxY = Math.max(maxY, y);
-      }
-    }
-  }
-
-  // Engrossa levemente traços muito finos para não sumirem
-  const alphaExpandido = new Uint8ClampedArray(alphaMask);
-
-  for (let y = 1; y < height - 1; y++) {
-    for (let x = 1; x < width - 1; x++) {
-      const p = y * width + x;
-
-      if (alphaMask[p] > 0) {
-        alphaExpandido[p - 1] = Math.max(alphaExpandido[p - 1], alphaMask[p] * 0.65);
-        alphaExpandido[p + 1] = Math.max(alphaExpandido[p + 1], alphaMask[p] * 0.65);
-        alphaExpandido[p - width] = Math.max(alphaExpandido[p - width], alphaMask[p] * 0.65);
-        alphaExpandido[p + width] = Math.max(alphaExpandido[p + width], alphaMask[p] * 0.65);
-      }
-    }
-  }
-
-  for (let i = 0; i < totalPixels; i++) {
-    const di = i * 4;
-    const alpha = alphaExpandido[i];
-
-    if (alpha > 0) {
+    if (distancia <= toleranciaFundo) {
+      data[di + 3] = 0;
+    } else {
       data[di] = 0;
       data[di + 1] = 0;
       data[di + 2] = 0;
-      data[di + 3] = alpha;
-    } else {
-      data[di + 3] = 0;
+      data[di + 3] = 255;
     }
   }
 
   ctx.putImageData(imageData, 0, 0);
 
-  const resultadoCompleto = canvas.toDataURL("image/png");
-  setImagemFinal(resultadoCompleto);
-
-  if (maxX > minX && maxY > minY) {
-    const padding = 80;
-    const cropX = Math.max(0, minX - padding);
-    const cropY = Math.max(0, minY - padding);
-    const cropW = Math.min(width - cropX, maxX - minX + padding * 2);
-    const cropH = Math.min(height - cropY, maxY - minY + padding * 2);
-
-    const cropCanvas = document.createElement("canvas");
-    const cropCtx = cropCanvas.getContext("2d");
-
-    if (cropCtx) {
-      cropCanvas.width = cropW;
-      cropCanvas.height = cropH;
-      cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
-      setPreviewAssinatura(cropCanvas.toDataURL("image/png"));
-    }
-  } else {
-    setPreviewAssinatura(resultadoCompleto);
-  }
+  const resultado = canvas.toDataURL("image/png");
+  setImagemFinal(resultado);
 
   setProcessando(false);
   return;
@@ -520,6 +482,29 @@ setProcessando(false);
   }
 
   return (
+  <>
+    {aviso && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+        <div className="max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl">
+          <h2 className="text-2xl font-black text-cyan-200">
+            Aviso PHANYX
+          </h2>
+
+          <p className="mt-3 text-sm leading-relaxed text-slate-200">
+            {aviso}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setAviso(null)}
+            className="mt-6 rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/30 hover:bg-cyan-300"
+          >
+            Entendi
+          </button>
+        </div>
+      </div>
+    )}
+
     <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10">
@@ -672,9 +657,9 @@ setProcessando(false);
 >
               {imagemFinal ? (
                 <img
-                  src={modo === "assinatura" ? previewAssinatura || imagemFinal : imagemFinal}
+                  src={imagemFinal}
                   alt="Resultado transparente"
-                  className="max-h-[180px] max-w-full scale-125 object-contain"
+                  className="max-h-[240px] max-w-full object-contain"
                   style={{
   opacity: opacidade / 100,
   filter: "none",
@@ -791,7 +776,8 @@ setProcessando(false);
 </button>
         <canvas ref={canvasRef} className="hidden" />
       </div>
-    </section>
+        </section>
+  </>
   );
 }
 
