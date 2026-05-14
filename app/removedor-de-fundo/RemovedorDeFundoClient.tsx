@@ -350,7 +350,7 @@ img.onload = () => {
 const resultadoCompleto = canvas.toDataURL("image/png");
 setImagemFinal(resultadoCompleto);
 
-if (modo === "assinatura") {
+if (modo === "assinatura") {if (modo === "assinatura") {
   let minX = width;
   let minY = height;
   let maxX = 0;
@@ -360,8 +360,13 @@ if (modo === "assinatura") {
     for (let x = 0; x < width; x++) {
       const di = dataIndex(x, y, width);
       const alpha = data[di + 3];
+      const r = data[di];
+      const g = data[di + 1];
+      const b = data[di + 2];
 
-      if (alpha > 10) {
+      const media = (r + g + b) / 3;
+
+      if (alpha > 20 && media < 235) {
         minX = Math.min(minX, x);
         minY = Math.min(minY, y);
         maxX = Math.max(maxX, x);
@@ -371,7 +376,7 @@ if (modo === "assinatura") {
   }
 
   if (maxX > minX && maxY > minY) {
-    const padding = 40;
+    const padding = 80;
     const cropX = Math.max(0, minX - padding);
     const cropY = Math.max(0, minY - padding);
     const cropW = Math.min(width - cropX, maxX - minX + padding * 2);
@@ -383,6 +388,7 @@ if (modo === "assinatura") {
     if (cropCtx) {
       cropCanvas.width = cropW;
       cropCanvas.height = cropH;
+
       cropCtx.drawImage(
         canvas,
         cropX,
@@ -400,6 +406,8 @@ if (modo === "assinatura") {
   } else {
     setPreviewAssinatura(resultadoCompleto);
   }
+}
+ 
 } else {
   setPreviewAssinatura(null);
 }
@@ -564,7 +572,10 @@ setProcessando(false);
 <div
   className="flex w-full items-center justify-center rounded-2xl bg-white p-4"
   style={{
-    aspectRatio: dimensoesImagem
+    aspectRatio:
+  modo === "assinatura"
+    ? "3 / 1"
+    : dimensoesImagem
       ? `${dimensoesImagem.largura} / ${dimensoesImagem.altura}`
       : "1 / 1",
     maxHeight: "520px",
