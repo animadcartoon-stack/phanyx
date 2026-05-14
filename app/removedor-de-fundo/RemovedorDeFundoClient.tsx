@@ -354,7 +354,7 @@ if (parecidoComFundo) {
       Math.abs(r - b) < 18 &&
       Math.abs(g - b) < 18;
 
-    if (dist <= toleranciaInterna && brilhoPixel > 210 && poucaCor) {
+    if (brilhoPixel > 225 && poucaCor) {
       remover[i] = 1;
     }
   }
