@@ -480,6 +480,33 @@ setProcessando(false);
     };
   }
 
+useEffect(() => {
+  function controlarZoomPeloTeclado(e: KeyboardEvent) {
+    if (!imagemFinal) return;
+
+    if (e.key === "+" || e.key === "=") {
+      e.preventDefault();
+      setZoomResultado((z) => Math.min(3, Number((z + 0.1).toFixed(2))));
+    }
+
+    if (e.key === "-" || e.key === "_") {
+      e.preventDefault();
+      setZoomResultado((z) => Math.max(0.5, Number((z - 0.1).toFixed(2))));
+    }
+
+    if (e.key === "0") {
+      e.preventDefault();
+      setZoomResultado(1);
+    }
+  }
+
+  window.addEventListener("keydown", controlarZoomPeloTeclado);
+
+  return () => {
+    window.removeEventListener("keydown", controlarZoomPeloTeclado);
+  };
+}, [imagemFinal]);
+
   useEffect(() => {
   if (!imagemOriginal) return;
 
@@ -737,7 +764,7 @@ setProcessando(false);
             </h2>
 
             <div
-  className={`flex w-full items-center justify-center rounded-2xl p-4 ${
+  className={`flex w-full items-center justify-center overflow-hidden rounded-2xl p-4 ${
     modo === "assinatura" && fundoPreview === "verde"
       ? "bg-emerald-500"
       : modo === "assinatura" && fundoPreview === "azul"
