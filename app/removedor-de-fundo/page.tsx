@@ -1,4 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
+import RemovedorDeFundoClient from "./RemovedorDeFundoClient";
 
 export const metadata = {
   title: "Removedor de Fundo de Imagem Grátis com IA | PHANYX",
@@ -51,32 +53,69 @@ export default function RemovedorDeFundoPage() {
           </div>
         </div>
 
-        <div className="flex-1 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-2xl">
-          <div className="rounded-2xl bg-slate-900 p-6">
-            <div className="mb-4 grid grid-cols-2 gap-4 text-center text-sm text-slate-300">
-              <div className="rounded-xl bg-white/10 p-4">Imagem original</div>
-              <div className="rounded-xl bg-cyan-400/10 p-4 text-cyan-200">
-                Fundo removido
-              </div>
-            </div>
+        <div className="flex-1 rounded-3xl border border-cyan-400/10 bg-gradient-to-br from-slate-900 to-slate-950 p-6 shadow-2xl shadow-cyan-500/10">
+  <div className="rounded-3xl border border-white/5 bg-slate-900/80 p-8 backdrop-blur">
+    <div className="mb-6 flex items-center gap-4">
+      <Image
+        src="/favicon.ico.png"
+        alt="PHANYX"
+        width={60}
+        height={60}
+        className="rounded-2xl"
+      />
 
-            <div className="grid min-h-64 grid-cols-2 gap-4">
-              <div className="flex items-center justify-center rounded-2xl border border-dashed border-white/20 bg-white/5 text-slate-400">
-                Antes
-              </div>
-              <div className="flex items-center justify-center rounded-2xl border border-dashed border-cyan-300/40 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0] text-cyan-200">
-                PNG transparente
-              </div>
-            </div>
-          </div>
+      <div>
+        <p className="text-xs uppercase tracking-[0.3em] text-cyan-300">
+          IA PHANYX
+        </p>
+        <h3 className="text-xl font-black text-white">
+          Remoção Inteligente de Fundo
+        </h3>
+      </div>
+    </div>
+
+    <div className="grid gap-6 md:grid-cols-2">
+      <div className="rounded-3xl border border-white/10 bg-slate-800/60 p-6">
+        <p className="mb-4 text-sm font-semibold text-slate-300">
+          Mascote PHANYX
+        </p>
+
+        <div className="flex justify-center">
+          <Image
+            src="/images/formix.png"
+            alt="Formix mascote PHANYX"
+            width={220}
+            height={220}
+            className="object-contain"
+          />
         </div>
+      </div>
+
+      <div className="rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0] p-6">
+        <p className="mb-4 text-sm font-semibold text-cyan-200">
+          PNG transparente pronto
+        </p>
+
+        <div className="flex justify-center">
+          <Image
+            src="/images/formix.png"
+            alt="Formix transparente"
+            width={220}
+            height={220}
+            className="object-contain drop-shadow-2xl"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
       </section>
 
       <section
-        id="upload"
-        className="mx-auto max-w-4xl px-6 pb-20"
-      >
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl">
+  id="upload"
+  className="mx-auto max-w-7xl px-6 pb-20"
+>
+        <div className="rounded-[2rem] border border-cyan-400/10 bg-white/5 p-4 shadow-2xl shadow-cyan-500/10 md:p-8">
           <h2 className="text-2xl font-black">
             Envie sua imagem
           </h2>
@@ -88,12 +127,7 @@ export default function RemovedorDeFundoPage() {
           </p>
 
           <div className="mt-8 rounded-2xl border border-dashed border-cyan-300/40 bg-slate-900 p-10 text-center">
-            <p className="text-lg font-bold text-cyan-200">
-              Área de upload em preparação
-            </p>
-            <p className="mt-2 text-sm text-slate-400">
-              Próximo passo: conectar a API de IA para remover fundo automaticamente.
-            </p>
+            <RemovedorDeFundoClient />
           </div>
         </div>
       </section>
