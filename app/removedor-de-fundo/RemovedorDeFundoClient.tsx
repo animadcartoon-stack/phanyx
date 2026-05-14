@@ -347,13 +347,21 @@ if (removerBrancoInterno && modo === "objeto") {
     const diferencaEntreCanais =
       Math.max(r, g, b) - Math.min(r, g, b);
 
-    const parecidoComBrancoDoFundo =
-      distanciaCor(r, g, b, baseR, baseG, baseB) <= Math.max(18, sensibilidade * 2.4);
+    const distanciaDoFundo = distanciaCor(
+      r,
+      g,
+      b,
+      baseR,
+      baseG,
+      baseB
+    );
 
-    const ehBrancoOuCinzaClaro =
-      brilhoPixel > 185 && diferencaEntreCanais < 38;
+    const ehBrancoDoFundo =
+      brilhoPixel >= 170 &&
+      diferencaEntreCanais <= 45 &&
+      distanciaDoFundo <= Math.max(55, sensibilidade * 3);
 
-    if (parecidoComBrancoDoFundo || ehBrancoOuCinzaClaro) {
+    if (ehBrancoDoFundo) {
       remover[i] = 1;
     }
   }
