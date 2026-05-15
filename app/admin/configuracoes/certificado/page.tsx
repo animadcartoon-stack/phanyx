@@ -2737,10 +2737,12 @@ contornoEspessura: 2,
 }}
 >
               <div
-  className="mx-auto flex items-center justify-center"
+  className="flex items-center justify-center"
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
+    minWidth: `${canvasWidth}px`,
+    minHeight: `${canvasHeight}px`,
     flexShrink: 0,
   }}
 >
@@ -4850,7 +4852,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
       Fechar ✕
     </button>
 
-    <div className="h-full w-full overflow-auto rounded-2xl bg-slate-900 p-8">
+    <div className="h-full w-full overflow-hidden rounded-2xl bg-slate-900 p-8">
       <div
         className="relative mx-auto overflow-hidden rounded-xl border-4 border-white bg-white shadow-2xl"
         style={{
