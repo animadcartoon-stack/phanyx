@@ -2040,7 +2040,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         : "bg-white text-slate-700"
     }`}
   >
-    Usar modelo
+    Usar modelotf
   </button>
 
   <button
@@ -2633,7 +2633,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-[#f3f5f9] flex items-center justify-center"
+  className="flex-1 overflow-auto bg-[#f3f5f9] flex items-start justify-center p-8"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2670,7 +2670,7 @@ contornoEspessura: 2,
   transformOrigin: "top left",
 }}
                 >
-                  {certificadoTemplateUrl ? (
+                  {modoFundo === "modelo" && certificadoTemplateUrl ? (
                     <>
                       <iframe
                         src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
