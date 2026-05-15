@@ -2007,7 +2007,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   onClick={() => {
   document.getElementById("editor-certificado")?.scrollIntoView({
     behavior: "smooth",
-    block: "center",
+    block: "start",
   });
 
   setTimeout(() => {
@@ -2017,7 +2017,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
       (stageRef.current.scrollWidth - stageRef.current.clientWidth) / 2;
 
     stageRef.current.scrollTop = 0;
-  }, 350);
+  }, 500);
 }}
   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
 >
@@ -2091,7 +2091,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
       <section
       
   id="editor-certificado"
-  className="rounded-3xl border border-slate-200 bg-white shadow-sm"
+  className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
         <div
   className={`grid h-[calc(100vh-220px)] min-h-[760px] grid-cols-1 ${
