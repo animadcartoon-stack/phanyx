@@ -368,6 +368,8 @@ export default function TurmasProfessorPage() {
     "Turmas concluídas": false,
   });
 
+  const [cursosAbertos, setCursosAbertos] = useState<Record<string, boolean>>({});
+
   const hoje = diaSemanaHoje();
   const feriado = feriadoNacionalHoje();
 
@@ -524,79 +526,116 @@ const gruposPorCurso = useMemo(() => {
         </div>
       </section>
 
-      {Object.entries(gruposPorCurso)
-  .filter(([nomeGrupo]) => !buscaAtiva || (grupos[nomeGrupo]?.length || 0) > 0)
-  .map(([nomeGrupo, cursos]) => {
-        const lista = Object.values(cursos).flat();
+            {Object.entries(gruposPorCurso)
+        .filter(([nomeGrupo]) => !buscaAtiva || (grupos[nomeGrupo]?.length || 0) > 0)
+        .map(([nomeGrupo, cursos]) => {
+          const lista = Object.values(cursos).flat();
 
-        return (
-          <section key={nomeGrupo} className="rounded-3xl border border-slate-200 bg-white shadow-sm">
-            <button
-              type="button"
-              onClick={() => setAbertos((prev) => ({ ...prev, [nomeGrupo]: !prev[nomeGrupo] }))}
-              className="flex w-full items-center justify-between px-6 py-5 text-left"
+          return (
+            <section
+              key={nomeGrupo}
+              className="rounded-3xl border border-slate-200 bg-white shadow-sm"
             >
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">{nomeGrupo}</h2>
-                <p className="text-sm text-slate-500">
-                  {Object.values(cursos).reduce((acc, listaCurso) => acc + agruparPorTurma(listaCurso).length, 0)} turma(s) • {lista.length} disciplina(s)
-                </p>
-              </div>
-
-              <span className="text-sm font-semibold text-slate-500">
-                {abertos[nomeGrupo] ? "▲ Fechar" : "▼ Abrir"}
-              </span>
-            </button>
-
-            {(abertos[nomeGrupo] || buscaAtiva) && (
-              <div className="space-y-4 border-t border-slate-100 p-6">
-                {lista.length === 0 ? (
-                  <p className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
-                    Nenhuma turma encontrada neste grupo.
+              <button
+                type="button"
+                onClick={() =>
+                  setAbertos((prev) => ({
+                    ...prev,
+                    [nomeGrupo]: !prev[nomeGrupo],
+                  }))
+                }
+                className="flex w-full items-center justify-between px-6 py-5 text-left"
+              >
+                <div>
+                  <h2 className="text-2xl font-bold text-slate-900">
+                    {nomeGrupo}
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    {Object.values(cursos).reduce(
+                      (acc, listaCurso) =>
+                        acc + agruparPorTurma(listaCurso).length,
+                      0
+                    )}{" "}
+                    turma(s) • {lista.length} disciplina(s)
                   </p>
-                ) : (
-                  <div className="space-y-5">
-                    {Object.entries(cursos).map(([nomeCurso, listaCurso]) => {
-                      const turmasAgrupadas = agruparPorTurma(listaCurso);
+                </div>
 
-                      return (
-                        <section
-                          key={`${nomeGrupo}-${nomeCurso}`}
-                          className="rounded-3xl border border-blue-100 bg-blue-50/40 p-4"
-                        >
-                          <div className="mb-4">
-                            <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
-                              Curso
-                            </p>
-                            <h3 className="text-xl font-black text-slate-900">
-                              {nomeCurso}
-                            </h3>
-                            <p className="text-sm text-slate-600">
-                              {turmasAgrupadas.length} turma(s) • {listaCurso.length} disciplina(s)
-                            </p>
-                          </div>
+                <span className="text-sm font-semibold text-slate-500">
+                  {abertos[nomeGrupo] || buscaAtiva ? "▲ Fechar" : "▼ Abrir"}
+                </span>
+              </button>
 
-                          <div className="space-y-4">
-                            {turmasAgrupadas.map((turma) => (
-                              <TurmaAgrupadaCard
-  key={turma.chave}
-  turma={turma}
-  hoje={hoje}
-  router={router}
-  buscaAtiva={busca.trim().length > 0}
-/>
-                            ))}
-                          </div>
-                        </section>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
-          </section>
-        );
-      })}
+              {(abertos[nomeGrupo] || buscaAtiva) && (
+                <div className="space-y-4 border-t border-slate-100 p-6">
+                  {lista.length === 0 ? (
+                    <p className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+                      Nenhuma turma encontrada neste grupo.
+                    </p>
+                  ) : (
+                    <div className="space-y-5">
+                      {Object.entries(cursos).map(([nomeCurso, listaCurso]) => {
+                        const turmasAgrupadas = agruparPorTurma(listaCurso);
+                        const chaveCurso = `${nomeGrupo}-${nomeCurso}`;
+                        const cursoAberto = cursosAbertos[chaveCurso] || buscaAtiva;
+
+                        return (
+                          <section
+                            key={chaveCurso}
+                            className="rounded-3xl border border-blue-100 bg-blue-50/40"
+                          >
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setCursosAbertos((prev) => ({
+                                  ...prev,
+                                  [chaveCurso]: !prev[chaveCurso],
+                                }))
+                              }
+                              className="flex w-full items-center justify-between gap-4 p-4 text-left"
+                            >
+                              <div>
+                                <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+                                  Curso
+                                </p>
+
+                                <h3 className="text-xl font-black text-slate-900">
+                                  {nomeCurso}
+                                </h3>
+
+                                <p className="text-sm text-slate-600">
+                                  {turmasAgrupadas.length} turma(s) •{" "}
+                                  {listaCurso.length} disciplina(s)
+                                </p>
+                              </div>
+
+                              <span className="text-sm font-black text-blue-700">
+                                {cursoAberto ? "▲ Fechar" : "▼ Abrir"}
+                              </span>
+                            </button>
+
+                            {cursoAberto && (
+                              <div className="space-y-4 border-t border-blue-100 p-4">
+                                {turmasAgrupadas.map((turma) => (
+                                  <TurmaAgrupadaCard
+                                    key={turma.chave}
+                                    turma={turma}
+                                    hoje={hoje}
+                                    router={router}
+                                    buscaAtiva={busca.trim().length > 0}
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </section>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+          );
+        })}
 
       {turmas.length === 0 && (
         <p className="rounded-2xl border border-slate-200 bg-white p-6 text-slate-600">
