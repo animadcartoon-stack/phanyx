@@ -4925,12 +4925,15 @@ if (c.tipo === "FORMA") {
   key={c.id}
   className="absolute"
   style={{
-    left: `${c.x}px`,
-    top: `${c.y}px`,
-    width: `${c.largura || 150}px`,
-    height: `${c.altura || 150}px`,
-    zIndex: c.ordem || 10,
-  }}
+  left: `${c.x}px`,
+  top: `${c.y}px`,
+  width: `${c.largura || 150}px`,
+  height: `${c.altura || 150}px`,
+  zIndex: c.ordem || 10,
+  transform: `rotate(${(c as any).rotate || 0}deg)`,
+  transformOrigin: "center center",
+  opacity: c.opacity ?? 1,
+}}
 >
   <div className="relative h-full w-full overflow-hidden">
     <img
