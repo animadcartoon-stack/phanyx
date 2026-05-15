@@ -2005,10 +2005,21 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         </div>
 <button
   onClick={() => {
-    document.getElementById("editor-certificado")?.scrollIntoView({
-      behavior: "smooth",
-    });
-  }}
+  document.getElementById("editor-certificado")?.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  setTimeout(() => {
+    if (!stageRef.current) return;
+
+    stageRef.current.scrollLeft =
+      (stageRef.current.scrollWidth - stageRef.current.clientWidth) / 2;
+
+    stageRef.current.scrollTop =
+      (stageRef.current.scrollHeight - stageRef.current.clientHeight) / 2;
+  }, 350);
+}}
   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
 >
   Ir para editor
