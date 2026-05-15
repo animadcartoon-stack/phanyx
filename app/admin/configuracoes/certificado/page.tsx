@@ -128,18 +128,42 @@ const FONTES = [
 
 const TAMANHOS_PAPEL = {
   A5: {
-    retrato: { largura: 420, altura: 595, label: "A5 Retrato" },
-    paisagem: { largura: 595, altura: 420, label: "A5 Paisagem" },
+    retrato: {
+      largura: 560,
+      altura: 794,
+      label: "A5 Retrato",
+    },
+    paisagem: {
+      largura: 794,
+      altura: 560,
+      label: "A5 Paisagem",
+    },
   },
 
   A4: {
-    retrato: { largura: 595, altura: 842, label: "A4 Retrato" },
-    paisagem: { largura: 842, altura: 595, label: "A4 Paisagem" },
+    retrato: {
+      largura: 794,
+      altura: 1123,
+      label: "A4 Retrato",
+    },
+    paisagem: {
+      largura: 1123,
+      altura: 794,
+      label: "A4 Paisagem",
+    },
   },
 
   A3: {
-    retrato: { largura: 842, altura: 1191, label: "A3 Retrato" },
-    paisagem: { largura: 1191, altura: 842, label: "A3 Paisagem" },
+    retrato: {
+      largura: 1123,
+      altura: 1587,
+      label: "A3 Retrato",
+    },
+    paisagem: {
+      largura: 1587,
+      altura: 1123,
+      label: "A3 Paisagem",
+    },
   },
 } as const;
 
