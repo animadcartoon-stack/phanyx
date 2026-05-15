@@ -126,12 +126,24 @@ const FONTES = [
   "Caveat",
 ];
 
-const ORIENTACOES = {
-  paisagem: { largura: 1123, altura: 794, label: "Paisagem" },
-  retrato: { largura: 794, altura: 1123, label: "Retrato" },
+const TAMANHOS_PAPEL = {
+  A5: {
+    retrato: { largura: 420, altura: 595, label: "A5 Retrato" },
+    paisagem: { largura: 595, altura: 420, label: "A5 Paisagem" },
+  },
+
+  A4: {
+    retrato: { largura: 595, altura: 842, label: "A4 Retrato" },
+    paisagem: { largura: 842, altura: 595, label: "A4 Paisagem" },
+  },
+
+  A3: {
+    retrato: { largura: 842, altura: 1191, label: "A3 Retrato" },
+    paisagem: { largura: 1191, altura: 842, label: "A3 Paisagem" },
+  },
 } as const;
 
-type OrientacaoEditor = keyof typeof ORIENTACOES;
+type OrientacaoEditor = "paisagem" | "retrato";
 
 function hexToRgba(hex: string, alpha: number) {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -536,6 +548,8 @@ function gerarPontosEstrela(
   const [mensagemSucesso, setMensagemSucesso] = useState("");
   const [mensagemErro, setMensagemErro] = useState("");
   const [orientacao, setOrientacao] = useState<OrientacaoEditor>("paisagem");
+  const [tamanhoPapel, setTamanhoPapel] = useState<"A5" | "A4" | "A3">("A4");
+  const [modoCorDocumento, setModoCorDocumento] = useState<"RGB" | "CMYK">("RGB");
   const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
   const [modoFundo, setModoFundo] = useState<"modelo" | "phanyx">("modelo");
   const [formasAbertas, setFormasAbertas] = useState(true);
@@ -789,7 +803,7 @@ useEffect(() => {
   };
 }, [campoSelecionadoId]);
 
-  const baseCanvas = ORIENTACOES[orientacao];
+  const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
   const escala = zoom / 100;
   const canvasWidth = Math.round(baseCanvas.largura * escala);
   const canvasHeight = Math.round(baseCanvas.altura * escala);
@@ -1784,6 +1798,41 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
 </button>
         <div className="flex items-center gap-3">
           <button
+  type="button"
+  onClick={() => setTamanhoPapel("A5")}
+  className={`rounded-lg px-3 py-1 text-sm ${
+    tamanhoPapel === "A5"
+      ? "bg-white text-blue-700"
+      : "bg-white/20 text-white hover:bg-white/30"
+  }`}
+>
+  A5
+</button>
+
+<button
+  type="button"
+  onClick={() => setTamanhoPapel("A4")}
+  className={`rounded-lg px-3 py-1 text-sm ${
+    tamanhoPapel === "A4"
+      ? "bg-white text-blue-700"
+      : "bg-white/20 text-white hover:bg-white/30"
+  }`}
+>
+  A4
+</button>
+
+<button
+  type="button"
+  onClick={() => setTamanhoPapel("A3")}
+  className={`rounded-lg px-3 py-1 text-sm ${
+    tamanhoPapel === "A3"
+      ? "bg-white text-blue-700"
+      : "bg-white/20 text-white hover:bg-white/30"
+  }`}
+>
+  A3
+</button>
+          <button
             type="button"
             onClick={() => setOrientacao("paisagem")}
             className={`rounded-lg px-3 py-1 text-sm ${
@@ -2633,7 +2682,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-[#f3f5f9] flex items-start justify-center p-8"
+  className="flex-1 overflow-auto bg-[#eef2f7] flex items-start justify-center p-10"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2661,7 +2710,7 @@ contornoEspessura: 2,
   onMouseMove={onMouseMoveCanvas}
   onMouseUp={finalizarDrag}
   onMouseLeave={finalizarDrag}
-                  className="relative overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="relative overflow-hidden border border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
@@ -3601,7 +3650,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
                 Página 1 de 1
               </span>
               <span className="rounded-lg bg-slate-100 px-3 py-1">
-                {ORIENTACOES[orientacao].label}
+                {baseCanvas.label}
               </span>
               <span className="rounded-lg bg-slate-100 px-3 py-1">
                 Zoom {zoom}%
