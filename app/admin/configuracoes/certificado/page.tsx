@@ -4866,20 +4866,29 @@ if (!camposSelecionadosIds.includes(c.id)) {
     </button>
 
     <div className="flex h-full w-full items-center justify-center overflow-auto rounded-2xl bg-slate-900 p-8">
-      <div
-        className="relative mx-auto overflow-hidden rounded-xl border-4 border-white shadow-2xl"
-        style={{
-  width: `${baseCanvas.largura}px`,
-  height: `${baseCanvas.altura}px`,
-  backgroundColor: corFundoPagina,
-}}
-      >
-        {modoFundo === "modelo" && certificadoTemplateUrl && (
-          <iframe
-            src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-            className="pointer-events-none absolute inset-0 h-full w-full"
-          />
-        )}
+  <div
+    style={{
+      width: `${baseCanvas.largura * previewScale}px`,
+      height: `${baseCanvas.altura * previewScale}px`,
+      flexShrink: 0,
+    }}
+  >
+    <div
+      className="relative overflow-hidden rounded-xl border-4 border-white shadow-2xl"
+      style={{
+        width: `${baseCanvas.largura}px`,
+        height: `${baseCanvas.altura}px`,
+        backgroundColor: corFundoPagina,
+        transform: `scale(${previewScale})`,
+        transformOrigin: "top left",
+      }}
+    >
+      {modoFundo === "modelo" && certificadoTemplateUrl && (
+        <iframe
+          src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+          className="pointer-events-none absolute inset-0 h-full w-full"
+        />
+      )}
 
 {campos.map((c) => {
  
@@ -5012,6 +5021,7 @@ if (c.tipo === "FORMA") {
       </div>
     </div>
   </div>
+</div>
 )}
 {menuContexto && (
   <div
