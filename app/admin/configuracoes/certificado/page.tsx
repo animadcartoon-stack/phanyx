@@ -4858,8 +4858,6 @@ if (!camposSelecionadosIds.includes(c.id)) {
         style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
-  maxWidth: "95vw",
-  maxHeight: "85vh",
   transform: `scale(${Math.min(
     1,
     (window.innerWidth * 0.9) / baseCanvas.largura,
