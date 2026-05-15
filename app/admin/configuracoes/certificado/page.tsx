@@ -2759,7 +2759,7 @@ contornoEspessura: 2,
   onMouseMove={onMouseMoveCanvas}
   onMouseUp={finalizarDrag}
   onMouseLeave={finalizarDrag}
-                  className="absolute left-0 top-0 overflow-hidden border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="absolute left-0 top-0 overflow-visible border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
@@ -2847,7 +2847,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
         width: `${c.largura || 150}px`,
         height: `${c.altura || 150}px`,
         cursor: "move",
-        zIndex: c.ordem || 10,
+        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 10,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
         border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
 
@@ -3644,7 +3644,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
         top: `${c.y}px`,
         width: `${c.largura || 120}px`,
         minHeight: `${c.altura || 18}px`,
-        zIndex: c.ordem || 1,
+        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
         textAlign:
           (c.alinhamento as "left" | "center" | "right") || "left",
         fontSize: `${c.tamanho || 12}px`,
@@ -4885,7 +4885,7 @@ if (c.tipo === "FORMA") {
         top: `${c.y}px`,
         width: `${c.largura || 120}px`,
         height: `${c.altura || 120}px`,
-        zIndex: c.ordem || 1,
+        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
         transformOrigin: "center center",
         opacity: c.opacity ?? 1,
@@ -4959,7 +4959,7 @@ if (c.tipo === "FORMA") {
         width: `${c.largura || 120}px`,
         minHeight: `${c.altura || 18}px`,
         fontSize: `${c.tamanho || 12}px`,
-        zIndex: c.ordem || 1,
+        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
         fontFamily: c.fonte || "Helvetica",
         color: c.cor || "#1e3a8a",
         textAlign:
