@@ -430,6 +430,21 @@ export default function TurmasProfessorPage() {
   }, [turmasFiltradas]);
 
     const buscaAtiva = busca.trim().length > 0;
+
+    const sugestoesBusca = useMemo(() => {
+  const termo = normalizarTexto(busca);
+
+  if (!termo) return [];
+
+  return turmasFiltradas.slice(0, 8).map((turma) => ({
+    chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
+    turmaNome: turma.nome,
+    cursoNome: turma.curso?.nome || "Curso não informado",
+    disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
+    periodo: turma.periodoLetivo || "EAD / Livre",
+  }));
+}, [busca, turmasFiltradas]);
+
   const totalTurmasAgrupadas = useMemo(() => {
     return Object.values(grupos).reduce((acc, lista) => acc + agruparPorTurma(lista).length, 0);
   }, [grupos]);
@@ -502,23 +517,63 @@ const gruposPorCurso = useMemo(() => {
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
-          <input
-            value={busca}
-            onChange={(e) => {
-  const valor = e.target.value;
-  setBusca(valor);
+          <div className="relative">
+  <input
+    value={busca}
+    onChange={(e) => {
+      const valor = e.target.value;
+      setBusca(valor);
 
-  if (valor.trim()) {
-    setAbertos({
-      "Semestre atual": true,
-      "Próximo semestre": true,
-      "Turmas concluídas": true,
-    });
-  }
-}}
-            placeholder="Buscar por turma, curso, disciplina, período ou status..."
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
-          />
+      if (valor.trim()) {
+        setAbertos({
+          "Semestre atual": true,
+          "Próximo semestre": true,
+          "Turmas concluídas": true,
+        });
+      }
+    }}
+    placeholder="Buscar por turma, curso, disciplina, período ou status..."
+    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+  />
+
+  {busca.trim() && (
+    <div className="absolute left-0 right-0 top-[56px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+      {sugestoesBusca.length === 0 ? (
+        <p className="px-3 py-3 text-sm text-slate-500">
+          Nenhuma sugestão encontrada.
+        </p>
+      ) : (
+        sugestoesBusca.map((item) => (
+          <button
+            key={item.chave}
+            type="button"
+            onClick={() => {
+              setBusca(item.disciplinaNome);
+              setAbertos({
+                "Semestre atual": true,
+                "Próximo semestre": true,
+                "Turmas concluídas": true,
+              });
+            }}
+            className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
+          >
+            <p className="text-sm font-black text-slate-900">
+              {item.disciplinaNome}
+            </p>
+
+            <p className="text-xs text-slate-600">
+              Turma {item.turmaNome} • {item.periodo}
+            </p>
+
+            <p className="text-xs font-semibold text-blue-700">
+              {item.cursoNome}
+            </p>
+          </button>
+        ))
+      )}
+    </div>
+  )}
+</div>
 
           <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700">
             {totalTurmasAgrupadas} turma(s) • {turmasFiltradas.length} disciplina(s)
@@ -576,7 +631,7 @@ const gruposPorCurso = useMemo(() => {
                       {Object.entries(cursos).map(([nomeCurso, listaCurso]) => {
                         const turmasAgrupadas = agruparPorTurma(listaCurso);
                         const chaveCurso = `${nomeGrupo}-${nomeCurso}`;
-                        const cursoAberto = cursosAbertos[chaveCurso] || buscaAtiva;
+                        const cursoAberto = cursosAbertos[chaveCurso] ?? buscaAtiva;
 
                         return (
                           <section
