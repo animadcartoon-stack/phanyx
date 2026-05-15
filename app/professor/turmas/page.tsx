@@ -210,6 +210,7 @@ function TurmaAgrupadaCard({
   buscaAtiva: boolean;
 }) {
   const [aberta, setAberta] = useState(false);
+  const [periodosAbertos, setPeriodosAbertos] = useState<Record<string, boolean>>({});
 
 useEffect(() => {
   if (buscaAtiva) {
@@ -274,15 +275,44 @@ useEffect(() => {
 
           <div className="space-y-4">
             {TURNOS.map((turno) => {
-              const disciplinas = turma.disciplinasPorTurno[turno] || [];
+  const disciplinas = turma.disciplinasPorTurno[turno] || [];
 
-              if (disciplinas.length === 0) return null;
+  if (disciplinas.length === 0) return null;
 
-              return (
-                <section key={turno} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <h4 className="font-black text-slate-800">{turno}</h4>
+  const periodoAberto = periodosAbertos[turno] ?? buscaAtiva;
 
-                  <div className="mt-3 space-y-3">
+  return (
+    <section
+      key={turno}
+      className="rounded-2xl border border-slate-200 bg-slate-50"
+    >
+      <button
+        type="button"
+        onClick={() =>
+          setPeriodosAbertos((prev) => ({
+            ...prev,
+            [turno]: !periodoAberto,
+          }))
+        }
+        className="flex w-full items-center justify-between gap-4 p-4 text-left"
+      >
+        <div>
+          <h4 className="font-black text-slate-800">
+            Período {turno}
+          </h4>
+
+          <p className="text-sm text-slate-500">
+            {disciplinas.length} disciplina(s)
+          </p>
+        </div>
+
+        <span className="text-sm font-black text-blue-700">
+          {periodoAberto ? "▲ Fechar" : "▼ Abrir"}
+        </span>
+      </button>
+
+      {periodoAberto && (
+        <div className="space-y-3 border-t border-slate-200 p-4">
                     {disciplinas.map((disciplina) => {
                       const disciplinaHoje = diaDaTurma(disciplina) === hoje;
 
@@ -345,10 +375,11 @@ useEffect(() => {
                         </div>
                       );
                     })}
-                  </div>
-                </section>
-              );
-            })}
+                          </div>
+      )}
+    </section>
+  );
+})}
           </div>
         </div>
       )}
