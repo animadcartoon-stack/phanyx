@@ -427,6 +427,7 @@ export default function TurmasProfessorPage() {
     return base;
   }, [turmasFiltradas]);
 
+    const buscaAtiva = busca.trim().length > 0;
   const totalTurmasAgrupadas = useMemo(() => {
     return Object.values(grupos).reduce((acc, lista) => acc + agruparPorTurma(lista).length, 0);
   }, [grupos]);
@@ -523,7 +524,9 @@ const gruposPorCurso = useMemo(() => {
         </div>
       </section>
 
-      {Object.entries(gruposPorCurso).map(([nomeGrupo, cursos]) => {
+      {Object.entries(gruposPorCurso)
+  .filter(([nomeGrupo]) => !buscaAtiva || (grupos[nomeGrupo]?.length || 0) > 0)
+  .map(([nomeGrupo, cursos]) => {
         const lista = Object.values(cursos).flat();
 
         return (
@@ -545,7 +548,7 @@ const gruposPorCurso = useMemo(() => {
               </span>
             </button>
 
-            {abertos[nomeGrupo] && (
+            {(abertos[nomeGrupo] || buscaAtiva) && (
               <div className="space-y-4 border-t border-slate-100 p-6">
                 {lista.length === 0 ? (
                   <p className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
