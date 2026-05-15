@@ -207,7 +207,7 @@ async function carregarCursos() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar turma");
+        throw new Error(data.detalhe || data.error || "Erro ao criar turma");
       }
 
       setNome("");
@@ -441,16 +441,47 @@ const disciplinasFiltradas = useMemo(() => {
     <>
       <div className="max-w-5xl space-y-6">
         {feedback && (
-          <div
-            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-              feedbackTipo === "sucesso"
-                ? "border-green-200 bg-green-50 text-green-700"
-                : "border-red-200 bg-red-50 text-red-700"
-            }`}
-          >
+  <div className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/50 p-4">
+    <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+      <div className="flex items-start gap-4">
+        <div
+          className={`flex h-12 w-12 items-center justify-center rounded-2xl text-xl ${
+            feedbackTipo === "sucesso"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {feedbackTipo === "sucesso" ? "✅" : "⚠️"}
+        </div>
+
+        <div className="flex-1">
+          <h2 className="text-lg font-bold text-slate-900">
+            {feedbackTipo === "sucesso"
+              ? "Tudo certo"
+              : "Não foi possível concluir"}
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             {feedback}
-          </div>
-        )}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            setFeedback("");
+            setFeedbackTipo("");
+          }}
+          className="rounded-2xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700"
+        >
+          Entendi
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
         <h1 className="text-2xl font-bold">🏫 Turmas</h1>
 
