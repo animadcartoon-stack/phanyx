@@ -2063,7 +2063,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
           }`}
         >
           {mostrarPainelCampos && !modoAmplo && (
-            <aside className="border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+            <aside className="max-h-[720px] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900">
@@ -2696,7 +2696,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-white flex items-center justify-center px-10 py-12"
+  className="flex-1 overflow-auto bg-white flex items-start justify-center px-10 pt-8 pb-12"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2710,7 +2710,6 @@ contornoEspessura: 2,
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
-    minHeight: `${canvasHeight}px`,
   }}
 >
 
@@ -3962,7 +3961,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
           </main>
 
           {!modoAmplo && (
-<aside className="border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
+<aside className="max-h-[720px] overflow-y-auto border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
             <button
   type="button"
   onClick={() => setPainelCampoAberto((prev) => !prev)}
