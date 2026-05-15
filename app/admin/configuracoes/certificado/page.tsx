@@ -4858,9 +4858,17 @@ if (!camposSelecionadosIds.includes(c.id)) {
         style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
+  maxWidth: "95vw",
+  maxHeight: "85vh",
+  transform: `scale(${Math.min(
+    1,
+    (window.innerWidth * 0.9) / baseCanvas.largura,
+    (window.innerHeight * 0.8) / baseCanvas.altura
+  )})`,
+  transformOrigin: "top center",
 }}
       >
-        {certificadoTemplateUrl && (
+        {modoFundo === "modelo" && certificadoTemplateUrl && (
           <iframe
             src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
             className="pointer-events-none absolute inset-0 h-full w-full"
