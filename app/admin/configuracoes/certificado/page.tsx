@@ -2040,7 +2040,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         : "bg-white text-slate-700"
     }`}
   >
-    Usar modelotf
+    Usar modelo
   </button>
 
   <button
@@ -2697,7 +2697,6 @@ contornoEspessura: 2,
       width: `${caixaDoGrupoSelecionado.largura}px`,
       height: `${caixaDoGrupoSelecionado.altura}px`,
       boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.12)",
-      backgroundColor: corFundoPagina,
     }}
   />
 )}
