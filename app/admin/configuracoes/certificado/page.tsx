@@ -4854,10 +4854,11 @@ if (!camposSelecionadosIds.includes(c.id)) {
 
     <div className="h-full w-full overflow-hidden rounded-2xl bg-slate-900 p-8">
       <div
-        className="relative mx-auto overflow-hidden rounded-xl border-4 border-white bg-white shadow-2xl"
+        className="relative mx-auto overflow-hidden rounded-xl border-4 border-white shadow-2xl"
         style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
+  backgroundColor: corFundoPagina,
   transform: `scale(${Math.min(
     1,
     (window.innerWidth * 0.9) / baseCanvas.largura,
