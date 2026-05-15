@@ -2056,12 +2056,13 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   className="rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
         <div
-          className={`grid min-h-[720px] grid-cols-1 ${
-            mostrarPainelCampos
-              ? "lg:grid-cols-[300px_minmax(760px,1fr)_320px]"
-              : "lg:grid-cols-[minmax(860px,1fr)_320px]"
-          }`}
-        >
+  className={`grid h-[calc(100vh-220px)] min-h-[760px] grid-cols-1 ${
+    mostrarPainelCampos
+      ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
+      : "lg:grid-cols-[minmax(0,1fr)_300px]"
+  }`}
+>
+           
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[720px] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex items-start justify-between gap-3">
@@ -2677,7 +2678,7 @@ contornoEspessura: 2,
             </aside>
           )}
 
-          <main className="flex min-h-[620px] flex-col bg-white">
+          <main className="flex h-full min-h-0 flex-col bg-white">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
               Área de edição do modelo da instituição
             </div>
@@ -2696,7 +2697,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-white flex items-start justify-center px-10 pt-8 pb-12"
+  className="flex flex-1 min-h-0 overflow-auto bg-[#f3f5f9] items-center justify-center p-6"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
