@@ -133,19 +133,28 @@ function diaDaTurma(turma: Turma) {
   return "Segunda";
 }
 
+function normalizarTexto(valor?: string | number | null) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 function textoBuscaTurma(turma: Turma) {
-  return [
-    turma.nome,
-    turma.semestre,
-    turma.periodoLetivo,
-    turma.statusTurma,
-    turma.statusDisciplina,
-    turma.curso?.nome,
-    turma.disciplina?.nome,
-  ]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+  return normalizarTexto(
+    [
+      turma.nome,
+      turma.semestre,
+      turma.periodoLetivo,
+      turma.statusTurma,
+      turma.statusDisciplina,
+      turma.curso?.nome,
+      turma.disciplina?.nome,
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
 }
 
 function agruparPorTurma(turmas: Turma[]) {
@@ -389,7 +398,7 @@ export default function TurmasProfessorPage() {
   }, []);
 
   const turmasFiltradas = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
+    const termo = normalizarTexto(busca);
 
     if (!termo) return turmas;
 
@@ -413,6 +422,26 @@ export default function TurmasProfessorPage() {
   const totalTurmasAgrupadas = useMemo(() => {
     return Object.values(grupos).reduce((acc, lista) => acc + agruparPorTurma(lista).length, 0);
   }, [grupos]);
+
+const gruposPorCurso = useMemo(() => {
+  const resultado: Record<string, Record<string, Turma[]>> = {};
+
+  for (const [nomeGrupo, lista] of Object.entries(grupos)) {
+    resultado[nomeGrupo] = {};
+
+    for (const turma of lista) {
+      const nomeCurso = turma.curso?.nome || "Curso não informado";
+
+      if (!resultado[nomeGrupo][nomeCurso]) {
+        resultado[nomeGrupo][nomeCurso] = [];
+      }
+
+      resultado[nomeGrupo][nomeCurso].push(turma);
+    }
+  }
+
+  return resultado;
+}, [grupos]);
 
   if (loading) {
     return <main className="min-h-screen bg-white p-8 text-gray-900">Carregando turmas...</main>;
@@ -475,8 +504,8 @@ export default function TurmasProfessorPage() {
         </div>
       </section>
 
-      {Object.entries(grupos).map(([nomeGrupo, lista]) => {
-        const turmasAgrupadas = agruparPorTurma(lista);
+      {Object.entries(gruposPorCurso).map(([nomeGrupo, cursos]) => {
+        const lista = Object.values(cursos).flat();
 
         return (
           <section key={nomeGrupo} className="rounded-3xl border border-slate-200 bg-white shadow-sm">
@@ -488,7 +517,7 @@ export default function TurmasProfessorPage() {
               <div>
                 <h2 className="text-2xl font-bold text-slate-900">{nomeGrupo}</h2>
                 <p className="text-sm text-slate-500">
-                  {turmasAgrupadas.length} turma(s) • {lista.length} disciplina(s)
+                  {Object.values(cursos).reduce((acc, listaCurso) => acc + agruparPorTurma(listaCurso).length, 0)} turma(s) • {lista.length} disciplina(s)
                 </p>
               </div>
 
@@ -499,14 +528,46 @@ export default function TurmasProfessorPage() {
 
             {abertos[nomeGrupo] && (
               <div className="space-y-4 border-t border-slate-100 p-6">
-                {turmasAgrupadas.length === 0 ? (
+                {lista.length === 0 ? (
                   <p className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
                     Nenhuma turma encontrada neste grupo.
                   </p>
                 ) : (
-                  turmasAgrupadas.map((turma) => (
-                    <TurmaAgrupadaCard key={turma.chave} turma={turma} hoje={hoje} router={router} />
-                  ))
+                  <div className="space-y-5">
+                    {Object.entries(cursos).map(([nomeCurso, listaCurso]) => {
+                      const turmasAgrupadas = agruparPorTurma(listaCurso);
+
+                      return (
+                        <section
+                          key={`${nomeGrupo}-${nomeCurso}`}
+                          className="rounded-3xl border border-blue-100 bg-blue-50/40 p-4"
+                        >
+                          <div className="mb-4">
+                            <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700">
+                              Curso
+                            </p>
+                            <h3 className="text-xl font-black text-slate-900">
+                              {nomeCurso}
+                            </h3>
+                            <p className="text-sm text-slate-600">
+                              {turmasAgrupadas.length} turma(s) • {listaCurso.length} disciplina(s)
+                            </p>
+                          </div>
+
+                          <div className="space-y-4">
+                            {turmasAgrupadas.map((turma) => (
+                              <TurmaAgrupadaCard
+                                key={turma.chave}
+                                turma={turma}
+                                hoje={hoje}
+                                router={router}
+                              />
+                            ))}
+                          </div>
+                        </section>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             )}
