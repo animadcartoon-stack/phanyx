@@ -112,14 +112,26 @@ function grupoSemestre(turma: Turma) {
 }
 
 function turnoDaTurma(turma: Turma) {
-  const texto = `${turma.periodoLetivo || ""} ${turma.semestre || ""} ${turma.nome || ""}`.toLowerCase();
+  const periodo = String(turma.periodoLetivo || "").trim();
 
-  if (texto.includes("matutino") || texto.includes("manhã") || texto.includes("manha")) return "Matutino";
-  if (texto.includes("vespertino") || texto.includes("tarde")) return "Vespertino";
-  if (texto.includes("noturno") || texto.includes("noite")) return "Noturno";
-  return "EAD / Livre";
+  if (periodo) return periodo;
+
+  const texto = `${turma.semestre || ""} ${turma.nome || ""}`.toLowerCase();
+
+  if (texto.includes("matutino") || texto.includes("manhã") || texto.includes("manha")) {
+    return "Matutino";
+  }
+
+  if (texto.includes("vespertino") || texto.includes("tarde")) {
+    return "Vespertino";
+  }
+
+  if (texto.includes("noturno") || texto.includes("noite")) {
+    return "Noturno";
+  }
+
+  return "Período não informado";
 }
-
 function diaDaTurma(turma: Turma) {
   const texto = `${turma.periodoLetivo || ""} ${turma.semestre || ""} ${turma.nome || ""}`.toLowerCase();
 
@@ -176,12 +188,7 @@ function agruparPorTurma(turmas: Turma[]) {
         statusDisciplina: item.statusDisciplina,
         dataInicio: item.dataInicio,
         dataFim: item.dataFim,
-        disciplinasPorTurno: {
-          "Matutino": [],
-          "Vespertino": [],
-          "Noturno": [],
-          "EAD / Livre": [],
-        },
+        disciplinasPorTurno: {},
       });
     }
 
@@ -274,12 +281,12 @@ useEffect(() => {
           )}
 
           <div className="space-y-4">
-            {TURNOS.map((turno) => {
+            {Object.keys(turma.disciplinasPorTurno).map((turno) => {
   const disciplinas = turma.disciplinasPorTurno[turno] || [];
 
   if (disciplinas.length === 0) return null;
 
-  const periodoAberto = periodosAbertos[turno] ?? buscaAtiva;
+  const periodoAberto = periodosAbertos[turno] ?? false;
 
   return (
     <section
@@ -394,10 +401,10 @@ export default function TurmasProfessorPage() {
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [abertos, setAbertos] = useState<Record<string, boolean>>({
-    "Semestre atual": true,
-    "Próximo semestre": true,
-    "Turmas concluídas": false,
-  });
+  "Semestre atual": false,
+  "Próximo semestre": false,
+  "Turmas concluídas": false,
+});
 
   const [cursosAbertos, setCursosAbertos] = useState<Record<string, boolean>>({});
 
@@ -647,11 +654,11 @@ const gruposPorCurso = useMemo(() => {
                 </div>
 
                 <span className="text-sm font-semibold text-slate-500">
-                  {abertos[nomeGrupo] || buscaAtiva ? "▲ Fechar" : "▼ Abrir"}
+                  {abertos[nomeGrupo] ? "▲ Fechar" : "▼ Abrir"}
                 </span>
               </button>
 
-              {(abertos[nomeGrupo] || buscaAtiva) && (
+              {(abertos[nomeGrupo]) && (
                 <div className="space-y-4 border-t border-slate-100 p-6">
                   {lista.length === 0 ? (
                     <p className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
@@ -662,7 +669,7 @@ const gruposPorCurso = useMemo(() => {
                       {Object.entries(cursos).map(([nomeCurso, listaCurso]) => {
                         const turmasAgrupadas = agruparPorTurma(listaCurso);
                         const chaveCurso = `${nomeGrupo}-${nomeCurso}`;
-                        const cursoAberto = cursosAbertos[chaveCurso] ?? buscaAtiva;
+                        const cursoAberto = cursosAbertos[chaveCurso] ?? false;
 
                         return (
                           <section
