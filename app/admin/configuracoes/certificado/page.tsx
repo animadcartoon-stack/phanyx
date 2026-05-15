@@ -839,7 +839,7 @@ useEffect(() => {
 
   const escalaFinal = Math.min(escalaX, escalaY);
 
-  return Math.max(35, Math.min(68, Math.floor(escalaFinal * 100)));
+  return orientacao === "paisagem" ? 52 : 38;
 }, [baseCanvas, stageSize.width, stageSize.height]);
   
   useEffect(() => {
@@ -2735,7 +2735,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#eef2f7] px-10 py-8"
+  className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-white p-8"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2745,7 +2745,7 @@ contornoEspessura: 2,
 }}
 >
               <div
-  className="mx-auto flex items-center justify-center rounded-[22px] bg-white/40 p-6"
+  className="mx-auto flex items-center justify-center"
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
