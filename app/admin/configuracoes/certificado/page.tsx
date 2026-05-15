@@ -831,8 +831,8 @@ useEffect(() => {
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
   const fitZoom = useMemo(() => {
-  const larguraDisponivel = 900;
-  const alturaDisponivel = 650;
+  const larguraDisponivel = 760;
+  const alturaDisponivel = 470;
 
   const escalaX = larguraDisponivel / baseCanvas.largura;
   const escalaY = alturaDisponivel / baseCanvas.altura;
@@ -1916,7 +1916,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
             <span className="text-xs text-white/90">Zoom</span>
             <input
   type="range"
-  min={40}
+  min={30}
   max={120}
   step={5}
   value={zoom}
@@ -2722,7 +2722,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-white px-8 py-10"
+  className="flex-1 overflow-auto bg-white flex items-center justify-center p-10"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
