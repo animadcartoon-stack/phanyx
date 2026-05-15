@@ -841,10 +841,8 @@ useEffect(() => {
 }, [baseCanvas]);
   
   useEffect(() => {
-  if (zoom === 0 || zoom < fitZoom) {
-    setZoom(fitZoom);
-  }
-}, [fitZoom]);
+  setZoom(fitZoom);
+}, [fitZoom, tamanhoPapel, orientacao]);
 
   const escala = zoom / 100;
   const canvasWidth = Math.round(baseCanvas.largura * escala);
@@ -2724,7 +2722,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-[#eef2f7] flex items-start justify-center p-10"
+  className="flex-1 overflow-auto bg-[#eef2f7] p-10"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2734,12 +2732,13 @@ contornoEspessura: 2,
 }}
 >
               <div
-  className="flex items-center justify-center"
- style={{
-  width: `${canvasWidth}px`,
-  height: `${canvasHeight}px`,
-}}
+  className="mx-auto flex items-center justify-center"
+  style={{
+    width: `${canvasWidth}px`,
+    height: `${canvasHeight}px`,
+  }}
 >
+  
                 <div
   ref={canvasRef}
   onMouseDown={(e) => {
@@ -2777,6 +2776,7 @@ contornoEspessura: 2,
                     <div className="flex h-full items-center justify-center text-sm text-slate-400">
                       Faça upload do modelo acima para começar a edição.
                     </div>
+                    
                   )}
 
 {caixaDoGrupoSelecionado && (
