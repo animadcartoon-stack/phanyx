@@ -84,6 +84,9 @@ function AdminTurmasPage() {
   const [datasInicioPorDisciplina, setDatasInicioPorDisciplina] = useState<Record<number, string>>({});
   const [datasFimPorDisciplina, setDatasFimPorDisciplina] = useState<Record<number, string>>({});
   const [statusPorDisciplina, setStatusPorDisciplina] = useState<Record<number, string>>({});
+  const [horariosPorDisciplina, setHorariosPorDisciplina] = useState<
+    Record<number, { diaSemana: string; horaInicio: string; horaFim: string }[]>
+  >({});
   const [editandoId, setEditandoId] = useState<number | null>(null);
 
   const [dataInicio, setDataInicio] = useState("");
@@ -195,9 +198,9 @@ async function carregarCursos() {
   datasInicioPorDisciplina,
   datasFimPorDisciplina,
   statusPorDisciplina,
+  horariosPorDisciplina,
   poloId,
   professorId,
-  
 }),
       });
 
@@ -223,7 +226,7 @@ async function carregarCursos() {
       setDatasInicioPorDisciplina({});
       setDatasFimPorDisciplina({});
       setStatusPorDisciplina({});
-
+      setHorariosPorDisciplina({});
       await carregarTurmas();
       mostrarFeedback("sucesso", "Turma criada com sucesso.");
     } catch (error: any) {
@@ -619,24 +622,134 @@ const disciplinasFiltradas = useMemo(() => {
               <span>{disciplina.nome}</span>
             </label>
 
-            {selecionada && (
-              <select
-                value={professoresPorDisciplina[disciplina.id] || ""}
-                onChange={(e) =>
-                  setProfessoresPorDisciplina((prev) => ({
-                    ...prev,
-                    [disciplina.id]: e.target.value,
-                  }))
-                }
-                className="mt-2 h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
-              >
-                <option value="">Professor desta disciplina</option>
-                {professoresDaDisciplina(disciplina).map((professor) => (
-                  <option key={professor.id} value={professor.id}>
-                    {professor.nome}
-                  </option>
-                ))}
-              </select>
+                        {selecionada && (
+              <div className="mt-2 space-y-3">
+                <select
+                  value={professoresPorDisciplina[disciplina.id] || ""}
+                  onChange={(e) =>
+                    setProfessoresPorDisciplina((prev) => ({
+                      ...prev,
+                      [disciplina.id]: e.target.value,
+                    }))
+                  }
+                  className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+                >
+                  <option value="">Professor desta disciplina</option>
+                  {professoresDaDisciplina(disciplina).map((professor) => (
+                    <option key={professor.id} value={professor.id}>
+                      {professor.nome}
+                    </option>
+                  ))}
+                </select>
+
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <p className="text-sm font-bold text-blue-900">
+                      Horários desta disciplina
+                    </p>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setHorariosPorDisciplina((prev) => ({
+                          ...prev,
+                          [disciplina.id]: [
+                            ...(prev[disciplina.id] || []),
+                            { diaSemana: "1", horaInicio: "", horaFim: "" },
+                          ],
+                        }))
+                      }
+                      className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-bold text-white hover:bg-blue-700"
+                    >
+                      + horário
+                    </button>
+                  </div>
+
+                  {(horariosPorDisciplina[disciplina.id] || []).length === 0 ? (
+                    <p className="text-xs text-blue-700">
+                      Nenhum horário cadastrado. Adicione pelo menos um horário para permitir lembrete automático ao professor.
+                    </p>
+                  ) : (
+                    <div className="space-y-2">
+                      {(horariosPorDisciplina[disciplina.id] || []).map((horario, index) => (
+                        <div
+                          key={`${disciplina.id}-horario-${index}`}
+                          className="grid grid-cols-1 gap-2 md:grid-cols-[1fr_120px_120px_auto]"
+                        >
+                          <select
+                            value={horario.diaSemana}
+                            onChange={(e) =>
+                              setHorariosPorDisciplina((prev) => {
+                                const lista = [...(prev[disciplina.id] || [])];
+                                lista[index] = {
+                                  ...lista[index],
+                                  diaSemana: e.target.value,
+                                };
+                                return { ...prev, [disciplina.id]: lista };
+                              })
+                            }
+                            className="h-[40px] rounded-lg border bg-white p-2 text-sm"
+                          >
+                            <option value="1">Segunda</option>
+                            <option value="2">Terça</option>
+                            <option value="3">Quarta</option>
+                            <option value="4">Quinta</option>
+                            <option value="5">Sexta</option>
+                            <option value="6">Sábado</option>
+                            <option value="0">Domingo</option>
+                          </select>
+
+                          <input
+                            type="time"
+                            value={horario.horaInicio}
+                            onChange={(e) =>
+                              setHorariosPorDisciplina((prev) => {
+                                const lista = [...(prev[disciplina.id] || [])];
+                                lista[index] = {
+                                  ...lista[index],
+                                  horaInicio: e.target.value,
+                                };
+                                return { ...prev, [disciplina.id]: lista };
+                              })
+                            }
+                            className="h-[40px] rounded-lg border bg-white p-2 text-sm"
+                          />
+
+                          <input
+                            type="time"
+                            value={horario.horaFim}
+                            onChange={(e) =>
+                              setHorariosPorDisciplina((prev) => {
+                                const lista = [...(prev[disciplina.id] || [])];
+                                lista[index] = {
+                                  ...lista[index],
+                                  horaFim: e.target.value,
+                                };
+                                return { ...prev, [disciplina.id]: lista };
+                              })
+                            }
+                            className="h-[40px] rounded-lg border bg-white p-2 text-sm"
+                          />
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setHorariosPorDisciplina((prev) => {
+                                const lista = [...(prev[disciplina.id] || [])];
+                                lista.splice(index, 1);
+                                return { ...prev, [disciplina.id]: lista };
+                              })
+                            }
+                            className="rounded-lg border border-red-200 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50"
+                          >
+                            Remover
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
           </div>
         );

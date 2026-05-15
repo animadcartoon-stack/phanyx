@@ -142,6 +142,12 @@ export async function POST(request: NextRequest) {
         ? body.statusPorDisciplina
         : {};
 
+            const horariosPorDisciplina =
+      body?.horariosPorDisciplina &&
+      typeof body.horariosPorDisciplina === "object"
+        ? body.horariosPorDisciplina
+        : {};
+
     if (!nome || !semestre || !periodoLetivo) {
       return NextResponse.json(
         { error: "Nome, semestre e período são obrigatórios" },
@@ -207,26 +213,59 @@ if (disciplinasValidas.length !== disciplinaIds.length) {
         },
       });
 
-      await tx.turmaDisciplina.createMany({
-        data: disciplinaIds.map((id: number) => ({
-          turmaId: turmaCriada.id,
-          disciplinaId: id,
-          professorId:
-            professoresPorDisciplina[id] &&
-            Number(professoresPorDisciplina[id]) > 0
-              ? Number(professoresPorDisciplina[id])
+            for (const id of disciplinaIds) {
+        const turmaDisciplinaCriada = await tx.turmaDisciplina.create({
+          data: {
+            turmaId: turmaCriada.id,
+            disciplinaId: id,
+            professorId:
+              professoresPorDisciplina[id] &&
+              Number(professoresPorDisciplina[id]) > 0
+                ? Number(professoresPorDisciplina[id])
+                : null,
+            dataInicio: datasInicioPorDisciplina[id]
+              ? new Date(datasInicioPorDisciplina[id])
               : null,
-          dataInicio: datasInicioPorDisciplina[id]
-            ? new Date(datasInicioPorDisciplina[id])
-            : null,
-          dataFim: datasFimPorDisciplina[id]
-            ? new Date(datasFimPorDisciplina[id])
-            : null,
-          status: statusPorDisciplina[id] || "A_INICIAR",
-          instituicaoId: user.instituicaoId,
-          turmaSemestreId: novoSemestre.id,
-        })),
-      });
+            dataFim: datasFimPorDisciplina[id]
+              ? new Date(datasFimPorDisciplina[id])
+              : null,
+            status: statusPorDisciplina[id] || "A_INICIAR",
+            instituicaoId: user.instituicaoId,
+            turmaSemestreId: novoSemestre.id,
+          },
+        });
+
+        const horarios = Array.isArray(horariosPorDisciplina[id])
+          ? horariosPorDisciplina[id]
+          : [];
+
+        const horariosValidos = horarios
+          .map((horario: any) => ({
+            diaSemana: Number(horario.diaSemana),
+            horaInicio: String(horario.horaInicio || "").trim(),
+            horaFim: String(horario.horaFim || "").trim() || null,
+          }))
+          .filter(
+            (horario: any) =>
+              Number.isFinite(horario.diaSemana) &&
+              horario.diaSemana >= 0 &&
+              horario.diaSemana <= 6 &&
+              horario.horaInicio
+          );
+
+        if (horariosValidos.length > 0) {
+          await tx.turmaDisciplinaHorario.createMany({
+            data: horariosValidos.map((horario: any) => ({
+              turmaDisciplinaId: turmaDisciplinaCriada.id,
+              instituicaoId: user.instituicaoId,
+              diaSemana: horario.diaSemana,
+              horaInicio: horario.horaInicio,
+              horaFim: horario.horaFim,
+              ativo: true,
+            })),
+          });
+        }
+      }
 
       return tx.turma.findUnique({
         where: { id: turmaCriada.id },
