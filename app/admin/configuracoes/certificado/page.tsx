@@ -820,7 +820,7 @@ useEffect(() => {
 
   const escalaFinal = Math.min(escalaX, escalaY);
 
-  return Math.max(45, Math.floor(escalaFinal * 100));
+  return Math.max(35, Math.floor(escalaFinal * 82));
 }, [baseCanvas, orientacao, mostrarPainelCampos]);
   
   useEffect(() => {
@@ -2067,13 +2067,13 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         <div
   className={`grid h-[calc(100vh-220px)] min-h-[760px] grid-cols-1 ${
     mostrarPainelCampos
-      ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
-      : "lg:grid-cols-[minmax(0,1fr)_300px]"
+      ? "lg:grid-cols-[260px_minmax(0,1fr)_260px]"
+      : "lg:grid-cols-[minmax(0,1fr)_260px]"
   }`}
 >
            
           {mostrarPainelCampos && !modoAmplo && (
-            <aside className="max-h-[720px] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
+            <aside className="max-h-[560px] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-bold text-slate-900">
