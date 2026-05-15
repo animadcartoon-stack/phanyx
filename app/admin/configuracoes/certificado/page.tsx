@@ -839,7 +839,7 @@ useEffect(() => {
 
   const escalaFinal = Math.min(escalaX, escalaY);
 
-  return Math.max(35, Math.min(82, Math.floor(escalaFinal * 100)));
+  return Math.max(35, Math.min(68, Math.floor(escalaFinal * 100)));
 }, [baseCanvas, stageSize.width, stageSize.height]);
   
   useEffect(() => {
@@ -2094,7 +2094,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
         <div
-  className={`grid h-[calc(100vh-220px)] min-h-[760px] grid-cols-1 ${
+  className={`grid h-[620px] min-h-[620px] grid-cols-1 ${
     mostrarPainelCampos
       ? "lg:grid-cols-[320px_minmax(0,1fr)_300px]"
       : "lg:grid-cols-[minmax(0,1fr)_300px]"
@@ -2735,7 +2735,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#f3f5f9] p-8"
+  className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#eef2f7] px-10 py-8"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2745,7 +2745,7 @@ contornoEspessura: 2,
 }}
 >
               <div
-  className="mx-auto flex items-center justify-center"
+  className="mx-auto flex items-center justify-center rounded-[22px] bg-white/40 p-6"
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
