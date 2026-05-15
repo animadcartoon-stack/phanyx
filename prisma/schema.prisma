@@ -72,6 +72,7 @@ model Instituicao {
   cursosPolos                CursoPolo[]
   professoresDisciplinas     ProfessorDisciplina[]
   turmaSemestres             TurmaSemestre[]
+  turmaDisciplinaHorarios    TurmaDisciplinaHorario[]
 }
 
 model User {
@@ -434,16 +435,37 @@ model TurmaDisciplina {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  professor   Professor?  @relation(fields: [professorId], references: [id])
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  turma       Turma                    @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina               @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  professor   Professor?               @relation(fields: [professorId], references: [id])
+  instituicao Instituicao              @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  horarios    TurmaDisciplinaHorario[]
 
   @@unique([turmaId, disciplinaId])
   @@index([turmaId])
   @@index([disciplinaId])
   @@index([professorId])
   @@index([instituicaoId])
+}
+
+model TurmaDisciplinaHorario {
+  id                Int      @id @default(autoincrement())
+  turmaDisciplinaId Int
+  instituicaoId     Int
+  diaSemana         Int
+  horaInicio        String
+  horaFim           String?
+  ativo             Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  turmaDisciplina TurmaDisciplina @relation(fields: [turmaDisciplinaId], references: [id], onDelete: Cascade)
+  instituicao     Instituicao     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([turmaDisciplinaId])
+  @@index([instituicaoId])
+  @@index([diaSemana])
+  @@index([ativo])
 }
 
 model Matricula {
