@@ -66,12 +66,21 @@ export async function GET() {
             },
           },
           include: {
-            disciplina: {
-              include: {
-                curso: true,
-              },
-            },
-          },
+  horarios: {
+    where: {
+      ativo: true,
+    },
+    orderBy: [
+      { diaSemana: "asc" },
+      { horaInicio: "asc" },
+    ],
+  },
+  disciplina: {
+    include: {
+      curso: true,
+    },
+  },
+},
         },
         itensMatricula: true,
       },
@@ -97,6 +106,7 @@ export async function GET() {
           statusDisciplina: item.status,
           dataInicio: item.dataInicio,
           dataFim: item.dataFim,
+          horarios: item.horarios || [],
         }))
       )
     );
