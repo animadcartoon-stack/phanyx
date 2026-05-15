@@ -1523,8 +1523,8 @@ function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
     let novoY =
       (event.clientY - canvasRect.top) / escala - dragRef.current.offsetY;
 
-    novoX = Math.max(0, Math.min(novoX, baseCanvas.largura - largura));
-    novoY = Math.max(0, Math.min(novoY, baseCanvas.altura - altura));
+    novoX = Math.round(novoX);
+    novoY = Math.round(novoY);
 
     if (dragRef.current.grupoId) {
   const deltaX = Math.round(novoX - dragRef.current.inicioX);
@@ -2524,7 +2524,7 @@ contornoEspessura: 2,
           onClick={() => setCampoSelecionadoId(img.id)}
           className="flex w-full items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2 text-left hover:bg-slate-100"
         >
-          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-white">
+          <div className="flex h-12 w-12 items-center justify-center overflow-visible rounded-lg bg-white">
             <img
               src={
   (img as any).imagemUrl ||
