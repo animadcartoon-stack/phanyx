@@ -2722,7 +2722,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-[#eef2f7] p-10"
+  className="flex-1 overflow-auto bg-white px-8 py-10"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2736,9 +2736,10 @@ contornoEspessura: 2,
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
+    minHeight: `${canvasHeight}px`,
   }}
 >
-  
+
                 <div
   ref={canvasRef}
   onMouseDown={(e) => {
@@ -2751,7 +2752,7 @@ contornoEspessura: 2,
   onMouseMove={onMouseMoveCanvas}
   onMouseUp={finalizarDrag}
   onMouseLeave={finalizarDrag}
-                  className="relative overflow-hidden border border-slate-300 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="relative overflow-hidden border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
