@@ -2737,7 +2737,7 @@ contornoEspessura: 2,
 }}
 >
               <div
-  className="flex items-center justify-center"
+  className="relative flex items-center justify-center"
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
@@ -2759,7 +2759,7 @@ contornoEspessura: 2,
   onMouseMove={onMouseMoveCanvas}
   onMouseUp={finalizarDrag}
   onMouseLeave={finalizarDrag}
-                  className="relative shrink-0 overflow-hidden border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="absolute left-0 top-0 overflow-hidden border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
