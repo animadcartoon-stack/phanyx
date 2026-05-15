@@ -831,8 +831,8 @@ useEffect(() => {
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
   const fitZoom = useMemo(() => {
-  const larguraDisponivel = 760;
-  const alturaDisponivel = 470;
+  const larguraDisponivel = 680;
+  const alturaDisponivel = 420;
 
   const escalaX = larguraDisponivel / baseCanvas.largura;
   const escalaY = alturaDisponivel / baseCanvas.altura;
@@ -2703,7 +2703,7 @@ contornoEspessura: 2,
             </aside>
           )}
 
-          <main className="flex min-h-[720px] flex-col bg-[#f3f5f9]">
+          <main className="flex min-h-[620px] flex-col bg-white">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
               Área de edição do modelo da instituição
             </div>
@@ -2722,7 +2722,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex-1 overflow-auto bg-white flex items-center justify-center p-10"
+  className="flex-1 overflow-auto bg-white flex items-center justify-center px-10 py-12"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
