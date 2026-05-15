@@ -670,7 +670,30 @@ function adicionarImagemBiblioteca(
 };
 
   const stageRef = useRef<HTMLDivElement | null>(null);
+
+  const [stageSize, setStageSize] = useState({
+  width: 900,
+  height: 560,
+});
+
   const canvasRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+  if (!stageRef.current) return;
+
+  const observer = new ResizeObserver(([entry]) => {
+    const rect = entry.contentRect;
+
+    setStageSize({
+      width: rect.width,
+      height: rect.height,
+    });
+  });
+
+  observer.observe(stageRef.current);
+
+  return () => observer.disconnect();
+}, []);
   
   const dragRef = useRef<{
   campoId: number;
@@ -805,23 +828,19 @@ useEffect(() => {
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
   const fitZoom = useMemo(() => {
-  const larguraDisponivel =
-    orientacao === "paisagem"
-      ? (mostrarPainelCampos ? 1180 : 1450)
-      : (mostrarPainelCampos ? 920 : 1200);
+  const margemHorizontal = 90;
+  const margemVertical = 90;
 
-  const alturaDisponivel =
-    orientacao === "paisagem"
-      ? 720
-      : 860;
+  const larguraDisponivel = Math.max(320, stageSize.width - margemHorizontal);
+  const alturaDisponivel = Math.max(260, stageSize.height - margemVertical);
 
   const escalaX = larguraDisponivel / baseCanvas.largura;
   const escalaY = alturaDisponivel / baseCanvas.altura;
 
   const escalaFinal = Math.min(escalaX, escalaY);
 
-  return Math.max(35, Math.floor(escalaFinal * 82));
-}, [baseCanvas, orientacao, mostrarPainelCampos]);
+  return Math.max(35, Math.min(82, Math.floor(escalaFinal * 100)));
+}, [baseCanvas, stageSize.width, stageSize.height]);
   
   useEffect(() => {
   setZoom(fitZoom);
@@ -2706,7 +2725,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex flex-1 min-h-0 overflow-auto bg-[#f3f5f9] items-center justify-center p-6"
+  className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#f3f5f9] p-8"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2720,6 +2739,7 @@ contornoEspessura: 2,
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
+    flexShrink: 0,
   }}
 >
 
@@ -3971,7 +3991,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
           </main>
 
           {!modoAmplo && (
-<aside className="max-h-[720px] overflow-y-auto border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
+<aside className="max-h-[420px] overflow-y-auto border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
             <button
   type="button"
   onClick={() => setPainelCampoAberto((prev) => !prev)}
