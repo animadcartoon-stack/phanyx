@@ -128,42 +128,16 @@ const FONTES = [
 
 const TAMANHOS_PAPEL = {
   A5: {
-    retrato: {
-      largura: 560,
-      altura: 794,
-      label: "A5 Retrato",
-    },
-    paisagem: {
-      largura: 794,
-      altura: 560,
-      label: "A5 Paisagem",
-    },
+    retrato: { largura: 560, altura: 794, label: "A5 Retrato" },
+    paisagem: { largura: 794, altura: 560, label: "A5 Paisagem" },
   },
-
   A4: {
-    retrato: {
-      largura: 794,
-      altura: 1123,
-      label: "A4 Retrato",
-    },
-    paisagem: {
-      largura: 1123,
-      altura: 794,
-      label: "A4 Paisagem",
-    },
+    retrato: { largura: 794, altura: 1123, label: "A4 Retrato" },
+    paisagem: { largura: 1123, altura: 794, label: "A4 Paisagem" },
   },
-
   A3: {
-    retrato: {
-      largura: 1123,
-      altura: 1587,
-      label: "A3 Retrato",
-    },
-    paisagem: {
-      largura: 1587,
-      altura: 1123,
-      label: "A3 Paisagem",
-    },
+    retrato: { largura: 1123, altura: 1587, label: "A3 Retrato" },
+    paisagem: { largura: 1123, altura: 794, label: "A3 Paisagem" },
   },
 } as const;
 
@@ -831,8 +805,8 @@ useEffect(() => {
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
   const fitZoom = useMemo(() => {
-  const larguraDisponivel = 680;
-  const alturaDisponivel = 420;
+  const larguraDisponivel = 760;
+  const alturaDisponivel = 540;
 
   const escalaX = larguraDisponivel / baseCanvas.largura;
   const escalaY = alturaDisponivel / baseCanvas.altura;
