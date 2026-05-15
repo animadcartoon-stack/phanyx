@@ -2774,11 +2774,11 @@ contornoEspessura: 2,
   onMouseLeave={finalizarDrag}
                   className="absolute left-0 top-0 overflow-visible border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
-  width: `${baseCanvas.largura}px`,
-  height: `${baseCanvas.altura}px`,
+  width: `${baseCanvas.largura * previewScale}px`,
+  height: `${baseCanvas.altura * previewScale}px`,
   backgroundColor: corFundoPagina,
-  transform: `scale(${escala})`,
-  transformOrigin: "top left",
+  transformOrigin: "center center",
+  position: "relative",
 }}
                 >
                   {modoFundo === "modelo" && certificadoTemplateUrl ? (
@@ -4872,7 +4872,6 @@ if (!camposSelecionadosIds.includes(c.id)) {
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
   backgroundColor: corFundoPagina,
-  zoom: previewScale,
 }}
       >
         {modoFundo === "modelo" && certificadoTemplateUrl && (
