@@ -577,7 +577,7 @@ function gerarPontosEstrela(
   const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
   const [modoFundo, setModoFundo] = useState<"modelo" | "phanyx">("modelo");
   const [formasAbertas, setFormasAbertas] = useState(true);
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(0);
   const [modoAmplo, setModoAmplo] = useState(false);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
@@ -697,6 +697,7 @@ function adicionarImagemBiblioteca(
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  
   const dragRef = useRef<{
   campoId: number;
   offsetX: number;
@@ -828,6 +829,23 @@ useEffect(() => {
 }, [campoSelecionadoId]);
 
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
+
+  const fitZoom = useMemo(() => {
+  const larguraDisponivel = 900;
+  const alturaDisponivel = 650;
+
+  const escalaX = larguraDisponivel / baseCanvas.largura;
+  const escalaY = alturaDisponivel / baseCanvas.altura;
+
+  return Math.floor(Math.min(escalaX, escalaY) * 100);
+}, [baseCanvas]);
+  
+  useEffect(() => {
+  if (zoom === 0 || zoom < fitZoom) {
+    setZoom(fitZoom);
+  }
+}, [fitZoom]);
+
   const escala = zoom / 100;
   const canvasWidth = Math.round(baseCanvas.largura * escala);
   const canvasHeight = Math.round(baseCanvas.altura * escala);
