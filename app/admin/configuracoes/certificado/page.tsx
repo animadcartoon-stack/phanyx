@@ -805,14 +805,23 @@ useEffect(() => {
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
   const fitZoom = useMemo(() => {
-  const larguraDisponivel = 760;
-  const alturaDisponivel = 540;
+  const larguraDisponivel =
+    orientacao === "paisagem"
+      ? (mostrarPainelCampos ? 1180 : 1450)
+      : (mostrarPainelCampos ? 920 : 1200);
+
+  const alturaDisponivel =
+    orientacao === "paisagem"
+      ? 720
+      : 860;
 
   const escalaX = larguraDisponivel / baseCanvas.largura;
   const escalaY = alturaDisponivel / baseCanvas.altura;
 
-  return Math.floor(Math.min(escalaX, escalaY) * 100);
-}, [baseCanvas]);
+  const escalaFinal = Math.min(escalaX, escalaY);
+
+  return Math.max(45, Math.floor(escalaFinal * 100));
+}, [baseCanvas, orientacao, mostrarPainelCampos]);
   
   useEffect(() => {
   setZoom(fitZoom);
