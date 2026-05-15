@@ -202,12 +202,20 @@ function TurmaAgrupadaCard({
   turma,
   hoje,
   router,
+  buscaAtiva,
 }: {
   turma: TurmaAgrupada;
   hoje: string;
   router: ReturnType<typeof useRouter>;
+  buscaAtiva: boolean;
 }) {
   const [aberta, setAberta] = useState(false);
+
+useEffect(() => {
+  if (buscaAtiva) {
+    setAberta(true);
+  }
+}, [buscaAtiva]);
 
   const todasDisciplinas = Object.values(turma.disciplinasPorTurno).flat();
   const temAulaHoje = todasDisciplinas.some((disciplina) => diaDaTurma(disciplina) === hoje);
@@ -493,7 +501,18 @@ const gruposPorCurso = useMemo(() => {
         <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
           <input
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => {
+  const valor = e.target.value;
+  setBusca(valor);
+
+  if (valor.trim()) {
+    setAbertos({
+      "Semestre atual": true,
+      "Próximo semestre": true,
+      "Turmas concluídas": true,
+    });
+  }
+}}
             placeholder="Buscar por turma, curso, disciplina, período ou status..."
             className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
           />
@@ -557,11 +576,12 @@ const gruposPorCurso = useMemo(() => {
                           <div className="space-y-4">
                             {turmasAgrupadas.map((turma) => (
                               <TurmaAgrupadaCard
-                                key={turma.chave}
-                                turma={turma}
-                                hoje={hoje}
-                                router={router}
-                              />
+  key={turma.chave}
+  turma={turma}
+  hoje={hoje}
+  router={router}
+  buscaAtiva={busca.trim().length > 0}
+/>
                             ))}
                           </div>
                         </section>
