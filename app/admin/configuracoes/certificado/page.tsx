@@ -850,6 +850,19 @@ useEffect(() => {
   const canvasWidth = Math.round(baseCanvas.largura * escala);
   const canvasHeight = Math.round(baseCanvas.altura * escala);
 
+  const previewScale = useMemo(() => {
+  if (typeof window === "undefined") return 1;
+
+  const larguraMaxima = window.innerWidth - 120;
+  const alturaMaxima = window.innerHeight - 120;
+
+  return Math.min(
+    1,
+    larguraMaxima / baseCanvas.largura,
+    alturaMaxima / baseCanvas.altura
+  );
+}, [baseCanvas.largura, baseCanvas.altura]);
+
   const campoSelecionado = useMemo(
 
     () => campos.find((campo) => campo.id === campoSelecionadoId) || null,
@@ -4859,6 +4872,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
   backgroundColor: corFundoPagina,
+  zoom: previewScale,
 }}
       >
         {modoFundo === "modelo" && certificadoTemplateUrl && (
