@@ -839,7 +839,7 @@ useEffect(() => {
 
   const escalaFinal = Math.min(escalaX, escalaY);
 
-  return orientacao === "paisagem" ? 52 : 38;
+  return Math.max(45, Math.min(75, Math.floor(escalaFinal * 100)));
 }, [baseCanvas, stageSize.width, stageSize.height]);
   
   useEffect(() => {
@@ -2010,14 +2010,6 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     block: "start",
   });
 
-  setTimeout(() => {
-    if (!stageRef.current) return;
-
-    stageRef.current.scrollLeft =
-      (stageRef.current.scrollWidth - stageRef.current.clientWidth) / 2;
-
-    stageRef.current.scrollTop = 0;
-  }, 500);
 }}
   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
 >
@@ -2735,7 +2727,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="flex min-h-0 flex-1 items-center justify-center overflow-auto bg-white p-8"
+  className="relative flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#eef2f7] p-8"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -2765,7 +2757,7 @@ contornoEspessura: 2,
   onMouseMove={onMouseMoveCanvas}
   onMouseUp={finalizarDrag}
   onMouseLeave={finalizarDrag}
-                  className="relative overflow-hidden border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="relative shrink-0 overflow-hidden border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
