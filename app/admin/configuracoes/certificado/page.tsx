@@ -2016,8 +2016,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     stageRef.current.scrollLeft =
       (stageRef.current.scrollWidth - stageRef.current.clientWidth) / 2;
 
-    stageRef.current.scrollTop =
-      (stageRef.current.scrollHeight - stageRef.current.clientHeight) / 2;
+    stageRef.current.scrollTop = 0;
   }, 350);
 }}
   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
