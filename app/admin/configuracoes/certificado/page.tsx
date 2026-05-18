@@ -5246,7 +5246,7 @@ if (c.tipo === "TEXTO_LIVRE") {
           setCampoSelecionadoId(c.id);
           setCamposSelecionadosIds([c.id]);
         }}
-        onBlur={(e) => {
+        onInput={(e) => {
   const texto = e.currentTarget.innerText;
   const textoHtml = e.currentTarget.innerHTML;
 
