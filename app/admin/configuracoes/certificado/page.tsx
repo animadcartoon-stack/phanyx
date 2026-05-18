@@ -5188,12 +5188,18 @@ if (c.tipo === "TEXTO_LIVRE") {
   setCamposSelecionadosIds([c.id]);
 
   const alvo = event.target as HTMLElement;
+const tag = alvo.tagName.toLowerCase();
 
-  if (alvo.isContentEditable) {
-    return;
-  }
+if (
+  alvo.isContentEditable ||
+  tag === "textarea" ||
+  tag === "input" ||
+  tag === "select"
+) {
+  return;
+}
 
-  iniciarDrag(event as any, c);
+iniciarDrag(event as any, c);
 }}
       style={{
         left: `${c.x}px`,
@@ -5204,19 +5210,19 @@ if (c.tipo === "TEXTO_LIVRE") {
       }}
     >
 
-      {selecionadoTexto && (
-  <div
-    onMouseDown={(e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      iniciarDrag(e as any, c);
-    }}
-    className="absolute -top-7 left-0 z-[999999] cursor-move rounded-t-lg bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow"
-    title="Arrastar caixa de texto"
-  >
-    Mover texto
-  </div>
-)}
+              {selecionadoTexto && (
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              iniciarDrag(e as any, c);
+            }}
+            className="absolute -top-7 left-0 z-[999999] cursor-move rounded-t-lg bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow"
+            title="Arrastar caixa de texto"
+          >
+            ↕ Mover texto
+          </div>
+        )}
 
       <div
   contentEditable
