@@ -3692,36 +3692,164 @@ altura: ev.shiftKey
   );
 }
 
+    if (c.tipo === "TEXTO_LIVRE") {
+    const selecionadoTexto = camposSelecionadosIds.includes(c.id);
+
+    return (
+      <div
+        key={c.id}
+        onMouseDown={(event) => {
+          event.stopPropagation();
+
+          if (event.button === 2) return;
+
+          setCampoSelecionadoId(c.id);
+          setCamposSelecionadosIds([c.id]);
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setCampoSelecionadoId(c.id);
+
+          if (!camposSelecionadosIds.includes(c.id)) {
+            setCamposSelecionadosIds([c.id]);
+          }
+
+          setMenuContexto({
+            x: e.clientX,
+            y: e.clientY,
+            campoId: c.id,
+          });
+        }}
+        className="absolute z-20"
+        style={{
+          left: `${c.x}px`,
+          top: `${c.y}px`,
+          width: `${c.largura || 320}px`,
+          height: `${c.altura || 120}px`,
+          zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
+        }}
+      >
+        <div
+          contentEditable
+          suppressContentEditableWarning
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            setCampoSelecionadoId(c.id);
+            setCamposSelecionadosIds([c.id]);
+          }}
+          onInput={(e) => {
+            const texto = e.currentTarget.innerText;
+
+            setCampos((prev) =>
+              prev.map((item) =>
+                item.id === c.id ? { ...item, texto } : item
+              )
+            );
+          }}
+          className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
+            selecionadoTexto
+              ? "border-2 border-blue-600 bg-blue-50/10"
+              : "border border-blue-400/60 bg-transparent"
+          }`}
+          style={{
+            fontFamily: c.fonte || "Arial",
+            fontSize: `${c.tamanho || 18}px`,
+            color: c.cor || "#1e3a8a",
+            fontWeight: c.negrito ? "bold" : "normal",
+            fontStyle: c.italico ? "italic" : "normal",
+            textDecoration: c.sublinhado ? "underline" : "none",
+            textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+            lineHeight: c.lineHeight || 1.3,
+            whiteSpace: "pre-wrap",
+            wordBreak: "break-word",
+            cursor: "text",
+          }}
+        >
+          {(c as any).texto || "Digite seu texto"}
+        </div>
+
+        {selecionadoTexto && (
+          <div
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+
+              const startX = e.clientX;
+              const startY = e.clientY;
+              const larguraInicial = c.largura || 320;
+              const alturaInicial = c.altura || 120;
+
+              const move = (ev: globalThis.MouseEvent) => {
+                setCampos((prev) =>
+                  prev.map((item) =>
+                    item.id === c.id
+                      ? {
+                          ...item,
+                          largura: Math.max(
+                            80,
+                            Math.round(
+                              larguraInicial + (ev.clientX - startX) / escala
+                            )
+                          ),
+                          altura: Math.max(
+                            40,
+                            Math.round(
+                              alturaInicial + (ev.clientY - startY) / escala
+                            )
+                          ),
+                        }
+                      : item
+                  )
+                );
+              };
+
+              const up = () => {
+                window.removeEventListener("mousemove", move);
+                window.removeEventListener("mouseup", up);
+              };
+
+              window.addEventListener("mousemove", move);
+              window.addEventListener("mouseup", up);
+            }}
+            className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+            title="Redimensionar caixa de texto"
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div
       key={c.id}
       onMouseDown={(event) => {
-  event.stopPropagation();
- 
-  if (event.button === 2) return;
+        event.stopPropagation();
 
-  if (event.shiftKey || event.ctrlKey || event.metaKey) {
-    setCamposSelecionadosIds((prev) =>
-      prev.includes(c.id)
-        ? prev.filter((id) => id !== c.id)
-        : [...prev, c.id]
-    );
+        if (event.button === 2) return;
 
-    setCampoSelecionadoId(c.id);
-    return;
-  }
+        if (event.shiftKey || event.ctrlKey || event.metaKey) {
+          setCamposSelecionadosIds((prev) =>
+            prev.includes(c.id)
+              ? prev.filter((id) => id !== c.id)
+              : [...prev, c.id]
+          );
 
-  setCampoSelecionadoId(c.id);
-  setCamposSelecionadosIds([c.id]);
-  iniciarDrag(event as any, c);
-}}
+          setCampoSelecionadoId(c.id);
+          return;
+        }
+
+        setCampoSelecionadoId(c.id);
+        setCamposSelecionadosIds([c.id]);
+        iniciarDrag(event as any, c);
+      }}
       onContextMenu={(e) => {
         e.preventDefault();
         setCampoSelecionadoId(c.id);
 
-if (!camposSelecionadosIds.includes(c.id)) {
-  setCamposSelecionadosIds([c.id]);
-}
+        if (!camposSelecionadosIds.includes(c.id)) {
+          setCamposSelecionadosIds([c.id]);
+        }
+
         setMenuContexto({
           x: e.clientX,
           y: e.clientY,
@@ -3769,18 +3897,17 @@ if (!camposSelecionadosIds.includes(c.id)) {
         : c.tipo === "DATA_EMISSAO"
         ? "00/00/0000"
         : c.tipo === "ASSINATURA" ? (
-  certificadoAssinaturaUrl ? (
-    <img
-      src={certificadoAssinaturaUrl}
-      alt="Assinatura do diretor"
-      className="h-full w-full object-contain pointer-events-none"
-      draggable={false}
-    />
-  ) : (
-    "Assinatura"
-  )
-) : c.tipo}
-
+            certificadoAssinaturaUrl ? (
+              <img
+                src={certificadoAssinaturaUrl}
+                alt="Assinatura do diretor"
+                className="h-full w-full object-contain pointer-events-none"
+                draggable={false}
+              />
+            ) : (
+              "Assinatura"
+            )
+          ) : c.tipo}
     </div>
   );
 })}
