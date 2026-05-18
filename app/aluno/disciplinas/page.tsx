@@ -27,11 +27,36 @@ export default function DisciplinasAluno() {
   const [disciplinasMatriculadas, setDisciplinasMatriculadas] = useState<
     DisciplinaAluno[]
   >([]);
+
   const [loading, setLoading] = useState(true);
+
+  const [busca, setBusca] = useState("");
 
   useEffect(() => {
     carregarDisciplinas();
   }, []);
+
+  function normalizarTexto(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function calcularSimilaridade(a: string, b: string) {
+  const textoA = normalizarTexto(a);
+  const textoB = normalizarTexto(b);
+
+  if (textoA.includes(textoB) || textoB.includes(textoA)) return 100;
+
+  let iguais = 0;
+  for (const letra of textoB) {
+    if (textoA.includes(letra)) iguais++;
+  }
+
+  return (iguais / Math.max(textoB.length, 1)) * 100;
+}
 
   async function carregarDisciplinas() {
     try {
@@ -57,6 +82,27 @@ export default function DisciplinasAluno() {
     }
   }
 
+  const disciplinasFiltradas = disciplinasMatriculadas.filter((disciplina) => {
+  if (!busca.trim()) return true;
+
+  const textoBusca = normalizarTexto(busca);
+
+  return (
+    normalizarTexto(disciplina.nome || "").includes(textoBusca) ||
+    normalizarTexto(disciplina.turmaNome || "").includes(textoBusca) ||
+    calcularSimilaridade(disciplina.nome || "", textoBusca) >= 55
+  );
+});
+
+const sugestoesDisciplinas = busca.trim()
+  ? disciplinasMatriculadas
+      .filter(
+        (disciplina) =>
+          calcularSimilaridade(disciplina.nome || "", busca) >= 45
+      )
+      .slice(0, 5)
+  : [];
+
   return (
     <div className="space-y-6">
       <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -77,6 +123,31 @@ export default function DisciplinasAluno() {
         </div>
       </div>
 
+<div className="relative">
+  <input
+    type="text"
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    placeholder="Pesquisar disciplina ou turma..."
+    className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-medium text-slate-700 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+  />
+
+  {sugestoesDisciplinas.length > 0 && (
+    <div className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+      {sugestoesDisciplinas.map((disciplina) => (
+        <button
+          key={disciplina.id}
+          type="button"
+          onClick={() => setBusca(disciplina.nome)}
+          className="block w-full px-5 py-3 text-left text-sm font-semibold text-slate-700 hover:bg-blue-50"
+        >
+          {disciplina.nome}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
+
       {loading ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
           Carregando disciplinas...
@@ -87,7 +158,7 @@ export default function DisciplinasAluno() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {disciplinasMatriculadas.map((disciplina) => (
+          {disciplinasFiltradas.map((disciplina) => (
             <div
               key={`${disciplina.id}-${disciplina.turmaId ?? "sem-turma"}`}
               onClick={() => {
