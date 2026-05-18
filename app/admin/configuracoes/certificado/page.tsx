@@ -3737,15 +3737,15 @@ altura: ev.shiftKey
             setCampoSelecionadoId(c.id);
             setCamposSelecionadosIds([c.id]);
           }}
-          onInput={(e) => {
-            const texto = e.currentTarget.innerText;
+          onBlur={(e) => {
+  const texto = e.currentTarget.innerText;
 
-            setCampos((prev) =>
-              prev.map((item) =>
-                item.id === c.id ? { ...item, texto } : item
-              )
-            );
-          }}
+  setCampos((prev) =>
+    prev.map((item) =>
+      item.id === c.id ? { ...item, texto } : item
+    )
+  );
+}}
           className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
             selecionadoTexto
               ? "border-2 border-blue-600 bg-blue-50/10"
@@ -3763,6 +3763,9 @@ altura: ev.shiftKey
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
             cursor: "text",
+            direction: "ltr",
+unicodeBidi: "plaintext",
+caretColor: c.cor || "#1e3a8a",
             textShadow: c.sombraAtiva
   ? `${c.sombraX ?? 3}px ${c.sombraY ?? 3}px ${c.sombraBlur ?? 6}px ${hexToRgba(
       c.sombraCor || "#000000",
