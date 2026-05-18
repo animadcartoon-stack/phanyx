@@ -685,6 +685,40 @@ function adicionarImagemBiblioteca(
   const selecaoTextoRef = useRef<Range | null>(null);
 
   useEffect(() => {
+  function salvarSelecaoTextoLivre() {
+    const selecao = window.getSelection();
+
+    if (!selecao || selecao.rangeCount === 0) return;
+    if (!selecao.toString().trim()) return;
+
+    const range = selecao.getRangeAt(0);
+
+    const inicio =
+      range.startContainer.nodeType === Node.TEXT_NODE
+        ? range.startContainer.parentElement
+        : (range.startContainer as HTMLElement);
+
+    const fim =
+      range.endContainer.nodeType === Node.TEXT_NODE
+        ? range.endContainer.parentElement
+        : (range.endContainer as HTMLElement);
+
+    const editorInicio = inicio?.closest("[data-texto-livre-id]");
+    const editorFim = fim?.closest("[data-texto-livre-id]");
+
+    if (editorInicio && editorFim && editorInicio === editorFim) {
+      selecaoTextoRef.current = range.cloneRange();
+    }
+  }
+
+  document.addEventListener("selectionchange", salvarSelecaoTextoLivre);
+
+  return () => {
+    document.removeEventListener("selectionchange", salvarSelecaoTextoLivre);
+  };
+}, []);
+
+  useEffect(() => {
   if (!stageRef.current) return;
 
   const observer = new ResizeObserver(([entry]) => {
