@@ -65,11 +65,10 @@ entregas: {
   include: {
     aluno: {
       select: {
-        id: true,
-        nome: true,
-        email: true,
-        matricula: true,
-      },
+  id: true,
+  nome: true,
+  matricula: true,
+},
     },
   },
 },

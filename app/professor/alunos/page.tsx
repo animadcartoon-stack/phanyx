@@ -122,7 +122,7 @@ export default function ProfessorAlunosPage() {
       setErro("");
 
       const query = new URLSearchParams();
-      if (busca.trim()) query.set("busca", busca.trim());
+      
       if (turmaId) query.set("turmaId", turmaId);
 
       const res = await fetch(`/api/professor/alunos?${query.toString()}`, {
