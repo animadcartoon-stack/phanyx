@@ -711,23 +711,6 @@ function adicionarImagemBiblioteca(
   posicoesIniciais: { id: number; x: number; y: number }[];
 } | null>(null);;
 
-useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === "Delete" && campoSelecionadoId) {
-      atualizarCamposComHistorico((prev) =>
-        prev.filter((c) => c.id !== campoSelecionadoId)
-      );
-      setCampoSelecionadoId(null);
-    }
-  };
-
-  window.addEventListener("keydown", handleKeyDown);
-
-  return () => {
-    window.removeEventListener("keydown", handleKeyDown);
-  };
-}, [campoSelecionadoId]);
-
   useEffect(() => {
   async function carregarConfiguracao() {
     try {
@@ -802,60 +785,53 @@ setNomeDiretorInstituicao(
 }, []);
 
 useEffect(() => {
-
   function handleKeyDown(e: KeyboardEvent) {
     const alvo = e.target as HTMLElement | null;
+    const tag = alvo?.tagName?.toLowerCase();
 
-const tag = alvo?.tagName?.toLowerCase();
-const estaEditandoTexto =
-  tag === "input" ||
-  tag === "textarea" ||
-  tag === "select" ||
-  alvo?.closest?.("[data-texto-livre-id]");
+    if (e.code === "Space") {
+      e.preventDefault();
+      setEspacoPressionado(true);
+      return;
+    }
 
-if (
-  estaEditandoTexto &&
-  e.key !== "Delete" &&
-  e.key !== "Backspace"
-) {
-  return;
-} {
-  return;
-}
+    if (e.key !== "Delete" && e.key !== "Backspace") {
+      return;
+    }
 
-if (e.code === "Space") {
-  e.preventDefault();
-  setEspacoPressionado(true);
-}
+    const estaDentroDeCampoDeFormulario =
+      tag === "input" || tag === "textarea" || tag === "select";
 
-    if (e.key === "Delete" || e.key === "Backspace") {
-  const tag = alvo?.tagName?.toLowerCase();
+    if (estaDentroDeCampoDeFormulario) return;
 
-  const estaDentroDoTexto =
-    tag === "input" ||
-    tag === "textarea" ||
-    tag === "select" ||
-    alvo?.isContentEditable ||
-    alvo?.closest?.("[data-texto-livre-id]");
+    const estaDigitandoTextoLivre =
+      alvo?.isContentEditable || alvo?.closest?.("[data-texto-livre-id]");
 
-  if (estaDentroDoTexto) {
-    return;
-  }
+    const temTextoSelecionado =
+      typeof window !== "undefined" &&
+      window.getSelection()?.toString().trim();
 
-  const idsParaExcluir =
-    camposSelecionadosIds.length > 0
-      ? camposSelecionadosIds
-      : campoSelecionadoId
-      ? [campoSelecionadoId]
-      : [];
+    if (estaDigitandoTextoLivre && temTextoSelecionado) {
+      return;
+    }
 
-  if (idsParaExcluir.length > 0) {
+    const idsParaExcluir =
+      camposSelecionadosIds.length > 0
+        ? camposSelecionadosIds
+        : campoSelecionadoId
+        ? [campoSelecionadoId]
+        : [];
+
+    if (idsParaExcluir.length === 0) return;
+
     e.preventDefault();
-    idsParaExcluir.forEach((id) => excluirCampo(id));
+
+    idsParaExcluir.forEach((id) => {
+      void excluirCampo(id);
+    });
+
     setCampoSelecionadoId(null);
     setCamposSelecionadosIds([]);
-  }
-}
   }
 
   function handleKeyUp(e: KeyboardEvent) {
@@ -872,7 +848,7 @@ if (e.code === "Space") {
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   };
-}, [campoSelecionadoId]);
+}, [campoSelecionadoId, camposSelecionadosIds]);
 
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
