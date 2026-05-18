@@ -681,6 +681,7 @@ function adicionarImagemBiblioteca(
 });
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
+  const selecaoTextoRef = useRef<Range | null>(null);
 
   useEffect(() => {
   if (!stageRef.current) return;
@@ -3864,6 +3865,20 @@ altura: ev.shiftKey
       )
     );
   }}
+  onMouseUp={() => {
+  const selecao = window.getSelection();
+
+  if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
+    selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+  }
+}}
+onKeyUp={() => {
+  const selecao = window.getSelection();
+
+  if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
+    selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+  }
+}}
   className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
     selecionadoTexto
       ? "border-2 border-blue-600 bg-blue-50/10"
@@ -4804,7 +4819,23 @@ altura: ev.shiftKey
                   <input
                     type="color"
                     value={campoSelecionado.cor || "#1e3a8a"}
-                    onChange={(e) => atualizarCampoLocal("cor", e.target.value)}
+                    onChange={(e) => {
+  const cor = e.target.value;
+
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+    const selecao = window.getSelection();
+
+    selecao?.removeAllRanges();
+    selecao?.addRange(selecaoTextoRef.current);
+
+    aplicarEstiloTextoSelecionado("foreColor", cor);
+
+    selecaoTextoRef.current = null;
+    return;
+  }
+
+  atualizarCampoLocal("cor", cor);
+}}
                     className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
                   />
                 </div>
