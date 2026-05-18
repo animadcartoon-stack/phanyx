@@ -83,6 +83,31 @@ function labelStatusDisciplina(status?: string | null) {
   }
 }
 
+function normalizarTexto(valor?: string | number | null) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function textoAlunoBusca(aluno: AlunoProfessor) {
+  return normalizarTexto(
+    [
+      aluno.nome,
+      aluno.email,
+      aluno.matricula,
+      aluno.turma?.nome,
+      aluno.turma?.semestre,
+      aluno.disciplina?.nome,
+      aluno.statusAluno,
+      aluno.statusDisciplina,
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
+}
+
 export default function ProfessorAlunosPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -151,6 +176,28 @@ export default function ProfessorAlunosPage() {
     return { total, comAtestado, comFaltas, mediaGeral };
   }, [alunos]);
 
+    const alunosFiltrados = useMemo(() => {
+    const termo = normalizarTexto(busca);
+
+    if (!termo) return alunos;
+
+    return alunos.filter((aluno) => textoAlunoBusca(aluno).includes(termo));
+  }, [alunos, busca]);
+
+  const sugestoesBusca = useMemo(() => {
+    const termo = normalizarTexto(busca);
+
+    if (!termo) return [];
+
+    return alunosFiltrados.slice(0, 8).map((aluno) => ({
+      chave: String(aluno.itemMatriculaId),
+      alunoNome: aluno.nome,
+      turmaNome: aluno.turma?.nome || "Turma não informada",
+      disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
+      semestre: aluno.turma?.semestre || "Período não informado",
+    }));
+  }, [busca, alunosFiltrados]);
+
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
@@ -179,29 +226,60 @@ export default function ProfessorAlunosPage() {
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-3">
-        <input
-          type="text"
-          placeholder="Buscar por nome, matrícula, email, turma ou disciplina"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="flex-1 border rounded-lg p-2"
-        />
+     <div className="bg-white border rounded-xl p-4 flex flex-col md:flex-row gap-3">
+  <div className="relative flex-1">
+    <input
+      type="text"
+      placeholder="Buscar por aluno, turma, tarefa, período ou disciplina"
+      value={busca}
+      onChange={(e) => setBusca(e.target.value)}
+      className="w-full border rounded-lg p-2"
+    />
 
-        <select
-          value={turmaId}
-          onChange={(e) => setTurmaId(e.target.value)}
-          className="w-full md:w-80 border rounded-lg p-2 bg-white"
-        >
-          <option value="">Todas as turmas</option>
-          {turmas.map((turma) => (
-            <option key={turma.id} value={String(turma.id)}>
-              {turma.nome}
-              {turma.disciplinaNome ? ` — ${turma.disciplinaNome}` : ""}
-            </option>
-          ))}
-        </select>
+    {busca.trim() && (
+      <div className="absolute left-0 right-0 top-[46px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+        {sugestoesBusca.length === 0 ? (
+          <p className="px-3 py-3 text-sm text-slate-500">
+            Nenhuma sugestão encontrada.
+          </p>
+        ) : (
+          sugestoesBusca.map((item) => (
+            <button
+              key={item.chave}
+              type="button"
+              onClick={() => setBusca(item.alunoNome)}
+              className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
+            >
+              <p className="text-sm font-black text-slate-900">
+                {item.alunoNome}
+              </p>
+              <p className="text-xs text-slate-600">
+                Turma {item.turmaNome} • {item.semestre}
+              </p>
+              <p className="text-xs font-semibold text-blue-700">
+                {item.disciplinaNome}
+              </p>
+            </button>
+          ))
+        )}
       </div>
+    )}
+  </div>
+
+  <select
+    value={turmaId}
+    onChange={(e) => setTurmaId(e.target.value)}
+    className="w-full md:w-80 border rounded-lg p-2 bg-white"
+  >
+    <option value="">Todas as turmas</option>
+    {turmas.map((turma) => (
+      <option key={turma.id} value={String(turma.id)}>
+        {turma.nome}
+        {turma.disciplinaNome ? ` — ${turma.disciplinaNome}` : ""}
+      </option>
+    ))}
+  </select>
+</div>
 
       {erro && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
@@ -213,13 +291,13 @@ export default function ProfessorAlunosPage() {
         <div className="bg-white border rounded-xl p-6 text-gray-600">
           Carregando alunos...
         </div>
-      ) : alunos.length === 0 ? (
+      ) : alunosFiltrados.length === 0 ? (
         <div className="bg-white border rounded-xl p-6 text-gray-600">
           Nenhum aluno encontrado.
         </div>
       ) : (
         <div className="space-y-4">
-          {alunos.map((aluno) => (
+          {alunosFiltrados.map((aluno) => (
             <div key={aluno.itemMatriculaId} className="bg-white border rounded-xl p-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
