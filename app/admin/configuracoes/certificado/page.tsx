@@ -1303,22 +1303,23 @@ function aplicarEstiloTextoSelecionado(comando: string, valor?: string) {
   document.execCommand(comando, false, valor);
 
   const selection = window.getSelection();
+
   const elemento =
-    selection?.anchorNode?.parentElement?.closest("[data-texto-livre-id]") as HTMLElement | null;
+    selection?.anchorNode?.parentElement?.closest(
+      "[data-texto-livre-id]"
+    ) as HTMLElement | null;
 
   if (!elemento) return;
 
   const id = Number(elemento.dataset.textoLivreId);
-  const html = elemento.innerHTML;
-  const texto = elemento.innerText;
 
   setCampos((prev) =>
     prev.map((campo) =>
       campo.id === id
         ? {
             ...campo,
-            texto,
-            textoHtml: html,
+            texto: elemento.innerText,
+            textoHtml: elemento.innerHTML,
           }
         : campo
     )
@@ -3830,12 +3831,21 @@ altura: ev.shiftKey
     e.stopPropagation();
   }}
   onInput={(e) => {
-    const texto = e.currentTarget.innerText;
-    const textoHtml = e.currentTarget.innerHTML;
+  const texto = e.currentTarget.innerText;
+  const textoHtml = e.currentTarget.innerHTML;
 
-    (e.currentTarget as any).dataset.texto = texto;
-    (e.currentTarget as any).dataset.html = textoHtml;
-  }}
+  setCampos((prev) =>
+    prev.map((item) =>
+      item.id === c.id
+        ? {
+            ...item,
+            texto,
+            textoHtml,
+          }
+        : item
+    )
+  );
+}}
   onBlur={(e) => {
     const texto = e.currentTarget.innerText;
     const textoHtml = e.currentTarget.innerHTML;
