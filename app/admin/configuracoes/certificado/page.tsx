@@ -818,10 +818,21 @@ if (e.code === "Space") {
 }
 
     if (e.key === "Delete" || e.key === "Backspace") {
-      if (campoSelecionadoId) {
-        excluirCampo(campoSelecionadoId);
-      }
-    }
+  const alvo = e.target as HTMLElement | null;
+
+  const estaDigitando =
+    alvo?.tagName?.toLowerCase() === "input" ||
+    alvo?.tagName?.toLowerCase() === "textarea" ||
+    alvo?.tagName?.toLowerCase() === "select" ||
+    alvo?.isContentEditable;
+
+  if (estaDigitando) return;
+
+  if (campoSelecionadoId) {
+    e.preventDefault();
+    excluirCampo(campoSelecionadoId);
+  }
+}
   }
 
   function handleKeyUp(e: KeyboardEvent) {
@@ -3843,6 +3854,24 @@ altura: ev.shiftKey
 )}
 
 </div>
+
+{selecionadoTexto && (
+  <button
+    type="button"
+    onMouseDown={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+    }}
+    onClick={(e) => {
+      e.stopPropagation();
+      excluirCampo(c.id);
+    }}
+    className="absolute -top-3 -right-3 z-[999999] flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-xs font-black text-white shadow-lg hover:bg-red-700"
+    title="Excluir campo de texto"
+  >
+    ×
+  </button>
+)}
 
         {selecionadoTexto && (
           <div
