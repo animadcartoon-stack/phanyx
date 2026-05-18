@@ -114,33 +114,43 @@ function distanciaLevenshtein(a: string, b: string) {
   return matriz[b.length][a.length];
 }
 
-function buscaAproximada(texto: string, termo: string) {
+function calcularPontuacaoBusca(texto: string, termo: string) {
   const normalTexto = normalizarTexto(texto);
   const normalTermo = normalizarTexto(termo);
 
-  if (!normalTermo) return true;
+  if (!normalTermo) return 0;
 
-  if (normalTexto.includes(normalTermo)) return true;
+  if (normalTexto.startsWith(normalTermo)) return 1000;
 
   const palavras = normalTexto.split(/\s+/).filter(Boolean);
 
-  return palavras.some((palavra) => {
-    if (palavra.startsWith(normalTermo)) return true;
+  if (palavras.some((palavra) => palavra.startsWith(normalTermo))) {
+    return 900;
+  }
 
+  if (normalTexto.includes(normalTermo)) return 800;
+
+  let melhorScore = 0;
+
+  for (const palavra of palavras) {
     const pedacoInicial = palavra.slice(0, normalTermo.length);
     const distanciaInicio = distanciaLevenshtein(pedacoInicial, normalTermo);
 
     if (distanciaInicio <= Math.max(1, Math.floor(normalTermo.length / 3))) {
-      return true;
+      melhorScore = Math.max(melhorScore, 700);
     }
 
     const distanciaPalavraInteira = distanciaLevenshtein(palavra, normalTermo);
 
-    return (
+    if (
       normalTermo.length >= 4 &&
       distanciaPalavraInteira <= Math.max(1, Math.floor(normalTermo.length / 3))
-    );
-  });
+    ) {
+      melhorScore = Math.max(melhorScore, 600);
+    }
+  }
+
+  return melhorScore;
 }
 
 function textoAlunoBusca(aluno: AlunoProfessor) {
@@ -229,14 +239,24 @@ export default function ProfessorAlunosPage() {
   }, [alunos]);
 
     const alunosFiltrados = useMemo(() => {
-    const termo = normalizarTexto(busca);
+  const termo = normalizarTexto(busca);
 
-    if (!termo) return alunos;
+  if (!termo) return alunos;
 
-    return alunos.filter((aluno) => {
-  const textoBusca = textoAlunoBusca(aluno);
-  return buscaAproximada(textoBusca, busca);
-});
+  return [...alunos]
+    .map((aluno) => ({
+      ...aluno,
+      scoreBusca: Math.max(
+        calcularPontuacaoBusca(aluno.nome || "", busca),
+        calcularPontuacaoBusca(aluno.email || "", busca),
+        calcularPontuacaoBusca(aluno.matricula || "", busca),
+        calcularPontuacaoBusca(aluno.turma?.nome || "", busca),
+        calcularPontuacaoBusca(aluno.turma?.semestre || "", busca),
+        calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca)
+      ),
+    }))
+    .filter((aluno) => aluno.scoreBusca > 0)
+    .sort((a, b) => b.scoreBusca - a.scoreBusca);
 }, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {
@@ -244,8 +264,7 @@ export default function ProfessorAlunosPage() {
 
   if (!termo) return [];
 
-  return alunos
-    .filter((aluno) => buscaAproximada(textoAlunoBusca(aluno), busca))
+  return alunosFiltrados
     .slice(0, 8)
     .map((aluno) => ({
       chave: String(aluno.itemMatriculaId),
@@ -254,7 +273,7 @@ export default function ProfessorAlunosPage() {
       disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
       semestre: aluno.turma?.semestre || "Período não informado",
     }));
-}, [busca, alunos]);
+}, [busca, alunosFiltrados]);
 
   return (
     <div className="space-y-6 max-w-7xl">

@@ -509,22 +509,39 @@ export default function TurmasProfessorPage() {
 
   if (!termo) return [];
 
-  return turmasFiltradas
-    .map((turma) => ({
-      chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
-      turmaNome: turma.nome,
-      cursoNome: turma.curso?.nome || "Curso não informado",
-      disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
-      periodo: turma.periodoLetivo || "EAD / Livre",
-      score: Math.max(
-        calcularPontuacaoBusca(turma.disciplina?.nome || "", busca),
-        calcularPontuacaoBusca(turma.nome || "", busca),
-        calcularPontuacaoBusca(turma.curso?.nome || "", busca)
-      ),
-    }))
+  return [...turmas]
+    .map((turma) => {
+      const scoreDisciplina = calcularPontuacaoBusca(
+        turma.disciplina?.nome || "",
+        busca
+      );
+
+      const scoreTurma = calcularPontuacaoBusca(turma.nome || "", busca);
+
+      const scoreCurso = calcularPontuacaoBusca(
+        turma.curso?.nome || "",
+        busca
+      );
+
+      const scorePeriodo = calcularPontuacaoBusca(
+        turma.periodoLetivo || "",
+        busca
+      );
+
+      return {
+        chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
+        turmaNome: turma.nome,
+        cursoNome: turma.curso?.nome || "Curso não informado",
+        disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
+        periodo: turma.periodoLetivo || "EAD / Livre",
+        score: Math.max(scoreDisciplina, scoreTurma, scoreCurso, scorePeriodo),
+      };
+    })
+    .filter((item) => item.score >= 45)
     .sort((a, b) => b.score - a.score)
     .slice(0, 8);
-}, [busca, turmasFiltradas]);
+}, [busca, turmas]);
+
   const totalTurmasAgrupadas = useMemo(() => {
     return Object.values(grupos).reduce((acc, lista) => acc + agruparPorTurma(lista).length, 0);
   }, [grupos]);
