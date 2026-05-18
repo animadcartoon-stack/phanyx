@@ -565,6 +565,7 @@ function gerarPontosEstrela(
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
+  const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>(null);
   
   const [editorCorGradiente, setEditorCorGradiente] = useState<{
   campoId: number;
@@ -3900,7 +3901,13 @@ altura: ev.shiftKey
   const selecao = window.getSelection();
 
   if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
-    selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+    const range = selecao.getRangeAt(0).cloneRange();
+    selecaoTextoRef.current = range;
+
+    const elemento = selecao.anchorNode?.parentElement;
+    const cor = elemento ? window.getComputedStyle(elemento).color : "";
+
+    setCorTextoSelecionado(cor || null);
   }
 }}
 onKeyUp={() => {
@@ -4852,17 +4859,17 @@ onKeyUp={() => {
   max={120}
   value={campoSelecionado.tamanho ?? 18}
   onChange={(e) => {
-    const novoTamanho = Number(e.target.value);
+  const tamanho = Number(e.target.value);
 
-    atualizarCampoLocal("tamanho", novoTamanho);
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+    aplicarEstiloTextoSelecionado("", undefined, {
+      fontSize: `${tamanho}px`,
+    });
+    return;
+  }
 
-    if (
-      campoSelecionado.tipo !== "IMAGEM" &&
-      campoSelecionado.tipo !== "FORMA"
-    ) {
-      atualizarCampoLocal("tamanho", novoTamanho);
-    }
-  }}
+  atualizarCampoLocal("tamanho", tamanho);
+}}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
 />
                 </div>
