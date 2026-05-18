@@ -91,6 +91,46 @@ function normalizarTexto(valor?: string | number | null) {
     .trim();
 }
 
+function distanciaLevenshtein(a: string, b: string) {
+  const matriz = Array.from({ length: b.length + 1 }, (_, i) =>
+    Array(a.length + 1).fill(0)
+  );
+
+  for (let i = 0; i <= b.length; i++) matriz[i][0] = i;
+  for (let j = 0; j <= a.length; j++) matriz[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      const custo = b[i - 1] === a[j - 1] ? 0 : 1;
+
+      matriz[i][j] = Math.min(
+        matriz[i - 1][j] + 1,
+        matriz[i][j - 1] + 1,
+        matriz[i - 1][j - 1] + custo
+      );
+    }
+  }
+
+  return matriz[b.length][a.length];
+}
+
+function buscaAproximada(texto: string, termo: string) {
+  const normalTexto = normalizarTexto(texto);
+  const normalTermo = normalizarTexto(termo);
+
+  if (!normalTermo) return true;
+
+  if (normalTexto.includes(normalTermo)) return true;
+
+  const palavras = normalTexto.split(" ");
+
+  return palavras.some((palavra) => {
+    const distancia = distanciaLevenshtein(palavra, normalTermo);
+
+    return distancia <= Math.max(1, Math.floor(normalTermo.length / 3));
+  });
+}
+
 function textoAlunoBusca(aluno: AlunoProfessor) {
   return normalizarTexto(
     [
@@ -181,54 +221,27 @@ export default function ProfessorAlunosPage() {
 
     if (!termo) return alunos;
 
-    return alunos.filter((aluno) => textoAlunoBusca(aluno).includes(termo));
-  }, [alunos, busca]);
+    return alunos.filter((aluno) => {
+  const textoBusca = textoAlunoBusca(aluno);
+  return buscaAproximada(textoBusca, busca);
+});
+}, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {
   const termo = normalizarTexto(busca);
 
   if (!termo) return [];
 
-  const pontuados = alunos
-    .map((aluno) => {
-      const nome = normalizarTexto(aluno.nome);
-      const email = normalizarTexto(aluno.email);
-      const matricula = normalizarTexto(aluno.matricula);
-      const turma = normalizarTexto(aluno.turma?.nome);
-      const disciplina = normalizarTexto(aluno.disciplina?.nome);
-      const semestre = normalizarTexto(aluno.turma?.semestre);
-
-      let score = 0;
-
-      if (nome.startsWith(termo)) score += 100;
-      else if (nome.includes(termo)) score += 80;
-
-      if (email.includes(termo)) score += 60;
-      if (matricula.includes(termo)) score += 55;
-      if (turma.startsWith(termo)) score += 45;
-      else if (turma.includes(termo)) score += 35;
-
-      if (disciplina.startsWith(termo)) score += 30;
-      else if (disciplina.includes(termo)) score += 20;
-
-      if (semestre.includes(termo)) score += 10;
-
-      return {
-        aluno,
-        score,
-      };
-    })
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 8);
-
-  return pontuados.map(({ aluno }) => ({
-    chave: String(aluno.itemMatriculaId),
-    alunoNome: aluno.nome,
-    turmaNome: aluno.turma?.nome || "Turma não informada",
-    disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
-    semestre: aluno.turma?.semestre || "Período não informado",
-  }));
+  return alunos
+    .filter((aluno) => buscaAproximada(textoAlunoBusca(aluno), busca))
+    .slice(0, 8)
+    .map((aluno) => ({
+      chave: String(aluno.itemMatriculaId),
+      alunoNome: aluno.nome,
+      turmaNome: aluno.turma?.nome || "Turma não informada",
+      disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
+      semestre: aluno.turma?.semestre || "Período não informado",
+    }));
 }, [busca, alunos]);
 
   return (

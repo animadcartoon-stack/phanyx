@@ -68,6 +68,8 @@ type CampoCertificado = {
     left: number;
     right: number;
     bottom: number;
+    texto?: string | null;
+    textoTipo?: "TITULO" | "TEXTO" | null;
   };
 
   cropBaseW?: number | null;
@@ -1043,7 +1045,7 @@ function finalizarArrastoCanvas() {
     }
   }
 
-  async function adicionarCampo(tipo: string) {
+  async function adicionarCampo(tipo: string, textoTipo?: "TITULO" | "TEXTO") {
     try {
       const larguraInicial =
   tipo === "DISCIPLINAS_CONCLUIDAS"
@@ -1051,7 +1053,9 @@ function finalizarArrastoCanvas() {
     : tipo === "QR_CODE"
     ? 120
     : tipo === "TEXTO_LIVRE"
-    ? 300
+    ? textoTipo === "TITULO"
+      ? 420
+      : 320
     : 220;
 
 const alturaInicial =
@@ -1060,7 +1064,9 @@ const alturaInicial =
     : tipo === "QR_CODE"
     ? 120
     : tipo === "TEXTO_LIVRE"
-    ? 80
+    ? textoTipo === "TITULO"
+      ? 70
+      : 120
     : 40;
 
       const res = await fetch("/api/admin/certificado-campos", {
@@ -1075,11 +1081,26 @@ const alturaInicial =
           largura: larguraInicial,
           altura: alturaInicial,
           fonte: "Helvetica",
-          tamanho: tipo === "DISCIPLINAS_CONCLUIDAS" ? 14 : 18,
+          tamanho:
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? 14
+    : tipo === "TEXTO_LIVRE" && textoTipo === "TITULO"
+    ? 34
+    : tipo === "TEXTO_LIVRE"
+    ? 18
+    : 18,
           cor: "#1e3a8a",
           alinhamento: "left",
           pagina: 1,
-          texto: tipo === "TEXTO_LIVRE" ? "Digite seu texto aqui" : undefined,
+          texto:
+  tipo === "TEXTO_LIVRE"
+    ? textoTipo === "TITULO"
+      ? "Digite seu título"
+      : "Digite seu texto"
+    : undefined,
+textoTipo: tipo === "TEXTO_LIVRE" ? textoTipo || "TEXTO" : undefined,
+negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
+
         }),
       });
 
@@ -2711,16 +2732,34 @@ contornoEspessura: 2,
   </button>
 
   {secaoAberta === "textos" && (
-    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-      <button
-        type="button"
-        onClick={() => adicionarCampo("TEXTO_LIVRE")}
-        className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-      >
-        Caixa de texto
-      </button>
-    </div>
-  )}
+  <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
+    <button
+      type="button"
+      onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")}
+      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+    >
+      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">
+        T
+      </span>
+      <span className="mt-2 text-[11px] font-semibold text-slate-700">
+        Título
+      </span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")}
+      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+    >
+      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">
+        Tx
+      </span>
+      <span className="mt-2 text-[11px] font-semibold text-slate-700">
+        Texto
+      </span>
+    </button>
+  </div>
+)}
 </div>
 
                 <div className="rounded-2xl border border-slate-200 bg-white">
