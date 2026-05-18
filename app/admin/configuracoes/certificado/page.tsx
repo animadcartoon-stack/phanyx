@@ -5604,6 +5604,62 @@ iniciarDrag(event as any, c);
   </div>
 </div>
 
+<div className="border-t border-slate-200 px-3 py-2">
+  <p className="mb-2 text-xs font-bold text-slate-500">
+    Marcadores
+  </p>
+
+  <div className="space-y-1">
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        document.execCommand("insertUnorderedList");
+        setMenuContexto(null);
+      }}
+      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
+    >
+      • Bolinha
+    </button>
+
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        document.execCommand("insertHTML", false, "▸ ");
+        setMenuContexto(null);
+      }}
+      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
+    >
+      ▸ Setinha
+    </button>
+
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        document.execCommand("insertHTML", false, "– ");
+        setMenuContexto(null);
+      }}
+      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
+    >
+      – Tracinho
+    </button>
+
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        document.execCommand("removeFormat");
+        setMenuContexto(null);
+      }}
+      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
+    >
+      Sem marcador
+    </button>
+  </div>
+</div>
+
 <hr className="my-1" />
 
 <hr className="my-1" />
