@@ -4631,9 +4631,7 @@ altura: ev.shiftKey
       campoSelecionado.tipo !== "IMAGEM" &&
       campoSelecionado.tipo !== "FORMA"
     ) {
-      atualizarCampo(campoSelecionado.id, {
-        tamanho: novoTamanho,
-      });
+      atualizarCampoLocal("tamanho", novoTamanho);
     }
   }}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
@@ -5134,17 +5132,21 @@ if (c.tipo === "TEXTO_LIVRE") {
       key={c.id}
       className="absolute"
       onMouseDown={(event) => {
-        event.stopPropagation();
+  event.stopPropagation();
 
-        if (event.button === 2) return;
+  if (event.button === 2) return;
 
-        setCampoSelecionadoId(c.id);
-        setCamposSelecionadosIds([c.id]);
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds([c.id]);
 
-        if (!(event.target as HTMLElement).isContentEditable) {
-          iniciarDrag(event, c);
-        }
-      }}
+  const alvo = event.target as HTMLElement;
+
+  if (alvo.isContentEditable) {
+    return;
+  }
+
+  iniciarDrag(event as any, c);
+}}
       style={{
         left: `${c.x}px`,
         top: `${c.y}px`,
