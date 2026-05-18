@@ -3831,13 +3831,18 @@ altura: ev.shiftKey
     writingMode: "horizontal-tb",
     caretColor: c.cor || "#1e3a8a",
   }}
-  dangerouslySetInnerHTML={{
-    __html:
-      (c as any).textoHtml ||
-      (c as any).texto ||
-      "Digite seu texto",
-  }}
-/>
+>
+{(c as any).textoHtml ? (
+  <span
+    dangerouslySetInnerHTML={{
+      __html: (c as any).textoHtml,
+    }}
+  />
+) : (
+  (c as any).texto || "Digite seu texto"
+)}
+
+</div>
 
         {selecionadoTexto && (
           <div
