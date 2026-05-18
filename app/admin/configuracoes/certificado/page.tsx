@@ -3813,7 +3813,8 @@ altura: ev.shiftKey
     wordBreak: "break-word",
     cursor: "text",
     direction: "ltr",
-    unicodeBidi: "plaintext",
+    unicodeBidi: "normal",
+    writingMode: "horizontal-tb",
     caretColor: c.cor || "#1e3a8a",
     textShadow: c.sombraAtiva
       ? `${c.sombraX ?? 3}px ${c.sombraY ?? 3}px ${c.sombraBlur ?? 6}px ${hexToRgba(
@@ -3825,13 +3826,17 @@ altura: ev.shiftKey
       ? `${c.contornoEspessura || 1}px ${c.contornoCor || "#000000"}`
       : "0px transparent",
   }}
-  dangerouslySetInnerHTML={{
-    __html:
-      (c as any).textoHtml ||
-      (c as any).texto ||
-      "Digite seu texto",
-  }}
-/>
+  >
+  {(c as any).textoHtml ? (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: (c as any).textoHtml,
+      }}
+    />
+  ) : (
+    (c as any).texto || "Digite seu texto"
+  )}
+</div>
 
         {selecionadoTexto && (
           <div
