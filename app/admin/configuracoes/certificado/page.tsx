@@ -63,15 +63,17 @@ type CampoCertificado = {
   cor2?: string | null;
   usarGradiente?: boolean | null;
   direcaoGradiente?: string | null;
-    crop?: {
-    top: number;
-    left: number;
-    right: number;
-    bottom: number;
     texto?: string | null;
-    textoTipo?: "TITULO" | "TEXTO" | null;
-  };
+textoHtml?: string | null;
+textoTipo?: "TITULO" | "TEXTO" | null;
 
+crop?: {
+  top: number;
+  left: number;
+  right: number;
+  bottom: number;
+};
+  
   cropBaseW?: number | null;
   cropBaseH?: number | null;
 
@@ -799,10 +801,21 @@ setNomeDiretorInstituicao(
 
 useEffect(() => {
   function handleKeyDown(e: KeyboardEvent) {
-    if (e.code === "Space") {
-      e.preventDefault();
-      setEspacoPressionado(true);
-    }
+    const alvo = e.target as HTMLElement | null;
+
+if (
+  alvo?.tagName?.toLowerCase() === "input" ||
+  alvo?.tagName?.toLowerCase() === "textarea" ||
+  alvo?.tagName?.toLowerCase() === "select" ||
+  alvo?.isContentEditable
+) {
+  return;
+}
+
+if (e.code === "Space") {
+  e.preventDefault();
+  setEspacoPressionado(true);
+}
 
     if (e.key === "Delete" || e.key === "Backspace") {
       if (campoSelecionadoId) {
@@ -1258,6 +1271,32 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
   );
 }
   
+function aplicarEstiloTextoSelecionado(comando: string, valor?: string) {
+  document.execCommand(comando, false, valor);
+
+  const selection = window.getSelection();
+  const elemento =
+    selection?.anchorNode?.parentElement?.closest("[data-texto-livre-id]") as HTMLElement | null;
+
+  if (!elemento) return;
+
+  const id = Number(elemento.dataset.textoLivreId);
+  const html = elemento.innerHTML;
+  const texto = elemento.innerText;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.id === id
+        ? {
+            ...campo,
+            texto,
+            textoHtml: html,
+          }
+        : campo
+    )
+  );
+}
+
  function iniciarDrag(
   event: MouseEvent<HTMLDivElement>,
   campo: CampoCertificado
@@ -3740,6 +3779,7 @@ altura: ev.shiftKey
         <div
           contentEditable
           suppressContentEditableWarning
+          data-texto-livre-id={c.id}
           onMouseDown={(e) => {
             e.stopPropagation();
             setCampoSelecionadoId(c.id);
@@ -3747,10 +3787,11 @@ altura: ev.shiftKey
           }}
           onBlur={(e) => {
   const texto = e.currentTarget.innerText;
+  const textoHtml = e.currentTarget.innerHTML;
 
   setCampos((prev) =>
     prev.map((item) =>
-      item.id === c.id ? { ...item, texto } : item
+      item.id === c.id ? { ...item, texto, textoHtml } : item
     )
   );
 }}
@@ -3772,8 +3813,8 @@ altura: ev.shiftKey
             wordBreak: "break-word",
             cursor: "text",
             direction: "ltr",
-unicodeBidi: "plaintext",
-caretColor: c.cor || "#1e3a8a",
+            unicodeBidi: "plaintext",
+            caretColor: c.cor || "#1e3a8a",
             textShadow: c.sombraAtiva
   ? `${c.sombraX ?? 3}px ${c.sombraY ?? 3}px ${c.sombraBlur ?? 6}px ${hexToRgba(
       c.sombraCor || "#000000",
@@ -3785,7 +3826,14 @@ WebkitTextStroke: c.mostrarContorno
   : "0px transparent",
           }}
         >
-          {(c as any).texto || "Digite seu texto"}
+          <span
+  dangerouslySetInnerHTML={{
+    __html:
+      (c as any).textoHtml ||
+      (c as any).texto ||
+      "Digite seu texto",
+  }}
+/>
         </div>
 
         {selecionadoTexto && (
@@ -5198,15 +5246,17 @@ if (c.tipo === "TEXTO_LIVRE") {
           setCampoSelecionadoId(c.id);
           setCamposSelecionadosIds([c.id]);
         }}
-        onInput={(e) => {
-          const texto = e.currentTarget.innerText;
+        onBlur={(e) => {
+  const texto = e.currentTarget.innerText;
+  const textoHtml = e.currentTarget.innerHTML;
 
-          setCampos((prev) =>
-            prev.map((item) =>
-              item.id === c.id ? { ...item, texto } : item
-            )
-          );
-        }}
+  setCampos((prev) =>
+    prev.map((item) =>
+      item.id === c.id ? { ...item, texto, textoHtml } : item
+    )
+  );
+}}
+
         className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
           selecionadoTexto
             ? "border-2 border-blue-600 bg-blue-50/10"
@@ -5225,7 +5275,14 @@ if (c.tipo === "TEXTO_LIVRE") {
           wordBreak: "break-word",
         }}
       >
-        {(c as any).texto || "Digite seu texto"}
+        <span
+  dangerouslySetInnerHTML={{
+    __html:
+      (c as any).textoHtml ||
+      (c as any).texto ||
+      "Digite seu texto",
+  }}
+/>
       </div>
 
       {selecionadoTexto && (
@@ -5502,7 +5559,65 @@ if (c.tipo === "TEXTO_LIVRE") {
     >
       <u>U</u> Sublinhado
     </button>
+<button
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado("foreColor", campoSelecionado?.cor || "#1e3a8a");
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  🎨 Aplicar cor na seleção
+</button>
 
+<button
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado("fontSize", "5");
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  🔠 Aumentar seleção
+</button>
+
+<button
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado("bold");
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  <b>B</b> Negrito na seleção
+</button>
+
+<button
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado("italic");
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  <i>I</i> Itálico na seleção
+</button>
+
+<button
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado("underline");
+    setMenuContexto(null);
+  }}
+  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+>
+  <u>U</u> Sublinhado na seleção
+</button>
     <button
       type="button"
       onClick={() => {
