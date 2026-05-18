@@ -1046,9 +1046,22 @@ function finalizarArrastoCanvas() {
   async function adicionarCampo(tipo: string) {
     try {
       const larguraInicial =
-        tipo === "DISCIPLINAS_CONCLUIDAS" ? 340 : tipo === "QR_CODE" ? 120 : 220;
-      const alturaInicial =
-        tipo === "DISCIPLINAS_CONCLUIDAS" ? 110 : tipo === "QR_CODE" ? 120 : 40;
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? 340
+    : tipo === "QR_CODE"
+    ? 120
+    : tipo === "TEXTO_LIVRE"
+    ? 300
+    : 220;
+
+const alturaInicial =
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? 110
+    : tipo === "QR_CODE"
+    ? 120
+    : tipo === "TEXTO_LIVRE"
+    ? 80
+    : 40;
 
       const res = await fetch("/api/admin/certificado-campos", {
         method: "POST",
@@ -1066,6 +1079,7 @@ function finalizarArrastoCanvas() {
           cor: "#1e3a8a",
           alinhamento: "left",
           pagina: 1,
+          texto: tipo === "TEXTO_LIVRE" ? "Digite seu texto aqui" : undefined,
         }),
       });
 
@@ -2676,6 +2690,35 @@ contornoEspessura: 2,
           {item.label}
         </button>
       ))}
+    </div>
+  )}
+</div>
+
+<div className="rounded-2xl border border-slate-200 bg-white">
+  <button
+    type="button"
+    onClick={() =>
+      setSecaoAberta(secaoAberta === "textos" ? null : "textos")
+    }
+    className="flex w-full items-center justify-between px-4 py-3 text-left"
+  >
+    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
+      Textos livres
+    </span>
+    <span className="text-slate-500">
+      {secaoAberta === "textos" ? "−" : "+"}
+    </span>
+  </button>
+
+  {secaoAberta === "textos" && (
+    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+      <button
+        type="button"
+        onClick={() => adicionarCampo("TEXTO_LIVRE")}
+        className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
+      >
+        Caixa de texto
+      </button>
     </div>
   )}
 </div>
