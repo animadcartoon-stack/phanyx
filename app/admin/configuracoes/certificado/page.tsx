@@ -5241,23 +5241,24 @@ if (c.tipo === "TEXTO_LIVRE") {
 )}
 
       <div
-        contentEditable
-        suppressContentEditableWarning
-        onMouseDown={(e) => {
-          e.stopPropagation();
-          setCampoSelecionadoId(c.id);
-          setCamposSelecionadosIds([c.id]);
-        }}
-        onInput={(e) => {
-  const texto = e.currentTarget.innerText;
-  const textoHtml = e.currentTarget.innerHTML;
+  contentEditable
+  suppressContentEditableWarning
+  data-texto-livre-id={c.id}
+  onMouseDown={(e) => {
+    e.stopPropagation();
+    setCampoSelecionadoId(c.id);
+    setCamposSelecionadosIds([c.id]);
+  }}
+  onBlur={(e) => {
+    const texto = e.currentTarget.innerText;
+    const textoHtml = e.currentTarget.innerHTML;
 
-  setCampos((prev) =>
-    prev.map((item) =>
-      item.id === c.id ? { ...item, texto, textoHtml } : item
-    )
-  );
-}}
+    setCampos((prev) =>
+      prev.map((item) =>
+        item.id === c.id ? { ...item, texto, textoHtml } : item
+      )
+    );
+  }}
 
         className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
           selecionadoTexto
@@ -5275,16 +5276,22 @@ if (c.tipo === "TEXTO_LIVRE") {
           lineHeight: c.lineHeight || 1.3,
           whiteSpace: "pre-wrap",
           wordBreak: "break-word",
+          cursor: "text",
+          direction: "ltr",
+          unicodeBidi: "normal",
+          writingMode: "horizontal-tb",
+          caretColor: c.cor || "#1e3a8a",
         }}
       >
-        <span
-  dangerouslySetInnerHTML={{
-    __html:
-      (c as any).textoHtml ||
-      (c as any).texto ||
-      "Digite seu texto",
-  }}
-/>
+        {(c as any).textoHtml ? (
+  <span
+    dangerouslySetInnerHTML={{
+      __html: (c as any).textoHtml,
+    }}
+  />
+) : (
+  (c as any).texto || "Digite seu texto"
+)}
       </div>
 
       {selecionadoTexto && (
