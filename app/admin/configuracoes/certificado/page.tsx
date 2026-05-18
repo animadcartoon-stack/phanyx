@@ -3777,56 +3777,54 @@ altura: ev.shiftKey
         }}
       >
         <div
-          contentEditable
-          suppressContentEditableWarning
-          data-texto-livre-id={c.id}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            setCampoSelecionadoId(c.id);
-            setCamposSelecionadosIds([c.id]);
-          }}
-          onBlur={(e) => {
-  const texto = e.currentTarget.innerText;
-  const textoHtml = e.currentTarget.innerHTML;
+  contentEditable
+  suppressContentEditableWarning
+  data-texto-livre-id={c.id}
+  onMouseDown={(e) => {
+    e.stopPropagation();
+    setCampoSelecionadoId(c.id);
+    setCamposSelecionadosIds([c.id]);
+  }}
+  onInput={(e) => {
+    const texto = e.currentTarget.innerText;
+    const textoHtml = e.currentTarget.innerHTML;
 
-  setCampos((prev) =>
-    prev.map((item) =>
-      item.id === c.id ? { ...item, texto, textoHtml } : item
-    )
-  );
-}}
-          className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
-            selecionadoTexto
-              ? "border-2 border-blue-600 bg-blue-50/10"
-              : "border border-blue-400/60 bg-transparent"
-          }`}
-          style={{
-            fontFamily: c.fonte || "Arial",
-            fontSize: `${c.tamanho || 18}px`,
-            color: c.cor || "#1e3a8a",
-            fontWeight: c.negrito ? "bold" : "normal",
-            fontStyle: c.italico ? "italic" : "normal",
-            textDecoration: c.sublinhado ? "underline" : "none",
-            textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
-            lineHeight: c.lineHeight || 1.3,
-            whiteSpace: "pre-wrap",
-            wordBreak: "break-word",
-            cursor: "text",
-            direction: "ltr",
-            unicodeBidi: "plaintext",
-            caretColor: c.cor || "#1e3a8a",
-            textShadow: c.sombraAtiva
-  ? `${c.sombraX ?? 3}px ${c.sombraY ?? 3}px ${c.sombraBlur ?? 6}px ${hexToRgba(
-      c.sombraCor || "#000000",
-      c.sombraOpacidade ?? 0.35
-    )}`
-  : "none",
-WebkitTextStroke: c.mostrarContorno
-  ? `${c.contornoEspessura || 1}px ${c.contornoCor || "#000000"}`
-  : "0px transparent",
-          }}
-        >
-          <span
+    setCampos((prev) =>
+      prev.map((item) =>
+        item.id === c.id ? { ...item, texto, textoHtml } : item
+      )
+    );
+  }}
+  className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
+    selecionadoTexto
+      ? "border-2 border-blue-600 bg-blue-50/10"
+      : "border border-blue-400/60 bg-transparent"
+  }`}
+  style={{
+    fontFamily: c.fonte || "Arial",
+    fontSize: `${c.tamanho || 18}px`,
+    color: c.cor || "#1e3a8a",
+    fontWeight: c.negrito ? "bold" : "normal",
+    fontStyle: c.italico ? "italic" : "normal",
+    textDecoration: c.sublinhado ? "underline" : "none",
+    textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+    lineHeight: c.lineHeight || 1.3,
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
+    cursor: "text",
+    direction: "ltr",
+    unicodeBidi: "plaintext",
+    caretColor: c.cor || "#1e3a8a",
+    textShadow: c.sombraAtiva
+      ? `${c.sombraX ?? 3}px ${c.sombraY ?? 3}px ${c.sombraBlur ?? 6}px ${hexToRgba(
+          c.sombraCor || "#000000",
+          c.sombraOpacidade ?? 0.35
+        )}`
+      : "none",
+    WebkitTextStroke: c.mostrarContorno
+      ? `${c.contornoEspessura || 1}px ${c.contornoCor || "#000000"}`
+      : "0px transparent",
+  }}
   dangerouslySetInnerHTML={{
     __html:
       (c as any).textoHtml ||
@@ -3834,7 +3832,6 @@ WebkitTextStroke: c.mostrarContorno
       "Digite seu texto",
   }}
 />
-        </div>
 
         {selecionadoTexto && (
           <div
