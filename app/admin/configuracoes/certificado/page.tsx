@@ -1316,6 +1316,12 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
 }
   
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionadoId}"]`
+  ) as HTMLElement | null;
+
+  if (!editor) return;
+
   const selecao = window.getSelection();
 
   if (selecaoTextoRef.current) {
@@ -1324,31 +1330,32 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   }
 
   const selecaoAtual = window.getSelection();
-  if (!selecaoAtual || selecaoAtual.rangeCount === 0) return;
+  const temSelecao =
+    selecaoAtual &&
+    selecaoAtual.rangeCount > 0 &&
+    selecaoAtual.toString().trim().length > 0;
 
-  const range = selecaoAtual.getRangeAt(0);
-  if (range.collapsed) return;
+  if (temSelecao) {
+    const range = selecaoAtual!.getRangeAt(0);
 
-  const inicio =
-    range.startContainer.nodeType === Node.TEXT_NODE
-      ? range.startContainer.parentElement
-      : (range.startContainer as HTMLElement);
+    const span = document.createElement("span");
+    Object.assign(span.style, estilo);
 
-  const editor = inicio?.closest("[data-texto-livre-id]") as HTMLElement | null;
-  if (!editor) return;
+    const conteudo = range.extractContents();
+    span.appendChild(conteudo);
+    range.insertNode(span);
+  } else {
+    const span = document.createElement("span");
+    Object.assign(span.style, estilo);
+    span.innerHTML = editor.innerHTML;
 
-  const span = document.createElement("span");
-  Object.assign(span.style, estilo);
-
-  const conteudo = range.extractContents();
-  span.appendChild(conteudo);
-  range.insertNode(span);
-
-  const id = Number(editor.dataset.textoLivreId);
+    editor.innerHTML = "";
+    editor.appendChild(span);
+  }
 
   setCampos((prev) =>
     prev.map((campo) =>
-      campo.id === id
+      campo.id === campoSelecionadoId
         ? {
             ...campo,
             texto: editor.innerText,
@@ -1358,7 +1365,7 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
     )
   );
 
-  selecaoAtual.removeAllRanges();
+  selecaoAtual?.removeAllRanges();
   selecaoTextoRef.current = null;
 }
 
