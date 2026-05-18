@@ -3891,6 +3891,20 @@ altura: ev.shiftKey
   </button>
 )}
 
+{selecionadoTexto && (
+  <div
+    onMouseDown={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      iniciarDrag(e as any, c);
+    }}
+    className="absolute -top-3 left-1/2 z-[999999] -translate-x-1/2 cursor-move rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black text-white shadow-lg"
+    title="Arrastar caixa de texto"
+  >
+    mover
+  </div>
+)}
+
         {selecionadoTexto && (
           <div
             onMouseDown={(e) => {
@@ -5564,6 +5578,33 @@ iniciarDrag(event as any, c);
 >
   ⏬ Enviar para trás de tudo
 </button>
+
+<div className="px-3 py-2">
+  <p className="mb-2 text-xs font-bold text-slate-500">
+    Texto selecionado
+  </p>
+
+  <div className="flex flex-wrap gap-2">
+    {["#000000", "#1e3a8a", "#dc2626", "#16a34a", "#ea580c", "#9333ea"].map(
+      (cor) => (
+        <button
+          key={cor}
+          type="button"
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => {
+            document.execCommand("foreColor", false, cor);
+            setMenuContexto(null);
+          }}
+          className="h-7 w-7 rounded-full border border-slate-300 shadow-sm"
+          style={{ backgroundColor: cor }}
+          title="Aplicar cor no texto selecionado"
+        />
+      )
+    )}
+  </div>
+</div>
+
+<hr className="my-1" />
 
 <hr className="my-1" />
 
