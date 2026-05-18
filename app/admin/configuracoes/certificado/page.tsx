@@ -2303,6 +2303,45 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     </div>
   </details>
 </div>
+
+<div className="mb-4 rounded-2xl border border-dashed border-blue-300 bg-white p-4 shadow-sm">
+  <p className="mb-3 text-xs font-bold uppercase tracking-wide text-blue-700">
+    Textos
+  </p>
+
+  <div className="grid grid-cols-2 gap-3">
+    <button
+      type="button"
+      onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")}
+      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+    >
+      <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 text-3xl font-black text-blue-700">
+        T
+      </span>
+      <span className="mt-2 text-xs font-bold text-slate-700">
+        Título
+      </span>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")}
+      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+    >
+      <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-50 text-xl font-black text-blue-700">
+        Tx
+      </span>
+      <span className="mt-2 text-xs font-bold text-slate-700">
+        Texto
+      </span>
+    </button>
+  </div>
+
+  <p className="mt-3 text-[11px] leading-5 text-slate-500">
+    Adicione caixas de texto livres, como no PowerPoint. Depois selecione no certificado para ajustar fonte, sombra, ordem e tamanho.
+  </p>
+</div>
+
 <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-white p-4 shadow-sm">
   <button
   type="button"
@@ -2602,42 +2641,7 @@ contornoEspessura: 2,
             </div>
 
               <div className="space-y-4">
-                <div className="rounded-2xl border border-slate-200 bg-white">
-  <button
-    type="button"
-    onClick={() =>
-      setSecaoAberta(secaoAberta === "aluno" ? null : "aluno")
-    }
-    className="flex w-full items-center justify-between px-4 py-3 text-left"
-  >
-    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-      Informações do aluno
-    </span>
-    <span className="text-slate-500">
-      {secaoAberta === "aluno" ? "−" : "+"}
-    </span>
-  </button>
-
-  {secaoAberta === "aluno" && (
-    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-      {[
-        { tipo: "NOME_ALUNO", label: "Nome do aluno" },
-        { tipo: "APROVEITAMENTO", label: "Aproveitamento" },
-        { tipo: "FREQUENCIA_TOTAL", label: "Frequência total" },
-      ].map((item) => (
-        <button
-          key={item.tipo}
-          type="button"
-          onClick={() => adicionarCampo(item.tipo)}
-          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  )}
-</div>
-
+                
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
     type="button"

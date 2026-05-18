@@ -122,12 +122,24 @@ function buscaAproximada(texto: string, termo: string) {
 
   if (normalTexto.includes(normalTermo)) return true;
 
-  const palavras = normalTexto.split(" ");
+  const palavras = normalTexto.split(/\s+/).filter(Boolean);
 
   return palavras.some((palavra) => {
-    const distancia = distanciaLevenshtein(palavra, normalTermo);
+    if (palavra.startsWith(normalTermo)) return true;
 
-    return distancia <= Math.max(1, Math.floor(normalTermo.length / 3));
+    const pedacoInicial = palavra.slice(0, normalTermo.length);
+    const distanciaInicio = distanciaLevenshtein(pedacoInicial, normalTermo);
+
+    if (distanciaInicio <= Math.max(1, Math.floor(normalTermo.length / 3))) {
+      return true;
+    }
+
+    const distanciaPalavraInteira = distanciaLevenshtein(palavra, normalTermo);
+
+    return (
+      normalTermo.length >= 4 &&
+      distanciaPalavraInteira <= Math.max(1, Math.floor(normalTermo.length / 3))
+    );
   });
 }
 
