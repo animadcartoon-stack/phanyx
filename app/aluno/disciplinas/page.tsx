@@ -44,18 +44,29 @@ export default function DisciplinasAluno() {
     .trim();
 }
 
-function calcularSimilaridade(a: string, b: string) {
-  const textoA = normalizarTexto(a);
-  const textoB = normalizarTexto(b);
+function calcularPontuacaoBusca(nome: string, busca: string) {
+  const textoNome = normalizarTexto(nome);
+  const textoBusca = normalizarTexto(busca);
 
-  if (textoA.includes(textoB) || textoB.includes(textoA)) return 100;
+  if (!textoBusca) return 0;
 
+  // prioridade máxima: começa com a busca
+  if (textoNome.startsWith(textoBusca)) return 1000;
+
+  // prioridade alta: qualquer palavra começa com a busca
+  const palavras = textoNome.split(" ");
+  if (palavras.some((p) => p.startsWith(textoBusca))) return 900;
+
+  // prioridade média: contém a busca
+  if (textoNome.includes(textoBusca)) return 800;
+
+  // fuzzy leve (erro de digitação)
   let iguais = 0;
-  for (const letra of textoB) {
-    if (textoA.includes(letra)) iguais++;
+  for (const letra of textoBusca) {
+    if (textoNome.includes(letra)) iguais++;
   }
 
-  return (iguais / Math.max(textoB.length, 1)) * 100;
+  return (iguais / textoBusca.length) * 100;
 }
 
   async function carregarDisciplinas() {
@@ -90,16 +101,18 @@ function calcularSimilaridade(a: string, b: string) {
   return (
     normalizarTexto(disciplina.nome || "").includes(textoBusca) ||
     normalizarTexto(disciplina.turmaNome || "").includes(textoBusca) ||
-    calcularSimilaridade(disciplina.nome || "", textoBusca) >= 55
+    calcularPontuacaoBusca(disciplina.nome || "", textoBusca) >= 45
   );
 });
 
 const sugestoesDisciplinas = busca.trim()
-  ? disciplinasMatriculadas
-      .filter(
-        (disciplina) =>
-          calcularSimilaridade(disciplina.nome || "", busca) >= 45
-      )
+  ? [...disciplinasMatriculadas]
+      .map((disciplina) => ({
+        ...disciplina,
+        score: calcularPontuacaoBusca(disciplina.nome || "", busca),
+      }))
+      .filter((disciplina) => disciplina.score >= 45)
+      .sort((a, b) => b.score - a.score)
       .slice(0, 5)
   : [];
 
