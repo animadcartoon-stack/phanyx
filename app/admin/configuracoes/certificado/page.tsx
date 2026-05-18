@@ -1306,9 +1306,7 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
 }
   
 function aplicarEstiloTextoSelecionado(
-  comando: string,
-  valor?: string,
-  estiloSpan?: React.CSSProperties
+  estilo: React.CSSProperties
 ) {
   const selecao = window.getSelection();
 
@@ -1325,19 +1323,15 @@ function aplicarEstiloTextoSelecionado(
 
   if (range.collapsed) return;
 
-  if (estiloSpan) {
-    const span = document.createElement("span");
-    Object.assign(span.style, estiloSpan);
+  const span = document.createElement("span");
+  Object.assign(span.style, estilo);
 
-    try {
-      range.surroundContents(span);
-    } catch {
-      const conteudo = range.extractContents();
-      span.appendChild(conteudo);
-      range.insertNode(span);
-    }
-  } else {
-    document.execCommand(comando, false, valor);
+  try {
+    range.surroundContents(span);
+  } catch {
+    const conteudo = range.extractContents();
+    span.appendChild(conteudo);
+    range.insertNode(span);
   }
 
   const elemento = range.commonAncestorContainer.parentElement?.closest(
@@ -4191,7 +4185,7 @@ onKeyUp={() => {
     selecao && selecao.toString().trim().length > 0;
 
   if (temTextoSelecionado && campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    aplicarEstiloTextoSelecionado("foreColor", cor);
+    aplicarEstiloTextoSelecionado({ color: cor });
     return;
   }
 
@@ -4680,10 +4674,8 @@ onKeyUp={() => {
   const tamanho = Number(e.target.value);
 
   if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado("", undefined, {
-      fontSize: `${tamanho}px`,
-    });
-    return;
+    aplicarEstiloTextoSelecionado({ fontSize: `${tamanho}px` });
+return;
   }
 
   atualizarCampoLocal("tamanho", tamanho);
@@ -4796,7 +4788,7 @@ onKeyUp={() => {
     type="button"
     onClick={() => {
   if (campoSelecionado.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado("bold");
+    aplicarEstiloTextoSelecionado({ fontWeight: "700" });
     return;
   }
 
@@ -4815,7 +4807,7 @@ onKeyUp={() => {
     type="button"
    onClick={() => {
   if (campoSelecionado.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado("italic");
+    aplicarEstiloTextoSelecionado({ fontStyle: "italic" });
     return;
   }
 
@@ -4834,7 +4826,7 @@ onKeyUp={() => {
     type="button"
     onClick={() => {
   if (campoSelecionado.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado("underline");
+    aplicarEstiloTextoSelecionado({ textDecoration: "underline" });
     return;
   }
 
@@ -4859,19 +4851,18 @@ onKeyUp={() => {
   max={120}
   value={campoSelecionado.tamanho ?? 18}
   onChange={(e) => {
-  const tamanho = Number(e.target.value);
+    const tamanho = Number(e.target.value);
 
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado("", undefined, {
-      fontSize: `${tamanho}px`,
-    });
-    return;
-  }
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+      aplicarEstiloTextoSelecionado({ fontSize: `${tamanho}px` });
+      return;
+    }
 
-  atualizarCampoLocal("tamanho", tamanho);
-}}
+    atualizarCampoLocal("tamanho", tamanho);
+  }}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
 />
+   
                 </div>
 
                 <div>
@@ -4898,7 +4889,7 @@ onKeyUp={() => {
         selecao?.removeAllRanges();
         selecao?.addRange(selecaoTextoRef.current);
 
-        aplicarEstiloTextoSelecionado("foreColor", cor);
+        aplicarEstiloTextoSelecionado({ color: cor });
         return;
       }
 
@@ -5146,9 +5137,9 @@ onKeyUp={() => {
   <button
   type="button"
   onClick={() => {
-  aplicarEstiloTextoSelecionado("", undefined, {
-    textShadow: "3px 3px 6px rgba(0,0,0,0.35)",
-  });
+  aplicarEstiloTextoSelecionado({
+  textShadow: "3px 3px 6px rgba(0,0,0,0.45)",
+});
   setMenuContexto(null);
 }}
   className="w-full flex items-center justify-between text-sm font-semibold text-left"
@@ -5821,23 +5812,27 @@ iniciarDrag(event as any, c);
   <>
     <hr className="my-1" />
 
-<button
-  type="button"
-  onMouseDown={(e) => {
-    e.preventDefault();
-    aplicarEstiloTextoSelecionado("foreColor", campoSelecionado?.cor || "#1e3a8a");
-    setMenuContexto(null);
-  }}
-  className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
->
-  🎨 Aplicar cor na seleção
-</button>
+<div className="px-3 py-2">
+  <label className="mb-2 block text-xs font-bold text-slate-500">
+    Cor da seleção
+  </label>
+
+  <input
+    type="color"
+    onMouseDown={(e) => e.preventDefault()}
+    onChange={(e) => {
+      aplicarEstiloTextoSelecionado({ color: e.target.value });
+      setMenuContexto(null);
+    }}
+    className="h-10 w-full rounded-xl border border-slate-300"
+  />
+</div>
 
 <button
   type="button"
   onMouseDown={(e) => {
     e.preventDefault();
-    aplicarEstiloTextoSelecionado("fontSize", "5");
+    aplicarEstiloTextoSelecionado({ fontSize: "30px" });
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -5849,7 +5844,7 @@ iniciarDrag(event as any, c);
   type="button"
   onMouseDown={(e) => {
     e.preventDefault();
-    aplicarEstiloTextoSelecionado("bold");
+    aplicarEstiloTextoSelecionado({ fontWeight: "700" });
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -5861,7 +5856,7 @@ iniciarDrag(event as any, c);
   type="button"
   onMouseDown={(e) => {
     e.preventDefault();
-    aplicarEstiloTextoSelecionado("italic");
+    aplicarEstiloTextoSelecionado({ fontStyle: "italic" });
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -5873,7 +5868,7 @@ iniciarDrag(event as any, c);
   type="button"
   onMouseDown={(e) => {
     e.preventDefault();
-    aplicarEstiloTextoSelecionado("underline");
+    aplicarEstiloTextoSelecionado({ textDecoration: "underline" });
     setMenuContexto(null);
   }}
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
@@ -5899,9 +5894,9 @@ iniciarDrag(event as any, c);
     <button
       type="button"
       onClick={() => {
-  aplicarEstiloTextoSelecionado("", undefined, {
-    WebkitTextStroke: "1px #000000",
-  } as React.CSSProperties);
+  aplicarEstiloTextoSelecionado({
+  WebkitTextStroke: "1px #000000",
+} as React.CSSProperties);
   setMenuContexto(null);
 }}
       className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
