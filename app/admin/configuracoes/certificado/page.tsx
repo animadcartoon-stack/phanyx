@@ -3763,6 +3763,15 @@ altura: ev.shiftKey
             whiteSpace: "pre-wrap",
             wordBreak: "break-word",
             cursor: "text",
+            textShadow: c.sombraAtiva
+  ? `${c.sombraX ?? 3}px ${c.sombraY ?? 3}px ${c.sombraBlur ?? 6}px ${hexToRgba(
+      c.sombraCor || "#000000",
+      c.sombraOpacidade ?? 0.35
+    )}`
+  : "none",
+WebkitTextStroke: c.mostrarContorno
+  ? `${c.contornoEspessura || 1}px ${c.contornoCor || "#000000"}`
+  : "0px transparent",
           }}
         >
           {(c as any).texto || "Digite seu texto"}
@@ -5155,6 +5164,21 @@ if (c.tipo === "TEXTO_LIVRE") {
         zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
       }}
     >
+
+      {selecionadoTexto && (
+  <div
+    onMouseDown={(e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      iniciarDrag(e as any, c);
+    }}
+    className="absolute -top-7 left-0 z-[999999] cursor-move rounded-t-lg bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow"
+    title="Arrastar caixa de texto"
+  >
+    Mover texto
+  </div>
+)}
+
       <div
         contentEditable
         suppressContentEditableWarning
@@ -5428,6 +5452,74 @@ if (c.tipo === "TEXTO_LIVRE") {
 >
   🔓 Desagrupar
 </button>
+
+{campoSelecionado?.tipo === "TEXTO_LIVRE" && (
+  <>
+    <hr className="my-1" />
+
+    <button
+      type="button"
+      onClick={() => {
+        atualizarCampoLocal("negrito", !campoSelecionado?.negrito);
+        setMenuContexto(null);
+      }}
+      className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+    >
+      <b>B</b> Negrito
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        atualizarCampoLocal("italico", !campoSelecionado?.italico);
+        setMenuContexto(null);
+      }}
+      className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+    >
+      <i>I</i> Itálico
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        atualizarCampoLocal("sublinhado", !campoSelecionado?.sublinhado);
+        setMenuContexto(null);
+      }}
+      className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+    >
+      <u>U</u> Sublinhado
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        atualizarCampoLocal("sombraAtiva", !campoSelecionado?.sombraAtiva);
+        atualizarCampoLocal("sombraX", campoSelecionado?.sombraX ?? 3);
+        atualizarCampoLocal("sombraY", campoSelecionado?.sombraY ?? 3);
+        atualizarCampoLocal("sombraBlur", campoSelecionado?.sombraBlur ?? 6);
+        atualizarCampoLocal("sombraCor", campoSelecionado?.sombraCor || "#000000");
+        atualizarCampoLocal("sombraOpacidade", campoSelecionado?.sombraOpacidade ?? 0.35);
+        setMenuContexto(null);
+      }}
+      className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+    >
+      🌫️ Sombra projetada
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        atualizarCampoLocal("contornoCor", campoSelecionado?.contornoCor || "#000000");
+        atualizarCampoLocal("contornoEspessura", campoSelecionado?.contornoEspessura || 1);
+        atualizarCampoLocal("mostrarContorno", !campoSelecionado?.mostrarContorno);
+        setMenuContexto(null);
+      }}
+      className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+    >
+      ⭕ Contorno do texto
+    </button>
+  </>
+)}
 
     <hr className="my-1" />
 
