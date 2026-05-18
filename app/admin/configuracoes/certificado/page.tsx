@@ -3699,13 +3699,21 @@ altura: ev.shiftKey
       <div
         key={c.id}
         onMouseDown={(event) => {
-          event.stopPropagation();
+  event.stopPropagation();
 
-          if (event.button === 2) return;
+  if (event.button === 2) return;
 
-          setCampoSelecionadoId(c.id);
-          setCamposSelecionadosIds([c.id]);
-        }}
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds([c.id]);
+
+  const alvo = event.target as HTMLElement;
+
+  if (alvo.isContentEditable) {
+    return;
+  }
+
+  iniciarDrag(event as any, c);
+}}
         onContextMenu={(e) => {
           e.preventDefault();
           setCampoSelecionadoId(c.id);
@@ -5379,11 +5387,13 @@ if (c.tipo === "TEXTO_LIVRE") {
   <div
   onClick={(e) => e.stopPropagation()}
     style={{
-      position: "fixed",
-      top: menuContexto.y,
-      left: menuContexto.x,
-      zIndex: 9999,
-    }}
+  position: "fixed",
+  top: Math.min(menuContexto.y, window.innerHeight - 520),
+  left: menuContexto.x,
+  zIndex: 999999,
+  maxHeight: "500px",
+  overflowY: "auto",
+}}
     className="bg-white border shadow-lg rounded-lg p-2 text-sm"
   >
     <button
