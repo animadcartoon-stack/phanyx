@@ -2319,11 +2319,29 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     </label>
 
     <input
-      type="color"
-      value={corFundoPagina}
-      onChange={(e) => setCorFundoPagina(e.target.value)}
-      className="h-10 w-full cursor-pointer rounded-xl border border-slate-300 bg-white"
-    />
+  type="color"
+  value={campoSelecionado.cor || "#1e3a8a"}
+  onMouseDown={() => {
+    const selecao = window.getSelection();
+
+    if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
+      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+    }
+  }}
+  onChange={(e) => {
+    const cor = e.target.value;
+
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      aplicarEstiloTextoSelecionado({
+        color: cor,
+      });
+      return;
+    }
+
+    atualizarCampoLocal("cor", cor);
+  }}
+  className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
+/>
 
     <div className="grid grid-cols-5 gap-2">
       {["#ffffff", "#f8fafc", "#fef3c7", "#eff6ff", "#f0fdf4"].map((cor) => (
@@ -4887,7 +4905,11 @@ return;
   onMouseDown={() => {
     const selecao = window.getSelection();
 
-    if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
+    if (
+      selecao &&
+      selecao.rangeCount > 0 &&
+      selecao.toString().trim().length > 0
+    ) {
       selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
     }
   }}
@@ -4895,16 +4917,9 @@ return;
     const cor = e.target.value;
 
     if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-      if (selecaoTextoRef.current) {
-        const selecao = window.getSelection();
-
-        selecao?.removeAllRanges();
-        selecao?.addRange(selecaoTextoRef.current);
-
-        aplicarEstiloTextoSelecionado({ color: cor });
-        return;
-      }
-
+      aplicarEstiloTextoSelecionado({
+        color: cor,
+      });
       return;
     }
 
