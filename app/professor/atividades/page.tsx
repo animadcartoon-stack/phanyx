@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type AtividadeItem = {
   id: number;
@@ -19,12 +19,49 @@ type AtividadeItem = {
     id: number;
     nome?: string | null;
   } | null;
+    alunos?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+    matricula?: string | null;
+  }[];
 };
+
+function normalizarTexto(valor?: string | number | null) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function textoBuscaAtividade(atividade: AtividadeItem) {
+  return normalizarTexto(
+    [
+      atividade.titulo,
+      atividade.descricao,
+      atividade.status,
+      atividade.turma?.nome,
+      atividade.disciplina?.nome,
+      atividade.disciplina?.titulo,
+      atividade.prazo ? new Date(atividade.prazo).toLocaleDateString("pt-BR") : "",
+      atividade.createdAt ? new Date(atividade.createdAt).toLocaleDateString("pt-BR") : "",
+      ...(atividade.alunos || []).flatMap((aluno) => [
+        aluno.nome,
+        aluno.email,
+        aluno.matricula,
+      ]),
+    ]
+      .filter(Boolean)
+      .join(" ")
+  );
+}
 
 export default function ProfessorAtividadesPage() {
   const [atividades, setAtividades] = useState<AtividadeItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [busca, setBusca] = useState("");
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<"sucesso" | "erro" | "">("");
   const [acaoEmAndamento, setAcaoEmAndamento] = useState<string>("");
@@ -112,6 +149,34 @@ function formatarTempoRelativo(data?: string | null) {
     return "Rascunho";
   }
 
+    const atividadesFiltradas = useMemo(() => {
+    const termo = normalizarTexto(busca);
+
+    if (!termo) return atividades;
+
+    return atividades.filter((atividade) =>
+      textoBuscaAtividade(atividade).includes(termo)
+    );
+  }, [atividades, busca]);
+
+  const sugestoesBusca = useMemo(() => {
+    const termo = normalizarTexto(busca);
+
+    if (!termo) return [];
+
+    return atividadesFiltradas.slice(0, 8).map((atividade) => ({
+      chave: String(atividade.id),
+      titulo: atividade.titulo,
+      turma: atividade.turma?.nome || "Turma não informada",
+      disciplina:
+        atividade.disciplina?.nome ||
+        atividade.disciplina?.titulo ||
+        "Disciplina não informada",
+      prazo: formatarData(atividade.prazo),
+      alunos: atividade.alunos?.map((a) => a.nome).filter(Boolean).join(", ") || "",
+    }));
+  }, [busca, atividadesFiltradas]);
+
   return (
     <div className="p-6">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -143,6 +208,47 @@ function formatarTempoRelativo(data?: string | null) {
           </a>
         </div>
 
+<div className="relative rounded-2xl border bg-white p-4 shadow-sm">
+  <input
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    placeholder="Buscar por aluno, turma, tarefa, período, prazo ou disciplina..."
+    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+  />
+
+  {busca.trim() && (
+    <div className="absolute left-4 right-4 top-[68px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+      {sugestoesBusca.length === 0 ? (
+        <p className="px-3 py-3 text-sm text-slate-500">
+          Nenhuma sugestão encontrada.
+        </p>
+      ) : (
+        sugestoesBusca.map((item) => (
+          <button
+            key={item.chave}
+            type="button"
+            onClick={() => setBusca(item.titulo)}
+            className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
+          >
+            <p className="text-sm font-black text-slate-900">{item.titulo}</p>
+            <p className="text-xs text-slate-600">
+              Turma {item.turma} • {item.disciplina}
+            </p>
+            <p className="text-xs font-semibold text-blue-700">
+              Prazo: {item.prazo}
+            </p>
+            {item.alunos && (
+              <p className="mt-1 text-xs text-slate-500">
+                Alunos: {item.alunos}
+              </p>
+            )}
+          </button>
+        ))
+      )}
+    </div>
+  )}
+</div>
+
         {loading && (
           <div className="rounded-2xl border bg-white p-6 text-sm text-gray-500 shadow-sm">
             Carregando atividades...
@@ -155,7 +261,7 @@ function formatarTempoRelativo(data?: string | null) {
           </div>
         )}
 
-        {!loading && !erro && atividades.length === 0 && (
+        {!loading && !erro && atividadesFiltradas.length === 0 && (
           <div className="rounded-2xl border bg-white p-8 shadow-sm">
             <h2 className="text-lg font-semibold text-gray-900">
               Nenhuma atividade cadastrada
@@ -168,7 +274,7 @@ function formatarTempoRelativo(data?: string | null) {
 
         {!loading && !erro && atividades.length > 0 && (
           <div className="grid gap-4">
-            {atividades.map((atividade) => (
+            {atividadesFiltradas.map((atividade) => (
               <div
                 key={atividade.id}
                 className="rounded-2xl border bg-white p-6 shadow-sm"

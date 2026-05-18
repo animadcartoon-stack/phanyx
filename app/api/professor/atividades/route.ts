@@ -61,6 +61,18 @@ export async function GET(_req: NextRequest) {
           },
         },
         anexos: true,
+entregas: {
+  include: {
+    aluno: {
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        matricula: true,
+      },
+    },
+  },
+},
       },
       orderBy: {
         createdAt: "desc",
@@ -72,6 +84,7 @@ export async function GET(_req: NextRequest) {
         ...atividade,
         disciplina: atividade.turma?.disciplinas?.[0]?.disciplina || null,
 disciplinas: atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
+alunos: atividade.entregas?.map((entrega) => entrega.aluno).filter(Boolean) || [],
       }))
     );
   } catch (e: any) {

@@ -185,18 +185,51 @@ export default function ProfessorAlunosPage() {
   }, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {
-    const termo = normalizarTexto(busca);
+  const termo = normalizarTexto(busca);
 
-    if (!termo) return [];
+  if (!termo) return [];
 
-    return alunosFiltrados.slice(0, 8).map((aluno) => ({
-      chave: String(aluno.itemMatriculaId),
-      alunoNome: aluno.nome,
-      turmaNome: aluno.turma?.nome || "Turma não informada",
-      disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
-      semestre: aluno.turma?.semestre || "Período não informado",
-    }));
-  }, [busca, alunosFiltrados]);
+  const pontuados = alunos
+    .map((aluno) => {
+      const nome = normalizarTexto(aluno.nome);
+      const email = normalizarTexto(aluno.email);
+      const matricula = normalizarTexto(aluno.matricula);
+      const turma = normalizarTexto(aluno.turma?.nome);
+      const disciplina = normalizarTexto(aluno.disciplina?.nome);
+      const semestre = normalizarTexto(aluno.turma?.semestre);
+
+      let score = 0;
+
+      if (nome.startsWith(termo)) score += 100;
+      else if (nome.includes(termo)) score += 80;
+
+      if (email.includes(termo)) score += 60;
+      if (matricula.includes(termo)) score += 55;
+      if (turma.startsWith(termo)) score += 45;
+      else if (turma.includes(termo)) score += 35;
+
+      if (disciplina.startsWith(termo)) score += 30;
+      else if (disciplina.includes(termo)) score += 20;
+
+      if (semestre.includes(termo)) score += 10;
+
+      return {
+        aluno,
+        score,
+      };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+
+  return pontuados.map(({ aluno }) => ({
+    chave: String(aluno.itemMatriculaId),
+    alunoNome: aluno.nome,
+    turmaNome: aluno.turma?.nome || "Turma não informada",
+    disciplinaNome: aluno.disciplina?.nome || "Disciplina não informada",
+    semestre: aluno.turma?.semestre || "Período não informado",
+  }));
+}, [busca, alunos]);
 
   return (
     <div className="space-y-6 max-w-7xl">
