@@ -3747,9 +3747,12 @@ altura: ev.shiftKey
 
   const alvo = event.target as HTMLElement;
 
-  if (alvo.isContentEditable) {
-    return;
-  }
+  if (
+  alvo.isContentEditable ||
+  alvo.closest("[data-texto-livre-id]")
+) {
+  return;
+}
 
   iniciarDrag(event as any, c);
 }}
@@ -3776,45 +3779,65 @@ altura: ev.shiftKey
           zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
         }}
       >
-                <textarea
-          value={(c as any).texto || ""}
-          placeholder="Digite seu texto"
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            setCampoSelecionadoId(c.id);
-            setCamposSelecionadosIds([c.id]);
-          }}
-          onChange={(e) => {
-            const texto = e.target.value;
+               <div
+  contentEditable
+  suppressContentEditableWarning
+  data-texto-livre-id={c.id}
+  dir="ltr"
+  onMouseDown={(e) => {
+    e.stopPropagation();
+    setCampoSelecionadoId(c.id);
+    setCamposSelecionadosIds([c.id]);
+  }}
+  onKeyDown={(e) => {
+    e.stopPropagation();
+  }}
+  onInput={(e) => {
+    const texto = e.currentTarget.innerText;
+    const textoHtml = e.currentTarget.innerHTML;
 
-            setCampos((prev) =>
-              prev.map((item) =>
-                item.id === c.id
-                  ? { ...item, texto, textoHtml: texto }
-                  : item
-              )
-            );
-          }}
-          className={`h-full w-full resize-none overflow-hidden rounded-md px-2 py-1 outline-none ${
-            selecionadoTexto
-              ? "border-2 border-blue-600 bg-blue-50/10"
-              : "border border-blue-400/60 bg-transparent"
-          }`}
-          style={{
-            fontFamily: c.fonte || "Arial",
-            fontSize: `${c.tamanho || 18}px`,
-            color: c.cor || "#1e3a8a",
-            fontWeight: c.negrito ? "bold" : "normal",
-            fontStyle: c.italico ? "italic" : "normal",
-            textDecoration: c.sublinhado ? "underline" : "none",
-            textAlign:
-              (c.alinhamento as "left" | "center" | "right") || "left",
-            lineHeight: c.lineHeight || 1.3,
-            direction: "ltr",
-            unicodeBidi: "normal",
-            writingMode: "horizontal-tb",
-          }}
-        />
+    (e.currentTarget as any).dataset.texto = texto;
+    (e.currentTarget as any).dataset.html = textoHtml;
+  }}
+  onBlur={(e) => {
+    const texto = e.currentTarget.innerText;
+    const textoHtml = e.currentTarget.innerHTML;
+
+    setCampos((prev) =>
+      prev.map((item) =>
+        item.id === c.id ? { ...item, texto, textoHtml } : item
+      )
+    );
+  }}
+  className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
+    selecionadoTexto
+      ? "border-2 border-blue-600 bg-blue-50/10"
+      : "border border-blue-400/60 bg-transparent"
+  }`}
+  style={{
+    fontFamily: c.fonte || "Arial",
+    fontSize: `${c.tamanho || 18}px`,
+    color: c.cor || "#1e3a8a",
+    fontWeight: c.negrito ? "bold" : "normal",
+    fontStyle: c.italico ? "italic" : "normal",
+    textDecoration: c.sublinhado ? "underline" : "none",
+    textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
+    lineHeight: c.lineHeight || 1.3,
+    whiteSpace: "pre-wrap",
+    wordBreak: "break-word",
+    cursor: "text",
+    direction: "ltr",
+    unicodeBidi: "isolate",
+    writingMode: "horizontal-tb",
+    caretColor: c.cor || "#1e3a8a",
+  }}
+  dangerouslySetInnerHTML={{
+    __html:
+      (c as any).textoHtml ||
+      (c as any).texto ||
+      "Digite seu texto",
+  }}
+/>
 
         {selecionadoTexto && (
           <div
