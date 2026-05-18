@@ -4872,27 +4872,36 @@ onKeyUp={() => {
                     Cor
                   </label>
                   <input
-                    type="color"
-                    value={campoSelecionado.cor || "#1e3a8a"}
-                    onChange={(e) => {
-  const cor = e.target.value;
-
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+  type="color"
+  value={campoSelecionado.cor || "#1e3a8a"}
+  onMouseDown={() => {
     const selecao = window.getSelection();
 
-    selecao?.removeAllRanges();
-    selecao?.addRange(selecaoTextoRef.current);
+    if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
+      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+    }
+  }}
+  onChange={(e) => {
+    const cor = e.target.value;
 
-    aplicarEstiloTextoSelecionado("foreColor", cor);
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      if (selecaoTextoRef.current) {
+        const selecao = window.getSelection();
 
-    selecaoTextoRef.current = null;
-    return;
-  }
+        selecao?.removeAllRanges();
+        selecao?.addRange(selecaoTextoRef.current);
 
-  atualizarCampoLocal("cor", cor);
-}}
-                    className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
-                  />
+        aplicarEstiloTextoSelecionado("foreColor", cor);
+        return;
+      }
+
+      return;
+    }
+
+    atualizarCampoLocal("cor", cor);
+  }}
+  className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
+/>
                 </div>
 
                 <div>
