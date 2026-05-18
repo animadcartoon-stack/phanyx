@@ -800,6 +800,7 @@ setNomeDiretorInstituicao(
 }, []);
 
 useEffect(() => {
+
   function handleKeyDown(e: KeyboardEvent) {
     const alvo = e.target as HTMLElement | null;
 
@@ -820,17 +821,33 @@ if (e.code === "Space") {
     if (e.key === "Delete" || e.key === "Backspace") {
   const alvo = e.target as HTMLElement | null;
 
-  const estaDigitando =
+  const estaEditandoTextoLivre =
+    alvo?.closest?.("[data-texto-livre-id]") ||
+    alvo?.isContentEditable ||
     alvo?.tagName?.toLowerCase() === "input" ||
     alvo?.tagName?.toLowerCase() === "textarea" ||
-    alvo?.tagName?.toLowerCase() === "select" ||
-    alvo?.isContentEditable;
+    alvo?.tagName?.toLowerCase() === "select";
 
-  if (estaDigitando) return;
+  if (estaEditandoTextoLivre) {
+    return;
+  }
 
-  if (campoSelecionadoId) {
+  const idsParaExcluir =
+    camposSelecionadosIds.length > 0
+      ? camposSelecionadosIds
+      : campoSelecionadoId
+      ? [campoSelecionadoId]
+      : [];
+
+  if (idsParaExcluir.length > 0) {
     e.preventDefault();
-    excluirCampo(campoSelecionadoId);
+
+    idsParaExcluir.forEach((id) => {
+      excluirCampo(id);
+    });
+
+    setCampoSelecionadoId(null);
+    setCamposSelecionadosIds([]);
   }
 }
   }
@@ -3794,12 +3811,21 @@ altura: ev.shiftKey
   contentEditable
   suppressContentEditableWarning
   data-texto-livre-id={c.id}
+  data-texto-conteudo="true"
   dir="ltr"
   onMouseDown={(e) => {
-    e.stopPropagation();
-    setCampoSelecionadoId(c.id);
-    setCamposSelecionadosIds([c.id]);
-  }}
+  e.stopPropagation();
+
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds([c.id]);
+
+  const alvo = e.target as HTMLElement;
+
+  if (!alvo.closest("[data-texto-conteudo]")) {
+    e.preventDefault();
+    iniciarDrag(e as any, c);
+  }
+}}
   onKeyDown={(e) => {
     e.stopPropagation();
   }}
@@ -3843,15 +3869,7 @@ altura: ev.shiftKey
     caretColor: c.cor || "#1e3a8a",
   }}
 >
-{(c as any).textoHtml ? (
-  <span
-    dangerouslySetInnerHTML={{
-      __html: (c as any).textoHtml,
-    }}
-  />
-) : (
-  (c as any).texto || "Digite seu texto"
-)}
+{!((c as any).textoHtml || (c as any).texto) && "Digite seu texto"}
 
 </div>
 
