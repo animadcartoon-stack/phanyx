@@ -169,6 +169,27 @@ function textoBuscaTurma(turma: Turma) {
   );
 }
 
+function calcularPontuacaoBusca(texto: string, busca: string) {
+  const textoNormalizado = normalizarTexto(texto);
+  const buscaNormalizada = normalizarTexto(busca);
+
+  if (!buscaNormalizada) return 0;
+
+  if (textoNormalizado.startsWith(buscaNormalizada)) return 1000;
+
+  const palavras = textoNormalizado.split(" ");
+  if (palavras.some((p) => p.startsWith(buscaNormalizada))) return 900;
+
+  if (textoNormalizado.includes(buscaNormalizada)) return 800;
+
+  let iguais = 0;
+  for (const letra of buscaNormalizada) {
+    if (textoNormalizado.includes(letra)) iguais++;
+  }
+
+  return (iguais / buscaNormalizada.length) * 100;
+}
+
 function agruparPorTurma(turmas: Turma[]) {
   const mapa = new Map<string, TurmaAgrupada>();
 
@@ -446,12 +467,26 @@ export default function TurmasProfessorPage() {
   }, []);
 
   const turmasFiltradas = useMemo(() => {
-    const termo = normalizarTexto(busca);
+  const termo = normalizarTexto(busca);
 
-    if (!termo) return turmas;
+  if (!termo) return turmas;
 
-    return turmas.filter((turma) => textoBuscaTurma(turma).includes(termo));
-  }, [turmas, busca]);
+  return [...turmas]
+    .map((turma) => ({
+      ...turma,
+      scoreBusca: Math.max(
+        calcularPontuacaoBusca(turma.disciplina?.nome || "", busca),
+        calcularPontuacaoBusca(turma.nome || "", busca),
+        calcularPontuacaoBusca(turma.curso?.nome || "", busca),
+        calcularPontuacaoBusca(turma.periodoLetivo || "", busca),
+        calcularPontuacaoBusca(turma.semestre || "", busca),
+        calcularPontuacaoBusca(turma.statusTurma || "", busca),
+        calcularPontuacaoBusca(turma.statusDisciplina || "", busca)
+      ),
+    }))
+    .filter((turma) => turma.scoreBusca >= 45)
+    .sort((a, b) => b.scoreBusca - a.scoreBusca);
+}, [turmas, busca]);
 
   const grupos = useMemo(() => {
     const base: Record<string, Turma[]> = {
@@ -474,15 +509,22 @@ export default function TurmasProfessorPage() {
 
   if (!termo) return [];
 
-  return turmasFiltradas.slice(0, 8).map((turma) => ({
-    chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
-    turmaNome: turma.nome,
-    cursoNome: turma.curso?.nome || "Curso não informado",
-    disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
-    periodo: turma.periodoLetivo || "EAD / Livre",
-  }));
+  return turmasFiltradas
+    .map((turma) => ({
+      chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
+      turmaNome: turma.nome,
+      cursoNome: turma.curso?.nome || "Curso não informado",
+      disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
+      periodo: turma.periodoLetivo || "EAD / Livre",
+      score: Math.max(
+        calcularPontuacaoBusca(turma.disciplina?.nome || "", busca),
+        calcularPontuacaoBusca(turma.nome || "", busca),
+        calcularPontuacaoBusca(turma.curso?.nome || "", busca)
+      ),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
 }, [busca, turmasFiltradas]);
-
   const totalTurmasAgrupadas = useMemo(() => {
     return Object.values(grupos).reduce((acc, lista) => acc + agruparPorTurma(lista).length, 0);
   }, [grupos]);
