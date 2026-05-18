@@ -804,12 +804,20 @@ useEffect(() => {
   function handleKeyDown(e: KeyboardEvent) {
     const alvo = e.target as HTMLElement | null;
 
+const tag = alvo?.tagName?.toLowerCase();
+const estaEditandoTexto =
+  tag === "input" ||
+  tag === "textarea" ||
+  tag === "select" ||
+  alvo?.closest?.("[data-texto-livre-id]");
+
 if (
-  alvo?.tagName?.toLowerCase() === "input" ||
-  alvo?.tagName?.toLowerCase() === "textarea" ||
-  alvo?.tagName?.toLowerCase() === "select" ||
-  alvo?.isContentEditable
+  estaEditandoTexto &&
+  e.key !== "Delete" &&
+  e.key !== "Backspace"
 ) {
+  return;
+} {
   return;
 }
 
@@ -819,16 +827,16 @@ if (e.code === "Space") {
 }
 
     if (e.key === "Delete" || e.key === "Backspace") {
-  const alvo = e.target as HTMLElement | null;
+  const tag = alvo?.tagName?.toLowerCase();
 
-  const estaEditandoTextoLivre =
-    alvo?.closest?.("[data-texto-livre-id]") ||
+  const estaDentroDoTexto =
+    tag === "input" ||
+    tag === "textarea" ||
+    tag === "select" ||
     alvo?.isContentEditable ||
-    alvo?.tagName?.toLowerCase() === "input" ||
-    alvo?.tagName?.toLowerCase() === "textarea" ||
-    alvo?.tagName?.toLowerCase() === "select";
+    alvo?.closest?.("[data-texto-livre-id]");
 
-  if (estaEditandoTextoLivre) {
+  if (estaDentroDoTexto) {
     return;
   }
 
@@ -841,11 +849,7 @@ if (e.code === "Space") {
 
   if (idsParaExcluir.length > 0) {
     e.preventDefault();
-
-    idsParaExcluir.forEach((id) => {
-      excluirCampo(id);
-    });
-
+    idsParaExcluir.forEach((id) => excluirCampo(id));
     setCampoSelecionadoId(null);
     setCamposSelecionadosIds([]);
   }
@@ -1683,6 +1687,10 @@ function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
     void atualizarCampo(campo.id, {
       x: campo.x,
       y: campo.y,
+      largura: campo.largura,
+      altura: campo.altura,
+      texto: campo.texto,
+      textoHtml: campo.textoHtml,
     });
   }
 
@@ -4124,13 +4132,17 @@ altura: ev.shiftKey
     value={corAtual.hex}
     onChange={(e) => {
   const cor = e.target.value;
-  const { r, g, b } = hexToRgb(cor);
 
-  setCorAtual({ hex: cor, r, g, b });
+  const selecao = window.getSelection();
+  const temTextoSelecionado =
+    selecao && selecao.toString().trim().length > 0;
 
-  setEditorCorGradiente((prev) =>
-    prev ? { ...prev, cor } : prev
-  );
+  if (temTextoSelecionado && campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    aplicarEstiloTextoSelecionado("foreColor", cor);
+    return;
+  }
+
+  atualizarCampoLocal("cor", cor);
 }}
     className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
   />
