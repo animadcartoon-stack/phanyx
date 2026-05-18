@@ -1305,9 +1305,7 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
   );
 }
   
-function aplicarEstiloTextoSelecionado(
-  estilo: React.CSSProperties
-) {
+function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   const selecao = window.getSelection();
 
   if (selecaoTextoRef.current) {
@@ -1316,44 +1314,41 @@ function aplicarEstiloTextoSelecionado(
   }
 
   const selecaoAtual = window.getSelection();
-
   if (!selecaoAtual || selecaoAtual.rangeCount === 0) return;
 
   const range = selecaoAtual.getRangeAt(0);
-
   if (range.collapsed) return;
+
+  const inicio =
+    range.startContainer.nodeType === Node.TEXT_NODE
+      ? range.startContainer.parentElement
+      : (range.startContainer as HTMLElement);
+
+  const editor = inicio?.closest("[data-texto-livre-id]") as HTMLElement | null;
+  if (!editor) return;
 
   const span = document.createElement("span");
   Object.assign(span.style, estilo);
 
-  try {
-    range.surroundContents(span);
-  } catch {
-    const conteudo = range.extractContents();
-    span.appendChild(conteudo);
-    range.insertNode(span);
-  }
+  const conteudo = range.extractContents();
+  span.appendChild(conteudo);
+  range.insertNode(span);
 
-  const elemento = range.commonAncestorContainer.parentElement?.closest(
-    "[data-texto-livre-id]"
-  ) as HTMLElement | null;
-
-  if (!elemento) return;
-
-  const id = Number(elemento.dataset.textoLivreId);
+  const id = Number(editor.dataset.textoLivreId);
 
   setCampos((prev) =>
     prev.map((campo) =>
       campo.id === id
         ? {
             ...campo,
-            texto: elemento.innerText,
-            textoHtml: elemento.innerHTML,
+            texto: editor.innerText,
+            textoHtml: editor.innerHTML,
           }
         : campo
     )
   );
 
+  selecaoAtual.removeAllRanges();
   selecaoTextoRef.current = null;
 }
 
@@ -5731,40 +5726,49 @@ iniciarDrag(event as any, c);
 
   <div className="space-y-1">
     <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => {
-        document.execCommand("insertUnorderedList");
-        setMenuContexto(null);
-      }}
-      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
-    >
-      • Bolinha
-    </button>
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado({
+      display: "list-item",
+      listStyleType: "disc",
+      marginLeft: "20px",
+    });
+    setMenuContexto(null);
+  }}
+>
+  • Bolinha na seleção
+</button>
 
     <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => {
-        document.execCommand("insertHTML", false, "▸ ");
-        setMenuContexto(null);
-      }}
-      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
-    >
-      ▸ Setinha
-    </button>
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado({
+      display: "list-item",
+      listStyleType: "'▸ '",
+      marginLeft: "20px",
+    } as React.CSSProperties);
+    setMenuContexto(null);
+  }}
+>
+  ▸ Setinha na seleção
+</button>
 
     <button
-      type="button"
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => {
-        document.execCommand("insertHTML", false, "– ");
-        setMenuContexto(null);
-      }}
-      className="block w-full rounded px-2 py-1 text-left text-sm hover:bg-slate-100"
-    >
-      – Tracinho
-    </button>
+  type="button"
+  onMouseDown={(e) => {
+    e.preventDefault();
+    aplicarEstiloTextoSelecionado({
+      display: "list-item",
+      listStyleType: "'– '",
+      marginLeft: "20px",
+    } as React.CSSProperties);
+    setMenuContexto(null);
+  }}
+>
+  – Tracinho na seleção
+</button>
 
     <button
       type="button"
