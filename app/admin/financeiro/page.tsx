@@ -40,7 +40,7 @@ const financeiroTourSteps: FinanceiroTourStep[] = [
     titulo: "Caixa",
     descricao:
       "Abra caixa, registre entradas e saídas e faça fechamento diário.",
-    mascoteSrc: "/images/calculadora.png",
+    mascoteSrc: "/images/financeiro.png",
     mascoteAlt: "Calculadora financeira",
     destaque: "Controle financeiro diário.",
   },
@@ -50,7 +50,7 @@ const financeiroTourSteps: FinanceiroTourStep[] = [
     titulo: "Inadimplentes",
     descricao:
       "Veja alunos em atraso e acompanhe cobranças pendentes.",
-    mascoteSrc: "/images/financeiro.png",
+    mascoteSrc: "/images/calculadora.png",
     mascoteAlt: "Financeiro",
     destaque: "Acompanhe inadimplência.",
   },
@@ -70,7 +70,7 @@ const financeiroTourSteps: FinanceiroTourStep[] = [
     titulo: "Relatórios",
     descricao:
       "Acompanhe indicadores, exportações e visão gerencial.",
-    mascoteSrc: "/images/financeiro.png",
+    mascoteSrc: "/images/relatorios.png",
     mascoteAlt: "Relatórios",
     destaque: "Gestão estratégica.",
   },
