@@ -2320,39 +2320,27 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
 
     <input
   type="color"
-  value={campoSelecionado?.cor || "#1e3a8a"}
-  onMouseDown={() => {
-    const selecao = window.getSelection();
-
-    if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
-      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
-    }
-  }}
+  value={corFundoPagina}
   onChange={(e) => {
-    const cor = e.target.value;
-
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-      aplicarEstiloTextoSelecionado({
-        color: cor,
-      });
-      return;
-    }
-
-    atualizarCampoLocal("cor", cor);
+    setModoFundo("phanyx");
+    setCorFundoPagina(e.target.value);
   }}
-  className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
+  className="h-10 w-full cursor-pointer rounded-xl border border-slate-300 bg-white"
 />
 
     <div className="grid grid-cols-5 gap-2">
       {["#ffffff", "#f8fafc", "#fef3c7", "#eff6ff", "#f0fdf4"].map((cor) => (
         <button
-          key={cor}
-          type="button"
-          onClick={() => setCorFundoPagina(cor)}
-          className="h-8 rounded-lg border border-slate-300 shadow-sm"
-          style={{ backgroundColor: cor }}
-          title={cor}
-        />
+  key={cor}
+  type="button"
+  onClick={() => {
+    setModoFundo("phanyx");
+    setCorFundoPagina(cor);
+  }}
+  className="h-8 rounded-lg border border-slate-300 shadow-sm"
+  style={{ backgroundColor: cor }}
+  title={cor}
+/>
       ))}
     </div>
   </div>
@@ -2991,11 +2979,11 @@ contornoEspessura: 2,
   onMouseMove={onMouseMoveCanvas}
   onMouseUp={finalizarDrag}
   onMouseLeave={finalizarDrag}
-                  className="absolute left-0 top-0 overflow-visible border border-dashed border-slate-700 bg-white shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
+                  className="absolute left-0 top-0 overflow-visible border border-dashed border-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
   height: `${baseCanvas.altura}px`,
-  backgroundColor: corFundoPagina,
+  backgroundColor: modoFundo === "phanyx" ? corFundoPagina : "#ffffff",
   transform: `scale(${escala})`,
   transformOrigin: "top left",
 }}

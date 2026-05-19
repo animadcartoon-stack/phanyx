@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import PhanyxTour from "@/components/tutorial/PhanyxTour";
 
 type ResumoFinanceiro = {
   quantidadeLancamentos: number;
@@ -339,6 +340,7 @@ setErro("");
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <button
+              data-tour="financeiro-recebimentos"
               onClick={() => router.push("/admin/financeiro/recebimentos")}
               className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
             >
@@ -349,6 +351,7 @@ setErro("");
             </button>
 
             <button
+              data-tour="financeiro-caixa"
               onClick={() => router.push("/admin/financeiro/caixa")}
               className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
             >
@@ -420,6 +423,7 @@ setErro("");
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <button
+            data-tour="financeiro-inadimplentes"
             onClick={() => router.push("/admin/financeiro/inadimplentes")}
             className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
           >
@@ -450,6 +454,7 @@ setErro("");
           </button>
 
           <button
+            data-tour="financeiro-fechamento"
             onClick={() => router.push("/admin/financeiro/fechamento-geral")}
             className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
           >
@@ -473,6 +478,7 @@ setErro("");
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <button
+            data-tour="financeiro-relatorios"
             onClick={() => router.push("/admin/financeiro/relatorios")}
             className="rounded-2xl border p-5 text-left transition hover:border-blue-400 hover:bg-slate-50"
           >
@@ -481,11 +487,60 @@ setErro("");
               Acompanhe recebimentos, caixa e desempenho financeiro.
             </p>
 
-
-
           </button>
         </div>
       </div>
+      <PhanyxTour
+  storageKey="phanyx-tour-financeiro"
+  tituloFinal="Financeiro pronto para uso 💰"
+  descricaoFinal="Você conheceu os principais módulos financeiros do PHANYX."
+  textoBotaoFinal="Ir para recebimentos"
+  onFinalPrimaryClick={() => {
+    router.push("/admin/financeiro/recebimentos");
+  }}
+  steps={[
+    {
+      id: "recebimentos",
+      titulo: "Recebimentos",
+      subtitulo: "Aqui você acompanha cobranças e pagamentos.",
+      descricao:
+        "Use esta área para buscar cobranças, registrar pagamentos e acompanhar baixas dos alunos.",
+      target: "[data-tour='financeiro-recebimentos']",
+    },
+    {
+      id: "caixa",
+      titulo: "Caixa",
+      subtitulo: "Controle o movimento financeiro do dia.",
+      descricao:
+        "Aqui você abre caixa, registra entradas e saídas e faz o fechamento diário.",
+      target: "[data-tour='financeiro-caixa']",
+    },
+    {
+      id: "inadimplentes",
+      titulo: "Inadimplentes",
+      subtitulo: "Acompanhe alunos com pagamentos vencidos.",
+      descricao:
+        "Esta tela ajuda a visualizar cobranças em atraso e acompanhar ações de cobrança.",
+      target: "[data-tour='financeiro-inadimplentes']",
+    },
+    {
+      id: "fechamento",
+      titulo: "Fechamento geral",
+      subtitulo: "Consolide os caixas fechados.",
+      descricao:
+        "Aqui a instituição acompanha os fechamentos de caixa por data e confere diferenças.",
+      target: "[data-tour='financeiro-fechamento']",
+    },
+    {
+      id: "relatorios",
+      titulo: "Relatórios financeiros",
+      subtitulo: "Veja indicadores e desempenho financeiro.",
+      descricao:
+        "Use relatórios para acompanhar recebimentos, atrasos, pendências e exportações.",
+      target: "[data-tour='financeiro-relatorios']",
+    },
+  ]}
+/>
     </div>
   );
 }
