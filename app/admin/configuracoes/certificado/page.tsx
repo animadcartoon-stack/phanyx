@@ -365,6 +365,9 @@ const figurasDecorativas = [
   const [historico, setHistorico] = useState<CampoCertificado[][]>([]);
   const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
+
+  const [tamanhoSelecaoTexto, setTamanhoSelecaoTexto] = useState(18);
+
   const [menuPontoGradiente, setMenuPontoGradiente] = useState<{
   campoId: number;
   pontoIndex: number;
@@ -4868,9 +4871,21 @@ return;
   type="number"
   min={6}
   max={120}
-  value={campoSelecionado?.tamanho ?? 18}
+  value={
+    campoSelecionado?.tipo === "TEXTO_LIVRE"
+      ? tamanhoSelecaoTexto
+      : campoSelecionado?.tamanho ?? 18
+  }
+  onMouseDown={() => {
+    const selecao = window.getSelection();
+
+    if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
+      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+    }
+  }}
   onChange={(e) => {
     const tamanho = Number(e.target.value);
+    setTamanhoSelecaoTexto(tamanho);
 
     if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
       if (!selecaoTextoRef.current) return;
@@ -4878,6 +4893,7 @@ return;
       aplicarEstiloTextoSelecionado({
         fontSize: `${tamanho}px`,
       });
+
       return;
     }
 
