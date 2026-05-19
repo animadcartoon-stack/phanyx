@@ -264,14 +264,29 @@ function pareceCorDoFundo(
 
   const pixel = tempCtx.getImageData(x, y, 1, 1).data;
 
-  setCoresAlvoManuais((cores) => [
-  ...cores,
-  {
+  setCoresAlvoManuais((cores) => {
+  const novaCor = {
     r: pixel[0],
     g: pixel[1],
     b: pixel[2],
-  },
-]);
+  };
+
+  const jaExisteParecida = cores.some(
+    (cor) =>
+      distanciaCor(
+        cor.r,
+        cor.g,
+        cor.b,
+        novaCor.r,
+        novaCor.g,
+        novaCor.b
+      ) < 12
+  );
+
+  if (jaExisteParecida) return cores;
+
+  return [...cores, novaCor];
+});
 }
 
   function removerFundo() {
