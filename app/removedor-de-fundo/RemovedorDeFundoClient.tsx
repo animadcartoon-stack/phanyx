@@ -1295,7 +1295,7 @@ export default function RemovedorDeFundoClient() {
                     checked={removerBrancoInterno}
                     onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
                   />
-                  Remover branco interno
+                  Remover cor por clique
                 </label>
               )}
 
@@ -1303,9 +1303,8 @@ export default function RemovedorDeFundoClient() {
                 <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      Clique na imagem original sobre a cor do fundo que você
-                      quer remover. Pode ser branco, verde, azul, bege ou
-                      qualquer cor.
+                      Clique na imagem original sobre cada cor que ainda precisa remover. 
+Pode clicar no rosa principal, no rosa embaixo do papel, sombras ou qualquer restinho de fundo.
                     </div>
 
                     <button
