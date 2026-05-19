@@ -32,12 +32,30 @@ export default function PhanyxTour({
   const [concluido, setConcluido] = useState(false);
 
   useEffect(() => {
-    const oculto = localStorage.getItem(storageKey);
+  const oculto = localStorage.getItem(storageKey);
 
-    if (!oculto) {
-      setAberto(true);
-    }
-  }, [storageKey]);
+  if (!oculto) {
+    setAberto(true);
+  }
+
+  const abrirTour = () => {
+    setConcluido(false);
+    setStepIndex(0);
+    setAberto(true);
+  };
+
+  window.addEventListener(
+    "phanyx:abrir-tour-admin",
+    abrirTour as EventListener
+  );
+
+  return () => {
+    window.removeEventListener(
+      "phanyx:abrir-tour-admin",
+      abrirTour as EventListener
+    );
+  };
+}, [storageKey]);
 
   const fechar = () => {
     setAberto(false);

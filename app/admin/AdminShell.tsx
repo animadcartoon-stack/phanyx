@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
+import PhanyxTour from "@/components/tutorial/PhanyxTour";
 
 type UsuarioLogado = {
   id?: number;
@@ -421,41 +422,47 @@ try {
                     </Link>
 
                     <Link
-                      href="/admin/financeiro/recebimentos"
-                      className={getLinkClass("/admin/financeiro/recebimentos")}
-                    >
-                      💵 Recebimentos
-                    </Link>
+  href="/admin/financeiro/recebimentos"
+  className={getLinkClass("/admin/financeiro/recebimentos")}
+  data-tour="financeiro-recebimentos"
+>
+  💵 Recebimentos
+</Link>
 
                     <Link
-                      href="/admin/financeiro/caixa"
-                      className={getLinkClass("/admin/financeiro/caixa")}
-                    >
-                      🏦 Caixa
-                    </Link>
+  href="/admin/financeiro/caixa"
+  className={getLinkClass("/admin/financeiro/caixa")}
+  data-tour="financeiro-caixa"
+>
+  🏦 Caixa
+</Link>
 
                     <Link
-                      href="/admin/financeiro/relatorios"
-                      className={getLinkClass("/admin/financeiro/relatorios")}
-                    >
-                      📊 Relatórios
-                    </Link>
+  href="/admin/financeiro/relatorios"
+  className={getLinkClass("/admin/financeiro/relatorios")}
+  data-tour="financeiro-relatorios"
+>
+  📊 Relatórios
+</Link>
 
                     <Link
-                      href="/admin/financeiro/inadimplentes"
-                      className={getLinkClass("/admin/financeiro/inadimplentes")}
-                    >
-                      🚨 Inadimplentes
-                    </Link>
+  href="/admin/financeiro/inadimplentes"
+  className={getLinkClass("/admin/financeiro/inadimplentes")}
+  data-tour="financeiro-inadimplentes"
+>
+  🚨 Inadimplentes
+</Link>
 
                     <Link
-                      href="/admin/financeiro/fechamento-geral"
-                      className={getLinkClass(
-                        "/admin/financeiro/fechamento-geral"
-                      )}
-                    >
-                      📦 Fechamento Geral
-                    </Link>
+  href="/admin/financeiro/fechamento-geral"
+  className={getLinkClass(
+    "/admin/financeiro/fechamento-geral"
+  )}
+  data-tour="financeiro-fechamento"
+>
+  📦 Fechamento Geral
+</Link>
+
                   </div>
                 )}
               </div>
@@ -565,10 +572,74 @@ try {
         </aside>
       )}
 
-      <main className={esconderSidebar ? "flex-1 p-0" : "flex-1 p-10"}>
+     <main className={esconderSidebar ? "flex-1 p-0" : "flex-1 p-10"}>
   {!esconderSidebar && <PhanyxFeriadoAviso />}
+
+  {!esconderSidebar && (
+    <PhanyxTour
+      storageKey="phanyx-tour-admin"
+      tituloFinal="Parabéns! Sua instituição já pode começar 🚀"
+      descricaoFinal="Você concluiu o tour inicial do PHANYX. Agora sua equipe já pode seguir a implantação com mais segurança."
+      textoBotaoFinal="Começar pelas configurações"
+      onFinalPrimaryClick={() => {
+        window.location.href = "/admin/configuracoes/instituicao";
+      }}
+      steps={[
+        {
+          id: "painel",
+          titulo: "Painel administrativo",
+          subtitulo: "Vamos começar pelo painel principal.",
+          descricao:
+            "Aqui é a visão geral da sua operação.",
+          target: "[data-tour='menu-painel']",
+        },
+        {
+          id: "config",
+          titulo: "Configurações da instituição",
+          subtitulo: "Primeiro ajuste a identidade da sua instituição.",
+          descricao:
+            "Configure logo, dados institucionais, identidade visual e informações principais.",
+          target: "[data-tour='menu-configuracoes']",
+        },
+        {
+          id: "departamentos",
+          titulo: "Setores / departamentos",
+          subtitulo: "Agora vamos estruturar a operação interna.",
+          descricao:
+            "Organize secretaria, financeiro, acadêmico e coordenação.",
+          target: "[data-tour='menu-departamentos']",
+        },
+        {
+          id: "professores",
+          titulo: "Cadastro de professores",
+          subtitulo: "Hora de montar a equipe docente.",
+          descricao:
+            "Cadastre professores que atuarão academicamente.",
+          target: "[data-tour='menu-professores']",
+        },
+        {
+          id: "alunos",
+          titulo: "Cadastro de alunos",
+          subtitulo: "Agora vamos preparar sua base de alunos.",
+          descricao:
+            "Cadastre alunos para matrículas e acompanhamento.",
+          target: "[data-tour='menu-alunos']",
+        },
+        {
+          id: "matriculas",
+          titulo: "Matrículas",
+          subtitulo: "Quase pronto: aqui começa a operação real.",
+          descricao:
+            "Conecte alunos, cursos e turmas.",
+          target: "[data-tour='menu-matriculas']",
+        },
+      ]}
+    />
+  )}
+
   {children}
 </main>
+
       <PhanyxConfirmModal
   aberto={sessaoExpirada}
   titulo="Sessão encerrada"
