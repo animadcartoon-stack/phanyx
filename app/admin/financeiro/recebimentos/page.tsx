@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import PhanyxTour from "@/components/tutorial/PhanyxTour";
 
 type PagamentoItem = {
   id: number;
@@ -54,6 +55,54 @@ type RecebimentoItem = {
   } | null;
   pagamentos?: PagamentoItem[];
 };
+
+const recebimentosTourSteps = [
+  {
+    id: "recebimentos-resumo",
+    target: '[data-tour="recebimentos-resumo"]',
+    titulo: "Resumo dos recebimentos",
+    destaque: "Veja rapidamente os valores lançados, pagos, pendentes e atrasados.",
+    descricao:
+      "Esses cards mostram a saúde financeira dos recebimentos da instituição.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "recebimentos-filtros",
+    target: '[data-tour="recebimentos-filtros"]',
+    titulo: "Filtros de busca",
+    destaque: "Encontre cobranças por aluno, matrícula, status ou tipo.",
+    descricao:
+      "Use os filtros para localizar lançamentos específicos de forma rápida.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "recebimentos-polos",
+    target: '[data-tour="recebimentos-polos"]',
+    titulo: "Filtro por polo",
+    destaque: "Separe os recebimentos por unidade, campus ou filial.",
+    descricao:
+      "Quando a instituição possui mais de um polo, esse filtro ajuda a organizar a cobrança por unidade.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "recebimentos-lote",
+    target: '[data-tour="recebimentos-lote"]',
+    titulo: "Baixa em lote",
+    destaque: "Registre vários pagamentos de uma só vez.",
+    descricao:
+      "Selecione os lançamentos na tabela e use esta área para dar baixa coletiva.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "recebimentos-tabela",
+    target: '[data-tour="recebimentos-tabela"]',
+    titulo: "Lista de lançamentos",
+    destaque: "Acompanhe cada cobrança individualmente.",
+    descricao:
+      "Aqui aparecem aluno, tipo, valor, status, vencimento e ações de baixa.",
+    imagem: "/images/financeiro.png",
+  },
+];
 
 export default function AdminFinanceiroRecebimentosPage() {
   const [loading, setLoading] = useState(true);
@@ -395,7 +444,7 @@ function calcularValorFinalLote(item: RecebimentoItem) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div data-tour="recebimentos-resumo" className="grid grid-cols-1 md:grid-cols-4 gap-4">
   <div className="bg-white border rounded-xl p-4">
     <p className="text-sm text-gray-500">Valor lançado/final</p>
     <p className="text-2xl font-bold">R$ {resumo.total.toFixed(2)}</p>
@@ -422,7 +471,7 @@ function calcularValorFinalLote(item: RecebimentoItem) {
   </div>
 </div>
 
-      <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div data-tour="recebimentos-filtros" className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-4 gap-3">
         <input
           type="text"
           placeholder="Buscar por aluno, matrícula, descrição ou status"
@@ -458,20 +507,22 @@ function calcularValorFinalLote(item: RecebimentoItem) {
         </select>
       </div>
 
-<select
-  value={poloId}
-  onChange={(e) => setPoloId(e.target.value)}
-  className="border rounded-lg p-2 bg-white"
->
-  <option value="">Todos os polos</option>
-  {polos.map((polo) => (
-    <option key={polo.id} value={polo.id}>
-      {polo.nome}
-    </option>
-  ))}
-</select>
+<div data-tour="recebimentos-polos">
+  <select
+    value={poloId}
+    onChange={(e) => setPoloId(e.target.value)}
+    className="border rounded-lg p-2 bg-white"
+  >
+    <option value="">Todos os polos</option>
+    {polos.map((polo) => (
+      <option key={polo.id} value={polo.id}>
+        {polo.nome}
+      </option>
+    ))}
+  </select>
+</div>
 
-      <div className="bg-white border rounded-xl p-4 space-y-4">
+      <div data-tour="recebimentos-lote" className="bg-white border rounded-xl p-4 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold">Baixa em lote</h2>
           <p className="text-sm text-gray-600">
@@ -613,7 +664,7 @@ function calcularValorFinalLote(item: RecebimentoItem) {
         </div>
       )}
 
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div data-tour="recebimentos-tabela" className="bg-white border rounded-xl overflow-hidden">
         <div className="grid grid-cols-10 gap-3 border-b bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">
           <div></div>
           <div>Aluno</div>
@@ -819,7 +870,12 @@ function calcularValorFinalLote(item: RecebimentoItem) {
             </div>
           ))
         )}
-      </div>
+            </div>
+
+      <PhanyxTour
+        steps={recebimentosTourSteps}
+        storageKey="phanyx-tour-recebimentos"
+      />
     </div>
   );
 }
