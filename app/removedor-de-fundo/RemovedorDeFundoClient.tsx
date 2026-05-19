@@ -349,14 +349,53 @@ async function removerFundoPessoa() {
       const maskData = foreground.data;
 
       for (let i = 0; i < data.length; i += 4) {
-        const alphaMascara = maskData[i + 3];
+  const alphaMascara = maskData[i + 3];
 
-        if (alphaMascara === 0) {
-          data[i + 3] = 0;
-        } else {
-          data[i + 3] = Math.round(255 * (opacidade / 100));
+  if (alphaMascara === 0) {
+    data[i + 3] = 0;
+    continue;
+  }
+
+  let r = data[i];
+  let g = data[i + 1];
+  let b = data[i + 2];
+
+  r = ajustarCanal(r, brilho, contraste);
+  g = ajustarCanal(g, brilho, contraste);
+  b = ajustarCanal(b, brilho, contraste);
+
+  const sat = aplicarSaturacao(r, g, b, saturacao);
+
+  data[i] = sat.r;
+  data[i + 1] = sat.g;
+  data[i + 2] = sat.b;
+  data[i + 3] = Math.round(255 * (opacidade / 100));
+}
+
+if (suavizacao > 0) {
+  const copia = new Uint8ClampedArray(data);
+
+  for (let y = 1; y < canvas.height - 1; y++) {
+    for (let x = 1; x < canvas.width - 1; x++) {
+      const di = dataIndex(x, y, canvas.width);
+
+      if (copia[di + 3] === 0) continue;
+
+      let alphaTotal = 0;
+      let count = 0;
+
+      for (let yy = -suavizacao; yy <= suavizacao; yy++) {
+        for (let xx = -suavizacao; xx <= suavizacao; xx++) {
+          const ndi = dataIndex(x + xx, y + yy, canvas.width);
+          alphaTotal += copia[ndi + 3];
+          count++;
         }
       }
+
+      data[di + 3] = alphaTotal / count;
+    }
+  }
+}
 
       ctx.putImageData(imageData, 0, 0);
 
@@ -872,7 +911,7 @@ useEffect(() => {
               <div className="grid grid-cols-3 gap-2">
                 <button
   onClick={() => setModo("assinatura")}
-  className={`rounded-xl px-1 py-3 text-[10px] font-black leading-tight transition ${
+  className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
     modo === "assinatura"
       ? "bg-cyan-500 text-black"
       : "bg-slate-800 text-white"
@@ -883,7 +922,7 @@ useEffect(() => {
 
                 <button
   onClick={() => setModo("objeto")}
-  className={`rounded-xl px-1 py-3 text-[10px] font-black leading-tight transition ${
+  className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
     modo === "objeto"
       ? "bg-cyan-500 text-black"
       : "bg-slate-800 text-white"
@@ -894,7 +933,7 @@ useEffect(() => {
 
 <button
   onClick={() => setModo("pessoa")}
-  className={`rounded-xl px-1 py-3 text-[10px] font-black leading-tight transition ${
+  className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
     modo === "pessoa"
       ? "bg-cyan-500 text-black"
       : "bg-slate-800 text-white"
