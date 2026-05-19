@@ -77,9 +77,9 @@ setTimeout(() => {
     return "academico";
   };
 
-  const [menuAberto, setMenuAberto] = useState<string | null>(null);(
-    descobrirMenuInicial()
-  );
+  const [menuAberto, setMenuAberto] = useState<string | null>(
+  descobrirMenuInicial()
+);
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
   const [funcionario, setFuncionario] = useState<{
   nome?: string;

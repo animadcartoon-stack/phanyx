@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import PhanyxTour from "@/components/tutorial/PhanyxTour";
 
 interface Stats {
   alunos: number;
