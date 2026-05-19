@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import * as bodySegmentation from "@tensorflow-models/body-segmentation";
+import "@tensorflow/tfjs";
 
 type DownloadTipo = "png" | "jpg" | "webp";
-type ModoRemocao = "assinatura" | "objeto";
+type ModoRemocao = "assinatura" | "objeto" | "pessoa";
 
 export default function RemovedorDeFundoClient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -289,7 +291,96 @@ function pareceCorDoFundo(
 });
 }
 
+async function removerFundoPessoa() {
+  if (!imagemOriginal || !canvasRef.current) return;
+
+  setProcessando(true);
+  setErro("");
+
+  try {
+    const img = new Image();
+    img.src = imagemOriginal;
+
+    img.onload = async () => {
+      const canvas = canvasRef.current!;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+      if (!ctx) {
+        setErro("Não foi possível processar a imagem.");
+        setProcessando(false);
+        return;
+      }
+
+      const maxWidth = 1200;
+      const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const segmenter = await bodySegmentation.createSegmenter(
+        bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation,
+        {
+          runtime: "mediapipe",
+          solutionPath:
+            "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
+          modelType: "general",
+        }
+      );
+
+      const pessoas = await segmenter.segmentPeople(canvas);
+
+      if (!pessoas || pessoas.length === 0) {
+        setErro("Não consegui detectar uma pessoa principal nessa imagem.");
+        setProcessando(false);
+        return;
+      }
+
+      const foreground = await bodySegmentation.toBinaryMask(
+        pessoas,
+        { r: 255, g: 255, b: 255, a: 255 },
+        { r: 0, g: 0, b: 0, a: 0 }
+      );
+
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      const maskData = foreground.data;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const alphaMascara = maskData[i + 3];
+
+        if (alphaMascara === 0) {
+          data[i + 3] = 0;
+        } else {
+          data[i + 3] = Math.round(255 * (opacidade / 100));
+        }
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+
+      setImagemFinal(canvas.toDataURL("image/png"));
+      setProcessando(false);
+    };
+
+    img.onerror = () => {
+      setErro("Erro ao carregar imagem.");
+      setProcessando(false);
+    };
+  } catch (error) {
+    console.error(error);
+    setErro("Não foi possível usar o modo Pessoa / Foto nessa imagem.");
+    setProcessando(false);
+  }
+}
+
   function removerFundo() {
+    
+    if (modo === "pessoa") {
+  removerFundoPessoa();
+  return;
+}
     if (!imagemOriginal || !canvasRef.current) return;
 
     setProcessando(true);
@@ -800,6 +891,18 @@ useEffect(() => {
                 >
                   Objeto
                 </button>
+
+<button
+  onClick={() => setModo("pessoa")}
+  className={`rounded-xl px-4 py-3 font-bold ${
+    modo === "pessoa"
+      ? "bg-cyan-500 text-black"
+      : "bg-slate-800"
+  }`}
+>
+  Pessoa / Foto
+</button>
+
               </div>
             </div>
 
