@@ -59,6 +59,7 @@ export default function RemovedorDeFundoClient() {
   const [pincelAtivo, setPincelAtivo] = useState(false);
   const [ferramentaPincel, setFerramentaPincel] = useState<FerramentaPincel>("apagar");
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
+  const [usarPressaoCaneta, setUsarPressaoCaneta] = useState(true);
 
   function carregarImagem(file: File) {
     setErro("");
@@ -333,7 +334,7 @@ export default function RemovedorDeFundoClient() {
     setImagemBaseEdicao(baseCanvas.toDataURL("image/png"));
   }
 
-  function iniciarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
+  function iniciarPincelResultado(e: React.PointerEvent<HTMLImageElement>) {
     if (!pincelAtivo || !imagemFinal) return;
 
     historicoEdicaoRef.current = [
@@ -371,7 +372,7 @@ export default function RemovedorDeFundoClient() {
     };
   }
 
-  function aplicarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
+  function aplicarPincelResultado(e: React.PointerEvent<HTMLImageElement>) {
   if (!pincelAtivo || !canvasRef.current || !imagemBaseEdicao) return;
 
   const imgResultado = e.currentTarget;
@@ -412,8 +413,13 @@ export default function RemovedorDeFundoClient() {
       canvas.height
     ).data;
 
-    const raio = Math.max(2, tamanhoPincel / 2);
-    const raioQuadrado = raio * raio;
+    const pressao =
+  usarPressaoCaneta && e.pointerType === "pen"
+    ? Math.max(0.15, e.pressure || 0.5)
+    : 1;
+
+const raio = Math.max(2, (tamanhoPincel * pressao) / 2);
+const raioQuadrado = raio * raio;
 
     const anterior = ultimoPontoPincelRef.current ?? { x, y };
 
@@ -1294,16 +1300,19 @@ export default function RemovedorDeFundoClient() {
                 src={imagemFinal}
                 alt="Resultado em refinamento"
                 draggable={false}
-                onMouseDown={iniciarPincelResultado}
-                onMouseMove={(e) => {
+                onPointerDown={(e) => {
+  e.currentTarget.setPointerCapture(e.pointerId);
+  iniciarPincelResultado(e as any);
+}}
+                onPointerMove={(e) => {
                   if (!pincelAtivo || !editandoPincelRef.current) return;
                   aplicarPincelResultado(e);
                 }}
-                onMouseUp={() => {
+                onPointerUp={() => {
   editandoPincelRef.current = false;
   ultimoPontoPincelRef.current = null;
 }}
-                onMouseLeave={() => {
+                onPointerLeave={() => {
   editandoPincelRef.current = false;
   ultimoPontoPincelRef.current = null;
 }}
@@ -1656,11 +1665,14 @@ export default function RemovedorDeFundoClient() {
                     src={imagemFinal}
                     alt="Resultado transparente"
                     draggable={false}
-                    onMouseDown={iniciarPincelResultado}
-                    onMouseMove={(e) => {
-                      if (!pincelAtivo || !editandoPincelRef.current) return;
-                      aplicarPincelResultado(e);
-                    }}
+                    onPointerDown={(e) => {
+  e.currentTarget.setPointerCapture(e.pointerId);
+  iniciarPincelResultado(e);
+}}
+                    onPointerMove={(e) => {
+  if (!pincelAtivo || !editandoPincelRef.current) return;
+  aplicarPincelResultado(e);
+}}
                     onMouseUp={() => {
                       editandoPincelRef.current = false;
                     }}
@@ -1764,6 +1776,15 @@ export default function RemovedorDeFundoClient() {
                         max={90}
                         onChange={setTamanhoPincel}
                       />
+
+<label className="mt-2 flex cursor-pointer items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-xs text-cyan-100">
+  <input
+    type="checkbox"
+    checked={usarPressaoCaneta}
+    onChange={(e) => setUsarPressaoCaneta(e.target.checked)}
+  />
+  Usar pressão da caneta/mesa digitalizadora
+</label>
 
                       <p className="text-[10px] leading-tight text-cyan-100/80">
                         Dica: dê zoom com o scroll, arraste para aproximar o detalhe e pinte sobre o resultado.
