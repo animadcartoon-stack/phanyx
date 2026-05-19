@@ -311,7 +311,7 @@ async function removerFundoPessoa() {
         return;
       }
 
-      const maxWidth = 1200;
+      const maxWidth = 2000;
       const scale = img.width > maxWidth ? maxWidth / img.width : 1;
 
       canvas.width = Math.round(img.width * scale);
@@ -339,14 +339,33 @@ async function removerFundoPessoa() {
       }
 
       const foreground = await bodySegmentation.toBinaryMask(
-        pessoas,
-        { r: 255, g: 255, b: 255, a: 255 },
-        { r: 0, g: 0, b: 0, a: 0 }
-      );
+  pessoas,
+  { r: 255, g: 255, b: 255, a: 255 },
+  { r: 0, g: 0, b: 0, a: 0 },
+  false,
+  0.72
+);
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
       const maskData = foreground.data;
+
+      const largura = canvas.width;
+const altura = canvas.height;
+
+const alphaMask = new Uint8Array(largura * altura);
+
+for (let i = 0; i < largura * altura; i++) {
+  alphaMask[i] = maskData[i * 4 + 3] > 0 ? 255 : 0;
+}
+
+const principal = encontrarObjetoPrincipal(alphaMask, largura, altura);
+
+for (let i = 0; i < largura * altura; i++) {
+  if (!principal.has(i)) {
+    maskData[i * 4 + 3] = 0;
+  }
+}
 
       for (let i = 0; i < data.length; i += 4) {
   const alphaMascara = maskData[i + 3];
@@ -394,6 +413,57 @@ if (suavizacao > 0) {
 
       data[di + 3] = alphaTotal / count;
     }
+  }
+}
+
+const copiaBuracos = new Uint8ClampedArray(data);
+
+for (let y = 1; y < canvas.height - 1; y++) {
+  for (let x = 1; x < canvas.width - 1; x++) {
+    const di = dataIndex(x, y, canvas.width);
+
+    if (copiaBuracos[di + 3] > 0) continue;
+
+    let vizinhos = 0;
+
+    for (let yy = -1; yy <= 1; yy++) {
+      for (let xx = -1; xx <= 1; xx++) {
+        const ndi = dataIndex(x + xx, y + yy, canvas.width);
+
+        if (copiaBuracos[ndi + 3] > 0) {
+          vizinhos++;
+        }
+      }
+    }
+
+    if (vizinhos >= 7) {
+      data[di + 3] = 180;
+    }
+  }
+}
+
+const copiaAlpha = new Uint8ClampedArray(data);
+
+for (let y = 2; y < canvas.height - 2; y++) {
+  for (let x = 2; x < canvas.width - 2; x++) {
+    const di = dataIndex(x, y, canvas.width);
+
+    if (copiaAlpha[di + 3] === 0) continue;
+
+    let alphaTotal = 0;
+    let count = 0;
+
+    for (let yy = -2; yy <= 2; yy++) {
+      for (let xx = -2; xx <= 2; xx++) {
+        const ndi = dataIndex(x + xx, y + yy, canvas.width);
+        alphaTotal += copiaAlpha[ndi + 3];
+        count++;
+      }
+    }
+
+    const alphaSuave = alphaTotal / count;
+
+    data[di + 3] = alphaSuave;
   }
 }
 
