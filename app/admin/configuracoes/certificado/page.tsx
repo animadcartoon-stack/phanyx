@@ -1372,6 +1372,36 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   );
 }
 
+function temSelecaoTextoLivreAtiva() {
+  if (!campoSelecionado || campoSelecionado.tipo !== "TEXTO_LIVRE") {
+    return false;
+  }
+
+  const range = selecaoTextoRef.current;
+  if (!range) return false;
+
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionado.id}"]`
+  ) as HTMLElement | null;
+
+  if (!editor) return false;
+
+  return editor.contains(range.commonAncestorContainer);
+}
+
+function aplicarEstiloTextoOuCampoInteiro(
+  chave: keyof CampoCertificado,
+  valor: any,
+  estilo: React.CSSProperties
+) {
+  if (temSelecaoTextoLivreAtiva()) {
+    aplicarEstiloTextoSelecionado(estilo);
+    return;
+  }
+
+  atualizarCampoLocal(chave as any, valor);
+}
+
  function iniciarDrag(
   event: MouseEvent<HTMLDivElement>,
   campo: CampoCertificado
@@ -4791,7 +4821,16 @@ return;
                   </label>
                   <select
                     value={campoSelecionado?.fonte || "Helvetica"}
-                    onChange={(e) => atualizarCampoLocal("fonte", e.target.value)}
+                    onMouseDown={(e) => {
+                      if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+                        e.preventDefault();
+                      }
+                    }}
+                    onChange={(e) =>
+                      aplicarEstiloTextoOuCampoInteiro("fonte", e.target.value, {
+                        fontFamily: e.target.value,
+                      })
+                    }
                     className="w-full rounded-xl border border-slate-300 px-3 py-2"
                   >
                     {FONTES.map((fonte) => (
@@ -4808,14 +4847,12 @@ return;
 <div className="mt-3 flex gap-2">
   <button
     type="button"
-    onClick={() => {
-  if (campoSelecionado.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado({ fontWeight: "700" });
-    return;
-  }
-
-  atualizarCampoLocal("negrito", !campoSelecionado.negrito);
-}}
+    onMouseDown={(e) => e.preventDefault()}
+onClick={() =>
+  aplicarEstiloTextoOuCampoInteiro("negrito", !campoSelecionado.negrito, {
+    fontWeight: "700",
+  })
+}
     className={`px-3 py-1 rounded border text-sm ${
       campoSelecionado.negrito
         ? "bg-blue-600 text-white"
@@ -4827,14 +4864,12 @@ return;
 
   <button
     type="button"
-   onClick={() => {
-  if (campoSelecionado.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado({ fontStyle: "italic" });
-    return;
-  }
-
-  atualizarCampoLocal("italico", !campoSelecionado.italico);
-}}
+   onMouseDown={(e) => e.preventDefault()}
+onClick={() =>
+  aplicarEstiloTextoOuCampoInteiro("italico", !campoSelecionado.italico, {
+    fontStyle: "italic",
+  })
+}
     className={`px-3 py-1 rounded border text-sm italic ${
       campoSelecionado.italico
         ? "bg-blue-600 text-white"
@@ -4846,14 +4881,12 @@ return;
 
   <button
     type="button"
-    onClick={() => {
-  if (campoSelecionado.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado({ textDecoration: "underline" });
-    return;
-  }
-
-  atualizarCampoLocal("sublinhado", !campoSelecionado.sublinhado);
-}}
+    onMouseDown={(e) => e.preventDefault()}
+onClick={() =>
+  aplicarEstiloTextoOuCampoInteiro("sublinhado", !campoSelecionado.sublinhado, {
+    textDecoration: "underline",
+  })
+}
     className={`px-3 py-1 rounded border text-sm underline ${
       campoSelecionado.sublinhado
         ? "bg-blue-600 text-white"
@@ -4877,7 +4910,10 @@ return;
       ? tamanhoSelecaoTexto
       : campoSelecionado?.tamanho ?? 18
   }
-  onMouseDown={() => {
+  onMouseDown={(e) => {
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    e.preventDefault();
+  }
     const selecao = window.getSelection();
 
     if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
@@ -4885,21 +4921,13 @@ return;
     }
   }}
   onChange={(e) => {
-    const tamanho = Number(e.target.value);
-    setTamanhoSelecaoTexto(tamanho);
+  const tamanho = Number(e.target.value);
+  setTamanhoSelecaoTexto(tamanho);
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-      if (!selecaoTextoRef.current) return;
-
-      aplicarEstiloTextoSelecionado({
-        fontSize: `${tamanho}px`,
-      });
-
-      return;
-    }
-
-    atualizarCampoLocal("tamanho", tamanho);
-  }}
+  aplicarEstiloTextoOuCampoInteiro("tamanho", tamanho, {
+    fontSize: `${tamanho}px`,
+  });
+}}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
 />
    
@@ -5910,18 +5938,44 @@ iniciarDrag(event as any, c);
       🌫️ Sombra projetada
     </button>
 
-    <button
-      type="button"
-      onClick={() => {
-  aplicarEstiloTextoSelecionado({
-  WebkitTextStroke: "1px #000000",
-} as React.CSSProperties);
-  setMenuContexto(null);
-}}
-      className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
-    >
-      ⭕ Contorno do texto
-    </button>
+    <div className="px-3 py-2">
+  <p className="mb-2 text-xs font-bold text-slate-500">
+    ⭕ Contorno do texto
+  </p>
+
+  <label className="mb-1 block text-[11px] font-semibold text-slate-500">
+    Cor do contorno
+  </label>
+  <input
+    type="color"
+    defaultValue="#000000"
+    onMouseDown={(e) => e.preventDefault()}
+    onChange={(e) => {
+      aplicarEstiloTextoSelecionado({
+        WebkitTextStrokeColor: e.target.value,
+      } as React.CSSProperties);
+    }}
+    className="mb-3 h-9 w-full cursor-pointer rounded-lg border"
+  />
+
+  <label className="mb-1 block text-[11px] font-semibold text-slate-500">
+    Espessura do contorno
+  </label>
+  <input
+    type="range"
+    min={0}
+    max={6}
+    step={0.5}
+    defaultValue={1}
+    onMouseDown={(e) => e.preventDefault()}
+    onChange={(e) => {
+      aplicarEstiloTextoSelecionado({
+        WebkitTextStrokeWidth: `${e.target.value}px`,
+      } as React.CSSProperties);
+    }}
+    className="w-full"
+  />
+</div>
   </>
 )}
 
