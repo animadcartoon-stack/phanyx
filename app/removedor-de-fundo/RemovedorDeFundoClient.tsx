@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "@tensorflow/tfjs";
+import CropImageModal from "./components/CropImageModal";
 
 type DownloadTipo = "png" | "jpg" | "webp";
 type ModoRemocao = "assinatura" | "objeto" | "pessoa";
@@ -23,6 +24,8 @@ export default function RemovedorDeFundoClient() {
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
   const [imagemBaseEdicao, setImagemBaseEdicao] = useState<string | null>(null);
+
+  const [modalCorteAberto, setModalCorteAberto] = useState(false);
 
   const [fundoPreview, setFundoPreview] = useState<
     "xadrez" | "verde" | "azul" | "preto" | "branco"
@@ -1328,6 +1331,17 @@ const raioQuadrado = raio * raio;
         </div>
       )}
 
+<CropImageModal
+  imagem={imagemOriginal || ""}
+  aberto={modalCorteAberto}
+  onClose={() => setModalCorteAberto(false)}
+  onAplicar={(novaImagem) => {
+    setImagemOriginal(novaImagem);
+    setImagemFinal(null);
+    setModalCorteAberto(false);
+  }}
+/>
+
       <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10">
@@ -1364,6 +1378,15 @@ const raioQuadrado = raio * raio;
                   }}
                 />
               </label>
+
+<button
+  type="button"
+  disabled={!imagemOriginal}
+  onClick={() => setModalCorteAberto(true)}
+  className="w-full rounded-2xl bg-slate-800 px-4 py-3 text-sm font-black text-white disabled:opacity-40"
+>
+  Cortar imagem
+</button>
 
               <div className="rounded-2xl bg-slate-900 p-3">
                 <h3 className="mb-2 text-sm font-bold">Modo</h3>
