@@ -190,26 +190,18 @@ img.onload = () => {
   tempCanvas.width = img.naturalWidth;
   tempCanvas.height = img.naturalHeight;
 
-  const tempCtx = tempCanvas.getContext("2d");
+  const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
   if (!tempCtx) return;
 
   tempCtx.drawImage(img, 0, 0);
 
   const pixel = tempCtx.getImageData(x, y, 1, 1).data;
 
-  const r = pixel[0];
-const g = pixel[1];
-const b = pixel[2];
-
-const brilhoPixel = (r + g + b) / 3;
-const diferencaEntreCanais = Math.max(r, g, b) - Math.min(r, g, b);
-
-if (brilhoPixel < 170 || diferencaEntreCanais > 55) {
-  setAviso("Clique em uma área clara do fundo branco, não na moldura.");
-  return;
-}
-
-setCorAlvoManual({ r, g, b });
+  setCorAlvoManual({
+    r: pixel[0],
+    g: pixel[1],
+    b: pixel[2],
+  });
 }
 
   function removerFundo() {
@@ -325,15 +317,17 @@ if (modo === "assinatura") {
         dataIndex(width - 1, height - 1, width),
       ];
 
-      const baseR = Math.round(
-        cantos.reduce((s, i) => s + data[i], 0) / cantos.length
-      );
-      const baseG = Math.round(
-        cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length
-      );
-      const baseB = Math.round(
-        cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length
-      );
+      const baseR = corAlvoManual
+  ? corAlvoManual.r
+  : Math.round(cantos.reduce((s, i) => s + data[i], 0) / cantos.length);
+
+const baseG = corAlvoManual
+  ? corAlvoManual.g
+  : Math.round(cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length);
+
+const baseB = corAlvoManual
+  ? corAlvoManual.b
+  : Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length);
 
       const tolerancia = Math.max(6, sensibilidade * 0.75);
 
@@ -714,7 +708,7 @@ useEffect(() => {
 
 {modo === "objeto" && removerBrancoInterno && (
   <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
-    Clique no fundo branco da imagem original para escolher exatamente a cor que deve ser removida.
+    Clique na imagem original sobre a cor do fundo que você quer remover. Pode ser branco, verde, azul, bege ou qualquer cor.
 
     {corAlvoManual && (
       <div className="mt-2 flex items-center gap-2">
