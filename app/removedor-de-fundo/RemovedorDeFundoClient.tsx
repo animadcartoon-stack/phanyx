@@ -342,11 +342,11 @@ export default function RemovedorDeFundoClient() {
         });
 
         const segmentation = await net.segmentMultiPerson(canvas, {
-  internalResolution: "full",
-  segmentationThreshold: 0.85,
+  internalResolution: "medium",
+  segmentationThreshold: 0.7,
   maxDetections: 2,
-  scoreThreshold: 0.55,
-  nmsRadius: 30,
+  scoreThreshold: 0.2,
+  nmsRadius: 20,
 });
 
 if (!segmentation || segmentation.length === 0) {
