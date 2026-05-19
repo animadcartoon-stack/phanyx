@@ -371,6 +371,12 @@ export default function AdminFinanceiroPage() {
   const [tourAberto, setTourAberto] = useState(false);
 
 useEffect(() => {
+  const abrirTour = () => {
+    setTourAberto(true);
+  };
+
+  window.addEventListener("phanyx:abrir-tour-financeiro", abrirTour);
+
   try {
     const oculto = localStorage.getItem("phanyx_financeiro_tour_oculto_v1");
 
@@ -379,11 +385,24 @@ useEffect(() => {
         setTourAberto(true);
       }, 600);
 
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        window.removeEventListener(
+          "phanyx:abrir-tour-financeiro",
+          abrirTour
+        );
+      };
     }
   } catch {
     setTourAberto(true);
   }
+
+  return () => {
+    window.removeEventListener(
+      "phanyx:abrir-tour-financeiro",
+      abrirTour
+    );
+  };
 }, []);
 
 function fecharTourFinanceiro(naoMostrarNovamente?: boolean) {

@@ -20,6 +20,7 @@ export default function RemovedorDeFundoClient() {
   const ultimoMouseResultadoRef = useRef({ x: 0, y: 0 });
   const ultimoPontoPincelRef = useRef<{ x: number; y: number } | null>(null);
   const historicoEdicaoRef = useRef<string[]>([]);
+  const espacoPressionadoRef = useRef(false);
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
@@ -447,14 +448,25 @@ const raioQuadrado = raio * raio;
 
           const di = dataIndex(px, py, canvas.width);
 
-          if (ferramentaPincel === "apagar") {
-            data[di + 3] = 0;
-          } else {
-            data[di] = baseData[di];
-            data[di + 1] = baseData[di + 1];
-            data[di + 2] = baseData[di + 2];
-            data[di + 3] = Math.round(255 * (opacidade / 100));
-          }
+          const distanciaCentro = Math.sqrt(dx * dx + dy * dy);
+const forca = Math.max(0, 1 - distanciaCentro / raio);
+const suavidade = forca * forca;
+
+if (ferramentaPincel === "apagar") {
+  data[di + 3] = Math.round(data[di + 3] * (1 - suavidade));
+} else {
+  data[di] = Math.round(data[di] + (baseData[di] - data[di]) * suavidade);
+  data[di + 1] = Math.round(
+    data[di + 1] + (baseData[di + 1] - data[di + 1]) * suavidade
+  );
+  data[di + 2] = Math.round(
+    data[di + 2] + (baseData[di + 2] - data[di + 2]) * suavidade
+  );
+  data[di + 3] = Math.round(
+    data[di + 3] +
+      (Math.round(255 * (opacidade / 100)) - data[di + 3]) * suavidade
+  );
+}
         }
       }
     }
@@ -996,6 +1008,39 @@ const raioQuadrado = raio * raio;
     function controlarZoomPeloTeclado(e: KeyboardEvent) {
       if (!imagemFinal) return;
 
+      if (e.code === "Space") {
+  e.preventDefault();
+  espacoPressionadoRef.current = true;
+  return;
+}
+
+if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+  e.preventDefault();
+  desfazerUltimoPincel();
+  return;
+}
+
+if (e.key === "[") {
+  e.preventDefault();
+  setTamanhoPincel((v) => Math.max(4, v - 2));
+  return;
+}
+
+if (e.key === "]") {
+  e.preventDefault();
+  setTamanhoPincel((v) => Math.min(120, v + 2));
+  return;
+}
+
+if (e.key.toLowerCase() === "x") {
+  e.preventDefault();
+  setFerramentaPincel((atual) =>
+    atual === "apagar" ? "restaurar" : "apagar"
+  );
+  setPincelAtivo(true);
+  return;
+}
+
       if (e.key === "+" || e.key === "=") {
         e.preventDefault();
         setZoomResultado((z) => Math.min(5, Number((z + 0.1).toFixed(2))));
@@ -1015,9 +1060,19 @@ const raioQuadrado = raio * raio;
 
     window.addEventListener("keydown", controlarZoomPeloTeclado);
 
+    function soltarEspaco(e: KeyboardEvent) {
+  if (e.code === "Space") {
+    espacoPressionadoRef.current = false;
+  }
+}
+
+window.addEventListener("keyup", soltarEspaco);
+
     return () => {
       window.removeEventListener("keydown", controlarZoomPeloTeclado);
+      window.removeEventListener("keyup", soltarEspaco);
     };
+    
   }, [imagemFinal]);
 
   useEffect(() => {
@@ -1263,7 +1318,7 @@ const raioQuadrado = raio * raio;
                 );
               }}
               onMouseDown={(e) => {
-                if (pincelAtivo) return;
+                if (pincelAtivo && !espacoPressionadoRef.current) return;
 
                 arrastandoResultadoRef.current = true;
                 ultimoMouseResultadoRef.current = {
@@ -1272,7 +1327,11 @@ const raioQuadrado = raio * raio;
                 };
               }}
               onMouseMove={(e) => {
-                if (!arrastandoResultadoRef.current || pincelAtivo) return;
+                if (
+  !arrastandoResultadoRef.current ||
+  (pincelAtivo && !espacoPressionadoRef.current)
+)
+  return;
 
                 const dx = e.clientX - ultimoMouseResultadoRef.current.x;
                 const dy = e.clientY - ultimoMouseResultadoRef.current.y;
