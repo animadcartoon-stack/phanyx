@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import * as bodySegmentation from "@tensorflow-models/body-segmentation";
 import * as bodyPix from "@tensorflow-models/body-pix";
 import "@tensorflow/tfjs";
 
 type DownloadTipo = "png" | "jpg" | "webp";
 type ModoRemocao = "assinatura" | "objeto" | "pessoa";
+type MotorPessoa = "mediapipe" | "bodypix";
 
 export default function RemovedorDeFundoClient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -35,6 +37,7 @@ export default function RemovedorDeFundoClient() {
   const [panResultado, setPanResultado] = useState({ x: 0, y: 0 });
   const [intensidadeTraco, setIntensidadeTraco] = useState(60);
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
+  const [motorPessoa, setMotorPessoa] = useState<MotorPessoa>("mediapipe");
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
 
@@ -305,7 +308,7 @@ export default function RemovedorDeFundoClient() {
     });
   }
 
-  async function removerFundoPessoa() {
+  async function removerFundoPessoaMediaPipe() {
     if (!imagemOriginal || !canvasRef.current) return;
 
     setProcessando(true);
@@ -325,7 +328,7 @@ export default function RemovedorDeFundoClient() {
           return;
         }
 
-        const maxWidth = 2200;
+        const maxWidth = 1800;
         const scale = img.width > maxWidth ? maxWidth / img.width : 1;
 
         canvas.width = Math.round(img.width * scale);
@@ -334,53 +337,43 @@ export default function RemovedorDeFundoClient() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-        const net = await bodyPix.load({
-          architecture: "ResNet50",
-          outputStride: 16,
-          multiplier: 1,
-          quantBytes: 2,
-        });
+        const segmenter = await bodySegmentation.createSegmenter(
+          bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation,
+          {
+            runtime: "mediapipe",
+            solutionPath:
+              "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
+            modelType: "general",
+          }
+        );
 
-        const segmentation = await net.segmentMultiPerson(canvas, {
-  internalResolution: "medium",
-  segmentationThreshold: 0.7,
-  maxDetections: 2,
-  scoreThreshold: 0.2,
-  nmsRadius: 20,
-});
+        const pessoas = await segmenter.segmentPeople(canvas);
 
-if (!segmentation || segmentation.length === 0) {
-  setErro("Não consegui detectar pessoas nessa imagem.");
-  setProcessando(false);
-  return;
-}
+        if (!pessoas || pessoas.length === 0) {
+          setErro("Não consegui detectar uma pessoa principal nessa imagem.");
+          setProcessando(false);
+          return;
+        }
 
-const pessoasPrincipais = [...segmentation]
-  .map((pessoa) => ({
-    pessoa,
-    area: pessoa.data.reduce((total, pixel) => total + (pixel ? 1 : 0), 0),
-  }))
-  .sort((a, b) => b.area - a.area)
-  .slice(0, 2)
-  .map((item) => item.pessoa);
+        const foreground = await bodySegmentation.toBinaryMask(
+          pessoas,
+          { r: 255, g: 255, b: 255, a: 255 },
+          { r: 0, g: 0, b: 0, a: 0 },
+          true,
+          0.55
+        );
 
-const mask = bodyPix.toMask(
-  pessoasPrincipais,
-  { r: 255, g: 255, b: 255, a: 255 },
-  { r: 0, g: 0, b: 0, a: 0 }
-);
-
-const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-const data = imageData.data;
-const maskData = mask.data;
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const maskData = foreground.data;
 
         for (let i = 0; i < data.length; i += 4) {
-  const alphaMascara = maskData[i + 3];
+          const alphaMascara = maskData[i + 3];
 
-  if (alphaMascara === 0) {
-    data[i + 3] = 0;
-    continue;
-  }
+          if (alphaMascara === 0) {
+            data[i + 3] = 0;
+            continue;
+          }
 
           let r = data[i];
           let g = data[i + 1];
@@ -410,9 +403,131 @@ const maskData = mask.data;
       };
     } catch (error) {
       console.error(error);
-      setErro("Não foi possível remover o fundo dessa foto.");
+      setErro("Não foi possível usar o modo Pessoa Rápido nessa imagem.");
       setProcessando(false);
     }
+  }
+
+  async function removerFundoPessoaBodyPix() {
+    if (!imagemOriginal || !canvasRef.current) return;
+
+    setProcessando(true);
+    setErro("");
+
+    try {
+      const img = new Image();
+      img.src = imagemOriginal;
+
+      img.onload = async () => {
+        const canvas = canvasRef.current!;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+        if (!ctx) {
+          setErro("Não foi possível processar a imagem.");
+          setProcessando(false);
+          return;
+        }
+
+        const maxWidth = 1800;
+        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const net = await bodyPix.load({
+          architecture: "MobileNetV1",
+          outputStride: 16,
+          multiplier: 0.75,
+          quantBytes: 2,
+        });
+
+        const segmentation = await net.segmentMultiPerson(canvas, {
+          internalResolution: "medium",
+          segmentationThreshold: 0.7,
+          maxDetections: 2,
+          scoreThreshold: 0.2,
+          nmsRadius: 20,
+        });
+
+        if (!segmentation || segmentation.length === 0) {
+          setErro("Não consegui detectar pessoas nessa imagem.");
+          setProcessando(false);
+          return;
+        }
+
+        const pessoasPrincipais = [...segmentation]
+          .map((pessoa) => ({
+            pessoa,
+            area: pessoa.data.reduce(
+              (total, pixel) => total + (pixel ? 1 : 0),
+              0
+            ),
+          }))
+          .sort((a, b) => b.area - a.area)
+          .slice(0, 2)
+          .map((item) => item.pessoa);
+
+        const mask = bodyPix.toMask(
+          pessoasPrincipais,
+          { r: 255, g: 255, b: 255, a: 255 },
+          { r: 0, g: 0, b: 0, a: 0 }
+        );
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const maskData = mask.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const alphaMascara = maskData[i + 3];
+
+          if (alphaMascara === 0) {
+            data[i + 3] = 0;
+            continue;
+          }
+
+          let r = data[i];
+          let g = data[i + 1];
+          let b = data[i + 2];
+
+          r = ajustarCanal(r, brilho, contraste);
+          g = ajustarCanal(g, brilho, contraste);
+          b = ajustarCanal(b, brilho, contraste);
+
+          const sat = aplicarSaturacao(r, g, b, saturacao);
+
+          data[i] = sat.r;
+          data[i + 1] = sat.g;
+          data[i + 2] = sat.b;
+          data[i + 3] = Math.round(alphaMascara * (opacidade / 100));
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+
+        setImagemFinal(canvas.toDataURL("image/png"));
+        setProcessando(false);
+      };
+
+      img.onerror = () => {
+        setErro("Erro ao carregar imagem.");
+        setProcessando(false);
+      };
+    } catch (error) {
+      console.error(error);
+      setErro("Não foi possível usar o modo Pessoa Alternativo nessa imagem.");
+      setProcessando(false);
+    }
+  }
+
+  function removerFundoPessoa() {
+    if (motorPessoa === "mediapipe") {
+      removerFundoPessoaMediaPipe();
+      return;
+    }
+
+    removerFundoPessoaBodyPix();
   }
 
   function removerFundo() {
@@ -767,6 +882,7 @@ const maskData = mask.data;
     opacidade,
     intensidadeTraco,
     modo,
+    motorPessoa,
     manterObjetoPrincipal,
     removerBrancoInterno,
     coresAlvoManuais,
@@ -975,6 +1091,45 @@ const maskData = mask.data;
                 </div>
               </div>
 
+              {modo === "pessoa" && (
+                <div className="rounded-2xl bg-slate-900 p-3">
+                  <p className="mb-2 text-xs font-bold text-white">
+                    Motor de recorte
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setMotorPessoa("mediapipe")}
+                      className={`rounded-lg px-2 py-2 text-[10px] font-black ${
+                        motorPessoa === "mediapipe"
+                          ? "bg-cyan-400 text-slate-950"
+                          : "bg-slate-800 text-white"
+                      }`}
+                    >
+                      Rápido
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setMotorPessoa("bodypix")}
+                      className={`rounded-lg px-2 py-2 text-[10px] font-black ${
+                        motorPessoa === "bodypix"
+                          ? "bg-cyan-400 text-slate-950"
+                          : "bg-slate-800 text-white"
+                      }`}
+                    >
+                      Alternativo
+                    </button>
+                  </div>
+
+                  <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">
+                    Se o recorte não ficar bom em um modo, teste o outro. Cada
+                    foto pode responder melhor a um motor diferente.
+                  </p>
+                </div>
+              )}
+
               {modo === "assinatura" && (
                 <div className="rounded-xl bg-slate-900 p-3">
                   <p className="mb-2 text-xs font-bold text-white">
@@ -1020,14 +1175,16 @@ const maskData = mask.data;
                 </label>
               )}
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
-                <input
-                  type="checkbox"
-                  checked={removerBrancoInterno}
-                  onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
-                />
-                Remover branco interno
-              </label>
+              {modo !== "pessoa" && (
+                <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={removerBrancoInterno}
+                    onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
+                  />
+                  Remover branco interno
+                </label>
+              )}
 
               {modo === "objeto" && removerBrancoInterno && (
                 <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
