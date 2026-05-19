@@ -1760,10 +1760,10 @@ if (campoSelecionado.tipo === "IMAGEM") {
       y: campoSelecionado.y,
       largura: campoSelecionado.largura || 220,
       altura: campoSelecionado.altura || 40,
-      fonte: campoSelecionado.fonte || "Helvetica",
-      tamanho: campoSelecionado.tamanho || 18,
-      cor: campoSelecionado.cor || "#1e3a8a",
-      alinhamento: campoSelecionado.alinhamento || "left",
+      fonte: campoSelecionado?.fonte || "Helvetica",
+      tamanho: campoSelecionado?.tamanho || 18,
+      cor: campoSelecionado?.cor || "#1e3a8a",
+      alinhamento: campoSelecionado?.alinhamento || "left",
       ordem: campoSelecionado.ordem || 1,
       negrito: campoSelecionado.negrito || false,
       italico: campoSelecionado.italico || false,
@@ -2320,7 +2320,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
 
     <input
   type="color"
-  value={campoSelecionado.cor || "#1e3a8a"}
+  value={campoSelecionado?.cor || "#1e3a8a"}
   onMouseDown={() => {
     const selecao = window.getSelection();
 
@@ -4798,7 +4798,7 @@ return;
                     Fonte
                   </label>
                   <select
-                    value={campoSelecionado.fonte || "Helvetica"}
+                    value={campoSelecionado?.fonte || "Helvetica"}
                     onChange={(e) => atualizarCampoLocal("fonte", e.target.value)}
                     className="w-full rounded-xl border border-slate-300 px-3 py-2"
                   >
@@ -4879,7 +4879,7 @@ return;
   type="number"
   min={6}
   max={120}
-  value={campoSelecionado.tamanho ?? 18}
+  value={campoSelecionado?.tamanho ?? 18}
   onChange={(e) => {
     const tamanho = Number(e.target.value);
 
@@ -4901,7 +4901,7 @@ return;
                   </label>
                   <input
   type="color"
-  value={campoSelecionado.cor || "#1e3a8a"}
+  value={campoSelecionado?.cor || "#1e3a8a"}
   onMouseDown={() => {
     const selecao = window.getSelection();
 
@@ -4934,7 +4934,7 @@ return;
                     Alinhamento
                   </label>
                   <select
-                    value={campoSelecionado.alinhamento || "left"}
+                    value={campoSelecionado?.alinhamento || "left"}
                     onChange={(e) =>
                       atualizarCampoLocal("alinhamento", e.target.value)
                     }
