@@ -17,6 +17,7 @@ export default function RemovedorDeFundoClient() {
   const editandoPincelRef = useRef(false);
   const arrastandoResultadoRef = useRef(false);
   const ultimoMouseResultadoRef = useRef({ x: 0, y: 0 });
+  const historicoEdicaoRef = useRef<string[]>([]);
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
@@ -53,6 +54,7 @@ export default function RemovedorDeFundoClient() {
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
   const [mostrarAjuda, setMostrarAjuda] = useState(false);
+  const [modalRefinamentoAberto, setModalRefinamentoAberto] = useState(false);
   const [pincelAtivo, setPincelAtivo] = useState(false);
   const [ferramentaPincel, setFerramentaPincel] = useState<FerramentaPincel>("apagar");
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
@@ -62,6 +64,7 @@ export default function RemovedorDeFundoClient() {
     setImagemFinal(null);
     setImagemBaseEdicao(null);
     setPincelAtivo(false);
+    historicoEdicaoRef.current = [];
     setCoresAlvoManuais([]);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
@@ -329,12 +332,50 @@ export default function RemovedorDeFundoClient() {
     setImagemBaseEdicao(baseCanvas.toDataURL("image/png"));
   }
 
-  function aplicarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
-    if (!pincelAtivo || !imagemFinal || !imagemBaseEdicao || !imagemResultadoRef.current) {
+  function iniciarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
+    if (!pincelAtivo || !imagemFinal) return;
+
+    historicoEdicaoRef.current = [
+      ...historicoEdicaoRef.current.slice(-14),
+      imagemFinal,
+    ];
+
+    editandoPincelRef.current = true;
+    aplicarPincelResultado(e);
+  }
+
+  function desfazerUltimoPincel() {
+    const anterior = historicoEdicaoRef.current.pop();
+
+    if (!anterior) {
+      setAviso("Ainda não há edição manual para desfazer.");
       return;
     }
 
-    const imgResultado = imagemResultadoRef.current;
+    setImagemFinal(anterior);
+
+    const img = new Image();
+    img.src = anterior;
+
+    img.onload = () => {
+      const canvasPrincipal = canvasRef.current;
+      const ctxPrincipal = canvasPrincipal?.getContext("2d");
+
+      if (canvasPrincipal && ctxPrincipal) {
+        canvasPrincipal.width = img.naturalWidth;
+        canvasPrincipal.height = img.naturalHeight;
+        ctxPrincipal.clearRect(0, 0, canvasPrincipal.width, canvasPrincipal.height);
+        ctxPrincipal.drawImage(img, 0, 0);
+      }
+    };
+  }
+
+  function aplicarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
+    if (!pincelAtivo || !imagemFinal || !imagemBaseEdicao) {
+      return;
+    }
+
+    const imgResultado = e.currentTarget;
     const rect = imgResultado.getBoundingClientRect();
 
     const x = Math.floor(((e.clientX - rect.left) / rect.width) * imgResultado.naturalWidth);
@@ -1126,6 +1167,157 @@ export default function RemovedorDeFundoClient() {
         </div>
       )}
 
+      {modalRefinamentoAberto && imagemFinal && (
+        <div className="fixed inset-0 z-[60] bg-slate-950/95 p-4 text-white">
+          <div className="mx-auto flex h-full max-w-7xl flex-col">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3">
+              <div>
+                <h2 className="text-xl font-black text-cyan-200">
+                  Refinamento manual em tela grande
+                </h2>
+                <p className="text-xs text-slate-300">
+                  Use o pincel para apagar sobras ou restaurar partes. Dê zoom com o scroll.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFerramentaPincel("apagar")}
+                  className={`rounded-xl px-3 py-2 text-xs font-black ${
+                    ferramentaPincel === "apagar"
+                      ? "bg-cyan-400 text-slate-950"
+                      : "bg-slate-800 text-white"
+                  }`}
+                >
+                  Apagar sobra
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFerramentaPincel("restaurar")}
+                  className={`rounded-xl px-3 py-2 text-xs font-black ${
+                    ferramentaPincel === "restaurar"
+                      ? "bg-cyan-400 text-slate-950"
+                      : "bg-slate-800 text-white"
+                  }`}
+                >
+                  Restaurar parte
+                </button>
+
+                <button
+                  type="button"
+                  onClick={desfazerUltimoPincel}
+                  className="rounded-xl border border-white/20 px-3 py-2 text-xs font-black text-white hover:bg-white/10"
+                >
+                  Desfazer
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setZoomResultado(1);
+                    setPanResultado({ x: 0, y: 0 });
+                  }}
+                  className="rounded-xl border border-white/20 px-3 py-2 text-xs font-black text-white hover:bg-white/10"
+                >
+                  Reset zoom
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setModalRefinamentoAberto(false)}
+                  className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white hover:bg-red-400"
+                >
+                  Fechar
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3">
+              <Controle
+                label="Tamanho do pincel"
+                valor={tamanhoPincel}
+                min={4}
+                max={120}
+                onChange={setTamanhoPincel}
+              />
+            </div>
+
+            <div
+              onWheel={(e) => {
+                e.preventDefault();
+
+                const direcao = e.deltaY > 0 ? -0.12 : 0.12;
+
+                setZoomResultado((z) =>
+                  Math.max(0.5, Math.min(8, Number((z + direcao).toFixed(2))))
+                );
+              }}
+              onMouseDown={(e) => {
+                if (pincelAtivo) return;
+
+                arrastandoResultadoRef.current = true;
+                ultimoMouseResultadoRef.current = {
+                  x: e.clientX,
+                  y: e.clientY,
+                };
+              }}
+              onMouseMove={(e) => {
+                if (!arrastandoResultadoRef.current || pincelAtivo) return;
+
+                const dx = e.clientX - ultimoMouseResultadoRef.current.x;
+                const dy = e.clientY - ultimoMouseResultadoRef.current.y;
+
+                ultimoMouseResultadoRef.current = {
+                  x: e.clientX,
+                  y: e.clientY,
+                };
+
+                setPanResultado((pan) => ({
+                  x: pan.x + dx,
+                  y: pan.y + dy,
+                }));
+              }}
+              onMouseUp={() => {
+                arrastandoResultadoRef.current = false;
+              }}
+              onMouseLeave={() => {
+                arrastandoResultadoRef.current = false;
+                editandoPincelRef.current = false;
+              }}
+              className="flex min-h-0 flex-1 select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0] p-6"
+              style={{
+                cursor: pincelAtivo ? "crosshair" : "grab",
+              }}
+            >
+              <img
+                src={imagemFinal}
+                alt="Resultado em refinamento"
+                draggable={false}
+                onMouseDown={iniciarPincelResultado}
+                onMouseMove={(e) => {
+                  if (!pincelAtivo || !editandoPincelRef.current) return;
+                  aplicarPincelResultado(e);
+                }}
+                onMouseUp={() => {
+                  editandoPincelRef.current = false;
+                }}
+                onMouseLeave={() => {
+                  editandoPincelRef.current = false;
+                }}
+                className="max-h-[78vh] max-w-full object-contain"
+                style={{
+                  opacity: opacidade / 100,
+                  transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
+                  transformOrigin: "center",
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10">
@@ -1295,7 +1487,7 @@ export default function RemovedorDeFundoClient() {
                     checked={removerBrancoInterno}
                     onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
                   />
-                  Remover cor por clique
+                  Remover branco interno
                 </label>
               )}
 
@@ -1303,8 +1495,9 @@ export default function RemovedorDeFundoClient() {
                 <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      Clique na imagem original sobre cada cor que ainda precisa remover. 
-Pode clicar no rosa principal, no rosa embaixo do papel, sombras ou qualquer restinho de fundo.
+                      Clique na imagem original sobre a cor do fundo que você
+                      quer remover. Pode ser branco, verde, azul, bege ou
+                      qualquer cor.
                     </div>
 
                     <button
@@ -1462,11 +1655,7 @@ Pode clicar no rosa principal, no rosa embaixo do papel, sombras ou qualquer res
                     src={imagemFinal}
                     alt="Resultado transparente"
                     draggable={false}
-                    onMouseDown={(e) => {
-                      if (!pincelAtivo) return;
-                      editandoPincelRef.current = true;
-                      aplicarPincelResultado(e);
-                    }}
+                    onMouseDown={iniciarPincelResultado}
                     onMouseMove={(e) => {
                       if (!pincelAtivo || !editandoPincelRef.current) return;
                       aplicarPincelResultado(e);
@@ -1502,17 +1691,35 @@ Pode clicar no rosa principal, no rosa embaixo do papel, sombras ou qualquer res
                       </p>
                     </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setPincelAtivo((ativo) => !ativo)}
-                      className={`rounded-lg px-3 py-2 text-[10px] font-black ${
-                        pincelAtivo
-                          ? "bg-cyan-400 text-slate-950"
-                          : "bg-slate-800 text-white"
-                      }`}
-                    >
-                      {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
-                    </button>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setModalRefinamentoAberto(true)}
+                        className="rounded-lg bg-cyan-400 px-3 py-2 text-[10px] font-black text-slate-950 hover:bg-cyan-300"
+                      >
+                        Abrir grande
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={desfazerUltimoPincel}
+                        className="rounded-lg border border-white/20 px-3 py-2 text-[10px] font-black text-white hover:bg-white/10"
+                      >
+                        Desfazer
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setPincelAtivo((ativo) => !ativo)}
+                        className={`rounded-lg px-3 py-2 text-[10px] font-black ${
+                          pincelAtivo
+                            ? "bg-cyan-400 text-slate-950"
+                            : "bg-slate-800 text-white"
+                        }`}
+                      >
+                        {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
+                      </button>
+                    </div>
                   </div>
 
                   {pincelAtivo && (
