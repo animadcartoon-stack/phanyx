@@ -872,7 +872,7 @@ useEffect(() => {
               <div className="grid grid-cols-3 gap-2">
                 <button
   onClick={() => setModo("assinatura")}
-  className={`rounded-xl px-2 py-3 text-xs font-bold leading-tight transition ${
+  className={`rounded-xl px-1 py-3 text-[10px] font-black leading-tight transition ${
     modo === "assinatura"
       ? "bg-cyan-500 text-black"
       : "bg-slate-800 text-white"
@@ -883,7 +883,7 @@ useEffect(() => {
 
                 <button
   onClick={() => setModo("objeto")}
-  className={`rounded-xl px-2 py-3 text-xs font-bold leading-tight transition ${
+  className={`rounded-xl px-1 py-3 text-[10px] font-black leading-tight transition ${
     modo === "objeto"
       ? "bg-cyan-500 text-black"
       : "bg-slate-800 text-white"
@@ -894,7 +894,7 @@ useEffect(() => {
 
 <button
   onClick={() => setModo("pessoa")}
-  className={`rounded-xl px-2 py-3 text-xs font-bold leading-tight transition ${
+  className={`rounded-xl px-1 py-3 text-[10px] font-black leading-tight transition ${
     modo === "pessoa"
       ? "bg-cyan-500 text-black"
       : "bg-slate-800 text-white"
