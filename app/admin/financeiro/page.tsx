@@ -231,7 +231,7 @@ function FinanceiroTour({
               <img
                 src={step.mascoteSrc}
                 alt={step.mascoteAlt}
-                className="h-24 w-24 shrink-0 object-contain drop-shadow-lg"
+                className="h-32 w-32 shrink-0 object-contain drop-shadow-lg"
               />
 
               <div className="min-w-0">
