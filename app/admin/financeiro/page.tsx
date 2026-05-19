@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import PhanyxTour from "@/components/tutorial/PhanyxTour";
+import Link from "next/link";
 
 type ResumoFinanceiro = {
   quantidadeLancamentos: number;
@@ -12,6 +12,332 @@ type ResumoFinanceiro = {
   totalAtrasado: number;
   alunosInadimplentes: number;
 };
+
+type FinanceiroTourStep = {
+  id: string;
+  selector: string;
+  titulo: string;
+  descricao: string;
+  mascoteSrc: string;
+  mascoteAlt: string;
+  destaque?: string;
+};
+
+const financeiroTourSteps: FinanceiroTourStep[] = [
+  {
+    id: "recebimentos",
+    selector: '[data-tour="financeiro-recebimentos"]',
+    titulo: "Recebimentos",
+    descricao:
+      "Aqui você acompanha cobranças, registra pagamentos e controla baixas financeiras.",
+    mascoteSrc: "/images/financeiro.png",
+    mascoteAlt: "Mascote financeiro",
+    destaque: "Vamos começar pelos recebimentos.",
+  },
+  {
+    id: "caixa",
+    selector: '[data-tour="financeiro-caixa"]',
+    titulo: "Caixa",
+    descricao:
+      "Abra caixa, registre entradas e saídas e faça fechamento diário.",
+    mascoteSrc: "/images/calculadora.png",
+    mascoteAlt: "Calculadora financeira",
+    destaque: "Controle financeiro diário.",
+  },
+  {
+    id: "inadimplentes",
+    selector: '[data-tour="financeiro-inadimplentes"]',
+    titulo: "Inadimplentes",
+    descricao:
+      "Veja alunos em atraso e acompanhe cobranças pendentes.",
+    mascoteSrc: "/images/financeiro.png",
+    mascoteAlt: "Financeiro",
+    destaque: "Acompanhe inadimplência.",
+  },
+  {
+    id: "fechamento",
+    selector: '[data-tour="financeiro-fechamento"]',
+    titulo: "Fechamento Geral",
+    descricao:
+      "Consolidação de caixas fechados e conferência financeira.",
+    mascoteSrc: "/images/calculadora.png",
+    mascoteAlt: "Calculadora",
+    destaque: "Fechamento consolidado.",
+  },
+  {
+    id: "relatorios",
+    selector: '[data-tour="financeiro-relatorios"]',
+    titulo: "Relatórios",
+    descricao:
+      "Acompanhe indicadores, exportações e visão gerencial.",
+    mascoteSrc: "/images/financeiro.png",
+    mascoteAlt: "Relatórios",
+    destaque: "Gestão estratégica.",
+  },
+];
+
+function getRectFromSelector(selector: string) {
+  const elemento = document.querySelector(selector);
+  if (!elemento) return null;
+
+  const rect = elemento.getBoundingClientRect();
+
+  return {
+    top: rect.top,
+    left: rect.left,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function FinanceiroTour({
+  aberto,
+  onClose,
+}: {
+  aberto: boolean;
+  onClose: (naoMostrarNovamente?: boolean) => void;
+}) {
+  const [stepIndex, setStepIndex] = useState(0);
+  const [tourConcluido, setTourConcluido] = useState(false);
+  const [targetRect, setTargetRect] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  const step = financeiroTourSteps[stepIndex];
+
+  useEffect(() => {
+    if (!aberto) return;
+
+    function atualizarPosicao() {
+      const rect = getRectFromSelector(step.selector);
+      setTargetRect(rect);
+
+      const elemento = document.querySelector(step.selector);
+      if (elemento) {
+        elemento.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
+
+    const timer = setTimeout(atualizarPosicao, 250);
+
+    window.addEventListener("resize", atualizarPosicao);
+    window.addEventListener("scroll", atualizarPosicao, true);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", atualizarPosicao);
+      window.removeEventListener("scroll", atualizarPosicao, true);
+    };
+  }, [aberto, step]);
+
+  useEffect(() => {
+    if (!aberto) {
+      setStepIndex(0);
+      setTargetRect(null);
+      setTourConcluido(false);
+    }
+  }, [aberto]);
+
+  if (!aberto) return null;
+
+  const spotlightPadding = 8;
+
+  const spotlight =
+    !tourConcluido && targetRect
+      ? {
+          top: Math.max(targetRect.top - spotlightPadding, 8),
+          left: Math.max(targetRect.left - spotlightPadding, 8),
+          width: targetRect.width + spotlightPadding * 2,
+          height: targetRect.height + spotlightPadding * 2,
+        }
+      : null;
+
+  const bubbleWidth = 420;
+  const bubbleHeight = 290;
+
+  const bubbleStyle = spotlight
+    ? (() => {
+        let top = spotlight.top + spotlight.height + 18;
+        let left = spotlight.left;
+
+        top = Math.max(
+          16,
+          Math.min(top, window.innerHeight - bubbleHeight - 16)
+        );
+
+        left = Math.max(
+          16,
+          Math.min(left, window.innerWidth - bubbleWidth - 16)
+        );
+
+        return {
+          top: `${top}px`,
+          left: `${left}px`,
+        };
+      })()
+    : {
+        top: "120px",
+        left: "50%",
+        transform: "translateX(-50%)",
+      };
+
+  return (
+    <div className="fixed inset-0 z-[9999]">
+      <div className="absolute inset-0 bg-slate-950/70" />
+
+      {spotlight && (
+        <div
+          className="absolute rounded-2xl border-2 border-blue-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)] transition-all"
+          style={{
+            top: spotlight.top,
+            left: spotlight.left,
+            width: spotlight.width,
+            height: spotlight.height,
+          }}
+        />
+      )}
+
+      <div
+        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+        style={
+          tourConcluido
+            ? {
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+              }
+            : bubbleStyle
+        }
+      >
+        {!tourConcluido && (
+          <div
+            className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
+            style={{
+              left: "40px",
+              top: "-6px",
+            }}
+          />
+        )}
+
+        {!tourConcluido ? (
+          <>
+            <div className="flex items-start gap-4">
+              <img
+                src={step.mascoteSrc}
+                alt={step.mascoteAlt}
+                className="h-24 w-24 shrink-0 object-contain drop-shadow-lg"
+              />
+
+              <div className="min-w-0">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
+                  Tutorial financeiro
+                </p>
+
+                <h3 className="mt-1 text-xl font-bold text-slate-900">
+                  {step.titulo}
+                </h3>
+
+                {step.destaque && (
+                  <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700">
+                    {step.destaque}
+                  </p>
+                )}
+
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  {step.descricao}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex items-center justify-between gap-3">
+              <div className="text-sm text-slate-500">
+                Etapa {stepIndex + 1} de {financeiroTourSteps.length}
+              </div>
+
+              <div className="flex flex-wrap justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => onClose(false)}
+                  className="rounded-xl border px-3 py-2 text-sm"
+                >
+                  Fechar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onClose(true)}
+                  className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
+                >
+                  Não mostrar mais
+                </button>
+
+                {stepIndex > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setStepIndex((prev) => prev - 1)}
+                    className="rounded-xl border px-3 py-2 text-sm"
+                  >
+                    Anterior
+                  </button>
+                )}
+
+                {stepIndex < financeiroTourSteps.length - 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => setStepIndex((prev) => prev + 1)}
+                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    Próximo
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setTourConcluido(true)}
+                    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+                  >
+                    Concluir
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="text-center">
+            <img
+              src="/images/formix-bemvindo.png"
+              alt="Formix"
+              className="mx-auto h-28 w-28 object-contain"
+            />
+
+            <h3 className="mt-4 text-2xl font-bold text-slate-900">
+              Financeiro pronto 🚀
+            </h3>
+
+            <p className="mt-3 text-sm leading-7 text-slate-600">
+              Você concluiu o tour financeiro do PHANYX.
+            </p>
+
+            <div className="mt-6">
+              <Link
+                href="/admin/financeiro/recebimentos"
+                onClick={() => onClose(false)}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-white"
+              >
+                Ir para recebimentos
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function hojeInput() {
   const hoje = new Date();
@@ -37,6 +363,34 @@ function primeiroDiaMes() {
 
 export default function AdminFinanceiroPage() {
   const router = useRouter();
+
+  const [tourAberto, setTourAberto] = useState(false);
+
+useEffect(() => {
+  try {
+    const oculto = localStorage.getItem("phanyx_financeiro_tour_oculto_v1");
+
+    if (oculto !== "true") {
+      const timer = setTimeout(() => {
+        setTourAberto(true);
+      }, 600);
+
+      return () => clearTimeout(timer);
+    }
+  } catch {
+    setTourAberto(true);
+  }
+}, []);
+
+function fecharTourFinanceiro(naoMostrarNovamente?: boolean) {
+  if (naoMostrarNovamente) {
+    try {
+      localStorage.setItem("phanyx_financeiro_tour_oculto_v1", "true");
+    } catch {}
+  }
+
+  setTourAberto(false);
+}
 
   const [loadingAtualizacao, setLoadingAtualizacao] = useState(false);
   const [loadingResumo, setLoadingResumo] = useState(true);
@@ -490,57 +844,7 @@ setErro("");
           </button>
         </div>
       </div>
-      <PhanyxTour
-  storageKey="phanyx-tour-financeiro"
-  tituloFinal="Financeiro pronto para uso 💰"
-  descricaoFinal="Você conheceu os principais módulos financeiros do PHANYX."
-  textoBotaoFinal="Ir para recebimentos"
-  onFinalPrimaryClick={() => {
-    router.push("/admin/financeiro/recebimentos");
-  }}
-  steps={[
-    {
-      id: "recebimentos",
-      titulo: "Recebimentos",
-      subtitulo: "Aqui você acompanha cobranças e pagamentos.",
-      descricao:
-        "Use esta área para buscar cobranças, registrar pagamentos e acompanhar baixas dos alunos.",
-      target: "[data-tour='financeiro-recebimentos']",
-    },
-    {
-      id: "caixa",
-      titulo: "Caixa",
-      subtitulo: "Controle o movimento financeiro do dia.",
-      descricao:
-        "Aqui você abre caixa, registra entradas e saídas e faz o fechamento diário.",
-      target: "[data-tour='financeiro-caixa']",
-    },
-    {
-      id: "inadimplentes",
-      titulo: "Inadimplentes",
-      subtitulo: "Acompanhe alunos com pagamentos vencidos.",
-      descricao:
-        "Esta tela ajuda a visualizar cobranças em atraso e acompanhar ações de cobrança.",
-      target: "[data-tour='financeiro-inadimplentes']",
-    },
-    {
-      id: "fechamento",
-      titulo: "Fechamento geral",
-      subtitulo: "Consolide os caixas fechados.",
-      descricao:
-        "Aqui a instituição acompanha os fechamentos de caixa por data e confere diferenças.",
-      target: "[data-tour='financeiro-fechamento']",
-    },
-    {
-      id: "relatorios",
-      titulo: "Relatórios financeiros",
-      subtitulo: "Veja indicadores e desempenho financeiro.",
-      descricao:
-        "Use relatórios para acompanhar recebimentos, atrasos, pendências e exportações.",
-      target: "[data-tour='financeiro-relatorios']",
-    },
-  ]}
-/>
+     <FinanceiroTour aberto={tourAberto} onClose={fecharTourFinanceiro} />
     </div>
   );
 }
