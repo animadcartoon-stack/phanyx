@@ -4868,6 +4868,7 @@ return;
                     Tamanho
                   </label>
                   <input
+  
   type="number"
   min={6}
   max={120}
