@@ -4869,11 +4869,24 @@ return;
   min={6}
   max={120}
   value={campoSelecionado?.tamanho ?? 18}
+  onMouseDown={() => {
+    const selecao = window.getSelection();
+
+    if (
+      selecao &&
+      selecao.rangeCount > 0 &&
+      selecao.toString().trim().length > 0
+    ) {
+      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+    }
+  }}
   onChange={(e) => {
     const tamanho = Number(e.target.value);
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-      aplicarEstiloTextoSelecionado({ fontSize: `${tamanho}px` });
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      aplicarEstiloTextoSelecionado({
+        fontSize: `${tamanho}px`,
+      });
       return;
     }
 
@@ -4891,7 +4904,7 @@ return;
                   <input
   type="color"
   value={campoSelecionado?.cor || "#1e3a8a"}
-  onMouseDown={() => {
+  onPointerDown={() => {
     const selecao = window.getSelection();
 
     if (
@@ -4905,7 +4918,7 @@ return;
   onChange={(e) => {
     const cor = e.target.value;
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
       aplicarEstiloTextoSelecionado({
         color: cor,
       });
@@ -5720,24 +5733,6 @@ iniciarDrag(event as any, c);
     Texto selecionado
   </p>
 
-  <div className="flex flex-wrap gap-2">
-    {["#000000", "#1e3a8a", "#dc2626", "#16a34a", "#ea580c", "#9333ea"].map(
-      (cor) => (
-        <button
-          key={cor}
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => {
-            document.execCommand("foreColor", false, cor);
-            setMenuContexto(null);
-          }}
-          className="h-7 w-7 rounded-full border border-slate-300 shadow-sm"
-          style={{ backgroundColor: cor }}
-          title="Aplicar cor no texto selecionado"
-        />
-      )
-    )}
-  </div>
 </div>
 
 <div className="border-t border-slate-200 px-3 py-2">
