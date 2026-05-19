@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import * as bodySegmentation from "@tensorflow-models/body-segmentation";
+import * as bodyPix from "@tensorflow-models/body-pix";
 import "@tensorflow/tfjs";
 
 type DownloadTipo = "png" | "jpg" | "webp";
@@ -10,16 +10,20 @@ type ModoRemocao = "assinatura" | "objeto" | "pessoa";
 export default function RemovedorDeFundoClient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalRef = useRef<HTMLImageElement | null>(null);
+  const arrastandoResultadoRef = useRef(false);
+  const ultimoMouseResultadoRef = useRef({ x: 0, y: 0 });
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
-  
-  const [fundoPreview, setFundoPreview] = useState<"xadrez" | "verde" | "azul" | "preto" | "branco">("verde");
+
+  const [fundoPreview, setFundoPreview] = useState<
+    "xadrez" | "verde" | "azul" | "preto" | "branco"
+  >("verde");
 
   const [dimensoesImagem, setDimensoesImagem] = useState<{
-  largura: number;
-  altura: number;
-} | null>(null);
+    largura: number;
+    altura: number;
+  } | null>(null);
 
   const [sensibilidade, setSensibilidade] = useState(32);
   const [suavizacao, setSuavizacao] = useState(2);
@@ -28,14 +32,15 @@ export default function RemovedorDeFundoClient() {
   const [saturacao, setSaturacao] = useState(100);
   const [opacidade, setOpacidade] = useState(100);
   const [zoomResultado, setZoomResultado] = useState(1);
+  const [panResultado, setPanResultado] = useState({ x: 0, y: 0 });
   const [intensidadeTraco, setIntensidadeTraco] = useState(60);
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
 
   const [coresAlvoManuais, setCoresAlvoManuais] = useState<
-  { r: number; g: number; b: number }[]
->([]);
+    { r: number; g: number; b: number }[]
+  >([]);
 
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
@@ -45,7 +50,9 @@ export default function RemovedorDeFundoClient() {
   function carregarImagem(file: File) {
     setErro("");
     setImagemFinal(null);
-    
+    setCoresAlvoManuais([]);
+    setZoomResultado(1);
+    setPanResultado({ x: 0, y: 0 });
 
     if (!file.type.startsWith("image/")) {
       setErro("Envie apenas arquivos de imagem.");
@@ -58,18 +65,17 @@ export default function RemovedorDeFundoClient() {
     }
 
     const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.src = url;
 
-const img = new Image();
-img.src = url;
+    img.onload = () => {
+      setDimensoesImagem({
+        largura: img.width,
+        altura: img.height,
+      });
 
-img.onload = () => {
-  setDimensoesImagem({
-    largura: img.width,
-    altura: img.height,
-  });
-
-  setImagemOriginal(url);
-};
+      setImagemOriginal(url);
+    };
   }
 
   function pixelIndex(x: number, y: number, width: number) {
@@ -96,74 +102,78 @@ img.onload = () => {
   }
 
   function rgbParaHsl(r: number, g: number, b: number) {
-  r /= 255;
-  g /= 255;
-  b /= 255;
+    r /= 255;
+    g /= 255;
+    b /= 255;
 
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
 
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
+    let h = 0;
+    let s = 0;
+    const l = (max + min) / 2;
 
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
 
-    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
-    if (max === g) h = (b - r) / d + 2;
-    if (max === b) h = (r - g) / d + 4;
+      if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+      if (max === g) h = (b - r) / d + 2;
+      if (max === b) h = (r - g) / d + 4;
 
-    h /= 6;
+      h /= 6;
+    }
+
+    return {
+      h: h * 360,
+      s: s * 100,
+      l: l * 100,
+    };
   }
 
-  return {
-    h: h * 360,
-    s: s * 100,
-    l: l * 100,
-  };
-}
+  function diferencaHue(a: number, b: number) {
+    const diff = Math.abs(a - b);
+    return Math.min(diff, 360 - diff);
+  }
 
-function diferencaHue(a: number, b: number) {
-  const diff = Math.abs(a - b);
-  return Math.min(diff, 360 - diff);
-}
+  function pareceCorDoFundo(
+    r: number,
+    g: number,
+    b: number,
+    baseR: number,
+    baseG: number,
+    baseB: number,
+    sensibilidadeAtual: number
+  ) {
+    const distRgb = distanciaCor(r, g, b, baseR, baseG, baseB);
 
-function pareceCorDoFundo(
-  r: number,
-  g: number,
-  b: number,
-  baseR: number,
-  baseG: number,
-  baseB: number,
-  sensibilidadeAtual: number
-) {
-  const distRgb = distanciaCor(r, g, b, baseR, baseG, baseB);
+    const cor = rgbParaHsl(r, g, b);
+    const base = rgbParaHsl(baseR, baseG, baseB);
 
-  const cor = rgbParaHsl(r, g, b);
-  const base = rgbParaHsl(baseR, baseG, baseB);
+    const diffHue = diferencaHue(cor.h, base.h);
+    const diffSat = Math.abs(cor.s - base.s);
+    const diffLum = Math.abs(cor.l - base.l);
 
-  const diffHue = diferencaHue(cor.h, base.h);
-  const diffSat = Math.abs(cor.s - base.s);
-  const diffLum = Math.abs(cor.l - base.l);
+    const toleranciaRgb = sensibilidadeAtual * 1.8;
+    const toleranciaHue = Math.max(18, sensibilidadeAtual * 0.65);
+    const toleranciaSat = Math.max(28, sensibilidadeAtual * 0.9);
+    const toleranciaLum = Math.max(38, sensibilidadeAtual * 1.2);
 
-  const toleranciaRgb = sensibilidadeAtual * 1.8;
-  const toleranciaHue = Math.max(18, sensibilidadeAtual * 0.65);
-  const toleranciaSat = Math.max(28, sensibilidadeAtual * 0.9);
-  const toleranciaLum = Math.max(38, sensibilidadeAtual * 1.2);
+    const parecidoPorRgb = distRgb <= toleranciaRgb;
 
-  const parecidoPorRgb = distRgb <= toleranciaRgb;
+    const parecidoPorCor =
+      diffHue <= toleranciaHue &&
+      diffSat <= toleranciaSat &&
+      diffLum <= toleranciaLum;
 
-  const parecidoPorCor =
-    diffHue <= toleranciaHue &&
-    diffSat <= toleranciaSat &&
-    diffLum <= toleranciaLum;
+    return parecidoPorRgb || parecidoPorCor;
+  }
 
-  return parecidoPorRgb || parecidoPorCor;
-}
-
-  function ajustarCanal(valor: number, brilhoAtual: number, contrasteAtual: number) {
+  function ajustarCanal(
+    valor: number,
+    brilhoAtual: number,
+    contrasteAtual: number
+  ) {
     let v = valor;
 
     v = v * (brilhoAtual / 100);
@@ -247,186 +257,157 @@ function pareceCorDoFundo(
   }
 
   function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
-  if (!imagemOriginalRef.current) return;
+    if (!imagemOriginalRef.current) return;
 
-  const img = imagemOriginalRef.current;
-  const rect = img.getBoundingClientRect();
+    const img = imagemOriginalRef.current;
+    const rect = img.getBoundingClientRect();
 
-  const x = Math.floor(((e.clientX - rect.left) / rect.width) * img.naturalWidth);
-  const y = Math.floor(((e.clientY - rect.top) / rect.height) * img.naturalHeight);
+    const x = Math.floor(
+      ((e.clientX - rect.left) / rect.width) * img.naturalWidth
+    );
+    const y = Math.floor(
+      ((e.clientY - rect.top) / rect.height) * img.naturalHeight
+    );
 
-  const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = img.naturalWidth;
-  tempCanvas.height = img.naturalHeight;
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = img.naturalWidth;
+    tempCanvas.height = img.naturalHeight;
 
-  const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
-  if (!tempCtx) return;
+    const tempCtx = tempCanvas.getContext("2d", { willReadFrequently: true });
+    if (!tempCtx) return;
 
-  tempCtx.drawImage(img, 0, 0);
+    tempCtx.drawImage(img, 0, 0);
 
-  const pixel = tempCtx.getImageData(x, y, 1, 1).data;
+    const pixel = tempCtx.getImageData(x, y, 1, 1).data;
 
-  setCoresAlvoManuais((cores) => {
-  const novaCor = {
-    r: pixel[0],
-    g: pixel[1],
-    b: pixel[2],
-  };
+    setCoresAlvoManuais((cores) => {
+      const novaCor = {
+        r: pixel[0],
+        g: pixel[1],
+        b: pixel[2],
+      };
 
-  const jaExisteParecida = cores.some(
-    (cor) =>
-      distanciaCor(
-        cor.r,
-        cor.g,
-        cor.b,
-        novaCor.r,
-        novaCor.g,
-        novaCor.b
-      ) < 12
-  );
-
-  if (jaExisteParecida) return cores;
-
-  return [...cores, novaCor];
-});
-}
-
-async function removerFundoPessoa() {
-  if (!imagemOriginal || !canvasRef.current) return;
-
-  setProcessando(true);
-  setErro("");
-
-  try {
-    const img = new Image();
-    img.src = imagemOriginal;
-
-    img.onload = async () => {
-      const canvas = canvasRef.current!;
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-
-      if (!ctx) {
-        setErro("Não foi possível processar a imagem.");
-        setProcessando(false);
-        return;
-      }
-
-      const maxWidth = 5000;
-      const scale = img.width > maxWidth ? maxWidth / img.width : 1;
-
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      const segmenter = await bodySegmentation.createSegmenter(
-        bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation,
-        {
-          runtime: "mediapipe",
-          solutionPath:
-            "https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation",
-          modelType: "general",
-        }
+      const jaExisteParecida = cores.some(
+        (cor) =>
+          distanciaCor(
+            cor.r,
+            cor.g,
+            cor.b,
+            novaCor.r,
+            novaCor.g,
+            novaCor.b
+          ) < 12
       );
 
-      const pessoas = await segmenter.segmentPeople(canvas);
+      if (jaExisteParecida) return cores;
 
-      if (!pessoas || pessoas.length === 0) {
-        setErro("Não consegui detectar uma pessoa principal nessa imagem.");
-        setProcessando(false);
-        return;
-      }
-
-      const foreground = await bodySegmentation.toBinaryMask(
-  pessoas,
-  { r: 255, g: 255, b: 255, a: 255 },
-  { r: 0, g: 0, b: 0, a: 0 },
-  true,
-  0.6
-);
-
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      const data = imageData.data;
-      const maskData = foreground.data;
-
-      for (let i = 0; i < data.length; i += 4) {
-  const alphaMascara = maskData[i + 3];
-
-  if (alphaMascara === 0) {
-    data[i + 3] = 0;
-    continue;
+      return [...cores, novaCor];
+    });
   }
 
-  let r = data[i];
-  let g = data[i + 1];
-  let b = data[i + 2];
+  async function removerFundoPessoa() {
+    if (!imagemOriginal || !canvasRef.current) return;
 
-  r = ajustarCanal(r, brilho, contraste);
-  g = ajustarCanal(g, brilho, contraste);
-  b = ajustarCanal(b, brilho, contraste);
+    setProcessando(true);
+    setErro("");
 
-  const sat = aplicarSaturacao(r, g, b, saturacao);
+    try {
+      const img = new Image();
+      img.src = imagemOriginal;
 
-  data[i] = sat.r;
-  data[i + 1] = sat.g;
-  data[i + 2] = sat.b;
-  data[i + 3] = Math.round(255 * (opacidade / 100));
-}
+      img.onload = async () => {
+        const canvas = canvasRef.current!;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true });
 
-if (suavizacao > 0) {
-  const copia = new Uint8ClampedArray(data);
-
-  for (let y = 1; y < canvas.height - 1; y++) {
-    for (let x = 1; x < canvas.width - 1; x++) {
-      const di = dataIndex(x, y, canvas.width);
-
-      if (copia[di + 3] === 0) continue;
-
-      let alphaTotal = 0;
-      let count = 0;
-
-      for (let yy = -suavizacao; yy <= suavizacao; yy++) {
-        for (let xx = -suavizacao; xx <= suavizacao; xx++) {
-          const ndi = dataIndex(x + xx, y + yy, canvas.width);
-          alphaTotal += copia[ndi + 3];
-          count++;
+        if (!ctx) {
+          setErro("Não foi possível processar a imagem.");
+          setProcessando(false);
+          return;
         }
-      }
 
-      data[di + 3] = alphaTotal / count;
+        const maxWidth = 2200;
+        const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        const net = await bodyPix.load({
+          architecture: "ResNet50",
+          outputStride: 16,
+          multiplier: 1,
+          quantBytes: 2,
+        });
+
+        const segmentation = await net.segmentMultiPerson(canvas, {
+          internalResolution: "high",
+          segmentationThreshold: 0.65,
+          maxDetections: 5,
+          scoreThreshold: 0.25,
+          nmsRadius: 20,
+        });
+
+        if (!segmentation || segmentation.length === 0) {
+          setErro("Não consegui detectar pessoas nessa imagem.");
+          setProcessando(false);
+          return;
+        }
+
+        const mask = bodyPix.toMask(
+          segmentation,
+          { r: 255, g: 255, b: 255, a: 255 },
+          { r: 0, g: 0, b: 0, a: 0 }
+        );
+
+        bodyPix.drawMask(canvas, canvas, mask, 1, suavizacao, false);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          if (data[i + 3] === 0) continue;
+
+          let r = data[i];
+          let g = data[i + 1];
+          let b = data[i + 2];
+
+          r = ajustarCanal(r, brilho, contraste);
+          g = ajustarCanal(g, brilho, contraste);
+          b = ajustarCanal(b, brilho, contraste);
+
+          const sat = aplicarSaturacao(r, g, b, saturacao);
+
+          data[i] = sat.r;
+          data[i + 1] = sat.g;
+          data[i + 2] = sat.b;
+          data[i + 3] = Math.round(data[i + 3] * (opacidade / 100));
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+
+        setImagemFinal(canvas.toDataURL("image/png"));
+        setProcessando(false);
+      };
+
+      img.onerror = () => {
+        setErro("Erro ao carregar imagem.");
+        setProcessando(false);
+      };
+    } catch (error) {
+      console.error(error);
+      setErro("Não foi possível remover o fundo dessa foto.");
+      setProcessando(false);
     }
   }
-}
-
-      ctx.putImageData(imageData, 0, 0);
-
-      ctx.globalCompositeOperation = "source-over";
-      ctx.filter = "blur(0.6px)";
-      ctx.drawImage(canvas, 0, 0);
-      ctx.filter = "none";
-
-      setImagemFinal(canvas.toDataURL("image/png"));
-      setProcessando(false);
-    };
-
-    img.onerror = () => {
-      setErro("Erro ao carregar imagem.");
-      setProcessando(false);
-    };
-  } catch (error) {
-    console.error(error);
-    setErro("Não foi possível usar o modo Pessoa / Foto nessa imagem.");
-    setProcessando(false);
-  }
-}
 
   function removerFundo() {
-
     if (modo === "pessoa") {
-  removerFundoPessoa();
-  return;
-}
+      removerFundoPessoa();
+      return;
+    }
+
     if (!imagemOriginal || !canvasRef.current) return;
 
     setProcessando(true);
@@ -463,71 +444,74 @@ if (suavizacao > 0) {
 
       let pixelsTransparentes = 0;
 
-for (let i = 0; i < totalPixels; i++) {
-  const alpha = data[i * 4 + 3];
+      for (let i = 0; i < totalPixels; i++) {
+        const alpha = data[i * 4 + 3];
 
-  if (alpha < 250) {
-    pixelsTransparentes++;
-  }
-}
+        if (alpha < 250) {
+          pixelsTransparentes++;
+        }
+      }
 
-const percentualTransparente =
-  (pixelsTransparentes / totalPixels) * 100;
+      const percentualTransparente = (pixelsTransparentes / totalPixels) * 100;
 
-if (percentualTransparente > 5) {
-  setAviso(
-    "Essa imagem já está sem fundo. Envie outra imagem com fundo para remover."
-  );
-  setImagemFinal(null);
-  setProcessando(false);
-  return;
-}
+      if (percentualTransparente > 5) {
+        setAviso(
+          "Essa imagem já está sem fundo. Envie outra imagem com fundo para remover."
+        );
+        setImagemFinal(null);
+        setProcessando(false);
+        return;
+      }
 
-if (modo === "assinatura") {
-  const cantos = [
-    dataIndex(0, 0, width),
-    dataIndex(width - 1, 0, width),
-    dataIndex(0, height - 1, width),
-    dataIndex(width - 1, height - 1, width),
-  ];
+      if (modo === "assinatura") {
+        const cantos = [
+          dataIndex(0, 0, width),
+          dataIndex(width - 1, 0, width),
+          dataIndex(0, height - 1, width),
+          dataIndex(width - 1, height - 1, width),
+        ];
 
-  const fundoR = Math.round(cantos.reduce((s, i) => s + data[i], 0) / cantos.length);
-  const fundoG = Math.round(cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length);
-  const fundoB = Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length);
+        const fundoR = Math.round(
+          cantos.reduce((s, i) => s + data[i], 0) / cantos.length
+        );
+        const fundoG = Math.round(
+          cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length
+        );
+        const fundoB = Math.round(
+          cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length
+        );
 
-  const toleranciaFundo = 45;
+        const toleranciaFundo = 45;
 
-  for (let i = 0; i < totalPixels; i++) {
-    const di = i * 4;
+        for (let i = 0; i < totalPixels; i++) {
+          const di = i * 4;
 
-    const r = data[di];
-    const g = data[di + 1];
-    const b = data[di + 2];
+          const r = data[di];
+          const g = data[di + 1];
+          const b = data[di + 2];
 
-    const distancia = Math.sqrt(
-      Math.pow(r - fundoR, 2) +
-      Math.pow(g - fundoG, 2) +
-      Math.pow(b - fundoB, 2)
-    );
+          const distancia = Math.sqrt(
+            Math.pow(r - fundoR, 2) +
+              Math.pow(g - fundoG, 2) +
+              Math.pow(b - fundoB, 2)
+          );
 
-    if (distancia <= toleranciaFundo) {
-      data[di + 3] = 0;
-    } else {
-      data[di] = 0;
-      data[di + 1] = 0;
-      data[di + 2] = 0;
-      data[di + 3] = 255;
-    }
-  }
+          if (distancia <= toleranciaFundo) {
+            data[di + 3] = 0;
+          } else {
+            data[di] = 0;
+            data[di + 1] = 0;
+            data[di + 2] = 0;
+            data[di + 3] = 255;
+          }
+        }
 
-  ctx.putImageData(imageData, 0, 0);
+        ctx.putImageData(imageData, 0, 0);
 
-  const resultado = canvas.toDataURL("image/png");
-  setImagemFinal(resultado);
-
-  setProcessando(false);
-  return;
-}
+        setImagemFinal(canvas.toDataURL("image/png"));
+        setProcessando(false);
+        return;
+      }
 
       const remover = new Uint8Array(totalPixels);
       const visitado = new Uint8Array(totalPixels);
@@ -540,15 +524,22 @@ if (modo === "assinatura") {
       ];
 
       const coresBase =
-  coresAlvoManuais.length > 0
-    ? coresAlvoManuais
-    : [
-        {
-          r: Math.round(cantos.reduce((s, i) => s + data[i], 0) / cantos.length),
-          g: Math.round(cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length),
-          b: Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length),
-        },
-      ];
+        coresAlvoManuais.length > 0
+          ? coresAlvoManuais
+          : [
+              {
+                r: Math.round(
+                  cantos.reduce((s, i) => s + data[i], 0) / cantos.length
+                ),
+                g: Math.round(
+                  cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length
+                ),
+                b: Math.round(
+                  cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length
+                ),
+              },
+            ];
+
       const fila: Array<[number, number]> = [];
 
       for (let x = 0; x < width; x++) {
@@ -578,18 +569,18 @@ if (modo === "assinatura") {
         const b = data[di + 2];
 
         const parecidoComFundo = coresBase.some((corBase) =>
-  pareceCorDoFundo(
-    r,
-    g,
-    b,
-    corBase.r,
-    corBase.g,
-    corBase.b,
-    sensibilidade
-  )
-);
+          pareceCorDoFundo(
+            r,
+            g,
+            b,
+            corBase.r,
+            corBase.g,
+            corBase.b,
+            sensibilidade
+          )
+        );
 
-if (parecidoComFundo) {
+        if (parecidoComFundo) {
           remover[p] = 1;
 
           fila.push([x + 1, y]);
@@ -599,35 +590,35 @@ if (parecidoComFundo) {
         }
       }
 
-if (removerBrancoInterno && modo === "objeto") {
-  for (let i = 0; i < totalPixels; i++) {
-    const di = i * 4;
+      if (removerBrancoInterno && modo === "objeto") {
+        for (let i = 0; i < totalPixels; i++) {
+          const di = i * 4;
 
-    const r = data[di];
-    const g = data[di + 1];
-    const b = data[di + 2];
+          const r = data[di];
+          const g = data[di + 1];
+          const b = data[di + 2];
 
-    const brancoOuQuaseBranco = r > 230 && g > 230 && b > 230;
+          const brancoOuQuaseBranco = r > 230 && g > 230 && b > 230;
 
-    const parecidoComAlgumaCorEscolhida = coresBase.some((corBase) =>
-      pareceCorDoFundo(
-        r,
-        g,
-        b,
-        corBase.r,
-        corBase.g,
-        corBase.b,
-        sensibilidade
-      )
-    );
+          const parecidoComAlgumaCorEscolhida = coresBase.some((corBase) =>
+            pareceCorDoFundo(
+              r,
+              g,
+              b,
+              corBase.r,
+              corBase.g,
+              corBase.b,
+              sensibilidade
+            )
+          );
 
-    if (brancoOuQuaseBranco || parecidoComAlgumaCorEscolhida) {
-      remover[i] = 1;
-    }
-  }
-}
+          if (brancoOuQuaseBranco || parecidoComAlgumaCorEscolhida) {
+            remover[i] = 1;
+          }
+        }
+      }
 
-            if (manterObjetoPrincipal && modo === "objeto") {
+      if (manterObjetoPrincipal && modo === "objeto") {
         const alphaTemp = new Uint8Array(totalPixels);
 
         for (let i = 0; i < totalPixels; i++) {
@@ -661,13 +652,9 @@ if (removerBrancoInterno && modo === "objeto") {
 
         const sat = aplicarSaturacao(r, g, b, saturacao);
 
-        r = sat.r;
-        g = sat.g;
-        b = sat.b;
-
-        data[di] = r;
-        data[di + 1] = g;
-        data[di + 2] = b;
+        data[di] = sat.r;
+        data[di + 1] = sat.g;
+        data[di + 2] = sat.b;
         data[di + 3] = Math.round(255 * (opacidade / 100));
       }
 
@@ -685,23 +672,28 @@ if (removerBrancoInterno && modo === "objeto") {
 
             for (let yy = -suavizacao; yy <= suavizacao; yy++) {
               for (let xx = -suavizacao; xx <= suavizacao; xx++) {
-                const ndi = dataIndex(x + xx, y + yy, width);
+                const nx = x + xx;
+                const ny = y + yy;
+
+                if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+
+                const ndi = dataIndex(nx, ny, width);
                 alphaTotal += copia[ndi + 3];
                 count++;
               }
             }
 
-            data[di + 3] = alphaTotal / count;
+            if (count > 0) {
+              data[di + 3] = alphaTotal / count;
+            }
           }
         }
       }
 
       ctx.putImageData(imageData, 0, 0);
 
-const resultadoCompleto = canvas.toDataURL("image/png");
-setImagemFinal(resultadoCompleto);
-
-setProcessando(false);
+      setImagemFinal(canvas.toDataURL("image/png"));
+      setProcessando(false);
     };
 
     img.onerror = () => {
@@ -710,55 +702,62 @@ setProcessando(false);
     };
   }
 
-useEffect(() => {
-  function controlarZoomPeloTeclado(e: KeyboardEvent) {
-    if (!imagemFinal) return;
+  useEffect(() => {
+    function controlarZoomPeloTeclado(e: KeyboardEvent) {
+      if (!imagemFinal) return;
 
-    if (e.key === "+" || e.key === "=") {
-      e.preventDefault();
-      setZoomResultado((z) => Math.min(5, Number((z + 0.1).toFixed(2))));
+      if (e.key === "+" || e.key === "=") {
+        e.preventDefault();
+        setZoomResultado((z) => Math.min(5, Number((z + 0.1).toFixed(2))));
+      }
+
+      if (e.key === "-" || e.key === "_") {
+        e.preventDefault();
+        setZoomResultado((z) => Math.max(0.5, Number((z - 0.1).toFixed(2))));
+      }
+
+      if (e.key === "0") {
+        e.preventDefault();
+        setZoomResultado(1);
+        setPanResultado({ x: 0, y: 0 });
+      }
     }
 
-    if (e.key === "-" || e.key === "_") {
-      e.preventDefault();
-      setZoomResultado((z) => Math.max(0.5, Number((z - 0.1).toFixed(2))));
-    }
+    window.addEventListener("keydown", controlarZoomPeloTeclado);
 
-    if (e.key === "0") {
-      e.preventDefault();
-      setZoomResultado(1);
-    }
-  }
-
-  window.addEventListener("keydown", controlarZoomPeloTeclado);
-
-  return () => {
-    window.removeEventListener("keydown", controlarZoomPeloTeclado);
-  };
-}, [imagemFinal]);
+    return () => {
+      window.removeEventListener("keydown", controlarZoomPeloTeclado);
+    };
+  }, [imagemFinal]);
 
   useEffect(() => {
-  if (!imagemOriginal) return;
+    if (zoomResultado <= 1) {
+      setPanResultado({ x: 0, y: 0 });
+    }
+  }, [zoomResultado]);
 
-  const timer = window.setTimeout(() => {
-    removerFundo();
-  }, 120);
+  useEffect(() => {
+    if (!imagemOriginal) return;
 
-  return () => window.clearTimeout(timer);
-}, [
-  imagemOriginal,
-  sensibilidade,
-  suavizacao,
-  brilho,
-  contraste,
-  saturacao,
-  opacidade,
-  intensidadeTraco,
-  modo,
-  manterObjetoPrincipal,
-  removerBrancoInterno,
-  coresAlvoManuais,
-]);
+    const timer = window.setTimeout(() => {
+      removerFundo();
+    }, 120);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    imagemOriginal,
+    sensibilidade,
+    suavizacao,
+    brilho,
+    contraste,
+    saturacao,
+    opacidade,
+    intensidadeTraco,
+    modo,
+    manterObjetoPrincipal,
+    removerBrancoInterno,
+    coresAlvoManuais,
+  ]);
 
   function baixarImagem(tipo: DownloadTipo) {
     if (!imagemFinal || !canvasRef.current) return;
@@ -805,464 +804,527 @@ useEffect(() => {
   }
 
   return (
-  <>
-    {aviso && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-        <div className="max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl">
-          <h2 className="text-2xl font-black text-cyan-200">
-            Aviso PHANYX
-          </h2>
+    <>
+      {aviso && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl">
+            <h2 className="text-2xl font-black text-cyan-200">
+              Aviso PHANYX
+            </h2>
 
-          <p className="mt-3 text-sm leading-relaxed text-slate-200">
-            {aviso}
-          </p>
+            <p className="mt-3 text-sm leading-relaxed text-slate-200">
+              {aviso}
+            </p>
 
-          <button
-            type="button"
-            onClick={() => setAviso(null)}
-            className="mt-6 rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/30 hover:bg-cyan-300"
-          >
-            Entendi
-          </button>
-        </div>
-      </div>
-    )}
-
-{mostrarAjuda && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-    <div className="max-w-lg rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 shadow-2xl">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-black text-cyan-200">
-          Como remover fundos coloridos
-        </h2>
-
-        <button
-          type="button"
-          onClick={() => setMostrarAjuda(false)}
-          className="rounded-full bg-slate-800 px-3 py-1 font-bold text-white hover:bg-slate-700"
-        >
-          ✕
-        </button>
-      </div>
-
-      <div className="mt-5 space-y-4 text-sm leading-relaxed text-slate-200">
-        <div>
-          <strong className="text-cyan-300">Fundos simples:</strong><br />
-          Clique em qualquer área do fundo que deseja remover.
-        </div>
-
-        <div>
-          <strong className="text-cyan-300">Fundos com vários tons:</strong><br />
-          Clique em uma área média da cor dominante (nem muito clara nem muito escura).
-        </div>
-
-        <div>
-          <strong className="text-cyan-300">Se sobrar halo:</strong><br />
-          Aumente a sensibilidade entre 50 e 80.
-        </div>
-
-        <div>
-          <strong className="text-cyan-300">Se apagar partes do objeto:</strong><br />
-          Reduza a sensibilidade.
-        </div>
-
-        <div>
-          <strong className="text-cyan-300">Objetos complexos:</strong><br />
-          Ative "Manter apenas objeto principal".
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
-    <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-10">
-          <h1 className="text-5xl font-black">Removedor de Fundo PHANYX</h1>
-          <p className="mt-4 max-w-3xl text-lg text-cyan-100">
-            Ferramenta profissional PHANYX para remover fundo de assinaturas,
-            logos, fotos e imagens com exportação transparente.
-          </p>
-        </div>
-
-        {erro && (
-          <div className="mb-6 rounded-xl border border-red-500 bg-red-950 p-4 text-red-200">
-            {erro}
+            <button
+              type="button"
+              onClick={() => setAviso(null)}
+              className="mt-6 rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/30 hover:bg-cyan-300"
+            >
+              Entendi
+            </button>
           </div>
-        )}
+        </div>
+      )}
 
-        <div className="grid items-start gap-5 lg:grid-cols-[240px_1fr_1fr]">
-          <aside className="space-y-5">
-            <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-4 text-center">
-              <div className="text-base font-bold text-cyan-300">
-                Clique para enviar sua imagem
-              </div>
-              <div className="mt-3 text-sm text-slate-300">
-                PNG, JPG, JPEG ou WebP até 10MB
-              </div>
+      {mostrarAjuda && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+          <div className="max-w-lg rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 shadow-2xl">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-black text-cyan-200">
+                Como remover fundos coloridos
+              </h2>
 
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) carregarImagem(file);
-                }}
-              />
-            </label>
-
-            <div className="rounded-2xl bg-slate-900 p-3">
-              <h3 className="mb-2 text-sm font-bold">Modo</h3>
-
-              <div className="grid grid-cols-3 gap-2">
-                <button
-  onClick={() => setModo("assinatura")}
-  className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
-    modo === "assinatura"
-      ? "bg-cyan-500 text-black"
-      : "bg-slate-800 text-white"
-  }`}
->
-  Assinatura
-</button>
-
-                <button
-  onClick={() => setModo("objeto")}
-  className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
-    modo === "objeto"
-      ? "bg-cyan-500 text-black"
-      : "bg-slate-800 text-white"
-  }`}
->
-  Objeto
-</button>
-
-<button
-  onClick={() => setModo("pessoa")}
-  className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
-    modo === "pessoa"
-      ? "bg-cyan-500 text-black"
-      : "bg-slate-800 text-white"
-  }`}
->
-  Pessoa
-  <br />
-  Foto
-</button>
-
-              </div>
+              <button
+                type="button"
+                onClick={() => setMostrarAjuda(false)}
+                className="rounded-full bg-slate-800 px-3 py-1 font-bold text-white hover:bg-slate-700"
+              >
+                ✕
+              </button>
             </div>
 
-{modo === "assinatura" && (
-  <div className="rounded-xl bg-slate-900 p-3">
-    <p className="mb-2 text-xs font-bold text-white">
-      Fundo de visualização
-    </p>
+            <div className="mt-5 space-y-4 text-sm leading-relaxed text-slate-200">
+              <div>
+                <strong className="text-cyan-300">Fundos simples:</strong>
+                <br />
+                Clique em qualquer área do fundo que deseja remover.
+              </div>
 
-    <div className="grid grid-cols-2 gap-2">
-      {(["verde", "azul", "preto", "branco", "xadrez"] as const).map((cor) => (
-        <button
-          key={cor}
-          type="button"
-          onClick={() => setFundoPreview(cor)}
-          className={`rounded-lg px-2 py-1.5 text-[11px] font-bold ${
-            fundoPreview === cor
-              ? "bg-cyan-400 text-slate-950"
-              : "bg-slate-800 text-white"
-          }`}
-        >
-          {cor}
-        </button>
-      ))}
-    </div>
+              <div>
+                <strong className="text-cyan-300">
+                  Fundos com vários tons:
+                </strong>
+                <br />
+                Clique em uma área média da cor dominante (nem muito clara nem
+                muito escura).
+              </div>
 
-    <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">
-      Esse fundo aparece somente na visualização. A imagem será salva com fundo transparente.
-    </p>
-  </div>
-)}
+              <div>
+                <strong className="text-cyan-300">Se sobrar halo:</strong>
+                <br />
+                Aumente a sensibilidade entre 50 e 80.
+              </div>
 
-                        {modo === "objeto" && (
+              <div>
+                <strong className="text-cyan-300">
+                  Se apagar partes do objeto:
+                </strong>
+                <br />
+                Reduza a sensibilidade.
+              </div>
+
+              <div>
+                <strong className="text-cyan-300">Objetos complexos:</strong>
+                <br />
+                Ative "Manter apenas objeto principal".
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10">
+            <h1 className="text-5xl font-black">Removedor de Fundo PHANYX</h1>
+            <p className="mt-4 max-w-3xl text-lg text-cyan-100">
+              Ferramenta profissional PHANYX para remover fundo de assinaturas,
+              logos, fotos e imagens com exportação transparente.
+            </p>
+          </div>
+
+          {erro && (
+            <div className="mb-6 rounded-xl border border-red-500 bg-red-950 p-4 text-red-200">
+              {erro}
+            </div>
+          )}
+
+          <div className="grid items-start gap-5 lg:grid-cols-[240px_1fr_1fr]">
+            <aside className="space-y-5">
+              <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-4 text-center">
+                <div className="text-base font-bold text-cyan-300">
+                  Clique para enviar sua imagem
+                </div>
+                <div className="mt-3 text-sm text-slate-300">
+                  PNG, JPG, JPEG ou WebP até 10MB
+                </div>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) carregarImagem(file);
+                  }}
+                />
+              </label>
+
+              <div className="rounded-2xl bg-slate-900 p-3">
+                <h3 className="mb-2 text-sm font-bold">Modo</h3>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => setModo("assinatura")}
+                    className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
+                      modo === "assinatura"
+                        ? "bg-cyan-500 text-black"
+                        : "bg-slate-800 text-white"
+                    }`}
+                  >
+                    Assinatura
+                  </button>
+
+                  <button
+                    onClick={() => setModo("objeto")}
+                    className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
+                      modo === "objeto"
+                        ? "bg-cyan-500 text-black"
+                        : "bg-slate-800 text-white"
+                    }`}
+                  >
+                    Objeto
+                  </button>
+
+                  <button
+                    onClick={() => setModo("pessoa")}
+                    className={`rounded-xl px-1 py-3 text-[9px] font-black leading-tight tracking-tight transition ${
+                      modo === "pessoa"
+                        ? "bg-cyan-500 text-black"
+                        : "bg-slate-800 text-white"
+                    }`}
+                  >
+                    Pessoa
+                    <br />
+                    Foto
+                  </button>
+                </div>
+              </div>
+
+              {modo === "assinatura" && (
+                <div className="rounded-xl bg-slate-900 p-3">
+                  <p className="mb-2 text-xs font-bold text-white">
+                    Fundo de visualização
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {(["verde", "azul", "preto", "branco", "xadrez"] as const).map(
+                      (cor) => (
+                        <button
+                          key={cor}
+                          type="button"
+                          onClick={() => setFundoPreview(cor)}
+                          className={`rounded-lg px-2 py-1.5 text-[11px] font-bold ${
+                            fundoPreview === cor
+                              ? "bg-cyan-400 text-slate-950"
+                              : "bg-slate-800 text-white"
+                          }`}
+                        >
+                          {cor}
+                        </button>
+                      )
+                    )}
+                  </div>
+
+                  <p className="mt-2 text-[10px] leading-tight text-cyan-100/80">
+                    Esse fundo aparece somente na visualização. A imagem será
+                    salva com fundo transparente.
+                  </p>
+                </div>
+              )}
+
+              {modo === "objeto" && (
+                <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={manterObjetoPrincipal}
+                    onChange={(e) =>
+                      setManterObjetoPrincipal(e.target.checked)
+                    }
+                  />
+                  Manter apenas objeto principal
+                </label>
+              )}
+
               <label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
                 <input
                   type="checkbox"
-                  checked={manterObjetoPrincipal}
-                  onChange={(e) => setManterObjetoPrincipal(e.target.checked)}
+                  checked={removerBrancoInterno}
+                  onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
                 />
-                Manter apenas objeto principal
+                Remover branco interno
               </label>
-            )}
 
-<label className="flex cursor-pointer items-center gap-3 rounded-2xl bg-slate-900 p-4 text-sm">
-  <input
-    type="checkbox"
-    checked={removerBrancoInterno}
-    onChange={(e) => setRemoverBrancoInterno(e.target.checked)}
-  />
-  Remover branco interno
-</label>
+              {modo === "objeto" && removerBrancoInterno && (
+                <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      Clique na imagem original sobre a cor do fundo que você
+                      quer remover. Pode ser branco, verde, azul, bege ou
+                      qualquer cor.
+                    </div>
 
-{modo === "objeto" && removerBrancoInterno && (
-  <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
-    <div className="flex items-start justify-between gap-2">
-      <div>
-        Clique na imagem original sobre a cor do fundo que você quer remover.
-        Pode ser branco, verde, azul, bege ou qualquer cor.
-      </div>
+                    <button
+                      type="button"
+                      onClick={() => setMostrarAjuda(true)}
+                      className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300"
+                    >
+                      ?
+                    </button>
+                  </div>
 
-      <button
-        type="button"
-        onClick={() => setMostrarAjuda(true)}
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300"
-      >
-        ?
-      </button>
-    </div>
+                  {coresAlvoManuais.length > 0 && (
+                    <div className="mt-3">
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <span>Cores escolhidas:</span>
 
-    {coresAlvoManuais.length > 0 && (
-  <div className="mt-3">
-    <div className="mb-2 flex items-center justify-between gap-2">
-      <span>Cores escolhidas:</span>
+                        <button
+                          type="button"
+                          onClick={() => setCoresAlvoManuais([])}
+                          className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+                        >
+                          Limpar
+                        </button>
+                      </div>
 
-      <button
-        type="button"
-        onClick={() => setCoresAlvoManuais([])}
-        className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-      >
-        Limpar
-      </button>
-    </div>
+                      <div className="flex flex-wrap gap-2">
+                        {coresAlvoManuais.map((cor, index) => (
+                          <span
+                            key={`${cor.r}-${cor.g}-${cor.b}-${index}`}
+                            className="h-5 w-5 rounded border border-white/30"
+                            title={`Cor ${index + 1}`}
+                            style={{
+                              backgroundColor: `rgb(${cor.r}, ${cor.g}, ${cor.b})`,
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </aside>
 
-    <div className="flex flex-wrap gap-2">
-      {coresAlvoManuais.map((cor, index) => (
-        <span
-          key={`${cor.r}-${cor.g}-${cor.b}-${index}`}
-          className="h-5 w-5 rounded border border-white/30"
-          title={`Cor ${index + 1}`}
-          style={{
-            backgroundColor: `rgb(${cor.r}, ${cor.g}, ${cor.b})`,
-          }}
-        />
-      ))}
-    </div>
-  </div>
-)}
-  </div>
-)}
+            <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+              <h2 className="mb-4 text-center text-xl font-black">
+                Imagem original
+              </h2>
 
-          </aside>
+              <div
+                className="flex w-full items-center justify-center rounded-2xl bg-white p-4"
+                style={{
+                  height: modo === "assinatura" ? "260px" : "360px",
+                }}
+              >
+                {imagemOriginal ? (
+                  <img
+                    ref={imagemOriginalRef}
+                    src={imagemOriginal}
+                    alt="Imagem original"
+                    onClick={
+                      modo === "objeto" && removerBrancoInterno
+                        ? selecionarCorManual
+                        : undefined
+                    }
+                    className={`max-h-[500px] max-w-full object-contain ${
+                      modo === "objeto" && removerBrancoInterno
+                        ? "cursor-crosshair"
+                        : ""
+                    }`}
+                  />
+                ) : (
+                  <p className="text-slate-400">
+                    Envie uma imagem para começar
+                  </p>
+                )}
+              </div>
+            </div>
 
-          <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
-            <h2 className="mb-4 text-center text-xl font-black">
-              Imagem original
-            </h2>
+            <div className="h-fit rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
+              <h2 className="mb-4 text-center text-xl font-black text-cyan-200">
+                Resultado transparente
+              </h2>
 
-<div
-  className="flex w-full items-center justify-center rounded-2xl bg-white p-4"
-  style={{
-  height: modo === "assinatura" ? "260px" : "360px",
-}}
->              {imagemOriginal ? (
-                <img
-  ref={imagemOriginalRef}
-  src={imagemOriginal}
-  alt="Imagem original"
-  onClick={modo === "objeto" && removerBrancoInterno ? selecionarCorManual : undefined}
-  className={`max-h-[500px] max-w-full object-contain ${
-    modo === "objeto" && removerBrancoInterno ? "cursor-crosshair" : ""
-  }`}
-/>
-              ) : (
-                <p className="text-slate-400">Envie uma imagem para começar</p>
+              <div
+                onWheel={(e) => {
+                  if (!imagemFinal) return;
+
+                  e.preventDefault();
+
+                  const direcao = e.deltaY > 0 ? -0.1 : 0.1;
+
+                  setZoomResultado((z) =>
+                    Math.max(
+                      0.5,
+                      Math.min(5, Number((z + direcao).toFixed(2)))
+                    )
+                  );
+                }}
+                onMouseDown={(e) => {
+                  if (!imagemFinal || zoomResultado <= 1) return;
+
+                  arrastandoResultadoRef.current = true;
+                  ultimoMouseResultadoRef.current = {
+                    x: e.clientX,
+                    y: e.clientY,
+                  };
+                }}
+                onMouseMove={(e) => {
+                  if (!arrastandoResultadoRef.current || zoomResultado <= 1) {
+                    return;
+                  }
+
+                  const dx = e.clientX - ultimoMouseResultadoRef.current.x;
+                  const dy = e.clientY - ultimoMouseResultadoRef.current.y;
+
+                  ultimoMouseResultadoRef.current = {
+                    x: e.clientX,
+                    y: e.clientY,
+                  };
+
+                  setPanResultado((pan) => ({
+                    x: pan.x + dx,
+                    y: pan.y + dy,
+                  }));
+                }}
+                onMouseUp={() => {
+                  arrastandoResultadoRef.current = false;
+                }}
+                onMouseLeave={() => {
+                  arrastandoResultadoRef.current = false;
+                }}
+                className={`flex w-full select-none items-center justify-center overflow-hidden rounded-2xl p-4 ${
+                  modo === "assinatura" && fundoPreview === "verde"
+                    ? "bg-emerald-500"
+                    : modo === "assinatura" && fundoPreview === "azul"
+                      ? "bg-blue-500"
+                      : modo === "assinatura" && fundoPreview === "preto"
+                        ? "bg-black"
+                        : modo === "assinatura" && fundoPreview === "branco"
+                          ? "bg-white"
+                          : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
+                }`}
+                style={{
+                  height: modo === "assinatura" ? "260px" : "360px",
+                  cursor:
+                    imagemFinal && zoomResultado > 1 ? "grab" : "default",
+                }}
+              >
+                {imagemFinal ? (
+                  <img
+                    src={imagemFinal}
+                    alt="Resultado transparente"
+                    draggable={false}
+                    className="max-h-[240px] max-w-full object-contain"
+                    style={{
+                      opacity: opacidade / 100,
+                      filter: "none",
+                      transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
+                      transformOrigin: "center",
+                    }}
+                  />
+                ) : (
+                  <p className="text-cyan-100">Resultado aparecerá aqui</p>
+                )}
+              </div>
+
+              {imagemFinal && (
+                <div className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-slate-950/60 px-2 py-2">
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setZoomResultado((z) =>
+                          Math.max(0.5, Number((z - 0.1).toFixed(2)))
+                        )
+                      }
+                      className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+                    >
+                      -
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setZoomResultado((z) =>
+                          Math.min(5, Number((z + 0.1).toFixed(2)))
+                        )
+                      }
+                      className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <span className="text-[10px] font-bold text-white/80">
+                    Baixar:
+                  </span>
+
+                  <button
+                    onClick={() => baixarImagem("png")}
+                    className="rounded-md bg-cyan-400 px-2 py-1 text-[10px] font-bold text-slate-950 hover:bg-cyan-300"
+                  >
+                    PNG
+                  </button>
+
+                  <button
+                    onClick={() => baixarImagem("jpg")}
+                    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+                  >
+                    JPG
+                  </button>
+
+                  <button
+                    onClick={() => baixarImagem("webp")}
+                    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+                  >
+                    WebP
+                  </button>
+                </div>
               )}
             </div>
-          </div>
 
-          <div className="h-fit rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
-            <h2 className="mb-4 text-center text-xl font-black text-cyan-200">
-              Resultado transparente
-            </h2>
+            <div className="rounded-2xl border border-white/10 bg-slate-900 p-3 lg:col-span-3">
+              <h3 className="mb-2 text-base font-black text-white">
+                Ajustes da imagem
+              </h3>
 
-            <div
-  onWheel={(e) => {
-    if (!imagemFinal) return;
-
-    e.preventDefault();
-
-    const direcao = e.deltaY > 0 ? -0.1 : 0.1;
-
-    setZoomResultado((z) =>
-      Math.max(0.5, Math.min(5, Number((z + direcao).toFixed(2))))
-    );
-  }}
-  className={`flex w-full items-center justify-center overflow-hidden rounded-2xl p-4 ${
-  
-    modo === "assinatura" && fundoPreview === "verde"
-      ? "bg-emerald-500"
-      : modo === "assinatura" && fundoPreview === "azul"
-        ? "bg-blue-500"
-        : modo === "assinatura" && fundoPreview === "preto"
-          ? "bg-black"
-          : modo === "assinatura" && fundoPreview === "branco"
-            ? "bg-white"
-            : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
-  }`}
-  style={{
-    height: modo === "assinatura" ? "260px" : "360px",
-  }}
->
-              {imagemFinal ? (
-                <img
-                  src={imagemFinal}
-                  alt="Resultado transparente"
-                  className="max-h-[240px] max-w-full object-contain"
-                 style={{
-  opacity: opacidade / 100,
-  filter: "none",
-  transform: `scale(${zoomResultado})`,
-  transformOrigin: "center",
-}}
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                <Controle
+                  label="Sensibilidade"
+                  valor={sensibilidade}
+                  min={5}
+                  max={80}
+                  onChange={setSensibilidade}
                 />
-              ) : (
-                <p className="text-cyan-100">Resultado aparecerá aqui</p>
-              )}
+
+                <Controle
+                  label="Suavizar borda"
+                  valor={suavizacao}
+                  min={0}
+                  max={6}
+                  onChange={setSuavizacao}
+                />
+
+                <Controle
+                  label="Brilho"
+                  valor={brilho}
+                  min={40}
+                  max={180}
+                  onChange={setBrilho}
+                />
+
+                <Controle
+                  label="Contraste"
+                  valor={contraste}
+                  min={40}
+                  max={220}
+                  onChange={setContraste}
+                />
+
+                <Controle
+                  label="Saturação"
+                  valor={saturacao}
+                  min={0}
+                  max={220}
+                  onChange={setSaturacao}
+                />
+
+                <Controle
+                  label="Opacidade"
+                  valor={opacidade}
+                  min={0}
+                  max={100}
+                  onChange={setOpacidade}
+                />
+
+                {modo === "assinatura" && (
+                  <Controle
+                    label="Intensidade do traço"
+                    valor={intensidadeTraco}
+                    min={0}
+                    max={100}
+                    onChange={setIntensidadeTraco}
+                  />
+                )}
+              </div>
             </div>
-
-            {imagemFinal && (
-  <div className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-slate-950/60 px-2 py-2">
-    <div className="flex items-center gap-1">
-  <button
-    type="button"
-    onClick={() =>
-  setZoomResultado((z) =>
-    Math.max(0.5, Number((z - 0.1).toFixed(2)))
-  )
-}
-    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-  >
-    -
-  </button>
-
-  <button
-    type="button"
-    onClick={() =>
-  setZoomResultado((z) =>
-    Math.min(5, Number((z + 0.1).toFixed(2)))
-  )
-}
-    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-  >
-    +
-  </button>
-</div>
-
-<span className="text-[10px] font-bold text-white/80">
-  Baixar:
-</span>
-
-    <button
-      onClick={() => baixarImagem("png")}
-      className="rounded-md bg-cyan-400 px-2 py-1 text-[10px] font-bold text-slate-950 hover:bg-cyan-300"
-    >
-      PNG
-    </button>
-
-    <button
-      onClick={() => baixarImagem("jpg")}
-      className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-    >
-      JPG
-    </button>
-
-    <button
-      onClick={() => baixarImagem("webp")}
-      className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-    >
-      WebP
-    </button>
-  </div>
-)}
           </div>
-                  <div className="lg:col-span-3 rounded-2xl border border-white/10 bg-slate-900 p-3">
-  <h3 className="mb-2 text-base font-black text-white">
-    Ajustes da imagem
-  </h3>
 
-  <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <button
+            type="button"
+            onClick={removerFundo}
+            disabled={!imagemOriginal || processando}
+            className="mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {processando ? "Processando..." : "Remover fundo"}
+          </button>
 
-   <Controle
-              label="Sensibilidade"
-              valor={sensibilidade}
-              min={5}
-              max={80}
-              onChange={setSensibilidade}
-            />
-
-            <Controle
-              label="Suavizar borda"
-              valor={suavizacao}
-              min={0}
-              max={6}
-              onChange={setSuavizacao}
-            />
-
-            <Controle
-              label="Brilho"
-              valor={brilho}
-              min={40}
-              max={180}
-              onChange={setBrilho}
-            />
-
-            <Controle
-              label="Contraste"
-              valor={contraste}
-              min={40}
-              max={220}
-              onChange={setContraste}
-            />
-
-            <Controle
-              label="Saturação"
-              valor={saturacao}
-              min={0}
-              max={220}
-              onChange={setSaturacao}
-            />
-
-            <Controle
-              label="Opacidade"
-              valor={opacidade}
-              min={0}
-              max={100}
-              onChange={setOpacidade}
-            />
-
-            {modo === "assinatura" && (
-              <Controle
-                label="Intensidade do traço"
-                valor={intensidadeTraco}
-                min={0}
-                max={100}
-                onChange={setIntensidadeTraco}
-              />
-            )}
-</div>
-</div>
-</div>
-<button
-  type="button"
-  onClick={removerFundo}
-  disabled={!imagemOriginal || processando}
-  className="mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
->
-  {processando ? "Processando..." : "Remover fundo"}
-</button>
-        <canvas ref={canvasRef} className="hidden" />
-      </div>
-        </section>
-  </>
+          <canvas ref={canvasRef} className="hidden" />
+        </div>
+      </section>
+    </>
   );
 }
 

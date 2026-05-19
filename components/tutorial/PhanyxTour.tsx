@@ -44,10 +44,7 @@ export default function PhanyxTour({
     setConcluido(false);
     setStepIndex(0);
     setAberto(true);
-    return;
-  }
-
-  if (!oculto) {
+  } else if (!oculto) {
     setAberto(true);
   }
 
