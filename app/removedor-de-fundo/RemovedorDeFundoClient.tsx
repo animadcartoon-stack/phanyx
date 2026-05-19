@@ -455,12 +455,21 @@ if (removerBrancoInterno && modo === "objeto") {
     const g = data[di + 1];
     const b = data[di + 2];
 
-    const brancoOuQuaseBranco =
-      r > 230 &&
-      g > 230 &&
-      b > 230;
+    const brancoOuQuaseBranco = r > 230 && g > 230 && b > 230;
 
-    if (brancoOuQuaseBranco) {
+    const parecidoComAlgumaCorEscolhida = coresBase.some((corBase) =>
+      pareceCorDoFundo(
+        r,
+        g,
+        b,
+        corBase.r,
+        corBase.g,
+        corBase.b,
+        sensibilidade
+      )
+    );
+
+    if (brancoOuQuaseBranco || parecidoComAlgumaCorEscolhida) {
       remover[i] = 1;
     }
   }
