@@ -32,7 +32,20 @@ export default function PhanyxTour({
   const [concluido, setConcluido] = useState(false);
 
   useEffect(() => {
+  const continuarTour = sessionStorage.getItem("phanyx-continuar-tour");
   const oculto = localStorage.getItem(storageKey);
+
+  if (
+    continuarTour === storageKey ||
+    (storageKey === "phanyx-tour-recebimentos" &&
+      continuarTour === "recebimentos")
+  ) {
+    sessionStorage.removeItem("phanyx-continuar-tour");
+    setConcluido(false);
+    setStepIndex(0);
+    setAberto(true);
+    return;
+  }
 
   if (!oculto) {
     setAberto(true);

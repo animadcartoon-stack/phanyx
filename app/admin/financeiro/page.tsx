@@ -324,13 +324,17 @@ function FinanceiroTour({
             </p>
 
             <div className="mt-6">
-              <Link
-                href="/admin/financeiro/recebimentos"
-                onClick={() => onClose(false)}
-                className="rounded-xl bg-blue-600 px-4 py-2 text-white"
-              >
-                Ir para recebimentos
-              </Link>
+              <button
+  type="button"
+  onClick={() => {
+    sessionStorage.setItem("phanyx-continuar-tour", "recebimentos");
+    onClose(false);
+    window.location.href = "/admin/financeiro/recebimentos";
+  }}
+  className="rounded-xl bg-blue-600 px-4 py-2 text-white"
+>
+  Ir para recebimentos
+</button>
             </div>
           </div>
         )}

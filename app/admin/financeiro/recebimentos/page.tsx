@@ -105,6 +105,7 @@ const recebimentosTourSteps = [
 ];
 
 export default function AdminFinanceiroRecebimentosPage() {
+  const [tourAberto, setTourAberto] = useState(false);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
@@ -136,6 +137,7 @@ export default function AdminFinanceiroRecebimentosPage() {
   const [loteJurosValor, setLoteJurosValor] = useState("");
   const [loteMultaValor, setLoteMultaValor] = useState("");
   const [baixandoLote, setBaixandoLote] = useState(false);
+  
 
   async function carregarRecebimentos() {
     try {
@@ -434,6 +436,18 @@ function calcularValorFinalLote(item: RecebimentoItem) {
     totalAtrasado,
   };
 }, [recebimentos]);
+
+useEffect(() => {
+  const continuarTour = sessionStorage.getItem("phanyx-continuar-tour");
+
+  if (continuarTour === "recebimentos") {
+    sessionStorage.removeItem("phanyx-continuar-tour");
+
+    setTimeout(() => {
+      setTourAberto(true);
+    }, 600);
+  }
+}, []);
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -873,9 +887,9 @@ function calcularValorFinalLote(item: RecebimentoItem) {
             </div>
 
       <PhanyxTour
-        steps={recebimentosTourSteps}
-        storageKey="phanyx-tour-recebimentos"
-      />
+  steps={recebimentosTourSteps}
+  storageKey="phanyx-tour-recebimentos"
+/>
     </div>
   );
 }
