@@ -31,11 +31,9 @@ export default function RemovedorDeFundoClient() {
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
 
-  const [corAlvoManual, setCorAlvoManual] = useState<{
-  r: number;
-  g: number;
-  b: number;
-} | null>(null);
+  const [coresAlvoManuais, setCoresAlvoManuais] = useState<
+  { r: number; g: number; b: number }[]
+>([]);
 
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
@@ -266,11 +264,14 @@ function pareceCorDoFundo(
 
   const pixel = tempCtx.getImageData(x, y, 1, 1).data;
 
-  setCorAlvoManual({
+  setCoresAlvoManuais((cores) => [
+  ...cores,
+  {
     r: pixel[0],
     g: pixel[1],
     b: pixel[2],
-  });
+  },
+]);
 }
 
   function removerFundo() {
@@ -386,18 +387,16 @@ if (modo === "assinatura") {
         dataIndex(width - 1, height - 1, width),
       ];
 
-      const baseR = corAlvoManual
-  ? corAlvoManual.r
-  : Math.round(cantos.reduce((s, i) => s + data[i], 0) / cantos.length);
-
-const baseG = corAlvoManual
-  ? corAlvoManual.g
-  : Math.round(cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length);
-
-const baseB = corAlvoManual
-  ? corAlvoManual.b
-  : Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length);
-
+      const coresBase =
+  coresAlvoManuais.length > 0
+    ? coresAlvoManuais
+    : [
+        {
+          r: Math.round(cantos.reduce((s, i) => s + data[i], 0) / cantos.length),
+          g: Math.round(cantos.reduce((s, i) => s + data[i + 1], 0) / cantos.length),
+          b: Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length),
+        },
+      ];
       const fila: Array<[number, number]> = [];
 
       for (let x = 0; x < width; x++) {
@@ -426,15 +425,17 @@ const baseB = corAlvoManual
         const g = data[di + 1];
         const b = data[di + 2];
 
-        const parecidoComFundo = pareceCorDoFundo(
-          r,
-          g,
-          b,
-          baseR,
-          baseG,
-          baseB,
-          sensibilidade
-        );
+        const parecidoComFundo = coresBase.some((corBase) =>
+  pareceCorDoFundo(
+    r,
+    g,
+    b,
+    corBase.r,
+    corBase.g,
+    corBase.b,
+    sensibilidade
+  )
+);
 
 if (parecidoComFundo) {
           remover[p] = 1;
@@ -595,7 +596,7 @@ useEffect(() => {
   modo,
   manterObjetoPrincipal,
   removerBrancoInterno,
-  corAlvoManual,
+  coresAlvoManuais,
 ]);
 
   function baixarImagem(tipo: DownloadTipo) {
@@ -844,17 +845,34 @@ useEffect(() => {
       </button>
     </div>
 
-    {corAlvoManual && (
-      <div className="mt-3 flex items-center gap-2">
-        <span>Cor escolhida:</span>
+    {coresAlvoManuais.length > 0 && (
+  <div className="mt-3">
+    <div className="mb-2 flex items-center justify-between gap-2">
+      <span>Cores escolhidas:</span>
+
+      <button
+        type="button"
+        onClick={() => setCoresAlvoManuais([])}
+        className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
+      >
+        Limpar
+      </button>
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      {coresAlvoManuais.map((cor, index) => (
         <span
+          key={`${cor.r}-${cor.g}-${cor.b}-${index}`}
           className="h-5 w-5 rounded border border-white/30"
+          title={`Cor ${index + 1}`}
           style={{
-            backgroundColor: `rgb(${corAlvoManual.r}, ${corAlvoManual.g}, ${corAlvoManual.b})`,
+            backgroundColor: `rgb(${cor.r}, ${cor.g}, ${cor.b})`,
           }}
         />
-      </div>
-    )}
+      ))}
+    </div>
+  </div>
+)}
   </div>
 )}
 
