@@ -17,6 +17,7 @@ export default function RemovedorDeFundoClient() {
   const editandoPincelRef = useRef(false);
   const arrastandoResultadoRef = useRef(false);
   const ultimoMouseResultadoRef = useRef({ x: 0, y: 0 });
+  const ultimoPontoPincelRef = useRef<{ x: number; y: number } | null>(null);
   const historicoEdicaoRef = useRef<string[]>([]);
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
@@ -413,32 +414,51 @@ export default function RemovedorDeFundoClient() {
         const baseData = baseCtx.getImageData(0, 0, baseCanvas.width, baseCanvas.height).data;
 
         const raio = Math.max(2, tamanhoPincel / 2);
-        const raioQuadrado = raio * raio;
+const raioQuadrado = raio * raio;
 
-        const inicioX = Math.max(0, Math.floor(x - raio));
-        const fimX = Math.min(editCanvas.width - 1, Math.ceil(x + raio));
-        const inicioY = Math.max(0, Math.floor(y - raio));
-        const fimY = Math.min(editCanvas.height - 1, Math.ceil(y + raio));
+const pontoAnterior = ultimoPontoPincelRef.current ?? { x, y };
 
-        for (let py = inicioY; py <= fimY; py++) {
-          for (let px = inicioX; px <= fimX; px++) {
-            const dx = px - x;
-            const dy = py - y;
+const distancia = Math.hypot(
+  x - pontoAnterior.x,
+  y - pontoAnterior.y
+);
 
-            if (dx * dx + dy * dy > raioQuadrado) continue;
+const passos = Math.max(1, Math.ceil(distancia / 2));
 
-            const di = dataIndex(px, py, editCanvas.width);
+for (let passo = 0; passo <= passos; passo++) {
+  const pxCentro =
+    pontoAnterior.x + ((x - pontoAnterior.x) * passo) / passos;
 
-            if (ferramentaPincel === "apagar") {
-              data[di + 3] = 0;
-            } else {
-              data[di] = baseData[di];
-              data[di + 1] = baseData[di + 1];
-              data[di + 2] = baseData[di + 2];
-              data[di + 3] = Math.round(255 * (opacidade / 100));
-            }
-          }
-        }
+  const pyCentro =
+    pontoAnterior.y + ((y - pontoAnterior.y) * passo) / passos;
+
+  const inicioX = Math.max(0, Math.floor(pxCentro - raio));
+  const fimX = Math.min(editCanvas.width - 1, Math.ceil(pxCentro + raio));
+  const inicioY = Math.max(0, Math.floor(pyCentro - raio));
+  const fimY = Math.min(editCanvas.height - 1, Math.ceil(pyCentro + raio));
+
+  for (let py = inicioY; py <= fimY; py++) {
+    for (let px = inicioX; px <= fimX; px++) {
+      const dx = px - pxCentro;
+      const dy = py - pyCentro;
+
+      if (dx * dx + dy * dy > raioQuadrado) continue;
+
+      const di = dataIndex(px, py, editCanvas.width);
+
+      if (ferramentaPincel === "apagar") {
+        data[di + 3] = 0;
+      } else {
+        data[di] = baseData[di];
+        data[di + 1] = baseData[di + 1];
+        data[di + 2] = baseData[di + 2];
+        data[di + 3] = Math.round(255 * (opacidade / 100));
+      }
+    }
+  }
+}
+
+ultimoPontoPincelRef.current = { x, y };
 
         editCtx.putImageData(finalData, 0, 0);
 
@@ -1301,11 +1321,13 @@ export default function RemovedorDeFundoClient() {
                   aplicarPincelResultado(e);
                 }}
                 onMouseUp={() => {
-                  editandoPincelRef.current = false;
-                }}
+  editandoPincelRef.current = false;
+  ultimoPontoPincelRef.current = null;
+}}
                 onMouseLeave={() => {
-                  editandoPincelRef.current = false;
-                }}
+  editandoPincelRef.current = false;
+  ultimoPontoPincelRef.current = null;
+}}
                 className="max-h-[78vh] max-w-full object-contain"
                 style={{
                   opacity: opacidade / 100,
