@@ -372,111 +372,90 @@ export default function RemovedorDeFundoClient() {
   }
 
   function aplicarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
-    if (!pincelAtivo || !imagemFinal || !imagemBaseEdicao) {
-      return;
-    }
+  if (!pincelAtivo || !canvasRef.current || !imagemBaseEdicao) return;
 
-    const imgResultado = e.currentTarget;
-    const rect = imgResultado.getBoundingClientRect();
+  const imgResultado = e.currentTarget;
+  const rect = imgResultado.getBoundingClientRect();
 
-    const x = Math.floor(((e.clientX - rect.left) / rect.width) * imgResultado.naturalWidth);
-    const y = Math.floor(((e.clientY - rect.top) / rect.height) * imgResultado.naturalHeight);
+  const x = Math.floor(
+    ((e.clientX - rect.left) / rect.width) * canvasRef.current.width
+  );
 
-    const finalImg = new Image();
-    finalImg.src = imagemFinal;
+  const y = Math.floor(
+    ((e.clientY - rect.top) / rect.height) * canvasRef.current.height
+  );
 
-    finalImg.onload = () => {
-      const baseImg = new Image();
-      baseImg.src = imagemBaseEdicao;
+  const canvas = canvasRef.current;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
 
-      baseImg.onload = () => {
-        const editCanvas = document.createElement("canvas");
-        editCanvas.width = finalImg.naturalWidth;
-        editCanvas.height = finalImg.naturalHeight;
+  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const data = imageData.data;
 
-        const editCtx = editCanvas.getContext("2d", { willReadFrequently: true });
-        if (!editCtx) return;
+  const baseImg = new Image();
+  baseImg.src = imagemBaseEdicao;
 
-        editCtx.drawImage(finalImg, 0, 0);
+  baseImg.onload = () => {
+    const baseCanvas = document.createElement("canvas");
+    baseCanvas.width = canvas.width;
+    baseCanvas.height = canvas.height;
 
-        const finalData = editCtx.getImageData(0, 0, editCanvas.width, editCanvas.height);
-        const data = finalData.data;
+    const baseCtx = baseCanvas.getContext("2d", { willReadFrequently: true });
+    if (!baseCtx) return;
 
-        const baseCanvas = document.createElement("canvas");
-        baseCanvas.width = editCanvas.width;
-        baseCanvas.height = editCanvas.height;
+    baseCtx.drawImage(baseImg, 0, 0, canvas.width, canvas.height);
 
-        const baseCtx = baseCanvas.getContext("2d", { willReadFrequently: true });
-        if (!baseCtx) return;
+    const baseData = baseCtx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    ).data;
 
-        baseCtx.drawImage(baseImg, 0, 0, baseCanvas.width, baseCanvas.height);
+    const raio = Math.max(2, tamanhoPincel / 2);
+    const raioQuadrado = raio * raio;
 
-        const baseData = baseCtx.getImageData(0, 0, baseCanvas.width, baseCanvas.height).data;
+    const anterior = ultimoPontoPincelRef.current ?? { x, y };
 
-        const raio = Math.max(2, tamanhoPincel / 2);
-const raioQuadrado = raio * raio;
+    const distancia = Math.hypot(x - anterior.x, y - anterior.y);
+    const passos = Math.max(1, Math.ceil(distancia / Math.max(1, raio / 3)));
 
-const pontoAnterior = ultimoPontoPincelRef.current ?? { x, y };
+    for (let passo = 0; passo <= passos; passo++) {
+      const cx = anterior.x + ((x - anterior.x) * passo) / passos;
+      const cy = anterior.y + ((y - anterior.y) * passo) / passos;
 
-const distancia = Math.hypot(
-  x - pontoAnterior.x,
-  y - pontoAnterior.y
-);
+      const inicioX = Math.max(0, Math.floor(cx - raio));
+      const fimX = Math.min(canvas.width - 1, Math.ceil(cx + raio));
+      const inicioY = Math.max(0, Math.floor(cy - raio));
+      const fimY = Math.min(canvas.height - 1, Math.ceil(cy + raio));
 
-const passos = Math.max(1, Math.ceil(distancia / 2));
+      for (let py = inicioY; py <= fimY; py++) {
+        for (let px = inicioX; px <= fimX; px++) {
+          const dx = px - cx;
+          const dy = py - cy;
 
-for (let passo = 0; passo <= passos; passo++) {
-  const pxCentro =
-    pontoAnterior.x + ((x - pontoAnterior.x) * passo) / passos;
+          if (dx * dx + dy * dy > raioQuadrado) continue;
 
-  const pyCentro =
-    pontoAnterior.y + ((y - pontoAnterior.y) * passo) / passos;
+          const di = dataIndex(px, py, canvas.width);
 
-  const inicioX = Math.max(0, Math.floor(pxCentro - raio));
-  const fimX = Math.min(editCanvas.width - 1, Math.ceil(pxCentro + raio));
-  const inicioY = Math.max(0, Math.floor(pyCentro - raio));
-  const fimY = Math.min(editCanvas.height - 1, Math.ceil(pyCentro + raio));
-
-  for (let py = inicioY; py <= fimY; py++) {
-    for (let px = inicioX; px <= fimX; px++) {
-      const dx = px - pxCentro;
-      const dy = py - pyCentro;
-
-      if (dx * dx + dy * dy > raioQuadrado) continue;
-
-      const di = dataIndex(px, py, editCanvas.width);
-
-      if (ferramentaPincel === "apagar") {
-        data[di + 3] = 0;
-      } else {
-        data[di] = baseData[di];
-        data[di + 1] = baseData[di + 1];
-        data[di + 2] = baseData[di + 2];
-        data[di + 3] = Math.round(255 * (opacidade / 100));
+          if (ferramentaPincel === "apagar") {
+            data[di + 3] = 0;
+          } else {
+            data[di] = baseData[di];
+            data[di + 1] = baseData[di + 1];
+            data[di + 2] = baseData[di + 2];
+            data[di + 3] = Math.round(255 * (opacidade / 100));
+          }
+        }
       }
     }
-  }
+
+    ultimoPontoPincelRef.current = { x, y };
+
+    ctx.putImageData(imageData, 0, 0);
+    setImagemFinal(canvas.toDataURL("image/png"));
+  };
 }
-
-ultimoPontoPincelRef.current = { x, y };
-
-        editCtx.putImageData(finalData, 0, 0);
-
-        const novoResultado = editCanvas.toDataURL("image/png");
-        setImagemFinal(novoResultado);
-
-        const canvasPrincipal = canvasRef.current;
-        const ctxPrincipal = canvasPrincipal?.getContext("2d");
-
-        if (canvasPrincipal && ctxPrincipal) {
-          canvasPrincipal.width = editCanvas.width;
-          canvasPrincipal.height = editCanvas.height;
-          ctxPrincipal.clearRect(0, 0, canvasPrincipal.width, canvasPrincipal.height);
-          ctxPrincipal.drawImage(editCanvas, 0, 0);
-        }
-      };
-    };
-  }
 
 
   async function removerFundoPessoaMediaPipe() {
@@ -1749,7 +1728,10 @@ ultimoPontoPincelRef.current = { x, y };
                       <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
-                          onClick={() => setFerramentaPincel("apagar")}
+                          onClick={() => {
+  setPincelAtivo(true);
+  setFerramentaPincel("apagar");
+}}
                           className={`rounded-lg px-2 py-2 text-[10px] font-black ${
                             ferramentaPincel === "apagar"
                               ? "bg-cyan-400 text-slate-950"
@@ -1761,7 +1743,10 @@ ultimoPontoPincelRef.current = { x, y };
 
                         <button
                           type="button"
-                          onClick={() => setFerramentaPincel("restaurar")}
+                          onClick={() => {
+  setPincelAtivo(true);
+  setFerramentaPincel("restaurar");
+}}
                           className={`rounded-lg px-2 py-2 text-[10px] font-black ${
                             ferramentaPincel === "restaurar"
                               ? "bg-cyan-400 text-slate-950"
