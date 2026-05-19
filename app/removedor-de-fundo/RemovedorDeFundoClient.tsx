@@ -376,7 +376,7 @@ async function removerFundoPessoa() {
 }
 
   function removerFundo() {
-    
+
     if (modo === "pessoa") {
   removerFundoPessoa();
   return;
@@ -670,7 +670,7 @@ useEffect(() => {
 
     if (e.key === "+" || e.key === "=") {
       e.preventDefault();
-      setZoomResultado((z) => Math.min(3, Number((z + 0.1).toFixed(2))));
+      setZoomResultado((z) => Math.min(5, Number((z + 0.1).toFixed(2))));
     }
 
     if (e.key === "-" || e.key === "_") {
@@ -869,38 +869,40 @@ useEffect(() => {
             <div className="rounded-2xl bg-slate-900 p-3">
               <h3 className="mb-2 text-sm font-bold">Modo</h3>
 
-              <div className="flex gap-2">
+              <div className="grid grid-cols-3 gap-2">
                 <button
-                  onClick={() => setModo("assinatura")}
-                  className={`rounded-lg px-3 py-2 text-xs font-bold ${
-                    modo === "assinatura"
-                      ? "bg-cyan-500 text-black"
-                      : "bg-slate-800"
-                  }`}
-                >
-                  Assinatura
-                </button>
+  onClick={() => setModo("assinatura")}
+  className={`rounded-xl px-2 py-3 text-xs font-bold leading-tight transition ${
+    modo === "assinatura"
+      ? "bg-cyan-500 text-black"
+      : "bg-slate-800 text-white"
+  }`}
+>
+  Assinatura
+</button>
 
                 <button
-                  onClick={() => setModo("objeto")}
-                  className={`rounded-xl px-4 py-3 font-bold ${
-                    modo === "objeto"
-                      ? "bg-cyan-500 text-black"
-                      : "bg-slate-800"
-                  }`}
-                >
-                  Objeto
-                </button>
+  onClick={() => setModo("objeto")}
+  className={`rounded-xl px-2 py-3 text-xs font-bold leading-tight transition ${
+    modo === "objeto"
+      ? "bg-cyan-500 text-black"
+      : "bg-slate-800 text-white"
+  }`}
+>
+  Objeto
+</button>
 
 <button
   onClick={() => setModo("pessoa")}
-  className={`rounded-xl px-4 py-3 font-bold ${
+  className={`rounded-xl px-2 py-3 text-xs font-bold leading-tight transition ${
     modo === "pessoa"
       ? "bg-cyan-500 text-black"
-      : "bg-slate-800"
+      : "bg-slate-800 text-white"
   }`}
 >
-  Pessoa / Foto
+  Pessoa
+  <br />
+  Foto
 </button>
 
               </div>
@@ -1037,7 +1039,19 @@ useEffect(() => {
             </h2>
 
             <div
+  onWheel={(e) => {
+    if (!imagemFinal) return;
+
+    e.preventDefault();
+
+    const direcao = e.deltaY > 0 ? -0.1 : 0.1;
+
+    setZoomResultado((z) =>
+      Math.max(0.5, Math.min(5, Number((z + direcao).toFixed(2))))
+    );
+  }}
   className={`flex w-full items-center justify-center overflow-hidden rounded-2xl p-4 ${
+  
     modo === "assinatura" && fundoPreview === "verde"
       ? "bg-emerald-500"
       : modo === "assinatura" && fundoPreview === "azul"
@@ -1074,7 +1088,11 @@ useEffect(() => {
     <div className="flex items-center gap-1">
   <button
     type="button"
-    onClick={() => setZoomResultado((z) => Math.max(0.5, z - 0.1))}
+    onClick={() =>
+  setZoomResultado((z) =>
+    Math.max(0.5, Number((z - 0.1).toFixed(2)))
+  )
+}
     className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
   >
     -
@@ -1082,7 +1100,11 @@ useEffect(() => {
 
   <button
     type="button"
-    onClick={() => setZoomResultado((z) => Math.min(3, z + 0.1))}
+    onClick={() =>
+  setZoomResultado((z) =>
+    Math.min(5, Number((z + 0.1).toFixed(2)))
+  )
+}
     className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
   >
     +
