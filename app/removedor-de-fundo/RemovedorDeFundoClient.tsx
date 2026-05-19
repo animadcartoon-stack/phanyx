@@ -356,18 +356,22 @@ export default function RemovedorDeFundoClient() {
         }
 
         const mask = bodyPix.toMask(
-          segmentation,
-          { r: 255, g: 255, b: 255, a: 255 },
-          { r: 0, g: 0, b: 0, a: 0 }
-        );
+  segmentation,
+  { r: 255, g: 255, b: 255, a: 255 },
+  { r: 0, g: 0, b: 0, a: 0 }
+);
 
-        bodyPix.drawMask(canvas, canvas, mask, 1, suavizacao, false);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const data = imageData.data;
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const data = imageData.data;
+const maskData = mask.data;
 
         for (let i = 0; i < data.length; i += 4) {
-          if (data[i + 3] === 0) continue;
+  const alphaMascara = maskData[i + 3];
+
+  if (alphaMascara === 0) {
+    data[i + 3] = 0;
+    continue;
+  }
 
           let r = data[i];
           let g = data[i + 1];
@@ -382,7 +386,7 @@ export default function RemovedorDeFundoClient() {
           data[i] = sat.r;
           data[i + 1] = sat.g;
           data[i + 2] = sat.b;
-          data[i + 3] = Math.round(data[i + 3] * (opacidade / 100));
+          data[i + 3] = Math.round(alphaMascara * (opacidade / 100));
         }
 
         ctx.putImageData(imageData, 0, 0);
