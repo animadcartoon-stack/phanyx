@@ -94,6 +94,74 @@ img.onload = () => {
     );
   }
 
+  function rgbParaHsl(r: number, g: number, b: number) {
+  r /= 255;
+  g /= 255;
+  b /= 255;
+
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+
+  let h = 0;
+  let s = 0;
+  const l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    if (max === g) h = (b - r) / d + 2;
+    if (max === b) h = (r - g) / d + 4;
+
+    h /= 6;
+  }
+
+  return {
+    h: h * 360,
+    s: s * 100,
+    l: l * 100,
+  };
+}
+
+function diferencaHue(a: number, b: number) {
+  const diff = Math.abs(a - b);
+  return Math.min(diff, 360 - diff);
+}
+
+function pareceCorDoFundo(
+  r: number,
+  g: number,
+  b: number,
+  baseR: number,
+  baseG: number,
+  baseB: number,
+  sensibilidadeAtual: number
+) {
+  const distRgb = distanciaCor(r, g, b, baseR, baseG, baseB);
+
+  const cor = rgbParaHsl(r, g, b);
+  const base = rgbParaHsl(baseR, baseG, baseB);
+
+  const diffHue = diferencaHue(cor.h, base.h);
+  const diffSat = Math.abs(cor.s - base.s);
+  const diffLum = Math.abs(cor.l - base.l);
+
+  const toleranciaRgb = sensibilidadeAtual * 1.8;
+  const toleranciaHue = Math.max(18, sensibilidadeAtual * 0.65);
+  const toleranciaSat = Math.max(28, sensibilidadeAtual * 0.9);
+  const toleranciaLum = Math.max(38, sensibilidadeAtual * 1.2);
+
+  const parecidoPorRgb = distRgb <= toleranciaRgb;
+
+  const parecidoPorCor =
+    diffHue <= toleranciaHue &&
+    diffSat <= toleranciaSat &&
+    diffLum <= toleranciaLum;
+
+  return parecidoPorRgb || parecidoPorCor;
+}
+
   function ajustarCanal(valor: number, brilhoAtual: number, contrasteAtual: number) {
     let v = valor;
 
@@ -329,8 +397,6 @@ const baseB = corAlvoManual
   ? corAlvoManual.b
   : Math.round(cantos.reduce((s, i) => s + data[i + 2], 0) / cantos.length);
 
-      const tolerancia = Math.max(6, sensibilidade * 0.75);
-
       const fila: Array<[number, number]> = [];
 
       for (let x = 0; x < width; x++) {
@@ -359,8 +425,15 @@ const baseB = corAlvoManual
         const g = data[di + 1];
         const b = data[di + 2];
 
-        const dist = distanciaCor(r, g, b, baseR, baseG, baseB);
-        const parecidoComFundo = dist <= tolerancia;
+        const parecidoComFundo = pareceCorDoFundo(
+          r,
+          g,
+          b,
+          baseR,
+          baseG,
+          baseB,
+          sensibilidade
+        );
 
 if (parecidoComFundo) {
           remover[p] = 1;
