@@ -1330,28 +1330,31 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   }
 
   const selecaoAtual = window.getSelection();
-  const temSelecao =
-    selecaoAtual &&
-    selecaoAtual.rangeCount > 0 &&
-    selecaoAtual.toString().trim().length > 0;
 
-  if (temSelecao) {
-    const range = selecaoAtual!.getRangeAt(0);
-
-    const span = document.createElement("span");
-    Object.assign(span.style, estilo);
-
-    const conteudo = range.extractContents();
-    span.appendChild(conteudo);
-    range.insertNode(span);
-  } else {
-    const span = document.createElement("span");
-    Object.assign(span.style, estilo);
-    span.innerHTML = editor.innerHTML;
-
-    editor.innerHTML = "";
-    editor.appendChild(span);
+  if (
+    !selecaoAtual ||
+    selecaoAtual.rangeCount === 0 ||
+    !selecaoAtual.toString().trim()
+  ) {
+    return;
   }
+
+  const range = selecaoAtual.getRangeAt(0);
+
+  const span = document.createElement("span");
+  Object.assign(span.style, estilo);
+
+  const conteudo = range.extractContents();
+  span.appendChild(conteudo);
+  range.insertNode(span);
+
+  const novoRange = document.createRange();
+  novoRange.selectNodeContents(span);
+
+  selecaoAtual.removeAllRanges();
+  selecaoAtual.addRange(novoRange);
+
+  selecaoTextoRef.current = novoRange.cloneRange();
 
   setCampos((prev) =>
     prev.map((campo) =>
@@ -1364,9 +1367,6 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
         : campo
     )
   );
-
-  selecaoAtual?.removeAllRanges();
-  selecaoTextoRef.current = null;
 }
 
  function iniciarDrag(
@@ -4869,21 +4869,12 @@ return;
   min={6}
   max={120}
   value={campoSelecionado?.tamanho ?? 18}
-  onMouseDown={() => {
-    const selecao = window.getSelection();
-
-    if (
-      selecao &&
-      selecao.rangeCount > 0 &&
-      selecao.toString().trim().length > 0
-    ) {
-      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
-    }
-  }}
   onChange={(e) => {
     const tamanho = Number(e.target.value);
 
     if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      if (!selecaoTextoRef.current) return;
+
       aplicarEstiloTextoSelecionado({
         fontSize: `${tamanho}px`,
       });
@@ -4904,21 +4895,12 @@ return;
                   <input
   type="color"
   value={campoSelecionado?.cor || "#1e3a8a"}
-  onPointerDown={() => {
-    const selecao = window.getSelection();
-
-    if (
-      selecao &&
-      selecao.rangeCount > 0 &&
-      selecao.toString().trim().length > 0
-    ) {
-      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
-    }
-  }}
   onChange={(e) => {
     const cor = e.target.value;
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      if (!selecaoTextoRef.current) return;
+
       aplicarEstiloTextoSelecionado({
         color: cor,
       });
