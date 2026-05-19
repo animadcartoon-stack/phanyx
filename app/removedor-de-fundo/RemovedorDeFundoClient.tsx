@@ -40,6 +40,7 @@ export default function RemovedorDeFundoClient() {
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
+  const [mostrarAjuda, setMostrarAjuda] = useState(false);
 
   function carregarImagem(file: File) {
     setErro("");
@@ -665,6 +666,53 @@ useEffect(() => {
       </div>
     )}
 
+{mostrarAjuda && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+    <div className="max-w-lg rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 shadow-2xl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-black text-cyan-200">
+          Como remover fundos coloridos
+        </h2>
+
+        <button
+          type="button"
+          onClick={() => setMostrarAjuda(false)}
+          className="rounded-full bg-slate-800 px-3 py-1 font-bold text-white hover:bg-slate-700"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="mt-5 space-y-4 text-sm leading-relaxed text-slate-200">
+        <div>
+          <strong className="text-cyan-300">Fundos simples:</strong><br />
+          Clique em qualquer área do fundo que deseja remover.
+        </div>
+
+        <div>
+          <strong className="text-cyan-300">Fundos com vários tons:</strong><br />
+          Clique em uma área média da cor dominante (nem muito clara nem muito escura).
+        </div>
+
+        <div>
+          <strong className="text-cyan-300">Se sobrar halo:</strong><br />
+          Aumente a sensibilidade entre 50 e 80.
+        </div>
+
+        <div>
+          <strong className="text-cyan-300">Se apagar partes do objeto:</strong><br />
+          Reduza a sensibilidade.
+        </div>
+
+        <div>
+          <strong className="text-cyan-300">Objetos complexos:</strong><br />
+          Ative "Manter apenas objeto principal".
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10">
@@ -781,10 +829,23 @@ useEffect(() => {
 
 {modo === "objeto" && removerBrancoInterno && (
   <div className="rounded-xl bg-slate-900 p-3 text-xs text-cyan-100">
-    Clique na imagem original sobre a cor do fundo que você quer remover. Pode ser branco, verde, azul, bege ou qualquer cor.
+    <div className="flex items-start justify-between gap-2">
+      <div>
+        Clique na imagem original sobre a cor do fundo que você quer remover.
+        Pode ser branco, verde, azul, bege ou qualquer cor.
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setMostrarAjuda(true)}
+        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-cyan-400 font-black text-slate-950 hover:bg-cyan-300"
+      >
+        ?
+      </button>
+    </div>
 
     {corAlvoManual && (
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-3 flex items-center gap-2">
         <span>Cor escolhida:</span>
         <span
           className="h-5 w-5 rounded border border-white/30"
