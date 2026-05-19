@@ -3022,7 +3022,8 @@ contornoEspessura: 2,
       top: `${caixaDoGrupoSelecionado.y}px`,
       width: `${caixaDoGrupoSelecionado.largura}px`,
       height: `${caixaDoGrupoSelecionado.altura}px`,
-      boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.12)",
+      backgroundColor: corFundoPagina,
+      boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.12)",  
     }}
   />
 )}
