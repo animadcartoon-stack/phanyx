@@ -342,21 +342,30 @@ export default function RemovedorDeFundoClient() {
         });
 
         const segmentation = await net.segmentMultiPerson(canvas, {
-          internalResolution: "high",
-          segmentationThreshold: 0.65,
-          maxDetections: 5,
-          scoreThreshold: 0.25,
-          nmsRadius: 20,
-        });
+  internalResolution: "full",
+  segmentationThreshold: 0.85,
+  maxDetections: 2,
+  scoreThreshold: 0.55,
+  nmsRadius: 30,
+});
 
-        if (!segmentation || segmentation.length === 0) {
-          setErro("Não consegui detectar pessoas nessa imagem.");
-          setProcessando(false);
-          return;
-        }
+if (!segmentation || segmentation.length === 0) {
+  setErro("Não consegui detectar pessoas nessa imagem.");
+  setProcessando(false);
+  return;
+}
 
-        const mask = bodyPix.toMask(
-  segmentation,
+const pessoasPrincipais = [...segmentation]
+  .map((pessoa) => ({
+    pessoa,
+    area: pessoa.data.reduce((total, pixel) => total + (pixel ? 1 : 0), 0),
+  }))
+  .sort((a, b) => b.area - a.area)
+  .slice(0, 2)
+  .map((item) => item.pessoa);
+
+const mask = bodyPix.toMask(
+  pessoasPrincipais,
   { r: 255, g: 255, b: 255, a: 255 },
   { r: 0, g: 0, b: 0, a: 0 }
 );
