@@ -8,15 +8,19 @@ import "@tensorflow/tfjs";
 type DownloadTipo = "png" | "jpg" | "webp";
 type ModoRemocao = "assinatura" | "objeto" | "pessoa";
 type MotorPessoa = "mediapipe" | "bodypix";
+type FerramentaPincel = "apagar" | "restaurar";
 
 export default function RemovedorDeFundoClient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalRef = useRef<HTMLImageElement | null>(null);
+  const imagemResultadoRef = useRef<HTMLImageElement | null>(null);
+  const editandoPincelRef = useRef(false);
   const arrastandoResultadoRef = useRef(false);
   const ultimoMouseResultadoRef = useRef({ x: 0, y: 0 });
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
+  const [imagemBaseEdicao, setImagemBaseEdicao] = useState<string | null>(null);
 
   const [fundoPreview, setFundoPreview] = useState<
     "xadrez" | "verde" | "azul" | "preto" | "branco"
@@ -49,10 +53,15 @@ export default function RemovedorDeFundoClient() {
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
   const [mostrarAjuda, setMostrarAjuda] = useState(false);
+  const [pincelAtivo, setPincelAtivo] = useState(false);
+  const [ferramentaPincel, setFerramentaPincel] = useState<FerramentaPincel>("apagar");
+  const [tamanhoPincel, setTamanhoPincel] = useState(24);
 
   function carregarImagem(file: File) {
     setErro("");
     setImagemFinal(null);
+    setImagemBaseEdicao(null);
+    setPincelAtivo(false);
     setCoresAlvoManuais([]);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
@@ -308,6 +317,107 @@ export default function RemovedorDeFundoClient() {
     });
   }
 
+  function guardarBaseEdicao(canvas: HTMLCanvasElement) {
+    const baseCanvas = document.createElement("canvas");
+    baseCanvas.width = canvas.width;
+    baseCanvas.height = canvas.height;
+
+    const baseCtx = baseCanvas.getContext("2d");
+    if (!baseCtx) return;
+
+    baseCtx.drawImage(canvas, 0, 0);
+    setImagemBaseEdicao(baseCanvas.toDataURL("image/png"));
+  }
+
+  function aplicarPincelResultado(e: React.MouseEvent<HTMLImageElement>) {
+    if (!pincelAtivo || !imagemFinal || !imagemBaseEdicao || !imagemResultadoRef.current) {
+      return;
+    }
+
+    const imgResultado = imagemResultadoRef.current;
+    const rect = imgResultado.getBoundingClientRect();
+
+    const x = Math.floor(((e.clientX - rect.left) / rect.width) * imgResultado.naturalWidth);
+    const y = Math.floor(((e.clientY - rect.top) / rect.height) * imgResultado.naturalHeight);
+
+    const finalImg = new Image();
+    finalImg.src = imagemFinal;
+
+    finalImg.onload = () => {
+      const baseImg = new Image();
+      baseImg.src = imagemBaseEdicao;
+
+      baseImg.onload = () => {
+        const editCanvas = document.createElement("canvas");
+        editCanvas.width = finalImg.naturalWidth;
+        editCanvas.height = finalImg.naturalHeight;
+
+        const editCtx = editCanvas.getContext("2d", { willReadFrequently: true });
+        if (!editCtx) return;
+
+        editCtx.drawImage(finalImg, 0, 0);
+
+        const finalData = editCtx.getImageData(0, 0, editCanvas.width, editCanvas.height);
+        const data = finalData.data;
+
+        const baseCanvas = document.createElement("canvas");
+        baseCanvas.width = editCanvas.width;
+        baseCanvas.height = editCanvas.height;
+
+        const baseCtx = baseCanvas.getContext("2d", { willReadFrequently: true });
+        if (!baseCtx) return;
+
+        baseCtx.drawImage(baseImg, 0, 0, baseCanvas.width, baseCanvas.height);
+
+        const baseData = baseCtx.getImageData(0, 0, baseCanvas.width, baseCanvas.height).data;
+
+        const raio = Math.max(2, tamanhoPincel / 2);
+        const raioQuadrado = raio * raio;
+
+        const inicioX = Math.max(0, Math.floor(x - raio));
+        const fimX = Math.min(editCanvas.width - 1, Math.ceil(x + raio));
+        const inicioY = Math.max(0, Math.floor(y - raio));
+        const fimY = Math.min(editCanvas.height - 1, Math.ceil(y + raio));
+
+        for (let py = inicioY; py <= fimY; py++) {
+          for (let px = inicioX; px <= fimX; px++) {
+            const dx = px - x;
+            const dy = py - y;
+
+            if (dx * dx + dy * dy > raioQuadrado) continue;
+
+            const di = dataIndex(px, py, editCanvas.width);
+
+            if (ferramentaPincel === "apagar") {
+              data[di + 3] = 0;
+            } else {
+              data[di] = baseData[di];
+              data[di + 1] = baseData[di + 1];
+              data[di + 2] = baseData[di + 2];
+              data[di + 3] = Math.round(255 * (opacidade / 100));
+            }
+          }
+        }
+
+        editCtx.putImageData(finalData, 0, 0);
+
+        const novoResultado = editCanvas.toDataURL("image/png");
+        setImagemFinal(novoResultado);
+
+        const canvasPrincipal = canvasRef.current;
+        const ctxPrincipal = canvasPrincipal?.getContext("2d");
+
+        if (canvasPrincipal && ctxPrincipal) {
+          canvasPrincipal.width = editCanvas.width;
+          canvasPrincipal.height = editCanvas.height;
+          ctxPrincipal.clearRect(0, 0, canvasPrincipal.width, canvasPrincipal.height);
+          ctxPrincipal.drawImage(editCanvas, 0, 0);
+        }
+      };
+    };
+  }
+
+
   async function removerFundoPessoaMediaPipe() {
     if (!imagemOriginal || !canvasRef.current) return;
 
@@ -336,6 +446,7 @@ export default function RemovedorDeFundoClient() {
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        guardarBaseEdicao(canvas);
 
         const segmenter = await bodySegmentation.createSegmenter(
           bodySegmentation.SupportedModels.MediaPipeSelfieSegmentation,
@@ -436,6 +547,7 @@ export default function RemovedorDeFundoClient() {
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        guardarBaseEdicao(canvas);
 
         const net = await bodyPix.load({
           architecture: "MobileNetV1",
@@ -562,6 +674,7 @@ export default function RemovedorDeFundoClient() {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      guardarBaseEdicao(canvas);
 
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
@@ -1292,7 +1405,7 @@ export default function RemovedorDeFundoClient() {
                   );
                 }}
                 onMouseDown={(e) => {
-                  if (!imagemFinal || zoomResultado <= 1) return;
+                  if (!imagemFinal || zoomResultado <= 1 || pincelAtivo) return;
 
                   arrastandoResultadoRef.current = true;
                   ultimoMouseResultadoRef.current = {
@@ -1301,7 +1414,7 @@ export default function RemovedorDeFundoClient() {
                   };
                 }}
                 onMouseMove={(e) => {
-                  if (!arrastandoResultadoRef.current || zoomResultado <= 1) {
+                  if (!arrastandoResultadoRef.current || zoomResultado <= 1 || pincelAtivo) {
                     return;
                   }
 
@@ -1337,15 +1450,34 @@ export default function RemovedorDeFundoClient() {
                 }`}
                 style={{
                   height: modo === "assinatura" ? "260px" : "360px",
-                  cursor:
-                    imagemFinal && zoomResultado > 1 ? "grab" : "default",
+                  cursor: pincelAtivo
+                    ? "crosshair"
+                    : imagemFinal && zoomResultado > 1
+                      ? "grab"
+                      : "default",
                 }}
               >
                 {imagemFinal ? (
                   <img
+                    ref={imagemResultadoRef}
                     src={imagemFinal}
                     alt="Resultado transparente"
                     draggable={false}
+                    onMouseDown={(e) => {
+                      if (!pincelAtivo) return;
+                      editandoPincelRef.current = true;
+                      aplicarPincelResultado(e);
+                    }}
+                    onMouseMove={(e) => {
+                      if (!pincelAtivo || !editandoPincelRef.current) return;
+                      aplicarPincelResultado(e);
+                    }}
+                    onMouseUp={() => {
+                      editandoPincelRef.current = false;
+                    }}
+                    onMouseLeave={() => {
+                      editandoPincelRef.current = false;
+                    }}
                     className="max-h-[240px] max-w-full object-contain"
                     style={{
                       opacity: opacidade / 100,
@@ -1358,6 +1490,75 @@ export default function RemovedorDeFundoClient() {
                   <p className="text-cyan-100">Resultado aparecerá aqui</p>
                 )}
               </div>
+
+              {imagemFinal && (
+                <div className="mt-3 rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-3">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <p className="text-xs font-black text-cyan-200">
+                        Refinamento manual
+                      </p>
+                      <p className="text-[10px] text-slate-300">
+                        Use depois do recorte para apagar ou restaurar detalhes.
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setPincelAtivo((ativo) => !ativo)}
+                      className={`rounded-lg px-3 py-2 text-[10px] font-black ${
+                        pincelAtivo
+                          ? "bg-cyan-400 text-slate-950"
+                          : "bg-slate-800 text-white"
+                      }`}
+                    >
+                      {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
+                    </button>
+                  </div>
+
+                  {pincelAtivo && (
+                    <div className="mt-3 space-y-3">
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setFerramentaPincel("apagar")}
+                          className={`rounded-lg px-2 py-2 text-[10px] font-black ${
+                            ferramentaPincel === "apagar"
+                              ? "bg-cyan-400 text-slate-950"
+                              : "bg-slate-800 text-white"
+                          }`}
+                        >
+                          Apagar sobra
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setFerramentaPincel("restaurar")}
+                          className={`rounded-lg px-2 py-2 text-[10px] font-black ${
+                            ferramentaPincel === "restaurar"
+                              ? "bg-cyan-400 text-slate-950"
+                              : "bg-slate-800 text-white"
+                          }`}
+                        >
+                          Restaurar parte
+                        </button>
+                      </div>
+
+                      <Controle
+                        label="Tamanho do pincel"
+                        valor={tamanhoPincel}
+                        min={4}
+                        max={90}
+                        onChange={setTamanhoPincel}
+                      />
+
+                      <p className="text-[10px] leading-tight text-cyan-100/80">
+                        Dica: dê zoom com o scroll, arraste para aproximar o detalhe e pinte sobre o resultado.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {imagemFinal && (
                 <div className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-slate-950/60 px-2 py-2">
