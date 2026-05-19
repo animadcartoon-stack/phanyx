@@ -311,7 +311,7 @@ async function removerFundoPessoa() {
         return;
       }
 
-      const maxWidth = 3000;
+      const maxWidth = 5000;
       const scale = img.width > maxWidth ? maxWidth / img.width : 1;
 
       canvas.width = Math.round(img.width * scale);
