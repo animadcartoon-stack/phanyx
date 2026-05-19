@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
+import PhanyxTour from "@/components/tutorial/PhanyxTour";
 
 type UsuarioLogado = {
   id?: number;
@@ -217,6 +218,36 @@ try {
 
   const podeVerPainelMaster =
     !carregandoUsuario && Boolean(usuario?.isMasterAdmin);
+
+const adminTourSteps = [
+  {
+    id: "painel",
+    target: '[data-tour="menu-painel"]',
+    titulo: "Painel Administrativo",
+    destaque: "Visão geral da instituição.",
+    descricao:
+      "Aqui você acompanha indicadores gerais, atalhos e resumos executivos.",
+    imagem: "/images/formix-tutorial.png",
+  },
+  {
+    id: "financeiro",
+    target: '[data-tour="financeiro-recebimentos"]',
+    titulo: "Financeiro",
+    destaque: "Controle financeiro completo.",
+    descricao:
+      "Recebimentos, caixa, inadimplência, relatórios e fechamento financeiro.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "configuracoes",
+    target: '[data-tour="menu-configuracoes"]',
+    titulo: "Configurações",
+    destaque: "Personalize sua instituição.",
+    descricao:
+      "Configure identidade visual, documentos, certificados e preferências.",
+    imagem: "/images/configuracao.png",
+  },
+];
 
   function abrirTourAdmin() {
     window.dispatchEvent(new CustomEvent("phanyx:abrir-tour-admin"));
@@ -589,6 +620,10 @@ try {
   onCancelar={() => {
     window.location.href = "/login?portal=admin";
   }}
+/>
+<PhanyxTour
+  steps={adminTourSteps}
+  storageKey="phanyx-tour-admin"
 />
     </div>
   );
