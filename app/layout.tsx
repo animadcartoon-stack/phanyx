@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import GoogleAnalyticsPHANYX from "@/components/google/GoogleAnalyticsPHANYX";
 import GoogleTagManagerInstituicao from "@/components/google/GoogleTagManagerInstituicao";
+import GoogleAdsPHANYX from "@/components/google/GoogleAdsPHANYX";
 
 
 const inter = Inter({
@@ -102,6 +103,7 @@ export default async function RootLayout({
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
   <GoogleTagManagerInstituicao />
+  <GoogleAdsPHANYX />
   {children}
 </AuthProvider>
 
