@@ -1276,7 +1276,7 @@ window.addEventListener("keyup", soltarEspaco);
       )}
 
       {modalRefinamentoAberto && imagemFinal && (
-        <div className="fixed inset-0 z-[60] bg-slate-950/95 p-4 text-white">
+        <div className="fixed inset-0 z-[60] bg-slate-950/95 p-2 text-white sm:p-4">
           <div className="mx-auto flex h-full max-w-7xl flex-col">
             {mostrarLupa && canvasRef.current && (
   <div
@@ -1323,17 +1323,17 @@ window.addEventListener("keyup", soltarEspaco);
     />
   </div>
 )}
-            <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3">
+            <div className="mb-2 flex flex-col gap-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3 sm:mb-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h2 className="text-xl font-black text-cyan-200">
                   Refinamento manual em tela grande
                 </h2>
                 <p className="text-xs text-slate-300">
-                  Clique em “Ligar pincel” ou escolha “Apagar sobra/Restaurar parte”. Use scroll para zoom e segure Espaço para mover.
+                  No celular: ligue o pincel e arraste sobre a imagem. No computador: use scroll para zoom e Espaço para mover.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
                 <button
                   type="button"
                   onClick={() => {
@@ -1405,7 +1405,7 @@ window.addEventListener("keyup", soltarEspaco);
               </div>
             </div>
 
-            <div className="mb-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3">
+            <div className="mb-2 rounded-2xl border border-cyan-400/20 bg-slate-900 p-2 sm:mb-3 sm:p-3">
               <Controle
                 label="Tamanho do pincel"
                 valor={tamanhoPincel}
@@ -1489,7 +1489,7 @@ window.addEventListener("keyup", soltarEspaco);
                 arrastandoResultadoRef.current = false;
                 editandoPincelRef.current = false;
               }}
-              className="flex min-h-0 flex-1 select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0] p-6"
+              className="flex touch-none min-h-0 flex-1 select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0] p-6"
               style={{
                 cursor: pincelAtivo ? "crosshair" : "grab",
               }}
@@ -1519,7 +1519,7 @@ window.addEventListener("keyup", soltarEspaco);
   ultimoPontoPincelRef.current = null;
   setMostrarLupa(false);
 }}
-                className="max-h-[78vh] max-w-full object-contain"
+                className="max-h-[70vh] max-w-none object-contain sm:max-h-[78vh] sm:max-w-full"
                 style={{
                   opacity: opacidade / 100,
                   transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
