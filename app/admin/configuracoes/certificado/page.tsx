@@ -4945,21 +4945,27 @@ onClick={() =>
                   </label>
                   <input
   type="color"
-  value={campoSelecionado?.cor || "#1e3a8a"}
+  value={campoSelecionado?.tamanho ?? 18}
   onChange={(e) => {
-    const cor = e.target.value;
+  const tamanho = Number(e.target.value);
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-      if (!selecaoTextoRef.current) return;
+  setTamanhoSelecaoTexto(tamanho);
 
-      aplicarEstiloTextoSelecionado({
-        color: cor,
-      });
-      return;
-    }
+  const temSelecao =
+    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+    selecaoTextoRef.current &&
+    window.getSelection()?.toString().trim();
 
-    atualizarCampoLocal("cor", cor);
-  }}
+  if (temSelecao) {
+    aplicarEstiloTextoSelecionado({
+      fontSize: `${tamanho}px`,
+    });
+
+    return;
+  }
+
+  atualizarCampoLocal("tamanho", tamanho);
+}}
   className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
 />
                 </div>
