@@ -4909,21 +4909,23 @@ onClick={() =>
   min={6}
   max={120}
   value={campoSelecionado?.tamanho ?? 18}
+  onMouseDown={(e) => {
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+      e.preventDefault();
+    }
+  }}
   onChange={(e) => {
     const tamanho = Number(e.target.value);
 
-    setTamanhoSelecaoTexto(tamanho);
-    atualizarCampoLocal("tamanho", tamanho);
-
-    if (
-      campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-      selecaoTextoRef.current &&
-      window.getSelection()?.toString().trim()
-    ) {
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
       aplicarEstiloTextoSelecionado({
         fontSize: `${tamanho}px`,
       });
+
+      return;
     }
+
+    atualizarCampoLocal("tamanho", tamanho);
   }}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
 />

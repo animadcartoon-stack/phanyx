@@ -1,15 +1,16 @@
-const CACHE_NAME = "phanyx-v2";
+const CACHE_NAME = "phanyx-v10";
 
-const APP_SHELL = [
+const STATIC_ASSETS = [
   "/",
   "/manifest.json",
-  "/icon.png",
+  "/icon-192.png",
+  "/icon-512.png",
   "/apple-touch-icon.png"
 ];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
 
   self.skipWaiting();
@@ -38,13 +39,14 @@ self.addEventListener("fetch", (event) => {
 
   const url = new URL(request.url);
 
-  // não intercepta API
-  if (url.pathname.startsWith("/api")) return;
+  if (
+    url.pathname.startsWith("/api") ||
+    url.pathname.startsWith("/_next") ||
+    url.pathname.includes(".json")
+  ) {
+    return;
+  }
 
-  // não intercepta páginas Next internas
-  if (url.pathname.startsWith("/_next")) return;
-
-  // só cacheia assets estáticos
   if (
     request.destination === "image" ||
     request.destination === "style" ||
