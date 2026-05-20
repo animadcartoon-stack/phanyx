@@ -66,11 +66,43 @@ export default async function ProfessorLayout({
       <ConfirmDialogProvider>
         <Header />
         <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
-          <ProfessorSidebar professor={professor} />
-          <main className="flex-1 p-8">
+          <div className="hidden lg:block">
+  <ProfessorSidebar professor={professor} />
+</div>
+
+<nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+  <div className="grid grid-cols-5 gap-1 text-[10px] font-semibold text-slate-600">
+    <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+      <span className="text-lg">📊</span>
+      Painel
+    </a>
+
+    <a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+      <span className="text-lg">🏫</span>
+      Turmas
+    </a>
+
+    <a href="/professor/aulas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+      <span className="text-lg">🎬</span>
+      Aulas
+    </a>
+
+    <a href="/professor/atividades" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+      <span className="text-lg">📝</span>
+      Atividades
+    </a>
+
+    <a href="/professor/provas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+      <span className="text-lg">✅</span>
+      Provas
+    </a>
+  </div>
+</nav>
+
+          <main className="flex-1 w-full px-3 py-4 pb-24 lg:p-8">
   <PhanyxFeriadoAviso />
 
-  <div className="mb-6 flex justify-end">
+  <div className="mb-4 flex justify-end lg:mb-6">
               <form action="/api/auth/logout-professor" method="post">
                 <button
                   type="submit"
@@ -82,6 +114,7 @@ export default async function ProfessorLayout({
             </div>
 
             {children}
+
           </main>
         </div>
       </ConfirmDialogProvider>
