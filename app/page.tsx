@@ -204,14 +204,14 @@ export default function HomePage() {
   <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
 </div>
 
-          <div className="relative z-10 mx-auto max-w-7xl px-6 pb-12 pt-8 md:px-10 md:pb-14 md:pt-10 lg:px-12 lg:pb-16 lg:pt-12">
+          <div className="relative z-10 mx-auto max-w-7xl px-5 pb-10 pt-6 md:px-10 md:pb-14 md:pt-10 lg:px-12 lg:pb-16 lg:pt-12">
             <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
               <div className="max-w-2xl -mt-1 md:-mt-2">
                 <div className="mb-3 inline-flex items-center rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold tracking-wide text-blue-200 backdrop-blur">
                   Plataforma acadêmica SaaS multi-instituição
                 </div>
 
-                <h1 className="mt-3 text-3xl font-semibold leading-[1.02] tracking-[-0.03em] text-white md:text-4xl xl:text-[3.1rem]">
+                <h1 className="mt-4 text-[2rem] font-semibold leading-[1.05] tracking-[-0.04em] text-white sm:text-4xl md:text-4xl xl:text-[3.1rem]">
                   <span className="block text-white">
                     PHANYX para gestão escolar, gestão acadêmica e plataforma EAD
                   </span>
@@ -243,7 +243,7 @@ export default function HomePage() {
                       href="/planos"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3.5 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(37,99,235,0.45)] transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500"
+                      className="inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_40px_rgba(37,99,235,0.45)] transition duration-300 hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto sm:py-3.5"
                     >
                       Ver planos
                     </Link>
@@ -252,44 +252,53 @@ export default function HomePage() {
                       href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15"
+                      className="inline-flex w-full items-center justify-center rounded-2xl border border-white/15 bg-white/10 px-6 py-4 text-sm font-semibold text-white backdrop-blur transition duration-300 hover:-translate-y-0.5 hover:bg-white/15 sm:w-auto sm:py-3.5"
                     >
                       Falar com comercial
                     </a>
                   </div>
 
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <a
-                      href="/login?portal=aluno"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
-                    >
-                      Área do aluno
-                    </a>
+                  <div className="mt-5 rounded-3xl border border-white/10 bg-white/10 p-3 backdrop-blur sm:inline-flex sm:rounded-2xl sm:p-2">
+  <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+    <a
+      href="/login?portal=aluno"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center justify-center rounded-2xl border border-blue-200/50 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+    >
+      👨‍🎓 Área do aluno
+    </a>
 
-                    <a
-                      href="/login?portal=professor"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-xl border border-blue-300 px-4 py-2 text-sm text-white hover:bg-blue-700"
-                    >
-                      Área do professor
-                    </a>
+    <a
+      href="/login?portal=professor"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center justify-center rounded-2xl border border-blue-200/50 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+    >
+      👨‍🏫 Área do professor
+    </a>
 
-                    <a
-                      href="/login?portal=admin"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-gray-100"
-                    >
-                      Admin
-                    </a>
-                  </div>
+    <a
+      href="/login?portal=admin"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-bold text-blue-950 transition hover:bg-blue-50"
+    >
+      🛡️ Administração
+    </a>
+  </div>
+</div>
                 </div>
 
-<a href="/blog">Blog</a>
-<a href="/blog/sistema-gestao-escolar">Sistema de gestão escolar</a>
+<div className="mt-5 flex flex-wrap gap-3 text-sm">
+  <a href="/blog" className="font-semibold text-blue-300 underline-offset-4 hover:underline">
+    Blog
+  </a>
+
+  <a href="/blog/sistema-gestao-escolar" className="font-semibold text-blue-300 underline-offset-4 hover:underline">
+    Sistema de gestão escolar
+  </a>
+</div>
 
                 <div className="mt-6 hidden gap-4 xl:grid xl:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
@@ -318,7 +327,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              <div className="relative lg:hidden">
+              <div className="relative mt-2 lg:hidden">
                 <div className="relative h-[260px] overflow-hidden rounded-[28px] border border-white/10 shadow-2xl sm:h-[300px]">
                   <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
                   <Image
