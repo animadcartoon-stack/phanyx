@@ -127,7 +127,7 @@ function RecebimentosTour({
   onClose: () => void;
 }) {
   const [stepAtual, setStepAtual] = useState(0);
-  const [rect, setRect] = useState<{
+  const [targetRect, setTargetRect] = useState<{
     top: number;
     left: number;
     width: number;
@@ -139,71 +139,109 @@ function RecebimentosTour({
   useEffect(() => {
     if (!aberto || !step) return;
 
-    const atualizarRect = () => {
-      const novoRect = getRectFromSelector(step.target);
-
-      if (novoRect) {
-        setRect(novoRect);
-
-        window.scrollTo({
-          top: Math.max(novoRect.top - 120, 0),
-          behavior: "smooth",
-        });
+    function atualizarPosicao() {
+      const elemento = document.querySelector(step.target);
+      if (!elemento) {
+        setTargetRect(null);
+        return;
       }
-    };
 
-    atualizarRect();
+      elemento.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "nearest",
+      });
 
-    const timer = setTimeout(atualizarRect, 350);
+      setTimeout(() => {
+        const rect = elemento.getBoundingClientRect();
 
-    window.addEventListener("resize", atualizarRect);
-    window.addEventListener("scroll", atualizarRect);
+        setTargetRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        });
+      }, 260);
+    }
+
+    atualizarPosicao();
+
+    window.addEventListener("resize", atualizarPosicao);
+    window.addEventListener("scroll", atualizarPosicao, true);
 
     return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", atualizarRect);
-      window.removeEventListener("scroll", atualizarRect);
+      window.removeEventListener("resize", atualizarPosicao);
+      window.removeEventListener("scroll", atualizarPosicao, true);
     };
   }, [aberto, stepAtual, step]);
 
+  useEffect(() => {
+    if (!aberto) {
+      setStepAtual(0);
+      setTargetRect(null);
+    }
+  }, [aberto]);
+
   if (!aberto || !step) return null;
 
-  const padding = 10;
+  const spotlightPadding = 8;
 
-  const spotlight = rect
+  const spotlight = targetRect
     ? {
-        top: rect.top - padding,
-        left: rect.left - padding,
-        width: rect.width + padding * 2,
-        height: rect.height + padding * 2,
+        top: Math.max(targetRect.top - spotlightPadding, 8),
+        left: Math.max(targetRect.left - spotlightPadding, 8),
+        width: targetRect.width + spotlightPadding * 2,
+        height: targetRect.height + spotlightPadding * 2,
       }
     : null;
 
-  const concluir = () => {
+  const bubbleWidth = 420;
+  const bubbleHeight = 290;
+
+  const bubbleStyle = spotlight
+    ? (() => {
+        const centroAlvo = spotlight.left + spotlight.width / 2;
+        const alvoNaDireita = centroAlvo > window.innerWidth / 2;
+
+        let top = spotlight.top + spotlight.height + 18;
+        let left = spotlight.left;
+
+        if (spotlight.height > 140 || top + bubbleHeight > window.innerHeight) {
+          top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
+
+          if (alvoNaDireita) {
+            left = spotlight.left - bubbleWidth - 18;
+          } else {
+            left = spotlight.left + spotlight.width + 18;
+          }
+        }
+
+        top = Math.max(16, Math.min(top, window.innerHeight - bubbleHeight - 16));
+        left = Math.max(16, Math.min(left, window.innerWidth - bubbleWidth - 16));
+
+        return {
+          top: `${top}px`,
+          left: `${left}px`,
+        };
+      })()
+    : {
+        top: "120px",
+        left: "50%",
+        transform: "translateX(-50%)",
+      };
+
+  function fechar() {
     localStorage.setItem("phanyx-tour-recebimentos", "concluido");
     onClose();
-  };
-
-  const anterior = () => {
-    setStepAtual((prev) => Math.max(prev - 1, 0));
-  };
-
-  const proximo = () => {
-    if (stepAtual >= recebimentosTourSteps.length - 1) {
-      concluir();
-      return;
-    }
-
-    setStepAtual((prev) => prev + 1);
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-[9999]">
-      <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-slate-950/70" />
 
       {spotlight && (
         <div
-          className="absolute rounded-3xl border-2 border-blue-300 shadow-[0_0_0_9999px_rgba(15,23,42,0.72),0_0_40px_rgba(59,130,246,0.65)] transition-all duration-300"
+          className="absolute rounded-2xl border-2 border-blue-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)] transition-all"
           style={{
             top: spotlight.top,
             left: spotlight.left,
@@ -213,87 +251,92 @@ function RecebimentosTour({
         />
       )}
 
-      <div className="fixed left-1/2 top-1/2 z-[10000] w-[92vw] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-blue-100 bg-white p-5 shadow-2xl md:p-6">
-        <button
-          type="button"
-          onClick={concluir}
-          className="absolute right-4 top-4 rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600 hover:bg-slate-200"
-        >
-          ×
-        </button>
+      <div
+        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+        style={bubbleStyle}
+      >
+        {spotlight && (
+          <div
+            className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
+            style={{
+              left:
+                spotlight.left + spotlight.width / 2 > window.innerWidth / 2
+                  ? "calc(100% - 6px)"
+                  : "-6px",
+              top: "42px",
+            }}
+          />
+        )}
 
-        <div className="flex gap-4">
-          <div className="hidden shrink-0 md:block">
-            <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-blue-50">
-              <img
-                src={step.imagem}
-                alt=""
-                className="max-h-24 max-w-24 object-contain"
-              />
-            </div>
-          </div>
+        <div className="flex items-start gap-4">
+          <img
+            src={step.imagem}
+            alt=""
+            className="h-24 w-24 shrink-0 object-contain drop-shadow-lg"
+          />
 
-          <div className="min-w-0 flex-1 pr-8">
-            <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">
-              Tutorial PHANYX
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
+              Tutorial guiado
             </p>
 
-            <h2 className="mt-2 text-xl font-black text-slate-900">
+            <h3 className="mt-1 text-xl font-bold text-slate-900">
               {step.titulo}
-            </h2>
+            </h3>
 
-            <p className="mt-3 text-base font-bold text-blue-700">
+            <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700">
               {step.destaque}
             </p>
 
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+            <p className="mt-2 text-sm leading-7 text-slate-600">
               {step.descricao}
             </p>
-
-            <div className="mt-5 flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold text-slate-500">
-                Passo {stepAtual + 1} de {recebimentosTourSteps.length}
-              </span>
-
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={anterior}
-                  disabled={stepAtual === 0}
-                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
-                >
-                  Voltar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={proximo}
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
-                >
-                  {stepAtual === recebimentosTourSteps.length - 1
-                    ? "Concluir"
-                    : "Próximo"}
-                </button>
-              </div>
-            </div>
           </div>
         </div>
-      </div>
 
-      <div className="fixed bottom-4 left-1/2 z-[10000] flex -translate-x-1/2 gap-2">
-        {recebimentosTourSteps.map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => setStepAtual(index)}
-            className={`h-2.5 rounded-full transition-all ${
-              index === stepAtual
-                ? "w-8 bg-blue-400"
-                : "w-2.5 bg-white/50 hover:bg-white"
-            }`}
-            aria-label={`Ir para passo ${index + 1}`}
-          />
-        ))}
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <div className="text-sm text-slate-500">
+            Etapa {stepAtual + 1} de {recebimentosTourSteps.length}
+          </div>
+
+          <div className="flex flex-wrap justify-end gap-2">
+            <button
+              type="button"
+              onClick={fechar}
+              className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+            >
+              Fechar
+            </button>
+
+            {stepAtual > 0 && (
+              <button
+                type="button"
+                onClick={() => setStepAtual((prev) => prev - 1)}
+                className="rounded-xl border border-slate-200 bg-white/90 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
+              >
+                Anterior
+              </button>
+            )}
+
+            {stepAtual < recebimentosTourSteps.length - 1 ? (
+              <button
+                type="button"
+                onClick={() => setStepAtual((prev) => prev + 1)}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Próximo
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={fechar}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Concluir
+              </button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
