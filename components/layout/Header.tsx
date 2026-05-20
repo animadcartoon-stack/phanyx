@@ -13,10 +13,11 @@ export default function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
-  const isPortalLogado =
+  const isAlunoOuProfessor =
   pathname.startsWith("/aluno") ||
-  pathname.startsWith("/professor") ||
-  pathname.startsWith("/admin");
+  pathname.startsWith("/professor");
+
+const isAdmin = pathname.startsWith("/admin");
 
   return (
     <header
@@ -61,7 +62,7 @@ export default function Header() {
           </div>
         </Link>
 
-        {!isPortalLogado && (
+        {!isAlunoOuProfessor && (
 <nav className="hidden items-center gap-8 md:flex">
   {navItems.map((item) => {
     const active = pathname === item.href;
@@ -98,9 +99,9 @@ export default function Header() {
 </nav>
 )}
 
-        {!isPortalLogado && (
         <div className="flex items-center gap-2 md:gap-3">
-          <a
+          {!isAdmin && (
+<a
             href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
             target="_blank"
             rel="noreferrer"
@@ -112,6 +113,7 @@ export default function Header() {
           >
             Falar com comercial
           </a>
+)}
 
           <Link
             href="/suporte"
@@ -124,8 +126,9 @@ export default function Header() {
             Suporte
           </Link>
 
-          <Link
-            href="/login"
+          {!isAdmin && (
+<Link
+  href="/login"
             className={`rounded-xl px-4 py-2 text-sm font-semibold shadow-sm transition ${
               isHome
                 ? "bg-white text-slate-950 hover:bg-blue-50"
@@ -134,8 +137,9 @@ export default function Header() {
           >
             Área administrativa
           </Link>
+)}
                 </div>
-        )}
+        
       </div>
     </header>
   );
