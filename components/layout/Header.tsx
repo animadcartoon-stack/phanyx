@@ -13,6 +13,10 @@ export default function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+  const isPortalLogado =
+  pathname.startsWith("/aluno") ||
+  pathname.startsWith("/professor") ||
+  pathname.startsWith("/admin");
 
   return (
     <header
@@ -57,7 +61,8 @@ export default function Header() {
           </div>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
+        {!isPortalLogado && (
+<nav className="hidden items-center gap-8 md:flex">
   {navItems.map((item) => {
     const active = pathname === item.href;
     const abrirNovaAba =
@@ -91,7 +96,9 @@ export default function Header() {
     );
   })}
 </nav>
+)}
 
+        {!isPortalLogado && (
         <div className="flex items-center gap-2 md:gap-3">
           <a
             href="https://wa.me/5548988101240?text=Olá!%20Quero%20saber%20mais%20sobre%20o%20PHANYX."
@@ -127,7 +134,8 @@ export default function Header() {
           >
             Área administrativa
           </Link>
-        </div>
+                </div>
+        )}
       </div>
     </header>
   );
