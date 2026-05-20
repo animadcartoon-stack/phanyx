@@ -1,53 +1,49 @@
-import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
-import Script from "next/script";
+"use client";
 
-export default async function GoogleTagManagerInstituicao() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+import { useEffect } from "react";
 
-  if (!token) return null;
+declare global {
+  interface Window {
+    dataLayer?: any[];
+  }
+}
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      instituicaoId: number;
-    };
+export default function GoogleTagManagerInstituicao() {
+  useEffect(() => {
+    async function carregarGTM() {
+      try {
+        const res = await fetch("/api/admin/integracoes/google-tag-manager", {
+          credentials: "include",
+          cache: "no-store",
+        });
 
-    const instituicao = await prisma.instituicao.findUnique({
-      where: {
-        id: decoded.instituicaoId,
-      },
-      select: {
-        googleTagManagerId: true,
-        googleTagManagerAtivo: true,
-      },
-    });
+        const data = await res.json();
 
-    if (
-      !instituicao?.googleTagManagerAtivo ||
-      !instituicao.googleTagManagerId
-    ) {
-      return null;
+        if (!res.ok || !data?.ativo || !data?.containerId) return;
+
+        if (document.getElementById("google-tag-manager-phanyx-script")) {
+          return;
+        }
+
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+          "gtm.start": new Date().getTime(),
+          event: "gtm.js",
+        });
+
+        const script = document.createElement("script");
+        script.id = "google-tag-manager-phanyx-script";
+        script.async = true;
+        script.src = `https://www.googletagmanager.com/gtm.js?id=${data.containerId}`;
+
+        document.head.appendChild(script);
+      } catch {
+        // Não quebra o PHANYX se o GTM falhar.
+      }
     }
 
-    return (
-      <Script id="google-tag-manager-phanyx" strategy="afterInteractive">
-        {`
-          (function(w,d,s,l,i){
-            w[l]=w[l]||[];
-            w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-            var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),
-                dl=l!='dataLayer'?'&l='+l:'';
-            j.async=true;
-            j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-            f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','${instituicao.googleTagManagerId}');
-        `}
-      </Script>
-    );
-  } catch {
-    return null;
-  }
+    carregarGTM();
+  }, []);
+
+  return null;
 }
