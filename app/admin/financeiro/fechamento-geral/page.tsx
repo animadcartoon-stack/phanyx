@@ -65,7 +65,7 @@ const fechamentoTourSteps = [
     destaque: "Entenda como entrou o dinheiro.",
     descricao:
       "Aqui o financeiro visualiza separadamente PIX, dinheiro, cartão, boleto e transferências.",
-    imagem: "/images/contador.png",
+    imagem: "/images/formas-de-pagamento.png",
   },
   {
     target: '[data-tour="fechamento-caixas"]',

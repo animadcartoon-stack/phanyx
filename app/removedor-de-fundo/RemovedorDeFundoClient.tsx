@@ -59,6 +59,7 @@ export default function RemovedorDeFundoClient() {
   const [motorPessoa, setMotorPessoa] = useState<MotorPessoa>("mediapipe");
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
+  const [varinhaAtiva, setVarinhaAtiva] = useState(false);
 
   const [coresAlvoManuais, setCoresAlvoManuais] = useState<
     { r: number; g: number; b: number }[]
@@ -94,6 +95,7 @@ export default function RemovedorDeFundoClient() {
     setPincelAtivo(false);
     historicoEdicaoRef.current = [];
     setCoresAlvoManuais([]);
+    setVarinhaAtiva(false);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
 
@@ -329,6 +331,10 @@ export default function RemovedorDeFundoClient() {
         g: pixel[1],
         b: pixel[2],
       };
+
+      setModo("objeto");
+setRemoverBrancoInterno(true);
+setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa cor.");
 
       const jaExisteParecida = cores.some(
         (cor) =>
@@ -1668,6 +1674,24 @@ onTouchEnd={() => {
   Cortar imagem
 </button>
 
+<button
+  type="button"
+  disabled={!imagemOriginal}
+  onClick={() => {
+    setModo("objeto");
+    setRemoverBrancoInterno(true);
+    setVarinhaAtiva(true);
+    setAviso("Varinha mágica ativada. Agora clique na cor do fundo da imagem original.");
+  }}
+  className={`w-full rounded-2xl px-4 py-3 text-sm font-black disabled:opacity-40 ${
+    varinhaAtiva
+      ? "bg-cyan-400 text-slate-950"
+      : "bg-slate-800 text-white"
+  }`}
+>
+  🪄 Varinha mágica
+</button>
+
               <div className="rounded-2xl bg-slate-900 p-3">
                 <h3 className="mb-2 text-sm font-bold">Modo</h3>
 
@@ -1871,14 +1895,14 @@ onTouchEnd={() => {
                     src={imagemOriginal}
                     alt="Imagem original"
                     onClick={
-                      modo === "objeto" && removerBrancoInterno
-                        ? selecionarCorManual
-                        : undefined
-                    }
+  (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
+    ? selecionarCorManual
+    : undefined
+}
                     className={`max-h-[500px] max-w-full object-contain ${
-                      modo === "objeto" && removerBrancoInterno
-                        ? "cursor-crosshair"
-                        : ""
+                      (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
+  ? "cursor-crosshair"
+  : ""
                     }`}
                   />
                 ) : (
