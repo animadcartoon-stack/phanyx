@@ -24,6 +24,11 @@ export default function RemovedorDeFundoClient() {
   const espacoPressionadoRef = useRef(false);
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const toquePinchRef = useRef<{
+  distancia: number;
+  zoom: number;
+} | null>(null);
+
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
   const [imagemBaseEdicao, setImagemBaseEdicao] = useState<string | null>(null);
@@ -1445,6 +1450,40 @@ window.addEventListener("keyup", soltarEspaco);
             </div>
 
             <div
+
+onTouchStart={(e) => {
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+    toquePinchRef.current = {
+      distancia: Math.hypot(dx, dy),
+      zoom: zoomResultado,
+    };
+  }
+}}
+onTouchMove={(e) => {
+  if (e.touches.length === 2 && toquePinchRef.current) {
+    e.preventDefault();
+
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const novaDistancia = Math.hypot(dx, dy);
+
+    const fator = novaDistancia / toquePinchRef.current.distancia;
+
+    setZoomResultado(
+      Math.max(
+        0.5,
+        Math.min(8, Number((toquePinchRef.current.zoom * fator).toFixed(2)))
+      )
+    );
+  }
+}}
+onTouchEnd={() => {
+  toquePinchRef.current = null;
+}}
+
               onWheel={(e) => {
                 e.preventDefault();
 
