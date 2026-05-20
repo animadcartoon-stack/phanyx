@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import GoogleAnalyticsPHANYX from "@/components/google/GoogleAnalyticsPHANYX";
+import GoogleTagManagerPHANYX from "@/components/google/GoogleTagManagerPHANYX";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -69,9 +70,10 @@ export default function RootLayout({
   className={`${inter.variable} antialiased bg-gray-100`}
 >
   <AuthProvider>
-    <GoogleAnalyticsPHANYX />
-    {children}
-  </AuthProvider>
+  <GoogleAnalyticsPHANYX />
+  <GoogleTagManagerPHANYX />
+  {children}
+</AuthProvider>
 </body>
     </html>
   );
