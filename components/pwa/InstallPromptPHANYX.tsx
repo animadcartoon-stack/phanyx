@@ -7,32 +7,44 @@ export default function InstallPromptPHANYX() {
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
-    const jaRecusou = localStorage.getItem("phanyx_install_recusado");
+    const jaFechou = localStorage.getItem("phanyx_install_recusado");
 
     function capturarEvento(e: any) {
       e.preventDefault();
       setEventoInstall(e);
-
-      if (jaRecusou !== "true") {
-        setVisivel(true);
-      }
+      if (jaFechou !== "true") setVisivel(true);
     }
 
     window.addEventListener("beforeinstallprompt", capturarEvento);
 
+    const timer = setTimeout(() => {
+      const emStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true;
+
+      if (!emStandalone && jaFechou !== "true") {
+        setVisivel(true);
+      }
+    }, 2500);
+
     return () => {
+      clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", capturarEvento);
     };
   }, []);
 
   async function instalar() {
-    if (!eventoInstall) return;
+    if (eventoInstall) {
+      eventoInstall.prompt();
+      await eventoInstall.userChoice;
+      setEventoInstall(null);
+      setVisivel(false);
+      return;
+    }
 
-    eventoInstall.prompt();
-    await eventoInstall.userChoice;
-
-    setEventoInstall(null);
-    setVisivel(false);
+    alert(
+      "Para instalar o PHANYX no Android: toque nos 3 pontinhos do navegador e escolha 'Adicionar à tela inicial'.\n\nNo iPhone: toque em Compartilhar e depois em 'Adicionar à Tela de Início'."
+    );
   }
 
   function fechar() {
@@ -62,8 +74,8 @@ export default function InstallPromptPHANYX() {
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Acesse aluno, professor ou admin com aparência de aplicativo,
-              direto pela tela inicial.
+              Acesse aluno, professor ou admin direto pela tela inicial, com
+              experiência de aplicativo.
             </p>
           </div>
         </div>
