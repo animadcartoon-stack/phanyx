@@ -198,37 +198,65 @@ function RecebimentosTour({
   const bubbleWidth = 420;
   const bubbleHeight = 290;
 
-  const bubbleStyle = spotlight
-    ? (() => {
-        const centroAlvo = spotlight.left + spotlight.width / 2;
-        const alvoNaDireita = centroAlvo > window.innerWidth / 2;
+const posicaoBalao = spotlight
+  ? (() => {
+      const espacoAbaixo = window.innerHeight - (spotlight.top + spotlight.height);
+      const espacoAcima = spotlight.top;
+      const espacoDireita = window.innerWidth - (spotlight.left + spotlight.width);
+      const espacoEsquerda = spotlight.left;
 
-        let top = spotlight.top + spotlight.height + 18;
-        let left = spotlight.left;
+      let direcao: "baixo" | "cima" | "direita" | "esquerda" = "baixo";
 
-        if (spotlight.height > 140 || top + bubbleHeight > window.innerHeight) {
-          top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
+      if (espacoAbaixo >= bubbleHeight + 28) {
+        direcao = "baixo";
+      } else if (espacoAcima >= bubbleHeight + 28) {
+        direcao = "cima";
+      } else if (espacoDireita >= bubbleWidth + 28) {
+        direcao = "direita";
+      } else {
+        direcao = "esquerda";
+      }
 
-          if (alvoNaDireita) {
-            left = spotlight.left - bubbleWidth - 18;
-          } else {
-            left = spotlight.left + spotlight.width + 18;
-          }
-        }
+      let top = spotlight.top + spotlight.height + 18;
+      let left = spotlight.left;
 
-        top = Math.max(16, Math.min(top, window.innerHeight - bubbleHeight - 16));
-        left = Math.max(16, Math.min(left, window.innerWidth - bubbleWidth - 16));
+      if (direcao === "cima") {
+        top = spotlight.top - bubbleHeight - 18;
+        left = spotlight.left;
+      }
 
-        return {
+      if (direcao === "direita") {
+        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
+        left = spotlight.left + spotlight.width + 18;
+      }
+
+      if (direcao === "esquerda") {
+        top = spotlight.top + spotlight.height / 2 - bubbleHeight / 2;
+        left = spotlight.left - bubbleWidth - 18;
+      }
+
+      top = Math.max(16, Math.min(top, window.innerHeight - bubbleHeight - 16));
+      left = Math.max(16, Math.min(left, window.innerWidth - bubbleWidth - 16));
+
+      return {
+        style: {
           top: `${top}px`,
           left: `${left}px`,
-        };
-      })()
-    : {
+        },
+        direcao,
+      };
+    })()
+  : {
+      style: {
         top: "120px",
         left: "50%",
         transform: "translateX(-50%)",
-      };
+      },
+      direcao: "baixo" as const,
+    };
+
+const bubbleStyle = posicaoBalao.style;
+const direcaoSeta = posicaoBalao.direcao;
 
   function fechar() {
     localStorage.setItem("phanyx-tour-recebimentos", "concluido");
@@ -255,18 +283,32 @@ function RecebimentosTour({
         className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
         style={bubbleStyle}
       >
-        {spotlight && (
-          <div
-            className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
-            style={{
-              left:
-                spotlight.left + spotlight.width / 2 > window.innerWidth / 2
-                  ? "calc(100% - 6px)"
-                  : "-6px",
-              top: "42px",
-            }}
-          />
-        )}
+       {spotlight && (
+  <div
+    className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
+    style={
+      direcaoSeta === "baixo"
+        ? {
+            left: "42px",
+            top: "-6px",
+          }
+        : direcaoSeta === "cima"
+        ? {
+            left: "42px",
+            bottom: "-6px",
+          }
+        : direcaoSeta === "direita"
+        ? {
+            left: "-6px",
+            top: "42px",
+          }
+        : {
+            right: "-6px",
+            top: "42px",
+          }
+    }
+  />
+)}
 
         <div className="flex items-start gap-4">
           <img
@@ -329,10 +371,15 @@ function RecebimentosTour({
             ) : (
               <button
                 type="button"
-                onClick={fechar}
+                onClick={() => {
+  localStorage.setItem("phanyx-tour-recebimentos", "concluido");
+  sessionStorage.setItem("phanyx-continuar-tour", "caixa");
+  onClose();
+  window.location.href = "/admin/financeiro/caixa";
+}}
                 className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Concluir
+                Ir para caixa
               </button>
             )}
           </div>
