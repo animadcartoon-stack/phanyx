@@ -10,6 +10,7 @@ type DownloadTipo = "png" | "jpg" | "webp";
 type ModoRemocao = "assinatura" | "objeto" | "pessoa";
 type MotorPessoa = "mediapipe" | "bodypix";
 type FerramentaPincel = "apagar" | "restaurar";
+type TexturaPincel = "duro" | "medio" | "suave";
 
 export default function RemovedorDeFundoClient() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -65,6 +66,7 @@ export default function RemovedorDeFundoClient() {
   const [ferramentaPincel, setFerramentaPincel] = useState<FerramentaPincel>("apagar");
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
   const [usarPressaoCaneta, setUsarPressaoCaneta] = useState(true);
+  const [texturaPincel, setTexturaPincel] = useState<TexturaPincel>("medio");
 
   const [mostrarLupa, setMostrarLupa] = useState(false);
 
@@ -460,7 +462,19 @@ export default function RemovedorDeFundoClient() {
 
         const distanciaCentro = Math.sqrt(dx * dx + dy * dy);
         const forca = Math.max(0, 1 - distanciaCentro / raio);
-        const suavidade = forca * forca * (3 - 2 * forca);
+        let suavidade = forca;
+
+if (texturaPincel === "duro") {
+  suavidade = forca > 0.08 ? 1 : forca;
+}
+
+if (texturaPincel === "medio") {
+  suavidade = forca * forca * (3 - 2 * forca);
+}
+
+if (texturaPincel === "suave") {
+  suavidade = Math.pow(forca, 2.4);
+}
 
         if (ferramentaPincel === "apagar") {
           data[di + 3] = Math.round(data[di + 3] * (1 - suavidade));
@@ -1381,6 +1395,34 @@ window.addEventListener("keyup", soltarEspaco);
                 max={120}
                 onChange={setTamanhoPincel}
               />
+
+<div className="mt-3">
+  <p className="mb-2 text-xs font-black text-cyan-100">
+    Textura do pincel
+  </p>
+
+  <div className="grid grid-cols-3 gap-2">
+    {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (
+      <button
+        key={tipo}
+        type="button"
+        onClick={() => setTexturaPincel(tipo)}
+        className={`rounded-xl px-3 py-2 text-xs font-black ${
+          texturaPincel === tipo
+            ? "bg-cyan-400 text-slate-950"
+            : "bg-slate-800 text-white"
+        }`}
+      >
+        {tipo === "duro"
+          ? "Duro"
+          : tipo === "medio"
+            ? "Médio"
+            : "Suave"}
+      </button>
+    ))}
+  </div>
+</div>
+
             </div>
 
             <div
@@ -1942,6 +1984,33 @@ window.addEventListener("keyup", soltarEspaco);
                         max={90}
                         onChange={setTamanhoPincel}
                       />
+
+<div className="mt-3">
+  <p className="mb-2 text-xs font-black text-cyan-100">
+    Textura do pincel
+  </p>
+
+  <div className="grid grid-cols-3 gap-2">
+    {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (
+      <button
+        key={tipo}
+        type="button"
+        onClick={() => setTexturaPincel(tipo)}
+        className={`rounded-xl px-3 py-2 text-xs font-black ${
+          texturaPincel === tipo
+            ? "bg-cyan-400 text-slate-950"
+            : "bg-slate-800 text-white"
+        }`}
+      >
+        {tipo === "duro"
+          ? "Duro"
+          : tipo === "medio"
+            ? "Médio"
+            : "Suave"}
+      </button>
+    ))}
+  </div>
+</div>
 
 <label className="mt-2 flex cursor-pointer items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-xs text-cyan-100">
   <input

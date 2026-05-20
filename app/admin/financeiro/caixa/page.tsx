@@ -26,23 +26,15 @@ type Caixa = {
 };
 
 const caixaTourSteps = [
-  {
-    id: "caixa-online",
-    target: '[data-tour="caixa-online"]',
-    titulo: "Caixa online automático",
-    destaque: "Aqui entram os pagamentos online feitos pelo Asaas/IBE.",
-    descricao:
-      "Esse caixa é somente leitura. Ele ajuda a separar o que entrou automaticamente do que foi registrado manualmente.",
-    imagem: "/images/financeiro.png",
-  },
+  
   {
     id: "abrir-caixa",
-    target: '[data-tour="caixa-abrir"]',
+    target: '[data-tour="caixa-botao-abrir"]',
     titulo: "Abrir caixa manual",
     destaque: "Comece o caixa do dia informando o saldo inicial.",
     descricao:
       "Use esta área para abrir o caixa físico ou manual da secretaria/financeiro.",
-    imagem: "/images/calculadora.png",
+    imagem: "/images/financeiro.png",
   },
   {
     id: "saldo-inicial",
@@ -51,7 +43,7 @@ const caixaTourSteps = [
     destaque: "Informe quanto existe no caixa no momento da abertura.",
     descricao:
       "Esse valor será usado no fechamento para comparar o saldo esperado com o saldo informado.",
-    imagem: "/images/calculadora.png",
+    imagem: "/images/contador.png",
   },
   {
     id: "observacao-abertura",
