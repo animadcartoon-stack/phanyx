@@ -4905,35 +4905,26 @@ onClick={() =>
                     Tamanho
                   </label>
                   <input
-  
   type="number"
   min={6}
   max={120}
-  value={campoSelecionado?.tamanho ?? tamanhoSelecaoTexto ?? 18}
-  onMouseDown={(e) => {
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    e.preventDefault();
-  }
-    const selecao = window.getSelection();
+  value={campoSelecionado?.tamanho ?? 18}
+  onChange={(e) => {
+    const tamanho = Number(e.target.value);
 
-    if (selecao && selecao.rangeCount > 0 && selecao.toString().trim()) {
-      selecaoTextoRef.current = selecao.getRangeAt(0).cloneRange();
+    setTamanhoSelecaoTexto(tamanho);
+    atualizarCampoLocal("tamanho", tamanho);
+
+    if (
+      campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+      selecaoTextoRef.current &&
+      window.getSelection()?.toString().trim()
+    ) {
+      aplicarEstiloTextoSelecionado({
+        fontSize: `${tamanho}px`,
+      });
     }
   }}
-  onChange={(e) => {
-  const tamanho = Number(e.target.value);
-  setTamanhoSelecaoTexto(tamanho);
-
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-    aplicarEstiloTextoSelecionado({
-      fontSize: `${tamanho}px`,
-    });
-
-    return;
-  }
-
-  atualizarCampoLocal("tamanho", tamanho);
-}}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
 />
    
