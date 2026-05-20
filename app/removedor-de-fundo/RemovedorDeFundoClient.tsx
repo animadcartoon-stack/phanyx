@@ -66,6 +66,18 @@ export default function RemovedorDeFundoClient() {
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
   const [usarPressaoCaneta, setUsarPressaoCaneta] = useState(true);
 
+  const [mostrarLupa, setMostrarLupa] = useState(false);
+
+  const [posicaoCursor, setPosicaoCursor] = useState({
+  x: 0,
+  y: 0,
+});
+
+  const [posicaoImagemCursor, setPosicaoImagemCursor] = useState({
+  x: 0,
+  y: 0,
+});
+
   function carregarImagem(file: File) {
     setErro("");
     setImagemFinal(null);
@@ -1095,6 +1107,35 @@ window.addEventListener("keyup", soltarEspaco);
     coresAlvoManuais,
   ]);
 
+  function atualizarLupa(e: React.PointerEvent<HTMLImageElement>) {
+  if (!canvasRef.current || !pincelAtivo) return;
+
+  const rect = e.currentTarget.getBoundingClientRect();
+
+  const xTela = e.clientX;
+  const yTela = e.clientY;
+
+  const xImagem = Math.floor(
+    ((e.clientX - rect.left) / rect.width) * canvasRef.current.width
+  );
+
+  const yImagem = Math.floor(
+    ((e.clientY - rect.top) / rect.height) * canvasRef.current.height
+  );
+
+  setPosicaoCursor({
+    x: xTela,
+    y: yTela,
+  });
+
+  setPosicaoImagemCursor({
+    x: xImagem,
+    y: yImagem,
+  });
+
+  setMostrarLupa(true);
+}
+
   function baixarImagem(tipo: DownloadTipo) {
     if (!imagemFinal || !canvasRef.current) return;
 
@@ -1223,6 +1264,25 @@ window.addEventListener("keyup", soltarEspaco);
       {modalRefinamentoAberto && imagemFinal && (
         <div className="fixed inset-0 z-[60] bg-slate-950/95 p-4 text-white">
           <div className="mx-auto flex h-full max-w-7xl flex-col">
+            {mostrarLupa && canvasRef.current && (
+  <div
+    className="pointer-events-none fixed z-[120] overflow-hidden rounded-full border-4 border-cyan-400 shadow-2xl"
+    style={{
+      width: 140,
+      height: 140,
+      left: posicaoCursor.x + 28,
+      top: posicaoCursor.y - 70,
+      backgroundImage: `url(${imagemFinal})`,
+      backgroundRepeat: "no-repeat",
+      backgroundSize: `${canvasRef.current.width * 4}px ${canvasRef.current.height * 4}px`,
+      backgroundPosition: `
+        -${posicaoImagemCursor.x * 4 - 70}px
+        -${posicaoImagemCursor.y * 4 - 70}px
+      `,
+      backgroundColor: "#020617",
+    }}
+  />
+)}
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3">
               <div>
                 <h2 className="text-xl font-black text-cyan-200">
@@ -1358,9 +1418,12 @@ window.addEventListener("keyup", soltarEspaco);
   iniciarPincelResultado(e);
 }}
                 onPointerMove={(e) => {
-                  if (!pincelAtivo || !editandoPincelRef.current) return;
-                  aplicarPincelResultado(e);
-                }}
+  atualizarLupa(e);
+
+  if (!pincelAtivo || !editandoPincelRef.current) return;
+
+  aplicarPincelResultado(e);
+}}
                 onPointerUp={() => {
   editandoPincelRef.current = false;
   ultimoPontoPincelRef.current = null;
@@ -1368,6 +1431,7 @@ window.addEventListener("keyup", soltarEspaco);
                 onPointerLeave={() => {
   editandoPincelRef.current = false;
   ultimoPontoPincelRef.current = null;
+  setMostrarLupa(false);
 }}
                 className="max-h-[78vh] max-w-full object-contain"
                 style={{
