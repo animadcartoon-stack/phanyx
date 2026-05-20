@@ -1336,7 +1336,10 @@ window.addEventListener("keyup", soltarEspaco);
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setFerramentaPincel("apagar")}
+                  onClick={() => {
+  setPincelAtivo(true);
+  setFerramentaPincel("apagar");
+}}
                   className={`rounded-xl px-3 py-2 text-xs font-black ${
                     ferramentaPincel === "apagar"
                       ? "bg-cyan-400 text-slate-950"
@@ -1348,7 +1351,10 @@ window.addEventListener("keyup", soltarEspaco);
 
                 <button
                   type="button"
-                  onClick={() => setFerramentaPincel("restaurar")}
+                  onClick={() => {
+  setPincelAtivo(true);
+  setFerramentaPincel("restaurar");
+}}
                   className={`rounded-xl px-3 py-2 text-xs font-black ${
                     ferramentaPincel === "restaurar"
                       ? "bg-cyan-400 text-slate-950"
