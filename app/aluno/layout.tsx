@@ -174,29 +174,39 @@ export default async function AlunoLayout({
     <AlunoSidebar aluno={aluno} />
   </div>
 
-<nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid grid-cols-5 gap-1 text-[11px] font-semibold text-slate-600">
-    <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-2 py-2 hover:bg-blue-50 hover:text-blue-700">
+<nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+  <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold text-slate-600">
+    <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📊</span>
       Painel
     </a>
 
-    <a href="/aluno/disciplinas" className="flex flex-col items-center justify-center rounded-xl px-2 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <a href="/aluno/disciplinas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📘</span>
       Disciplinas
     </a>
 
-    <a href="/aluno/progresso" className="flex flex-col items-center justify-center rounded-xl px-2 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <a href="/aluno/progresso" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📈</span>
       Progresso
     </a>
 
-    <a href="/aluno/boletim" className="flex flex-col items-center justify-center rounded-xl px-2 py-2 hover:bg-blue-50 hover:text-blue-700">
+<a href="/aluno/trabalhos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">📄</span>
+  Trabalhos
+</a>
+
+<a href="/aluno/presenca" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">🗓️</span>
+  Presença
+</a>
+
+    <a href="/aluno/boletim" className="flex flex-col items-center justify-center rounded-xl 1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📋</span>
       Boletim
     </a>
 
-    <a href="/aluno/certificados" className="flex flex-col items-center justify-center rounded-xl px-2 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <a href="/aluno/certificados" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">🏅</span>
       Certificados
     </a>
