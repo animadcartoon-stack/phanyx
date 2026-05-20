@@ -105,7 +105,26 @@ function InadimplentesTour({
         />
       )}
 
-      <div className="absolute left-[360px] top-[220px] w-[420px] rounded-[28px] border bg-white px-5 py-4 shadow-2xl">
+      <div
+  className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+  style={
+    spotlight
+      ? {
+          top: Math.min(
+            spotlight.top + spotlight.height + 18,
+            window.innerHeight - 320
+          ),
+          left: Math.max(
+            320,
+            Math.min(spotlight.left, window.innerWidth - 460)
+          ),
+        }
+      : {
+          top: 160,
+          left: 360,
+        }
+  }
+>
         <div className="absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t bg-white" />
 
         <div className="flex gap-4">
