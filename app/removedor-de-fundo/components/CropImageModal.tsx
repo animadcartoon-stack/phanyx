@@ -69,29 +69,41 @@ export default function CropImageModal({
   }
 
   function aplicarCorte() {
-    const img = imgRef.current;
-    if (!img) return;
+  const img = imgRef.current;
+  if (!img) return;
 
-    const rect = img.getBoundingClientRect();
+  const larguraRender = img.offsetWidth;
+  const alturaRender = img.offsetHeight;
 
-    const escalaX = img.naturalWidth / rect.width;
-    const escalaY = img.naturalHeight / rect.height;
+  const escalaX = img.naturalWidth / larguraRender;
+  const escalaY = img.naturalHeight / alturaRender;
 
-    const sx = crop.x * escalaX;
-    const sy = crop.y * escalaY;
-    const sw = crop.largura * escalaX;
-    const sh = crop.altura * escalaY;
+  const sx = crop.x * escalaX;
+  const sy = crop.y * escalaY;
+  const sw = crop.largura * escalaX;
+  const sh = crop.altura * escalaY;
 
-    const canvas = document.createElement("canvas");
-    canvas.width = Math.round(sw);
-    canvas.height = Math.round(sh);
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(sw);
+  canvas.height = Math.round(sh);
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
-    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-    onAplicar(canvas.toDataURL("image/png"));
-  }
+  ctx.drawImage(
+    img,
+    sx,
+    sy,
+    sw,
+    sh,
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  onAplicar(canvas.toDataURL("image/png"));
+}
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-2 text-white sm:p-4">
