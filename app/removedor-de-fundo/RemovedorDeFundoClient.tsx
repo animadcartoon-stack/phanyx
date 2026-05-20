@@ -66,6 +66,11 @@ export default function RemovedorDeFundoClient() {
     { r: number; g: number; b: number }[]
   >([]);
 
+  const [pontoVarinha, setPontoVarinha] = useState<{
+  x: number;
+  y: number;
+} | null>(null);
+
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
@@ -337,6 +342,7 @@ export default function RemovedorDeFundoClient() {
 
       setModo("objeto");
 setRemoverBrancoInterno(true);
+setPontoVarinha({ x, y });
 setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa cor.");
 
       const jaExisteParecida = cores.some(
@@ -939,33 +945,59 @@ if (texturaPincel === "suave") {
         }
       }
 
-      if (removerBrancoInterno && modo === "objeto") {
-        for (let i = 0; i < totalPixels; i++) {
-          const di = i * 4;
+      if (
+  removerBrancoInterno &&
+  modo === "objeto" &&
+  pontoVarinha
+) {
+  const filaFlood: Array<[number, number]> = [
+    [pontoVarinha.x, pontoVarinha.y],
+  ];
 
-          const r = data[di];
-          const g = data[di + 1];
-          const b = data[di + 2];
+  const visitadoFlood = new Uint8Array(totalPixels);
 
-          const brancoOuQuaseBranco = r > 230 && g > 230 && b > 230;
+  while (filaFlood.length) {
+    const item = filaFlood.pop();
+    if (!item) continue;
 
-          const parecidoComAlgumaCorEscolhida = coresBase.some((corBase) =>
-            pareceCorDoFundo(
-              r,
-              g,
-              b,
-              corBase.r,
-              corBase.g,
-              corBase.b,
-              sensibilidade
-            )
-          );
+    const [x, y] = item;
 
-          if (brancoOuQuaseBranco || parecidoComAlgumaCorEscolhida) {
-            remover[i] = 1;
-          }
-        }
-      }
+    if (x < 0 || y < 0 || x >= width || y >= height) continue;
+
+    const p = pixelIndex(x, y, width);
+
+    if (visitadoFlood[p]) continue;
+
+    visitadoFlood[p] = 1;
+
+    const di = dataIndex(x, y, width);
+
+    const r = data[di];
+    const g = data[di + 1];
+    const b = data[di + 2];
+
+    const parecido = coresBase.some((corBase) =>
+      pareceCorDoFundo(
+        r,
+        g,
+        b,
+        corBase.r,
+        corBase.g,
+        corBase.b,
+        sensibilidade
+      )
+    );
+
+    if (!parecido) continue;
+
+    remover[p] = 1;
+
+    filaFlood.push([x + 1, y]);
+    filaFlood.push([x - 1, y]);
+    filaFlood.push([x, y + 1]);
+    filaFlood.push([x, y - 1]);
+  }
+}
 
       if (manterObjetoPrincipal && modo === "objeto") {
         const alphaTemp = new Uint8Array(totalPixels);
