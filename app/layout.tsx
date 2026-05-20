@@ -3,7 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import GoogleAnalyticsPHANYX from "@/components/google/GoogleAnalyticsPHANYX";
-import GoogleTagManagerPHANYX from "@/components/google/GoogleTagManagerPHANYX";
+import { prisma } from "@/lib/prisma";
+import { cookies } from "next/headers";
+import jwt from "jsonwebtoken";
+import Script from "next/script";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,17 +56,68 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const cookieStore = cookies();
+const token = cookieStore.get("token")?.value;
+
+let googleTagManagerId: string | null = null;
+
+if (token) {
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as {
+      instituicaoId: number;
+    };
+
+    const instituicao = await prisma.instituicao.findUnique({
+      where: {
+        id: decoded.instituicaoId,
+      },
+      select: {
+        googleTagManagerId: true,
+        googleTagManagerAtivo: true,
+      },
+    });
+
+    if (
+      instituicao?.googleTagManagerAtivo &&
+      instituicao.googleTagManagerId
+    ) {
+      googleTagManagerId = instituicao.googleTagManagerId;
+    }
+  } catch {}
+}
+
   return (
     <html lang="pt-BR">
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Montserrat&family=Roboto&family=Open+Sans&family=Lato&family=Playfair+Display&family=Merriweather&family=Libre+Baskerville&family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Satisfy&family=Allura&family=Alex+Brush&family=Sacramento&family=Indie+Flower&family=Caveat&display=swap" rel="stylesheet" />
     <meta name="google-site-verification" content="NwoAwG25GlnNtcQGaQ2PAIe0EXXGQl6VrogGfBj563A" />
   
+  {googleTagManagerId && (
+  <Script id="google-tag-manager-phanyx" strategy="afterInteractive">
+    {`
+      (function(w,d,s,l,i){
+        w[l]=w[l]||[];
+        w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),
+            dl=l!='dataLayer'?'&l='+l:'';
+        j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);
+      })(window,document,'script','dataLayer','${googleTagManagerId}');
+    `}
+  </Script>
+)}
+
   </head>
       <body
   suppressHydrationWarning
@@ -71,7 +125,7 @@ export default function RootLayout({
 >
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
-  <GoogleTagManagerPHANYX />
+  
   {children}
 </AuthProvider>
 </body>
