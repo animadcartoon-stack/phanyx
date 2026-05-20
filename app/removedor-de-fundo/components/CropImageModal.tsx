@@ -16,6 +16,8 @@ type Crop = {
   altura: number;
 };
 
+type Acao = "mover" | "resize";
+
 export default function CropImageModal({
   imagem,
   aberto,
@@ -23,29 +25,48 @@ export default function CropImageModal({
   onAplicar,
 }: Props) {
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const toquePinchRef = useRef<{ distancia: number; zoom: number } | null>(null);
+
   const [crop, setCrop] = useState<Crop>({
-    x: 80,
+    x: 60,
     y: 40,
-    largura: 360,
-    altura: 420,
+    largura: 320,
+    altura: 320,
   });
-  const [arrastando, setArrastando] = useState(false);
-  const [redimensionando, setRedimensionando] = useState(false);
-  const [inicioMouse, setInicioMouse] = useState({ x: 0, y: 0 });
-  const [cropInicial, setCropInicial] = useState(crop);
+
+  const [acao, setAcao] = useState<Acao | null>(null);
+  const [inicio, setInicio] = useState({ x: 0, y: 0 });
+  const [cropInicial, setCropInicial] = useState<Crop>(crop);
+  const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
     if (aberto) {
+      setZoom(1);
       setCrop({
-        x: 80,
+        x: 60,
         y: 40,
-        largura: 360,
-        altura: 420,
+        largura: 320,
+        altura: 320,
       });
     }
   }, [aberto, imagem]);
 
   if (!aberto) return null;
+
+  function limitarCrop(novo: Crop) {
+    const img = imgRef.current;
+    if (!img) return novo;
+
+    const rect = img.getBoundingClientRect();
+
+    const largura = Math.min(Math.max(80, novo.largura), rect.width);
+    const altura = Math.min(Math.max(80, novo.altura), rect.height);
+
+    const x = Math.min(Math.max(0, novo.x), rect.width - largura);
+    const y = Math.min(Math.max(0, novo.y), rect.height - altura);
+
+    return { x, y, largura, altura };
+  }
 
   function aplicarCorte() {
     const img = imgRef.current;
@@ -69,81 +90,122 @@ export default function CropImageModal({
     if (!ctx) return;
 
     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-
     onAplicar(canvas.toDataURL("image/png"));
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-4 text-white">
-      <div className="w-full max-w-6xl rounded-3xl border border-cyan-400/30 bg-slate-950 p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-2xl font-black text-cyan-200">
-            Cortar imagem
-          </h2>
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/85 p-2 text-white sm:p-4">
+      <div className="flex h-full w-full max-w-6xl flex-col rounded-3xl border border-cyan-400/30 bg-slate-950 p-3 sm:h-auto sm:p-5">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-black text-cyan-200 sm:text-2xl">
+              Cortar imagem
+            </h2>
+            <p className="text-xs text-slate-300">
+              Arraste a moldura. Use dois dedos para aproximar no celular.
+            </p>
+          </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-red-500 px-4 py-2 font-black text-white"
+            className="rounded-xl bg-red-500 px-4 py-2 text-sm font-black text-white"
           >
             Fechar
           </button>
         </div>
 
         <div
-          className="relative mx-auto flex min-h-[560px] max-w-5xl items-center justify-center overflow-hidden rounded-2xl bg-slate-900 p-4"
-          onMouseMove={(e) => {
-            if (!arrastando && !redimensionando) return;
+          className="relative mx-auto flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden rounded-2xl bg-slate-900 p-2 sm:min-h-[560px] sm:p-4"
+          onPointerMove={(e) => {
+            if (!acao) return;
 
-            const dx = e.clientX - inicioMouse.x;
-            const dy = e.clientY - inicioMouse.y;
+            const dx = e.clientX - inicio.x;
+            const dy = e.clientY - inicio.y;
 
-            if (arrastando) {
-              setCrop({
-                ...cropInicial,
-                x: Math.max(0, cropInicial.x + dx),
-                y: Math.max(0, cropInicial.y + dy),
-              });
+            if (acao === "mover") {
+              setCrop(
+                limitarCrop({
+                  ...cropInicial,
+                  x: cropInicial.x + dx,
+                  y: cropInicial.y + dy,
+                })
+              );
             }
 
-            if (redimensionando) {
-              setCrop({
-                ...cropInicial,
-                largura: Math.max(80, cropInicial.largura + dx),
-                altura: Math.max(80, cropInicial.altura + dy),
-              });
+            if (acao === "resize") {
+              setCrop(
+                limitarCrop({
+                  ...cropInicial,
+                  largura: cropInicial.largura + dx,
+                  altura: cropInicial.altura + dy,
+                })
+              );
             }
           }}
-          onMouseUp={() => {
-            setArrastando(false);
-            setRedimensionando(false);
+          onPointerUp={() => setAcao(null)}
+          onPointerLeave={() => setAcao(null)}
+          onTouchStart={(e) => {
+            if (e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX;
+              const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+              toquePinchRef.current = {
+                distancia: Math.hypot(dx, dy),
+                zoom,
+              };
+            }
           }}
-          onMouseLeave={() => {
-            setArrastando(false);
-            setRedimensionando(false);
+          onTouchMove={(e) => {
+            if (e.touches.length === 2 && toquePinchRef.current) {
+              e.preventDefault();
+
+              const dx = e.touches[0].clientX - e.touches[1].clientX;
+              const dy = e.touches[0].clientY - e.touches[1].clientY;
+              const novaDistancia = Math.hypot(dx, dy);
+              const fator = novaDistancia / toquePinchRef.current.distancia;
+
+              setZoom(
+                Math.max(
+                  0.7,
+                  Math.min(4, Number((toquePinchRef.current.zoom * fator).toFixed(2)))
+                )
+              );
+            }
+          }}
+          onTouchEnd={() => {
+            toquePinchRef.current = null;
           }}
         >
-          <div className="relative">
+          <div
+            className="relative"
+            style={{
+              transform: `scale(${zoom})`,
+              transformOrigin: "center",
+            }}
+          >
             <img
               ref={imgRef}
               src={imagem}
               alt="Imagem para cortar"
-              className="max-h-[540px] max-w-full object-contain"
+              className="max-h-[65vh] max-w-full object-contain sm:max-h-[540px]"
               draggable={false}
             />
 
             <div
-              className="absolute border-2 border-cyan-300 bg-cyan-300/10 shadow-[0_0_0_9999px_rgba(0,0,0,0.55)]"
+              className="absolute border-2 border-cyan-300 bg-cyan-300/10 shadow-[0_0_0_9999px_rgba(0,0,0,0.58)]"
               style={{
                 left: crop.x,
                 top: crop.y,
                 width: crop.largura,
                 height: crop.altura,
               }}
-              onMouseDown={(e) => {
+              onPointerDown={(e) => {
                 e.preventDefault();
-                setArrastando(true);
-                setInicioMouse({ x: e.clientX, y: e.clientY });
+                e.stopPropagation();
+                e.currentTarget.setPointerCapture(e.pointerId);
+                setAcao("mover");
+                setInicio({ x: e.clientX, y: e.clientY });
                 setCropInicial(crop);
               }}
             >
@@ -155,21 +217,34 @@ export default function CropImageModal({
 
               <button
                 type="button"
-                onMouseDown={(e) => {
+                onPointerDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  setRedimensionando(true);
-                  setInicioMouse({ x: e.clientX, y: e.clientY });
+                  e.currentTarget.setPointerCapture(e.pointerId);
+                  setAcao("resize");
+                  setInicio({ x: e.clientX, y: e.clientY });
                   setCropInicial(crop);
                 }}
-                className="absolute -bottom-3 -right-3 h-6 w-6 rounded-full border-2 border-white bg-cyan-400"
+                className="absolute -bottom-4 -right-4 h-9 w-9 rounded-full border-2 border-white bg-cyan-400 shadow-lg"
                 title="Redimensionar"
               />
+
+              <div className="pointer-events-none absolute -left-2 -top-2 h-4 w-4 rounded-full border-2 border-white bg-cyan-400" />
+              <div className="pointer-events-none absolute -right-2 -top-2 h-4 w-4 rounded-full border-2 border-white bg-cyan-400" />
+              <div className="pointer-events-none absolute -bottom-2 -left-2 h-4 w-4 rounded-full border-2 border-white bg-cyan-400" />
             </div>
           </div>
         </div>
 
-        <div className="mt-4 flex justify-end gap-3">
+        <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3">
+          <button
+            type="button"
+            onClick={() => setZoom(1)}
+            className="rounded-xl border border-white/20 px-5 py-3 font-bold text-white"
+          >
+            Reset zoom
+          </button>
+
           <button
             type="button"
             onClick={onClose}
