@@ -87,9 +87,11 @@ setTimeout(() => {
 } | null>(null);
   const [carregandoUsuario, setCarregandoUsuario] = useState(true);
   const [sessaoExpirada, setSessaoExpirada] = useState(false);
+  const [menuMobileAberto, setMenuMobileAberto] = useState<string | null>(null);
 
   useEffect(() => {
   setMenuAberto(null);
+  setMenuMobileAberto(null);
 }, [pathname]);
 
   useEffect(() => {
@@ -577,39 +579,142 @@ function abrirTourAdmin() {
       )}
 
 {!esconderSidebar && (
-  <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-    <div className="grid grid-cols-6 gap-1 text-[9px] font-semibold text-slate-600">
-      <Link href="/admin" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-        <span className="text-lg">📊</span>
-        Painel
-      </Link>
+  <>
+    {menuMobileAberto && (
+      <div className="fixed bottom-[74px] left-3 right-3 z-[75] rounded-3xl border border-slate-200 bg-white p-3 shadow-2xl lg:hidden">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+            {menuMobileAberto}
+          </p>
 
-      <Link href="/admin/alunos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-        <span className="text-lg">🎓</span>
-        Alunos
-      </Link>
+          <button
+            type="button"
+            onClick={() => setMenuMobileAberto(null)}
+            className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600"
+          >
+            Fechar
+          </button>
+        </div>
 
-      <Link href="/admin/professores" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-        <span className="text-lg">👨‍🏫</span>
-        Prof.
-      </Link>
+        {menuMobileAberto === "Acadêmico" && (
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/admin/alunos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              👨‍🎓 Alunos
+            </Link>
+            <Link href="/admin/professores" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              👨‍🏫 Professores
+            </Link>
+            <Link href="/admin/funcionarios" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🧑‍💼 Funcionários
+            </Link>
+            <Link href="/admin/departamentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🏢 Departamentos
+            </Link>
+            <Link href="/admin/disciplinas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📚 Disciplinas
+            </Link>
+            <Link href="/admin/matriculas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📝 Matrículas
+            </Link>
+            <Link href="/admin/turmas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🏫 Turmas
+            </Link>
+          </div>
+        )}
 
-      <Link href="/admin/matriculas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-        <span className="text-lg">📝</span>
-        Matríc.
-      </Link>
+        {menuMobileAberto === "Financeiro" && (
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/admin/financeiro" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              💰 Visão Geral
+            </Link>
+            <Link href="/admin/financeiro/recebimentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              💵 Recebimentos
+            </Link>
+            <Link href="/admin/financeiro/caixa" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🏦 Caixa
+            </Link>
+            <Link href="/admin/financeiro/relatorios" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📊 Relatórios
+            </Link>
+            <Link href="/admin/financeiro/inadimplentes" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🚨 Inadimplentes
+            </Link>
+            <Link href="/admin/financeiro/fechamento-geral" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📦 Fechamento
+            </Link>
+          </div>
+        )}
 
-      <Link href="/admin/financeiro" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-        <span className="text-lg">💰</span>
-        Financ.
-      </Link>
+        {menuMobileAberto === "Documentos" && (
+          <div className="grid grid-cols-2 gap-2">
+            <Link href="/admin/contratos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📄 Contratos
+            </Link>
+            <Link href="/admin/documentos/gerados" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📚 Gerados
+            </Link>
+            <Link href="/admin/documentos/gerar" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              ⚡ Gerar
+            </Link>
+            <Link href="/admin/validacoes" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🔐 Validação
+            </Link>
+          </div>
+        )}
 
-      <Link href="/admin/configuracoes/instituicao" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-        <span className="text-lg">⚙️</span>
-        Config.
-      </Link>
-    </div>
-  </nav>
+        {menuMobileAberto === "Configurações" && (
+          <div className="grid grid-cols-1 gap-2">
+            <Link href="/admin/configuracoes/instituicao" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              ⚙️ Instituição
+            </Link>
+            <Link href="/admin/configuracoes/documentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              📄 Documentos institucionais
+            </Link>
+            <Link href="/admin/certificados" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🏅 Gestão de Certificados
+            </Link>
+            <Link href="/admin/configuracoes/certificado" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+              🎨 Editor de Certificado
+            </Link>
+          </div>
+        )}
+      </div>
+    )}
+
+    <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+      <div className="grid grid-cols-6 gap-1 text-[9px] font-semibold text-slate-600">
+        <Link href="/admin" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+          <span className="text-lg">📊</span>
+          Painel
+        </Link>
+
+        <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Acadêmico" ? null : "Acadêmico")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+          <span className="text-lg">🎓</span>
+          Acad.
+        </button>
+
+        <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Financeiro" ? null : "Financeiro")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+          <span className="text-lg">💰</span>
+          Financ.
+        </button>
+
+        <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Documentos" ? null : "Documentos")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+          <span className="text-lg">📄</span>
+          Docs
+        </button>
+
+        <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Configurações" ? null : "Configurações")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+          <span className="text-lg">⚙️</span>
+          Config.
+        </button>
+
+        <Link href="/admin/perfil" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+          <span className="text-lg">👤</span>
+          Perfil
+        </Link>
+      </div>
+    </nav>
+  </>
 )}
 
      <main
