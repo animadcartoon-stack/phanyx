@@ -89,6 +89,9 @@ if (token) {
   }
 }
 
+console.log("TOKEN GTM:", token);
+console.log("GTM ID ENCONTRADO:", googleTagManagerId);
+
   return (
     <html lang="pt-BR">
       <head>
