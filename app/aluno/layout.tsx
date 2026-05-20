@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import AlunoSidebar from "@/components/layout/AlunoSidebar";
 import { AlunoProvider } from "@/app/context/AlunoContext";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
+import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 
 export default async function AlunoLayout({
   children,
@@ -168,6 +169,7 @@ export default async function AlunoLayout({
 
   return (
     <AlunoProvider>
+      <InstallPromptPHANYX />
       <Header />
       <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
   <div className="hidden lg:block">

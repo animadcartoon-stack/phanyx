@@ -8,6 +8,7 @@ import { ProfessorProvider } from "@/app/context/ProfessorContext";
 import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
+import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 
 export default async function ProfessorLayout({
   children,
@@ -62,6 +63,7 @@ export default async function ProfessorLayout({
 
   return (
   <ProfessorProvider>
+    <InstallPromptPHANYX />
     <ToastProvider>
       <ConfirmDialogProvider>
         <Header />
@@ -130,5 +132,6 @@ export default async function ProfessorLayout({
       </ConfirmDialogProvider>
     </ToastProvider>
   </ProfessorProvider>
+  
 );
 }

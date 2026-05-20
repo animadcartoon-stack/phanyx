@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
+import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 
 type UsuarioLogado = {
   id?: number;
@@ -230,6 +231,9 @@ function abrirTourAdmin() {
 }
 
   return (
+  <>
+    <InstallPromptPHANYX />
+
     <div className="flex min-h-screen bg-gray-100">
       {!esconderSidebar && (
         <aside className="hidden w-72 bg-white shadow-lg p-6 lg:flex flex-col h-screen overflow-y-auto">
@@ -729,20 +733,20 @@ function abrirTourAdmin() {
   {children}
 </main>
 
-      <PhanyxConfirmModal
-  aberto={sessaoExpirada}
-  titulo="Sessão encerrada"
-  mensagem="Sua sessão foi encerrada por segurança devido à inatividade. Você será redirecionado para o login."
-  textoConfirmar="Ir para o login"
-  textoCancelar="Fechar"
-  onConfirmar={() => {
-    window.location.href = "/login?portal=admin";
-  }}
-  onCancelar={() => {
-    window.location.href = "/login?portal=admin";
-  }}
-/>
-
+                  <PhanyxConfirmModal
+        aberto={sessaoExpirada}
+        titulo="Sessão encerrada"
+        mensagem="Sua sessão foi encerrada por segurança devido à inatividade. Você será redirecionado para o login."
+        textoConfirmar="Ir para o login"
+        textoCancelar="Fechar"
+        onConfirmar={() => {
+          window.location.href = "/login?portal=admin";
+        }}
+        onCancelar={() => {
+          window.location.href = "/login?portal=admin";
+        }}
+      />
     </div>
-  );
+  </>
+);
 }
