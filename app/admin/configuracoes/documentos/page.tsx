@@ -63,3 +63,13 @@ export default function ConfiguracoesDocumentosPage() {
     </div>
   );
 }
+
+<Link
+  href="/admin/integracoes"
+  className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
+>
+  <h2 className="text-lg font-bold">🔗 Integrações Google</h2>
+  <p className="mt-2 text-sm text-slate-600">
+    Configure Google Analytics, Tag Manager, Search Console, Google Ads e presença local da instituição.
+  </p>
+</Link>
