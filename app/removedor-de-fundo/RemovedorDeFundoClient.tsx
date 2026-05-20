@@ -29,6 +29,8 @@ export default function RemovedorDeFundoClient() {
   zoom: number;
 } | null>(null);
 
+  const toqueArrasteRef = useRef<{ x: number; y: number } | null>(null);
+
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
   const [imagemBaseEdicao, setImagemBaseEdicao] = useState<string | null>(null);
@@ -1460,6 +1462,16 @@ onTouchStart={(e) => {
       distancia: Math.hypot(dx, dy),
       zoom: zoomResultado,
     };
+
+    toqueArrasteRef.current = null;
+    return;
+  }
+
+  if (e.touches.length === 1 && (!pincelAtivo || zoomResultado > 1)) {
+    toqueArrasteRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
   }
 }}
 onTouchMove={(e) => {
@@ -1478,10 +1490,36 @@ onTouchMove={(e) => {
         Math.min(8, Number((toquePinchRef.current.zoom * fator).toFixed(2)))
       )
     );
+
+    return;
+  }
+
+  if (
+    e.touches.length === 1 &&
+    toqueArrasteRef.current &&
+    (!pincelAtivo || zoomResultado > 1)
+  ) {
+    e.preventDefault();
+
+    const atual = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+
+    const dx = atual.x - toqueArrasteRef.current.x;
+    const dy = atual.y - toqueArrasteRef.current.y;
+
+    toqueArrasteRef.current = atual;
+
+    setPanResultado((pan) => ({
+      x: pan.x + dx,
+      y: pan.y + dy,
+    }));
   }
 }}
 onTouchEnd={() => {
   toquePinchRef.current = null;
+  toqueArrasteRef.current = null;
 }}
 
               onWheel={(e) => {
