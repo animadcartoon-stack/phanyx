@@ -62,7 +62,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
- const cookieStore = cookies();
+ const cookieStore = await cookies();
 const token = cookieStore.get("token")?.value;
 
 let googleTagManagerId: string | null = null;
