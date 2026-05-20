@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
+
 type LancamentoAtrasado = {
   id: number;
   tipo: string;
@@ -53,6 +54,46 @@ export default function AdminFinanceiroInadimplentesPage() {
   const [abertoId, setAbertoId] = useState<number | null>(null);
   const [baixandoId, setBaixandoId] = useState<number | null>(null);
   const [forms, setForms] = useState<Record<number, FormLancamento>>({});
+  const [tourAberto, setTourAberto] = useState(false);
+
+  const inadimplenciaTourSteps = [
+  {
+    id: "resumo",
+    target: '[data-tour="inad-resumo"]',
+    titulo: "Resumo da inadimplência",
+    destaque: "Veja rapidamente quantos alunos estão inadimplentes.",
+    descricao:
+      "Esses indicadores mostram total de alunos, cobranças vencidas e valores em atraso.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "busca",
+    target: '[data-tour="inad-busca"]',
+    titulo: "Busca rápida",
+    destaque: "Encontre alunos pelo nome, matrícula ou e-mail.",
+    descricao:
+      "Use a busca para localizar rapidamente uma pendência específica.",
+    imagem: "/images/formix-inteligente.png",
+  },
+  {
+    id: "lista",
+    target: '[data-tour="inad-lista"]',
+    titulo: "Lista de inadimplentes",
+    destaque: "Aqui ficam os alunos com pendências financeiras.",
+    descricao:
+      "Você pode abrir cobranças, copiar mensagens e cobrar via WhatsApp.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    id: "baixa",
+    target: '[data-tour="inad-baixa"]',
+    titulo: "Regularizar cobrança",
+    destaque: "Registre pagamentos manualmente.",
+    descricao:
+      "Informe valores, juros, descontos e confirme a baixa.",
+    imagem: "/images/contador.png",
+  },
+];
 
   function formatarMoeda(valor: number) {
     return Number(valor || 0).toLocaleString("pt-BR", {
@@ -331,14 +372,27 @@ async function confirmarEnvioWhatsApp() {
   return (
   <>
     <div className="space-y-6 max-w-7xl">
-      <div>
-        <h1 className="text-2xl font-bold">🚨 Inadimplentes</h1>
+      <div className="flex items-start justify-between gap-4">
+  <div>
+    <h1 className="text-2xl font-bold">🚨 Inadimplentes</h1>
+    
+  <button
+    onClick={() => setTourAberto(true)}
+    className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+  >
+    ✨ Abrir tutorial guiado
+  </button>
+</div>
+
         <p className="text-gray-600 mt-1">
           Planilha de alunos com cobranças vencidas e ações rápidas de cobrança/baixa.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div
+  data-tour="inad-resumo"
+  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+>
         <div className="bg-white border rounded-xl p-4">
           <p className="text-sm text-gray-500">Alunos inadimplentes</p>
           <p className="text-2xl font-bold">{resumo.totalAlunos}</p>
@@ -357,7 +411,10 @@ async function confirmarEnvioWhatsApp() {
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-4">
+      <div
+  data-tour="inad-busca"
+  className="bg-white border rounded-xl p-4"
+>
         <input
           type="text"
           value={busca}
@@ -380,7 +437,10 @@ async function confirmarEnvioWhatsApp() {
   </div>
 )}
 
-      <div className="bg-white border rounded-xl overflow-hidden">
+      <div
+  data-tour="inad-lista"
+  className="bg-white border rounded-xl overflow-hidden"
+>
         <div className="grid grid-cols-7 gap-3 border-b bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">
           <div>Aluno</div>
           <div>Matrícula</div>
@@ -589,9 +649,10 @@ async function confirmarEnvioWhatsApp() {
                           </button>
 
                           <button
-                            onClick={() =>
-                              darBaixa(item.alunoId, item.nome, lanc.id)
-                            }
+  data-tour="inad-baixa"
+  onClick={() =>
+    darBaixa(item.alunoId, item.nome, lanc.id)
+  }
                             disabled={baixandoId === lanc.id}
                             className="w-full px-3 py-2 bg-blue-600 text-white rounded text-sm disabled:opacity-50"
                           >
@@ -608,10 +669,10 @@ async function confirmarEnvioWhatsApp() {
             </div>
           ))
         )}
-            </div>
-    </div>
+                        </div>
+          </div>
 
-    {telefoneModalAberto && (
+          {telefoneModalAberto && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4">
     <div className="w-full max-w-md rounded-3xl border bg-white p-6 shadow-2xl">
       <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">
@@ -657,7 +718,6 @@ async function confirmarEnvioWhatsApp() {
     </div>
   </div>
 )}
-
-  </>
-);
+    </>
+  );
 }
