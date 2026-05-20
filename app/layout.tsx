@@ -5,7 +5,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import GoogleAnalyticsPHANYX from "@/components/google/GoogleAnalyticsPHANYX";
 import GoogleTagManagerInstituicao from "@/components/google/GoogleTagManagerInstituicao";
 import GoogleAdsPHANYX from "@/components/google/GoogleAdsPHANYX";
-
+import PWARegister from "@/components/pwa/PWARegister";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -100,6 +100,7 @@ export default async function RootLayout({
     `,
   }}
 />
+<PWARegister />
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
   <GoogleTagManagerInstituicao />
