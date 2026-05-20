@@ -230,7 +230,7 @@ function abrirTourAdmin() {
   return (
     <div className="flex min-h-screen bg-gray-100">
       {!esconderSidebar && (
-        <aside className="w-72 bg-white shadow-lg p-6 flex flex-col h-screen overflow-y-auto">
+        <aside className="hidden w-72 bg-white shadow-lg p-6 lg:flex flex-col h-screen overflow-y-auto">
           <div>
             <div className="mb-8">
               <h2 className="text-xl font-semibold">
@@ -576,7 +576,49 @@ function abrirTourAdmin() {
         </aside>
       )}
 
-     <main className={esconderSidebar ? "flex-1 p-0" : "flex-1 p-10"}>
+{!esconderSidebar && (
+  <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+    <div className="grid grid-cols-6 gap-1 text-[9px] font-semibold text-slate-600">
+      <Link href="/admin" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+        <span className="text-lg">📊</span>
+        Painel
+      </Link>
+
+      <Link href="/admin/alunos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+        <span className="text-lg">🎓</span>
+        Alunos
+      </Link>
+
+      <Link href="/admin/professores" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+        <span className="text-lg">👨‍🏫</span>
+        Prof.
+      </Link>
+
+      <Link href="/admin/matriculas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+        <span className="text-lg">📝</span>
+        Matríc.
+      </Link>
+
+      <Link href="/admin/financeiro" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+        <span className="text-lg">💰</span>
+        Financ.
+      </Link>
+
+      <Link href="/admin/configuracoes/instituicao" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+        <span className="text-lg">⚙️</span>
+        Config.
+      </Link>
+    </div>
+  </nav>
+)}
+
+     <main
+  className={
+    esconderSidebar
+      ? "flex-1 p-0"
+      : "flex-1 w-full px-3 py-4 pb-24 lg:p-10"
+  }
+>
   {!esconderSidebar && <PhanyxFeriadoAviso />}
 
   {children}
