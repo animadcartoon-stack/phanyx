@@ -339,7 +339,7 @@ export default function RemovedorDeFundoClient() {
   }
 
   function iniciarPincelResultado(e: React.PointerEvent<HTMLImageElement>) {
-    if (!pincelAtivo || !imagemFinal) return;
+    if (!pincelAtivo || !imagemFinal || espacoPressionadoRef.current) return;
 
     historicoEdicaoRef.current = [
       ...historicoEdicaoRef.current.slice(-14),
@@ -1363,8 +1363,9 @@ window.addEventListener("keyup", soltarEspaco);
                 alt="Resultado em refinamento"
                 draggable={false}
                 onPointerDown={(e) => {
+  if (espacoPressionadoRef.current) return;
   e.currentTarget.setPointerCapture(e.pointerId);
-  iniciarPincelResultado(e as any);
+  iniciarPincelResultado(e);
 }}
                 onPointerMove={(e) => {
                   if (!pincelAtivo || !editandoPincelRef.current) return;
@@ -1748,6 +1749,7 @@ window.addEventListener("keyup", soltarEspaco);
                     alt="Resultado transparente"
                     draggable={false}
                     onPointerDown={(e) => {
+  if (espacoPressionadoRef.current) return;
   e.currentTarget.setPointerCapture(e.pointerId);
   iniciarPincelResultado(e);
 }}
@@ -1755,12 +1757,14 @@ window.addEventListener("keyup", soltarEspaco);
   if (!pincelAtivo || !editandoPincelRef.current) return;
   aplicarPincelResultado(e);
 }}
-                    onMouseUp={() => {
-                      editandoPincelRef.current = false;
-                    }}
-                    onMouseLeave={() => {
-                      editandoPincelRef.current = false;
-                    }}
+                    onPointerUp={() => {
+  editandoPincelRef.current = false;
+  ultimoPontoPincelRef.current = null;
+}}
+                    onPointerLeave={() => {
+  editandoPincelRef.current = false;
+  ultimoPontoPincelRef.current = null;
+}}
                     className="max-h-[240px] max-w-full object-contain"
                     style={{
                       opacity: opacidade / 100,
