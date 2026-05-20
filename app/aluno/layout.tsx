@@ -170,12 +170,14 @@ export default async function AlunoLayout({
     <AlunoProvider>
       <Header />
       <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
-        <AlunoSidebar aluno={aluno} />
+  <div className="hidden lg:block">
+    <AlunoSidebar aluno={aluno} />
+  </div>
 
         <form
           action="/api/auth/logout-aluno"
           method="post"
-          className="fixed right-6 top-20 z-[60]"
+          className="fixed right-3 top-16 z-[60] lg:right-6 lg:top-20"
         >
           <button
             type="submit"
@@ -185,7 +187,7 @@ export default async function AlunoLayout({
           </button>
         </form>
 
-        <main className="flex-1 ml-64 p-8">
+        <main className="flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
   <PhanyxFeriadoAviso />
 
   <div className="mb-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">

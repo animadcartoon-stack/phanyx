@@ -328,15 +328,15 @@ setTotalDisciplinasMatriculadas(total);
     e.target.value = "";
   }}
 />
-      <div className="mx-auto max-w-7xl space-y-6 p-6">
+      <div className="mx-auto max-w-7xl space-y-4 px-2 py-3 sm:space-y-6 sm:p-6">
         <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
-          <div className="grid gap-8 px-6 py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
+          <div className="grid gap-6 px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-200">
                 Painel acadêmico do aluno
               </p>
 
-<div className="mt-5 flex items-center gap-4">
+<div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center">
   <div className="h-20 w-20 overflow-hidden rounded-2xl border-2 border-white/20 bg-white/10">
     {data?.aluno?.fotoPerfil ? (
       <img
@@ -382,7 +382,7 @@ setTotalDisciplinasMatriculadas(total);
   </div>
 </div>
 
-              <h1 className="mt-3 text-3xl font-bold leading-tight md:text-4xl">
+              <h1 className="mt-4 text-2xl font-bold leading-tight sm:text-3xl md:text-4xl">
                 {saudacao}, acompanhe sua jornada acadêmica com clareza,
                 desempenho e foco
               </h1>
@@ -393,7 +393,7 @@ setTotalDisciplinasMatriculadas(total);
                 moderna, organizada e profissional.
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-3">
+              <div className="mt-6 grid gap-3 sm:flex sm:flex-wrap">
                 <a
                   href={
                     disciplinaPrincipal
