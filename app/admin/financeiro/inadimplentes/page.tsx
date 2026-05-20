@@ -38,6 +38,150 @@ type FormLancamento = {
   multaValor: string;
 };
 
+function InadimplentesTour({
+  aberto,
+  onClose,
+  steps,
+}: {
+  aberto: boolean;
+  onClose: () => void;
+  steps: any[];
+}) {
+  const [stepAtual, setStepAtual] = useState(0);
+  const [targetRect, setTargetRect] = useState<any>(null);
+
+  const step = steps[stepAtual];
+
+  useEffect(() => {
+    if (!aberto || !step) return;
+
+    function atualizar() {
+      const el = document.querySelector(step.target);
+      if (!el) return;
+
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        setTargetRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        });
+      }, 260);
+    }
+
+    atualizar();
+
+    window.addEventListener("resize", atualizar);
+    window.addEventListener("scroll", atualizar, true);
+
+    return () => {
+      window.removeEventListener("resize", atualizar);
+      window.removeEventListener("scroll", atualizar, true);
+    };
+  }, [aberto, stepAtual, step]);
+
+  if (!aberto || !step) return null;
+
+  const spotlight = targetRect
+    ? {
+        top: Math.max(targetRect.top - 8, 8),
+        left: Math.max(targetRect.left - 8, 8),
+        width: targetRect.width + 16,
+        height: targetRect.height + 16,
+      }
+    : null;
+
+  return (
+    <div className="fixed inset-0 z-[9999]">
+      <div className="absolute inset-0 bg-slate-950/70" />
+
+      {spotlight && (
+        <div
+          className="absolute rounded-2xl border-2 border-blue-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)]"
+          style={spotlight}
+        />
+      )}
+
+      <div className="absolute left-[360px] top-[220px] w-[420px] rounded-[28px] border bg-white px-5 py-4 shadow-2xl">
+        <div className="absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t bg-white" />
+
+        <div className="flex gap-4">
+          <img
+            src={step.imagem}
+            alt=""
+            className="h-24 w-24 object-contain drop-shadow-lg"
+          />
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
+              Tutorial guiado
+            </p>
+
+            <h3 className="mt-1 text-xl font-bold text-slate-900">
+              {step.titulo}
+            </h3>
+
+            <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700">
+              {step.destaque}
+            </p>
+
+            <p className="mt-2 text-sm leading-7 text-slate-600">
+              {step.descricao}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between">
+          <span className="text-sm text-slate-500">
+            Etapa {stepAtual + 1} de {steps.length}
+          </span>
+
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="rounded-xl border px-3 py-2 text-sm"
+            >
+              Fechar
+            </button>
+
+            {stepAtual > 0 && (
+              <button
+                onClick={() => setStepAtual((p) => p - 1)}
+                className="rounded-xl border px-3 py-2 text-sm"
+              >
+                Anterior
+              </button>
+            )}
+
+            {stepAtual < steps.length - 1 ? (
+              <button
+                onClick={() => setStepAtual((p) => p + 1)}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Próximo
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  sessionStorage.setItem("phanyx-continuar-tour", "fechamento-geral");
+                  onClose();
+                  window.location.href = "/admin/financeiro/fechamento-geral";
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Ir para fechamento
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminFinanceiroInadimplentesPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -280,8 +424,20 @@ async function confirmarEnvioWhatsApp() {
   }
 
   useEffect(() => {
-    carregar();
-  }, []);
+  carregar();
+}, []);
+
+useEffect(() => {
+  const continuarTour = sessionStorage.getItem("phanyx-continuar-tour");
+
+  if (continuarTour === "inadimplentes") {
+    sessionStorage.removeItem("phanyx-continuar-tour");
+
+    setTimeout(() => {
+      setTourAberto(true);
+    }, 600);
+  }
+}, []);
 
   async function darBaixa(
     alunoId: number,
@@ -671,6 +827,12 @@ async function confirmarEnvioWhatsApp() {
         )}
                         </div>
           </div>
+
+<InadimplentesTour
+  aberto={tourAberto}
+  onClose={() => setTourAberto(false)}
+  steps={inadimplenciaTourSteps}
+/>
 
           {telefoneModalAberto && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4">
