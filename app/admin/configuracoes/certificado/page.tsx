@@ -4909,11 +4909,7 @@ onClick={() =>
   type="number"
   min={6}
   max={120}
-  value={
-    campoSelecionado?.tipo === "TEXTO_LIVRE"
-      ? tamanhoSelecaoTexto
-      : campoSelecionado?.tamanho ?? 18
-  }
+  value={campoSelecionado?.tamanho ?? tamanhoSelecaoTexto ?? 18}
   onMouseDown={(e) => {
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     e.preventDefault();
@@ -4928,9 +4924,15 @@ onClick={() =>
   const tamanho = Number(e.target.value);
   setTamanhoSelecaoTexto(tamanho);
 
-  aplicarEstiloTextoOuCampoInteiro("tamanho", tamanho, {
-    fontSize: `${tamanho}px`,
-  });
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+    aplicarEstiloTextoSelecionado({
+      fontSize: `${tamanho}px`,
+    });
+
+    return;
+  }
+
+  atualizarCampoLocal("tamanho", tamanho);
 }}
   className="w-full rounded-xl border border-slate-300 px-3 py-2"
 />
