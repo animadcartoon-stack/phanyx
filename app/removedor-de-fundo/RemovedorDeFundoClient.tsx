@@ -54,6 +54,8 @@ export default function RemovedorDeFundoClient() {
   const [saturacao, setSaturacao] = useState(100);
   const [opacidade, setOpacidade] = useState(100);
   const [zoomResultado, setZoomResultado] = useState(1);
+  const [zoomOriginal, setZoomOriginal] = useState(1);
+  const [panOriginal, setPanOriginal] = useState({ x: 0, y: 0 });
   const [panResultado, setPanResultado] = useState({ x: 0, y: 0 });
   const [intensidadeTraco, setIntensidadeTraco] = useState(60);
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
@@ -106,6 +108,8 @@ export default function RemovedorDeFundoClient() {
     setVarinhaAtiva(false);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
+    setZoomOriginal(1);
+    setPanOriginal({ x: 0, y: 0 });
 
     if (!file.type.startsWith("image/")) {
       setErro("Envie apenas arquivos de imagem.");
@@ -1934,33 +1938,122 @@ onTouchEnd={() => {
               </h2>
 
               <div
-                className="flex w-full items-center justify-center rounded-2xl bg-white p-4"
-                style={{
-                  height: modo === "assinatura" ? "260px" : "360px",
-                }}
-              >
-                {imagemOriginal ? (
-                  <img
-                    ref={imagemOriginalRef}
-                    src={imagemOriginal}
-                    alt="Imagem original"
-                    onClick={
-  (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
-    ? selecionarCorManual
-    : undefined
-}
-                    className={`max-h-[500px] max-w-full object-contain ${
-                      (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
-  ? "cursor-crosshair"
-  : ""
-                    }`}
-                  />
-                ) : (
-                  <p className="text-slate-400">
-                    Envie uma imagem para começar
-                  </p>
-                )}
-              </div>
+  onWheel={(e) => {
+    if (!imagemOriginal) return;
+
+    e.preventDefault();
+
+    const direcao = e.deltaY > 0 ? -0.1 : 0.1;
+
+    setZoomOriginal((z) =>
+      Math.max(1, Math.min(6, Number((z + direcao).toFixed(2))))
+    );
+  }}
+  onMouseDown={(e) => {
+    if (!imagemOriginal || zoomOriginal <= 1) return;
+
+    arrastandoResultadoRef.current = true;
+    ultimoMouseResultadoRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+    };
+  }}
+  onMouseMove={(e) => {
+    if (!arrastandoResultadoRef.current || zoomOriginal <= 1) return;
+
+    const dx = e.clientX - ultimoMouseResultadoRef.current.x;
+    const dy = e.clientY - ultimoMouseResultadoRef.current.y;
+
+    ultimoMouseResultadoRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+    };
+
+    setPanOriginal((pan) => ({
+      x: pan.x + dx,
+      y: pan.y + dy,
+    }));
+  }}
+  onMouseUp={() => {
+    arrastandoResultadoRef.current = false;
+  }}
+  onMouseLeave={() => {
+    arrastandoResultadoRef.current = false;
+  }}
+  className="flex w-full touch-none select-none items-center justify-center overflow-hidden rounded-2xl bg-white p-4"
+  style={{
+    height: modo === "assinatura" ? "260px" : "360px",
+    cursor:
+      zoomOriginal > 1
+        ? "grab"
+        : (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
+          ? "crosshair"
+          : "default",
+  }}
+>
+  {imagemOriginal ? (
+    <img
+      ref={imagemOriginalRef}
+      src={imagemOriginal}
+      alt="Imagem original"
+      draggable={false}
+      onClick={
+        (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
+          ? selecionarCorManual
+          : undefined
+      }
+      className="max-h-[500px] max-w-full object-contain"
+      style={{
+        transform: `translate(${panOriginal.x}px, ${panOriginal.y}px) scale(${zoomOriginal})`,
+        transformOrigin: "center",
+      }}
+    />
+  ) : (
+    <p className="text-slate-400">Envie uma imagem para começar</p>
+  )}
+</div>
+{imagemOriginal && (
+  <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-slate-950/60 p-2">
+    <button
+      type="button"
+      onClick={() =>
+        setZoomOriginal((z) =>
+          Math.max(1, Number((z - 0.2).toFixed(2)))
+        )
+      }
+      className="rounded-lg border border-white/20 px-3 py-2 text-xs font-black text-white"
+    >
+      -
+    </button>
+
+    <span className="text-xs font-bold text-cyan-100">
+      Zoom original: {Math.round(zoomOriginal * 100)}%
+    </span>
+
+    <button
+      type="button"
+      onClick={() =>
+        setZoomOriginal((z) =>
+          Math.min(6, Number((z + 0.2).toFixed(2)))
+        )
+      }
+      className="rounded-lg border border-white/20 px-3 py-2 text-xs font-black text-white"
+    >
+      +
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        setZoomOriginal(1);
+        setPanOriginal({ x: 0, y: 0 });
+      }}
+      className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-black text-white"
+    >
+      Reset
+    </button>
+  </div>
+)}
             </div>
 
             <div className="h-fit rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
