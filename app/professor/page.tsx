@@ -141,7 +141,7 @@ async function alterarFotoPerfil(file: File | null) {
   }
 
   return (
-    <div className="p-6">
+    <div className="px-2 py-3 sm:p-6">
       <input
   ref={inputFotoRef}
   type="file"
@@ -153,13 +153,13 @@ async function alterarFotoPerfil(file: File | null) {
     e.target.value = "";
   }}
 />
-      <div className="mx-auto max-w-7xl space-y-6">
-        <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <h1 className="text-2xl font-bold text-gray-900">
+      <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
+        <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6">
+          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             Dashboard do Professor
           </h1>
 
-<div className="mt-5 flex items-center gap-4">
+<div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-center">
   <div className="h-20 w-20 overflow-hidden rounded-2xl border bg-slate-100">
     {data?.professor?.fotoPerfil ? (
       <img
@@ -224,7 +224,7 @@ async function alterarFotoPerfil(file: File | null) {
 
         {!loading && !erro && data && (
           <>
-            <div className="grid gap-4 md:grid-cols-4 xl:grid-cols-8">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
               <div className="rounded-2xl border bg-white p-5 shadow-sm">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Total de provas
@@ -298,9 +298,9 @@ async function alterarFotoPerfil(file: File | null) {
               </div>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-3">
+            <div className="grid gap-4 lg:grid-cols-3">
               <div className="rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2">
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">
                       Provas recentes
@@ -369,17 +369,17 @@ async function alterarFotoPerfil(file: File | null) {
                             </div>
                           </div>
 
-                          <div className="flex flex-wrap gap-2">
+                          <div className="flex flex-col gap-2 sm:flex-row">
                             <a
                               href={`/professor/provas/${prova.id}`}
-                              className="rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                               Abrir
                             </a>
 
                             <a
                               href={`/professor/provas/${prova.id}/boletim`}
-                              className="rounded-lg border px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
                             >
                               Boletim
                             </a>
