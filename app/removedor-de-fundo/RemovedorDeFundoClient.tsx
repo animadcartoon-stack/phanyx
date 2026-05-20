@@ -1952,6 +1952,10 @@ onTouchEnd={() => {
   onMouseDown={(e) => {
     if (!imagemOriginal || zoomOriginal <= 1) return;
 
+    if ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) {
+      return;
+    }
+
     arrastandoResultadoRef.current = true;
     ultimoMouseResultadoRef.current = {
       x: e.clientX,
@@ -1984,10 +1988,10 @@ onTouchEnd={() => {
   style={{
     height: modo === "assinatura" ? "260px" : "360px",
     cursor:
-      zoomOriginal > 1
-        ? "grab"
-        : (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
-          ? "crosshair"
+      (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
+        ? "crosshair"
+        : zoomOriginal > 1
+          ? "grab"
           : "default",
   }}
 >
