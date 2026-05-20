@@ -35,8 +35,19 @@ export const metadata: Metadata = {
   authors: [{ name: "PHANYX" }],
 
   icons: {
-    icon: "/icon.png",
-  },
+  icon: "/icon.png",
+  apple: "/apple-touch-icon.png",
+},
+
+manifest: "/manifest.json",
+
+appleWebApp: {
+  capable: true,
+  statusBarStyle: "default",
+  title: "PHANYX",
+},
+
+themeColor: "#0f172a",
 
   openGraph: {
     title: "PHANYX | Sistema de Gestão Escolar",
@@ -66,12 +77,28 @@ export default async function RootLayout({
       <head>
         <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Montserrat&family=Roboto&family=Open+Sans&family=Lato&family=Playfair+Display&family=Merriweather&family=Libre+Baskerville&family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Satisfy&family=Allura&family=Alex+Brush&family=Sacramento&family=Indie+Flower&family=Caveat&display=swap" rel="stylesheet" />
     <meta name="google-site-verification" content="NwoAwG25GlnNtcQGaQ2PAIe0EXXGQl6VrogGfBj563A" />
-  
+    <meta name="application-name" content="PHANYX" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="PHANYX" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="theme-color" content="#0f172a" />
   </head>
       <body
   suppressHydrationWarning
   className={`${inter.variable} antialiased bg-gray-100`}
 >
+  <script
+  dangerouslySetInnerHTML={{
+    __html: `
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    `,
+  }}
+/>
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
   <GoogleTagManagerInstituicao />
