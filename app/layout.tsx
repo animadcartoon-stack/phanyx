@@ -101,23 +101,6 @@ if (token) {
         <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Montserrat&family=Roboto&family=Open+Sans&family=Lato&family=Playfair+Display&family=Merriweather&family=Libre+Baskerville&family=Dancing+Script&family=Great+Vibes&family=Pacifico&family=Satisfy&family=Allura&family=Alex+Brush&family=Sacramento&family=Indie+Flower&family=Caveat&display=swap" rel="stylesheet" />
     <meta name="google-site-verification" content="NwoAwG25GlnNtcQGaQ2PAIe0EXXGQl6VrogGfBj563A" />
   
-  {googleTagManagerId && (
-  <Script id="google-tag-manager-phanyx" strategy="afterInteractive">
-    {`
-      (function(w,d,s,l,i){
-        w[l]=w[l]||[];
-        w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-        var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),
-            dl=l!='dataLayer'?'&l='+l:'';
-        j.async=true;
-        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-        f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','${googleTagManagerId}');
-    `}
-  </Script>
-)}
-
   </head>
       <body
   suppressHydrationWarning
@@ -125,7 +108,24 @@ if (token) {
 >
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
-  
+
+  {googleTagManagerId && (
+    <Script id="google-tag-manager-phanyx" strategy="afterInteractive">
+      {`
+        (function(w,d,s,l,i){
+          w[l]=w[l]||[];
+          w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+          var f=d.getElementsByTagName(s)[0],
+              j=d.createElement(s),
+              dl=l!='dataLayer'?'&l='+l:'';
+          j.async=true;
+          j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+          f.parentNode.insertBefore(j,f);
+        })(window,document,'script','dataLayer','${googleTagManagerId}');
+      `}
+    </Script>
+  )}
+
   {children}
 </AuthProvider>
 </body>
