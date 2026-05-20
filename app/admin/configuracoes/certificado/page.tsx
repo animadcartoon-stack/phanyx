@@ -575,6 +575,10 @@ function gerarPontosEstrela(
   pontoIndex: number;
   cor: string;
 } | null>(null);
+
+  const [corContornoTexto, setCorContornoTexto] = useState("#000000");
+  const [espessuraContornoTexto, setEspessuraContornoTexto] = useState(1);
+
   const [corAtual, setCorAtual] = useState({
   hex: "#ffffff",
   r: 255,
@@ -5948,13 +5952,16 @@ iniciarDrag(event as any, c);
   </label>
   <input
     type="color"
-    defaultValue="#000000"
+    value={corContornoTexto}
     onMouseDown={(e) => e.preventDefault()}
     onChange={(e) => {
-      aplicarEstiloTextoSelecionado({
-        WebkitTextStrokeColor: e.target.value,
-      } as React.CSSProperties);
-    }}
+  const novaCor = e.target.value;
+  setCorContornoTexto(novaCor);
+
+  aplicarEstiloTextoSelecionado({
+    WebkitTextStroke: `${espessuraContornoTexto}px ${novaCor}`,
+  } as React.CSSProperties);
+}}
     className="mb-3 h-9 w-full cursor-pointer rounded-lg border"
   />
 
@@ -5966,13 +5973,16 @@ iniciarDrag(event as any, c);
     min={0}
     max={6}
     step={0.5}
-    defaultValue={1}
+    value={espessuraContornoTexto}
     onMouseDown={(e) => e.preventDefault()}
     onChange={(e) => {
-      aplicarEstiloTextoSelecionado({
-        WebkitTextStrokeWidth: `${e.target.value}px`,
-      } as React.CSSProperties);
-    }}
+  const novaEspessura = Number(e.target.value);
+  setEspessuraContornoTexto(novaEspessura);
+
+  aplicarEstiloTextoSelecionado({
+    WebkitTextStroke: `${novaEspessura}px ${corContornoTexto}`,
+  } as React.CSSProperties);
+}}
     className="w-full"
   />
 </div>
