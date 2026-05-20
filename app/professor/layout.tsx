@@ -71,31 +71,41 @@ export default async function ProfessorLayout({
 </div>
 
 <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid grid-cols-5 gap-1 text-[10px] font-semibold text-slate-600">
-    <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📊</span>
-      Painel
-    </a>
+  <div className="grid grid-cols-7 gap-1 text-[9px] font-semibold text-slate-600">
+   <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">📊</span>
+  Painel
+</a>
 
-    <a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">🏫</span>
-      Turmas
-    </a>
+<a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">🏫</span>
+  Turmas
+</a>
 
-    <a href="/professor/aulas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">🎬</span>
-      Aulas
-    </a>
+<a href="/professor/alunos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">👥</span>
+  Alunos
+</a>
 
-    <a href="/professor/atividades" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📝</span>
-      Atividades
-    </a>
+<a href="/professor/aulas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">🎬</span>
+  Aulas
+</a>
 
-    <a href="/professor/provas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">✅</span>
-      Provas
-    </a>
+<a href="/professor/atividades" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">📝</span>
+  Atividades
+</a>
+
+<a href="/professor/provas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">✅</span>
+  Avaliações
+</a>
+
+<a href="/professor/trabalhos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">📄</span>
+  Trabalhos
+</a>
   </div>
 </nav>
 

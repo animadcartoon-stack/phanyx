@@ -1107,25 +1107,25 @@ window.addEventListener("keyup", soltarEspaco);
     coresAlvoManuais,
   ]);
 
-  function atualizarLupa(e: React.PointerEvent<HTMLImageElement>) {
+ function atualizarLupa(e: React.PointerEvent<HTMLImageElement>) {
   if (!canvasRef.current || !pincelAtivo) return;
 
   const rect = e.currentTarget.getBoundingClientRect();
 
-  const xTela = e.clientX;
-  const yTela = e.clientY;
+  const xRelativo = e.clientX - rect.left;
+  const yRelativo = e.clientY - rect.top;
 
   const xImagem = Math.floor(
-    ((e.clientX - rect.left) / rect.width) * canvasRef.current.width
+    (xRelativo / rect.width) * canvasRef.current.width
   );
 
   const yImagem = Math.floor(
-    ((e.clientY - rect.top) / rect.height) * canvasRef.current.height
+    (yRelativo / rect.height) * canvasRef.current.height
   );
 
   setPosicaoCursor({
-    x: xTela,
-    y: yTela,
+    x: e.clientX,
+    y: e.clientY,
   });
 
   setPosicaoImagemCursor({
@@ -1266,22 +1266,48 @@ window.addEventListener("keyup", soltarEspaco);
           <div className="mx-auto flex h-full max-w-7xl flex-col">
             {mostrarLupa && canvasRef.current && (
   <div
-    className="pointer-events-none fixed z-[120] overflow-hidden rounded-full border-4 border-cyan-400 shadow-2xl"
+    className="pointer-events-none fixed z-[120] overflow-hidden rounded-full border-4 border-cyan-400 shadow-2xl bg-slate-950"
     style={{
-      width: 140,
-      height: 140,
-      left: posicaoCursor.x + 28,
-      top: posicaoCursor.y - 70,
-      backgroundImage: `url(${imagemFinal})`,
-      backgroundRepeat: "no-repeat",
-      backgroundSize: `${canvasRef.current.width * 4}px ${canvasRef.current.height * 4}px`,
-      backgroundPosition: `
-        -${posicaoImagemCursor.x * 4 - 70}px
-        -${posicaoImagemCursor.y * 4 - 70}px
-      `,
-      backgroundColor: "#020617",
+      width: 180,
+      height: 180,
+      left: posicaoCursor.x + 26,
+      top: posicaoCursor.y - 90,
     }}
-  />
+  >
+    <img
+      src={imagemFinal}
+      alt="Lupa"
+      draggable={false}
+      className="absolute inset-0 max-w-none"
+      style={{
+        width: canvasRef.current.width * 4,
+        height: canvasRef.current.height * 4,
+        transform: `translate(-${posicaoImagemCursor.x * 4 - 90}px, -${
+          posicaoImagemCursor.y * 4 - 90
+        }px)`,
+      }}
+    />
+
+    <div
+      className="absolute left-1/2 top-1/2 border border-cyan-200/70"
+      style={{
+        width: tamanhoPincel * 4,
+        height: tamanhoPincel * 4,
+        borderRadius: "9999px",
+        transform: "translate(-50%, -50%)",
+      }}
+    />
+
+    <div
+      className="absolute left-1/2 top-1/2 h-4 w-px bg-cyan-200"
+      style={{ transform: "translateX(-50%)" }}
+    />
+
+    <div
+      className="absolute left-1/2 top-1/2 w-4 h-px bg-cyan-200"
+      style={{ transform: "translateY(-50%)" }}
+    />
+  </div>
 )}
             <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3">
               <div>
