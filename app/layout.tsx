@@ -62,37 +62,31 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
 
-  const cookieStore = cookies();
+ const cookieStore = cookies();
 const token = cookieStore.get("token")?.value;
 
 let googleTagManagerId: string | null = null;
 
 if (token) {
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET!
-    ) as {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       instituicaoId: number;
     };
 
     const instituicao = await prisma.instituicao.findUnique({
-      where: {
-        id: decoded.instituicaoId,
-      },
+      where: { id: decoded.instituicaoId },
       select: {
         googleTagManagerId: true,
         googleTagManagerAtivo: true,
       },
     });
 
-    if (
-      instituicao?.googleTagManagerAtivo &&
-      instituicao.googleTagManagerId
-    ) {
+    if (instituicao?.googleTagManagerAtivo && instituicao.googleTagManagerId) {
       googleTagManagerId = instituicao.googleTagManagerId;
     }
-  } catch {}
+  } catch {
+    googleTagManagerId = null;
+  }
 }
 
   return (
