@@ -1952,8 +1952,17 @@ onTouchEnd={() => {
   onMouseDown={(e) => {
     if (!imagemOriginal || zoomOriginal <= 1) return;
 
-    if ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) {
+    const botaoDoMeio = e.button === 1;
+
+    if (
+      ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) &&
+      !botaoDoMeio
+    ) {
       return;
+    }
+
+    if (botaoDoMeio) {
+      e.preventDefault();
     }
 
     arrastandoResultadoRef.current = true;
@@ -2001,11 +2010,13 @@ onTouchEnd={() => {
       src={imagemOriginal}
       alt="Imagem original"
       draggable={false}
-      onClick={
-        (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
-          ? selecionarCorManual
-          : undefined
-      }
+      onClick={(e) => {
+        if (e.button === 1) return;
+
+        if ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) {
+          selecionarCorManual(e);
+        }
+      }}
       className="max-h-[500px] max-w-full object-contain"
       style={{
         transform: `translate(${panOriginal.x}px, ${panOriginal.y}px) scale(${zoomOriginal})`,
