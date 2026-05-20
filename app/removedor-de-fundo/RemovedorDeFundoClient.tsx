@@ -1334,6 +1334,19 @@ window.addEventListener("keyup", soltarEspaco);
               </div>
 
               <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
+                
+<button
+  type="button"
+  onClick={() => setPincelAtivo((ativo) => !ativo)}
+  className={`rounded-xl px-3 py-2 text-xs font-black ${
+    pincelAtivo
+      ? "bg-cyan-400 text-slate-950"
+      : "bg-slate-800 text-white"
+  }`}
+>
+  {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
+</button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -1363,18 +1376,6 @@ window.addEventListener("keyup", soltarEspaco);
                 >
                   Restaurar parte
                 </button>
-
-<button
-  type="button"
-  onClick={() => setPincelAtivo((ativo) => !ativo)}
-  className={`rounded-xl px-3 py-2 text-xs font-black ${
-    pincelAtivo
-      ? "bg-cyan-400 text-slate-950"
-      : "bg-slate-800 text-white"
-  }`}
->
-  {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
-</button>
 
                 <button
                   type="button"
