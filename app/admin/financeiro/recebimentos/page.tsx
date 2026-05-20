@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import PhanyxToast from "@/components/ui/PhanyxToast";
-import PhanyxTour from "@/components/tutorial/PhanyxTour";
+
 
 type PagamentoItem = {
   id: number;
@@ -103,6 +103,201 @@ const recebimentosTourSteps = [
     imagem: "/images/financeiro.png",
   },
 ];
+
+function getRectFromSelector(selector: string) {
+  const elemento = document.querySelector(selector);
+
+  if (!elemento) return null;
+
+  const rect = elemento.getBoundingClientRect();
+
+  return {
+    top: rect.top + window.scrollY,
+    left: rect.left + window.scrollX,
+    width: rect.width,
+    height: rect.height,
+  };
+}
+
+function RecebimentosTour({
+  aberto,
+  onClose,
+}: {
+  aberto: boolean;
+  onClose: () => void;
+}) {
+  const [stepAtual, setStepAtual] = useState(0);
+  const [rect, setRect] = useState<{
+    top: number;
+    left: number;
+    width: number;
+    height: number;
+  } | null>(null);
+
+  const step = recebimentosTourSteps[stepAtual];
+
+  useEffect(() => {
+    if (!aberto || !step) return;
+
+    const atualizarRect = () => {
+      const novoRect = getRectFromSelector(step.target);
+
+      if (novoRect) {
+        setRect(novoRect);
+
+        window.scrollTo({
+          top: Math.max(novoRect.top - 120, 0),
+          behavior: "smooth",
+        });
+      }
+    };
+
+    atualizarRect();
+
+    const timer = setTimeout(atualizarRect, 350);
+
+    window.addEventListener("resize", atualizarRect);
+    window.addEventListener("scroll", atualizarRect);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", atualizarRect);
+      window.removeEventListener("scroll", atualizarRect);
+    };
+  }, [aberto, stepAtual, step]);
+
+  if (!aberto || !step) return null;
+
+  const padding = 10;
+
+  const spotlight = rect
+    ? {
+        top: rect.top - padding,
+        left: rect.left - padding,
+        width: rect.width + padding * 2,
+        height: rect.height + padding * 2,
+      }
+    : null;
+
+  const concluir = () => {
+    localStorage.setItem("phanyx-tour-recebimentos", "concluido");
+    onClose();
+  };
+
+  const anterior = () => {
+    setStepAtual((prev) => Math.max(prev - 1, 0));
+  };
+
+  const proximo = () => {
+    if (stepAtual >= recebimentosTourSteps.length - 1) {
+      concluir();
+      return;
+    }
+
+    setStepAtual((prev) => prev + 1);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999]">
+      <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-sm" />
+
+      {spotlight && (
+        <div
+          className="absolute rounded-3xl border-2 border-blue-300 shadow-[0_0_0_9999px_rgba(15,23,42,0.72),0_0_40px_rgba(59,130,246,0.65)] transition-all duration-300"
+          style={{
+            top: spotlight.top,
+            left: spotlight.left,
+            width: spotlight.width,
+            height: spotlight.height,
+          }}
+        />
+      )}
+
+      <div className="fixed left-1/2 top-1/2 z-[10000] w-[92vw] max-w-xl -translate-x-1/2 -translate-y-1/2 rounded-3xl border border-blue-100 bg-white p-5 shadow-2xl md:p-6">
+        <button
+          type="button"
+          onClick={concluir}
+          className="absolute right-4 top-4 rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600 hover:bg-slate-200"
+        >
+          ×
+        </button>
+
+        <div className="flex gap-4">
+          <div className="hidden shrink-0 md:block">
+            <div className="flex h-28 w-28 items-center justify-center rounded-3xl bg-blue-50">
+              <img
+                src={step.imagem}
+                alt=""
+                className="max-h-24 max-w-24 object-contain"
+              />
+            </div>
+          </div>
+
+          <div className="min-w-0 flex-1 pr-8">
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-600">
+              Tutorial PHANYX
+            </p>
+
+            <h2 className="mt-2 text-xl font-black text-slate-900">
+              {step.titulo}
+            </h2>
+
+            <p className="mt-3 text-base font-bold text-blue-700">
+              {step.destaque}
+            </p>
+
+            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+              {step.descricao}
+            </p>
+
+            <div className="mt-5 flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold text-slate-500">
+                Passo {stepAtual + 1} de {recebimentosTourSteps.length}
+              </span>
+
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={anterior}
+                  disabled={stepAtual === 0}
+                  className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold text-slate-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Voltar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={proximo}
+                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+                >
+                  {stepAtual === recebimentosTourSteps.length - 1
+                    ? "Concluir"
+                    : "Próximo"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="fixed bottom-4 left-1/2 z-[10000] flex -translate-x-1/2 gap-2">
+        {recebimentosTourSteps.map((item, index) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setStepAtual(index)}
+            className={`h-2.5 rounded-full transition-all ${
+              index === stepAtual
+                ? "w-8 bg-blue-400"
+                : "w-2.5 bg-white/50 hover:bg-white"
+            }`}
+            aria-label={`Ir para passo ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminFinanceiroRecebimentosPage() {
   const [tourAberto, setTourAberto] = useState(false);
@@ -438,6 +633,10 @@ function calcularValorFinalLote(item: RecebimentoItem) {
 }, [recebimentos]);
 
 useEffect(() => {
+  const abrirTour = () => {
+    setTourAberto(true);
+  };
+
   const continuarTour = sessionStorage.getItem("phanyx-continuar-tour");
 
   if (continuarTour === "recebimentos") {
@@ -447,6 +646,12 @@ useEffect(() => {
       setTourAberto(true);
     }, 600);
   }
+
+  window.addEventListener("phanyx:abrir-tour-recebimentos", abrirTour);
+
+  return () => {
+    window.removeEventListener("phanyx:abrir-tour-recebimentos", abrirTour);
+  };
 }, []);
 
   return (
@@ -886,10 +1091,11 @@ useEffect(() => {
         )}
             </div>
 
-      <PhanyxTour
-  steps={recebimentosTourSteps}
-  storageKey="phanyx-tour-recebimentos"
+<RecebimentosTour
+  aberto={tourAberto}
+  onClose={() => setTourAberto(false)}
 />
+     
     </div>
   );
 }
