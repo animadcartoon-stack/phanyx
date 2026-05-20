@@ -23,6 +23,7 @@ export default function RemovedorDeFundoClient() {
   const historicoEdicaoRef = useRef<string[]>([]);
   const espacoPressionadoRef = useRef(false);
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const toquePinchRef = useRef<{
   distancia: number;
@@ -94,6 +95,8 @@ export default function RemovedorDeFundoClient() {
     setImagemBaseEdicao(null);
     setPincelAtivo(false);
     historicoEdicaoRef.current = [];
+    baseEdicaoCanvasRef.current = null;
+    imagemOriginalCanvasRef.current = null;
     setCoresAlvoManuais([]);
     setVarinhaAtiva(false);
     setZoomResultado(1);
@@ -364,6 +367,15 @@ setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa c
 
     baseCtx.drawImage(canvas, 0, 0);
     baseEdicaoCanvasRef.current = baseCanvas;
+    const originalCanvas = document.createElement("canvas");
+originalCanvas.width = canvas.width;
+originalCanvas.height = canvas.height;
+
+const originalCtx = originalCanvas.getContext("2d");
+if (originalCtx) {
+  originalCtx.drawImage(canvas, 0, 0);
+  imagemOriginalCanvasRef.current = originalCanvas;
+}
     setImagemBaseEdicao(baseCanvas.toDataURL("image/png"));
   }
 
@@ -422,9 +434,15 @@ setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa c
 
   const canvas = canvasRef.current;
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  const baseCtx = baseEdicaoCanvasRef.current.getContext("2d", {
-    willReadFrequently: true,
-  });
+  
+  const canvasRestauracao =
+  ferramentaPincel === "restaurar" && imagemOriginalCanvasRef.current
+    ? imagemOriginalCanvasRef.current
+    : baseEdicaoCanvasRef.current;
+
+const baseCtx = canvasRestauracao.getContext("2d", {
+  willReadFrequently: true,
+});
 
   if (!ctx || !baseCtx) return;
 
