@@ -67,6 +67,57 @@ type RespostaApi = {
   lancamentos: Lancamento[];
 };
 
+const relatoriosTourSteps = [
+  {
+    target: '[data-tour="relatorios-exportar"]',
+    titulo: "Exportações financeiras",
+    destaque: "Exporte os relatórios em CSV, Excel ou PDF.",
+    descricao:
+      "Esses botões permitem baixar os dados financeiros para conferência, prestação de contas ou arquivo interno.",
+    imagem: "/images/relatorios.png",
+  },
+  {
+    target: '[data-tour="relatorios-periodo"]',
+    titulo: "Filtro por período",
+    destaque: "Escolha a data inicial e final do relatório.",
+    descricao:
+      "O PHANYX recalcula os indicadores financeiros conforme o período selecionado.",
+    imagem: "/images/financeiro.png",
+  },
+  {
+    target: '[data-tour="relatorios-polo"]',
+    titulo: "Filtro por polo",
+    destaque: "Separe os resultados por unidade ou campus.",
+    descricao:
+      "Quando a instituição possui polos, você pode analisar os dados financeiros de cada unidade.",
+    imagem: "/images/contador.png",
+  },
+  {
+    target: '[data-tour="relatorios-resumo"]',
+    titulo: "Resumo financeiro",
+    destaque: "Veja os principais números do período.",
+    descricao:
+      "Aqui aparecem lançamentos, valores pagos, pendentes, atrasados e alunos inadimplentes.",
+    imagem: "/images/relatorios.png",
+  },
+  {
+    target: '[data-tour="relatorios-graficos"]',
+    titulo: "Gráficos financeiros",
+    destaque: "Acompanhe visualmente a evolução financeira.",
+    descricao:
+      "Os gráficos ajudam a entender receita por dia, status dos lançamentos e tipos de cobrança.",
+    imagem: "/images/formix-inteligente.png",
+  },
+  {
+    target: '[data-tour="relatorios-lancamentos"]',
+    titulo: "Lançamentos do período",
+    destaque: "Confira cada lançamento individualmente.",
+    descricao:
+      "Essa lista mostra aluno, polo, tipo, descrição, valor, pagamento e status.",
+    imagem: "/images/financeiro.png",
+  },
+];
+
 function hojeInput() {
   const hoje = new Date();
   const yyyy = hoje.getFullYear();
@@ -120,6 +171,158 @@ async function carregarImagemComoDataUrl(src: string): Promise<string | null> {
   }
 }
 
+function RelatoriosTour({
+  aberto,
+  onClose,
+}: {
+  aberto: boolean;
+  onClose: () => void;
+}) {
+  const [stepAtual, setStepAtual] = useState(0);
+  const [targetRect, setTargetRect] = useState<any>(null);
+
+  const step = relatoriosTourSteps[stepAtual];
+
+  useEffect(() => {
+    if (!aberto || !step) return;
+
+    function atualizar() {
+      const el = document.querySelector(step.target);
+      if (!el) return;
+
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      setTimeout(() => {
+        const rect = el.getBoundingClientRect();
+        setTargetRect({
+          top: rect.top,
+          left: rect.left,
+          width: rect.width,
+          height: rect.height,
+        });
+      }, 260);
+    }
+
+    atualizar();
+
+    window.addEventListener("resize", atualizar);
+    window.addEventListener("scroll", atualizar, true);
+
+    return () => {
+      window.removeEventListener("resize", atualizar);
+      window.removeEventListener("scroll", atualizar, true);
+    };
+  }, [aberto, stepAtual, step]);
+
+  if (!aberto || !step) return null;
+
+  const spotlight = targetRect
+    ? {
+        top: Math.max(targetRect.top - 8, 8),
+        left: Math.max(targetRect.left - 8, 8),
+        width: targetRect.width + 16,
+        height: targetRect.height + 16,
+      }
+    : null;
+
+  const topBalao = spotlight
+    ? Math.min(spotlight.top + spotlight.height + 18, window.innerHeight - 330)
+    : 160;
+
+  const leftBalao = spotlight
+    ? Math.max(320, Math.min(spotlight.left, window.innerWidth - 460))
+    : 360;
+
+  return (
+    <div className="fixed inset-0 z-[9999]">
+      <div className="absolute inset-0 bg-slate-950/70" />
+
+      {spotlight && (
+        <div
+          className="absolute rounded-2xl border-2 border-blue-400 shadow-[0_0_0_9999px_rgba(2,6,23,0.72)]"
+          style={spotlight}
+        />
+      )}
+
+      <div
+        className="absolute w-[420px] rounded-[28px] border bg-white px-5 py-4 shadow-2xl"
+        style={{
+          top: topBalao,
+          left: leftBalao,
+        }}
+      >
+        <div className="absolute -top-2 left-10 h-4 w-4 rotate-45 border-l border-t bg-white" />
+
+        <div className="flex gap-4">
+          <img
+            src={step.imagem}
+            alt=""
+            className="h-24 w-24 object-contain drop-shadow-lg"
+          />
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-blue-700">
+              Tutorial guiado
+            </p>
+
+            <h3 className="mt-1 text-xl font-bold text-slate-900">
+              {step.titulo}
+            </h3>
+
+            <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-sm font-medium text-blue-700">
+              {step.destaque}
+            </p>
+
+            <p className="mt-2 text-sm leading-7 text-slate-600">
+              {step.descricao}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <span className="text-sm text-slate-500">
+            Etapa {stepAtual + 1} de {relatoriosTourSteps.length}
+          </span>
+
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="rounded-xl border px-3 py-2 text-sm"
+            >
+              Fechar
+            </button>
+
+            {stepAtual > 0 && (
+              <button
+                onClick={() => setStepAtual((p) => p - 1)}
+                className="rounded-xl border px-3 py-2 text-sm"
+              >
+                Anterior
+              </button>
+            )}
+
+            {stepAtual < relatoriosTourSteps.length - 1 ? (
+              <button
+                onClick={() => setStepAtual((p) => p + 1)}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Próximo
+              </button>
+            ) : (
+              <button
+                onClick={onClose}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Finalizar
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminFinanceiroRelatoriosPage() {
   const [inicio, setInicio] = useState(primeiroDiaMes());
   const [fim, setFim] = useState(hojeInput());
@@ -128,6 +331,7 @@ export default function AdminFinanceiroRelatoriosPage() {
   const [dados, setDados] = useState<RespostaApi | null>(null);
   const [poloId, setPoloId] = useState("");
   const [polos, setPolos] = useState<Polo[]>([]);
+  const [tourAberto, setTourAberto] = useState(false);
 
   async function carregar() {
     try {
@@ -186,6 +390,19 @@ async function carregarPolos() {
 useEffect(() => {
   carregarPolos();
 }, []);
+
+useEffect(() => {
+  const continuar = sessionStorage.getItem("phanyx-continuar-tour");
+
+  if (continuar === "relatorios") {
+    sessionStorage.removeItem("phanyx-continuar-tour");
+
+    setTimeout(() => {
+      setTourAberto(true);
+    }, 600);
+  }
+}, []);
+
   function exportarCsv() {
     const query = new URLSearchParams();
     if (inicio) query.set("inicio", inicio);
@@ -583,9 +800,15 @@ doc.save(nomeArquivo);
           <p className="text-gray-600 mt-1">
             Acompanhe recebimentos, pendências, atrasos e inadimplência.
           </p>
+          <button
+  onClick={() => setTourAberto(true)}
+  className="mt-3 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+>
+  ✨ Abrir tutorial guiado
+</button>
         </div>
 
-        <div className="flex gap-2">
+        <div data-tour="relatorios-exportar" className="flex gap-2">
           <button
             onClick={exportarCsv}
             className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold"
@@ -609,7 +832,10 @@ doc.save(nomeArquivo);
         </div>
       </div>
 
-      <div className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div
+  data-tour="relatorios-periodo"
+  className="bg-white border rounded-xl p-4 grid grid-cols-1 md:grid-cols-3 gap-3"
+>
         <div>
           <label className="text-sm font-medium text-gray-700">
             Data inicial
@@ -635,7 +861,7 @@ doc.save(nomeArquivo);
         </div>
       </div>
 
-<div>
+<div data-tour="relatorios-polo">
   <label className="text-sm font-medium text-gray-700">
     Polo
   </label>
@@ -665,7 +891,10 @@ doc.save(nomeArquivo);
         </div>
       ) : !dados ? null : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-7 gap-4">
+          <div
+  data-tour="relatorios-resumo"
+  className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-7 gap-4"
+>
             <div className="bg-white border rounded-xl p-4">
               <p className="text-sm text-gray-500">Lançamentos</p>
               <p className="text-2xl font-bold">
@@ -721,7 +950,10 @@ doc.save(nomeArquivo);
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div
+  data-tour="relatorios-graficos"
+  className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+>
             <div className="bg-white border rounded-xl p-5">
               <h2 className="text-lg font-semibold mb-4">Receita por dia</h2>
 
@@ -806,7 +1038,10 @@ doc.save(nomeArquivo);
             </div>
           </div>
 
-          <div className="bg-white border rounded-xl p-5">
+          <div
+  data-tour="relatorios-lancamentos"
+  className="bg-white border rounded-xl p-5"
+>
             <h2 className="text-lg font-semibold">Lançamentos do período</h2>
 
             {dados.lancamentos.length === 0 ? (
@@ -873,6 +1108,10 @@ doc.save(nomeArquivo);
           </div>
         </>
       )}
+      <RelatoriosTour
+  aberto={tourAberto}
+  onClose={() => setTourAberto(false)}
+/>
     </div>
   );
 }
