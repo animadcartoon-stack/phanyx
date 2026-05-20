@@ -1542,10 +1542,12 @@ window.addEventListener("keyup", soltarEspaco);
   }}
 />
 
-      <section className="min-h-screen bg-[#020b2d] px-6 py-16 text-white">
+      <section className="min-h-screen bg-[#020b2d] px-3 py-8 text-white sm:px-6 sm:py-16">
         <div className="mx-auto max-w-7xl">
           <div className="mb-10">
-            <h1 className="text-5xl font-black">Removedor de Fundo PHANYX</h1>
+            <h1 className="text-3xl font-black leading-tight sm:text-5xl">
+  Removedor de Fundo PHANYX
+</h1>
             <p className="mt-4 max-w-3xl text-lg text-cyan-100">
               Ferramenta profissional PHANYX para remover fundo de assinaturas,
               logos, fotos e imagens com exportação transparente.
@@ -1558,7 +1560,7 @@ window.addEventListener("keyup", soltarEspaco);
             </div>
           )}
 
-          <div className="grid items-start gap-5 lg:grid-cols-[240px_1fr_1fr]">
+          <div className="grid items-start gap-4 lg:grid-cols-[240px_1fr_1fr]">
             <aside className="space-y-5">
               <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-4 text-center">
                 <div className="text-base font-bold text-cyan-300">
@@ -1774,7 +1776,7 @@ window.addEventListener("keyup", soltarEspaco);
               )}
             </aside>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900 p-5">
+            <div className="rounded-3xl border border-white/10 bg-slate-900 p-3 sm:p-5">
               <h2 className="mb-4 text-center text-xl font-black">
                 Imagem original
               </h2>
@@ -1862,7 +1864,7 @@ window.addEventListener("keyup", soltarEspaco);
                 onMouseLeave={() => {
                   arrastandoResultadoRef.current = false;
                 }}
-                className={`flex w-full select-none items-center justify-center overflow-hidden rounded-2xl p-4 ${
+                className={`flex w-full touch-none select-none items-center justify-center overflow-hidden rounded-2xl p-2 sm:p-4 ${
                   modo === "assinatura" && fundoPreview === "verde"
                     ? "bg-emerald-500"
                     : modo === "assinatura" && fundoPreview === "azul"
@@ -1874,7 +1876,7 @@ window.addEventListener("keyup", soltarEspaco);
                           : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
                 }`}
                 style={{
-                  height: modo === "assinatura" ? "260px" : "360px",
+                 height: modo === "assinatura" ? "240px" : "320px",
                   cursor: pincelAtivo
                     ? "crosshair"
                     : imagemFinal && zoomResultado > 1
@@ -2048,7 +2050,7 @@ window.addEventListener("keyup", soltarEspaco);
               )}
 
               {imagemFinal && (
-                <div className="mt-2 flex items-center justify-center gap-1 rounded-lg bg-slate-950/60 px-2 py-2">
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-2 rounded-lg bg-slate-950/60 px-2 py-2">
                   <div className="flex items-center gap-1">
                     <button
                       type="button"
@@ -2174,7 +2176,7 @@ window.addEventListener("keyup", soltarEspaco);
             type="button"
             onClick={removerFundo}
             disabled={!imagemOriginal || processando}
-            className="mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50"
+            className="sticky bottom-3 z-30 mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-base font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50 sm:text-lg"
           >
             {processando ? "Processando..." : "Remover fundo"}
           </button>
