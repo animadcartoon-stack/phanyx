@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function GoogleAnalyticsPage() {
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState("");
+  const [googleAnalyticsPropertyId, setGoogleAnalyticsPropertyId] = useState("");
   const [googleAnalyticsAtivo, setGoogleAnalyticsAtivo] = useState(false);
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -20,6 +21,7 @@ export default function GoogleAnalyticsPage() {
 
       if (res.ok) {
         setGoogleAnalyticsId(data?.googleAnalyticsId || "");
+        setGoogleAnalyticsPropertyId(data?.googleAnalyticsPropertyId || "");
         setGoogleAnalyticsAtivo(Boolean(data?.googleAnalyticsAtivo));
       }
 
@@ -40,6 +42,7 @@ export default function GoogleAnalyticsPage() {
       body: JSON.stringify({
         googleAnalyticsId,
         googleAnalyticsAtivo,
+        googleAnalyticsPropertyId,
       }),
     });
 
@@ -74,7 +77,22 @@ export default function GoogleAnalyticsPage() {
               <label className="text-sm font-bold text-slate-700">
                 Measurement ID
               </label>
+<div>
+  <label className="text-sm font-bold text-slate-700">
+    Property ID
+  </label>
 
+  <input
+    value={googleAnalyticsPropertyId}
+    onChange={(e) => setGoogleAnalyticsPropertyId(e.target.value)}
+    placeholder="Ex: 538463961"
+    className="mt-2 w-full rounded-xl border px-4 py-3 outline-none focus:border-blue-500"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Esse é o ID numérico da propriedade no Google Analytics.
+  </p>
+</div>
               <input
                 value={googleAnalyticsId}
                 onChange={(e) => setGoogleAnalyticsId(e.target.value)}
