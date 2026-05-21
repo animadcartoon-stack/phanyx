@@ -72,6 +72,24 @@ const cards = [
   },
 ];
 
+function formatarTempo(segundos: number) {
+  if (!segundos || segundos <= 0) return "0s";
+
+  const horas = Math.floor(segundos / 3600);
+  const minutos = Math.floor((segundos % 3600) / 60);
+  const secs = Math.floor(segundos % 60);
+
+  if (horas > 0) {
+    return `${horas}h ${minutos}m ${secs}s`;
+  }
+
+  if (minutos > 0) {
+    return `${minutos}m ${secs}s`;
+  }
+
+  return `${secs}s`;
+}
+
 export default function MarketingIntegracoesPage() {
 
     const [metricas, setMetricas] = useState({
@@ -168,7 +186,7 @@ reputacao: null as number | null,
     },
     {
       titulo: "Tempo médio",
-      valor: `${Math.round(metricas.tempoMedioSessao)}s`,
+      valor: formatarTempo(metricas.tempoMedioSessao),
       detalhe: "Tempo médio por sessão",
       cor: "text-slate-900",
     },
