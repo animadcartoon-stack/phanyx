@@ -2,27 +2,61 @@
 
 import { useEffect, useState } from "react";
 
+function estaEmModoApp() {
+  if (typeof window === "undefined") return false;
+
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: fullscreen)").matches ||
+    (window.navigator as any).standalone === true
+  );
+}
+
 export default function InstallPromptPHANYX() {
   const [eventoInstall, setEventoInstall] = useState<any>(null);
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
-    const jaFechou = sessionStorage.getItem("phanyx_install_fechado_sessao");
+    if (estaEmModoApp()) {
+      setVisivel(false);
+      return;
+    }
+
+    const jaFechouSessao = sessionStorage.getItem(
+      "phanyx_install_fechado_sessao"
+    );
+
+    const jaInstalou = localStorage.getItem("phanyx_app_instalado");
+
+    if (jaInstalou === "true") {
+      setVisivel(false);
+      return;
+    }
 
     function capturarEvento(e: any) {
       e.preventDefault();
       setEventoInstall(e);
-      if (jaFechou !== "true") setVisivel(true);
+
+      if (jaFechouSessao !== "true" && !estaEmModoApp()) {
+        setVisivel(true);
+      }
+    }
+
+    function marcarComoInstalado() {
+      localStorage.setItem("phanyx_app_instalado", "true");
+      setVisivel(false);
+      setEventoInstall(null);
     }
 
     window.addEventListener("beforeinstallprompt", capturarEvento);
+    window.addEventListener("appinstalled", marcarComoInstalado);
 
     const timer = setTimeout(() => {
-      const emStandalone =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
-
-      if (!emStandalone && jaFechou !== "true") {
+      if (
+        !estaEmModoApp() &&
+        jaFechouSessao !== "true" &&
+        jaInstalou !== "true"
+      ) {
         setVisivel(true);
       }
     }, 2500);
@@ -30,29 +64,40 @@ export default function InstallPromptPHANYX() {
     return () => {
       clearTimeout(timer);
       window.removeEventListener("beforeinstallprompt", capturarEvento);
+      window.removeEventListener("appinstalled", marcarComoInstalado);
     };
   }, []);
 
   async function instalar() {
+    if (estaEmModoApp()) {
+      setVisivel(false);
+      return;
+    }
+
     if (eventoInstall) {
       eventoInstall.prompt();
-      await eventoInstall.userChoice;
+      const escolha = await eventoInstall.userChoice;
+
+      if (escolha?.outcome === "accepted") {
+        localStorage.setItem("phanyx_app_instalado", "true");
+      }
+
       setEventoInstall(null);
       setVisivel(false);
       return;
     }
 
     alert(
-      "Para instalar o PHANYX no Android: toque nos 3 pontinhos do navegador e escolha 'Adicionar à tela inicial'.\n\nNo iPhone: toque em Compartilhar e depois em 'Adicionar à Tela de Início'."
+      "Para instalar o PHANYX no Android: toque nos 3 pontinhos do navegador e escolha 'Instalar app' ou 'Adicionar à tela inicial'.\n\nNo iPhone: toque em Compartilhar e depois em 'Adicionar à Tela de Início'."
     );
   }
 
   function fechar() {
-  sessionStorage.setItem("phanyx_install_fechado_sessao", "true");
-  setVisivel(false);
-}
+    sessionStorage.setItem("phanyx_install_fechado_sessao", "true");
+    setVisivel(false);
+  }
 
-  if (!visivel) return null;
+  if (!visivel || estaEmModoApp()) return null;
 
   return (
     <div className="fixed inset-x-3 bottom-24 z-[90] lg:bottom-6 lg:left-auto lg:right-6 lg:w-[380px]">
