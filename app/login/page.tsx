@@ -162,7 +162,7 @@ if (role === "aluno") {
   onClick={() => escolherPortal("aluno")}
           className={`block w-full text-left rounded-3xl borderp-5 shadow-sm transition ${
             portal === "aluno"
-              ? "border-blue-600 bg-blue-50"
+              ? "border-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg shadow-blue-200/40"
               : "border-slate-200 bg-white"
           }`}
         >
@@ -233,7 +233,7 @@ if (role === "aluno") {
         </button>
       </div>
 
-      <div ref={formLoginRef} className="mt-8 scroll-mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-blue-950/5">
+      <div ref={formLoginRef} className="mt-8 scroll-mt-24 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-blue-950/5">
         <div className="space-y-1 text-center">
           <h2 className="text-xl font-black">{titulo}</h2>
           <p className="text-sm text-slate-500">{subtitulo}</p>
