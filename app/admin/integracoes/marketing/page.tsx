@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const cards = [
   {
@@ -70,6 +73,41 @@ const cards = [
 ];
 
 export default function MarketingIntegracoesPage() {
+
+    const [metricas, setMetricas] = useState({
+    visitantes: 0,
+    conversoes: 0,
+    googleBusiness: 0,
+    reputacao: null as number | null,
+  });
+
+  useEffect(() => {
+    carregarDashboard();
+  }, []);
+
+  async function carregarDashboard() {
+    try {
+      const res = await fetch(
+        "/api/admin/integracoes/marketing/dashboard"
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao carregar dashboard");
+      }
+
+      setMetricas({
+        visitantes: data.visitantes || 0,
+        conversoes: data.conversoes || 0,
+        googleBusiness: data.googleBusinessVisualizacoes || 0,
+        reputacao: data.reputacaoMedia,
+      });
+    } catch (error) {
+      console.error("Erro dashboard marketing:", error);
+    }
+  }
+
   return (
     <div className="space-y-8">
       <div>
@@ -93,7 +131,7 @@ export default function MarketingIntegracoesPage() {
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Visitantes
           </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">12.340</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">{metricas.visitantes.toLocaleString("pt-BR")}</p>
           <p className="mt-1 text-xs font-semibold text-green-600">
             +18% últimos 30 dias
           </p>
@@ -103,7 +141,7 @@ export default function MarketingIntegracoesPage() {
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Conversões
           </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">214</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">{metricas.conversoes.toLocaleString("pt-BR")}</p>
           <p className="mt-1 text-xs font-semibold text-green-600">
             Leads capturados
           </p>
@@ -113,7 +151,7 @@ export default function MarketingIntegracoesPage() {
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Google Business
           </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">1.842</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">{metricas.googleBusiness.toLocaleString("pt-BR")}</p>
           <p className="mt-1 text-xs font-semibold text-blue-600">
             visualizações do perfil
           </p>
@@ -123,7 +161,7 @@ export default function MarketingIntegracoesPage() {
           <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
             Reputação
           </p>
-          <p className="mt-2 text-3xl font-black text-yellow-500">4.9 ★</p>
+          <p className="mt-2 text-3xl font-black text-yellow-500">{metricas.reputacao ? `${metricas.reputacao} ★` : "--"}</p>
           <p className="mt-1 text-xs font-semibold text-slate-500">
             média de avaliações
           </p>
