@@ -134,7 +134,7 @@ if (role === "aluno") {
     return (
   <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-blue-50/60 to-white">
   <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_45%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.12),transparent_30%)]" />
-    <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col px-5 py-8">
+    <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-8 lg:justify-center">
       
       <div className="mb-8 flex flex-col items-center text-center lg:hidden">
         <Image
@@ -233,8 +233,10 @@ if (role === "aluno") {
         </button>
       </div>
 
-      <div ref={formLoginRef} className="mt-8 scroll-mt-24 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-blue-950/5">
-        <div className="space-y-1 text-center">
+<div
+  ref={formLoginRef}
+  className="mt-8 scroll-mt-24 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-blue-950/5 lg:mx-auto lg:mt-0 lg:w-full lg:max-w-md"
+>        <div className="space-y-1 text-center">
           <h2 className="text-xl font-black">{titulo}</h2>
           <p className="text-sm text-slate-500">{subtitulo}</p>
         </div>
