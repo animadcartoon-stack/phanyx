@@ -43,12 +43,15 @@ export default function GoogleBusinessPage() {
         }),
       });
 
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+  const erro = await res.json().catch(() => null);
+  throw new Error(erro?.detalhe || erro?.error || "Erro ao salvar configuração.");
+}
 
       setMensagem("Google Business salvo com sucesso.");
-    } catch {
-      setMensagem("Erro ao salvar configuração.");
-    } finally {
+    } catch (error: any) {
+  setMensagem(error?.message || "Erro ao salvar configuração.");
+} finally {
       setSalvando(false);
     }
   }
