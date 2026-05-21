@@ -133,7 +133,20 @@ if (role === "aluno") {
 
     return (
   <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-blue-50/60 to-white">
-  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_45%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.12),transparent_30%)]" />
+  <>
+  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_45%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.12),transparent_30%)] lg:hidden" />
+
+  <div className="pointer-events-none absolute inset-0 hidden lg:flex items-center justify-center opacity-90">
+    <Image
+      src="/logo-formax.png"
+      alt="PHANYX"
+      width={900}
+      height={300}
+      className="max-w-[900px] h-auto object-contain"
+      priority
+    />
+  </div>
+</>
     <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col px-5 py-8 lg:justify-center">
       
       <div className="mb-8 flex flex-col items-center text-center lg:hidden">
