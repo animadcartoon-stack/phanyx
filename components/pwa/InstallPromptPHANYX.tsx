@@ -7,7 +7,7 @@ export default function InstallPromptPHANYX() {
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
-    const jaFechou = null;
+    const jaFechou = sessionStorage.getItem("phanyx_install_fechado_sessao");
 
     function capturarEvento(e: any) {
       e.preventDefault();
@@ -48,9 +48,9 @@ export default function InstallPromptPHANYX() {
   }
 
   function fechar() {
-    localStorage.setItem("phanyx_install_recusado", "true");
-    setVisivel(false);
-  }
+  sessionStorage.setItem("phanyx_install_fechado_sessao", "true");
+  setVisivel(false);
+}
 
   if (!visivel) return null;
 

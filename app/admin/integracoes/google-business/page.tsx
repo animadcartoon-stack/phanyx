@@ -1,14 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function GoogleBusinessPage() {
   const [perfil, setPerfil] = useState("");
   const [ativo, setAtivo] = useState(false);
   const [mensagem, setMensagem] = useState("");
+  const [salvando, setSalvando] = useState(false);
+
+  useEffect(() => {
+    carregar();
+  }, []);
+
+  async function carregar() {
+    try {
+      const res = await fetch("/api/admin/integracoes/google-business", {
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      setPerfil(data?.perfil || "");
+      setAtivo(Boolean(data?.ativo));
+    } catch {
+      setMensagem("Erro ao carregar configuração.");
+    }
+  }
 
   async function salvar() {
-    setMensagem("Integração Google Business será ativada em breve.");
+    try {
+      setSalvando(true);
+      setMensagem("");
+
+      const res = await fetch("/api/admin/integracoes/google-business", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          perfil,
+          ativo,
+        }),
+      });
+
+      if (!res.ok) throw new Error();
+
+      setMensagem("Google Business salvo com sucesso.");
+    } catch {
+      setMensagem("Erro ao salvar configuração.");
+    } finally {
+      setSalvando(false);
+    }
   }
 
   return (
@@ -61,9 +103,10 @@ export default function GoogleBusinessPage() {
 
         <button
           onClick={salvar}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700"
+          disabled={salvando}
+          className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
         >
-          Salvar configuração
+          {salvando ? "Salvando..." : "Salvar configuração"}
         </button>
       </div>
     </div>
