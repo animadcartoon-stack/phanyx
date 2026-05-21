@@ -7,7 +7,7 @@ export default function InstallPromptPHANYX() {
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
-    const jaFechou = localStorage.getItem("phanyx_install_recusado");
+    const jaFechou = null;
 
     function capturarEvento(e: any) {
       e.preventDefault();
