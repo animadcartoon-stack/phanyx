@@ -2,6 +2,7 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 
 type Portal = "admin" | "professor" | "aluno";
 
@@ -105,6 +106,9 @@ if (role === "aluno") {
   }
 
   return (
+  <>
+    <InstallPromptPHANYX />
+
     <main className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm space-y-4">
         <div className="space-y-1 text-center">
@@ -157,8 +161,9 @@ if (role === "aluno") {
 </a>
 
       </div>
-    </main>
-  );
+        </main>
+  </>
+);
 }
 
 export default function LoginPage() {
