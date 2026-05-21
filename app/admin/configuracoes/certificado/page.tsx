@@ -1364,16 +1364,23 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   selecaoTextoRef.current = novoRange.cloneRange();
 
   setCampos((prev) =>
-    prev.map((campo) =>
-      campo.id === campoSelecionadoId
-        ? {
-            ...campo,
-            texto: editor.innerText,
-            textoHtml: editor.innerHTML,
-          }
-        : campo
-    )
-  );
+  prev.map((campo) =>
+    campo.id === campoSelecionadoId
+      ? {
+          ...campo,
+          texto: editor.innerText,
+          textoHtml: editor.innerHTML,
+          ...(estilo.fontSize
+            ? {
+                tamanho: Number(
+                  String(estilo.fontSize).replace("px", "")
+                ),
+              }
+            : {}),
+        }
+      : campo
+  )
+);
 }
 
 function temSelecaoTextoLivreAtiva() {
