@@ -1949,6 +1949,65 @@ onTouchEnd={() => {
               </h2>
 
               <div
+
+onTouchStart={(e) => {
+  if (!imagemOriginal) return;
+
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+    pinchOriginalRef.current = {
+      distancia: Math.hypot(dx, dy),
+      zoom: zoomOriginal,
+    };
+
+    toqueOriginalRef.current = {
+      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+      y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+    };
+  }
+}}
+onTouchMove={(e) => {
+  if (!imagemOriginal) return;
+
+  if (e.touches.length === 2 && pinchOriginalRef.current && toqueOriginalRef.current) {
+    e.preventDefault();
+
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+    const novaDistancia = Math.hypot(dx, dy);
+    const fator = novaDistancia / pinchOriginalRef.current.distancia;
+
+    const centroAtual = {
+      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+      y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+    };
+
+    const dxPan = centroAtual.x - toqueOriginalRef.current.x;
+    const dyPan = centroAtual.y - toqueOriginalRef.current.y;
+
+    setZoomOriginal(
+      Math.max(
+        1,
+        Math.min(6, Number((pinchOriginalRef.current.zoom * fator).toFixed(2)))
+      )
+    );
+
+    setPanOriginal((pan) => ({
+      x: pan.x + dxPan,
+      y: pan.y + dyPan,
+    }));
+
+    toqueOriginalRef.current = centroAtual;
+  }
+}}
+onTouchEnd={() => {
+  pinchOriginalRef.current = null;
+  toqueOriginalRef.current = null;
+}}
+
   onWheel={(e) => {
     if (!imagemOriginal) return;
 
@@ -2088,6 +2147,76 @@ onTouchEnd={() => {
               </h2>
 
               <div
+
+onTouchStart={(e) => {
+  if (!imagemFinal) return;
+
+  if (e.touches.length === 2) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+    toquePinchRef.current = {
+      distancia: Math.hypot(dx, dy),
+      zoom: zoomResultado,
+    };
+
+    toqueArrasteRef.current = null;
+    return;
+  }
+
+  if (e.touches.length === 1 && zoomResultado > 1 && !pincelAtivo) {
+    toqueArrasteRef.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+  }
+}}
+onTouchMove={(e) => {
+  if (!imagemFinal) return;
+
+  if (e.touches.length === 2 && toquePinchRef.current) {
+    e.preventDefault();
+
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+
+    const novaDistancia = Math.hypot(dx, dy);
+    const fator = novaDistancia / toquePinchRef.current.distancia;
+
+    setZoomResultado(
+      Math.max(
+        0.5,
+        Math.min(5, Number((toquePinchRef.current.zoom * fator).toFixed(2)))
+      )
+    );
+
+    return;
+  }
+
+  if (e.touches.length === 1 && toqueArrasteRef.current && zoomResultado > 1 && !pincelAtivo) {
+    e.preventDefault();
+
+    const atual = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    };
+
+    const dx = atual.x - toqueArrasteRef.current.x;
+    const dy = atual.y - toqueArrasteRef.current.y;
+
+    toqueArrasteRef.current = atual;
+
+    setPanResultado((pan) => ({
+      x: pan.x + dx,
+      y: pan.y + dy,
+    }));
+  }
+}}
+onTouchEnd={() => {
+  toquePinchRef.current = null;
+  toqueArrasteRef.current = null;
+}}
+
                 onWheel={(e) => {
                   if (!imagemFinal) return;
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "phanyx-v13";
+const CACHE_NAME = "phanyx-v14";
 
 const STATIC_ASSETS = [
   "/manifest.json",
@@ -35,30 +35,11 @@ self.addEventListener("fetch", (event) => {
 
   if (request.method !== "GET") return;
   if (url.pathname.startsWith("/api")) return;
-  if (url.pathname.startsWith("/admin")) return;
-  if (url.pathname.startsWith("/aluno")) return;
-  if (url.pathname.startsWith("/professor")) return;
-  if (url.pathname.startsWith("/login")) return;
-  if (url.pathname.startsWith("/_next")) return;
 
-  if (
-    request.destination === "image" ||
-    request.destination === "style" ||
-    request.destination === "script" ||
-    request.destination === "font" ||
-    url.pathname === "/manifest.json"
-  ) {
-    event.respondWith(
-      fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
-  }
+  event.respondWith(
+    fetch(request).catch(async () => {
+      const cached = await caches.match(request);
+      return cached || Response.error();
+    })
+  );
 });

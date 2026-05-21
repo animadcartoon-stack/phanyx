@@ -4911,31 +4911,61 @@ onClick={() =>
                   <label className="mb-1 block text-xs font-medium text-slate-600">
                     Tamanho
                   </label>
-                  <input
-  type="number"
-  min={6}
-  max={120}
-  value={campoSelecionado?.tamanho ?? 18}
-  onMouseDown={(e) => {
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-      e.preventDefault();
-    }
-  }}
-  onChange={(e) => {
-    const tamanho = Number(e.target.value);
+                  <div className="flex gap-2">
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={() => {
+      const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
+      const novoTamanho = Math.max(6, tamanhoAtual - 2);
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
-      aplicarEstiloTextoSelecionado({
-        fontSize: `${tamanho}px`,
-      });
+      if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+        aplicarEstiloTextoSelecionado({
+          fontSize: `${novoTamanho}px`,
+        });
+        return;
+      }
 
-      return;
-    }
+      atualizarCampoLocal("tamanho", novoTamanho);
+    }}
+    className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
+  >
+    A−
+  </button>
 
-    atualizarCampoLocal("tamanho", tamanho);
-  }}
-  className="w-full rounded-xl border border-slate-300 px-3 py-2"
-/>
+  <input
+    type="number"
+    min={6}
+    max={120}
+    value={campoSelecionado?.tamanho ?? 18}
+    onChange={(e) => {
+      const tamanho = Number(e.target.value);
+      atualizarCampoLocal("tamanho", tamanho);
+    }}
+    className="w-full rounded-xl border border-slate-300 px-3 py-2"
+  />
+
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={() => {
+      const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
+      const novoTamanho = Math.min(120, tamanhoAtual + 2);
+
+      if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+        aplicarEstiloTextoSelecionado({
+          fontSize: `${novoTamanho}px`,
+        });
+        return;
+      }
+
+      atualizarCampoLocal("tamanho", novoTamanho);
+    }}
+    className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
+  >
+    A+
+  </button>
+</div>
    
                 </div>
 
