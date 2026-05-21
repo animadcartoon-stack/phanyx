@@ -93,15 +93,17 @@ function formatarTempo(segundos: number) {
 export default function MarketingIntegracoesPage() {
 
     const [metricas, setMetricas] = useState({
-    visitantes: 0,
-novosUsuarios: 0,
-sessoes: 0,
-visualizacoes: 0,
-tempoMedioSessao: 0,
-conversoes: 0,
-googleBusiness: 0,
-reputacao: null as number | null,
-  });
+  visitantes: 0,
+  novosUsuarios: 0,
+  sessoes: 0,
+  visualizacoes: 0,
+  tempoMedioSessao: 0,
+  conversoes: 0,
+  googleBusiness: 0,
+  reputacao: null as number | null,
+  cliquesBusca: 0,
+  impressoesBusca: 0,
+});
 
   useEffect(() => {
     carregarDashboard();
@@ -134,6 +136,8 @@ reputacao: null as number | null,
       conversoes: Number(data.conversoes || 0),
       googleBusiness: Number(data.googleBusiness || 0),
       reputacao: data.reputacao,
+      cliquesBusca: Number(data.cliquesBusca || 0),
+      impressoesBusca: Number(data.impressoesBusca || 0),
     });
   } catch (error) {
     console.error("Erro dashboard marketing:", error);
@@ -202,6 +206,18 @@ reputacao: null as number | null,
       detalhe: "Visualizações do perfil",
       cor: "text-blue-700",
     },
+    {
+  titulo: "Cliques Google",
+  valor: metricas.cliquesBusca.toLocaleString("pt-BR"),
+  detalhe: "Cliques vindos da busca orgânica",
+  cor: "text-indigo-700",
+},
+{
+  titulo: "Impressões Google",
+  valor: metricas.impressoesBusca.toLocaleString("pt-BR"),
+  detalhe: "Vezes que apareceu nas buscas",
+  cor: "text-cyan-700",
+},
     {
       titulo: "Reputação",
       valor: metricas.reputacao ? `${metricas.reputacao} ★` : "--",
