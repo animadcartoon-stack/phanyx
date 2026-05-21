@@ -90,31 +90,37 @@ reputacao: null as number | null,
   }, []);
 
   async function carregarDashboard() {
-    try {
-      const res = await fetch(
-        "/api/admin/integracoes/marketing/dashboard"
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao carregar dashboard");
+  try {
+    const res = await fetch(
+      "/api/admin/integracoes/marketing/dashboard",
+      {
+        cache: "no-store",
+        credentials: "include",
       }
+    );
 
-      setMetricas({
-       visitantes: data.visitantes || 0,
-novosUsuarios: data.novosUsuarios || 0,
-sessoes: data.sessoes || 0,
-visualizacoes: data.visualizacoes || 0,
-tempoMedioSessao: data.tempoMedioSessao || 0,
-conversoes: data.conversoes || 0,
-googleBusiness: data.googleBusiness || 0,
-reputacao: data.reputacao,
-      });
-    } catch (error) {
-      console.error("Erro dashboard marketing:", error);
+    const data = await res.json();
+
+    console.log("DASHBOARD DATA:", data);
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao carregar dashboard");
     }
+
+    setMetricas({
+      visitantes: Number(data.visitantes || 0),
+      novosUsuarios: Number(data.novosUsuarios || 0),
+      sessoes: Number(data.sessoes || 0),
+      visualizacoes: Number(data.visualizacoes || 0),
+      tempoMedioSessao: Number(data.tempoMedioSessao || 0),
+      conversoes: Number(data.conversoes || 0),
+      googleBusiness: Number(data.googleBusiness || 0),
+      reputacao: data.reputacao,
+    });
+  } catch (error) {
+    console.error("Erro dashboard marketing:", error);
   }
+}
 
   return (
     <div className="space-y-8">
