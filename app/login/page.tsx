@@ -120,7 +120,7 @@ if (role === "aluno") {
           alt="PHANYX"
           width={320}
           height={220}
-          className="h-auto w-full max-w-[280px]"
+          className="h-auto w-full max-w-[200px]"
           priority
         />
 
