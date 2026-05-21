@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
@@ -24,6 +24,26 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
 
   const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  const formLoginRef = useRef<HTMLDivElement | null>(null);
+const [portalSelecionado, setPortalSelecionado] = useState<Portal>(portal);
+
+useEffect(() => {
+  setPortalSelecionado(portal);
+}, [portal]);
+
+function escolherPortal(novoPortal: Portal) {
+  setPortalSelecionado(novoPortal);
+
+  window.history.replaceState(null, "", `/login?portal=${novoPortal}`);
+
+  setTimeout(() => {
+    formLoginRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, 120);
+}
 
   const titulo = useMemo(() => {
     if (portal === "professor") return "Login do Professor";
@@ -55,10 +75,11 @@ function LoginContent() {
   },
   credentials: "include",
   body: JSON.stringify({
-    email,
-    senha,
-    portal,
-  }),
+  email,
+  senha,
+  portal: portalSelecionado,
+}),
+  
 });
 
       const json = await res.json();
@@ -111,16 +132,17 @@ if (role === "aluno") {
     <InstallPromptPHANYX />
 
     return (
-  <main className="min-h-screen bg-slate-50">
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col px-5 py-8">
+  <main className="relative min-h-screen overflow-hidden bg-gradient-to-b from-slate-50 via-blue-50/60 to-white">
+  <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(37,99,235,0.18),transparent_45%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.12),transparent_30%)]" />
+    <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-md flex-col px-5 py-8">
       
-      <div className="mb-8 flex flex-col items-center text-center">
+      <div className="mb-8 flex flex-col items-center text-center lg:hidden">
         <Image
           src="/images/portal-login-hero.png"
           alt="PHANYX"
           width={320}
           height={220}
-          className="h-auto w-full max-w-[200px]"
+          className="h-auto w-full max-w-[220px]"
           priority
         />
 
@@ -133,10 +155,12 @@ if (role === "aluno") {
         </p>
       </div>
 
-      <div className="space-y-4">
-        <a
-          href="/login?portal=aluno"
-          className={`block rounded-3xl border p-5 shadow-sm transition ${
+      <div className="space-y-4 lg:hidden">
+        
+          <button
+  type="button"
+  onClick={() => escolherPortal("aluno")}
+          className={`block w-full text-left rounded-3xl borderp-5 shadow-sm transition ${
             portal === "aluno"
               ? "border-blue-600 bg-blue-50"
               : "border-slate-200 bg-white"
@@ -156,10 +180,11 @@ if (role === "aluno") {
               </p>
             </div>
           </div>
-        </a>
+        </button>
 
-        <a
-          href="/login?portal=professor"
+        <button
+  type="button"
+  onClick={() => escolherPortal("professor")}
           className={`block rounded-3xl border p-5 shadow-sm transition ${
             portal === "professor"
               ? "border-blue-600 bg-blue-50"
@@ -180,10 +205,11 @@ if (role === "aluno") {
               </p>
             </div>
           </div>
-        </a>
+        </button>
 
-        <a
-          href="/login?portal=admin"
+        <button
+  type="button"
+  onClick={() => escolherPortal("admin")}
           className={`block rounded-3xl border p-5 shadow-sm transition ${
             portal === "admin"
               ? "border-blue-600 bg-blue-50"
@@ -204,10 +230,10 @@ if (role === "aluno") {
               </p>
             </div>
           </div>
-        </a>
+        </button>
       </div>
 
-      <div className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div ref={formLoginRef} className="mt-8 scroll-mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-xl shadow-blue-950/5">
         <div className="space-y-1 text-center">
           <h2 className="text-xl font-black">{titulo}</h2>
           <p className="text-sm text-slate-500">{subtitulo}</p>
@@ -256,7 +282,7 @@ if (role === "aluno") {
           </button>
 
           <a
-            href={`/esqueci-senha?portal=${portal}`}
+            href={`/esqueci-senha?portal=${portalSelecionado}`}
             className="block text-center text-sm font-medium text-blue-600"
           >
             Esqueci minha senha
