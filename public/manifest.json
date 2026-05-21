@@ -1,13 +1,16 @@
 {
-  "name": "PHANYX",
+  "name": "PHANYX Acadêmico",
   "short_name": "PHANYX",
   "description": "Plataforma acadêmica SaaS para gestão escolar, professores e alunos.",
-  "start_url": "/",
+  "start_url": "/login",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
+  "categories": ["education", "productivity"],
+  "lang": "pt-BR",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/icon-192.png",
@@ -25,6 +28,29 @@
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Área do Aluno",
+      "short_name": "Aluno",
+      "description": "Acessar portal do aluno",
+      "url": "/login?portal=aluno",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Área do Professor",
+      "short_name": "Professor",
+      "description": "Acessar portal do professor",
+      "url": "/login?portal=professor",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Administração",
+      "short_name": "Admin",
+      "description": "Acessar painel administrativo",
+      "url": "/login?portal=admin",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

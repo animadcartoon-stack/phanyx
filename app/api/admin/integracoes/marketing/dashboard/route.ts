@@ -28,6 +28,10 @@ export async function GET() {
     if (!propertyId) {
       return NextResponse.json({
         visitantes: 0,
+        novosUsuarios: 0,
+        sessoes: 0,
+        visualizacoes: 0,
+        tempoMedioSessao: 0,
         conversoes: 0,
         googleBusiness: 0,
         reputacao: null,
@@ -36,7 +40,20 @@ export async function GET() {
     }
 
     let visitantes = 0;
+    let novosUsuarios = 0;
+    let sessoes = 0;
+    let visualizacoes = 0;
+    let tempoMedioSessao = 0;
     let conversoes = 0;
+
+    const metrics = [
+      { name: "activeUsers" },
+      { name: "newUsers" },
+      { name: "sessions" },
+      { name: "screenPageViews" },
+      { name: "averageSessionDuration" },
+      { name: "conversions" },
+    ];
 
     const oauthClientId = process.env.GOOGLE_ANALYTICS_OAUTH_CLIENT_ID;
     const oauthClientSecret = process.env.GOOGLE_ANALYTICS_OAUTH_CLIENT_SECRET;
@@ -64,7 +81,7 @@ export async function GET() {
           },
           body: JSON.stringify({
             dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-            metrics: [{ name: "activeUsers" }, { name: "conversions" }],
+            metrics,
           }),
         }
       );
@@ -75,8 +92,14 @@ export async function GET() {
         throw new Error(JSON.stringify(data));
       }
 
-      visitantes = Number(data?.rows?.[0]?.metricValues?.[0]?.value || 0);
-      conversoes = Number(data?.rows?.[0]?.metricValues?.[1]?.value || 0);
+      const valores = data?.rows?.[0]?.metricValues || [];
+
+      visitantes = Number(valores?.[0]?.value || 0);
+      novosUsuarios = Number(valores?.[1]?.value || 0);
+      sessoes = Number(valores?.[2]?.value || 0);
+      visualizacoes = Number(valores?.[3]?.value || 0);
+      tempoMedioSessao = Number(valores?.[4]?.value || 0);
+      conversoes = Number(valores?.[5]?.value || 0);
     } else {
       const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
       const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY?.replace(
@@ -87,6 +110,10 @@ export async function GET() {
       if (!clientEmail || !privateKey) {
         return NextResponse.json({
           visitantes: 0,
+          novosUsuarios: 0,
+          sessoes: 0,
+          visualizacoes: 0,
+          tempoMedioSessao: 0,
           conversoes: 0,
           googleBusiness: 0,
           reputacao: null,
@@ -108,15 +135,25 @@ export async function GET() {
       const [response] = await analyticsDataClient.runReport({
         property: `properties/${propertyId}`,
         dateRanges: [{ startDate: "30daysAgo", endDate: "today" }],
-        metrics: [{ name: "activeUsers" }, { name: "conversions" }],
+        metrics,
       });
 
-      visitantes = Number(response.rows?.[0]?.metricValues?.[0]?.value || 0);
-      conversoes = Number(response.rows?.[0]?.metricValues?.[1]?.value || 0);
+      const valores = response.rows?.[0]?.metricValues || [];
+
+      visitantes = Number(valores?.[0]?.value || 0);
+      novosUsuarios = Number(valores?.[1]?.value || 0);
+      sessoes = Number(valores?.[2]?.value || 0);
+      visualizacoes = Number(valores?.[3]?.value || 0);
+      tempoMedioSessao = Number(valores?.[4]?.value || 0);
+      conversoes = Number(valores?.[5]?.value || 0);
     }
 
     return NextResponse.json({
       visitantes,
+      novosUsuarios,
+      sessoes,
+      visualizacoes,
+      tempoMedioSessao,
       conversoes,
       googleBusiness: 0,
       reputacao: null,
@@ -127,6 +164,10 @@ export async function GET() {
     return NextResponse.json(
       {
         visitantes: 0,
+        novosUsuarios: 0,
+        sessoes: 0,
+        visualizacoes: 0,
+        tempoMedioSessao: 0,
         conversoes: 0,
         googleBusiness: 0,
         reputacao: null,

@@ -76,9 +76,13 @@ export default function MarketingIntegracoesPage() {
 
     const [metricas, setMetricas] = useState({
     visitantes: 0,
-    conversoes: 0,
-    googleBusiness: 0,
-    reputacao: null as number | null,
+novosUsuarios: 0,
+sessoes: 0,
+visualizacoes: 0,
+tempoMedioSessao: 0,
+conversoes: 0,
+googleBusiness: 0,
+reputacao: null as number | null,
   });
 
   useEffect(() => {
@@ -98,10 +102,14 @@ export default function MarketingIntegracoesPage() {
       }
 
       setMetricas({
-        visitantes: data.visitantes || 0,
-        conversoes: data.conversoes || 0,
-        googleBusiness: data.googleBusinessVisualizacoes || 0,
-        reputacao: data.reputacaoMedia,
+       visitantes: data.visitantes || 0,
+novosUsuarios: data.novosUsuarios || 0,
+sessoes: data.sessoes || 0,
+visualizacoes: data.visualizacoes || 0,
+tempoMedioSessao: data.tempoMedioSessao || 0,
+conversoes: data.conversoes || 0,
+googleBusiness: data.googleBusiness || 0,
+reputacao: data.reputacao,
       });
     } catch (error) {
       console.error("Erro dashboard marketing:", error);
@@ -125,48 +133,76 @@ export default function MarketingIntegracoesPage() {
         </p>
       </div>
 
-      {/* DASHBOARD EXECUTIVO */}
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Visitantes
-          </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">{metricas.visitantes.toLocaleString("pt-BR")}</p>
-          <p className="mt-1 text-xs font-semibold text-green-600">
-            +18% últimos 30 dias
-          </p>
-        </div>
+     {/* DASHBOARD EXECUTIVO */}
+<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  {[
+    {
+      titulo: "Visitantes",
+      valor: metricas.visitantes.toLocaleString("pt-BR"),
+      detalhe: "Usuários ativos nos últimos 30 dias",
+      cor: "text-blue-700",
+    },
+    {
+      titulo: "Novos usuários",
+      valor: metricas.novosUsuarios.toLocaleString("pt-BR"),
+      detalhe: "Pessoas que acessaram pela primeira vez",
+      cor: "text-emerald-700",
+    },
+    {
+      titulo: "Sessões",
+      valor: metricas.sessoes.toLocaleString("pt-BR"),
+      detalhe: "Total de visitas registradas",
+      cor: "text-purple-700",
+    },
+    {
+      titulo: "Visualizações",
+      valor: metricas.visualizacoes.toLocaleString("pt-BR"),
+      detalhe: "Páginas visualizadas no site",
+      cor: "text-orange-700",
+    },
+    {
+      titulo: "Tempo médio",
+      valor: `${Math.round(metricas.tempoMedioSessao)}s`,
+      detalhe: "Tempo médio por sessão",
+      cor: "text-slate-900",
+    },
+    {
+      titulo: "Conversões",
+      valor: metricas.conversoes.toLocaleString("pt-BR"),
+      detalhe: "Eventos marcados como conversão",
+      cor: "text-green-700",
+    },
+    {
+      titulo: "Google Business",
+      valor: metricas.googleBusiness.toLocaleString("pt-BR"),
+      detalhe: "Visualizações do perfil",
+      cor: "text-blue-700",
+    },
+    {
+      titulo: "Reputação",
+      valor: metricas.reputacao ? `${metricas.reputacao} ★` : "--",
+      detalhe: "Média de avaliações",
+      cor: "text-yellow-500",
+    },
+  ].map((item) => (
+    <div
+      key={item.titulo}
+      className="rounded-2xl border bg-white p-5 shadow-sm"
+    >
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+        {item.titulo}
+      </p>
 
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Conversões
-          </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">{metricas.conversoes.toLocaleString("pt-BR")}</p>
-          <p className="mt-1 text-xs font-semibold text-green-600">
-            Leads capturados
-          </p>
-        </div>
+      <p className={`mt-2 text-3xl font-black ${item.cor}`}>
+        {item.valor}
+      </p>
 
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Google Business
-          </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">{metricas.googleBusiness.toLocaleString("pt-BR")}</p>
-          <p className="mt-1 text-xs font-semibold text-blue-600">
-            visualizações do perfil
-          </p>
-        </div>
-
-        <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Reputação
-          </p>
-          <p className="mt-2 text-3xl font-black text-yellow-500">{metricas.reputacao ? `${metricas.reputacao} ★` : "--"}</p>
-          <p className="mt-1 text-xs font-semibold text-slate-500">
-            média de avaliações
-          </p>
-        </div>
-      </div>
+      <p className="mt-1 text-xs font-semibold text-slate-500">
+        {item.detalhe}
+      </p>
+    </div>
+  ))}
+</div>
 
       {/* INTEGRAÇÕES */}
       <div>
