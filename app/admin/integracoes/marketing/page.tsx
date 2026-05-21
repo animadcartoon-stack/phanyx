@@ -2,78 +2,67 @@ import Link from "next/link";
 
 const cards = [
   {
-    titulo: "Google Analytics",
-    descricao: "Visitantes, páginas acessadas e comportamento no site.",
+    titulo: "Analytics",
     status: "Conectado",
     href: "/admin/integracoes/google-analytics",
     emoji: "📊",
   },
   {
-    titulo: "Google Tag Manager",
-    descricao: "Gerenciamento de scripts, pixels e rastreamentos.",
+    titulo: "GTM",
     status: "Conectado",
     href: "/admin/integracoes/google-tag-manager",
     emoji: "🏷️",
   },
   {
     titulo: "Google Ads",
-    descricao: "Campanhas, conversões e anúncios pagos.",
     status: "Configuração",
     href: "/admin/integracoes/google-ads",
     emoji: "💰",
   },
   {
     titulo: "Search Console",
-    descricao: "SEO, indexação, palavras-chave e cliques do Google.",
     status: "Configuração",
     href: "/admin/integracoes/search-console",
     emoji: "🔎",
   },
   {
     titulo: "Google Business",
-    descricao: "Perfil local, avaliações, rotas, ligações e presença no Maps.",
     status: "Configuração",
     href: "/admin/integracoes/google-business",
     emoji: "📍",
   },
   {
-    titulo: "Facebook / Instagram",
-    descricao: "Meta Pixel, páginas sociais, anúncios e leads.",
+    titulo: "Meta",
     status: "Em breve",
     href: "#",
     emoji: "📘",
   },
   {
     titulo: "TikTok",
-    descricao: "Pixel, campanhas, vídeos e alcance.",
     status: "Em breve",
     href: "#",
     emoji: "🎵",
   },
   {
     titulo: "LinkedIn",
-    descricao: "Página institucional, B2B, cliques e seguidores.",
     status: "Em breve",
     href: "#",
     emoji: "💼",
   },
   {
     titulo: "YouTube",
-    descricao: "Vídeos, inscritos, visualizações e retenção.",
     status: "Em breve",
     href: "#",
     emoji: "▶️",
   },
   {
-    titulo: "WhatsApp Comercial",
-    descricao: "Botão de contato, leads e mensagens iniciadas.",
+    titulo: "WhatsApp",
     status: "Em breve",
     href: "#",
     emoji: "💬",
   },
   {
     titulo: "Reputação",
-    descricao: "Avaliações, Reclame Aqui, Trustpilot e prova social.",
     status: "Em breve",
     href: "#",
     emoji: "⭐",
@@ -89,84 +78,107 @@ export default function MarketingIntegracoesPage() {
         </p>
 
         <h1 className="mt-2 text-3xl font-black text-slate-900">
-          Central de presença digital
+          Central de marketing e presença digital
         </h1>
 
-        <p className="mt-2 max-w-3xl text-slate-600">
-          Acompanhe em um só lugar as integrações, canais, métricas e presença
-          digital da instituição.
+        <p className="mt-2 max-w-4xl text-slate-600">
+          Acompanhe métricas, integrações, campanhas, reputação e canais da
+          instituição em um só lugar.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      {/* DASHBOARD EXECUTIVO */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Integrações ativas
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Visitantes
           </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">5</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">12.340</p>
+          <p className="mt-1 text-xs font-semibold text-green-600">
+            +18% últimos 30 dias
+          </p>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Canais em preparação
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Conversões
           </p>
-          <p className="mt-2 text-3xl font-black text-slate-900">6</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">214</p>
+          <p className="mt-1 text-xs font-semibold text-green-600">
+            Leads capturados
+          </p>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <p className="text-sm font-semibold text-slate-500">
-            Módulo
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Google Business
           </p>
-          <p className="mt-2 text-3xl font-black text-blue-600">Growth</p>
+          <p className="mt-2 text-3xl font-black text-slate-900">1.842</p>
+          <p className="mt-1 text-xs font-semibold text-blue-600">
+            visualizações do perfil
+          </p>
+        </div>
+
+        <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+            Reputação
+          </p>
+          <p className="mt-2 text-3xl font-black text-yellow-500">4.9 ★</p>
+          <p className="mt-1 text-xs font-semibold text-slate-500">
+            média de avaliações
+          </p>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {cards.map((card) => {
-          const bloqueado = card.href === "#";
+      {/* INTEGRAÇÕES */}
+      <div>
+        <h2 className="mb-4 text-xl font-black text-slate-900">
+          Canais e integrações
+        </h2>
 
-          const conteudo = (
-            <div className="h-full rounded-2xl border bg-white p-5 shadow-sm transition hover:border-blue-500">
-              <div className="flex items-start justify-between gap-4">
-                <div className="text-3xl">{card.emoji}</div>
+        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
+          {cards.map((card) => {
+            const bloqueado = card.href === "#";
 
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    card.status === "Conectado"
-                      ? "bg-green-100 text-green-700"
-                      : card.status === "Configuração"
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {card.status}
-                </span>
+            const conteudo = (
+              <div className="rounded-2xl border bg-white p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md">
+                <div className="flex items-center justify-between">
+                  <div className="text-2xl">{card.emoji}</div>
+
+                  <span
+                    className={`rounded-full px-2 py-1 text-[10px] font-bold ${
+                      card.status === "Conectado"
+                        ? "bg-green-100 text-green-700"
+                        : card.status === "Configuração"
+                        ? "bg-blue-100 text-blue-700"
+                        : "bg-slate-100 text-slate-500"
+                    }`}
+                  >
+                    {card.status}
+                  </span>
+                </div>
+
+                <h3 className="mt-3 text-sm font-black text-slate-900">
+                  {card.titulo}
+                </h3>
+
+                <p className="mt-2 text-xs font-semibold text-blue-600">
+                  {bloqueado ? "Em breve" : "Abrir"}
+                </p>
               </div>
+            );
 
-              <h2 className="mt-4 text-lg font-black text-slate-900">
-                {card.titulo}
-              </h2>
+            if (bloqueado) {
+              return <div key={card.titulo}>{conteudo}</div>;
+            }
 
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                {card.descricao}
-              </p>
-
-              <p className="mt-4 text-sm font-bold text-blue-600">
-                {bloqueado ? "Em breve" : "Abrir configuração →"}
-              </p>
-            </div>
-          );
-
-          if (bloqueado) {
-            return <div key={card.titulo}>{conteudo}</div>;
-          }
-
-          return (
-            <Link key={card.titulo} href={card.href}>
-              {conteudo}
-            </Link>
-          );
-        })}
+            return (
+              <Link key={card.titulo} href={card.href}>
+                {conteudo}
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
