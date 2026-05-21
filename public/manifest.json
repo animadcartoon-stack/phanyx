@@ -2,7 +2,7 @@
   "name": "PHANYX Acadêmico",
   "short_name": "PHANYX",
   "description": "Plataforma acadêmica SaaS para gestão escolar, professores e alunos.",
-  "start_url": "/login",
+  "start_url": "/login/escolher",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
