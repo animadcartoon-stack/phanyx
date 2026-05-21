@@ -21,13 +21,18 @@ export async function GET() {
     );
 
     if (!propertyId || !clientEmail || !privateKey) {
-      return NextResponse.json({
-        visitantes: 0,
-        conversoes: 0,
-        googleBusiness: 0,
-        reputacao: null,
-      });
-    }
+  return NextResponse.json({
+    visitantes: 0,
+    conversoes: 0,
+    googleBusiness: 0,
+    reputacao: null,
+    debug: {
+      temPropertyId: Boolean(propertyId),
+      temClientEmail: Boolean(clientEmail),
+      temPrivateKey: Boolean(privateKey),
+    },
+  });
+}
 
     const analyticsDataClient = new BetaAnalyticsDataClient({
       credentials: {
