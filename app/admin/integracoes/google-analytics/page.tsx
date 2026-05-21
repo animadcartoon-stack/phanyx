@@ -74,9 +74,22 @@ export default function GoogleAnalyticsPage() {
         ) : (
           <div className="space-y-5">
             <div>
-              <label className="text-sm font-bold text-slate-700">
-                Measurement ID
-              </label>
+  <label className="text-sm font-bold text-slate-700">
+    Measurement ID
+  </label>
+
+  <input
+    value={googleAnalyticsId}
+    onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+    placeholder="Ex: G-XXXXXXXXXX"
+    className="mt-2 w-full rounded-xl border px-4 py-3 outline-none focus:border-blue-500"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    Esse é o ID que começa com G-. Ele instala o Analytics no site da instituição.
+  </p>
+</div>
+
 <div>
   <label className="text-sm font-bold text-slate-700">
     Property ID
@@ -90,20 +103,9 @@ export default function GoogleAnalyticsPage() {
   />
 
   <p className="mt-2 text-xs text-slate-500">
-    Esse é o ID numérico da propriedade no Google Analytics.
+    Esse é o ID numérico da propriedade no Google Analytics. Ele é usado para buscar os dados reais no dashboard.
   </p>
 </div>
-              <input
-                value={googleAnalyticsId}
-                onChange={(e) => setGoogleAnalyticsId(e.target.value)}
-                placeholder="Ex: G-XXXXXXXXXX"
-                className="mt-2 w-full rounded-xl border px-4 py-3 outline-none focus:border-blue-500"
-              />
-
-              <p className="mt-2 text-xs text-slate-500">
-                Cada instituição deve usar o próprio ID do Google Analytics.
-              </p>
-            </div>
 
             <label className="flex items-center gap-3 rounded-2xl border bg-slate-50 p-4">
               <input
