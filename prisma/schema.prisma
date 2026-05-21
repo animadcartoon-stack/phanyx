@@ -19,6 +19,7 @@ model Instituicao {
   plano                      String                          @default("ESSENCIAL")
 
   googleAnalyticsId          String?
+  googleAnalyticsPropertyId  String?
   googleAnalyticsAtivo       Boolean                         @default(false)
   googleTagManagerId         String?
   googleTagManagerAtivo      Boolean                         @default(false)

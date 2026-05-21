@@ -6,24 +6,15 @@ export async function GET() {
   try {
     const user = await getUserFromToken();
 
-    if (
-      !user ||
-      (user.role !== "ADMIN" &&
-        user.role !== "SUPER_ADMIN" &&
-        user.role !== "SECRETARIA")
-    ) {
-      return NextResponse.json(
-        { error: "Sem permissão" },
-        { status: 403 }
-      );
+    if (!user || !["ADMIN", "SUPER_ADMIN", "SECRETARIA"].includes(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
     const instituicao = await prisma.instituicao.findUnique({
-      where: {
-        id: user.instituicaoId,
-      },
+      where: { id: user.instituicaoId },
       select: {
         googleAnalyticsId: true,
+        googleAnalyticsPropertyId: true,
         googleAnalyticsAtivo: true,
       },
     });
@@ -41,26 +32,17 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (
-      !user ||
-      (user.role !== "ADMIN" &&
-        user.role !== "SUPER_ADMIN" &&
-        user.role !== "SECRETARIA")
-    ) {
-      return NextResponse.json(
-        { error: "Sem permissão" },
-        { status: 403 }
-      );
+    if (!user || !["ADMIN", "SUPER_ADMIN", "SECRETARIA"].includes(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
     const body = await req.json();
 
     await prisma.instituicao.update({
-      where: {
-        id: user.instituicaoId,
-      },
+      where: { id: user.instituicaoId },
       data: {
         googleAnalyticsId: body.googleAnalyticsId || null,
+        googleAnalyticsPropertyId: body.googleAnalyticsPropertyId || null,
         googleAnalyticsAtivo: !!body.googleAnalyticsAtivo,
       },
     });

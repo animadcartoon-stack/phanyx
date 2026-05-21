@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { getUserFromToken } from "@/lib/server-auth";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   try {
@@ -13,7 +14,19 @@ export async function GET() {
       );
     }
 
-    const propertyId = process.env.GOOGLE_ANALYTICS_PROPERTY_ID;
+    const instituicao = await prisma.instituicao.findUnique({
+  where: { id: user.instituicaoId },
+  select: {
+    googleAnalyticsPropertyId: true,
+    googleAnalyticsAtivo: true,
+  },
+});
+
+const propertyId =
+  instituicao?.googleAnalyticsAtivo
+    ? instituicao.googleAnalyticsPropertyId
+    : null;
+
     const clientEmail = process.env.GOOGLE_ANALYTICS_CLIENT_EMAIL;
     const privateKey = process.env.GOOGLE_ANALYTICS_PRIVATE_KEY?.replace(
       /\\n/g,
