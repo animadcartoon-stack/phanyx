@@ -11,6 +11,7 @@ type FormaPagamento = "PIX" | "BOLETO" | "CREDIT_CARD" | "RECORRENTE";
 function getValorPlano(plano: string) {
   const p = plano.toUpperCase();
 
+  
   if (p === "ESSENCIAL") return "R$ 49,00";
   if (p === "PROFISSIONAL") return "R$ 99,00";
   if (p === "ENTERPRISE") return "R$ 199,00";
