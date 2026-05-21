@@ -1479,6 +1479,7 @@ function temSelecaoTextoLivreAtiva() {
   return editor.contains(range.commonAncestorContainer);
 }
 
+
 function aplicarEstiloTextoOuCampoInteiro(
   chave: keyof CampoCertificado,
   valor: any,
