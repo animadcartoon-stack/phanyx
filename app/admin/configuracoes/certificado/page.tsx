@@ -691,7 +691,31 @@ function adicionarImagemBiblioteca(
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const selecaoTextoRef = useRef<Range | null>(null);
 
+  const selecaoTextoInfoRef = useRef<{
+  campoId: number;
+  inicio: number;
+  fim: number;
+} | null>(null);
+
   useEffect(() => {
+  function calcularOffsetTexto(root: HTMLElement, node: Node, offset: number) {
+    let total = 0;
+
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+
+    while (walker.nextNode()) {
+      const atual = walker.currentNode;
+
+      if (atual === node) {
+        return total + offset;
+      }
+
+      total += atual.textContent?.length || 0;
+    }
+
+    return total;
+  }
+
   function salvarSelecaoTextoLivre() {
     const selecao = window.getSelection();
 
@@ -700,22 +724,35 @@ function adicionarImagemBiblioteca(
 
     const range = selecao.getRangeAt(0);
 
-    const inicio =
+    const inicioEl =
       range.startContainer.nodeType === Node.TEXT_NODE
         ? range.startContainer.parentElement
         : (range.startContainer as HTMLElement);
 
-    const fim =
-      range.endContainer.nodeType === Node.TEXT_NODE
-        ? range.endContainer.parentElement
-        : (range.endContainer as HTMLElement);
+    const editor = inicioEl?.closest("[data-texto-livre-id]") as HTMLElement | null;
 
-    const editorInicio = inicio?.closest("[data-texto-livre-id]");
-    const editorFim = fim?.closest("[data-texto-livre-id]");
+    if (!editor) return;
 
-    if (editorInicio && editorFim && editorInicio === editorFim) {
-      selecaoTextoRef.current = range.cloneRange();
-    }
+    const campoId = Number(editor.getAttribute("data-texto-livre-id"));
+
+    const inicio = calcularOffsetTexto(
+      editor,
+      range.startContainer,
+      range.startOffset
+    );
+
+    const fim = calcularOffsetTexto(
+      editor,
+      range.endContainer,
+      range.endOffset
+    );
+
+    selecaoTextoRef.current = range.cloneRange();
+    selecaoTextoInfoRef.current = {
+      campoId,
+      inicio: Math.min(inicio, fim),
+      fim: Math.max(inicio, fim),
+    };
   }
 
   document.addEventListener("selectionchange", salvarSelecaoTextoLivre);
@@ -1323,20 +1360,11 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
 }
  
 function temSelecaoTextoLivreSalva() {
-  if (!campoSelecionado || campoSelecionado.tipo !== "TEXTO_LIVRE") {
-    return false;
-  }
-
-  const range = selecaoTextoRef.current;
-  if (!range || !range.toString().trim()) return false;
-
-  const editor = document.querySelector(
-    `[data-texto-livre-id="${campoSelecionado.id}"]`
-  ) as HTMLElement | null;
-
-  if (!editor) return false;
-
-  return editor.contains(range.commonAncestorContainer);
+  return (
+    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+    selecaoTextoInfoRef.current?.campoId === campoSelecionado.id &&
+    selecaoTextoInfoRef.current.fim > selecaoTextoInfoRef.current.inicio
+  );
 }
 
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
@@ -1347,11 +1375,45 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   if (!editor) return;
 
   const selecao = window.getSelection();
+const info = selecaoTextoInfoRef.current;
 
-  if (selecaoTextoRef.current) {
-    selecao?.removeAllRanges();
-    selecao?.addRange(selecaoTextoRef.current);
+if (info && info.campoId === campoSelecionadoId) {
+  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+
+  let atual = 0;
+  let inicioNode: Node | null = null;
+  let fimNode: Node | null = null;
+  let inicioOffset = 0;
+  let fimOffset = 0;
+
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    const tamanho = node.textContent?.length || 0;
+
+    if (!inicioNode && info.inicio >= atual && info.inicio <= atual + tamanho) {
+      inicioNode = node;
+      inicioOffset = info.inicio - atual;
+    }
+
+    if (!fimNode && info.fim >= atual && info.fim <= atual + tamanho) {
+      fimNode = node;
+      fimOffset = info.fim - atual;
+    }
+
+    atual += tamanho;
   }
+
+  if (inicioNode && fimNode) {
+    const novoRange = document.createRange();
+    novoRange.setStart(inicioNode, inicioOffset);
+    novoRange.setEnd(fimNode, fimOffset);
+
+    selecao?.removeAllRanges();
+    selecao?.addRange(novoRange);
+
+    selecaoTextoRef.current = novoRange.cloneRange();
+  }
+}
 
   const selecaoAtual = window.getSelection();
 

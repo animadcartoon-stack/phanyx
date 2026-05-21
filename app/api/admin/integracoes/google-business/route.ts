@@ -46,7 +46,12 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ sucesso: true });
-  } catch {
-    return NextResponse.json({ error: "Erro ao salvar" }, { status: 500 });
+    } catch (error) {
+    console.error("ERRO GOOGLE BUSINESS:", error);
+
+    return NextResponse.json(
+      { error: "Erro ao salvar", detalhe: String(error) },
+      { status: 500 }
+    );
   }
 }
