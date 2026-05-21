@@ -1,7 +1,6 @@
-const CACHE_NAME = "phanyx-v10";
+const CACHE_NAME = "phanyx-v13";
 
 const STATIC_ASSETS = [
-  "/",
   "/manifest.json",
   "/icon-192.png",
   "/icon-512.png",
@@ -21,9 +20,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((keys) =>
       Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
+          if (key !== CACHE_NAME) return caches.delete(key);
         })
       )
     )
@@ -34,39 +31,34 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-
-  if (request.method !== "GET") return;
-
   const url = new URL(request.url);
 
-  if (
-    url.pathname.startsWith("/api") ||
-    url.pathname.startsWith("/_next") ||
-    url.pathname.includes(".json")
-  ) {
-    return;
-  }
+  if (request.method !== "GET") return;
+  if (url.pathname.startsWith("/api")) return;
+  if (url.pathname.startsWith("/admin")) return;
+  if (url.pathname.startsWith("/aluno")) return;
+  if (url.pathname.startsWith("/professor")) return;
+  if (url.pathname.startsWith("/login")) return;
+  if (url.pathname.startsWith("/_next")) return;
 
   if (
     request.destination === "image" ||
     request.destination === "style" ||
-    request.destination === "script"
+    request.destination === "script" ||
+    request.destination === "font" ||
+    url.pathname === "/manifest.json"
   ) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        return (
-          cached ||
-          fetch(request).then((response) => {
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
             const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
 
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, clone);
-            });
-
-            return response;
-          })
-        );
-      })
+          return response;
+        })
+        .catch(() => caches.match(request))
     );
   }
 });

@@ -89,17 +89,7 @@ export default async function RootLayout({
   suppressHydrationWarning
   className={`${inter.variable} antialiased bg-gray-100`}
 >
-  <script
-  dangerouslySetInnerHTML={{
-    __html: `
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js');
-        });
-      }
-    `,
-  }}
-/>
+  
 <PWARegister />
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
