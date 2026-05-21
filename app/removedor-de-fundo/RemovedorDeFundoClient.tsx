@@ -56,6 +56,17 @@ export default function RemovedorDeFundoClient() {
   const [zoomResultado, setZoomResultado] = useState(1);
   const [zoomOriginal, setZoomOriginal] = useState(1);
   const [panOriginal, setPanOriginal] = useState({ x: 0, y: 0 });
+
+  const toqueOriginalRef = useRef<{
+  x: number;
+  y: number;
+} | null>(null);
+
+const pinchOriginalRef = useRef<{
+  distancia: number;
+  zoom: number;
+} | null>(null);
+
   const [panResultado, setPanResultado] = useState({ x: 0, y: 0 });
   const [intensidadeTraco, setIntensidadeTraco] = useState(60);
   const [modo, setModo] = useState<ModoRemocao>("assinatura");
