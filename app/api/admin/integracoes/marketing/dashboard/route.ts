@@ -70,11 +70,15 @@ export async function GET() {
   } catch (error) {
     console.error("Erro dashboard marketing:", error);
 
-    return NextResponse.json({
-      visitantes: 0,
-      conversoes: 0,
-      googleBusiness: 0,
-      reputacao: null,
-    });
+    return NextResponse.json(
+      {
+        visitantes: 0,
+        conversoes: 0,
+        googleBusiness: 0,
+        reputacao: null,
+        erro: String(error),
+      },
+      { status: 500 }
+    );
   }
 }
