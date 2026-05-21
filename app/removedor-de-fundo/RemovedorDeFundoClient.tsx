@@ -94,6 +94,7 @@ const pinchOriginalRef = useRef<{
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
   const [usarPressaoCaneta, setUsarPressaoCaneta] = useState(true);
   const [texturaPincel, setTexturaPincel] = useState<TexturaPincel>("medio");
+  const [featherPincel, setFeatherPincel] = useState(0.45);
 
   const [mostrarLupa, setMostrarLupa] = useState(false);
 
@@ -514,18 +515,27 @@ const baseCtx = canvasRestauracao.getContext("2d", {
 
         const distanciaCentro = Math.sqrt(dx * dx + dy * dy);
         const forca = Math.max(0, 1 - distanciaCentro / raio);
-        let suavidade = forca;
+        let curvaTextura = 1.8;
 
 if (texturaPincel === "duro") {
-  suavidade = forca > 0.08 ? 1 : forca;
+  curvaTextura = 0.45;
 }
 
 if (texturaPincel === "medio") {
-  suavidade = forca * forca * (3 - 2 * forca);
+  curvaTextura = 1.8;
 }
 
 if (texturaPincel === "suave") {
-  suavidade = Math.pow(forca, 2.4);
+  curvaTextura = 3.2;
+}
+
+const curvaFinal =
+  curvaTextura + featherPincel * 4.5;
+
+let suavidade = Math.pow(forca, curvaFinal);
+
+if (texturaPincel === "duro" && featherPincel < 0.08) {
+  suavidade = forca > 0.06 ? 1 : forca;
 }
 
         if (ferramentaPincel === "apagar") {
@@ -1498,6 +1508,32 @@ window.addEventListener("keyup", soltarEspaco);
     Textura do pincel
   </p>
 
+<div className="mt-4">
+  <div className="mb-2 flex items-center justify-between text-xs font-black">
+    <span className="text-cyan-100">Feather da borda</span>
+    <span className="text-white">
+      {Math.round(featherPincel * 100)}%
+    </span>
+  </div>
+
+  <input
+    type="range"
+    min={0}
+    max={1}
+    step={0.01}
+    value={featherPincel}
+    onChange={(e) =>
+      setFeatherPincel(Number(e.target.value))
+    }
+    className="w-full accent-cyan-400"
+  />
+
+  <div className="mt-1 flex justify-between text-[10px] text-slate-400">
+    <span>Dura</span>
+    <span>Suave</span>
+  </div>
+</div>
+
   <div className="grid grid-cols-3 gap-2">
     {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (
       <button
@@ -2409,6 +2445,32 @@ onTouchEnd={() => {
   <p className="mb-2 text-xs font-black text-cyan-100">
     Textura do pincel
   </p>
+
+<div className="mt-4">
+  <div className="mb-2 flex items-center justify-between text-xs font-black">
+    <span className="text-cyan-100">Feather da borda</span>
+    <span className="text-white">
+      {Math.round(featherPincel * 100)}%
+    </span>
+  </div>
+
+  <input
+    type="range"
+    min={0}
+    max={1}
+    step={0.01}
+    value={featherPincel}
+    onChange={(e) =>
+      setFeatherPincel(Number(e.target.value))
+    }
+    className="w-full accent-cyan-400"
+  />
+
+  <div className="mt-1 flex justify-between text-[10px] text-slate-400">
+    <span>Dura</span>
+    <span>Suave</span>
+  </div>
+</div>
 
   <div className="grid grid-cols-3 gap-2">
     {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (

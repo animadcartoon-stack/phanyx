@@ -6,6 +6,7 @@ import GoogleAnalyticsPHANYX from "@/components/google/GoogleAnalyticsPHANYX";
 import GoogleTagManagerInstituicao from "@/components/google/GoogleTagManagerInstituicao";
 import GoogleAdsPHANYX from "@/components/google/GoogleAdsPHANYX";
 import PWARegister from "@/components/pwa/PWARegister";
+import SearchConsolePHANYX from "@/components/google/SearchConsolePHANYX";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -94,6 +95,7 @@ export default async function RootLayout({
   <GoogleAnalyticsPHANYX />
   <GoogleTagManagerInstituicao />
   <GoogleAdsPHANYX />
+  <SearchConsolePHANYX />
   {children}
 </AuthProvider>
 

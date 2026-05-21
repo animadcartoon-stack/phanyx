@@ -1321,7 +1321,24 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
     )
   );
 }
-  
+ 
+function temSelecaoTextoLivreSalva() {
+  if (!campoSelecionado || campoSelecionado.tipo !== "TEXTO_LIVRE") {
+    return false;
+  }
+
+  const range = selecaoTextoRef.current;
+  if (!range || !range.toString().trim()) return false;
+
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionado.id}"]`
+  ) as HTMLElement | null;
+
+  if (!editor) return false;
+
+  return editor.contains(range.commonAncestorContainer);
+}
+
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
@@ -4736,7 +4753,7 @@ onKeyUp={() => {
             onChange={(e) => {
   const tamanho = Number(e.target.value);
 
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+  if (temSelecaoTextoLivreSalva()) {
     aplicarEstiloTextoSelecionado({ fontSize: `${tamanho}px` });
 return;
   }
@@ -4914,12 +4931,15 @@ onClick={() =>
                   <div className="flex gap-2">
   <button
     type="button"
-    onMouseDown={(e) => e.preventDefault()}
+    onMouseDown={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+}}
     onClick={() => {
       const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
       const novoTamanho = Math.max(6, tamanhoAtual - 2);
 
-      if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+      if (temSelecaoTextoLivreSalva()) {
         aplicarEstiloTextoSelecionado({
           fontSize: `${novoTamanho}px`,
         });
@@ -4947,12 +4967,15 @@ onClick={() =>
 
   <button
     type="button"
-    onMouseDown={(e) => e.preventDefault()}
+    onMouseDown={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+}}
     onClick={() => {
       const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
       const novoTamanho = Math.min(120, tamanhoAtual + 2);
 
-      if (campoSelecionado?.tipo === "TEXTO_LIVRE" && selecaoTextoRef.current) {
+      if (temSelecaoTextoLivreSalva()) {
         aplicarEstiloTextoSelecionado({
           fontSize: `${novoTamanho}px`,
         });
