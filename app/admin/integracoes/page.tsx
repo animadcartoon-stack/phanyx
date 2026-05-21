@@ -5,6 +5,14 @@ import Link from "next/link";
 import IntegracoesTour from "@/components/admin/integracoes/IntegracoesTour";
 
 const integracoes = [
+    {
+    titulo: "PHANYX Growth",
+    descricao:
+      "Dashboard completo com Analytics, Search Console, campanhas, presença digital e métricas reais.",
+    href: "/admin/integracoes/marketing",
+    emoji: "🚀",
+    badge: "Growth",
+  },
   {
     titulo: "Google Analytics",
     descricao: "Acompanhe acessos, eventos e conversões do PHANYX.",
