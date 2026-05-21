@@ -28,7 +28,9 @@ model Instituicao {
   searchConsoleAtivo         Boolean                         @default(false)
   googleBusinessUrl          String?
   googleBusinessAtivo        Boolean                         @default(false)
-
+  googleSearchConsoleMeta    String?
+  googleSearchConsoleAtivo   Boolean                         @default(false)
+  
   alternativas               Alternativa[]
   alunos                     Aluno[]
   atestadosMedicos           AtestadoMedico[]
