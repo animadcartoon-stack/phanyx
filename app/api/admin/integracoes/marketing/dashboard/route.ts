@@ -109,6 +109,9 @@ for (const siteUrl of searchConsoleAlternativas) {
       },
     });
 
+    console.log("SITE TESTADO:", siteUrl);
+    console.log("SEARCH CONSOLE RESPONSE:", JSON.stringify(busca.data));
+
     if (busca?.data) {
       console.log("Search Console conectado em:", siteUrl);
 console.log("Resposta Search Console:", JSON.stringify(busca.data));
