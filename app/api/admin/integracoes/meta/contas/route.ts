@@ -57,7 +57,16 @@ if (primeiraPagina) {
   );
 
   const instaRes = await fetch(instaUrl.toString());
-  instagramData = await instaRes.json();
+const instaJson = await instaRes.json();
+
+instagramData = {
+  disponivel: instaRes.ok && !!instaJson?.connected_instagram_account,
+  conta: instaJson?.connected_instagram_account || null,
+  aguardandoPermissao:
+    !instaRes.ok &&
+    String(instaJson?.error?.message || "").includes("pages_read_engagement"),
+  erro: instaRes.ok ? null : instaJson?.error?.message || null,
+};
 
   await prisma.instituicao.update({
     where: { id: user.instituicaoId },
@@ -73,8 +82,19 @@ if (primeiraPagina) {
 return NextResponse.json({
   ok: res.ok,
   paginaSalva: !!primeiraPagina,
-  pagina: primeiraPagina,
-  instagram: instagramData,
+  facebook: {
+    conectado: !!primeiraPagina,
+    paginaId: primeiraPagina?.id || null,
+    paginaNome: primeiraPagina?.name || null,
+    categoria: primeiraPagina?.category || null,
+    permissoes: primeiraPagina?.tasks || [],
+  },
+  instagram: instagramData || {
+    disponivel: false,
+    conta: null,
+    aguardandoPermissao: true,
+    erro: "Instagram Business ainda não verificado.",
+  },
 });
 
   } catch (error) {
