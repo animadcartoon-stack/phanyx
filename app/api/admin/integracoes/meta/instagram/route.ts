@@ -20,39 +20,40 @@ export async function GET() {
     if (!instituicao?.metaAccessToken) {
       return NextResponse.json({
         conectado: false,
-        paginas: [],
       });
     }
 
-    const res = await fetch(
-      `https://graph.facebook.com/v20.0/me/accounts?access_token=${instituicao.metaAccessToken}`,
-      { cache: "no-store" }
+    const pagesRes = await fetch(
+      `https://graph.facebook.com/v20.0/me/accounts?access_token=${instituicao.metaAccessToken}`
     );
 
-    const data = await res.json();
+    const pagesData = await pagesRes.json();
 
-    if (!res.ok) {
-      console.error("Erro Meta pages:", data);
-      return NextResponse.json(
-        { conectado: true, paginas: [], erro: data },
-        { status: 400 }
-      );
+    const pagina = pagesData?.data?.[0];
+
+    if (!pagina) {
+      return NextResponse.json({
+        conectado: true,
+        instagram: null,
+      });
     }
 
+    const instaRes = await fetch(
+      `https://graph.facebook.com/v20.0/${pagina.id}?fields=instagram_business_account&access_token=${instituicao.metaAccessToken}`
+    );
+
+    const instaData = await instaRes.json();
+
     return NextResponse.json({
-  conectado: true,
-  paginas: (data.data || []).map((pagina: any) => ({
-    id: pagina.id,
-    name: pagina.name,
-    category: pagina.category,
-    tasks: pagina.tasks,
-  })),
-});
+      conectado: true,
+      pagina: pagina.name,
+      instagram: instaData,
+    });
   } catch (error) {
-    console.error("Erro listar páginas Meta:", error);
+    console.error(error);
 
     return NextResponse.json(
-      { error: "Erro ao listar páginas Meta" },
+      { error: "Erro Instagram Meta" },
       { status: 500 }
     );
   }
