@@ -24,14 +24,9 @@ export async function GET() {
   }
 
   const scopes = [
-    "instagram_business_basic",
-    "instagram_manage_comments",
-    "instagram_business_manage_messages",
-    "pages_show_list",
-    "pages_read_engagement",
-    "pages_manage_metadata",
-    "business_management",
-  ].join(",");
+  "business_management",
+  "pages_show_list",
+].join(",");
 
   const url = new URL("https://www.facebook.com/v20.0/dialog/oauth");
   url.searchParams.set("client_id", appId);
