@@ -329,7 +329,7 @@ const pinchOriginalRef = useRef<{
 
   function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
     if (!imagemOriginalRef.current) return;
-      salvarHistoricoEdicao();
+      
     const img = imagemOriginalRef.current;
     const rect = img.getBoundingClientRect();
 
@@ -799,6 +799,10 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
 
     setProcessando(true);
     setErro("");
+
+    if (imagemFinal) {
+    salvarHistoricoEdicao();
+}
 
     const img = new Image();
     img.src = imagemOriginal;

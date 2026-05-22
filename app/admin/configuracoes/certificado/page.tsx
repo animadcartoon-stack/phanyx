@@ -1449,13 +1449,7 @@ if (info && info.campoId === campoSelecionadoId) {
           ...campo,
           texto: editor.innerText,
           textoHtml: editor.innerHTML,
-          ...(estilo.fontSize
-            ? {
-                tamanho: Number(
-                  String(estilo.fontSize).replace("px", "")
-                ),
-              }
-            : {}),
+          
         }
       : campo
   )
@@ -4999,9 +4993,9 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-  const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
+  const tamanhoAtual = tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
   const novoTamanho = Math.max(6, tamanhoAtual - 2);
-
+    setTamanhoSelecaoTexto(novoTamanho);
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     if (!temSelecaoTextoLivreSalva()) {
       setMensagemErro("Selecione uma palavra ou trecho do texto antes de alterar apenas uma parte.");
@@ -5041,9 +5035,9 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-  const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
+  const tamanhoAtual = tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
   const novoTamanho = Math.min(120, tamanhoAtual + 2);
-
+    setTamanhoSelecaoTexto(novoTamanho);
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     if (!temSelecaoTextoLivreSalva()) {
       setMensagemErro("Selecione uma palavra ou trecho do texto antes de alterar apenas uma parte.");

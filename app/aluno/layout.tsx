@@ -198,7 +198,7 @@ export default async function AlunoLayout({
   Trabalhos
 </a>
 
-<a href="/aluno/presenca" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+<a href="/aluno/progresso" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
   <span className="text-lg">🗓️</span>
   Presença
 </a>
