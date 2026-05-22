@@ -105,8 +105,16 @@ export default function MarketingIntegracoesPage() {
   impressoesBusca: 0,
 });
 
+const [metaStatus, setMetaStatus] = useState({
+  conectado: false,
+  metricasDisponiveis: false,
+  aguardandoPermissao: false,
+  paginaNome: "",
+});
+
   useEffect(() => {
     carregarDashboard();
+    carregarMetaFacebook();
   }, []);
 
   async function carregarDashboard() {
@@ -141,6 +149,26 @@ export default function MarketingIntegracoesPage() {
     });
   } catch (error) {
     console.error("Erro dashboard marketing:", error);
+  }
+}
+
+async function carregarMetaFacebook() {
+  try {
+    const res = await fetch("/api/admin/integracoes/meta/facebook/metricas", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    setMetaStatus({
+      conectado: !!data.conectado,
+      metricasDisponiveis: !!data.metricasDisponiveis,
+      aguardandoPermissao: !!data.aguardandoPermissao,
+      paginaNome: data?.pagina?.nome || "",
+    });
+  } catch (error) {
+    console.error("Erro Meta Facebook:", error);
   }
 }
 
@@ -252,28 +280,37 @@ export default function MarketingIntegracoesPage() {
 
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
           {cards.map((card) => {
-            const bloqueado = card.href === "#";
+  const cardAtual =
+    card.titulo === "Meta"
+      ? {
+          ...card,
+          status: metaStatus.conectado ? "Conectado" : "Configuração",
+          href: "/api/admin/integracoes/meta/connect",
+        }
+      : card;
+
+  const bloqueado = cardAtual.href === "#";
 
             const conteudo = (
               <div className="rounded-2xl border bg-white p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md">
                 <div className="flex items-center justify-between">
-                  <div className="text-2xl">{card.emoji}</div>
+                  <div className="text-2xl">{cardAtual.emoji}</div>
 
                   <span
                     className={`rounded-full px-2 py-1 text-[10px] font-bold ${
-                      card.status === "Conectado"
+                      cardAtual.status === "Conectado"
                         ? "bg-green-100 text-green-700"
-                        : card.status === "Configuração"
+                        : cardAtual.status === "Configuração"
                         ? "bg-blue-100 text-blue-700"
                         : "bg-slate-100 text-slate-500"
                     }`}
                   >
-                    {card.status}
+                    {cardAtual.status}
                   </span>
                 </div>
 
                 <h3 className="mt-3 text-sm font-black text-slate-900">
-                  {card.titulo}
+                  {cardAtual.titulo}
                 </h3>
 
                 <p className="mt-2 text-xs font-semibold text-blue-600">
@@ -283,11 +320,11 @@ export default function MarketingIntegracoesPage() {
             );
 
             if (bloqueado) {
-              return <div key={card.titulo}>{conteudo}</div>;
+              return <div key={cardAtual.titulo}>{conteudo}</div>;
             }
 
             return (
-              <Link key={card.titulo} href={card.href}>
+              <Link key={cardAtual.titulo} href={cardAtual.href}>
                 {conteudo}
               </Link>
             );
