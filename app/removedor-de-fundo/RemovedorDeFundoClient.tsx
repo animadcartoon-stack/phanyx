@@ -329,7 +329,7 @@ const pinchOriginalRef = useRef<{
 
   function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
     if (!imagemOriginalRef.current) return;
-
+      salvarHistoricoEdicao();
     const img = imagemOriginalRef.current;
     const rect = img.getBoundingClientRect();
 
@@ -403,13 +403,19 @@ if (originalCtx) {
     setImagemBaseEdicao(baseCanvas.toDataURL("image/png"));
   }
 
+  function salvarHistoricoEdicao() {
+  if (!imagemFinal) return;
+
+  historicoEdicaoRef.current = [
+    ...historicoEdicaoRef.current.slice(-14),
+    imagemFinal,
+  ];
+}
+
   function iniciarPincelResultado(e: React.PointerEvent<HTMLImageElement>) {
     if (!pincelAtivo || !imagemFinal || espacoPressionadoRef.current) return;
 
-    historicoEdicaoRef.current = [
-      ...historicoEdicaoRef.current.slice(-14),
-      imagemFinal,
-    ];
+    salvarHistoricoEdicao();
 
     editandoPincelRef.current = true;
     aplicarPincelResultado(e);
