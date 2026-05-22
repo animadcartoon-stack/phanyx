@@ -79,38 +79,35 @@ function formatarTempo(segundos: number) {
   const minutos = Math.floor((segundos % 3600) / 60);
   const secs = Math.floor(segundos % 60);
 
-  if (horas > 0) {
-    return `${horas}h ${minutos}m ${secs}s`;
-  }
-
-  if (minutos > 0) {
-    return `${minutos}m ${secs}s`;
-  }
+  if (horas > 0) return `${horas}h ${minutos}m ${secs}s`;
+  if (minutos > 0) return `${minutos}m ${secs}s`;
 
   return `${secs}s`;
 }
 
 export default function MarketingIntegracoesPage() {
+  const [metricas, setMetricas] = useState({
+    visitantes: 0,
+    novosUsuarios: 0,
+    sessoes: 0,
+    visualizacoes: 0,
+    tempoMedioSessao: 0,
+    conversoes: 0,
+    googleBusiness: 0,
+    reputacao: null as number | null,
+    cliquesBusca: 0,
+    impressoesBusca: 0,
+  });
 
-    const [metricas, setMetricas] = useState({
-  visitantes: 0,
-  novosUsuarios: 0,
-  sessoes: 0,
-  visualizacoes: 0,
-  tempoMedioSessao: 0,
-  conversoes: 0,
-  googleBusiness: 0,
-  reputacao: null as number | null,
-  cliquesBusca: 0,
-  impressoesBusca: 0,
-});
-
-const [metaStatus, setMetaStatus] = useState({
-  conectado: false,
-  metricasDisponiveis: false,
-  aguardandoPermissao: false,
-  paginaNome: "",
-});
+  const [metaStatus, setMetaStatus] = useState({
+    conectado: false,
+    metricasDisponiveis: false,
+    aguardandoPermissao: false,
+    paginaNome: "",
+    curtidas: 0,
+    seguidores: 0,
+    falandoSobre: 0,
+  });
 
   useEffect(() => {
     carregarDashboard();
@@ -118,80 +115,59 @@ const [metaStatus, setMetaStatus] = useState({
   }, []);
 
   async function carregarDashboard() {
-  try {
-    const res = await fetch(
-      "/api/admin/integracoes/marketing/dashboard",
-      {
+    try {
+      const res = await fetch("/api/admin/integracoes/marketing/dashboard", {
         cache: "no-store",
         credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao carregar dashboard");
       }
-    );
 
-    const data = await res.json();
-
-    console.log("DASHBOARD DATA:", data);
-
-    if (!res.ok) {
-      throw new Error(data.error || "Erro ao carregar dashboard");
+      setMetricas({
+        visitantes: Number(data.visitantes || 0),
+        novosUsuarios: Number(data.novosUsuarios || 0),
+        sessoes: Number(data.sessoes || 0),
+        visualizacoes: Number(data.visualizacoes || 0),
+        tempoMedioSessao: Number(data.tempoMedioSessao || 0),
+        conversoes: Number(data.conversoes || 0),
+        googleBusiness: Number(data.googleBusiness || 0),
+        reputacao: data.reputacao,
+        cliquesBusca: Number(data.cliquesBusca || 0),
+        impressoesBusca: Number(data.impressoesBusca || 0),
+      });
+    } catch (error) {
+      console.error(error);
     }
-
-    setMetricas({
-      visitantes: Number(data.visitantes || 0),
-      novosUsuarios: Number(data.novosUsuarios || 0),
-      sessoes: Number(data.sessoes || 0),
-      visualizacoes: Number(data.visualizacoes || 0),
-      tempoMedioSessao: Number(data.tempoMedioSessao || 0),
-      conversoes: Number(data.conversoes || 0),
-      googleBusiness: Number(data.googleBusiness || 0),
-      reputacao: data.reputacao,
-      cliquesBusca: Number(data.cliquesBusca || 0),
-      impressoesBusca: Number(data.impressoesBusca || 0),
-    });
-  } catch (error) {
-    console.error("Erro dashboard marketing:", error);
   }
-}
 
-async function carregarMetaFacebook() {
-  try {
-    const res = await fetch("/api/admin/integracoes/meta/facebook/metricas", {
-      cache: "no-store",
-      credentials: "include",
-    });
+  async function carregarMetaFacebook() {
+    try {
+      const res = await fetch("/api/admin/integracoes/meta/facebook/metricas", {
+        cache: "no-store",
+        credentials: "include",
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    setMetaStatus({
-      conectado: !!data.conectado,
-      metricasDisponiveis: !!data.metricasDisponiveis,
-      aguardandoPermissao: !!data.aguardandoPermissao,
-      paginaNome: data?.pagina?.nome || "",
-    });
-  } catch (error) {
-    console.error("Erro Meta Facebook:", error);
+      setMetaStatus({
+        conectado: !!data.conectado,
+        metricasDisponiveis: !!data.metricasDisponiveis,
+        aguardandoPermissao: !!data.aguardandoPermissao,
+        paginaNome: data?.pagina?.nome || "",
+        curtidas: Number(data?.metricas?.curtidas || 0),
+        seguidores: Number(data?.metricas?.seguidores || 0),
+        falandoSobre: Number(data?.metricas?.falandoSobre || 0),
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
-}
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
-          PHANYX GROWTH
-        </p>
-
-        <h1 className="mt-2 text-3xl font-black text-slate-900">
-          Central de marketing e presença digital
-        </h1>
-
-        <p className="mt-2 max-w-4xl text-slate-600">
-          Acompanhe métricas, integrações, campanhas, reputação e canais da
-          instituição em um só lugar.
-        </p>
-      </div>
-
-     {/* DASHBOARD EXECUTIVO */}
-<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-  {[
+  const dashboardCards = [
     {
       titulo: "Visitantes",
       valor: metricas.visitantes.toLocaleString("pt-BR"),
@@ -235,44 +211,65 @@ async function carregarMetaFacebook() {
       cor: "text-blue-700",
     },
     {
-  titulo: "Cliques Google",
-  valor: metricas.cliquesBusca.toLocaleString("pt-BR"),
-  detalhe: "Cliques vindos da busca orgânica",
-  cor: "text-indigo-700",
-},
-{
-  titulo: "Impressões Google",
-  valor: metricas.impressoesBusca.toLocaleString("pt-BR"),
-  detalhe: "Vezes que apareceu nas buscas",
-  cor: "text-cyan-700",
-},
-    {
-      titulo: "Reputação",
-      valor: metricas.reputacao ? `${metricas.reputacao} ★` : "--",
-      detalhe: "Média de avaliações",
-      cor: "text-yellow-500",
+      titulo: "Cliques Google",
+      valor: metricas.cliquesBusca.toLocaleString("pt-BR"),
+      detalhe: "Cliques vindos da busca orgânica",
+      cor: "text-indigo-700",
     },
-  ].map((item) => (
-    <div
-      key={item.titulo}
-      className="rounded-2xl border bg-white p-5 shadow-sm"
-    >
-      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-        {item.titulo}
-      </p>
+    {
+      titulo: "Impressões Google",
+      valor: metricas.impressoesBusca.toLocaleString("pt-BR"),
+      detalhe: "Vezes que apareceu nas buscas",
+      cor: "text-cyan-700",
+    },
+    {
+      titulo: "Facebook",
+      valor: metaStatus.conectado ? "Conectado" : "Configurar",
+      detalhe: metaStatus.conectado
+        ? metaStatus.paginaNome
+        : "Conecte sua página Meta",
+      cor: "text-blue-700",
+    },
+  ];
 
-      <p className={`mt-2 text-3xl font-black ${item.cor}`}>
-        {item.valor}
-      </p>
+  return (
+    <div className="space-y-8">
+      <div>
+        <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
+          PHANYX GROWTH
+        </p>
 
-      <p className="mt-1 text-xs font-semibold text-slate-500">
-        {item.detalhe}
-      </p>
-    </div>
-  ))}
-</div>
+        <h1 className="mt-2 text-3xl font-black text-slate-900">
+          Central de marketing e presença digital
+        </h1>
 
-      {/* INTEGRAÇÕES */}
+        <p className="mt-2 max-w-4xl text-slate-600">
+          Acompanhe métricas, integrações, campanhas, reputação e canais da
+          instituição em um só lugar.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {dashboardCards.map((item) => (
+          <div
+            key={item.titulo}
+            className="rounded-2xl border bg-white p-5 shadow-sm"
+          >
+            <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+              {item.titulo}
+            </p>
+
+            <p className={`mt-2 text-3xl font-black ${item.cor}`}>
+              {item.valor}
+            </p>
+
+            <p className="mt-1 text-xs font-semibold text-slate-500">
+              {item.detalhe}
+            </p>
+          </div>
+        ))}
+      </div>
+
       <div>
         <h2 className="mb-4 text-xl font-black text-slate-900">
           Canais e integrações
@@ -280,16 +277,18 @@ async function carregarMetaFacebook() {
 
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
           {cards.map((card) => {
-  const cardAtual =
-    card.titulo === "Meta"
-      ? {
-          ...card,
-          status: metaStatus.conectado ? "Conectado" : "Configuração",
-          href: "/api/admin/integracoes/meta/connect",
-        }
-      : card;
+            const cardAtual =
+              card.titulo === "Meta"
+                ? {
+                    ...card,
+                    status: metaStatus.conectado
+                      ? "Conectado"
+                      : "Configuração",
+                    href: "/api/admin/integracoes/meta/connect",
+                  }
+                : card;
 
-  const bloqueado = cardAtual.href === "#";
+            const bloqueado = cardAtual.href === "#";
 
             const conteudo = (
               <div className="rounded-2xl border bg-white p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md">
