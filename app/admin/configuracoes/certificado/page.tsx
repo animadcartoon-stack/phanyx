@@ -4999,18 +4999,24 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-      const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
-      const novoTamanho = Math.max(6, tamanhoAtual - 2);
+  const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
+  const novoTamanho = Math.max(6, tamanhoAtual - 2);
 
-      if (temSelecaoTextoLivreSalva()) {
-        aplicarEstiloTextoSelecionado({
-          fontSize: `${novoTamanho}px`,
-        });
-        return;
-      }
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (!temSelecaoTextoLivreSalva()) {
+      setMensagemErro("Selecione uma palavra ou trecho do texto antes de alterar apenas uma parte.");
+      return;
+    }
 
-      atualizarCampoLocal("tamanho", novoTamanho);
-    }}
+    aplicarEstiloTextoSelecionado({
+      fontSize: `${novoTamanho}px`,
+    });
+
+    return;
+  }
+
+  atualizarCampoLocal("tamanho", novoTamanho);
+}}
     className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
   >
     A−
@@ -5035,18 +5041,24 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-      const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
-      const novoTamanho = Math.min(120, tamanhoAtual + 2);
+  const tamanhoAtual = campoSelecionado?.tamanho ?? 18;
+  const novoTamanho = Math.min(120, tamanhoAtual + 2);
 
-      if (temSelecaoTextoLivreSalva()) {
-        aplicarEstiloTextoSelecionado({
-          fontSize: `${novoTamanho}px`,
-        });
-        return;
-      }
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (!temSelecaoTextoLivreSalva()) {
+      setMensagemErro("Selecione uma palavra ou trecho do texto antes de alterar apenas uma parte.");
+      return;
+    }
 
-      atualizarCampoLocal("tamanho", novoTamanho);
-    }}
+    aplicarEstiloTextoSelecionado({
+      fontSize: `${novoTamanho}px`,
+    });
+
+    return;
+  }
+
+  atualizarCampoLocal("tamanho", novoTamanho);
+}}
     className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
   >
     A+

@@ -111,6 +111,7 @@ for (const siteUrl of searchConsoleAlternativas) {
 
     if (busca?.data) {
       console.log("Search Console conectado em:", siteUrl);
+console.log("Resposta Search Console:", JSON.stringify(busca.data));
       break;
     }
   } catch (error) {

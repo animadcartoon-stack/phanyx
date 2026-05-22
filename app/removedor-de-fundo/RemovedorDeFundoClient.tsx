@@ -19,6 +19,8 @@ export default function RemovedorDeFundoClient() {
   const editandoPincelRef = useRef(false);
   const arrastandoResultadoRef = useRef(false);
   const ultimoMouseResultadoRef = useRef({ x: 0, y: 0 });
+  const arrastandoOriginalRef = useRef(false);
+  const ultimoMouseOriginalRef = useRef({ x: 0, y: 0 });
   const ultimoPontoPincelRef = useRef<{ x: number; y: number } | null>(null);
   const historicoEdicaoRef = useRef<string[]>([]);
   const espacoPressionadoRef = useRef(false);
@@ -223,10 +225,10 @@ const pinchOriginalRef = useRef<{
     const diffSat = Math.abs(cor.s - base.s);
     const diffLum = Math.abs(cor.l - base.l);
 
-    const toleranciaRgb = sensibilidadeAtual * 1.8;
-    const toleranciaHue = Math.max(18, sensibilidadeAtual * 0.65);
-    const toleranciaSat = Math.max(28, sensibilidadeAtual * 0.9);
-    const toleranciaLum = Math.max(38, sensibilidadeAtual * 1.2);
+    const toleranciaRgb = sensibilidadeAtual * 3.2;
+    const toleranciaHue = Math.max(8, sensibilidadeAtual * 1.1);
+    const toleranciaSat = Math.max(12, sensibilidadeAtual * 1.4);
+    const toleranciaLum = Math.max(14, sensibilidadeAtual * 1.7);
 
     const parecidoPorRgb = distRgb <= toleranciaRgb;
 
@@ -1432,7 +1434,7 @@ window.addEventListener("keyup", soltarEspaco);
       : "bg-slate-800 text-white"
   }`}
 >
-  {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
+  {pincelAtivo ? "🖌️ Pincel ligado" : "🖌️ Ligar pincel"}
 </button>
 
                 <button
@@ -1486,7 +1488,13 @@ window.addEventListener("keyup", soltarEspaco);
 
                 <button
                   type="button"
-                  onClick={() => setModalRefinamentoAberto(false)}
+                  onClick={() => {
+  if (canvasRef.current) {
+    setImagemFinal(canvasRef.current.toDataURL("image/png"));
+  }
+
+  setModalRefinamentoAberto(false);
+}}
                   className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white hover:bg-red-400"
                 >
                   Fechar
@@ -1574,7 +1582,7 @@ onTouchStart={(e) => {
     return;
   }
 
-  if (e.touches.length === 1 && (!pincelAtivo || zoomResultado > 1)) {
+  if (e.touches.length === 1 && !pincelAtivo && zoomResultado > 1) {
     toqueArrasteRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
@@ -1604,7 +1612,7 @@ onTouchMove={(e) => {
   if (
     e.touches.length === 1 &&
     toqueArrasteRef.current &&
-    (!pincelAtivo || zoomResultado > 1)
+    !pincelAtivo && zoomResultado > 1
   ) {
     e.preventDefault();
 
@@ -2056,49 +2064,49 @@ onTouchEnd={() => {
     );
   }}
   onMouseDown={(e) => {
-    if (!imagemOriginal || zoomOriginal <= 1) return;
+  if (!imagemOriginal || zoomOriginal <= 1) return;
 
-    const botaoDoMeio = e.button === 1;
+  const botaoDoMeio = e.button === 1;
 
-    if (
-      ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) &&
-      !botaoDoMeio
-    ) {
-      return;
-    }
+  if (
+    ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) &&
+    !botaoDoMeio
+  ) {
+    return;
+  }
 
-    if (botaoDoMeio) {
-      e.preventDefault();
-    }
+  if (botaoDoMeio) {
+    e.preventDefault();
+  }
 
-    arrastandoResultadoRef.current = true;
-    ultimoMouseResultadoRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-    };
-  }}
-  onMouseMove={(e) => {
-    if (!arrastandoResultadoRef.current || zoomOriginal <= 1) return;
+  arrastandoOriginalRef.current = true;
+  ultimoMouseOriginalRef.current = {
+    x: e.clientX,
+    y: e.clientY,
+  };
+}}
+onMouseMove={(e) => {
+  if (!arrastandoOriginalRef.current || zoomOriginal <= 1) return;
 
-    const dx = e.clientX - ultimoMouseResultadoRef.current.x;
-    const dy = e.clientY - ultimoMouseResultadoRef.current.y;
+  const dx = e.clientX - ultimoMouseOriginalRef.current.x;
+  const dy = e.clientY - ultimoMouseOriginalRef.current.y;
 
-    ultimoMouseResultadoRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-    };
+  ultimoMouseOriginalRef.current = {
+    x: e.clientX,
+    y: e.clientY,
+  };
 
-    setPanOriginal((pan) => ({
-      x: pan.x + dx,
-      y: pan.y + dy,
-    }));
-  }}
-  onMouseUp={() => {
-    arrastandoResultadoRef.current = false;
-  }}
-  onMouseLeave={() => {
-    arrastandoResultadoRef.current = false;
-  }}
+  setPanOriginal((pan) => ({
+    x: pan.x + dx,
+    y: pan.y + dy,
+  }));
+}}
+onMouseUp={() => {
+  arrastandoOriginalRef.current = false;
+}}
+onMouseLeave={() => {
+  arrastandoOriginalRef.current = false;
+}}
   className="flex w-full touch-none select-none items-center justify-center overflow-hidden rounded-2xl bg-white p-4"
   style={{
     height: modo === "assinatura" ? "260px" : "360px",
@@ -2281,10 +2289,10 @@ onTouchEnd={() => {
                     return;
                   }
 
-                  const dx = e.clientX - ultimoMouseResultadoRef.current.x;
-                  const dy = e.clientY - ultimoMouseResultadoRef.current.y;
+                  const dx = e.clientX - ultimoMouseOriginalRef.current.x;
+                  const dy = e.clientY - ultimoMouseOriginalRef.current.y;
 
-                  ultimoMouseResultadoRef.current = {
+                  ultimoMouseOriginalRef.current = {
                     x: e.clientX,
                     y: e.clientY,
                   };
@@ -2295,10 +2303,10 @@ onTouchEnd={() => {
                   }));
                 }}
                 onMouseUp={() => {
-                  arrastandoResultadoRef.current = false;
+                  arrastandoOriginalRef.current = false;
                 }}
                 onMouseLeave={() => {
-                  arrastandoResultadoRef.current = false;
+                  arrastandoOriginalRef.current = false;
                 }}
                 className={`flex w-full touch-none select-none items-center justify-center overflow-hidden rounded-2xl p-2 sm:p-4 ${
                   modo === "assinatura" && fundoPreview === "verde"
