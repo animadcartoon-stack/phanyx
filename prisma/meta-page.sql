@@ -1,0 +1,3 @@
+ALTER TABLE "Instituicao" ADD COLUMN IF NOT EXISTS "metaPageId" TEXT;
+ALTER TABLE "Instituicao" ADD COLUMN IF NOT EXISTS "metaPageName" TEXT;
+ALTER TABLE "Instituicao" ADD COLUMN IF NOT EXISTS "metaPageAccessToken" TEXT;
