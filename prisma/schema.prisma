@@ -8,30 +8,30 @@ datasource db {
 }
 
 model Instituicao {
-  id                         Int                             @id @default(autoincrement())
-  nome                       String
-  ativo                      Boolean                         @default(true)
-  createdAt                  DateTime                        @default(now())
-  proximoNumeroMatricula     Int                             @default(1)
-  dominio                    String?                         @unique
-  slug                       String                          @unique
-  updatedAt                  DateTime
-  plano                      String                          @default("ESSENCIAL")
+  id                     Int      @id @default(autoincrement())
+  nome                   String
+  ativo                  Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  proximoNumeroMatricula Int      @default(1)
+  dominio                String?  @unique
+  slug                   String   @unique
+  updatedAt              DateTime
+  plano                  String   @default("ESSENCIAL")
 
-  googleAnalyticsId          String?
-  googleAnalyticsPropertyId  String?
-  googleAnalyticsAtivo       Boolean                         @default(false)
-  googleTagManagerId         String?
-  googleTagManagerAtivo      Boolean                         @default(false)
-  googleAdsId                String?
-  googleAdsAtivo             Boolean                         @default(false)
-  searchConsoleDominio       String?
-  searchConsoleAtivo         Boolean                         @default(false)
-  googleBusinessUrl          String?
-  googleBusinessAtivo        Boolean                         @default(false)
-  googleSearchConsoleMeta    String?
-  googleSearchConsoleAtivo   Boolean                         @default(false)
-  
+  googleAnalyticsId         String?
+  googleAnalyticsPropertyId String?
+  googleAnalyticsAtivo      Boolean @default(false)
+  googleTagManagerId        String?
+  googleTagManagerAtivo     Boolean @default(false)
+  googleAdsId               String?
+  googleAdsAtivo            Boolean @default(false)
+  searchConsoleDominio      String?
+  searchConsoleAtivo        Boolean @default(false)
+  googleBusinessUrl         String?
+  googleBusinessAtivo       Boolean @default(false)
+  googleSearchConsoleMeta   String?
+  googleSearchConsoleAtivo  Boolean @default(false)
+
   alternativas               Alternativa[]
   alunos                     Aluno[]
   atestadosMedicos           AtestadoMedico[]
@@ -88,7 +88,6 @@ model Instituicao {
   professoresDisciplinas     ProfessorDisciplina[]
   turmaSemestres             TurmaSemestre[]
   turmaDisciplinaHorarios    TurmaDisciplinaHorario[]
-  
 }
 
 model User {
@@ -112,6 +111,7 @@ model User {
   instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   cursosCriados      Curso[]      @relation("CursoCriadoPor")
   cursosExcluidos    Curso[]      @relation("CursoExcluidoPor")
+  CreditoIA          CreditoIA?
 
   @@index([instituicaoId])
   @@index([role])
@@ -1540,6 +1540,18 @@ model MatriculaOnlineIbe {
   asaasPaymentId    String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+}
+
+model CreditoIA {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  saldo     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 enum TipoDocumentoAluno {
