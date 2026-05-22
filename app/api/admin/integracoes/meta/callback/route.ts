@@ -76,5 +76,6 @@ export async function GET(req: NextRequest) {
   etapa: "catch_callback",
   erro: String(error),
 });
+
   }
 }
