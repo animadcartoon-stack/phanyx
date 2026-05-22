@@ -43,13 +43,21 @@ export async function GET() {
     const pageData = await pageRes.json();
 
     if (!pageRes.ok) {
-      return NextResponse.json({
-        conectado: true,
-        erro: true,
-        mensagem: "Facebook conectado, mas métricas ainda não liberadas pela Meta.",
-        detalhe: pageData?.error?.message || null,
-      });
-    }
+  return NextResponse.json({
+    conectado: true,
+    metricasDisponiveis: false,
+    aguardandoPermissao: true,
+    pagina: {
+      id: instituicao.metaPageId,
+      nome: instituicao.metaPageName,
+    },
+    metricas: {
+      curtidas: 0,
+      seguidores: 0,
+      falandoSobre: 0,
+    },
+  });
+}
 
     return NextResponse.json({
       conectado: true,
