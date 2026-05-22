@@ -37,10 +37,24 @@ export async function GET() {
     const res = await fetch(url.toString());
     const data = await res.json();
 
-    return NextResponse.json({
-      ok: res.ok,
-      data,
-    });
+const primeiraPagina = data?.data?.[0];
+
+if (primeiraPagina) {
+  await prisma.instituicao.update({
+    where: { id: user.instituicaoId },
+    data: {
+      metaPageId: primeiraPagina.id,
+      metaPageName: primeiraPagina.name,
+      metaPageAccessToken: primeiraPagina.access_token,
+    } as any,
+  });
+}
+
+return NextResponse.json({
+  ok: res.ok,
+  paginaSalva: !!primeiraPagina,
+  data,
+});
   } catch (error) {
     console.error("Erro ao buscar contas Meta:", error);
 

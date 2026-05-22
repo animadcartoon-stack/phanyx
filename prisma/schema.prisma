@@ -20,6 +20,9 @@ model Instituicao {
 
   metaAccessToken           String?
   metaConectado             Boolean    @default(false)
+  metaPageId                String?
+  metaPageName              String?
+  metaPageAccessToken       String?
 
   googleAnalyticsId         String?
   googleAnalyticsPropertyId String?
