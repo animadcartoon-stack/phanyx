@@ -80,9 +80,14 @@ export async function GET() {
   auth: oauth2Client,
 });
 
-const siteUrl = process.env.GOOGLE_SEARCH_CONSOLE_SITE_URL;
+const searchConsoleAlternativas = [
+  process.env.GOOGLE_SEARCH_CONSOLE_SITE_URL,
+  "sc-domain:phanyx.com.br",
+  "https://www.phanyx.com.br/",
+  "https://phanyx.com.br/",
+].filter(Boolean) as string[];
 
-if (siteUrl) {
+if (searchConsoleAlternativas.length > 0) {
   try {
     const hoje = new Date();
     const inicio = new Date();
@@ -92,7 +97,11 @@ if (siteUrl) {
     const inicioStr = inicio.toISOString().split("T")[0];
     const hojeStr = hoje.toISOString().split("T")[0];
 
-    const busca = await searchConsole.searchanalytics.query({
+    let busca = null;
+
+for (const siteUrl of searchConsoleAlternativas) {
+  try {
+    busca = await searchConsole.searchanalytics.query({
       siteUrl,
       requestBody: {
         startDate: inicioStr,
@@ -100,6 +109,14 @@ if (siteUrl) {
       },
     });
 
+    if (busca?.data) {
+      console.log("Search Console conectado em:", siteUrl);
+      break;
+    }
+  } catch (error) {
+    console.log("Falhou Search Console:", siteUrl);
+  }
+}
     cliquesBusca = busca.data.rows?.[0]?.clicks || 0;
     impressoesBusca = busca.data.rows?.[0]?.impressions || 0;
   } catch (err) {

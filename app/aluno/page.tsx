@@ -47,6 +47,7 @@ function AlunoDashboardPage() {
   const [disciplinas, setDisciplinas] = useState<any[]>([]);
   const inputFotoRef = useRef<HTMLInputElement | null>(null);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [modalDicaFotoAberto, setModalDicaFotoAberto] = useState(false);
 
   useEffect(() => {
     carregarDashboard();
@@ -367,18 +368,13 @@ setTotalDisciplinasMatriculadas(total);
 >
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
-<div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
-  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-    Dica PHANYX
-  </p>
-
-  <p className="mt-1 text-sm leading-6 text-slate-600">
-    Para que sua foto fique bem centralizada no perfil, utilize uma imagem
-    quadrada (1:1), preferencialmente em 500x500px ou maior.
-    <br />
-    Formatos aceitos: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5MB.
-  </p>
-</div>
+<button
+  type="button"
+  onClick={() => setModalDicaFotoAberto(true)}
+  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
+>
+  ℹ️ Dicas da foto
+</button>
   </div>
 </div>
 
@@ -825,7 +821,48 @@ setTotalDisciplinasMatriculadas(total);
             </section>
           </>
         )}
-      </div>
+            </div>
+
+      {modalDicaFotoAberto && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-3xl border border-blue-100 bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+                  Dica PHANYX
+                </p>
+
+                <h2 className="mt-2 text-xl font-black text-slate-900">
+                  Foto de perfil ideal
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setModalDicaFotoAberto(false)}
+                className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600">
+              <p>• Use uma imagem quadrada, no formato 1:1.</p>
+              <p>• Recomendado: 500x500px ou maior.</p>
+              <p>• Formatos aceitos: PNG, JPG, JPEG e WEBP.</p>
+              <p>• Tamanho máximo: 5MB.</p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setModalDicaFotoAberto(false)}
+              className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white"
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
