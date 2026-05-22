@@ -39,7 +39,26 @@ export async function GET() {
 
 const primeiraPagina = data?.data?.[0];
 
+let instagramData = null;
+
 if (primeiraPagina) {
+  const instaUrl = new URL(
+    `https://graph.facebook.com/v20.0/${primeiraPagina.id}`
+  );
+
+  instaUrl.searchParams.set(
+    "fields",
+    "connected_instagram_account{name,username,id}"
+  );
+
+  instaUrl.searchParams.set(
+    "access_token",
+    primeiraPagina.access_token
+  );
+
+  const instaRes = await fetch(instaUrl.toString());
+  instagramData = await instaRes.json();
+
   await prisma.instituicao.update({
     where: { id: user.instituicaoId },
     data: {
@@ -54,8 +73,10 @@ if (primeiraPagina) {
 return NextResponse.json({
   ok: res.ok,
   paginaSalva: !!primeiraPagina,
-  data,
+  pagina: primeiraPagina,
+  instagram: instagramData,
 });
+
   } catch (error) {
     console.error("Erro ao buscar contas Meta:", error);
 
