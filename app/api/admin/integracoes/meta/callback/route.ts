@@ -46,11 +46,15 @@ export async function GET(req: NextRequest) {
     const tokenData = await tokenRes.json();
 
     if (!tokenRes.ok || !tokenData.access_token) {
-      console.error("Erro token Meta:", tokenData);
-      return NextResponse.redirect(
-        "https://phanyx.com.br/admin/integracoes/marketing?meta=token_erro"
-      );
-    }
+  return NextResponse.json({
+    etapa: "troca_token",
+    tokenResOk: tokenRes.ok,
+    tokenData,
+    redirectUri,
+    appId,
+    instituicaoId,
+  });
+}
 
     // Salva por enquanto na Instituicao.
     // Se estes campos ainda não existirem no Prisma, o TypeScript vai reclamar.
@@ -68,8 +72,9 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("Erro callback Meta:", error);
 
-    return NextResponse.redirect(
-      "https://phanyx.com.br/admin/integracoes/marketing?meta=callback_erro"
-    );
+    return NextResponse.json({
+  etapa: "catch_callback",
+  erro: String(error),
+});
   }
 }
