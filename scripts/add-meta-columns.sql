@@ -1,0 +1,5 @@
+ALTER TABLE "Instituicao"
+ADD COLUMN IF NOT EXISTS "metaAccessToken" TEXT;
+
+ALTER TABLE "Instituicao"
+ADD COLUMN IF NOT EXISTS "metaConectado" BOOLEAN NOT NULL DEFAULT false;
