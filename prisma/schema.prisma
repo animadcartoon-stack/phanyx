@@ -8,29 +8,32 @@ datasource db {
 }
 
 model Instituicao {
-  id                     Int      @id @default(autoincrement())
-  nome                   String
-  ativo                  Boolean  @default(true)
-  createdAt              DateTime @default(now())
-  proximoNumeroMatricula Int      @default(1)
-  dominio                String?  @unique
-  slug                   String   @unique
-  updatedAt              DateTime
-  plano                  String   @default("ESSENCIAL")
+  id                        Int        @id @default(autoincrement())
+  nome                      String
+  ativo                     Boolean    @default(true)
+  createdAt                 DateTime   @default(now())
+  proximoNumeroMatricula    Int        @default(1)
+  dominio                   String?    @unique
+  slug                      String     @unique
+  updatedAt                 DateTime
+  plano                     String     @default("ESSENCIAL")
+
+  metaAccessToken           String?
+  metaConectado             Boolean    @default(false)
 
   googleAnalyticsId         String?
   googleAnalyticsPropertyId String?
-  googleAnalyticsAtivo      Boolean @default(false)
+  googleAnalyticsAtivo      Boolean    @default(false)
   googleTagManagerId        String?
-  googleTagManagerAtivo     Boolean @default(false)
+  googleTagManagerAtivo     Boolean    @default(false)
   googleAdsId               String?
-  googleAdsAtivo            Boolean @default(false)
+  googleAdsAtivo            Boolean    @default(false)
   searchConsoleDominio      String?
-  searchConsoleAtivo        Boolean @default(false)
+  searchConsoleAtivo        Boolean    @default(false)
   googleBusinessUrl         String?
-  googleBusinessAtivo       Boolean @default(false)
+  googleBusinessAtivo       Boolean    @default(false)
   googleSearchConsoleMeta   String?
-  googleSearchConsoleAtivo  Boolean @default(false)
+  googleSearchConsoleAtivo  Boolean    @default(false)
 
   alternativas               Alternativa[]
   alunos                     Aluno[]
