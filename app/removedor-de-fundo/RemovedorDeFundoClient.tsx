@@ -65,6 +65,8 @@ export default function RemovedorDeFundoClient() {
   const [zoomOriginal, setZoomOriginal] = useState(1);
   const [panOriginal, setPanOriginal] = useState({ x: 0, y: 0 });
 
+  const [comparadorAntesDepois, setComparadorAntesDepois] = useState(50);
+
   const [compradorCreditos, setCompradorCreditos] = useState({
   nome: "",
   email: "",
@@ -2332,164 +2334,90 @@ async function comprarPacoteCreditos(quantidade: number) {
 
             </div>
 
-            <div
+            <div className="flex min-h-0 flex-1 select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0] p-6">
+  {imagemOriginal && imagemFinal && !pincelAtivo ? (
+    <div className="relative max-h-[78vh] w-full max-w-5xl overflow-hidden rounded-3xl border border-cyan-400/30 bg-slate-950 shadow-2xl shadow-cyan-500/20">
+      <img
+        src={imagemOriginal}
+        alt="Antes"
+        draggable={false}
+        className="block max-h-[78vh] w-full select-none object-contain"
+      />
 
-onTouchStart={(e) => {
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
+      <div
+        className="absolute inset-0 overflow-hidden"
+        style={{ width: `${comparadorAntesDepois}%` }}
+      >
+        <img
+          src={imagemFinal}
+          alt="Depois"
+          draggable={false}
+          className="h-full w-full max-w-none select-none object-contain"
+        />
+      </div>
 
-    toquePinchRef.current = {
-      distancia: Math.hypot(dx, dy),
-      zoom: zoomResultado,
-    };
+      <div
+        className="absolute bottom-0 top-0 w-1 bg-cyan-300 shadow-[0_0_24px_rgba(34,211,238,0.95)]"
+        style={{ left: `${comparadorAntesDepois}%` }}
+      >
+        <div className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-cyan-200 bg-slate-950 text-lg font-black text-cyan-200 shadow-2xl">
+          ↔
+        </div>
+      </div>
 
-    toqueArrasteRef.current = null;
-    return;
-  }
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={comparadorAntesDepois}
+        onChange={(e) => setComparadorAntesDepois(Number(e.target.value))}
+        className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+        aria-label="Comparar antes e depois"
+      />
 
-  if (e.touches.length === 1 && !pincelAtivo && zoomResultado > 1) {
-    toqueArrasteRef.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-  }
-}}
-onTouchMove={(e) => {
-  if (e.touches.length === 2 && toquePinchRef.current) {
-    e.preventDefault();
+      <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
+        Depois
+      </div>
 
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-    const novaDistancia = Math.hypot(dx, dy);
+      <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
+        Antes
+      </div>
+    </div>
+  ) : (
+    <img
+      src={imagemFinal}
+      alt="Resultado em refinamento"
+      draggable={false}
+      onPointerDown={(e) => {
+        if (espacoPressionadoRef.current) return;
+        e.currentTarget.setPointerCapture(e.pointerId);
+        iniciarPincelResultado(e);
+      }}
+      onPointerMove={(e) => {
+        atualizarLupa(e);
 
-    const fator = novaDistancia / toquePinchRef.current.distancia;
+        if (!pincelAtivo || !editandoPincelRef.current) return;
 
-    setZoomResultado(
-      Math.max(
-        0.5,
-        Math.min(8, Number((toquePinchRef.current.zoom * fator).toFixed(2)))
-      )
-    );
-
-    return;
-  }
-
-  if (
-    e.touches.length === 1 &&
-    toqueArrasteRef.current &&
-    !pincelAtivo && zoomResultado > 1
-  ) {
-    e.preventDefault();
-
-    const atual = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-
-    const dx = atual.x - toqueArrasteRef.current.x;
-    const dy = atual.y - toqueArrasteRef.current.y;
-
-    toqueArrasteRef.current = atual;
-
-    setPanResultado((pan) => ({
-      x: pan.x + dx,
-      y: pan.y + dy,
-    }));
-  }
-}}
-onTouchEnd={() => {
-  toquePinchRef.current = null;
-  toqueArrasteRef.current = null;
-}}
-
-              onWheel={(e) => {
-                e.preventDefault();
-
-                const direcao = e.deltaY > 0 ? -0.12 : 0.12;
-
-                setZoomResultado((z) =>
-                  Math.max(0.5, Math.min(8, Number((z + direcao).toFixed(2))))
-                );
-              }}
-              onMouseDown={(e) => {
-                if (pincelAtivo && !espacoPressionadoRef.current) return;
-
-                arrastandoResultadoRef.current = true;
-                ultimoMouseResultadoRef.current = {
-                  x: e.clientX,
-                  y: e.clientY,
-                };
-              }}
-              onMouseMove={(e) => {
-                if (
-  !arrastandoResultadoRef.current ||
-  (pincelAtivo && !espacoPressionadoRef.current)
-)
-  return;
-
-                const dx = e.clientX - ultimoMouseResultadoRef.current.x;
-                const dy = e.clientY - ultimoMouseResultadoRef.current.y;
-
-                ultimoMouseResultadoRef.current = {
-                  x: e.clientX,
-                  y: e.clientY,
-                };
-
-                setPanResultado((pan) => ({
-                  x: pan.x + dx,
-                  y: pan.y + dy,
-                }));
-              }}
-              onMouseUp={() => {
-                arrastandoResultadoRef.current = false;
-              }}
-              onMouseLeave={() => {
-                arrastandoResultadoRef.current = false;
-                editandoPincelRef.current = false;
-              }}
-              className="flex touch-none min-h-0 flex-1 select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0] p-6"
-              style={{
-                cursor: espacoPressionado
-                ? "grabbing"
-                : pincelAtivo
-                ? "crosshair"
-                : "grab",
-              }}
-            >
-              <img
-                src={imagemFinal}
-                alt="Resultado em refinamento"
-                draggable={false}
-                onPointerDown={(e) => {
-  if (espacoPressionadoRef.current) return;
-  e.currentTarget.setPointerCapture(e.pointerId);
-  iniciarPincelResultado(e);
-}}
-                onPointerMove={(e) => {
-  atualizarLupa(e);
-
-  if (!pincelAtivo || !editandoPincelRef.current) return;
-
-  aplicarPincelResultado(e);
-}}
-                onPointerUp={() => {
-  editandoPincelRef.current = false;
-  ultimoPontoPincelRef.current = null;
-}}
-                onPointerLeave={() => {
-  editandoPincelRef.current = false;
-  ultimoPontoPincelRef.current = null;
-  setMostrarLupa(false);
-}}
-                className="max-h-[70vh] max-w-none object-contain sm:max-h-[78vh] sm:max-w-full"
-                style={{
-                  opacity: opacidade / 100,
-                  transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
-                  transformOrigin: "center",
-                }}
-              />
-            </div>
+        aplicarPincelResultado(e);
+      }}
+      onPointerUp={() => {
+        editandoPincelRef.current = false;
+        ultimoPontoPincelRef.current = null;
+      }}
+      onPointerLeave={() => {
+        editandoPincelRef.current = false;
+        ultimoPontoPincelRef.current = null;
+        setMostrarLupa(false);
+      }}
+      className="max-h-[70vh] max-w-none object-contain sm:max-h-[78vh] sm:max-w-full"
+      style={{
+        opacity: opacidade / 100,
+        transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
+        transformOrigin: "center",
+      }}
+    />
+  )}
+</div>
           </div>
         </div>
       )}
