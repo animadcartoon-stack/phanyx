@@ -2568,54 +2568,6 @@ async function comprarPacoteCreditos(quantidade: number) {
   </div>
 )}
 
-{popupComprarCreditosAberto && (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-6">
-    <div className="w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-950 p-8 shadow-2xl">
-      <h2 className="text-center text-4xl font-black text-cyan-300">
-        Créditos IA PHANYX
-      </h2>
-
-      <p className="mt-4 text-center text-slate-300">
-        Use as ferramentas premium de IA PHANYX para editar suas imagens profissionalmente:
-      </p>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {[
-          { qtd: 5, valor: "R$ 19,90" },
-          { qtd: 15, valor: "R$ 49,90" },
-          { qtd: 50, valor: "R$ 129,90" },
-        ].map((pacote) => (
-          <button
-            key={pacote.qtd}
-            onClick={() => comprarPacoteCreditos(pacote.qtd)}
-            disabled={comprandoPacote !== null}
-            className="rounded-2xl border border-cyan-400/30 bg-slate-900 p-6 transition hover:scale-105 hover:border-cyan-300"
-          >
-            <div className="text-3xl font-black text-cyan-300">
-              {pacote.qtd}
-            </div>
-
-            <div className="mt-2 text-slate-300">
-              créditos IA
-            </div>
-
-            <div className="mt-4 text-2xl font-bold text-white">
-              {pacote.valor}
-            </div>
-          </button>
-        ))}
-      </div>
-
-      <button
-        onClick={() => setPopupComprarCreditosAberto(false)}
-        className="mt-8 w-full rounded-2xl bg-slate-800 py-4 font-bold text-white"
-      >
-        Fechar
-      </button>
-    </div>
-  </div>
-)}
-
 <CropImageModal
   imagem={imagemOriginal || ""}
   aberto={modalCorteAberto}
