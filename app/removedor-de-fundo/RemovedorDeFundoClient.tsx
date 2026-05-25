@@ -2004,6 +2004,16 @@ async function comprarPacoteCreditos(quantidade: number) {
 
 <div className="mt-3 space-y-1 text-xs text-slate-300">
   <p className="font-semibold text-cyan-300">
+    Até {pacote.quantidade} imagens com IA
+  </p>
+  <p>✨ Remover fundo com IA</p>
+  <p>✨ Remover objetos com IA</p>
+  <p>✨ Melhorar qualidade</p>
+  <p>✨ Recorte profissional</p>
+</div>
+
+<div className="mt-3 space-y-1 text-xs text-slate-300">
+  <p className="font-semibold text-cyan-300">
     {pacote.imagens}
   </p>
   <p>✨ Remover fundo com IA</p>
@@ -2730,7 +2740,10 @@ async function comprarPacoteCreditos(quantidade: number) {
 <button
   type="button"
   disabled={!imagemOriginal || processando}
-  onClick={() => setModalRemoverObjetoAberto(true)}
+  onClick={() => {
+  if (!podeUsarIAAgora()) return;
+  setModalRemoverObjetoAberto(true);
+}}
   className="w-full rounded-xl bg-rose-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
 >
   🧽 Remover objeto
