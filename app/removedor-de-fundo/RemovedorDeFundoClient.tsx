@@ -28,6 +28,8 @@ export default function RemovedorDeFundoClient() {
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [menuIAAberto, setMenuIAAberto] = useState(false);
+
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
 
   const canvasRemoverObjetoRef = useRef<HTMLCanvasElement | null>(null);
@@ -2673,87 +2675,87 @@ async function comprarPacoteCreditos(quantidade: number) {
   Cortar imagem
 </button>
 
-<div className="rounded-2xl border border-violet-400/30 bg-slate-900 p-3">
-  <h3 className="mb-2 text-center text-sm font-black text-violet-200">
-    ✨ IA PHANYX
-  </h3>
+<div className="rounded-2xl border border-cyan-400/20 bg-slate-900/80 p-3">
+  <button
+    type="button"
+    onClick={() => setMenuIAAberto((aberto) => !aberto)}
+    className="w-full rounded-xl bg-cyan-400 px-3 py-3 text-sm font-black text-slate-950 hover:bg-cyan-300"
+  >
+    ✨ Usar IA PHANYX
+  </button>
 
-  <div className="space-y-2">
-    <button
-      type="button"
-      disabled={!imagemOriginal || processando}
-      onClick={melhorarComIA}
-      className="w-full rounded-xl bg-violet-500 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
-    >
-      ✨ Melhorar imagem
-    </button>
+  {menuIAAberto && (
+    <div className="mt-3 space-y-2">
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        onClick={melhorarComIA}
+        className="w-full rounded-xl bg-violet-500 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+      >
+        ✨ Melhorar imagem
+      </button>
 
-    <button
-      type="button"
-      disabled={!imagemOriginal || processando}
-      onClick={() =>
-  setAviso("A restauração de foto será ativada com um modelo próprio. O botão Melhorar imagem agora será ajustado para preservar rostos.")
-}
-      className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
-    >
-      🧼 Restaurar foto
-    </button>
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+      >
+        🌸 Restaurar foto
+      </button>
 
-    <button
-      type="button"
-      disabled={!imagemOriginal || processando}
-      onClick={() =>
-  setAviso("O aumento de resolução 2x será ativado com um modelo próprio para ampliar sem recriar pessoas.")
-}
-      className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
-    >
-      ⬆️ Aumentar resolução 2x
-    </button>
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        onClick={melhorarComIA}
+        className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+      >
+        ⬆️ Aumentar resolução 2x
+      </button>
 
-<button
-  type="button"
-  disabled={!imagemOriginal || processando}
-  onClick={removerFundoComIA}
-  className="w-full rounded-xl bg-cyan-500 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
->
-  🧠 Remover fundo com IA
-</button>
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        onClick={removerFundoComIA}
+        className="w-full rounded-xl bg-cyan-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+      >
+        🧠 Remover fundo com IA
+      </button>
 
-<button
-  type="button"
-  disabled={!imagemOriginal || processando}
-  onClick={recorteAvancadoComIA}
-  className="w-full rounded-xl bg-emerald-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
->
-  🧠 Recorte avançado
-</button>
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        onClick={recorteAvancadoComIA}
+        className="w-full rounded-xl bg-emerald-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+      >
+        🧠 Recorte avançado
+      </button>
 
-<button
-  type="button"
-  disabled={!imagemOriginal || processando}
-  onClick={recorteProfissionalComIA}
-  className="w-full rounded-xl bg-yellow-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
->
-  💎 Recorte profissional
-</button>
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        onClick={recorteProfissionalComIA}
+        className="w-full rounded-xl bg-yellow-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+      >
+        💎 Recorte profissional
+      </button>
 
-<button
-  type="button"
-  disabled={!imagemOriginal || processando}
-  onClick={() => {
-  if (!podeUsarIAAgora()) return;
-  setModalRemoverObjetoAberto(true);
-}}
-  className="w-full rounded-xl bg-rose-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
->
-  🧽 Remover objeto
-</button>
+      <button
+        type="button"
+        disabled={!imagemOriginal || processando}
+        onClick={() => {
+          if (!podeUsarIAAgora()) return;
+          setModalRemoverObjetoAberto(true);
+        }}
+        className="w-full rounded-xl bg-rose-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+      >
+        🧽 Remover objeto
+      </button>
 
-  </div>
-
-  <p className="mt-2 text-center text-[10px] leading-tight text-violet-100/80">
-    Usa créditos IA. Melhore a imagem antes de remover o fundo.
-  </p>
+      <p className="text-center text-[10px] leading-relaxed text-slate-400">
+        Usa créditos IA. Ideal para fotos, pessoas, objetos e imagens complexas.
+      </p>
+    </div>
+  )}
 </div>
 
 <button
