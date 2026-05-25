@@ -109,6 +109,31 @@ if (
     const userId = Number(partes[1]);
     const creditos = Number(partes[2]);
 
+    if (
+  externalReference?.startsWith("CREDITOS_IA_PUBLICO:") &&
+  ["PAYMENT_RECEIVED", "PAYMENT_CONFIRMED", "PAYMENT_AUTHORIZED"].includes(event)
+) {
+  const [, email, creditosTexto] = externalReference.split(":");
+  const creditos = Number(creditosTexto);
+
+  if (email && creditos > 0) {
+    await prisma.creditoIAPublico.upsert({
+      where: { email: email.toLowerCase() },
+      update: {
+        saldo: {
+          increment: creditos,
+        },
+      },
+      create: {
+        email: email.toLowerCase(),
+        saldo: creditos,
+      },
+    });
+  }
+
+  return NextResponse.json({ received: true });
+}
+
     if (!userId || !creditos) {
       console.error("Webhook créditos IA inválido:", externalReference);
       return NextResponse.json({ ok: true });

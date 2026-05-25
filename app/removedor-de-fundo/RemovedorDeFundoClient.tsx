@@ -1975,15 +1975,6 @@ async function comprarPacoteCreditos(quantidade: number) {
   <p>✨ Recorte profissional</p>
 </div>
 
-<div className="mt-3 space-y-1 text-xs text-slate-300">
-  <p className="font-semibold text-cyan-300">
-    {pacote.imagens}
-  </p>
-  <p>✨ Remover fundo com IA</p>
-  <p>✨ Remover objetos com IA</p>
-  <p>✨ Melhorar qualidade da imagem</p>
-  <p>✨ Recorte profissional inteligente</p>
-</div>
 
             <p className="mt-4 text-2xl font-black text-cyan-200">
               {pacote.preco}
@@ -1999,8 +1990,11 @@ async function comprarPacoteCreditos(quantidade: number) {
                 ? "Abrindo pagamento..."
                 : "Comprar agora"}
             </button>
+
           </div>
         ))}
+
+      </div>
 
 {pacoteCheckout && (
   <div className="mt-6 rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
@@ -2062,7 +2056,6 @@ async function comprarPacoteCreditos(quantidade: number) {
   </div>
 )}
 
-      </div>
     </div>
   </div>
 )}
