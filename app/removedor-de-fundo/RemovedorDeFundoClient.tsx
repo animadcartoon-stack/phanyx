@@ -1947,10 +1947,25 @@ async function comprarPacoteCreditos(quantidade: number) {
 
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {[
-          { quantidade: 5, preco: "R$ 19,90", destaque: "Para testar" },
-          { quantidade: 15, preco: "R$ 49,90", destaque: "Mais escolhido" },
-          { quantidade: 50, preco: "R$ 129,90", destaque: "Melhor custo" },
-        ].map((pacote) => (
+  {
+    quantidade: 5,
+    preco: "R$ 19,90",
+    destaque: "Para testar",
+    imagens: "Até 5 imagens",
+  },
+  {
+    quantidade: 15,
+    preco: "R$ 49,90",
+    destaque: "Mais escolhido",
+    imagens: "Até 15 imagens",
+  },
+  {
+    quantidade: 50,
+    preco: "R$ 129,90",
+    destaque: "Melhor custo",
+    imagens: "Até 50 imagens",
+  },
+].map((pacote) => (
           <div
             key={pacote.quantidade}
             className="rounded-3xl border border-cyan-400/20 bg-slate-900 p-5 text-center"
@@ -1963,7 +1978,19 @@ async function comprarPacoteCreditos(quantidade: number) {
               {pacote.quantidade}
             </h3>
 
-            <p className="text-sm text-slate-300">créditos IA</p>
+            <p className="text-sm text-slate-300">
+  créditos IA
+</p>
+
+<div className="mt-3 space-y-1 text-xs text-slate-300">
+  <p className="font-semibold text-cyan-300">
+    {pacote.imagens}
+  </p>
+  <p>✨ Remover fundo com IA</p>
+  <p>✨ Remover objetos com IA</p>
+  <p>✨ Melhorar qualidade da imagem</p>
+  <p>✨ Recorte profissional inteligente</p>
+</div>
 
             <p className="mt-4 text-2xl font-black text-cyan-200">
               {pacote.preco}
@@ -2591,7 +2618,7 @@ onTouchEnd={() => {
       </h2>
 
       <p className="mt-4 text-center text-slate-300">
-        Seus créditos acabaram. Escolha um pacote:
+        Use as ferramentas premium de IA PHANYX para editar suas imagens profissionalmente:
       </p>
 
       <div className="mt-8 grid gap-4 md:grid-cols-3">
