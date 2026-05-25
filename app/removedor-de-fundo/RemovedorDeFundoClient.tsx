@@ -89,6 +89,7 @@ const pinchOriginalRef = useRef<{
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
   const [varinhaAtiva, setVarinhaAtiva] = useState(false);
   const [toleranciaVarinha, setToleranciaVarinha] = useState(35);
+  const [creditosPublicosLiberados, setCreditosPublicosLiberados] = useState(false);
 
   const [coresAlvoManuais, setCoresAlvoManuais] = useState<
     { r: number; g: number; b: number }[]
@@ -1567,6 +1568,11 @@ async function removerObjetoComIA() {
     setAviso("Envie uma imagem e pinte o objeto que deseja remover.");
     return;
   }
+
+  if (!creditosPublicosLiberados) {
+  setPopupComprarCreditosAberto(true);
+  return;
+}
 
   const canvasPintura = canvasRemoverObjetoRef.current;
   const ctxPintura = canvasPintura.getContext("2d", {
