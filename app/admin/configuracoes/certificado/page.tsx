@@ -4993,19 +4993,15 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-  const tamanhoAtual = tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
+  const tamanhoAtual = tamanhoSelecaoTexto || 18;
   const novoTamanho = Math.max(6, tamanhoAtual - 2);
-    setTamanhoSelecaoTexto(novoTamanho);
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    if (!temSelecaoTextoLivreSalva()) {
-      setMensagemErro("Selecione uma palavra ou trecho do texto antes de alterar apenas uma parte.");
-      return;
-    }
 
+  setTamanhoSelecaoTexto(novoTamanho);
+
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     aplicarEstiloTextoSelecionado({
       fontSize: `${novoTamanho}px`,
     });
-
     return;
   }
 
@@ -5035,19 +5031,15 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-  const tamanhoAtual = tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
+  const tamanhoAtual = tamanhoSelecaoTexto || 18;
   const novoTamanho = Math.min(120, tamanhoAtual + 2);
-    setTamanhoSelecaoTexto(novoTamanho);
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    if (!temSelecaoTextoLivreSalva()) {
-      setMensagemErro("Selecione uma palavra ou trecho do texto antes de alterar apenas uma parte.");
-      return;
-    }
 
+  setTamanhoSelecaoTexto(novoTamanho);
+
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     aplicarEstiloTextoSelecionado({
       fontSize: `${novoTamanho}px`,
     });
-
     return;
   }
 
