@@ -24,8 +24,14 @@ export default function RemovedorDeFundoClient() {
   const ultimoPontoPincelRef = useRef<{ x: number; y: number } | null>(null);
   const historicoEdicaoRef = useRef<string[]>([]);
   const espacoPressionadoRef = useRef(false);
+  const [espacoPressionado, setEspacoPressionado] = useState(false);
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  const [tamanhoPincel, setTamanhoPincel] = useState(24);
+
+  const canvasRemoverObjetoRef = useRef<HTMLCanvasElement | null>(null);
+  const pintandoObjetoRef = useRef(false);
 
   const toquePinchRef = useRef<{
   distancia: number;
@@ -59,6 +65,12 @@ export default function RemovedorDeFundoClient() {
   const [zoomOriginal, setZoomOriginal] = useState(1);
   const [panOriginal, setPanOriginal] = useState({ x: 0, y: 0 });
 
+  const [compradorCreditos, setCompradorCreditos] = useState({
+  nome: "",
+  email: "",
+  whatsapp: "",
+});
+
   const toqueOriginalRef = useRef<{
   x: number;
   y: number;
@@ -76,6 +88,7 @@ const pinchOriginalRef = useRef<{
   const [manterObjetoPrincipal, setManterObjetoPrincipal] = useState(false);
   const [removerBrancoInterno, setRemoverBrancoInterno] = useState(false);
   const [varinhaAtiva, setVarinhaAtiva] = useState(false);
+  const [toleranciaVarinha, setToleranciaVarinha] = useState(35);
 
   const [coresAlvoManuais, setCoresAlvoManuais] = useState<
     { r: number; g: number; b: number }[]
@@ -89,14 +102,21 @@ const pinchOriginalRef = useRef<{
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState("");
   const [aviso, setAviso] = useState<string | null>(null);
+  const [popupProcessandoIA, setPopupProcessandoIA] = useState(false);
+  const [progressoFakeIA, setProgressoFakeIA] = useState(0);
   const [mostrarAjuda, setMostrarAjuda] = useState(false);
   const [modalRefinamentoAberto, setModalRefinamentoAberto] = useState(false);
+  const [modalRemoverObjetoAberto, setModalRemoverObjetoAberto] = useState(false);
+  const [popupComprarCreditosAberto, setPopupComprarCreditosAberto] = useState(false);
+  const [comprandoPacote, setComprandoPacote] = useState<number | null>(null);
   const [pincelAtivo, setPincelAtivo] = useState(false);
   const [ferramentaPincel, setFerramentaPincel] = useState<FerramentaPincel>("apagar");
-  const [tamanhoPincel, setTamanhoPincel] = useState(24);
+  
   const [usarPressaoCaneta, setUsarPressaoCaneta] = useState(true);
   const [texturaPincel, setTexturaPincel] = useState<TexturaPincel>("medio");
   const [featherPincel, setFeatherPincel] = useState(0.45);
+
+  const [historicoMascaras, setHistoricoMascaras] = useState<ImageData[]>([]);
 
   const [mostrarLupa, setMostrarLupa] = useState(false);
 
@@ -135,18 +155,33 @@ const pinchOriginalRef = useRef<{
       return;
     }
 
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.src = url;
+    const reader = new FileReader();
 
-    img.onload = () => {
-      setDimensoesImagem({
-        largura: img.width,
-        altura: img.height,
-      });
+reader.onload = () => {
+  const dataUrl = String(reader.result || "");
 
-      setImagemOriginal(url);
-    };
+  const img = new Image();
+  img.src = dataUrl;
+
+  img.onload = () => {
+    setDimensoesImagem({
+      largura: img.width,
+      altura: img.height,
+    });
+
+    setImagemOriginal(dataUrl);
+  };
+
+  img.onerror = () => {
+    setErro("Não foi possível carregar essa imagem.");
+  };
+};
+
+reader.onerror = () => {
+  setErro("Não foi possível ler essa imagem.");
+};
+
+reader.readAsDataURL(file);
   }
 
   function pixelIndex(x: number, y: number, width: number) {
@@ -351,6 +386,20 @@ const pinchOriginalRef = useRef<{
 
     const pixel = tempCtx.getImageData(x, y, 1, 1).data;
 
+    if (varinhaAtiva) {
+  setCoresAlvoManuais([
+    {
+      r: pixel[0],
+      g: pixel[1],
+      b: pixel[2],
+    },
+  ]);
+
+  removerFundo();
+
+  return;
+}
+
     setCoresAlvoManuais((cores) => {
       const novaCor = {
         r: pixel[0],
@@ -359,9 +408,10 @@ const pinchOriginalRef = useRef<{
       };
 
       setModo("objeto");
-setRemoverBrancoInterno(true);
-setPontoVarinha({ x, y });
-setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa cor.");
+      setRemoverBrancoInterno(true);
+      setPontoVarinha({ x, y });
+      setVarinhaAtiva(false);
+      setAviso("Cor capturada. A varinha mágica vai remover tons parecidos com essa cor.");
 
       const jaExisteParecida = cores.some(
         (cor) =>
@@ -569,6 +619,9 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
     if (!imagemOriginal || !canvasRef.current) return;
 
     setProcessando(true);
+    setAviso(
+  "⏳ Aguarde enquanto removemos o objeto selecionado.\n\nSó mais um instante...\n\n✨ Últimos retoques..."
+);
     setErro("");
 
     try {
@@ -961,16 +1014,16 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
         const b = data[di + 2];
 
         const parecidoComFundo = coresBase.some((corBase) =>
-          pareceCorDoFundo(
-            r,
-            g,
-            b,
-            corBase.r,
-            corBase.g,
-            corBase.b,
-            sensibilidade
-          )
-        );
+  pareceCorDoFundo(
+    r,
+    g,
+    b,
+    corBase.r,
+    corBase.g,
+    corBase.b,
+    varinhaAtiva ? toleranciaVarinha : sensibilidade
+  )
+);
 
         if (parecidoComFundo) {
           remover[p] = 1;
@@ -1014,16 +1067,16 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
     const b = data[di + 2];
 
     const parecido = coresBase.some((corBase) =>
-      pareceCorDoFundo(
-        r,
-        g,
-        b,
-        corBase.r,
-        corBase.g,
-        corBase.b,
-        sensibilidade
-      )
-    );
+  pareceCorDoFundo(
+    r,
+    g,
+    b,
+    corBase.r,
+    corBase.g,
+    corBase.b,
+    varinhaAtiva ? toleranciaVarinha : sensibilidade
+  )
+);
 
     if (!parecido) continue;
 
@@ -1127,6 +1180,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
       if (e.code === "Space") {
   e.preventDefault();
   espacoPressionadoRef.current = true;
+  setEspacoPressionado(true);
   return;
 }
 
@@ -1179,10 +1233,12 @@ if (e.key.toLowerCase() === "x") {
     function soltarEspaco(e: KeyboardEvent) {
   if (e.code === "Space") {
     espacoPressionadoRef.current = false;
+    setEspacoPressionado(false);
   }
 }
 
 window.addEventListener("keyup", soltarEspaco);
+
 
     return () => {
       window.removeEventListener("keydown", controlarZoomPeloTeclado);
@@ -1192,34 +1248,31 @@ window.addEventListener("keyup", soltarEspaco);
   }, [imagemFinal]);
 
   useEffect(() => {
+  if (!modalRemoverObjetoAberto || !imagemOriginal || !canvasRemoverObjetoRef.current) return;
+
+  const img = new Image();
+  img.src = imagemOriginal;
+
+  img.onload = () => {
+    const canvas = canvasRemoverObjetoRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  };
+}, [modalRemoverObjetoAberto, imagemOriginal]);
+
+  useEffect(() => {
     if (zoomResultado <= 1) {
       setPanResultado({ x: 0, y: 0 });
     }
   }, [zoomResultado]);
-
-  useEffect(() => {
-    if (!imagemOriginal) return;
-
-    const timer = window.setTimeout(() => {
-      removerFundo();
-    }, 120);
-
-    return () => window.clearTimeout(timer);
-  }, [
-    imagemOriginal,
-    sensibilidade,
-    suavizacao,
-    brilho,
-    contraste,
-    saturacao,
-    opacidade,
-    intensidadeTraco,
-    modo,
-    motorPessoa,
-    manterObjetoPrincipal,
-    removerBrancoInterno,
-    coresAlvoManuais,
-  ]);
 
  function atualizarLupa(e: React.PointerEvent<HTMLImageElement>) {
   if (!canvasRef.current || !pincelAtivo) return;
@@ -1248,6 +1301,445 @@ window.addEventListener("keyup", soltarEspaco);
   });
 
   setMostrarLupa(true);
+}
+
+async function melhorarComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de usar a IA.");
+    return;
+  }
+
+  setProcessando(true);
+  setErro("");
+
+  try {
+    const resposta = await fetch("/api/ia/upscale", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageUrl: imagemOriginal,
+      }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
+        setPopupComprarCreditosAberto(true);
+        return;
+      }
+
+      setAviso(data.mensagem || "Não foi possível melhorar a imagem com IA.");
+      return;
+    }
+
+    setImagemOriginal(data.imagemUrl);
+    setImagemFinal(null);
+    setCoresAlvoManuais([]);
+    setPontoVarinha(null);
+    setZoomOriginal(1);
+    setPanOriginal({ x: 0, y: 0 });
+
+    setAviso(`Imagem original melhorada com IA. Agora clique em Remover fundo. Saldo restante: ${data.saldo}`);
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA.");
+  } finally {
+    setProcessando(false);
+  }
+}
+
+async function removerFundoComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de remover o fundo com IA.");
+    return;
+  }
+
+  setProcessando(true);
+  setErro("");
+
+  try {
+    const resposta = await fetch("/api/ia/remover-fundo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageUrl: imagemOriginal,
+        modo: "rapido",
+      }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
+        setPopupComprarCreditosAberto(true);
+        return;
+      }
+
+      setAviso(data.mensagem || "Não foi possível remover o fundo com IA.");
+      return;
+    }
+
+    setImagemFinal(data.imagemUrl);
+    setZoomResultado(1);
+    setPanResultado({ x: 0, y: 0 });
+
+    setAviso(`Fundo removido com IA. Saldo restante: ${data.saldo}`);
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA de remoção de fundo.");
+  } finally {
+    setProcessando(false);
+  }
+}
+
+async function recorteAvancadoComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de usar o recorte avançado.");
+    return;
+  }
+
+  setProcessando(true);
+  setErro("");
+
+  try {
+    const resposta = await fetch("/api/ia/remover-fundo", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageUrl: imagemOriginal,
+        modo: "avancado",
+      }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
+        setPopupComprarCreditosAberto(true);
+        return;
+      }
+
+      setAviso(data.mensagem || "Não foi possível fazer o recorte avançado.");
+      return;
+    }
+
+    setImagemFinal(data.imagemUrl);
+    setImagemBaseEdicao(data.imagemUrl);
+    setZoomResultado(1);
+    setPanResultado({ x: 0, y: 0 });
+
+    setAviso(`Recorte avançado concluído. Saldo restante: ${data.saldo}`);
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA de recorte avançado.");
+  } finally {
+    setProcessando(false);
+  }
+}
+
+async function recorteProfissionalComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de usar o recorte profissional.");
+    return;
+  }
+
+  setProcessando(true);
+  setErro("");
+
+  try {
+    const resposta = await fetch("/api/ia/recorte-profissional", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageUrl: imagemOriginal,
+      }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      if (data.error === "SEM_CREDITOS") {
+        setAviso("Você não possui créditos IA. Em breve abriremos a compra de créditos.");
+        return;
+      }
+
+      setAviso(data.mensagem || "Não foi possível fazer o recorte profissional.");
+      return;
+    }
+
+    setImagemFinal(data.imagemUrl);
+    setImagemBaseEdicao(data.imagemUrl);
+    setZoomResultado(1);
+    setPanResultado({ x: 0, y: 0 });
+
+    setAviso(`Recorte profissional concluído. Saldo restante: ${data.saldo}`);
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA de recorte profissional.");
+  } finally {
+    setProcessando(false);
+  }
+}
+
+function salvarHistoricoMascara() {
+  const canvas = canvasRemoverObjetoRef.current;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
+
+  const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  setHistoricoMascaras((prev) => [...prev.slice(-9), snapshot]);
+}
+
+function pintarMascaraObjeto(e: React.PointerEvent<HTMLCanvasElement>) {
+  if (!pincelAtivo || !canvasRemoverObjetoRef.current) return;
+
+  const canvas = canvasRemoverObjetoRef.current;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
+
+  const rect = canvas.getBoundingClientRect();
+
+  const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
+  const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+
+  ctx.fillStyle = "rgba(255, 0, 120, 0.65)";
+  ctx.beginPath();
+  ctx.arc(x, y, tamanhoPincel / 2, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function iniciarAvisoProcessamentoIA() {
+  const etapas = [
+    {
+      texto: "🔎 Analisando a área pintada...",
+      progresso: 15,
+    },
+    {
+      texto: "🧠 Reconstruindo o fundo com IA...",
+      progresso: 35,
+    },
+    {
+      texto: "🎨 Ajustando luz, sombras e detalhes...",
+      progresso: 55,
+    },
+    {
+      texto: "✨ Refinando acabamento...",
+      progresso: 75,
+    },
+    {
+      texto: "🌟 Últimos retoques...",
+      progresso: 92,
+    },
+  ];
+
+  setPopupProcessandoIA(true);
+  setAviso("⏳ Preparando remoção...");
+  setProgressoFakeIA(5);
+
+  let etapaAtual = 0;
+
+  const intervalo = window.setInterval(() => {
+    if (etapaAtual >= etapas.length) return;
+
+    setAviso(etapas[etapaAtual].texto);
+    setProgressoFakeIA(etapas[etapaAtual].progresso);
+
+    etapaAtual++;
+  }, 7000);
+
+  return intervalo;
+}
+
+async function removerObjetoComIA() {
+  if (!imagemOriginal || !canvasRemoverObjetoRef.current) {
+    setAviso("Envie uma imagem e pinte o objeto que deseja remover.");
+    return;
+  }
+
+  const canvasPintura = canvasRemoverObjetoRef.current;
+  const ctxPintura = canvasPintura.getContext("2d", {
+    willReadFrequently: true,
+  });
+
+  if (!ctxPintura) {
+    setAviso("Não foi possível ler a área pintada.");
+    return;
+  }
+
+  const imageData = ctxPintura.getImageData(
+    0,
+    0,
+    canvasPintura.width,
+    canvasPintura.height
+  );
+
+  const data = imageData.data;
+
+  const maskCanvas = document.createElement("canvas");
+  maskCanvas.width = canvasPintura.width;
+  maskCanvas.height = canvasPintura.height;
+
+  const maskCtx = maskCanvas.getContext("2d");
+  if (!maskCtx) return;
+
+  const maskData = maskCtx.createImageData(maskCanvas.width, maskCanvas.height);
+
+  let temPintura = false;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+
+    const ehRosa =
+      r > 180 &&
+      g < 90 &&
+      b > 90;
+
+    if (ehRosa) {
+      temPintura = true;
+
+      maskData.data[i] = 255;
+      maskData.data[i + 1] = 255;
+      maskData.data[i + 2] = 255;
+      maskData.data[i + 3] = 255;
+    } else {
+      maskData.data[i] = 0;
+      maskData.data[i + 1] = 0;
+      maskData.data[i + 2] = 0;
+      maskData.data[i + 3] = 255;
+    }
+  }
+
+  if (!temPintura) {
+    setAviso("Pinte primeiro o objeto que deseja remover.");
+    return;
+  }
+
+  maskCtx.putImageData(maskData, 0, 0);
+
+  const dilatarCanvas = document.createElement("canvas");
+dilatarCanvas.width = maskCanvas.width;
+dilatarCanvas.height = maskCanvas.height;
+
+const dilatarCtx = dilatarCanvas.getContext("2d");
+if (dilatarCtx) {
+  dilatarCtx.drawImage(maskCanvas, 0, 0);
+
+  maskCtx.filter = "blur(8px)";
+  maskCtx.drawImage(dilatarCanvas, 0, 0);
+  maskCtx.filter = "none";
+
+  const dilatada = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+
+  for (let i = 0; i < dilatada.data.length; i += 4) {
+    const valor = dilatada.data[i] > 8 ? 255 : 0;
+
+    dilatada.data[i] = valor;
+    dilatada.data[i + 1] = valor;
+    dilatada.data[i + 2] = valor;
+    dilatada.data[i + 3] = 255;
+  }
+
+  maskCtx.putImageData(dilatada, 0, 0);
+}
+
+  setProcessando(true);
+setErro("");
+
+const intervaloAviso = iniciarAvisoProcessamentoIA();
+  try {
+
+    const maskExpandida = document.createElement("canvas");
+maskExpandida.width = maskCanvas.width;
+maskExpandida.height = maskCanvas.height;
+
+const expandCtx = maskExpandida.getContext("2d");
+
+if (!expandCtx) {
+  throw new Error("Erro ao preparar máscara");
+}
+
+expandCtx.filter = "blur(10px)";
+expandCtx.drawImage(maskCanvas, 0, 0);
+
+    const resposta = await fetch("/api/ia/remover-objeto", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+     
+body: JSON.stringify({
+  imageUrl: imagemOriginal,
+  maskUrl: maskExpandida.toDataURL("image/png"),
+}),
+    });
+
+    const dataResposta = await resposta.json();
+
+    console.log("RESPOSTA IA:", dataResposta);
+
+    if (!resposta.ok) {
+      setPopupProcessandoIA(false);
+      if (dataResposta.error === "SEM_CREDITOS" || dataResposta.erro === "SEM_CREDITOS") {
+  setPopupProcessandoIA(false);
+  setPopupComprarCreditosAberto(true);
+  return;
+}
+
+      setAviso(
+    dataResposta.mensagem ||
+    "Não foi possível remover agora. Ajuste a área pintada ou tente pintar um pouco maior."
+);
+      return;
+    }
+
+    
+    setPopupProcessandoIA(false);
+    setProgressoFakeIA(100);
+    setImagemFinal(dataResposta.imagemUrl);
+
+const imgResultado = new Image();
+imgResultado.crossOrigin = "anonymous";
+
+imgResultado.onload = () => {
+  const canvas = canvasRemoverObjetoRef.current;
+  const ctx = canvas?.getContext("2d");
+
+  if (!canvas || !ctx) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(imgResultado, 0, 0, canvas.width, canvas.height);
+};
+
+imgResultado.src = dataResposta.imagemUrl;
+
+setPincelAtivo(true);
+setHistoricoMascaras([]);
+
+    setAviso(
+  "✅ Objeto removido com sucesso!\n\nVocê pode selecionar outro objeto e continuar editando."
+);
+  } catch (error) {
+    setPopupProcessandoIA(false);
+    console.error(error);
+    setAviso("Não foi possível conectar com a IA agora. Tente novamente em alguns segundos.");
+  } finally {
+    window.clearInterval(intervaloAviso);
+setProcessando(false);
+  }
 }
 
   function baixarImagem(tipo: DownloadTipo) {
@@ -1294,29 +1786,242 @@ window.addEventListener("keyup", soltarEspaco);
     link.click();
   }
 
+  function desfazerMascara() {
+  const canvas = canvasRemoverObjetoRef.current;
+  if (!canvas || historicoMascaras.length === 0) return;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  const ultimo = historicoMascaras[historicoMascaras.length - 1];
+
+  ctx.putImageData(ultimo, 0, 0);
+
+  setHistoricoMascaras((prev) => prev.slice(0, -1));
+}
+
+function resetarMascara() {
+  const canvas = canvasRemoverObjetoRef.current;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (imagemOriginal) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    };
+    img.src = imagemOriginal;
+  }
+
+  setHistoricoMascaras([]);
+}
+
+async function comprarPacoteCreditos(quantidade: number) {
+  if (!compradorCreditos.nome.trim()) {
+    setAviso("Informe seu nome para comprar créditos IA.");
+    return;
+  }
+
+  if (!compradorCreditos.email.trim()) {
+    setAviso("Informe seu e-mail para receber seus créditos IA.");
+    return;
+  }
+
+  try {
+    setComprandoPacote(quantidade);
+
+    const resposta = await fetch("/api/ia/creditos/comprar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        pacoteId: String(quantidade),
+        nome: compradorCreditos.nome,
+        email: compradorCreditos.email,
+        whatsapp: compradorCreditos.whatsapp,
+      }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      setAviso(data?.erro || data?.error || "Erro ao iniciar pagamento.");
+      return;
+    }
+
+    const urlPagamento =
+      data.checkoutUrl ||
+      data.invoiceUrl ||
+      data.pagamento?.invoiceUrl ||
+      data.pagamento?.bankSlipUrl;
+
+    if (!urlPagamento) {
+      setAviso("Pagamento criado, mas o link do Asaas não foi encontrado.");
+      return;
+    }
+
+    window.open(urlPagamento, "_blank");
+  } catch {
+    setAviso("Erro ao iniciar pagamento.");
+  } finally {
+    setComprandoPacote(null);
+  }
+}
+
   return (
     <>
-      {aviso && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
-          <div className="max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl">
-            <h2 className="text-2xl font-black text-cyan-200">
-              Aviso PHANYX
-            </h2>
 
-            <p className="mt-3 text-sm leading-relaxed text-slate-200">
-              {aviso}
+{popupComprarCreditosAberto && (
+  <div className="fixed inset-0 z-[600] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+    <div className="w-full max-w-3xl rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-white shadow-2xl shadow-cyan-500/20">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-black text-cyan-200">
+            Comprar créditos IA PHANYX
+          </h2>
+          <p className="mt-2 text-sm text-slate-300">
+            Escolha um pacote para continuar usando as ferramentas de IA.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setPopupComprarCreditosAberto(false)}
+          className="rounded-full bg-slate-800 px-3 py-1 font-black text-white hover:bg-slate-700"
+        >
+          ✕
+        </button>
+      </div>
+
+<div className="mt-6 grid gap-3 md:grid-cols-3">
+  <input
+    type="text"
+    value={compradorCreditos.nome}
+    onChange={(e) =>
+      setCompradorCreditos((atual) => ({
+        ...atual,
+        nome: e.target.value,
+      }))
+    }
+    placeholder="Seu nome"
+    className="rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+  />
+
+  <input
+    type="email"
+    value={compradorCreditos.email}
+    onChange={(e) =>
+      setCompradorCreditos((atual) => ({
+        ...atual,
+        email: e.target.value,
+      }))
+    }
+    placeholder="Seu e-mail"
+    className="rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+  />
+
+  <input
+    type="text"
+    value={compradorCreditos.whatsapp}
+    onChange={(e) =>
+      setCompradorCreditos((atual) => ({
+        ...atual,
+        whatsapp: e.target.value,
+      }))
+    }
+    placeholder="WhatsApp"
+    className="rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+  />
+</div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        {[
+          { quantidade: 5, preco: "R$ 19,90", destaque: "Para testar" },
+          { quantidade: 15, preco: "R$ 49,90", destaque: "Mais escolhido" },
+          { quantidade: 50, preco: "R$ 129,90", destaque: "Melhor custo" },
+        ].map((pacote) => (
+          <div
+            key={pacote.quantidade}
+            className="rounded-3xl border border-cyan-400/20 bg-slate-900 p-5 text-center"
+          >
+            <p className="text-xs font-bold uppercase tracking-widest text-cyan-300">
+              {pacote.destaque}
+            </p>
+
+            <h3 className="mt-3 text-3xl font-black text-white">
+              {pacote.quantidade}
+            </h3>
+
+            <p className="text-sm text-slate-300">créditos IA</p>
+
+            <p className="mt-4 text-2xl font-black text-cyan-200">
+              {pacote.preco}
             </p>
 
             <button
               type="button"
-              onClick={() => setAviso(null)}
-              className="mt-6 rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/30 hover:bg-cyan-300"
+              disabled={comprandoPacote === pacote.quantidade}
+              onClick={() => comprarPacoteCreditos(pacote.quantidade)}
+              className="mt-5 w-full rounded-2xl bg-cyan-400 px-4 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/20 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Entendi
+              {comprandoPacote === pacote.quantidade
+                ? "Abrindo pagamento..."
+                : "Comprar agora"}
             </button>
           </div>
+        ))}
+      </div>
+    </div>
+  </div>
+)}
+
+      {aviso && (
+  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl shadow-cyan-500/20">
+      <h2 className="text-2xl font-black text-cyan-200">
+        Aviso PHANYX
+      </h2>
+
+      {popupProcessandoIA && (
+        <div className="mx-auto mt-5 h-12 w-12 animate-spin rounded-full border-4 border-cyan-400/20 border-t-cyan-300" />
+      )}
+
+      <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-slate-200">
+        {aviso}
+      </p>
+
+      {popupProcessandoIA && (
+        <div className="mt-5">
+          <div className="h-3 overflow-hidden rounded-full bg-slate-800">
+            <div
+              className="h-full rounded-full bg-cyan-400 transition-all duration-700"
+              style={{ width: `${progressoFakeIA}%` }}
+            />
+          </div>
+
+          <p className="mt-2 text-xs font-bold text-cyan-200">
+            {progressoFakeIA}%
+          </p>
         </div>
       )}
+
+      {!popupProcessandoIA && (
+        <button
+          type="button"
+          onClick={() => setAviso(null)}
+          className="mt-6 rounded-2xl bg-cyan-400 px-6 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/30 hover:bg-cyan-300"
+        >
+          Entendi
+        </button>
+      )}
+    </div>
+  </div>
+)}
 
       {mostrarAjuda && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
@@ -1694,7 +2399,11 @@ onTouchEnd={() => {
               }}
               className="flex touch-none min-h-0 flex-1 select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0] p-6"
               style={{
-                cursor: pincelAtivo ? "crosshair" : "grab",
+                cursor: espacoPressionado
+                ? "grabbing"
+                : pincelAtivo
+                ? "crosshair"
+                : "grab",
               }}
             >
               <img
@@ -1733,6 +2442,188 @@ onTouchEnd={() => {
           </div>
         </div>
       )}
+
+{modalRemoverObjetoAberto && (
+  <div className="fixed inset-0 z-[300] overflow-y-auto bg-black/80 p-4 backdrop-blur-sm">
+    <div className="mx-auto flex min-h-[calc(100vh-32px)] max-w-7xl flex-col rounded-3xl border border-cyan-500/30 bg-slate-950 shadow-2xl">
+
+      <div className="flex items-center justify-between border-b border-cyan-500/20 p-6">
+        <div>
+          <h2 className="text-3xl font-black text-cyan-200">
+            🧽 Remover objeto com IA
+          </h2>
+          <p className="mt-2 text-slate-300">
+            Pinte exatamente o objeto que deseja apagar.
+            A IA reconstruirá o fundo automaticamente.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setModalRemoverObjetoAberto(false)}
+          className="rounded-2xl bg-red-500 px-5 py-3 font-black text-white"
+        >
+          Fechar
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+
+          <div className="rounded-3xl border border-slate-700 bg-slate-900 p-4">
+            <h3 className="mb-4 text-xl font-black text-white">
+              Imagem original
+            </h3>
+
+            <div className="flex max-h-[70vh] min-h-[360px] items-start justify-center overflow-auto rounded-2xl bg-slate-950 p-4">
+              {imagemOriginal && (
+                <img
+                  src={imagemOriginal}
+                  alt="Original"
+                  className="h-auto max-w-full rounded-2xl object-contain"
+                />
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-slate-700 bg-slate-900 p-4">
+            <h3 className="mb-4 text-xl font-black text-white">
+              Área de pintura
+            </h3>
+
+            <div className="flex h-full items-center justify-center rounded-2xl bg-slate-950">
+              <canvas
+  ref={canvasRemoverObjetoRef}
+  onPointerDown={(e) => {
+    if (!pincelAtivo) return;
+    salvarHistoricoMascara();
+    pintandoObjetoRef.current = true;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    pintarMascaraObjeto(e);
+  }}
+  onPointerMove={(e) => {
+    if (!pintandoObjetoRef.current) return;
+    pintarMascaraObjeto(e);
+  }}
+  onPointerUp={() => {
+    pintandoObjetoRef.current = false;
+  }}
+  onPointerLeave={() => {
+    pintandoObjetoRef.current = false;
+  }}
+  className="h-auto max-w-full rounded-2xl border border-cyan-500"
+  style={{
+    cursor: pincelAtivo ? "crosshair" : "default",
+  }}
+/>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+<div className="mb-4 rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-4">
+  <div className="mb-2 flex items-center justify-between">
+    <span className="text-sm font-black text-cyan-100">
+      Tamanho do pincel
+    </span>
+    <span className="rounded-xl bg-slate-800 px-3 py-1 text-xs font-black text-cyan-200">
+      {tamanhoPincel}px
+    </span>
+  </div>
+
+  <input
+    type="range"
+    min={18}
+    max={180}
+    value={tamanhoPincel}
+    onChange={(e) => setTamanhoPincel(Number(e.target.value))}
+    className="w-full accent-cyan-400"
+  />
+</div>
+
+      <div className="border-t border-cyan-500/20 p-6">
+        <div className="flex flex-wrap gap-4 justify-center mt-6">
+  <button
+    onClick={() => setPincelAtivo(!pincelAtivo)}
+    className="rounded-2xl bg-cyan-500 px-6 py-3 font-black text-black"
+  >
+    {pincelAtivo ? "Desligar pincel" : "Ligar pincel"}
+  </button>
+
+  <button
+    onClick={desfazerMascara}
+    className="rounded-2xl bg-slate-700 px-6 py-3 font-black text-white"
+  >
+    Desfazer
+  </button>
+
+  <button
+    onClick={resetarMascara}
+    className="rounded-2xl bg-orange-500 px-6 py-3 font-black text-black"
+  >
+    Resetar
+  </button>
+
+  <button
+    onClick={removerObjetoComIA}
+    disabled={processando}
+    className="rounded-2xl bg-pink-500 px-6 py-3 font-black text-white disabled:opacity-50"
+  >
+    {processando ? "Removendo..." : "✨ Remover objeto com IA"}
+  </button>
+</div>
+      </div>
+    </div>
+  </div>
+)}
+
+{popupComprarCreditosAberto && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-6">
+    <div className="w-full max-w-2xl rounded-3xl border border-cyan-500/30 bg-slate-950 p-8 shadow-2xl">
+      <h2 className="text-center text-4xl font-black text-cyan-300">
+        Créditos IA PHANYX
+      </h2>
+
+      <p className="mt-4 text-center text-slate-300">
+        Seus créditos acabaram. Escolha um pacote:
+      </p>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
+        {[
+          { qtd: 5, valor: "R$ 19,90" },
+          { qtd: 15, valor: "R$ 49,90" },
+          { qtd: 50, valor: "R$ 129,90" },
+        ].map((pacote) => (
+          <button
+            key={pacote.qtd}
+            onClick={() => comprarPacoteCreditos(pacote.qtd)}
+            disabled={comprandoPacote !== null}
+            className="rounded-2xl border border-cyan-400/30 bg-slate-900 p-6 transition hover:scale-105 hover:border-cyan-300"
+          >
+            <div className="text-3xl font-black text-cyan-300">
+              {pacote.qtd}
+            </div>
+
+            <div className="mt-2 text-slate-300">
+              créditos IA
+            </div>
+
+            <div className="mt-4 text-2xl font-bold text-white">
+              {pacote.valor}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={() => setPopupComprarCreditosAberto(false)}
+        className="mt-8 w-full rounded-2xl bg-slate-800 py-4 font-bold text-white"
+      >
+        Fechar
+      </button>
+    </div>
+  </div>
+)}
 
 <CropImageModal
   imagem={imagemOriginal || ""}
@@ -1793,6 +2684,86 @@ onTouchEnd={() => {
   Cortar imagem
 </button>
 
+<div className="rounded-2xl border border-violet-400/30 bg-slate-900 p-3">
+  <h3 className="mb-2 text-center text-sm font-black text-violet-200">
+    ✨ IA PHANYX
+  </h3>
+
+  <div className="space-y-2">
+    <button
+      type="button"
+      disabled={!imagemOriginal || processando}
+      onClick={melhorarComIA}
+      className="w-full rounded-xl bg-violet-500 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+    >
+      ✨ Melhorar imagem
+    </button>
+
+    <button
+      type="button"
+      disabled={!imagemOriginal || processando}
+      onClick={() =>
+  setAviso("A restauração de foto será ativada com um modelo próprio. O botão Melhorar imagem agora será ajustado para preservar rostos.")
+}
+      className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+    >
+      🧼 Restaurar foto
+    </button>
+
+    <button
+      type="button"
+      disabled={!imagemOriginal || processando}
+      onClick={() =>
+  setAviso("O aumento de resolução 2x será ativado com um modelo próprio para ampliar sem recriar pessoas.")
+}
+      className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+    >
+      ⬆️ Aumentar resolução 2x
+    </button>
+
+<button
+  type="button"
+  disabled={!imagemOriginal || processando}
+  onClick={removerFundoComIA}
+  className="w-full rounded-xl bg-cyan-500 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+>
+  🧠 Remover fundo com IA
+</button>
+
+<button
+  type="button"
+  disabled={!imagemOriginal || processando}
+  onClick={recorteAvancadoComIA}
+  className="w-full rounded-xl bg-emerald-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+>
+  🧠 Recorte avançado
+</button>
+
+<button
+  type="button"
+  disabled={!imagemOriginal || processando}
+  onClick={recorteProfissionalComIA}
+  className="w-full rounded-xl bg-yellow-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+>
+  💎 Recorte profissional
+</button>
+
+<button
+  type="button"
+  disabled={!imagemOriginal || processando}
+  onClick={() => setModalRemoverObjetoAberto(true)}
+  className="w-full rounded-xl bg-rose-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+>
+  🧽 Remover objeto
+</button>
+
+  </div>
+
+  <p className="mt-2 text-center text-[10px] leading-tight text-violet-100/80">
+    Usa créditos IA. Melhore a imagem antes de remover o fundo.
+  </p>
+</div>
+
 <button
   type="button"
   disabled={!imagemOriginal}
@@ -1810,6 +2781,29 @@ onTouchEnd={() => {
 >
   🪄 Varinha mágica
 </button>
+
+{varinhaAtiva && (
+  <div className="rounded-2xl bg-slate-900 p-3">
+    <p className="mb-2 text-xs font-black text-cyan-100">
+      Sensibilidade da varinha
+    </p>
+
+    <input
+      type="range"
+      min={5}
+      max={100}
+      value={toleranciaVarinha}
+      onChange={(e) =>
+        setToleranciaVarinha(Number(e.target.value))
+      }
+      className="w-full accent-cyan-400"
+    />
+
+    <p className="mt-2 text-[10px] text-slate-300">
+      Valor atual: {toleranciaVarinha}
+    </p>
+  </div>
+)}
 
               <div className="rounded-2xl bg-slate-900 p-3">
                 <h3 className="mb-2 text-sm font-bold">Modo</h3>

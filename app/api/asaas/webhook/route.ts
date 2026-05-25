@@ -96,6 +96,56 @@ export async function POST(req: Request) {
       asaasCheckoutId,
     } = obterReferencia(body);
 
+    // 🚀 CRÉDITOS IA
+if (
+  (event === "PAYMENT_RECEIVED" ||
+    event === "PAYMENT_CONFIRMED" ||
+    event === "PAYMENT_AUTHORIZED") &&
+  externalReference?.startsWith("CREDITOS_IA:")
+) {
+  try {
+    const partes = externalReference.split(":");
+
+    const userId = Number(partes[1]);
+    const creditos = Number(partes[2]);
+
+    if (!userId || !creditos) {
+      console.error("Webhook créditos IA inválido:", externalReference);
+      return NextResponse.json({ ok: true });
+    }
+
+    await prisma.creditoIA.upsert({
+  where: {
+    userId,
+  },
+  update: {
+    saldo: {
+      increment: creditos,
+    },
+  },
+  create: {
+    userId,
+    saldo: creditos,
+  },
+});
+
+    console.log(
+      `✅ Créditos IA adicionados | usuário ${userId} | +${creditos}`
+    );
+
+    return NextResponse.json({
+      ok: true,
+      creditosAdicionados: true,
+    });
+  } catch (error) {
+    console.error("Erro webhook créditos IA:", error);
+
+    return NextResponse.json({
+      ok: true,
+    });
+  }
+}
+
     // 🚀 BLOCO — MATRÍCULA IBE
 if (externalReference?.startsWith("IBE_MATRICULA_")) {
   console.log("🎓 Pagamento de matrícula IBE detectado");
