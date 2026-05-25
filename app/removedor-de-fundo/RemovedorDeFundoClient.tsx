@@ -28,6 +28,8 @@ export default function RemovedorDeFundoClient() {
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [pacoteCheckout, setPacoteCheckout] = useState<number | null>(null);
+
   const [menuIAAberto, setMenuIAAberto] = useState(false);
 
   const [tamanhoPincel, setTamanhoPincel] = useState(24);
@@ -1926,47 +1928,6 @@ async function comprarPacoteCreditos(quantidade: number) {
         </button>
       </div>
 
-<div className="mt-6 grid gap-3 md:grid-cols-3">
-  <input
-    type="text"
-    value={compradorCreditos.nome}
-    onChange={(e) =>
-      setCompradorCreditos((atual) => ({
-        ...atual,
-        nome: e.target.value,
-      }))
-    }
-    placeholder="Seu nome"
-    className="rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-  />
-
-  <input
-    type="email"
-    value={compradorCreditos.email}
-    onChange={(e) =>
-      setCompradorCreditos((atual) => ({
-        ...atual,
-        email: e.target.value,
-      }))
-    }
-    placeholder="Seu e-mail"
-    className="rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-  />
-
-  <input
-    type="text"
-    value={compradorCreditos.whatsapp}
-    onChange={(e) =>
-      setCompradorCreditos((atual) => ({
-        ...atual,
-        whatsapp: e.target.value,
-      }))
-    }
-    placeholder="WhatsApp"
-    className="rounded-2xl border border-cyan-400/20 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
-  />
-</div>
-
       <div className="mt-6 grid gap-4 md:grid-cols-3">
         {[
   {
@@ -2031,7 +1992,7 @@ async function comprarPacoteCreditos(quantidade: number) {
             <button
               type="button"
               disabled={comprandoPacote === pacote.quantidade}
-              onClick={() => comprarPacoteCreditos(pacote.quantidade)}
+              onClick={() => setPacoteCheckout(pacote.quantidade)}
               className="mt-5 w-full rounded-2xl bg-cyan-400 px-4 py-3 font-black text-slate-950 shadow-lg shadow-cyan-400/20 hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {comprandoPacote === pacote.quantidade
@@ -2040,10 +2001,73 @@ async function comprarPacoteCreditos(quantidade: number) {
             </button>
           </div>
         ))}
+
+{pacoteCheckout && (
+  <div className="mt-6 rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
+    <h3 className="text-lg font-black text-cyan-200">
+      Finalizar compra — {pacoteCheckout} créditos IA
+    </h3>
+
+    <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <input
+        type="text"
+        value={compradorCreditos.nome}
+        onChange={(e) =>
+          setCompradorCreditos((atual) => ({
+            ...atual,
+            nome: e.target.value,
+          }))
+        }
+        placeholder="Seu nome"
+        className="rounded-2xl border border-cyan-400/20 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+      />
+
+      <input
+        type="email"
+        value={compradorCreditos.email}
+        onChange={(e) =>
+          setCompradorCreditos((atual) => ({
+            ...atual,
+            email: e.target.value,
+          }))
+        }
+        placeholder="Seu e-mail"
+        className="rounded-2xl border border-cyan-400/20 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+      />
+
+      <input
+        type="text"
+        value={compradorCreditos.whatsapp}
+        onChange={(e) =>
+          setCompradorCreditos((atual) => ({
+            ...atual,
+            whatsapp: e.target.value,
+          }))
+        }
+        placeholder="WhatsApp"
+        className="rounded-2xl border border-cyan-400/20 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
+      />
+    </div>
+
+    <button
+      type="button"
+      disabled={comprandoPacote === pacoteCheckout}
+      onClick={() => comprarPacoteCreditos(pacoteCheckout)}
+      className="mt-4 w-full rounded-2xl bg-cyan-400 px-4 py-3 font-black text-slate-950 hover:bg-cyan-300 disabled:opacity-60"
+    >
+      {comprandoPacote === pacoteCheckout
+        ? "Abrindo pagamento..."
+        : "Ir para pagamento Asaas"}
+    </button>
+  </div>
+)}
+
       </div>
     </div>
   </div>
 )}
+
+
 
       {aviso && (
   <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
@@ -2648,12 +2672,13 @@ async function comprarPacoteCreditos(quantidade: number) {
       </button>
 
       <button
-        type="button"
-        disabled={!imagemOriginal || processando}
-        className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
-      >
-        🌸 Restaurar foto
-      </button>
+  type="button"
+  disabled={!imagemOriginal || processando}
+  onClick={melhorarComIA}
+  className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+>
+  🌸 Restaurar foto
+</button>
 
       <button
         type="button"
