@@ -1304,11 +1304,23 @@ window.addEventListener("keyup", soltarEspaco);
   setMostrarLupa(true);
 }
 
+function podeUsarIAAgora() {
+  if (!creditosPublicosLiberados) {
+    setPopupComprarCreditosAberto(true);
+    return false;
+  }
+
+  return true;
+}
+
 async function melhorarComIA() {
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de usar a IA.");
     return;
   }
+
+  if (!podeUsarIAAgora()) return;
 
   setProcessando(true);
   setErro("");
@@ -1353,10 +1365,13 @@ async function melhorarComIA() {
 }
 
 async function removerFundoComIA() {
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de remover o fundo com IA.");
     return;
   }
+
+  if (!podeUsarIAAgora()) return;
 
   setProcessando(true);
   setErro("");
@@ -1399,10 +1414,13 @@ async function removerFundoComIA() {
 }
 
 async function recorteAvancadoComIA() {
+
   if (!imagemOriginal) {
-    setAviso("Envie uma imagem antes de usar o recorte avançado.");
-    return;
-  }
+  setAviso("Envie uma imagem antes de usar o recorte avançado.");
+  return;
+}
+
+if (!podeUsarIAAgora()) return;
 
   setProcessando(true);
   setErro("");
@@ -1451,6 +1469,8 @@ async function recorteProfissionalComIA() {
     return;
   }
 
+  if (!podeUsarIAAgora()) return;
+
   setProcessando(true);
   setErro("");
 
@@ -1468,8 +1488,8 @@ async function recorteProfissionalComIA() {
     const data = await resposta.json();
 
     if (!resposta.ok) {
-      if (data.error === "SEM_CREDITOS") {
-        setAviso("Você não possui créditos IA. Em breve abriremos a compra de créditos.");
+      if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
+        setPopupComprarCreditosAberto(true);
         return;
       }
 
@@ -1565,14 +1585,12 @@ function iniciarAvisoProcessamentoIA() {
 
 async function removerObjetoComIA() {
   if (!imagemOriginal || !canvasRemoverObjetoRef.current) {
-    setAviso("Envie uma imagem e pinte o objeto que deseja remover.");
-    return;
-  }
-
-  if (!creditosPublicosLiberados) {
-  setPopupComprarCreditosAberto(true);
+  setAviso("Envie uma imagem e pinte o objeto que deseja remover.");
   return;
 }
+
+if (!podeUsarIAAgora()) return;
+
 
   const canvasPintura = canvasRemoverObjetoRef.current;
   const ctxPintura = canvasPintura.getContext("2d", {
