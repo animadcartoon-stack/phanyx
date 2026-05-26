@@ -1382,16 +1382,18 @@ function temSelecaoTextoLivreSalva() {
 }
 
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
+  const info = selecaoTextoInfoRef.current;
+
+  if (!info || info.campoId !== campoSelecionadoId || info.fim <= info.inicio) {
+    return;
+  }
+
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
   ) as HTMLElement | null;
 
   if (!editor) return;
 
-  const selecao = window.getSelection();
-const info = selecaoTextoInfoRef.current;
-
-if (info && info.campoId === campoSelecionadoId) {
   const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
 
   let atual = 0;
@@ -1417,29 +1419,11 @@ if (info && info.campoId === campoSelecionadoId) {
     atual += tamanho;
   }
 
-  if (inicioNode && fimNode) {
-    const novoRange = document.createRange();
-    novoRange.setStart(inicioNode, inicioOffset);
-    novoRange.setEnd(fimNode, fimOffset);
+  if (!inicioNode || !fimNode) return;
 
-    selecao?.removeAllRanges();
-    selecao?.addRange(novoRange);
-
-    selecaoTextoRef.current = novoRange.cloneRange();
-  }
-}
-
-  const selecaoAtual = window.getSelection();
-
-  if (
-    !selecaoAtual ||
-    selecaoAtual.rangeCount === 0 ||
-    !selecaoAtual.toString().trim()
-  ) {
-    return;
-  }
-
-  const range = selecaoAtual.getRangeAt(0);
+  const range = document.createRange();
+  range.setStart(inicioNode, inicioOffset);
+  range.setEnd(fimNode, fimOffset);
 
   const span = document.createElement("span");
   Object.assign(span.style, estilo);
@@ -1448,26 +1432,35 @@ if (info && info.campoId === campoSelecionadoId) {
   span.appendChild(conteudo);
   range.insertNode(span);
 
+  const novoInicio = info.inicio;
+  const novoFim = info.inicio + span.innerText.length;
+
+  selecaoTextoInfoRef.current = {
+    campoId: info.campoId,
+    inicio: novoInicio,
+    fim: novoFim,
+  };
+
+  const novaSelecao = window.getSelection();
   const novoRange = document.createRange();
   novoRange.selectNodeContents(span);
 
-  selecaoAtual.removeAllRanges();
-  selecaoAtual.addRange(novoRange);
+  novaSelecao?.removeAllRanges();
+  novaSelecao?.addRange(novoRange);
 
   selecaoTextoRef.current = novoRange.cloneRange();
 
   setCampos((prev) =>
-  prev.map((campo) =>
-    campo.id === campoSelecionadoId
-      ? {
-          ...campo,
-          texto: editor.innerText,
-          textoHtml: editor.innerHTML,
-          
-        }
-      : campo
-  )
-);
+    prev.map((campo) =>
+      campo.id === campoSelecionadoId
+        ? {
+            ...campo,
+            texto: editor.innerText,
+            textoHtml: editor.innerHTML,
+          }
+        : campo
+    )
+  );
 }
 
 function temSelecaoTextoLivreAtiva() {
