@@ -1880,9 +1880,18 @@ async function comprarPacoteCreditos(quantidade: number) {
     const data = await resposta.json();
 
     if (!resposta.ok) {
-      setAviso(data?.erro || data?.error || "Erro ao iniciar pagamento.");
-      return;
-    }
+  console.log("ERRO ASAAS:", data);
+
+  setAviso(
+    data?.detalhes?.errors?.[0]?.description ||
+      data?.detalhes?.message ||
+      data?.erro ||
+      data?.error ||
+      "Erro ao iniciar pagamento."
+  );
+
+  return;
+}
 
     const urlPagamento =
       data.checkoutUrl ||

@@ -66,6 +66,7 @@ type CampoCertificado = {
     texto?: string | null;
 textoHtml?: string | null;
 textoTipo?: "TITULO" | "TEXTO" | null;
+bloqueado?: boolean | null;
 
 crop?: {
   top: number;
@@ -1491,6 +1492,12 @@ function aplicarEstiloTextoOuCampoInteiro(
   event: MouseEvent<HTMLDivElement>,
   campo: CampoCertificado
 ) {
+
+  if (campo.bloqueado) {
+  setCampoSelecionadoId(campo.id);
+  setCamposSelecionadosIds([campo.id]);
+  return;
+}
   const rect = event.currentTarget.getBoundingClientRect();
 
   const idsDoGrupo = campo.grupoId
@@ -2181,6 +2188,23 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
 
 <button
   type="button"
+  disabled={!campoSelecionado}
+  onClick={() => {
+    if (!campoSelecionado) return;
+
+    atualizarCampoLocal("bloqueado", !campoSelecionado.bloqueado);
+  }}
+  className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+    campoSelecionado?.bloqueado
+      ? "bg-yellow-300 text-slate-900"
+      : "bg-white/20 text-white border border-white/30 hover:bg-white/30"
+  }`}
+>
+  {campoSelecionado?.bloqueado ? "🔒 Bloqueado" : "🔓 Livre"}
+</button>
+
+<button
+  type="button"
   onClick={() => setModoMao((prev) => !prev)}
   className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
   modoMao
@@ -2386,6 +2410,45 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
                     campo.
                   </p>
                 </div>
+
+<div className="mt-4 rounded-2xl border border-blue-200 bg-white p-3">
+  <h3 className="mb-2 text-xs font-bold uppercase text-blue-700">
+    Elementos em cena
+  </h3>
+
+  <div className="space-y-2">
+    {campos
+      .slice()
+      .sort((a, b) => (b.ordem || 0) - (a.ordem || 0))
+      .map((campo, index) => (
+        <button
+          key={campo.id}
+          type="button"
+          onClick={() => {
+            setCampoSelecionadoId(campo.id);
+            setCamposSelecionadosIds([campo.id]);
+          }}
+          className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-xs ${
+            campoSelecionadoId === campo.id
+              ? "border-blue-600 bg-blue-50 text-blue-700"
+              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+          }`}
+        >
+          <span>
+            {campo.tipo === "IMAGEM"
+              ? `Imagem ${index + 1}`
+              : campo.tipo === "FORMA"
+              ? `Forma ${index + 1}`
+              : campo.tipo === "TEXTO_LIVRE"
+              ? `Texto ${index + 1}`
+              : campo.tipo}
+          </span>
+
+          <span>{campo.bloqueado ? "🔒" : "🔓"}</span>
+        </button>
+      ))}
+  </div>
+</div>
 
                 <button
                   type="button"
@@ -4993,15 +5056,14 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-  const tamanhoAtual = tamanhoSelecaoTexto || 18;
-  const novoTamanho = Math.max(6, tamanhoAtual - 2);
-
+  const novoTamanho = Math.max(6, (tamanhoSelecaoTexto || 18) - 2);
   setTamanhoSelecaoTexto(novoTamanho);
 
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     aplicarEstiloTextoSelecionado({
       fontSize: `${novoTamanho}px`,
     });
+
     return;
   }
 
@@ -5031,15 +5093,14 @@ onClick={() =>
   e.stopPropagation();
 }}
     onClick={() => {
-  const tamanhoAtual = tamanhoSelecaoTexto || 18;
-  const novoTamanho = Math.min(120, tamanhoAtual + 2);
-
+  const novoTamanho = Math.min(120, (tamanhoSelecaoTexto || 18) + 2);
   setTamanhoSelecaoTexto(novoTamanho);
 
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     aplicarEstiloTextoSelecionado({
       fontSize: `${novoTamanho}px`,
     });
+
     return;
   }
 
