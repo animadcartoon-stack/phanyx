@@ -564,7 +564,7 @@ function gerarPontosEstrela(
   const [modoAmplo, setModoAmplo] = useState(false);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [abaLateral, setAbaLateral] = useState<"campos" | "cena">("campos");
-  const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(true);
+  const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(false);
 
   const [menuCamada, setMenuCamada] = useState<{
   x: number;
@@ -2500,7 +2500,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   )}
 </div>
 
-<div className="mt-4 border border-slate-300 bg-white">
+<div className="mt-3 border border-slate-300 bg-white">
   <div className="border-b border-slate-300 px-2 py-1">
     <h3 className="text-xs font-bold uppercase text-slate-700">
       CENA
