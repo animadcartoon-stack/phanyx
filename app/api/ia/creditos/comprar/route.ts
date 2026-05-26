@@ -78,6 +78,7 @@ const linkResposta = await fetch(`${baseUrl}/paymentLinks`, {
   name: pacote.descricao,
   description: pacote.descricao,
   value: pacote.valor,
+  billingType: "UNDEFINED",
   chargeType: "DETACHED",
   dueDateLimitDays: 1,
   externalReference,
