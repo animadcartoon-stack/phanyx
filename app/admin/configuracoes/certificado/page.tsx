@@ -63,10 +63,11 @@ type CampoCertificado = {
   cor2?: string | null;
   usarGradiente?: boolean | null;
   direcaoGradiente?: string | null;
-    texto?: string | null;
-textoHtml?: string | null;
-textoTipo?: "TITULO" | "TEXTO" | null;
-bloqueado?: boolean | null;
+  texto?: string | null;
+  textoHtml?: string | null;
+  textoTipo?: "TITULO" | "TEXTO" | null;
+  bloqueado?: boolean | null;
+  nomeCamada?: string | null;
 
 crop?: {
   top: number;
@@ -564,11 +565,17 @@ function gerarPontosEstrela(
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
   const [abaLateral, setAbaLateral] = useState<"campos" | "cena">("campos");
   const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(true);
+
   const [menuCamada, setMenuCamada] = useState<{
   x: number;
   y: number;
   campoId: number;
 } | null>(null);
+
+  const [camadaArrastandoId, setCamadaArrastandoId] = useState<number | null>(null);
+  const [camadaRenomeandoId, setCamadaRenomeandoId] = useState<number | null>(null);
+  const [nomeCamadaEditando, setNomeCamadaEditando] = useState("");
+
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
   const [secaoAberta, setSecaoAberta] = useState<string | null>(null);
@@ -1492,6 +1499,75 @@ function aplicarEstiloTextoOuCampoInteiro(
   }
 
   atualizarCampoLocal(chave as any, valor);
+}
+
+function nomeDaCamada(campo: CampoCertificado, index: number) {
+  if (campo.nomeCamada?.trim()) return campo.nomeCamada;
+
+  if (campo.tipo === "TEXTO_LIVRE") return `Texto ${index + 1}`;
+  if (campo.tipo === "IMAGEM") return `Imagem ${index + 1}`;
+  if (campo.tipo === "FORMA") return campo.forma || `Forma ${index + 1}`;
+
+  return campo.tipo || `Elemento ${index + 1}`;
+}
+
+function camadasOrdenadas() {
+  return campos
+    .slice()
+    .sort((a, b) => (b.ordem || 0) - (a.ordem || 0));
+}
+
+function moverCamadaPara(campoId: number, destino: "cima" | "baixo") {
+  const lista = camadasOrdenadas();
+  const index = lista.findIndex((campo) => campo.id === campoId);
+
+  if (index < 0) return;
+
+  const item = lista[index];
+  lista.splice(index, 1);
+
+  if (destino === "cima") {
+    lista.unshift(item);
+  } else {
+    lista.push(item);
+  }
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      const novoIndex = lista.findIndex((item) => item.id === campo.id);
+      if (novoIndex < 0) return campo;
+
+      return {
+        ...campo,
+        ordem: lista.length - novoIndex,
+      };
+    })
+  );
+}
+
+function reordenarCamada(arrastadoId: number, alvoId: number) {
+  if (arrastadoId === alvoId) return;
+
+  const lista = camadasOrdenadas();
+  const origem = lista.findIndex((campo) => campo.id === arrastadoId);
+  const destino = lista.findIndex((campo) => campo.id === alvoId);
+
+  if (origem < 0 || destino < 0) return;
+
+  const [item] = lista.splice(origem, 1);
+  lista.splice(destino, 0, item);
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      const novoIndex = lista.findIndex((item) => item.id === campo.id);
+      if (novoIndex < 0) return campo;
+
+      return {
+        ...campo,
+        ordem: lista.length - novoIndex,
+      };
+    })
+  );
 }
 
  function iniciarDrag(
@@ -2418,9 +2494,78 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
                 </div>
 
 <div className="mt-4 rounded-2xl border border-blue-200 bg-white p-3">
+  <div className="mt-4 rounded-2xl border border-blue-200 bg-white p-3">
   <h3 className="mb-2 text-xs font-bold uppercase text-blue-700">
-    Elementos em cena
+    CENA
   </h3>
+
+  <div className="space-y-1">
+    {camadasOrdenadas().map((campo, index) => (
+      <div
+        key={campo.id}
+        draggable
+        onDragStart={() => setCamadaArrastandoId(campo.id)}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={() => {
+          if (camadaArrastandoId) {
+            reordenarCamada(camadaArrastandoId, campo.id);
+          }
+          setCamadaArrastandoId(null);
+        }}
+        onClick={() => {
+          setCampoSelecionadoId(campo.id);
+          setCamposSelecionadosIds([campo.id]);
+        }}
+        onDoubleClick={() => {
+          setCamadaRenomeandoId(campo.id);
+          setNomeCamadaEditando(nomeDaCamada(campo, index));
+        }}
+        onContextMenu={(e) => {
+          e.preventDefault();
+          setCampoSelecionadoId(campo.id);
+          setCamposSelecionadosIds([campo.id]);
+          setMenuCamada({
+            x: e.clientX,
+            y: e.clientY,
+            campoId: campo.id,
+          });
+        }}
+        className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-xs ${
+          campoSelecionadoId === campo.id
+            ? "bg-blue-100 text-blue-800"
+            : "text-slate-700 hover:bg-slate-100"
+        }`}
+      >
+        <span className="w-4 text-center">
+          {campo.bloqueado ? "🔒" : "▦"}
+        </span>
+
+        {camadaRenomeandoId === campo.id ? (
+          <input
+            autoFocus
+            value={nomeCamadaEditando}
+            onChange={(e) => setNomeCamadaEditando(e.target.value)}
+            onBlur={() => {
+              atualizarCampoLocal("nomeCamada" as any, nomeCamadaEditando as any);
+              setCamadaRenomeandoId(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                atualizarCampoLocal("nomeCamada" as any, nomeCamadaEditando as any);
+                setCamadaRenomeandoId(null);
+              }
+            }}
+            className="w-full rounded border border-blue-300 px-1 py-0.5 text-xs"
+          />
+        ) : (
+          <span className="truncate">
+            {nomeDaCamada(campo, index)}
+          </span>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
 
   <div className="space-y-2">
     {campos
@@ -5500,7 +5645,74 @@ onClick={() =>
                         )
 }
           </aside>
+
         )}
+
+{menuCamada && (
+  <div
+    className="fixed z-[9999] w-44 rounded-xl border border-slate-200 bg-white p-2 text-xs shadow-xl"
+    style={{ left: menuCamada.x, top: menuCamada.y }}
+    onClick={(e) => e.stopPropagation()}
+  >
+    <button
+      type="button"
+      onClick={() => {
+        setCamadaRenomeandoId(menuCamada.campoId);
+        const campo = campos.find((item) => item.id === menuCamada.campoId);
+        setNomeCamadaEditando(campo?.nomeCamada || "");
+        setMenuCamada(null);
+      }}
+      className="block w-full rounded-lg px-3 py-2 text-left hover:bg-slate-100"
+    >
+      Renomear
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        moverCamadaPara(menuCamada.campoId, "cima");
+        setMenuCamada(null);
+      }}
+      className="block w-full rounded-lg px-3 py-2 text-left hover:bg-slate-100"
+    >
+      Enviar para cima
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        moverCamadaPara(menuCamada.campoId, "baixo");
+        setMenuCamada(null);
+      }}
+      className="block w-full rounded-lg px-3 py-2 text-left hover:bg-slate-100"
+    >
+      Enviar para baixo
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        const campo = campos.find((item) => item.id === menuCamada.campoId);
+        if (campo) atualizarCampoLocal("bloqueado", !campo.bloqueado);
+        setMenuCamada(null);
+      }}
+      className="block w-full rounded-lg px-3 py-2 text-left hover:bg-slate-100"
+    >
+      Travar / destravar
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        void excluirCampo(menuCamada.campoId);
+        setMenuCamada(null);
+      }}
+      className="block w-full rounded-lg px-3 py-2 text-left text-red-600 hover:bg-red-50"
+    >
+      Deletar
+    </button>
+  </div>
+)}
 
         </div>
       </section>
