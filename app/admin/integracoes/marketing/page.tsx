@@ -222,14 +222,16 @@ export default function MarketingIntegracoesPage() {
       detalhe: "Vezes que apareceu nas buscas",
       cor: "text-cyan-700",
     },
-    {
-      titulo: "Facebook",
-      valor: metaStatus.conectado ? "Conectado" : "Configurar",
-      detalhe: metaStatus.conectado
-        ? metaStatus.paginaNome
-        : "Conecte sua página Meta",
-      cor: "text-blue-700",
-    },
+   {
+  titulo: "Facebook",
+  valor: metaStatus.conectado
+    ? metaStatus.seguidores.toLocaleString("pt-BR")
+    : "Configurar",
+  detalhe: metaStatus.conectado
+    ? `Seguidores • ${metaStatus.curtidas.toLocaleString("pt-BR")} curtidas`
+    : "Conecte sua página Meta",
+  cor: "text-blue-700",
+},
   ];
 
   return (

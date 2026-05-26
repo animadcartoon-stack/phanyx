@@ -1895,7 +1895,7 @@ async function comprarPacoteCreditos(quantidade: number) {
       return;
     }
 
-    window.open(urlPagamento, "_blank");
+    window.location.href = urlPagamento;
   } catch {
     setAviso("Erro ao iniciar pagamento.");
   } finally {
@@ -2063,7 +2063,7 @@ async function comprarPacoteCreditos(quantidade: number) {
 
 
       {aviso && (
-  <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
+  <div className="fixed inset-0 z-[900] flex items-center justify-center bg-black/75 px-4 backdrop-blur-sm">
     <div className="w-full max-w-md rounded-3xl border border-cyan-400/30 bg-slate-950 p-6 text-center shadow-2xl shadow-cyan-500/20">
       <h2 className="text-2xl font-black text-cyan-200">
         Aviso PHANYX
