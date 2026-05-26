@@ -5058,74 +5058,71 @@ onClick={() =>
   </button>
 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-600">
-                    Tamanho
-                  </label>
-                  <div className="flex gap-2">
-  <button
-    type="button"
-    onMouseDown={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-}}
-    onClick={() => {
-  const novoTamanho = Math.max(6, (tamanhoSelecaoTexto || 18) - 2);
-  setTamanhoSelecaoTexto(novoTamanho);
+  <label className="mb-1 block text-xs font-medium text-slate-600">
+    Tamanho
+  </label>
 
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    aplicarEstiloTextoSelecionado({
-      fontSize: `${novoTamanho}px`,
-    });
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    return;
-  }
+        const novoTamanho = Math.max(6, (tamanhoSelecaoTexto || 18) - 2);
+        setTamanhoSelecaoTexto(novoTamanho);
 
-  atualizarCampoLocal("tamanho", novoTamanho);
-}}
-    className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
-  >
-    A−
-  </button>
+        if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+          aplicarEstiloTextoSelecionado({
+            fontSize: `${novoTamanho}px`,
+          });
+          return;
+        }
 
-  <input
-    type="number"
-    min={6}
-    max={120}
-    value={campoSelecionado?.tamanho ?? 18}
-    onChange={(e) => {
-      const tamanho = Number(e.target.value);
-      atualizarCampoLocal("tamanho", tamanho);
-    }}
-    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-  />
+        atualizarCampoLocal("tamanho", novoTamanho);
+      }}
+      className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
+    >
+      A−
+    </button>
 
-  <button
-    type="button"
-    onMouseDown={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-}}
-    onClick={() => {
-  const novoTamanho = Math.min(120, (tamanhoSelecaoTexto || 18) + 2);
-  setTamanhoSelecaoTexto(novoTamanho);
+    <input
+      type="number"
+      min={6}
+      max={120}
+      value={campoSelecionado?.tamanho ?? tamanhoSelecaoTexto ?? 18}
+      onChange={(e) => {
+        const tamanho = Number(e.target.value);
+        setTamanhoSelecaoTexto(tamanho);
+        atualizarCampoLocal("tamanho", tamanho);
+      }}
+      className="w-full rounded-xl border border-slate-300 px-3 py-2"
+    />
 
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    aplicarEstiloTextoSelecionado({
-      fontSize: `${novoTamanho}px`,
-    });
+    <button
+      type="button"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    return;
-  }
+        const novoTamanho = Math.min(120, (tamanhoSelecaoTexto || 18) + 2);
+        setTamanhoSelecaoTexto(novoTamanho);
 
-  atualizarCampoLocal("tamanho", novoTamanho);
-}}
-    className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
-  >
-    A+
-  </button>
+        if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+          aplicarEstiloTextoSelecionado({
+            fontSize: `${novoTamanho}px`,
+          });
+          return;
+        }
+
+        atualizarCampoLocal("tamanho", novoTamanho);
+      }}
+      className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
+    >
+      A+
+    </button>
+  </div>
 </div>
-   
-                </div>
 
                 <div>
                   <label className="mb-1 block text-xs font-medium text-slate-600">
