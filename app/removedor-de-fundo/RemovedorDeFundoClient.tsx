@@ -2132,7 +2132,8 @@ async function comprarPacoteCreditos(quantidade: number) {
       return;
     }
 
-    window.location.href = urlPagamento;
+    window.open(urlPagamento, "_blank", "noopener,noreferrer");
+setPopupComprarCreditosAberto(false);
   } catch {
     setAviso("Erro ao iniciar pagamento.");
   } finally {
