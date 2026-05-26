@@ -2482,7 +2482,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
            
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-              <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="mb-4 flex flex-col gap-3">
                 <div className="w-full">
   <button
     type="button"
