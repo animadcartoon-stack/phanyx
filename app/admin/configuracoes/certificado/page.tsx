@@ -2493,13 +2493,14 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
                   </p>
                 </div>
 
-<div className="mt-4 rounded-2xl border border-blue-200 bg-white p-3">
-  <div className="mt-4 rounded-2xl border border-blue-200 bg-white p-3">
-  <h3 className="mb-2 text-xs font-bold uppercase text-blue-700">
-    CENA
-  </h3>
+<div className="mt-4 border border-slate-300 bg-white">
+  <div className="border-b border-slate-300 px-2 py-1">
+    <h3 className="text-xs font-bold uppercase text-slate-700">
+      CENA
+    </h3>
+  </div>
 
-  <div className="space-y-1">
+  <div className="max-h-[260px] overflow-y-auto overflow-x-hidden">
     {camadasOrdenadas().map((campo, index) => (
       <div
         key={campo.id}
@@ -2530,16 +2531,12 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
             campoId: campo.id,
           });
         }}
-        className={`flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 text-xs ${
+        className={`flex h-7 cursor-pointer items-center border-b border-slate-200 px-2 text-xs ${
           campoSelecionadoId === campo.id
-            ? "bg-blue-100 text-blue-800"
-            : "text-slate-700 hover:bg-slate-100"
+            ? "bg-blue-100 text-blue-700"
+            : "bg-white text-slate-700 hover:bg-slate-100"
         }`}
       >
-        <span className="w-4 text-center">
-          {campo.bloqueado ? "🔒" : "▦"}
-        </span>
-
         {camadaRenomeandoId === campo.id ? (
           <input
             autoFocus
@@ -2555,49 +2552,16 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
                 setCamadaRenomeandoId(null);
               }
             }}
-            className="w-full rounded border border-blue-300 px-1 py-0.5 text-xs"
+            className="w-full border-none bg-transparent text-xs outline-none"
           />
         ) : (
           <span className="truncate">
             {nomeDaCamada(campo, index)}
+            {campo.bloqueado ? "  🔒" : ""}
           </span>
         )}
       </div>
     ))}
-  </div>
-</div>
-
-  <div className="space-y-2">
-    {campos
-      .slice()
-      .sort((a, b) => (b.ordem || 0) - (a.ordem || 0))
-      .map((campo, index) => (
-        <button
-          key={campo.id}
-          type="button"
-          onClick={() => {
-            setCampoSelecionadoId(campo.id);
-            setCamposSelecionadosIds([campo.id]);
-          }}
-          className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-xs ${
-            campoSelecionadoId === campo.id
-              ? "border-blue-600 bg-blue-50 text-blue-700"
-              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          <span>
-            {campo.tipo === "IMAGEM"
-              ? `Imagem ${index + 1}`
-              : campo.tipo === "FORMA"
-              ? `Forma ${index + 1}`
-              : campo.tipo === "TEXTO_LIVRE"
-              ? `Texto ${index + 1}`
-              : campo.tipo}
-          </span>
-
-          <span>{campo.bloqueado ? "🔒" : "🔓"}</span>
-        </button>
-      ))}
   </div>
 </div>
 
