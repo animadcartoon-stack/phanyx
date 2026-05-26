@@ -67,7 +67,7 @@ export default async function ProfessorLayout({
     <ToastProvider>
       <ConfirmDialogProvider>
         <Header />
-        <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
+        <div className="min-h-[calc(100dvh-56px)] bg-gray-100 lg:flex">
           <div className="hidden lg:block">
   <ProfessorSidebar professor={professor} />
 </div>
@@ -89,7 +89,7 @@ export default async function ProfessorLayout({
   Alunos
 </a>
 
-<a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+<a href="/professor/aulas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
   <span className="text-lg">🎬</span>
   Aulas
 </a>
@@ -111,7 +111,7 @@ export default async function ProfessorLayout({
   </div>
 </nav>
 
-          <main className="flex-1 w-full px-3 py-4 pb-24 lg:p-8">
+          <main className="w-full px-3 py-4 pb-28 lg:min-w-0 lg:flex-1 lg:p-8">
   <PhanyxFeriadoAviso />
 
   <div className="mb-4 flex justify-end lg:mb-6">
