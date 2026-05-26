@@ -562,6 +562,13 @@ function gerarPontosEstrela(
   const [zoom, setZoom] = useState(0);
   const [modoAmplo, setModoAmplo] = useState(false);
   const [mostrarPainelCampos, setMostrarPainelCampos] = useState(true);
+  const [abaLateral, setAbaLateral] = useState<"campos" | "cena">("campos");
+  const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(true);
+  const [menuCamada, setMenuCamada] = useState<{
+  x: number;
+  y: number;
+  campoId: number;
+} | null>(null);
   const [menuDownloadAberto, setMenuDownloadAberto] = useState(false);
   const [formatoDownload, setFormatoDownload] = useState("png");
   const [secaoAberta, setSecaoAberta] = useState<string | null>(null);
@@ -1348,6 +1355,12 @@ function idsAlvoDaAcao() {
     : campoSelecionadoId
     ? [campoSelecionadoId]
     : [];
+}
+
+function impedirPerdaSelecaoTexto(e: React.MouseEvent) {
+  if (temSelecaoTextoLivreSalva()) {
+    e.preventDefault();
+  }
 }
 
 function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
