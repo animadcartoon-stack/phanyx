@@ -2132,7 +2132,13 @@ async function comprarPacoteCreditos(quantidade: number) {
       return;
     }
 
-    window.open(urlPagamento, "_blank", "noopener,noreferrer");
+    const novaAba = window.open("", "_blank");
+
+if (novaAba) {
+  novaAba.location.href = urlPagamento;
+} else {
+  setAviso("Seu navegador bloqueou a nova aba de pagamento. Permita popups para continuar.");
+}
 setPopupComprarCreditosAberto(false);
   } catch {
     setAviso("Erro ao iniciar pagamento.");
