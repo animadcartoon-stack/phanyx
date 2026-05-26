@@ -87,17 +87,19 @@ function formatarTempo(segundos: number) {
 
 export default function MarketingIntegracoesPage() {
   const [metricas, setMetricas] = useState({
-    visitantes: 0,
-    novosUsuarios: 0,
-    sessoes: 0,
-    visualizacoes: 0,
-    tempoMedioSessao: 0,
-    conversoes: 0,
-    googleBusiness: 0,
-    reputacao: null as number | null,
-    cliquesBusca: 0,
-    impressoesBusca: 0,
-  });
+  visitantes: 0,
+  novosUsuarios: 0,
+  sessoes: 0,
+  visualizacoes: 0,
+  tempoMedioSessao: 0,
+  conversoes: 0,
+  googleBusiness: 0,
+  reputacao: null as number | null,
+  cliquesBusca: 0,
+  impressoesBusca: 0,
+  ctrBusca: 0,
+  posicaoMediaBusca: 0,
+});
 
   const [metaStatus, setMetaStatus] = useState({
     conectado: false,
@@ -128,17 +130,19 @@ export default function MarketingIntegracoesPage() {
       }
 
       setMetricas({
-        visitantes: Number(data.visitantes || 0),
-        novosUsuarios: Number(data.novosUsuarios || 0),
-        sessoes: Number(data.sessoes || 0),
-        visualizacoes: Number(data.visualizacoes || 0),
-        tempoMedioSessao: Number(data.tempoMedioSessao || 0),
-        conversoes: Number(data.conversoes || 0),
-        googleBusiness: Number(data.googleBusiness || 0),
-        reputacao: data.reputacao,
-        cliquesBusca: Number(data.cliquesBusca || 0),
-        impressoesBusca: Number(data.impressoesBusca || 0),
-      });
+  visitantes: Number(data.visitantes || 0),
+  novosUsuarios: Number(data.novosUsuarios || 0),
+  sessoes: Number(data.sessoes || 0),
+  visualizacoes: Number(data.visualizacoes || 0),
+  tempoMedioSessao: Number(data.tempoMedioSessao || 0),
+  conversoes: Number(data.conversoes || 0),
+  googleBusiness: Number(data.googleBusiness || 0),
+  reputacao: data.reputacao,
+  cliquesBusca: Number(data.cliquesBusca || 0),
+  impressoesBusca: Number(data.impressoesBusca || 0),
+  ctrBusca: Number(data.ctrBusca || 0),
+  posicaoMediaBusca: Number(data.posicaoMediaBusca || 0),
+});
     } catch (error) {
       console.error(error);
     }
@@ -222,6 +226,21 @@ export default function MarketingIntegracoesPage() {
       detalhe: "Vezes que apareceu nas buscas",
       cor: "text-cyan-700",
     },
+    {
+  titulo: "CTR Google",
+  valor: `${(metricas.ctrBusca * 100).toFixed(1)}%`,
+  detalhe: "Taxa de clique da busca orgânica",
+  cor: "text-emerald-700",
+},
+{
+  titulo: "Posição média",
+  valor:
+    metricas.posicaoMediaBusca > 0
+      ? metricas.posicaoMediaBusca.toFixed(1)
+      : "-",
+  detalhe: "Posição média no Google",
+  cor: "text-violet-700",
+},
    {
   titulo: "Facebook",
   valor: metaStatus.conectado
