@@ -112,13 +112,16 @@ if (!user && !email) {
     const cobranca = await cobrancaResposta.json();
 
     if (!cobrancaResposta.ok) {
-      console.error("Erro cobrança Asaas:", cobranca);
+  console.error("Erro cobrança Asaas:", cobranca);
 
-      return NextResponse.json(
-        { error: "Não foi possível gerar cobrança Asaas." },
-        { status: 500 }
-      );
-    }
+  return NextResponse.json(
+    {
+      error: "Não foi possível gerar cobrança Asaas.",
+      detalhes: cobranca,
+    },
+    { status: 500 }
+  );
+}
 
     let pixQrCode = null;
 
