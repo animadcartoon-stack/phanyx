@@ -2483,15 +2483,22 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Campos dinâmicos
-                  </h2>
-                  <p className="mt-1 text-xs text-slate-500">
-                    Organize o certificado por grupos e clique para adicionar um
-                    campo.
-                  </p>
-                </div>
+                <div className="w-full">
+  <button
+    type="button"
+    onClick={() => setCamposDinamicosAberto((prev) => !prev)}
+    className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold uppercase text-slate-700 hover:bg-slate-50"
+  >
+    <span>Campos dinâmicos</span>
+    <span>{camposDinamicosAberto ? "▾" : "▸"}</span>
+  </button>
+
+  {camposDinamicosAberto && (
+    <p className="mt-2 rounded-xl bg-blue-50 px-3 py-2 text-xs leading-relaxed text-slate-600">
+      Organize o certificado por grupos e clique para adicionar um campo.
+    </p>
+  )}
+</div>
 
 <div className="mt-4 border border-slate-300 bg-white">
   <div className="border-b border-slate-300 px-2 py-1">
