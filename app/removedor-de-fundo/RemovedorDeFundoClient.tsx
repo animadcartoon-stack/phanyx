@@ -1323,6 +1323,8 @@ function podeUsarIAAgora() {
 }
 
 async function melhorarComIA() {
+  if (!podeUsarIAAgora()) return;
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de usar a IA.");
     return;
@@ -1395,6 +1397,8 @@ async function prepararImagemMinimaParaIA(imageUrl: string) {
 }
 
 async function corrigirIluminacaoComIA() {
+  if (!podeUsarIAAgora()) return;
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de corrigir a iluminação.");
     return;
@@ -1483,6 +1487,8 @@ if (img.width < 256 || img.height < 256) {
 }
 
 async function restaurarFotoAntigaComIA() {
+  if (!podeUsarIAAgora()) return;
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de restaurar foto antiga.");
     return;
@@ -1562,6 +1568,8 @@ async function restaurarFotoAntigaComIA() {
 }
 
 async function restaurarFotoComIA() {
+  if (!podeUsarIAAgora()) return;
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de restaurar a foto.");
     return;
@@ -1596,6 +1604,8 @@ async function restaurarFotoComIA() {
 }
 
 async function removerFundoComIA() {
+  if (!podeUsarIAAgora()) return;
+
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de remover o fundo com IA.");
     return;
@@ -1638,6 +1648,7 @@ async function removerFundoComIA() {
 
 async function recorteAvancadoComIA() {
   if (!imagemOriginal) {
+    if (!podeUsarIAAgora()) return;
     setAviso("Envie uma imagem antes de usar o recorte avançado.");
     return;
   }
@@ -1681,6 +1692,7 @@ async function recorteAvancadoComIA() {
 
 async function recorteProfissionalComIA() {
   if (!imagemOriginal) {
+    if (!podeUsarIAAgora()) return;
     setAviso("Envie uma imagem antes de usar o recorte profissional.");
     return;
   }
@@ -1984,48 +1996,53 @@ setProcessando(false);
 }
 
   function baixarImagem(tipo: DownloadTipo) {
-    if (!imagemFinal || !canvasRef.current) return;
+  if (!imagemFinal) return;
 
-    const canvas = canvasRef.current;
-    let url = imagemFinal;
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.src = imagemFinal;
 
-    if (tipo !== "png") {
-      const exportCanvas = document.createElement("canvas");
-      exportCanvas.width = canvas.width;
-      exportCanvas.height = canvas.height;
+  img.onload = () => {
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = img.naturalWidth;
+    exportCanvas.height = img.naturalHeight;
 
-      const ctx = exportCanvas.getContext("2d");
-      if (!ctx) return;
+    const ctx = exportCanvas.getContext("2d");
+    if (!ctx) return;
 
-      if (tipo === "jpg") {
-        ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
-      }
+    if (tipo === "jpg") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+    }
 
-      const img = new Image();
-      img.src = imagemFinal;
+    ctx.drawImage(img, 0, 0);
 
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0);
-        url =
-          tipo === "jpg"
-            ? exportCanvas.toDataURL("image/jpeg", 0.95)
-            : exportCanvas.toDataURL("image/webp", 0.95);
+    let url = "";
 
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `phanyx-sem-fundo.${tipo}`;
-        link.click();
-      };
+    if (tipo === "png") {
+      url = exportCanvas.toDataURL("image/png");
+    }
 
-      return;
+    if (tipo === "jpg") {
+      url = exportCanvas.toDataURL("image/jpeg", 0.95);
+    }
+
+    if (tipo === "webp") {
+      url = exportCanvas.toDataURL("image/webp", 0.95);
     }
 
     const link = document.createElement("a");
     link.href = url;
-    link.download = "phanyx-sem-fundo.png";
+    link.download = `phanyx-editado.${tipo}`;
+    document.body.appendChild(link);
     link.click();
-  }
+    document.body.removeChild(link);
+  };
+
+  img.onerror = () => {
+    setAviso("Não foi possível preparar a imagem para download.");
+  };
+}
 
   function desfazerMascara() {
   const canvas = canvasRemoverObjetoRef.current;
