@@ -75,15 +75,14 @@ const linkResposta = await fetch(`${baseUrl}/paymentLinks`, {
     access_token: apiKey,
   },
   body: JSON.stringify({
-    name: pacote.descricao,
-    description: pacote.descricao,
-    value: pacote.valor,
-    billingType: "PIX",
-    chargeType: "DETACHED",
-    dueDateLimitDays: 1,
-    externalReference,
-    notificationEnabled: true,
-  }),
+  name: pacote.descricao,
+  description: pacote.descricao,
+  value: pacote.valor,
+  chargeType: "DETACHED",
+  dueDateLimitDays: 1,
+  externalReference,
+  notificationEnabled: true,
+}),
 });
 
 const link = await linkResposta.json();
