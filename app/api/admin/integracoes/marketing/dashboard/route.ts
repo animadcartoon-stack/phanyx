@@ -51,6 +51,8 @@ export async function GET() {
     let reputacao = null;
     let cliquesBusca = 0;
     let impressoesBusca = 0;
+    let ctrBusca = 0;
+    let posicaoMediaBusca = 0;
 
     const metrics = [
       { name: "activeUsers" },
@@ -121,8 +123,12 @@ console.log("Resposta Search Console:", JSON.stringify(busca.data));
     console.log("Falhou Search Console:", siteUrl);
   }
 }
-    cliquesBusca = busca.data.rows?.[0]?.clicks || 0;
-    impressoesBusca = busca.data.rows?.[0]?.impressions || 0;
+    const linhaBusca = busca?.data?.rows?.[0];
+
+    cliquesBusca = linhaBusca?.clicks || 0;
+    impressoesBusca = linhaBusca?.impressions || 0;
+    ctrBusca = linhaBusca?.ctr || 0;
+    posicaoMediaBusca = linhaBusca?.position || 0;
   } catch (err) {
     console.error("Erro Search Console:", err);
   }
@@ -219,6 +225,8 @@ conversoes = Number(valores?.[5]?.value || 0);
   reputacao,
   cliquesBusca,
   impressoesBusca,
+  ctrBusca,
+  posicaoMediaBusca,
 });
 
   } catch (error) {

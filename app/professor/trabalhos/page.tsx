@@ -35,38 +35,35 @@ export default function TrabalhosProfessorPage() {
   }
 
   return (
-    <main className="p-6">
-      <h1 className="text-2xl font-bold mb-6">
-        Avaliação de Trabalhos
-      </h1>
+    <main className="space-y-5 px-1 py-2 text-slate-900 sm:px-0">
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+          Trabalhos
+        </p>
 
-      <div className="bg-white rounded shadow">
-        <div className="grid grid-cols-8 font-semibold bg-gray-100 p-3">
-          <span>Aluno</span>
-          <span>Disciplina</span>
-          <span>Título</span>
-          <span>Status</span>
-          <span>Nota</span>
-          <span>Feedback</span>
-          <span></span>
-          <span></span>
-        </div>
+        <h1 className="mt-2 text-2xl font-black text-slate-900">
+          Avaliação de Trabalhos
+        </h1>
 
-        {trabalhos.map((t, i) => (
-          <TrabalhoRow
-            key={i}
-            trabalho={t}
-            onAvaliar={(nota, feedback) =>
-              avaliar(i, nota, feedback)
-            }
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Avalie os trabalhos enviados pelos alunos com nota e feedback.
+        </p>
+      </section>
+
+      <section className="space-y-4">
+        {trabalhos.map((trabalho, index) => (
+          <TrabalhoCard
+            key={`${trabalho.aluno}-${trabalho.titulo}-${index}`}
+            trabalho={trabalho}
+            onAvaliar={(nota, feedback) => avaliar(index, nota, feedback)}
           />
         ))}
-      </div>
+      </section>
     </main>
   );
 }
 
-function TrabalhoRow({
+function TrabalhoCard({
   trabalho,
   onAvaliar,
 }: {
@@ -76,61 +73,93 @@ function TrabalhoRow({
   const [nota, setNota] = useState("");
   const [feedback, setFeedback] = useState("");
 
+  const avaliado = trabalho.status === "Avaliado";
+
   return (
-    <div className="grid grid-cols-8 p-3 border-t items-center">
-      <span>{trabalho.aluno}</span>
-      <span>{trabalho.disciplina}</span>
-      <span>{trabalho.titulo}</span>
+    <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-400">
+            Aluno
+          </p>
 
-      <span
-        className={
-          trabalho.status === "Avaliado"
-            ? "text-green-600 font-semibold"
-            : "text-blue-600 font-semibold"
-        }
-      >
-        {trabalho.status}
-      </span>
+          <h2 className="mt-1 text-xl font-black text-slate-900">
+            {trabalho.aluno}
+          </h2>
 
-      {trabalho.status === "Avaliado" ? (
-        <>
-          <span>{trabalho.nota}</span>
-          <span className="text-sm">{trabalho.feedback}</span>
-          <span></span>
-          <span></span>
-        </>
+          <div className="mt-4 space-y-2 text-sm leading-6 text-slate-600">
+            <p>
+              <strong className="font-semibold text-slate-800">
+                Disciplina:
+              </strong>{" "}
+              {trabalho.disciplina}
+            </p>
+
+            <p>
+              <strong className="font-semibold text-slate-800">Título:</strong>{" "}
+              {trabalho.titulo}
+            </p>
+
+            <p>
+              <strong className="font-semibold text-slate-800">
+                Observação:
+              </strong>{" "}
+              {trabalho.observacao}
+            </p>
+          </div>
+        </div>
+
+        <span
+          className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-bold ${
+            avaliado
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-blue-200 bg-blue-50 text-blue-700"
+          }`}
+        >
+          {trabalho.status}
+        </span>
+      </div>
+
+      {avaliado ? (
+        <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+          <p className="text-sm font-bold text-emerald-800">
+            Nota: {trabalho.nota}
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-emerald-700">
+            {trabalho.feedback || "Sem feedback informado."}
+          </p>
+        </div>
       ) : (
-        <>
-          <input
-  type="number"
-  min={0}
-  max={10}
-  className="border p-1 rounded w-20 bg-white text-black"
-  placeholder="Nota"
-  value={nota}
-  onChange={(e) => setNota(e.target.value)}
-/>
+        <div className="mt-5 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+          <div className="grid gap-3 sm:grid-cols-[120px_1fr]">
+            <input
+              type="number"
+              min={0}
+              max={10}
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none"
+              placeholder="Nota"
+              value={nota}
+              onChange={(e) => setNota(e.target.value)}
+            />
 
-
-          <input
-            className="border p-1 rounded"
-            placeholder="Feedback"
-            value={feedback}
-            onChange={(e) => setFeedback(e.target.value)}
-          />
+            <input
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none"
+              placeholder="Feedback"
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+            />
+          </div>
 
           <button
-            onClick={() =>
-              onAvaliar(Number(nota), feedback)
-            }
-            className="bg-green-600 text-white px-3 py-1 rounded"
+            type="button"
+            onClick={() => onAvaliar(Number(nota), feedback)}
+            className="w-full rounded-2xl bg-green-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-green-700"
           >
-            Avaliar
+            Avaliar trabalho
           </button>
-
-          <span></span>
-        </>
+        </div>
       )}
-    </div>
+    </article>
   );
 }

@@ -64,99 +64,55 @@ if (!user && !email) {
       );
     }
 
-    const hoje = new Date();
-    const vencimento = hoje.toISOString().slice(0, 10);
-
-    const clienteResposta = await fetch(`${baseUrl}/customers`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        access_token: apiKey,
-      },
-      body: JSON.stringify({
-        name: user?.nome || nome,
-        email: user?.email || email,
-        mobilePhone: whatsapp || undefined,
-}),
-    });
-
-    const cliente = await clienteResposta.json();
-
-    if (!clienteResposta.ok) {
-      console.error("Erro cliente Asaas:", cliente);
-
-      return NextResponse.json(
-        { error: "Não foi possível criar cliente no Asaas." },
-        { status: 500 }
-      );
-    }
-
-    const cobrancaResposta = await fetch(`${baseUrl}/payments`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        access_token: apiKey,
-      },
-      body: JSON.stringify({
-        customer: cliente.id,
-        billingType: "PIX",
-        value: pacote.valor,
-        dueDate: vencimento,
-        description: pacote.descricao,
-        externalReference: user
+    const externalReference = user
   ? `CREDITOS_IA:${user.id}:${pacote.creditos}`
-  : `CREDITOS_IA_PUBLICO:${email}:${pacote.creditos}`,
-      }),
-    });
+  : `CREDITOS_IA_PUBLICO:${email}:${pacote.creditos}`;
 
-    const cobranca = await cobrancaResposta.json();
+const linkResposta = await fetch(`${baseUrl}/paymentLinks`, {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    access_token: apiKey,
+  },
+  body: JSON.stringify({
+    name: pacote.descricao,
+    description: pacote.descricao,
+    value: pacote.valor,
+    billingType: "PIX",
+    chargeType: "DETACHED",
+    dueDateLimitDays: 1,
+    externalReference,
+    notificationEnabled: true,
+  }),
+});
 
-    if (!cobrancaResposta.ok) {
-  console.error("Erro cobrança Asaas:", cobranca);
+const link = await linkResposta.json();
+
+if (!linkResposta.ok) {
+  console.error("Erro link pagamento Asaas:", link);
 
   return NextResponse.json(
     {
-      error: "Não foi possível gerar cobrança Asaas.",
-      detalhes: cobranca,
+      error: "Não foi possível gerar link de pagamento Asaas.",
+      detalhes: link,
     },
     { status: 500 }
   );
 }
-
-    let pixQrCode = null;
-
-    try {
-      const pixResposta = await fetch(
-        `${baseUrl}/payments/${cobranca.id}/pixQrCode`,
-        {
-          method: "GET",
-          headers: {
-            access_token: apiKey,
-          },
-        }
-      );
-
-      if (pixResposta.ok) {
-        pixQrCode = await pixResposta.json();
-      }
-    } catch (error) {
-      console.error("Erro ao buscar QR Code PIX:", error);
-    }
-
     return NextResponse.json({
       ok: true,
       pacote: {
         creditos: pacote.creditos,
         valor: pacote.valor,
       },
-      pagamento: {
-        id: cobranca.id,
-        status: cobranca.status,
-        invoiceUrl: cobranca.invoiceUrl,
-        bankSlipUrl: cobranca.bankSlipUrl,
-        externalReference: cobranca.externalReference,
-      },
-      pix: pixQrCode,
+      checkoutUrl: link.url,
+
+pagamento: {
+  id: link.id,
+  status: "LINK_CRIADO",
+  invoiceUrl: link.url,
+  externalReference,
+},
     });
   } catch (error) {
     console.error("Erro ao comprar créditos IA:", error);
