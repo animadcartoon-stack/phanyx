@@ -36,24 +36,28 @@ export async function POST(req: NextRequest) {
       where: { userId: user.id },
     });
 
-    if (!creditos || creditos.saldo <= 0) {
-      return NextResponse.json(
-        {
-          error: "SEM_CREDITOS",
-          mensagem: "Você não possui créditos IA.",
-        },
-        { status: 400 }
-      );
-    }
+    const modoTesteIA = process.env.NODE_ENV === "development";
 
-    await prisma.creditoIA.update({
-      where: { userId: user.id },
-      data: {
-        saldo: {
-          decrement: 1,
-        },
+if ((!creditos || creditos.saldo <= 0) && !modoTesteIA) {
+  return NextResponse.json(
+    {
+      error: "SEM_CREDITOS",
+      mensagem: "Você não possui créditos IA.",
+    },
+    { status: 400 }
+  );
+}
+
+if (creditos && creditos.saldo > 0) {
+  await prisma.creditoIA.update({
+    where: { userId: user.id },
+    data: {
+      saldo: {
+        decrement: 1,
       },
-    });
+    },
+  });
+}
 
     try {
       const result: any = await fal.subscribe("fal-ai/bria/background/remove", {
@@ -82,14 +86,16 @@ export async function POST(req: NextRequest) {
         saldo: saldoAtual?.saldo ?? 0,
       });
     } catch (falError) {
-      await prisma.creditoIA.update({
-        where: { userId: user.id },
-        data: {
-          saldo: {
-            increment: 1,
-          },
-        },
-      });
+      if (creditos && creditos.saldo > 0) {
+  await prisma.creditoIA.update({
+    where: { userId: user.id },
+    data: {
+      saldo: {
+        increment: 1,
+      },
+    },
+  });
+}
 
       console.error("Erro FAL remover fundo:", falError);
 

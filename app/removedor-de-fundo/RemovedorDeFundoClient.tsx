@@ -46,6 +46,7 @@ export default function RemovedorDeFundoClient() {
 
   const [imagemOriginal, setImagemOriginal] = useState<string | null>(null);
   const [imagemFinal, setImagemFinal] = useState<string | null>(null);
+  const [temResultadoReal, setTemResultadoReal] = useState(false);
   const [imagemBaseEdicao, setImagemBaseEdicao] = useState<string | null>(null);
 
   const [modalCorteAberto, setModalCorteAberto] = useState(false);
@@ -140,7 +141,7 @@ const pinchOriginalRef = useRef<{
   function carregarImagem(file: File) {
     setErro("");
     setImagemFinal(null);
-    setImagemBaseEdicao(null);
+    setTemResultadoReal(false);
     setPincelAtivo(false);
     historicoEdicaoRef.current = [];
     baseEdicaoCanvasRef.current = null;
@@ -157,15 +158,12 @@ const pinchOriginalRef = useRef<{
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setErro("A imagem deve ter no máximo 10MB.");
-      return;
-    }
-
     const reader = new FileReader();
 
 reader.onload = () => {
   const dataUrl = String(reader.result || "");
+
+  setImagemOriginal(dataUrl);
 
   const img = new Image();
   img.src = dataUrl;
@@ -175,8 +173,6 @@ reader.onload = () => {
       largura: img.width,
       altura: img.height,
     });
-
-    setImagemOriginal(dataUrl);
   };
 
   img.onerror = () => {
@@ -487,6 +483,7 @@ if (originalCtx) {
     }
 
     setImagemFinal(anterior);
+    setTemResultadoReal(true);
 
     const img = new Image();
     img.src = anterior;
@@ -619,6 +616,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
 
   ctx.putImageData(imageData, 0, 0);
   setImagemFinal(canvas.toDataURL("image/png"));
+  setTemResultadoReal(true);
 }
 
 
@@ -712,6 +710,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
         ctx.putImageData(imageData, 0, 0);
 
         setImagemFinal(canvas.toDataURL("image/png"));
+        setTemResultadoReal(true);
         setProcessando(false);
       };
 
@@ -826,6 +825,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
         ctx.putImageData(imageData, 0, 0);
 
         setImagemFinal(canvas.toDataURL("image/png"));
+        setTemResultadoReal(true);
         setProcessando(false);
       };
 
@@ -911,6 +911,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
           "Essa imagem já está sem fundo. Envie outra imagem com fundo para remover."
         );
         setImagemFinal(null);
+        setTemResultadoReal(false);
         setProcessando(false);
         return;
       }
@@ -961,6 +962,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
         ctx.putImageData(imageData, 0, 0);
 
         setImagemFinal(canvas.toDataURL("image/png"));
+        setTemResultadoReal(true);
         setProcessando(false);
         return;
       }
@@ -1171,6 +1173,7 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
       ctx.putImageData(imageData, 0, 0);
 
       setImagemFinal(canvas.toDataURL("image/png"));
+      setTemResultadoReal(true);
       setProcessando(false);
     };
 
@@ -1311,22 +1314,19 @@ window.addEventListener("keyup", soltarEspaco);
 }
 
 function podeUsarIAAgora() {
-  if (!creditosPublicosLiberados) {
-    setPopupComprarCreditosAberto(true);
-    return false;
+  if (creditosPublicosLiberados) {
+    return true;
   }
 
-  return true;
+  setPopupComprarCreditosAberto(true);
+  return false;
 }
 
 async function melhorarComIA() {
-
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de usar a IA.");
     return;
   }
-
-  if (!podeUsarIAAgora()) return;
 
   setProcessando(true);
   setErro("");
@@ -1334,19 +1334,16 @@ async function melhorarComIA() {
   try {
     const resposta = await fetch("/api/ia/upscale", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        imageUrl: imagemOriginal,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imagemOriginal }),
     });
 
     const data = await resposta.json();
 
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
-        setPopupComprarCreditosAberto(true);
+        removerFundo();
+        setAviso("Modo teste ativo — usando motor local PHANYX.");
         return;
       }
 
@@ -1354,14 +1351,9 @@ async function melhorarComIA() {
       return;
     }
 
-    setImagemOriginal(data.imagemUrl);
-    setImagemFinal(null);
-    setCoresAlvoManuais([]);
-    setPontoVarinha(null);
-    setZoomOriginal(1);
-    setPanOriginal({ x: 0, y: 0 });
-
-    setAviso(`Imagem original melhorada com IA. Agora clique em Remover fundo. Saldo restante: ${data.saldo}`);
+    setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
+    setAviso(`Imagem melhorada com IA. Saldo restante: ${data.saldo}`);
   } catch (error) {
     console.error(error);
     setAviso("Erro ao conectar com a IA.");
@@ -1370,14 +1362,244 @@ async function melhorarComIA() {
   }
 }
 
-async function removerFundoComIA() {
+async function prepararImagemMinimaParaIA(imageUrl: string) {
+  return new Promise<string>((resolve, reject) => {
+    const img = new Image();
 
+    img.onload = () => {
+      const min = 256;
+      const escala = Math.max(min / img.naturalWidth, min / img.naturalHeight, 1);
+
+      if (escala === 1) {
+        resolve(imageUrl);
+        return;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.ceil(img.naturalWidth * escala);
+      canvas.height = Math.ceil(img.naturalHeight * escala);
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        reject(new Error("Não foi possível preparar a imagem."));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/jpeg", 0.95));
+    };
+
+    img.onerror = () => reject(new Error("Não foi possível carregar a imagem."));
+    img.src = imageUrl;
+  });
+}
+
+async function corrigirIluminacaoComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de corrigir a iluminação.");
+    return;
+  }
+
+  let imagemParaEnviar = imagemOriginal;
+
+const img = new Image();
+img.src = imagemOriginal;
+
+await new Promise((resolve, reject) => {
+  img.onload = resolve;
+  img.onerror = reject;
+});
+
+if (img.width < 256 || img.height < 256) {
+  setAviso("📈 Ajustando tamanho da imagem para IA...");
+
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(256, img.width * 2);
+  canvas.height = Math.max(256, img.height * 2);
+
+  const ctx = canvas.getContext("2d");
+
+  if (ctx) {
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    imagemParaEnviar = canvas.toDataURL("image/png");
+  }
+}
+
+  setProcessando(true);
+  setErro("");
+  setPopupProcessandoIA(true);
+  setProgressoFakeIA(5);
+  setAviso("💡 Analisando luz e sombras...");
+
+  const etapas = [
+    { texto: "🔎 Detectando áreas escuras e estouradas...", progresso: 20 },
+    { texto: "💡 Reequilibrando iluminação da foto...", progresso: 45 },
+    { texto: "🎨 Ajustando contraste e tons naturais...", progresso: 70 },
+    { texto: "✨ Finalizando correção de luz...", progresso: 92 },
+  ];
+
+  let etapaAtual = 0;
+
+  const intervalo = window.setInterval(() => {
+    if (etapaAtual >= etapas.length) return;
+
+    setAviso(etapas[etapaAtual].texto);
+    setProgressoFakeIA(etapas[etapaAtual].progresso);
+    etapaAtual++;
+  }, 5000);
+
+  try {
+    const resposta = await fetch("/api/ia/corrigir-iluminacao", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imagemParaEnviar }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      setAviso(
+        typeof data.mensagem === "string"
+          ? data.mensagem
+          : JSON.stringify(data.mensagem || data.erro || data, null, 2)
+      );
+      return;
+    }
+
+    setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
+    setProgressoFakeIA(100);
+    setAviso("✅ Iluminação corrigida com sucesso!");
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA de iluminação.");
+  } finally {
+    window.clearInterval(intervalo);
+    setProcessando(false);
+    setPopupProcessandoIA(false);
+  }
+}
+
+async function restaurarFotoAntigaComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de restaurar foto antiga.");
+    return;
+  }
+
+  if (processando) return;
+
+  setProcessando(true);
+  setErro("");
+  setPopupProcessandoIA(true);
+  setProgressoFakeIA(5);
+  setAviso("🧬 Analisando danos da foto antiga...");
+
+  const etapas = [
+    {
+      texto: "🔎 Detectando riscos, manchas e degradação...",
+      progresso: 20,
+    },
+    {
+      texto: "🧠 Reconstruindo detalhes com IA...",
+      progresso: 45,
+    },
+    {
+      texto: "🖼️ Restaurando nitidez e textura...",
+      progresso: 70,
+    },
+    {
+      texto: "✨ Finalizando restauração...",
+      progresso: 92,
+    },
+  ];
+
+  let etapaAtual = 0;
+
+  const intervalo = window.setInterval(() => {
+    if (etapaAtual >= etapas.length) return;
+
+    setAviso(etapas[etapaAtual].texto);
+    setProgressoFakeIA(etapas[etapaAtual].progresso);
+    etapaAtual++;
+  }, 5000);
+
+  try {
+    const resposta = await fetch("/api/ia/restaurar-antiga", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imageUrl: imagemOriginal,
+      }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      setAviso(
+        typeof data.mensagem === "string"
+          ? data.mensagem
+          : "Não foi possível restaurar a foto antiga."
+      );
+      return;
+    }
+
+    setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
+    setProgressoFakeIA(100);
+    setAviso("✅ Foto antiga restaurada com sucesso!");
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA de restauração.");
+  } finally {
+    window.clearInterval(intervalo);
+    setProcessando(false);
+    setPopupProcessandoIA(false);
+  }
+}
+
+async function restaurarFotoComIA() {
+  if (!imagemOriginal) {
+    setAviso("Envie uma imagem antes de restaurar a foto.");
+    return;
+  }
+
+  setProcessando(true);
+  setErro("");
+
+  try {
+    const resposta = await fetch("/api/ia/restaurar-foto", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imagemOriginal }),
+    });
+
+    const data = await resposta.json();
+
+    if (!resposta.ok) {
+      setAviso(data.mensagem || "Não foi possível restaurar a foto com IA.");
+      return;
+    }
+
+    setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
+    setAviso(`Foto restaurada com IA. Saldo restante: ${data.saldo}`);
+  } catch (error) {
+    console.error(error);
+    setAviso("Erro ao conectar com a IA de restauração.");
+  } finally {
+    setProcessando(false);
+  }
+}
+
+async function removerFundoComIA() {
   if (!imagemOriginal) {
     setAviso("Envie uma imagem antes de remover o fundo com IA.");
     return;
   }
-
-  if (!podeUsarIAAgora()) return;
 
   setProcessando(true);
   setErro("");
@@ -1385,31 +1607,26 @@ async function removerFundoComIA() {
   try {
     const resposta = await fetch("/api/ia/remover-fundo", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        imageUrl: imagemOriginal,
-        modo: "rapido",
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imagemOriginal, modo: "rapido" }),
     });
 
     const data = await resposta.json();
 
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
-        setPopupComprarCreditosAberto(true);
-        return;
-      }
+  setAviso("Você não possui créditos PHANYX. A IA FAL está ativa, mas o controle interno de créditos do PHANYX bloqueou o uso.");
+  return;
+}
 
-      setAviso(data.mensagem || "Não foi possível remover o fundo com IA.");
+      setAviso(data.mensagem || data.error || "Não foi possível remover o fundo com IA.");
       return;
     }
 
     setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
-
     setAviso(`Fundo removido com IA. Saldo restante: ${data.saldo}`);
   } catch (error) {
     console.error(error);
@@ -1420,13 +1637,10 @@ async function removerFundoComIA() {
 }
 
 async function recorteAvancadoComIA() {
-
   if (!imagemOriginal) {
-  setAviso("Envie uma imagem antes de usar o recorte avançado.");
-  return;
-}
-
-if (!podeUsarIAAgora()) return;
+    setAviso("Envie uma imagem antes de usar o recorte avançado.");
+    return;
+  }
 
   setProcessando(true);
   setErro("");
@@ -1434,20 +1648,16 @@ if (!podeUsarIAAgora()) return;
   try {
     const resposta = await fetch("/api/ia/remover-fundo", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        imageUrl: imagemOriginal,
-        modo: "avancado",
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imagemOriginal, modo: "avancado" }),
     });
 
     const data = await resposta.json();
 
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
-        setPopupComprarCreditosAberto(true);
+        removerFundo();
+        setAviso("Modo teste ativo — usando recorte local.");
         return;
       }
 
@@ -1456,10 +1666,10 @@ if (!podeUsarIAAgora()) return;
     }
 
     setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
     setImagemBaseEdicao(data.imagemUrl);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
-
     setAviso(`Recorte avançado concluído. Saldo restante: ${data.saldo}`);
   } catch (error) {
     console.error(error);
@@ -1475,27 +1685,22 @@ async function recorteProfissionalComIA() {
     return;
   }
 
-  if (!podeUsarIAAgora()) return;
-
   setProcessando(true);
   setErro("");
 
   try {
     const resposta = await fetch("/api/ia/recorte-profissional", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        imageUrl: imagemOriginal,
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageUrl: imagemOriginal }),
     });
 
     const data = await resposta.json();
 
     if (!resposta.ok) {
       if (data.error === "SEM_CREDITOS" || data.erro === "SEM_CREDITOS") {
-        setPopupComprarCreditosAberto(true);
+        removerFundo();
+        setAviso("Modo teste ativo — usando recorte local.");
         return;
       }
 
@@ -1504,10 +1709,10 @@ async function recorteProfissionalComIA() {
     }
 
     setImagemFinal(data.imagemUrl);
+    setTemResultadoReal(true);
     setImagemBaseEdicao(data.imagemUrl);
     setZoomResultado(1);
     setPanResultado({ x: 0, y: 0 });
-
     setAviso(`Recorte profissional concluído. Saldo restante: ${data.saldo}`);
   } catch (error) {
     console.error(error);
@@ -1516,7 +1721,6 @@ async function recorteProfissionalComIA() {
     setProcessando(false);
   }
 }
-
 function salvarHistoricoMascara() {
   const canvas = canvasRemoverObjetoRef.current;
   if (!canvas) return;
@@ -1538,12 +1742,19 @@ function pintarMascaraObjeto(e: React.PointerEvent<HTMLCanvasElement>) {
 
   const rect = canvas.getBoundingClientRect();
 
-  const x = ((e.clientX - rect.left) / rect.width) * canvas.width;
-  const y = ((e.clientY - rect.top) / rect.height) * canvas.height;
+  const escalaX = canvas.width / rect.width;
+  const escalaY = canvas.height / rect.height;
+  const escalaMedia = (escalaX + escalaY) / 2;
+
+  const x = (e.clientX - rect.left) * escalaX;
+  const y = (e.clientY - rect.top) * escalaY;
+
+  const raioTela = tamanhoPincel / 2;
+  const raioCanvas = raioTela * escalaMedia;
 
   ctx.fillStyle = "rgba(255, 0, 120, 0.65)";
   ctx.beginPath();
-  ctx.arc(x, y, tamanhoPincel / 2, 0, Math.PI * 2);
+  ctx.arc(x, y, raioCanvas, 0, Math.PI * 2);
   ctx.fill();
 }
 
@@ -1724,8 +1935,7 @@ body: JSON.stringify({
     if (!resposta.ok) {
       setPopupProcessandoIA(false);
       if (dataResposta.error === "SEM_CREDITOS" || dataResposta.erro === "SEM_CREDITOS") {
-  setPopupProcessandoIA(false);
-  setPopupComprarCreditosAberto(true);
+  setAviso("Modo teste ativo — sem créditos PHANYX. Use o botão grande Remover fundo para testar o antes/depois sem gastar IA.");
   return;
 }
 
@@ -1740,6 +1950,7 @@ body: JSON.stringify({
     setPopupProcessandoIA(false);
     setProgressoFakeIA(100);
     setImagemFinal(dataResposta.imagemUrl);
+    setTemResultadoReal(true);
 
 const imgResultado = new Image();
 imgResultado.crossOrigin = "anonymous";
@@ -2297,6 +2508,7 @@ async function comprarPacoteCreditos(quantidade: number) {
                   onClick={() => {
   if (canvasRef.current) {
     setImagemFinal(canvasRef.current.toDataURL("image/png"));
+    setTemResultadoReal(true);
   }
 
   setModalRefinamentoAberto(false);
@@ -2601,12 +2813,14 @@ async function comprarPacoteCreditos(quantidade: number) {
   onAplicar={(novaImagem) => {
     setImagemOriginal(novaImagem);
     setImagemFinal(null);
+    setTemResultadoReal(false);
     setModalCorteAberto(false);
   }}
 />
 
       <section className="min-h-screen bg-[#020b2d] px-3 py-8 text-white sm:px-6 sm:py-16">
-        <div className="mx-auto max-w-7xl">
+        <div
+        className="mx-auto max-w-7xl">
           <div className="mb-10">
             <h1 className="text-3xl font-black leading-tight sm:text-5xl">
   Removedor de Fundo PHANYX
@@ -2616,14 +2830,14 @@ async function comprarPacoteCreditos(quantidade: number) {
               logos, fotos e imagens com exportação transparente.
             </p>
           </div>
-
+</div>
           {erro && (
             <div className="mb-6 rounded-xl border border-red-500 bg-red-950 p-4 text-red-200">
               {erro}
             </div>
           )}
 
-          <div className="grid items-start gap-4 lg:grid-cols-[240px_1fr_1fr]">
+          <div className="grid items-start gap-4 lg:grid-cols-[240px_1fr]">
             <aside className="space-y-5">
               <label className="block cursor-pointer rounded-2xl border border-cyan-500/40 bg-slate-900 p-4 text-center">
                 <div className="text-base font-bold text-cyan-300">
@@ -2638,9 +2852,14 @@ async function comprarPacoteCreditos(quantidade: number) {
                   accept="image/*"
                   className="hidden"
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) carregarImagem(file);
-                  }}
+  const file = e.currentTarget.files?.[0];
+
+  if (file) {
+    carregarImagem(file);
+  }
+
+  e.currentTarget.value = "";
+}}
                 />
               </label>
 
@@ -2664,32 +2883,24 @@ async function comprarPacoteCreditos(quantidade: number) {
 
   {menuIAAberto && (
     <div className="mt-3 space-y-2">
-      <button
-        type="button"
-        disabled={!imagemOriginal || processando}
-        onClick={melhorarComIA}
-        className="w-full rounded-xl bg-violet-500 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
-      >
-        ✨ Melhorar imagem
-      </button>
-
+      
       <button
   type="button"
   disabled={!imagemOriginal || processando}
   onClick={melhorarComIA}
   className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
 >
-  🌸 Restaurar foto
+  🩹 Restaurar foto
 </button>
 
-      <button
-        type="button"
-        disabled={!imagemOriginal || processando}
-        onClick={melhorarComIA}
-        className="w-full rounded-xl bg-slate-800 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
-      >
-        ⬆️ Aumentar resolução 2x
-      </button>
+<button
+  type="button"
+  disabled={!imagemOriginal || processando}
+  onClick={restaurarFotoAntigaComIA}
+  className="w-full rounded-xl bg-amber-500 px-3 py-3 text-xs font-black text-white disabled:opacity-40"
+>
+  🧬 Restaurar foto antiga/danificada
+</button>
 
       <button
         type="button"
@@ -2701,22 +2912,12 @@ async function comprarPacoteCreditos(quantidade: number) {
       </button>
 
       <button
-        type="button"
-        disabled={!imagemOriginal || processando}
-        onClick={recorteAvancadoComIA}
-        className="w-full rounded-xl bg-emerald-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
-      >
-        🧠 Recorte avançado
-      </button>
-
-      <button
-        type="button"
-        disabled={!imagemOriginal || processando}
-        onClick={recorteProfissionalComIA}
-        className="w-full rounded-xl bg-yellow-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
-      >
-        💎 Recorte profissional
-      </button>
+  type="button"
+  disabled={!imagemOriginal || processando}
+    onClick={corrigirIluminacaoComIA}  className="w-full rounded-xl bg-yellow-400 px-3 py-3 text-xs font-black text-slate-950 disabled:opacity-40"
+>
+  💡 Corrigir iluminação
+</button>
 
       <button
         type="button"
@@ -2731,7 +2932,7 @@ async function comprarPacoteCreditos(quantidade: number) {
       </button>
 
       <p className="text-center text-[10px] leading-relaxed text-slate-400">
-        Usa créditos IA. Ideal para fotos, pessoas, objetos e imagens complexas.
+        Usa créditos IA. Ideal para remover objetos, textos e pessoas ao fundo. Evite pintar olhos, boca, nariz ou rosto inteiro.
       </p>
     </div>
   )}
@@ -2964,593 +3165,168 @@ async function comprarPacoteCreditos(quantidade: number) {
               )}
             </aside>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-900 p-3 sm:p-5">
-              <h2 className="mb-4 text-center text-xl font-black">
-                Imagem original
-              </h2>
+            <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/80 p-4">
+  <h2 className="mb-4 text-center text-2xl font-black text-cyan-200">
+    Antes e depois
+  </h2>
 
-              <div
+  <div
+    className={`relative flex w-full select-none items-center justify-center overflow-hidden rounded-2xl p-2 sm:p-4 ${
+      modo === "assinatura" && fundoPreview === "verde"
+        ? "bg-emerald-500"
+        : modo === "assinatura" && fundoPreview === "azul"
+          ? "bg-blue-500"
+          : modo === "assinatura" && fundoPreview === "preto"
+            ? "bg-black"
+            : modo === "assinatura" && fundoPreview === "branco"
+              ? "bg-white"
+              : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
+    }`}
+    style={{ minHeight: 420 }}
+  >
+    {!imagemOriginal ? (
+      <p className="text-cyan-100">Envie uma imagem para começar.</p>
+    ) : !temResultadoReal || !imagemFinal || imagemFinal === imagemOriginal ? (
+      <div className="relative flex h-[560px] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl">
+        <img
+          ref={imagemOriginalRef}
+          src={imagemOriginal}
+          alt="Imagem original"
+          draggable={false}
+          onClick={varinhaAtiva ? selecionarCorManual : undefined}
+          className="max-h-full max-w-full rounded-2xl object-contain"
+        />
 
-onTouchStart={(e) => {
-  if (!imagemOriginal) return;
+        <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
+          Antes
+        </div>
+      </div>
+    ) : (
+      <div className="relative h-[560px] w-full max-w-4xl overflow-hidden rounded-2xl bg-black">
+  <img
+    src={imagemFinal}
+    alt="Depois"
+    draggable={false}
+    className="absolute inset-0 h-full w-full select-none object-contain"
+  />
 
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-
-    pinchOriginalRef.current = {
-      distancia: Math.hypot(dx, dy),
-      zoom: zoomOriginal,
-    };
-
-    toqueOriginalRef.current = {
-      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-      y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-    };
-  }
-}}
-onTouchMove={(e) => {
-  if (!imagemOriginal) return;
-
-  if (e.touches.length === 2 && pinchOriginalRef.current && toqueOriginalRef.current) {
-    e.preventDefault();
-
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-
-    const novaDistancia = Math.hypot(dx, dy);
-    const fator = novaDistancia / pinchOriginalRef.current.distancia;
-
-    const centroAtual = {
-      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-      y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
-    };
-
-    const dxPan = centroAtual.x - toqueOriginalRef.current.x;
-    const dyPan = centroAtual.y - toqueOriginalRef.current.y;
-
-    setZoomOriginal(
-      Math.max(
-        1,
-        Math.min(6, Number((pinchOriginalRef.current.zoom * fator).toFixed(2)))
-      )
-    );
-
-    setPanOriginal((pan) => ({
-      x: pan.x + dxPan,
-      y: pan.y + dyPan,
-    }));
-
-    toqueOriginalRef.current = centroAtual;
-  }
-}}
-onTouchEnd={() => {
-  pinchOriginalRef.current = null;
-  toqueOriginalRef.current = null;
-}}
-
-  onWheel={(e) => {
-    if (!imagemOriginal) return;
-
-    e.preventDefault();
-
-    const direcao = e.deltaY > 0 ? -0.1 : 0.1;
-
-    setZoomOriginal((z) =>
-      Math.max(1, Math.min(6, Number((z + direcao).toFixed(2))))
-    );
-  }}
-  onMouseDown={(e) => {
-  if (!imagemOriginal || zoomOriginal <= 1) return;
-
-  const botaoDoMeio = e.button === 1;
-
-  if (
-    ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) &&
-    !botaoDoMeio
-  ) {
-    return;
-  }
-
-  if (botaoDoMeio) {
-    e.preventDefault();
-  }
-
-  arrastandoOriginalRef.current = true;
-  ultimoMouseOriginalRef.current = {
-    x: e.clientX,
-    y: e.clientY,
-  };
-}}
-onMouseMove={(e) => {
-  if (!arrastandoOriginalRef.current || zoomOriginal <= 1) return;
-
-  const dx = e.clientX - ultimoMouseOriginalRef.current.x;
-  const dy = e.clientY - ultimoMouseOriginalRef.current.y;
-
-  ultimoMouseOriginalRef.current = {
-    x: e.clientX,
-    y: e.clientY,
-  };
-
-  setPanOriginal((pan) => ({
-    x: pan.x + dx,
-    y: pan.y + dy,
-  }));
-}}
-onMouseUp={() => {
-  arrastandoOriginalRef.current = false;
-}}
-onMouseLeave={() => {
-  arrastandoOriginalRef.current = false;
-}}
-  className="flex w-full touch-none select-none items-center justify-center overflow-hidden rounded-2xl bg-white p-4"
-  style={{
-    height: modo === "assinatura" ? "260px" : "360px",
-    cursor:
-      (modo === "objeto" && removerBrancoInterno) || varinhaAtiva
-        ? "crosshair"
-        : zoomOriginal > 1
-          ? "grab"
-          : "default",
-  }}
->
-  {imagemOriginal ? (
+  <div
+    className="absolute inset-0 overflow-hidden"
+    style={{
+      clipPath: `inset(0 ${100 - comparadorAntesDepois}% 0 0)`,
+    }}
+  >
     <img
-      ref={imagemOriginalRef}
       src={imagemOriginal}
-      alt="Imagem original"
+      alt="Antes"
       draggable={false}
-      onClick={(e) => {
-        if (e.button === 1) return;
-
-        if ((modo === "objeto" && removerBrancoInterno) || varinhaAtiva) {
-          selecionarCorManual(e);
-        }
-      }}
-      className="max-h-[500px] max-w-full object-contain"
-      style={{
-        transform: `translate(${panOriginal.x}px, ${panOriginal.y}px) scale(${zoomOriginal})`,
-        transformOrigin: "center",
-      }}
+      className="absolute inset-0 h-full w-full select-none object-contain"
     />
-  ) : (
-    <p className="text-slate-400">Envie uma imagem para começar</p>
-  )}
-</div>
-{imagemOriginal && (
-  <div className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-slate-950/60 p-2">
-    <button
-      type="button"
-      onClick={() =>
-        setZoomOriginal((z) =>
-          Math.max(1, Number((z - 0.2).toFixed(2)))
-        )
-      }
-      className="rounded-lg border border-white/20 px-3 py-2 text-xs font-black text-white"
-    >
-      -
-    </button>
-
-    <span className="text-xs font-bold text-cyan-100">
-      Zoom original: {Math.round(zoomOriginal * 100)}%
-    </span>
-
-    <button
-      type="button"
-      onClick={() =>
-        setZoomOriginal((z) =>
-          Math.min(6, Number((z + 0.2).toFixed(2)))
-        )
-      }
-      className="rounded-lg border border-white/20 px-3 py-2 text-xs font-black text-white"
-    >
-      +
-    </button>
-
-    <button
-      type="button"
-      onClick={() => {
-        setZoomOriginal(1);
-        setPanOriginal({ x: 0, y: 0 });
-      }}
-      className="rounded-lg bg-slate-800 px-3 py-2 text-xs font-black text-white"
-    >
-      Reset
-    </button>
   </div>
-)}
-            </div>
 
-            <div className="h-fit rounded-3xl border border-cyan-400/20 bg-slate-900 p-5">
-              <h2 className="mb-4 text-center text-xl font-black text-cyan-200">
-                Resultado transparente
-              </h2>
-
-              <div
-
-onTouchStart={(e) => {
-  if (!imagemFinal) return;
-
-  if (e.touches.length === 2) {
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-
-    toquePinchRef.current = {
-      distancia: Math.hypot(dx, dy),
-      zoom: zoomResultado,
-    };
-
-    toqueArrasteRef.current = null;
-    return;
-  }
-
-  if (e.touches.length === 1 && zoomResultado > 1 && !pincelAtivo) {
-    toqueArrasteRef.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-  }
-}}
-onTouchMove={(e) => {
-  if (!imagemFinal) return;
-
-  if (e.touches.length === 2 && toquePinchRef.current) {
-    e.preventDefault();
-
-    const dx = e.touches[0].clientX - e.touches[1].clientX;
-    const dy = e.touches[0].clientY - e.touches[1].clientY;
-
-    const novaDistancia = Math.hypot(dx, dy);
-    const fator = novaDistancia / toquePinchRef.current.distancia;
-
-    setZoomResultado(
-      Math.max(
-        0.5,
-        Math.min(5, Number((toquePinchRef.current.zoom * fator).toFixed(2)))
-      )
-    );
-
-    return;
-  }
-
-  if (e.touches.length === 1 && toqueArrasteRef.current && zoomResultado > 1 && !pincelAtivo) {
-    e.preventDefault();
-
-    const atual = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    };
-
-    const dx = atual.x - toqueArrasteRef.current.x;
-    const dy = atual.y - toqueArrasteRef.current.y;
-
-    toqueArrasteRef.current = atual;
-
-    setPanResultado((pan) => ({
-      x: pan.x + dx,
-      y: pan.y + dy,
-    }));
-  }
-}}
-onTouchEnd={() => {
-  toquePinchRef.current = null;
-  toqueArrasteRef.current = null;
-}}
-
-                onWheel={(e) => {
-                  if (!imagemFinal) return;
-
-                  e.preventDefault();
-
-                  const direcao = e.deltaY > 0 ? -0.1 : 0.1;
-
-                  setZoomResultado((z) =>
-                    Math.max(
-                      0.5,
-                      Math.min(5, Number((z + direcao).toFixed(2)))
-                    )
-                  );
-                }}
-                onMouseDown={(e) => {
-                  if (!imagemFinal || zoomResultado <= 1 || pincelAtivo) return;
-
-                  arrastandoResultadoRef.current = true;
-                  ultimoMouseResultadoRef.current = {
-                    x: e.clientX,
-                    y: e.clientY,
-                  };
-                }}
-                onMouseMove={(e) => {
-                  if (!arrastandoResultadoRef.current || zoomResultado <= 1 || pincelAtivo) {
-                    return;
-                  }
-
-                  const dx = e.clientX - ultimoMouseOriginalRef.current.x;
-                  const dy = e.clientY - ultimoMouseOriginalRef.current.y;
-
-                  ultimoMouseOriginalRef.current = {
-                    x: e.clientX,
-                    y: e.clientY,
-                  };
-
-                  setPanResultado((pan) => ({
-                    x: pan.x + dx,
-                    y: pan.y + dy,
-                  }));
-                }}
-                onMouseUp={() => {
-                  arrastandoOriginalRef.current = false;
-                }}
-                onMouseLeave={() => {
-                  arrastandoOriginalRef.current = false;
-                }}
-                className={`flex w-full touch-none select-none items-center justify-center overflow-hidden rounded-2xl p-2 sm:p-4 ${
-                  modo === "assinatura" && fundoPreview === "verde"
-                    ? "bg-emerald-500"
-                    : modo === "assinatura" && fundoPreview === "azul"
-                      ? "bg-blue-500"
-                      : modo === "assinatura" && fundoPreview === "preto"
-                        ? "bg-black"
-                        : modo === "assinatura" && fundoPreview === "branco"
-                          ? "bg-white"
-                          : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
-                }`}
-                style={{
-                 height: modo === "assinatura" ? "240px" : "320px",
-                  cursor: pincelAtivo
-                    ? "crosshair"
-                    : imagemFinal && zoomResultado > 1
-                      ? "grab"
-                      : "default",
-                }}
-              >
-                {imagemFinal ? (
-                  <img
-                    ref={imagemResultadoRef}
-                    src={imagemFinal}
-                    alt="Resultado transparente"
-                    draggable={false}
-                    onPointerDown={(e) => {
-  if (espacoPressionadoRef.current) return;
-  e.currentTarget.setPointerCapture(e.pointerId);
-  iniciarPincelResultado(e);
-}}
-                    onPointerMove={(e) => {
-  if (!pincelAtivo || !editandoPincelRef.current) return;
-  aplicarPincelResultado(e);
-}}
-                    onPointerUp={() => {
-  editandoPincelRef.current = false;
-  ultimoPontoPincelRef.current = null;
-}}
-                    onPointerLeave={() => {
-  editandoPincelRef.current = false;
-  ultimoPontoPincelRef.current = null;
-}}
-                    className="max-h-[240px] max-w-full object-contain"
-                    style={{
-                      opacity: opacidade / 100,
-                      filter: "none",
-                      transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
-                      transformOrigin: "center",
-                    }}
-                  />
-                ) : (
-                  <p className="text-cyan-100">Resultado aparecerá aqui</p>
-                )}
-              </div>
-
-              {imagemFinal && (
-                <div className="mt-3 rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="text-xs font-black text-cyan-200">
-                        Refinamento manual
-                      </p>
-                      <p className="text-[10px] text-slate-300">
-                        Use depois do recorte para apagar ou restaurar detalhes.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setModalRefinamentoAberto(true)}
-                        className="rounded-lg bg-cyan-400 px-3 py-2 text-[10px] font-black text-slate-950 hover:bg-cyan-300"
-                      >
-                        Abrir grande
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={desfazerUltimoPincel}
-                        className="rounded-lg border border-white/20 px-3 py-2 text-[10px] font-black text-white hover:bg-white/10"
-                      >
-                        Desfazer
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setPincelAtivo((ativo) => !ativo)}
-                        className={`rounded-lg px-3 py-2 text-[10px] font-black ${
-                          pincelAtivo
-                            ? "bg-cyan-400 text-slate-950"
-                            : "bg-slate-800 text-white"
-                        }`}
-                      >
-                        {pincelAtivo ? "Pincel ligado" : "Ligar pincel"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {pincelAtivo && (
-                    <div className="mt-3 space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-  setPincelAtivo(true);
-  setFerramentaPincel("apagar");
-}}
-                          className={`rounded-lg px-2 py-2 text-[10px] font-black ${
-                            ferramentaPincel === "apagar"
-                              ? "bg-cyan-400 text-slate-950"
-                              : "bg-slate-800 text-white"
-                          }`}
-                        >
-                          Apagar sobra
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => {
-  setPincelAtivo(true);
-  setFerramentaPincel("restaurar");
-}}
-                          className={`rounded-lg px-2 py-2 text-[10px] font-black ${
-                            ferramentaPincel === "restaurar"
-                              ? "bg-cyan-400 text-slate-950"
-                              : "bg-slate-800 text-white"
-                          }`}
-                        >
-                          Restaurar parte
-                        </button>
-                      </div>
-
-                      <Controle
-                        label="Tamanho do pincel"
-                        valor={tamanhoPincel}
-                        min={4}
-                        max={90}
-                        onChange={setTamanhoPincel}
-                      />
-
-<div className="mt-3">
-  <p className="mb-2 text-xs font-black text-cyan-100">
-    Textura do pincel
-  </p>
-
-<div className="mt-4">
-  <div className="mb-2 flex items-center justify-between text-xs font-black">
-    <span className="text-cyan-100">Feather da borda</span>
-    <span className="text-white">
-      {Math.round(featherPincel * 100)}%
-    </span>
+  <div
+    className="absolute bottom-0 top-0 w-1 bg-cyan-300 shadow-[0_0_24px_rgba(34,211,238,0.95)]"
+    style={{ left: `${comparadorAntesDepois}%` }}
+  >
+    <div className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-cyan-200 bg-slate-950 text-lg font-black text-cyan-200 shadow-2xl">
+      ↔
+    </div>
   </div>
 
   <input
     type="range"
     min={0}
-    max={1}
-    step={0.01}
-    value={featherPincel}
-    onChange={(e) =>
-      setFeatherPincel(Number(e.target.value))
-    }
-    className="w-full accent-cyan-400"
+    max={100}
+    value={comparadorAntesDepois}
+    onChange={(e) => setComparadorAntesDepois(Number(e.target.value))}
+    className="absolute inset-0 h-full w-full cursor-ew-resize opacity-0"
+    aria-label="Comparar antes e depois"
   />
 
-  <div className="mt-1 flex justify-between text-[10px] text-slate-400">
-    <span>Dura</span>
-    <span>Suave</span>
+  <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
+    Antes
+  </div>
+
+  <div className="pointer-events-none absolute right-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
+    Depois
   </div>
 </div>
-
-  <div className="grid grid-cols-3 gap-2">
-    {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (
-      <button
-        key={tipo}
-        type="button"
-        onClick={() => setTexturaPincel(tipo)}
-        className={`rounded-xl px-3 py-2 text-xs font-black ${
-          texturaPincel === tipo
-            ? "bg-cyan-400 text-slate-950"
-            : "bg-slate-800 text-white"
-        }`}
-      >
-        {tipo === "duro"
-          ? "Duro"
-          : tipo === "medio"
-            ? "Médio"
-            : "Suave"}
-      </button>
-    ))}
+    )}
   </div>
-</div>
 
-<label className="mt-2 flex cursor-pointer items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-xs text-cyan-100">
-  <input
-    type="checkbox"
-    checked={usarPressaoCaneta}
-    onChange={(e) => setUsarPressaoCaneta(e.target.checked)}
-  />
-  Usar pressão da caneta/mesa digitalizadora
-</label>
+  {imagemOriginal && (
+    <div className="mt-3 rounded-2xl border border-cyan-400/20 bg-slate-950/70 p-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-black text-cyan-200">Refinamento manual</p>
+          <p className="text-[10px] text-slate-300">
+            Use depois do recorte para apagar ou restaurar detalhes.
+          </p>
+        </div>
 
-                      <p className="text-[10px] leading-tight text-cyan-100/80">
-                        Dica: dê zoom com o scroll, arraste para aproximar o detalhe e pinte sobre o resultado.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            disabled={!imagemFinal}
+            onClick={() => setModalRefinamentoAberto(true)}
+            className="rounded-lg bg-cyan-400 px-3 py-2 text-[10px] font-black text-slate-950 disabled:opacity-40"
+          >
+            Abrir grande
+          </button>
 
-              {imagemFinal && (
-                <div className="mt-2 flex flex-wrap items-center justify-center gap-2 rounded-lg bg-slate-950/60 px-2 py-2">
-                  <div className="flex items-center gap-1">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setZoomResultado((z) =>
-                          Math.max(0.5, Number((z - 0.1).toFixed(2)))
-                        )
-                      }
-                      className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-                    >
-                      -
-                    </button>
+          <button
+            type="button"
+            disabled={!imagemFinal}
+            onClick={desfazerUltimoPincel}
+            className="rounded-lg border border-white/20 px-3 py-2 text-[10px] font-black text-white disabled:opacity-40"
+          >
+            Desfazer
+          </button>
 
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setZoomResultado((z) =>
-                          Math.min(5, Number((z + 0.1).toFixed(2)))
-                        )
-                      }
-                      className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-                    >
-                      +
-                    </button>
-                  </div>
+          <button
+            type="button"
+            disabled={!imagemFinal}
+            onClick={() => setPincelAtivo((ativo) => !ativo)}
+            className="rounded-lg bg-slate-800 px-3 py-2 text-[10px] font-black text-white disabled:opacity-40"
+          >
+            {pincelAtivo ? "Desligar pincel" : "Ligar pincel"}
+          </button>
+        </div>
+      </div>
 
-                  <span className="text-[10px] font-bold text-white/80">
-                    Baixar:
-                  </span>
+      <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-xl bg-slate-950 p-2">
+        <span className="text-xs font-bold text-slate-300">Baixar:</span>
 
-                  <button
-                    onClick={() => baixarImagem("png")}
-                    className="rounded-md bg-cyan-400 px-2 py-1 text-[10px] font-bold text-slate-950 hover:bg-cyan-300"
-                  >
-                    PNG
-                  </button>
+        <button
+          type="button"
+          disabled={!imagemFinal}
+          onClick={() => baixarImagem("png")}
+          className="rounded-lg bg-cyan-400 px-3 py-1 text-xs font-black text-slate-950 disabled:opacity-40"
+        >
+          PNG
+        </button>
 
-                  <button
-                    onClick={() => baixarImagem("jpg")}
-                    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-                  >
-                    JPG
-                  </button>
+        <button
+          type="button"
+          disabled={!imagemFinal}
+          onClick={() => baixarImagem("jpg")}
+          className="rounded-lg border border-white/20 px-3 py-1 text-xs font-black text-white disabled:opacity-40"
+        >
+          JPG
+        </button>
 
-                  <button
-                    onClick={() => baixarImagem("webp")}
-                    className="rounded-md border border-white/20 px-2 py-1 text-[10px] font-bold text-white hover:bg-white/10"
-                  >
-                    WebP
-                  </button>
-                </div>
-              )}
-            </div>
+        <button
+          type="button"
+          disabled={!imagemFinal}
+          onClick={() => baixarImagem("webp")}
+          className="rounded-lg border border-white/20 px-3 py-1 text-xs font-black text-white disabled:opacity-40"
+        >
+          WebP
+        </button>
+      </div>
+    </div>
+  )}
+</section>
 
             <div className="rounded-2xl border border-white/10 bg-slate-900 p-3 lg:col-span-3">
               <h3 className="mb-2 text-base font-black text-white">
@@ -3629,7 +3405,7 @@ onTouchEnd={() => {
           </button>
 
           <canvas ref={canvasRef} className="hidden" />
-        </div>
+        
       </section>
     </>
   );

@@ -200,7 +200,7 @@ export default function TrabalhosProfessorPage() {
         },
         body: JSON.stringify({
           entregaId,
-          nota: Number(nota),
+          nota: nota === "" ? null : Number(nota),
           feedback,
         }),
       });
@@ -428,7 +428,8 @@ function TrabalhoAluno({
               <a
                 href={trabalho.arquivoUrl}
                 target="_blank"
-                className="inline-flex text-sm font-bold text-blue-600 hover:underline"
+rel="noopener noreferrer"
+className="inline-flex text-sm font-bold text-blue-600 hover:underline"
               >
                 Abrir arquivo enviado
               </a>
@@ -438,7 +439,8 @@ function TrabalhoAluno({
               <a
                 href={trabalho.link}
                 target="_blank"
-                className="block text-sm font-bold text-blue-600 hover:underline"
+rel="noopener noreferrer"
+className="block text-sm font-bold text-blue-600 hover:underline"
               >
                 Abrir link enviado
               </a>
