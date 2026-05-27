@@ -2482,7 +2482,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
            
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
-              <div className="mb-4 flex flex-col gap-3">
+              <div className="mb-4 flex flex-col gap-3 pr-20">
                 <div className="w-full">
   <button
     type="button"
@@ -2501,13 +2501,16 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
 </div>
 
 <div className="mt-3 border border-slate-300 bg-white">
-  <div className="border-b border-slate-300 px-2 py-1">
+  <div className="flex items-center justify-between border-b border-slate-300 bg-slate-100 px-2 py-1">
     <h3 className="text-xs font-bold uppercase text-slate-700">
       CENA
     </h3>
+    <span className="text-[10px] text-slate-500">
+      {campos.length}
+    </span>
   </div>
 
-  <div className="max-h-[260px] overflow-y-auto overflow-x-hidden">
+  <div className="max-h-[190px] overflow-y-auto overflow-x-hidden">
     {camadasOrdenadas().map((campo, index) => (
       <div
         key={campo.id}
@@ -2538,12 +2541,16 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
             campoId: campo.id,
           });
         }}
-        className={`flex h-7 cursor-pointer items-center border-b border-slate-200 px-2 text-xs ${
+        className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${
           campoSelecionadoId === campo.id
             ? "bg-blue-100 text-blue-700"
             : "bg-white text-slate-700 hover:bg-slate-100"
         }`}
       >
+        <span className="cursor-grab text-[10px] text-slate-400">
+          ☰
+        </span>
+
         {camadaRenomeandoId === campo.id ? (
           <input
             autoFocus
@@ -2562,9 +2569,14 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
             className="w-full border-none bg-transparent text-xs outline-none"
           />
         ) : (
-          <span className="truncate">
+          <span className="flex-1 truncate">
             {nomeDaCamada(campo, index)}
-            {campo.bloqueado ? "  🔒" : ""}
+          </span>
+        )}
+
+        {campo.bloqueado && (
+          <span className="text-[10px]" title="Elemento travado">
+            🔒
           </span>
         )}
       </div>
@@ -2572,13 +2584,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   </div>
 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setMostrarPainelCampos(false)}
-                  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-100"
-                >
-                  Fechar
-                </button>
+                
               </div>
 
               <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
@@ -4744,17 +4750,24 @@ onKeyUp={() => {
           </main>
 
           {!modoAmplo && (
-<aside className="max-h-[420px] overflow-y-auto border-t border-slate-200 bg-slate-50 p-5 lg:border-l lg:border-t-0">
-            <button
+<aside className="relative max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">            <button
   type="button"
   onClick={() => setPainelCampoAberto((prev) => !prev)}
   className="mb-4 flex w-full items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-left text-lg font-bold text-slate-900 shadow-sm"
 >
   <span>Campo selecionado</span>
   <span>{painelCampoAberto ? "−" : "+"}</span>
+
+<button
+  type="button"
+  onClick={() => setMostrarPainelCampos(false)}
+  className="absolute right-4 top-4 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+>
+  Fechar
 </button>
 
-  
+</button>
+
             {campoSelecionado ? (
   <div className="space-y-4 text-sm text-slate-700">
     {painelCampoAberto && (
