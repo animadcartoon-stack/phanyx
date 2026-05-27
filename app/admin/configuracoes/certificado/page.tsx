@@ -1444,6 +1444,33 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   range.setStart(inicioNode, inicioOffset);
   range.setEnd(fimNode, fimOffset);
 
+  const spanExistente =
+  inicioNode.parentElement?.tagName === "SPAN"
+    ? inicioNode.parentElement
+    : null;
+
+if (
+  spanExistente &&
+  spanExistente === fimNode.parentElement &&
+  spanExistente.innerText.trim() === range.toString().trim()
+) {
+  Object.assign(spanExistente.style, estilo);
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.id === campoSelecionadoId
+        ? {
+            ...campo,
+            texto: editor.innerText,
+            textoHtml: editor.innerHTML,
+          }
+        : campo
+    )
+  );
+
+  return;
+}
+
   selecao.removeAllRanges();
   selecao.addRange(range);
 
