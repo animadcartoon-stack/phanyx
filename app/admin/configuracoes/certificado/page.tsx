@@ -788,6 +788,23 @@ function adicionarImagemBiblioteca(
       inicio: Math.min(inicio, fim),
       fim: Math.max(inicio, fim),
     };
+
+const elementoCor =
+  range.startContainer.nodeType === Node.TEXT_NODE
+    ? range.startContainer.parentElement
+    : (range.startContainer as HTMLElement);
+
+const elementoFinalCor =
+  elementoCor?.closest("span") || elementoCor;
+
+const cor = elementoFinalCor
+  ? window.getComputedStyle(elementoFinalCor).color
+  : "";
+
+const corHex = cssColorToHex(cor);
+
+setCorTextoSelecionado(corHex || null);
+
   }
 
   document.addEventListener("selectionchange", salvarSelecaoTextoLivre);
@@ -1593,10 +1610,11 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
     fim: info.inicio + spanAlvo.innerText.length,
   };
 
-  if (spanAlvo.style.color) {
-    setCorTextoSelecionado(spanAlvo.style.color);
-  }
-
+  if (estilo.color) {
+  setCorTextoSelecionado(String(estilo.color).toLowerCase());
+} else if (spanAlvo.style.color) {
+  setCorTextoSelecionado(cssColorToHex(spanAlvo.style.color) || null);
+}
   setCampos((prev) =>
     prev.map((campo) =>
       campo.id === campoSelecionadoId
