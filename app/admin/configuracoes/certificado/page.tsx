@@ -1389,19 +1389,20 @@ function temSelecaoTextoLivreSalva() {
 }
 
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
-  const info = selecaoTextoInfoRef.current;
-
-  if (!info || info.campoId !== campoSelecionadoId || info.fim <= info.inicio) {
-    return;
-  }
-
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
   ) as HTMLElement | null;
 
   if (!editor) return;
 
-  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+  const info = selecaoTextoInfoRef.current;
+  if (!info || info.campoId !== campoSelecionadoId) return;
+
+  const walker = document.createTreeWalker(
+    editor,
+    NodeFilter.SHOW_TEXT,
+    null
+  );
 
   let atual = 0;
   let inicioNode: Node | null = null;
@@ -1413,12 +1414,20 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
     const node = walker.currentNode;
     const tamanho = node.textContent?.length || 0;
 
-    if (!inicioNode && info.inicio >= atual && info.inicio <= atual + tamanho) {
+    if (
+      !inicioNode &&
+      info.inicio >= atual &&
+      info.inicio <= atual + tamanho
+    ) {
       inicioNode = node;
       inicioOffset = info.inicio - atual;
     }
 
-    if (!fimNode && info.fim >= atual && info.fim <= atual + tamanho) {
+    if (
+      !fimNode &&
+      info.fim >= atual &&
+      info.fim <= atual + tamanho
+    ) {
       fimNode = node;
       fimOffset = info.fim - atual;
     }
@@ -1428,32 +1437,32 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
 
   if (!inicioNode || !fimNode) return;
 
+  const selecao = window.getSelection();
+  if (!selecao) return;
+
   const range = document.createRange();
   range.setStart(inicioNode, inicioOffset);
   range.setEnd(fimNode, fimOffset);
 
+  selecao.removeAllRanges();
+  selecao.addRange(range);
+
   const span = document.createElement("span");
   Object.assign(span.style, estilo);
 
-  const conteudo = range.extractContents();
-  span.appendChild(conteudo);
-  range.insertNode(span);
+  try {
+    range.surroundContents(span);
+  } catch {
+    const conteudo = range.extractContents();
+    span.appendChild(conteudo);
+    range.insertNode(span);
+  }
 
-  const novoInicio = info.inicio;
-  const novoFim = info.inicio + span.innerText.length;
-
-  selecaoTextoInfoRef.current = {
-    campoId: info.campoId,
-    inicio: novoInicio,
-    fim: novoFim,
-  };
-
-  const novaSelecao = window.getSelection();
   const novoRange = document.createRange();
   novoRange.selectNodeContents(span);
 
-  novaSelecao?.removeAllRanges();
-  novaSelecao?.addRange(novoRange);
+  selecao.removeAllRanges();
+  selecao.addRange(novoRange);
 
   selecaoTextoRef.current = novoRange.cloneRange();
 
