@@ -31,6 +31,9 @@ model Instituicao {
   googleTagManagerAtivo     Boolean @default(false)
   googleAdsId               String?
   googleAdsAtivo            Boolean @default(false)
+  googleAdsCustomerId       String?
+  googleAdsRefreshToken     String?
+  googleAdsAccountName      String?
   searchConsoleDominio      String?
   searchConsoleAtivo        Boolean @default(false)
   googleBusinessUrl         String?
