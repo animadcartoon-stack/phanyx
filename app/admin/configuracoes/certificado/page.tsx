@@ -5405,24 +5405,23 @@ onClick={() =>
                   <input
   type="color"
   value={corTextoSelecionado || campoSelecionado?.cor || "#1e3a8a"}
-  onMouseDown={(e) => {
-    e.preventDefault();
+  onClick={(e) => {
     e.stopPropagation();
   }}
   onChange={(e) => {
-  const cor = e.target.value.toLowerCase();
+    const cor = e.target.value.toLowerCase();
 
-  setCorTextoSelecionado(cor);
+    setCorTextoSelecionado(cor);
 
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    aplicarEstiloTextoSelecionado({
-      color: cor,
-    });
-    return;
-  }
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      aplicarEstiloTextoSelecionado({
+        color: cor,
+      });
+      return;
+    }
 
-  atualizarCampoLocal("cor", cor);
-}}
+    atualizarCampoLocal("cor", cor);
+  }}
   className="h-11 w-full cursor-pointer rounded-xl border border-slate-300 px-2 py-2"
 />
                 </div>
