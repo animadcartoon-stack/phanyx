@@ -5361,28 +5361,24 @@ onClick={() =>
                   </label>
                   <input
   type="color"
-  value={campoSelecionado?.tamanho ?? 18}
+  value={campoSelecionado?.cor || "#1e3a8a"}
+  onMouseDown={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }}
   onChange={(e) => {
-  const tamanho = Number(e.target.value);
+    const cor = e.target.value;
 
-  setTamanhoSelecaoTexto(tamanho);
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+      aplicarEstiloTextoSelecionado({
+        color: cor,
+      });
+      return;
+    }
 
-  const temSelecao =
-    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-    selecaoTextoRef.current &&
-    window.getSelection()?.toString().trim();
-
-  if (temSelecao) {
-    aplicarEstiloTextoSelecionado({
-      fontSize: `${tamanho}px`,
-    });
-
-    return;
-  }
-
-  atualizarCampoLocal("tamanho", tamanho);
-}}
-  className="h-11 w-full rounded-xl border border-slate-300 px-2 py-2"
+    atualizarCampoLocal("cor", cor);
+  }}
+  className="h-11 w-full cursor-pointer rounded-xl border border-slate-300 px-2 py-2"
 />
                 </div>
 
@@ -5497,12 +5493,27 @@ onClick={() =>
   <div className="grid grid-cols-2 gap-2">
     <button
       type="button"
-      onClick={() =>
-        atualizarCampoLocal(
-          "mostrarContorno" as any,
-          (campoSelecionado as any)?.mostrarContorno === false ? true : false
-        )
-      }
+      onClick={() => {
+  const ativo =
+    (campoSelecionado as any)?.mostrarContorno === false ? true : false;
+
+  if (
+    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+    temSelecaoTextoLivreSalva()
+  ) {
+    aplicarEstiloTextoSelecionado({
+      WebkitTextStrokeWidth: ativo
+        ? `${(campoSelecionado as any)?.contornoEspessura || 1.5}px`
+        : "0px",
+      WebkitTextStrokeColor:
+        (campoSelecionado as any)?.contornoCor || "#1d4ed8",
+    } as React.CSSProperties);
+
+    return;
+  }
+
+  atualizarCampoLocal("mostrarContorno" as any, ativo);
+}}
       className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
     >
       {(campoSelecionado as any)?.mostrarContorno === false
@@ -6449,8 +6460,11 @@ iniciarDrag(event as any, c);
   const novaCor = e.target.value;
   setCorContornoTexto(novaCor);
 
+  if (!temSelecaoTextoLivreSalva()) return;
+
   aplicarEstiloTextoSelecionado({
-    WebkitTextStroke: `${espessuraContornoTexto}px ${novaCor}`,
+    WebkitTextStrokeColor: novaCor,
+    WebkitTextStrokeWidth: `${espessuraContornoTexto}px`,
   } as React.CSSProperties);
 }}
     className="mb-3 h-9 w-full cursor-pointer rounded-lg border"
@@ -6470,8 +6484,11 @@ iniciarDrag(event as any, c);
   const novaEspessura = Number(e.target.value);
   setEspessuraContornoTexto(novaEspessura);
 
+  if (!temSelecaoTextoLivreSalva()) return;
+
   aplicarEstiloTextoSelecionado({
-    WebkitTextStroke: `${novaEspessura}px ${corContornoTexto}`,
+    WebkitTextStrokeWidth: `${novaEspessura}px`,
+    WebkitTextStrokeColor: corContornoTexto,
   } as React.CSSProperties);
 }}
     className="w-full"
