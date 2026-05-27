@@ -6085,7 +6085,7 @@ iniciarDrag(event as any, c);
         style={{
           fontFamily: c.fonte || "Arial",
           fontSize: c.tamanho || 18,
-          color: c.cor || "#1e3a8a",
+          color: (c as any).textoHtml ? "inherit" : c.cor || "#1e3a8a",
           fontWeight: c.negrito ? 700 : 400,
           fontStyle: c.italico ? "italic" : "normal",
           textDecoration: c.sublinhado ? "underline" : "none",
@@ -6097,7 +6097,7 @@ iniciarDrag(event as any, c);
           direction: "ltr",
           unicodeBidi: "normal",
           writingMode: "horizontal-tb",
-          caretColor: c.cor || "#1e3a8a",
+          caretColor: corTextoSelecionado || c.cor || "#1e3a8a",
         }}
       >
         {(c as any).textoHtml ? (
