@@ -190,18 +190,20 @@ async function alterarFotoPerfil(file: File | null) {
 >
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
-<div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
-  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-    Dica PHANYX
-  </p>
+<details className="mt-3 w-fit">
+  <summary className="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+    ℹ️ Dicas da foto
+  </summary>
 
-  <p className="mt-1 text-sm leading-6 text-slate-600">
-    Para que sua foto fique bem centralizada no perfil, utilize uma imagem
-    quadrada (1:1), preferencialmente em 500x500px ou maior.
-    <br />
-    Formatos aceitos: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5MB.
-  </p>
-</div>
+  <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
+    <p className="text-sm leading-6 text-slate-600">
+      Para que sua foto fique bem centralizada no perfil, utilize uma imagem
+      quadrada (1:1), preferencialmente em 500x500px ou maior.
+      <br />
+      Formatos aceitos: PNG, JPG, JPEG e WEBP • Tamanho máximo: 5MB.
+    </p>
+  </div>
+</details>
   </div>
 </div>
 
