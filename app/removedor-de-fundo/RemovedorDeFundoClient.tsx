@@ -3212,7 +3212,7 @@ setPopupComprarCreditosAberto(false);
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
     ) : (
-<div className="relative aspect-[4/3] w-full max-w-4xl overflow-hidden rounded-2xl bg-black sm:aspect-auto sm:h-[560px]">  <img
+<div className="relative h-[340px] w-full max-w-4xl overflow-hidden rounded-2xl bg-black sm:h-[560px]">  <img
     src={imagemFinal || imagemOriginal}
     alt="Depois"
     draggable={false}
