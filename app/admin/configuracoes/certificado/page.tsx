@@ -1388,6 +1388,36 @@ function temSelecaoTextoLivreSalva() {
   );
 }
 
+function obterTamanhoTextoSelecionadoAtual() {
+  const info = selecaoTextoInfoRef.current;
+
+  if (!info || info.campoId !== campoSelecionadoId) {
+    return tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
+  }
+
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionadoId}"]`
+  ) as HTMLElement | null;
+
+  if (!editor) return tamanhoSelecaoTexto || 18;
+
+  const selecao = window.getSelection();
+  const node = selecao?.anchorNode;
+  const elemento =
+    node?.nodeType === Node.TEXT_NODE
+      ? node.parentElement
+      : (node as HTMLElement | null);
+
+  const span = elemento?.closest("span") as HTMLElement | null;
+
+  if (span?.style.fontSize) {
+    const tamanho = Number(span.style.fontSize.replace("px", ""));
+    if (Number.isFinite(tamanho)) return tamanho;
+  }
+
+  return tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
+}
+
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
@@ -5234,7 +5264,7 @@ onClick={() =>
       return;
     }
 
-    const novoTamanho = Math.max(6, (tamanhoSelecaoTexto || 18) - 2);
+    const novoTamanho = Math.max(6, obterTamanhoTextoSelecionadoAtual() - 2);
     setTamanhoSelecaoTexto(novoTamanho);
 
     aplicarEstiloTextoSelecionado({
@@ -5277,7 +5307,7 @@ onClick={() =>
       return;
     }
 
-    const novoTamanho = Math.min(120, (tamanhoSelecaoTexto || 18) + 2);
+    const novoTamanho = Math.min(120, obterTamanhoTextoSelecionadoAtual() + 2);
     setTamanhoSelecaoTexto(novoTamanho);
 
     aplicarEstiloTextoSelecionado({
