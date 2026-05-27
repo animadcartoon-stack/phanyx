@@ -6072,7 +6072,10 @@ iniciarDrag(event as any, c);
         style={{
           fontFamily: c.fonte || "Arial",
           fontSize: c.tamanho || 18,
-          color: (c as any).textoHtml ? "inherit" : c.cor || "#1e3a8a",
+          color: "#ffffff",
+          opacity: 1,
+          filter: "none",
+          textShadow: "none",
           fontWeight: c.negrito ? 700 : 400,
           fontStyle: c.italico ? "italic" : "normal",
           textDecoration: c.sublinhado ? "underline" : "none",
