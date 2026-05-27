@@ -3210,25 +3210,10 @@ setPopupComprarCreditosAberto(false);
   >
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
-    ) : !imagemFinal || imagemFinal === imagemOriginal ? (
-      <div className="relative flex h-[360px] sm:h-[460px] lg:h-[360px] sm:h-[460px] lg:h-[560px] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl">
-        <img
-          ref={imagemOriginalRef}
-          src={imagemOriginal}
-          alt="Imagem original"
-          draggable={false}
-          onClick={varinhaAtiva ? selecionarCorManual : undefined}
-          className="max-h-full max-w-full rounded-2xl object-contain"
-        />
-
-        <div className="pointer-events-none absolute left-4 top-4 rounded-full bg-black/70 px-4 py-2 text-xs font-black text-white">
-          Antes
-        </div>
-      </div>
     ) : (
       <div className="relative h-[560px] w-full max-w-4xl overflow-hidden rounded-2xl bg-black">
   <img
-    src={imagemFinal}
+    src={imagemFinal || imagemOriginal}
     alt="Depois"
     draggable={false}
     className="absolute inset-0 h-full w-full select-none object-contain"
