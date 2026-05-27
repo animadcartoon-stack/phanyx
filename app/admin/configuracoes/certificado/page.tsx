@@ -5632,9 +5632,18 @@ onClick={() =>
   <button
   type="button"
   onClick={() => {
-  aplicarEstiloTextoSelecionado({
-  textShadow: "3px 3px 6px rgba(0,0,0,0.45)",
-});
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (!temSelecaoTextoLivreSalva()) return;
+
+    aplicarEstiloTextoSelecionado({
+      textShadow: "3px 3px 6px rgba(0,0,0,0.45)",
+    });
+
+    setMenuContexto(null);
+    return;
+  }
+
+  atualizarCampoLocal("sombraAtiva" as any, true);
   setMenuContexto(null);
 }}
   className="w-full flex items-center justify-between text-sm font-semibold text-left"
@@ -6479,7 +6488,7 @@ iniciarDrag(event as any, c);
     max={6}
     step={0.5}
     value={espessuraContornoTexto}
-    onMouseDown={(e) => e.preventDefault()}
+    onMouseDown={(e) => e.stopPropagation()}
     onChange={(e) => {
   const novaEspessura = Number(e.target.value);
   setEspessuraContornoTexto(novaEspessura);
