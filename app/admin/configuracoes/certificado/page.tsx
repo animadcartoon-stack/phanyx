@@ -1579,9 +1579,20 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   const span = document.createElement("span");
   Object.assign(span.style, estilo);
 
+  if (estilo.color) {
+  span.style.color = String(estilo.color);
+}
+
   const conteudo = range.extractContents();
-  span.appendChild(conteudo);
-  range.insertNode(span);
+
+if (estilo.color) {
+  conteudo.querySelectorAll?.("span").forEach((el) => {
+    (el as HTMLElement).style.color = String(estilo.color);
+  });
+}
+
+span.appendChild(conteudo);
+range.insertNode(span);
 
   const selecao = window.getSelection();
   const novoRange = document.createRange();
