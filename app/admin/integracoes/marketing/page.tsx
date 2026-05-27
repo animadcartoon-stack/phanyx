@@ -111,6 +111,10 @@ const [googleBusinessStatus, setGoogleBusinessStatus] = useState({
   notaMedia: null as number | null,
 });
 
+const [googleAdsStatus, setGoogleAdsStatus] = useState({
+  conectado: false,
+});
+
   const [metaStatus, setMetaStatus] = useState({
     conectado: false,
     metricasDisponiveis: false,
@@ -122,10 +126,11 @@ const [googleBusinessStatus, setGoogleBusinessStatus] = useState({
   });
 
   useEffect(() => {
-    carregarDashboard();
-    carregarMetaFacebook();
-    carregarGoogleBusiness();
-  }, []);
+  carregarDashboard();
+  carregarMetaFacebook();
+  carregarGoogleBusiness();
+  carregarGoogleAds();
+}, []);
 
   async function carregarDashboard() {
     try {
@@ -199,6 +204,23 @@ const [googleBusinessStatus, setGoogleBusinessStatus] = useState({
       rotas: Number(data.rotas || 0),
       avaliacoes: Number(data.avaliacoes || 0),
       notaMedia: data.notaMedia,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function carregarGoogleAds() {
+  try {
+    const res = await fetch("/api/admin/integracoes/google-ads/metricas", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    setGoogleAdsStatus({
+      conectado: !!data.conectado,
     });
   } catch (error) {
     console.error(error);
@@ -341,15 +363,23 @@ const [googleBusinessStatus, setGoogleBusinessStatus] = useState({
         status: metaStatus.conectado ? "Conectado" : "Configuração",
         href: "/api/admin/integracoes/meta/connect",
       }
-    : card.titulo === "Google Business"
-    ? {
-        ...card,
-        status: googleBusinessStatus.conectado
-          ? "Conectado"
-          : "Configuração",
-        href: "/admin/integracoes/google-business",
-      }
-    : card;
+    : card.titulo === "Google Ads"
+? {
+    ...card,
+    status: googleAdsStatus.conectado
+      ? "Conectado"
+      : "Configuração",
+    href: "/admin/integracoes/google-ads",
+  }
+: card.titulo === "Google Business"
+? {
+    ...card,
+    status: googleBusinessStatus.conectado
+      ? "Conectado"
+      : "Configuração",
+    href: "/admin/integracoes/google-business",
+  }
+: card;
 
             const bloqueado = cardAtual.href === "#";
 
