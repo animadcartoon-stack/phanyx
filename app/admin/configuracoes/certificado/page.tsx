@@ -1418,6 +1418,56 @@ function obterTamanhoTextoSelecionadoAtual() {
   return tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18;
 }
 
+function alterarTamanhoTextoSelecionado(delta: number) {
+  const info = selecaoTextoInfoRef.current;
+  if (!info || info.campoId !== campoSelecionadoId) return;
+
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionadoId}"]`
+  ) as HTMLElement | null;
+
+  if (!editor) return;
+
+  const selecao = window.getSelection();
+  const node = selecao?.anchorNode;
+
+  const elemento =
+    node?.nodeType === Node.TEXT_NODE
+      ? node.parentElement
+      : (node as HTMLElement | null);
+
+  const span = elemento?.closest("span") as HTMLElement | null;
+
+  if (span && editor.contains(span)) {
+    const atual = Number(span.style.fontSize.replace("px", "")) || tamanhoSelecaoTexto || 18;
+    const novo = Math.max(6, Math.min(120, atual + delta));
+
+    span.style.fontSize = `${novo}px`;
+    setTamanhoSelecaoTexto(novo);
+
+    setCampos((prev) =>
+      prev.map((campo) =>
+        campo.id === campoSelecionadoId
+          ? {
+              ...campo,
+              texto: editor.innerText,
+              textoHtml: editor.innerHTML,
+            }
+          : campo
+      )
+    );
+
+    return;
+  }
+
+  const novo = Math.max(6, Math.min(120, (tamanhoSelecaoTexto || 18) + delta));
+  setTamanhoSelecaoTexto(novo);
+
+  aplicarEstiloTextoSelecionado({
+    fontSize: `${novo}px`,
+  });
+}
+
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
@@ -5259,18 +5309,7 @@ onClick={() =>
   e.stopPropagation();
 
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    if (!temSelecaoTextoLivreSalva()) {
-      setMensagemErro("Selecione uma palavra ou trecho antes de alterar o tamanho.");
-      return;
-    }
-
-    const novoTamanho = Math.max(6, obterTamanhoTextoSelecionadoAtual() - 2);
-    setTamanhoSelecaoTexto(novoTamanho);
-
-    aplicarEstiloTextoSelecionado({
-      fontSize: `${novoTamanho}px`,
-    });
-
+    alterarTamanhoTextoSelecionado(-2);
     return;
   }
 
@@ -5302,18 +5341,7 @@ onClick={() =>
   e.stopPropagation();
 
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    if (!temSelecaoTextoLivreSalva()) {
-      setMensagemErro("Selecione uma palavra ou trecho antes de alterar o tamanho.");
-      return;
-    }
-
-    const novoTamanho = Math.min(120, obterTamanhoTextoSelecionadoAtual() + 2);
-    setTamanhoSelecaoTexto(novoTamanho);
-
-    aplicarEstiloTextoSelecionado({
-      fontSize: `${novoTamanho}px`,
-    });
-
+    alterarTamanhoTextoSelecionado(2);
     return;
   }
 
