@@ -1596,9 +1596,13 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   }
 
   const selecao = window.getSelection();
-selecao?.removeAllRanges();
+const novoRange = document.createRange();
+novoRange.selectNodeContents(spanAlvo);
 
-selecaoTextoRef.current = null;
+selecao?.removeAllRanges();
+selecao?.addRange(novoRange);
+
+selecaoTextoRef.current = novoRange.cloneRange();
 
   selecaoTextoInfoRef.current = {
     campoId: Number(campoSelecionadoId),
