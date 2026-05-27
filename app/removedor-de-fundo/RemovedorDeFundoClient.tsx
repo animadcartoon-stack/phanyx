@@ -1172,9 +1172,10 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
 
       ctx.putImageData(imageData, 0, 0);
 
-      setImagemFinal(canvas.toDataURL("image/png"));
-      setTemResultadoReal(true);
-      setProcessando(false);
+setImagemBaseEdicao(imagemOriginal);
+setImagemFinal(canvas.toDataURL("image/png"));
+setTemResultadoReal(true);
+setProcessando(false);
     };
 
     img.onerror = () => {
