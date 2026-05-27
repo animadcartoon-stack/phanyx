@@ -24,22 +24,26 @@ model Instituicao {
   metaPageName        String?
   metaPageAccessToken String?
 
-  googleAnalyticsId         String?
-  googleAnalyticsPropertyId String?
-  googleAnalyticsAtivo      Boolean @default(false)
-  googleTagManagerId        String?
-  googleTagManagerAtivo     Boolean @default(false)
-  googleAdsId               String?
-  googleAdsAtivo            Boolean @default(false)
-  googleAdsCustomerId       String?
-  googleAdsRefreshToken     String?
-  googleAdsAccountName      String?
-  searchConsoleDominio      String?
-  searchConsoleAtivo        Boolean @default(false)
-  googleBusinessUrl         String?
-  googleBusinessAtivo       Boolean @default(false)
-  googleSearchConsoleMeta   String?
-  googleSearchConsoleAtivo  Boolean @default(false)
+  googleAnalyticsId          String?
+  googleAnalyticsPropertyId  String?
+  googleAnalyticsAtivo       Boolean @default(false)
+  googleTagManagerId         String?
+  googleTagManagerAtivo      Boolean @default(false)
+  googleAdsId                String?
+  googleAdsAtivo             Boolean @default(false)
+  googleAdsCustomerId        String?
+  googleAdsRefreshToken      String?
+  googleAdsAccountName       String?
+  searchConsoleDominio       String?
+  searchConsoleAtivo         Boolean @default(false)
+  googleBusinessUrl          String?
+  googleBusinessAtivo        Boolean @default(false)
+  googleBusinessRefreshToken String?
+  googleBusinessAccountId    String?
+  googleBusinessLocationId   String?
+  googleBusinessName         String?
+  googleSearchConsoleMeta    String?
+  googleSearchConsoleAtivo   Boolean @default(false)
 
   alternativas               Alternativa[]
   alunos                     Aluno[]
