@@ -3212,12 +3212,11 @@ setPopupComprarCreditosAberto(false);
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
     ) : (
-      <div className="relative h-[340px] w-full max-w-4xl overflow-hidden rounded-2xl bg-black sm:h-[560px]">
-  <img
+<div className="relative aspect-[4/3] w-full max-w-4xl overflow-hidden rounded-2xl bg-black sm:aspect-auto sm:h-[560px]">  <img
     src={imagemFinal || imagemOriginal}
     alt="Depois"
     draggable={false}
-    className="absolute inset-0 h-full w-full select-none object-contain"
+    className="absolute inset-0 h-full w-full select-none object-contain sm:object-contain"
   />
 
   <div
@@ -3230,7 +3229,7 @@ setPopupComprarCreditosAberto(false);
       src={imagemOriginal}
       alt="Antes"
       draggable={false}
-      className="absolute inset-0 h-full w-full select-none object-contain"
+      className="absolute inset-0 h-full w-full select-none object-contain sm:object-contain"
     />
   </div>
 
