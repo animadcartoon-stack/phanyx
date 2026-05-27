@@ -3212,7 +3212,7 @@ setPopupComprarCreditosAberto(false);
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
     ) : (
-<div className="relative h-[340px] w-full max-w-4xl overflow-hidden rounded-2xl bg-black sm:h-[560px]">  <img
+<div className={`relative h-[340px] w-full max-w-4xl overflow-hidden rounded-2xl sm:h-[560px] ${modo === "assinatura" ? "bg-transparent" : "bg-black"}`}>  <img
     src={imagemFinal || imagemOriginal}
     alt="Depois"
     draggable={false}
