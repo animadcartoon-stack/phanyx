@@ -181,6 +181,26 @@ function rgbToHex(r: number, g: number, b: number) {
   );
 }
 
+function cssColorToHex(cor: string) {
+  if (!cor) return "";
+
+  if (cor.startsWith("#")) {
+    return cor.toLowerCase();
+  }
+
+  const match = cor.match(/\d+/g);
+
+  if (!match || match.length < 3) {
+    return "";
+  }
+
+  return rgbToHex(
+    Number(match[0]),
+    Number(match[1]),
+    Number(match[2])
+  );
+}
+
 function calcularSombra(angulo: number, distancia: number) {
   const rad = (angulo * Math.PI) / 180;
 
@@ -4357,8 +4377,9 @@ altura: ev.shiftKey
 
     const elemento = selecao.anchorNode?.parentElement;
     const cor = elemento ? window.getComputedStyle(elemento).color : "";
+    const corHex = cssColorToHex(cor);
 
-    setCorTextoSelecionado(cor || null);
+setCorTextoSelecionado(corHex || null);
   }
 }}
 onKeyUp={() => {
@@ -5365,23 +5386,25 @@ onClick={() =>
                   </label>
                   <input
   type="color"
-  value={campoSelecionado?.cor || "#1e3a8a"}
+  value={corTextoSelecionado || campoSelecionado?.cor || "#1e3a8a"}
   onMouseDown={(e) => {
     e.preventDefault();
     e.stopPropagation();
   }}
   onChange={(e) => {
-    const cor = e.target.value;
+  const cor = e.target.value.toLowerCase();
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-      aplicarEstiloTextoSelecionado({
-        color: cor,
-      });
-      return;
-    }
+  setCorTextoSelecionado(cor);
 
-    atualizarCampoLocal("cor", cor);
-  }}
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    aplicarEstiloTextoSelecionado({
+      color: cor,
+    });
+    return;
+  }
+
+  atualizarCampoLocal("cor", cor);
+}}
   className="h-11 w-full cursor-pointer rounded-xl border border-slate-300 px-2 py-2"
 />
                 </div>
