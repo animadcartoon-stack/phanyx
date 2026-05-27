@@ -5198,21 +5198,28 @@ onClick={() =>
     <button
       type="button"
       onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-        const novoTamanho = Math.max(6, (tamanhoSelecaoTexto || 18) - 2);
-        setTamanhoSelecaoTexto(novoTamanho);
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (!temSelecaoTextoLivreSalva()) {
+      setMensagemErro("Selecione uma palavra ou trecho antes de alterar o tamanho.");
+      return;
+    }
 
-        if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-          aplicarEstiloTextoSelecionado({
-            fontSize: `${novoTamanho}px`,
-          });
-          return;
-        }
+    const novoTamanho = Math.max(6, (tamanhoSelecaoTexto || 18) - 2);
+    setTamanhoSelecaoTexto(novoTamanho);
 
-        atualizarCampoLocal("tamanho", novoTamanho);
-      }}
+    aplicarEstiloTextoSelecionado({
+      fontSize: `${novoTamanho}px`,
+    });
+
+    return;
+  }
+
+  const novoTamanho = Math.max(6, (campoSelecionado?.tamanho || 18) - 2);
+  atualizarCampoLocal("tamanho", novoTamanho);
+}}
       className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
     >
       A−
@@ -5234,21 +5241,28 @@ onClick={() =>
     <button
       type="button"
       onMouseDown={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
+  e.preventDefault();
+  e.stopPropagation();
 
-        const novoTamanho = Math.min(120, (tamanhoSelecaoTexto || 18) + 2);
-        setTamanhoSelecaoTexto(novoTamanho);
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (!temSelecaoTextoLivreSalva()) {
+      setMensagemErro("Selecione uma palavra ou trecho antes de alterar o tamanho.");
+      return;
+    }
 
-        if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-          aplicarEstiloTextoSelecionado({
-            fontSize: `${novoTamanho}px`,
-          });
-          return;
-        }
+    const novoTamanho = Math.min(120, (tamanhoSelecaoTexto || 18) + 2);
+    setTamanhoSelecaoTexto(novoTamanho);
 
-        atualizarCampoLocal("tamanho", novoTamanho);
-      }}
+    aplicarEstiloTextoSelecionado({
+      fontSize: `${novoTamanho}px`,
+    });
+
+    return;
+  }
+
+  const novoTamanho = Math.min(120, (campoSelecionado?.tamanho || 18) + 2);
+  atualizarCampoLocal("tamanho", novoTamanho);
+}}
       className="rounded-xl border border-slate-300 px-3 py-2 text-sm font-bold"
     >
       A+
