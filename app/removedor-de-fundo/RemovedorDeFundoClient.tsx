@@ -3212,11 +3212,11 @@ setPopupComprarCreditosAberto(false);
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
     ) : (
-<div className={`relative h-[340px] w-full max-w-4xl overflow-hidden rounded-2xl sm:h-[560px] ${modo === "assinatura" ? "bg-transparent" : "bg-black"}`}>  <img
+<div className={`relative h-[220px] w-full max-w-4xl overflow-hidden rounded-2xl sm:h-[560px] ${modo === "assinatura" ? "bg-transparent" : "bg-black"}`}>  <img
     src={imagemFinal || imagemOriginal}
     alt="Depois"
     draggable={false}
-    className="absolute inset-0 h-full w-full select-none object-contain sm:object-contain"
+    className={`absolute inset-0 h-full w-full select-none ${modo === "assinatura" ? "object-cover sm:object-contain" : "object-contain"}`}
   />
 
   <div
@@ -3408,7 +3408,7 @@ setPopupComprarCreditosAberto(false);
             type="button"
             onClick={removerFundo}
             disabled={!imagemOriginal || processando}
-            className="sticky bottom-3 z-30 mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-base font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50 sm:text-lg"
+            className="mt-6 w-full rounded-2xl bg-cyan-400 px-6 py-4 text-base font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-50 sm:sticky sm:bottom-3 sm:z-30 sm:text-lg"
           >
             {processando ? "Processando..." : "Remover fundo"}
           </button>
