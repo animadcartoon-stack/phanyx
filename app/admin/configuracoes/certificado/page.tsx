@@ -1576,45 +1576,32 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   range.setStart(inicioNode, inicioOffset);
   range.setEnd(fimNode, fimOffset);
 
-  let spanAlvo: HTMLElement | null = null;
+  const span = document.createElement("span");
+  Object.assign(span.style, estilo);
 
-  const paiInicio = inicioNode.parentElement;
-  const paiFim = fimNode.parentElement;
-
-  if (paiInicio?.tagName === "SPAN" && paiInicio === paiFim) {
-    spanAlvo = paiInicio;
-    Object.assign(spanAlvo.style, estilo);
-  } else {
-    const span = document.createElement("span");
-    Object.assign(span.style, estilo);
-
-    const conteudo = range.extractContents();
-    span.appendChild(conteudo);
-    range.insertNode(span);
-
-    spanAlvo = span;
-  }
+  const conteudo = range.extractContents();
+  span.appendChild(conteudo);
+  range.insertNode(span);
 
   const selecao = window.getSelection();
-const novoRange = document.createRange();
-novoRange.selectNodeContents(spanAlvo);
+  const novoRange = document.createRange();
+  novoRange.selectNodeContents(span);
 
-selecao?.removeAllRanges();
-selecao?.addRange(novoRange);
+  selecao?.removeAllRanges();
+  selecao?.addRange(novoRange);
 
-selecaoTextoRef.current = novoRange.cloneRange();
+  selecaoTextoRef.current = novoRange.cloneRange();
 
   selecaoTextoInfoRef.current = {
     campoId: Number(campoSelecionadoId),
     inicio: info.inicio,
-    fim: info.inicio + spanAlvo.innerText.length,
+    fim: info.fim,
   };
 
   if (estilo.color) {
-  setCorTextoSelecionado(String(estilo.color).toLowerCase());
-} else if (spanAlvo.style.color) {
-  setCorTextoSelecionado(cssColorToHex(spanAlvo.style.color) || null);
-}
+    setCorTextoSelecionado(String(estilo.color).toLowerCase());
+  }
+
   setCampos((prev) =>
     prev.map((campo) =>
       campo.id === campoSelecionadoId
