@@ -3210,7 +3210,7 @@ setPopupComprarCreditosAberto(false);
   >
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
-    ) : !temResultadoReal || !imagemFinal || imagemFinal === imagemOriginal ? (
+    ) : !imagemFinal || imagemFinal === imagemOriginal ? (
       <div className="relative flex h-[360px] sm:h-[460px] lg:h-[360px] sm:h-[460px] lg:h-[560px] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl">
         <img
           ref={imagemOriginalRef}
