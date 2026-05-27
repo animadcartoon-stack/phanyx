@@ -3206,12 +3206,12 @@ setPopupComprarCreditosAberto(false);
               ? "bg-white"
               : "bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:24px_24px] bg-[position:0_0,0_12px,12px_-12px,-12px_0]"
     }`}
-    style={{ minHeight: 420 }}
+    style={{ minHeight: "auto" }}
   >
     {!imagemOriginal ? (
       <p className="text-cyan-100">Envie uma imagem para começar.</p>
     ) : !temResultadoReal || !imagemFinal || imagemFinal === imagemOriginal ? (
-      <div className="relative flex h-[560px] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl">
+      <div className="relative flex h-[360px] sm:h-[460px] lg:h-[560px] w-full max-w-4xl items-center justify-center overflow-hidden rounded-2xl">
         <img
           ref={imagemOriginalRef}
           src={imagemOriginal}
