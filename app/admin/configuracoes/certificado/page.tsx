@@ -1577,22 +1577,26 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   range.setEnd(fimNode, fimOffset);
 
   const span = document.createElement("span");
-  Object.assign(span.style, estilo);
-
-  if (estilo.color) {
-  span.style.color = String(estilo.color);
-}
-
-  const conteudo = range.extractContents();
+Object.assign(span.style, estilo);
 
 if (estilo.color) {
-  conteudo.querySelectorAll?.("span").forEach((el) => {
-    (el as HTMLElement).style.color = String(estilo.color);
-  });
-}
+  const cor = String(estilo.color).toLowerCase();
 
-span.appendChild(conteudo);
-range.insertNode(span);
+  span.style.color = cor;
+  span.style.opacity = "1";
+  span.style.filter = "none";
+  span.style.mixBlendMode = "normal";
+  (span.style as any).webkitTextFillColor = cor;
+
+  span.textContent = range.toString();
+
+  range.deleteContents();
+  range.insertNode(span);
+} else {
+  const conteudo = range.extractContents();
+  span.appendChild(conteudo);
+  range.insertNode(span);
+}
 
   const selecao = window.getSelection();
   const novoRange = document.createRange();
