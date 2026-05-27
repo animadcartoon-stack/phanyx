@@ -101,6 +101,16 @@ export default function MarketingIntegracoesPage() {
   posicaoMediaBusca: 0,
 });
 
+const [googleBusinessStatus, setGoogleBusinessStatus] = useState({
+  conectado: false,
+  visualizacoes: 0,
+  cliques: 0,
+  ligacoes: 0,
+  rotas: 0,
+  avaliacoes: 0,
+  notaMedia: null as number | null,
+});
+
   const [metaStatus, setMetaStatus] = useState({
     conectado: false,
     metricasDisponiveis: false,
@@ -114,6 +124,7 @@ export default function MarketingIntegracoesPage() {
   useEffect(() => {
     carregarDashboard();
     carregarMetaFacebook();
+    carregarGoogleBusiness();
   }, []);
 
   async function carregarDashboard() {
@@ -171,6 +182,29 @@ export default function MarketingIntegracoesPage() {
     }
   }
 
+  async function carregarGoogleBusiness() {
+  try {
+    const res = await fetch("/api/admin/integracoes/google-business/metricas", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    setGoogleBusinessStatus({
+      conectado: !!data.conectado,
+      visualizacoes: Number(data.visualizacoes || 0),
+      cliques: Number(data.cliques || 0),
+      ligacoes: Number(data.ligacoes || 0),
+      rotas: Number(data.rotas || 0),
+      avaliacoes: Number(data.avaliacoes || 0),
+      notaMedia: data.notaMedia,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
   const dashboardCards = [
     {
       titulo: "Visitantes",
@@ -210,10 +244,12 @@ export default function MarketingIntegracoesPage() {
     },
     {
       titulo: "Google Business",
-      valor: metricas.googleBusiness.toLocaleString("pt-BR"),
-      detalhe: "Visualizações do perfil",
+      valor: googleBusinessStatus.visualizacoes.toLocaleString("pt-BR"),
+      detalhe: googleBusinessStatus.conectado
+    ? "Visualizações do perfil"
+    : "Conecte seu perfil comercial",
       cor: "text-blue-700",
-    },
+},
     {
       titulo: "Cliques Google",
       valor: metricas.cliquesBusca.toLocaleString("pt-BR"),
@@ -298,16 +334,22 @@ export default function MarketingIntegracoesPage() {
 
         <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-5">
           {cards.map((card) => {
-            const cardAtual =
-              card.titulo === "Meta"
-                ? {
-                    ...card,
-                    status: metaStatus.conectado
-                      ? "Conectado"
-                      : "Configuração",
-                    href: "/api/admin/integracoes/meta/connect",
-                  }
-                : card;
+           const cardAtual =
+  card.titulo === "Meta"
+    ? {
+        ...card,
+        status: metaStatus.conectado ? "Conectado" : "Configuração",
+        href: "/api/admin/integracoes/meta/connect",
+      }
+    : card.titulo === "Google Business"
+    ? {
+        ...card,
+        status: googleBusinessStatus.conectado
+          ? "Conectado"
+          : "Configuração",
+        href: "/admin/integracoes/google-business",
+      }
+    : card;
 
             const bloqueado = cardAtual.href === "#";
 
