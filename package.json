@@ -20,6 +20,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "@vercel/blob": "^2.3.3",
     "bcryptjs": "^3.0.3",
+    "google-ads-api": "^23.0.0",
     "google-auth-library": "^10.6.2",
     "googleapis": "^172.0.0",
     "jsonwebtoken": "^9.0.3",

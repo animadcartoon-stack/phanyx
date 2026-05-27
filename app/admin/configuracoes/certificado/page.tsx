@@ -2484,6 +2484,15 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex flex-col gap-3 pr-20">
                 <div className="w-full">
+
+<button
+  type="button"
+  onClick={() => setMostrarPainelCampos(false)}
+  className="mb-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+>
+  Fechar painel
+</button>
+
   <button
     type="button"
     onClick={() => setCamposDinamicosAberto((prev) => !prev)}
@@ -4757,14 +4766,6 @@ onKeyUp={() => {
 >
   <span>Campo selecionado</span>
   <span>{painelCampoAberto ? "−" : "+"}</span>
-  
-<button
-  type="button"
-  onClick={() => setMostrarPainelCampos(false)}
-  className="absolute right-4 top-4 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
->
-  Fechar
-</button>
 
 </button>
 
