@@ -2319,6 +2319,14 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   </div>
 )}
 
+<style jsx global>{`
+  [data-texto-livre-id]::selection,
+  [data-texto-livre-id] *::selection {
+    background: rgba(37, 99, 235, 0.35);
+    color: inherit;
+  }
+`}</style>
+
 {mensagemSucesso && (
   <div className="mb-4">
     <PhanyxToast
@@ -2329,6 +2337,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     />
   </div>
 )}
+
       <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
