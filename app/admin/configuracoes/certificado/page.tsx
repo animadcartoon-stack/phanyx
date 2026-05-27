@@ -1468,6 +1468,34 @@ function alterarTamanhoTextoSelecionado(delta: number) {
   });
 }
 
+function inserirMarcadorTextoSelecionado(marcador: string) {
+  const info = selecaoTextoInfoRef.current;
+  if (!info || info.campoId !== campoSelecionadoId) return;
+
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionadoId}"]`
+  ) as HTMLElement | null;
+
+  if (!editor) return;
+
+  const textoAtual = editor.innerText;
+  const antes = textoAtual.slice(0, info.inicio);
+  const meio = textoAtual.slice(info.inicio, info.fim);
+  const depois = textoAtual.slice(info.fim);
+
+  const novoTexto = `${antes}${marcador}${meio}${depois}`;
+
+  editor.innerText = novoTexto;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.id === campoSelecionadoId
+        ? { ...campo, texto: editor.innerText, textoHtml: editor.innerHTML }
+        : campo
+    )
+  );
+}
+
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
@@ -1535,6 +1563,15 @@ if (
   spanExistente.innerText.trim() === range.toString().trim()
 ) {
   Object.assign(spanExistente.style, estilo);
+
+  const novaSelecao = window.getSelection();
+const novoRange = document.createRange();
+novoRange.selectNodeContents(spanExistente);
+
+novaSelecao?.removeAllRanges();
+novaSelecao?.addRange(novoRange);
+
+selecaoTextoRef.current = novoRange.cloneRange();
 
   setCampos((prev) =>
     prev.map((campo) =>
@@ -6440,14 +6477,25 @@ iniciarDrag(event as any, c);
     <button
       type="button"
       onClick={() => {
-        atualizarCampoLocal("sombraAtiva", !campoSelecionado?.sombraAtiva);
-        atualizarCampoLocal("sombraX", campoSelecionado?.sombraX ?? 3);
-        atualizarCampoLocal("sombraY", campoSelecionado?.sombraY ?? 3);
-        atualizarCampoLocal("sombraBlur", campoSelecionado?.sombraBlur ?? 6);
-        atualizarCampoLocal("sombraCor", campoSelecionado?.sombraCor || "#000000");
-        atualizarCampoLocal("sombraOpacidade", campoSelecionado?.sombraOpacidade ?? 0.35);
-        setMenuContexto(null);
-      }}
+  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+    if (!temSelecaoTextoLivreSalva()) return;
+
+    aplicarEstiloTextoSelecionado({
+      textShadow: "3px 3px 6px rgba(0,0,0,0.65)",
+    });
+
+    setMenuContexto(null);
+    return;
+  }
+
+  atualizarCampoLocal("sombraAtiva", !campoSelecionado?.sombraAtiva);
+  atualizarCampoLocal("sombraX", campoSelecionado?.sombraX ?? 3);
+  atualizarCampoLocal("sombraY", campoSelecionado?.sombraY ?? 3);
+  atualizarCampoLocal("sombraBlur", campoSelecionado?.sombraBlur ?? 6);
+  atualizarCampoLocal("sombraCor", campoSelecionado?.sombraCor || "#000000");
+  atualizarCampoLocal("sombraOpacidade", campoSelecionado?.sombraOpacidade ?? 0.35);
+  setMenuContexto(null);
+}}
       className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
     >
       🌫️ Sombra projetada
@@ -6464,7 +6512,7 @@ iniciarDrag(event as any, c);
   <input
     type="color"
     value={corContornoTexto}
-    onMouseDown={(e) => e.preventDefault()}
+    onMouseDown={(e) => e.stopPropagation()}
     onChange={(e) => {
   const novaCor = e.target.value;
   setCorContornoTexto(novaCor);
@@ -6518,19 +6566,19 @@ iniciarDrag(event as any, c);
 
     <hr className="my-1" />
 
-    <button onClick={() => { atualizarCampoLocal("marcador", null); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+    <button onClick={() => { setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
       Sem marcador
     </button>
 
-    <button onClick={() => { atualizarCampoLocal("marcador", "•"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+    <button onClick={() => { inserirMarcadorTextoSelecionado("• "); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
       • Bolinha
     </button>
 
-    <button onClick={() => { atualizarCampoLocal("marcador", "➤"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+    <button onClick={() => { inserirMarcadorTextoSelecionado("➤ "); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
       ➤ Setinha
     </button>
 
-    <button onClick={() => { atualizarCampoLocal("marcador", "-"); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
+    <button onClick={() => { inserirMarcadorTextoSelecionado("- "); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
       - Tracinho
     </button>
   </div>
