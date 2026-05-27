@@ -5369,7 +5369,7 @@ onClick={() =>
   onChange={(e) => {
     const cor = e.target.value;
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
       aplicarEstiloTextoSelecionado({
         color: cor,
       });
