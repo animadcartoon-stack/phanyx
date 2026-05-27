@@ -4757,7 +4757,7 @@ onKeyUp={() => {
 >
   <span>Campo selecionado</span>
   <span>{painelCampoAberto ? "−" : "+"}</span>
-
+  
 <button
   type="button"
   onClick={() => setMostrarPainelCampos(false)}
