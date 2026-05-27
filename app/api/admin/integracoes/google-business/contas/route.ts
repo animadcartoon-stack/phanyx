@@ -16,11 +16,11 @@ export async function GET() {
     const instituicao = await prisma.instituicao.findUnique({
       where: { id: user.instituicaoId },
       select: {
-        googleBusinessAccessToken: true,
+        googleBusinessRefreshToken: true,
       },
     });
 
-    if (!instituicao?.googleBusinessAccessToken) {
+    if (!instituicao?.googleBusinessRefreshToken) {
       return NextResponse.json(
         { error: "Google Business não conectado" },
         { status: 400 }
@@ -31,7 +31,7 @@ export async function GET() {
       "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
       {
         headers: {
-          Authorization: `Bearer ${instituicao.googleBusinessAccessToken}`,
+          Authorization: `Bearer ${instituicao.googleBusinessRefreshToken}`,
         },
         cache: "no-store",
       }
