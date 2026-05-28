@@ -735,6 +735,7 @@ function adicionarImagemBiblioteca(
 
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const selecaoTextoRef = useRef<Range | null>(null);
+  const aplicandoEstiloTextoRef = useRef(false);
 
   const selecaoTextoInfoRef = useRef<{
   campoId: number;
@@ -763,6 +764,8 @@ function adicionarImagemBiblioteca(
 
   function salvarSelecaoTextoLivre() {
     const selecao = window.getSelection();
+
+    if (aplicandoEstiloTextoRef.current) return;
 
     if (!selecao || selecao.rangeCount === 0) return;
     if (!selecao.toString().trim()) return;
@@ -1654,16 +1657,13 @@ function inserirMarcadorTextoSelecionado(marcador: string) {
   const textoAntes = obterTextoAntesDoCursor(editor);
   const inicioDaLinha = textoAntes.split("\n").pop() || "";
 
-  if (inicioDaLinha.trim() === "") {
-    inserirTextoNoCursor(editor, `${marcador} `);
-  } else {
-    inserirTextoNoCursor(editor, `\n${marcador} `);
-  }
+  inserirTextoNoCursor(editor, `${marcador} `);
 
   atualizarTextoLivreNoEstado(editor);
 }
 
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
+  aplicandoEstiloTextoRef.current = true;
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
   ) as HTMLElement | null;
@@ -1712,11 +1712,17 @@ Object.assign(span.style, estilo);
 if (estilo.color) {
   const cor = String(estilo.color).toLowerCase();
 
-  span.style.color = cor;
-  span.style.opacity = "1";
-  span.style.filter = "none";
-  span.style.mixBlendMode = "normal";
-  (span.style as any).webkitTextFillColor = cor;
+  span.setAttribute(
+    "style",
+    [
+      `color: ${cor} !important`,
+      `-webkit-text-fill-color: ${cor} !important`,
+      `opacity: 1 !important`,
+      `filter: none !important`,
+      `mix-blend-mode: normal !important`,
+      `text-shadow: none !important`,
+    ].join("; ")
+  );
 
   span.textContent = range.toString();
 
@@ -1758,6 +1764,9 @@ if (estilo.color) {
         : campo
     )
   );
+  setTimeout(() => {
+  aplicandoEstiloTextoRef.current = false;
+}, 80);
 }
 
 function temSelecaoTextoLivreAtiva() {

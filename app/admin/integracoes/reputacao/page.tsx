@@ -17,6 +17,7 @@ export default function ReputacaoPage() {
     const [scoreAtual, setScoreAtual] = useState(82);
 const [avaliacoes, setAvaliacoes] = useState(0);
 const [pendencias, setPendencias] = useState(0);
+const [modalRespostaAberto, setModalRespostaAberto] = useState(false);
 
 useEffect(() => {
   const timer = setInterval(() => {
@@ -308,9 +309,13 @@ const timeline = [
         não recebeu resposta.
       </p>
 
-      <button className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-700">
-        Responder agora
-      </button>
+      <button
+  type="button"
+  onClick={() => setModalRespostaAberto(true)}
+  className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-700"
+>
+  Responder agora
+</button>
     </div>
 
     <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -402,6 +407,77 @@ const timeline = [
           </ul>
         </div>
       </div>
+         {modalRespostaAberto && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-3xl border bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
+                  Alerta reputacional
+                </p>
+
+                <h2 className="mt-2 text-2xl font-black text-slate-900">
+                  Responder avaliação negativa
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  O PHANYX preparou uma sugestão profissional para responder com
+                  empatia, clareza e proteção da reputação institucional.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setModalRespostaAberto(false)}
+                className="rounded-full bg-slate-100 px-3 py-1 text-lg font-black text-slate-500 hover:bg-slate-200"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-red-100 bg-red-50 p-4">
+              <p className="text-sm font-bold text-red-700">
+                Avaliação recebida
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                “Tive dificuldade para conseguir atendimento e não recebi retorno
+                sobre minha solicitação.”
+              </p>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+              <p className="text-sm font-bold text-blue-700">
+                Sugestão da IA PHANYX
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                Olá! Sentimos muito pela experiência relatada. Agradecemos por
+                compartilhar seu feedback, pois ele nos ajuda a melhorar nosso
+                atendimento. Nossa equipe irá verificar o ocorrido e buscar uma
+                solução o mais breve possível.
+              </p>
+            </div>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setModalRespostaAberto(false)}
+                className="rounded-xl border px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
+              >
+                Copiar resposta
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
