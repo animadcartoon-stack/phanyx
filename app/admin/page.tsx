@@ -454,6 +454,7 @@ export default function AdminDashboardPage() {
   const inputFotoRef = useRef<HTMLInputElement | null>(null);
   const [perfilAdmin, setPerfilAdmin] = useState<any>(null);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
+  const [perfilAberto, setPerfilAberto] = useState(true);
   const [busca, setBusca] = useState("");
   const [alunosLista, setAlunosLista] = useState<ItemBusca[]>([]);
   const [professoresLista, setProfessoresLista] = useState<ItemBusca[]>([]);
@@ -870,52 +871,67 @@ async function alterarFoto(file: File | null) {
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
 
-<div className="mb-6 flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
-  <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
-    {perfilAdmin?.fotoPerfil ? (
-      <img
-        src={perfilAdmin.fotoPerfil}
-        alt={perfilAdmin?.nome || "Funcionário"}
-        className="h-full w-full object-cover"
-      />
-    ) : (
-      <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
-        {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
-      </div>
-    )}
-  </div>
-
-  <div>
-    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
-      Perfil administrativo
-    </p>
-
-    <h2 className="text-xl font-bold text-slate-900">
-      {perfilAdmin?.nome || "Administrador"}
-    </h2>
-
-    <>
-  <input
-    ref={inputFotoRef}
-    type="file"
-    accept="image/png,image/jpeg,image/jpg,image/webp"
-    className="hidden"
-    onChange={(e) => {
-      const file = e.target.files?.[0] || null;
-      alterarFoto(file);
-      e.target.value = "";
-    }}
-  />
-
+<div className="mb-6 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
   <button
     type="button"
-    onClick={() => inputFotoRef.current?.click()}
-    className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50"
+    onClick={() => setPerfilAberto((atual) => !atual)}
+    className="flex w-full items-center justify-between gap-4 text-left"
   >
-    Alterar foto
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700">
+        Perfil administrativo
+      </p>
+
+      <h2 className="text-xl font-bold text-slate-900">
+        {perfilAdmin?.nome || "Administrador"}
+      </h2>
+    </div>
+
+    <span className="text-2xl font-black text-slate-500">
+      {perfilAberto ? "▾" : "▸"}
+    </span>
   </button>
-</>
-  </div>
+
+  {perfilAberto && (
+    <div className="mt-4 flex items-center gap-4">
+      <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100">
+        {perfilAdmin?.fotoPerfil ? (
+          <img
+            src={perfilAdmin.fotoPerfil}
+            alt={perfilAdmin?.nome || "Funcionário"}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center text-2xl font-bold text-slate-700">
+            {perfilAdmin?.nome?.charAt(0)?.toUpperCase() || "A"}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <input
+          ref={inputFotoRef}
+          type="file"
+          accept="image/png,image/jpeg,image/jpg,image/webp"
+          className="hidden"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            alterarFoto(file);
+            e.target.value = "";
+          }}
+        />
+
+        <button
+          type="button"
+          onClick={() => inputFotoRef.current?.click()}
+          disabled={enviandoFoto}
+          className="rounded-xl border bg-white px-4 py-2 text-sm font-medium hover:bg-slate-50 disabled:opacity-60"
+        >
+          {enviandoFoto ? "Enviando..." : "Alterar foto"}
+        </button>
+      </div>
+    </div>
+  )}
 </div>
 
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-700">

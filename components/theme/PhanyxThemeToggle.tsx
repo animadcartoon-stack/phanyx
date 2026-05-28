@@ -18,10 +18,10 @@ function aplicarTema(tema: Tema) {
 }
 
 export default function PhanyxThemeToggle() {
-  const [tema, setTema] = useState<Tema>("system");
+  const [tema, setTema] = useState<Tema>("light");
 
   useEffect(() => {
-    const salvo = (localStorage.getItem("phanyx_tema") as Tema) || "system";
+    const salvo = (localStorage.getItem("phanyx_tema") as Tema) || "light";
     setTema(salvo);
     aplicarTema(salvo);
   }, []);
