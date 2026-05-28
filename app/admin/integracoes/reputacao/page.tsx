@@ -77,10 +77,10 @@ useEffect(() => {
 }, []);
 
 useEffect(() => {
+  if (notificacaoFechada) return;
+
   const intervalo = setInterval(() => {
-    if (!notificacaoFechada) {
-  setMostrarNotificacaoIA(true);
-}
+    setMostrarNotificacaoIA(true);
 
     setTimeout(() => {
       setMostrarNotificacaoIA(false);
@@ -94,8 +94,9 @@ useEffect(() => {
   }, 7000);
 
   return () => clearInterval(intervalo);
-}, []);
+}, [notificacaoFechada]);
 
+  
 const graficoDinamico = useMemo(
   () => [
     { nome: "Seg", score: scoreAtual - 10 },
