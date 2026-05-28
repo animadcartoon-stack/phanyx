@@ -5867,103 +5867,187 @@ onClick={() =>
 
 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
   <button
-  type="button"
-  onClick={() => {
-  if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-    if (!temSelecaoTextoLivreSalva()) return;
-
-    aplicarEstiloTextoSelecionado({
-      textShadow: "3px 3px 6px rgba(0,0,0,0.45)",
-    });
-
-    setMenuContexto(null);
-    return;
-  }
-
-  atualizarCampoLocal("sombraAtiva" as any, true);
-  setMenuContexto(null);
-}}
-  className="w-full flex items-center justify-between text-sm font-semibold text-left"
->
-  Sombra projetada
-  <span
-  className={`transition-transform ${
-    sombraAberta ? "rotate-180" : ""
-  }`}
->
-  ▼
-</span>
-</button>
-
-{sombraAberta && (
-  <>
-
-  <button
     type="button"
-    onClick={() =>
-      atualizarCampoLocal("sombraAtiva", !campoSelecionado?.sombraAtiva)
-    }
-    className="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50"
+    onClick={() => {
+      if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+        if (!temSelecaoTextoLivreAtiva()) return;
+
+        aplicarEstiloTextoSelecionado({
+          textShadow: "3px 3px 6px rgba(0,0,0,0.45)",
+        });
+
+        setMenuContexto(null);
+        return;
+      }
+
+      atualizarCampoLocal("sombraAtiva" as any, true);
+      setMenuContexto(null);
+    }}
+    className="w-full flex items-center justify-between text-sm font-semibold text-left"
   >
-    {campoSelecionado?.sombraAtiva ? "Desativar sombra" : "Ativar sombra"}
+    Sombra projetada
+    <span className={`transition-transform ${sombraAberta ? "rotate-180" : ""}`}>
+      ▼
+    </span>
   </button>
 
-<label className="mt-3 block text-xs text-slate-500">Cor da sombra</label>
-<input
-  type="color"
-  value={campoSelecionado?.sombraCor || "#000000"}
-  onChange={(e) => atualizarCampoLocal("sombraCor", e.target.value)}
-  className="h-10 w-full cursor-pointer rounded-xl border border-slate-300"
-/>
+  {sombraAberta && (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          const ativa = !campoSelecionado?.sombraAtiva;
+          atualizarCampoLocal("sombraAtiva", ativa);
 
-  <label className="text-xs text-gray-600">Ângulo</label>
-<input
-  type="range"
-  min={0}
-  max={360}
-  value={(campoSelecionado as any)?.sombraAngulo ?? 45}
-  onChange={(e) =>
-    atualizarCampoLocal("sombraAngulo", Number(e.target.value) as any)
-  }
-/>
+          if (temSelecaoTextoLivreAtiva()) {
+            aplicarEstiloTextoSelecionado({
+              textShadow: ativa
+                ? "3px 3px 6px rgba(0,0,0,0.45)"
+                : "none",
+            });
+          }
+        }}
+        className="mt-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-semibold hover:bg-slate-50"
+      >
+        {campoSelecionado?.sombraAtiva ? "Desativar sombra" : "Ativar sombra"}
+      </button>
 
-<label className="text-xs text-gray-600 mt-2">Distância</label>
-<input
-  type="range"
-  min={0}
-  max={100}
-  value={(campoSelecionado as any)?.sombraDistancia ?? 20}
-  onChange={(e) =>
-    atualizarCampoLocal("sombraDistancia", Number(e.target.value) as any)
-  }
-/>
+      <label className="mt-3 block text-xs text-slate-500">Cor da sombra</label>
+      <input
+        type="color"
+        value={campoSelecionado?.sombraCor || "#000000"}
+        onChange={(e) => {
+          const valor = e.target.value;
+          atualizarCampoLocal("sombraCor", valor);
 
-  <label className="mt-3 block text-xs text-slate-500">Desfoque</label>
-  <input
-    type="range"
-    min={0}
-    max={80}
-    value={campoSelecionado?.sombraBlur ?? 20}
-    onChange={(e) => atualizarCampoLocal("sombraBlur", Number(e.target.value))}
-    className="w-full"
-  />
+          if (temSelecaoTextoLivreAtiva()) {
+            const blur = campoSelecionado?.sombraBlur ?? 20;
+            const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
 
-  <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
-  <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
-<input
-  type="range"
-  min={0}
-  max={100}
-  step={1}
-  value={campoSelecionado?.sombraOpacidade ?? 40}
-  onChange={(e) =>
-    atualizarCampoLocal("sombraOpacidade", Number(e.target.value))
-  }
-  className="w-full"
-/>
-   </>
-)}
+            const { x, y } = calcularSombra(
+              (campoSelecionado as any)?.sombraAngulo ?? 45,
+              (campoSelecionado as any)?.sombraDistancia ?? 20
+            );
 
+            aplicarEstiloTextoSelecionado({
+              textShadow: `${x}px ${y}px ${blur}px ${hexToRgba(valor, opacidade)}`,
+            });
+          }
+        }}
+        className="h-10 w-full cursor-pointer rounded-xl border border-slate-300"
+      />
+
+      <label className="text-xs text-gray-600">Ângulo</label>
+      <input
+        type="range"
+        min={0}
+        max={360}
+        value={(campoSelecionado as any)?.sombraAngulo ?? 45}
+        onChange={(e) => {
+          const valor = Number(e.target.value);
+          atualizarCampoLocal("sombraAngulo", valor as any);
+
+          if (temSelecaoTextoLivreAtiva()) {
+            const blur = campoSelecionado?.sombraBlur ?? 20;
+            const cor = campoSelecionado?.sombraCor || "#000000";
+            const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+
+            const { x, y } = calcularSombra(
+              valor,
+              (campoSelecionado as any)?.sombraDistancia ?? 20
+            );
+
+            aplicarEstiloTextoSelecionado({
+              textShadow: `${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`,
+            });
+          }
+        }}
+      />
+
+      <label className="text-xs text-gray-600 mt-2">Distância</label>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={(campoSelecionado as any)?.sombraDistancia ?? 20}
+        onChange={(e) => {
+          const valor = Number(e.target.value);
+          atualizarCampoLocal("sombraDistancia", valor as any);
+
+          if (temSelecaoTextoLivreAtiva()) {
+            const blur = campoSelecionado?.sombraBlur ?? 20;
+            const cor = campoSelecionado?.sombraCor || "#000000";
+            const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+
+            const { x, y } = calcularSombra(
+              (campoSelecionado as any)?.sombraAngulo ?? 45,
+              valor
+            );
+
+            aplicarEstiloTextoSelecionado({
+              textShadow: `${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`,
+            });
+          }
+        }}
+      />
+
+      <label className="mt-3 block text-xs text-slate-500">Desfoque</label>
+      <input
+        type="range"
+        min={0}
+        max={80}
+        value={campoSelecionado?.sombraBlur ?? 20}
+        onChange={(e) => {
+          const valor = Number(e.target.value);
+          atualizarCampoLocal("sombraBlur", valor);
+
+          if (temSelecaoTextoLivreAtiva()) {
+            const cor = campoSelecionado?.sombraCor || "#000000";
+            const opacidade = (campoSelecionado?.sombraOpacidade ?? 40) / 100;
+
+            const { x, y } = calcularSombra(
+              (campoSelecionado as any)?.sombraAngulo ?? 45,
+              (campoSelecionado as any)?.sombraDistancia ?? 20
+            );
+
+            aplicarEstiloTextoSelecionado({
+              textShadow: `${x}px ${y}px ${valor}px ${hexToRgba(cor, opacidade)}`,
+            });
+          }
+        }}
+        className="w-full"
+      />
+
+      <label className="mt-3 block text-xs text-slate-500">Opacidade</label>
+      <input
+        type="range"
+        min={0}
+        max={100}
+        step={1}
+        value={campoSelecionado?.sombraOpacidade ?? 40}
+        onChange={(e) => {
+          const valor = Number(e.target.value);
+          atualizarCampoLocal("sombraOpacidade", valor);
+
+          if (temSelecaoTextoLivreAtiva()) {
+            const blur = campoSelecionado?.sombraBlur ?? 20;
+            const cor = campoSelecionado?.sombraCor || "#000000";
+            const opacidade = valor / 100;
+
+            const { x, y } = calcularSombra(
+              (campoSelecionado as any)?.sombraAngulo ?? 45,
+              (campoSelecionado as any)?.sombraDistancia ?? 20
+            );
+
+            aplicarEstiloTextoSelecionado({
+              textShadow: `${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`,
+            });
+          }
+        }}
+        className="w-full"
+      />
+    </>
+  )}
 </div>
       <div className="flex gap-2 pt-2">
         <button

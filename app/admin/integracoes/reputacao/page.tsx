@@ -20,6 +20,9 @@ const [pendencias, setPendencias] = useState(0);
 const [modalRespostaAberto, setModalRespostaAberto] = useState(false);
 const [toastMensagem, setToastMensagem] = useState("");
 
+const [avaliacaoSelecionada, setAvaliacaoSelecionada] =
+  useState<any | null>(null);
+
 const [modalAberto, setModalAberto] = useState(false);
 
 const [modalEngajamentoAberto, setModalEngajamentoAberto] =
@@ -73,9 +76,22 @@ const graficoDinamico = useMemo(
   [scoreAtual]
 );
 
+const gerarRespostaIA = (avaliacao: any) => {
+  if (!avaliacao) return "";
+
+  if (avaliacao.sentimento === "Crítico") {
+    return `Olá, ${avaliacao.nome}. Sentimos muito pela experiência relatada. Agradecemos por compartilhar seu feedback, pois ele nos ajuda a melhorar continuamente nosso atendimento. Nossa equipe irá analisar sua situação com atenção para buscar uma solução o mais breve possível.`;
+  }
+
+  if (avaliacao.sentimento === "Neutro") {
+    return `Olá, ${avaliacao.nome}. Agradecemos pela sua avaliação e pelas observações compartilhadas. Seu feedback é muito importante para continuarmos aprimorando nossos processos e oferecendo uma experiência cada vez melhor.`;
+  }
+
+  return `Olá, ${avaliacao.nome}. Ficamos muito felizes em saber que sua experiência foi positiva. Agradecemos pela confiança em nossa instituição e pelo carinho em compartilhar sua avaliação.`;
+};
+
 const copiarRespostaIA = async () => {
-  const texto =
-    "Olá! Sentimos muito pela experiência relatada. Agradecemos por compartilhar seu feedback, pois ele nos ajuda a melhorar nosso atendimento. Nossa equipe irá verificar o ocorrido e buscar uma solução o mais breve possível.";
+  const texto = gerarRespostaIA(avaliacaoSelecionada);
 
   await navigator.clipboard.writeText(texto);
 
@@ -549,12 +565,15 @@ const avaliacoesSimuladas = [
           </button>
 
           <button
-            type="button"
-            onClick={() => setModalRespostaAberto(true)}
-            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
-          >
-            Responder com IA
-          </button>
+  type="button"
+  onClick={() => {
+    setAvaliacaoSelecionada(avaliacao);
+    setModalRespostaAberto(true);
+  }}
+  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+>
+  Responder com IA
+</button>
         </div>
       </div>
     ))}
@@ -642,9 +661,22 @@ const avaliacoesSimuladas = [
                 Avaliação recebida
               </p>
 
+<div className="mt-3 flex flex-wrap gap-2">
+  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-700">
+    {avaliacaoSelecionada?.nome}
+  </span>
+
+  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-yellow-600">
+    {avaliacaoSelecionada?.nota} estrelas
+  </span>
+
+  <span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-red-600">
+    {avaliacaoSelecionada?.sentimento}
+  </span>
+</div>
+
               <p className="mt-2 text-sm leading-6 text-slate-700">
-                “Tive dificuldade para conseguir atendimento e não recebi retorno
-                sobre minha solicitação.”
+                “{avaliacaoSelecionada?.texto}”
               </p>
             </div>
 
@@ -654,10 +686,7 @@ const avaliacoesSimuladas = [
               </p>
 
               <p className="mt-2 text-sm leading-6 text-slate-700">
-                Olá! Sentimos muito pela experiência relatada. Agradecemos por
-                compartilhar seu feedback, pois ele nos ajuda a melhorar nosso
-                atendimento. Nossa equipe irá verificar o ocorrido e buscar uma
-                solução o mais breve possível.
+                {gerarRespostaIA(avaliacaoSelecionada)}
               </p>
             </div>
 
