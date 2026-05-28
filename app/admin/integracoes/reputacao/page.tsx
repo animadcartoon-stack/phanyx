@@ -240,6 +240,96 @@ const timeline = [
         </p>
       </div>
 
+<div className="rounded-3xl border bg-white p-6 shadow-sm">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="text-2xl font-black text-slate-900">
+        Alertas reputacionais
+      </h2>
+
+      <p className="mt-1 text-sm text-slate-500">
+        Monitoramento inteligente de reputação institucional.
+      </p>
+    </div>
+
+    <div className="rounded-full bg-red-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-red-700">
+      IA Monitorando
+    </div>
+  </div>
+
+  <div className="mt-6 grid gap-4 lg:grid-cols-3">
+
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-red-700">
+          Crítico
+        </span>
+
+        <span className="text-2xl">⚠️</span>
+      </div>
+
+      <h3 className="mt-4 text-lg font-black text-slate-900">
+        Avaliação negativa detectada
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        Uma nova avaliação negativa foi detectada no Google Business e ainda
+        não recebeu resposta.
+      </p>
+
+      <button className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700">
+        Responder agora
+      </button>
+    </div>
+
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-amber-700">
+          Atenção
+        </span>
+
+        <span className="text-2xl">📈</span>
+      </div>
+
+      <h3 className="mt-4 text-lg font-black text-slate-900">
+        Crescimento de engajamento
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        O perfil institucional apresentou aumento de visualizações nesta
+        semana.
+      </p>
+
+      <button className="mt-5 rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-white hover:bg-amber-600">
+        Ver detalhes
+      </button>
+    </div>
+
+    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-black uppercase tracking-wide text-emerald-700">
+          Positivo
+        </span>
+
+        <span className="text-2xl">✅</span>
+      </div>
+
+      <h3 className="mt-4 text-lg font-black text-slate-900">
+        Nota reputacional estável
+      </h3>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        A reputação institucional segue saudável e sem oscilações negativas.
+      </p>
+
+      <button className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700">
+        Ver análise IA
+      </button>
+    </div>
+
+  </div>
+</div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h2 className="text-lg font-black text-slate-900">
