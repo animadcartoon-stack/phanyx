@@ -700,11 +700,73 @@ const obterCorTimeline = (tipo: string) => {
       </h2>
       <p className="mt-1 text-sm text-slate-500">
         Avaliações recentes monitoradas pela IA PHANYX.
+        </p>
         <div className="mt-6 grid gap-4 md:grid-cols-4">
   <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
     <p className="text-xs font-black uppercase tracking-wide text-blue-700">
       Total
     </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {totalAvaliacoes}
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-amber-700">
+      Pendentes
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {totalPendentes}
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+      Respondidas
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {totalRespondidas}
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-red-700">
+      Índice PHANYX
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {percentualRespondidas}%
+    </h3>
+  </div>
+</div>
+      
+    </div>
+
+    <span className="rounded-full bg-blue-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
+      IA analisando sentimentos
+    </span>
+
+<div className="flex flex-wrap gap-2">
+  {["Todos", "Pendentes", "Respondidas", "Críticas", "Positivas", "Neutras"].map(
+    (filtro) => (
+      <button
+        key={filtro}
+        type="button"
+        onClick={() => setFiltroAvaliacoes(filtro)}
+        className={`rounded-full px-4 py-2 text-xs font-black transition-all ${
+          filtroAvaliacoes === filtro
+            ? "bg-blue-600 text-white shadow-lg"
+            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+        }`}
+      >
+        {filtro}
+      </button>
+    )
+  )}
+</div>
 
 <div className="mt-8 grid gap-5 xl:grid-cols-[1.4fr_1fr]">
   <div className="rounded-[2rem] border border-blue-100 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 text-white shadow-2xl">
@@ -824,67 +886,6 @@ const obterCorTimeline = (tipo: string) => {
       </p>
     </div>
   </div>
-</div>
-
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
-      {totalAvaliacoes}
-    </h3>
-  </div>
-
-  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
-    <p className="text-xs font-black uppercase tracking-wide text-amber-700">
-      Pendentes
-    </p>
-
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
-      {totalPendentes}
-    </h3>
-  </div>
-
-  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-    <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
-      Respondidas
-    </p>
-
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
-      {totalRespondidas}
-    </h3>
-  </div>
-
-  <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
-    <p className="text-xs font-black uppercase tracking-wide text-red-700">
-      Índice PHANYX
-    </p>
-
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
-      {percentualRespondidas}%
-    </h3>
-  </div>
-</div>
-      </p>
-    </div>
-
-    <span className="rounded-full bg-blue-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
-      IA analisando sentimentos
-    </span>
-
-<div className="flex flex-wrap gap-2">
-  {["Todos", "Pendentes", "Respondidas", "Críticas", "Positivas", "Neutras"].map(
-    (filtro) => (
-      <button
-        key={filtro}
-        type="button"
-        onClick={() => setFiltroAvaliacoes(filtro)}
-        className={`rounded-full px-4 py-2 text-xs font-black transition-all ${
-          filtroAvaliacoes === filtro
-            ? "bg-blue-600 text-white shadow-lg"
-            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-        }`}
-      >
-        {filtro}
-      </button>
-    )
-  )}
 </div>
 
   </div>
