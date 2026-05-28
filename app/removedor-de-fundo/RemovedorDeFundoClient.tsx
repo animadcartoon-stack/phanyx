@@ -2565,6 +2565,32 @@ setPopupComprarCreditosAberto(false);
   Salvar
 </button>
 
+<div className="flex items-center gap-1">
+  <button
+    type="button"
+    onClick={() => baixarImagem("png")}
+    className="rounded-xl bg-cyan-500 px-3 py-2 text-[11px] font-black text-slate-950 hover:bg-cyan-400"
+  >
+    PNG
+  </button>
+
+  <button
+    type="button"
+    onClick={() => baixarImagem("jpg")}
+    className="rounded-xl bg-slate-700 px-3 py-2 text-[11px] font-black text-white hover:bg-slate-600"
+  >
+    JPG
+  </button>
+
+  <button
+    type="button"
+    onClick={() => baixarImagem("webp")}
+    className="rounded-xl bg-purple-500 px-3 py-2 text-[11px] font-black text-white hover:bg-purple-400"
+  >
+    WEBP
+  </button>
+</div>
+
 <button
   type="button"
   onClick={() => {
