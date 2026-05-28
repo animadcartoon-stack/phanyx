@@ -335,6 +335,44 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
   ];
 };
 
+const timelineAvaliacoes = [
+  {
+    titulo: "Nova avaliação detectada",
+    descricao: "A IA PHANYX identificou uma nova avaliação positiva no Google Business.",
+    tempo: "Hoje",
+    tipo: "positivo",
+    emoji: "⭐",
+  },
+  {
+    titulo: "Resposta pendente",
+    descricao: "Uma avaliação crítica ainda precisa de resposta administrativa.",
+    tempo: "Hoje",
+    tipo: "critico",
+    emoji: "⚠️",
+  },
+  {
+    titulo: "Análise reputacional concluída",
+    descricao: "A IA classificou sentimentos e atualizou o índice reputacional.",
+    tempo: "Agora",
+    tipo: "ia",
+    emoji: "🤖",
+  },
+  {
+    titulo: "Resposta marcada como enviada",
+    descricao: "Uma avaliação foi marcada como respondida no PHANYX Growth.",
+    tempo: "Hoje",
+    tipo: "respondida",
+    emoji: "✅",
+  },
+];
+
+const obterCorTimeline = (tipo: string) => {
+  if (tipo === "critico") return "bg-red-600";
+  if (tipo === "positivo") return "bg-emerald-600";
+  if (tipo === "respondida") return "bg-blue-600";
+  return "bg-cyan-600";
+};
+
     const cards = [
     {
       titulo: "Nota média",
@@ -805,6 +843,60 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
     </div>
   ))
 )}
+  </div>
+</div>
+
+<div className="rounded-3xl border bg-white p-6 shadow-sm">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="text-2xl font-black text-slate-900">
+        Timeline reputacional IA
+      </h2>
+
+      <p className="mt-1 text-sm text-slate-500">
+        Eventos recentes acompanhados automaticamente pelo PHANYX Growth.
+      </p>
+    </div>
+
+    <span className="rounded-full bg-cyan-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-cyan-700">
+      Monitoramento em tempo real
+    </span>
+  </div>
+
+  <div className="mt-8 space-y-6">
+    {timelineAvaliacoes.map((item, index) => (
+      <div key={`${item.titulo}-${index}`} className="flex gap-4">
+        <div className="flex flex-col items-center">
+          <div
+            className={`flex h-11 w-11 items-center justify-center rounded-full text-lg text-white shadow-lg ${obterCorTimeline(
+              item.tipo
+            )}`}
+          >
+            {item.emoji}
+          </div>
+
+          {index < timelineAvaliacoes.length - 1 && (
+            <div className="mt-2 h-full min-h-10 w-px bg-slate-200" />
+          )}
+        </div>
+
+        <div className="flex-1 rounded-2xl border bg-slate-50 p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="font-black text-slate-900">
+              {item.titulo}
+            </h3>
+
+            <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-500">
+              {item.tempo}
+            </span>
+          </div>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {item.descricao}
+          </p>
+        </div>
+      </div>
+    ))}
   </div>
 </div>
 
