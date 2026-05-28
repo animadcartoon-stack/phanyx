@@ -602,6 +602,16 @@ function gerarPontosEstrela(
   const [modoMao, setModoMao] = useState(false);
   const [espacoPressionado, setEspacoPressionado] = useState(false);
   const [arrastandoCanvas, setArrastandoCanvas] = useState(false);
+
+  const [caixaSelecao, setCaixaSelecao] = useState<{
+  inicioX: number;
+  inicioY: number;
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+} | null>(null);
+
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
   const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>(null);
   
@@ -1137,6 +1147,83 @@ useEffect(() => {
     }
   }
 
+  function iniciarSelecaoRetangular(e: React.MouseEvent<HTMLDivElement>) {
+  if (!canvasRef.current) return;
+  if (modoMao || espacoPressionado) return;
+
+  if (e.target !== e.currentTarget) return;
+
+  const rect = canvasRef.current.getBoundingClientRect();
+
+  const x = (e.clientX - rect.left) / escala;
+  const y = (e.clientY - rect.top) / escala;
+
+  setCaixaSelecao({
+    inicioX: x,
+    inicioY: y,
+    x,
+    y,
+    largura: 0,
+    altura: 0,
+  });
+
+  setCampoSelecionadoId(null);
+  setCamposSelecionadosIds([]);
+}
+
+function moverSelecaoRetangular(e: React.MouseEvent<HTMLDivElement>) {
+  if (!caixaSelecao || !canvasRef.current) return;
+
+  const rect = canvasRef.current.getBoundingClientRect();
+
+  const atualX = (e.clientX - rect.left) / escala;
+  const atualY = (e.clientY - rect.top) / escala;
+
+  setCaixaSelecao((prev) => {
+    if (!prev) return prev;
+
+    return {
+      ...prev,
+      x: Math.min(prev.inicioX, atualX),
+      y: Math.min(prev.inicioY, atualY),
+      largura: Math.abs(atualX - prev.inicioX),
+      altura: Math.abs(atualY - prev.inicioY),
+    };
+  });
+}
+
+function finalizarSelecaoRetangular() {
+  if (!caixaSelecao) return;
+
+  const box = caixaSelecao;
+
+  if (box.largura < 8 || box.altura < 8) {
+    setCaixaSelecao(null);
+    return;
+  }
+
+  const ids = campos
+    .filter((campo) => {
+      const campoX = campo.x;
+      const campoY = campo.y;
+      const campoLargura = campo.largura || 120;
+      const campoAltura = campo.altura || 40;
+
+      const encostaHorizontal =
+        campoX < box.x + box.largura && campoX + campoLargura > box.x;
+
+      const encostaVertical =
+        campoY < box.y + box.altura && campoY + campoAltura > box.y;
+
+      return encostaHorizontal && encostaVertical;
+    })
+    .map((campo) => campo.id);
+
+  setCamposSelecionadosIds(ids);
+  setCampoSelecionadoId(ids.length ? ids[ids.length - 1] : null);
+  setCaixaSelecao(null);
+}
+
 function iniciarArrastoCanvas(e: React.MouseEvent<HTMLDivElement>) {
   const maoAtiva = modoMao || espacoPressionado;
   if (!maoAtiva || !stageRef.current) return;
@@ -1505,32 +1592,75 @@ function alterarTamanhoTextoSelecionado(delta: number) {
   });
 }
 
-function inserirMarcadorTextoSelecionado(marcador: string) {
-  const info = selecaoTextoInfoRef.current;
-  if (!info || info.campoId !== campoSelecionadoId) return;
+function inserirTextoNoCursor(editor: HTMLElement, texto: string) {
+  const selecao = window.getSelection();
+  if (!selecao || selecao.rangeCount === 0) return;
 
+  const range = selecao.getRangeAt(0);
+
+  if (!editor.contains(range.commonAncestorContainer)) return;
+
+  range.deleteContents();
+
+  const node = document.createTextNode(texto);
+  range.insertNode(node);
+
+  range.setStartAfter(node);
+  range.setEndAfter(node);
+
+  selecao.removeAllRanges();
+  selecao.addRange(range);
+}
+
+function obterTextoAntesDoCursor(editor: HTMLElement) {
+  const selecao = window.getSelection();
+  if (!selecao || selecao.rangeCount === 0) return "";
+
+  const range = selecao.getRangeAt(0);
+  const antes = range.cloneRange();
+
+  antes.selectNodeContents(editor);
+  antes.setEnd(range.startContainer, range.startOffset);
+
+  return antes.toString();
+}
+
+function atualizarTextoLivreNoEstado(editor: HTMLElement) {
+  const campoId = Number(editor.getAttribute("data-texto-livre-id"));
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.id === campoId
+        ? {
+            ...campo,
+            texto: editor.innerText,
+            textoHtml: editor.innerHTML,
+          }
+        : campo
+    )
+  );
+}
+
+function inserirMarcadorTextoSelecionado(marcador: string) {
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
   ) as HTMLElement | null;
 
   if (!editor) return;
 
-  const textoAtual = editor.innerText;
-  const antes = textoAtual.slice(0, info.inicio);
-  const meio = textoAtual.slice(info.inicio, info.fim);
-  const depois = textoAtual.slice(info.fim);
+  editor.focus();
+  editor.setAttribute("data-marcador-ativo", marcador);
 
-  const novoTexto = `${antes}${marcador}${meio}${depois}`;
+  const textoAntes = obterTextoAntesDoCursor(editor);
+  const inicioDaLinha = textoAntes.split("\n").pop() || "";
 
-  editor.innerText = novoTexto;
+  if (inicioDaLinha.trim() === "") {
+    inserirTextoNoCursor(editor, `${marcador} `);
+  } else {
+    inserirTextoNoCursor(editor, `\n${marcador} `);
+  }
 
-  setCampos((prev) =>
-    prev.map((campo) =>
-      campo.id === campoSelecionadoId
-        ? { ...campo, texto: editor.innerText, textoHtml: editor.innerHTML }
-        : campo
-    )
-  );
+  atualizarTextoLivreNoEstado(editor);
 }
 
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
@@ -3485,15 +3615,21 @@ contornoEspessura: 2,
                 <div
   ref={canvasRef}
   onMouseDown={(e) => {
-    if (e.target === e.currentTarget) {
-      setCamposSelecionadosIds([]);
-      setCampoSelecionadoId(null);
-      setMenuContexto(null);
-    }
-  }}
-  onMouseMove={onMouseMoveCanvas}
-  onMouseUp={finalizarDrag}
-  onMouseLeave={finalizarDrag}
+  iniciarSelecaoRetangular(e);
+}}
+onMouseMove={(e) => {
+  moverSelecaoRetangular(e);
+  onMouseMoveCanvas(e);
+}}
+onMouseUp={() => {
+  finalizarSelecaoRetangular();
+  finalizarDrag();
+}}
+onMouseLeave={() => {
+  finalizarSelecaoRetangular();
+  finalizarDrag();
+}}
+
                   className="absolute left-0 top-0 overflow-visible border border-dashed border-slate-700 shadow-[0_20px_60px_rgba(15,23,42,0.18)]"
                   style={{
   width: `${baseCanvas.largura}px`,
@@ -3525,8 +3661,36 @@ contornoEspessura: 2,
       top: `${caixaDoGrupoSelecionado.y}px`,
       width: `${caixaDoGrupoSelecionado.largura}px`,
       height: `${caixaDoGrupoSelecionado.altura}px`,
-      backgroundColor: corFundoPagina,
-      boxShadow: "0 0 0 4px rgba(37, 99, 235, 0.12)",  
+      backgroundColor: "transparent",
+      boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)", 
+    }}
+  />
+)}
+
+{caixaDoGrupoSelecionado && (
+  <div
+    className="pointer-events-none absolute z-[9998] rounded-xl border-2 border-blue-600"
+    style={{
+      left: `${caixaDoGrupoSelecionado.x}px`,
+      top: `${caixaDoGrupoSelecionado.y}px`,
+      width: `${caixaDoGrupoSelecionado.largura}px`,
+      height: `${caixaDoGrupoSelecionado.altura}px`,
+      backgroundColor: "transparent",
+      boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)", 
+    }}
+  />
+)}
+
+{/* CAIXA DE SELEÇÃO COM MOUSE */}
+{caixaSelecao && (
+  <div
+    className="pointer-events-none absolute border border-blue-500 bg-blue-500/10"
+    style={{
+      left: `${caixaSelecao.x}px`,
+      top: `${caixaSelecao.y}px`,
+      width: `${caixaSelecao.largura}px`,
+      height: `${caixaSelecao.altura}px`,
+      zIndex: 999999,
     }}
   />
 )}
@@ -4397,8 +4561,42 @@ altura: ev.shiftKey
   }
 }}
   onKeyDown={(e) => {
-    e.stopPropagation();
-  }}
+  e.stopPropagation();
+
+  const editor = e.currentTarget;
+  const marcador = editor.getAttribute("data-marcador-ativo");
+
+  if (!marcador) return;
+
+  const textoAntes = obterTextoAntesDoCursor(editor);
+  const linhaAtual = textoAntes.split("\n").pop() || "";
+
+  if (e.key === "Enter") {
+    e.preventDefault();
+
+    if (linhaAtual.trim() === marcador) {
+      editor.removeAttribute("data-marcador-ativo");
+      inserirTextoNoCursor(editor, "\n");
+    } else {
+      inserirTextoNoCursor(editor, `\n${marcador} `);
+    }
+
+    atualizarTextoLivreNoEstado(editor);
+    return;
+  }
+
+  if (e.key === "Backspace" && linhaAtual === `${marcador} `) {
+    editor.removeAttribute("data-marcador-ativo");
+    return;
+  }
+
+  if (e.key === " " && linhaAtual === `${marcador} `) {
+    e.preventDefault();
+    editor.removeAttribute("data-marcador-ativo");
+    inserirTextoNoCursor(editor, "\n");
+    atualizarTextoLivreNoEstado(editor);
+  }
+}}
   onInput={(e) => {
   const texto = e.currentTarget.innerText;
   const textoHtml = e.currentTarget.innerHTML;
