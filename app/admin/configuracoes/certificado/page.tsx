@@ -2701,10 +2701,23 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
           }
           setCamadaArrastandoId(null);
         }}
-        onClick={() => {
-          setCampoSelecionadoId(campo.id);
-          setCamposSelecionadosIds([campo.id]);
-        }}
+        onClick={(e) => {
+  if (e.shiftKey) {
+    setCampoSelecionadoId(campo.id);
+
+    setCamposSelecionadosIds((prev) =>
+      prev.includes(campo.id)
+        ? prev.filter((id) => id !== campo.id)
+        : [...prev, campo.id]
+    );
+
+    return;
+  }
+
+  setCampoSelecionadoId(campo.id);
+  setCamposSelecionadosIds([campo.id]);
+}}
+
         onDoubleClick={() => {
           setCamadaRenomeandoId(campo.id);
           setNomeCamadaEditando(nomeDaCamada(campo, index));
