@@ -9,6 +9,7 @@ import { ConfirmDialogProvider } from "@/components/providers/ConfirmDialogProvi
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
+import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 
 export default async function ProfessorLayout({
   children,
@@ -114,7 +115,8 @@ export default async function ProfessorLayout({
           <main className="w-full px-3 py-4 pb-28 lg:min-w-0 lg:flex-1 lg:p-8">
   <PhanyxFeriadoAviso />
 
-  <div className="mb-4 flex justify-end lg:mb-6">
+  <div className="mb-4 flex flex-wrap items-center justify-end gap-3 lg:mb-6">
+  <PhanyxThemeToggle />
               <form action="/api/auth/logout-professor" method="post">
                 <button
                   type="submit"

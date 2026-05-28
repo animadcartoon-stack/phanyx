@@ -7,6 +7,7 @@ import AlunoSidebar from "@/components/layout/AlunoSidebar";
 import { AlunoProvider } from "@/app/context/AlunoContext";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
+import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 
 export default async function AlunoLayout({
   children,
@@ -232,6 +233,10 @@ export default async function AlunoLayout({
 
         <main className="flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
   <PhanyxFeriadoAviso />
+
+<div className="mb-4 flex justify-end">
+  <PhanyxThemeToggle />
+</div>
 
   <div className="mb-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

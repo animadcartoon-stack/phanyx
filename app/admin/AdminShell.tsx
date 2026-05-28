@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
+import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 
 type UsuarioLogado = {
   id?: number;
@@ -253,6 +254,11 @@ function abrirTourAdmin() {
               >
                 ✨ Abrir tutorial guiado
               </button>
+
+<div className="mt-4">
+  <PhanyxThemeToggle />
+</div>
+
             </div>
 
 <div className="mb-6 rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -684,6 +690,10 @@ function abrirTourAdmin() {
         )}
       </div>
     )}
+
+<div className="fixed right-3 top-20 z-[80] lg:hidden">
+  <PhanyxThemeToggle />
+</div>
 
     <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
       <div className="grid grid-cols-6 gap-1 text-[9px] font-semibold text-slate-600">
