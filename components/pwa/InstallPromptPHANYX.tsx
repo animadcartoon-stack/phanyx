@@ -12,15 +12,21 @@ function estaEmModoApp() {
   );
 }
 
+function ehDesktop() {
+  if (typeof window === "undefined") return false;
+
+  return window.matchMedia("(min-width: 1024px)").matches;
+}
+
 export default function InstallPromptPHANYX() {
   const [eventoInstall, setEventoInstall] = useState<any>(null);
   const [visivel, setVisivel] = useState(false);
 
   useEffect(() => {
-    if (estaEmModoApp()) {
-      setVisivel(false);
-      return;
-    }
+  if (estaEmModoApp() || ehDesktop()) {
+    setVisivel(false);
+    return;
+  }
 
     const jaFechouSessao = sessionStorage.getItem(
       "phanyx_install_fechado_sessao"
@@ -37,9 +43,9 @@ export default function InstallPromptPHANYX() {
       e.preventDefault();
       setEventoInstall(e);
 
-      if (jaFechouSessao !== "true" && !estaEmModoApp()) {
-        setVisivel(true);
-      }
+      if (jaFechouSessao !== "true" && !estaEmModoApp() && !ehDesktop()) {
+  setVisivel(true);
+}
     }
 
     function marcarComoInstalado() {
@@ -53,12 +59,13 @@ export default function InstallPromptPHANYX() {
 
     const timer = setTimeout(() => {
       if (
-        !estaEmModoApp() &&
-        jaFechouSessao !== "true" &&
-        jaInstalou !== "true"
-      ) {
-        setVisivel(true);
-      }
+  !estaEmModoApp() &&
+  !ehDesktop() &&
+  jaFechouSessao !== "true" &&
+  jaInstalou !== "true"
+) {
+  setVisivel(true);
+}
     }, 2500);
 
     return () => {
