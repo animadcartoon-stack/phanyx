@@ -803,9 +803,16 @@ const obterAnaliseIA = (avaliacao: any) => {
 <button
   type="button"
   onClick={marcarComoRespondida}
-  className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-emerald-700"
+  disabled={avaliacaoSelecionada?.status === "Respondida"}
+  className={`rounded-xl px-5 py-3 text-sm font-bold text-white transition-all duration-300 ${
+    avaliacaoSelecionada?.status === "Respondida"
+      ? "cursor-not-allowed bg-emerald-400"
+      : "bg-emerald-600 hover:scale-105 hover:bg-emerald-700"
+  }`}
 >
-  Marcar como respondida
+  {avaliacaoSelecionada?.status === "Respondida"
+    ? "Respondida"
+    : "Marcar como respondida"}
 </button>
 
               <button

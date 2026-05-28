@@ -6538,7 +6538,34 @@ iniciarDrag(event as any, c);
 )}
 {menuContexto && (
   <div
-  onClick={(e) => e.stopPropagation()}
+    onClick={(e) => e.stopPropagation()}
+    onMouseDown={(e) => {
+      const alvo = e.target as HTMLElement;
+
+      if (!alvo.closest("[data-arrastar-menu-contexto]")) return;
+
+      e.preventDefault();
+
+      const inicioX = e.clientX;
+      const inicioY = e.clientY;
+      const menuInicial = { ...menuContexto };
+
+      const mover = (ev: globalThis.MouseEvent) => {
+        setMenuContexto({
+          ...menuInicial,
+          x: menuInicial.x + ev.clientX - inicioX,
+          y: menuInicial.y + ev.clientY - inicioY,
+        });
+      };
+
+      const soltar = () => {
+        window.removeEventListener("mousemove", mover);
+        window.removeEventListener("mouseup", soltar);
+      };
+
+      window.addEventListener("mousemove", mover);
+      window.addEventListener("mouseup", soltar);
+    }}
     style={{
   position: "fixed",
   top: Math.min(menuContexto.y, window.innerHeight - 520),
@@ -6555,6 +6582,13 @@ iniciarDrag(event as any, c);
   className="mb-2 cursor-move rounded-md bg-slate-100 px-3 py-2 text-xs font-black text-slate-600"
 >
   ⋮⋮ Arrastar painel de edição
+</div>
+
+<div
+  data-arrastar-menu-contexto
+  className="mb-3 cursor-move rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600"
+>
+  ⋮⋮ Arrastar painel
 </div>
 
     <button
@@ -6855,6 +6889,12 @@ aplicarEstiloTextoSelecionado({
   WebkitTextStrokeColor: novaCor,
   WebkitTextStrokeWidth: `${espessuraContornoTexto}px`,
   paintOrder: "stroke fill",
+  textShadow: `
+    ${espessuraContornoTexto}px 0 0 ${novaCor},
+    -${espessuraContornoTexto}px 0 0 ${novaCor},
+    0 ${espessuraContornoTexto}px 0 ${novaCor},
+    0 -${espessuraContornoTexto}px 0 ${novaCor}
+  `,
 } as React.CSSProperties);
 }}
     className="mb-3 h-9 w-full cursor-pointer rounded-lg border"
@@ -6866,8 +6906,8 @@ aplicarEstiloTextoSelecionado({
   <input
     type="range"
     min={0}
-    max={6}
-    step={0.5}
+    max={20}
+    step={1}
     value={espessuraContornoTexto}
     onMouseDown={(e) => e.stopPropagation()}
     onChange={(e) => {
