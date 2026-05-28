@@ -18,6 +18,7 @@ export default function ReputacaoPage() {
 const [avaliacoes, setAvaliacoes] = useState(0);
 const [pendencias, setPendencias] = useState(0);
 const [modalRespostaAberto, setModalRespostaAberto] = useState(false);
+const [toastMensagem, setToastMensagem] = useState("");
 
 useEffect(() => {
   const timer = setInterval(() => {
@@ -48,7 +49,11 @@ const copiarRespostaIA = async () => {
 
   await navigator.clipboard.writeText(texto);
 
-  alert("Resposta copiada!");
+  setToastMensagem("Resposta copiada para a área de transferência.");
+
+setTimeout(() => {
+  setToastMensagem("");
+}, 3000);
 };
 
     const grafico = [
@@ -416,6 +421,13 @@ const timeline = [
           </ul>
         </div>
       </div>
+
+{toastMensagem && (
+  <div className="fixed right-5 top-5 z-[60] rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-800 shadow-2xl">
+    ✅ {toastMensagem}
+  </div>
+)}
+
          {modalRespostaAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-2xl rounded-3xl border bg-white p-6 shadow-2xl">

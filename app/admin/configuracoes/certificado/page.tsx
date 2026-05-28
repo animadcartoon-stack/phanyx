@@ -6601,12 +6601,49 @@ iniciarDrag(event as any, c);
 }}
     className="bg-white border shadow-lg rounded-lg p-2 text-sm"
   >
+
+<div
+  data-menu-drag-handle
+  className="mb-2 cursor-move rounded-md bg-slate-100 px-3 py-2 text-xs font-black text-slate-600"
+>
+  ⋮⋮ Arrastar painel de edição
+</div>
+
     <button
   type="button"
   onClick={() => {
     atualizarCamposAlvo("ordem", (campoSelecionado?.ordem || 1) + 1);
     setMenuContexto(null);
   }}
+
+  onMouseDown={(e) => {
+  const alvo = e.target as HTMLElement;
+
+  if (!alvo.closest("[data-menu-drag-handle]")) return;
+
+  e.preventDefault();
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+  const menuInicial = { ...menuContexto };
+
+  const mover = (ev: globalThis.MouseEvent) => {
+    setMenuContexto({
+      ...menuInicial,
+      x: menuInicial.x + ev.clientX - inicioX,
+      y: menuInicial.y + ev.clientY - inicioY,
+    });
+  };
+
+  const soltar = () => {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  };
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}}
+
   className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
 >
   🔼 Avançar uma camada
@@ -6818,9 +6855,18 @@ iniciarDrag(event as any, c);
   if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
     if (!temSelecaoTextoLivreSalva()) return;
 
-    aplicarEstiloTextoSelecionado({
-      textShadow: "3px 3px 6px rgba(0,0,0,0.65)",
-    });
+    const blur = campoSelecionado?.sombraBlur ?? 6;
+const cor = campoSelecionado?.sombraCor || "#000000";
+const opacidade = (campoSelecionado?.sombraOpacidade ?? 65) / 100;
+
+const { x, y } = calcularSombra(
+  (campoSelecionado as any)?.sombraAngulo ?? 45,
+  (campoSelecionado as any)?.sombraDistancia ?? 3
+);
+
+aplicarEstiloTextoSelecionado({
+  textShadow: `${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`,
+});
 
     setMenuContexto(null);
     return;
@@ -6858,9 +6904,10 @@ iniciarDrag(event as any, c);
   if (!temSelecaoTextoLivreSalva()) return;
 
   aplicarEstiloTextoSelecionado({
-    WebkitTextStrokeColor: novaCor,
-    WebkitTextStrokeWidth: `${espessuraContornoTexto}px`,
-  } as React.CSSProperties);
+  WebkitTextStrokeColor: novaCor,
+  WebkitTextStrokeWidth: `${espessuraContornoTexto}px`,
+  paintOrder: "stroke fill",
+} as React.CSSProperties);
 }}
     className="mb-3 h-9 w-full cursor-pointer rounded-lg border"
   />
@@ -6882,9 +6929,10 @@ iniciarDrag(event as any, c);
   if (!temSelecaoTextoLivreSalva()) return;
 
   aplicarEstiloTextoSelecionado({
-    WebkitTextStrokeWidth: `${novaEspessura}px`,
-    WebkitTextStrokeColor: corContornoTexto,
-  } as React.CSSProperties);
+  WebkitTextStrokeColor: corContornoTexto,
+  WebkitTextStrokeWidth: `${novaEspessura}px`,
+  paintOrder: "stroke fill",
+} as React.CSSProperties);
 }}
     className="w-full"
   />
