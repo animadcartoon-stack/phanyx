@@ -1118,6 +1118,104 @@ const obterCorTimeline = (tipo: string) => {
   </div>
 </div>
 
+<div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+  <div className="rounded-3xl border border-red-200 bg-gradient-to-br from-red-50 to-white p-5 shadow-sm">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
+          ALERTA IA
+        </p>
+
+        <h3 className="mt-3 text-lg font-black text-slate-900">
+          Pico negativo detectado
+        </h3>
+
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          A IA identificou aumento de avaliações críticas nas últimas 24h.
+        </p>
+      </div>
+
+      <div className="text-3xl">🚨</div>
+    </div>
+
+    <div className="mt-5 h-2 overflow-hidden rounded-full bg-red-100">
+      <div className="h-full w-[82%] rounded-full bg-gradient-to-r from-red-500 to-orange-400" />
+    </div>
+  </div>
+
+  <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">
+          GROWTH IA
+        </p>
+
+        <h3 className="mt-3 text-lg font-black text-slate-900">
+          Engajamento em alta
+        </h3>
+
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          O índice reputacional apresentou crescimento consistente esta semana.
+        </p>
+      </div>
+
+      <div className="text-3xl">🚀</div>
+    </div>
+
+    <div className="mt-5 h-2 overflow-hidden rounded-full bg-emerald-100">
+      <div className="h-full w-[91%] rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" />
+    </div>
+  </div>
+
+  <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">
+          TEMPO RESPOSTA
+        </p>
+
+        <h3 className="mt-3 text-lg font-black text-slate-900">
+          Respostas lentas
+        </h3>
+
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Algumas avaliações estão acima do tempo ideal de retorno.
+        </p>
+      </div>
+
+      <div className="text-3xl">⏱️</div>
+    </div>
+
+    <div className="mt-5 h-2 overflow-hidden rounded-full bg-amber-100">
+      <div className="h-full w-[63%] rounded-full bg-gradient-to-r from-amber-400 to-orange-400" />
+    </div>
+  </div>
+
+  <div className="rounded-3xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-white p-5 shadow-sm">
+    <div className="flex items-start justify-between">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">
+          SCORE IA
+        </p>
+
+        <h3 className="mt-3 text-lg font-black text-slate-900">
+          Reputação excelente
+        </h3>
+
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          A instituição mantém forte aprovação reputacional.
+        </p>
+      </div>
+
+      <div className="text-3xl">⭐</div>
+    </div>
+
+    <div className="mt-5 h-2 overflow-hidden rounded-full bg-cyan-100">
+      <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" />
+    </div>
+  </div>
+</div>
+
 <div className="rounded-3xl border bg-wte p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
