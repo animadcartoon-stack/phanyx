@@ -125,7 +125,9 @@ const timeline = [
         SCORE PHANYX
       </p>
 
-      <h2 className="mt-3 text-5xl font-black">{scoreAtual}/100</h2>
+      <h2 className="mt-3 text-4xl font-black sm:text-5xl md:text-6xl">
+  {scoreAtual}/100
+</h2>
 
       <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
         A reputação institucional está estável e preparada para expansão
@@ -213,7 +215,7 @@ const timeline = [
     </div>
   </div>
 
-  <div className="mt-6 h-[320px]">
+  <div className="mt-6 h-[220px] sm:h-[260px] md:h-[320px]">
     <ResponsiveContainer width="100%" height="100%">
       <LineChart data={graficoDinamico}>
         <XAxis
@@ -286,7 +288,7 @@ const timeline = [
     </div>
   </div>
 
-  <div className="mt-6 grid gap-4 lg:grid-cols-3">
+  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 
     <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
       <div className="flex items-center justify-between">
@@ -359,7 +361,7 @@ const timeline = [
   </div>
 </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-2">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
           <h2 className="text-lg font-black text-slate-900">
             Fontes de reputação

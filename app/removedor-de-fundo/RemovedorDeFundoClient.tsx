@@ -2431,7 +2431,7 @@ setPopupComprarCreditosAberto(false);
 
       {modalRefinamentoAberto && imagemFinal && (
         <div className="fixed inset-0 z-[60] overflow-y-auto bg-slate-950/95 p-2 text-white sm:p-4">
-          <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-2">
+          <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-1 sm:gap-2">
             {mostrarLupa && canvasRef.current && (
   <div
     className="pointer-events-none fixed z-[120] overflow-hidden rounded-full border-4 border-cyan-400 shadow-2xl bg-slate-950"
@@ -2478,7 +2478,7 @@ setPopupComprarCreditosAberto(false);
     />
   </div>
 )}
-            <div className="sticky top-0 z-40 mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/20 bg-slate-900/95 px-3 py-2 backdrop-blur">
+            <div className="sticky top-0 z-40 mb-1 rounded-xl border border-cyan-400/20 bg-slate-900/95 px-2 py-1 backdrop-blur">
               <div>
                 <h2 className="text-sm sm:text-base font-black text-cyan-200">
                   Refinamento manual em tela grande
@@ -2488,7 +2488,7 @@ setPopupComprarCreditosAberto(false);
                 </p>
               </div>
 
-              <div className="flex w-full gap-1 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:items-center sm:overflow-visible sm:pb-0">
+              <div className="flex w-full gap-1 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
                 
 <button
   type="button"
@@ -2535,7 +2535,7 @@ setPopupComprarCreditosAberto(false);
                 <button
                   type="button"
                   onClick={desfazerUltimoPincel}
-                  className="rounded-xl border border-white/20 px-3 py-2 text-xs font-black text-white hover:bg-white/10"
+                  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-white/10"
                 >
                   Desfazer
                 </button>
@@ -2560,7 +2560,7 @@ setPopupComprarCreditosAberto(false);
       setAviso("Edição salva. Você já pode baixar ou continuar editando.");
     }
   }}
-  className="rounded-xl bg-emerald-400 px-3 py-2 text-xs font-black text-slate-950 hover:bg-emerald-300"
+  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-emerald-300"
 >
   Salvar
 </button>
@@ -2569,7 +2569,7 @@ setPopupComprarCreditosAberto(false);
   <button
     type="button"
     onClick={() => baixarImagem("png")}
-    className="rounded-xl bg-cyan-500 px-3 py-2 text-[11px] font-black text-slate-950 hover:bg-cyan-400"
+    className="shrink-0 rounded-lg bg-cyan-500 px-2 py-1 text-[10px] font-black text-slate-950 hover:bg-cyan-400"
   >
     PNG
   </button>
@@ -2603,7 +2603,7 @@ setPopupComprarCreditosAberto(false);
     setMenuIAAberto(true);
     setAviso("Escolha uma opção de IA PHANYX para continuar editando.");
   }}
-  className="rounded-xl bg-purple-500 px-3 py-2 text-xs font-black text-white hover:bg-purple-400"
+  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-purple-400"
 >
   Editar com IA
 </button>
@@ -2618,14 +2618,14 @@ setPopupComprarCreditosAberto(false);
 
     setModalRefinamentoAberto(false);
   }}
-  className="rounded-xl bg-red-500 px-3 py-2 text-xs font-black text-white hover:bg-red-400"
+  className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-black text-white hover:bg-red-400"
 >
   Fechar
 </button>
               </div>
             </div>
 
-            <div className="order-3 mb-0 max-h-[105px] overflow-y-auto rounded-lg border border-cyan-400/20 bg-slate-900 px-2 py-1 sm:order-2 sm:max-h-none">
+            <div className="order-3 mt-1 max-h-[90px] overflow-y-auto rounded-lg border border-cyan-400/20 bg-slate-900 px-2 py-1 sm:order-2 sm:max-h-none">
               <Controle
   label="Tamanho do pincel"
   valor={tamanhoPincel}
@@ -2683,7 +2683,7 @@ setPopupComprarCreditosAberto(false);
             </div>
 
             <div
-  className="order-2 relative flex min-h-[260px] flex-1 touch-none select-none items-center justify-center overflow-hidden rounded-2xl border border-cyan-400/20 sm:order-3 sm:min-h-0 sm:rounded-3xl bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0]"
+  className="order-2 relative flex min-h-[58vh] flex-1 touch-none select-none items-center justify-center overflow-hidden rounded-2xl border border-cyan-400/20 sm:order-3 sm:min-h-0 sm:rounded-3xl sm:order-3 sm:min-h-0 sm:rounded-3xl bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0]"
   onWheel={(e) => {
     e.preventDefault();
 
