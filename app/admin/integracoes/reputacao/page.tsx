@@ -1,4 +1,24 @@
+import { useEffect, useState } from "react";
+
+import {
+  LineChart,
+  Line,
+  ResponsiveContainer,
+  XAxis,
+  Tooltip,
+} from "recharts";
+
 export default function ReputacaoPage() {
+
+    const grafico = [
+  { nome: "Seg", score: 72 },
+  { nome: "Ter", score: 75 },
+  { nome: "Qua", score: 74 },
+  { nome: "Qui", score: 78 },
+  { nome: "Sex", score: 80 },
+  { nome: "Sáb", score: 81 },
+  { nome: "Hoje", score: 82 },
+];
   
 const timeline = [
   {
@@ -142,6 +162,46 @@ const timeline = [
         </div>
       </div>
     ))}
+  </div>
+</div>
+
+<div className="rounded-3xl border bg-white p-6 shadow-sm">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="text-xl font-black text-slate-900">
+        Evolução reputacional
+      </h2>
+
+      <p className="mt-1 text-sm text-slate-500">
+        Crescimento monitorado pelo PHANYX Growth.
+      </p>
+    </div>
+
+    <div className="rounded-full bg-emerald-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-emerald-700">
+      +13% este mês
+    </div>
+  </div>
+
+  <div className="mt-6 h-[320px]">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={grafico}>
+        <XAxis
+          dataKey="nome"
+          tickLine={false}
+          axisLine={false}
+        />
+
+        <Tooltip />
+
+        <Line
+          type="monotone"
+          dataKey="score"
+          stroke="#2563eb"
+          strokeWidth={4}
+          dot={{ r: 5 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
   </div>
 </div>
 
