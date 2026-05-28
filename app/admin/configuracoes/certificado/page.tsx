@@ -1546,14 +1546,7 @@ function obterTamanhoTextoSelecionadoAtual() {
 }
 
 function alterarTamanhoTextoSelecionado(delta: number) {
-  const info = selecaoTextoInfoRef.current;
-
-  if (
-    campoSelecionado?.tipo !== "TEXTO_LIVRE" ||
-    !info ||
-    info.campoId !== campoSelecionadoId ||
-    info.fim <= info.inicio
-  ) {
+  if (campoSelecionado?.tipo !== "TEXTO_LIVRE" || !temSelecaoTextoLivreAtiva()) {
     atualizarCampoLocal(
       "tamanho",
       Math.max(6, Math.min(120, (campoSelecionado?.tamanho || 18) + delta)) as any
@@ -1561,10 +1554,28 @@ function alterarTamanhoTextoSelecionado(delta: number) {
     return;
   }
 
-  const novo = Math.max(
-    6,
-    Math.min(120, (tamanhoSelecaoTexto || campoSelecionado?.tamanho || 18) + delta)
-  );
+  const editor = document.querySelector(
+    `[data-texto-livre-id="${campoSelecionadoId}"]`
+  ) as HTMLElement | null;
+
+  const selecao = window.getSelection();
+  const node = selecao?.anchorNode;
+
+  const elemento =
+    node?.nodeType === Node.TEXT_NODE
+      ? node.parentElement
+      : (node as HTMLElement | null);
+
+  const spanAtual = elemento?.closest("span") as HTMLElement | null;
+
+  let tamanhoAtual = campoSelecionado?.tamanho || 18;
+
+  if (spanAtual && editor?.contains(spanAtual)) {
+    const computed = window.getComputedStyle(spanAtual).fontSize;
+    tamanhoAtual = Number(computed.replace("px", "")) || tamanhoAtual;
+  }
+
+  const novo = Math.max(6, Math.min(120, tamanhoAtual + delta));
 
   setTamanhoSelecaoTexto(novo);
 
