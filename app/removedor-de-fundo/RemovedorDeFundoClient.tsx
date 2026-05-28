@@ -2625,16 +2625,17 @@ setPopupComprarCreditosAberto(false);
               </div>
             </div>
 
-            <div className="mb-1 rounded-xl border border-cyan-400/20 bg-slate-900 px-3 py-2">
+            <div className="mb-1 rounded-xl border border-cyan-400/20 bg-slate-900 px-2 py-1">
               <Controle
-                label="Tamanho do pincel"
-                valor={tamanhoPincel}
-                min={4}
-                max={120}
-                onChange={setTamanhoPincel}
-              />
+  label="Tamanho do pincel"
+  valor={tamanhoPincel}
+  min={4}
+  max={120}
+  compacto
+  onChange={setTamanhoPincel}
+/>
 
-<div className="mt-2 space-y-2">
+<div className="mt-1 space-y-1">
   <div className="flex items-center justify-between">
     <p className="text-[11px] font-black text-cyan-100">
       Textura do pincel
@@ -3507,18 +3508,23 @@ function Controle({
   min,
   max,
   onChange,
+  compacto = false,
 }: {
   label: string;
   valor: number;
   min: number;
   max: number;
   onChange: (valor: number) => void;
+  compacto?: boolean;
 }) {
   return (
-    <div className="rounded-lg bg-slate-950/60 p-2">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <label className="text-xs font-bold text-white">{label}</label>
-        <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-cyan-200">
+    <div className={compacto ? "rounded-lg bg-slate-950/60 px-2 py-1" : "rounded-lg bg-slate-950/60 p-2"}>
+      <div className={compacto ? "mb-1 flex items-center justify-between gap-2" : "mb-2 flex items-center justify-between gap-3"}>
+        <label className={compacto ? "text-[11px] font-bold text-white" : "text-xs font-bold text-white"}>
+          {label}
+        </label>
+
+        <span className={compacto ? "rounded-full bg-slate-800 px-2 py-0.5 text-[10px] font-bold text-cyan-200" : "rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-cyan-200"}>
           {valor}
         </span>
       </div>
@@ -3529,7 +3535,7 @@ function Controle({
         max={max}
         value={valor}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full"
+        className={compacto ? "h-2 w-full" : "w-full"}
       />
     </div>
   );
