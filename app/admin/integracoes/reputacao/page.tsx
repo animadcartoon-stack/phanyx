@@ -902,7 +902,7 @@ const obterCorTimeline = (tipo: string) => {
   </div>
 </div>
 
-<div className="rounded-3xl border bg-white p-6 shadow-sm">
+<div className="rounded-3xl border bg-wte p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
       <h2 className="text-2xl font-black text-slate-900">
@@ -955,6 +955,82 @@ const obterCorTimeline = (tipo: string) => {
     ))}
   </div>
 </div>
+
+<section className="mt-8 rounded-[2rem] border bg-white p-6 shadow-sm">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="text-3xl font-black text-slate-900">
+        Insights automáticos IA
+      </h2>
+
+      <p className="mt-2 text-sm text-slate-500">
+        A IA PHANYX identificou tendências reputacionais relevantes.
+      </p>
+    </div>
+
+    <div className="rounded-full bg-blue-100 px-5 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
+      Inteligência reputacional ativa
+    </div>
+  </div>
+
+  <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+        Crescimento positivo
+      </p>
+
+      <h3 className="mt-3 text-3xl font-black text-emerald-900">
+        +18%
+      </h3>
+
+      <p className="mt-3 text-sm leading-6 text-emerald-800">
+        As avaliações positivas aumentaram nesta semana.
+      </p>
+    </div>
+
+    <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
+      <p className="text-xs font-black uppercase tracking-wide text-amber-700">
+        Respostas pendentes
+      </p>
+
+      <h3 className="mt-3 text-3xl font-black text-amber-900">
+        2
+      </h3>
+
+      <p className="mt-3 text-sm leading-6 text-amber-800">
+        Existem avaliações aguardando retorno administrativo.
+      </p>
+    </div>
+
+    <div className="rounded-3xl border border-sky-200 bg-sky-50 p-5">
+      <p className="text-xs font-black uppercase tracking-wide text-sky-700">
+        Melhor desempenho
+      </p>
+
+      <h3 className="mt-3 text-2xl font-black text-sky-900">
+        Sexta-feira
+      </h3>
+
+      <p className="mt-3 text-sm leading-6 text-sky-800">
+        O maior volume de engajamento ocorreu neste dia.
+      </p>
+    </div>
+
+    <div className="rounded-3xl border border-violet-200 bg-violet-50 p-5">
+      <p className="text-xs font-black uppercase tracking-wide text-violet-700">
+        Tempo médio
+      </p>
+
+      <h3 className="mt-3 text-2xl font-black text-violet-900">
+        4h
+      </h3>
+
+      <p className="mt-3 text-sm leading-6 text-violet-800">
+        Tempo médio estimado para resposta reputacional.
+      </p>
+    </div>
+  </div>
+</section>
 
       <div className="grid gap-4 xl:grid-cols-2">
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
