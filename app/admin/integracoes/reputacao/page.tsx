@@ -42,6 +42,15 @@ const graficoDinamico = useMemo(
   [scoreAtual]
 );
 
+const copiarRespostaIA = async () => {
+  const texto =
+    "Olá! Sentimos muito pela experiência relatada. Agradecemos por compartilhar seu feedback, pois ele nos ajuda a melhorar nosso atendimento. Nossa equipe irá verificar o ocorrido e buscar uma solução o mais breve possível.";
+
+  await navigator.clipboard.writeText(texto);
+
+  alert("Resposta copiada!");
+};
+
     const grafico = [
   { nome: "Seg", score: 72 },
   { nome: "Ter", score: 75 },
@@ -469,11 +478,12 @@ const timeline = [
               </button>
 
               <button
-                type="button"
-                className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
-              >
-                Copiar resposta
-              </button>
+  type="button"
+  onClick={copiarRespostaIA}
+  className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-blue-700"
+>
+  Copiar resposta
+</button>
             </div>
           </div>
         </div>

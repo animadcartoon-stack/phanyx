@@ -1668,12 +1668,16 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
     `[data-texto-livre-id="${campoSelecionadoId}"]`
   ) as HTMLElement | null;
 
-  if (!editor) return;
+  if (!editor) {
+  aplicandoEstiloTextoRef.current = false;
+  return;
+}
 
   const info = selecaoTextoInfoRef.current;
   if (!info || info.campoId !== campoSelecionadoId || info.fim <= info.inicio) {
-    return;
-  }
+  aplicandoEstiloTextoRef.current = false;
+  return;
+}
 
   const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
 
@@ -1700,7 +1704,10 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
     atual += tamanho;
   }
 
-  if (!inicioNode || !fimNode) return;
+  if (!inicioNode || !fimNode) {
+  aplicandoEstiloTextoRef.current = false;
+  return;
+}
 
   const range = document.createRange();
   range.setStart(inicioNode, inicioOffset);
@@ -1803,20 +1810,13 @@ range.insertNode(span);
 }
 
 function temSelecaoTextoLivreAtiva() {
-  if (!campoSelecionado || campoSelecionado.tipo !== "TEXTO_LIVRE") {
-    return false;
-  }
+  const info = selecaoTextoInfoRef.current;
 
-  const range = selecaoTextoRef.current;
-  if (!range) return false;
-
-  const editor = document.querySelector(
-    `[data-texto-livre-id="${campoSelecionado.id}"]`
-  ) as HTMLElement | null;
-
-  if (!editor) return false;
-
-  return editor.contains(range.commonAncestorContainer);
+  return (
+    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+    info?.campoId === campoSelecionado.id &&
+    info.fim > info.inicio
+  );
 }
 
 
