@@ -33,6 +33,9 @@ const [modalEngajamentoAberto, setModalEngajamentoAberto] =
 const [modalPositivoAberto, setModalPositivoAberto] =
   useState(false);
 
+const [modalDetalhesAberto, setModalDetalhesAberto] =
+  useState(false);
+
 const [notificacaoAtual, setNotificacaoAtual] = useState(0);
 const [mostrarNotificacaoIA, setMostrarNotificacaoIA] =
   useState(false);
@@ -235,6 +238,36 @@ const marcarComoRespondida = () => {
   setTimeout(() => {
     setToastMensagem("");
   }, 3000);
+};
+
+const obterPrioridadeIA = (avaliacao: any) => {
+  if (avaliacao?.sentimento === "Crítico") return "Alta";
+  if (avaliacao?.sentimento === "Neutro") return "Média";
+  return "Baixa";
+};
+
+const obterRiscoIA = (avaliacao: any) => {
+  if (avaliacao?.sentimento === "Crítico") return "Médio";
+  if (avaliacao?.sentimento === "Neutro") return "Baixo";
+  return "Muito baixo";
+};
+
+const obterTempoRespostaIA = (avaliacao: any) => {
+  if (avaliacao?.sentimento === "Crítico") return "2 horas";
+  if (avaliacao?.sentimento === "Neutro") return "12 horas";
+  return "24 horas";
+};
+
+const obterAnaliseIA = (avaliacao: any) => {
+  if (avaliacao?.sentimento === "Crítico") {
+    return "Existe risco de impacto reputacional caso a avaliação permaneça sem resposta.";
+  }
+
+  if (avaliacao?.sentimento === "Neutro") {
+    return "A avaliação apresenta oportunidade de melhoria e fortalecimento institucional.";
+  }
+
+  return "A avaliação fortalece a reputação institucional e contribui positivamente para confiança da marca.";
 };
 
     const cards = [
@@ -621,9 +654,16 @@ const marcarComoRespondida = () => {
         </p>
 
         <div className="mt-5 flex flex-wrap justify-end gap-3">
-          <button className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
-            Ver detalhes
-          </button>
+          <button
+  type="button"
+  onClick={() => {
+    setAvaliacaoSelecionada(avaliacao);
+    setModalDetalhesAberto(true);
+  }}
+  className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+>
+  Ver detalhes
+</button>
 
           <button
   type="button"
@@ -893,6 +933,114 @@ const marcarComoRespondida = () => {
           Fechar análise
         </button>
       </div>
+    </div>
+  </div>
+)}
+
+{modalDetalhesAberto && (
+  <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-3xl rounded-[2rem] border bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.3em] text-blue-700">
+            DETALHES DA AVALIAÇÃO
+          </p>
+
+          <h2 className="mt-3 text-4xl font-black text-slate-900">
+            Análise reputacional IA
+          </h2>
+        </div>
+
+        <button
+          onClick={() => setModalDetalhesAberto(false)}
+          className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-xl font-black text-slate-500 transition hover:rotate-90 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-slate-700">
+            {avaliacaoSelecionada?.nome}
+          </span>
+
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-yellow-600">
+            {avaliacaoSelecionada?.nota} estrelas
+          </span>
+
+          <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-blue-700">
+            {avaliacaoSelecionada?.status}
+          </span>
+        </div>
+
+        <p className="mt-5 text-sm leading-7 text-slate-700">
+          “{avaliacaoSelecionada?.texto}”
+        </p>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-red-100 bg-red-50 p-5">
+          <p className="text-xs font-black uppercase tracking-wide text-red-700">
+            Prioridade IA
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black text-slate-900">
+            {obterPrioridadeIA(avaliacaoSelecionada)}
+          </h3>
+        </div>
+
+        <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5">
+          <p className="text-xs font-black uppercase tracking-wide text-amber-700">
+            Risco reputacional
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black text-slate-900">
+            {obterRiscoIA(avaliacaoSelecionada)}
+          </h3>
+        </div>
+
+        <div className="rounded-2xl border border-cyan-100 bg-cyan-50 p-5">
+          <p className="text-xs font-black uppercase tracking-wide text-cyan-700">
+            Canal
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black text-slate-900">
+            Google Business
+          </h3>
+        </div>
+
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+          <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+            Tempo recomendado
+          </p>
+
+          <h3 className="mt-2 text-2xl font-black text-slate-900">
+            {obterTempoRespostaIA(avaliacaoSelecionada)}
+          </h3>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-5">
+        <p className="text-xs font-black uppercase tracking-wide text-blue-700">
+          Análise IA PHANYX
+        </p>
+
+        <p className="mt-3 text-sm leading-7 text-slate-700">
+          {obterAnaliseIA(avaliacaoSelecionada)}
+        </p>
+      </div>
+
+      <div className="mt-8 flex justify-end">
+        <button
+          onClick={() => setModalDetalhesAberto(false)}
+          className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:scale-[1.03] hover:bg-blue-700"
+        >
+          Fechar análise
+        </button>
+      </div>
+
     </div>
   </div>
 )}
