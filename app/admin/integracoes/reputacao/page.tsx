@@ -722,68 +722,89 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
   </div>
 
   <div className="mt-6 space-y-4">
-    {avaliacoesFiltradas.map((avaliacao) => (
-      <div
-        key={avaliacao.nome}
-        className="rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
-      >
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-black text-white">
-              {avaliacao.iniciais}
-            </div>
+   {avaliacoesFiltradas.length === 0 ? (
+  <div className="mt-6 rounded-[2rem] border border-dashed border-slate-300 bg-slate-50 p-10 text-center">
+    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-white text-4xl shadow-sm">
+      🎉
+    </div>
 
-            <div>
-              <p className="font-black text-slate-900">{avaliacao.nome}</p>
-              <p className="mt-1 text-sm text-yellow-500">
-                {"★".repeat(avaliacao.nota)}
-                <span className="text-slate-300">
-                  {"★".repeat(5 - avaliacao.nota)}
-                </span>
-              </p>
-            </div>
+    <h3 className="mt-6 text-2xl font-black text-slate-900">
+      Nenhuma avaliação encontrada
+    </h3>
+
+    <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-slate-500">
+      O filtro selecionado não possui avaliações no momento.
+      A IA PHANYX continuará monitorando novos sinais reputacionais automaticamente.
+    </p>
+
+    <div className="mt-6 inline-flex rounded-full bg-blue-100 px-5 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
+      Monitoramento ativo
+    </div>
+  </div>
+) : (
+  avaliacoesFiltradas.map((avaliacao) => (
+    <div
+      key={avaliacao.nome}
+      className="rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-black text-white">
+            {avaliacao.iniciais}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
-              {avaliacao.sentimento}
-            </span>
-
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
-              {avaliacao.status}
-            </span>
+          <div>
+            <p className="font-black text-slate-900">{avaliacao.nome}</p>
+            <p className="mt-1 text-sm text-yellow-500">
+              {"★".repeat(avaliacao.nota)}
+              <span className="text-slate-300">
+                {"★".repeat(5 - avaliacao.nota)}
+              </span>
+            </p>
           </div>
         </div>
 
-        <p className="mt-4 text-sm leading-6 text-slate-600">
-          “{avaliacao.texto}”
-        </p>
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+            {avaliacao.sentimento}
+          </span>
 
-        <div className="mt-5 flex flex-wrap justify-end gap-3">
-          <button
-  type="button"
-  onClick={() => {
-    setAvaliacaoSelecionada(avaliacao);
-    setModalDetalhesAberto(true);
-  }}
-  className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
->
-  Ver detalhes
-</button>
-
-          <button
-  type="button"
-  onClick={() => {
-    setAvaliacaoSelecionada(avaliacao);
-    setModalRespostaAberto(true);
-  }}
-  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
->
-  Responder com IA
-</button>
+          <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+            {avaliacao.status}
+          </span>
         </div>
       </div>
-    ))}
+
+      <p className="mt-4 text-sm leading-6 text-slate-600">
+        “{avaliacao.texto}”
+      </p>
+
+      <div className="mt-5 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setAvaliacaoSelecionada(avaliacao);
+            setModalDetalhesAberto(true);
+          }}
+          className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+        >
+          Ver detalhes
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setAvaliacaoSelecionada(avaliacao);
+            setModalRespostaAberto(true);
+          }}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+        >
+          Responder com IA
+        </button>
+      </div>
+    </div>
+  ))
+)}
   </div>
 </div>
 

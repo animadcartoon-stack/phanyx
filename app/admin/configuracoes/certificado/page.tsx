@@ -388,9 +388,9 @@ const figurasDecorativas = [
   const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
-  const [tipoContornoTexto, setTipoContornoTexto] = useState<
-  "interno" | "externo"
->("externo");
+  const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
+
+  const [tipoContornoTexto, setTipoContornoTexto] = useState<"interno" | "externo">("externo");
 
   const [tamanhoSelecaoTexto, setTamanhoSelecaoTexto] = useState(18);
 
@@ -1655,6 +1655,73 @@ function inserirMarcadorTextoSelecionado(marcador: string) {
   atualizarTextoLivreNoEstado(editor);
 }
 
+function salvarHistoricoTextoLivre(editor: HTMLElement) {
+  const campoId = Number(editor.getAttribute("data-texto-livre-id"));
+  if (!campoId) return;
+
+  const html = editor.innerHTML;
+  const pilha = historicoTextoLivreRef.current[campoId] || [];
+
+  if (pilha[pilha.length - 1] !== html) {
+    historicoTextoLivreRef.current[campoId] = [...pilha, html].slice(-50);
+  }
+}
+
+function desfazerTextoLivre(editor: HTMLElement) {
+  const campoId = Number(editor.getAttribute("data-texto-livre-id"));
+  const pilha = historicoTextoLivreRef.current[campoId] || [];
+
+  const htmlAnterior = pilha.pop();
+  if (!htmlAnterior) return false;
+
+  editor.innerHTML = htmlAnterior;
+
+  historicoTextoLivreRef.current[campoId] = pilha;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.id === campoId
+        ? { ...campo, texto: editor.innerText, textoHtml: editor.innerHTML }
+        : campo
+    )
+  );
+
+  return true;
+}
+
+function gerarContornoExterno(cor: string, espessura: number) {
+  const sombras: string[] = [];
+  const e = Math.max(1, Math.round(espessura));
+
+  for (let x = -e; x <= e; x++) {
+    for (let y = -e; y <= e; y++) {
+      if (x === 0 && y === 0) continue;
+      if (Math.sqrt(x * x + y * y) <= e) {
+        sombras.push(`${x}px ${y}px 0 ${cor}`);
+      }
+    }
+  }
+
+  return sombras.join(", ");
+}
+
+function aplicarContornoTextoSelecionado(cor: string, espessura: number) {
+  if (tipoContornoTexto === "interno") {
+    aplicarEstiloTextoSelecionado({
+      WebkitTextStrokeColor: cor,
+      WebkitTextStrokeWidth: `${espessura}px`,
+      paintOrder: "stroke fill",
+      textShadow: "none",
+    } as React.CSSProperties);
+    return;
+  }
+
+  aplicarEstiloTextoSelecionado({
+    WebkitTextStrokeWidth: "0px",
+    textShadow: gerarContornoExterno(cor, espessura),
+  } as React.CSSProperties);
+}
+
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   aplicandoEstiloTextoRef.current = true;
 
@@ -1666,7 +1733,7 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
     aplicandoEstiloTextoRef.current = false;
     return;
   }
-
+salvarHistoricoTextoLivre(editor);
   const selecao = window.getSelection();
 
   let range: Range | null = null;
@@ -4523,6 +4590,13 @@ altura: ev.shiftKey
   onKeyDown={(e) => {
   e.stopPropagation();
 
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+  if (desfazerTextoLivre(e.currentTarget)) {
+    e.preventDefault();
+    return;
+  }
+}
+
   const editor = e.currentTarget;
   const marcador = editor.getAttribute("data-marcador-ativo");
 
@@ -6971,6 +7045,28 @@ aplicarEstiloTextoSelecionado({
 </div>
   </>
 )}
+
+<div className="my-3 flex gap-2">
+  <button
+    type="button"
+    onClick={() => setTipoContornoTexto("externo")}
+    className={`rounded-lg px-3 py-2 text-xs font-bold ${
+      tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
+    }`}
+  >
+    Externo
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setTipoContornoTexto("interno")}
+    className={`rounded-lg px-3 py-2 text-xs font-bold ${
+      tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
+    }`}
+  >
+    Interno
+  </button>
+</div>
 
     <hr className="my-1" />
 
