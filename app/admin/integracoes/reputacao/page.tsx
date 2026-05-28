@@ -153,6 +153,33 @@ const notificacoesIA = [
   },
 ];
 
+const avaliacoesSimuladas = [
+  {
+    nome: "Mariana Silva",
+    iniciais: "MS",
+    nota: 5,
+    sentimento: "Positivo",
+    texto: "Atendimento excelente e plataforma muito organizada.",
+    status: "Respondida",
+  },
+  {
+    nome: "Carlos Mendes",
+    iniciais: "CM",
+    nota: 2,
+    sentimento: "Crítico",
+    texto: "Tive dificuldade para conseguir atendimento e retorno.",
+    status: "Pendente",
+  },
+  {
+    nome: "Ana Paula",
+    iniciais: "AP",
+    nota: 4,
+    sentimento: "Neutro",
+    texto: "Boa experiência, mas algumas informações poderiam ser mais claras.",
+    status: "Pendente",
+  },
+];
+
     const cards = [
     {
       titulo: "Nota média",
@@ -459,6 +486,78 @@ const notificacoesIA = [
 </button>
     </div>
 
+  </div>
+</div>
+
+<div className="rounded-3xl border bg-white p-6 shadow-sm">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="text-2xl font-black text-slate-900">
+        Central de avaliações
+      </h2>
+      <p className="mt-1 text-sm text-slate-500">
+        Avaliações recentes monitoradas pela IA PHANYX.
+      </p>
+    </div>
+
+    <span className="rounded-full bg-blue-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
+      IA analisando sentimentos
+    </span>
+  </div>
+
+  <div className="mt-6 space-y-4">
+    {avaliacoesSimuladas.map((avaliacao) => (
+      <div
+        key={avaliacao.nome}
+        className="rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+      >
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-900 text-sm font-black text-white">
+              {avaliacao.iniciais}
+            </div>
+
+            <div>
+              <p className="font-black text-slate-900">{avaliacao.nome}</p>
+              <p className="mt-1 text-sm text-yellow-500">
+                {"★".repeat(avaliacao.nota)}
+                <span className="text-slate-300">
+                  {"★".repeat(5 - avaliacao.nota)}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+              {avaliacao.sentimento}
+            </span>
+
+            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+              {avaliacao.status}
+            </span>
+          </div>
+        </div>
+
+        <p className="mt-4 text-sm leading-6 text-slate-600">
+          “{avaliacao.texto}”
+        </p>
+
+        <div className="mt-5 flex flex-wrap justify-end gap-3">
+          <button className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
+            Ver detalhes
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setModalRespostaAberto(true)}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+          >
+            Responder com IA
+          </button>
+        </div>
+      </div>
+    ))}
   </div>
 </div>
 
