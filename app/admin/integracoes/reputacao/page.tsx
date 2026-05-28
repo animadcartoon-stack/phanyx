@@ -125,7 +125,7 @@ const timeline = [
         SCORE PHANYX
       </p>
 
-      <h2 className="mt-3 text-4xl font-black sm:text-5xl md:text-6xl">
+      <h2 className="mt-3 text-4xl font-black tracking-tight transition-all duration-500 sm:text-5xl md:text-6xl">
   {scoreAtual}/100
 </h2>
 
@@ -290,7 +290,7 @@ const timeline = [
 
   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
 
-    <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="flex items-center justify-between">
         <span className="text-xs font-black uppercase tracking-wide text-red-700">
           Crítico
@@ -308,12 +308,12 @@ const timeline = [
         não recebeu resposta.
       </p>
 
-      <button className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700">
+      <button className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-700">
         Responder agora
       </button>
     </div>
 
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="flex items-center justify-between">
         <span className="text-xs font-black uppercase tracking-wide text-amber-700">
           Atenção
@@ -336,7 +336,7 @@ const timeline = [
       </button>
     </div>
 
-    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
       <div className="flex items-center justify-between">
         <span className="text-xs font-black uppercase tracking-wide text-emerald-700">
           Positivo

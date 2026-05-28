@@ -2701,16 +2701,31 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
           }
           setCamadaArrastandoId(null);
         }}
-        onClick={(e) => {
-  if (e.shiftKey) {
-    setCampoSelecionadoId(campo.id);
+       onClick={(e) => {
+  const lista = camadasOrdenadas();
 
+  if (e.shiftKey && campoSelecionadoId) {
+    const inicio = lista.findIndex((item) => item.id === campoSelecionadoId);
+    const fim = lista.findIndex((item) => item.id === campo.id);
+
+    if (inicio >= 0 && fim >= 0) {
+      const [min, max] = [Math.min(inicio, fim), Math.max(inicio, fim)];
+      const ids = lista.slice(min, max + 1).map((item) => item.id);
+
+      setCamposSelecionadosIds(ids);
+      setCampoSelecionadoId(campo.id);
+      return;
+    }
+  }
+
+  if (e.ctrlKey || e.metaKey) {
     setCamposSelecionadosIds((prev) =>
       prev.includes(campo.id)
         ? prev.filter((id) => id !== campo.id)
         : [...prev, campo.id]
     );
 
+    setCampoSelecionadoId(campo.id);
     return;
   }
 
@@ -2733,7 +2748,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
           });
         }}
         className={`flex h-7 cursor-pointer items-center gap-2 border-b border-slate-200 px-2 text-xs ${
-          campoSelecionadoId === campo.id
+          camposSelecionadosIds.includes(campo.id)
             ? "bg-blue-100 text-blue-700"
             : "bg-white text-slate-700 hover:bg-slate-100"
         }`}
