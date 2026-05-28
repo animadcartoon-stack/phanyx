@@ -2608,47 +2608,36 @@ setPopupComprarCreditosAberto(false);
                 onChange={setTamanhoPincel}
               />
 
-<div className="mt-3 space-y-3">
-  <p className="text-center text-xs font-black text-cyan-100">
-    Textura do pincel
-  </p>
+<div className="mt-2 space-y-2">
+  <div className="flex items-center justify-between">
+    <p className="text-[11px] font-black text-cyan-100">
+      Textura do pincel
+    </p>
 
-  <div>
-    <div className="mb-1 flex items-center justify-between text-[11px] font-black">
-      <span className="text-cyan-100">
-        Feather da borda
-      </span>
-
-      <span className="text-white">
-        {Math.round(featherPincel * 100)}%
-      </span>
-    </div>
-
-    <input
-      type="range"
-      min={0}
-      max={1}
-      step={0.01}
-      value={featherPincel}
-      onChange={(e) =>
-        setFeatherPincel(Number(e.target.value))
-      }
-      className="w-full accent-cyan-400"
-    />
-
-    <div className="mt-1 flex justify-between text-[10px] text-slate-400">
-      <span>Dura</span>
-      <span>Suave</span>
-    </div>
+    <span className="text-[10px] text-white">
+      {Math.round(featherPincel * 100)}%
+    </span>
   </div>
 
-  <div className="grid grid-cols-3 gap-2">
+  <input
+    type="range"
+    min={0}
+    max={1}
+    step={0.01}
+    value={featherPincel}
+    onChange={(e) =>
+      setFeatherPincel(Number(e.target.value))
+    }
+    className="w-full accent-cyan-400"
+  />
+
+  <div className="grid grid-cols-3 gap-1">
     {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (
       <button
         key={tipo}
         type="button"
         onClick={() => setTexturaPincel(tipo)}
-        className={`rounded-xl px-3 py-2 text-xs font-black ${
+        className={`rounded-lg px-2 py-1 text-[11px] font-black ${
           texturaPincel === tipo
             ? "bg-cyan-400 text-slate-950"
             : "bg-slate-800 text-white"
