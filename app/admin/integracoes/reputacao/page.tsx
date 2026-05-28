@@ -706,6 +706,126 @@ const obterCorTimeline = (tipo: string) => {
       Total
     </p>
 
+<div className="mt-8 grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+  <div className="rounded-[2rem] border border-blue-100 bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 text-white shadow-2xl">
+    <div className="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <p className="text-xs font-black uppercase tracking-[0.35em] text-blue-300">
+          Painel executivo IA
+        </p>
+
+        <h2 className="mt-4 text-4xl font-black leading-tight">
+          Reputação institucional saudável
+        </h2>
+
+        <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-300">
+          A IA PHANYX está acompanhando reputação, engajamento,
+          avaliações e velocidade de resposta em tempo real.
+        </p>
+      </div>
+
+      <div className="rounded-3xl border border-emerald-400/30 bg-emerald-500/10 px-6 py-5 text-center backdrop-blur">
+        <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
+          Score IA
+        </p>
+
+        <h3 className="mt-2 text-5xl font-black text-white">
+          92
+        </h3>
+
+        <p className="mt-1 text-xs font-bold text-emerald-300">
+          Excelente reputação
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-8">
+      <div className="flex items-center justify-between text-sm font-bold text-slate-300">
+        <span>Saúde reputacional</span>
+        <span>92%</span>
+      </div>
+
+      <div className="mt-3 h-4 overflow-hidden rounded-full bg-white/10">
+        <div className="h-full w-[92%] rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500" />
+      </div>
+    </div>
+
+    <div className="mt-8 grid gap-4 md:grid-cols-3">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <p className="text-xs font-black uppercase tracking-wide text-cyan-300">
+          Tendência
+        </p>
+
+        <h3 className="mt-2 text-2xl font-black text-white">
+          +18%
+        </h3>
+
+        <p className="mt-2 text-xs leading-5 text-slate-300">
+          Crescimento reputacional identificado pela IA.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <p className="text-xs font-black uppercase tracking-wide text-amber-300">
+          Tempo médio
+        </p>
+
+        <h3 className="mt-2 text-2xl font-black text-white">
+          4h
+        </h3>
+
+        <p className="mt-2 text-xs leading-5 text-slate-300">
+          Tempo médio estimado para resposta administrativa.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+        <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
+          Status IA
+        </p>
+
+        <h3 className="mt-2 text-2xl font-black text-white">
+          Ativo
+        </h3>
+
+        <p className="mt-2 text-xs leading-5 text-slate-300">
+          Monitoramento reputacional funcionando normalmente.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div className="grid gap-5">
+    <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-6">
+      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+        Avaliações positivas
+      </p>
+
+      <h3 className="mt-3 text-5xl font-black text-emerald-900">
+        78%
+      </h3>
+
+      <p className="mt-3 text-sm leading-7 text-emerald-800">
+        A maior parte das avaliações recebidas possui sentimento positivo.
+      </p>
+    </div>
+
+    <div className="rounded-[2rem] border border-red-200 bg-red-50 p-6">
+      <p className="text-xs font-black uppercase tracking-wide text-red-700">
+        Atenção necessária
+      </p>
+
+      <h3 className="mt-3 text-5xl font-black text-red-900">
+        2
+      </h3>
+
+      <p className="mt-3 text-sm leading-7 text-red-800">
+        Existem avaliações aguardando resposta institucional.
+      </p>
+    </div>
+  </div>
+</div>
+
     <h3 className="mt-2 text-3xl font-black text-slate-900">
       {totalAvaliacoes}
     </h3>
