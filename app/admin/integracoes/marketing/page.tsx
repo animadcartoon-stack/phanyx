@@ -65,11 +65,11 @@ const cards = [
     emoji: "💬",
   },
   {
-    titulo: "Reputação",
-    status: "Em breve",
-    href: "#",
-    emoji: "⭐",
-  },
+  titulo: "Reputação IA",
+  status: "Ativo",
+  href: "/admin/integracoes/reputacao",
+  emoji: "⭐",
+},
 ];
 
 function formatarTempo(segundos: number) {
@@ -384,18 +384,24 @@ async function carregarGoogleAds() {
             const bloqueado = cardAtual.href === "#";
 
             const conteudo = (
-              <div className="rounded-2xl border bg-white p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md">
+              <div className={`rounded-2xl border bg-white p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md ${
+  cardAtual.titulo === "Reputação IA"
+    ? "border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 shadow-cyan-100/50"
+    : ""
+}`}>
                 <div className="flex items-center justify-between">
                   <div className="text-2xl">{cardAtual.emoji}</div>
 
                   <span
                     className={`rounded-full px-2 py-1 text-[10px] font-bold ${
-                      cardAtual.status === "Conectado"
-                        ? "bg-green-100 text-green-700"
-                        : cardAtual.status === "Configuração"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-slate-100 text-slate-500"
-                    }`}
+  cardAtual.status === "Conectado"
+    ? "bg-green-100 text-green-700"
+    : cardAtual.status === "Configuração"
+    ? "bg-blue-100 text-blue-700"
+    : cardAtual.status === "Ativo"
+    ? "bg-cyan-100 text-cyan-700"
+    : "bg-slate-100 text-slate-500"
+}`}
                   >
                     {cardAtual.status}
                   </span>
