@@ -2488,12 +2488,12 @@ setPopupComprarCreditosAberto(false);
                 </p>
               </div>
 
-              <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center">
+              <div className="flex w-full gap-1 overflow-x-auto pb-1 sm:w-auto sm:flex-wrap sm:items-center sm:overflow-visible sm:pb-0">
                 
 <button
   type="button"
   onClick={() => setPincelAtivo((ativo) => !ativo)}
-  className={`rounded-xl px-3 py-2 text-xs font-black ${
+  className={`rounded-lg px-2 py-1 text-[10px] whitespace-nowrap font-black ${
     pincelAtivo
       ? "bg-cyan-400 text-slate-950"
       : "bg-slate-800 text-white"
@@ -2508,7 +2508,7 @@ setPopupComprarCreditosAberto(false);
   setPincelAtivo(true);
   setFerramentaPincel("apagar");
 }}
-                  className={`rounded-xl px-3 py-2 text-xs font-black ${
+                  className={`rounded-lg px-2 py-1 text-[10px] whitespace-nowrap font-black ${
                     ferramentaPincel === "apagar"
                       ? "bg-cyan-400 text-slate-950"
                       : "bg-slate-800 text-white"
@@ -2523,7 +2523,7 @@ setPopupComprarCreditosAberto(false);
   setPincelAtivo(true);
   setFerramentaPincel("restaurar");
 }}
-                  className={`rounded-xl px-3 py-2 text-xs font-black ${
+                  className={`rounded-lg px-2 py-1 text-[10px] whitespace-nowrap font-black ${
                     ferramentaPincel === "restaurar"
                       ? "bg-cyan-400 text-slate-950"
                       : "bg-slate-800 text-white"
@@ -2625,7 +2625,7 @@ setPopupComprarCreditosAberto(false);
               </div>
             </div>
 
-            <div className="mb-1 rounded-xl border border-cyan-400/20 bg-slate-900 px-2 py-1">
+            <div className="order-3 mb-0 max-h-[105px] overflow-y-auto rounded-lg border border-cyan-400/20 bg-slate-900 px-2 py-1 sm:order-2 sm:max-h-none">
               <Controle
   label="Tamanho do pincel"
   valor={tamanhoPincel}
@@ -2683,7 +2683,7 @@ setPopupComprarCreditosAberto(false);
             </div>
 
             <div
-  className="relative flex min-h-0 flex-1 touch-none select-none items-center justify-center overflow-hidden rounded-3xl border border-cyan-400/20 bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0]"
+  className="order-2 relative flex min-h-[260px] flex-1 touch-none select-none items-center justify-center overflow-hidden rounded-2xl border border-cyan-400/20 sm:order-3 sm:min-h-0 sm:rounded-3xl bg-[linear-gradient(45deg,#1e293b_25%,transparent_25%),linear-gradient(-45deg,#1e293b_25%,transparent_25%),linear-gradient(45deg,transparent_75%,#1e293b_75%),linear-gradient(-45deg,transparent_75%,#1e293b_75%)] bg-[length:28px_28px] bg-[position:0_0,0_14px,14px_-14px,-14px_0]"
   onWheel={(e) => {
     e.preventDefault();
 
@@ -2693,6 +2693,58 @@ setPopupComprarCreditosAberto(false);
       Math.min(8, Math.max(0.2, zoom + direcao))
     );
   }}
+  onTouchStart={(e) => {
+  if (pincelAtivo) return;
+
+  if (e.touches.length === 2) {
+    const [a, b] = Array.from(e.touches);
+    toquePinchRef.current = {
+      distancia: Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY),
+      zoom: zoomResultado,
+    };
+    return;
+  }
+
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    toqueArrasteRef.current = { x: t.clientX, y: t.clientY };
+  }
+}}
+
+onTouchMove={(e) => {
+  if (pincelAtivo) return;
+
+  if (e.touches.length === 2 && toquePinchRef.current) {
+    e.preventDefault();
+    const [a, b] = Array.from(e.touches);
+    const distancia = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    const fator = distancia / toquePinchRef.current.distancia;
+
+    setZoomResultado(
+      Math.min(8, Math.max(0.3, toquePinchRef.current.zoom * fator))
+    );
+    return;
+  }
+
+  if (e.touches.length === 1 && toqueArrasteRef.current) {
+    e.preventDefault();
+    const t = e.touches[0];
+    const dx = t.clientX - toqueArrasteRef.current.x;
+    const dy = t.clientY - toqueArrasteRef.current.y;
+
+    setPanResultado((atual) => ({
+      x: atual.x + dx,
+      y: atual.y + dy,
+    }));
+
+    toqueArrasteRef.current = { x: t.clientX, y: t.clientY };
+  }
+}}
+onTouchEnd={() => {
+  toquePinchRef.current = null;
+  toqueArrasteRef.current = null;
+}}
+
   onPointerMove={(e) => {
 
     if (
