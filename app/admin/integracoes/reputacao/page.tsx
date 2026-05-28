@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   LineChart,
@@ -10,7 +10,36 @@ import {
   Tooltip,
 } from "recharts";
 
+
+
 export default function ReputacaoPage() {
+
+    const [scoreAtual, setScoreAtual] = useState(82);
+const [avaliacoes, setAvaliacoes] = useState(0);
+const [pendencias, setPendencias] = useState(0);
+
+useEffect(() => {
+  const timer = setInterval(() => {
+    setScoreAtual((valor) => (valor >= 84 ? 82 : valor + 1));
+    setAvaliacoes((valor) => (valor >= 7 ? 3 : valor + 1));
+    setPendencias((valor) => (valor >= 2 ? 0 : valor + 1));
+  }, 3500);
+
+  return () => clearInterval(timer);
+}, []);
+
+const graficoDinamico = useMemo(
+  () => [
+    { nome: "Seg", score: scoreAtual - 10 },
+    { nome: "Ter", score: scoreAtual - 7 },
+    { nome: "Qua", score: scoreAtual - 8 },
+    { nome: "Qui", score: scoreAtual - 4 },
+    { nome: "Sex", score: scoreAtual - 2 },
+    { nome: "Sáb", score: scoreAtual - 1 },
+    { nome: "Hoje", score: scoreAtual },
+  ],
+  [scoreAtual]
+);
 
     const grafico = [
   { nome: "Seg", score: 72 },
@@ -54,13 +83,13 @@ const timeline = [
     },
     {
       titulo: "Avaliações",
-      valor: "0",
+      valor: String(avaliacoes),
       detalhe: "Total de avaliações monitoradas",
       cor: "text-blue-700",
     },
     {
       titulo: "Pendências",
-      valor: "0",
+      valor: String(pendencias),
       detalhe: "Avaliações aguardando resposta",
       cor: "text-red-600",
     },
@@ -96,7 +125,7 @@ const timeline = [
         SCORE PHANYX
       </p>
 
-      <h2 className="mt-3 text-5xl font-black">82/100</h2>
+      <h2 className="mt-3 text-5xl font-black">{scoreAtual}/100</h2>
 
       <p className="mt-3 max-w-xl text-sm leading-6 text-slate-300">
         A reputação institucional está estável e preparada para expansão
@@ -186,7 +215,7 @@ const timeline = [
 
   <div className="mt-6 h-[320px]">
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={grafico}>
+      <LineChart data={graficoDinamico}>
         <XAxis
           dataKey="nome"
           tickLine={false}
