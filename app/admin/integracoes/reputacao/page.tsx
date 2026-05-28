@@ -270,6 +270,52 @@ const obterAnaliseIA = (avaliacao: any) => {
   return "A avaliação fortalece a reputação institucional e contribui positivamente para confiança da marca.";
 };
 
+const obterTimelineAvaliacao = (avaliacao: any) => {
+  if (!avaliacao) return [];
+
+  const respondida = avaliacao.status === "Respondida";
+
+  return [
+    {
+      titulo: "Avaliação recebida",
+      descricao: "A avaliação foi identificada pelo monitoramento reputacional.",
+      tempo: "Agora",
+      emoji: "⭐",
+      cor: "bg-blue-600",
+    },
+    {
+      titulo: "IA analisou sentimento",
+      descricao: `Sentimento classificado como ${avaliacao.sentimento}.`,
+      tempo: "Após recebimento",
+      emoji: "🤖",
+      cor:
+        avaliacao.sentimento === "Crítico"
+          ? "bg-red-600"
+          : avaliacao.sentimento === "Neutro"
+          ? "bg-amber-500"
+          : "bg-emerald-600",
+    },
+    {
+      titulo: respondida ? "Resposta marcada como enviada" : "Resposta pendente",
+      descricao: respondida
+        ? "A avaliação já foi marcada como respondida no PHANYX Growth."
+        : "A IA recomenda responder esta avaliação dentro do prazo indicado.",
+      tempo: respondida ? "Concluído" : "Pendente",
+      emoji: respondida ? "✅" : "⏳",
+      cor: respondida ? "bg-emerald-600" : "bg-slate-400",
+    },
+    {
+      titulo: respondida ? "Caso resolvido" : "Aguardando ação",
+      descricao: respondida
+        ? "O ciclo reputacional desta avaliação foi encerrado visualmente."
+        : "A avaliação ainda precisa de acompanhamento administrativo.",
+      tempo: respondida ? "Resolvido" : "Em aberto",
+      emoji: respondida ? "🏁" : "⚠️",
+      cor: respondida ? "bg-emerald-700" : "bg-red-500",
+    },
+  ];
+};
+
     const cards = [
     {
       titulo: "Nota média",
@@ -1038,6 +1084,44 @@ const obterAnaliseIA = (avaliacao: any) => {
           {obterAnaliseIA(avaliacaoSelecionada)}
         </p>
       </div>
+
+<div className="mt-5 rounded-2xl border border-slate-200 bg-white p-5">
+  <p className="text-xs font-black uppercase tracking-wide text-slate-500">
+    Timeline da avaliação
+  </p>
+
+  <div className="mt-5 space-y-5">
+    {obterTimelineAvaliacao(avaliacaoSelecionada).map((item, index, lista) => (
+      <div key={item.titulo} className="flex gap-4">
+        <div className="flex flex-col items-center">
+          <div
+            className={`flex h-9 w-9 items-center justify-center rounded-full text-sm text-white shadow-lg ${item.cor}`}
+          >
+            {item.emoji}
+          </div>
+
+          {index < lista.length - 1 && (
+            <div className="mt-2 h-full min-h-8 w-px bg-slate-200" />
+          )}
+        </div>
+
+        <div className="flex-1 pb-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-black text-slate-900">{item.titulo}</p>
+
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-bold text-slate-500">
+              {item.tempo}
+            </span>
+          </div>
+
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {item.descricao}
+          </p>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
 
       <div className="mt-8 flex justify-end">
         <button
