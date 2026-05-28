@@ -6,11 +6,11 @@ import {
   LineChart,
   Line,
   ResponsiveContainer,
-  XAxis,
   Tooltip,
+  XAxis,
+  YAxis,
+  CartesianGrid,
 } from "recharts";
-
-
 
 export default function ReputacaoPage() {
 
@@ -334,6 +334,16 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
     },
   ];
 };
+
+const dadosReputacao = [
+  { semana: "Seg", reputacao: 48 },
+  { semana: "Ter", reputacao: 52 },
+  { semana: "Qua", reputacao: 55 },
+  { semana: "Qui", reputacao: 61 },
+  { semana: "Sex", reputacao: 68 },
+  { semana: "Sáb", reputacao: 72 },
+  { semana: "Dom", reputacao: 81 },
+];
 
 const timelineAvaliacoes = [
   {
@@ -843,6 +853,52 @@ const obterCorTimeline = (tipo: string) => {
     </div>
   ))
 )}
+  </div>
+</div>
+
+<div className="rounded-3xl border bg-white p-6 shadow-sm">
+  <div className="flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <h2 className="text-2xl font-black text-slate-900">
+        Evolução reputacional
+      </h2>
+
+      <p className="mt-1 text-sm text-slate-500">
+        A IA PHANYX acompanha tendências reputacionais e crescimento institucional.
+      </p>
+    </div>
+
+    <div className="rounded-2xl bg-emerald-100 px-4 py-3">
+      <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+        Tendência IA
+      </p>
+
+      <p className="mt-1 text-2xl font-black text-emerald-700">
+        +18%
+      </p>
+    </div>
+  </div>
+
+  <div className="mt-8 h-[320px] w-full">
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={dadosReputacao}>
+        <CartesianGrid strokeDasharray="3 3" />
+
+        <XAxis dataKey="semana" />
+
+        <YAxis />
+
+        <Tooltip />
+
+        <Line
+          type="monotone"
+          dataKey="reputacao"
+          stroke="#2563eb"
+          strokeWidth={4}
+          dot={{ r: 6 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
   </div>
 </div>
 
