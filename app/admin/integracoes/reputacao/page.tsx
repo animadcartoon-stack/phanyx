@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 
 import {
+  Area,
+  AreaChart,
   LineChart,
   Line,
-  ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
+  Tooltip,
+  ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
 
@@ -811,6 +813,74 @@ const obterCorTimeline = (tipo: string) => {
         <div className="h-full w-[92%] rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500" />
       </div>
     </div>
+
+<div className="mt-8 overflow-hidden rounded-2xl border border-cyan-400/10 bg-cyan-400/5 p-4">
+  <div className="mb-3 flex items-center justify-between">
+    <div>
+      <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-300">
+        Monitoramento IA
+      </p>
+
+      <h4 className="mt-1 text-lg font-black text-white">
+        Tendência reputacional
+      </h4>
+    </div>
+
+    <div className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-300">
+      Tempo real
+    </div>
+  </div>
+
+  <div className="h-32">
+    <ResponsiveContainer width="100%" height="100%">
+      <AreaChart
+        data={[
+          { dia: "Seg", valor: 48 },
+          { dia: "Ter", valor: 52 },
+          { dia: "Qua", valor: 55 },
+          { dia: "Qui", valor: 61 },
+          { dia: "Sex", valor: 68 },
+          { dia: "Sáb", valor: 72 },
+          { dia: "Dom", valor: 81 },
+        ]}
+      >
+        <defs>
+          <linearGradient id="colorIA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.8} />
+            <stop offset="95%" stopColor="#22d3ee" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+
+        <XAxis
+          dataKey="dia"
+          stroke="#67e8f9"
+          tickLine={false}
+          axisLine={false}
+          fontSize={12}
+        />
+
+        <YAxis hide />
+
+        <Tooltip
+          contentStyle={{
+            background: "#020617",
+            border: "1px solid rgba(34,211,238,0.2)",
+            borderRadius: "16px",
+            color: "#fff",
+          }}
+        />
+
+        <Area
+          type="monotone"
+          dataKey="valor"
+          stroke="#22d3ee"
+          strokeWidth={3}
+          fill="url(#colorIA)"
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  </div>
+</div>
 
     <div className="mt-8 grid gap-4 md:grid-cols-3">
       <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
