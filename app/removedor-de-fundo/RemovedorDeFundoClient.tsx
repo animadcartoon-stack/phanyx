@@ -28,6 +28,8 @@ export default function RemovedorDeFundoClient() {
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [maoAtiva, setMaoAtiva] = useState(false);
+
   const [pacoteCheckout, setPacoteCheckout] = useState<number | null>(null);
 
   const [menuIAAberto, setMenuIAAberto] = useState(false);
@@ -2428,8 +2430,8 @@ setPopupComprarCreditosAberto(false);
       )}
 
       {modalRefinamentoAberto && imagemFinal && (
-        <div className="fixed inset-0 z-[60] bg-slate-950/95 p-2 text-white sm:p-4">
-          <div className="mx-auto flex h-full max-w-7xl flex-col">
+        <div className="fixed inset-0 z-[60] overflow-y-auto bg-slate-950/95 p-2 text-white sm:p-4">
+          <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-2">
             {mostrarLupa && canvasRef.current && (
   <div
     className="pointer-events-none fixed z-[120] overflow-hidden rounded-full border-4 border-cyan-400 shadow-2xl bg-slate-950"
@@ -2676,8 +2678,8 @@ setPopupComprarCreditosAberto(false);
 
     if (
   !pincelAtivo &&
-  e.shiftKey &&
-  arrastandoImagemRef.current
+(e.shiftKey || maoAtiva) &&
+arrastandoImagemRef.current
 ) {
       setPanResultado({
         x: panInicioRef.current.x + (e.clientX - inicioArrastoRef.current.x),
@@ -2701,12 +2703,20 @@ setPopupComprarCreditosAberto(false);
   }}
 >
   <button
-    type="button"
-    title="Atalho: Shift + botão esquerdo do mouse para mover"
-    className="absolute right-4 top-4 z-30 rounded-full bg-slate-900/90 px-4 py-3 text-xl shadow-xl border border-cyan-400/30"
-  >
-    ✋
-  </button>
+  type="button"
+  title="Mover imagem. Atalho no PC: Shift + botão esquerdo do mouse"
+  onClick={() => {
+    setMaoAtiva((v) => !v);
+    setPincelAtivo(false);
+  }}
+  className={`absolute right-3 top-3 z-30 rounded-full px-3 py-2 text-lg shadow-xl border ${
+    maoAtiva
+      ? "bg-cyan-400 text-slate-950 border-cyan-200"
+      : "bg-slate-900/90 text-white border-cyan-400/30"
+  }`}
+>
+  ✋
+</button>
 
   <img
     ref={imagemResultadoRef}
@@ -2720,7 +2730,7 @@ setPopupComprarCreditosAberto(false);
         return;
       }
 
-      if (e.shiftKey) {
+      if (e.shiftKey || maoAtiva) {
         arrastandoImagemRef.current = true;
 
         inicioArrastoRef.current = {
