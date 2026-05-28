@@ -20,6 +20,8 @@ const [pendencias, setPendencias] = useState(0);
 const [modalRespostaAberto, setModalRespostaAberto] = useState(false);
 const [toastMensagem, setToastMensagem] = useState("");
 
+const [filtroAvaliacoes, setFiltroAvaliacoes] = useState("Todos");
+
 const [avaliacaoSelecionada, setAvaliacaoSelecionada] =
   useState<any | null>(null);
 
@@ -195,6 +197,17 @@ const avaliacoesSimuladas = [
     status: "Pendente",
   },
 ];
+
+const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
+  if (filtroAvaliacoes === "Todos") return true;
+  if (filtroAvaliacoes === "Pendentes") return avaliacao.status === "Pendente";
+  if (filtroAvaliacoes === "Respondidas") return avaliacao.status === "Respondida";
+  if (filtroAvaliacoes === "Críticas") return avaliacao.sentimento === "Crítico";
+  if (filtroAvaliacoes === "Positivas") return avaliacao.sentimento === "Positivo";
+  if (filtroAvaliacoes === "Neutras") return avaliacao.sentimento === "Neutro";
+
+  return true;
+});
 
     const cards = [
     {
@@ -519,10 +532,30 @@ const avaliacoesSimuladas = [
     <span className="rounded-full bg-blue-100 px-4 py-2 text-xs font-black uppercase tracking-wide text-blue-700">
       IA analisando sentimentos
     </span>
+
+<div className="flex flex-wrap gap-2">
+  {["Todos", "Pendentes", "Respondidas", "Críticas", "Positivas", "Neutras"].map(
+    (filtro) => (
+      <button
+        key={filtro}
+        type="button"
+        onClick={() => setFiltroAvaliacoes(filtro)}
+        className={`rounded-full px-4 py-2 text-xs font-black transition-all ${
+          filtroAvaliacoes === filtro
+            ? "bg-blue-600 text-white shadow-lg"
+            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+        }`}
+      >
+        {filtro}
+      </button>
+    )
+  )}
+</div>
+
   </div>
 
   <div className="mt-6 space-y-4">
-    {avaliacoesSimuladas.map((avaliacao) => (
+    {avaliacoesFiltradas.map((avaliacao) => (
       <div
         key={avaliacao.nome}
         className="rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
@@ -638,7 +671,7 @@ const avaliacoesSimuladas = [
                 </p>
 
                 <h2 className="mt-2 text-2xl font-black text-slate-900">
-                  Responder avaliação negativa
+                  Responder avaliação com IA
                 </h2>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
