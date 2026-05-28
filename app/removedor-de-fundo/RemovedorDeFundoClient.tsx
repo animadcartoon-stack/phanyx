@@ -2478,12 +2478,12 @@ setPopupComprarCreditosAberto(false);
     />
   </div>
 )}
-            <div className="mb-2 flex flex-col gap-3 rounded-2xl border border-cyan-400/20 bg-slate-900 p-3 sm:mb-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="sticky top-0 z-40 mb-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-cyan-400/20 bg-slate-900/95 px-3 py-2 backdrop-blur">
               <div>
-                <h2 className="text-xl font-black text-cyan-200">
+                <h2 className="text-sm sm:text-base font-black text-cyan-200">
                   Refinamento manual em tela grande
                 </h2>
-                <p className="text-xs text-slate-300">
+                <p className="text-[10px] sm:text-xs text-slate-300">
                   No celular: ligue o pincel e arraste sobre a imagem. No computador: use scroll para zoom e Espaço para mover.
                 </p>
               </div>
@@ -2599,7 +2599,7 @@ setPopupComprarCreditosAberto(false);
               </div>
             </div>
 
-            <div className="mb-2 rounded-2xl border border-cyan-400/20 bg-slate-900 p-2 sm:mb-2 sm:p-2">
+            <div className="mb-1 rounded-xl border border-cyan-400/20 bg-slate-900 px-3 py-2">
               <Controle
                 label="Tamanho do pincel"
                 valor={tamanhoPincel}
@@ -2608,36 +2608,39 @@ setPopupComprarCreditosAberto(false);
                 onChange={setTamanhoPincel}
               />
 
-<div className="mt-3">
-  <p className="mb-2 text-xs font-black text-cyan-100">
+<div className="mt-3 space-y-3">
+  <p className="text-center text-xs font-black text-cyan-100">
     Textura do pincel
   </p>
 
-<div className="mt-4">
-  <div className="mb-2 flex items-center justify-between text-xs font-black">
-    <span className="text-cyan-100">Feather da borda</span>
-    <span className="text-white">
-      {Math.round(featherPincel * 100)}%
-    </span>
-  </div>
+  <div>
+    <div className="mb-1 flex items-center justify-between text-[11px] font-black">
+      <span className="text-cyan-100">
+        Feather da borda
+      </span>
 
-  <input
-    type="range"
-    min={0}
-    max={1}
-    step={0.01}
-    value={featherPincel}
-    onChange={(e) =>
-      setFeatherPincel(Number(e.target.value))
-    }
-    className="w-full accent-cyan-400"
-  />
+      <span className="text-white">
+        {Math.round(featherPincel * 100)}%
+      </span>
+    </div>
 
-  <div className="mt-1 flex justify-between text-[10px] text-slate-400">
-    <span>Dura</span>
-    <span>Suave</span>
+    <input
+      type="range"
+      min={0}
+      max={1}
+      step={0.01}
+      value={featherPincel}
+      onChange={(e) =>
+        setFeatherPincel(Number(e.target.value))
+      }
+      className="w-full accent-cyan-400"
+    />
+
+    <div className="mt-1 flex justify-between text-[10px] text-slate-400">
+      <span>Dura</span>
+      <span>Suave</span>
+    </div>
   </div>
-</div>
 
   <div className="grid grid-cols-3 gap-2">
     {(["duro", "medio", "suave"] as TexturaPincel[]).map((tipo) => (
