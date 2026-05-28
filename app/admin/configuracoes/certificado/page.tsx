@@ -1713,6 +1713,56 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   range.setStart(inicioNode, inicioOffset);
   range.setEnd(fimNode, fimOffset);
 
+  const elementoAtual =
+  inicioNode.nodeType === Node.TEXT_NODE
+    ? inicioNode.parentElement
+    : (inicioNode as HTMLElement | null);
+
+const spanExistente = elementoAtual?.closest("span") as HTMLElement | null;
+
+if (
+  spanExistente &&
+  editor.contains(spanExistente) &&
+  spanExistente.innerText === range.toString()
+) {
+  Object.assign(spanExistente.style, estilo);
+
+  if (estilo.color) {
+    const cor = String(estilo.color).toLowerCase();
+
+    spanExistente.style.setProperty("color", cor, "important");
+    spanExistente.style.setProperty("-webkit-text-fill-color", cor, "important");
+    spanExistente.style.setProperty("opacity", "1", "important");
+    spanExistente.style.setProperty("filter", "none", "important");
+    spanExistente.style.setProperty("mix-blend-mode", "normal", "important");
+    spanExistente.style.setProperty("text-shadow", "none", "important");
+
+    setCorTextoSelecionado(cor);
+  }
+
+  const selecao = window.getSelection();
+  const novoRange = document.createRange();
+
+  novoRange.selectNodeContents(spanExistente);
+
+  selecao?.removeAllRanges();
+  selecao?.addRange(novoRange);
+
+  selecaoTextoRef.current = novoRange.cloneRange();
+
+  selecaoTextoInfoRef.current = {
+    campoId: Number(campoSelecionadoId),
+    inicio: info.inicio,
+    fim: info.fim,
+  };
+
+  setTimeout(() => {
+    aplicandoEstiloTextoRef.current = false;
+  }, 240);
+
+  return;
+}
+
   const span = document.createElement("span");
 
 const corEscolhida = estilo.color
