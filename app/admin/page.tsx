@@ -454,7 +454,7 @@ export default function AdminDashboardPage() {
   const inputFotoRef = useRef<HTMLInputElement | null>(null);
   const [perfilAdmin, setPerfilAdmin] = useState<any>(null);
   const [enviandoFoto, setEnviandoFoto] = useState(false);
-  const [perfilAberto, setPerfilAberto] = useState(true);
+  const [perfilAberto, setPerfilAberto] = useState(false);
   const [busca, setBusca] = useState("");
   const [alunosLista, setAlunosLista] = useState<ItemBusca[]>([]);
   const [professoresLista, setProfessoresLista] = useState<ItemBusca[]>([]);
@@ -882,9 +882,11 @@ async function alterarFoto(file: File | null) {
         Perfil administrativo
       </p>
 
-      <h2 className="text-xl font-bold text-slate-900">
-        {perfilAdmin?.nome || "Administrador"}
-      </h2>
+      {perfilAberto && (
+  <h2 className="text-xl font-bold text-slate-900">
+    {perfilAdmin?.nome || "Administrador"}
+  </h2>
+)}
     </div>
 
     <span className="text-2xl font-black text-slate-500">

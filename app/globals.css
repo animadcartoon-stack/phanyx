@@ -101,3 +101,22 @@ html.dark input::placeholder,
 html.dark textarea::placeholder {
   color: #64748b !important;
 }
+html[data-theme="system"].dark body {
+  background: linear-gradient(135deg, #07111f 0%, #0f172a 55%, #1e3a8a 100%);
+}
+
+html[data-theme="system"].dark .bg-gray-100 {
+  background: linear-gradient(135deg, #07111f 0%, #0f172a 55%, #1e3a8a 100%) !important;
+}
+
+html[data-theme="system"].dark .bg-white {
+  background-color: #10213a !important;
+}
+
+html[data-theme="system"].dark .bg-slate-50 {
+  background-color: #132b4a !important;
+}
+
+html[data-theme="system"].dark .border-slate-200 {
+  border-color: #31527c !important;
+}
