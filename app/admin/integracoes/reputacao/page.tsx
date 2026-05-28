@@ -37,6 +37,9 @@ const [notificacaoAtual, setNotificacaoAtual] = useState(0);
 const [mostrarNotificacaoIA, setMostrarNotificacaoIA] =
   useState(false);
 
+  const [notificacaoFechada, setNotificacaoFechada] =
+  useState(false);
+
 useEffect(() => {
   const timer = setInterval(() => {
     setScoreAtual((valor) => (valor >= 84 ? 82 : valor + 1));
@@ -49,7 +52,9 @@ useEffect(() => {
 
 useEffect(() => {
   const intervalo = setInterval(() => {
-    setMostrarNotificacaoIA(true);
+    if (!notificacaoFechada) {
+  setMostrarNotificacaoIA(true);
+}
 
     setTimeout(() => {
       setMostrarNotificacaoIA(false);
@@ -171,7 +176,7 @@ const notificacoesIA = [
   },
 ];
 
-const avaliacoesSimuladas = [
+const [avaliacoesSimuladas, setAvaliacoesSimuladas] = useState([
   {
     nome: "Mariana Silva",
     iniciais: "MS",
@@ -196,7 +201,7 @@ const avaliacoesSimuladas = [
     texto: "Boa experiência, mas algumas informações poderiam ser mais claras.",
     status: "Pendente",
   },
-];
+]);
 
 const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
   if (filtroAvaliacoes === "Todos") return true;
@@ -208,6 +213,29 @@ const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
 
   return true;
 });
+
+const marcarComoRespondida = () => {
+  if (!avaliacaoSelecionada) return;
+
+  setAvaliacoesSimuladas((listaAtual) =>
+    listaAtual.map((avaliacao) =>
+      avaliacao.nome === avaliacaoSelecionada.nome
+        ? { ...avaliacao, status: "Respondida" }
+        : avaliacao
+    )
+  );
+
+  setAvaliacaoSelecionada({
+    ...avaliacaoSelecionada,
+    status: "Respondida",
+  });
+
+  setToastMensagem("Avaliação marcada como respondida.");
+
+  setTimeout(() => {
+    setToastMensagem("");
+  }, 3000);
+};
 
     const cards = [
     {
@@ -732,6 +760,14 @@ const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
                 Cancelar
               </button>
 
+<button
+  type="button"
+  onClick={marcarComoRespondida}
+  className="rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-emerald-700"
+>
+  Marcar como respondida
+</button>
+
               <button
   type="button"
   onClick={copiarRespostaIA}
@@ -866,6 +902,20 @@ const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
     <div
       className={`w-[380px] rounded-3xl border p-5 shadow-2xl backdrop-blur-xl ${notificacoesIA[notificacaoAtual].cor}`}
     >
+
+<div className="mb-3 flex justify-end">
+  <button
+    type="button"
+    onClick={() => {
+      setMostrarNotificacaoIA(false);
+      setNotificacaoFechada(true);
+    }}
+    className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-lg font-black text-current transition hover:rotate-90 hover:bg-black/10"
+  >
+    ×
+  </button>
+</div>
+
       <div className="flex items-start gap-4">
         <div className="text-3xl">
           {notificacoesIA[notificacaoAtual].emoji}
