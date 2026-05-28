@@ -1664,178 +1664,65 @@ function inserirMarcadorTextoSelecionado(marcador: string) {
 
 function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   aplicandoEstiloTextoRef.current = true;
+
   const editor = document.querySelector(
     `[data-texto-livre-id="${campoSelecionadoId}"]`
   ) as HTMLElement | null;
 
   if (!editor) {
-  aplicandoEstiloTextoRef.current = false;
-  return;
-}
-
-  const info = selecaoTextoInfoRef.current;
-  if (!info || info.campoId !== campoSelecionadoId || info.fim <= info.inicio) {
-  aplicandoEstiloTextoRef.current = false;
-  return;
-}
-
-  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
-
-  let atual = 0;
-  let inicioNode: Node | null = null;
-  let fimNode: Node | null = null;
-  let inicioOffset = 0;
-  let fimOffset = 0;
-
-  while (walker.nextNode()) {
-    const node = walker.currentNode;
-    const tamanho = node.textContent?.length || 0;
-
-    if (!inicioNode && info.inicio >= atual && info.inicio <= atual + tamanho) {
-      inicioNode = node;
-      inicioOffset = info.inicio - atual;
-    }
-
-    if (!fimNode && info.fim >= atual && info.fim <= atual + tamanho) {
-      fimNode = node;
-      fimOffset = info.fim - atual;
-    }
-
-    atual += tamanho;
+    aplicandoEstiloTextoRef.current = false;
+    return;
   }
 
-  if (!inicioNode || !fimNode) {
-  aplicandoEstiloTextoRef.current = false;
-  return;
-}
+  const selecao = window.getSelection();
 
-  const range = document.createRange();
-  range.setStart(inicioNode, inicioOffset);
-  range.setEnd(fimNode, fimOffset);
+  let range: Range | null = null;
 
-  const elementoAtual =
-  inicioNode.nodeType === Node.TEXT_NODE
-    ? inicioNode.parentElement
-    : (inicioNode as HTMLElement | null);
+  if (
+    selecao &&
+    selecao.rangeCount > 0 &&
+    !selecao.getRangeAt(0).collapsed &&
+    editor.contains(selecao.getRangeAt(0).commonAncestorContainer)
+  ) {
+    range = selecao.getRangeAt(0).cloneRange();
+  } else if (
+    selecaoTextoRef.current &&
+    !selecaoTextoRef.current.collapsed &&
+    editor.contains(selecaoTextoRef.current.commonAncestorContainer)
+  ) {
+    range = selecaoTextoRef.current.cloneRange();
+  }
 
-const spanExistente = elementoAtual?.closest("span") as HTMLElement | null;
+  if (!range || !range.toString()) {
+    aplicandoEstiloTextoRef.current = false;
+    return;
+  }
 
-if (
-  spanExistente &&
-  editor.contains(spanExistente) &&
-  spanExistente.innerText === range.toString()
-) {
-  Object.assign(spanExistente.style, estilo);
+  const fragmento = range.extractContents();
+  const span = document.createElement("span");
+
+  Object.assign(span.style, estilo);
 
   if (estilo.color) {
     const cor = String(estilo.color).toLowerCase();
 
-    spanExistente.style.setProperty("color", cor, "important");
-    spanExistente.style.setProperty("-webkit-text-fill-color", cor, "important");
-    spanExistente.style.setProperty("opacity", "1", "important");
-    spanExistente.style.setProperty("filter", "none", "important");
-    spanExistente.style.setProperty("mix-blend-mode", "normal", "important");
-    spanExistente.style.setProperty("text-shadow", "none", "important");
+    span.style.setProperty("color", cor, "important");
+    span.style.setProperty("-webkit-text-fill-color", cor, "important");
+    span.style.setProperty("opacity", "1", "important");
+    span.style.setProperty("filter", "none", "important");
+    span.style.setProperty("mix-blend-mode", "normal", "important");
+
+    fragmento.querySelectorAll?.("span").forEach((el) => {
+      (el as HTMLElement).style.removeProperty("color");
+      (el as HTMLElement).style.removeProperty("-webkit-text-fill-color");
+    });
 
     setCorTextoSelecionado(cor);
   }
 
-  const selecao = window.getSelection();
-  const novoRange = document.createRange();
-
-  novoRange.selectNodeContents(spanExistente);
-
-  selecao?.removeAllRanges();
-  selecao?.addRange(novoRange);
-
-  selecaoTextoRef.current = novoRange.cloneRange();
-
-  selecaoTextoInfoRef.current = {
-    campoId: Number(campoSelecionadoId),
-    inicio: info.inicio,
-    fim: info.fim,
-  };
-
-  setTimeout(() => {
-    aplicandoEstiloTextoRef.current = false;
-  }, 240);
-
-  return;
-}
-
-  const span = document.createElement("span");
-
-const corEscolhida = estilo.color
-  ? String(estilo.color).toLowerCase()
-  : null;
-
-Object.assign(span.style, estilo);
-
-if (corEscolhida) {
-  span.style.setProperty("color", corEscolhida, "important");
-  span.style.setProperty(
-    "-webkit-text-fill-color",
-    corEscolhida,
-    "important"
-  );
-
-  span.style.setProperty("opacity", "1", "important");
-  span.style.setProperty("filter", "none", "important");
-  span.style.setProperty("mix-blend-mode", "normal", "important");
-  span.style.setProperty("text-shadow", "none", "important");
-
-  const spansInternos = range
-    .cloneContents()
-    .querySelectorAll?.("span");
-
-  spansInternos?.forEach((el) => {
-    el.removeAttribute("style");
-  });
-}
-
-if (estilo.color) {
-  const cor = String(estilo.color).toLowerCase();
-
-  span.setAttribute(
-    "style",
-    [
-      `color: ${cor} !important`,
-      `-webkit-text-fill-color: ${cor} !important`,
-      `opacity: 1 !important`,
-      `filter: none !important`,
-      `mix-blend-mode: normal !important`,
-      `text-shadow: none !important`,
-    ].join("; ")
-  );
-
-  span.textContent = range.toString();
-
-  range.deleteContents();
+  span.appendChild(fragmento);
   range.insertNode(span);
-} else {
-  const conteudo = range.extractContents();
 
-const container = document.createElement("div");
-container.appendChild(conteudo);
-
-container.querySelectorAll("span").forEach((el) => {
-  if (corEscolhida) {
-    el.style.removeProperty("color");
-    el.style.removeProperty("-webkit-text-fill-color");
-    el.style.removeProperty("filter");
-    el.style.removeProperty("opacity");
-    el.style.removeProperty("mix-blend-mode");
-  }
-});
-
-while (container.firstChild) {
-  span.appendChild(container.firstChild);
-}
-
-range.insertNode(span);
-}
-
-  const selecao = window.getSelection();
   const novoRange = document.createRange();
   novoRange.selectNodeContents(span);
 
@@ -1844,28 +1731,16 @@ range.insertNode(span);
 
   selecaoTextoRef.current = novoRange.cloneRange();
 
-  selecaoTextoInfoRef.current = {
-    campoId: Number(campoSelecionadoId),
-    inicio: info.inicio,
-    fim: info.fim,
-  };
-
-  if (estilo.color) {
-    setCorTextoSelecionado(String(estilo.color).toLowerCase());
-  }
-
   setTimeout(() => {
-  aplicandoEstiloTextoRef.current = false;
-}, 240);
+    aplicandoEstiloTextoRef.current = false;
+  }, 250);
 }
 
 function temSelecaoTextoLivreAtiva() {
-  const info = selecaoTextoInfoRef.current;
-
   return (
     campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-    info?.campoId === campoSelecionado.id &&
-    info.fim > info.inicio
+    selecaoTextoRef.current &&
+    !selecaoTextoRef.current.collapsed
   );
 }
 
