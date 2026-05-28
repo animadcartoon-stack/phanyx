@@ -1707,7 +1707,34 @@ function aplicarEstiloTextoSelecionado(estilo: React.CSSProperties) {
   range.setEnd(fimNode, fimOffset);
 
   const span = document.createElement("span");
+
+const corEscolhida = estilo.color
+  ? String(estilo.color).toLowerCase()
+  : null;
+
 Object.assign(span.style, estilo);
+
+if (corEscolhida) {
+  span.style.setProperty("color", corEscolhida, "important");
+  span.style.setProperty(
+    "-webkit-text-fill-color",
+    corEscolhida,
+    "important"
+  );
+
+  span.style.setProperty("opacity", "1", "important");
+  span.style.setProperty("filter", "none", "important");
+  span.style.setProperty("mix-blend-mode", "normal", "important");
+  span.style.setProperty("text-shadow", "none", "important");
+
+  const spansInternos = range
+    .cloneContents()
+    .querySelectorAll?.("span");
+
+  spansInternos?.forEach((el) => {
+    el.removeAttribute("style");
+  });
+}
 
 if (estilo.color) {
   const cor = String(estilo.color).toLowerCase();
@@ -1730,8 +1757,25 @@ if (estilo.color) {
   range.insertNode(span);
 } else {
   const conteudo = range.extractContents();
-  span.appendChild(conteudo);
-  range.insertNode(span);
+
+const container = document.createElement("div");
+container.appendChild(conteudo);
+
+container.querySelectorAll("span").forEach((el) => {
+  if (corEscolhida) {
+    el.style.removeProperty("color");
+    el.style.removeProperty("-webkit-text-fill-color");
+    el.style.removeProperty("filter");
+    el.style.removeProperty("opacity");
+    el.style.removeProperty("mix-blend-mode");
+  }
+});
+
+while (container.firstChild) {
+  span.appendChild(container.firstChild);
+}
+
+range.insertNode(span);
 }
 
   const selecao = window.getSelection();
@@ -1753,20 +1797,9 @@ if (estilo.color) {
     setCorTextoSelecionado(String(estilo.color).toLowerCase());
   }
 
-  setCampos((prev) =>
-    prev.map((campo) =>
-      campo.id === campoSelecionadoId
-        ? {
-            ...campo,
-            texto: editor.innerText,
-            textoHtml: editor.innerHTML,
-          }
-        : campo
-    )
-  );
   setTimeout(() => {
   aplicandoEstiloTextoRef.current = false;
-}, 80);
+}, 240);
 }
 
 function temSelecaoTextoLivreAtiva() {
