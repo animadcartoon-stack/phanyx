@@ -14,7 +14,7 @@ import {
 
 export default function ReputacaoPage() {
 
-    const [scoreAtual, setScoreAtual] = useState(82);
+const [scoreAtual, setScoreAtual] = useState(82);
 const [avaliacoes, setAvaliacoes] = useState(0);
 const [pendencias, setPendencias] = useState(0);
 const [modalRespostaAberto, setModalRespostaAberto] = useState(false);
@@ -28,6 +28,10 @@ const [modalEngajamentoAberto, setModalEngajamentoAberto] =
 const [modalPositivoAberto, setModalPositivoAberto] =
   useState(false);
 
+const [notificacaoAtual, setNotificacaoAtual] = useState(0);
+const [mostrarNotificacaoIA, setMostrarNotificacaoIA] =
+  useState(false);
+
 useEffect(() => {
   const timer = setInterval(() => {
     setScoreAtual((valor) => (valor >= 84 ? 82 : valor + 1));
@@ -36,6 +40,24 @@ useEffect(() => {
   }, 3500);
 
   return () => clearInterval(timer);
+}, []);
+
+useEffect(() => {
+  const intervalo = setInterval(() => {
+    setMostrarNotificacaoIA(true);
+
+    setTimeout(() => {
+      setMostrarNotificacaoIA(false);
+
+      setTimeout(() => {
+        setNotificacaoAtual((valor) =>
+          valor >= notificacoesIA.length - 1 ? 0 : valor + 1
+        );
+      }, 400);
+    }, 4200);
+  }, 7000);
+
+  return () => clearInterval(intervalo);
 }, []);
 
 const graficoDinamico = useMemo(
@@ -97,6 +119,40 @@ const timeline = [
   },
 ];
 
+const notificacoesIA = [
+  {
+    titulo: "Nova avaliação recebida",
+    descricao: "Uma nova avaliação foi detectada no Google Business.",
+    cor:
+      "border-emerald-200 bg-emerald-50 text-emerald-700",
+    emoji: "⭐",
+  },
+
+  {
+    titulo: "Engajamento em crescimento",
+    descricao: "O perfil institucional teve aumento de visualizações.",
+    cor:
+      "border-amber-200 bg-amber-50 text-amber-700",
+    emoji: "📈",
+  },
+
+  {
+    titulo: "Resposta pendente",
+    descricao: "Existe uma avaliação aguardando retorno.",
+    cor:
+      "border-red-200 bg-red-50 text-red-700",
+    emoji: "⚠️",
+  },
+
+  {
+    titulo: "IA monitorando reputação",
+    descricao: "PHANYX Growth continua analisando sinais reputacionais.",
+    cor:
+      "border-cyan-200 bg-cyan-50 text-cyan-700",
+    emoji: "🤖",
+  },
+];
+
     const cards = [
     {
       titulo: "Nota média",
@@ -123,6 +179,18 @@ const timeline = [
       cor: "text-purple-700",
     },
   ];
+
+  <style jsx global>{`
+  @keyframes toastBar {
+    from {
+      transform: scaleX(1);
+    }
+
+    to {
+      transform: scaleX(0);
+    }
+  }
+`}</style>
 
   return (
     <div className="space-y-8">
@@ -627,6 +695,38 @@ const timeline = [
         >
           Fechar análise
         </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{mostrarNotificacaoIA && (
+  <div className="fixed right-6 top-6 z-[99999] animate-in slide-in-from-right-10 fade-in duration-500">
+    <div
+      className={`w-[380px] rounded-3xl border p-5 shadow-2xl backdrop-blur-xl ${notificacoesIA[notificacaoAtual].cor}`}
+    >
+      <div className="flex items-start gap-4">
+        <div className="text-3xl">
+          {notificacoesIA[notificacaoAtual].emoji}
+        </div>
+
+        <div className="flex-1">
+          <p className="text-xs font-black uppercase tracking-[0.25em]">
+            PHANYX IA
+          </p>
+
+          <h3 className="mt-2 text-lg font-black">
+            {notificacoesIA[notificacaoAtual].titulo}
+          </h3>
+
+          <p className="mt-2 text-sm leading-6 opacity-90">
+            {notificacoesIA[notificacaoAtual].descricao}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 h-1 overflow-hidden rounded-full bg-black/10">
+        <div className="h-full w-full origin-left animate-[toastBar_4s_linear] rounded-full bg-current" />
       </div>
     </div>
   </div>
