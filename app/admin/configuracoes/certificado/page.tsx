@@ -5871,11 +5871,14 @@ onClick={() =>
   type="button"
   onClick={() => {
     setTipoContornoTexto("externo");
-    aplicarContornoTextoSelecionado(
-      corContornoTexto,
-      espessuraContornoTexto,
-      "externo"
-    );
+
+    if (temSelecaoTextoLivreAtiva()) {
+      aplicarContornoTextoSelecionado(
+        corContornoTexto,
+        espessuraContornoTexto,
+        "externo"
+      );
+    }
   }}
   className={`rounded-lg px-3 py-2 text-xs font-bold ${
     tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
@@ -5884,15 +5887,18 @@ onClick={() =>
   Externo
 </button>
 
- <button
+<button
   type="button"
   onClick={() => {
     setTipoContornoTexto("interno");
-    aplicarContornoTextoSelecionado(
-      corContornoTexto,
-      espessuraContornoTexto,
-      "interno"
-    );
+
+    if (temSelecaoTextoLivreAtiva()) {
+      aplicarContornoTextoSelecionado(
+        corContornoTexto,
+        espessuraContornoTexto,
+        "interno"
+      );
+    }
   }}
   className={`rounded-lg px-3 py-2 text-xs font-bold ${
     tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
@@ -7005,6 +7011,23 @@ aplicarEstiloTextoSelecionado({
   <p className="mb-2 text-xs font-bold text-slate-500">
     ⭕ Contorno do texto
   </p>
+
+<button
+  type="button"
+  onClick={() => {
+    const ativo = !temSelecaoTextoLivreAtiva();
+
+    if (!temSelecaoTextoLivreAtiva()) return;
+
+    aplicarEstiloTextoSelecionado({
+      WebkitTextStrokeWidth: "0px",
+      textShadow: "none",
+    } as React.CSSProperties);
+  }}
+  className="mb-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold hover:bg-slate-50"
+>
+  Desativar contorno
+</button>
 
   <label className="mb-1 block text-[11px] font-semibold text-slate-500">
     Cor do contorno
