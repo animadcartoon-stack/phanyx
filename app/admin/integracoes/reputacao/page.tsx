@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useEffect, useMemo, useState } from "react";
 
 import {
@@ -15,6 +16,26 @@ import {
 } from "recharts";
 
 export default function ReputacaoPage() {
+
+  const [scoreAnimado, setScoreAnimado] = useState(0);
+
+const [porcentagemAnimada, setPorcentagemAnimada] = useState(0);
+
+useEffect(() => {
+  const intervalo = setInterval(() => {
+    setScoreAnimado((valorAtual) => {
+      if (valorAtual >= 92) return 92;
+      return valorAtual + 1;
+    });
+
+    setPorcentagemAnimada((valorAtual) => {
+      if (valorAtual >= 92) return 92;
+      return valorAtual + 1;
+    });
+  }, 25);
+
+  return () => clearInterval(intervalo);
+}, []);
 
 const [scoreAtual, setScoreAtual] = useState(82);
 const [avaliacoes, setAvaliacoes] = useState(0);
@@ -794,7 +815,7 @@ const obterCorTimeline = (tipo: string) => {
         </p>
 
         <h3 className="mt-2 text-5xl font-black text-white">
-          92
+         {scoreAnimado}
         </h3>
 
         <p className="mt-1 text-xs font-bold text-emerald-300">
@@ -804,15 +825,18 @@ const obterCorTimeline = (tipo: string) => {
     </div>
 
     <div className="mt-8">
-      <div className="flex items-center justify-between text-sm font-bold text-slate-300">
-        <span>Saúde reputacional</span>
-        <span>92%</span>
-      </div>
+  <div className="flex items-center justify-between text-sm font-bold text-slate-300">
+    <span>Saúde reputacional</span>
+    <span>{porcentagemAnimada}%</span>
+  </div>
 
-      <div className="mt-3 h-4 overflow-hidden rounded-full bg-white/10">
-        <div className="h-full w-[92%] rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500" />
-      </div>
-    </div>
+  <div className="mt-3 h-4 overflow-hidden rounded-full bg-white/10">
+    <div
+      className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 transition-all duration-500"
+      style={{ width: `${porcentagemAnimada}%` }}
+    />
+  </div>
+</div>
 
 <div className="mt-8 overflow-hidden rounded-2xl border border-cyan-400/10 bg-cyan-400/5 p-4">
   <div className="mb-3 flex items-center justify-between">
