@@ -1705,8 +1705,12 @@ function gerarContornoExterno(cor: string, espessura: number) {
   return sombras.join(", ");
 }
 
-function aplicarContornoTextoSelecionado(cor: string, espessura: number) {
-  if (tipoContornoTexto === "interno") {
+function aplicarContornoTextoSelecionado(
+  cor: string,
+  espessura: number,
+  tipo: "interno" | "externo" = tipoContornoTexto
+) {
+  if (tipo === "interno") {
     aplicarEstiloTextoSelecionado({
       WebkitTextStrokeColor: cor,
       WebkitTextStrokeWidth: `${espessura}px`,
@@ -1757,6 +1761,8 @@ salvarHistoricoTextoLivre(editor);
     aplicandoEstiloTextoRef.current = false;
     return;
   }
+
+  salvarHistoricoTextoLivre(editor);
 
   const fragmento = range.extractContents();
   const span = document.createElement("span");
@@ -4597,6 +4603,13 @@ altura: ev.shiftKey
   }
 }
 
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+  if (desfazerTextoLivre(e.currentTarget)) {
+    e.preventDefault();
+    return;
+  }
+}
+
   const editor = e.currentTarget;
   const marcador = editor.getAttribute("data-marcador-ativo");
 
@@ -4657,6 +4670,9 @@ altura: ev.shiftKey
       )
     );
   }}
+  onBeforeInput={(e) => {
+  salvarHistoricoTextoLivre(e.currentTarget);
+}}
   onMouseUp={() => {
   const selecao = window.getSelection();
 
@@ -5852,28 +5868,38 @@ onClick={() =>
 
 <div className="mb-3 flex gap-2">
   <button
-    type="button"
-    onClick={() => setTipoContornoTexto("externo")}
-    className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
-      tipoContornoTexto === "externo"
-        ? "bg-blue-600 text-white"
-        : "border border-slate-300 bg-white text-slate-700"
-    }`}
-  >
-    Externo
-  </button>
+  type="button"
+  onClick={() => {
+    setTipoContornoTexto("externo");
+    aplicarContornoTextoSelecionado(
+      corContornoTexto,
+      espessuraContornoTexto,
+      "externo"
+    );
+  }}
+  className={`rounded-lg px-3 py-2 text-xs font-bold ${
+    tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
+  }`}
+>
+  Externo
+</button>
 
-  <button
-    type="button"
-    onClick={() => setTipoContornoTexto("interno")}
-    className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
-      tipoContornoTexto === "interno"
-        ? "bg-blue-600 text-white"
-        : "border border-slate-300 bg-white text-slate-700"
-    }`}
-  >
-    Interno
-  </button>
+ <button
+  type="button"
+  onClick={() => {
+    setTipoContornoTexto("interno");
+    aplicarContornoTextoSelecionado(
+      corContornoTexto,
+      espessuraContornoTexto,
+      "interno"
+    );
+  }}
+  className={`rounded-lg px-3 py-2 text-xs font-bold ${
+    tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
+  }`}
+>
+  Interno
+</button>
 </div>
 
   <label className="mt-3 block text-xs text-slate-500">
