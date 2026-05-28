@@ -2599,7 +2599,7 @@ setPopupComprarCreditosAberto(false);
               </div>
             </div>
 
-            <div className="mb-2 rounded-2xl border border-cyan-400/20 bg-slate-900 p-2 sm:mb-3 sm:p-3">
+            <div className="mb-2 rounded-2xl border border-cyan-400/20 bg-slate-900 p-2 sm:mb-2 sm:p-2">
               <Controle
                 label="Tamanho do pincel"
                 valor={tamanhoPincel}
@@ -2678,7 +2678,7 @@ setPopupComprarCreditosAberto(false);
 
     if (
   !pincelAtivo &&
-(e.shiftKey || maoAtiva) &&
+(e.shiftKey || maoAtiva || e.pointerType === "mouse") &&
 arrastandoImagemRef.current
 ) {
       setPanResultado({
@@ -2730,7 +2730,7 @@ arrastandoImagemRef.current
         return;
       }
 
-      if (e.shiftKey || maoAtiva) {
+      if (e.shiftKey || maoAtiva || e.pointerType === "mouse") {
         arrastandoImagemRef.current = true;
 
         inicioArrastoRef.current = {
