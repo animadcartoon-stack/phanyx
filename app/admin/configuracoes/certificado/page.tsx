@@ -388,6 +388,10 @@ const figurasDecorativas = [
   const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
+  const [tipoContornoTexto, setTipoContornoTexto] = useState<
+  "interno" | "externo"
+>("externo");
+
   const [tamanhoSelecaoTexto, setTamanhoSelecaoTexto] = useState(18);
 
   const [menuPontoGradiente, setMenuPontoGradiente] = useState<{
@@ -5768,6 +5772,36 @@ onClick={() =>
     />
   </div>
 
+<label className="mb-2 block text-xs font-semibold text-slate-600">
+  Tipo do contorno
+</label>
+
+<div className="mb-3 flex gap-2">
+  <button
+    type="button"
+    onClick={() => setTipoContornoTexto("externo")}
+    className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+      tipoContornoTexto === "externo"
+        ? "bg-blue-600 text-white"
+        : "border border-slate-300 bg-white text-slate-700"
+    }`}
+  >
+    Externo
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setTipoContornoTexto("interno")}
+    className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+      tipoContornoTexto === "interno"
+        ? "bg-blue-600 text-white"
+        : "border border-slate-300 bg-white text-slate-700"
+    }`}
+  >
+    Interno
+  </button>
+</div>
+
   <label className="mt-3 block text-xs text-slate-500">
     Espessura do contorno
   </label>
@@ -6885,16 +6919,26 @@ aplicarEstiloTextoSelecionado({
 
   if (!temSelecaoTextoLivreSalva()) return;
 
-  aplicarEstiloTextoSelecionado({
+  const sombraContorno =
+  tipoContornoTexto === "externo"
+    ? `
+      ${espessuraContornoTexto}px 0 0 ${novaCor},
+      -${espessuraContornoTexto}px 0 0 ${novaCor},
+      0 ${espessuraContornoTexto}px 0 ${novaCor},
+      0 -${espessuraContornoTexto}px 0 ${novaCor}
+    `
+    : "none";
+
+aplicarEstiloTextoSelecionado({
   WebkitTextStrokeColor: novaCor,
-  WebkitTextStrokeWidth: `${espessuraContornoTexto}px`,
+  WebkitTextStrokeWidth:
+    tipoContornoTexto === "interno"
+      ? `${espessuraContornoTexto}px`
+      : "0px",
+
   paintOrder: "stroke fill",
-  textShadow: `
-    ${espessuraContornoTexto}px 0 0 ${novaCor},
-    -${espessuraContornoTexto}px 0 0 ${novaCor},
-    0 ${espessuraContornoTexto}px 0 ${novaCor},
-    0 -${espessuraContornoTexto}px 0 ${novaCor}
-  `,
+
+  textShadow: sombraContorno,
 } as React.CSSProperties);
 }}
     className="mb-3 h-9 w-full cursor-pointer rounded-lg border"

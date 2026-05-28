@@ -217,6 +217,25 @@ const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
   return true;
 });
 
+const totalAvaliacoes = avaliacoesSimuladas.length;
+
+const totalPendentes = avaliacoesSimuladas.filter(
+  (item) => item.status === "Pendente"
+).length;
+
+const totalRespondidas = avaliacoesSimuladas.filter(
+  (item) => item.status === "Respondida"
+).length;
+
+const totalCriticas = avaliacoesSimuladas.filter(
+  (item) => item.sentimento === "Crítico"
+).length;
+
+const percentualRespondidas =
+  totalAvaliacoes > 0
+    ? Math.round((totalRespondidas / totalAvaliacoes) * 100)
+    : 0;
+
 const marcarComoRespondida = () => {
   if (!avaliacaoSelecionada) return;
 
@@ -633,6 +652,47 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
       </h2>
       <p className="mt-1 text-sm text-slate-500">
         Avaliações recentes monitoradas pela IA PHANYX.
+        <div className="mt-6 grid gap-4 md:grid-cols-4">
+  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-blue-700">
+      Total
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {totalAvaliacoes}
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-amber-700">
+      Pendentes
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {totalPendentes}
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
+      Respondidas
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {totalRespondidas}
+    </h3>
+  </div>
+
+  <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+    <p className="text-xs font-black uppercase tracking-wide text-red-700">
+      Índice PHANYX
+    </p>
+
+    <h3 className="mt-2 text-3xl font-black text-slate-900">
+      {percentualRespondidas}%
+    </h3>
+  </div>
+</div>
       </p>
     </div>
 
