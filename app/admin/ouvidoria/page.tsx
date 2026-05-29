@@ -285,9 +285,17 @@ async function salvarResposta() {
                   {item.status}
                 </span>
 
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-                  {item.sentimento}
-                </span>
+                <span
+  className={`rounded-full px-3 py-1 text-xs font-bold ${
+    item.sentimento === "CRITICO"
+      ? "bg-red-100 text-red-700"
+      : item.sentimento === "POSITIVO"
+      ? "bg-emerald-100 text-emerald-700"
+      : "bg-yellow-100 text-yellow-800"
+  }`}
+>
+  {item.sentimento}
+</span>
 
                 <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-bold text-red-700">
                   {item.prioridade}
