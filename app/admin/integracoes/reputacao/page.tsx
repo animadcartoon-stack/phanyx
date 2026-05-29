@@ -394,36 +394,36 @@ const dadosReputacao = [
   { semana: "Dom", reputacao: 81 },
 ];
 
-const timelineAvaliacoes = [
-  {
-    titulo: "Nova avaliação detectada",
-    descricao: "A IA PHANYX identificou uma nova avaliação positiva no Google Business.",
-    tempo: "Hoje",
-    tipo: "positivo",
-    emoji: "⭐",
-  },
-  {
-    titulo: "Resposta pendente",
-    descricao: "Uma avaliação crítica ainda precisa de resposta administrativa.",
-    tempo: "Hoje",
-    tipo: "critico",
-    emoji: "⚠️",
-  },
-  {
-    titulo: "Análise reputacional concluída",
-    descricao: "A IA classificou sentimentos e atualizou o índice reputacional.",
-    tempo: "Agora",
-    tipo: "ia",
-    emoji: "🤖",
-  },
-  {
-    titulo: "Resposta marcada como enviada",
-    descricao: "Uma avaliação foi marcada como respondida no PHANYX Growth.",
-    tempo: "Hoje",
-    tipo: "respondida",
-    emoji: "✅",
-  },
-];
+const timelineAvaliacoes = (resumoReputacao?.ultimos || []).map((item: any) => ({
+  titulo:
+    item.status === "RESOLVIDO"
+      ? "Manifestação respondida"
+      : item.tipo === "Reclamação"
+      ? "Reclamação recebida"
+      : item.tipo === "Sugestão"
+      ? "Sugestão recebida"
+      : item.tipo === "Elogio"
+      ? "Elogio recebido"
+      : "Manifestação recebida",
+  descricao: item.mensagem,
+  tempo: item.status === "RESOLVIDO" ? "Respondida" : "Pendente",
+  tipo:
+    item.status === "RESOLVIDO"
+      ? "respondida"
+      : item.sentimento === "CRITICO"
+      ? "critico"
+      : item.sentimento === "POSITIVO"
+      ? "positivo"
+      : "ia",
+  emoji:
+    item.status === "RESOLVIDO"
+      ? "✅"
+      : item.sentimento === "CRITICO"
+      ? "⚠️"
+      : item.sentimento === "POSITIVO"
+      ? "⭐"
+      : "🤖",
+}));
 
 const obterCorTimeline = (tipo: string) => {
   if (tipo === "critico") return "bg-red-600";
@@ -1002,11 +1002,13 @@ const obterCorTimeline = (tipo: string) => {
       </p>
 
       <h3 className="mt-3 text-5xl font-black text-red-900">
-        2
+        {totalPendentes}
       </h3>
 
       <p className="mt-3 text-sm leading-7 text-red-800">
-        Existem avaliações aguardando resposta institucional.
+        {totalPendentes > 0
+  ? "Existem manifestações aguardando resposta institucional."
+  : "Nenhuma manifestação pendente no momento."}
       </p>
     </div>
   </div>
@@ -1435,11 +1437,13 @@ const obterCorTimeline = (tipo: string) => {
       </p>
 
       <h3 className="mt-3 text-3xl font-black text-amber-900">
-        2
+        {totalPendentes}
       </h3>
 
       <p className="mt-3 text-sm leading-6 text-amber-800">
-        Existem avaliações aguardando retorno administrativo.
+        {totalPendentes > 0
+  ? "Existem manifestações aguardando retorno administrativo."
+  : "Todas as manifestações foram respondidas."}
       </p>
     </div>
 
