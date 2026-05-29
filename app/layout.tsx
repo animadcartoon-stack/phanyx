@@ -7,6 +7,7 @@ import GoogleTagManagerInstituicao from "@/components/google/GoogleTagManagerIns
 import GoogleAdsPHANYX from "@/components/google/GoogleAdsPHANYX";
 import PWARegister from "@/components/pwa/PWARegister";
 import SearchConsolePHANYX from "@/components/google/SearchConsolePHANYX";
+import PhanyxThemeBoot from "@/components/theme/PhanyxThemeBoot";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -95,9 +96,10 @@ export default async function RootLayout({
   </head>
       <body
   suppressHydrationWarning
+  
   className={`${inter.variable} antialiased bg-gray-100`}
 >
-  
+  <PhanyxThemeBoot />
 <PWARegister />
   <AuthProvider>
   <GoogleAnalyticsPHANYX />
