@@ -137,8 +137,8 @@ html[data-theme="dark"] .phanyx-theme-card {
 }
 
 html[data-theme="system"] .phanyx-theme-card {
-  background: #2f3a46 !important;
-  border-color: #6b7280 !important;
+  background: #1f1f1f !important;
+  border-color: #565656 !important;
 }
 
 /* PHANYX - CORREÇÃO FINAL DOS TEMAS */
@@ -243,4 +243,21 @@ html[data-theme="system"] .text-gray-600 {
 html[data-theme="system"] .text-slate-500,
 html[data-theme="system"] .text-gray-500 {
   color: #c7c7c7 !important;
+}
+html[data-theme="system"] body,
+html[data-theme="system"] main,
+html[data-theme="system"] .bg-gray-100,
+html[data-theme="system"] .min-h-screen {
+  background: #262626 !important;
+}
+
+html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
+html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
+  background: #343434 !important;
+  border-color: #5a5a5a !important;
+}
+
+html[data-theme="system"] .bg-slate-50,
+html[data-theme="system"] .bg-blue-50 {
+  background: #444444 !important;
 }
