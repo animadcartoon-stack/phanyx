@@ -940,12 +940,19 @@ const obterCorTimeline = (tipo: string) => {
       </p>
 
       <h3 className="mt-3 text-5xl font-black text-emerald-900">
-        78%
-      </h3>
+  {resumoReputacao?.total
+    ? Math.round(
+        ((resumoReputacao.elogios || 0) /
+          resumoReputacao.total) *
+          100
+      )
+    : 0}
+  %
+</h3>
 
       <p className="mt-3 text-sm leading-7 text-emerald-800">
-        A maior parte das avaliações recebidas possui sentimento positivo.
-      </p>
+  {resumoReputacao?.elogios || 0} manifestações positivas identificadas pela IA.
+</p>
     </div>
 
     <div className="rounded-[2rem] border border-red-200 bg-red-50 p-6">
