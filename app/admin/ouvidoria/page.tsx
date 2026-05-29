@@ -12,6 +12,7 @@ type ChamadoOuvidoria = {
   prioridade: string;
   sentimento: string;
   criadoEm: string;
+  resposta?: string | null;
 };
   
 export default function OuvidoriaAdminPage() {
@@ -21,6 +22,11 @@ export default function OuvidoriaAdminPage() {
   const [carregando, setCarregando] = useState(true);
 
   const [atualizandoId, setAtualizandoId] = useState<number | null>(null);
+
+  const [chamadoSelecionado, setChamadoSelecionado] =
+  useState<ChamadoOuvidoria | null>(null);
+  const [respostaTexto, setRespostaTexto] = useState("");
+  const [salvandoResposta, setSalvandoResposta] = useState(false);
 
 useEffect(() => {
   async function carregarOuvidoria() {
@@ -78,6 +84,77 @@ async function marcarComoResolvido(id: number) {
     alert("Não foi possível marcar como resolvido.");
   } finally {
     setAtualizandoId(null);
+  }
+}
+
+function gerarRespostaSugerida(item: ChamadoOuvidoria) {
+  if (item.tipo.toLowerCase().includes("elogio")) {
+    return `Agradecemos muito pelo seu retorno. Ficamos felizes em saber que sua experiência foi positiva. Sua mensagem é muito importante para nossa instituição.`;
+  }
+
+  if (item.tipo.toLowerCase().includes("sugest")) {
+    return `Agradecemos sua sugestão. Sua contribuição é muito importante para a melhoria contínua da instituição. Nossa equipe irá analisar a possibilidade de implementar essa melhoria.`;
+  }
+
+  if (item.tipo.toLowerCase().includes("reclama")) {
+    return `Agradecemos por compartilhar sua manifestação. Sentimos muito pela experiência relatada. Nossa equipe irá verificar a situação com atenção e encaminhar ao setor responsável para buscar uma solução.`;
+  }
+
+  return `Agradecemos seu contato. Sua manifestação foi recebida e será analisada pela instituição com a atenção necessária.`;
+}
+
+function abrirModalResposta(item: ChamadoOuvidoria) {
+  setChamadoSelecionado(item);
+  setRespostaTexto(item.resposta || gerarRespostaSugerida(item));
+}
+
+async function salvarResposta() {
+  if (!chamadoSelecionado) return;
+
+  if (!respostaTexto.trim()) {
+    alert("Escreva uma resposta antes de salvar.");
+    return;
+  }
+
+  try {
+    setSalvandoResposta(true);
+
+    const res = await fetch(`/api/ouvidoria/${chamadoSelecionado.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        resposta: respostaTexto,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao salvar resposta.");
+    }
+
+    setChamados((atuais) =>
+      atuais.map((item) =>
+        item.id === chamadoSelecionado.id
+          ? {
+              ...item,
+              resposta: respostaTexto,
+              status: "RESOLVIDO",
+            }
+          : item
+      )
+    );
+
+    setChamadoSelecionado(null);
+    setRespostaTexto("");
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível salvar a resposta.");
+  } finally {
+    setSalvandoResposta(false);
   }
 }
 
@@ -239,25 +316,114 @@ async function marcarComoResolvido(id: number) {
                 Ver detalhes
               </button>
 
-              <button className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700">
-                Responder com IA
-              </button>
+              <button
+  type="button"
+  onClick={() => abrirModalResposta(item)}
+  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+>
+  Responder
+</button>
 
               <button
   type="button"
   onClick={() => marcarComoResolvido(item.id)}
-  disabled={atualizandoId === item.id || item.status === "RESOLVIDO"}
+  disabled={
+  atualizandoId === item.id ||
+  item.status === "RESOLVIDO" ||
+  !item.resposta
+}
   className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
   {item.status === "RESOLVIDO"
-    ? "Resolvido"
-    : atualizandoId === item.id
-    ? "Atualizando..."
-    : "Marcar como resolvido"}
+  ? "Resolvido"
+  : !item.resposta
+  ? "Responda primeiro"
+  : atualizandoId === item.id
+  ? "Atualizando..."
+  : "Marcar como resolvido"}
 </button>
             </div>
           </div>
         ))}
+        {chamadoSelecionado && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-slate-950/70 p-4 backdrop-blur-sm">
+    <div className="w-full max-w-2xl rounded-3xl border bg-white p-6 shadow-2xl">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-blue-700">
+            Ouvidoria
+          </p>
+
+          <h2 className="mt-2 text-2xl font-black text-slate-900">
+            Responder manifestação
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setChamadoSelecionado(null)}
+          className="rounded-full bg-slate-100 px-3 py-2 font-black text-slate-500 hover:bg-slate-200"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="mt-5 rounded-2xl border bg-slate-50 p-4">
+        <p className="text-xs font-black uppercase text-slate-500">
+          Manifestação recebida
+        </p>
+
+        <p className="mt-2 text-sm font-bold text-slate-900">
+          {chamadoSelecionado.origem} • {chamadoSelecionado.tipo}
+        </p>
+
+        <p className="mt-3 text-sm leading-6 text-slate-600">
+          “{chamadoSelecionado.mensagem}”
+        </p>
+      </div>
+
+      <div className="mt-5">
+        <label className="mb-2 block text-sm font-bold text-slate-700">
+          Resposta da instituição
+        </label>
+
+        <textarea
+          value={respostaTexto}
+          onChange={(e) => setRespostaTexto(e.target.value)}
+          rows={7}
+          className="w-full rounded-2xl border p-4 text-sm text-slate-900"
+        />
+      </div>
+
+      <div className="mt-5 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => setChamadoSelecionado(null)}
+          className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigator.clipboard.writeText(respostaTexto)}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+        >
+          Copiar resposta
+        </button>
+
+        <button
+          type="button"
+          onClick={salvarResposta}
+          disabled={salvandoResposta}
+          className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
+        >
+          {salvandoResposta ? "Salvando..." : "Salvar resposta"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );
