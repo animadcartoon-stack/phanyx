@@ -154,7 +154,7 @@ async function alterarFotoPerfil(file: File | null) {
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
-        <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6">
+        <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-[#111111]">
           <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             Dashboard do Professor
           </h1>
@@ -191,11 +191,11 @@ async function alterarFotoPerfil(file: File | null) {
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
 <details className="mt-3 w-fit">
-  <summary className="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50">
+  <summary className="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-[#181818] dark:text-slate-100 dark:hover:bg-[#222222]">
     ℹ️ Dicas da foto
   </summary>
 
-  <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3">
+  <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 dark:border-slate-700 dark:bg-[#181818]">
     <p className="text-sm leading-6 text-slate-600">
       Para que sua foto fique bem centralizada no perfil, utilize uma imagem
       quadrada (1:1), preferencialmente em 500x500px ou maior.
@@ -227,7 +227,7 @@ async function alterarFotoPerfil(file: File | null) {
         {!loading && !erro && data && (
           <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Total de provas
                 </p>
@@ -236,7 +236,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Rascunho
                 </p>
@@ -245,7 +245,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Publicadas
                 </p>
@@ -254,7 +254,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Encerradas
                 </p>
@@ -263,7 +263,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Tentativas finalizadas
                 </p>
@@ -272,7 +272,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Aprovados
                 </p>
@@ -281,7 +281,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Reprovados
                 </p>
@@ -290,7 +290,7 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm">
+              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                 <p className="text-xs uppercase tracking-wide text-gray-500">
                   Média geral
                 </p>
@@ -301,7 +301,7 @@ async function alterarFotoPerfil(file: File | null) {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-              <div className="rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2">
+              <div className="rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2 dark:border-slate-800 dark:bg-[#111111]">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900">
@@ -314,7 +314,7 @@ async function alterarFotoPerfil(file: File | null) {
 
                   <a
                     href="/professor/provas"
-                    className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
                   >
                     Ver todas
                   </a>
@@ -374,14 +374,14 @@ async function alterarFotoPerfil(file: File | null) {
                           <div className="flex flex-col gap-2 sm:flex-row">
                             <a
                               href={`/professor/provas/${prova.id}`}
-                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
                             >
                               Abrir
                             </a>
 
                             <a
                               href={`/professor/provas/${prova.id}/boletim`}
-                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
                             >
                               Boletim
                             </a>
@@ -409,14 +409,14 @@ async function alterarFotoPerfil(file: File | null) {
 
                     <a
                       href="/professor/provas"
-                      className="block rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                      className="block rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
                     >
                       Gerenciar provas
                     </a>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
                   <h2 className="text-lg font-semibold text-gray-900">
                     Resumo acadêmico
                   </h2>

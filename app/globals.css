@@ -120,3 +120,95 @@ html[data-theme="system"].dark .bg-slate-50 {
 html[data-theme="system"].dark .border-slate-200 {
   border-color: #31527c !important;
 }
+/* ================================
+   PHANYX THEMES - AJUSTE FINAL
+================================ */
+
+/* ESCURO = preto elegante */
+html[data-theme="dark"].dark body {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"].dark .bg-gray-100,
+html[data-theme="dark"].dark main,
+html[data-theme="dark"].dark .min-h-screen {
+  background: #020617 !important;
+}
+
+/* Cards brancos no escuro */
+html[data-theme="dark"].dark .bg-white,
+html[data-theme="dark"].dark .bg-white\/80,
+html[data-theme="dark"].dark .bg-white\/90,
+html[data-theme="dark"].dark .bg-white\/95 {
+  background-color: #111827 !important;
+}
+
+/* Hero/card grande com gradiente branco */
+html[data-theme="dark"].dark [class*="from-white"][class*="to-blue-50"],
+html[data-theme="dark"].dark [class*="from-white"][class*="via-slate-50"] {
+  background: #0b1120 !important;
+}
+
+/* Cards mais escuros */
+html[data-theme="dark"].dark .bg-slate-50,
+html[data-theme="dark"].dark .bg-blue-50 {
+  background-color: #1e293b !important;
+}
+
+html[data-theme="dark"].dark .border-slate-200,
+html[data-theme="dark"].dark .border-blue-100 {
+  border-color: #334155 !important;
+}
+
+/* Textos no escuro */
+html[data-theme="dark"].dark .text-slate-900,
+html[data-theme="dark"].dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"].dark .text-slate-800,
+html[data-theme="dark"].dark .text-slate-700,
+html[data-theme="dark"].dark .text-gray-700 {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"].dark .text-slate-600,
+html[data-theme="dark"].dark .text-slate-500,
+html[data-theme="dark"].dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+/* SISTEMA = azul elegante, diferente do escuro */
+html[data-theme="system"].dark body {
+  background: linear-gradient(135deg, #07111f 0%, #0f172a 45%, #12376b 100%) !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"].dark .bg-gray-100,
+html[data-theme="system"].dark main,
+html[data-theme="system"].dark .min-h-screen {
+  background: linear-gradient(135deg, #07111f 0%, #0f172a 45%, #12376b 100%) !important;
+}
+
+html[data-theme="system"].dark .bg-white,
+html[data-theme="system"].dark .bg-white\/80,
+html[data-theme="system"].dark .bg-white\/90,
+html[data-theme="system"].dark .bg-white\/95 {
+  background-color: #10213a !important;
+}
+
+html[data-theme="system"].dark [class*="from-white"][class*="to-blue-50"],
+html[data-theme="system"].dark [class*="from-white"][class*="via-slate-50"] {
+  background: linear-gradient(135deg, #10213a 0%, #132b4a 55%, #1d4ed8 100%) !important;
+}
+
+html[data-theme="system"].dark .bg-slate-50,
+html[data-theme="system"].dark .bg-blue-50 {
+  background-color: #132b4a !important;
+}
+
+html[data-theme="system"].dark .border-slate-200,
+html[data-theme="system"].dark .border-blue-100 {
+  border-color: #31527c !important;
+}

@@ -867,11 +867,11 @@ async function alterarFoto(file: File | null) {
   return (
     <>
       <div className="space-y-8">
-        <section className="relative rounded-[28px] border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm">
+        <section className="relative rounded-[28px] border border-slate-800 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm dark:from-[#0a0a0a] dark:via-[#0f0f0f] dark:to-[#141414]">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
 
-<div className="mb-6 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm">
+<div className="mb-6 rounded-2xl border border-slate-800 bg-white/80 p-4 shadow-sm dark:bg-[#111111]">
   <button
     type="button"
     onClick={() => setPerfilAberto((atual) => !atual)}
@@ -1032,7 +1032,7 @@ async function alterarFoto(file: File | null) {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-blue-100 bg-white/80 px-5 py-4 shadow-sm">
+            <div className="rounded-2xl border border-slate-800 bg-white/80 px-5 py-4 shadow-sm dark:bg-[#111111]">
               <div className="flex items-start gap-3">
                 <img
                   src="/images/formix-bemvindo.png"
