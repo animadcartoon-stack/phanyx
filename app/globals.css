@@ -213,3 +213,20 @@ html[data-theme="system"] .phanyx-admin-hero {
   background: #2a2a2a !important;
   border-color: #5a5a5a !important;
 }
+/* ADMIN HERO - claro precisa ser branco */
+html[data-theme="light"] .phanyx-admin-hero {
+  background: linear-gradient(to right, #ffffff, #f8fafc, #eff6ff) !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ADMIN HERO - sistema cinza */
+html[data-theme="system"] .phanyx-admin-hero {
+  background: #2a2a2a !important;
+  border-color: #5a5a5a !important;
+}
+
+/* ADMIN HERO - escuro preto */
+html[data-theme="dark"] .phanyx-admin-hero {
+  background: #111111 !important;
+  border-color: #222222 !important;
+}
