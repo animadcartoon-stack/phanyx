@@ -275,3 +275,48 @@ html[data-theme="system"] .phanyx-theme-card {
   background: #2f3a46 !important;
   border-color: #6b7280 !important;
 }
+/* SISTEMA PHANYX FINAL = grafite real */
+html[data-theme="system"] body,
+html[data-theme="system"] .bg-gray-100,
+html[data-theme="system"] main,
+html[data-theme="system"] .min-h-screen {
+  background: #1f2329 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-theme-card,
+html[data-theme="system"] .bg-white,
+html[data-theme="system"] .bg-white\/80,
+html[data-theme="system"] .bg-white\/90,
+html[data-theme="system"] .bg-white\/95 {
+  background-color: #2b3038 !important;
+  border-color: #5b6470 !important;
+}
+
+html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
+html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
+  background: #343a43 !important;
+  border-color: #6b7280 !important;
+}
+
+html[data-theme="system"] .bg-slate-50,
+html[data-theme="system"] .bg-blue-50 {
+  background-color: #3a414b !important;
+}
+
+html[data-theme="system"] .text-slate-900,
+html[data-theme="system"] .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .text-slate-700,
+html[data-theme="system"] .text-gray-700,
+html[data-theme="system"] .text-slate-600,
+html[data-theme="system"] .text-gray-600 {
+  color: #d1d5db !important;
+}
+
+html[data-theme="system"] .text-slate-500,
+html[data-theme="system"] .text-gray-500 {
+  color: #aeb6c2 !important;
+}
