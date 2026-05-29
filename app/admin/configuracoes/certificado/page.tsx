@@ -2469,10 +2469,7 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   }
 
   return (
-  <div
-  className="mx-auto max-w-[1600px] p-6"
-  onClick={() => setMenuContexto(null)}
->
+  <div className="mx-auto max-w-[1600px] p-6">
     {mensagemErro && (
   <div className="mb-4">
     <PhanyxToast
@@ -3617,7 +3614,7 @@ contornoEspessura: 2,
   if (e.target === e.currentTarget) {
     setCamposSelecionadosIds([]);
     setCampoSelecionadoId(null);
-    setMenuContexto(null);
+    
   }
 
   iniciarArrastoCanvas(e);
@@ -4595,13 +4592,6 @@ altura: ev.shiftKey
 }}
   onKeyDown={(e) => {
   e.stopPropagation();
-
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-  if (desfazerTextoLivre(e.currentTarget)) {
-    e.preventDefault();
-    return;
-  }
-}
 
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
   if (desfazerTextoLivre(e.currentTarget)) {
@@ -7098,7 +7088,17 @@ aplicarEstiloTextoSelecionado({
 <div className="my-3 flex gap-2">
   <button
     type="button"
-    onClick={() => setTipoContornoTexto("externo")}
+    onClick={() => {
+      setTipoContornoTexto("externo");
+
+      if (temSelecaoTextoLivreAtiva()) {
+        aplicarContornoTextoSelecionado(
+          corContornoTexto,
+          espessuraContornoTexto,
+          "externo"
+        );
+      }
+    }}
     className={`rounded-lg px-3 py-2 text-xs font-bold ${
       tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
     }`}
@@ -7108,7 +7108,17 @@ aplicarEstiloTextoSelecionado({
 
   <button
     type="button"
-    onClick={() => setTipoContornoTexto("interno")}
+    onClick={() => {
+      setTipoContornoTexto("interno");
+
+      if (temSelecaoTextoLivreAtiva()) {
+        aplicarContornoTextoSelecionado(
+          corContornoTexto,
+          espessuraContornoTexto,
+          "interno"
+        );
+      }
+    }}
     className={`rounded-lg px-3 py-2 text-xs font-bold ${
       tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
     }`}
