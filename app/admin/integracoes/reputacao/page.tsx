@@ -616,86 +616,84 @@ const obterCorTimeline = (tipo: string) => {
   </div>
 
   <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-
-    <div className="rounded-2xl border border-red-200 bg-red-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+  {resumoReputacao?.criticos > 0 && (
+    <div className="rounded-2xl border border-red-200 bg-red-50 p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-black uppercase tracking-wide text-red-700">
           Crítico
         </span>
-
         <span className="text-2xl">⚠️</span>
       </div>
 
       <h3 className="mt-4 text-lg font-black text-slate-900">
-        Avaliação negativa detectada
+        {resumoReputacao.criticos} manifestação crítica em aberto
       </h3>
 
       <p className="mt-2 text-sm leading-6 text-slate-600">
-        Uma nova avaliação negativa foi detectada no Google Business e ainda
-        não recebeu resposta.
+        Existem manifestações críticas aguardando acompanhamento institucional.
       </p>
-
-      <button
-  type="button"
-  onClick={() => setModalRespostaAberto(true)}
-  className="mt-5 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition-all duration-300 hover:scale-105 hover:bg-red-700"
->
-  Responder agora
-</button>
     </div>
+  )}
 
-    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+  {resumoReputacao?.reclamacoesAbertas > 0 && (
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-black uppercase tracking-wide text-amber-700">
           Atenção
         </span>
-
-        <span className="text-2xl">📈</span>
+        <span className="text-2xl">📣</span>
       </div>
 
       <h3 className="mt-4 text-lg font-black text-slate-900">
-        Crescimento de engajamento
+        {resumoReputacao.reclamacoesAbertas} reclamação em aberto
       </h3>
 
       <p className="mt-2 text-sm leading-6 text-slate-600">
-        O perfil institucional apresentou aumento de visualizações nesta
-        semana.
+        Reclamações internas ainda precisam de retorno administrativo.
       </p>
-
-      <button
-  onClick={() => setModalEngajamentoAberto(true)}
-  className="mt-5 rounded-xl bg-amber-500 px-4 py-2 text-sm font-bold text-white transition hover:scale-[1.03] hover:bg-amber-600"
->
-  Ver detalhes
-</button>
     </div>
+  )}
 
-    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+  {resumoReputacao?.resolvidos > 0 && (
+    <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
       <div className="flex items-center justify-between">
         <span className="text-xs font-black uppercase tracking-wide text-emerald-700">
-          Positivo
+          Resolvidas
         </span>
-
         <span className="text-2xl">✅</span>
       </div>
 
       <h3 className="mt-4 text-lg font-black text-slate-900">
-        Nota reputacional estável
+        {resumoReputacao.resolvidos} manifestação respondida
       </h3>
 
       <p className="mt-2 text-sm leading-6 text-slate-600">
-        A reputação institucional segue saudável e sem oscilações negativas.
+        A instituição já deu retorno para manifestações recebidas.
       </p>
-
-      <button
-  onClick={() => setModalPositivoAberto(true)}
-  className="mt-5 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:scale-[1.03] hover:bg-emerald-700"
->
-  Ver análise IA
-</button>
     </div>
+  )}
 
-  </div>
+  {resumoReputacao &&
+    resumoReputacao.criticos === 0 &&
+    resumoReputacao.reclamacoesAbertas === 0 && (
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 md:col-span-2 xl:col-span-3">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-black uppercase tracking-wide text-emerald-700">
+            Tudo em ordem
+          </span>
+          <span className="text-2xl">🟢</span>
+        </div>
+
+        <h3 className="mt-4 text-lg font-black text-slate-900">
+          Nenhum alerta reputacional no momento
+        </h3>
+
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Não há reclamações críticas ou manifestações abertas impactando a reputação agora.
+        </p>
+      </div>
+    )}
+</div>
 </div>
 
 <div className="rounded-3xl border bg-white p-6 shadow-sm">
