@@ -1471,11 +1471,19 @@ window.addEventListener("keyup", soltarEspaco);
     
   }, [imagemFinal]);
 
- useEffect(() => {
+useEffect(() => {
   function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "Escape") {
       setOverlayVarinha(null);
       setVarinhaAtiva(false);
+      return;
+    }
+
+    if (e.key === "Delete" || e.key === "Backspace") {
+      if (!overlayVarinha) return;
+
+      e.preventDefault();
+      apagarSelecaoVarinha();
     }
   }
 
@@ -1484,7 +1492,7 @@ window.addEventListener("keyup", soltarEspaco);
   return () => {
     window.removeEventListener("keydown", handleKeyDown);
   };
-}, []);
+}, [overlayVarinha]);
 
   useEffect(() => {
   if (!modalRemoverObjetoAberto || !imagemOriginal || !canvasRemoverObjetoRef.current) return;
