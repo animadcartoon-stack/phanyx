@@ -30,6 +30,8 @@ export default function RemovedorDeFundoClient() {
 
   const [pixelsSelecionados, setPixelsSelecionados] = useState<Set<number> | null>(null);
 
+  const [overlayVarinha, setOverlayVarinha] = useState<string | null>(null);
+
   const [maoAtiva, setMaoAtiva] = useState(false);
 
   const [pacoteCheckout, setPacoteCheckout] = useState<number | null>(null);
@@ -713,6 +715,28 @@ function selecionarComVarinhaRefinamento(e: React.PointerEvent<HTMLImageElement>
   const selecionados = selecionarRegiaoConectada(imageData, x, y, toleranciaVarinha);
 
   setPixelsSelecionados(selecionados);
+  const overlayCanvas = document.createElement("canvas");
+overlayCanvas.width = canvasRef.current.width;
+overlayCanvas.height = canvasRef.current.height;
+
+const overlayCtx = overlayCanvas.getContext("2d");
+if (overlayCtx) {
+  const overlayData = overlayCtx.createImageData(
+    overlayCanvas.width,
+    overlayCanvas.height
+  );
+
+  selecionados.forEach((pixel) => {
+    const i = pixel * 4;
+    overlayData.data[i] = 255;
+    overlayData.data[i + 1] = 220;
+    overlayData.data[i + 2] = 0;
+    overlayData.data[i + 3] = 95;
+  });
+
+  overlayCtx.putImageData(overlayData, 0, 0);
+  setOverlayVarinha(overlayCanvas.toDataURL("image/png"));
+}
   setAviso(`Área selecionada com a varinha: ${selecionados.size} pixels. Clique em Apagar seleção ou aperte Delete.`);
 }
 
@@ -740,6 +764,7 @@ function apagarSelecaoVarinha() {
   setImagemFinal(canvasRef.current.toDataURL("image/png"));
   setTemResultadoReal(true);
   setPixelsSelecionados(null);
+  setOverlayVarinha(null);
   setAviso("Área selecionada apagada.");
 }
 
@@ -2645,6 +2670,11 @@ setPopupComprarCreditosAberto(false);
                 <button
                   type="button"
                   onClick={() => {
+  if (varinhaAtiva && pixelsSelecionados) {
+    apagarSelecaoVarinha();
+    return;
+  }
+
   setPincelAtivo(true);
   setFerramentaPincel("apagar");
 }}
@@ -2980,7 +3010,23 @@ arrastandoImagemRef.current
       touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
     }}
+    />
+
+{overlayVarinha && (
+  <img
+    src={overlayVarinha}
+    alt="Seleção da varinha"
+    draggable={false}
+    className="pointer-events-none absolute max-h-none max-w-none object-contain mix-blend-screen"
+    style={{
+      transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
+      transformOrigin: "center center",
+      width: "auto",
+      height: "auto",
+      maxHeight: "none",
+    }}
   />
+)}
 </div>
           </div>
         </div>
