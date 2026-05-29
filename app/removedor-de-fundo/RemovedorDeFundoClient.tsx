@@ -697,6 +697,52 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
   setTemResultadoReal(true);
 }
 
+function selecionarComVarinhaRefinamento(e: React.PointerEvent<HTMLImageElement>) {
+  if (!canvasRef.current || !imagemFinal) return;
+
+  const img = e.currentTarget;
+  const rect = img.getBoundingClientRect();
+
+  const x = Math.floor(((e.clientX - rect.left) / rect.width) * canvasRef.current.width);
+  const y = Math.floor(((e.clientY - rect.top) / rect.height) * canvasRef.current.height);
+
+  const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
+
+  const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+  const selecionados = selecionarRegiaoConectada(imageData, x, y, toleranciaVarinha);
+
+  setPixelsSelecionados(selecionados);
+  setAviso(`Área selecionada com a varinha: ${selecionados.size} pixels. Clique em Apagar seleção ou aperte Delete.`);
+}
+
+function apagarSelecaoVarinha() {
+  if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
+    setAviso("Nenhuma área selecionada pela varinha.");
+    return;
+  }
+
+  salvarHistoricoEdicao();
+
+  const ctx = canvasRef.current.getContext("2d", { willReadFrequently: true });
+  if (!ctx) return;
+
+  const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height);
+  const data = imageData.data;
+
+  pixelsSelecionados.forEach((pixel) => {
+    const i = pixel * 4;
+    data[i + 3] = 0;
+  });
+
+  ctx.putImageData(imageData, 0, 0);
+
+  setImagemFinal(canvasRef.current.toDataURL("image/png"));
+  setTemResultadoReal(true);
+  setPixelsSelecionados(null);
+  setAviso("Área selecionada apagada.");
+}
+
 function corParecida(
   r1: number,
   g1: number,
@@ -2889,6 +2935,13 @@ arrastandoImagemRef.current
     alt="Resultado refinado"
     draggable={false}
     onPointerDown={(e) => {
+
+      if (varinhaAtiva) {
+  e.currentTarget.setPointerCapture(e.pointerId);
+  selecionarComVarinhaRefinamento(e);
+  return;
+}
+
       if (pincelAtivo) {
         e.currentTarget.setPointerCapture(e.pointerId);
         iniciarPincelResultado(e);
@@ -2908,7 +2961,15 @@ arrastandoImagemRef.current
         };
       }
     }}
-    className="max-h-none max-w-none object-contain"
+    className={`max-h-none max-w-none object-contain ${
+  varinhaAtiva
+    ? "cursor-[crosshair]"
+    : pincelAtivo
+      ? "cursor-crosshair"
+      : maoAtiva
+        ? "cursor-grab"
+        : "cursor-default"
+}`}
     style={{
       opacity: opacidade / 100,
       transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
@@ -3207,6 +3268,15 @@ arrastandoImagemRef.current
   }`}
 >
   🪄 Varinha mágica
+</button>
+
+<button
+  type="button"
+  disabled={!pixelsSelecionados}
+  onClick={apagarSelecaoVarinha}
+  className="rounded-lg bg-red-500 px-2 py-1 text-[10px] font-black text-white disabled:opacity-40"
+>
+  🗑️ Apagar seleção
 </button>
 
 {varinhaAtiva && (
