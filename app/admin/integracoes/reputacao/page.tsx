@@ -37,7 +37,9 @@ useEffect(() => {
   return () => clearInterval(intervalo);
 }, []);
 
-const [scoreAtual, setScoreAtual] = useState(82);
+const [scoreAtual, setScoreAtual] = useState(0);
+
+const [resumoReputacao, setResumoReputacao] = useState<any>(null);
 const [avaliacoes, setAvaliacoes] = useState(0);
 const [pendencias, setPendencias] = useState(0);
 const [modalRespostaAberto, setModalRespostaAberto] = useState(false);
@@ -65,6 +67,23 @@ const [mostrarNotificacaoIA, setMostrarNotificacaoIA] =
 
   const [notificacaoFechada, setNotificacaoFechada] =
   useState(false);
+
+  useEffect(() => {
+  carregarResumoReputacao();
+}, []);
+
+async function carregarResumoReputacao() {
+  try {
+    const res = await fetch("/api/ouvidoria/resumo-reputacao");
+
+    const data = await res.json();
+
+    setResumoReputacao(data);
+    setScoreAtual(data.score || 0);
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 useEffect(() => {
   const timer = setInterval(() => {
@@ -487,8 +506,12 @@ const obterCorTimeline = (tipo: string) => {
       </p>
 
       <p className="mt-2 text-3xl font-black text-green-400">
-        Positiva ↗
-      </p>
+  {scoreAtual >= 80
+    ? "Positiva ↗"
+    : scoreAtual >= 60
+    ? "Estável →"
+    : "Crítica ↓"}
+</p>
 
       <p className="mt-2 text-xs font-semibold text-slate-400">
         Crescimento reputacional saudável
