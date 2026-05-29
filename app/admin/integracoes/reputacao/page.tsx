@@ -78,6 +78,8 @@ async function carregarResumoReputacao() {
 
     const data = await res.json();
 
+    console.log("RESUMO REPUTAÇÃO:", data);
+
     setResumoReputacao(data);
     setScoreAtual(data.score || 0);
   } catch (error) {
