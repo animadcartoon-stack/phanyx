@@ -74,7 +74,9 @@ const [mostrarNotificacaoIA, setMostrarNotificacaoIA] =
 
 async function carregarResumoReputacao() {
   try {
-    const res = await fetch("/api/ouvidoria/resumo-reputacao");
+    const res = await fetch("/api/ouvidoria/resumo-reputacao", {
+      cache: "no-store",
+    });
 
     const data = await res.json();
 
@@ -82,20 +84,12 @@ async function carregarResumoReputacao() {
 
     setResumoReputacao(data);
     setScoreAtual(data.score || 0);
+    setAvaliacoes(data.total || 0);
+    setPendencias(data.reclamacoesAbertas || 0);
   } catch (error) {
     console.error(error);
   }
 }
-
-useEffect(() => {
-  const timer = setInterval(() => {
-    setScoreAtual((valor) => (valor >= 84 ? 82 : valor + 1));
-    setAvaliacoes((valor) => (valor >= 7 ? 3 : valor + 1));
-    setPendencias((valor) => (valor >= 2 ? 0 : valor + 1));
-  }, 3500);
-
-  return () => clearInterval(timer);
-}, []);
 
 useEffect(() => {
   if (notificacaoFechada) return;
