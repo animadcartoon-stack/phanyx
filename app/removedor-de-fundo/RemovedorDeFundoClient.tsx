@@ -3040,7 +3040,7 @@ arrastandoImagemRef.current
       touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
       cursor: varinhaAtiva
-  ? "url('/wand-cursor.png') 4 28, crosshair"
+  ? "url('/wand-cursor-32.png') 2 30, crosshair"
   : maoAtiva
     ? "grab"
     : pincelAtivo
