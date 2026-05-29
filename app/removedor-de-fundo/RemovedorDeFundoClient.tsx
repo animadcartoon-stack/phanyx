@@ -727,12 +727,35 @@ if (overlayCtx) {
   );
 
   selecionados.forEach((pixel) => {
-    const i = pixel * 4;
-    overlayData.data[i] = 255;
-    overlayData.data[i + 1] = 220;
-    overlayData.data[i + 2] = 0;
-    overlayData.data[i + 3] = 95;
-  });
+  const x = pixel % overlayCanvas.width;
+  const y = Math.floor(pixel / overlayCanvas.width);
+
+  const vizinhos = [
+    pixel - 1,
+    pixel + 1,
+    pixel - overlayCanvas.width,
+    pixel + overlayCanvas.width,
+  ];
+
+  const ehBorda =
+    x === 0 ||
+    y === 0 ||
+    x === overlayCanvas.width - 1 ||
+    y === overlayCanvas.height - 1 ||
+    vizinhos.some((v) => !selecionados.has(v));
+
+  if (!ehBorda) return;
+
+  // Pontilhado estilo Photoshop
+  if ((x + y) % 8 > 3) return;
+
+  const i = pixel * 4;
+
+  overlayData.data[i] = 255;
+  overlayData.data[i + 1] = 255;
+  overlayData.data[i + 2] = 255;
+  overlayData.data[i + 3] = 255;
+});
 
   overlayCtx.putImageData(overlayData, 0, 0);
   setOverlayVarinha(overlayCanvas.toDataURL("image/png"));
@@ -2993,7 +3016,7 @@ arrastandoImagemRef.current
     }}
     className={`max-h-none max-w-none object-contain ${
   varinhaAtiva
-    ? "cursor-[crosshair]"
+    ? "[cursor:url('/wand-cursor.png')_4_24,_crosshair]"
     : pincelAtivo
       ? "cursor-crosshair"
       : maoAtiva
