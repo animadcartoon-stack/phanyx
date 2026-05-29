@@ -261,3 +261,25 @@ html[data-theme="system"] .bg-slate-50,
 html[data-theme="system"] .bg-blue-50 {
   background: #444444 !important;
 }
+/* PHANYX SYSTEM - contraste mais forte */
+html[data-theme="system"] body,
+html[data-theme="system"] main,
+html[data-theme="system"] .bg-gray-100,
+html[data-theme="system"] .min-h-screen {
+  background: #202020 !important;
+}
+
+html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
+html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
+  background: #2a2a2a !important;
+  border-color: #5a5a5a !important;
+}
+
+html[data-theme="system"] .phanyx-theme-card,
+html[data-theme="system"] .bg-white,
+html[data-theme="system"] .bg-white\/80,
+html[data-theme="system"] .bg-white\/90,
+html[data-theme="system"] .bg-white\/95 {
+  background: #151515 !important;
+  border-color: #4a4a4a !important;
+}
