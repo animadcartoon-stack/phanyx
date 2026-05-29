@@ -1,50 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const chamados = [
-  {
-    nome: "Mariana Silva",
-    perfil: "Aluno",
-    tipo: "Reclamação",
-    setor: "Secretaria",
-    prioridade: "Alta",
-    status: "Pendente",
-    sentimento: "Crítico",
-    mensagem:
-      "Enviei uma solicitação há alguns dias e ainda não recebi retorno.",
-  },
-  {
-    nome: "Carlos Mendes",
-    perfil: "Professor",
-    tipo: "Sugestão",
-    setor: "Acadêmico",
-    prioridade: "Média",
-    status: "Em análise",
-    sentimento: "Neutro",
-    mensagem:
-      "Seria interessante melhorar a visualização das entregas dos alunos.",
-  },
-  {
-    nome: "Ana Paula",
-    perfil: "Aluno",
-    tipo: "Elogio",
-    setor: "Curso",
-    prioridade: "Baixa",
-    status: "Resolvido",
-    sentimento: "Positivo",
-    mensagem:
-      "Gostei muito da organização das aulas e do suporte recebido.",
-  },
-];
-
+type ChamadoOuvidoria = {
+  id: number;
+  origem: string;
+  tipo: string;
+  titulo?: string | null;
+  mensagem: string;
+  status: string;
+  prioridade: string;
+  sentimento: string;
+  criadoEm: string;
+};
+  
 export default function OuvidoriaAdminPage() {
   const [filtro, setFiltro] = useState("Todos");
 
+  const [chamados, setChamados] = useState<ChamadoOuvidoria[]>([]);
+const [carregando, setCarregando] = useState(true);
+
+useEffect(() => {
+  async function carregarOuvidoria() {
+    try {
+      const res = await fetch("/api/ouvidoria", {
+        cache: "no-store",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao carregar ouvidoria");
+      }
+
+      setChamados(data.registros || []);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  carregarOuvidoria();
+}, []);
+
   const chamadosFiltrados = chamados.filter((item) => {
-    if (filtro === "Todos") return true;
-    return item.status === filtro || item.sentimento === filtro || item.perfil === filtro;
-  });
+  if (filtro === "Todos") return true;
+
+  return (
+    item.status === filtro.toUpperCase() ||
+    item.sentimento === filtro.toUpperCase() ||
+    item.origem === filtro.toUpperCase()
+  );
+});
 
   return (
     <div className="space-y-8">
@@ -86,18 +95,21 @@ export default function OuvidoriaAdminPage() {
         </div>
 
         <div className="rounded-2xl border bg-red-50 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase text-red-700">Críticos</p>
-          <h3 className="mt-2 text-3xl font-black text-red-900">1</h3>
+          <h3 className="mt-2 text-3xl font-black text-red-900">
+  {chamados.filter((item) => item.sentimento === "CRITICO").length}
+</h3>
         </div>
 
         <div className="rounded-2xl border bg-amber-50 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase text-amber-700">Em análise</p>
-          <h3 className="mt-2 text-3xl font-black text-amber-900">1</h3>
+          <h3 className="mt-2 text-3xl font-black text-amber-900">
+  {chamados.filter((item) => item.status === "EM_ANALISE").length}
+</h3>
         </div>
 
         <div className="rounded-2xl border bg-emerald-50 p-5 shadow-sm">
-          <p className="text-xs font-black uppercase text-emerald-700">Resolvidos</p>
-          <h3 className="mt-2 text-3xl font-black text-emerald-900">1</h3>
+          <h3 className="mt-2 text-3xl font-black text-emerald-900">
+  {chamados.filter((item) => item.status === "RESOLVIDO").length}
+</h3>
         </div>
       </div>
 
@@ -121,19 +133,37 @@ export default function OuvidoriaAdminPage() {
       </div>
 
       <div className="space-y-4">
-        {chamadosFiltrados.map((item) => (
+
+        {carregando && (
+  <div className="rounded-3xl border bg-white p-6 text-sm font-semibold text-slate-600">
+    Carregando manifestações...
+  </div>
+)}
+
+{!carregando && chamadosFiltrados.length === 0 && (
+  <div className="rounded-3xl border border-dashed bg-white p-8 text-center">
+    <h3 className="text-xl font-black text-slate-900">
+      Nenhuma manifestação encontrada
+    </h3>
+    <p className="mt-2 text-sm text-slate-500">
+      Quando alunos ou professores enviarem manifestações, elas aparecerão aqui.
+    </p>
+  </div>
+)}
+
+        {!carregando && chamadosFiltrados.map((item) => (
           <div
-            key={`${item.nome}-${item.mensagem}`}
-            className="rounded-3xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
-          >
+  key={item.id}
+  className="rounded-3xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className="text-lg font-black text-slate-900">
-                  {item.nome}
+                  Manifestação #{item.id}
                 </p>
 
                 <p className="mt-1 text-sm font-semibold text-slate-500">
-                  {item.perfil} • {item.setor} • {item.tipo}
+                  {item.origem} • {item.tipo}
                 </p>
               </div>
 

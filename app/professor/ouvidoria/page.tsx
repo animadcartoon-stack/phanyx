@@ -79,7 +79,7 @@ export default function OuvidoriaProfessorPage() {
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
-              className="w-full rounded-xl border p-3"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900"
             >
               <option>Sugestão</option>
               <option>Reclamação</option>
