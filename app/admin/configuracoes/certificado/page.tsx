@@ -1690,15 +1690,14 @@ function desfazerTextoLivre(editor: HTMLElement) {
 }
 
 function gerarContornoExterno(cor: string, espessura: number) {
+  const e = Math.max(1, Math.round(Number(espessura || 1)));
   const sombras: string[] = [];
-  const e = Math.max(1, Math.round(espessura));
 
   for (let x = -e; x <= e; x++) {
     for (let y = -e; y <= e; y++) {
       if (x === 0 && y === 0) continue;
-      if (Math.sqrt(x * x + y * y) <= e) {
-        sombras.push(`${x}px ${y}px 0 ${cor}`);
-      }
+
+      sombras.push(`${x}px ${y}px 0 ${cor}`);
     }
   }
 
@@ -1710,19 +1709,14 @@ function aplicarContornoTextoSelecionado(
   espessura: number,
   tipo: "interno" | "externo" = tipoContornoTexto
 ) {
-  if (tipo === "interno") {
-    aplicarEstiloTextoSelecionado({
-      WebkitTextStrokeColor: cor,
-      WebkitTextStrokeWidth: `${espessura}px`,
-      paintOrder: "stroke fill",
-      textShadow: "none",
-    } as React.CSSProperties);
-    return;
-  }
+  const esp = Math.max(0, Number(espessura || 0));
 
   aplicarEstiloTextoSelecionado({
-    WebkitTextStrokeWidth: "0px",
-    textShadow: gerarContornoExterno(cor, espessura),
+    WebkitTextStrokeColor: tipo === "interno" ? cor : "transparent",
+    WebkitTextStrokeWidth: tipo === "interno" ? `${esp}px` : "0px",
+    WebkitTextFillColor: "currentColor",
+    paintOrder: "stroke fill",
+    textShadow: tipo === "externo" ? gerarContornoExterno(cor, esp) : "none",
   } as React.CSSProperties);
 }
 
