@@ -384,15 +384,18 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
   ];
 };
 
-const dadosReputacao = [
-  { semana: "Seg", reputacao: 48 },
-  { semana: "Ter", reputacao: 52 },
-  { semana: "Qua", reputacao: 55 },
-  { semana: "Qui", reputacao: 61 },
-  { semana: "Sex", reputacao: 68 },
-  { semana: "Sáb", reputacao: 72 },
-  { semana: "Dom", reputacao: 81 },
-];
+const dadosReputacao = useMemo(
+  () => [
+    { semana: "Seg", reputacao: Math.max(0, scoreAtual - 35) },
+    { semana: "Ter", reputacao: Math.max(0, scoreAtual - 30) },
+    { semana: "Qua", reputacao: Math.max(0, scoreAtual - 25) },
+    { semana: "Qui", reputacao: Math.max(0, scoreAtual - 18) },
+    { semana: "Sex", reputacao: Math.max(0, scoreAtual - 12) },
+    { semana: "Sáb", reputacao: Math.max(0, scoreAtual - 8) },
+    { semana: "Dom", reputacao: scoreAtual },
+  ],
+  [scoreAtual]
+);
 
 const timelineAvaliacoes = (resumoReputacao?.ultimos || []).map((item: any) => ({
   titulo:
@@ -452,11 +455,11 @@ const obterCorTimeline = (tipo: string) => {
       cor: "text-red-600",
     },
     {
-      titulo: "Índice PHANYX",
-      valor: "Em breve",
-      detalhe: "Reputação consolidada da instituição",
-      cor: "text-purple-700",
-    },
+  titulo: "Índice PHANYX",
+  valor: `${scoreAtual}/100`,
+  detalhe: "Reputação consolidada pela Ouvidoria",
+  cor: "text-purple-700",
+},
   ];
 
   <style jsx global>{`
