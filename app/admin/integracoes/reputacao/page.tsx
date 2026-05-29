@@ -1694,8 +1694,8 @@ const obterCorTimeline = (tipo: string) => {
 )}
 
 {modalDetalhesAberto && (
-  <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-    <div className="w-full max-w-3xl rounded-[2rem] border bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
+  <div className="fixed inset-0 z-[99999] overflow-y-auto bg-slate-950/60 p-4 backdrop-blur-sm">
+    <div className="mx-auto my-6 max-h-[calc(100vh-48px)] w-full max-w-3xl overflow-y-auto rounded-[2rem] border bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-300">
 
       <div className="flex items-start justify-between gap-4">
         <div>
