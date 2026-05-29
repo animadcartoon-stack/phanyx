@@ -5852,44 +5852,42 @@ onClick={() =>
 
 <div className="mb-3 flex gap-2">
   <button
-  type="button"
-  onClick={() => {
-    setTipoContornoTexto("externo");
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={() => {
+      setTipoContornoTexto("externo");
 
-    if (temSelecaoTextoLivreAtiva()) {
       aplicarContornoTextoSelecionado(
         corContornoTexto,
         espessuraContornoTexto,
         "externo"
       );
-    }
-  }}
-  className={`rounded-lg px-3 py-2 text-xs font-bold ${
-    tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
-  }`}
->
-  Externo
-</button>
+    }}
+    className={`rounded-lg px-3 py-2 text-xs font-bold ${
+      tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
+    }`}
+  >
+    Externo
+  </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setTipoContornoTexto("interno");
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={() => {
+      setTipoContornoTexto("interno");
 
-    if (temSelecaoTextoLivreAtiva()) {
       aplicarContornoTextoSelecionado(
         corContornoTexto,
         espessuraContornoTexto,
         "interno"
       );
-    }
-  }}
-  className={`rounded-lg px-3 py-2 text-xs font-bold ${
-    tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
-  }`}
->
-  Interno
-</button>
+    }}
+    className={`rounded-lg px-3 py-2 text-xs font-bold ${
+      tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
+    }`}
+  >
+    Interno
+  </button>
 </div>
 
   <label className="mt-3 block text-xs text-slate-500">
