@@ -109,41 +109,15 @@ html[data-theme="dark"].dark .text-gray-500 {
   color: #94a3b8 !important;
 }
 
-/* SISTEMA = grafite elegante, diferente do escuro preto */
- 
+/* PHANYX THEMES — BLOCO FINAL LIMPO */
+
+/* Card padrão */
 .phanyx-theme-card {
   background: #ffffff !important;
   border-color: #e2e8f0 !important;
 }
 
-html[data-theme="dark"] .phanyx-theme-card {
-  background: #111111 !important;
-  border-color: #222222 !important;
-}
-
-html[data-theme="system"] .phanyx-theme-card {
-  background: #2f3a46 !important;
-  border-color: #6b7280 !important;
-}
-/* PHANYX - prioridade final para cards por tema */
-html[data-theme="light"] .phanyx-theme-card {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
-html[data-theme="dark"] .phanyx-theme-card {
-  background: #111111 !important;
-  border-color: #222222 !important;
-}
-
-html[data-theme="system"] .phanyx-theme-card {
-  background: #1f1f1f !important;
-  border-color: #565656 !important;
-}
-
-/* PHANYX - CORREÇÃO FINAL DOS TEMAS */
-
-/* CLARO = branco de verdade */
+/* CLARO */
 html[data-theme="light"] body,
 html[data-theme="light"] main,
 html[data-theme="light"] .bg-gray-100,
@@ -161,18 +135,38 @@ html[data-theme="light"] .phanyx-theme-card {
   border-color: #e2e8f0 !important;
 }
 
-html[data-theme="light"] [class*="from-white"][class*="to-blue-50"],
-html[data-theme="light"] [class*="from-white"][class*="via-slate-50"] {
-  background: linear-gradient(to right, #ffffff, #f8fafc, #eff6ff) !important;
+/* ESCURO */
+html[data-theme="dark"] body,
+html[data-theme="dark"] main,
+html[data-theme="dark"] .bg-gray-100,
+html[data-theme="dark"] .min-h-screen {
+  background: #050505 !important;
+  color: #f8fafc !important;
 }
 
-/* SISTEMA = cinza real, sem azul */
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-white\/80,
+html[data-theme="dark"] .bg-white\/90,
+html[data-theme="dark"] .bg-white\/95,
+html[data-theme="dark"] .phanyx-theme-card {
+  background: #111111 !important;
+  border-color: #222222 !important;
+}
+
+/* SISTEMA = cinza premium */
 html[data-theme="system"] body,
 html[data-theme="system"] main,
 html[data-theme="system"] .bg-gray-100,
 html[data-theme="system"] .min-h-screen {
-  background: #2a2d32 !important;
-  color: #f8fafc !important;
+  background: #262626 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-admin-hero,
+html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
+html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
+  background: #343434 !important;
+  border-color: #5a5a5a !important;
 }
 
 html[data-theme="system"] .bg-white,
@@ -180,51 +174,13 @@ html[data-theme="system"] .bg-white\/80,
 html[data-theme="system"] .bg-white\/90,
 html[data-theme="system"] .bg-white\/95,
 html[data-theme="system"] .phanyx-theme-card {
-  background: #3a3d43 !important;
-  border-color: #5b6068 !important;
-}
-
-html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
-  background: #4a4e56 !important;
-  border-color: #6b7078 !important;
-}
-html[data-theme="system"] .phanyx-system-card {
-  background: #353535 !important;
-  border-color: #5a5a5a !important;
-}
-
-html[data-theme="system"] .phanyx-system-card-light {
-  background: #444444 !important;
-  border-color: #6b7280 !important;
-}
-/* PHANYX SISTEMA — cinza premium definitivo */
-html[data-theme="system"] body,
-html[data-theme="system"] main,
-html[data-theme="system"] .bg-gray-100,
-html[data-theme="system"] .min-h-screen {
-  background: #242424 !important;
-  color: #f5f5f5 !important;
-}
-
-html[data-theme="system"] .phanyx-theme-card,
-html[data-theme="system"] .bg-white,
-html[data-theme="system"] .bg-white\/80,
-html[data-theme="system"] .bg-white\/90,
-html[data-theme="system"] .bg-white\/95 {
-  background: #3a3a3a !important;
-  border-color: #5a5a5a !important;
-}
-
-html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
-  background: #303030 !important;
-  border-color: #555555 !important;
+  background: #1f1f1f !important;
+  border-color: #565656 !important;
 }
 
 html[data-theme="system"] .bg-slate-50,
 html[data-theme="system"] .bg-blue-50 {
-  background: #4a4a4a !important;
+  background: #444444 !important;
 }
 
 html[data-theme="system"] .text-slate-900,
@@ -244,36 +200,6 @@ html[data-theme="system"] .text-slate-500,
 html[data-theme="system"] .text-gray-500 {
   color: #c7c7c7 !important;
 }
-html[data-theme="system"] body,
-html[data-theme="system"] main,
-html[data-theme="system"] .bg-gray-100,
-html[data-theme="system"] .min-h-screen {
-  background: #262626 !important;
-}
-
-html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
-  background: #343434 !important;
-  border-color: #5a5a5a !important;
-}
-
-html[data-theme="system"] .bg-slate-50,
-html[data-theme="system"] .bg-blue-50 {
-  background: #444444 !important;
-}
-/* PHANYX SYSTEM - contraste mais forte */
-html[data-theme="system"] body,
-html[data-theme="system"] main,
-html[data-theme="system"] .bg-gray-100,
-html[data-theme="system"] .min-h-screen {
-  background: #202020 !important;
-}
-
-html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
-  background: #2a2a2a !important;
-  border-color: #5a5a5a !important;
-}
 
 html[data-theme="system"] .phanyx-theme-card,
 html[data-theme="system"] .bg-white,
@@ -282,4 +208,8 @@ html[data-theme="system"] .bg-white\/90,
 html[data-theme="system"] .bg-white\/95 {
   background: #151515 !important;
   border-color: #4a4a4a !important;
+}
+html[data-theme="system"] .phanyx-admin-hero {
+  background: #2a2a2a !important;
+  border-color: #5a5a5a !important;
 }
