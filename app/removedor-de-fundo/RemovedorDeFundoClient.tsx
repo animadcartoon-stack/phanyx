@@ -3032,6 +3032,13 @@ arrastandoImagemRef.current
       maxHeight: "none",
       touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
+      cursor: varinhaAtiva
+  ? "url('/wand-cursor.png') 4 24, crosshair"
+  : pincelAtivo
+    ? "crosshair"
+    : maoAtiva
+      ? "grab"
+      : "default",
     }}
     />
 
@@ -3040,9 +3047,9 @@ arrastandoImagemRef.current
     src={overlayVarinha}
     alt="Seleção da varinha"
     draggable={false}
-    className="pointer-events-none absolute max-h-none max-w-none object-contain mix-blend-screen"
+    className="pointer-events-none absolute left-1/2 top-1/2 z-20 max-h-none max-w-none object-contain"
     style={{
-      transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
+      transform: `translate(-50%, -50%) translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
       transformOrigin: "center center",
       width: "auto",
       height: "auto",
