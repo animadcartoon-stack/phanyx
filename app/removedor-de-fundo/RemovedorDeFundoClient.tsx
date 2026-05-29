@@ -777,6 +777,10 @@ if (overlayCtx) {
 }
 setAviso(null);}
 
+function limparSelecaoVarinha() {
+  setOverlayVarinha(null);
+}
+
 function apagarSelecaoVarinha() {
   if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
     setAviso("Nenhuma área selecionada pela varinha.");
@@ -1466,6 +1470,21 @@ window.addEventListener("keyup", soltarEspaco);
     };
     
   }, [imagemFinal]);
+
+ useEffect(() => {
+  function handleKeyDown(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      setOverlayVarinha(null);
+      setVarinhaAtiva(false);
+    }
+  }
+
+  window.addEventListener("keydown", handleKeyDown);
+
+  return () => {
+    window.removeEventListener("keydown", handleKeyDown);
+  };
+}, []);
 
   useEffect(() => {
   if (!modalRemoverObjetoAberto || !imagemOriginal || !canvasRemoverObjetoRef.current) return;
@@ -2724,7 +2743,13 @@ setPopupComprarCreditosAberto(false);
                 >
                   Apagar sobra
                 </button>
-
+<button
+  type="button"
+  onClick={limparSelecaoVarinha}
+  className="rounded-xl border px-3 py-2 text-sm"
+>
+  Limpar seleção
+</button>
                 <button
                   type="button"
                   onClick={() => {
