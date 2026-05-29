@@ -18,7 +18,9 @@ export default function OuvidoriaAdminPage() {
   const [filtro, setFiltro] = useState("Todos");
 
   const [chamados, setChamados] = useState<ChamadoOuvidoria[]>([]);
-const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(true);
+
+  const [atualizandoId, setAtualizandoId] = useState<number | null>(null);
 
 useEffect(() => {
   async function carregarOuvidoria() {
@@ -44,6 +46,40 @@ useEffect(() => {
 
   carregarOuvidoria();
 }, []);
+
+async function marcarComoResolvido(id: number) {
+  try {
+    setAtualizandoId(id);
+
+    const res = await fetch(`/api/ouvidoria/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        status: "RESOLVIDO",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao atualizar manifestação.");
+    }
+
+    setChamados((atuais) =>
+      atuais.map((item) =>
+        item.id === id ? { ...item, status: "RESOLVIDO" } : item
+      )
+    );
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível marcar como resolvido.");
+  } finally {
+    setAtualizandoId(null);
+  }
+}
 
   const chamadosFiltrados = chamados.filter((item) => {
   if (filtro === "Todos") return true;
@@ -207,9 +243,18 @@ useEffect(() => {
                 Responder com IA
               </button>
 
-              <button className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700">
-                Marcar como resolvido
-              </button>
+              <button
+  type="button"
+  onClick={() => marcarComoResolvido(item.id)}
+  disabled={atualizandoId === item.id || item.status === "RESOLVIDO"}
+  className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {item.status === "RESOLVIDO"
+    ? "Resolvido"
+    : atualizandoId === item.id
+    ? "Atualizando..."
+    : "Marcar como resolvido"}
+</button>
             </div>
           </div>
         ))}
