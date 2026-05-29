@@ -28,6 +28,8 @@ export default function RemovedorDeFundoClient() {
   const baseEdicaoCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagemOriginalCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const [pixelsSelecionados, setPixelsSelecionados] = useState<Set<number> | null>(null);
+
   const [maoAtiva, setMaoAtiva] = useState(false);
 
   const [pacoteCheckout, setPacoteCheckout] = useState<number | null>(null);
@@ -379,6 +381,68 @@ reader.readAsDataURL(file);
     return new Set(melhorComponente);
   }
 
+function selecionarRegiaoConectada(
+  imageData: ImageData,
+  startX: number,
+  startY: number,
+  tolerancia: number
+) {
+  const { width, height, data } = imageData;
+
+  const visitados = new Set<number>();
+  const fila: [number, number][] = [[startX, startY]];
+
+  const indiceInicial = (startY * width + startX) * 4;
+
+  const rBase = data[indiceInicial];
+  const gBase = data[indiceInicial + 1];
+  const bBase = data[indiceInicial + 2];
+
+  while (fila.length > 0) {
+    const [x, y] = fila.shift()!;
+
+    if (
+      x < 0 ||
+      y < 0 ||
+      x >= width ||
+      y >= height
+    ) {
+      continue;
+    }
+
+    const pixel = y * width + x;
+
+    if (visitados.has(pixel)) {
+      continue;
+    }
+
+    const i = pixel * 4;
+
+    if (
+      !corParecida(
+        rBase,
+        gBase,
+        bBase,
+        data[i],
+        data[i + 1],
+        data[i + 2],
+        tolerancia
+      )
+    ) {
+      continue;
+    }
+
+    visitados.add(pixel);
+
+    fila.push([x + 1, y]);
+    fila.push([x - 1, y]);
+    fila.push([x, y + 1]);
+    fila.push([x, y - 1]);
+  }
+
+  return visitados;
+}
+  
   function selecionarCorManual(e: React.MouseEvent<HTMLImageElement>) {
     if (!imagemOriginalRef.current) return;
       
@@ -633,6 +697,21 @@ if (texturaPincel === "duro" && featherPincel < 0.08) {
   setTemResultadoReal(true);
 }
 
+function corParecida(
+  r1: number,
+  g1: number,
+  b1: number,
+  r2: number,
+  g2: number,
+  b2: number,
+  tolerancia: number
+) {
+  return (
+    Math.abs(r1 - r2) <= tolerancia &&
+    Math.abs(g1 - g2) <= tolerancia &&
+    Math.abs(b1 - b2) <= tolerancia
+  );
+}
 
   async function removerFundoPessoaMediaPipe() {
     if (!imagemOriginal || !canvasRef.current) return;
@@ -2489,7 +2568,22 @@ setPopupComprarCreditosAberto(false);
               </div>
 
               <div className="flex w-full gap-1 overflow-x-auto pb-1 sm:flex-wrap sm:overflow-visible">
-                
+
+       <button
+  type="button"
+  onClick={() => {
+    setVarinhaAtiva(!varinhaAtiva);
+    setPincelAtivo(false);
+  }}
+  className={`rounded-xl px-4 py-2 font-semibold ${
+    varinhaAtiva
+      ? "bg-yellow-500 text-black"
+      : "bg-slate-800 text-white"
+  }`}
+>
+  🪄 Varinha
+</button>
+
 <button
   type="button"
   onClick={() => setPincelAtivo((ativo) => !ativo)}
