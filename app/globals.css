@@ -48,78 +48,8 @@ body {
 .animate-mascote {
   animation: mascoteJumpRotate 1.8s ease-in-out infinite;
 }
-html.dark body {
-  background: #020617;
-  color: #e5e7eb;
-}
 
-html.dark .bg-gray-100 {
-  background-color: #020617 !important;
-}
-
-html.dark .bg-white {
-  background-color: #0f172a !important;
-}
-
-html.dark .text-slate-900,
-html.dark .text-gray-900,
-html.dark .text-black {
-  color: #f8fafc !important;
-}
-
-html.dark .text-slate-700,
-html.dark .text-gray-700 {
-  color: #cbd5e1 !important;
-}
-
-html.dark .text-slate-600,
-html.dark .text-gray-600,
-html.dark .text-slate-500,
-html.dark .text-gray-500 {
-  color: #94a3b8 !important;
-}
-
-html.dark .border-slate-200,
-html.dark .border-gray-200 {
-  border-color: #334155 !important;
-}
-
-html.dark .bg-slate-50,
-html.dark .bg-gray-50 {
-  background-color: #111827 !important;
-}
-
-html.dark input,
-html.dark textarea,
-html.dark select {
-  background-color: #020617 !important;
-  color: #f8fafc !important;
-  border-color: #334155 !important;
-}
-
-html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #64748b !important;
-}
-html[data-theme="system"].dark body {
-  background: linear-gradient(135deg, #07111f 0%, #0f172a 55%, #1e3a8a 100%);
-}
-
-html[data-theme="system"].dark .bg-gray-100 {
-  background: linear-gradient(135deg, #07111f 0%, #0f172a 55%, #1e3a8a 100%) !important;
-}
-
-html[data-theme="system"].dark .bg-white {
-  background-color: #10213a !important;
-}
-
-html[data-theme="system"].dark .bg-slate-50 {
-  background-color: #132b4a !important;
-}
-
-html[data-theme="system"].dark .border-slate-200 {
-  border-color: #31527c !important;
-}
+ 
 /* ================================
    PHANYX THEMES - AJUSTE FINAL
 ================================ */
@@ -179,73 +109,8 @@ html[data-theme="dark"].dark .text-gray-500 {
   color: #94a3b8 !important;
 }
 
-/* SISTEMA = azul elegante, diferente do escuro */
-html[data-theme="system"].dark body {
-  background: linear-gradient(135deg, #07111f 0%, #0f172a 45%, #12376b 100%) !important;
-  color: #f8fafc !important;
-}
-
-html[data-theme="system"].dark .bg-gray-100,
-html[data-theme="system"].dark main,
-html[data-theme="system"].dark .min-h-screen {
-  background: linear-gradient(135deg, #07111f 0%, #0f172a 45%, #12376b 100%) !important;
-}
-
-html[data-theme="system"].dark .bg-white,
-html[data-theme="system"].dark .bg-white\/80,
-html[data-theme="system"].dark .bg-white\/90,
-html[data-theme="system"].dark .bg-white\/95 {
-  background-color: #10213a !important;
-}
-
-html[data-theme="system"].dark [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"].dark [class*="from-white"][class*="via-slate-50"] {
-  background: linear-gradient(135deg, #10213a 0%, #132b4a 55%, #1d4ed8 100%) !important;
-}
-
-html[data-theme="system"].dark .bg-slate-50,
-html[data-theme="system"].dark .bg-blue-50 {
-  background-color: #132b4a !important;
-}
-
-html[data-theme="system"].dark .border-slate-200,
-html[data-theme="system"].dark .border-blue-100 {
-  border-color: #31527c !important;
-}
 /* SISTEMA = grafite elegante, diferente do escuro preto */
-html[data-theme="system"].dark body {
-  background: linear-gradient(135deg, #1f2933 0%, #374151 55%, #4b5563 100%) !important;
-  color: #f8fafc !important;
-}
-
-html[data-theme="system"].dark .bg-gray-100,
-html[data-theme="system"].dark main,
-html[data-theme="system"].dark .min-h-screen {
-  background: linear-gradient(135deg, #1f2933 0%, #374151 55%, #4b5563 100%) !important;
-}
-
-html[data-theme="system"].dark .bg-white,
-html[data-theme="system"].dark .bg-white\/80,
-html[data-theme="system"].dark .bg-white\/90,
-html[data-theme="system"].dark .bg-white\/95 {
-  background-color: #2f3a46 !important;
-}
-
-html[data-theme="system"].dark [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"].dark [class*="from-white"][class*="via-slate-50"] {
-  background: linear-gradient(135deg, #2b333d 0%, #3a4652 55%, #5b6470 100%) !important;
-}
-
-html[data-theme="system"].dark .bg-slate-50,
-html[data-theme="system"].dark .bg-blue-50 {
-  background-color: #343f4b !important;
-}
-
-html[data-theme="system"].dark .border-slate-200,
-html[data-theme="system"].dark .border-blue-100,
-html[data-theme="system"].dark .border-slate-800 {
-  border-color: #6b7280 !important;
-}
+ 
 .phanyx-theme-card {
   background: #ffffff !important;
   border-color: #e2e8f0 !important;
@@ -275,51 +140,7 @@ html[data-theme="system"] .phanyx-theme-card {
   background: #2f3a46 !important;
   border-color: #6b7280 !important;
 }
-/* SISTEMA PHANYX FINAL = grafite real */
-html[data-theme="system"] body,
-html[data-theme="system"] .bg-gray-100,
-html[data-theme="system"] main,
-html[data-theme="system"] .min-h-screen {
-  background: #1f2329 !important;
-  color: #f8fafc !important;
-}
 
-html[data-theme="system"] .phanyx-theme-card,
-html[data-theme="system"] .bg-white,
-html[data-theme="system"] .bg-white\/80,
-html[data-theme="system"] .bg-white\/90,
-html[data-theme="system"] .bg-white\/95 {
-  background-color: #2b3038 !important;
-  border-color: #5b6470 !important;
-}
-
-html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
-html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
-  background: #343a43 !important;
-  border-color: #6b7280 !important;
-}
-
-html[data-theme="system"] .bg-slate-50,
-html[data-theme="system"] .bg-blue-50 {
-  background-color: #3a414b !important;
-}
-
-html[data-theme="system"] .text-slate-900,
-html[data-theme="system"] .text-gray-900 {
-  color: #f8fafc !important;
-}
-
-html[data-theme="system"] .text-slate-700,
-html[data-theme="system"] .text-gray-700,
-html[data-theme="system"] .text-slate-600,
-html[data-theme="system"] .text-gray-600 {
-  color: #d1d5db !important;
-}
-
-html[data-theme="system"] .text-slate-500,
-html[data-theme="system"] .text-gray-500 {
-  color: #aeb6c2 !important;
-}
 /* PHANYX - CORREÇÃO FINAL DOS TEMAS */
 
 /* CLARO = branco de verdade */
@@ -367,4 +188,13 @@ html[data-theme="system"] [class*="from-white"][class*="to-blue-50"],
 html[data-theme="system"] [class*="from-white"][class*="via-slate-50"] {
   background: #4a4e56 !important;
   border-color: #6b7078 !important;
+}
+html[data-theme="system"] .phanyx-system-card {
+  background: #353535 !important;
+  border-color: #5a5a5a !important;
+}
+
+html[data-theme="system"] .phanyx-system-card-light {
+  background: #444444 !important;
+  border-color: #6b7280 !important;
 }
