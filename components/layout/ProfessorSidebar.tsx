@@ -23,6 +23,7 @@ export default function ProfessorSidebar({
   { label: "Atividades", href: "/professor/atividades" },
   { label: "Avaliações", href: "/professor/avaliacoes" },
   { label: "Trabalhos", href: "/professor/trabalhos" },
+  { label: "Ouvidoria", href: "/professor/ouvidoria" },
 ];
 
   return (

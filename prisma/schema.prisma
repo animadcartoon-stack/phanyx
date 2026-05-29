@@ -101,6 +101,7 @@ model Instituicao {
   professoresDisciplinas     ProfessorDisciplina[]
   turmaSemestres             TurmaSemestre[]
   turmaDisciplinaHorarios    TurmaDisciplinaHorario[]
+  ouvidorias                 Ouvidoria[]
 }
 
 model User {
@@ -1573,6 +1574,35 @@ model CreditoIAPublico {
   saldo     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Ouvidoria {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  usuarioId Int?
+  origem    String // ALUNO, PROFESSOR, ADMIN
+  tipo      String // Sugestão, Reclamação, Elogio, Relato
+  titulo    String?
+  mensagem  String
+
+  status     String @default("ABERTO")
+  prioridade String @default("NORMAL")
+  sentimento String @default("NEUTRO")
+
+  resposta     String?
+  respondidoEm DateTime?
+
+  anonimo Boolean @default(false)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id])
+
+  @@index([instituicaoId])
+  @@index([status])
+  @@index([origem])
 }
 
 enum TipoDocumentoAluno {

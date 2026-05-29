@@ -569,6 +569,15 @@ function abrirTourAdmin() {
                     >
                       🏅 Certificados
                     </Link>
+                    
+
+<Link
+  href="/admin/ouvidoria"
+  className={getLinkClass("/admin/ouvidoria")}
+>
+  🧠 Ouvidoria
+</Link>
+
                   </div>
                 )}
               </div>
@@ -686,6 +695,9 @@ function abrirTourAdmin() {
             <Link href="/admin/configuracoes/certificado" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🎨 Editor de Certificado
             </Link>
+            <Link href="/admin/ouvidoria" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
+  🧠 Ouvidoria 
+</Link>
           </div>
         )}
       </div>

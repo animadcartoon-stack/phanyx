@@ -14,14 +14,15 @@ export default function AlunoSidebar({
   const pathname = usePathname();
 
   const menu = [
-    { label: "Painel Acadêmico", href: "/aluno", icon: "📊" },
-    { label: "Disciplinas", href: "/aluno/disciplinas", icon: "📘" },
-    { label: "Progresso", href: "/aluno/progresso", icon: "📈" },
-    { label: "Trabalhos", href: "/aluno/trabalhos", icon: "📄" },
-    { label: "Presença", href: "/aluno/presencas", icon: "📅" },
-    { label: "Boletim", href: "/aluno/boletim", icon: "📋" },   // ← ADICIONE ESTA LINHA
-    { label: "Certificados", href: "/aluno/certificados", icon: "🏅" },
-  ];
+  { label: "Painel Acadêmico", href: "/aluno", icon: "📊" },
+  { label: "Disciplinas", href: "/aluno/disciplinas", icon: "📘" },
+  { label: "Progresso", href: "/aluno/progresso", icon: "📈" },
+  { label: "Trabalhos", href: "/aluno/trabalhos", icon: "📄" },
+  { label: "Presença", href: "/aluno/presencas", icon: "📅" },
+  { label: "Boletim", href: "/aluno/boletim", icon: "📋" },
+  { label: "Certificados", href: "/aluno/certificados", icon: "🏅" },
+  { label: "Ouvidoria", href: "/aluno/ouvidoria", icon: "📣" },
+];
 
   return (
     <aside className="w-64 bg-blue-800 text-white min-h-screen fixed">
