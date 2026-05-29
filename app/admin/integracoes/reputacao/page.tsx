@@ -161,28 +161,27 @@ setTimeout(() => {
   { nome: "Hoje", score: 82 },
 ];
   
-const timeline = [
-  {
-    titulo: "Google Business conectado",
-    descricao: "Integração inicial concluída no PHANYX.",
-    tempo: "Agora",
-    cor: "bg-green-500",
-  },
+const timeline = (resumoReputacao?.ultimos || []).map((item: any) => ({
+  titulo:
+    item.tipo === "Reclamação"
+      ? "Nova reclamação recebida"
+      : item.tipo === "Sugestão"
+      ? "Nova sugestão recebida"
+      : item.tipo === "Elogio"
+      ? "Novo elogio recebido"
+      : "Nova manifestação recebida",
 
-  {
-    titulo: "API Google aguardando aprovação",
-    descricao: "O Google ainda está analisando a liberação da API.",
-    tempo: "Hoje",
-    cor: "bg-amber-500",
-  },
+  descricao: item.mensagem,
 
-  {
-    titulo: "Módulo reputacional ativado",
-    descricao: "Monitoramento reputacional preparado.",
-    tempo: "Hoje",
-    cor: "bg-blue-500",
-  },
-];
+  tempo: "Agora",
+
+  cor:
+    item.sentimento === "CRITICO"
+      ? "bg-red-500"
+      : item.sentimento === "POSITIVO"
+      ? "bg-emerald-500"
+      : "bg-blue-500",
+}));
 
 const notificacoesIA = [
   {
@@ -220,7 +219,15 @@ const notificacoesIA = [
 
 const avaliacoesSimuladas = (resumoReputacao?.ultimos || []).map((item: any) => ({
   id: item.id,
-  nome: `Manifestação #${item.id}`,
+  origem: item.origem,
+  tipo: item.tipo,
+  nome: `${item.tipo || "Manifestação"} • ${
+    item.origem === "ALUNO"
+      ? "Aluno"
+      : item.origem === "PROFESSOR"
+      ? "Professor"
+      : "Ouvidoria"
+  }`,
   iniciais: item.origem === "ALUNO" ? "AL" : item.origem === "PROFESSOR" ? "PR" : "OU",
   nota: item.sentimento === "CRITICO" ? 2 : item.sentimento === "POSITIVO" ? 5 : 4,
   sentimento:

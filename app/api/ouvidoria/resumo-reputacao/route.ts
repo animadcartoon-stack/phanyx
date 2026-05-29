@@ -40,11 +40,16 @@ export async function GET() {
       (item) => item.status === "RESOLVIDO"
     ).length;
 
-    const impacto =
-      elogios * 2 + resolvidos * 2 - reclamacoesAbertas * 4 - criticos * 5;
+    let score = 80;
 
-    const scoreBase = 82;
-    const score = Math.max(0, Math.min(100, scoreBase + impacto));
+score += elogios * 3;
+score += sugestoes * 1;
+score += resolvidos * 2;
+
+score -= reclamacoesAbertas * 5;
+score -= criticos * 3;
+
+score = Math.max(0, Math.min(100, score));
 
     return NextResponse.json({
       score,
