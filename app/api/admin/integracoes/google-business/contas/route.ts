@@ -56,7 +56,32 @@ export async function GET() {
 
     const data = await resposta.json();
 
-    return NextResponse.json(data);
+if (!resposta.ok) {
+  const motivo = data?.error?.details?.[0]?.reason || data?.error?.status;
+
+  if (
+    motivo === "RATE_LIMIT_EXCEEDED" ||
+    data?.error?.status === "RESOURCE_EXHAUSTED"
+  ) {
+    return NextResponse.json(
+      {
+        error: "Limite temporário do Google atingido. Aguarde alguns minutos e tente novamente.",
+        code: "RATE_LIMIT_EXCEEDED",
+      },
+      { status: 429 }
+    );
+  }
+
+  return NextResponse.json(
+    {
+      error: data?.error?.message || "Erro ao consultar Google Business.",
+      detalhe: data,
+    },
+    { status: resposta.status }
+  );
+}
+
+return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
       {
