@@ -2679,10 +2679,11 @@ setPopupComprarCreditosAberto(false);
 
        <button
   type="button"
-  onClick={() => {
-    setVarinhaAtiva(!varinhaAtiva);
-    setPincelAtivo(false);
-  }}
+    onClick={() => {
+  setVarinhaAtiva((v) => !v);
+  setMaoAtiva(false);
+  setPincelAtivo(false);
+}}
   className={`rounded-xl px-4 py-2 font-semibold ${
     varinhaAtiva
       ? "bg-yellow-500 text-black"
@@ -3039,11 +3040,11 @@ arrastandoImagemRef.current
       touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
       cursor: varinhaAtiva
-  ? "url('/wand-cursor.png') 16 16, pointer"
-  : pincelAtivo
-    ? "crosshair"
-    : maoAtiva
-      ? "grab"
+  ? "url('/wand-cursor.png') 4 28, crosshair"
+  : maoAtiva
+    ? "grab"
+    : pincelAtivo
+      ? "crosshair"
       : "default",
     }}
     />
