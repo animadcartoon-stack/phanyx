@@ -867,7 +867,7 @@ async function alterarFoto(file: File | null) {
   return (
     <>
       <div className="space-y-8">
-        <section className="relative rounded-[28px] border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm dark:border-slate-800 dark:from-[#0a0a0a] dark:via-[#0f0f0f] dark:to-[#141414]">
+        <section className="phanyx-admin-hero relative rounded-[28px] border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
 
