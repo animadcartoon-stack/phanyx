@@ -20,24 +20,24 @@ export default function ReputacaoPage() {
   const [scoreAnimado, setScoreAnimado] = useState(0);
 
 const [porcentagemAnimada, setPorcentagemAnimada] = useState(0);
-
+const [scoreAtual, setScoreAtual] = useState(0);
 useEffect(() => {
   const intervalo = setInterval(() => {
     setScoreAnimado((valorAtual) => {
-      if (valorAtual >= 92) return 92;
+      if (valorAtual >= scoreAtual) return scoreAtual;
       return valorAtual + 1;
     });
 
     setPorcentagemAnimada((valorAtual) => {
-      if (valorAtual >= 92) return 92;
+      if (valorAtual >= scoreAtual) return scoreAtual;
       return valorAtual + 1;
     });
   }, 25);
 
   return () => clearInterval(intervalo);
-}, []);
+}, [scoreAtual]);
 
-const [scoreAtual, setScoreAtual] = useState(0);
+
 
 const [resumoReputacao, setResumoReputacao] = useState<any>(null);
 const [avaliacoes, setAvaliacoes] = useState(0);
