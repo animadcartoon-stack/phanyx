@@ -212,3 +212,66 @@ html[data-theme="system"].dark .border-slate-200,
 html[data-theme="system"].dark .border-blue-100 {
   border-color: #31527c !important;
 }
+/* SISTEMA = grafite elegante, diferente do escuro preto */
+html[data-theme="system"].dark body {
+  background: linear-gradient(135deg, #1f2933 0%, #374151 55%, #4b5563 100%) !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"].dark .bg-gray-100,
+html[data-theme="system"].dark main,
+html[data-theme="system"].dark .min-h-screen {
+  background: linear-gradient(135deg, #1f2933 0%, #374151 55%, #4b5563 100%) !important;
+}
+
+html[data-theme="system"].dark .bg-white,
+html[data-theme="system"].dark .bg-white\/80,
+html[data-theme="system"].dark .bg-white\/90,
+html[data-theme="system"].dark .bg-white\/95 {
+  background-color: #2f3a46 !important;
+}
+
+html[data-theme="system"].dark [class*="from-white"][class*="to-blue-50"],
+html[data-theme="system"].dark [class*="from-white"][class*="via-slate-50"] {
+  background: linear-gradient(135deg, #2b333d 0%, #3a4652 55%, #5b6470 100%) !important;
+}
+
+html[data-theme="system"].dark .bg-slate-50,
+html[data-theme="system"].dark .bg-blue-50 {
+  background-color: #343f4b !important;
+}
+
+html[data-theme="system"].dark .border-slate-200,
+html[data-theme="system"].dark .border-blue-100,
+html[data-theme="system"].dark .border-slate-800 {
+  border-color: #6b7280 !important;
+}
+.phanyx-theme-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-theme-card {
+  background: #111111 !important;
+  border-color: #222222 !important;
+}
+
+html[data-theme="system"] .phanyx-theme-card {
+  background: #2f3a46 !important;
+  border-color: #6b7280 !important;
+}
+/* PHANYX - prioridade final para cards por tema */
+html[data-theme="light"] .phanyx-theme-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-theme-card {
+  background: #111111 !important;
+  border-color: #222222 !important;
+}
+
+html[data-theme="system"] .phanyx-theme-card {
+  background: #2f3a46 !important;
+  border-color: #6b7280 !important;
+}

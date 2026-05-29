@@ -154,7 +154,7 @@ async function alterarFotoPerfil(file: File | null) {
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
-        <div className="rounded-2xl border bg-white p-4 shadow-sm sm:p-6 dark:border-slate-800 dark:bg-[#111111]">
+        <div className="rounded-2xl border bg-white phanyx-theme-card p-4 shadow-sm sm:p-6">
           <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
             Dashboard do Professor
           </h1>
@@ -191,11 +191,11 @@ async function alterarFotoPerfil(file: File | null) {
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
 <details className="mt-3 w-fit">
-  <summary className="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-[#181818] dark:text-slate-100 dark:hover:bg-[#222222]">
+  <summary className="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 phanyx-theme-card dark:text-slate-100 dark:hover:bg-[#222222]">
     ℹ️ Dicas da foto
   </summary>
 
-  <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 dark:border-slate-700 dark:bg-[#181818]">
+  <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 dark:border-slate-700 phanyx-theme-card">
     <p className="text-sm leading-6 text-slate-600">
       Para que sua foto fique bem centralizada no perfil, utilize uma imagem
       quadrada (1:1), preferencialmente em 500x500px ou maior.
@@ -207,13 +207,13 @@ async function alterarFotoPerfil(file: File | null) {
   </div>
 </div>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">
             Acompanhe suas provas, tentativas e desempenho das turmas.
           </p>
         </div>
 
         {loading && (
-          <div className="rounded-2xl border bg-white p-6 text-sm text-gray-500 shadow-sm">
+          <div className="rounded-2xl border bg-white phanyx-theme-card p-6 text-sm text-gray-500 dark:text-slate-400 shadow-sm">
             Carregando dashboard...
           </div>
         )}
@@ -227,8 +227,8 @@ async function alterarFotoPerfil(file: File | null) {
         {!loading && !erro && data && (
           <>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Total de provas
                 </p>
                 <p className="mt-2 text-2xl font-bold text-gray-900">
@@ -236,8 +236,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Rascunho
                 </p>
                 <p className="mt-2 text-2xl font-bold text-yellow-700">
@@ -245,8 +245,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Publicadas
                 </p>
                 <p className="mt-2 text-2xl font-bold text-green-700">
@@ -254,8 +254,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Encerradas
                 </p>
                 <p className="mt-2 text-2xl font-bold text-gray-700">
@@ -263,8 +263,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Tentativas finalizadas
                 </p>
                 <p className="mt-2 text-2xl font-bold text-blue-700">
@@ -272,8 +272,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Aprovados
                 </p>
                 <p className="mt-2 text-2xl font-bold text-green-700">
@@ -281,8 +281,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Reprovados
                 </p>
                 <p className="mt-2 text-2xl font-bold text-red-700">
@@ -290,8 +290,8 @@ async function alterarFotoPerfil(file: File | null) {
                 </p>
               </div>
 
-              <div className="rounded-2xl border bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                <p className="text-xs uppercase tracking-wide text-gray-500">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-5 shadow-sm ">
+                <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Média geral
                 </p>
                 <p className="mt-2 text-2xl font-bold text-indigo-700">
@@ -301,13 +301,13 @@ async function alterarFotoPerfil(file: File | null) {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-              <div className="rounded-2xl border bg-white p-6 shadow-sm lg:col-span-2 dark:border-slate-800 dark:bg-[#111111]">
+              <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm lg:col-span-2 ">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Provas recentes
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-500 dark:text-slate-400">
                       Visão rápida das provas mais recentes do professor
                     </p>
                   </div>
@@ -322,7 +322,7 @@ async function alterarFotoPerfil(file: File | null) {
 
                 <div className="mt-6 space-y-4">
                   {data.provasRecentes.length === 0 ? (
-                    <div className="rounded-xl border border-dashed p-6 text-sm text-gray-500">
+                    <div className="rounded-xl border border-dashed p-6 text-sm text-gray-500 dark:text-slate-400">
                       Nenhuma prova cadastrada ainda.
                     </div>
                   ) : (
@@ -347,7 +347,7 @@ async function alterarFotoPerfil(file: File | null) {
                               </span>
                             </div>
 
-                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
+                            <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-slate-400">
                               <span>
                                 <strong className="font-medium text-gray-700">
                                   Disciplina:
@@ -394,9 +394,9 @@ async function alterarFotoPerfil(file: File | null) {
               </div>
 
               <div className="space-y-6">
-                <div className="rounded-2xl border bg-white p-6 shadow-sm">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    Atalhos
+                <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm">
+  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+    Atalhos
                   </h2>
 
                   <div className="mt-4 space-y-3">
@@ -416,8 +416,8 @@ async function alterarFotoPerfil(file: File | null) {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-                  <h2 className="text-lg font-semibold text-gray-900">
+                <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm ">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     Resumo acadêmico
                   </h2>
 

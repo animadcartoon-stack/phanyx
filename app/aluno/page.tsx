@@ -454,7 +454,7 @@ setTotalDisciplinasMatriculadas(total);
         </section>
 
         {loading && (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm">
+          <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 text-sm text-slate-500 shadow-sm">
             Carregando dashboard...
           </div>
         )}
@@ -503,7 +503,7 @@ setTotalDisciplinasMatriculadas(total);
         {!loading && !erro && data && (
           <>
             <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+              <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                   Disciplinas matriculadas
                 </p>
@@ -515,7 +515,7 @@ setTotalDisciplinasMatriculadas(total);
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+              <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                   Média geral
                 </p>
@@ -527,7 +527,7 @@ setTotalDisciplinasMatriculadas(total);
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+              <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                   Provas concluídas
                 </p>
@@ -541,7 +541,7 @@ setTotalDisciplinasMatriculadas(total);
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+              <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-5 shadow-sm">
                 <p className="text-xs font-medium uppercase tracking-[0.18em] text-slate-500">
                   Status da matrícula
                 </p>
@@ -556,7 +556,7 @@ setTotalDisciplinasMatriculadas(total);
 
             <section className="grid gap-6 xl:grid-cols-[1.3fr_0.9fr]">
               <div className="space-y-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-xl font-semibold text-slate-900">
@@ -616,7 +616,7 @@ setTotalDisciplinasMatriculadas(total);
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-s">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <h2 className="text-xl font-semibold text-slate-900">
@@ -692,7 +692,7 @@ setTotalDisciplinasMatriculadas(total);
               </div>
 
               <div className="space-y-6">
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
                     Próximo passo
                   </h2>
@@ -714,7 +714,7 @@ setTotalDisciplinasMatriculadas(total);
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
                     Progresso visual
                   </h2>
@@ -742,7 +742,7 @@ setTotalDisciplinasMatriculadas(total);
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
                     Atalhos rápidos
                   </h2>
@@ -770,7 +770,7 @@ setTotalDisciplinasMatriculadas(total);
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
                     Resumo acadêmico
                   </h2>
@@ -806,7 +806,7 @@ setTotalDisciplinasMatriculadas(total);
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
+                <div className="rounded-2xl border border-slate-200 bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="text-lg font-semibold text-slate-900">
                     Situação institucional
                   </h2>
