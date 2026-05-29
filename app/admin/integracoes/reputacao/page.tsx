@@ -374,18 +374,19 @@ const obterTimelineAvaliacao = (avaliacao: any) => {
   ];
 };
 
-const dadosReputacao = useMemo(
-  () => [
-    { semana: "Seg", reputacao: Math.max(0, scoreAtual - 35) },
-    { semana: "Ter", reputacao: Math.max(0, scoreAtual - 30) },
-    { semana: "Qua", reputacao: Math.max(0, scoreAtual - 25) },
-    { semana: "Qui", reputacao: Math.max(0, scoreAtual - 18) },
-    { semana: "Sex", reputacao: Math.max(0, scoreAtual - 12) },
-    { semana: "Sáb", reputacao: Math.max(0, scoreAtual - 8) },
-    { semana: "Dom", reputacao: scoreAtual },
-  ],
-  [scoreAtual]
-);
+const dadosReputacao = useMemo(() => {
+  const evolucao = resumoReputacao?.evolucao7Dias || [];
+
+  if (!evolucao.length) return [];
+
+  return evolucao.map((item: any) => ({
+    semana: item.dia,
+    reputacao: Math.max(
+      0,
+      Math.min(100, 80 + item.resolvidos * 5 - item.criticos * 10)
+    ),
+  }));
+}, [resumoReputacao]);
 
 const timelineAvaliacoes = (resumoReputacao?.ultimos || []).map((item: any) => ({
   titulo:
