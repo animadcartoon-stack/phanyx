@@ -218,32 +218,20 @@ const notificacoesIA = [
   },
 ];
 
-const [avaliacoesSimuladas, setAvaliacoesSimuladas] = useState([
-  {
-    nome: "Mariana Silva",
-    iniciais: "MS",
-    nota: 5,
-    sentimento: "Positivo",
-    texto: "Atendimento excelente e plataforma muito organizada.",
-    status: "Respondida",
-  },
-  {
-    nome: "Carlos Mendes",
-    iniciais: "CM",
-    nota: 2,
-    sentimento: "Crítico",
-    texto: "Tive dificuldade para conseguir atendimento e retorno.",
-    status: "Pendente",
-  },
-  {
-    nome: "Ana Paula",
-    iniciais: "AP",
-    nota: 4,
-    sentimento: "Neutro",
-    texto: "Boa experiência, mas algumas informações poderiam ser mais claras.",
-    status: "Pendente",
-  },
-]);
+const avaliacoesSimuladas = (resumoReputacao?.ultimos || []).map((item: any) => ({
+  id: item.id,
+  nome: `Manifestação #${item.id}`,
+  iniciais: item.origem === "ALUNO" ? "AL" : item.origem === "PROFESSOR" ? "PR" : "OU",
+  nota: item.sentimento === "CRITICO" ? 2 : item.sentimento === "POSITIVO" ? 5 : 4,
+  sentimento:
+    item.sentimento === "CRITICO"
+      ? "Crítico"
+      : item.sentimento === "POSITIVO"
+      ? "Positivo"
+      : "Neutro",
+  texto: item.mensagem,
+  status: item.status === "RESOLVIDO" ? "Respondida" : "Pendente",
+}));
 
 const avaliacoesFiltradas = avaliacoesSimuladas.filter((avaliacao) => {
   if (filtroAvaliacoes === "Todos") return true;
@@ -275,27 +263,42 @@ const percentualRespondidas =
     ? Math.round((totalRespondidas / totalAvaliacoes) * 100)
     : 0;
 
-const marcarComoRespondida = () => {
-  if (!avaliacaoSelecionada) return;
+const marcarComoRespondida = async () => {
+  if (!avaliacaoSelecionada?.id) return;
 
-  setAvaliacoesSimuladas((listaAtual) =>
-    listaAtual.map((avaliacao) =>
-      avaliacao.nome === avaliacaoSelecionada.nome
-        ? { ...avaliacao, status: "Respondida" }
-        : avaliacao
-    )
-  );
+  try {
+    const res = await fetch(`/api/ouvidoria/${avaliacaoSelecionada.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        status: "RESOLVIDO",
+      }),
+    });
 
-  setAvaliacaoSelecionada({
-    ...avaliacaoSelecionada,
-    status: "Respondida",
-  });
+    const data = await res.json();
 
-  setToastMensagem("Avaliação marcada como respondida.");
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao marcar como respondida.");
+    }
 
-  setTimeout(() => {
-    setToastMensagem("");
-  }, 3000);
+    setAvaliacaoSelecionada({
+      ...avaliacaoSelecionada,
+      status: "Respondida",
+    });
+
+    setToastMensagem("Manifestação marcada como respondida.");
+
+    await carregarResumoReputacao();
+
+    setTimeout(() => {
+      setToastMensagem("");
+    }, 3000);
+  } catch (error) {
+    console.error(error);
+    setToastMensagem("Não foi possível marcar como respondida.");
+  }
 };
 
 const obterPrioridadeIA = (avaliacao: any) => {
