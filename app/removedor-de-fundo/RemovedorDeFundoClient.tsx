@@ -746,22 +746,36 @@ if (overlayCtx) {
 
   if (!ehBorda) return;
 
-  // Pontilhado estilo Photoshop
-  if ((x + y) % 8 > 3) return;
+  const branco = Math.floor((x + y) / 6) % 2 === 0;
 
-  const i = pixel * 4;
+  for (let yy = -1; yy <= 1; yy++) {
+    for (let xx = -1; xx <= 1; xx++) {
+      const nx = x + xx;
+      const ny = y + yy;
 
-  overlayData.data[i] = 255;
-  overlayData.data[i + 1] = 255;
-  overlayData.data[i + 2] = 255;
-  overlayData.data[i + 3] = 255;
+      if (
+        nx < 0 ||
+        ny < 0 ||
+        nx >= overlayCanvas.width ||
+        ny >= overlayCanvas.height
+      ) {
+        continue;
+      }
+
+      const i = (ny * overlayCanvas.width + nx) * 4;
+
+      overlayData.data[i] = branco ? 255 : 0;
+      overlayData.data[i + 1] = branco ? 255 : 0;
+      overlayData.data[i + 2] = branco ? 255 : 0;
+      overlayData.data[i + 3] = 255;
+    }
+  }
 });
 
   overlayCtx.putImageData(overlayData, 0, 0);
   setOverlayVarinha(overlayCanvas.toDataURL("image/png"));
 }
-  setAviso(`Área selecionada com a varinha: ${selecionados.size} pixels. Clique em Apagar seleção ou aperte Delete.`);
-}
+setAviso(null);}
 
 function apagarSelecaoVarinha() {
   if (!canvasRef.current || !pixelsSelecionados || pixelsSelecionados.size === 0) {
@@ -3014,15 +3028,7 @@ arrastandoImagemRef.current
         };
       }
     }}
-    className={`max-h-none max-w-none object-contain ${
-  varinhaAtiva
-    ? "[cursor:url('/wand-cursor.png')_4_24,_crosshair]"
-    : pincelAtivo
-      ? "cursor-crosshair"
-      : maoAtiva
-        ? "cursor-grab"
-        : "cursor-default"
-}`}
+    className="max-h-none max-w-none object-contain"
     style={{
       opacity: opacidade / 100,
       transform: `translate(${panResultado.x}px, ${panResultado.y}px) scale(${zoomResultado})`,
@@ -3033,7 +3039,7 @@ arrastandoImagemRef.current
       touchAction: pincelAtivo ? "none" : "pan-x pan-y pinch-zoom",
       userSelect: "none",
       cursor: varinhaAtiva
-  ? "url('/wand-cursor.png') 2 28, crosshair"
+  ? "url('/wand-cursor.png') 4 28, crosshair"
   : pincelAtivo
     ? "crosshair"
     : maoAtiva
