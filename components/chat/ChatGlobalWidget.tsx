@@ -10,6 +10,12 @@ type UsuarioChat = {
   online?: boolean;
 };
 
+type TurmaChat = {
+  id: number;
+  nome: string;
+  semestre?: string | null;
+};
+
 type ConversaAberta = {
   id: number;
   nome: string;
@@ -51,6 +57,10 @@ export default function ChatGlobalWidget() {
   const [mostrarGifs, setMostrarGifs] = useState(false);
 
   const inputArquivoRef = useRef<HTMLInputElement | null>(null);
+
+  const [modoTurmas, setModoTurmas] = useState(false);
+  const [turmasChat, setTurmasChat] = useState<TurmaChat[]>([]);
+  const [carregandoTurmas, setCarregandoTurmas] = useState(false);
 
   useEffect(() => {
     async function atualizarPresenca() {
@@ -161,6 +171,62 @@ export default function ChatGlobalWidget() {
       console.error("Erro ao abrir conversa:", error);
     }
   }
+
+  async function carregarTurmasChat() {
+  setModoTurmas(true);
+  setCarregandoTurmas(true);
+
+  try {
+    const res = await fetch("/api/chat/turmas", {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(data);
+      setTurmasChat([]);
+      return;
+    }
+
+    setTurmasChat(data.turmas || []);
+  } catch (error) {
+    console.error("Erro ao carregar turmas do chat:", error);
+    setTurmasChat([]);
+  } finally {
+    setCarregandoTurmas(false);
+  }
+}
+
+async function abrirConversaTurma(turma: TurmaChat) {
+  try {
+    const res = await fetch("/api/chat/turmas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ turmaId: turma.id }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(data);
+      return;
+    }
+
+    setConversaAberta({
+      id: data.conversa.id,
+      nome: data.conversa.titulo || turma.nome,
+      role: "GRUPO",
+    });
+
+    setModoNovaConversa(false);
+    setModoTurmas(false);
+    await carregarMensagens(data.conversa.id);
+  } catch (error) {
+    console.error("Erro ao abrir conversa da turma:", error);
+  }
+}
 
   async function carregarMensagens(conversaId: number) {
     try {
@@ -553,61 +619,129 @@ async function enviarGif(url: string) {
           )}
 
           {modoNovaConversa && (
-            <div className="max-h-80 overflow-y-auto p-3">
-                <div className="mb-2 flex items-center justify-between">
-  <p className="text-sm font-bold text-white">Iniciar conversa</p>
+  <div className="max-h-80 overflow-y-auto p-3">
+    <div className="mb-2 flex items-center justify-between">
+      <p className="text-sm font-bold text-white">
+        {modoTurmas ? "Escolher turma" : "Iniciar conversa"}
+      </p>
 
-  <button
-    type="button"
-    onClick={() => setModoNovaConversa(false)}
-    className="text-xs text-slate-400 hover:text-white"
-  >
-    Voltar
-  </button>
-</div>
+      <button
+        type="button"
+        onClick={() => {
+          if (modoTurmas) {
+            setModoTurmas(false);
+          } else {
+            setModoNovaConversa(false);
+          }
+        }}
+        className="text-xs text-slate-400 hover:text-white"
+      >
+        Voltar
+      </button>
+    </div>
 
-{carregandoUsuarios && (
-  <p className="py-4 text-sm text-slate-400">
-    Carregando usuários...
-  </p>
+    {!modoTurmas && (
+      <div className="mb-3 grid grid-cols-1 gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            setModoTurmas(false);
+          }}
+          className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
+        >
+          👤 Conversa individual
+        </button>
+
+        <button
+          type="button"
+          onClick={carregarTurmasChat}
+          className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
+        >
+          👥 Conversa da turma
+        </button>
+      </div>
+    )}
+
+    {!modoTurmas && carregandoUsuarios && (
+      <p className="py-4 text-sm text-slate-400">
+        Carregando usuários...
+      </p>
+    )}
+
+    {!modoTurmas && !carregandoUsuarios && usuarios.length === 0 && (
+      <p className="py-4 text-sm text-slate-400">
+        Nenhum contato individual disponível.
+      </p>
+    )}
+
+    {!modoTurmas &&
+      !carregandoUsuarios &&
+      usuarios.map((usuario) => (
+        <button
+          key={usuario.id}
+          type="button"
+          onClick={() => abrirConversa(usuario)}
+          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
+        >
+          <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
+            👤
+
+            <span
+              className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-900 ${
+                usuario.online ? "bg-green-500" : "bg-slate-400"
+              }`}
+              title={usuario.online ? "Online" : "Offline"}
+            />
+          </div>
+
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white">
+              {usuario.nome}
+            </p>
+            <p className="text-xs text-slate-400">
+              {nomeRole(usuario.role)}
+            </p>
+          </div>
+        </button>
+      ))}
+
+    {modoTurmas && carregandoTurmas && (
+      <p className="py-4 text-sm text-slate-400">
+        Carregando turmas...
+      </p>
+    )}
+
+    {modoTurmas && !carregandoTurmas && turmasChat.length === 0 && (
+      <p className="py-4 text-sm text-slate-400">
+        Nenhuma turma disponível.
+      </p>
+    )}
+
+    {modoTurmas &&
+      !carregandoTurmas &&
+      turmasChat.map((turma) => (
+        <button
+          key={turma.id}
+          type="button"
+          onClick={() => abrirConversaTurma(turma)}
+          className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
+            👥
+          </div>
+
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold text-white">
+              {turma.nome}
+            </p>
+            <p className="text-xs text-slate-400">
+              {turma.semestre || "Turma"}
+            </p>
+          </div>
+        </button>
+      ))}
+  </div>
 )}
-
-{!carregandoUsuarios && usuarios.length === 0 && (
-  <p className="py-4 text-sm text-slate-400">
-    Nenhum contato disponível para conversa.
-  </p>
-)}
-              {!carregandoUsuarios &&
-                usuarios.map((usuario) => (
-                  <button
-                    key={usuario.id}
-                    type="button"
-                    onClick={() => abrirConversa(usuario)}
-                    className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
-                  >
-                    <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
-  👤
-
-  <span
-    className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-900 ${
-      usuario.online ? "bg-green-500" : "bg-slate-400"
-    }`}
-    title={usuario.online ? "Online" : "Offline"}
-  />
-</div>
-
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-white">
-                        {usuario.nome}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {nomeRole(usuario.role)}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-            </div>
-          )}
         </div>
       )}
 
