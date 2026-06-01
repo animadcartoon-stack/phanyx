@@ -118,7 +118,7 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
   const normalTexto = normalizarTexto(texto);
   const normalTermo = normalizarTexto(termo);
 
-  if (!normalTermo) return 0;
+  if (!normalTermo || !normalTexto) return 0;
 
   if (normalTexto.startsWith(normalTermo)) return 1000;
 
@@ -129,6 +129,10 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
   }
 
   if (normalTexto.includes(normalTermo)) return 800;
+
+  // Para buscas curtas como "mi", "ra", "da",
+  // NÃO usamos aproximação, senão gmail.com e palavras parecidas entram errado.
+  if (normalTermo.length < 4) return 0;
 
   let melhorScore = 0;
 
@@ -143,7 +147,6 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
     const distanciaPalavraInteira = distanciaLevenshtein(palavra, normalTermo);
 
     if (
-      normalTermo.length >= 4 &&
       distanciaPalavraInteira <= Math.max(1, Math.floor(normalTermo.length / 3))
     ) {
       melhorScore = Math.max(melhorScore, 600);
@@ -311,7 +314,6 @@ export default function ProfessorAlunosPage() {
       semestre: aluno.turma?.semestre || "Período não informado",
     }));
 }, [busca, alunosFiltrados]);
-
   return (
     <div className="space-y-6 max-w-7xl">
       <div>
