@@ -1675,8 +1675,12 @@ function desfazerTextoLivre(editor: HTMLElement) {
   const campoId = Number(editor.getAttribute("data-texto-livre-id"));
   const pilha = historicoTextoLivreRef.current[campoId] || [];
 
-  const htmlAnterior = pilha.pop();
-  if (!htmlAnterior) return false;
+  if (pilha.length <= 1) return false;
+
+  pilha.pop();
+
+  const htmlAnterior = pilha[pilha.length - 1];
+  if (htmlAnterior === undefined) return false;
 
   editor.innerHTML = htmlAnterior;
 
@@ -4598,6 +4602,46 @@ altura: ev.shiftKey
     iniciarDrag(e as any, c);
   }
 }}
+
+onPaste={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const editor = e.currentTarget;
+  const texto = e.clipboardData.getData("text/plain");
+
+  salvarHistoricoTextoLivre(editor);
+
+  const selecao = window.getSelection();
+
+  if (selecao && selecao.rangeCount > 0) {
+    const range = selecao.getRangeAt(0);
+
+    if (editor.contains(range.commonAncestorContainer)) {
+      range.deleteContents();
+
+      const node = document.createTextNode(texto);
+      range.insertNode(node);
+
+      range.setStartAfter(node);
+      range.setEndAfter(node);
+
+      selecao.removeAllRanges();
+      selecao.addRange(range);
+    } else {
+      editor.innerText = texto;
+    }
+  } else {
+    editor.innerText = texto;
+  }
+
+  atualizarTextoLivreNoEstado(editor);
+
+  setTimeout(() => {
+    salvarHistoricoTextoLivre(editor);
+  }, 0);
+}}
+
   onKeyDown={(e) => {
   e.stopPropagation();
 
@@ -4642,9 +4686,53 @@ altura: ev.shiftKey
     atualizarTextoLivreNoEstado(editor);
   }
 }}
+
+onPaste={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const editor = e.currentTarget;
+  const texto = e.clipboardData.getData("text/plain");
+
+  salvarHistoricoTextoLivre(editor);
+
+  const selecao = window.getSelection();
+
+  if (selecao && selecao.rangeCount > 0) {
+    const range = selecao.getRangeAt(0);
+
+    if (editor.contains(range.commonAncestorContainer)) {
+      range.deleteContents();
+
+      const node = document.createTextNode(texto);
+      range.insertNode(node);
+
+      range.setStartAfter(node);
+      range.setEndAfter(node);
+
+      selecao.removeAllRanges();
+      selecao.addRange(range);
+    } else {
+      editor.innerText = texto;
+    }
+  } else {
+    editor.innerText = texto;
+  }
+
+  atualizarTextoLivreNoEstado(editor);
+
+  setTimeout(() => {
+    salvarHistoricoTextoLivre(editor);
+  }, 0);
+}}
+
   onInput={(e) => {
-  const texto = e.currentTarget.innerText;
-  const textoHtml = e.currentTarget.innerHTML;
+  const editor = e.currentTarget;
+
+  salvarHistoricoTextoLivre(editor);
+
+  const texto = editor.innerText;
+  const textoHtml = editor.innerHTML;
 
   setCampos((prev) =>
     prev.map((item) =>
