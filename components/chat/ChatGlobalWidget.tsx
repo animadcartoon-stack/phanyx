@@ -9,11 +9,18 @@ type UsuarioChat = {
   role: string;
 };
 
+type ConversaAberta = {
+  id: number;
+  nome: string;
+  role: string;
+};
+
 export default function ChatGlobalWidget() {
   const [aberto, setAberto] = useState(false);
   const [modoNovaConversa, setModoNovaConversa] = useState(false);
   const [usuarios, setUsuarios] = useState<UsuarioChat[]>([]);
   const [carregandoUsuarios, setCarregandoUsuarios] = useState(false);
+  const [conversaAberta, setConversaAberta] = useState<ConversaAberta | null>(null);
 
   useEffect(() => {
     async function atualizarPresenca() {
@@ -67,7 +74,13 @@ export default function ChatGlobalWidget() {
       return;
     }
 
-    console.log("Conversa aberta:", data.conversa);
+    setConversaAberta({
+  id: data.conversa.id,
+  nome: usuario.nome,
+  role: usuario.role,
+});
+
+setModoNovaConversa(false);
   } catch (error) {
     console.error("Erro ao abrir conversa:", error);
   }
@@ -104,11 +117,47 @@ export default function ChatGlobalWidget() {
             </button>
           </div>
 
-          {!modoNovaConversa && (
-            <div className="p-4 text-sm text-slate-600">
-              Nenhuma conversa aberta ainda.
-            </div>
-          )}
+          {!modoNovaConversa && !conversaAberta && (
+  <div className="p-4 text-sm text-slate-600">
+    Nenhuma conversa aberta ainda.
+  </div>
+)}
+
+{!modoNovaConversa && conversaAberta && (
+  <div className="flex h-80 flex-col">
+    <div className="border-b bg-slate-50 px-4 py-3">
+      <p className="text-sm font-bold text-slate-800">
+        {conversaAberta.nome}
+      </p>
+      <p className="text-xs text-slate-500">
+        {nomeRole(conversaAberta.role)}
+      </p>
+    </div>
+
+    <div className="flex-1 p-4 text-sm text-slate-500">
+      Conversa iniciada. Agora vamos ligar o envio de mensagens.
+    </div>
+
+    <div className="border-t bg-slate-50 p-3">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          placeholder="Digite sua mensagem..."
+          disabled
+          className="flex-1 rounded-xl border px-3 py-2 text-sm outline-none"
+        />
+
+        <button
+          type="button"
+          disabled
+          className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white opacity-60"
+        >
+          Enviar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
           {modoNovaConversa && (
             <div className="max-h-80 overflow-y-auto p-3">
