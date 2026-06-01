@@ -223,8 +223,35 @@ export async function GET(req: NextRequest) {
                 : null,
           },
         };
-      })
-      .filter(Boolean);
+            })
+      .filter(Boolean) as any[];
+
+    const prioridadeStatus = (status?: string | null) => {
+      if (status === "EM_CURSO") return 3;
+      if (status === "A_CURSAR") return 2;
+      if (status === "CONCLUIDO") return 1;
+      return 0;
+    };
+
+    const alunosSemDuplicarMap = new Map<string, any>();
+
+    for (const aluno of alunos) {
+      const chave = `${aluno.alunoId}-${aluno.turma?.id || "sem-turma"}-${
+        aluno.disciplina?.id || "sem-disciplina"
+      }`;
+
+      const existente = alunosSemDuplicarMap.get(chave);
+
+      if (
+        !existente ||
+        prioridadeStatus(aluno.statusDisciplina) >
+          prioridadeStatus(existente.statusDisciplina)
+      ) {
+        alunosSemDuplicarMap.set(chave, aluno);
+      }
+    }
+
+    const alunosSemDuplicar = Array.from(alunosSemDuplicarMap.values());
 
     const turmasProfessor = await prisma.turma.findMany({
       where: filtroProfessorNaTurma,
@@ -255,8 +282,8 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({
-      alunos,
-      turmas: turmasProfessor.map((turma) => ({
+  alunos: alunosSemDuplicar,
+  turmas: turmasProfessor.map((turma) => ({
         id: turma.id,
         nome: turma.nome,
         disciplinaNome: turma.disciplinas?.[0]?.disciplina?.nome || null,
