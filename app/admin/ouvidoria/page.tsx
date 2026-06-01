@@ -117,7 +117,7 @@ async function salvarNovoChamado() {
   }
 
   try {
-    const res = await fetch("/api/ouvidoria", {
+    const res = await fetch("/api/ouvidoria-phanyx", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -137,8 +137,6 @@ async function salvarNovoChamado() {
     if (!res.ok) {
       throw new Error(data.error || "Erro ao criar manifestação.");
     }
-
-    setChamados((atuais) => [data.registro, ...atuais]);
 
     setModalNovoChamado(false);
     setNovoTipo("Sugestão");

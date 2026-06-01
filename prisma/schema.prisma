@@ -46,6 +46,7 @@ model Instituicao {
   googleSearchConsoleAtivo   Boolean @default(false)
 
   alternativas               Alternativa[]
+  ouvidoriasPhanyx           OuvidoriaPhanyx[]
   alunos                     Aluno[]
   atestadosMedicos           AtestadoMedico[]
   atividades                 Atividade[]
@@ -1603,6 +1604,28 @@ model Ouvidoria {
   @@index([instituicaoId])
   @@index([status])
   @@index([origem])
+}
+
+model OuvidoriaPhanyx {
+  id            Int  @id @default(autoincrement())
+  instituicaoId Int
+  usuarioId     Int?
+
+  tipo         String
+  titulo       String?
+  mensagem     String
+  prioridade   String    @default("NORMAL")
+  status       String    @default("ABERTO")
+  resposta     String?
+  respondidoEm DateTime?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id])
+
+  @@index([instituicaoId])
+  @@index([status])
 }
 
 enum TipoDocumentoAluno {
