@@ -174,6 +174,7 @@ export default function ProfessorAlunosPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
+  const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
   const [turmaId, setTurmaId] = useState("");
   const [alunos, setAlunos] = useState<AlunoProfessor[]>([]);
   const [turmas, setTurmas] = useState<TurmaFiltro[]>([]);
@@ -255,7 +256,7 @@ export default function ProfessorAlunosPage() {
         calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca)
       ),
     }))
-    .filter((aluno) => aluno.scoreBusca > 0)
+    .filter((aluno) => aluno.scoreBusca >= 600)
     .sort((a, b) => b.scoreBusca - a.scoreBusca);
 }, [alunos, busca]);
 
@@ -309,11 +310,14 @@ export default function ProfessorAlunosPage() {
       type="text"
       placeholder="Buscar por aluno, turma, tarefa, período ou disciplina"
       value={busca}
-      onChange={(e) => setBusca(e.target.value)}
+      onChange={(e) => {
+  setBusca(e.target.value);
+  setSugestoesAbertas(true);
+}}
       className="w-full border rounded-lg p-2"
     />
 
-    {busca.trim() && (
+    {busca.trim() && sugestoesAbertas && (
       <div className="absolute left-0 right-0 top-[46px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
         {sugestoesBusca.length === 0 ? (
           <p className="px-3 py-3 text-sm text-slate-500">
@@ -324,7 +328,11 @@ export default function ProfessorAlunosPage() {
             <button
               key={item.chave}
               type="button"
-              onClick={() => setBusca(item.alunoNome)}
+              onClick={() => {
+  setBusca(item.alunoNome);
+  setSugestoesAbertas(false);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}}
               className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
             >
               <p className="text-sm font-black text-slate-900">
