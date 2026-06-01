@@ -862,16 +862,11 @@ const temRespostaLenta =
   <div className="h-32">
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart
-        data={[
-          { dia: "Seg", valor: 48 },
-          { dia: "Ter", valor: 52 },
-          { dia: "Qua", valor: 55 },
-          { dia: "Qui", valor: 61 },
-          { dia: "Sex", valor: 68 },
-          { dia: "Sáb", valor: 72 },
-          { dia: "Dom", valor: 81 },
-        ]}
-      >
+  data={(resumoReputacao?.evolucao7Dias || []).map((item: any) => ({
+    dia: item.dia,
+    valor: item.total,
+  }))}
+>
         <defs>
           <linearGradient id="colorIA" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="#22d3ee" stopOpacity={0.8} />
@@ -931,8 +926,8 @@ const temRespostaLenta =
         </p>
 
         <h3 className="mt-2 text-2xl font-black text-white">
-          4h
-        </h3>
+  {tempoMedioReal}
+</h3>
 
         <p className="mt-2 text-xs leading-5 text-slate-300">
           Tempo médio estimado para resposta administrativa.
@@ -1102,8 +1097,8 @@ const temRespostaLenta =
       </p>
 
       <p className="mt-1 text-2xl font-black text-emerald-700">
-        +18%
-      </p>
+  {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
+</p>
     </div>
   </div>
 
@@ -1139,12 +1134,16 @@ const temRespostaLenta =
         </p>
 
         <h3 className="mt-3 text-lg font-black text-slate-900">
-          Pico negativo detectado
-        </h3>
+  {resumoReputacao?.criticos > 0
+    ? "Manifestações críticas detectadas"
+    : "Nenhum alerta crítico"}
+</h3>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          A IA identificou aumento de avaliações críticas nas últimas 24h.
-        </p>
+  {resumoReputacao?.criticos > 0
+    ? "Existem manifestações críticas aguardando acompanhamento."
+    : "Não há manifestações críticas abertas no momento."}
+</p>
       </div>
 
       <div className="text-3xl">🚨</div>
@@ -1308,8 +1307,8 @@ const temRespostaLenta =
       </p>
 
       <h3 className="mt-3 text-3xl font-black text-emerald-900">
-        +18%
-      </h3>
+  {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
+</h3>
 
       <p className="mt-3 text-sm leading-6 text-emerald-800">
         As avaliações positivas aumentaram nesta semana.
