@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type UsuarioChat = {
   id: number;
@@ -48,6 +48,8 @@ export default function ChatGlobalWidget() {
 
   const [mostrarEmojis, setMostrarEmojis] = useState(false);
   const [mostrarGifs, setMostrarGifs] = useState(false);
+
+  const inputArquivoRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     async function atualizarPresenca() {
@@ -183,6 +185,37 @@ export default function ChatGlobalWidget() {
     }
   }
 
+async function enviarArquivo(file: File | null) {
+  if (!file || !conversaAberta || enviando) return;
+
+  setEnviando(true);
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch(
+      `/api/chat/conversas/${conversaAberta.id}/anexos`,
+      {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      }
+    );
+
+    if (!res.ok) {
+      console.error(await res.json());
+      return;
+    }
+
+    await carregarMensagens(conversaAberta.id);
+  } catch (error) {
+    console.error("Erro ao enviar arquivo:", error);
+  } finally {
+    setEnviando(false);
+  }
+}
+
   function adicionarEmoji(emoji: string) {
   setTextoMensagem((prev) => prev + emoji);
   setMostrarEmojis(false);
@@ -275,9 +308,6 @@ async function enviarGif(url: string) {
       {conversaAberta.nome}
     </p>
 
-    <p className="text-xs text-slate-400">
-      {nomeRole(conversaAberta.role)}
-    </p>
   </div>
 
   <button
@@ -319,7 +349,53 @@ async function enviarGif(url: string) {
                             : "bg-slate-800 text-slate-100"
                         }`}
                       >
-                        {mensagem.texto?.startsWith("[GIF]") ? (
+                        {mensagem.anexos && mensagem.anexos.length > 0 ? (
+  <div className="space-y-2">
+    {mensagem.anexos.map((anexo: any) => {
+      const mime = anexo.tipoMime || "";
+
+      if (mime.startsWith("image/")) {
+        return (
+          <a
+            key={anexo.id}
+            href={anexo.url}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              src={anexo.url}
+              alt={anexo.nomeArquivo}
+              className="max-h-40 rounded-xl"
+            />
+          </a>
+        );
+      }
+
+      if (mime.startsWith("video/")) {
+        return (
+          <video
+            key={anexo.id}
+            src={anexo.url}
+            controls
+            className="max-h-40 rounded-xl"
+          />
+        );
+      }
+
+      return (
+        <a
+          key={anexo.id}
+          href={anexo.url}
+          target="_blank"
+          rel="noreferrer"
+          className="block underline"
+        >
+          📎 {anexo.nomeArquivo}
+        </a>
+      );
+    })}
+  </div>
+) : mensagem.texto?.startsWith("[GIF]") ? (
   <img
     src={mensagem.texto.replace("[GIF]", "")}
     alt="GIF enviado"
@@ -328,6 +404,8 @@ async function enviarGif(url: string) {
 ) : (
   mensagem.texto
 )}
+ 
+ 
                       </div>
                     </div>
                   );
@@ -366,51 +444,74 @@ async function enviarGif(url: string) {
   </div>
 )}
 
-                <div className="flex gap-2">
-                    <button
-  type="button"
-  onClick={() => {
-    setMostrarEmojis((prev) => !prev);
-    setMostrarGifs(false);
+                <div className="flex items-center gap-2">
+  <button
+    type="button"
+    onClick={() => {
+      setMostrarEmojis((prev) => !prev);
+      setMostrarGifs(false);
+    }}
+    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-lg text-white"
+  >
+    😊
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setMostrarGifs((prev) => !prev);
+      setMostrarEmojis(false);
+    }}
+    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xs font-bold text-white"
+  >
+    GIF
+  </button>
+
+  <input
+  ref={inputArquivoRef}
+  type="file"
+  className="hidden"
+  accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt"
+  onChange={(e) => {
+    const file = e.target.files?.[0] || null;
+    enviarArquivo(file);
+    e.target.value = "";
   }}
-  className="rounded-xl bg-slate-800 px-2 text-lg text-white"
->
-  😊
-</button>
+/>
 
 <button
   type="button"
-  onClick={() => {
-    setMostrarGifs((prev) => !prev);
-    setMostrarEmojis(false);
-  }}
-  className="rounded-xl bg-slate-800 px-2 text-xs font-bold text-white"
+  onClick={() => inputArquivoRef.current?.click()}
+  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-lg text-white"
+  title="Enviar arquivo"
 >
-  GIF
+  📎
 </button>
-                  <input
-                    type="text"
-                    value={textoMensagem}
-                    onChange={(e) => setTextoMensagem(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        enviarMensagem();
-                      }
-                    }}
-                    placeholder="Digite sua mensagem..."
-                    className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
-                  />
 
-                  <button
-                    type="button"
-                    onClick={enviarMensagem}
-                    disabled={enviando || !textoMensagem.trim()}
-                    className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
-                  >
-                    Enviar
-                  </button>
-                </div>
+  <input
+    type="text"
+    value={textoMensagem}
+    onChange={(e) => setTextoMensagem(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        enviarMensagem();
+      }
+    }}
+    placeholder="Digite..."
+    className="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
+  />
+
+  <button
+    type="button"
+    onClick={enviarMensagem}
+    disabled={enviando || !textoMensagem.trim()}
+    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-sm font-semibold text-white disabled:opacity-50"
+    title="Enviar"
+  >
+    ➤
+  </button>
+</div>
               </div>
             </div>
           )}
