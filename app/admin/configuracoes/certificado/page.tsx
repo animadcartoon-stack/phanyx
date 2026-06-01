@@ -5734,10 +5734,18 @@ atualizarCampoLocal("tamanho", tamanho);
   min={-5}
   max={30}
   step={1}
-  value={(campoSelecionado as any)?.letterSpacing ?? espacamentoLetrasTexto}
+  value={espacamentoLetrasTexto}
   onChange={(e) => {
     const valor = Number(e.target.value);
     setEspacamentoLetrasTexto(valor);
+
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+      aplicarEstiloTextoSelecionado({
+        letterSpacing: `${valor}px`,
+      });
+      return;
+    }
+
     atualizarCampoLocal("letterSpacing" as any, valor);
   }}
   className="w-full"
@@ -5752,10 +5760,18 @@ atualizarCampoLocal("tamanho", tamanho);
   min={0}
   max={60}
   step={1}
-  value={(campoSelecionado as any)?.wordSpacing ?? espacamentoPalavrasTexto}
+  value={espacamentoPalavrasTexto}
   onChange={(e) => {
     const valor = Number(e.target.value);
     setEspacamentoPalavrasTexto(valor);
+
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+      aplicarEstiloTextoSelecionado({
+        wordSpacing: `${valor}px`,
+      });
+      return;
+    }
+
     atualizarCampoLocal("wordSpacing" as any, valor);
   }}
   className="w-full"
@@ -7196,18 +7212,26 @@ aplicarEstiloTextoSelecionado({
   </label>
 
   <input
-    type="range"
-    min={-5}
-    max={30}
-    step={1}
-    value={(campoSelecionado as any)?.letterSpacing ?? 0}
-    onMouseDown={(e) => e.preventDefault()}
-    onChange={(e) => {
-      const valor = Number(e.target.value);
-      atualizarCampoLocal("letterSpacing" as any, valor);
-    }}
-    className="w-full"
-  />
+  type="range"
+  min={-5}
+  max={30}
+  step={1}
+  value={espacamentoLetrasTexto}
+  onChange={(e) => {
+    const valor = Number(e.target.value);
+    setEspacamentoLetrasTexto(valor);
+
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
+      aplicarEstiloTextoSelecionado({
+        letterSpacing: `${valor}px`,
+      });
+      return;
+    }
+
+    atualizarCampoLocal("letterSpacing" as any, valor);
+  }}
+  className="w-full"
+/>
 
   <label className="mb-1 mt-3 block text-xs font-semibold">
     Espaçamento entre palavras
@@ -7219,11 +7243,24 @@ aplicarEstiloTextoSelecionado({
     max={60}
     step={1}
     value={(campoSelecionado as any)?.wordSpacing ?? 0}
-    onMouseDown={(e) => e.preventDefault()}
+    
     onChange={(e) => {
-      const valor = Number(e.target.value);
-      atualizarCampoLocal("wordSpacing" as any, valor);
-    }}
+  const valor = Number(e.target.value);
+
+  setEspacamentoPalavrasTexto(valor);
+
+  if (
+    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+    temSelecaoTextoLivreSalva()
+  ) {
+    aplicarEstiloTextoSelecionado({
+      wordSpacing: `${valor}px`,
+    });
+    return;
+  }
+
+  atualizarCampoLocal("wordSpacing" as any, valor);
+}}
     className="w-full"
   />
 </div>
