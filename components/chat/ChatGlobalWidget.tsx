@@ -25,6 +25,15 @@ type MensagemChat = {
   anexos?: any[];
 };
 
+const EMOJIS_RAPIDOS = ["😀", "😂", "😍", "😊", "👏", "👍", "🙏", "❤️", "🎉", "🎓", "📚", "✅"];
+
+const GIFS_RAPIDOS = [
+  "https://media.giphy.com/media/111ebonMs90YLu/giphy.gif",
+  "https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif",
+  "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
+  "https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif",
+];
+
 export default function ChatGlobalWidget() {
   const [aberto, setAberto] = useState(false);
   const [modoNovaConversa, setModoNovaConversa] = useState(false);
@@ -36,6 +45,9 @@ export default function ChatGlobalWidget() {
   const [textoMensagem, setTextoMensagem] = useState("");
   const [enviando, setEnviando] = useState(false);
   const [meuUsuarioId, setMeuUsuarioId] = useState<number | null>(null);
+
+  const [mostrarEmojis, setMostrarEmojis] = useState(false);
+  const [mostrarGifs, setMostrarGifs] = useState(false);
 
   useEffect(() => {
     async function atualizarPresenca() {
@@ -171,6 +183,41 @@ export default function ChatGlobalWidget() {
     }
   }
 
+  function adicionarEmoji(emoji: string) {
+  setTextoMensagem((prev) => prev + emoji);
+  setMostrarEmojis(false);
+}
+
+async function enviarGif(url: string) {
+  if (!conversaAberta || enviando) return;
+
+  setEnviando(true);
+
+  try {
+    const res = await fetch(
+      `/api/chat/conversas/${conversaAberta.id}/mensagens`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ texto: `[GIF]${url}` }),
+      }
+    );
+
+    if (!res.ok) {
+      console.error(await res.json());
+      return;
+    }
+
+    setMostrarGifs(false);
+    await carregarMensagens(conversaAberta.id);
+  } catch (error) {
+    console.error("Erro ao enviar GIF:", error);
+  } finally {
+    setEnviando(false);
+  }
+}
+
   function nomeRole(role: string) {
     if (role === "ADMIN") return "Admin";
     if (role === "PROFESSOR") return "Professor";
@@ -272,7 +319,15 @@ export default function ChatGlobalWidget() {
                             : "bg-slate-800 text-slate-100"
                         }`}
                       >
-                        {mensagem.texto}
+                        {mensagem.texto?.startsWith("[GIF]") ? (
+  <img
+    src={mensagem.texto.replace("[GIF]", "")}
+    alt="GIF enviado"
+    className="max-h-40 rounded-xl"
+  />
+) : (
+  mensagem.texto
+)}
                       </div>
                     </div>
                   );
@@ -280,7 +335,59 @@ export default function ChatGlobalWidget() {
               </div>
 
               <div className="border-t border-slate-700 bg-slate-900 p-3">
+
+{mostrarEmojis && (
+  <div className="mb-2 grid grid-cols-6 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-2">
+    {EMOJIS_RAPIDOS.map((emoji) => (
+      <button
+        key={emoji}
+        type="button"
+        onClick={() => adicionarEmoji(emoji)}
+        className="rounded-lg p-1 text-xl hover:bg-slate-800"
+      >
+        {emoji}
+      </button>
+    ))}
+  </div>
+)}
+
+{mostrarGifs && (
+  <div className="mb-2 grid grid-cols-2 gap-2 rounded-xl border border-slate-700 bg-slate-950 p-2">
+    {GIFS_RAPIDOS.map((gif) => (
+      <button
+        key={gif}
+        type="button"
+        onClick={() => enviarGif(gif)}
+        className="overflow-hidden rounded-lg border border-slate-700"
+      >
+        <img src={gif} alt="GIF" className="h-20 w-full object-cover" />
+      </button>
+    ))}
+  </div>
+)}
+
                 <div className="flex gap-2">
+                    <button
+  type="button"
+  onClick={() => {
+    setMostrarEmojis((prev) => !prev);
+    setMostrarGifs(false);
+  }}
+  className="rounded-xl bg-slate-800 px-2 text-lg text-white"
+>
+  😊
+</button>
+
+<button
+  type="button"
+  onClick={() => {
+    setMostrarGifs((prev) => !prev);
+    setMostrarEmojis(false);
+  }}
+  className="rounded-xl bg-slate-800 px-2 text-xs font-bold text-white"
+>
+  GIF
+</button>
                   <input
                     type="text"
                     value={textoMensagem}
