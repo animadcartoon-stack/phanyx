@@ -132,7 +132,7 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
 
   // Para buscas curtas como "mi", "ra", "da",
   // NÃO usamos aproximação, senão gmail.com e palavras parecidas entram errado.
-  if (normalTermo.length < 4) return 0;
+  
 
   let melhorScore = 0;
 
@@ -140,15 +140,19 @@ function calcularPontuacaoBusca(texto: string, termo: string) {
     const pedacoInicial = palavra.slice(0, normalTermo.length);
     const distanciaInicio = distanciaLevenshtein(pedacoInicial, normalTermo);
 
-    if (distanciaInicio <= Math.max(1, Math.floor(normalTermo.length / 3))) {
-      melhorScore = Math.max(melhorScore, 700);
-    }
+    if (
+  palavra.length >= normalTermo.length &&
+  distanciaInicio <= 1
+) {
+  melhorScore = Math.max(melhorScore, 700);
+}
 
     const distanciaPalavraInteira = distanciaLevenshtein(palavra, normalTermo);
 
     if (
-      distanciaPalavraInteira <= Math.max(1, Math.floor(normalTermo.length / 3))
-    ) {
+  normalTermo.length >= 4 &&
+  distanciaPalavraInteira <= 1
+) {
       melhorScore = Math.max(melhorScore, 600);
     }
   }
