@@ -80,9 +80,29 @@ setTimeout(() => {
     return "academico";
   };
 
+  const [notificacoesAberto, setNotificacoesAberto] = useState(false);
+
+const notificacoesAdmin = [
+  {
+    titulo: "Nova manifestação na Ouvidoria",
+    descricao: "Clique para acompanhar sugestões, elogios e reclamações.",
+    link: "/admin/ouvidoria",
+    emoji: "📣",
+    importante: true,
+  },
+  {
+    titulo: "Reputação atualizada",
+    descricao: "Novos sinais reputacionais foram processados.",
+    link: "/admin/integracoes/reputacao",
+    emoji: "⭐",
+    importante: false,
+  },
+];
+
   const [menuAberto, setMenuAberto] = useState<string | null>(
   descobrirMenuInicial()
 );
+
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
   const [funcionario, setFuncionario] = useState<{
   nome?: string;
@@ -754,6 +774,64 @@ function abrirTourAdmin() {
   }
 >
   {!esconderSidebar && <PhanyxFeriadoAviso />}
+
+  {!esconderSidebar && (
+    <div className="mb-4 flex justify-end">
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setNotificacoesAberto((v) => !v)}
+          className="relative flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/10 text-xl shadow-lg transition hover:scale-105"
+        >
+          🔔
+
+          {notificacoesAdmin.length > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[11px] font-black text-white">
+              {notificacoesAdmin.length}
+            </span>
+          )}
+        </button>
+
+        {notificacoesAberto && (
+          <div className="absolute right-0 z-[9999] mt-3 w-80 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 shadow-2xl">
+            <div className="border-b border-white/10 px-4 py-3">
+              <p className="text-sm font-black text-white">
+                Notificações
+              </p>
+
+              <p className="text-xs text-slate-400">
+                Atualizações importantes do PHANYX
+              </p>
+            </div>
+
+            <div className="max-h-96 overflow-y-auto">
+              {notificacoesAdmin.map((item) => (
+                <a
+                  key={item.titulo}
+                  href={item.link}
+                  className="flex gap-3 border-b border-white/5 px-4 py-3 transition hover:bg-white/10"
+                >
+                  <span className="text-xl">
+                    {item.emoji}
+                  </span>
+
+                  <div>
+                    <div className="text-sm font-bold text-white">
+                      {item.titulo}
+                    </div>
+
+                    <div className="text-xs text-slate-400">
+                      {item.descricao}
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  )}
 
   {children}
   <ChatGlobalWidget />
