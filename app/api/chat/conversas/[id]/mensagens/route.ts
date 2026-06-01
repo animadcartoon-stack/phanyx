@@ -80,6 +80,25 @@ export async function POST(
     },
   });
 
+  const participantes = await prisma.chatParticipante.findMany({
+  where: {
+    conversaId,
+    usuarioId: {
+      not: user.id,
+    },
+  },
+});
+
+await prisma.notificacao.createMany({
+  data: participantes.map((participante) => ({
+    usuarioId: participante.usuarioId,
+    tipo: "CHAT",
+    titulo: "Nova mensagem",
+    descricao: `${user.nome}: ${texto}`,
+    link: `/chat?conversaId=${conversaId}`,
+  })),
+});
+
   await prisma.chatConversa.update({
     where: { id: conversaId },
     data: { atualizadoEm: new Date() },
