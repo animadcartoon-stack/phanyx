@@ -51,6 +51,28 @@ export default function ChatGlobalWidget() {
     }
   }
 
+  async function abrirConversa(usuario: UsuarioChat) {
+  try {
+    const res = await fetch("/api/chat/conversas", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ usuarioId: usuario.id }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(data);
+      return;
+    }
+
+    console.log("Conversa aberta:", data.conversa);
+  } catch (error) {
+    console.error("Erro ao abrir conversa:", error);
+  }
+}
+
   function nomeRole(role: string) {
     if (role === "ADMIN") return "Admin";
     if (role === "PROFESSOR") return "Professor";
@@ -119,10 +141,11 @@ export default function ChatGlobalWidget() {
               {!carregandoUsuarios &&
                 usuarios.map((usuario) => (
                   <button
-                    key={usuario.id}
-                    type="button"
-                    className="mb-2 flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left hover:bg-blue-50"
-                  >
+  key={usuario.id}
+  type="button"
+  onClick={() => abrirConversa(usuario)}
+  className="mb-2 flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left hover:bg-blue-50"
+>
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-lg">
                       👤
                     </div>
