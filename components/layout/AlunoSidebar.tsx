@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
+import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotificationBell";
 
 export default function AlunoSidebar({
   aluno,
@@ -82,7 +83,8 @@ export default function AlunoSidebar({
       </nav>
         </aside>
 
-    <ChatGlobalWidget />
+    <PhanyxNotificationBell />
+<ChatGlobalWidget />
   </>
   );
 }
