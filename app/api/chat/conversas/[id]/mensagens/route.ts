@@ -36,7 +36,7 @@ export async function GET(
     orderBy: { criadoEm: "asc" },
   });
 
-  return NextResponse.json({ mensagens });
+  return NextResponse.json({ mensagens, usuarioId: user.id });
 }
 
 export async function POST(

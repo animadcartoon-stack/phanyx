@@ -15,6 +15,16 @@ type ConversaAberta = {
   role: string;
 };
 
+type MensagemChat = {
+  id: number;
+  conversaId: number;
+  autorId: number;
+  texto: string | null;
+  tipo: string;
+  criadoEm: string;
+  anexos?: any[];
+};
+
 export default function ChatGlobalWidget() {
   const [aberto, setAberto] = useState(false);
   const [modoNovaConversa, setModoNovaConversa] = useState(false);
@@ -22,6 +32,10 @@ export default function ChatGlobalWidget() {
   const [carregandoUsuarios, setCarregandoUsuarios] = useState(false);
   const [conversaAberta, setConversaAberta] =
     useState<ConversaAberta | null>(null);
+  const [mensagens, setMensagens] = useState<MensagemChat[]>([]);
+  const [textoMensagem, setTextoMensagem] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [meuUsuarioId, setMeuUsuarioId] = useState<number | null>(null);
 
   useEffect(() => {
     async function atualizarPresenca() {
@@ -38,6 +52,18 @@ export default function ChatGlobalWidget() {
 
     return () => clearInterval(intervalo);
   }, []);
+
+  useEffect(() => {
+    if (!conversaAberta) return;
+
+    carregarMensagens(conversaAberta.id);
+
+    const intervalo = setInterval(() => {
+      carregarMensagens(conversaAberta.id);
+    }, 5000);
+
+    return () => clearInterval(intervalo);
+  }, [conversaAberta]);
 
   async function carregarUsuarios() {
     setModoNovaConversa(true);
@@ -83,6 +109,65 @@ export default function ChatGlobalWidget() {
       setModoNovaConversa(false);
     } catch (error) {
       console.error("Erro ao abrir conversa:", error);
+    }
+  }
+
+  async function carregarMensagens(conversaId: number) {
+    try {
+      const res = await fetch(`/api/chat/conversas/${conversaId}/mensagens`, {
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data);
+        return;
+      }
+
+      setMensagens(data.mensagens || []);
+
+      if (data.usuarioId) {
+        setMeuUsuarioId(data.usuarioId);
+      }
+    } catch (error) {
+      console.error("Erro ao carregar mensagens:", error);
+    }
+  }
+
+  async function enviarMensagem() {
+    if (!conversaAberta) return;
+
+    const texto = textoMensagem.trim();
+
+    if (!texto || enviando) return;
+
+    setEnviando(true);
+
+    try {
+      const res = await fetch(
+        `/api/chat/conversas/${conversaAberta.id}/mensagens`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ texto }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data);
+        return;
+      }
+
+      setTextoMensagem("");
+      await carregarMensagens(conversaAberta.id);
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+    } finally {
+      setEnviando(false);
     }
   }
 
@@ -134,23 +219,56 @@ export default function ChatGlobalWidget() {
                 </p>
               </div>
 
-              <div className="flex-1 p-4 text-sm text-slate-300">
-                Conversa iniciada. Agora vamos ligar o envio de mensagens.
+              <div className="flex-1 space-y-2 overflow-y-auto p-3 text-sm">
+                {mensagens.length === 0 && (
+                  <p className="text-slate-400">
+                    Nenhuma mensagem ainda. Envie a primeira mensagem.
+                  </p>
+                )}
+
+                {mensagens.map((mensagem) => {
+                  const minha = mensagem.autorId === meuUsuarioId;
+
+                  return (
+                    <div
+                      key={mensagem.id}
+                      className={`flex ${minha ? "justify-end" : "justify-start"}`}
+                    >
+                      <div
+                        className={`max-w-[75%] rounded-2xl px-3 py-2 ${
+                          minha
+                            ? "bg-blue-600 text-white"
+                            : "bg-slate-800 text-slate-100"
+                        }`}
+                      >
+                        {mensagem.texto}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
 
               <div className="border-t border-slate-700 bg-slate-900 p-3">
                 <div className="flex gap-2">
                   <input
                     type="text"
+                    value={textoMensagem}
+                    onChange={(e) => setTextoMensagem(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        enviarMensagem();
+                      }
+                    }}
                     placeholder="Digite sua mensagem..."
-                    disabled
                     className="flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
                   />
 
                   <button
                     type="button"
-                    disabled
-                    className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white opacity-60"
+                    onClick={enviarMensagem}
+                    disabled={enviando || !textoMensagem.trim()}
+                    className="rounded-xl bg-blue-600 px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
                   >
                     Enviar
                   </button>
@@ -161,32 +279,6 @@ export default function ChatGlobalWidget() {
 
           {modoNovaConversa && (
             <div className="max-h-80 overflow-y-auto p-3">
-              <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-bold text-white">
-                  Iniciar conversa
-                </p>
-
-                <button
-                  type="button"
-                  onClick={() => setModoNovaConversa(false)}
-                  className="text-xs font-medium text-slate-400 hover:text-white"
-                >
-                  Voltar
-                </button>
-              </div>
-
-              {carregandoUsuarios && (
-                <p className="py-4 text-sm text-slate-400">
-                  Carregando usuários...
-                </p>
-              )}
-
-              {!carregandoUsuarios && usuarios.length === 0 && (
-                <p className="py-4 text-sm text-slate-400">
-                  Nenhum usuário encontrado.
-                </p>
-              )}
-
               {!carregandoUsuarios &&
                 usuarios.map((usuario) => (
                   <button
@@ -213,7 +305,6 @@ export default function ChatGlobalWidget() {
           )}
         </div>
       )}
-
 
       <button
         type="button"
