@@ -28,6 +28,13 @@ export default function OuvidoriaAdminPage() {
   const [respostaTexto, setRespostaTexto] = useState("");
   const [salvandoResposta, setSalvandoResposta] = useState(false);
 
+  const [modalNovoChamado, setModalNovoChamado] = useState(false);
+
+  const [novoTipo, setNovoTipo] = useState("Sugestão");
+  const [novoTitulo, setNovoTitulo] = useState("");
+  const [novaMensagem, setNovaMensagem] = useState("");
+  const [novaPrioridade, setNovaPrioridade] = useState("NORMAL");
+
 useEffect(() => {
   async function carregarOuvidoria() {
     try {
@@ -101,6 +108,47 @@ function gerarRespostaSugerida(item: ChamadoOuvidoria) {
   }
 
   return `Agradecemos seu contato. Sua manifestação foi recebida e será analisada pela instituição com a atenção necessária.`;
+}
+
+async function salvarNovoChamado() {
+  if (!novaMensagem.trim()) {
+    alert("Escreva a mensagem da manifestação antes de salvar.");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/ouvidoria", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        origem: "ADMIN",
+        tipo: novoTipo,
+        titulo: novoTitulo,
+        mensagem: novaMensagem,
+        prioridade: novaPrioridade,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao criar manifestação.");
+    }
+
+    setChamados((atuais) => [data.registro, ...atuais]);
+
+    setModalNovoChamado(false);
+    setNovoTipo("Sugestão");
+    setNovoTitulo("");
+    setNovaMensagem("");
+    setNovaPrioridade("NORMAL");
+  } catch (error) {
+    console.error(error);
+    alert("Não foi possível criar a manifestação.");
+  }
 }
 
 function abrirModalResposta(item: ChamadoOuvidoria) {
@@ -184,7 +232,15 @@ async function salvarResposta() {
           alunos e professores com análise automática da IA PHANYX.
         </p>
       </div>
-
+<div className="mt-4">
+  <button
+    type="button"
+    onClick={() => setModalNovoChamado(true)}
+    className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-700"
+  >
+    + Nova manifestação
+  </button>
+</div>
       <div className="rounded-3xl border bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 text-white shadow-2xl">
         <p className="text-xs font-black uppercase tracking-[0.35em] text-cyan-300">
           Painel executivo
@@ -432,6 +488,110 @@ async function salvarResposta() {
     </div>
   </div>
 )}
+
+{modalNovoChamado && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 p-4">
+    <div className="w-full max-w-2xl rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-black text-white">
+          Nova manifestação
+        </h2>
+
+        <button
+          onClick={() => setModalNovoChamado(false)}
+          className="rounded-xl bg-slate-800 px-3 py-2 text-white hover:bg-slate-700"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="space-y-4">
+
+        <div>
+          <label className="mb-2 block text-sm font-bold text-slate-300">
+            Tipo
+          </label>
+
+          <select
+            value={novoTipo}
+            onChange={(e) => setNovoTipo(e.target.value)}
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white"
+          >
+            <option>Sugestão</option>
+            <option>Reclamação</option>
+            <option>Elogio</option>
+            <option>Relato</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-bold text-slate-300">
+            Prioridade
+          </label>
+
+          <select
+            value={novaPrioridade}
+            onChange={(e) => setNovaPrioridade(e.target.value)}
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white"
+          >
+            <option value="BAIXA">Baixa</option>
+            <option value="NORMAL">Normal</option>
+            <option value="ALTA">Alta</option>
+            <option value="URGENTE">Urgente</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-bold text-slate-300">
+            Título
+          </label>
+
+          <input
+            value={novoTitulo}
+            onChange={(e) => setNovoTitulo(e.target.value)}
+            placeholder="Digite um título"
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-bold text-slate-300">
+            Mensagem
+          </label>
+
+          <textarea
+            value={novaMensagem}
+            onChange={(e) => setNovaMensagem(e.target.value)}
+            rows={6}
+            placeholder="Descreva a manifestação..."
+            className="w-full rounded-xl border border-slate-700 bg-slate-800 p-3 text-white"
+          />
+        </div>
+
+      </div>
+
+      <div className="mt-6 flex justify-end gap-3">
+
+        <button
+          onClick={() => setModalNovoChamado(false)}
+          className="rounded-xl border border-slate-600 px-5 py-3 font-bold text-slate-300"
+        >
+          Cancelar
+        </button>
+
+        <button
+          onClick={salvarNovoChamado}
+          className="rounded-xl bg-blue-600 px-5 py-3 font-bold text-white hover:bg-blue-700"
+        >
+          Salvar manifestação
+        </button>
+
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   );
