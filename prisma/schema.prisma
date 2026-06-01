@@ -106,14 +106,14 @@ model Instituicao {
 }
 
 model User {
-  id                 Int          @id @default(autoincrement())
+  id                 Int           @id @default(autoincrement())
   nome               String
-  email              String       @unique
+  email              String        @unique
   senha              String
-  createdAt          DateTime     @default(now())
+  createdAt          DateTime      @default(now())
   instituicaoId      Int
-  ativo              Boolean      @default(true)
-  updatedAt          DateTime     @updatedAt
+  ativo              Boolean       @default(true)
+  updatedAt          DateTime      @updatedAt
   role               Role
   ultimoLoginAt      DateTime?
   aluno              Aluno?
@@ -121,12 +121,13 @@ model User {
   professor          Professor?
   resetToken         String?
   resetTokenExpira   DateTime?
-  precisaTrocarSenha Boolean      @default(false)
-  isMasterAdmin      Boolean      @default(false)
-  instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  cursosCriados      Curso[]      @relation("CursoCriadoPor")
-  cursosExcluidos    Curso[]      @relation("CursoExcluidoPor")
+  precisaTrocarSenha Boolean       @default(false)
+  isMasterAdmin      Boolean       @default(false)
+  instituicao        Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  cursosCriados      Curso[]       @relation("CursoCriadoPor")
+  cursosExcluidos    Curso[]       @relation("CursoExcluidoPor")
   CreditoIA          CreditoIA?
+  notificacoes       Notificacao[]
 
   @@index([instituicaoId])
   @@index([role])
@@ -1639,19 +1640,19 @@ model ChatConversa {
   atualizadoEm  DateTime @updatedAt
 
   participantes ChatParticipante[]
-  mensagens      ChatMensagem[]
+  mensagens     ChatMensagem[]
 
   @@index([instituicaoId])
 }
 
 model ChatParticipante {
-  id          Int      @id @default(autoincrement())
-  conversaId  Int
-  usuarioId   Int
+  id           Int       @id @default(autoincrement())
+  conversaId   Int
+  usuarioId    Int
   nomeExibicao String?
-  papel       String?
-  lidaEm      DateTime?
-  criadoEm    DateTime @default(now())
+  papel        String?
+  lidaEm       DateTime?
+  criadoEm     DateTime  @default(now())
 
   conversa ChatConversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
 
@@ -1660,16 +1661,16 @@ model ChatParticipante {
 }
 
 model ChatMensagem {
-  id          Int      @id @default(autoincrement())
-  conversaId  Int
-  autorId     Int
-  texto       String?
-  tipo        String   @default("TEXTO") // TEXTO, IMAGEM, ARQUIVO
-  criadoEm    DateTime @default(now())
-  editadaEm   DateTime?
+  id         Int       @id @default(autoincrement())
+  conversaId Int
+  autorId    Int
+  texto      String?
+  tipo       String    @default("TEXTO") // TEXTO, IMAGEM, ARQUIVO
+  criadoEm   DateTime  @default(now())
+  editadaEm  DateTime?
 
   conversa ChatConversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
-  anexos    ChatAnexo[]
+  anexos   ChatAnexo[]
 
   @@index([conversaId])
   @@index([autorId])
@@ -1690,16 +1691,34 @@ model ChatAnexo {
 }
 
 model ChatPresenca {
-  id             Int      @id @default(autoincrement())
-  instituicaoId  Int
-  usuarioId      Int      @unique
-  status         String   @default("ONLINE") // ONLINE, AUSENTE, OFFLINE
+  id              Int      @id @default(autoincrement())
+  instituicaoId   Int
+  usuarioId       Int      @unique
+  status          String   @default("ONLINE") // ONLINE, AUSENTE, OFFLINE
   ultimaAtividade DateTime @default(now())
-  atualizadoEm   DateTime @updatedAt
+  atualizadoEm    DateTime @updatedAt
 
   @@index([instituicaoId])
   @@index([usuarioId])
   @@index([status])
+}
+
+model Notificacao {
+  id        Int      @id @default(autoincrement())
+  usuarioId Int
+  tipo      String
+  titulo    String
+  descricao String?
+  link      String?
+  lida      Boolean  @default(false)
+  criadoEm  DateTime @default(now())
+
+  usuario User @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([tipo])
+  @@index([lida])
+  @@index([criadoEm])
 }
 
 enum TipoDocumentoAluno {
