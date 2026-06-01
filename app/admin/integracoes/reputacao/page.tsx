@@ -465,6 +465,28 @@ const obterCorTimeline = (tipo: string) => {
   }
 `}</style>
 
+const crescimentoReal =
+  resumoReputacao?.evolucao7Dias?.length >= 2
+    ? resumoReputacao.evolucao7Dias[6].total -
+      resumoReputacao.evolucao7Dias[0].total
+    : 0;
+
+const melhorDiaReal =
+  resumoReputacao?.evolucao7Dias?.length
+    ? resumoReputacao.evolucao7Dias.reduce((melhor: any, atual: any) =>
+        atual.total > melhor.total ? atual : melhor
+      ).dia
+    : "—";
+
+const tempoMedioReal =
+  resumoReputacao?.tempoMedioHoras !== null &&
+  resumoReputacao?.tempoMedioHoras !== undefined
+    ? `${resumoReputacao.tempoMedioHoras}h`
+    : "—";
+
+const temRespostaLenta =
+  (resumoReputacao?.tempoMedioHoras || 0) > 24;
+
   return (
     <div className="space-y-8">
       <div>
@@ -895,7 +917,7 @@ const obterCorTimeline = (tipo: string) => {
         </p>
 
         <h3 className="mt-2 text-2xl font-black text-white">
-          +18%
+          {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
         </h3>
 
         <p className="mt-2 text-xs leading-5 text-slate-300">
@@ -1169,7 +1191,9 @@ const obterCorTimeline = (tipo: string) => {
         </h3>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          Algumas avaliações estão acima do tempo ideal de retorno.
+          {temRespostaLenta
+  ? "Existem manifestações acima do tempo ideal de retorno."
+  : "O tempo de resposta está dentro do esperado."}
         </p>
       </div>
 
@@ -1314,7 +1338,7 @@ const obterCorTimeline = (tipo: string) => {
       </p>
 
       <h3 className="mt-3 text-2xl font-black text-sky-900">
-        Sexta-feira
+        {melhorDiaReal}
       </h3>
 
       <p className="mt-3 text-sm leading-6 text-sky-800">
@@ -1328,7 +1352,7 @@ const obterCorTimeline = (tipo: string) => {
       </p>
 
       <h3 className="mt-3 text-2xl font-black text-violet-900">
-        4h
+        {tempoMedioReal}
       </h3>
 
       <p className="mt-3 text-sm leading-6 text-violet-800">
