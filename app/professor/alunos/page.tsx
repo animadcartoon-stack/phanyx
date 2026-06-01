@@ -248,16 +248,28 @@ export default function ProfessorAlunosPage() {
     .map((aluno) => ({
       ...aluno,
       scoreBusca: Math.max(
-        calcularPontuacaoBusca(aluno.nome || "", busca),
-        calcularPontuacaoBusca(aluno.email || "", busca),
-        calcularPontuacaoBusca(aluno.matricula || "", busca),
-        calcularPontuacaoBusca(aluno.turma?.nome || "", busca),
+        calcularPontuacaoBusca(aluno.nome || "", busca) * 10 +
+        calcularPontuacaoBusca(aluno.email || "", busca) * 2 +
+        calcularPontuacaoBusca(aluno.matricula || "", busca) +
+        calcularPontuacaoBusca(aluno.turma?.nome || "", busca) +
         calcularPontuacaoBusca(aluno.turma?.semestre || "", busca),
-        calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca)
+        calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca),
       ),
     }))
     .filter((aluno) => aluno.scoreBusca >= 600)
-    .sort((a, b) => b.scoreBusca - a.scoreBusca);
+    .sort((a, b) => {
+  const nomeA = normalizarTexto(a.nome);
+  const nomeB = normalizarTexto(b.nome);
+  const termo = normalizarTexto(busca);
+
+  const aComeca = nomeA.startsWith(termo);
+  const bComeca = nomeB.startsWith(termo);
+
+  if (aComeca && !bComeca) return -1;
+  if (!aComeca && bComeca) return 1;
+
+  return b.scoreBusca - a.scoreBusca;
+});
 }, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {

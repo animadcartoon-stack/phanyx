@@ -530,6 +530,7 @@ export default function TurmasProfessorPage() {
 
       return {
   chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
+  turmaId: turma.id,
   turmaDisciplinaId: turma.turmaDisciplinaId,
   disciplinaId: turma.disciplina?.id || null,
   turmaNome: turma.nome,
@@ -649,8 +650,8 @@ const gruposPorCurso = useMemo(() => {
             onClick={() => {
   setBusca("");
   router.push(
-    `/professor/turmas/${item.turmaDisciplinaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
-  );
+  `/professor/turmas/${item.turmaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
+);
 }}
             className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
           >
