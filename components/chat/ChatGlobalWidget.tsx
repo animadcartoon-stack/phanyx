@@ -214,6 +214,7 @@ export default function ChatGlobalWidget() {
         </div>
       )}
 
+
       <button
         type="button"
         onClick={() => setAberto((prev) => !prev)}
