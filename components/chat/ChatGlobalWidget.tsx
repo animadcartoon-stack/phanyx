@@ -211,9 +211,40 @@ export default function ChatGlobalWidget() {
           {!modoNovaConversa && conversaAberta && (
             <div className="flex h-80 flex-col">
               <div className="border-b border-slate-700 bg-slate-900 px-4 py-3">
-                <p className="text-sm font-bold text-white">
-                  {conversaAberta.nome}
-                </p>
+                <div className="flex items-start justify-between">
+  <div>
+    <button
+      type="button"
+      onClick={() => {
+        setConversaAberta(null);
+        setModoNovaConversa(true);
+      }}
+      className="mb-1 text-xs text-blue-400 hover:text-blue-300"
+    >
+      ← Voltar
+    </button>
+
+    <p className="text-sm font-bold text-white">
+      {conversaAberta.nome}
+    </p>
+
+    <p className="text-xs text-slate-400">
+      {nomeRole(conversaAberta.role)}
+    </p>
+  </div>
+
+  <button
+    type="button"
+    onClick={() => {
+      setConversaAberta(null);
+      setModoNovaConversa(false);
+      setAberto(false);
+    }}
+    className="text-slate-400 hover:text-white"
+  >
+    ✕
+  </button>
+</div>
                 <p className="text-xs text-slate-400">
                   {nomeRole(conversaAberta.role)}
                 </p>
