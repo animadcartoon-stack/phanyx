@@ -50,6 +50,27 @@ type DashboardMasterResponse = {
   }[];
 };
 
+type FeedbackPhanyx = {
+  id: number;
+  instituicaoId: number;
+  usuarioId?: number | null;
+  tipo: string;
+  titulo?: string | null;
+  mensagem: string;
+  prioridade: string;
+  status: string;
+  criadoEm?: string;
+  instituicao?: {
+    id: number;
+    nome: string;
+    slug?: string | null;
+  };
+};
+
+type FeedbackMasterResponse = {
+  registros: FeedbackPhanyx[];
+};
+
 function formatarData(data?: string) {
   if (!data) return "-";
 
@@ -112,6 +133,7 @@ function MasterPage() {
   const [data, setData] = useState<DashboardMasterResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [feedbacksPhanyx, setFeedbacksPhanyx] = useState<FeedbackPhanyx[]>([]);
 
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("TODOS");
@@ -149,9 +171,27 @@ function MasterPage() {
     }
   }
 
+  async function carregarFeedbacksPhanyx() {
+  try {
+    const res = await fetch("/api/master/ouvidoria", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const json: FeedbackMasterResponse = await res.json();
+
+    if (res.ok) {
+      setFeedbacksPhanyx(Array.isArray(json.registros) ? json.registros : []);
+    }
+  } catch {
+    setFeedbacksPhanyx([]);
+  }
+}
+
   useEffect(() => {
-    carregarDashboard();
-  }, []);
+  carregarDashboard();
+  carregarFeedbacksPhanyx();
+}, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -197,6 +237,64 @@ function MasterPage() {
       },
     ];
   }, [data]);
+
+  const resumoIA = useMemo(() => {
+  const total = feedbacksPhanyx.length;
+
+  const abertos = feedbacksPhanyx.filter(
+    (item) => item.status !== "RESOLVIDO" && item.status !== "IMPLEMENTADO"
+  ).length;
+
+  const sugestoes = feedbacksPhanyx.filter(
+    (item) => item.tipo === "Sugestão"
+  ).length;
+
+  const reclamacoes = feedbacksPhanyx.filter(
+    (item) => item.tipo === "Reclamação"
+  ).length;
+
+  const urgentes = feedbacksPhanyx.filter(
+    (item) =>
+      item.prioridade === "ALTA" || item.prioridade === "URGENTE"
+  ).length;
+
+  const instituicoes = new Set(
+    feedbacksPhanyx.map((item) => item.instituicaoId)
+  ).size;
+
+  return [
+    {
+      titulo: "Feedbacks PHANYX",
+      valor: total,
+      descricao: "Manifestações enviadas pelos administradores das instituições.",
+    },
+    {
+      titulo: "Pendentes de análise",
+      valor: abertos,
+      descricao: "Demandas que ainda precisam de resposta ou decisão.",
+    },
+    {
+      titulo: "Sugestões de melhoria",
+      valor: sugestoes,
+      descricao: "Ideias reais enviadas por usuários da plataforma.",
+    },
+    {
+      titulo: "Reclamações",
+      valor: reclamacoes,
+      descricao: "Pontos críticos que podem impactar experiência e retenção.",
+    },
+    {
+      titulo: "Prioridade alta",
+      valor: urgentes,
+      descricao: "Demandas marcadas como alta ou urgente.",
+    },
+    {
+      titulo: "Instituições engajadas",
+      valor: instituicoes,
+      descricao: "Instituições que já enviaram feedback ao PHANYX.",
+    },
+  ];
+}, [feedbacksPhanyx]);
 
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-8 text-white md:px-6 md:py-10">
@@ -324,6 +422,75 @@ function MasterPage() {
                 />
               ))}
             </section>
+
+<section className="rounded-3xl border border-cyan-500/20 bg-slate-900 p-6 shadow-xl">
+  <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+    <div>
+      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-cyan-300">
+        Inteligência PHANYX
+      </p>
+      <h2 className="mt-2 text-2xl font-bold text-white">
+        Uso real da IA e feedbacks da plataforma
+      </h2>
+      <p className="mt-2 text-sm text-slate-400">
+        Dados reais enviados pelos administradores das instituições para orientar melhorias do PHANYX.
+      </p>
+    </div>
+
+    <a
+      href="/master/ouvidoria"
+      className="rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-bold text-slate-950 transition hover:bg-cyan-400"
+    >
+      Abrir central de feedbacks
+    </a>
+  </div>
+
+  <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    {resumoIA.map((card) => (
+      <CardResumo
+        key={card.titulo}
+        titulo={card.titulo}
+        valor={card.valor}
+        descricao={card.descricao}
+      />
+    ))}
+  </div>
+
+  <div className="mt-6 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+    <h3 className="text-lg font-bold text-white">
+      Últimos feedbacks recebidos
+    </h3>
+
+    <div className="mt-4 space-y-3">
+      {feedbacksPhanyx.slice(0, 4).map((item) => (
+        <div
+          key={item.id}
+          className="rounded-2xl border border-slate-800 bg-slate-900 p-4"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <p className="font-bold text-white">
+              {item.tipo} • {item.instituicao?.nome || `Instituição #${item.instituicaoId}`}
+            </p>
+
+            <span className="rounded-full bg-blue-500/15 px-3 py-1 text-xs font-bold text-blue-300">
+              {item.status}
+            </span>
+          </div>
+
+          <p className="mt-2 text-sm text-slate-300">
+            {item.titulo || item.mensagem}
+          </p>
+        </div>
+      ))}
+
+      {feedbacksPhanyx.length === 0 && (
+        <p className="text-sm text-slate-500">
+          Nenhum feedback PHANYX recebido ainda.
+        </p>
+      )}
+    </div>
+  </div>
+</section>
 
             <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
               <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
