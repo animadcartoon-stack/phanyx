@@ -247,26 +247,50 @@ export default function ProfessorAlunosPage() {
   return [...alunos]
     .map((aluno) => ({
       ...aluno,
-      scoreBusca: Math.max(
-        calcularPontuacaoBusca(aluno.nome || "", busca) * 10 +
-        calcularPontuacaoBusca(aluno.email || "", busca) * 2 +
-        calcularPontuacaoBusca(aluno.matricula || "", busca) +
-        calcularPontuacaoBusca(aluno.turma?.nome || "", busca) +
-        calcularPontuacaoBusca(aluno.turma?.semestre || "", busca),
-        calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca),
-      ),
+      scoreBusca:
+  calcularPontuacaoBusca(aluno.nome || "", busca) * 1000 +
+  calcularPontuacaoBusca(aluno.matricula || "", busca) * 500 +
+  calcularPontuacaoBusca(aluno.email || "", busca) * 300 +
+  calcularPontuacaoBusca(aluno.turma?.nome || "", busca) * 120 +
+  calcularPontuacaoBusca(aluno.turma?.semestre || "", busca) * 80 +
+  calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca) * 60,
+      
     }))
-    .filter((aluno) => aluno.scoreBusca >= 600)
+    .filter((aluno) => aluno.scoreBusca > 0)
     .sort((a, b) => {
-  const nomeA = normalizarTexto(a.nome);
-  const nomeB = normalizarTexto(b.nome);
   const termo = normalizarTexto(busca);
 
-  const aComeca = nomeA.startsWith(termo);
-  const bComeca = nomeB.startsWith(termo);
+  const nomeA = normalizarTexto(a.nome);
+  const nomeB = normalizarTexto(b.nome);
 
-  if (aComeca && !bComeca) return -1;
-  if (!aComeca && bComeca) return 1;
+  const matriculaA = normalizarTexto(a.matricula);
+  const matriculaB = normalizarTexto(b.matricula);
+
+  const turmaA = normalizarTexto(a.turma?.nome);
+  const turmaB = normalizarTexto(b.turma?.nome);
+
+  const disciplinaA = normalizarTexto(a.disciplina?.nome);
+  const disciplinaB = normalizarTexto(b.disciplina?.nome);
+
+  const prioridadeA =
+    nomeA.startsWith(termo) ? 6 :
+    matriculaA.startsWith(termo) ? 5 :
+    nomeA.includes(termo) ? 4 :
+    matriculaA.includes(termo) ? 3 :
+    turmaA.includes(termo) ? 2 :
+    disciplinaA.includes(termo) ? 1 :
+    0;
+
+  const prioridadeB =
+    nomeB.startsWith(termo) ? 6 :
+    matriculaB.startsWith(termo) ? 5 :
+    nomeB.includes(termo) ? 4 :
+    matriculaB.includes(termo) ? 3 :
+    turmaB.includes(termo) ? 2 :
+    disciplinaB.includes(termo) ? 1 :
+    0;
+
+  if (prioridadeA !== prioridadeB) return prioridadeB - prioridadeA;
 
   return b.scoreBusca - a.scoreBusca;
 });
