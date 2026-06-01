@@ -7,6 +7,7 @@ import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
+import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 
 type UsuarioLogado = {
   id?: number;
@@ -755,6 +756,7 @@ function abrirTourAdmin() {
   {!esconderSidebar && <PhanyxFeriadoAviso />}
 
   {children}
+  <ChatGlobalWidget />
 </main>
 
                   <PhanyxConfirmModal

@@ -1628,6 +1628,80 @@ model OuvidoriaPhanyx {
   @@index([status])
 }
 
+model ChatConversa {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  titulo        String?
+  tipo          String   @default("INDIVIDUAL") // INDIVIDUAL, SETOR, GRUPO
+  setor         String?
+  criadaPorId   Int?
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  participantes ChatParticipante[]
+  mensagens      ChatMensagem[]
+
+  @@index([instituicaoId])
+}
+
+model ChatParticipante {
+  id          Int      @id @default(autoincrement())
+  conversaId  Int
+  usuarioId   Int
+  nomeExibicao String?
+  papel       String?
+  lidaEm      DateTime?
+  criadoEm    DateTime @default(now())
+
+  conversa ChatConversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+
+  @@unique([conversaId, usuarioId])
+  @@index([usuarioId])
+}
+
+model ChatMensagem {
+  id          Int      @id @default(autoincrement())
+  conversaId  Int
+  autorId     Int
+  texto       String?
+  tipo        String   @default("TEXTO") // TEXTO, IMAGEM, ARQUIVO
+  criadoEm    DateTime @default(now())
+  editadaEm   DateTime?
+
+  conversa ChatConversa @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  anexos    ChatAnexo[]
+
+  @@index([conversaId])
+  @@index([autorId])
+}
+
+model ChatAnexo {
+  id          Int      @id @default(autoincrement())
+  mensagemId  Int
+  nomeArquivo String
+  url         String
+  tipoMime    String?
+  tamanho     Int?
+  criadoEm    DateTime @default(now())
+
+  mensagem ChatMensagem @relation(fields: [mensagemId], references: [id], onDelete: Cascade)
+
+  @@index([mensagemId])
+}
+
+model ChatPresenca {
+  id             Int      @id @default(autoincrement())
+  instituicaoId  Int
+  usuarioId      Int      @unique
+  status         String   @default("ONLINE") // ONLINE, AUSENTE, OFFLINE
+  ultimaAtividade DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+
+  @@index([instituicaoId])
+  @@index([usuarioId])
+  @@index([status])
+}
+
 enum TipoDocumentoAluno {
   CONTRATO
   DECLARACAO
