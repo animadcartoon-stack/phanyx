@@ -215,9 +215,11 @@ try {
   const emailsComercialPhanyx = ["atendimento@institutobatista.com"];
 
   const podeVerComercialPhanyx =
-    !carregandoUsuario &&
-    !!usuario?.email &&
-    emailsComercialPhanyx.includes(usuario.email);
+  !carregandoUsuario &&
+  (
+    usuario?.isMasterAdmin === true ||
+    usuario?.role === "SUPER_ADMIN"
+  );
 
   const podeVerPainelMaster =
     !carregandoUsuario && Boolean(usuario?.isMasterAdmin);
