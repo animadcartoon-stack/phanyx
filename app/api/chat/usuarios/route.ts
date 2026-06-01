@@ -102,47 +102,90 @@ export async function GET() {
   });
 
   const turmaDisciplinas = professor
-    ? await prisma.turmaDisciplina.findMany({
-        where: {
-          instituicaoId: user.instituicaoId,
-          professorId: professor.id,
-        },
-        select: {
-          turmaId: true,
-          disciplinaId: true,
-        },
-      })
-    : [];
+  ? await prisma.turmaDisciplina.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        professorId: professor.id,
+      },
+      select: {
+        turmaId: true,
+        disciplinaId: true,
+      },
+    })
+  : [];
 
-  const alunosVinculados = await prisma.itemMatricula.findMany({
-    where: {
-      instituicaoId: user.instituicaoId,
-      OR: turmaDisciplinas.map((item) => ({
-        turmaId: item.turmaId,
-        disciplinaId: item.disciplinaId,
-      })),
-      matricula: {
-        aluno: {
-          ativo: true,
-        },
+const turmasDiretas = professor
+  ? await prisma.turma.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        professorId: professor.id,
+      },
+      select: {
+        id: true,
+      },
+    })
+  : [];
+
+const alunosPorDisciplina = await prisma.itemMatricula.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    OR:
+      turmaDisciplinas.length > 0
+        ? turmaDisciplinas.map((item) => ({
+            turmaId: item.turmaId,
+            disciplinaId: item.disciplinaId,
+          }))
+        : [{ id: -1 }],
+    matricula: {
+      aluno: {
+        ativo: true,
       },
     },
-    select: {
-      matricula: {
-        select: {
-          aluno: {
-            select: {
-              userId: true,
-            },
+  },
+  select: {
+    matricula: {
+      select: {
+        aluno: {
+          select: {
+            userId: true,
           },
         },
       },
     },
-  });
+  },
+});
 
-  const alunosUserIds = alunosVinculados
-    .map((item) => item.matricula.aluno.userId)
-    .filter((id): id is number => typeof id === "number");
+const alunosPorTurma = await prisma.itemMatricula.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    turmaId: {
+      in: turmasDiretas.map((turma) => turma.id),
+    },
+    matricula: {
+      aluno: {
+        ativo: true,
+      },
+    },
+  },
+  select: {
+    matricula: {
+      select: {
+        aluno: {
+          select: {
+            userId: true,
+          },
+        },
+      },
+    },
+  },
+});
+
+const alunosUserIds = Array.from(
+  new Set([
+    ...alunosPorDisciplina.map((item) => item.matricula.aluno.userId),
+    ...alunosPorTurma.map((item) => item.matricula.aluno.userId),
+  ])
+).filter((id): id is number => typeof id === "number");
 
   where = {
     instituicaoId: user.instituicaoId,
