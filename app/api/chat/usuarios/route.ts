@@ -15,249 +15,211 @@ export async function GET() {
     const user = await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Não autenticado" },
-        { status: 401 }
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const role = String(user.role || "").toUpperCase();
+
+    let usuariosIdsPermitidos: number[] = [];
+
+    if (role === "ALUNO") {
+      const aluno = await prisma.aluno.findFirst({
+        where: {
+          userId: user.id,
+          instituicaoId: user.instituicaoId,
+        },
+        include: {
+          matriculas: {
+            include: {
+              itens: true,
+            },
+          },
+        },
+      });
+
+      const pares =
+        aluno?.matriculas.flatMap((matricula) =>
+          matricula.itens.map((item) => ({
+            turmaId: item.turmaId,
+            disciplinaId: item.disciplinaId,
+          }))
+        ) || [];
+
+      const vinculos = pares.length
+        ? await prisma.turmaDisciplina.findMany({
+            where: {
+              instituicaoId: user.instituicaoId,
+              OR: pares.map((par) => ({
+                turmaId: par.turmaId,
+                disciplinaId: par.disciplinaId,
+              })),
+            },
+            include: {
+              professor: true,
+            },
+          })
+        : [];
+
+      usuariosIdsPermitidos = Array.from(
+        new Set(
+          vinculos
+            .map((v) => v.professor?.userId)
+            .filter((id): id is number => typeof id === "number")
+        )
       );
     }
 
-    let where: any = {
-      instituicaoId: user.instituicaoId,
-      id: {
-        not: user.id,
-      },
-      ativo: true,
-    };
-
-    if (user.role === "ALUNO") {
-  const aluno = await prisma.aluno.findUnique({
-    where: {
-      userId: user.id,
-    },
-    select: {
-      id: true,
-      matriculas: {
-        select: {
-          itens: {
-            select: {
-              turmaId: true,
-              disciplinaId: true,
-            },
-          },
-        },
-      },
-    },
-  });
-
-  const paresTurmaDisciplina =
-    aluno?.matriculas.flatMap((matricula) =>
-      matricula.itens.map((item) => ({
-        turmaId: item.turmaId,
-        disciplinaId: item.disciplinaId,
-      }))
-    ) || [];
-
-  const professoresVinculados = await prisma.turmaDisciplina.findMany({
-    where: {
-      instituicaoId: user.instituicaoId,
-      OR: paresTurmaDisciplina.map((par) => ({
-        turmaId: par.turmaId,
-        disciplinaId: par.disciplinaId,
-      })),
-      professorId: {
-        not: null,
-      },
-    },
-    select: {
-      professor: {
-        select: {
-          userId: true,
-        },
-      },
-    },
-  });
-
-  const professoresUserIds = professoresVinculados
-    .map((item) => item.professor?.userId)
-    .filter((id): id is number => typeof id === "number");
-
-  where = {
-    instituicaoId: user.instituicaoId,
-    id: {
-      in: professoresUserIds,
-    },
-    ativo: true,
-    role: "PROFESSOR",
-  };
-}
-
-   if (user.role === "PROFESSOR") {
-  const professor = await prisma.professor.findFirst({
-    where: {
-      userId: user.id,
-      instituicaoId: user.instituicaoId,
-    },
-    select: { id: true },
-  });
-
-  if (!professor) {
-    where = {
-      instituicaoId: user.instituicaoId,
-      id: { not: user.id },
-      ativo: true,
-      role: { in: ROLES_INSTITUICAO },
-    };
-  } else {
-    const itens = await prisma.itemMatricula.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-        turma: {
+    if (role === "PROFESSOR") {
+      const professor = await prisma.professor.findFirst({
+        where: {
+          userId: user.id,
           instituicaoId: user.instituicaoId,
-          disciplinas: {
-            some: {
-              disciplina: {
-                OR: [
-                  { professorId: professor.id },
-                  {
-                    professoresHabilitados: {
-                      some: {
-                        professorId: professor.id,
+        },
+        select: { id: true },
+      });
+
+      const idsEquipe = await prisma.user.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          ativo: true,
+          id: { not: user.id },
+          role: { in: ROLES_INSTITUICAO as any },
+        },
+        select: { id: true },
+      });
+
+      let alunosUserIds: number[] = [];
+
+      if (professor) {
+        const itens = await prisma.itemMatricula.findMany({
+          where: {
+            instituicaoId: user.instituicaoId,
+            turma: {
+              disciplinas: {
+                some: {
+                  disciplina: {
+                    OR: [
+                      { professorId: professor.id },
+                      {
+                        professoresHabilitados: {
+                          some: {
+                            professorId: professor.id,
+                          },
+                        },
                       },
-                    },
+                    ],
                   },
-                ],
+                },
               },
             },
           },
-        },
-      },
-      include: {
-        matricula: {
           include: {
-            aluno: {
+            matricula: {
               include: {
-                user: true,
+                aluno: true,
               },
             },
           },
-        },
-      },
-    });
+        });
 
-    const alunosUserIds = Array.from(
-  new Set(
-    itens
-      .map((item) => item.matricula?.aluno?.user?.id)
-      .filter((id): id is number => typeof id === "number")
-  )
-);
+        alunosUserIds = Array.from(
+          new Set(
+            itens
+              .map((item) => item.matricula?.aluno?.userId)
+              .filter((id): id is number => typeof id === "number")
+          )
+        );
+      }
 
-console.log("PROFESSOR:", professor.id);
-console.log("ALUNOS ENCONTRADOS:", alunosUserIds);
-console.log("TOTAL:", alunosUserIds.length);
+      usuariosIdsPermitidos = Array.from(
+        new Set([...idsEquipe.map((u) => u.id), ...alunosUserIds])
+      );
+    }
 
-console.log(
-  JSON.stringify(
-    itens.slice(0, 3),
-    null,
-    2
-  )
-);
-
-    where = {
-      instituicaoId: user.instituicaoId,
-      id: { not: user.id },
-      ativo: true,
-      OR: [
-        {
+    if (ROLES_INSTITUICAO.includes(role)) {
+      const usuarios = await prisma.user.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          ativo: true,
+          id: { not: user.id },
           role: {
-            in: ROLES_INSTITUICAO,
+            in: [
+              "ADMIN",
+              "SECRETARIA",
+              "COORDENADOR",
+              "FINANCEIRO",
+              "SUPORTE",
+              "PROFESSOR",
+            ] as any,
           },
         },
-        {
-          id: {
-            in: alunosUserIds,
+        select: { id: true },
+      });
+
+      usuariosIdsPermitidos = usuarios.map((u) => u.id);
+    }
+
+    if (role === "SUPER_ADMIN") {
+      const usuarios = await prisma.user.findMany({
+        where: {
+          ativo: true,
+          id: { not: user.id },
+          role: {
+            in: ["ADMIN", "SECRETARIA", "COORDENADOR", "SUPORTE"] as any,
           },
-          role: "ALUNO",
         },
-      ],
-    };
-  }
-}
+        select: { id: true },
+      });
 
-    if (ROLES_INSTITUICAO.includes(user.role)) {
-  where = {
-    instituicaoId: user.instituicaoId,
-    id: {
-      not: user.id,
-    },
-    ativo: true,
-    role: {
-      in: [
-        "ADMIN",
-        "SECRETARIA",
-        "COORDENADOR",
-        "FINANCEIRO",
-        "SUPORTE",
-        "PROFESSOR",
-      ],
-    },
-  };
-}
-
-    if (user.role === "SUPER_ADMIN") {
-      where = {
-        id: {
-          not: user.id,
-        },
-        ativo: true,
-        role: {
-          in: ["ADMIN", "SECRETARIA", "COORDENADOR", "SUPORTE"],
-        },
-      };
+      usuariosIdsPermitidos = usuarios.map((u) => u.id);
     }
 
     const usuarios = await prisma.user.findMany({
-      where,
+      where: {
+        id: {
+          in: usuariosIdsPermitidos,
+        },
+        ativo: true,
+      },
       select: {
-  id: true,
-  nome: true,
-  email: true,
-  role: true,
-  ChatPresenca: true,
-},
+        id: true,
+        nome: true,
+        email: true,
+        role: true,
+      },
       orderBy: {
         nome: "asc",
       },
     });
 
-const presencas = await prisma.chatPresenca.findMany({
-  where: {
-    usuarioId: {
-      in: usuarios.map((u) => u.id),
-    },
-  },
-});
+    const presencas = await prisma.chatPresenca.findMany({
+      where: {
+        usuarioId: {
+          in: usuarios.map((u) => u.id),
+        },
+      },
+    });
 
-const agora = Date.now();
+    const agora = Date.now();
 
-const usuariosComPresenca = usuarios.map((usuario) => {
-  const presenca = presencas.find((p) => p.usuarioId === usuario.id);
+    const usuariosComPresenca = usuarios.map((usuario) => {
+      const presenca = presencas.find((p) => p.usuarioId === usuario.id);
 
-  const online =
-    presenca?.status === "ONLINE" &&
-    presenca?.ultimaAtividade &&
-    agora - new Date(presenca.ultimaAtividade).getTime() < 60000;
+      const online =
+        presenca?.status === "ONLINE" &&
+        presenca?.ultimaAtividade &&
+        agora - new Date(presenca.ultimaAtividade).getTime() < 60000;
 
-  return {
-    ...usuario,
-    online,
-  };
-});
+      return {
+        ...usuario,
+        online,
+      };
+    });
 
     return NextResponse.json({
-  usuarios: usuariosComPresenca,
-});
+      usuarioRole: role,
+      usuarios: usuariosComPresenca,
+    });
   } catch (error) {
     console.error("Erro ao carregar usuários do chat:", error);
 

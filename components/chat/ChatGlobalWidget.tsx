@@ -62,6 +62,8 @@ export default function ChatGlobalWidget() {
   const [turmasChat, setTurmasChat] = useState<TurmaChat[]>([]);
   const [carregandoTurmas, setCarregandoTurmas] = useState(false);
 
+  const [usuarioRole, setUsuarioRole] = useState<string>("");
+
   useEffect(() => {
     async function atualizarPresenca() {
       await fetch("/api/chat/presenca", {
@@ -136,6 +138,7 @@ export default function ChatGlobalWidget() {
     }
 
     setUsuarios(data.usuarios || []);
+    setUsuarioRole(data.usuarioRole || "");
   } catch (error) {
     console.error("Erro ao carregar usuários do chat:", error);
     setUsuarios([]);
@@ -652,13 +655,15 @@ async function enviarGif(url: string) {
           👤 Conversa individual
         </button>
 
-        <button
-          type="button"
-          onClick={carregarTurmasChat}
-          className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
-        >
-          👥 Conversa da turma
-        </button>
+        {usuarioRole === "PROFESSOR" && (
+  <button
+    type="button"
+    onClick={carregarTurmasChat}
+    className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
+  >
+    👥 Conversa da turma
+  </button>
+)}
       </div>
     )}
 
