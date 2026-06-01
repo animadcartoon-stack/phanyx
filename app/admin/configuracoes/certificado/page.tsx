@@ -4609,41 +4609,18 @@ onPaste={(e) => {
 
   const editor = e.currentTarget;
   const texto = e.clipboardData.getData("text/plain");
+  const textoAtual = editor.innerText.trim();
 
   salvarHistoricoTextoLivre(editor);
 
-  editor.focus();
+  const deveSubstituirTudo =
+    textoAtual === "Digite seu texto" ||
+    textoAtual === "Digite seu título";
 
-  const selecao = window.getSelection();
-
-  let range: Range | null = null;
-
-  if (
-    selecao &&
-    selecao.rangeCount > 0 &&
-    editor.contains(selecao.getRangeAt(0).commonAncestorContainer)
-  ) {
-    range = selecao.getRangeAt(0);
-  } else if (
-    selecaoTextoRef.current &&
-    editor.contains(selecaoTextoRef.current.commonAncestorContainer)
-  ) {
-    range = selecaoTextoRef.current.cloneRange();
-  }
-
-  if (range) {
-    range.deleteContents();
-
-    const node = document.createTextNode(texto);
-    range.insertNode(node);
-
-    range.setStartAfter(node);
-    range.setEndAfter(node);
-
-    selecao?.removeAllRanges();
-    selecao?.addRange(range);
-  } else {
+  if (deveSubstituirTudo) {
     editor.innerText = texto;
+  } else {
+    inserirTextoNoCursor(editor, texto);
   }
 
   atualizarTextoLivreNoEstado(editor);
