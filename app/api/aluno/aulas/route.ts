@@ -30,7 +30,7 @@ export async function GET() {
       );
     }
 
-    const matricula = await prisma.matricula.findFirst({
+    const matriculas = await prisma.matricula.findMany({
       where: {
         alunoId: aluno.id,
         instituicaoId: user.instituicaoId,
@@ -76,8 +76,10 @@ export async function GET() {
       },
     });
 
-    const disciplinas =
-      matricula?.itens
+    const todosItens = matriculas.flatMap((matricula) => matricula.itens || []);
+
+const disciplinas =
+      todosItens
         ?.map((item) => {
           const turma = item.turma;
           const disciplina = item.disciplina;
@@ -121,7 +123,7 @@ const bloqueadaPorAulas = totalAulas === 0;
         .filter(Boolean) || [];
 
     return NextResponse.json({
-      curso: matricula?.curso || null,
+      curso: matriculas?.[0]?.curso || null,
       disciplinas,
     });
   } catch (error) {

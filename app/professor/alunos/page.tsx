@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 type TurmaFiltro = {
   id: number;
@@ -178,11 +179,12 @@ function textoAlunoBusca(aluno: AlunoProfessor) {
 }
 
 export default function ProfessorAlunosPage() {
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [sugestoesAbertas, setSugestoesAbertas] = useState(false);
-  const [turmaId, setTurmaId] = useState("");
+  const [turmaId, setTurmaId] = useState(searchParams.get("turmaId") || "");
   const [alunos, setAlunos] = useState<AlunoProfessor[]>([]);
   const [turmas, setTurmas] = useState<TurmaFiltro[]>([]);
 
