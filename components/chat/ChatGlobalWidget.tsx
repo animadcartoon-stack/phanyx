@@ -7,6 +7,7 @@ type UsuarioChat = {
   nome: string;
   email: string;
   role: string;
+  online?: boolean;
 };
 
 type ConversaAberta = {
@@ -66,6 +67,32 @@ export default function ChatGlobalWidget() {
 
     return () => clearInterval(intervalo);
   }, []);
+
+  useEffect(() => {
+  function abrirChatPelaNotificacao(event: any) {
+    const conversaId = Number(event.detail?.conversaId);
+
+    if (!conversaId) return;
+
+    setAberto(true);
+    setModoNovaConversa(false);
+
+    setConversaAberta({
+      id: conversaId,
+      nome: "Conversa",
+      role: "",
+    });
+
+    carregarMensagens(conversaId);
+  }
+
+  window.addEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
+
+  return () => {
+    window.removeEventListener("phanyx:abrir-chat", abrirChatPelaNotificacao);
+  };
+}, []);
+
 
   useEffect(() => {
     if (!conversaAberta) return;
@@ -526,9 +553,16 @@ async function enviarGif(url: string) {
                     onClick={() => abrirConversa(usuario)}
                     className="mb-2 flex w-full items-center gap-3 rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
-                      👤
-                    </div>
+                    <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-lg">
+  👤
+
+  <span
+    className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-slate-900 ${
+      usuario.online ? "bg-green-500" : "bg-slate-400"
+    }`}
+    title={usuario.online ? "Online" : "Offline"}
+  />
+</div>
 
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-white">

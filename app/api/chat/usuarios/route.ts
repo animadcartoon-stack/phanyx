@@ -201,19 +201,44 @@ export async function GET() {
     const usuarios = await prisma.user.findMany({
       where,
       select: {
-        id: true,
-        nome: true,
-        email: true,
-        role: true,
-      },
+  id: true,
+  nome: true,
+  email: true,
+  role: true,
+  ChatPresenca: true,
+},
       orderBy: {
         nome: "asc",
       },
     });
 
+const presencas = await prisma.chatPresenca.findMany({
+  where: {
+    usuarioId: {
+      in: usuarios.map((u) => u.id),
+    },
+  },
+});
+
+const agora = Date.now();
+
+const usuariosComPresenca = usuarios.map((usuario) => {
+  const presenca = presencas.find((p) => p.usuarioId === usuario.id);
+
+  const online =
+    presenca?.status === "ONLINE" &&
+    presenca?.ultimaAtividade &&
+    agora - new Date(presenca.ultimaAtividade).getTime() < 60000;
+
+  return {
+    ...usuario,
+    online,
+  };
+});
+
     return NextResponse.json({
-      usuarios,
-    });
+  usuarios: usuariosComPresenca,
+});
   } catch (error) {
     console.error("Erro ao carregar usuários do chat:", error);
 

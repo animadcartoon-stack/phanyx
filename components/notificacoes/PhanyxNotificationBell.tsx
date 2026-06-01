@@ -71,10 +71,24 @@ export default function PhanyxNotificationBell() {
           )}
 
           {notificacoes.map((item) => (
-            <div
-              key={item.id}
-              className="mb-2 rounded-xl border border-slate-800 bg-slate-900 p-3"
-            >
+            <button
+  key={item.id}
+  type="button"
+  onClick={() => {
+    if (item.link?.includes("conversaId=")) {
+      const conversaId = Number(item.link.split("conversaId=")[1]);
+
+      window.dispatchEvent(
+        new CustomEvent("phanyx:abrir-chat", {
+          detail: { conversaId },
+        })
+      );
+
+      setAberto(false);
+    }
+  }}
+  className="mb-2 w-full rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
+>
               <p className="font-semibold text-white">
                 {item.titulo}
               </p>
@@ -84,7 +98,7 @@ export default function PhanyxNotificationBell() {
                   {item.descricao}
                 </p>
               )}
-            </div>
+            </button>
           ))}
         </div>
       )}

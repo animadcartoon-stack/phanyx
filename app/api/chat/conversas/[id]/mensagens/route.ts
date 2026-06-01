@@ -89,12 +89,17 @@ export async function POST(
   },
 });
 
+const remetente = await prisma.user.findUnique({
+  where: { id: user.id },
+  select: { nome: true },
+});
+
 await prisma.notificacao.createMany({
   data: participantes.map((participante) => ({
     usuarioId: participante.usuarioId,
     tipo: "CHAT",
     titulo: "Nova mensagem",
-    descricao: `${user.nome}: ${texto}`,
+    descricao: `${remetente?.nome || "Usuário"}: ${texto}`,
     link: `/chat?conversaId=${conversaId}`,
   })),
 });
