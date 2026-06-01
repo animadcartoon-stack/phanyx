@@ -7182,13 +7182,43 @@ aplicarEstiloTextoSelecionado({
 
     <hr className="my-1" />
 
-    <button onClick={() => { atualizarCampoLocal("lineHeight", 1.2); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
-      Espaçamento normal
-    </button>
+    <div className="py-3">
+  <label className="mb-1 block text-xs font-semibold">
+    Espaçamento entre letras
+  </label>
 
-    <button onClick={() => { atualizarCampoLocal("lineHeight", 1.8); setMenuContexto(null); }} className="block w-full text-left px-3 py-1 hover:bg-gray-100">
-      Espaçamento maior
-    </button>
+  <input
+    type="range"
+    min={-5}
+    max={30}
+    step={1}
+    value={(campoSelecionado as any)?.letterSpacing ?? 0}
+    onMouseDown={(e) => e.preventDefault()}
+    onChange={(e) => {
+      const valor = Number(e.target.value);
+      atualizarCampoLocal("letterSpacing" as any, valor);
+    }}
+    className="w-full"
+  />
+
+  <label className="mb-1 mt-3 block text-xs font-semibold">
+    Espaçamento entre palavras
+  </label>
+
+  <input
+    type="range"
+    min={0}
+    max={60}
+    step={1}
+    value={(campoSelecionado as any)?.wordSpacing ?? 0}
+    onMouseDown={(e) => e.preventDefault()}
+    onChange={(e) => {
+      const valor = Number(e.target.value);
+      atualizarCampoLocal("wordSpacing" as any, valor);
+    }}
+    className="w-full"
+  />
+</div>
 
     <hr className="my-1" />
 
