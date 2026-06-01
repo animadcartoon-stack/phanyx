@@ -30,35 +30,141 @@ export async function GET() {
     };
 
     if (user.role === "ALUNO") {
-      where = {
-        instituicaoId: user.instituicaoId,
-        id: {
-          not: user.id,
-        },
-        ativo: true,
-        role: "PROFESSOR",
-      };
-    }
-
-    if (user.role === "PROFESSOR") {
-      where = {
-        instituicaoId: user.instituicaoId,
-        id: {
-          not: user.id,
-        },
-        ativo: true,
-        OR: [
-          {
-            role: {
-              in: ROLES_INSTITUICAO,
+  const aluno = await prisma.aluno.findUnique({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+      matriculas: {
+        select: {
+          itens: {
+            select: {
+              turmaId: true,
+              disciplinaId: true,
             },
           },
-          {
-            role: "ALUNO",
+        },
+      },
+    },
+  });
+
+  const paresTurmaDisciplina =
+    aluno?.matriculas.flatMap((matricula) =>
+      matricula.itens.map((item) => ({
+        turmaId: item.turmaId,
+        disciplinaId: item.disciplinaId,
+      }))
+    ) || [];
+
+  const professoresVinculados = await prisma.turmaDisciplina.findMany({
+    where: {
+      instituicaoId: user.instituicaoId,
+      OR: paresTurmaDisciplina.map((par) => ({
+        turmaId: par.turmaId,
+        disciplinaId: par.disciplinaId,
+      })),
+      professorId: {
+        not: null,
+      },
+    },
+    select: {
+      professor: {
+        select: {
+          userId: true,
+        },
+      },
+    },
+  });
+
+  const professoresUserIds = professoresVinculados
+    .map((item) => item.professor?.userId)
+    .filter((id): id is number => typeof id === "number");
+
+  where = {
+    instituicaoId: user.instituicaoId,
+    id: {
+      in: professoresUserIds,
+    },
+    ativo: true,
+    role: "PROFESSOR",
+  };
+}
+
+   if (user.role === "PROFESSOR") {
+  const professor = await prisma.professor.findUnique({
+    where: {
+      userId: user.id,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  const turmaDisciplinas = professor
+    ? await prisma.turmaDisciplina.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          professorId: professor.id,
+        },
+        select: {
+          turmaId: true,
+          disciplinaId: true,
+        },
+      })
+    : [];
+
+  const alunosVinculados = await prisma.itemMatricula.findMany({
+    where: {
+      instituicaoId: user.instituicaoId,
+      OR: turmaDisciplinas.map((item) => ({
+        turmaId: item.turmaId,
+        disciplinaId: item.disciplinaId,
+      })),
+      matricula: {
+        aluno: {
+          ativo: true,
+        },
+      },
+    },
+    select: {
+      matricula: {
+        select: {
+          aluno: {
+            select: {
+              userId: true,
+            },
           },
-        ],
-      };
-    }
+        },
+      },
+    },
+  });
+
+  const alunosUserIds = alunosVinculados
+    .map((item) => item.matricula.aluno.userId)
+    .filter((id): id is number => typeof id === "number");
+
+  where = {
+    instituicaoId: user.instituicaoId,
+    id: {
+      not: user.id,
+    },
+    ativo: true,
+    OR: [
+      {
+        role: {
+          in: ROLES_INSTITUICAO,
+        },
+      },
+      {
+        id: {
+          in: alunosUserIds,
+        },
+        role: "ALUNO",
+      },
+    ],
+  };
+}
 
     if (ROLES_INSTITUICAO.includes(user.role)) {
   where = {
