@@ -6,6 +6,8 @@ function isProfessorRole(role: unknown) {
   return String(role || "").trim().toUpperCase() === "PROFESSOR";
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -30,38 +32,59 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const busca = String(searchParams.get("busca") || "").trim().toLowerCase();
     const turmaIdParam = String(searchParams.get("turmaId") || "").trim();
     const turmaId = turmaIdParam ? Number(turmaIdParam) : null;
+
+    const filtroProfessorNaTurma = {
+      instituicaoId: user.instituicaoId,
+      disciplinas: {
+        some: {
+          disciplina: {
+            OR: [
+              { professorId: professor.id },
+              {
+                professoresHabilitados: {
+                  some: {
+                    professorId: professor.id,
+                  },
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
 
     const itens = await prisma.itemMatricula.findMany({
       where: {
         instituicaoId: user.instituicaoId,
-        ...(turmaId && Number.isFinite(turmaId)
-          ? {
-              turmaId,
-              turma: {
-                professorId: professor.id,
-                instituicaoId: user.instituicaoId,
-              },
-            }
-          : {
-              turma: {
-                professorId: professor.id,
-                instituicaoId: user.instituicaoId,
-              },
-            }),
+        ...(turmaId && Number.isFinite(turmaId) ? { turmaId } : {}),
+        turma: filtroProfessorNaTurma,
       },
       include: {
         turma: {
-  include: {
-    disciplinas: {
-      include: {
-        disciplina: true,
-      },
-    },
-  },
-},
+          include: {
+            disciplinas: {
+              where: {
+                disciplina: {
+                  OR: [
+                    { professorId: professor.id },
+                    {
+                      professoresHabilitados: {
+                        some: {
+                          professorId: professor.id,
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+              include: {
+                disciplina: true,
+              },
+            },
+          },
+        },
         matricula: {
           include: {
             aluno: {
@@ -115,16 +138,7 @@ export async function GET(req: NextRequest) {
         })
       : [];
 
-    const presencasPorAluno = new Map<
-      number,
-      {
-        total: number;
-        presente: number;
-        falta: number;
-        justificada: number;
-        atestado: number;
-      }
-    >();
+    const presencasPorAluno = new Map<number, any>();
 
     for (const p of presencas) {
       const atual = presencasPorAluno.get(p.alunoId) || {
@@ -157,11 +171,14 @@ export async function GET(req: NextRequest) {
       .map((item) => {
         const aluno = item.matricula?.aluno;
         const turma = item.turma;
+        const turmaDisciplina = turma?.disciplinas?.[0];
+        const disciplina = turmaDisciplina?.disciplina;
 
         if (!aluno || !turma) return null;
 
         const chaveNota = `${aluno.id}-${turma.id}`;
         const notasAluno = notasPorAlunoTurma.get(chaveNota) || [];
+
         const media =
           notasAluno.length > 0
             ? Number(
@@ -179,11 +196,6 @@ export async function GET(req: NextRequest) {
           atestado: 0,
         };
 
-        const frequenciaPercentual =
-          freq.total > 0
-            ? Number(((freq.presente / freq.total) * 100).toFixed(1))
-            : null;
-
         return {
           itemMatriculaId: item.id,
           alunoId: aluno.id,
@@ -198,48 +210,45 @@ export async function GET(req: NextRequest) {
             semestre: turma.semestre || null,
           },
           disciplina: {
-  id: turma.disciplinas?.[0]?.disciplina?.id || null,
-  nome: turma.disciplinas?.[0]?.disciplina?.nome || null,
-},
+            id: disciplina?.id || null,
+            nome: disciplina?.nome || null,
+          },
           notas: notasAluno,
           media,
           frequencia: {
             ...freq,
-            percentual: frequenciaPercentual,
+            percentual:
+              freq.total > 0
+                ? Number(((freq.presente / freq.total) * 100).toFixed(1))
+                : null,
           },
         };
       })
-      .filter(Boolean)
-      .filter((item) => {
-        if (!item) return false;
-        if (!busca) return true;
-
-        const texto = [
-          item.nome,
-          item.email,
-          item.matricula,
-          item.turma?.nome,
-          item.disciplina?.nome,
-          item.statusAluno,
-        ]
-          .map((v) => String(v || "").toLowerCase())
-          .join(" ");
-
-        return texto.includes(busca);
-      });
+      .filter(Boolean);
 
     const turmasProfessor = await prisma.turma.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-        professorId: professor.id,
-      },
+      where: filtroProfessorNaTurma,
       include: {
-  disciplinas: {
-    include: {
-      disciplina: true,
-    },
-  },
-},
+        disciplinas: {
+          where: {
+            disciplina: {
+              OR: [
+                { professorId: professor.id },
+                {
+                  professoresHabilitados: {
+                    some: {
+                      professorId: professor.id,
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          include: {
+            disciplina: true,
+          },
+        },
+      },
       orderBy: {
         nome: "asc",
       },

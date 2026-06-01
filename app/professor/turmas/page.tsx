@@ -529,13 +529,15 @@ export default function TurmasProfessorPage() {
       );
 
       return {
-        chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
-        turmaNome: turma.nome,
-        cursoNome: turma.curso?.nome || "Curso não informado",
-        disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
-        periodo: turma.periodoLetivo || "EAD / Livre",
-        score: Math.max(scoreDisciplina, scoreTurma, scoreCurso, scorePeriodo),
-      };
+  chave: `${turma.turmaDisciplinaId || turma.id}-${turma.disciplina?.id || "sem-disciplina"}`,
+  turmaDisciplinaId: turma.turmaDisciplinaId,
+  disciplinaId: turma.disciplina?.id || null,
+  turmaNome: turma.nome,
+  cursoNome: turma.curso?.nome || "Curso não informado",
+  disciplinaNome: turma.disciplina?.nome || "Disciplina não informada",
+  periodo: turma.periodoLetivo || "EAD / Livre",
+  score: Math.max(scoreDisciplina, scoreTurma, scoreCurso, scorePeriodo),
+};
     })
     .filter((item) => item.score >= 45)
     .sort((a, b) => b.score - a.score)
@@ -645,13 +647,11 @@ const gruposPorCurso = useMemo(() => {
             key={item.chave}
             type="button"
             onClick={() => {
-              setBusca(item.disciplinaNome);
-              setAbertos({
-                "Semestre atual": true,
-                "Próximo semestre": true,
-                "Turmas concluídas": true,
-              });
-            }}
+  setBusca("");
+  router.push(
+    `/professor/turmas/${item.turmaDisciplinaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
+  );
+}}
             className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
           >
             <p className="text-sm font-black text-slate-900">
