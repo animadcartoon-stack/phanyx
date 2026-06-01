@@ -257,15 +257,18 @@ export default function ProfessorAlunosPage() {
 
     const palavras = texto.split(/\s+/).filter(Boolean);
 
+    const palavrasParaComparar =
+      termo.length <= 3 ? palavras.slice(0, 1) : palavras;
+
     if (texto === termo) return 10000;
     if (texto.startsWith(termo)) return 9000;
-    if (palavras.some((p) => p === termo)) return 8500;
-    if (palavras.some((p) => p.startsWith(termo))) return 8000;
+    if (palavrasParaComparar.some((p) => p === termo)) return 8500;
+    if (palavrasParaComparar.some((p) => p.startsWith(termo))) return 8000;
     if (texto.includes(termo)) return 6000;
 
     let melhor = 0;
 
-    for (const palavra of palavras) {
+    for (const palavra of palavrasParaComparar) {
       const inicio = palavra.slice(0, termo.length);
       const distanciaInicio = distanciaLevenshtein(inicio, termo);
 
