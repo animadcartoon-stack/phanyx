@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 
 export default function AlunoSidebar({
   aluno,
@@ -25,6 +26,7 @@ export default function AlunoSidebar({
 ];
 
   return (
+  <>
     <aside className="w-64 bg-blue-800 text-white min-h-screen fixed">
       <div className="p-6">
   <div className="text-lg font-bold">
@@ -78,6 +80,9 @@ export default function AlunoSidebar({
           );
         })}
       </nav>
-    </aside>
+        </aside>
+
+    <ChatGlobalWidget />
+  </>
   );
 }

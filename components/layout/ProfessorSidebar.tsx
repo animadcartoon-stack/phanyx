@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
+import ChatGlobalWidget from "@/components/chat/ChatGlobalWidget";
 
 export default function ProfessorSidebar({
   professor,
@@ -26,8 +27,9 @@ export default function ProfessorSidebar({
   { label: "Ouvidoria", href: "/professor/ouvidoria" },
 ];
 
-  return (
-    <aside className="w-64 bg-blue-700 text-white min-h-screen flex flex-col">
+    return (
+    <>
+      <aside className="w-64 bg-blue-700 text-white min-h-screen flex flex-col">
       <div className="p-6 border-b border-blue-500">
   <div className="text-xl font-bold">👨‍🏫 Professor</div>
 
@@ -82,6 +84,9 @@ export default function ProfessorSidebar({
       >
         Sair
       </button>
-    </aside>
+          </aside>
+
+      <ChatGlobalWidget />
+    </>
   );
 }
