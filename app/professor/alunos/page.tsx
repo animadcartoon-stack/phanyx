@@ -251,56 +251,63 @@ export default function ProfessorAlunosPage() {
 
   if (!termo) return alunos;
 
+  function scoreSimilaridade(valor: string | number | null | undefined) {
+    const texto = normalizarTexto(valor);
+    if (!texto) return 0;
+
+    const palavras = texto.split(/\s+/).filter(Boolean);
+
+    if (texto === termo) return 10000;
+    if (texto.startsWith(termo)) return 9000;
+    if (palavras.some((p) => p === termo)) return 8500;
+    if (palavras.some((p) => p.startsWith(termo))) return 8000;
+    if (texto.includes(termo)) return 6000;
+
+    let melhor = 0;
+
+    for (const palavra of palavras) {
+      const inicio = palavra.slice(0, termo.length);
+      const distanciaInicio = distanciaLevenshtein(inicio, termo);
+
+      if (distanciaInicio <= 1) {
+        melhor = Math.max(melhor, 5000 - distanciaInicio * 500);
+      }
+
+      if (termo.length >= 4) {
+        const distanciaPalavra = distanciaLevenshtein(palavra, termo);
+
+        if (distanciaPalavra <= 2) {
+          melhor = Math.max(melhor, 4000 - distanciaPalavra * 500);
+        }
+      }
+    }
+
+    return melhor;
+  }
+
   return [...alunos]
-    .map((aluno) => ({
-      ...aluno,
-      scoreBusca:
-  calcularPontuacaoBusca(aluno.nome || "", busca) * 1000 +
-  calcularPontuacaoBusca(aluno.matricula || "", busca) * 500 +
-  calcularPontuacaoBusca(aluno.email || "", busca) * 300 +
-  calcularPontuacaoBusca(aluno.turma?.nome || "", busca) * 120 +
-  calcularPontuacaoBusca(aluno.turma?.semestre || "", busca) * 80 +
-  calcularPontuacaoBusca(aluno.disciplina?.nome || "", busca) * 60,
-      
-    }))
+    .map((aluno) => {
+      const scoreNome = scoreSimilaridade(aluno.nome);
+      const scoreMatricula = scoreSimilaridade(aluno.matricula);
+      const scoreTurma = scoreSimilaridade(aluno.turma?.nome);
+      const scoreSemestre = scoreSimilaridade(aluno.turma?.semestre);
+      const scoreDisciplina = scoreSimilaridade(aluno.disciplina?.nome);
+      const scoreEmail = termo.length >= 4 ? scoreSimilaridade(aluno.email) : 0;
+
+      return {
+        ...aluno,
+        scoreBusca: Math.max(
+          scoreNome,
+          scoreMatricula,
+          scoreTurma,
+          scoreSemestre,
+          scoreDisciplina,
+          scoreEmail
+        ),
+      };
+    })
     .filter((aluno) => aluno.scoreBusca > 0)
-    .sort((a, b) => {
-  const termo = normalizarTexto(busca);
-
-  const nomeA = normalizarTexto(a.nome);
-  const nomeB = normalizarTexto(b.nome);
-
-  const matriculaA = normalizarTexto(a.matricula);
-  const matriculaB = normalizarTexto(b.matricula);
-
-  const turmaA = normalizarTexto(a.turma?.nome);
-  const turmaB = normalizarTexto(b.turma?.nome);
-
-  const disciplinaA = normalizarTexto(a.disciplina?.nome);
-  const disciplinaB = normalizarTexto(b.disciplina?.nome);
-
-  const prioridadeA =
-    nomeA.startsWith(termo) ? 6 :
-    matriculaA.startsWith(termo) ? 5 :
-    nomeA.includes(termo) ? 4 :
-    matriculaA.includes(termo) ? 3 :
-    turmaA.includes(termo) ? 2 :
-    disciplinaA.includes(termo) ? 1 :
-    0;
-
-  const prioridadeB =
-    nomeB.startsWith(termo) ? 6 :
-    matriculaB.startsWith(termo) ? 5 :
-    nomeB.includes(termo) ? 4 :
-    matriculaB.includes(termo) ? 3 :
-    turmaB.includes(termo) ? 2 :
-    disciplinaB.includes(termo) ? 1 :
-    0;
-
-  if (prioridadeA !== prioridadeB) return prioridadeB - prioridadeA;
-
-  return b.scoreBusca - a.scoreBusca;
-});
+    .sort((a, b) => b.scoreBusca - a.scoreBusca);
 }, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {
