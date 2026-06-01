@@ -4687,45 +4687,6 @@ onPaste={(e) => {
   }
 }}
 
-onPaste={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  const editor = e.currentTarget;
-  const texto = e.clipboardData.getData("text/plain");
-
-  salvarHistoricoTextoLivre(editor);
-
-  const selecao = window.getSelection();
-
-  if (selecao && selecao.rangeCount > 0) {
-    const range = selecao.getRangeAt(0);
-
-    if (editor.contains(range.commonAncestorContainer)) {
-      range.deleteContents();
-
-      const node = document.createTextNode(texto);
-      range.insertNode(node);
-
-      range.setStartAfter(node);
-      range.setEndAfter(node);
-
-      selecao.removeAllRanges();
-      selecao.addRange(range);
-    } else {
-      editor.innerText = texto;
-    }
-  } else {
-    editor.innerText = texto;
-  }
-
-  atualizarTextoLivreNoEstado(editor);
-
-  setTimeout(() => {
-    salvarHistoricoTextoLivre(editor);
-  }, 0);
-}}
-
   onInput={(e) => {
   const editor = e.currentTarget;
 
