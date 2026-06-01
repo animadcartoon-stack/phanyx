@@ -152,6 +152,10 @@ export async function GET() {
       )
     );
 
+console.log("PROFESSOR:", professor.id);
+console.log("ALUNOS ENCONTRADOS:", alunosUserIds);
+console.log("TOTAL:", alunosUserIds.length);
+
     where = {
       instituicaoId: user.instituicaoId,
       id: { not: user.id },
