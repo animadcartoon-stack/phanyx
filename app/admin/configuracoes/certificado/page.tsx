@@ -391,6 +391,8 @@ const figurasDecorativas = [
   const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
 
   const [tipoContornoTexto, setTipoContornoTexto] = useState<"interno" | "externo">("externo");
+  const [espacamentoLetrasTexto, setEspacamentoLetrasTexto] = useState(0);
+  const [espacamentoPalavrasTexto, setEspacamentoPalavrasTexto] = useState(0);
 
   const [tamanhoSelecaoTexto, setTamanhoSelecaoTexto] = useState(18);
 
@@ -4704,6 +4706,8 @@ onKeyUp={() => {
     textDecoration: c.sublinhado ? "underline" : "none",
     textAlign: (c.alinhamento as "left" | "center" | "right") || "left",
     lineHeight: c.lineHeight || 1.3,
+    letterSpacing: (c as any).letterSpacing ?? 0,
+    wordSpacing: (c as any).wordSpacing ?? 0,
     whiteSpace: "pre-wrap",
     wordBreak: "break-word",
     cursor: "text",
@@ -5713,6 +5717,41 @@ onClick={() =>
                   <label className="mb-1 block text-xs font-medium text-slate-600">
                     Alinhamento
                   </label>
+                  <label className="mt-3 block text-xs font-semibold text-slate-500">
+  Espaçamento entre letras
+</label>
+
+<input
+  type="range"
+  min={-5}
+  max={30}
+  step={1}
+  value={(campoSelecionado as any)?.letterSpacing ?? espacamentoLetrasTexto}
+  onChange={(e) => {
+    const valor = Number(e.target.value);
+    setEspacamentoLetrasTexto(valor);
+    atualizarCampoLocal("letterSpacing" as any, valor);
+  }}
+  className="w-full"
+/>
+
+<label className="mt-3 block text-xs font-semibold text-slate-500">
+  Espaçamento entre palavras
+</label>
+
+<input
+  type="range"
+  min={0}
+  max={60}
+  step={1}
+  value={(campoSelecionado as any)?.wordSpacing ?? espacamentoPalavrasTexto}
+  onChange={(e) => {
+    const valor = Number(e.target.value);
+    setEspacamentoPalavrasTexto(valor);
+    atualizarCampoLocal("wordSpacing" as any, valor);
+  }}
+  className="w-full"
+/>
                   <select
                     value={campoSelecionado?.alinhamento || "left"}
                     onChange={(e) =>
