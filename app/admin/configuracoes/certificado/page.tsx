@@ -4612,25 +4612,36 @@ onPaste={(e) => {
 
   salvarHistoricoTextoLivre(editor);
 
+  editor.focus();
+
   const selecao = window.getSelection();
 
-  if (selecao && selecao.rangeCount > 0) {
-    const range = selecao.getRangeAt(0);
+  let range: Range | null = null;
 
-    if (editor.contains(range.commonAncestorContainer)) {
-      range.deleteContents();
+  if (
+    selecao &&
+    selecao.rangeCount > 0 &&
+    editor.contains(selecao.getRangeAt(0).commonAncestorContainer)
+  ) {
+    range = selecao.getRangeAt(0);
+  } else if (
+    selecaoTextoRef.current &&
+    editor.contains(selecaoTextoRef.current.commonAncestorContainer)
+  ) {
+    range = selecaoTextoRef.current.cloneRange();
+  }
 
-      const node = document.createTextNode(texto);
-      range.insertNode(node);
+  if (range) {
+    range.deleteContents();
 
-      range.setStartAfter(node);
-      range.setEndAfter(node);
+    const node = document.createTextNode(texto);
+    range.insertNode(node);
 
-      selecao.removeAllRanges();
-      selecao.addRange(range);
-    } else {
-      editor.innerText = texto;
-    }
+    range.setStartAfter(node);
+    range.setEndAfter(node);
+
+    selecao?.removeAllRanges();
+    selecao?.addRange(range);
   } else {
     editor.innerText = texto;
   }
