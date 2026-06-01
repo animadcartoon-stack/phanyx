@@ -106,24 +106,33 @@ export default function ChatGlobalWidget() {
     return () => clearInterval(intervalo);
   }, [conversaAberta]);
 
-  async function carregarUsuarios() {
-    setModoNovaConversa(true);
-    setCarregandoUsuarios(true);
+ async function carregarUsuarios() {
+  setConversaAberta(null);
+  setMensagens([]);
+  setModoNovaConversa(true);
+  setCarregandoUsuarios(true);
 
-    try {
-      const res = await fetch("/api/chat/usuarios", {
-        credentials: "include",
-      });
+  try {
+    const res = await fetch("/api/chat/usuarios", {
+      credentials: "include",
+    });
 
-      const data = await res.json();
-      setUsuarios(data.usuarios || []);
-    } catch (error) {
-      console.error("Erro ao carregar usuários do chat:", error);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error(data);
       setUsuarios([]);
-    } finally {
-      setCarregandoUsuarios(false);
+      return;
     }
+
+    setUsuarios(data.usuarios || []);
+  } catch (error) {
+    console.error("Erro ao carregar usuários do chat:", error);
+    setUsuarios([]);
+  } finally {
+    setCarregandoUsuarios(false);
   }
+}
 
   async function abrirConversa(usuario: UsuarioChat) {
     try {
@@ -545,6 +554,29 @@ async function enviarGif(url: string) {
 
           {modoNovaConversa && (
             <div className="max-h-80 overflow-y-auto p-3">
+                <div className="mb-2 flex items-center justify-between">
+  <p className="text-sm font-bold text-white">Iniciar conversa</p>
+
+  <button
+    type="button"
+    onClick={() => setModoNovaConversa(false)}
+    className="text-xs text-slate-400 hover:text-white"
+  >
+    Voltar
+  </button>
+</div>
+
+{carregandoUsuarios && (
+  <p className="py-4 text-sm text-slate-400">
+    Carregando usuários...
+  </p>
+)}
+
+{!carregandoUsuarios && usuarios.length === 0 && (
+  <p className="py-4 text-sm text-slate-400">
+    Nenhum contato disponível para conversa.
+  </p>
+)}
               {!carregandoUsuarios &&
                 usuarios.map((usuario) => (
                   <button
