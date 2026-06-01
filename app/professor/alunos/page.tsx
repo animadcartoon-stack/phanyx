@@ -295,19 +295,24 @@ export default function ProfessorAlunosPage() {
       const scoreEmail = termo.length >= 4 ? scoreSimilaridade(aluno.email) : 0;
 
       return {
-        ...aluno,
-        scoreBusca: Math.max(
-          scoreNome,
-          scoreMatricula,
-          scoreTurma,
-          scoreSemestre,
-          scoreDisciplina,
-          scoreEmail
-        ),
-      };
+  ...aluno,
+  scoreBusca:
+    scoreNome * 1000000 +
+    scoreMatricula * 10000 +
+    scoreTurma * 100 +
+    scoreSemestre * 10 +
+    scoreDisciplina +
+    scoreEmail,
+};
     })
     .filter((aluno) => aluno.scoreBusca > 0)
-    .sort((a, b) => b.scoreBusca - a.scoreBusca);
+    .sort((a, b) => {
+  if (b.scoreBusca !== a.scoreBusca) {
+    return b.scoreBusca - a.scoreBusca;
+  }
+
+  return a.nome.localeCompare(b.nome);
+});
 }, [alunos, busca]);
 
   const sugestoesBusca = useMemo(() => {
