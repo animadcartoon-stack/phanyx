@@ -590,6 +590,8 @@ function gerarPontosEstrela(
   const [abaLateral, setAbaLateral] = useState<"campos" | "cena">("campos");
   const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(false);
 
+  const [contornoTextoAtivo, setContornoTextoAtivo] = useState(false);
+
   const [menuCamada, setMenuCamada] = useState<{
   x: number;
   y: number;
@@ -1709,14 +1711,24 @@ function aplicarContornoTextoSelecionado(
   espessura: number,
   tipo: "interno" | "externo" = tipoContornoTexto
 ) {
-  const esp = Math.max(0, Number(espessura || 0));
+  if (!contornoTextoAtivo) return;
+
+  const esp = Math.max(1, Number(espessura || 1));
+
+  if (tipo === "interno") {
+    aplicarEstiloTextoSelecionado({
+      WebkitTextStrokeColor: cor,
+      WebkitTextStrokeWidth: `${esp}px`,
+      paintOrder: "fill stroke",
+      textShadow: "none",
+    } as React.CSSProperties);
+    return;
+  }
 
   aplicarEstiloTextoSelecionado({
-    WebkitTextStrokeColor: tipo === "interno" ? cor : "transparent",
-    WebkitTextStrokeWidth: tipo === "interno" ? `${esp}px` : "0px",
-    WebkitTextFillColor: "currentColor",
+    WebkitTextStrokeWidth: "0px",
     paintOrder: "stroke fill",
-    textShadow: tipo === "externo" ? gerarContornoExterno(cor, esp) : "none",
+    textShadow: gerarContornoExterno(cor, esp),
   } as React.CSSProperties);
 }
 
@@ -6996,19 +7008,29 @@ aplicarEstiloTextoSelecionado({
 
 <button
   type="button"
+  onMouseDown={(e) => e.preventDefault()}
   onClick={() => {
-    const ativo = !temSelecaoTextoLivreAtiva();
+    const novoAtivo = !contornoTextoAtivo;
+    setContornoTextoAtivo(novoAtivo);
 
-    if (!temSelecaoTextoLivreAtiva()) return;
+    if (!novoAtivo) {
+      aplicarEstiloTextoSelecionado({
+        WebkitTextStrokeWidth: "0px",
+        WebkitTextStrokeColor: "transparent",
+        textShadow: "none",
+      } as React.CSSProperties);
+      return;
+    }
 
-    aplicarEstiloTextoSelecionado({
-      WebkitTextStrokeWidth: "0px",
-      textShadow: "none",
-    } as React.CSSProperties);
+    aplicarContornoTextoSelecionado(
+      corContornoTexto,
+      espessuraContornoTexto,
+      tipoContornoTexto
+    );
   }}
   className="mb-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold hover:bg-slate-50"
 >
-  Desativar contorno
+  {contornoTextoAtivo ? "Desativar contorno" : "Ativar contorno"}
 </button>
 
   <label className="mb-1 block text-[11px] font-semibold text-slate-500">

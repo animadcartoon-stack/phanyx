@@ -829,9 +829,7 @@ function corParecida(
     if (!imagemOriginal || !canvasRef.current) return;
 
     setProcessando(true);
-    setAviso(
-  "⏳ Aguarde enquanto removemos o objeto selecionado.\n\nSó mais um instante...\n\n✨ Últimos retoques..."
-);
+    setAviso(null);
     setErro("");
 
     try {
@@ -1169,6 +1167,7 @@ function corParecida(
         setImagemFinal(canvas.toDataURL("image/png"));
         setTemResultadoReal(true);
         setProcessando(false);
+        setAviso(null);
         return;
       }
 
@@ -1480,11 +1479,12 @@ useEffect(() => {
     }
 
     if (e.key === "Delete" || e.key === "Backspace") {
-      if (!overlayVarinha) return;
+  if (!varinhaAtiva || !pixelsSelecionados) return;
 
-      e.preventDefault();
-      apagarSelecaoVarinha();
-    }
+  e.preventDefault();
+  apagarSelecaoVarinha();
+  return;
+}
   }
 
   window.addEventListener("keydown", handleKeyDown);
@@ -2645,7 +2645,7 @@ setPopupComprarCreditosAberto(false);
 
       {modalRefinamentoAberto && imagemFinal && (
         <div className="fixed inset-0 z-[60] overflow-y-auto bg-slate-950/95 p-2 text-white sm:p-4">
-          <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-1 sm:gap-2">
+          <div className="mx-auto flex min-h-full max-w-7xl flex-col gap-2">
             {mostrarLupa && canvasRef.current && (
   <div
     className="pointer-events-none fixed z-[120] overflow-hidden rounded-full border-4 border-cyan-400 shadow-2xl bg-slate-950"
@@ -2711,7 +2711,7 @@ setPopupComprarCreditosAberto(false);
   setMaoAtiva(false);
   setPincelAtivo(false);
 }}
-  className={`rounded-xl px-4 py-2 font-semibold ${
+  className={`rounded-lg px-2 py-1 text-[10px] whitespace-nowrap font-black ${
     varinhaAtiva
       ? "bg-yellow-500 text-black"
       : "bg-slate-800 text-white"
