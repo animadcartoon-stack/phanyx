@@ -61,25 +61,24 @@ export async function GET() {
     }
 
     if (ROLES_INSTITUICAO.includes(user.role)) {
-      where = {
-        instituicaoId: user.instituicaoId,
-        id: {
-          not: user.id,
-        },
-        ativo: true,
-        role: {
-          in: [
-            "ADMIN",
-            "SECRETARIA",
-            "COORDENADOR",
-            "FINANCEIRO",
-            "SUPORTE",
-            "PROFESSOR",
-            "ALUNO",
-          ],
-        },
-      };
-    }
+  where = {
+    instituicaoId: user.instituicaoId,
+    id: {
+      not: user.id,
+    },
+    ativo: true,
+    role: {
+      in: [
+        "ADMIN",
+        "SECRETARIA",
+        "COORDENADOR",
+        "FINANCEIRO",
+        "SUPORTE",
+        "PROFESSOR",
+      ],
+    },
+  };
+}
 
     if (user.role === "SUPER_ADMIN") {
       where = {
