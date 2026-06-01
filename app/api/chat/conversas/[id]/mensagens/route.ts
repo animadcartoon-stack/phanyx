@@ -36,7 +36,12 @@ export async function GET(
     orderBy: { criadoEm: "asc" },
   });
 
-  return NextResponse.json({ mensagens, usuarioId: user.id });
+  return NextResponse.json({
+  mensagens,
+  usuarioId: user.id,
+  usuarioRole: user.role,
+  conversaTipo: participante.conversa?.tipo || null,
+});
 }
 
 export async function POST(

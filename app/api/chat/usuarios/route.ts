@@ -145,16 +145,24 @@ export async function GET() {
     });
 
     const alunosUserIds = Array.from(
-      new Set(
-        itens
-          .map((item) => item.matricula?.aluno?.userId)
-          .filter((id): id is number => typeof id === "number")
-      )
-    );
+  new Set(
+    itens
+      .map((item) => item.matricula?.aluno?.user?.id)
+      .filter((id): id is number => typeof id === "number")
+  )
+);
 
 console.log("PROFESSOR:", professor.id);
 console.log("ALUNOS ENCONTRADOS:", alunosUserIds);
 console.log("TOTAL:", alunosUserIds.length);
+
+console.log(
+  JSON.stringify(
+    itens.slice(0, 3),
+    null,
+    2
+  )
+);
 
     where = {
       instituicaoId: user.instituicaoId,
