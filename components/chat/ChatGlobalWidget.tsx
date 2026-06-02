@@ -64,6 +64,8 @@ export default function ChatGlobalWidget() {
 
   const [usuarioRole, setUsuarioRole] = useState<string>("");
 
+  const [chatMaximizado, setChatMaximizado] = useState(false);
+
   useEffect(() => {
     async function atualizarPresenca() {
       await fetch("/api/chat/presenca", {
@@ -371,11 +373,42 @@ async function enviarGif(url: string) {
   return (
     <div className="fixed bottom-6 right-6 z-[9999]">
       {aberto && (
-        <div className="mb-3 w-80 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl">
-          <div className="bg-blue-600 px-4 py-3 text-white">
-            <p className="font-bold">Chat interno PHANYX</p>
-            <p className="text-xs text-blue-100">Você está online</p>
-          </div>
+        <div
+  className={`mb-3 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl ${
+    chatMaximizado
+      ? "h-[80vh] w-[520px]"
+      : "w-80"
+  }`}
+>
+          <div className="flex items-start justify-between bg-blue-600 px-4 py-3 text-white">
+  <div>
+    <p className="font-bold">Chat interno PHANYX</p>
+    <p className="text-xs text-blue-100">Você está online</p>
+  </div>
+
+  <div className="flex gap-2">
+    <button
+      type="button"
+      onClick={() => setChatMaximizado((prev) => !prev)}
+      className="rounded-md px-2 text-sm hover:bg-white/20"
+      title={chatMaximizado ? "Minimizar" : "Maximizar"}
+    >
+      {chatMaximizado ? "🗗" : "🗖"}
+    </button>
+
+    <button
+      type="button"
+      onClick={() => {
+        setAberto(false);
+        setChatMaximizado(false);
+      }}
+      className="rounded-md px-2 text-sm hover:bg-white/20"
+      title="Fechar"
+    >
+      ✕
+    </button>
+  </div>
+</div>
 
           <div className="border-b border-slate-700 bg-slate-900 p-3">
             <button
@@ -394,7 +427,7 @@ async function enviarGif(url: string) {
           )}
 
           {!modoNovaConversa && conversaAberta && (
-            <div className="flex h-80 flex-col">
+            <div className={`flex flex-col ${chatMaximizado ? "h-[62vh]" : "h-80"}`}>
               <div className="border-b border-slate-700 bg-slate-900 px-4 py-3">
                 <div className="flex items-start justify-between">
   <div>
