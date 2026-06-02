@@ -688,9 +688,9 @@ const temRespostaLenta =
       Total
     </p>
 
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
-      {totalAvaliacoes}
-    </h3>
+    <h3 className="mt-2 text-3xl font-black !text-blue-700">
+  {totalAvaliacoes}
+</h3>
   </div>
 
   <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
@@ -698,7 +698,7 @@ const temRespostaLenta =
       Pendentes
     </p>
 
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
+    <h3 className="mt-2 text-3xl font-black !text-amber-700">
       {totalPendentes}
     </h3>
   </div>
@@ -708,7 +708,7 @@ const temRespostaLenta =
       Respondidas
     </p>
 
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
+    <h3 className="mt-2 text-3xl font-black !text-emerald-700">
       {totalRespondidas}
     </h3>
   </div>
@@ -718,7 +718,7 @@ const temRespostaLenta =
       Índice PHANYX
     </p>
 
-    <h3 className="mt-2 text-3xl font-black text-slate-900">
+    <h3 className="mt-2 text-3xl font-black !text-red-700">
       {percentualRespondidas}%
     </h3>
   </div>
