@@ -397,25 +397,25 @@ const obterCorTimeline = (tipo: string) => {
       titulo: "Nota média",
       valor: "—",
       detalhe: "Aguardando avaliações conectadas",
-      cor: "text-yellow-600",
+      cor: "text-yellow-900",
     },
     {
       titulo: "Avaliações",
       valor: String(avaliacoes),
       detalhe: "Total de avaliações monitoradas",
-      cor: "text-blue-700",
+      cor: "text-blue-900",
     },
     {
       titulo: "Pendências",
       valor: String(pendencias),
       detalhe: "Avaliações aguardando resposta",
-      cor: "text-red-600",
+      cor: "text-red-900",
     },
     {
   titulo: "Índice PHANYX",
   valor: `${scoreAtual}/100`,
   detalhe: "Reputação consolidada pela Ouvidoria",
-  cor: "text-purple-700",
+  cor: "text-purple-900",
 },
   ];
 
@@ -1087,7 +1087,7 @@ const temRespostaLenta =
           ALERTA IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-white">
+        <h3 className="mt-3 text-lg font-black text-slate-900">
   {resumoReputacao?.criticos > 0
     ? "Manifestações críticas detectadas"
     : "Nenhum alerta crítico"}
@@ -1118,7 +1118,7 @@ const temRespostaLenta =
           GROWTH IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-white">
+        <h3 className="mt-3 text-lg font-black text-slate-900">
   {crescimentoReal > 0
     ? "Crescimento reputacional detectado"
     : crescimentoReal < 0
@@ -1153,7 +1153,7 @@ const temRespostaLenta =
           TEMPO RESPOSTA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-white">
+        <h3 className="mt-3 text-lg font-black text-slate-900">
           Respostas lentas
         </h3>
 
@@ -1182,7 +1182,7 @@ const temRespostaLenta =
           SCORE IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-white">
+        <h3 className="mt-3 text-lg font-black text-slate-900">
           Reputação excelente
         </h3>
 
