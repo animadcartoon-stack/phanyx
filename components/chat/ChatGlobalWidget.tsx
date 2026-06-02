@@ -727,29 +727,29 @@ async function enviarGif(url: string) {
       </button>
     </div>
 
-    {!modoTurmas && (
-      <div className="mb-3 grid grid-cols-1 gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            setModoTurmas(false);
-          }}
-          className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
-        >
-          👤 Conversa individual
-        </button>
+    {!modoTurmas && usuarioRole !== "ALUNO" && (
+  <div className="mb-3 grid grid-cols-1 gap-2">
+    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+      Conversas
+    </p>
 
-        {usuarioRole === "PROFESSOR" && (
-  <button
-    type="button"
-    onClick={carregarTurmasChat}
-    className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
-  >
-    👥 Conversa da turma
-  </button>
-)}
-      </div>
+    {usuarioRole === "PROFESSOR" && (
+      <button
+        type="button"
+        onClick={carregarTurmasChat}
+        className="rounded-xl border border-slate-800 bg-slate-900 p-3 text-left text-sm font-semibold text-white hover:bg-blue-950"
+      >
+        👥 Conversa da turma
+      </button>
     )}
+  </div>
+)}
+
+{!modoTurmas && usuarioRole === "ALUNO" && (
+  <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+    Escolha seu professor
+  </p>
+)}
 
     {!modoTurmas && carregandoUsuarios && (
       <p className="py-4 text-sm text-slate-400">
