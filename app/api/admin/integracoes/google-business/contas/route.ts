@@ -56,6 +56,12 @@ export async function GET() {
 
     const data = await resposta.json();
 
+    console.log("GOOGLE BUSINESS STATUS:", resposta.status);
+console.log(
+  "GOOGLE BUSINESS RESPONSE:",
+  JSON.stringify(data, null, 2)
+);
+
 if (!resposta.ok) {
   const motivo = data?.error?.details?.[0]?.reason || data?.error?.status;
 
