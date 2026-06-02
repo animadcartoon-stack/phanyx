@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Header from "@/components/layout/Header";
 
@@ -13,16 +14,17 @@ const planos = [
   descricao:
     "Plano ideal para instituições que precisam organizar sua base acadêmica com um modelo acessível, profissional e escalável conforme o número de alunos ativos.",
   recursos: [
-    "Cadastro de alunos, professores e cursos",
-    "Gestão de disciplinas, turmas e matrículas",
-    "Área administrativa, professor e aluno",
-    "Login seguro com controle por perfil",
-    "Base acadêmica organizada por instituição",
-    "Suporte inicial para operação",
-    "Modelo comercial escalável por aluno ativo",
-    "1 polo incluso no plano",
-    "Polos adicionais com taxa mensal por unidade",
-  ],
+  "Cadastro de alunos, professores, funcionários e cursos",
+  "Cadastro de disciplinas, semestres e turmas",
+  "Matrícula de alunos",
+  "Criação de setores institucionais",
+  "Área administrativa, professor e aluno",
+  "Login seguro com controle por perfil",
+  "Sistema financeiro institucional",
+  "Avisos e feriados institucionais",
+  "Documentos institucionais básicos",
+  "1 polo incluso no plano",
+],
   idealPara:
     "Escolas técnicas, cursos livres, seminários menores e instituições em início de implantação",
   cta: "Contratar Essencial",
@@ -40,16 +42,29 @@ const planos = [
   descricao:
     "Plano mais indicado para instituições que precisam de uma operação acadêmica mais completa, com LMS, financeiro, documentos validados e crescimento escalável baseado em alunos ativos.",
   recursos: [
-    "Tudo do plano Essencial",
-    "Módulo LMS com aulas, materiais e progresso",
-    "Provas online com correção automática",
-    "Financeiro com recebimentos e controle institucional",
-    "Documentos com QR Code e validação pública",
-    "Arquitetura multi-instituição (SaaS)",
-    "Experiência mais robusta para operação educacional",
-    "Até 3 polos inclusos no plano",
-    "Polos adicionais com taxa mensal por unidade",
-  ],
+  "Tudo do plano Essencial",
+
+  "LMS com aulas, materiais e progresso",
+  "Provas online com correção automática",
+
+  "Editor PHANYX de Certificados",
+  "Campos dinâmicos para certificados",
+  "Certificados automáticos por conclusão",
+  "Certificados liberados no portal do aluno",
+  "QR Code de validação pública",
+
+  "Contratos automáticos com dados do aluno",
+  "Documentos automáticos com preenchimento dinâmico",
+
+  "Chat interno em tempo real",
+  "Ouvidoria institucional integrada",
+
+  "Reputação PHANYX por Ouvidoria",
+
+  "Integrações Google básicas",
+
+  "Até 3 polos inclusos",
+],
   idealPara:
     "Faculdades, EADs, institutos, seminários e operações acadêmicas em crescimento",
   cta: "Contratar Profissional",
@@ -67,16 +82,27 @@ const planos = [
   descricao:
     "Plano ideal para operações maiores que precisam de mais capacidade institucional, prioridade de suporte, personalização ampliada e recursos avançados com cobrança automática.",
   recursos: [
-    "Tudo do plano Profissional",
-    "Maior prioridade operacional",
-    "Suporte prioritário",
-    "Recursos avançados de segurança",
-    "Maior capacidade de expansão institucional",
-    "Personalização ampliada",
-    "Modelo automático para operações maiores",
-    "Gestão multi-polos avançada",
-    "Condições comerciais personalizadas por volume de polos",
-  ],
+  "Tudo do plano Profissional",
+
+  "PHANYX Growth avançado",
+
+  "Painel de reputação institucional",
+  "Reputação multi-canal",
+
+  "Integrações Google avançadas",
+  "Integrações Meta/Facebook",
+  "Google Business",
+
+  "Marketing institucional e indicadores",
+
+  "Gestão multi-polos avançada",
+
+  "Personalizações exclusivas",
+  "Automações avançadas",
+
+  "Suporte prioritário",
+  "Condições comerciais personalizadas",
+],
   idealPara:
     "Universidades, grupos educacionais, operações com mais alunos e instituições com maior exigência",
   cta: "Contratar Enterprise",
@@ -229,6 +255,46 @@ function montarLinkComercial(plano: string) {
 }
 
 export default function PlanosPage() {
+  const [alunosSimulacao, setAlunosSimulacao] = useState(250);
+
+  const [polosSimulacao, setPolosSimulacao] = useState(1);
+
+const polosExtrasEssencial = Math.max(0, polosSimulacao - 1);
+const polosExtrasProfissional = Math.max(0, polosSimulacao - 3);
+const polosExtrasEnterprise = Math.max(0, polosSimulacao - 10);
+
+const valorPoloExtraEssencial = 49;
+const valorPoloExtraProfissional = 79;
+const valorPoloExtraEnterprise = 99;
+
+ const totalEssencial =
+  49 + alunosSimulacao * 3 + polosExtrasEssencial * valorPoloExtraEssencial;
+
+const totalProfissional =
+  99 + alunosSimulacao * 5 + polosExtrasProfissional * valorPoloExtraProfissional;
+
+const totalEnterprise =
+  199 + alunosSimulacao * 7 + polosExtrasEnterprise * valorPoloExtraEnterprise;
+
+  const custoAlunoEssencial = totalEssencial / alunosSimulacao;
+const custoAlunoProfissional = totalProfissional / alunosSimulacao;
+const custoAlunoEnterprise = totalEnterprise / alunosSimulacao;
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    const alvo = document.getElementById("calculadora-planos");
+
+if (alvo) {
+  window.scrollTo({
+    top: alvo.offsetTop + 800,
+    behavior: "smooth",
+  });
+}
+  }, 150);
+
+  return () => clearTimeout(timer);
+}, []);
+
   return (
     <>
       <Header />
@@ -403,12 +469,188 @@ export default function PlanosPage() {
                 crescem.
               </p>
 
-              <p className="mt-4 text-sm text-slate-500">
-                * Cobrança variável baseada na quantidade de alunos ativos e na
-quantidade de polos/unidades da instituição. Cada plano possui uma
-franquia inicial de polos, e polos adicionais podem gerar taxa mensal
-por unidade.
-              </p>
+              <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-left shadow-sm">
+  <p className="text-sm font-bold text-blue-900">
+    Cobrança automática por uso real
+  </p>
+
+  <p className="mt-2 text-sm leading-6 text-blue-800">
+    A cobrança por alunos é calculada automaticamente pelo PHANYX com base na quantidade real de alunos ativos da instituição. Cada plano possui uma franquia inicial de polos/unidades, e polos adicionais podem gerar taxa mensal por unidade.
+  </p>
+</div>
+
+<div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <section
+  id="calculadora-planos"
+  className="scroll-mt-12 mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
+>
+    <h3 className="text-xl font-bold text-slate-900">
+      Simule o investimento da sua instituição
+    </h3>
+
+    <p className="mt-2 text-sm text-slate-600">
+      Informe a quantidade de alunos ativos e veja o valor estimado
+      em cada plano.
+    </p>
+  </section>
+
+  <div className="mt-6">
+    <label className="mb-2 block text-sm font-semibold text-slate-700">
+      Quantidade de alunos ativos
+    </label>
+
+    <input
+  type="number"
+  min={0}
+  value={alunosSimulacao}
+  onChange={(e) => {
+    const valor = Number(e.target.value);
+
+    if (Number.isNaN(valor)) {
+      setAlunosSimulacao(0);
+      return;
+    }
+
+    setAlunosSimulacao(Math.max(0, valor));
+  }}
+  className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg font-bold outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+/>
+
+<label className="mb-2 mt-5 block text-sm font-semibold text-slate-700">
+  Quantidade de polos/unidades
+</label>
+
+<input
+  type="number"
+  min={1}
+  value={polosSimulacao}
+  onChange={(e) => {
+    const valor = Number(e.target.value);
+
+    if (Number.isNaN(valor)) {
+      setPolosSimulacao(1);
+      return;
+    }
+
+    setPolosSimulacao(Math.max(1, valor));
+  }}
+  className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg font-bold outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+/>
+  </div>
+
+  <div className="mt-6 grid gap-4 md:grid-cols-3">
+    <div className="rounded-2xl border border-slate-200 p-4">
+      <p className="font-bold text-slate-900">
+        Essencial
+      </p>
+
+      <p className="mt-2 text-sm text-slate-500">
+        R$ 49 + ({alunosSimulacao} × R$ 3) + ({polosExtrasEssencial} polos extras × R$ 49)
+      </p>
+
+      <p className="mt-3 text-2xl font-extrabold text-slate-900">
+        R$ {totalEssencial.toLocaleString("pt-BR")}
+      </p>
+
+      <p className="text-sm text-slate-500">
+        Total estimado / mês
+      </p>
+      <p className="mt-2 text-xs font-medium text-blue-700">
+  ≈ R$ {custoAlunoEssencial.toFixed(2)} por aluno ativo
+</p>
+      <p className="mt-3 text-xs text-slate-500">
+  {polosSimulacao <= 1
+    ? "Todos os polos estão inclusos."
+    : `${polosSimulacao - 1} polo(s) extra(s) além do 1 incluso.`}
+</p>
+    </div>
+
+    <div className="rounded-2xl border border-blue-500 bg-blue-50 p-4">
+      <p className="font-bold text-blue-900">
+        Profissional
+      </p>
+
+      <p className="mt-2 text-sm text-blue-700">
+        R$ 99 + ({alunosSimulacao} × R$ 5) + ({polosExtrasProfissional} polos extras × R$ 79)
+      </p>
+
+      <p className="mt-3 text-2xl font-extrabold text-blue-900">
+        R$ {totalProfissional.toLocaleString("pt-BR")}
+      </p>
+
+      <p className="text-sm text-blue-700">
+        Total estimado / mês
+      </p>
+      <p className="mt-2 text-xs font-medium text-blue-700">
+  ≈ R$ {custoAlunoProfissional.toFixed(2)} por aluno ativo
+</p>
+      <p className="mt-3 text-xs text-slate-500">
+  {polosSimulacao <= 3
+    ? "Todos os polos estão inclusos."
+    : `${polosSimulacao - 3} polo(s) extra(s) além dos 3 inclusos.`}
+</p>
+    </div>
+
+    <div className="rounded-2xl border border-slate-200 p-4">
+      <p className="font-bold text-slate-900">
+        Enterprise
+      </p>
+
+      <p className="mt-2 text-sm text-slate-500">
+        R$ 199 + ({alunosSimulacao} × R$ 7) + ({polosExtrasEnterprise} polos extras × R$ 99)
+      </p>
+
+      <p className="mt-3 text-2xl font-extrabold text-slate-900">
+        R$ {totalEnterprise.toLocaleString("pt-BR")}
+      </p>
+
+      <p className="text-sm text-slate-500">
+        Total estimado / mês
+      </p>
+      <p className="mt-2 text-xs font-medium text-blue-700">
+  ≈ R$ {custoAlunoEnterprise.toFixed(2)} por aluno ativo
+</p>
+      <p className="mt-3 text-xs text-slate-500">
+  Condições comerciais personalizadas para universidades e operações de grande escala.
+</p>
+    </div>
+  </div>
+
+  <p className="mt-5 text-xs text-slate-500">
+    * A cobrança é calculada automaticamente com base na quantidade
+    real de alunos ativos cadastrados na plataforma.
+  </p>
+  <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center">
+  <h4 className="text-lg font-bold text-blue-950">
+    Gostou da simulação?
+  </h4>
+
+  <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-blue-800">
+    Solicite uma demonstração personalizada do PHANYX e veja como a plataforma pode se adaptar à operação da sua instituição.
+  </p>
+
+  <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
+    <a
+      href={montarLinkComercial("Demonstração PHANYX")}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+    >
+      Agendar demonstração
+    </a>
+
+    <a
+      href={montarLinkComercial("Especialista PHANYX")}
+      target="_blank"
+      rel="noreferrer"
+      className="inline-flex items-center justify-center rounded-2xl border border-blue-300 bg-white px-6 py-3 text-sm font-bold text-blue-700 transition hover:bg-blue-100"
+    >
+      Falar com especialista
+    </a>
+  </div>
+</div>
+</div>
+
             </div>
 
             <div className="mt-12 grid gap-8 xl:grid-cols-3">
@@ -605,7 +847,7 @@ por unidade.
           </div>
         </section>
 
-        <section className="bg-slate-50">
+        <section id="planos" className="scroll-mt-24 bg-slate-50">
           <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
