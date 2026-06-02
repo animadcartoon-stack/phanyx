@@ -18,6 +18,16 @@ export async function GET() {
       },
     });
 
+    console.log(
+  "REFRESH TOKEN:",
+  instituicao?.googleBusinessRefreshToken
+);
+
+console.log(
+  "REFRESH TOKEN BANCO:",
+  instituicao?.googleBusinessRefreshToken
+);
+
     if (!instituicao?.googleBusinessRefreshToken) {
       return NextResponse.json(
         { error: "Google Business não conectado" },
@@ -30,20 +40,50 @@ export async function GET() {
       process.env.GOOGLE_CLIENT_SECRET
     );
 
-    oauth2Client.setCredentials({
-      refresh_token: instituicao.googleBusinessRefreshToken,
-    });
+    let accessToken: string | null = null;
 
-    const tokenResponse = await oauth2Client.getAccessToken();
-    const accessToken = tokenResponse.token;
+try {
 
-    if (!accessToken) {
-      return NextResponse.json(
-        { error: "Não foi possível gerar access token Google Business" },
-        { status: 500 }
-      );
-    }
+console.log(
+  "CLIENT ID:",
+  process.env.GOOGLE_CLIENT_ID
+);
 
+console.log(
+  "CLIENT SECRET:",
+  process.env.GOOGLE_CLIENT_SECRET
+    ? "EXISTE"
+    : "NAO EXISTE"
+);
+
+  const tokenResponse = await oauth2Client.getAccessToken();
+
+  accessToken = tokenResponse.token;
+
+  console.log("ACCESS TOKEN GERADO");
+} catch (tokenError) {
+  console.error(
+    "ERRO TOKEN GOOGLE BUSINESS:",
+    JSON.stringify(tokenError, null, 2)
+  );
+
+  return NextResponse.json(
+    {
+      error: "Falha ao gerar token Google Business",
+      detalhe: String(tokenError),
+    },
+    { status: 500 }
+  );
+}
+
+if (!accessToken) {
+  return NextResponse.json(
+    {
+      error: "Não foi possível gerar access token Google Business",
+    },
+    { status: 500 }
+  );
+}
     const resposta = await fetch(
       "https://mybusinessaccountmanagement.googleapis.com/v1/accounts",
       {
