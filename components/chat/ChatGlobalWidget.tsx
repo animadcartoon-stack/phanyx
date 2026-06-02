@@ -66,6 +66,11 @@ export default function ChatGlobalWidget() {
 
   const [chatMaximizado, setChatMaximizado] = useState(false);
 
+  const [chatTamanho, setChatTamanho] = useState({
+  largura: 520,
+  altura: 560,
+});
+
   useEffect(() => {
     async function atualizarPresenca() {
       await fetch("/api/chat/presenca", {
@@ -119,6 +124,33 @@ export default function ChatGlobalWidget() {
 
     return () => clearInterval(intervalo);
   }, [conversaAberta]);
+
+  function iniciarRedimensionamento(e: React.MouseEvent<HTMLDivElement>) {
+  e.preventDefault();
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+  const larguraInicial = chatTamanho.largura;
+  const alturaInicial = chatTamanho.altura;
+
+  function mover(ev: MouseEvent) {
+    const novaLargura = Math.max(320, larguraInicial - (ev.clientX - inicioX));
+    const novaAltura = Math.max(420, alturaInicial - (ev.clientY - inicioY));
+
+    setChatTamanho({
+      largura: Math.min(novaLargura, window.innerWidth - 40),
+      altura: Math.min(novaAltura, window.innerHeight - 80),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
 
  async function carregarUsuarios() {
   setConversaAberta(null);
@@ -371,14 +403,26 @@ async function enviarGif(url: string) {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-[9999]">
+    <div
+  className={`fixed z-[9999] ${
+    chatMaximizado
+      ? "left-10 top-10"
+      : "bottom-6 right-6"
+  }`}
+>
       {aberto && (
         <div
-  className={`mb-3 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl ${
-    chatMaximizado
-      ? "h-[80vh] w-[520px]"
-      : "w-80"
-  }`}
+  style={
+  chatMaximizado
+    ? {
+        width: "calc(100vw - 80px)",
+        height: "calc(100vh - 80px)",
+      }
+    : undefined
+}
+  className={`relative mb-3 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl ${
+  chatMaximizado ? "" : "w-80"
+}`}
 >
           <div className="flex items-start justify-between bg-blue-600 px-4 py-3 text-white">
   <div>
@@ -651,6 +695,15 @@ async function enviarGif(url: string) {
   </button>
 </div>
               </div>
+
+              {chatMaximizado && (
+  <div
+    onMouseDown={iniciarRedimensionamento}
+    className="absolute left-0 top-0 h-5 w-5 cursor-nwse-resize rounded-br-xl bg-blue-500/40 hover:bg-blue-500/70"
+    title="Arrastar para redimensionar"
+  />
+)}
+
             </div>
           )}
 
