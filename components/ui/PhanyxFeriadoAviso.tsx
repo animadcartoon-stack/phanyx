@@ -32,6 +32,23 @@ function chaveData(data: Date) {
   )}-${String(data.getDate()).padStart(2, "0")}`;
 }
 
+function formatarDataFeriado(data: Date) {
+  const dias = [
+    "domingo",
+    "segunda-feira",
+    "terça-feira",
+    "quarta-feira",
+    "quinta-feira",
+    "sexta-feira",
+    "sábado",
+  ];
+
+  return `${dias[data.getDay()]}, dia ${String(data.getDate()).padStart(
+    2,
+    "0"
+  )}/${String(data.getMonth() + 1).padStart(2, "0")}`;
+}
+
 function feriadoNacionalHoje() {
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -123,9 +140,10 @@ function feriadoNacionalHoje() {
 
     if (feriado) {
       return {
-        ...feriado,
-        diasRestantes: i,
-      };
+  ...feriado,
+  diasRestantes: i,
+  dataTexto: formatarDataFeriado(dataVerificada),
+};
     }
   }
 
@@ -137,30 +155,34 @@ export default function PhanyxFeriadoAviso() {
   if (!feriado) return null;
 
   return (
-    <div className="mb-6 rounded-3xl border border-amber-200 bg-gradient-to-r from-amber-50 via-white to-blue-50 p-5 shadow-sm">
-      <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
-          {feriado.emoji}
-        </div>
+  <div className="mb-6 rounded-3xl border border-amber-300 bg-amber-50 p-5 shadow-sm dark:border-amber-400 dark:bg-[#2b2108]">
+    <div className="flex items-start gap-4">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-2xl shadow-sm">
+        {feriado.emoji}
+      </div>
 
-        <div>
-          <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700">
-            Aviso PHANYX
-          </p>
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[0.22em] text-amber-700 dark:text-amber-300">
+          Aviso PHANYX
+        </p>
 
-          <h2 className="mt-1 text-xl font-bold text-slate-900">
-  {feriado.diasRestantes === 0
-    ? `Bom feriado! Hoje é ${feriado.nome}`
-    : feriado.diasRestantes === 1
-    ? `Amanhã é feriado: ${feriado.nome}`
-    : `Feriado chegando: ${feriado.nome}`}
-</h2>
+        <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
+          {feriado.diasRestantes === 0
+            ? `Bom feriado! Hoje é ${feriado.nome}`
+            : feriado.diasRestantes === 1
+            ? `Amanhã é feriado: ${feriado.nome}`
+            : `Feriado chegando: ${feriado.nome}`}
+        </h2>
 
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {feriado.mensagem}
-          </p>
-        </div>
+        <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-amber-100">
+          {feriado.dataTexto}
+        </p>
+
+        <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-100">
+          {feriado.mensagem}
+        </p>
       </div>
     </div>
-  );
+  </div>
+);
 }
