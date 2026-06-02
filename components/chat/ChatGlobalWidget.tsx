@@ -556,7 +556,7 @@ async function enviarGif(url: string) {
       setMostrarEmojis((prev) => !prev);
       setMostrarGifs(false);
     }}
-    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-lg text-white"
+    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm text-white"
   >
     😊
   </button>
@@ -567,7 +567,7 @@ async function enviarGif(url: string) {
       setMostrarGifs((prev) => !prev);
       setMostrarEmojis(false);
     }}
-    className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-xs font-bold text-white"
+    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-[10px] font-bold text-white"
   >
     GIF
   </button>
@@ -587,7 +587,7 @@ async function enviarGif(url: string) {
 <button
   type="button"
   onClick={() => inputArquivoRef.current?.click()}
-  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-800 text-lg text-white"
+  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-800 text-sm text-white"
   title="Enviar arquivo"
 >
   📎
@@ -604,7 +604,7 @@ async function enviarGif(url: string) {
       }
     }}
     placeholder="Digite..."
-    className="min-w-0 flex-1 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
+    className="min-w-0 flex-[2] rounded-xl border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-white outline-none"
   />
 
   <button
