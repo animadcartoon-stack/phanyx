@@ -415,8 +415,8 @@ async function enviarGif(url: string) {
   style={
   chatMaximizado
     ? {
-        width: "calc(100vw - 80px)",
-        height: "calc(100vh - 80px)",
+        width: chatTamanho.largura,
+        height: chatTamanho.altura,
       }
     : undefined
 }
@@ -433,7 +433,14 @@ async function enviarGif(url: string) {
   <div className="flex gap-2">
     <button
       type="button"
-      onClick={() => setChatMaximizado((prev) => !prev)}
+      onClick={() => {
+  setChatTamanho({
+    largura: window.innerWidth - 80,
+    altura: window.innerHeight - 80,
+  });
+
+  setChatMaximizado((prev) => !prev);
+}}
       className="rounded-md px-2 text-sm hover:bg-white/20"
       title={chatMaximizado ? "Minimizar" : "Maximizar"}
     >
@@ -695,29 +702,6 @@ async function enviarGif(url: string) {
   </button>
 </div>
               </div>
-
-              {chatMaximizado && (
-  <>
-    <div
-      onMouseDown={iniciarRedimensionamento}
-      className="absolute left-0 top-0 z-50 h-6 w-6 cursor-nwse-resize rounded-br-xl bg-blue-500/40 hover:bg-blue-500/70"
-      title="Arrastar para redimensionar"
-    />
-
-    <div
-      onMouseDown={iniciarRedimensionamento}
-      className="absolute left-0 top-6 z-50 h-[calc(100%-24px)] w-2 cursor-ew-resize hover:bg-blue-500/20"
-      title="Arrastar para aumentar para os lados"
-    />
-
-    <div
-      onMouseDown={iniciarRedimensionamento}
-      className="absolute left-6 top-0 z-50 h-2 w-[calc(100%-24px)] cursor-ns-resize hover:bg-blue-500/20"
-      title="Arrastar para aumentar para cima"
-    />
-  </>
-)}
-
             </div>
           )}
 
@@ -847,6 +831,29 @@ async function enviarGif(url: string) {
       ))}
   </div>
 )}
+
+  {chatMaximizado && (
+  <>
+    <div
+      onMouseDown={iniciarRedimensionamento}
+      className="absolute left-0 top-0 z-50 h-6 w-6 cursor-nwse-resize rounded-br-xl bg-blue-500/40 hover:bg-blue-500/70"
+      title="Arrastar para redimensionar"
+    />
+
+    <div
+      onMouseDown={iniciarRedimensionamento}
+      className="absolute left-0 top-6 z-50 h-[calc(100%-24px)] w-2 cursor-ew-resize hover:bg-blue-500/20"
+      title="Arrastar para aumentar para os lados"
+    />
+
+    <div
+      onMouseDown={iniciarRedimensionamento}
+      className="absolute left-6 top-0 z-50 h-2 w-[calc(100%-24px)] cursor-ns-resize hover:bg-blue-500/20"
+      title="Arrastar para aumentar para cima"
+    />
+  </>
+)}
+
         </div>
       )}
 
