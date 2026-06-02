@@ -437,12 +437,10 @@ async function enviarGif(url: string) {
       {aberto && (
         <div
   style={{
-  width: chatMaximizado ? chatTamanho.largura : chatTamanho.largura,
-  height: chatMaximizado ? chatTamanho.altura : undefined,
+  width: chatTamanho.largura,
+  height: chatTamanho.altura,
 }}
-  className={`relative mb-3 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl ${
-  chatMaximizado ? "" : "w-80"
-}`}
+  className="relative mb-3 flex flex-col overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl"
 >
           <div className="flex items-start justify-between bg-blue-600 px-4 py-3 text-white">
   <div>
@@ -498,7 +496,7 @@ async function enviarGif(url: string) {
           )}
 
           {!modoNovaConversa && conversaAberta && (
-            <div className={`flex flex-col ${chatMaximizado ? "h-[62vh]" : "h-80"}`}>
+            <div className="flex min-h-0 flex-1 flex-col">
               <div className="border-b border-slate-700 bg-slate-900 px-4 py-3">
                 <div className="flex items-start justify-between">
   <div>
