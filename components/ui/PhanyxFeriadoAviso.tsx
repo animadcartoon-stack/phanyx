@@ -168,10 +168,10 @@ export default function PhanyxFeriadoAviso() {
 
         <h2 className="mt-1 text-xl font-bold text-slate-950 dark:text-white">
           {feriado.diasRestantes === 0
-            ? `Bom feriado! Hoje é ${feriado.nome}`
-            : feriado.diasRestantes === 1
-            ? `Amanhã é feriado: ${feriado.nome}`
-            : `Feriado chegando: ${feriado.nome}`}
+          ? `Hoje é feriado: ${feriado.nome}`
+          : feriado.diasRestantes === 1
+          ? `Amanhã será feriado: ${feriado.nome}`
+          : `Feriado chegando: ${feriado.nome}`}
         </h2>
 
         <p className="mt-1 text-sm font-semibold text-slate-800 dark:text-amber-100">
@@ -179,8 +179,12 @@ export default function PhanyxFeriadoAviso() {
         </p>
 
         <p className="mt-2 text-sm leading-6 text-slate-700 dark:text-slate-100">
-          {feriado.mensagem}
-        </p>
+  {feriado.diasRestantes === 0
+    ? `Hoje (${feriado.dataTexto}) é ${feriado.nome}. ${feriado.mensagem}`
+    : feriado.diasRestantes === 1
+    ? `Amanhã (${feriado.dataTexto}) será celebrado ${feriado.nome}. ${feriado.mensagem}`
+    : `Nesta ${feriado.dataTexto} será celebrado ${feriado.nome}. ${feriado.mensagem}`}
+</p>
       </div>
     </div>
   </div>
