@@ -19,6 +19,11 @@ export async function GET() {
     });
 
     console.log(
+  "REFRESH TOKEN BANCO:",
+  instituicao?.googleBusinessRefreshToken
+);
+
+    console.log(
   "REFRESH TOKEN:",
   instituicao?.googleBusinessRefreshToken
 );
