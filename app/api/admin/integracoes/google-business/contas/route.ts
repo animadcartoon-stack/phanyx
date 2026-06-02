@@ -45,6 +45,10 @@ console.log(
       process.env.GOOGLE_CLIENT_SECRET
     );
 
+    oauth2Client.setCredentials({
+  refresh_token: instituicao.googleBusinessRefreshToken,
+});
+
     let accessToken: string | null = null;
 
 try {
