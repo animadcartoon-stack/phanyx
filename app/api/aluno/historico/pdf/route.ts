@@ -8,20 +8,6 @@ import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function formatarDataAtual() {
-  return new Date().toLocaleDateString("pt-BR");
-}
-
-function substituirTemplate(template: string, valores: Record<string, string>) {
-  let texto = template;
-
-  for (const [chave, valor] of Object.entries(valores)) {
-    texto = texto.replaceAll(`{{${chave}}}`, valor);
-  }
-
-  return texto;
-}
-
 async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
   if (!url) return null;
 
@@ -42,12 +28,21 @@ async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
   }
 }
 
+function textoSeguro(valor?: string | null) {
+  return valor && valor.trim() ? valor : "-";
+}
+
+function dataBR(data?: Date | string | null) {
+  if (!data) return "-";
+  return new Date(data).toLocaleDateString("pt-BR");
+}
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
 
     if (!user || user.role !== "ALUNO") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
     const instituicao = await prisma.instituicao.findUnique({
@@ -58,11 +53,11 @@ export async function GET() {
       },
     });
 
-    const podeGerarHistorico =
+    const podeGerar =
       planoTemRecurso(instituicao?.plano, "DOCUMENTOS_DINAMICOS") &&
       assinaturaPermiteUso(instituicao?.statusAssinatura);
 
-    if (!podeGerarHistorico) {
+    if (!podeGerar) {
       return NextResponse.json(
         {
           error:
@@ -74,7 +69,7 @@ export async function GET() {
 
     const aluno = await prisma.aluno.findFirst({
       where: {
-        userId: user.id,
+        usuarioId: user.id,
         instituicaoId: user.instituicaoId,
       },
       include: {
@@ -94,32 +89,7 @@ export async function GET() {
 
     if (!aluno) {
       return NextResponse.json(
-        { error: "Aluno não encontrado" },
-        { status: 404 }
-      );
-    }
-
-    const template = await prisma.documentoTemplate.findFirst({
-  where: {
-    instituicaoId: user.instituicaoId,
-    ativo: true,
-    OR: [
-      { tipo: "HISTORICO" },
-      { nome: { contains: "histórico", mode: "insensitive" } },
-      { nome: { contains: "historico", mode: "insensitive" } },
-    ],
-  },
-  orderBy: {
-    id: "desc",
-  },
-});
-
-    if (!template) {
-      return NextResponse.json(
-        {
-          error:
-            "Nenhum template de Histórico ativo foi encontrado. O administrador precisa cadastrar um modelo em Documentos > Templates.",
-        },
+        { error: "Aluno não encontrado." },
         { status: 404 }
       );
     }
@@ -130,187 +100,284 @@ export async function GET() {
       },
     });
 
-    const matriculaAtual = aluno.matriculas?.[0] || null;
-    const cursoNome = matriculaAtual?.curso?.nome || "Curso não informado";
-
-    const disciplinasMatricula =
-      matriculaAtual?.itens
-        ?.map((item) => item.disciplina?.nome)
-        .filter(Boolean) || [];
-
-    const notasTexto =
-  aluno.notas.length > 0
-    ? aluno.notas
-        .map((nota) => {
-          const valorNota = Number(nota.nota || 0).toFixed(1);
-          const status = nota.aprovado ? "Concluída" : "Incompleta";
-
-          return `- Disciplina ID ${nota.disciplinaId}: nota ${valorNota} — ${status}`;
-        })
-        .join("\n")
-    : "- Nenhum registro acadêmico encontrado";
-
-    const disciplinasTexto =
-      disciplinasMatricula.length > 0
-        ? disciplinasMatricula.map((d) => `- ${d}`).join("\n")
-        : notasTexto;
-
-    const conteudoFinal = substituirTemplate(template.conteudo, {
-      nomeInstituicao: config?.nomeFantasia || "Instituição",
-      cnpjInstituicao: config?.cnpj || "-",
-      responsavelLegal: config?.responsavelNome || "-",
-      nomeAluno: aluno.nome || "-",
-      cpfAluno: aluno.cpf || "-",
-      matriculaAluno: aluno.matricula || "-",
-      curso: cursoNome,
-      disciplinas: disciplinasTexto,
-      dataAtual: formatarDataAtual(),
-      cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
-      tituloDocumento: template.nome || "Histórico Acadêmico",
-      assinaturaDiretor: config?.responsavelNome || "Direção Acadêmica",
-      numeroMatricula: aluno.matricula || "-",
-      valorContrato: "-",
-      referenciaFinanceira: "-",
-      blocoAssinaturaDiretor: "__BLOCO_ASSINATURA_DIRETOR__",
-    });
-
-    const documento = await prisma.documentoGerado.create({
-      data: {
-        titulo: template.nome || "Histórico Acadêmico",
-        tipo: template.tipo,
-        contexto: template.contexto,
-        conteudo: conteudoFinal,
-        status: "GERADO",
-        exigeAssinatura: template.exigeAssinatura,
-        instituicaoId: user.instituicaoId,
-        alunoId: aluno.id,
-        matriculaId: matriculaAtual?.id || null,
-        templateId: template.id,
-      },
-    });
+    const matriculaAtual = aluno.matriculas?.[0];
+    const curso = matriculaAtual?.curso;
 
     const pdfDoc = await PDFDocument.create();
-const page = pdfDoc.addPage([595, 842]);
+    const page = pdfDoc.addPage([595.28, 841.89]);
 
-const fonteTitulo = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-const fonteTexto = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-const assinaturaDiretorImagem = await carregarImagemPdf(
-  pdfDoc,
-  config?.certificadoAssinaturaUrl
-);
+    const logo = await carregarImagemPdf(pdfDoc, config?.logoUrl);
+    const assinatura = await carregarImagemPdf(
+      pdfDoc,
+      config?.certificadoAssinaturaUrl
+    );
 
-const logoInstituicaoImagem = await carregarImagemPdf(
-  pdfDoc,
-  config?.logoUrl
-);
+    const preto = rgb(0, 0, 0);
+    const azul = rgb(0.02, 0.12, 0.35);
+    const cinza = rgb(0.35, 0.35, 0.35);
+    const cinzaClaro = rgb(0.92, 0.92, 0.92);
 
-let y = 790;
+    function drawBox(x: number, y: number, w: number, h: number) {
+      page.drawRectangle({
+        x,
+        y,
+        width: w,
+        height: h,
+        borderColor: preto,
+        borderWidth: 0.8,
+      });
+    }
 
-page.drawText(config?.nomeFantasia || "Instituição", {
-  x: 50,
-  y,
-  size: 16,
-  font: fonteTitulo,
-  color: rgb(0, 0.15, 0.45),
-});
+    function drawText(
+      texto: string,
+      x: number,
+      y: number,
+      size = 9,
+      bold = false,
+      color = preto
+    ) {
+      page.drawText(textoSeguro(texto), {
+        x,
+        y,
+        size,
+        font: bold ? fontBold : font,
+        color,
+      });
+    }
 
-y -= 24;
+    // Moldura geral
+    drawBox(35, 35, 525, 770);
 
-page.drawText("HISTÓRICO ACADÊMICO", {
-  x: 50,
-  y,
-  size: 20,
-  font: fonteTitulo,
-  color: rgb(0, 0, 0),
-});
+    // Cabeçalho
+    drawBox(45, 715, 505, 80);
 
-y -= 35;
+    if (logo) {
+      page.drawImage(logo, {
+        x: 55,
+        y: 732,
+        width: 55,
+        height: 45,
+      });
+    }
 
-const linhas = documento.conteudo.split("\n");
+    drawText(textoSeguro(config?.nomeFantasia || "IBE"), 125, 770, 13, true, azul);
+    drawText(textoSeguro(config?.razaoSocial), 125, 755, 8);
+    drawText(`CNPJ: ${textoSeguro(config?.cnpj)}`, 125, 742, 8);
+    drawText(
+      `${textoSeguro(config?.endereco)} - ${textoSeguro(config?.cidade)}/${textoSeguro(config?.estado)}`,
+      125,
+      729,
+      8
+    );
+    drawText(
+      `Telefone: ${textoSeguro(config?.telefone)}   E-mail: ${textoSeguro(config?.email)}`,
+      125,
+      716,
+      8
+    );
 
-for (const linha of linhas) {
-  if (y < 90) break;
+    // Título
+    drawText("HISTÓRICO ACADÊMICO ESCOLAR", 180, 685, 15, true, preto);
 
-  if (linha.includes("__BLOCO_ASSINATURA_DIRETOR__")) {
-    y -= 12;
+    // Dados do aluno
+    drawBox(45, 595, 505, 70);
+    page.drawRectangle({
+      x: 45,
+      y: 645,
+      width: 505,
+      height: 20,
+      color: cinzaClaro,
+      borderColor: preto,
+      borderWidth: 0.8,
+    });
 
-    if (assinaturaDiretorImagem) {
-      page.drawImage(assinaturaDiretorImagem, {
-        x: 50,
-        y: y - 35,
-        width: 160,
-        height: 55,
+    drawText("DADOS DO ALUNO", 250, 651, 9, true);
+
+    drawText(`Aluno(a): ${textoSeguro(aluno.nome)}`, 55, 628, 9, true);
+    drawText(`CPF: ${textoSeguro(aluno.cpf)}`, 55, 612, 9);
+    drawText(`Matrícula: ${textoSeguro((aluno as any).matricula)}`, 230, 612, 9);
+    drawText(`Nascimento: ${dataBR((aluno as any).dataNascimento)}`, 390, 612, 9);
+    drawText(`Curso: ${textoSeguro(curso?.nome)}`, 55, 598, 9);
+
+    // Tabela
+    const tabelaX = 45;
+    let y = 555;
+
+    drawText("COMPONENTES CURRICULARES", 210, 570, 11, true);
+
+    const colunas = [
+      { titulo: "DISCIPLINA", x: tabelaX, w: 260 },
+      { titulo: "C.H.", x: tabelaX + 260, w: 55 },
+      { titulo: "NOTA", x: tabelaX + 315, w: 60 },
+      { titulo: "FREQ.", x: tabelaX + 375, w: 60 },
+      { titulo: "SITUAÇÃO", x: tabelaX + 435, w: 70 },
+    ];
+
+    page.drawRectangle({
+      x: tabelaX,
+      y,
+      width: 505,
+      height: 22,
+      color: cinzaClaro,
+      borderColor: preto,
+      borderWidth: 0.8,
+    });
+
+    for (const col of colunas) {
+      drawBox(col.x, y, col.w, 22);
+      drawText(col.titulo, col.x + 5, y + 8, 8, true);
+    }
+
+    y -= 22;
+
+    const itens = matriculaAtual?.itens || [];
+
+    for (const item of itens.slice(0, 18)) {
+      const disciplina = item.disciplina;
+      const notaEncontrada = aluno.notas?.find(
+        (n: any) => n.disciplinaId === disciplina?.id
+      );
+
+      const nomeDisciplina = textoSeguro(disciplina?.nome).slice(0, 45);
+      const carga = disciplina?.cargaHoraria
+        ? `${disciplina.cargaHoraria}h`
+        : "-";
+      const nota =
+        notaEncontrada?.valor !== undefined && notaEncontrada?.valor !== null
+          ? String(notaEncontrada.valor)
+          : "-";
+      const frequencia =
+        (notaEncontrada as any)?.frequencia !== undefined &&
+        (notaEncontrada as any)?.frequencia !== null
+          ? `${(notaEncontrada as any).frequencia}%`
+          : "-";
+
+      const situacao =
+        (item as any).status === "CONCLUIDA" ||
+        (item as any).status === "CONCLUIDO"
+          ? "Concluída"
+          : (item as any).status === "APROVADO"
+            ? "Aprovado"
+            : textoSeguro((item as any).status || "A cursar");
+
+      for (const col of colunas) {
+        drawBox(col.x, y, col.w, 20);
+      }
+
+      drawText(nomeDisciplina, tabelaX + 5, y + 7, 7.5);
+      drawText(carga, tabelaX + 270, y + 7, 7.5);
+      drawText(nota, tabelaX + 327, y + 7, 7.5);
+      drawText(frequencia, tabelaX + 387, y + 7, 7.5);
+      drawText(situacao.slice(0, 13), tabelaX + 442, y + 7, 7.2);
+
+      y -= 20;
+    }
+
+    if (itens.length === 0) {
+      for (const col of colunas) {
+        drawBox(col.x, y, col.w, 24);
+      }
+
+      drawText("Nenhuma disciplina encontrada.", tabelaX + 5, y + 8, 8);
+      y -= 24;
+    }
+
+    // Resumo
+    y -= 25;
+
+    drawBox(45, y - 55, 505, 55);
+    page.drawRectangle({
+      x: 45,
+      y: y - 20,
+      width: 505,
+      height: 20,
+      color: cinzaClaro,
+      borderColor: preto,
+      borderWidth: 0.8,
+    });
+
+    drawText("RESUMO ACADÊMICO", 235, y - 13, 9, true);
+
+    const totalDisciplinas = itens.length;
+    const cargaTotal = itens.reduce((total: number, item: any) => {
+      return total + Number(item.disciplina?.cargaHoraria || 0);
+    }, 0);
+
+    drawText(`Total de disciplinas: ${totalDisciplinas}`, 55, y - 35, 8.5);
+    drawText(`Carga horária total: ${cargaTotal}h`, 220, y - 35, 8.5);
+    drawText(`Situação da matrícula: ${textoSeguro((matriculaAtual as any)?.status)}`, 370, y - 35, 8.5);
+
+    // Observação
+    y -= 90;
+
+    drawText("OBSERVAÇÕES:", 45, y, 9, true);
+    drawText(
+      "Este histórico acadêmico foi emitido eletronicamente pelo PHANYX com base nos registros acadêmicos da instituição.",
+      45,
+      y - 15,
+      8
+    );
+
+    // Assinatura
+    const assinaturaY = 95;
+
+    if (assinatura) {
+      page.drawImage(assinatura, {
+        x: 210,
+        y: assinaturaY + 50,
+        width: 130,
+        height: 45,
       });
     }
 
     page.drawLine({
-      start: { x: 50, y: y - 45 },
-      end: { x: 280, y: y - 45 },
-      thickness: 1,
-      color: rgb(0, 0, 0),
+      start: { x: 170, y: assinaturaY + 45 },
+      end: { x: 390, y: assinaturaY + 45 },
+      thickness: 0.8,
+      color: preto,
     });
 
-    page.drawText(config?.responsavelNome || "Direção Acadêmica", {
-      x: 50,
-      y: y - 62,
-      size: 10,
-      font: fonteTitulo,
-      color: rgb(0, 0, 0),
+    drawText(textoSeguro(config?.responsavelNome), 215, assinaturaY + 30, 9, true);
+    drawText(textoSeguro(config?.responsavelCargo || "Responsável Institucional"), 220, assinaturaY + 17, 8);
+    drawText(textoSeguro(config?.nomeFantasia || "Instituição"), 225, assinaturaY + 5, 8);
+
+    // Rodapé
+    drawText(
+      `Documento emitido em ${new Date().toLocaleDateString("pt-BR")} por ${textoSeguro(config?.nomeFantasia || "PHANYX")}.`,
+      45,
+      55,
+      7.5,
+      false,
+      cinza
+    );
+
+    drawText(
+      "PHANYX - Plataforma Acadêmica",
+      395,
+      55,
+      7.5,
+      true,
+      cinza
+    );
+
+    const pdfBytes = await pdfDoc.save();
+
+    return new NextResponse(Buffer.from(pdfBytes), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": 'attachment; filename="historico-academico.pdf"',
+        "Cache-Control": "no-store",
+      },
     });
-
-    page.drawText(config?.nomeFantasia || "Instituição", {
-      x: 50,
-      y: y - 78,
-      size: 9,
-      font: fonteTexto,
-      color: rgb(0.25, 0.25, 0.25),
-    });
-
-    page.drawText(`CNPJ: ${config?.cnpj || "-"}`, {
-      x: 50,
-      y: y - 92,
-      size: 9,
-      font: fonteTexto,
-      color: rgb(0.25, 0.25, 0.25),
-    });
-
-    y -= 115;
-    continue;
-  }
-
-  page.drawText(linha.slice(0, 95), {
-    x: 50,
-    y,
-    size: 11,
-    font: fonteTexto,
-    color: rgb(0, 0, 0),
-  });
-
-  y -= 17;
-}
-
-page.drawText(`Documento emitido em ${formatarDataAtual()}`, {
-  x: 50,
-  y: 45,
-  size: 9,
-  font: fonteTexto,
-  color: rgb(0.35, 0.35, 0.35),
-});
-
-const pdfBytes = await pdfDoc.save();
-
-return new NextResponse(Buffer.from(pdfBytes), {
-  headers: {
-    "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename=historico-academico-${aluno.id}.pdf`,
-  },
-});
-  } catch (error: any) {
+  } catch (error) {
     console.error("Erro ao gerar histórico acadêmico:", error);
 
     return NextResponse.json(
-      { error: error?.message || "Erro ao gerar histórico acadêmico" },
+      { error: "Erro ao gerar histórico acadêmico." },
       { status: 500 }
     );
   }
