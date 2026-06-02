@@ -697,11 +697,25 @@ async function enviarGif(url: string) {
               </div>
 
               {chatMaximizado && (
-  <div
-    onMouseDown={iniciarRedimensionamento}
-    className="absolute left-0 top-0 h-5 w-5 cursor-nwse-resize rounded-br-xl bg-blue-500/40 hover:bg-blue-500/70"
-    title="Arrastar para redimensionar"
-  />
+  <>
+    <div
+      onMouseDown={iniciarRedimensionamento}
+      className="absolute left-0 top-0 z-50 h-6 w-6 cursor-nwse-resize rounded-br-xl bg-blue-500/40 hover:bg-blue-500/70"
+      title="Arrastar para redimensionar"
+    />
+
+    <div
+      onMouseDown={iniciarRedimensionamento}
+      className="absolute left-0 top-6 z-50 h-[calc(100%-24px)] w-2 cursor-ew-resize hover:bg-blue-500/20"
+      title="Arrastar para aumentar para os lados"
+    />
+
+    <div
+      onMouseDown={iniciarRedimensionamento}
+      className="absolute left-6 top-0 z-50 h-2 w-[calc(100%-24px)] cursor-ns-resize hover:bg-blue-500/20"
+      title="Arrastar para aumentar para cima"
+    />
+  </>
 )}
 
             </div>
