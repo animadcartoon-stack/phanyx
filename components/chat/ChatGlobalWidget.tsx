@@ -67,7 +67,7 @@ export default function ChatGlobalWidget() {
   const [chatMaximizado, setChatMaximizado] = useState(false);
 
   const [chatTamanho, setChatTamanho] = useState({
-  largura: 520,
+  largura: 320,
   altura: 560,
 });
 
@@ -412,14 +412,10 @@ async function enviarGif(url: string) {
 >
       {aberto && (
         <div
-  style={
-  chatMaximizado
-    ? {
-        width: chatTamanho.largura,
-        height: chatTamanho.altura,
-      }
-    : undefined
-}
+  style={{
+  width: chatMaximizado ? chatTamanho.largura : chatTamanho.largura,
+  height: chatMaximizado ? chatTamanho.altura : undefined,
+}}
   className={`relative mb-3 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl ${
   chatMaximizado ? "" : "w-80"
 }`}
@@ -832,7 +828,7 @@ async function enviarGif(url: string) {
   </div>
 )}
 
-  {chatMaximizado && (
+  {aberto && (
   <>
     <div
       onMouseDown={iniciarRedimensionamento}
