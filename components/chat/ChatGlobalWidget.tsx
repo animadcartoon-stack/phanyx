@@ -152,6 +152,30 @@ export default function ChatGlobalWidget() {
   window.addEventListener("mouseup", soltar);
 }
 
+function iniciarRedimensionamentoAltura(e: React.MouseEvent<HTMLDivElement>) {
+  e.preventDefault();
+
+  const inicioY = e.clientY;
+  const alturaInicial = chatTamanho.altura;
+
+  function mover(ev: MouseEvent) {
+    const novaAltura = Math.max(420, alturaInicial - (ev.clientY - inicioY));
+
+    setChatTamanho((atual) => ({
+      ...atual,
+      altura: Math.min(novaAltura, window.innerHeight - 80),
+    }));
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
  async function carregarUsuarios() {
   setConversaAberta(null);
   setMensagens([]);
@@ -843,10 +867,10 @@ async function enviarGif(url: string) {
     />
 
     <div
-      onMouseDown={iniciarRedimensionamento}
-      className="absolute left-10 top-0 z-[99999] h-5 w-[calc(100%-40px)] cursor-ns-resize bg-white/5 hover:bg-white/30"
-      title="Arrastar topo"
-    />
+  onMouseDown={iniciarRedimensionamentoAltura}
+  className="absolute left-12 top-0 z-[999999] h-2 w-[calc(100%-96px)] cursor-ns-resize bg-white/10 hover:bg-white/40"
+  title="Arrastar para cima"
+/>
   </>
 )}
 
