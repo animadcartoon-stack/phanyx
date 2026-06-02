@@ -2,6 +2,7 @@
 
 
 import { useEffect, useMemo, useState } from "react";
+import { planoTemRecurso } from "@/lib/plano-acesso";
 
 import {
   Area,
@@ -18,6 +19,9 @@ import {
 export default function ReputacaoPage() {
 
   const [scoreAnimado, setScoreAnimado] = useState(0);
+
+  const [planoInstituicao, setPlanoInstituicao] = useState("ESSENCIAL");
+const [statusAssinatura, setStatusAssinatura] = useState("ATIVA");
 
 const [porcentagemAnimada, setPorcentagemAnimada] = useState(0);
 const [scoreAtual, setScoreAtual] = useState(0);
@@ -67,6 +71,31 @@ const [mostrarNotificacaoIA, setMostrarNotificacaoIA] =
 
   const [notificacaoFechada, setNotificacaoFechada] =
   useState(false);
+
+useEffect(() => {
+  async function carregarPlano() {
+    try {
+      const res = await fetch("/api/admin/plano", {
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      setPlanoInstituicao(data?.plano || "ESSENCIAL");
+      setStatusAssinatura(data?.statusAssinatura || "ATIVA");
+    } catch {
+      setPlanoInstituicao("ESSENCIAL");
+      setStatusAssinatura("ATIVA");
+    }
+  }
+
+  carregarPlano();
+}, []);
+
+const podeUsarReputacao =
+  planoTemRecurso(planoInstituicao, "REPUTACAO") &&
+  statusAssinatura !== "SUSPENSA" &&
+  statusAssinatura !== "CANCELADA";
 
   useEffect(() => {
   carregarResumoReputacao();
@@ -1768,4 +1797,5 @@ const temRespostaLenta =
 
     </div>
   );
+  
 }

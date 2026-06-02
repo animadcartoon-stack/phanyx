@@ -55,6 +55,10 @@ const planos = [
 
   "Contratos automáticos com dados do aluno",
   "Documentos automáticos com preenchimento dinâmico",
+  "Histórico acadêmico escolar em PDF",
+
+  "Modelo de histórico com campos dinâmicos",
+  "Histórico disponível no portal do aluno",
 
   "Chat interno em tempo real",
   "Ouvidoria institucional integrada",
@@ -99,6 +103,9 @@ const planos = [
 
   "Personalizações exclusivas",
   "Automações avançadas",
+
+  "Histórico acadêmico avançado para operações multi-polo",
+  "Documentos acadêmicos com auditoria e personalização ampliada",
 
   "Suporte prioritário",
   "Condições comerciais personalizadas",

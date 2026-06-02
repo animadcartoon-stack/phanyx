@@ -17,6 +17,7 @@ model Instituicao {
   slug                   String   @unique
   updatedAt              DateTime
   plano                  String   @default("ESSENCIAL")
+  statusAssinatura       String   @default("ATIVA")
 
   metaAccessToken     String?
   metaConectado       Boolean @default(false)

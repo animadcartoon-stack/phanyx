@@ -12,6 +12,7 @@ import {
   type MouseEvent,
 } from "react";
 
+
 type CampoCertificado = {
   id: number;
   tipo: string;
@@ -376,6 +377,7 @@ const figurasDecorativas = [
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
     useState("");
   const [certificadoCidade, setCertificadoCidade] = useState("");
+  const [planoInstituicao, setPlanoInstituicao] = useState("ESSENCIAL");
   const [certificadoAssinaturaUrl, setCertificadoAssinaturaUrl] = useState("");
   const [nomeDiretorInstituicao, setNomeDiretorInstituicao] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
@@ -861,6 +863,27 @@ setCorTextoSelecionado(corHex || null);
   inicioY: number;
   posicoesIniciais: { id: number; x: number; y: number }[];
 } | null>(null);;
+
+useEffect(() => {
+  async function carregarPlano() {
+    try {
+      const res = await fetch("/api/admin/plano", {
+        cache: "no-store",
+      });
+
+      const data = await res.json();
+
+      setPlanoInstituicao(data?.plano || "ESSENCIAL");
+    } catch {
+      setPlanoInstituicao("ESSENCIAL");
+    }
+  }
+
+  carregarPlano();
+}, []);
+
+const podeUsarEditorCertificados =
+  planoInstituicao === "PROFISSIONAL" || planoInstituicao === "ENTERPRISE";
 
   useEffect(() => {
   async function carregarConfiguracao() {
@@ -2718,6 +2741,29 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         </div>
       </div>
 
+{!podeUsarEditorCertificados && (
+  <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+    <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-700">
+      Recurso disponível no Plano Profissional
+    </p>
+
+    <h2 className="mt-2 text-2xl font-black text-slate-900">
+      Editor PHANYX de Certificados bloqueado no plano atual
+    </h2>
+
+    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
+      O editor visual de certificados, campos dinâmicos, emissão automática e validação por QR Code estão disponíveis a partir do Plano Profissional.
+    </p>
+
+    <a
+      href="/planos"
+      className="mt-4 inline-flex rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
+    >
+      Ver planos disponíveis
+    </a>
+  </div>
+)}
+
       <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
@@ -2733,11 +2779,17 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         </div>
 <button
   onClick={() => {
+  if (!podeUsarEditorCertificados) {
+    setMensagemErro(
+      "O Editor PHANYX de Certificados está disponível a partir do Plano Profissional."
+    );
+    return;
+  }
+
   document.getElementById("editor-certificado")?.scrollIntoView({
     behavior: "smooth",
     block: "start",
   });
-
 }}
   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
 >

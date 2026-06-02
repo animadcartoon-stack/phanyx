@@ -22,6 +22,7 @@ export default function AlunoSidebar({
   { label: "Trabalhos", href: "/aluno/trabalhos", icon: "📄" },
   { label: "Presença", href: "/aluno/presencas", icon: "📅" },
   { label: "Boletim", href: "/aluno/boletim", icon: "📋" },
+  { label: "Histórico Acadêmico", href: "/aluno/historico", icon: "📚" },
   { label: "Certificados", href: "/aluno/certificados", icon: "🏅" },
   { label: "Ouvidoria", href: "/aluno/ouvidoria", icon: "📣" },
 ];

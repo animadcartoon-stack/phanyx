@@ -104,6 +104,8 @@ As partes declaram estar de pleno acordo com os termos estabelecidos.
 {{cidadeAssinatura}}, {{dataAtual}}.
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "DECLARACAO":
@@ -118,6 +120,8 @@ Emitido em {{dataAtual}}.
 {{cidadeAssinatura}}
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "RECIBO":
@@ -132,6 +136,8 @@ Emitido por {{nomeInstituicao}} em {{dataAtual}}.
 {{cidadeAssinatura}}
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "COMPROVANTE":
@@ -145,6 +151,8 @@ Documento emitido para fins de comprovação financeira.
 {{dataAtual}}
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "TRANCAMENTO":
@@ -159,6 +167,8 @@ Emitido em {{dataAtual}}.
 {{cidadeAssinatura}}
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "COMPARECIMENTO":
@@ -171,6 +181,8 @@ Documento emitido para comprovação de comparecimento.
 {{cidadeAssinatura}}
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "HISTORICO":
@@ -187,6 +199,8 @@ DISCIPLINAS:
 Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
 
     case "OUTRO":
@@ -204,6 +218,8 @@ Conteúdo personalizado.
 Emitido em {{dataAtual}} por {{nomeInstituicao}}.
 
 {{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
 `;
   }
 }
@@ -696,6 +712,7 @@ function moverCampoVisual(id: string, x: number, y: number) {
                     "{{matriculaAluno}}",
                     "{{numeroMatricula}}",
                     "{{assinaturaDiretor}}",
+                    "{{blocoAssinaturaDiretor}}",
                     "{{curso}}",
                     "{{disciplinas}}",
                     "{{valorContrato}}",

@@ -1,0 +1,82 @@
+export type PlanoPhanyx = "ESSENCIAL" | "PROFISSIONAL" | "ENTERPRISE";
+
+export type RecursoPhanyx =
+  | "ACADEMICO"
+  | "FINANCEIRO"
+  | "DOCUMENTOS_BASICOS"
+  | "LMS"
+  | "PROVAS"
+  | "CERTIFICADOS_EDITOR"
+  | "CERTIFICADOS_AUTOMATICOS"
+  | "CERTIFICADO_VALIDACAO_QR"
+  | "DOCUMENTOS_DINAMICOS"
+  | "CONTRATOS_AUTOMATICOS"
+  | "CHAT_INTERNO"
+  | "OUVIDORIA"
+  | "REPUTACAO"
+  | "REPUTACAO_AVANCADA"
+  | "PHANYX_GROWTH"
+  | "INTEGRACOES_GOOGLE"
+  | "INTEGRACOES_META"
+  | "GOOGLE_BUSINESS"
+  | "GESTAO_MULTI_POLOS"
+  | "MULTI_POLOS_AVANCADO";
+
+const recursosPorPlano: Record<PlanoPhanyx, RecursoPhanyx[]> = {
+  ESSENCIAL: [
+    "ACADEMICO",
+    "FINANCEIRO",
+    "DOCUMENTOS_BASICOS",
+  ],
+
+  PROFISSIONAL: [
+    "ACADEMICO",
+    "FINANCEIRO",
+    "DOCUMENTOS_BASICOS",
+    "LMS",
+    "PROVAS",
+    "CERTIFICADOS_EDITOR",
+    "CERTIFICADOS_AUTOMATICOS",
+    "CERTIFICADO_VALIDACAO_QR",
+    "DOCUMENTOS_DINAMICOS",
+    "CONTRATOS_AUTOMATICOS",
+    "CHAT_INTERNO",
+    "OUVIDORIA",
+    "REPUTACAO",
+    "INTEGRACOES_GOOGLE",
+  ],
+
+  ENTERPRISE: [
+    "ACADEMICO",
+    "FINANCEIRO",
+    "DOCUMENTOS_BASICOS",
+    "LMS",
+    "PROVAS",
+    "CERTIFICADOS_EDITOR",
+    "CERTIFICADOS_AUTOMATICOS",
+    "CERTIFICADO_VALIDACAO_QR",
+    "DOCUMENTOS_DINAMICOS",
+    "CONTRATOS_AUTOMATICOS",
+    "CHAT_INTERNO",
+    "OUVIDORIA",
+    "REPUTACAO",
+    "REPUTACAO_AVANCADA",
+    "PHANYX_GROWTH",
+    "INTEGRACOES_GOOGLE",
+    "INTEGRACOES_META",
+    "GOOGLE_BUSINESS",
+    "GESTAO_MULTI_POLOS",
+    "MULTI_POLOS_AVANCADO",
+  ],
+};
+
+export function planoTemRecurso(
+  plano: string | null | undefined,
+  recurso: RecursoPhanyx
+) {
+  const planoNormalizado = (plano || "ESSENCIAL")
+    .toUpperCase()
+    .replace("PROFESSIONAL", "PROFISSIONAL") as PlanoPhanyx;
+
+  return recursosPorPlano[planoNormalizado]?.includes(recurso) ?? false;
+}

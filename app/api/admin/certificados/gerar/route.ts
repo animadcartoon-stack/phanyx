@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { planoTemRecurso } from "@/lib/plano-acesso";
+import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +12,28 @@ export async function POST(req: NextRequest) {
     if (!user || user.role !== "ADMIN") {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
+
+const instituicao = await prisma.instituicao.findUnique({
+  where: { id: user.instituicaoId },
+  select: {
+    plano: true,
+    statusAssinatura: true,
+  },
+});
+
+const podeGerarCertificado =
+  planoTemRecurso(instituicao?.plano, "CERTIFICADOS_AUTOMATICOS") &&
+  assinaturaPermiteUso(instituicao?.statusAssinatura);
+
+if (!podeGerarCertificado) {
+  return NextResponse.json(
+    {
+      error:
+        "A geração automática de certificados está disponível a partir do Plano Profissional e exige assinatura ativa.",
+    },
+    { status: 403 }
+  );
+}
 
     const { alunoId } = await req.json();
 
