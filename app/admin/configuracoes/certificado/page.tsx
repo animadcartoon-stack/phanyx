@@ -6604,16 +6604,13 @@ iniciarDrag(event as any, c);
           writingMode: "horizontal-tb",
           caretColor: corTextoSelecionado || c.cor || "#1e3a8a",
         }}
-      dangerouslySetInnerHTML={
-  (c as any).textoHtml
-    ? {
-        __html: (c as any).textoHtml,
-      }
-    : undefined
-}
->
-  {!(c as any).textoHtml ? ((c as any).texto || "Digite seu texto") : null}
-</div>
+      dangerouslySetInnerHTML={{
+  __html:
+    (c as any).textoHtml ||
+    c.texto ||
+    (c.textoTipo === "TITULO" ? "Digite seu título" : "Digite seu texto"),
+}}
+/>
 
       {selecionadoTexto && (
         <div
