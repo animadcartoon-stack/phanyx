@@ -23,51 +23,67 @@ export async function GET() {
     let usuariosIdsPermitidos: number[] = [];
 
     if (role === "ALUNO") {
-      const aluno = await prisma.aluno.findFirst({
-        where: {
-          userId: user.id,
-          instituicaoId: user.instituicaoId,
-        },
+  const aluno = await prisma.aluno.findFirst({
+    where: {
+      userId: user.id,
+      instituicaoId: user.instituicaoId,
+    },
+    include: {
+      matriculas: {
         include: {
-          matriculas: {
+          itens: {
             include: {
-              itens: true,
+              turma: {
+                include: {
+                  disciplinas: {
+                    include: {
+                      disciplina: {
+                        include: {
+                          professor: true,
+                          professoresHabilitados: {
+                            include: {
+                              professor: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },
-      });
+      },
+    },
+  });
 
-      const pares =
-        aluno?.matriculas.flatMap((matricula) =>
-          matricula.itens.map((item) => ({
-            turmaId: item.turmaId,
-            disciplinaId: item.disciplinaId,
-          }))
-        ) || [];
+  const professoresIds = new Set<number>();
 
-      const vinculos = pares.length
-        ? await prisma.turmaDisciplina.findMany({
-            where: {
-              instituicaoId: user.instituicaoId,
-              OR: pares.map((par) => ({
-                turmaId: par.turmaId,
-                disciplinaId: par.disciplinaId,
-              })),
-            },
-            include: {
-              professor: true,
-            },
-          })
-        : [];
+  for (const matricula of aluno?.matriculas || []) {
+    for (const item of matricula.itens || []) {
+      for (const turmaDisciplina of item.turma?.disciplinas || []) {
+        const professorPrincipal =
+          turmaDisciplina.disciplina?.professor?.userId;
 
-      usuariosIdsPermitidos = Array.from(
-        new Set(
-          vinculos
-            .map((v) => v.professor?.userId)
-            .filter((id): id is number => typeof id === "number")
-        )
-      );
+        if (typeof professorPrincipal === "number") {
+          professoresIds.add(professorPrincipal);
+        }
+
+        for (const habilitado of
+          turmaDisciplina.disciplina?.professoresHabilitados || []) {
+          const userId = habilitado.professor?.userId;
+
+          if (typeof userId === "number") {
+            professoresIds.add(userId);
+          }
+        }
+      }
     }
+  }
+
+  usuariosIdsPermitidos = Array.from(professoresIds);
+}
 
     if (role === "PROFESSOR") {
       const professor = await prisma.professor.findFirst({
