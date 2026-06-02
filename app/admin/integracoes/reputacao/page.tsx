@@ -102,7 +102,7 @@ useEffect(() => {
 
       setTimeout(() => {
         setNotificacaoAtual((valor) =>
-          valor >= notificacoesIA.length - 1 ? 0 : valor + 1
+          valor >= 1 ? 0 : valor + 1
         );
       }, 400);
     }, 4200);
@@ -172,40 +172,6 @@ const timeline = (resumoReputacao?.ultimos || []).map((item: any) => ({
       ? "bg-emerald-500"
       : "bg-blue-500",
 }));
-
-const notificacoesIA = [
-  {
-    titulo: "Nova avaliação recebida",
-    descricao: "Uma nova avaliação foi detectada no Google Business.",
-    cor:
-      "border-emerald-200 bg-emerald-50 text-emerald-700",
-    emoji: "⭐",
-  },
-
-  {
-    titulo: "Engajamento em crescimento",
-    descricao: "O perfil institucional teve aumento de visualizações.",
-    cor:
-      "border-amber-200 bg-amber-50 text-amber-700",
-    emoji: "📈",
-  },
-
-  {
-    titulo: "Resposta pendente",
-    descricao: "Existe uma avaliação aguardando retorno.",
-    cor:
-      "border-red-200 bg-red-50 text-red-700",
-    emoji: "⚠️",
-  },
-
-  {
-    titulo: "IA monitorando reputação",
-    descricao: "PHANYX Growth continua analisando sinais reputacionais.",
-    cor:
-      "border-cyan-200 bg-cyan-50 text-cyan-700",
-    emoji: "🤖",
-  },
-];
 
 const avaliacoesSimuladas = (resumoReputacao?.ultimos || []).map((item: any) => ({
   id: item.id,
@@ -452,18 +418,6 @@ const obterCorTimeline = (tipo: string) => {
   cor: "text-purple-700",
 },
   ];
-
-  <style jsx global>{`
-  @keyframes toastBar {
-    from {
-      transform: scaleX(1);
-    }
-
-    to {
-      transform: scaleX(0);
-    }
-  }
-`}</style>
 
 const crescimentoReal =
   resumoReputacao?.evolucao7Dias?.length >= 2
@@ -1150,7 +1104,10 @@ const temRespostaLenta =
     </div>
 
     <div className="mt-5 h-2 overflow-hidden rounded-full bg-red-100">
-      <div className="h-full w-[82%] rounded-full bg-gradient-to-r from-red-500 to-orange-400" />
+      <div
+  className="h-full rounded-full bg-gradient-to-r from-red-500 to-orange-400"
+  style={{ width: `${Math.min(100, (resumoReputacao?.criticos || 0) * 25)}%` }}
+/>
     </div>
   </div>
 
@@ -1162,11 +1119,19 @@ const temRespostaLenta =
         </p>
 
         <h3 className="mt-3 text-lg font-black text-slate-900">
-          Engajamento em alta
-        </h3>
+  {crescimentoReal > 0
+    ? "Crescimento reputacional detectado"
+    : crescimentoReal < 0
+    ? "Queda reputacional detectada"
+    : "Reputação estável"}
+</h3>
 
         <p className="mt-2 text-sm leading-6 text-slate-600">
-          O índice reputacional apresentou crescimento consistente esta semana.
+          {crescimentoReal > 0
+  ? "Houve aumento nos registros reputacionais positivos no período."
+  : crescimentoReal < 0
+  ? "Houve redução no desempenho reputacional no período."
+  : "Não houve variação relevante nos registros reputacionais."}
         </p>
       </div>
 
@@ -1174,7 +1139,10 @@ const temRespostaLenta =
     </div>
 
     <div className="mt-5 h-2 overflow-hidden rounded-full bg-emerald-100">
-      <div className="h-full w-[91%] rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" />
+      <div
+  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400"
+  style={{ width: `${Math.min(100, Math.abs(crescimentoReal) * 20)}%` }}
+/>
     </div>
   </div>
 
@@ -1200,7 +1168,10 @@ const temRespostaLenta =
     </div>
 
     <div className="mt-5 h-2 overflow-hidden rounded-full bg-amber-100">
-      <div className="h-full w-[63%] rounded-full bg-gradient-to-r from-amber-400 to-orange-400" />
+      <div
+  className="h-full rounded-full bg-gradient-to-r from-amber-400 to-orange-400"
+  style={{ width: `${temRespostaLenta ? 100 : 35}%` }}
+/>
     </div>
   </div>
 
@@ -1224,12 +1195,15 @@ const temRespostaLenta =
     </div>
 
     <div className="mt-5 h-2 overflow-hidden rounded-full bg-cyan-100">
-      <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-cyan-400 to-blue-500" />
+      <div
+  className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-blue-500"
+  style={{ width: `${scoreAtual}%` }}
+/>
     </div>
   </div>
 </div>
 
-<div className="rounded-3xl border bg-wte p-6 shadow-sm">
+<div className="rounded-3xl border bg-white p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
       <h2 className="text-2xl font-black text-slate-900">
@@ -1368,40 +1342,62 @@ const temRespostaLenta =
           </h2>
 
           <div className="mt-4 space-y-3">
-            {[
-              "Google Business",
-              "Meta / Facebook",
-              "Instagram",
-              "Reclamações internas",
-            ].map((item) => (
-              <div
-                key={item}
-                className="flex items-center justify-between rounded-xl border p-4"
-              >
-                <span className="font-semibold text-slate-700">{item}</span>
+  {[
+    {
+      nome: "Google Business",
+      status: "Em preparação",
+      cor: "bg-amber-100 text-amber-700",
+    },
+    {
+      nome: "Meta / Facebook",
+      status: "Em preparação",
+      cor: "bg-amber-100 text-amber-700",
+    },
+    {
+      nome: "Instagram",
+      status: "Em preparação",
+      cor: "bg-amber-100 text-amber-700",
+    },
+    {
+      nome: "Reclamações internas",
+      status: "Ativo",
+      cor: "bg-emerald-100 text-emerald-700",
+    },
+  ].map((item) => (
+    <div
+      key={item.nome}
+      className="flex items-center justify-between rounded-xl border p-4"
+    >
+      <span className="font-semibold text-slate-700">
+        {item.nome}
+      </span>
 
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-500">
-                  Em preparação
-                </span>
-              </div>
-            ))}
-          </div>
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-bold ${item.cor}`}
+      >
+        {item.status}
+      </span>
+    </div>
+  ))}
+</div>
         </div>
 
         <div className="rounded-2xl border bg-white p-6 shadow-sm">
-          <h2 className="text-lg font-black text-slate-900">
-            Próximos recursos
-          </h2>
+          <div className="rounded-2xl border bg-white p-6 shadow-sm">
+  <h2 className="text-lg font-black text-slate-900">
+    Status dos recursos
+  </h2>
 
-          <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
-            <li>✅ Últimas avaliações recebidas</li>
-            <li>✅ Respostas pendentes</li>
-            <li>✅ Alerta de avaliação negativa</li>
-            <li>✅ Nota média por canal</li>
-            <li>✅ Índice reputacional PHANYX</li>
-          </ul>
-        </div>
-      </div>
+  <ul className="mt-4 space-y-3 text-sm font-semibold text-slate-600">
+    <li>✅ Ouvidoria interna ativa</li>
+    <li>✅ Respostas pendentes calculadas pela base</li>
+    <li>✅ Índice PHANYX calculado pela Ouvidoria</li>
+    <li>🟡 Google Business aguardando liberação da API</li>
+    <li>🟡 Meta / Instagram aguardando integração reputacional</li>
+  </ul>
+</div>
+            </div>
+    </div>
 
 {toastMensagem && (
   <div className="fixed right-5 top-5 z-[60] rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm font-bold text-emerald-800 shadow-2xl">
@@ -1694,8 +1690,8 @@ const temRespostaLenta =
           </p>
 
           <h3 className="mt-2 text-2xl font-black text-slate-900">
-            Google Business
-          </h3>
+  Ouvidoria interna
+</h3>
         </div>
 
         <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
@@ -1766,52 +1762,6 @@ const temRespostaLenta =
         </button>
       </div>
 
-    </div>
-  </div>
-)}
-
-{mostrarNotificacaoIA && (
-  <div className="fixed right-6 top-6 z-[99999] animate-in slide-in-from-right-10 fade-in duration-500">
-    <div
-      className={`w-[380px] rounded-3xl border p-5 shadow-2xl backdrop-blur-xl ${notificacoesIA[notificacaoAtual].cor}`}
-    >
-
-<div className="mb-3 flex justify-end">
-  <button
-    type="button"
-    onClick={() => {
-      setMostrarNotificacaoIA(false);
-      setNotificacaoFechada(true);
-    }}
-    className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-lg font-black text-current transition hover:rotate-90 hover:bg-black/10"
-  >
-    ×
-  </button>
-</div>
-
-      <div className="flex items-start gap-4">
-        <div className="text-3xl">
-          {notificacoesIA[notificacaoAtual].emoji}
-        </div>
-
-        <div className="flex-1">
-          <p className="text-xs font-black uppercase tracking-[0.25em]">
-            PHANYX IA
-          </p>
-
-          <h3 className="mt-2 text-lg font-black">
-            {notificacoesIA[notificacaoAtual].titulo}
-          </h3>
-
-          <p className="mt-2 text-sm leading-6 opacity-90">
-            {notificacoesIA[notificacaoAtual].descricao}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-4 h-1 overflow-hidden rounded-full bg-black/10">
-        <div className="h-full w-full origin-left animate-[toastBar_4s_linear] rounded-full bg-current" />
-      </div>
     </div>
   </div>
 )}

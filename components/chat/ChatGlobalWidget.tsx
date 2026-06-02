@@ -836,20 +836,20 @@ async function enviarGif(url: string) {
   <>
     <div
       onMouseDown={iniciarRedimensionamento}
-      className="absolute left-0 top-0 z-50 h-6 w-6 cursor-nwse-resize rounded-br-xl bg-blue-500/40 hover:bg-blue-500/70"
+      className="absolute left-0 top-0 z-[99999] h-10 w-10 cursor-nwse-resize rounded-br-xl bg-white/30 hover:bg-white/60"
       title="Arrastar para redimensionar"
     />
 
     <div
       onMouseDown={iniciarRedimensionamento}
-      className="absolute left-0 top-6 z-50 h-[calc(100%-24px)] w-2 cursor-ew-resize hover:bg-blue-500/20"
-      title="Arrastar para aumentar para os lados"
+      className="absolute left-0 top-10 z-[99999] h-[calc(100%-40px)] w-5 cursor-ew-resize bg-white/5 hover:bg-white/30"
+      title="Arrastar lateral"
     />
 
     <div
       onMouseDown={iniciarRedimensionamento}
-      className="absolute left-6 top-0 z-50 h-2 w-[calc(100%-24px)] cursor-ns-resize hover:bg-blue-500/20"
-      title="Arrastar para aumentar para cima"
+      className="absolute left-10 top-0 z-[99999] h-5 w-[calc(100%-40px)] cursor-ns-resize bg-white/5 hover:bg-white/30"
+      title="Arrastar topo"
     />
   </>
 )}
