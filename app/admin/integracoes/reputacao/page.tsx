@@ -1087,7 +1087,7 @@ const temRespostaLenta =
           ALERTA IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
   {resumoReputacao?.criticos > 0
     ? "Manifestações críticas detectadas"
     : "Nenhum alerta crítico"}
@@ -1118,7 +1118,7 @@ const temRespostaLenta =
           GROWTH IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
   {crescimentoReal > 0
     ? "Crescimento reputacional detectado"
     : crescimentoReal < 0
@@ -1153,7 +1153,7 @@ const temRespostaLenta =
           TEMPO RESPOSTA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
           Respostas lentas
         </h3>
 
@@ -1182,7 +1182,7 @@ const temRespostaLenta =
           SCORE IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
           Reputação excelente
         </h3>
 
