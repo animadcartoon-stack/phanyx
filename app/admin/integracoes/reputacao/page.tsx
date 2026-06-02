@@ -1080,20 +1080,20 @@ const temRespostaLenta =
 </div>
 
 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-  <div className="rounded-3xl border border-red-200 bg-gradient-to-br from-red-50 to-white p-5 shadow-sm">
+  <div className="rounded-3xl border border-red-500/20 bg-slate-900 p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
           ALERTA IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
   {resumoReputacao?.criticos > 0
     ? "Manifestações críticas detectadas"
     : "Nenhum alerta crítico"}
 </h3>
 
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-slate-300">
   {resumoReputacao?.criticos > 0
     ? "Existem manifestações críticas aguardando acompanhamento."
     : "Não há manifestações críticas abertas no momento."}
@@ -1111,14 +1111,14 @@ const temRespostaLenta =
     </div>
   </div>
 
-  <div className="rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm">
+  <div className="rounded-3xl border border-emerald-500/20 bg-slate-900 p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">
           GROWTH IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
   {crescimentoReal > 0
     ? "Crescimento reputacional detectado"
     : crescimentoReal < 0
@@ -1126,7 +1126,7 @@ const temRespostaLenta =
     : "Reputação estável"}
 </h3>
 
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-slate-300">
           {crescimentoReal > 0
   ? "Houve aumento nos registros reputacionais positivos no período."
   : crescimentoReal < 0
@@ -1146,18 +1146,18 @@ const temRespostaLenta =
     </div>
   </div>
 
-  <div className="rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm">
+  <div className="rounded-3xl border border-amber-500/20 bg-slate-900 p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">
           TEMPO RESPOSTA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
           Respostas lentas
         </h3>
 
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-slate-300">
           {temRespostaLenta
   ? "Existem manifestações acima do tempo ideal de retorno."
   : "O tempo de resposta está dentro do esperado."}
@@ -1175,18 +1175,18 @@ const temRespostaLenta =
     </div>
   </div>
 
-  <div className="rounded-3xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-white p-5 shadow-sm">
+  <div className="rounded-3xl border border-cyan-500/20 bg-slate-900 p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">
           SCORE IA
         </p>
 
-        <h3 className="mt-3 text-lg font-black text-slate-900">
+        <h3 className="mt-3 text-lg font-black text-white">
           Reputação excelente
         </h3>
 
-        <p className="mt-2 text-sm leading-6 text-slate-600">
+        <p className="mt-2 text-sm leading-6 text-slate-300">
           A instituição mantém forte aprovação reputacional.
         </p>
       </div>
@@ -1203,14 +1203,14 @@ const temRespostaLenta =
   </div>
 </div>
 
-<div className="rounded-3xl border bg-white p-6 shadow-sm">
+<div className="phanyx-theme-card rounded-3xl border p-6 shadow-sm">
   <div className="flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h2 className="text-2xl font-black text-slate-900">
+      <h2 className="text-2xl font-black">
         Timeline reputacional IA
       </h2>
 
-      <p className="mt-1 text-sm text-slate-500">
+      <p className="mt-1 text-sm opacity-70">
         Eventos recentes acompanhados automaticamente pelo PHANYX Growth.
       </p>
     </div>
@@ -1233,22 +1233,22 @@ const temRespostaLenta =
           </div>
 
           {index < timelineAvaliacoes.length - 1 && (
-            <div className="mt-2 h-full min-h-10 w-px bg-slate-200" />
+            <div className="mt-2 h-full min-h-10 w-px bg-slate-500/40" />
           )}
         </div>
 
-        <div className="flex-1 rounded-2xl border bg-slate-50 p-4">
+        <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-black text-slate-900">
+            <h3 className="font-black">
               {item.titulo}
             </h3>
 
-            <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-slate-500">
+            <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold opacity-80">
               {item.tempo}
             </span>
           </div>
 
-          <p className="mt-2 text-sm leading-6 text-slate-600">
+          <p className="mt-2 text-sm leading-6 opacity-70">
             {item.descricao}
           </p>
         </div>
