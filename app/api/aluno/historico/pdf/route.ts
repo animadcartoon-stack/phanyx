@@ -171,6 +171,8 @@ const polo = aluno?.polo || null;
 
 const nomePolo = polo?.nome || "Polo São José";
 
+const codigoValidacao = `PHANYX-${Date.now()}-${aluno.id}`;
+
 const valoresTemplate = {
   logoInstituicao: "{{logoInstituicao}}",
   nomeInstituicao: config?.nomeFantasia || "Instituição",
@@ -207,6 +209,9 @@ blocoPolo: polo
   numeroMatricula: aluno.matricula || "-",
   statusAluno: aluno.statusAluno || "-",
 
+    codigoValidacao,
+  urlValidacao: "https://www.phanyx.com.br/validar-documento",
+  
   curso: curso?.nome || "-",
   statusMatricula: (matriculaAtual as any)?.status || "-",
   dataAtual: new Date().toLocaleDateString("pt-BR"),
@@ -250,6 +255,24 @@ Status da matrícula: {{statusMatricula}}
 Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.`,
   valoresTemplate
 );
+
+const documentoGerado = await prisma.documentoGerado.create({
+  data: {
+    titulo: "Histórico Acadêmico",
+    tipo: "HISTORICO",
+    contexto: "MATRICULA",
+    conteudo: conteudoTemplate,
+    status: "ASSINADO",
+    exigeAssinatura: true,
+    assinadoEm: new Date(),
+    instituicaoId: user.instituicaoId,
+    alunoId: aluno.id,
+    matriculaId: matriculaAtual?.id || null,
+    templateId: templateHistorico?.id || null,
+    cursoId: curso?.id || null,
+    codigoValidacao,
+  },
+});
 
     function drawBox(x: number, y: number, w: number, h: number) {
       page.drawRectangle({
@@ -357,7 +380,7 @@ let cursorY = 790;
 const cabecalho = pegarSecao("CABEÇALHO INSTITUCIONAL");
 const textoCabecalho = limparTextoSecao(cabecalho);
 
-const temLogoNoCabecalho = cabecalho.includes("{{logoInstituicao}}") && logo;
+const temLogoNoCabecalho = Boolean(logo);
 const alturaTextoCabecalho = alturaDoTexto(textoCabecalho, 8, temLogoNoCabecalho ? 58 : 85);
 const alturaLogo = temLogoNoCabecalho ? 70 : 0;
 const alturaCabecalho = Math.max(70, alturaTextoCabecalho, alturaLogo + 20);
@@ -567,7 +590,25 @@ const rodape =
     config?.nomeFantasia || "PHANYX"
   )}.`;
 
-drawText(rodape.slice(0, 95), 45, 55, 7.5, false, cinza);
+drawText(rodape.slice(0, 95), 45, 65, 7.2, false, cinza);
+
+drawText(
+  `Código de validação: ${documentoGerado.codigoValidacao || codigoValidacao}`,
+  45,
+  52,
+  7.2,
+  true,
+  cinza
+);
+
+drawText(
+  "Valide em: https://www.phanyx.com.br/validar-documento",
+  45,
+  40,
+  7.2,
+  false,
+  cinza
+);
 
     const pdfBytes = await pdfDoc.save();
 
