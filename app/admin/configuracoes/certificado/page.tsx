@@ -614,6 +614,7 @@ function gerarPontosEstrela(
 
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
   if (!modoFormaLivre || !canvasRef.current) return false;
+  
   if (e.button !== 0) return false;
 
   e.preventDefault();
@@ -623,6 +624,10 @@ function gerarPontosEstrela(
 
   const x = (e.clientX - rect.left) / escala;
   const y = (e.clientY - rect.top) / escala;
+
+setMensagemSucesso(
+  `Clique recebido X:${Math.round(x)} Y:${Math.round(y)}`
+);
 
   const primeiro = pontosFormaLivre[0];
   const clicouNoPrimeiro =
