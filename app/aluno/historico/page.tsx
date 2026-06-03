@@ -79,11 +79,11 @@ async function gerarHistoricoAcademico() {
     <main className="p-8 space-y-6">
 
 <div className="rounded-3xl border border-blue-200 bg-blue-50 p-6">
-  <h2 className="text-2xl font-bold text-blue-900">
+  <h2 className="text-2xl font-bold text-blue-500">
     Histórico Acadêmico Oficial
   </h2>
 
-  <p className="mt-2 text-blue-700">
+  <p className="mt-2 text-blue-300">
     Consulte e imprima seu histórico acadêmico atualizado.
   </p>
 
