@@ -186,21 +186,54 @@ Documento emitido para comprovação de comparecimento.
 `;
 
     case "HISTORICO":
-      return `HISTÓRICO ACADÊMICO
+      return `[CABEÇALHO INSTITUCIONAL]
+
+{{blocoInstituicao}}
+
+[TÍTULO]
+
+HISTÓRICO ACADÊMICO ESCOLAR
+
+[DADOS DO ALUNO]
 
 Aluno(a): {{nomeAluno}}
 CPF: {{cpfAluno}}
 Matrícula: {{matriculaAluno}}
-Curso: {{curso}}
+Status do aluno: {{statusAluno}}
 
-DISCIPLINAS:
+[DADOS DA MATRÍCULA]
+
+Curso: {{curso}}
+Status da matrícula: {{statusMatricula}}
+Data da matrícula: {{dataMatricula}}
+Data de conclusão: {{dataConclusao}}
+Semestre atual: {{semestreAtual}}
+Carga horária do curso: {{cargaHorariaCurso}}
+Percentual de conclusão: {{percentualConclusao}}
+
+[DADOS DO POLO]
+
+{{blocoPolo}}
+
+[COMPONENTES CURRICULARES]
+
 {{disciplinas}}
 
+[OBSERVAÇÕES]
+
 Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
+
+Este histórico acadêmico foi emitido eletronicamente pelo PHANYX com base nos registros acadêmicos da instituição.
+
+[ASSINATURA INSTITUCIONAL]
 
 {{assinaturaDiretor}}
 
 {{blocoAssinaturaDiretor}}
+
+[RODAPÉ]
+
+{{nomeInstituicao}} - CNPJ {{cnpjInstituicao}}
 `;
 
     case "OUTRO":
@@ -704,23 +737,47 @@ function moverCampoVisual(id: string, x: number, y: number) {
 
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   {[
-                    "{{nomeInstituicao}}",
-                    "{{cnpjInstituicao}}",
-                    "{{responsavelLegal}}",
-                    "{{nomeAluno}}",
-                    "{{cpfAluno}}",
-                    "{{matriculaAluno}}",
-                    "{{numeroMatricula}}",
-                    "{{assinaturaDiretor}}",
-                    "{{blocoAssinaturaDiretor}}",
-                    "{{curso}}",
-                    "{{disciplinas}}",
-                    "{{valorContrato}}",
-                    "{{cidadeAssinatura}}",
-                    "{{dataAtual}}",
-                    "{{referenciaFinanceira}}",
-                    "{{tituloDocumento}}",
-                  ].map((tag) => (
+  "{{nomeInstituicao}}",
+  "{{cnpjInstituicao}}",
+  "{{enderecoInstituicao}}",
+  "{{telefoneInstituicao}}",
+  "{{emailInstituicao}}",
+  "{{cidadeInstituicao}}",
+  "{{estadoInstituicao}}",
+  "{{cepInstituicao}}",
+  "{{blocoInstituicao}}",
+
+  "{{nomePolo}}",
+  "{{enderecoPolo}}",
+  "{{telefonePolo}}",
+  "{{emailPolo}}",
+  "{{cidadePolo}}",
+  "{{estadoPolo}}",
+  "{{cepPolo}}",
+  "{{blocoPolo}}",
+
+  "{{responsavelLegal}}",
+  "{{nomeAluno}}",
+  "{{cpfAluno}}",
+  "{{matriculaAluno}}",
+  "{{statusAluno}}",
+  "{{statusMatricula}}",
+  "{{dataMatricula}}",
+  "{{dataConclusao}}",
+  "{{semestreAtual}}",
+  "{{cargaHorariaCurso}}",
+  "{{percentualConclusao}}",
+  "{{numeroMatricula}}",
+  "{{assinaturaDiretor}}",
+  "{{blocoAssinaturaDiretor}}",
+  "{{curso}}",
+  "{{disciplinas}}",
+  "{{valorContrato}}",
+  "{{cidadeAssinatura}}",
+  "{{dataAtual}}",
+  "{{referenciaFinanceira}}",
+  "{{tituloDocumento}}",
+].map((tag) => (
                     <span
                       key={tag}
                       className="rounded-full border bg-white px-3 py-1 text-slate-700"

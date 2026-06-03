@@ -29,6 +29,49 @@ function substituirTemplate(
   return texto;
 }
 
+function juntarPartes(partes: Array<string | null | undefined>, separador = " ") {
+  return partes.filter((p) => p && String(p).trim()).join(separador);
+}
+
+function montarEndereco(dados?: any) {
+  const ruaNumero = juntarPartes([dados?.endereco, dados?.numero], ", ");
+  const cidadeEstado = juntarPartes([dados?.cidade, dados?.estado], " - ");
+
+  return [
+    ruaNumero,
+    dados?.bairro,
+    cidadeEstado,
+    dados?.cep ? `CEP: ${dados.cep}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n") || "-";
+}
+
+function montarBlocoInstituicao(config?: any) {
+  return [
+    config?.nomeFantasia || "Instituição",
+    config?.cnpj ? `CNPJ: ${config.cnpj}` : "",
+    montarEndereco(config),
+    config?.telefone ? `Telefone: ${config.telefone}` : "",
+    config?.email ? `E-mail: ${config.email}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function montarBlocoPolo(polo?: any) {
+  if (!polo) return "-";
+
+  return [
+    polo?.nome || "Polo",
+    montarEndereco(polo),
+    polo?.telefone ? `Telefone: ${polo.telefone}` : "",
+    polo?.email ? `E-mail: ${polo.email}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export async function POST(req: Request) {
   try {
     const user = await getUserFromToken();
@@ -87,8 +130,12 @@ export async function POST(req: Request) {
           instituicaoId: user.instituicaoId,
         },
         include: {
-          aluno: true,
-          curso: true,
+  aluno: {
+    include: {
+      polo: true,
+    },
+  },
+  curso: true,
           itens: {
   include: {
     disciplina: true,
@@ -129,11 +176,14 @@ if (!valorContrato || valorContrato <= 0) {
 }
     } else if (alunoId && Number.isFinite(alunoId) && alunoId > 0) {
       aluno = await prisma.aluno.findFirst({
-        where: {
-          id: alunoId,
-          instituicaoId: user.instituicaoId,
-        },
-      });
+  where: {
+    id: alunoId,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    polo: true,
+  },
+});
 
       if (!aluno) {
         return NextResponse.json(
@@ -143,24 +193,58 @@ if (!valorContrato || valorContrato <= 0) {
       }
     }
 
-    const conteudoFinal = substituirTemplate(template.conteudo, {
-      nomeInstituicao: config?.nomeFantasia || "Instituição",
-      cnpjInstituicao: config?.cnpj || "-",
-      responsavelLegal: config?.responsavelNome || "-",
-      nomeAluno: aluno?.nome || "-",
-      cpfAluno: aluno?.cpf || "-",
-      matriculaAluno: aluno?.matricula || "-",
-      curso: cursoNome,
-      disciplinas:
-        disciplinasLista.length > 0
-          ? disciplinasLista.map((d) => `- ${d}`).join("\n")
-          : "- Não informado",
-      valorContrato: formatarMoeda(valorContrato),
-      cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
-      dataAtual: formatarDataAtual(),
-      referenciaFinanceira: "Pagamento institucional",
-      tituloDocumento: tituloPersonalizado || template.nome,
-    });
+    const polo = aluno?.polo || null;
+
+const conteudoFinal = substituirTemplate(template.conteudo, {
+  nomeInstituicao: config?.nomeFantasia || "Instituição",
+  cnpjInstituicao: config?.cnpj || "-",
+  enderecoInstituicao: montarEndereco(config),
+  telefoneInstituicao: config?.telefone || "-",
+  emailInstituicao: config?.email || "-",
+  cidadeInstituicao: config?.cidade || "-",
+  estadoInstituicao: config?.estado || "-",
+  cepInstituicao: config?.cep || "-",
+  blocoInstituicao: montarBlocoInstituicao(config),
+
+  nomePolo: polo?.nome || "-",
+  enderecoPolo: montarEndereco(polo),
+  telefonePolo: polo?.telefone || "-",
+  emailPolo: polo?.email || "-",
+  cidadePolo: polo?.cidade || "-",
+  estadoPolo: polo?.estado || "-",
+  cepPolo: polo?.cep || "-",
+  blocoPolo: montarBlocoPolo(polo),
+
+  responsavelLegal: config?.responsavelNome || "-",
+  nomeAluno: aluno?.nome || "-",
+  cpfAluno: aluno?.cpf || "-",
+  matriculaAluno: aluno?.matricula || "-",
+    curso: cursoNome,
+  statusAluno: aluno?.statusAluno || "-",
+  statusMatricula: matricula?.status || "-",
+  dataMatricula: matricula?.createdAt
+    ? new Date(matricula.createdAt).toLocaleDateString("pt-BR")
+    : "-",
+  dataConclusao: matricula?.dataConclusao
+    ? new Date(matricula.dataConclusao).toLocaleDateString("pt-BR")
+    : "-",
+  semestreAtual: matricula?.semestre || "-",
+  cargaHorariaCurso: matricula?.curso?.cargaHoraria
+    ? `${matricula.curso.cargaHoraria}h`
+    : "-",
+  percentualConclusao: matricula?.percentualConclusao
+    ? `${matricula.percentualConclusao}%`
+    : "-",
+  disciplinas:
+    disciplinasLista.length > 0
+      ? disciplinasLista.map((d) => `- ${d}`).join("\n")
+      : "- Não informado",
+  valorContrato: formatarMoeda(valorContrato),
+  cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
+  dataAtual: formatarDataAtual(),
+  referenciaFinanceira: "Pagamento institucional",
+  tituloDocumento: tituloPersonalizado || template.nome,
+});
 
     const documento = await prisma.documentoGerado.create({
       data: {
