@@ -150,61 +150,63 @@ export async function GET() {
     // Moldura geral
     drawBox(35, 35, 525, 770);
 
-    // Cabeçalho
-    drawBox(45, 715, 505, 80);
+   // Cabeçalho institucional
+drawBox(45, 705, 505, 95);
 
-    if (logo) {
-      page.drawImage(logo, {
-        x: 55,
-        y: 732,
-        width: 55,
-        height: 45,
-      });
-    }
+// Logo à esquerda
+if (logo) {
+  page.drawImage(logo, {
+    x: 58,
+    y: 725,
+    width: 72,
+    height: 55,
+  });
+}
 
-    const nomeInstituicao =
+// Dados da instituição à direita
+const nomeInstituicao =
   config?.razaoSocial?.trim() ||
   config?.nomeFantasia?.trim() ||
   "Instituição";
 
-const nomeFantasia = config?.nomeFantasia?.trim() || "";
+const enderecoLinha = [config?.endereco, config?.numero]
+  .filter(Boolean)
+  .join(", ");
 
-const enderecoLinha = [
-  config?.endereco,
-  config?.numero,
-  config?.bairro,
-].filter(Boolean).join(", ");
+const cidadeEstado = [config?.cidade, config?.estado]
+  .filter(Boolean)
+  .join(" - ");
 
-const cidadeEstado = [
-  config?.cidade,
-  config?.estado,
-].filter(Boolean).join(" - ");
+drawText(nomeInstituicao.toUpperCase(), 145, 775, 11, true, azul);
 
-const contatos = [
-  config?.telefone ? `Telefone: ${config.telefone}` : "",
-  config?.email ? `E-mail: ${config.email}` : "",
-].filter(Boolean).join("   ");
-
-drawText(nomeInstituicao.toUpperCase(), 125, 770, 12, true, azul);
-
-if (nomeFantasia && nomeFantasia !== nomeInstituicao) {
-  drawText(nomeFantasia, 125, 756, 9, true);
+if (config?.nomeFantasia && config.nomeFantasia !== nomeInstituicao) {
+  drawText(config.nomeFantasia, 145, 761, 8, true);
 }
 
 if (config?.cnpj) {
-  drawText(`CNPJ: ${config.cnpj}`, 125, 742, 8);
+  drawText(`CNPJ: ${config.cnpj}`, 145, 747, 8);
 }
 
 if (enderecoLinha) {
-  drawText(enderecoLinha, 125, 729, 8);
+  drawText(enderecoLinha, 145, 734, 8);
 }
 
 if (cidadeEstado) {
-  drawText(cidadeEstado, 125, 716, 8);
+  drawText(cidadeEstado, 145, 721, 8);
 }
 
-if (contatos) {
-  drawText(contatos, 125, 703, 8);
+if (config?.telefone || config?.email) {
+  drawText(
+    [
+      config?.telefone ? `Telefone: ${config.telefone}` : "",
+      config?.email ? `E-mail: ${config.email}` : "",
+    ]
+      .filter(Boolean)
+      .join("   "),
+    145,
+    708,
+    8
+  );
 }
 
     // Título
