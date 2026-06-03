@@ -83,7 +83,6 @@ export async function GET() {
             },
           },
         },
-        notas: true,
       },
     });
 
@@ -237,9 +236,7 @@ export async function GET() {
 
     for (const item of itens.slice(0, 18)) {
       const disciplina = item.disciplina;
-      const notaEncontrada = aluno.notas?.find(
-        (n: any) => n.disciplinaId === disciplina?.id
-      );
+      const notaEncontrada = null;
 
       const nomeDisciplina = textoSeguro(disciplina?.nome).slice(0, 45);
       const carga = disciplina?.cargaHoraria
