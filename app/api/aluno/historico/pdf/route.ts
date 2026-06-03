@@ -425,20 +425,22 @@ const cabecalhoY = cursorY - alturaCabecalho;
 drawBox(45, cabecalhoY, 505, alturaCabecalho);
 
 if (temLogoNoCabecalho) {
+  drawBox(55, cabecalhoY + 10, 100, alturaCabecalho - 20);
+
   page.drawImage(logo, {
-    x: 55,
-    y: cabecalhoY + alturaCabecalho - 75,
-    width: 70,
-    height: 70,
+    x: 65,
+    y: cabecalhoY + 20,
+    width: 80,
+    height: alturaCabecalho - 40,
   });
 }
 
 desenharLinhas(
   textoCabecalho,
-  temLogoNoCabecalho ? 145 : 58,
+  temLogoNoCabecalho ? 170 : 58,
   cabecalhoY + alturaCabecalho - 18,
-  8,
-  temLogoNoCabecalho ? 58 : 85
+  7.2,
+  temLogoNoCabecalho ? 70 : 85
 );
 
 cursorY = cabecalhoY - 28;
@@ -630,12 +632,21 @@ const observacoes = limparTextoSecao(pegarSecao("OBSERVAÇÕES"));
 y -= 25;
 
 if (observacoes) {
-  drawText("OBSERVAÇÕES:", 45, y, 9, true);
-  desenharLinhas(observacoes, 45, y - 15, 7.5);
+  drawText("OBSERVAÇÕES:", 45, y, 8.5, true);
+
+  const yDepoisObs = desenharLinhas(
+    observacoes,
+    45,
+    y - 13,
+    6.5,
+    105
+  );
+
+  y = yDepoisObs - 20;
 }
 
 // Assinatura institucional
-const assinaturaY = 95;
+const assinaturaY = Math.max(95, y - 95);
 
 if (assinatura) {
   page.drawImage(assinatura, {
