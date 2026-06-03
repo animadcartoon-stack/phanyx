@@ -3964,21 +3964,14 @@ contornoEspessura: 2,
 
                 <div
   ref={canvasRef}
-onClickCapture={(e) => {
-  const alvo = e.target as HTMLElement;
 
-  if (
-    alvo.closest("[data-campo-certificado-id]") ||
-    alvo.closest("svg") ||
-    alvo.closest("button")
-  ) {
+onMouseDown={(e) => {
+  if (modoFormaLivre) {
+    if (e.target !== e.currentTarget) return;
+    clicarFormaLivreNoCanvas(e);
     return;
   }
 
-  if (clicarFormaLivreNoCanvas(e as any)) return;
-}}
-onMouseDown={(e) => {
-  if (modoFormaLivre) return;
   iniciarSelecaoRetangular(e);
 }}
 onMouseMove={(e) => {
