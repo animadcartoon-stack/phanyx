@@ -430,23 +430,28 @@ const cabecalhoY = cursorY - alturaCabecalho;
 
 drawBox(45, cabecalhoY, 505, alturaCabecalho);
 
-if (temLogoNoCabecalho && logo) {
-  drawBox(55, cabecalhoY + 12, 105, alturaCabecalho - 24);
+// área fixa da logo à esquerda
+drawBox(55, cabecalhoY + 10, 100, alturaCabecalho - 20);
 
+if (logo) {
   page.drawImage(logo, {
-    x: 65,
-    y: cabecalhoY + 22,
-    width: 85,
-    height: alturaCabecalho - 44,
+    x: 63,
+    y: cabecalhoY + 18,
+    width: 84,
+    height: alturaCabecalho - 36,
   });
+} else {
+  drawText("Logo da", 82, cabecalhoY + alturaCabecalho - 45, 12);
+  drawText("Instituição", 75, cabecalhoY + alturaCabecalho - 65, 12);
 }
 
+// informações sempre à direita
 desenharLinhas(
   textoCabecalho,
-  temLogoNoCabecalho ? 175 : 58,
+  175,
   cabecalhoY + alturaCabecalho - 18,
   7,
-  temLogoNoCabecalho ? 76 : 92
+  78
 );
 
 cursorY = cabecalhoY - 32;
