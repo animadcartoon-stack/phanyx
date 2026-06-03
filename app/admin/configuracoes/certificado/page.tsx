@@ -3936,7 +3936,7 @@ contornoEspessura: 2,
 
                 <div
   ref={canvasRef}
-onMouseDownCapture={(e) => {
+onClickCapture={(e) => {
   if (clicarFormaLivreNoCanvas(e as any)) return;
 }}
 onMouseDown={(e) => {
