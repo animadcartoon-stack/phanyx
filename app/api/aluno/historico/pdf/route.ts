@@ -37,6 +37,38 @@ function dataBR(data?: Date | string | null) {
   return new Date(data).toLocaleDateString("pt-BR");
 }
 
+function substituirTemplate(template: string, valores: Record<string, string>) {
+  let texto = template;
+
+  for (const [chave, valor] of Object.entries(valores)) {
+    texto = texto.replaceAll(`{{${chave}}}`, valor);
+  }
+
+  return texto;
+}
+
+function montarEnderecoInstituicao(config: any) {
+  return [
+    [config?.endereco, config?.numero].filter(Boolean).join(", "),
+    [config?.cidade, config?.estado].filter(Boolean).join(" - "),
+    config?.cep ? `CEP: ${config.cep}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function montarBlocoInstituicao(config: any) {
+  return [
+    config?.nomeFantasia || "Instituição",
+    config?.cnpj ? `CNPJ: ${config.cnpj}` : "",
+    montarEnderecoInstituicao(config),
+    config?.telefone ? `Telefone: ${config.telefone}` : "",
+    config?.email ? `E-mail: ${config.email}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -119,6 +151,83 @@ export async function GET() {
     const cinza = rgb(0.35, 0.35, 0.35);
     const cinzaClaro = rgb(0.92, 0.92, 0.92);
 
+    const templateHistorico = await prisma.documentoTemplate.findFirst({
+  where: {
+    instituicaoId: user.instituicaoId,
+    ativo: true,
+    OR: [
+      { tipo: "HISTORICO" },
+      { nome: { contains: "histórico", mode: "insensitive" } },
+      { nome: { contains: "historico", mode: "insensitive" } },
+    ],
+  },
+  orderBy: {
+    updatedAt: "desc",
+  },
+});
+
+const valoresTemplate = {
+  logoInstituicao: "{{logoInstituicao}}",
+  nomeInstituicao: config?.nomeFantasia || "Instituição",
+  cnpjInstituicao: config?.cnpj || "-",
+  enderecoInstituicao: montarEnderecoInstituicao(config),
+  telefoneInstituicao: config?.telefone || "-",
+  emailInstituicao: config?.email || "-",
+  cidadeInstituicao: config?.cidade || "-",
+  estadoInstituicao: config?.estado || "-",
+  cepInstituicao: config?.cep || "-",
+  blocoInstituicao: montarBlocoInstituicao(config),
+
+  nomeAluno: aluno.nome || "-",
+  cpfAluno: aluno.cpf || "-",
+  matriculaAluno: aluno.matricula || "-",
+  numeroMatricula: aluno.matricula || "-",
+  statusAluno: aluno.statusAluno || "-",
+
+  curso: curso?.nome || "-",
+  statusMatricula: (matriculaAtual as any)?.status || "-",
+  dataAtual: new Date().toLocaleDateString("pt-BR"),
+  assinaturaDiretor: "{{assinaturaDiretor}}",
+  blocoAssinaturaDiretor: "{{blocoAssinaturaDiretor}}",
+
+  disciplinas:
+    matriculaAtual?.itens?.length
+      ? matriculaAtual.itens
+          .map((item: any) => `- ${item.disciplina?.nome || "Disciplina"}`)
+          .join("\n")
+      : "-",
+};
+
+const conteudoTemplate = substituirTemplate(
+  templateHistorico?.conteudo ||
+    `[CABEÇALHO INSTITUCIONAL]
+{{logoInstituicao}}
+{{blocoInstituicao}}
+
+[TÍTULO]
+HISTÓRICO ACADÊMICO ESCOLAR
+
+[DADOS DO ALUNO]
+Aluno(a): {{nomeAluno}}
+CPF: {{cpfAluno}}
+Matrícula: {{matriculaAluno}}
+Status: {{statusAluno}}
+
+[DADOS DA MATRÍCULA]
+Curso: {{curso}}
+Status da matrícula: {{statusMatricula}}
+
+[COMPONENTES CURRICULARES]
+{{disciplinas}}
+
+[ASSINATURA INSTITUCIONAL]
+{{blocoAssinaturaDiretor}}
+
+[RODAPÉ]
+Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.`,
+  valoresTemplate
+);
+
     function drawBox(x: number, y: number, w: number, h: number) {
       page.drawRectangle({
         x,
@@ -148,13 +257,46 @@ export async function GET() {
     }
 
     // Moldura geral
-    drawBox(35, 35, 525, 770);
+drawBox(35, 35, 525, 770);
 
-   // Cabeçalho institucional
+function pegarSecao(nome: string) {
+  const regex = new RegExp(
+    `\\[${nome}\\]([\\s\\S]*?)(?=\\n\\[[^\\]]+\\]|$)`,
+    "i"
+  );
+
+  return conteudoTemplate.match(regex)?.[1]?.trim() || "";
+}
+
+function limparTextoSecao(texto: string) {
+  return texto
+    .replaceAll("{{logoInstituicao}}", "")
+    .replaceAll("{{assinaturaDiretor}}", "")
+    .replaceAll("{{blocoAssinaturaDiretor}}", "")
+    .trim();
+}
+
+function desenharLinhas(texto: string, x: number, yInicial: number, size = 8) {
+  let yTexto = yInicial;
+
+  texto
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean)
+    .forEach((linha) => {
+      drawText(linha.slice(0, 85), x, yTexto, size);
+      yTexto -= size + 4;
+    });
+
+  return yTexto;
+}
+
+// Cabeçalho institucional vindo do template
+const cabecalho = pegarSecao("CABEÇALHO INSTITUCIONAL");
+
 drawBox(45, 705, 505, 95);
 
-// Logo à esquerda
-if (logo) {
+if (cabecalho.includes("{{logoInstituicao}}") && logo) {
   page.drawImage(logo, {
     x: 58,
     y: 725,
@@ -163,242 +305,162 @@ if (logo) {
   });
 }
 
-// Dados da instituição à direita
-const nomeInstituicao =
-  config?.razaoSocial?.trim() ||
-  config?.nomeFantasia?.trim() ||
-  "Instituição";
+desenharLinhas(limparTextoSecao(cabecalho), logo ? 145 : 58, 777, 8);
 
-const enderecoLinha = [config?.endereco, config?.numero]
-  .filter(Boolean)
-  .join(", ");
+// Título vindo do template
+const titulo = limparTextoSecao(pegarSecao("TÍTULO")) || "HISTÓRICO ACADÊMICO ESCOLAR";
+drawText(titulo.toUpperCase(), 170, 675, 15, true, preto);
 
-const cidadeEstado = [config?.cidade, config?.estado]
-  .filter(Boolean)
-  .join(" - ");
+// Dados do aluno vindo do template
+const dadosAluno = limparTextoSecao(pegarSecao("DADOS DO ALUNO"));
 
-drawText(nomeInstituicao.toUpperCase(), 145, 775, 11, true, azul);
+drawBox(45, 585, 505, 70);
+page.drawRectangle({
+  x: 45,
+  y: 635,
+  width: 505,
+  height: 20,
+  color: cinzaClaro,
+  borderColor: preto,
+  borderWidth: 0.8,
+});
 
-if (config?.nomeFantasia && config.nomeFantasia !== nomeInstituicao) {
-  drawText(config.nomeFantasia, 145, 761, 8, true);
+drawText("DADOS DO ALUNO", 250, 641, 9, true);
+desenharLinhas(dadosAluno, 55, 618, 8);
+
+// Dados da matrícula
+const dadosMatricula = limparTextoSecao(pegarSecao("DADOS DA MATRÍCULA"));
+
+if (dadosMatricula) {
+  drawBox(45, 520, 505, 55);
+  page.drawRectangle({
+    x: 45,
+    y: 555,
+    width: 505,
+    height: 20,
+    color: cinzaClaro,
+    borderColor: preto,
+    borderWidth: 0.8,
+  });
+
+  drawText("DADOS DA MATRÍCULA", 235, 561, 9, true);
+  desenharLinhas(dadosMatricula, 55, 538, 8);
 }
 
-if (config?.cnpj) {
-  drawText(`CNPJ: ${config.cnpj}`, 145, 747, 8);
+// Tabela de componentes curriculares
+const tabelaX = 45;
+let y = dadosMatricula ? 470 : 505;
+
+drawText("COMPONENTES CURRICULARES", 210, y + 20, 11, true);
+
+const colunas = [
+  { titulo: "DISCIPLINA", x: tabelaX, w: 260 },
+  { titulo: "C.H.", x: tabelaX + 260, w: 55 },
+  { titulo: "NOTA", x: tabelaX + 315, w: 60 },
+  { titulo: "FREQ.", x: tabelaX + 375, w: 60 },
+  { titulo: "SITUAÇÃO", x: tabelaX + 435, w: 70 },
+];
+
+page.drawRectangle({
+  x: tabelaX,
+  y,
+  width: 505,
+  height: 22,
+  color: cinzaClaro,
+  borderColor: preto,
+  borderWidth: 0.8,
+});
+
+for (const col of colunas) {
+  drawBox(col.x, y, col.w, 22);
+  drawText(col.titulo, col.x + 5, y + 8, 8, true);
 }
 
-if (enderecoLinha) {
-  drawText(enderecoLinha, 145, 734, 8);
+y -= 22;
+
+const itens = matriculaAtual?.itens || [];
+
+for (const item of itens.slice(0, 13)) {
+  const disciplina = item.disciplina;
+  const nomeDisciplina = textoSeguro(disciplina?.nome).slice(0, 45);
+  const carga = disciplina?.cargaHoraria ? `${disciplina.cargaHoraria}h` : "-";
+
+  const statusBruto = String((item as any).status || "A_CURSAR");
+
+  const situacao =
+    statusBruto === "CONCLUIDA" || statusBruto === "CONCLUIDO"
+      ? "Concluída"
+      : statusBruto === "APROVADO"
+        ? "Aprovada"
+        : statusBruto === "REPROVADO"
+          ? "Reprovada"
+          : statusBruto === "CANCELADA" || statusBruto === "CANCELADO"
+            ? "Cancelada"
+            : statusBruto === "DESISTENTE" || statusBruto === "DESISTENCIA"
+              ? "Desistência"
+              : statusBruto === "TRANCADA" || statusBruto === "TRANCADO"
+                ? "Trancada"
+                : "A cursar";
+
+  for (const col of colunas) {
+    drawBox(col.x, y, col.w, 20);
+  }
+
+  drawText(nomeDisciplina, tabelaX + 5, y + 7, 7.5);
+  drawText(carga, tabelaX + 270, y + 7, 7.5);
+  drawText("-", tabelaX + 327, y + 7, 7.5);
+  drawText("-", tabelaX + 387, y + 7, 7.5);
+  drawText(situacao.slice(0, 13), tabelaX + 442, y + 7, 7.2);
+
+  y -= 20;
 }
 
-if (cidadeEstado) {
-  drawText(cidadeEstado, 145, 721, 8);
+// Observações vindas do template
+const observacoes = limparTextoSecao(pegarSecao("OBSERVAÇÕES"));
+
+y -= 25;
+
+if (observacoes) {
+  drawText("OBSERVAÇÕES:", 45, y, 9, true);
+  desenharLinhas(observacoes, 45, y - 15, 7.5);
 }
 
-if (config?.telefone || config?.email) {
-  drawText(
-    [
-      config?.telefone ? `Telefone: ${config.telefone}` : "",
-      config?.email ? `E-mail: ${config.email}` : "",
-    ]
-      .filter(Boolean)
-      .join("   "),
-    145,
-    708,
-    8
-  );
+// Assinatura institucional
+const assinaturaY = 95;
+
+if (assinatura) {
+  page.drawImage(assinatura, {
+    x: 210,
+    y: assinaturaY + 50,
+    width: 130,
+    height: 45,
+  });
 }
 
-    // Título
-    drawText("HISTÓRICO ACADÊMICO ESCOLAR", 180, 685, 15, true, preto);
+page.drawLine({
+  start: { x: 170, y: assinaturaY + 45 },
+  end: { x: 390, y: assinaturaY + 45 },
+  thickness: 0.8,
+  color: preto,
+});
 
-    // Dados do aluno
-    drawBox(45, 595, 505, 70);
-    page.drawRectangle({
-      x: 45,
-      y: 645,
-      width: 505,
-      height: 20,
-      color: cinzaClaro,
-      borderColor: preto,
-      borderWidth: 0.8,
-    });
+drawText(textoSeguro(config?.responsavelNome), 215, assinaturaY + 30, 9, true);
+drawText(
+  textoSeguro(config?.responsavelCargo || "Responsável Institucional"),
+  220,
+  assinaturaY + 17,
+  8
+);
+drawText(textoSeguro(config?.nomeFantasia || "Instituição"), 225, assinaturaY + 5, 8);
 
-    drawText("DADOS DO ALUNO", 250, 651, 9, true);
+// Rodapé vindo do template
+const rodape =
+  limparTextoSecao(pegarSecao("RODAPÉ")) ||
+  `Documento emitido em ${new Date().toLocaleDateString("pt-BR")} por ${textoSeguro(
+    config?.nomeFantasia || "PHANYX"
+  )}.`;
 
-    drawText(`Aluno(a): ${textoSeguro(aluno.nome)}`, 55, 628, 9, true);
-    drawText(`CPF: ${textoSeguro(aluno.cpf)}`, 55, 612, 9);
-    drawText(`Matrícula: ${textoSeguro((aluno as any).matricula)}`, 230, 612, 9);
-    drawText(`Nascimento: ${dataBR((aluno as any).dataNascimento)}`, 390, 612, 9);
-    drawText(`Curso: ${textoSeguro(curso?.nome)}`, 55, 598, 9);
-
-    // Tabela
-    const tabelaX = 45;
-    let y = 555;
-
-    drawText("COMPONENTES CURRICULARES", 210, 570, 11, true);
-
-    const colunas = [
-      { titulo: "DISCIPLINA", x: tabelaX, w: 260 },
-      { titulo: "C.H.", x: tabelaX + 260, w: 55 },
-      { titulo: "NOTA", x: tabelaX + 315, w: 60 },
-      { titulo: "FREQ.", x: tabelaX + 375, w: 60 },
-      { titulo: "SITUAÇÃO", x: tabelaX + 435, w: 70 },
-    ];
-
-    page.drawRectangle({
-      x: tabelaX,
-      y,
-      width: 505,
-      height: 22,
-      color: cinzaClaro,
-      borderColor: preto,
-      borderWidth: 0.8,
-    });
-
-    for (const col of colunas) {
-      drawBox(col.x, y, col.w, 22);
-      drawText(col.titulo, col.x + 5, y + 8, 8, true);
-    }
-
-    y -= 22;
-
-    const itens = matriculaAtual?.itens || [];
-
-    for (const item of itens.slice(0, 18)) {
-      const disciplina = item.disciplina;
-      const notaEncontrada = null;
-
-      const nomeDisciplina = textoSeguro(disciplina?.nome).slice(0, 45);
-      const carga = disciplina?.cargaHoraria
-        ? `${disciplina.cargaHoraria}h`
-        : "-";
-      const nota =
-        notaEncontrada?.valor !== undefined && notaEncontrada?.valor !== null
-          ? String(notaEncontrada.valor)
-          : "-";
-      const frequencia =
-        (notaEncontrada as any)?.frequencia !== undefined &&
-        (notaEncontrada as any)?.frequencia !== null
-          ? `${(notaEncontrada as any).frequencia}%`
-          : "-";
-
-      const statusBruto = String((item as any).status || "A_CURSAR");
-
-const situacao =
-  statusBruto === "CONCLUIDA" || statusBruto === "CONCLUIDO"
-    ? "Concluída"
-    : statusBruto === "APROVADO"
-      ? "Aprovada"
-      : statusBruto === "REPROVADO"
-        ? "Reprovada"
-        : statusBruto === "CANCELADA" || statusBruto === "CANCELADO"
-          ? "Cancelada"
-          : statusBruto === "DESISTENTE" || statusBruto === "DESISTENCIA"
-            ? "Desistência"
-            : statusBruto === "TRANCADA" || statusBruto === "TRANCADO"
-              ? "Trancada"
-              : "A cursar";
-
-      for (const col of colunas) {
-        drawBox(col.x, y, col.w, 20);
-      }
-
-      drawText(nomeDisciplina, tabelaX + 5, y + 7, 7.5);
-      drawText(carga, tabelaX + 270, y + 7, 7.5);
-      drawText(nota, tabelaX + 327, y + 7, 7.5);
-      drawText(frequencia, tabelaX + 387, y + 7, 7.5);
-      drawText(situacao.slice(0, 13), tabelaX + 442, y + 7, 7.2);
-
-      y -= 20;
-    }
-
-    if (itens.length === 0) {
-      for (const col of colunas) {
-        drawBox(col.x, y, col.w, 24);
-      }
-
-      drawText("Nenhuma disciplina encontrada.", tabelaX + 5, y + 8, 8);
-      y -= 24;
-    }
-
-    // Resumo
-    y -= 25;
-
-    drawBox(45, y - 55, 505, 55);
-    page.drawRectangle({
-      x: 45,
-      y: y - 20,
-      width: 505,
-      height: 20,
-      color: cinzaClaro,
-      borderColor: preto,
-      borderWidth: 0.8,
-    });
-
-    drawText("RESUMO ACADÊMICO", 235, y - 13, 9, true);
-
-    const totalDisciplinas = itens.length;
-    const cargaTotal = itens.reduce((total: number, item: any) => {
-      return total + Number(item.disciplina?.cargaHoraria || 0);
-    }, 0);
-
-    drawText(`Total de disciplinas: ${totalDisciplinas}`, 55, y - 35, 8.5);
-    drawText(`Carga horária total: ${cargaTotal}h`, 220, y - 35, 8.5);
-    drawText(`Situação da matrícula: ${textoSeguro((matriculaAtual as any)?.status)}`, 370, y - 35, 8.5);
-
-    // Observação
-    y -= 90;
-
-    drawText("OBSERVAÇÕES:", 45, y, 9, true);
-    drawText(
-      "Este histórico acadêmico foi emitido eletronicamente pelo PHANYX com base nos registros acadêmicos da instituição.",
-      45,
-      y - 15,
-      8
-    );
-
-    // Assinatura
-    const assinaturaY = 95;
-
-    if (assinatura) {
-      page.drawImage(assinatura, {
-        x: 210,
-        y: assinaturaY + 50,
-        width: 130,
-        height: 45,
-      });
-    }
-
-    page.drawLine({
-      start: { x: 170, y: assinaturaY + 45 },
-      end: { x: 390, y: assinaturaY + 45 },
-      thickness: 0.8,
-      color: preto,
-    });
-
-    drawText(textoSeguro(config?.responsavelNome), 215, assinaturaY + 30, 9, true);
-    drawText(textoSeguro(config?.responsavelCargo || "Responsável Institucional"), 220, assinaturaY + 17, 8);
-    drawText(textoSeguro(config?.nomeFantasia || "Instituição"), 225, assinaturaY + 5, 8);
-
-    // Rodapé
-    drawText(
-      `Documento emitido em ${new Date().toLocaleDateString("pt-BR")} por ${textoSeguro(config?.nomeFantasia || "PHANYX")}.`,
-      45,
-      55,
-      7.5,
-      false,
-      cinza
-    );
-
-    drawText(
-      "PHANYX - Plataforma Acadêmica",
-      395,
-      55,
-      7.5,
-      true,
-      cinza
-    );
+drawText(rodape.slice(0, 95), 45, 55, 7.5, false, cinza);
 
     const pdfBytes = await pdfDoc.save();
 
