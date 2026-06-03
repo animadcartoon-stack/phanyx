@@ -1191,6 +1191,18 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
   };
 });
 
+function gerarPreviaAmigavelTemplate(conteudo: string) {
+  let texto = conteudo || "";
+
+  for (const variavel of variaveisInteligentes) {
+    texto = texto.replaceAll(variavel.tag, `[${variavel.titulo}]`);
+  }
+
+  return texto
+    .replaceAll("[Logo da instituição]", "[Logo institucional]")
+    .slice(0, 1200);
+}
+
   return (
   <div className="space-y-6">
 
@@ -1410,20 +1422,7 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
         v.palavras.some((p) => p.toLowerCase().includes(termo))
       );
     })
-  .filter((v) => {
-    if (mostrarTodasVariaveis && !buscaVariavel.trim()) return true;
-        const termo = buscaVariavel.trim().toLowerCase();
-
-        if (!termo) return true;
-
-        return (
-          v.tag.toLowerCase().includes(termo) ||
-          v.titulo.toLowerCase().includes(termo) ||
-          v.descricao.toLowerCase().includes(termo) ||
-          v.ondeUsar.toLowerCase().includes(termo) ||
-          v.palavras.some((p) => p.toLowerCase().includes(termo))
-        );
-      })
+  
       .map((variavel) => (
         <button
           key={variavel.tag}
@@ -1756,7 +1755,7 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
                             Prévia do conteúdo
                           </p>
                           <div className="max-h-48 overflow-auto whitespace-pre-wrap font-mono text-xs leading-6 text-slate-700">
-                            {template.conteudo}
+                            {gerarPreviaAmigavelTemplate(template.conteudo)}
                           </div>
                         </div>
                       </div>
