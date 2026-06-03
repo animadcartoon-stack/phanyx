@@ -142,6 +142,10 @@ export async function GET() {
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
     const logo = await carregarImagemPdf(pdfDoc, config?.logoUrl);
+
+    console.log("LOGO URL:", config?.logoUrl);
+    console.log("LOGO CARREGADA:", !!logo);
+
     const assinatura = await carregarImagemPdf(
       pdfDoc,
       config?.certificadoAssinaturaUrl
@@ -378,6 +382,10 @@ let cursorY = 790;
 
 // Cabeçalho institucional vindo do template
 const cabecalho = pegarSecao("CABEÇALHO INSTITUCIONAL");
+
+console.log(cabecalho);
+
+
 const textoCabecalho = limparTextoSecao(cabecalho);
 
 const temLogoNoCabecalho = Boolean(logo);
