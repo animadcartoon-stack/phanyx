@@ -3984,7 +3984,10 @@ onMouseLeave={() => {
                         Modelo carregado • arraste os campos para posicionar
                       </div>
 
-  {modoFormaLivre && pontosFormaLivre.length > 0 && (
+                    </>
+                                    ) : null}
+
+{modoFormaLivre && pontosFormaLivre.length > 0 && (
   <div
     className="pointer-events-none absolute left-0 top-0"
     style={{
@@ -4028,10 +4031,6 @@ onMouseLeave={() => {
     ))}
   </div>
 )}
-
-
-                    </>
-                                    ) : null}
 
 {caixaDoGrupoSelecionado && (
   <div
