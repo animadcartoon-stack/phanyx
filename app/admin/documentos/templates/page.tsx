@@ -288,6 +288,7 @@ function AdminDocumentosTemplatesPage() {
   const [configInstituicao, setConfigInstituicao] =
   useState<ConfiguracaoInstituicao | null>(null);
   const [buscaVariavel, setBuscaVariavel] = useState("");
+  const [mostrarTodasVariaveis, setMostrarTodasVariaveis] = useState(false);
 
   async function carregarTemplates() {
     try {
@@ -617,6 +618,14 @@ const variaveisInteligentes = [
   },
 ];
 
+<button
+  type="button"
+  onClick={() => setMostrarTodasVariaveis((v) => !v)}
+  className="mt-3 rounded-xl border bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-blue-400"
+>
+  {mostrarTodasVariaveis ? "▲ Ocultar todas as variáveis" : "▼ Ver todas as variáveis"}
+</button>
+
   return (
   <div className="space-y-6">
 
@@ -811,7 +820,8 @@ const variaveisInteligentes = [
 
   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
     {variaveisInteligentes
-      .filter((v) => {
+  .filter((v) => {
+    if (mostrarTodasVariaveis && !buscaVariavel.trim()) return true;
         const termo = buscaVariavel.trim().toLowerCase();
 
         if (!termo) return true;
