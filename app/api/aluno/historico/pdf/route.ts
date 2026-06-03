@@ -171,13 +171,7 @@ export async function GET() {
       },
     });
 
-    const instituicaoLogo = await prisma.instituicao.findUnique({
-  where: { id: user.instituicaoId },
-  select: {
-    logoUrl: true,
-    logo: true,
-  },
-});
+    console.log("CONFIG HISTORICO COMPLETA:", config);
 
     const matriculaAtual = aluno.matriculas?.[0];
     const curso = matriculaAtual?.curso;
@@ -188,15 +182,22 @@ export async function GET() {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-const logoUrl =
+const logoUrlBruta =
   config?.logoUrl ||
   (config as any)?.logotipoUrl ||
   (config as any)?.logo ||
-  instituicaoLogo?.logoUrl ||
-  (instituicaoLogo as any)?.logo ||
   null;
 
-console.log("LOGO HISTORICO URL:", logoUrl);
+const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  "http://localhost:3000";
+
+const logoUrl =
+  logoUrlBruta?.startsWith("http")
+    ? logoUrlBruta
+    : `${baseUrl}${logoUrlBruta}`;
+
+console.log("LOGO HISTORICO URL FINAL:", logoUrl);
 
 const logo = await carregarImagemPdf(pdfDoc, logoUrl);
 
