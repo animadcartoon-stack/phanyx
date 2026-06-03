@@ -3994,29 +3994,38 @@ onMouseLeave={() => {
     }}
   >
     <svg
-      className="absolute left-0 top-0 h-full w-full overflow-visible"
+      className="absolute left-0 top-0"
+      style={{
+        width: `${baseCanvas.largura}px`,
+        height: `${baseCanvas.altura}px`,
+        overflow: "visible",
+      }}
       viewBox={`0 0 ${baseCanvas.largura} ${baseCanvas.altura}`}
     >
       <polyline
         points={pontosFormaLivre.map((p) => `${p.x},${p.y}`).join(" ")}
         fill="none"
         stroke="#00ff88"
-        strokeWidth="5"
+        strokeWidth="6"
         strokeDasharray="10 6"
       />
-
-      {pontosFormaLivre.map((p, index) => (
-        <circle
-          key={p.id}
-          cx={p.x}
-          cy={p.y}
-          r={index === 0 ? 12 : 9}
-          fill={index === 0 ? "#22c55e" : "#2563eb"}
-          stroke="#ffffff"
-          strokeWidth="4"
-        />
-      ))}
     </svg>
+
+    {pontosFormaLivre.map((p, index) => (
+      <div
+        key={p.id}
+        className="absolute rounded-full border-4 border-white shadow-2xl"
+        style={{
+          left: `${p.x}px`,
+          top: `${p.y}px`,
+          width: index === 0 ? 24 : 18,
+          height: index === 0 ? 24 : 18,
+          backgroundColor: index === 0 ? "#22c55e" : "#2563eb",
+          transform: "translate(-50%, -50%)",
+          zIndex: 2147483647,
+        }}
+      />
+    ))}
   </div>
 )}
 
