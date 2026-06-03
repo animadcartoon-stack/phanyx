@@ -196,6 +196,8 @@ if (!valorContrato || valorContrato <= 0) {
     const polo = aluno?.polo || null;
 
 const conteudoFinal = substituirTemplate(template.conteudo, {
+  logoInstituicao: "{{logoInstituicao}}",
+
   nomeInstituicao: config?.nomeFantasia || "Instituição",
   cnpjInstituicao: config?.cnpj || "-",
   enderecoInstituicao: montarEndereco(config),
@@ -216,29 +218,51 @@ const conteudoFinal = substituirTemplate(template.conteudo, {
   blocoPolo: montarBlocoPolo(polo),
 
   responsavelLegal: config?.responsavelNome || "-",
+
   nomeAluno: aluno?.nome || "-",
   cpfAluno: aluno?.cpf || "-",
   matriculaAluno: aluno?.matricula || "-",
-    curso: cursoNome,
+  numeroMatricula: aluno?.matricula || "-",
   statusAluno: aluno?.statusAluno || "-",
+
+  curso: cursoNome,
   statusMatricula: matricula?.status || "-",
+
+  dataInicioAluno: matricula?.createdAt
+    ? new Date(matricula.createdAt).toLocaleDateString("pt-BR")
+    : "-",
   dataMatricula: matricula?.createdAt
     ? new Date(matricula.createdAt).toLocaleDateString("pt-BR")
     : "-",
-  dataConclusao: matricula?.dataConclusao
-    ? new Date(matricula.dataConclusao).toLocaleDateString("pt-BR")
+
+  dataConclusao: (matricula as any)?.dataConclusao
+    ? new Date((matricula as any).dataConclusao).toLocaleDateString("pt-BR")
     : "-",
+  dataConclusaoAluno: (matricula as any)?.dataConclusao
+    ? new Date((matricula as any).dataConclusao).toLocaleDateString("pt-BR")
+    : "-",
+
   semestreAtual: matricula?.semestre || "-",
-  cargaHorariaCurso: matricula?.curso?.cargaHoraria
-    ? `${matricula.curso.cargaHoraria}h`
+
+  cargaHorariaCurso: (matricula?.curso as any)?.cargaHoraria
+    ? `${(matricula?.curso as any).cargaHoraria}h`
     : "-",
-  percentualConclusao: matricula?.percentualConclusao
-    ? `${matricula.percentualConclusao}%`
+  cargaHorariaMinimaCurso: (matricula?.curso as any)?.cargaHorariaMinima
+    ? `${(matricula?.curso as any).cargaHorariaMinima}h`
     : "-",
+  cargaHorariaMaximaCurso: (matricula?.curso as any)?.cargaHorariaMaxima
+    ? `${(matricula?.curso as any).cargaHorariaMaxima}h`
+    : "-",
+
+  percentualConclusao: (matricula as any)?.percentualConclusao
+    ? `${(matricula as any).percentualConclusao}%`
+    : "-",
+
   disciplinas:
     disciplinasLista.length > 0
       ? disciplinasLista.map((d) => `- ${d}`).join("\n")
       : "- Não informado",
+
   valorContrato: formatarMoeda(valorContrato),
   cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
   dataAtual: formatarDataAtual(),

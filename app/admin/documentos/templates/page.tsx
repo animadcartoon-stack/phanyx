@@ -739,6 +739,7 @@ function moverCampoVisual(id: string, x: number, y: number) {
 
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
                   {[
+  "{{logoInstituicao}}",
   "{{nomeInstituicao}}",
   "{{cnpjInstituicao}}",
   "{{enderecoInstituicao}}",
@@ -748,6 +749,11 @@ function moverCampoVisual(id: string, x: number, y: number) {
   "{{estadoInstituicao}}",
   "{{cepInstituicao}}",
   "{{blocoInstituicao}}",
+
+  "{{dataInicioAluno}}",
+  "{{dataConclusaoAluno}}",
+  "{{cargaHorariaMinimaCurso}}",
+  "{{cargaHorariaMaximaCurso}}",
 
   "{{nomePolo}}",
   "{{enderecoPolo}}",
