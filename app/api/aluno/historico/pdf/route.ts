@@ -431,15 +431,15 @@ const cabecalhoY = cursorY - alturaCabecalho;
 drawBox(45, cabecalhoY, 505, alturaCabecalho);
 
 // área fixa da logo à esquerda
-drawBox(55, cabecalhoY + 10, 100, alturaCabecalho - 20);
+drawBox(55, cabecalhoY + 10, 100, 100);
 
 if (logo) {
   page.drawImage(logo, {
-    x: 63,
-    y: cabecalhoY + 18,
-    width: 84,
-    height: alturaCabecalho - 36,
-  });
+  x: 65,
+  y: cabecalhoY + 20,
+  width: 80,
+  height: 80,
+});
 } else {
   drawText("Logo da", 82, cabecalhoY + alturaCabecalho - 45, 12);
   drawText("Instituição", 75, cabecalhoY + alturaCabecalho - 65, 12);
