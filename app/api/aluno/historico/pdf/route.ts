@@ -176,6 +176,39 @@ export async function GET() {
     const matriculaAtual = aluno.matriculas?.[0];
     const curso = matriculaAtual?.curso;
 
+    const itensHistorico = matriculaAtual?.itens || [];
+
+const totalDisciplinasCurso = itensHistorico.length;
+
+const disciplinasConcluidas = itensHistorico.filter((item: any) => {
+  const status = String(item.status || "").toUpperCase();
+  return (
+    status === "CONCLUIDA" ||
+    status === "CONCLUIDO" ||
+    status === "APROVADO" ||
+    status === "APROVADA"
+  );
+});
+
+const cargaHorariaTotalCurso = itensHistorico.reduce((total: number, item: any) => {
+  return total + Number(item.disciplina?.cargaHoraria || 0);
+}, 0);
+
+const cargaHorariaAprovada = disciplinasConcluidas.reduce((total: number, item: any) => {
+  return total + Number(item.disciplina?.cargaHoraria || 0);
+}, 0);
+
+const percentualConclusaoCalculado =
+  cargaHorariaTotalCurso > 0
+    ? Math.round((cargaHorariaAprovada / cargaHorariaTotalCurso) * 100)
+    : 0;
+
+const semestresCursadosCalculado = new Set(
+  itensHistorico
+    .map((item: any) => item.semestre || item.disciplina?.semestre)
+    .filter(Boolean)
+).size;
+
     const pdfDoc = await PDFDocument.create();
     let page = pdfDoc.addPage([595.28, 841.89]);
 
@@ -316,10 +349,6 @@ cargaHorariaCurso: curso?.cargaHoraria
   ? `${curso.cargaHoraria}h`
   : "-",
 
-percentualConclusao: (matriculaAtual as any)?.percentualConclusao
-  ? `${(matriculaAtual as any).percentualConclusao}%`
-  : "-",
-
     codigoValidacao,
   urlValidacao: "https://www.phanyx.com.br/validar-documento",
   
@@ -328,6 +357,41 @@ percentualConclusao: (matriculaAtual as any)?.percentualConclusao
   dataAtual: new Date().toLocaleDateString("pt-BR"),
   assinaturaDiretor: "{{assinaturaDiretor}}",
   blocoAssinaturaDiretor: "{{blocoAssinaturaDiretor}}",
+
+  disciplinasPorSemestre:
+  itensHistorico.length > 0
+    ? itensHistorico
+        .map((item: any) => {
+          const disciplina = item.disciplina;
+          const nome = disciplina?.nome || "Disciplina";
+          const carga = disciplina?.cargaHoraria ? `${disciplina.cargaHoraria}h` : "-";
+          const status = String(item.status || "A_CURSAR").replaceAll("_", " ");
+
+          return `- ${nome} | C.H.: ${carga} | Situação: ${status}`;
+        })
+        .join("\n")
+    : "-",
+
+haMaximaCurso: cargaHorariaTotalCurso ? `${cargaHorariaTotalCurso}h` : "-",
+haTotalCursada: cargaHorariaTotalCurso ? `${cargaHorariaTotalCurso}h` : "-",
+haTotalAprovada: cargaHorariaAprovada ? `${cargaHorariaAprovada}h` : "-",
+
+percentualConclusao: `${percentualConclusaoCalculado}%`,
+
+semestresCursados: semestresCursadosCalculado
+  ? String(semestresCursadosCalculado)
+  : "-",
+
+semestresRevalidados: "0",
+
+indiceAproveitamentoSemestral: "-",
+indiceAproveitamentoAcumulado: "-",
+indiceAproveitamentoAprovadas: "-",
+
+prazoIntegralizacao: "-",
+provavelSemestreFormatura: "-",
+
+disciplinasParteDiversificada: "-",
 
   disciplinas:
     matriculaAtual?.itens?.length

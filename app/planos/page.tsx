@@ -28,7 +28,7 @@ const planos = [
   idealPara:
     "Escolas técnicas, cursos livres, seminários menores e instituições em início de implantação",
   cta: "Contratar Essencial",
-  descricaoCta: "Falar com comercial",
+  descricaoCta: "Falar com especialista",
   corCard: "border-slate-200 bg-white text-slate-900",
   corBotao: "bg-slate-900 text-white hover:bg-slate-800",
   badge: null,
@@ -346,7 +346,7 @@ if (alvo) {
                   rel="noreferrer"
                   className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
                 >
-                  Falar com comercial
+                  Falar com especialista
                 </a>
               </div>
 
@@ -629,11 +629,11 @@ if (alvo) {
   </p>
   <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center">
   <h4 className="text-lg font-bold text-blue-950">
-    Gostou da simulação?
+    Vamos mostrar a PHANYX funcionando?
   </h4>
 
   <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-blue-800">
-    Solicite uma demonstração personalizada do PHANYX e veja como a plataforma pode se adaptar à operação da sua instituição.
+    Receba uma apresentação personalizada e veja como a plataforma pode organizar sua operação acadêmica, financeira e documental.
   </p>
 
   <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
@@ -643,7 +643,7 @@ if (alvo) {
       rel="noreferrer"
       className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
     >
-      Agendar demonstração
+      Solicitar demonstração
     </a>
 
     <a

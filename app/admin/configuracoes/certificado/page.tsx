@@ -614,7 +614,6 @@ function gerarPontosEstrela(
 
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
   if (!modoFormaLivre || !canvasRef.current) return false;
-  
   if (e.button !== 0) return false;
 
   e.preventDefault();
@@ -625,21 +624,24 @@ function gerarPontosEstrela(
   const x = (e.clientX - rect.left) / escala;
   const y = (e.clientY - rect.top) / escala;
 
-setMensagemSucesso(
-  `Clique recebido X:${Math.round(x)} Y:${Math.round(y)}`
-);
-setMensagemSucesso(
-  `Pontos: ${pontosFormaLivre.length + 1}`
-);
+  const novoPonto = {
+    id: `livre-${Date.now()}`,
+    x,
+    y,
+  };
+
+  const proximosPontos = [...pontosFormaLivre, novoPonto];
+
   const primeiro = pontosFormaLivre[0];
+
   const clicouNoPrimeiro =
     pontosFormaLivre.length >= 3 &&
     primeiro &&
     Math.hypot(x - primeiro.x, y - primeiro.y) <= 18;
 
-  if (clicouNoPrimeiro) {
-    const xs = pontosFormaLivre.map((p) => p.x);
-    const ys = pontosFormaLivre.map((p) => p.y);
+  function criarCampoPreview(pontos: any[]) {
+    const xs = pontos.map((p) => p.x);
+    const ys = pontos.map((p) => p.y);
 
     const minX = Math.min(...xs);
     const minY = Math.min(...ys);
@@ -649,36 +651,55 @@ setMensagemSucesso(
     const largura = Math.max(20, maxX - minX);
     const altura = Math.max(20, maxY - minY);
 
-    const novoId = Date.now();
-
-    const pontosNormalizados = pontosFormaLivre.map((p, index) => ({
-      id: `p-${novoId}-${index}`,
+    const pontosNormalizados = pontos.map((p, index) => ({
+      id: `preview-livre-${index}`,
       x: Number((((p.x - minX) / largura) * 100).toFixed(2)),
       y: Number((((p.y - minY) / altura) * 100).toFixed(2)),
       tipo: "reto" as const,
     }));
 
+    return {
+      id: -999999,
+      tempId: -999999,
+      tipo: "FORMA",
+      forma: "LIVRE",
+      pontosForma: pontosNormalizados,
+      mostrarPreenchimento: false,
+      mostrarContorno: true,
+      preenchimentoCor: "transparent",
+      contornoCor: "#00ff88",
+      contornoEspessura: 5,
+      x: minX,
+      y: minY,
+      largura,
+      altura,
+      cor: "#00ff88",
+      opacity: 1,
+      ordem: 999999,
+      nomeCamada: "Forma livre em criação",
+    } as any;
+  }
+
+  if (clicouNoPrimeiro) {
+    const campoFinal = criarCampoPreview(pontosFormaLivre);
+
+    const novoId = Date.now();
+
     setCampos((prev) => [
-      ...prev,
+      ...prev.filter((campo) => campo.id !== -999999),
       {
+        ...campoFinal,
         id: novoId,
         tempId: novoId,
-        tipo: "FORMA",
-        forma: "LIVRE",
-        pontosForma: pontosNormalizados,
         mostrarPreenchimento: true,
-        mostrarContorno: true,
         preenchimentoCor: "#1d4ed8",
         contornoCor: "#1d4ed8",
         contornoEspessura: 2,
-        x: minX,
-        y: minY,
-        largura,
-        altura,
         cor: "#1d4ed8",
         opacity: 0.55,
         ordem: 5,
-      } as any,
+        nomeCamada: "Forma livre",
+      },
     ]);
 
     setCampoSelecionadoId(novoId);
@@ -690,14 +711,14 @@ setMensagemSucesso(
     return true;
   }
 
-  setPontosFormaLivre((prev) => [
-    ...prev,
-    {
-      id: `livre-${Date.now()}`,
-      x,
-      y,
-    },
+  setPontosFormaLivre(proximosPontos);
+
+  setCampos((prev) => [
+    ...prev.filter((campo) => campo.id !== -999999),
+    criarCampoPreview(proximosPontos),
   ]);
+
+  setMensagemSucesso(`Ponto ${proximosPontos.length} criado.`);
 
   return true;
 }
@@ -3986,51 +4007,6 @@ onMouseLeave={() => {
 
                     </>
                                     ) : null}
-
-{modoFormaLivre && pontosFormaLivre.length > 0 && (
-  <div
-    className="pointer-events-none absolute left-0 top-0"
-    style={{
-      width: `${baseCanvas.largura}px`,
-      height: `${baseCanvas.altura}px`,
-      zIndex: 2147483647,
-    }}
-  >
-    <svg
-      className="absolute left-0 top-0"
-      style={{
-        width: `${baseCanvas.largura}px`,
-        height: `${baseCanvas.altura}px`,
-        overflow: "visible",
-      }}
-      viewBox={`0 0 ${baseCanvas.largura} ${baseCanvas.altura}`}
-    >
-      <polyline
-        points={pontosFormaLivre.map((p) => `${p.x},${p.y}`).join(" ")}
-        fill="none"
-        stroke="#00ff88"
-        strokeWidth="6"
-        strokeDasharray="10 6"
-      />
-    </svg>
-
-    {pontosFormaLivre.map((p, index) => (
-      <div
-        key={p.id}
-        className="absolute rounded-full border-4 border-white shadow-2xl"
-        style={{
-          left: `${p.x}px`,
-          top: `${p.y}px`,
-          width: index === 0 ? 24 : 18,
-          height: index === 0 ? 24 : 18,
-          backgroundColor: index === 0 ? "#22c55e" : "#2563eb",
-          transform: "translate(-50%, -50%)",
-          zIndex: 2147483647,
-        }}
-      />
-    ))}
-  </div>
-)}
 
 {caixaDoGrupoSelecionado && (
   <div
