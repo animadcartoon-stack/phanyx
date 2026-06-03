@@ -162,7 +162,7 @@ export async function GET() {
     ],
   },
   orderBy: {
-    updatedAt: "desc",
+    atualizadoEm: "desc",
   },
 });
 
