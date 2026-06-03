@@ -3914,8 +3914,11 @@ contornoEspessura: 2,
 
                 <div
   ref={canvasRef}
+onMouseDownCapture={(e) => {
+  if (clicarFormaLivreNoCanvas(e as any)) return;
+}}
 onMouseDown={(e) => {
-  if (clicarFormaLivreNoCanvas(e)) return;
+  if (modoFormaLivre) return;
   iniciarSelecaoRetangular(e);
 }}
 onMouseMove={(e) => {
