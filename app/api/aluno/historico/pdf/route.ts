@@ -276,48 +276,110 @@ function limparTextoSecao(texto: string) {
     .trim();
 }
 
-function desenharLinhas(texto: string, x: number, yInicial: number, size = 8) {
-  let yTexto = yInicial;
+function quebrarLinhas(texto: string, maxChars = 85) {
+  const linhas: string[] = [];
 
   texto
     .split("\n")
     .map((l) => l.trim())
     .filter(Boolean)
     .forEach((linha) => {
-      drawText(linha.slice(0, 85), x, yTexto, size);
-      yTexto -= size + 4;
+      if (linha.length <= maxChars) {
+        linhas.push(linha);
+        return;
+      }
+
+      let resto = linha;
+
+      while (resto.length > maxChars) {
+        const corte = resto.lastIndexOf(" ", maxChars);
+        const fim = corte > 20 ? corte : maxChars;
+        linhas.push(resto.slice(0, fim).trim());
+        resto = resto.slice(fim).trim();
+      }
+
+      if (resto) linhas.push(resto);
     });
+
+  return linhas;
+}
+
+function desenharLinhas(
+  texto: string,
+  x: number,
+  yInicial: number,
+  size = 8,
+  maxChars = 85
+) {
+  let yTexto = yInicial;
+  const linhas = quebrarLinhas(texto, maxChars);
+
+  linhas.forEach((linha) => {
+    drawText(linha, x, yTexto, size);
+    yTexto -= size + 4;
+  });
 
   return yTexto;
 }
 
+function alturaDoTexto(texto: string, size = 8, maxChars = 85) {
+  const linhas = quebrarLinhas(texto, maxChars);
+  return Math.max(24, linhas.length * (size + 4) + 20);
+}
+
+// Layout dinâmico vindo do template
+let cursorY = 790;
+
 // Cabeçalho institucional vindo do template
 const cabecalho = pegarSecao("CABEÇALHO INSTITUCIONAL");
+const textoCabecalho = limparTextoSecao(cabecalho);
 
-drawBox(45, 705, 505, 95);
+const temLogoNoCabecalho = cabecalho.includes("{{logoInstituicao}}") && logo;
+const alturaTextoCabecalho = alturaDoTexto(textoCabecalho, 8, temLogoNoCabecalho ? 58 : 85);
+const alturaLogo = temLogoNoCabecalho ? 70 : 0;
+const alturaCabecalho = Math.max(70, alturaTextoCabecalho, alturaLogo + 20);
 
-if (cabecalho.includes("{{logoInstituicao}}") && logo) {
+const cabecalhoY = cursorY - alturaCabecalho;
+
+drawBox(45, cabecalhoY, 505, alturaCabecalho);
+
+if (temLogoNoCabecalho) {
   page.drawImage(logo, {
     x: 58,
-    y: 725,
+    y: cabecalhoY + alturaCabecalho - 60,
     width: 72,
-    height: 55,
+    height: 50,
   });
 }
 
-desenharLinhas(limparTextoSecao(cabecalho), logo ? 145 : 58, 777, 8);
+desenharLinhas(
+  textoCabecalho,
+  temLogoNoCabecalho ? 145 : 58,
+  cabecalhoY + alturaCabecalho - 18,
+  8,
+  temLogoNoCabecalho ? 58 : 85
+);
+
+cursorY = cabecalhoY - 28;
 
 // Título vindo do template
-const titulo = limparTextoSecao(pegarSecao("TÍTULO")) || "HISTÓRICO ACADÊMICO ESCOLAR";
-drawText(titulo.toUpperCase(), 170, 675, 15, true, preto);
+const titulo =
+  limparTextoSecao(pegarSecao("TÍTULO")) || "HISTÓRICO ACADÊMICO ESCOLAR";
+
+drawText(titulo.toUpperCase(), 160, cursorY, 15, true, preto);
+
+cursorY -= 28;
 
 // Dados do aluno vindo do template
 const dadosAluno = limparTextoSecao(pegarSecao("DADOS DO ALUNO"));
+const alturaDadosAluno = alturaDoTexto(dadosAluno, 8, 85) + 20;
+const dadosAlunoY = cursorY - alturaDadosAluno;
 
-drawBox(45, 585, 505, 70);
+drawBox(45, dadosAlunoY, 505, alturaDadosAluno);
+
 page.drawRectangle({
   x: 45,
-  y: 635,
+  y: dadosAlunoY + alturaDadosAluno - 20,
   width: 505,
   height: 20,
   color: cinzaClaro,
@@ -325,17 +387,24 @@ page.drawRectangle({
   borderWidth: 0.8,
 });
 
-drawText("DADOS DO ALUNO", 250, 641, 9, true);
-desenharLinhas(dadosAluno, 55, 618, 8);
+drawText("DADOS DO ALUNO", 250, dadosAlunoY + alturaDadosAluno - 14, 9, true);
+
+desenharLinhas(dadosAluno, 55, dadosAlunoY + alturaDadosAluno - 35, 8, 85);
+
+cursorY = dadosAlunoY - 18;
 
 // Dados da matrícula
 const dadosMatricula = limparTextoSecao(pegarSecao("DADOS DA MATRÍCULA"));
 
 if (dadosMatricula) {
-  drawBox(45, 520, 505, 55);
+  const alturaDadosMatricula = alturaDoTexto(dadosMatricula, 8, 85) + 20;
+  const dadosMatriculaY = cursorY - alturaDadosMatricula;
+
+  drawBox(45, dadosMatriculaY, 505, alturaDadosMatricula);
+
   page.drawRectangle({
     x: 45,
-    y: 555,
+    y: dadosMatriculaY + alturaDadosMatricula - 20,
     width: 505,
     height: 20,
     color: cinzaClaro,
@@ -343,13 +412,28 @@ if (dadosMatricula) {
     borderWidth: 0.8,
   });
 
-  drawText("DADOS DA MATRÍCULA", 235, 561, 9, true);
-  desenharLinhas(dadosMatricula, 55, 538, 8);
+  drawText(
+    "DADOS DA MATRÍCULA",
+    235,
+    dadosMatriculaY + alturaDadosMatricula - 14,
+    9,
+    true
+  );
+
+  desenharLinhas(
+    dadosMatricula,
+    55,
+    dadosMatriculaY + alturaDadosMatricula - 35,
+    8,
+    85
+  );
+
+  cursorY = dadosMatriculaY - 22;
 }
 
 // Tabela de componentes curriculares
 const tabelaX = 45;
-let y = dadosMatricula ? 470 : 505;
+let y = cursorY - 25;
 
 drawText("COMPONENTES CURRICULARES", 210, y + 20, 11, true);
 
