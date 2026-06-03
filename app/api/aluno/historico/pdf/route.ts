@@ -105,6 +105,7 @@ export async function GET() {
     instituicaoId: user.instituicaoId,
   },
   include: {
+    polo: true,
     matriculas: {
       include: {
         curso: true,
@@ -166,6 +167,10 @@ export async function GET() {
   },
 });
 
+const polo = aluno?.polo || null;
+
+const nomePolo = polo?.nome || "Polo São José";
+
 const valoresTemplate = {
   logoInstituicao: "{{logoInstituicao}}",
   nomeInstituicao: config?.nomeFantasia || "Instituição",
@@ -177,6 +182,24 @@ const valoresTemplate = {
   estadoInstituicao: config?.estado || "-",
   cepInstituicao: config?.cep || "-",
   blocoInstituicao: montarBlocoInstituicao(config),
+
+  nomePolo,
+enderecoPolo: polo ? montarEnderecoInstituicao(polo) : "-",
+telefonePolo: polo?.telefone || "-",
+emailPolo: polo?.email || "-",
+cidadePolo: polo?.cidade || "-",
+estadoPolo: polo?.estado || "-",
+cepPolo: polo?.cep || "-",
+blocoPolo: polo
+  ? [
+      nomePolo,
+      montarEnderecoInstituicao(polo),
+      polo?.telefone ? `Telefone: ${polo.telefone}` : "",
+      polo?.email ? `E-mail: ${polo.email}` : "",
+    ]
+      .filter(Boolean)
+      .join("\n")
+  : nomePolo,
 
   nomeAluno: aluno.nome || "-",
   cpfAluno: aluno.cpf || "-",

@@ -790,6 +790,45 @@ function moverCampoVisual(id: string, x: number, y: number) {
   "{{dataAtual}}",
   "{{referenciaFinanceira}}",
   "{{tituloDocumento}}",
+
+  "{{atoLegalCriacao}}",
+  "{{numeroAutorizacaoCurso}}",
+  "{{dataPublicacaoAutorizacao}}",
+  "{{diarioOficialAutorizacao}}",
+
+  "{{naturalidadeAluno}}",
+  "{{nacionalidadeAluno}}",
+  "{{sexoAluno}}",
+  "{{rgAluno}}",
+  "{{orgaoExpedidorAluno}}",
+  "{{dataNascimentoAluno}}",
+  "{{formaIngressoAluno}}", 
+  "{{curriculoAluno}}",
+  "{{situacaoAcademicaAluno}}",
+
+  "{{haMaximaCurso}}",
+  "{{haTotalCursada}}",
+  "{{haTotalAprovada}}",
+  "{{indiceAproveitamentoSemestral}}",
+  "{{indiceAproveitamentoAcumulado}}",
+  "{{indiceAproveitamentoAprovadas}}",
+  "{{prazoIntegralizacao}}",
+  "{{semestresCursados}}",
+  "{{semestresRevalidados}}",
+  "{{provavelSemestreFormatura}}",
+
+  "{{disciplinasPorSemestre}}",
+  "{{disciplinasBaseNacionalComum}}",
+  "{{disciplinasParteDiversificada}}",
+  "{{totalAulasBaseNacionalComum}}",
+  "{{totalAulasParteDiversificada}}",
+  "{{totalCargaHorariaAnualAulas}}",
+  "{{totalCargaHorariaAnualHoras}}",
+
+  "{{observacoesHistorico}}",
+  "{{legendaHistorico}}",
+  "{{certificacaoDeclaracao}}",
+  "{{escolaOrigem}}",
 ].map((tag) => (
                     <span
                       key={tag}
