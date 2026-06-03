@@ -171,6 +171,14 @@ export async function GET() {
       },
     });
 
+    const instituicaoLogo = await prisma.instituicao.findUnique({
+  where: { id: user.instituicaoId },
+  select: {
+    logoUrl: true,
+    logo: true,
+  },
+});
+
     const matriculaAtual = aluno.matriculas?.[0];
     const curso = matriculaAtual?.curso;
 
@@ -180,11 +188,12 @@ export async function GET() {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    const logoUrl =
+const logoUrl =
   config?.logoUrl ||
   (config as any)?.logotipoUrl ||
   (config as any)?.logo ||
-  (config as any)?.imagemLogoUrl ||
+  instituicaoLogo?.logoUrl ||
+  (instituicaoLogo as any)?.logo ||
   null;
 
 console.log("LOGO HISTORICO URL:", logoUrl);
@@ -193,16 +202,10 @@ const logo = await carregarImagemPdf(pdfDoc, logoUrl);
 
 console.log("LOGO HISTORICO CARREGADA:", Boolean(logo));
 
-    console.log("LOGO HISTORICO URL:", config?.logoUrl);
-console.log("LOGO HISTORICO CARREGADA:", Boolean(logo));
-
-    console.log("LOGO URL:", config?.logoUrl);
-    console.log("LOGO CARREGADA:", !!logo);
-
-    const assinatura = await carregarImagemPdf(
-      pdfDoc,
-      config?.certificadoAssinaturaUrl
-    );
+const assinatura = await carregarImagemPdf(
+  pdfDoc,
+  config?.certificadoAssinaturaUrl
+);
 
     const preto = rgb(0, 0, 0);
     const azul = rgb(0.02, 0.12, 0.35);
