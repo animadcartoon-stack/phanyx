@@ -162,21 +162,50 @@ export async function GET() {
       });
     }
 
-    drawText(textoSeguro(config?.nomeFantasia || "IBE"), 125, 770, 13, true, azul);
-    drawText(textoSeguro(config?.razaoSocial), 125, 755, 8);
-    drawText(`CNPJ: ${textoSeguro(config?.cnpj)}`, 125, 742, 8);
-    drawText(
-      `${textoSeguro(config?.endereco)} - ${textoSeguro(config?.cidade)}/${textoSeguro(config?.estado)}`,
-      125,
-      729,
-      8
-    );
-    drawText(
-      `Telefone: ${textoSeguro(config?.telefone)}   E-mail: ${textoSeguro(config?.email)}`,
-      125,
-      716,
-      8
-    );
+    const nomeInstituicao =
+  config?.razaoSocial?.trim() ||
+  config?.nomeFantasia?.trim() ||
+  "Instituição";
+
+const nomeFantasia = config?.nomeFantasia?.trim() || "";
+
+const enderecoLinha = [
+  config?.endereco,
+  config?.numero,
+  config?.bairro,
+].filter(Boolean).join(", ");
+
+const cidadeEstado = [
+  config?.cidade,
+  config?.estado,
+].filter(Boolean).join(" - ");
+
+const contatos = [
+  config?.telefone ? `Telefone: ${config.telefone}` : "",
+  config?.email ? `E-mail: ${config.email}` : "",
+].filter(Boolean).join("   ");
+
+drawText(nomeInstituicao.toUpperCase(), 125, 770, 12, true, azul);
+
+if (nomeFantasia && nomeFantasia !== nomeInstituicao) {
+  drawText(nomeFantasia, 125, 756, 9, true);
+}
+
+if (config?.cnpj) {
+  drawText(`CNPJ: ${config.cnpj}`, 125, 742, 8);
+}
+
+if (enderecoLinha) {
+  drawText(enderecoLinha, 125, 729, 8);
+}
+
+if (cidadeEstado) {
+  drawText(cidadeEstado, 125, 716, 8);
+}
+
+if (contatos) {
+  drawText(contatos, 125, 703, 8);
+}
 
     // Título
     drawText("HISTÓRICO ACADÊMICO ESCOLAR", 180, 685, 15, true, preto);
@@ -252,13 +281,22 @@ export async function GET() {
           ? `${(notaEncontrada as any).frequencia}%`
           : "-";
 
-      const situacao =
-        (item as any).status === "CONCLUIDA" ||
-        (item as any).status === "CONCLUIDO"
-          ? "Concluída"
-          : (item as any).status === "APROVADO"
-            ? "Aprovado"
-            : textoSeguro((item as any).status || "A cursar");
+      const statusBruto = String((item as any).status || "A_CURSAR");
+
+const situacao =
+  statusBruto === "CONCLUIDA" || statusBruto === "CONCLUIDO"
+    ? "Concluída"
+    : statusBruto === "APROVADO"
+      ? "Aprovada"
+      : statusBruto === "REPROVADO"
+        ? "Reprovada"
+        : statusBruto === "CANCELADA" || statusBruto === "CANCELADO"
+          ? "Cancelada"
+          : statusBruto === "DESISTENTE" || statusBruto === "DESISTENCIA"
+            ? "Desistência"
+            : statusBruto === "TRANCADA" || statusBruto === "TRANCADO"
+              ? "Trancada"
+              : "A cursar";
 
       for (const col of colunas) {
         drawBox(col.x, y, col.w, 20);
