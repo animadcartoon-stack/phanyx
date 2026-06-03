@@ -609,6 +609,92 @@ function gerarPontosEstrela(
   
   const [mostrarHandlesForma, setMostrarHandlesForma] = useState(true);
 
+  const [modoFormaLivre, setModoFormaLivre] = useState(false);
+  const [pontosFormaLivre, setPontosFormaLivre] = useState<any[]>([]);
+
+  function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
+  if (!modoFormaLivre || !canvasRef.current) return false;
+  if (e.button !== 0) return false;
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const rect = canvasRef.current.getBoundingClientRect();
+
+  const x = (e.clientX - rect.left) / escala;
+  const y = (e.clientY - rect.top) / escala;
+
+  const primeiro = pontosFormaLivre[0];
+  const clicouNoPrimeiro =
+    pontosFormaLivre.length >= 3 &&
+    primeiro &&
+    Math.hypot(x - primeiro.x, y - primeiro.y) <= 18;
+
+  if (clicouNoPrimeiro) {
+    const xs = pontosFormaLivre.map((p) => p.x);
+    const ys = pontosFormaLivre.map((p) => p.y);
+
+    const minX = Math.min(...xs);
+    const minY = Math.min(...ys);
+    const maxX = Math.max(...xs);
+    const maxY = Math.max(...ys);
+
+    const largura = Math.max(20, maxX - minX);
+    const altura = Math.max(20, maxY - minY);
+
+    const novoId = Date.now();
+
+    const pontosNormalizados = pontosFormaLivre.map((p, index) => ({
+      id: `p-${novoId}-${index}`,
+      x: Number((((p.x - minX) / largura) * 100).toFixed(2)),
+      y: Number((((p.y - minY) / altura) * 100).toFixed(2)),
+      tipo: "reto" as const,
+    }));
+
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: novoId,
+        tempId: novoId,
+        tipo: "FORMA",
+        forma: "LIVRE",
+        pontosForma: pontosNormalizados,
+        mostrarPreenchimento: true,
+        mostrarContorno: true,
+        preenchimentoCor: "#1d4ed8",
+        contornoCor: "#1d4ed8",
+        contornoEspessura: 2,
+        x: minX,
+        y: minY,
+        largura,
+        altura,
+        cor: "#1d4ed8",
+        opacity: 0.55,
+        ordem: 5,
+      } as any,
+    ]);
+
+    setCampoSelecionadoId(novoId);
+    setCamposSelecionadosIds([novoId]);
+    setModoFormaLivre(false);
+    setPontosFormaLivre([]);
+    setMensagemSucesso("Forma livre criada. Agora você pode editar pontos e tangentes.");
+
+    return true;
+  }
+
+  setPontosFormaLivre((prev) => [
+    ...prev,
+    {
+      id: `livre-${Date.now()}`,
+      x,
+      y,
+    },
+  ]);
+
+  return true;
+}
+
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
@@ -3548,8 +3634,10 @@ contornoEspessura: 2,
 <button
   type="button"
   onClick={() => {
-    setMensagemErro("Forma livre será o próximo passo: clicar para criar pontos e fechar a forma.");
-  }}
+  setModoFormaLivre(true);
+  setPontosFormaLivre([]);
+  setMensagemSucesso("Forma livre ativada. Clique no papel para criar pontos. Clique perto do primeiro ponto para fechar.");
+}}
   className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
 >
   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
@@ -3826,7 +3914,8 @@ contornoEspessura: 2,
 
                 <div
   ref={canvasRef}
-  onMouseDown={(e) => {
+onMouseDown={(e) => {
+  if (clicarFormaLivreNoCanvas(e)) return;
   iniciarSelecaoRetangular(e);
 }}
 onMouseMove={(e) => {
@@ -3862,6 +3951,31 @@ onMouseLeave={() => {
                       <div className="absolute left-4 top-4 z-10 rounded-lg bg-white/90 px-3 py-1 text-xs font-medium text-slate-500 shadow-sm">
                         Modelo carregado • arraste os campos para posicionar
                       </div>
+
+{modoFormaLivre && pontosFormaLivre.length > 0 && (
+  <svg className="pointer-events-none absolute inset-0 z-[999999] h-full w-full">
+    <polyline
+      points={pontosFormaLivre.map((p) => `${p.x},${p.y}`).join(" ")}
+      fill="none"
+      stroke="#2563eb"
+      strokeWidth="2"
+      strokeDasharray="6 4"
+    />
+
+    {pontosFormaLivre.map((p, index) => (
+      <circle
+        key={p.id}
+        cx={p.x}
+        cy={p.y}
+        r={index === 0 ? 7 : 5}
+        fill={index === 0 ? "#22c55e" : "#2563eb"}
+        stroke="white"
+        strokeWidth="2"
+      />
+    ))}
+  </svg>
+)}
+
                     </>
                                     ) : null}
 
