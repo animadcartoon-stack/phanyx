@@ -706,6 +706,28 @@ function gerarPontosEstrela(
   const [modoCorDocumento, setModoCorDocumento] = useState<"RGB" | "CMYK">("RGB");
   const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
   const [modoFundo, setModoFundo] = useState<"modelo" | "phanyx">("modelo");
+
+  useEffect(() => {
+  const fundoSalvo = localStorage.getItem("phanyx_certificado_fundo");
+  if (!fundoSalvo) return;
+
+  try {
+    const fundo = JSON.parse(fundoSalvo);
+    if (fundo?.modoFundo) setModoFundo(fundo.modoFundo);
+    if (fundo?.corFundoPagina) setCorFundoPagina(fundo.corFundoPagina);
+  } catch {}
+}, []);
+
+useEffect(() => {
+  localStorage.setItem(
+    "phanyx_certificado_fundo",
+    JSON.stringify({
+      modoFundo,
+      corFundoPagina,
+    })
+  );
+}, [modoFundo, corFundoPagina]);
+
   const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(0);
   const [modoAmplo, setModoAmplo] = useState(false);
