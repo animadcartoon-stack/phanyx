@@ -628,7 +628,9 @@ function gerarPontosEstrela(
 setMensagemSucesso(
   `Clique recebido X:${Math.round(x)} Y:${Math.round(y)}`
 );
-
+setMensagemSucesso(
+  `Pontos: ${pontosFormaLivre.length + 1}`
+);
   const primeiro = pontosFormaLivre[0];
   const clicouNoPrimeiro =
     pontosFormaLivre.length >= 3 &&
@@ -3982,14 +3984,22 @@ onMouseLeave={() => {
                         Modelo carregado • arraste os campos para posicionar
                       </div>
 
-{modoFormaLivre && pontosFormaLivre.length > 0 && (
-  <svg className="pointer-events-none absolute inset-0 z-[999999] h-full w-full">
+  {modoFormaLivre && pontosFormaLivre.length > 0 && (
+  <svg
+    className="absolute left-0 top-0 z-[999999] overflow-visible"
+    style={{
+      width: `${baseCanvas.largura}px`,
+      height: `${baseCanvas.altura}px`,
+      pointerEvents: "none",
+    }}
+    viewBox={`0 0 ${baseCanvas.largura} ${baseCanvas.altura}`}
+  >
     <polyline
       points={pontosFormaLivre.map((p) => `${p.x},${p.y}`).join(" ")}
       fill="none"
-      stroke="#2563eb"
-      strokeWidth="2"
-      strokeDasharray="6 4"
+      stroke="#00ff88"
+      strokeWidth="4"
+      strokeDasharray="8 6"
     />
 
     {pontosFormaLivre.map((p, index) => (
@@ -3997,14 +4007,15 @@ onMouseLeave={() => {
         key={p.id}
         cx={p.x}
         cy={p.y}
-        r={index === 0 ? 7 : 5}
+        r={index === 0 ? 10 : 8}
         fill={index === 0 ? "#22c55e" : "#2563eb"}
-        stroke="white"
-        strokeWidth="2"
+        stroke="#ffffff"
+        strokeWidth="3"
       />
     ))}
   </svg>
 )}
+
 
                     </>
                                     ) : null}
