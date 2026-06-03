@@ -651,19 +651,115 @@ const todasAsTags = [
   "{{escolaOrigem}}",
 ];
 
-const variaveisInteligentes = todasAsTags.map((tag) => ({
-  tag,
-  titulo: tag
-    .replaceAll("{{", "")
-    .replaceAll("}}", "")
-    .replace(/([A-Z])/g, " $1")
-    .trim(),
-  descricao:
-    "Variável dinâmica disponível para utilização em documentos.",
-  ondeUsar:
-    "Contratos, históricos, certificados, declarações e documentos.",
-  palavras: [tag, tag.toLowerCase()],
-}));
+const descricoesVariaveis: Record<
+  string,
+  {
+    titulo: string;
+    descricao: string;
+    ondeUsar: string;
+    palavras: string[];
+  }
+> = {
+  "{{nomeInstituicao}}": {
+    titulo: "Nome da instituição",
+    descricao: "Mostra o nome fantasia da instituição cadastrada.",
+    ondeUsar:
+      "Cabeçalhos, rodapés, contratos, declarações e históricos.",
+    palavras: [
+      "nome da escola",
+      "nome da faculdade",
+      "nome da instituição",
+      "instituição",
+      "escola",
+      "faculdade",
+    ],
+  },
+
+  "{{logoInstituicao}}": {
+    titulo: "Logo da instituição",
+    descricao: "Insere a logo cadastrada da instituição.",
+    ondeUsar:
+      "Cabeçalhos de históricos, certificados e documentos oficiais.",
+    palavras: [
+      "logo",
+      "marca",
+      "brasão",
+      "imagem da escola",
+      "imagem da faculdade",
+    ],
+  },
+
+  "{{nomeAluno}}": {
+    titulo: "Nome do aluno",
+    descricao: "Nome completo do aluno cadastrado.",
+    ondeUsar:
+      "Históricos, certificados, contratos e declarações.",
+    palavras: [
+      "aluno",
+      "estudante",
+      "nome do aluno",
+    ],
+  },
+
+  "{{curso}}": {
+    titulo: "Nome do curso",
+    descricao: "Nome do curso vinculado ao aluno.",
+    ondeUsar:
+      "Históricos, certificados, contratos e declarações.",
+    palavras: [
+      "curso",
+      "graduação",
+      "bacharelado",
+      "teologia",
+      "nome do curso",
+    ],
+  },
+
+  "{{blocoAssinaturaDiretor}}": {
+    titulo: "Assinatura institucional",
+    descricao:
+      "Bloco completo com assinatura, nome, cargo e instituição.",
+    ondeUsar:
+      "Final de históricos, certificados, contratos e declarações.",
+    palavras: [
+      "assinatura",
+      "diretor",
+      "reitor",
+      "coordenador",
+      "responsável",
+    ],
+  },
+};
+
+const variaveisInteligentes = todasAsTags.map((tag) => {
+  const info = descricoesVariaveis[tag];
+
+  return {
+    tag,
+
+    titulo:
+      info?.titulo ||
+      tag
+        .replaceAll("{{", "")
+        .replaceAll("}}", "")
+        .replace(/([A-Z])/g, " $1")
+        .trim(),
+
+    descricao:
+      info?.descricao ||
+      "Variável dinâmica disponível para utilização em documentos.",
+
+    ondeUsar:
+      info?.ondeUsar ||
+      "Contratos, históricos, certificados, declarações e documentos.",
+
+    palavras: [
+      tag,
+      tag.toLowerCase(),
+      ...(info?.palavras || []),
+    ],
+  };
+});
 
   return (
   <div className="space-y-6">
