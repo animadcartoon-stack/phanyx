@@ -3475,6 +3475,91 @@ contornoEspessura: 2,
   </span>
 </button>
 
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 6,
+        tipo: "FORMA",
+        forma: "SETA",
+        pontosForma: criarPontosIniciaisForma("SETA"),
+        mostrarPreenchimento: true,
+        mostrarContorno: true,
+        preenchimentoCor: "#1d4ed8",
+        contornoCor: "#1d4ed8",
+        contornoEspessura: 2,
+        x: 200,
+        y: 200,
+        largura: 180,
+        altura: 100,
+        cor: "#1d4ed8",
+        opacity: 0.55,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="text-3xl font-black text-blue-700">➜</span>
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Seta
+  </span>
+</button>
+
+<button
+  type="button"
+  onClick={() =>
+    setCampos((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 7,
+        tipo: "FORMA",
+        forma: "LOSANGO",
+        pontosForma: criarPontosIniciaisForma("LOSANGO"),
+        mostrarPreenchimento: true,
+        mostrarContorno: true,
+        preenchimentoCor: "#1d4ed8",
+        contornoCor: "#1d4ed8",
+        contornoEspessura: 2,
+        x: 200,
+        y: 200,
+        largura: 140,
+        altura: 140,
+        cor: "#1d4ed8",
+        opacity: 0.55,
+        ordem: 5,
+      } as any,
+    ])
+  }
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="h-8 w-8 rotate-45 rounded-sm bg-blue-700" />
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Losango
+  </span>
+</button>
+
+<button
+  type="button"
+  onClick={() => {
+    setMensagemErro("Forma livre será o próximo passo: clicar para criar pontos e fechar a forma.");
+  }}
+  className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
+>
+  <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 group-hover:bg-blue-100">
+    <span className="text-2xl text-blue-700">✒️</span>
+  </span>
+  <span className="mt-2 text-[11px] font-semibold text-slate-700">
+    Livre
+  </span>
+</button>
+
 </div>
   <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl bg-blue-50 px-4 py-4 text-center transition hover:bg-blue-100">
     <span className="text-2xl">🖼️</span>
