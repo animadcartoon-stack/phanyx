@@ -618,14 +618,6 @@ const variaveisInteligentes = [
   },
 ];
 
-<button
-  type="button"
-  onClick={() => setMostrarTodasVariaveis((v) => !v)}
-  className="mt-3 rounded-xl border bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-blue-400"
->
-  {mostrarTodasVariaveis ? "▲ Ocultar todas as variáveis" : "▼ Ver todas as variáveis"}
-</button>
-
   return (
   <div className="space-y-6">
 
@@ -809,6 +801,16 @@ const variaveisInteligentes = [
                     Carregar modelo base
                   </button>
                 </div>
+
+<button
+  type="button"
+  onClick={() => setMostrarTodasVariaveis((v) => !v)}
+  className="mt-3 rounded-xl border bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:border-blue-400"
+>
+  {mostrarTodasVariaveis
+    ? "▲ Ocultar todas as variáveis"
+    : "▼ Ver todas as variáveis"}
+</button>
 
                 <div className="mt-4">
   <input

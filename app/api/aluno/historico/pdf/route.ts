@@ -16,13 +16,16 @@ async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
     if (!resposta.ok) return null;
 
     const bytes = await resposta.arrayBuffer();
-    const tipo = resposta.headers.get("content-type") || "";
 
-    if (tipo.includes("png") || url.toLowerCase().includes(".png")) {
+    try {
       return await pdfDoc.embedPng(bytes);
-    }
+    } catch {}
 
-    return await pdfDoc.embedJpg(bytes);
+    try {
+      return await pdfDoc.embedJpg(bytes);
+    } catch {}
+
+    return null;
   } catch {
     return null;
   }
