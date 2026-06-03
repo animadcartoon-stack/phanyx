@@ -755,6 +755,11 @@ function moverCampoVisual(id: string, x: number, y: number) {
   "{{cargaHorariaMinimaCurso}}",
   "{{cargaHorariaMaximaCurso}}",
 
+  "{{dataEmissao}}",
+  "{{horaEmissao}}",
+  "{{dataHoraEmissao}}",
+  "{{numeroDocumento}}",
+
   "{{nomePolo}}",
   "{{enderecoPolo}}",
   "{{telefonePolo}}",

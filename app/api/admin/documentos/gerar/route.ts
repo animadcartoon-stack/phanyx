@@ -267,6 +267,15 @@ const conteudoFinal = substituirTemplate(template.conteudo, {
   cidadeAssinatura: config?.cidadeAssinatura || config?.cidade || "-",
   dataAtual: formatarDataAtual(),
   referenciaFinanceira: "Pagamento institucional",
+  dataEmissao: new Date().toLocaleDateString("pt-BR"),
+
+horaEmissao: new Date().toLocaleTimeString("pt-BR"),
+
+dataHoraEmissao: new Date().toLocaleString("pt-BR"),
+
+numeroDocumento: `DOC-${new Date().getFullYear()}-${String(
+  templateId
+).padStart(6, "0")}`,
   tituloDocumento: tituloPersonalizado || template.nome,
 });
 
