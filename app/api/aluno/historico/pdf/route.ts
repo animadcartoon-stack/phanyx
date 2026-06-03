@@ -270,6 +270,31 @@ blocoPolo: polo
   numeroMatricula: aluno.matricula || "-",
   statusAluno: aluno.statusAluno || "-",
 
+  dataMatricula: matriculaAtual?.createdAt
+  ? new Date(matriculaAtual.createdAt).toLocaleDateString("pt-BR")
+  : "-",
+
+dataConclusao: (matriculaAtual as any)?.dataConclusao
+  ? new Date((matriculaAtual as any).dataConclusao).toLocaleDateString("pt-BR")
+  : "-",
+
+dataConclusaoAluno: (matriculaAtual as any)?.dataConclusao
+  ? new Date((matriculaAtual as any).dataConclusao).toLocaleDateString("pt-BR")
+  : "-",
+
+semestreAtual:
+  (matriculaAtual as any)?.semestreAtual ||
+  (matriculaAtual as any)?.semestre ||
+  "-",
+
+cargaHorariaCurso: curso?.cargaHoraria
+  ? `${curso.cargaHoraria}h`
+  : "-",
+
+percentualConclusao: (matriculaAtual as any)?.percentualConclusao
+  ? `${(matriculaAtual as any).percentualConclusao}%`
+  : "-",
+
     codigoValidacao,
   urlValidacao: "https://www.phanyx.com.br/validar-documento",
   
