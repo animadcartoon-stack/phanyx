@@ -69,8 +69,20 @@ export async function GET() {
 
     const aluno = await prisma.aluno.findFirst({
   where: {
-    usuarioId: user.id,
+    userId: user.id,
     instituicaoId: user.instituicaoId,
+  },
+  include: {
+    matriculas: {
+      include: {
+        curso: true,
+        itens: {
+          include: {
+            disciplina: true,
+          },
+        },
+      },
+    },
   },
 });
 
