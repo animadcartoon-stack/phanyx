@@ -422,9 +422,9 @@ console.log(cabecalho);
 const textoCabecalho = limparTextoSecao(cabecalho);
 
 const temLogoNoCabecalho = Boolean(logo);
-const alturaTextoCabecalho = alturaDoTexto(textoCabecalho, 8, temLogoNoCabecalho ? 58 : 85);
-const alturaLogo = temLogoNoCabecalho ? 70 : 0;
-const alturaCabecalho = Math.max(70, alturaTextoCabecalho, alturaLogo + 20);
+const alturaTextoCabecalho = alturaDoTexto(textoCabecalho, 8, 78);
+const alturaLogo = 100;
+const alturaCabecalho = Math.max(120, alturaTextoCabecalho + 20, alturaLogo + 20);
 
 const cabecalhoY = cursorY - alturaCabecalho;
 
@@ -435,14 +435,14 @@ drawBox(55, cabecalhoY + 10, 100, 100);
 
 if (logo) {
   page.drawImage(logo, {
-  x: 65,
-  y: cabecalhoY + 20,
-  width: 80,
-  height: 80,
-});
+    x: 65,
+    y: cabecalhoY + 20,
+    width: 80,
+    height: 80,
+  });
 } else {
-  drawText("Logo da", 82, cabecalhoY + alturaCabecalho - 45, 12);
-  drawText("Instituição", 75, cabecalhoY + alturaCabecalho - 65, 12);
+  drawText("Logo da", 83, cabecalhoY + 62, 10);
+  drawText("Instituição", 75, cabecalhoY + 45, 10);
 }
 
 // informações sempre à direita
