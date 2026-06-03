@@ -365,7 +365,7 @@ export async function GET() {
 
     const pdfBytes = await pdfDoc.save();
 
-    return new NextResponse(Buffer.from(pdfBytes), {
+        return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,
       headers: {
         "Content-Type": "application/pdf",
@@ -373,11 +373,15 @@ export async function GET() {
         "Cache-Control": "no-store",
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao gerar histórico acadêmico:", error);
 
     return NextResponse.json(
-      { error: "Erro ao gerar histórico acadêmico." },
+      {
+        error: error?.message || String(error),
+        stack: error?.stack || null,
+        nomeErro: error?.name || null,
+      },
       { status: 500 }
     );
   }
