@@ -13,9 +13,22 @@ async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
 
   try {
     const resposta = await fetch(url);
-    if (!resposta.ok) return null;
 
+    if (!resposta.ok) {
+      console.error("Erro ao baixar imagem:", resposta.status, url);
+      return null;
+    }
+
+    const contentType = resposta.headers.get("content-type") || "";
     const bytes = await resposta.arrayBuffer();
+
+    if (contentType.includes("png")) {
+      return await pdfDoc.embedPng(bytes);
+    }
+
+    if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+      return await pdfDoc.embedJpg(bytes);
+    }
 
     try {
       return await pdfDoc.embedPng(bytes);
@@ -25,8 +38,10 @@ async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
       return await pdfDoc.embedJpg(bytes);
     } catch {}
 
+    console.error("Formato de imagem não suportado para PDF:", contentType, url);
     return null;
-  } catch {
+  } catch (error) {
+    console.error("Erro ao carregar imagem PDF:", error);
     return null;
   }
 }
@@ -165,7 +180,18 @@ export async function GET() {
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    const logo = await carregarImagemPdf(pdfDoc, config?.logoUrl);
+    const logoUrl =
+  config?.logoUrl ||
+  (config as any)?.logotipoUrl ||
+  (config as any)?.logo ||
+  (config as any)?.imagemLogoUrl ||
+  null;
+
+console.log("LOGO HISTORICO URL:", logoUrl);
+
+const logo = await carregarImagemPdf(pdfDoc, logoUrl);
+
+console.log("LOGO HISTORICO CARREGADA:", Boolean(logo));
 
     console.log("LOGO HISTORICO URL:", config?.logoUrl);
 console.log("LOGO HISTORICO CARREGADA:", Boolean(logo));
