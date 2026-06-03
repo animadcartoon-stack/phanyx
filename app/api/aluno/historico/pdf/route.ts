@@ -424,26 +424,26 @@ const cabecalhoY = cursorY - alturaCabecalho;
 
 drawBox(45, cabecalhoY, 505, alturaCabecalho);
 
-if (temLogoNoCabecalho) {
-  drawBox(55, cabecalhoY + 10, 100, alturaCabecalho - 20);
+if (temLogoNoCabecalho && logo) {
+  drawBox(55, cabecalhoY + 12, 105, alturaCabecalho - 24);
 
   page.drawImage(logo, {
     x: 65,
-    y: cabecalhoY + 20,
-    width: 80,
-    height: alturaCabecalho - 40,
+    y: cabecalhoY + 22,
+    width: 85,
+    height: alturaCabecalho - 44,
   });
 }
 
 desenharLinhas(
   textoCabecalho,
-  temLogoNoCabecalho ? 170 : 58,
+  temLogoNoCabecalho ? 175 : 58,
   cabecalhoY + alturaCabecalho - 18,
-  7.2,
-  temLogoNoCabecalho ? 70 : 85
+  7,
+  temLogoNoCabecalho ? 76 : 92
 );
 
-cursorY = cabecalhoY - 28;
+cursorY = cabecalhoY - 32;
 
 // Título vindo do template
 const titulo =
@@ -629,64 +629,73 @@ if (y < 135) {
 // Observações vindas do template
 const observacoes = limparTextoSecao(pegarSecao("OBSERVAÇÕES"));
 
-y -= 25;
+y -= 28;
 
 if (observacoes) {
+  if (y < 210) {
+    y = novaPaginaHistorico();
+  }
+
   drawText("OBSERVAÇÕES:", 45, y, 8.5, true);
 
   const yDepoisObs = desenharLinhas(
     observacoes,
     45,
-    y - 13,
-    6.5,
-    105
+    y - 14,
+    6.3,
+    118
   );
 
-  y = yDepoisObs - 20;
+  y = yDepoisObs - 35;
 }
 
-// Assinatura institucional
-const assinaturaY = Math.max(95, y - 95);
+// Assinatura institucional dinâmica
+if (y < 155) {
+  y = novaPaginaHistorico();
+}
+
+const assinaturaY = Math.max(105, y - 80);
 
 if (assinatura) {
   page.drawImage(assinatura, {
-    x: 210,
-    y: assinaturaY + 50,
-    width: 130,
-    height: 45,
+    x: 220,
+    y: assinaturaY + 45,
+    width: 120,
+    height: 38,
   });
 }
 
 page.drawLine({
-  start: { x: 170, y: assinaturaY + 45 },
-  end: { x: 390, y: assinaturaY + 45 },
+  start: { x: 185, y: assinaturaY + 40 },
+  end: { x: 410, y: assinaturaY + 40 },
   thickness: 0.8,
   color: preto,
 });
 
-drawText(textoSeguro(config?.responsavelNome), 215, assinaturaY + 30, 9, true);
+drawText(textoSeguro(config?.responsavelNome), 230, assinaturaY + 25, 8.5, true);
 drawText(
   textoSeguro(config?.responsavelCargo || "Responsável Institucional"),
-  220,
-  assinaturaY + 17,
-  8
+  260,
+  assinaturaY + 13,
+  7.5
 );
-drawText(textoSeguro(config?.nomeFantasia || "Instituição"), 225, assinaturaY + 5, 8);
+drawText(textoSeguro(config?.nomeFantasia || "Instituição"), 270, assinaturaY + 2, 7.5);
 
-// Rodapé vindo do template
-const rodape =
-  limparTextoSecao(pegarSecao("RODAPÉ")) ||
-  `Documento emitido em ${new Date().toLocaleDateString("pt-BR")} por ${textoSeguro(
-    config?.nomeFantasia || "PHANYX"
-  )}.`;
-
-drawText(rodape.slice(0, 95), 45, 65, 7.2, false, cinza);
+// Rodapé limpo
+drawText(
+  `${textoSeguro(config?.nomeFantasia || "PHANYX")} - CNPJ ${textoSeguro(config?.cnpj)}`,
+  45,
+  65,
+  7,
+  false,
+  cinza
+);
 
 drawText(
   `Código de validação: ${documentoGerado.codigoValidacao || codigoValidacao}`,
   45,
   52,
-  7.2,
+  7,
   true,
   cinza
 );
@@ -695,7 +704,7 @@ drawText(
   "Valide em: https://www.phanyx.com.br/validar-documento",
   45,
   40,
-  7.2,
+  7,
   false,
   cinza
 );

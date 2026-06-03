@@ -287,6 +287,7 @@ function AdminDocumentosTemplatesPage() {
   const [camposVisuais, setCamposVisuais] = useState<CampoVisualContrato[]>([]);
   const [configInstituicao, setConfigInstituicao] =
   useState<ConfiguracaoInstituicao | null>(null);
+  const [buscaVariavel, setBuscaVariavel] = useState("");
 
   async function carregarTemplates() {
     try {
@@ -553,6 +554,69 @@ function moverCampoVisual(id: string, x: number, y: number) {
   );
 }
 
+const variaveisInteligentes = [
+  {
+    tag: "{{nomeInstituicao}}",
+    titulo: "Nome da instituição",
+    descricao: "Mostra o nome fantasia da instituição cadastrada.",
+    ondeUsar:
+      "Cabeçalhos, rodapés, contratos, declarações e históricos.",
+    palavras: [
+      "instituição",
+      "escola",
+      "faculdade",
+      "nome da escola",
+      "nome da faculdade",
+      "nome da instituição",
+    ],
+  },
+
+  {
+    tag: "{{curso}}",
+    titulo: "Nome do curso",
+    descricao: "Mostra o nome do curso do aluno.",
+    ondeUsar:
+      "Históricos, certificados, contratos e declarações.",
+    palavras: [
+      "curso",
+      "nome do curso",
+      "bacharelado",
+      "graduação",
+      "teologia",
+    ],
+  },
+
+  {
+    tag: "{{blocoAssinaturaDiretor}}",
+    titulo: "Assinatura do diretor",
+    descricao:
+      "Bloco completo com assinatura, nome, cargo e instituição.",
+    ondeUsar:
+      "Final de contratos, históricos, certificados e declarações.",
+    palavras: [
+      "assinatura",
+      "diretor",
+      "responsável",
+      "reitor",
+      "coordenador",
+    ],
+  },
+
+  {
+    tag: "{{nomeAluno}}",
+    titulo: "Nome do aluno",
+    descricao:
+      "Nome completo do aluno cadastrado.",
+    ondeUsar:
+      "Todos os documentos acadêmicos.",
+    palavras: [
+      "aluno",
+      "nome do aluno",
+      "estudante",
+    ],
+  },
+];
+
   return (
   <div className="space-y-6">
 
@@ -737,107 +801,59 @@ function moverCampoVisual(id: string, x: number, y: number) {
                   </button>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  {[
-  "{{logoInstituicao}}",
-  "{{nomeInstituicao}}",
-  "{{cnpjInstituicao}}",
-  "{{enderecoInstituicao}}",
-  "{{telefoneInstituicao}}",
-  "{{emailInstituicao}}",
-  "{{cidadeInstituicao}}",
-  "{{estadoInstituicao}}",
-  "{{cepInstituicao}}",
-  "{{blocoInstituicao}}",
+                <div className="mt-4">
+  <input
+    value={buscaVariavel}
+    onChange={(e) => setBuscaVariavel(e.target.value)}
+    className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+    placeholder="Buscar variável por nome ou finalidade. Ex.: nome da escola, assinatura diretor, curso..."
+  />
 
-  "{{dataInicioAluno}}",
-  "{{dataConclusaoAluno}}",
-  "{{cargaHorariaMinimaCurso}}",
-  "{{cargaHorariaMaximaCurso}}",
+  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+    {variaveisInteligentes
+      .filter((v) => {
+        const termo = buscaVariavel.trim().toLowerCase();
 
-  "{{dataEmissao}}",
-  "{{horaEmissao}}",
-  "{{dataHoraEmissao}}",
-  "{{numeroDocumento}}",
+        if (!termo) return true;
 
-  "{{nomePolo}}",
-  "{{enderecoPolo}}",
-  "{{telefonePolo}}",
-  "{{emailPolo}}",
-  "{{cidadePolo}}",
-  "{{estadoPolo}}",
-  "{{cepPolo}}",
-  "{{blocoPolo}}",
+        return (
+          v.tag.toLowerCase().includes(termo) ||
+          v.titulo.toLowerCase().includes(termo) ||
+          v.descricao.toLowerCase().includes(termo) ||
+          v.ondeUsar.toLowerCase().includes(termo) ||
+          v.palavras.some((p) => p.toLowerCase().includes(termo))
+        );
+      })
+      .map((variavel) => (
+        <button
+          key={variavel.tag}
+          type="button"
+          onClick={() =>
+            setConteudo((atual) =>
+              atual ? `${atual}\n${variavel.tag}` : variavel.tag
+            )
+          }
+          className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
+        >
+          <div className="font-mono font-bold text-blue-700">
+            {variavel.tag}
+          </div>
 
-  "{{responsavelLegal}}",
-  "{{nomeAluno}}",
-  "{{cpfAluno}}",
-  "{{matriculaAluno}}",
-  "{{statusAluno}}",
-  "{{statusMatricula}}",
-  "{{dataMatricula}}",
-  "{{dataConclusao}}",
-  "{{semestreAtual}}",
-  "{{cargaHorariaCurso}}",
-  "{{percentualConclusao}}",
-  "{{numeroMatricula}}",
-  "{{assinaturaDiretor}}",
-  "{{blocoAssinaturaDiretor}}",
-  "{{curso}}",
-  "{{disciplinas}}",
-  "{{valorContrato}}",
-  "{{cidadeAssinatura}}",
-  "{{dataAtual}}",
-  "{{referenciaFinanceira}}",
-  "{{tituloDocumento}}",
+          <div className="mt-1 font-semibold text-slate-800">
+            {variavel.titulo}
+          </div>
 
-  "{{atoLegalCriacao}}",
-  "{{numeroAutorizacaoCurso}}",
-  "{{dataPublicacaoAutorizacao}}",
-  "{{diarioOficialAutorizacao}}",
+          <p className="mt-1 text-slate-600">
+            {variavel.descricao}
+          </p>
 
-  "{{naturalidadeAluno}}",
-  "{{nacionalidadeAluno}}",
-  "{{sexoAluno}}",
-  "{{rgAluno}}",
-  "{{orgaoExpedidorAluno}}",
-  "{{dataNascimentoAluno}}",
-  "{{formaIngressoAluno}}", 
-  "{{curriculoAluno}}",
-  "{{situacaoAcademicaAluno}}",
-
-  "{{haMaximaCurso}}",
-  "{{haTotalCursada}}",
-  "{{haTotalAprovada}}",
-  "{{indiceAproveitamentoSemestral}}",
-  "{{indiceAproveitamentoAcumulado}}",
-  "{{indiceAproveitamentoAprovadas}}",
-  "{{prazoIntegralizacao}}",
-  "{{semestresCursados}}",
-  "{{semestresRevalidados}}",
-  "{{provavelSemestreFormatura}}",
-
-  "{{disciplinasPorSemestre}}",
-  "{{disciplinasBaseNacionalComum}}",
-  "{{disciplinasParteDiversificada}}",
-  "{{totalAulasBaseNacionalComum}}",
-  "{{totalAulasParteDiversificada}}",
-  "{{totalCargaHorariaAnualAulas}}",
-  "{{totalCargaHorariaAnualHoras}}",
-
-  "{{observacoesHistorico}}",
-  "{{legendaHistorico}}",
-  "{{certificacaoDeclaracao}}",
-  "{{escolaOrigem}}",
-].map((tag) => (
-                    <span
-                      key={tag}
-                      className="rounded-full border bg-white px-3 py-1 text-slate-700"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
+          <p className="mt-2 text-[11px] text-slate-500">
+            Usar em: {variavel.ondeUsar}
+          </p>
+        </button>
+      ))}
+  </div>
+</div>
               </div>
 
               <div>
