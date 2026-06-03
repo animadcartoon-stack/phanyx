@@ -270,9 +270,34 @@ blocoPolo: polo
   numeroMatricula: aluno.matricula || "-",
   statusAluno: aluno.statusAluno || "-",
 
+  rgAluno: aluno.rg || "-",
+
+orgaoExpedidorAluno:
+  (aluno as any)?.orgaoExpedidor || "-",
+
+dataNascimentoAluno:
+  aluno.dataNascimento
+    ? new Date(aluno.dataNascimento).toLocaleDateString("pt-BR")
+    : "-",
+
+sexoAluno:
+  (aluno as any)?.sexo || "-",
+
+naturalidadeAluno:
+  (aluno as any)?.naturalidade || "-",
+
+nacionalidadeAluno:
+  (aluno as any)?.nacionalidade || "Brasileira",
+
   dataMatricula: matriculaAtual?.createdAt
   ? new Date(matriculaAtual.createdAt).toLocaleDateString("pt-BR")
   : "-",
+
+observacoesHistorico:
+  "Histórico acadêmico emitido eletronicamente pelo PHANYX.",
+
+legendaHistorico:
+  "A cursar = disciplina ainda não concluída.",
 
 dataConclusao: (matriculaAtual as any)?.dataConclusao
   ? new Date((matriculaAtual as any).dataConclusao).toLocaleDateString("pt-BR")
