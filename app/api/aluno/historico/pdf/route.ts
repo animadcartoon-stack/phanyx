@@ -59,14 +59,35 @@ function montarEnderecoInstituicao(config: any) {
 
 function montarBlocoInstituicao(config: any) {
   return [
-    config?.nomeFantasia || "Instituição",
-    config?.cnpj ? `CNPJ: ${config.cnpj}` : "",
-    montarEnderecoInstituicao(config),
-    config?.telefone ? `Telefone: ${config.telefone}` : "",
-    config?.email ? `E-mail: ${config.email}` : "",
+  config?.nomeFantasia || "Instituição",
+
+  config?.cnpj
+    ? `CNPJ: ${config.cnpj}`
+    : "",
+
+  [
+    config?.endereco,
+    config?.numero,
+    config?.bairro,
+    [config?.cidade, config?.estado]
+      .filter(Boolean)
+      .join("/")
   ]
     .filter(Boolean)
-    .join("\n");
+    .join(" - "),
+
+  "",
+
+  config?.telefone
+    ? `Telefone: ${config.telefone}`
+    : "",
+
+  config?.email
+    ? `E-mail: ${config.email}`
+    : "",
+]
+  .filter((linha) => linha !== undefined)
+  .join("\n");
 }
 
 export async function GET() {
@@ -136,7 +157,7 @@ export async function GET() {
     const curso = matriculaAtual?.curso;
 
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([595.28, 841.89]);
+    let page = pdfDoc.addPage([595.28, 841.89]);
 
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -278,6 +299,12 @@ const documentoGerado = await prisma.documentoGerado.create({
   },
 });
 
+function novaPaginaHistorico() {
+  page = pdfDoc.addPage([595.28, 841.89]);
+  drawBox(35, 35, 525, 770);
+  return 760;
+}
+
     function drawBox(x: number, y: number, w: number, h: number) {
       page.drawRectangle({
         x,
@@ -399,10 +426,10 @@ drawBox(45, cabecalhoY, 505, alturaCabecalho);
 
 if (temLogoNoCabecalho) {
   page.drawImage(logo, {
-    x: 58,
-    y: cabecalhoY + alturaCabecalho - 60,
-    width: 72,
-    height: 50,
+    x: 55,
+    y: cabecalhoY + alturaCabecalho - 75,
+    width: 70,
+    height: 70,
   });
 }
 
@@ -420,7 +447,16 @@ cursorY = cabecalhoY - 28;
 const titulo =
   limparTextoSecao(pegarSecao("TÍTULO")) || "HISTÓRICO ACADÊMICO ESCOLAR";
 
-drawText(titulo.toUpperCase(), 160, cursorY, 15, true, preto);
+const tituloFinal = titulo.toUpperCase();
+
+drawText(
+  tituloFinal.length > 45 ? tituloFinal.slice(0, 45) : tituloFinal,
+  85,
+  cursorY,
+  13,
+  true,
+  preto
+);
 
 cursorY -= 28;
 
@@ -487,9 +523,20 @@ if (dadosMatricula) {
 
 // Tabela de componentes curriculares
 const tabelaX = 45;
-let y = cursorY - 25;
+let y = cursorY - 40;
 
-drawText("COMPONENTES CURRICULARES", 210, y + 20, 11, true);
+if (y < 135) {
+  y = novaPaginaHistorico();
+  // redesenha cabeçalho da tabela
+}
+
+drawText(
+  "COMPONENTES CURRICULARES",
+  190,
+  y + 28,
+  11,
+  true
+);
 
 const colunas = [
   { titulo: "DISCIPLINA", x: tabelaX, w: 260 },
@@ -518,7 +565,31 @@ y -= 22;
 
 const itens = matriculaAtual?.itens || [];
 
-for (const item of itens.slice(0, 13)) {
+for (const item of itens) {
+
+if (y < 135) {
+  y = novaPaginaHistorico();
+
+  drawText("COMPONENTES CURRICULARES - CONTINUAÇÃO", 160, y + 28, 11, true);
+
+  page.drawRectangle({
+    x: tabelaX,
+    y,
+    width: 505,
+    height: 22,
+    color: cinzaClaro,
+    borderColor: preto,
+    borderWidth: 0.8,
+  });
+
+  for (const col of colunas) {
+    drawBox(col.x, y, col.w, 22);
+    drawText(col.titulo, col.x + 5, y + 8, 8, true);
+  }
+
+  y -= 22;
+}
+
   const disciplina = item.disciplina;
   const nomeDisciplina = textoSeguro(disciplina?.nome).slice(0, 45);
   const carga = disciplina?.cargaHoraria ? `${disciplina.cargaHoraria}h` : "-";
