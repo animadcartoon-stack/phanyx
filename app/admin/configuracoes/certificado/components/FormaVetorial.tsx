@@ -249,6 +249,27 @@ function garantirPontosIniciais(campo: CampoForma): PontoForma[] {
 
   if (pontos.length >= 3) return pontos;
 
+  if (campo.forma === "SETA") {
+  return [
+    { id: "p-1", x: 0, y: 30, tipo: "reto" },
+    { id: "p-2", x: 62, y: 30, tipo: "reto" },
+    { id: "p-3", x: 62, y: 0, tipo: "reto" },
+    { id: "p-4", x: 100, y: 50, tipo: "reto" },
+    { id: "p-5", x: 62, y: 100, tipo: "reto" },
+    { id: "p-6", x: 62, y: 70, tipo: "reto" },
+    { id: "p-7", x: 0, y: 70, tipo: "reto" },
+  ];
+}
+
+if (campo.forma === "LOSANGO") {
+  return [
+    { id: "p-1", x: 50, y: 0, tipo: "reto" },
+    { id: "p-2", x: 100, y: 50, tipo: "reto" },
+    { id: "p-3", x: 50, y: 100, tipo: "reto" },
+    { id: "p-4", x: 0, y: 50, tipo: "reto" },
+  ];
+}
+
   if (campo.forma === "RETANGULO" || campo.forma === "QUADRADO") {
     return [
       { id: "p-1", x: 0, y: 0, tipo: "reto" },

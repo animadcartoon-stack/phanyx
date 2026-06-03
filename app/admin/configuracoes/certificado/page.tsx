@@ -56,7 +56,19 @@ type CampoCertificado = {
   flipX?: boolean | null;
   flipY?: boolean | null;
   filter?: string | null;
-  forma?: "RETANGULO" | "QUADRADO" | "CIRCULO" | "LINHA" | "ESTRELA" | "TRIANGULO" | null;
+
+  forma?:
+  | "RETANGULO"
+  | "QUADRADO"
+  | "CIRCULO"
+  | "LINHA"
+  | "ESTRELA"
+  | "TRIANGULO"
+  | "SETA"
+  | "LOSANGO"
+  | "LIVRE"
+  | null;
+
   raioBorda?: number | null;
   pontasEstrela?: number | null;
   profundidadeEstrela?: number | null;
@@ -218,6 +230,27 @@ function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
       { id: "p2", x: 100, y: 50, tipo: "reto" as const },
     ];
   }
+
+if (forma === "SETA") {
+  return [
+    { id: "p1", x: 0, y: 30, tipo: "reto" as const },
+    { id: "p2", x: 62, y: 30, tipo: "reto" as const },
+    { id: "p3", x: 62, y: 0, tipo: "reto" as const },
+    { id: "p4", x: 100, y: 50, tipo: "reto" as const },
+    { id: "p5", x: 62, y: 100, tipo: "reto" as const },
+    { id: "p6", x: 62, y: 70, tipo: "reto" as const },
+    { id: "p7", x: 0, y: 70, tipo: "reto" as const },
+  ];
+}
+
+if (forma === "LOSANGO") {
+  return [
+    { id: "p1", x: 50, y: 0, tipo: "reto" as const },
+    { id: "p2", x: 100, y: 50, tipo: "reto" as const },
+    { id: "p3", x: 50, y: 100, tipo: "reto" as const },
+    { id: "p4", x: 0, y: 50, tipo: "reto" as const },
+  ];
+}
 
   if (forma === "TRIANGULO") {
     return [
