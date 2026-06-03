@@ -3965,6 +3965,16 @@ contornoEspessura: 2,
                 <div
   ref={canvasRef}
 onClickCapture={(e) => {
+  const alvo = e.target as HTMLElement;
+
+  if (
+    alvo.closest("[data-campo-certificado-id]") ||
+    alvo.closest("svg") ||
+    alvo.closest("button")
+  ) {
+    return;
+  }
+
   if (clicarFormaLivreNoCanvas(e as any)) return;
 }}
 onMouseDown={(e) => {
@@ -4274,9 +4284,10 @@ className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-re
   const selecionado = camposSelecionadosIds.includes(c.id);
 
   return (
-    <div
-      key={c.id}
-      onMouseDown={(event) => {
+  <div
+    key={c.id}
+    data-campo-certificado-id={c.id}
+    onMouseDown={(event) => {
   event.stopPropagation();
  
   if (event.button === 2) return;
@@ -4414,6 +4425,21 @@ overflow:
     : "hidden",
     }}
 >
+
+{c.tipo === "FORMA" && (
+  <div
+    style={{
+      position: "absolute",
+      left: 0,
+      top: -30,
+      color: "yellow",
+      fontWeight: "bold",
+      zIndex: 999999,
+    }}
+  >
+    {c.forma} | pontos: {c.pontosForma?.length || 0}
+  </div>
+)}
 
 {c.tipo === "FORMA" && c.pontosForma && c.pontosForma.length > 0 && (
   <div
