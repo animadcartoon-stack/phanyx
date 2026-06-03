@@ -555,68 +555,115 @@ function moverCampoVisual(id: string, x: number, y: number) {
   );
 }
 
-const variaveisInteligentes = [
-  {
-    tag: "{{nomeInstituicao}}",
-    titulo: "Nome da instituição",
-    descricao: "Mostra o nome fantasia da instituição cadastrada.",
-    ondeUsar:
-      "Cabeçalhos, rodapés, contratos, declarações e históricos.",
-    palavras: [
-      "instituição",
-      "escola",
-      "faculdade",
-      "nome da escola",
-      "nome da faculdade",
-      "nome da instituição",
-    ],
-  },
+const todasAsTags = [
+  "{{logoInstituicao}}",
+  "{{nomeInstituicao}}",
+  "{{cnpjInstituicao}}",
+  "{{enderecoInstituicao}}",
+  "{{telefoneInstituicao}}",
+  "{{emailInstituicao}}",
+  "{{cidadeInstituicao}}",
+  "{{estadoInstituicao}}",
+  "{{cepInstituicao}}",
+  "{{blocoInstituicao}}",
 
-  {
-    tag: "{{curso}}",
-    titulo: "Nome do curso",
-    descricao: "Mostra o nome do curso do aluno.",
-    ondeUsar:
-      "Históricos, certificados, contratos e declarações.",
-    palavras: [
-      "curso",
-      "nome do curso",
-      "bacharelado",
-      "graduação",
-      "teologia",
-    ],
-  },
+  "{{dataInicioAluno}}",
+  "{{dataConclusaoAluno}}",
+  "{{cargaHorariaMinimaCurso}}",
+  "{{cargaHorariaMaximaCurso}}",
 
-  {
-    tag: "{{blocoAssinaturaDiretor}}",
-    titulo: "Assinatura do diretor",
-    descricao:
-      "Bloco completo com assinatura, nome, cargo e instituição.",
-    ondeUsar:
-      "Final de contratos, históricos, certificados e declarações.",
-    palavras: [
-      "assinatura",
-      "diretor",
-      "responsável",
-      "reitor",
-      "coordenador",
-    ],
-  },
+  "{{dataEmissao}}",
+  "{{horaEmissao}}",
+  "{{dataHoraEmissao}}",
+  "{{numeroDocumento}}",
 
-  {
-    tag: "{{nomeAluno}}",
-    titulo: "Nome do aluno",
-    descricao:
-      "Nome completo do aluno cadastrado.",
-    ondeUsar:
-      "Todos os documentos acadêmicos.",
-    palavras: [
-      "aluno",
-      "nome do aluno",
-      "estudante",
-    ],
-  },
+  "{{nomePolo}}",
+  "{{enderecoPolo}}",
+  "{{telefonePolo}}",
+  "{{emailPolo}}",
+  "{{cidadePolo}}",
+  "{{estadoPolo}}",
+  "{{cepPolo}}",
+  "{{blocoPolo}}",
+
+  "{{responsavelLegal}}",
+  "{{nomeAluno}}",
+  "{{cpfAluno}}",
+  "{{matriculaAluno}}",
+  "{{statusAluno}}",
+  "{{statusMatricula}}",
+  "{{dataMatricula}}",
+  "{{dataConclusao}}",
+  "{{semestreAtual}}",
+  "{{cargaHorariaCurso}}",
+  "{{percentualConclusao}}",
+  "{{numeroMatricula}}",
+  "{{assinaturaDiretor}}",
+  "{{blocoAssinaturaDiretor}}",
+  "{{curso}}",
+  "{{disciplinas}}",
+  "{{valorContrato}}",
+  "{{cidadeAssinatura}}",
+  "{{dataAtual}}",
+  "{{referenciaFinanceira}}",
+  "{{tituloDocumento}}",
+
+  "{{codigoValidacao}}",
+  "{{urlValidacao}}",
+
+  "{{atoLegalCriacao}}",
+  "{{numeroAutorizacaoCurso}}",
+  "{{dataPublicacaoAutorizacao}}",
+  "{{diarioOficialAutorizacao}}",
+
+  "{{naturalidadeAluno}}",
+  "{{nacionalidadeAluno}}",
+  "{{sexoAluno}}",
+  "{{rgAluno}}",
+  "{{orgaoExpedidorAluno}}",
+  "{{dataNascimentoAluno}}",
+  "{{formaIngressoAluno}}",
+  "{{curriculoAluno}}",
+  "{{situacaoAcademicaAluno}}",
+
+  "{{haMaximaCurso}}",
+  "{{haTotalCursada}}",
+  "{{haTotalAprovada}}",
+  "{{indiceAproveitamentoSemestral}}",
+  "{{indiceAproveitamentoAcumulado}}",
+  "{{indiceAproveitamentoAprovadas}}",
+  "{{prazoIntegralizacao}}",
+  "{{semestresCursados}}",
+  "{{semestresRevalidados}}",
+  "{{provavelSemestreFormatura}}",
+
+  "{{disciplinasPorSemestre}}",
+  "{{disciplinasBaseNacionalComum}}",
+  "{{disciplinasParteDiversificada}}",
+  "{{totalAulasBaseNacionalComum}}",
+  "{{totalAulasParteDiversificada}}",
+  "{{totalCargaHorariaAnualAulas}}",
+  "{{totalCargaHorariaAnualHoras}}",
+
+  "{{observacoesHistorico}}",
+  "{{legendaHistorico}}",
+  "{{certificacaoDeclaracao}}",
+  "{{escolaOrigem}}",
 ];
+
+const variaveisInteligentes = todasAsTags.map((tag) => ({
+  tag,
+  titulo: tag
+    .replaceAll("{{", "")
+    .replaceAll("}}", "")
+    .replace(/([A-Z])/g, " $1")
+    .trim(),
+  descricao:
+    "Variável dinâmica disponível para utilização em documentos.",
+  ondeUsar:
+    "Contratos, históricos, certificados, declarações e documentos.",
+  palavras: [tag, tag.toLowerCase()],
+}));
 
   return (
   <div className="space-y-6">
