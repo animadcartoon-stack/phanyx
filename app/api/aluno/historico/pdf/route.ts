@@ -167,6 +167,9 @@ export async function GET() {
 
     const logo = await carregarImagemPdf(pdfDoc, config?.logoUrl);
 
+    console.log("LOGO HISTORICO URL:", config?.logoUrl);
+console.log("LOGO HISTORICO CARREGADA:", Boolean(logo));
+
     console.log("LOGO URL:", config?.logoUrl);
     console.log("LOGO CARREGADA:", !!logo);
 

@@ -660,74 +660,516 @@ const descricoesVariaveis: Record<
     palavras: string[];
   }
 > = {
-  "{{nomeInstituicao}}": {
-    titulo: "Nome da instituição",
-    descricao: "Mostra o nome fantasia da instituição cadastrada.",
-    ondeUsar:
-      "Cabeçalhos, rodapés, contratos, declarações e históricos.",
-    palavras: [
-      "nome da escola",
-      "nome da faculdade",
-      "nome da instituição",
-      "instituição",
-      "escola",
-      "faculdade",
-    ],
-  },
-
   "{{logoInstituicao}}": {
     titulo: "Logo da instituição",
     descricao: "Insere a logo cadastrada da instituição.",
-    ondeUsar:
-      "Cabeçalhos de históricos, certificados e documentos oficiais.",
-    palavras: [
-      "logo",
-      "marca",
-      "brasão",
-      "imagem da escola",
-      "imagem da faculdade",
-    ],
+    ondeUsar: "Cabeçalhos de históricos, certificados e documentos oficiais.",
+    palavras: ["logo", "marca", "brasão", "imagem da escola", "logo da escola", "logo da faculdade"],
+  },
+  "{{nomeInstituicao}}": {
+    titulo: "Nome da instituição",
+    descricao: "Mostra o nome fantasia da instituição cadastrada.",
+    ondeUsar: "Cabeçalhos, rodapés, contratos, declarações e históricos.",
+    palavras: ["nome da escola", "nome da faculdade", "instituição", "faculdade", "escola"],
+  },
+  "{{cnpjInstituicao}}": {
+    titulo: "CNPJ da instituição",
+    descricao: "Mostra o CNPJ cadastrado da instituição.",
+    ondeUsar: "Contratos, recibos, históricos, certificados e rodapés.",
+    palavras: ["cnpj", "cnpj da escola", "cnpj da faculdade", "documento da instituição"],
+  },
+  "{{enderecoInstituicao}}": {
+    titulo: "Endereço da instituição",
+    descricao: "Mostra o endereço completo cadastrado da instituição.",
+    ondeUsar: "Cabeçalhos, contratos, declarações e rodapés.",
+    palavras: ["endereço", "rua", "local da escola", "localização"],
+  },
+  "{{telefoneInstituicao}}": {
+    titulo: "Telefone da instituição",
+    descricao: "Mostra o telefone cadastrado da instituição.",
+    ondeUsar: "Cabeçalhos, contratos e rodapés.",
+    palavras: ["telefone", "contato", "whatsapp", "número da escola"],
+  },
+  "{{emailInstituicao}}": {
+    titulo: "E-mail da instituição",
+    descricao: "Mostra o e-mail institucional cadastrado.",
+    ondeUsar: "Cabeçalhos, contratos e rodapés.",
+    palavras: ["email", "e-mail", "contato", "email da escola"],
+  },
+  "{{cidadeInstituicao}}": {
+    titulo: "Cidade da instituição",
+    descricao: "Mostra a cidade cadastrada da instituição.",
+    ondeUsar: "Cabeçalhos, declarações, contratos e assinaturas.",
+    palavras: ["cidade", "município", "cidade da escola"],
+  },
+  "{{estadoInstituicao}}": {
+    titulo: "Estado da instituição",
+    descricao: "Mostra o estado/UF cadastrado da instituição.",
+    ondeUsar: "Cabeçalhos, contratos e documentos oficiais.",
+    palavras: ["estado", "uf", "estado da escola"],
+  },
+  "{{cepInstituicao}}": {
+    titulo: "CEP da instituição",
+    descricao: "Mostra o CEP cadastrado da instituição.",
+    ondeUsar: "Cabeçalhos, contratos e documentos oficiais.",
+    palavras: ["cep", "código postal"],
+  },
+  "{{blocoInstituicao}}": {
+    titulo: "Bloco completo da instituição",
+    descricao: "Insere nome, CNPJ, endereço, telefone e e-mail da instituição.",
+    ondeUsar: "Cabeçalho de históricos, contratos, declarações e documentos oficiais.",
+    palavras: ["dados da escola", "dados da instituição", "cabeçalho", "bloco da escola"],
   },
 
   "{{nomeAluno}}": {
     titulo: "Nome do aluno",
-    descricao: "Nome completo do aluno cadastrado.",
-    ondeUsar:
-      "Históricos, certificados, contratos e declarações.",
-    palavras: [
-      "aluno",
-      "estudante",
-      "nome do aluno",
-    ],
+    descricao: "Mostra o nome completo do aluno cadastrado.",
+    ondeUsar: "Todos os documentos acadêmicos.",
+    palavras: ["aluno", "estudante", "nome do aluno", "nome estudante"],
+  },
+  "{{cpfAluno}}": {
+    titulo: "CPF do aluno",
+    descricao: "Mostra o CPF cadastrado no perfil do aluno.",
+    ondeUsar: "Contratos, históricos, certificados e declarações.",
+    palavras: ["cpf", "cpf estudante", "documento do aluno"],
+  },
+  "{{rgAluno}}": {
+    titulo: "RG do aluno",
+    descricao: "Mostra o RG cadastrado do aluno.",
+    ondeUsar: "Históricos, declarações e documentos oficiais.",
+    palavras: ["rg", "identidade", "documento identidade"],
+  },
+  "{{orgaoExpedidorAluno}}": {
+    titulo: "Órgão expedidor do aluno",
+    descricao: "Mostra o órgão expedidor do RG do aluno.",
+    ondeUsar: "Históricos e documentos oficiais.",
+    palavras: ["órgão expedidor", "orgao expedidor", "rg"],
+  },
+  "{{dataNascimentoAluno}}": {
+    titulo: "Data de nascimento do aluno",
+    descricao: "Mostra a data de nascimento cadastrada do aluno.",
+    ondeUsar: "Históricos, declarações e documentos oficiais.",
+    palavras: ["nascimento", "data nascimento", "idade"],
+  },
+  "{{naturalidadeAluno}}": {
+    titulo: "Naturalidade do aluno",
+    descricao: "Mostra a cidade/estado de naturalidade do aluno.",
+    ondeUsar: "Históricos acadêmicos e documentos oficiais.",
+    palavras: ["naturalidade", "cidade natal"],
+  },
+  "{{nacionalidadeAluno}}": {
+    titulo: "Nacionalidade do aluno",
+    descricao: "Mostra a nacionalidade cadastrada do aluno.",
+    ondeUsar: "Históricos acadêmicos e documentos oficiais.",
+    palavras: ["nacionalidade", "país", "brasileiro"],
+  },
+  "{{sexoAluno}}": {
+    titulo: "Sexo do aluno",
+    descricao: "Mostra o sexo cadastrado do aluno.",
+    ondeUsar: "Históricos e documentos oficiais quando necessário.",
+    palavras: ["sexo", "gênero"],
+  },
+
+  "{{matriculaAluno}}": {
+    titulo: "Matrícula do aluno",
+    descricao: "Mostra o número de matrícula do aluno.",
+    ondeUsar: "Históricos, contratos, certificados e declarações.",
+    palavras: ["matrícula", "numero da matrícula", "registro acadêmico"],
+  },
+  "{{numeroMatricula}}": {
+    titulo: "Número da matrícula",
+    descricao: "Mostra o número de matrícula do aluno.",
+    ondeUsar: "Históricos e documentos acadêmicos.",
+    palavras: ["número matrícula", "matrícula", "registro"],
+  },
+  "{{statusAluno}}": {
+    titulo: "Status do aluno",
+    descricao: "Mostra a situação cadastral do aluno.",
+    ondeUsar: "Históricos, declarações e relatórios acadêmicos.",
+    palavras: ["status", "situação do aluno", "ativo", "inativo", "concluído"],
+  },
+  "{{statusMatricula}}": {
+    titulo: "Status da matrícula",
+    descricao: "Mostra a situação da matrícula no curso.",
+    ondeUsar: "Históricos, contratos e declarações.",
+    palavras: ["status matrícula", "situação matrícula", "ativa", "desistência", "trancada"],
+  },
+  "{{dataMatricula}}": {
+    titulo: "Data da matrícula",
+    descricao: "Mostra a data em que a matrícula foi criada.",
+    ondeUsar: "Contratos, históricos e declarações.",
+    palavras: ["data matrícula", "ingresso", "entrada"],
+  },
+  "{{dataInicioAluno}}": {
+    titulo: "Data de início do aluno",
+    descricao: "Mostra a data de início/ingresso do aluno.",
+    ondeUsar: "Históricos, contratos e declarações.",
+    palavras: ["data início", "começou", "ingresso", "entrada"],
+  },
+  "{{dataConclusao}}": {
+    titulo: "Data de conclusão",
+    descricao: "Mostra a data de conclusão da matrícula quando houver.",
+    ondeUsar: "Históricos, certificados e declarações.",
+    palavras: ["conclusão", "finalizou", "terminou"],
+  },
+  "{{dataConclusaoAluno}}": {
+    titulo: "Data de conclusão do aluno",
+    descricao: "Mostra a data de conclusão do aluno no curso.",
+    ondeUsar: "Históricos, certificados e declarações.",
+    palavras: ["data conclusão", "conclusão do curso", "formatura"],
   },
 
   "{{curso}}": {
     titulo: "Nome do curso",
-    descricao: "Nome do curso vinculado ao aluno.",
-    ondeUsar:
-      "Históricos, certificados, contratos e declarações.",
-    palavras: [
-      "curso",
-      "graduação",
-      "bacharelado",
-      "teologia",
-      "nome do curso",
-    ],
+    descricao: "Mostra o curso vinculado ao aluno.",
+    ondeUsar: "Históricos, certificados, contratos e declarações.",
+    palavras: ["curso", "nome do curso", "bacharelado", "graduação", "teologia"],
+  },
+  "{{semestreAtual}}": {
+    titulo: "Semestre atual",
+    descricao: "Mostra o semestre atual do aluno no curso.",
+    ondeUsar: "Históricos e relatórios acadêmicos.",
+    palavras: ["semestre", "período", "fase atual"],
+  },
+  "{{cargaHorariaCurso}}": {
+    titulo: "Carga horária do curso",
+    descricao: "Mostra a carga horária total cadastrada para o curso.",
+    ondeUsar: "Históricos, certificados e declarações.",
+    palavras: ["carga horária", "horas do curso", "total de horas"],
+  },
+  "{{cargaHorariaMinimaCurso}}": {
+    titulo: "Carga horária mínima do curso",
+    descricao: "Mostra a carga horária mínima exigida do curso.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["carga mínima", "horas mínimas"],
+  },
+  "{{cargaHorariaMaximaCurso}}": {
+    titulo: "Carga horária máxima do curso",
+    descricao: "Mostra a carga horária máxima prevista do curso.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["carga máxima", "horas máximas"],
+  },
+  "{{percentualConclusao}}": {
+    titulo: "Percentual de conclusão",
+    descricao: "Mostra o percentual de conclusão do curso/matrícula.",
+    ondeUsar: "Históricos e relatórios acadêmicos.",
+    palavras: ["percentual", "progresso", "conclusão", "andamento"],
+  },
+  "{{curriculoAluno}}": {
+    titulo: "Currículo do aluno",
+    descricao: "Mostra o currículo ou grade curricular vinculada ao aluno.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["currículo", "grade", "matriz curricular"],
+  },
+  "{{formaIngressoAluno}}": {
+    titulo: "Forma de ingresso",
+    descricao: "Mostra como o aluno ingressou no curso.",
+    ondeUsar: "Históricos e documentos acadêmicos.",
+    palavras: ["forma ingresso", "entrada", "vestibular", "transferência"],
+  },
+  "{{situacaoAcademicaAluno}}": {
+    titulo: "Situação acadêmica",
+    descricao: "Mostra a situação acadêmica do aluno.",
+    ondeUsar: "Históricos e declarações.",
+    palavras: ["situação acadêmica", "status acadêmico", "ativo", "concluído"],
   },
 
+  "{{disciplinas}}": {
+    titulo: "Lista de disciplinas",
+    descricao: "Lista as disciplinas vinculadas ao aluno ou matrícula.",
+    ondeUsar: "Históricos, contratos e declarações acadêmicas.",
+    palavras: ["disciplinas", "matérias", "componentes curriculares", "grade"],
+  },
+  "{{disciplinasPorSemestre}}": {
+    titulo: "Disciplinas por semestre",
+    descricao: "Lista as disciplinas organizadas por semestre/período.",
+    ondeUsar: "Históricos acadêmicos de faculdade ou curso superior.",
+    palavras: ["disciplinas semestre", "matérias por período", "grade por semestre"],
+  },
+  "{{disciplinasBaseNacionalComum}}": {
+    titulo: "Disciplinas da Base Nacional Comum",
+    descricao: "Lista disciplinas da Base Nacional Comum.",
+    ondeUsar: "Históricos do ensino fundamental e médio.",
+    palavras: ["base nacional", "bncc", "ensino médio", "ensino fundamental"],
+  },
+  "{{disciplinasParteDiversificada}}": {
+    titulo: "Disciplinas da Parte Diversificada",
+    descricao: "Lista disciplinas da parte diversificada do currículo.",
+    ondeUsar: "Históricos do ensino fundamental e médio.",
+    palavras: ["parte diversificada", "currículo", "ensino médio"],
+  },
+
+  "{{haMaximaCurso}}": {
+    titulo: "H/A máxima do curso",
+    descricao: "Mostra a carga horária/aulas máxima do curso.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["ha máxima", "hora aula máxima", "carga máxima"],
+  },
+  "{{haTotalCursada}}": {
+    titulo: "H/A total cursada",
+    descricao: "Mostra o total de horas/aula cursadas pelo aluno.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["horas cursadas", "ha cursada", "total cursado"],
+  },
+  "{{haTotalAprovada}}": {
+    titulo: "H/A total aprovada",
+    descricao: "Mostra o total de horas/aula aprovadas pelo aluno.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["horas aprovadas", "ha aprovada", "total aprovado"],
+  },
+  "{{indiceAproveitamentoSemestral}}": {
+    titulo: "Índice de aproveitamento semestral",
+    descricao: "Mostra o índice de aproveitamento do semestre.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["ia", "índice", "aproveitamento semestral"],
+  },
+  "{{indiceAproveitamentoAcumulado}}": {
+    titulo: "Índice de aproveitamento acumulado",
+    descricao: "Mostra o índice de aproveitamento acumulado do aluno.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["iaa", "aproveitamento acumulado"],
+  },
+  "{{indiceAproveitamentoAprovadas}}": {
+    titulo: "Índice de aproveitamento das aprovadas",
+    descricao: "Mostra o índice considerando disciplinas aprovadas.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["iap", "aprovadas", "índice aprovadas"],
+  },
+  "{{prazoIntegralizacao}}": {
+    titulo: "Prazo de integralização",
+    descricao: "Mostra o prazo previsto para integralização do curso.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["integralização", "prazo", "concluir curso"],
+  },
+  "{{semestresCursados}}": {
+    titulo: "Semestres cursados",
+    descricao: "Mostra a quantidade de semestres cursados pelo aluno.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["semestres cursados", "períodos cursados"],
+  },
+  "{{semestresRevalidados}}": {
+    titulo: "Semestres revalidados",
+    descricao: "Mostra semestres aproveitados ou revalidados.",
+    ondeUsar: "Históricos acadêmicos.",
+    palavras: ["revalidados", "aproveitamento", "semestres aproveitados"],
+  },
+  "{{provavelSemestreFormatura}}": {
+    titulo: "Provável semestre de formatura",
+    descricao: "Mostra o semestre previsto para conclusão/formatura.",
+    ondeUsar: "Históricos e relatórios acadêmicos.",
+    palavras: ["formatura", "previsão conclusão", "provável formatura"],
+  },
+
+  "{{nomePolo}}": {
+    titulo: "Nome do polo",
+    descricao: "Mostra o nome do polo/unidade vinculada ao aluno.",
+    ondeUsar: "Históricos, contratos e declarações.",
+    palavras: ["polo", "unidade", "campus"],
+  },
+  "{{enderecoPolo}}": {
+    titulo: "Endereço do polo",
+    descricao: "Mostra o endereço cadastrado do polo.",
+    ondeUsar: "Documentos por unidade, polo ou campus.",
+    palavras: ["endereço polo", "unidade", "campus"],
+  },
+  "{{telefonePolo}}": {
+    titulo: "Telefone do polo",
+    descricao: "Mostra o telefone cadastrado do polo.",
+    ondeUsar: "Cabeçalhos e documentos por polo.",
+    palavras: ["telefone polo", "contato polo"],
+  },
+  "{{emailPolo}}": {
+    titulo: "E-mail do polo",
+    descricao: "Mostra o e-mail cadastrado do polo.",
+    ondeUsar: "Cabeçalhos e documentos por polo.",
+    palavras: ["email polo", "contato polo"],
+  },
+  "{{cidadePolo}}": {
+    titulo: "Cidade do polo",
+    descricao: "Mostra a cidade cadastrada do polo.",
+    ondeUsar: "Documentos por polo/unidade.",
+    palavras: ["cidade polo", "município polo"],
+  },
+  "{{estadoPolo}}": {
+    titulo: "Estado do polo",
+    descricao: "Mostra o estado/UF do polo.",
+    ondeUsar: "Documentos por polo/unidade.",
+    palavras: ["estado polo", "uf polo"],
+  },
+  "{{cepPolo}}": {
+    titulo: "CEP do polo",
+    descricao: "Mostra o CEP cadastrado do polo.",
+    ondeUsar: "Documentos por polo/unidade.",
+    palavras: ["cep polo", "código postal polo"],
+  },
+  "{{blocoPolo}}": {
+    titulo: "Bloco completo do polo",
+    descricao: "Insere nome, endereço, telefone e e-mail do polo.",
+    ondeUsar: "Cabeçalhos e documentos por unidade.",
+    palavras: ["dados do polo", "dados da unidade", "campus"],
+  },
+
+  "{{assinaturaDiretor}}": {
+    titulo: "Imagem da assinatura do diretor",
+    descricao: "Insere apenas a imagem da assinatura cadastrada.",
+    ondeUsar: "Área visual de assinatura.",
+    palavras: ["assinatura", "imagem assinatura", "assinatura diretor"],
+  },
   "{{blocoAssinaturaDiretor}}": {
-    titulo: "Assinatura institucional",
-    descricao:
-      "Bloco completo com assinatura, nome, cargo e instituição.",
-    ondeUsar:
-      "Final de históricos, certificados, contratos e declarações.",
-    palavras: [
-      "assinatura",
-      "diretor",
-      "reitor",
-      "coordenador",
-      "responsável",
-    ],
+    titulo: "Bloco de assinatura do diretor",
+    descricao: "Insere assinatura, nome, cargo e instituição do responsável.",
+    ondeUsar: "Final de históricos, certificados, contratos e declarações.",
+    palavras: ["assinatura diretor", "assinatura reitor", "responsável", "coordenador"],
+  },
+  "{{responsavelLegal}}": {
+    titulo: "Responsável legal",
+    descricao: "Mostra o responsável legal cadastrado pela instituição.",
+    ondeUsar: "Contratos, declarações e documentos oficiais.",
+    palavras: ["responsável", "diretor", "representante legal"],
+  },
+
+  "{{valorContrato}}": {
+    titulo: "Valor do contrato",
+    descricao: "Mostra o valor financeiro vinculado ao contrato ou matrícula.",
+    ondeUsar: "Contratos, recibos e comprovantes.",
+    palavras: ["valor", "pagamento", "mensalidade", "preço"],
+  },
+  "{{referenciaFinanceira}}": {
+    titulo: "Referência financeira",
+    descricao: "Mostra a referência financeira do pagamento/documento.",
+    ondeUsar: "Recibos e comprovantes.",
+    palavras: ["referência", "pagamento", "financeiro"],
+  },
+
+  "{{dataAtual}}": {
+    titulo: "Data atual",
+    descricao: "Mostra a data do dia em que o documento foi gerado.",
+    ondeUsar: "Todos os documentos.",
+    palavras: ["data", "hoje", "emitido em"],
+  },
+  "{{dataEmissao}}": {
+    titulo: "Data de emissão",
+    descricao: "Mostra a data de emissão do documento.",
+    ondeUsar: "Rodapés e documentos oficiais.",
+    palavras: ["emissão", "data emissão", "emitido"],
+  },
+  "{{horaEmissao}}": {
+    titulo: "Hora de emissão",
+    descricao: "Mostra a hora em que o documento foi emitido.",
+    ondeUsar: "Rodapés e validação documental.",
+    palavras: ["hora", "horário", "hora emissão"],
+  },
+  "{{dataHoraEmissao}}": {
+    titulo: "Data e hora de emissão",
+    descricao: "Mostra data e hora completas da emissão.",
+    ondeUsar: "Documentos oficiais e validação.",
+    palavras: ["data e hora", "emissão completa", "horário"],
+  },
+  "{{cidadeAssinatura}}": {
+    titulo: "Cidade da assinatura",
+    descricao: "Mostra a cidade usada no local de assinatura.",
+    ondeUsar: "Final de contratos, declarações e recibos.",
+    palavras: ["cidade assinatura", "local assinatura"],
+  },
+
+  "{{numeroDocumento}}": {
+    titulo: "Número do documento",
+    descricao: "Mostra o número identificador do documento gerado.",
+    ondeUsar: "Rodapés, protocolos e validação.",
+    palavras: ["número documento", "protocolo", "identificador"],
+  },
+  "{{codigoValidacao}}": {
+    titulo: "Código de validação",
+    descricao: "Mostra o código usado para validar a autenticidade do documento.",
+    ondeUsar: "Rodapé de históricos, certificados e documentos oficiais.",
+    palavras: ["validação", "autenticidade", "código validar", "validar documento"],
+  },
+  "{{urlValidacao}}": {
+    titulo: "Link de validação",
+    descricao: "Mostra o endereço onde o documento pode ser validado.",
+    ondeUsar: "Rodapé de documentos oficiais.",
+    palavras: ["link validação", "site validar", "url validar"],
+  },
+  "{{tituloDocumento}}": {
+    titulo: "Título do documento",
+    descricao: "Mostra o título personalizado informado para o documento.",
+    ondeUsar: "Documentos personalizados.",
+    palavras: ["título", "nome documento", "documento"],
+  },
+
+  "{{atoLegalCriacao}}": {
+    titulo: "Ato legal de criação",
+    descricao: "Mostra o ato legal de criação/autorização da instituição ou curso.",
+    ondeUsar: "Históricos oficiais e documentos regulatórios.",
+    palavras: ["ato legal", "autorização", "criação"],
+  },
+  "{{numeroAutorizacaoCurso}}": {
+    titulo: "Número de autorização do curso",
+    descricao: "Mostra o número de autorização do curso.",
+    ondeUsar: "Históricos e documentos oficiais.",
+    palavras: ["autorização curso", "número autorização"],
+  },
+  "{{dataPublicacaoAutorizacao}}": {
+    titulo: "Data de publicação da autorização",
+    descricao: "Mostra a data de publicação da autorização do curso.",
+    ondeUsar: "Históricos e documentos oficiais.",
+    palavras: ["data publicação", "autorização", "diário oficial"],
+  },
+  "{{diarioOficialAutorizacao}}": {
+    titulo: "Diário oficial da autorização",
+    descricao: "Mostra o diário oficial ou referência de publicação da autorização.",
+    ondeUsar: "Históricos e documentos oficiais.",
+    palavras: ["diário oficial", "publicação", "autorização"],
+  },
+
+  "{{totalAulasBaseNacionalComum}}": {
+    titulo: "Total de aulas da Base Nacional Comum",
+    descricao: "Mostra o total de aulas da Base Nacional Comum.",
+    ondeUsar: "Históricos do ensino fundamental e médio.",
+    palavras: ["total base nacional", "base comum", "ensino médio"],
+  },
+  "{{totalAulasParteDiversificada}}": {
+    titulo: "Total de aulas da Parte Diversificada",
+    descricao: "Mostra o total de aulas da parte diversificada.",
+    ondeUsar: "Históricos do ensino fundamental e médio.",
+    palavras: ["parte diversificada", "total aulas"],
+  },
+  "{{totalCargaHorariaAnualAulas}}": {
+    titulo: "Total anual em aulas",
+    descricao: "Mostra o total de carga horária anual em aulas.",
+    ondeUsar: "Históricos escolares.",
+    palavras: ["total anual aulas", "carga anual"],
+  },
+  "{{totalCargaHorariaAnualHoras}}": {
+    titulo: "Total anual em horas",
+    descricao: "Mostra o total de carga horária anual em horas.",
+    ondeUsar: "Históricos escolares.",
+    palavras: ["total anual horas", "carga horária anual"],
+  },
+
+  "{{observacoesHistorico}}": {
+    titulo: "Observações do histórico",
+    descricao: "Mostra observações acadêmicas do histórico.",
+    ondeUsar: "Campo de observações do histórico acadêmico.",
+    palavras: ["observações", "observação", "histórico observação"],
+  },
+  "{{legendaHistorico}}": {
+    titulo: "Legenda do histórico",
+    descricao: "Mostra legenda de notas, frequência, siglas e situação acadêmica.",
+    ondeUsar: "Rodapé ou observações de históricos.",
+    palavras: ["legenda", "siglas", "notas", "frequência"],
+  },
+  "{{certificacaoDeclaracao}}": {
+    titulo: "Certificação ou declaração",
+    descricao: "Texto de certificação/declaratória usado no histórico.",
+    ondeUsar: "Históricos escolares e documentos oficiais.",
+    palavras: ["certifico", "declaro", "certificação", "declaração"],
+  },
+  "{{escolaOrigem}}": {
+    titulo: "Escola de origem",
+    descricao: "Mostra a escola de origem do aluno quando cadastrada.",
+    ondeUsar: "Históricos escolares e documentos de transferência.",
+    palavras: ["escola origem", "transferência", "instituição anterior"],
   },
 };
 
@@ -736,28 +1178,16 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
 
   return {
     tag,
-
     titulo:
       info?.titulo ||
-      tag
-        .replaceAll("{{", "")
-        .replaceAll("}}", "")
-        .replace(/([A-Z])/g, " $1")
-        .trim(),
-
+      tag.replaceAll("{{", "").replaceAll("}}", "").replace(/([A-Z])/g, " $1").trim(),
     descricao:
       info?.descricao ||
       "Variável dinâmica disponível para utilização em documentos.",
-
     ondeUsar:
       info?.ondeUsar ||
       "Contratos, históricos, certificados, declarações e documentos.",
-
-    palavras: [
-      tag,
-      tag.toLowerCase(),
-      ...(info?.palavras || []),
-    ],
+    palavras: [tag, tag.toLowerCase(), ...(info?.palavras || [])],
   };
 });
 
@@ -964,7 +1394,22 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
   />
 
   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
-    {variaveisInteligentes
+  {variaveisInteligentes
+    .filter((v) => {
+      const termo = buscaVariavel.trim().toLowerCase();
+
+      if (!mostrarTodasVariaveis && !termo) return false;
+
+      if (mostrarTodasVariaveis && !termo) return true;
+
+      return (
+        v.tag.toLowerCase().includes(termo) ||
+        v.titulo.toLowerCase().includes(termo) ||
+        v.descricao.toLowerCase().includes(termo) ||
+        v.ondeUsar.toLowerCase().includes(termo) ||
+        v.palavras.some((p) => p.toLowerCase().includes(termo))
+      );
+    })
   .filter((v) => {
     if (mostrarTodasVariaveis && !buscaVariavel.trim()) return true;
         const termo = buscaVariavel.trim().toLowerCase();
