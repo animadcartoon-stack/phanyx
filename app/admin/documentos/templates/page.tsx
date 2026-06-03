@@ -457,7 +457,9 @@ function AdminDocumentosTemplatesPage() {
       setMensagem("Template excluído com sucesso!");
     } catch (error: any) {
       console.error(error);
-      setMensagem(error?.message || "Erro ao excluir template");
+      setMensagem(
+  `Erro ao excluir template: ${error?.message || "Erro desconhecido"}`
+);
     } finally {
       setDeletingId(null);
     }
