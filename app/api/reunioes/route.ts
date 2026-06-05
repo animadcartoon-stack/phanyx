@@ -387,6 +387,27 @@ if (publicoTipo === "CURSO") {
       },
     });
 
+const dataFormatada = new Date(reuniao.dataHora).toLocaleString("pt-BR", {
+  dateStyle: "short",
+  timeStyle: "short",
+});
+
+const notificacoes = reuniao.participantes
+  .filter((participante) => participante.userId)
+  .map((participante) => ({
+    usuarioId: participante.userId!,
+    tipo: "REUNIAO",
+    titulo: "📅 Nova reunião agendada",
+    descricao: `${reuniao.titulo} • ${dataFormatada}`,
+    link: "/aluno/reunioes",
+  }));
+
+if (notificacoes.length > 0) {
+  await prisma.notificacao.createMany({
+    data: notificacoes,
+  });
+}
+
     return NextResponse.json(reuniao);
   } catch (error: any) {
     console.error("Erro ao criar reunião:", error);
