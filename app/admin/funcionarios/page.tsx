@@ -451,19 +451,7 @@ function AdminFuncionariosPage() {
 </option>
 
 <option value="SECRETARIA" className="bg-slate-900 text-white">
-  Secretaria
-</option>
-
-<option value="FINANCEIRO" className="bg-slate-900 text-white">
-  Financeiro
-</option>
-
-<option value="COORDENADOR" className="bg-slate-900 text-white">
-  Coordenação
-</option>
-
-<option value="SUPORTE" className="bg-slate-900 text-white">
-  Suporte
+  Funcionário
 </option>
               
             </select>
