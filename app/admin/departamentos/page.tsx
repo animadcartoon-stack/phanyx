@@ -20,6 +20,7 @@ function AdminDepartamentosPage() {
   const [editNome, setEditNome] = useState("");
   const [editSlug, setEditSlug] = useState("");
   const [editAtivo, setEditAtivo] = useState(true);
+  const [permissoes, setPermissoes] = useState<string[]>([]);
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
@@ -154,8 +155,27 @@ function AdminDepartamentosPage() {
     }
   }
 
+  function temPermissao(chave: string) {
+  return permissoes.includes("*") || permissoes.includes(chave);
+}
+
   useEffect(() => {
     carregarDepartamentos();
+    async function carregarPermissoes() {
+  try {
+    const res = await fetch("/api/admin/permissoes/me", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      setPermissoes(Array.isArray(data.permissoes) ? data.permissoes : []);
+    }
+  } catch {
+    setPermissoes([]);
+  }
+}
   }, []);
 
   return (
@@ -266,12 +286,14 @@ function AdminDepartamentosPage() {
   Editar
 </button>
 
-<a
-  href={`/admin/departamentos/${d.id}/permissoes`}
-  className="text-emerald-600 text-sm"
->
-  Permissões
-</a>
+{temPermissao("departamentos.permissoes") && (
+  <a
+    href={`/admin/departamentos/${d.id}/permissoes`}
+    className="text-emerald-600 text-sm"
+  >
+    Permissões
+  </a>
+)}
 
 <button
   onClick={() => setDepartamentoParaExcluir(d)}
