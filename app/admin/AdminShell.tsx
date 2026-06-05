@@ -564,31 +564,25 @@ function abrirTourAdmin() {
   </button>
 
   {menuAberto === "comunicacao" && (
-    <div className="ml-3 mt-2 flex flex-col space-y-1">
-      <Link
-        href="/admin/reunioes"
-        className={getLinkClass("/admin/reunioes")}
-      >
-        📅 Reuniões
-      </Link>
+  <div className="ml-3 mt-2 flex flex-col space-y-1">
+    <Link
+      href="/admin/reunioes"
+      className={getLinkClass("/admin/reunioes")}
+    >
+      📅 Reuniões
+    </Link>
 
-      <Link
-        href="/admin/ouvidoria"
-        className={getLinkClass("/admin/ouvidoria")}
-      >
-        🧠 Ouvidoria
-      </Link>
-    </div>
-  )}
+    <Link
+      href="/admin/ouvidoria"
+      className={getLinkClass("/admin/ouvidoria")}
+    >
+      🧠 Ouvidoria
+    </Link>
+  </div>
+)}
 </div>
-              <div className="border-t pt-2 mt-2">
-                <button
-                  type="button"
-                  onClick={() => toggleMenu("configuracoes")}
-                  className={buttonClass}
-                >
 
-                  <div className="border-t pt-2 mt-2">
+<div className="border-t pt-2 mt-2">
   <button
     type="button"
     onClick={() => toggleMenu("rh")}
@@ -600,11 +594,7 @@ function abrirTourAdmin() {
 
   {menuAberto === "rh" && (
     <div className="ml-3 mt-2 flex flex-col space-y-1">
-
-      <Link
-        href="/admin/rh"
-        className={getLinkClass("/admin/rh")}
-      >
+      <Link href="/admin/rh" className={getLinkClass("/admin/rh")}>
         👥 Visão Geral
       </Link>
 
@@ -630,19 +620,24 @@ function abrirTourAdmin() {
       </Link>
 
       <Link
-  href="/admin/rh/historico"
-  className={getLinkClass("/admin/rh/historico")}
->
-  🕒 Histórico Funcional
-</Link>
-
+        href="/admin/rh/historico"
+        className={getLinkClass("/admin/rh/historico")}
+      >
+        🕒 Histórico Funcional
+      </Link>
     </div>
   )}
 </div>
 
-                  <span className={sectionTitleClass}>⚙️ Configurações</span>
-                  <span>{menuAberto === "configuracoes" ? "▾" : "▸"}</span>
-                </button>
+<div className="border-t pt-2 mt-2">
+  <button
+    type="button"
+    onClick={() => toggleMenu("configuracoes")}
+    className={buttonClass}
+  >
+    <span className={sectionTitleClass}>⚙️ Configurações</span>
+    <span>{menuAberto === "configuracoes" ? "▾" : "▸"}</span>
+  </button>
 
                 {menuAberto === "configuracoes" && (
                   <div className="ml-3 mt-2 flex flex-col space-y-1">
