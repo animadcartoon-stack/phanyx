@@ -4943,16 +4943,37 @@ onPaste={(e) => {
   const texto = e.clipboardData.getData("text/plain");
   const textoAtual = editor.innerText.trim();
 
-  salvarHistoricoTextoLivre(editor);
-
-  const deveSubstituirTudo =
+  const ehTextoPadrao =
     textoAtual === "Digite seu texto" ||
     textoAtual === "Digite seu título";
 
-  if (deveSubstituirTudo) {
-    editor.innerText = texto;
+  salvarHistoricoTextoLivre(editor);
+
+  if (ehTextoPadrao) {
+    editor.textContent = texto;
   } else {
-    inserirTextoNoCursor(editor, texto);
+    const selecao = window.getSelection();
+
+    if (
+      selecao &&
+      selecao.rangeCount > 0 &&
+      editor.contains(selecao.getRangeAt(0).commonAncestorContainer)
+    ) {
+      const range = selecao.getRangeAt(0);
+
+      range.deleteContents();
+
+      const node = document.createTextNode(texto);
+      range.insertNode(node);
+
+      range.setStartAfter(node);
+      range.setEndAfter(node);
+
+      selecao.removeAllRanges();
+      selecao.addRange(range);
+    } else {
+      editor.textContent = texto;
+    }
   }
 
   atualizarTextoLivreNoEstado(editor);
@@ -5038,6 +5059,10 @@ onPaste={(e) => {
     );
   }}
   onBeforeInput={(e) => {
+  if ((e.nativeEvent as InputEvent).inputType === "insertFromPaste") {
+    return;
+  }
+
   salvarHistoricoTextoLivre(e.currentTarget);
 }}
   onMouseUp={() => {
