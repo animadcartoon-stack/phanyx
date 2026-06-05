@@ -260,18 +260,25 @@ function AdminDepartamentosPage() {
 
                   <div className="flex gap-4 mt-3">
                     <button
-                      onClick={() => iniciarEdicao(d)}
-                      className="text-blue-600 text-sm"
-                    >
-                      Editar
-                    </button>
+  onClick={() => iniciarEdicao(d)}
+  className="text-blue-600 text-sm"
+>
+  Editar
+</button>
 
-                    <button
-                      onClick={() => setDepartamentoParaExcluir(d)}
-                      className="text-red-600 text-sm"
-                    >
-                      Excluir
-                    </button>
+<a
+  href={`/admin/departamentos/${d.id}/permissoes`}
+  className="text-emerald-600 text-sm"
+>
+  Permissões
+</a>
+
+<button
+  onClick={() => setDepartamentoParaExcluir(d)}
+  className="text-red-600 text-sm"
+>
+  Excluir
+</button>
                   </div>
                 </>
               )}
