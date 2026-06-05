@@ -461,74 +461,55 @@ function abrirTourAdmin() {
               </div>
 
               <div className="border-t pt-2 mt-2">
-                <button
-                  type="button"
-                  onClick={() => toggleMenu("financeiro")}
-                  className={buttonClass}
-                >
-                  <span className={sectionTitleClass}>💰 Financeiro</span>
-                  <span>{menuAberto === "financeiro" ? "▾" : "▸"}</span>
-                </button>
-
-                {temPermissao("financeiro.ver") && (
-  <Link
-    href="/admin/financeiro"
-    className={getLinkClass("/admin/financeiro")}
+  <button
+    type="button"
+    onClick={() => toggleMenu("financeiro")}
+    className={buttonClass}
   >
-    💰 Visão Geral
-  </Link>
-)}
+    <span className={sectionTitleClass}>💰 Financeiro</span>
+    <span>{menuAberto === "financeiro" ? "▾" : "▸"}</span>
+  </button>
 
-{temPermissao("financeiro.recebimentos") && (
-  <Link
-    href="/admin/financeiro/recebimentos"
-    className={getLinkClass("/admin/financeiro/recebimentos")}
-    data-tour="financeiro-recebimentos"
-  >
-    💵 Recebimentos
-  </Link>
-)}
+  {menuAberto === "financeiro" && (
+    <div className="ml-3 mt-2 flex flex-col space-y-1">
+      {temPermissao("financeiro.ver") && (
+        <Link href="/admin/financeiro" className={getLinkClass("/admin/financeiro")}>
+          💰 Visão Geral
+        </Link>
+      )}
 
-{temPermissao("caixa.ver") && (
-  <Link
-    href="/admin/financeiro/caixa"
-    className={getLinkClass("/admin/financeiro/caixa")}
-    data-tour="financeiro-caixa"
-  >
-    🏦 Caixa
-  </Link>
-)}
+      {temPermissao("financeiro.recebimentos") && (
+        <Link href="/admin/financeiro/recebimentos" className={getLinkClass("/admin/financeiro/recebimentos")}>
+          💵 Recebimentos
+        </Link>
+      )}
 
-{temPermissao("financeiro.relatorios") && (
-  <Link
-    href="/admin/financeiro/relatorios"
-    className={getLinkClass("/admin/financeiro/relatorios")}
-    data-tour="financeiro-relatorios"
-  >
-    📊 Relatórios
-  </Link>
-)}
+      {temPermissao("caixa.ver") && (
+        <Link href="/admin/financeiro/caixa" className={getLinkClass("/admin/financeiro/caixa")}>
+          🏦 Caixa
+        </Link>
+      )}
 
-{temPermissao("financeiro.inadimplentes") && (
-  <Link
-    href="/admin/financeiro/inadimplentes"
-    className={getLinkClass("/admin/financeiro/inadimplentes")}
-    data-tour="financeiro-inadimplentes"
-  >
-    🚨 Inadimplentes
-  </Link>
-)}
+      {temPermissao("financeiro.relatorios") && (
+        <Link href="/admin/financeiro/relatorios" className={getLinkClass("/admin/financeiro/relatorios")}>
+          📊 Relatórios
+        </Link>
+      )}
 
-{temPermissao("financeiro.fechamento") && (
-  <Link
-    href="/admin/financeiro/fechamento-geral"
-    className={getLinkClass("/admin/financeiro/fechamento-geral")}
-    data-tour="financeiro-fechamento"
-  >
-    📦 Fechamento Geral
-  </Link>
-)}
-              </div>
+      {temPermissao("financeiro.inadimplentes") && (
+        <Link href="/admin/financeiro/inadimplentes" className={getLinkClass("/admin/financeiro/inadimplentes")}>
+          🚨 Inadimplentes
+        </Link>
+      )}
+
+      {temPermissao("financeiro.fechamento") && (
+        <Link href="/admin/financeiro/fechamento-geral" className={getLinkClass("/admin/financeiro/fechamento-geral")}>
+          📦 Fechamento Geral
+        </Link>
+      )}
+    </div>
+  )}
+</div>
 
               <div className="border-t pt-2 mt-2">
                 <button
