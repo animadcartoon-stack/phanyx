@@ -74,7 +74,7 @@ export default async function ProfessorLayout({
 </div>
 
 <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid grid-cols-7 gap-1 text-[9px] font-semibold text-slate-600">
+  <div className="grid grid-cols-8 gap-1 text-[8px] font-semibold text-slate-600">
    <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
   <span className="text-lg">📊</span>
   Painel
@@ -109,6 +109,12 @@ export default async function ProfessorLayout({
   <span className="text-lg">📄</span>
   Trabalhos
 </a>
+
+<a href="/professor/reunioes" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">📅</span>
+  Reuniões
+</a>
+
   </div>
 </nav>
 
