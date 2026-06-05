@@ -18,6 +18,24 @@ export async function GET(
 
     const departamentoId = Number(params.id);
 
+    const departamento = await prisma.departamento.findFirst({
+  where: {
+    id: departamentoId,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    nome: true,
+  },
+});
+
+if (!departamento) {
+  return NextResponse.json(
+    { error: "Departamento não encontrado." },
+    { status: 404 }
+  );
+}
+
     const permissoes = await prisma.departamentoPermissao.findMany({
       where: {
         departamentoId,
@@ -30,7 +48,10 @@ export async function GET(
       },
     });
 
-    return NextResponse.json(permissoes);
+    return NextResponse.json({
+  departamento,
+  permissoes,
+});
   } catch (error: any) {
     return NextResponse.json(
       { error: error?.message || "Erro ao buscar permissões" },

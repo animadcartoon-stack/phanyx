@@ -11,34 +11,37 @@ export default function DepartamentoPermissoesPage({
   const departamentoId = params.id;
 
   const [selecionadas, setSelecionadas] = useState<string[]>([]);
+  const [nomeDepartamento, setNomeDepartamento] = useState("");
   const [loading, setLoading] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
 
   async function carregarPermissoes() {
-    try {
-      setErro("");
+  try {
+    setErro("");
 
-      const res = await fetch(
-        `/api/admin/departamentos/${departamentoId}/permissoes`,
-        { cache: "no-store" }
-      );
+    const res = await fetch(
+      `/api/admin/departamentos/${departamentoId}/permissoes`,
+      { cache: "no-store" }
+    );
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar permissões.");
-      }
-
-      setSelecionadas(
-        Array.isArray(data)
-          ? data.filter((p) => p.ativo).map((p) => p.chave)
-          : []
-      );
-    } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar permissões.");
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao carregar permissões.");
     }
+
+    setNomeDepartamento(data?.departamento?.nome || "");
+
+    setSelecionadas(
+      Array.isArray(data?.permissoes)
+        ? data.permissoes.filter((p: any) => p.ativo).map((p: any) => p.chave)
+        : []
+    );
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao carregar permissões.");
   }
+}
 
   function alternar(chave: string) {
     setSelecionadas((atuais) =>
@@ -85,7 +88,7 @@ export default function DepartamentoPermissoesPage({
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          🔐 Permissões do Departamento
+          🔐 Permissões do Departamento {nomeDepartamento || ""}
         </h1>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
           Defina quais áreas e funções os funcionários deste departamento poderão acessar.
