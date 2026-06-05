@@ -286,14 +286,12 @@ function AdminDepartamentosPage() {
   Editar
 </button>
 
-{(permissoes.includes("*") || temPermissao("departamentos.permissoes")) && (
-  <a
-    href={`/admin/departamentos/${d.id}/permissoes`}
-    className="text-emerald-600 text-sm"
-  >
-    Permissões
-  </a>
-)}
+<a
+  href={`/admin/departamentos/${d.id}/permissoes`}
+  className="text-emerald-600 text-sm"
+>
+  Permissões
+</a>
 
 <button
   onClick={() => setDepartamentoParaExcluir(d)}
