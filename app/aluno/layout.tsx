@@ -178,7 +178,7 @@ export default async function AlunoLayout({
   </div>
 
 <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid grid-cols-7 gap-1 text-[10px] font-semibold text-slate-600">
+  <div className="grid grid-cols-8 gap-1 text-[9px] font-semibold text-slate-600">
     
     <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📊</span>
@@ -214,6 +214,11 @@ export default async function AlunoLayout({
       <span className="text-lg">🏅</span>
       Certificados
     </a>
+
+    <a href="/aluno/reunioes" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+  <span className="text-lg">📅</span>
+  Reuniões
+</a>
 
   </div>
 </nav>
