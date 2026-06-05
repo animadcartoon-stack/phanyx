@@ -252,9 +252,16 @@ const alunosFiltrados = [...alunos]
           }}
           className="block w-full px-4 py-2 text-left text-sm text-white hover:bg-blue-600"
         >
-          {aluno.nome}
-          {aluno.matricula ? ` - ${aluno.matricula}` : ""}
-          {aluno.email ? ` - ${aluno.email}` : ""}
+          <div className="flex flex-col">
+  <span className="font-medium text-white">
+    {aluno.nome}
+  </span>
+
+  <span className="text-xs text-blue-400">
+    {aluno.matricula || ""}
+    {aluno.email ? ` • ${aluno.email}` : ""}
+  </span>
+</div>
         </button>
       ))}
     </div>
