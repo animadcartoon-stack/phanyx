@@ -513,6 +513,32 @@ function AdminDocumentosTemplatesPage() {
     });
   }, [templates, filtroBusca, filtroTipo]);
 
+  async function visualizarPdfTemplate() {
+  try {
+    const res = await fetch("/api/admin/documentos/templates/preview", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        tipo,
+        conteudo,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Não foi possível gerar a prévia.");
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao visualizar PDF.");
+  }
+}
+
   function aplicarModeloInicial() {
   setConteudo(templateInicialPorTipo(tipo));
 }
@@ -1385,6 +1411,13 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                   >
                     Carregar modelo base
                   </button>
+                  <button
+  type="button"
+  onClick={visualizarPdfTemplate}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:border-blue-400"
+>
+  👁 Visualizar PDF
+</button>
                 </div>
 
 <button
