@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { PERMISSOES_PHANYX } from "@/lib/permissoes-phanyx";
+import Link from "next/link";
 
 export default function DepartamentoPermissoesPage({
   params,
@@ -87,6 +88,14 @@ export default function DepartamentoPermissoesPage({
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div>
+        
+        <Link
+  href="/admin/departamentos"
+  className="mb-4 inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-800"
+>
+  ← Voltar para Departamentos
+</Link>
+
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           🔐 Permissões do Departamento {nomeDepartamento || ""}
         </h1>
