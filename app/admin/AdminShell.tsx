@@ -622,6 +622,13 @@ function abrirTourAdmin() {
                       ⚙️ Instituição
                     </Link>
 
+                    <Link
+  href="/admin/departamentos"
+  className={getLinkClass("/admin/departamentos")}
+>
+  🔐 Permissões por setor
+</Link>
+
 <Link
   href="/admin/configuracoes/documentos"
   className={getLinkClass("/admin/configuracoes/documentos")}
