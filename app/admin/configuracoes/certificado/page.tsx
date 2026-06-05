@@ -5854,6 +5854,233 @@ return;
                   {campoSelecionado.tipo}
                 </div>
 
+{campoSelecionado?.tipo === "FORMA" && (
+  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+    <p className="mb-3 text-sm font-semibold text-slate-700">
+      Aparência da forma
+    </p>
+
+    <div className="space-y-3">
+      <div>
+        <div>
+  <p className="mb-1 text-xs font-semibold text-slate-500">
+    Preenchimento
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarCampoLocal(
+          "mostrarPreenchimento" as any,
+          (campoSelecionado as any)?.mostrarPreenchimento === false ? true : false
+        )
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      {(campoSelecionado as any)?.mostrarPreenchimento === false
+        ? "Sem preenchimento"
+        : "Com preenchimento"}
+    </button>
+
+    <input
+      type="color"
+      value={(campoSelecionado as any)?.preenchimentoCor || campoSelecionado?.cor || "#1d4ed8"}
+      onChange={(e) =>
+        atualizarCampoLocal("preenchimentoCor" as any, e.target.value)
+      }
+      className="h-10 w-full cursor-pointer rounded-lg border"
+    />
+  </div>
+</div>
+
+<div>
+  <p className="mb-1 text-xs font-semibold text-slate-500">
+    Contorno
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() => {
+  const ativo =
+    (campoSelecionado as any)?.mostrarContorno === false ? true : false;
+
+  if (
+    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+    temSelecaoTextoLivreSalva()
+  ) {
+    aplicarEstiloTextoSelecionado({
+      WebkitTextStrokeWidth: ativo
+        ? `${(campoSelecionado as any)?.contornoEspessura || 1.5}px`
+        : "0px",
+      WebkitTextStrokeColor:
+        (campoSelecionado as any)?.contornoCor || "#1d4ed8",
+    } as React.CSSProperties);
+
+    return;
+  }
+
+  atualizarCampoLocal("mostrarContorno" as any, ativo);
+}}
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      {(campoSelecionado as any)?.mostrarContorno === false
+        ? "Sem contorno"
+        : "Com contorno"}
+    </button>
+
+    <input
+      type="color"
+      value={(campoSelecionado as any)?.contornoCor || campoSelecionado?.cor || "#1d4ed8"}
+      onChange={(e) =>
+        atualizarCampoLocal("contornoCor" as any, e.target.value)
+      }
+      className="h-10 w-full cursor-pointer rounded-lg border"
+    />
+  </div>
+
+<label className="mb-2 block text-xs font-semibold text-slate-600">
+  Tipo do contorno
+</label>
+
+<div className="mb-3 flex gap-2">
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={() => {
+      setTipoContornoTexto("externo");
+
+      aplicarContornoTextoSelecionado(
+        corContornoTexto,
+        espessuraContornoTexto,
+        "externo"
+      );
+    }}
+    className={`rounded-lg px-3 py-2 text-xs font-bold ${
+      tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
+    }`}
+  >
+    Externo
+  </button>
+
+  <button
+    type="button"
+    onMouseDown={(e) => e.preventDefault()}
+    onClick={() => {
+      setTipoContornoTexto("interno");
+
+      aplicarContornoTextoSelecionado(
+        corContornoTexto,
+        espessuraContornoTexto,
+        "interno"
+      );
+    }}
+    className={`rounded-lg px-3 py-2 text-xs font-bold ${
+      tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
+    }`}
+  >
+    Interno
+  </button>
+</div>
+
+  <label className="mt-3 block text-xs text-slate-500">
+    Espessura do contorno
+  </label>
+  <input
+    type="range"
+    min={0}
+    max={20}
+    value={(campoSelecionado as any)?.contornoEspessura ?? 1.5}
+    onChange={(e) =>
+      atualizarCampoLocal("contornoEspessura" as any, Number(e.target.value))
+    }
+    className="w-full"
+  />
+</div>
+      </div>
+
+      <div>
+        <p className="mb-1 text-xs font-semibold text-slate-500">
+          Transparência
+        </p>
+
+<label className="mt-3 block text-xs text-slate-500">
+  Arredondamento dos cantos
+</label>
+<input
+  type="range"
+  min={0}
+  max={80}
+  value={(campoSelecionado as any)?.raioBorda ?? 8}
+  onChange={(e) =>
+    atualizarCampoLocal("raioBorda" as any, Number(e.target.value))
+  }
+  className="w-full"
+/>
+
+        <input
+          type="range"
+          min={0.1}
+          max={1}
+          step={0.05}
+          value={campoSelecionado?.opacity || 1}
+          onChange={(e) =>
+            atualizarCampoLocal("opacity" as any, Number(e.target.value))
+          }
+          className="w-full"
+        />
+      </div>
+
+      <button
+        type="button"
+        onClick={() =>
+          atualizarCampoLocal(
+            "usarGradiente" as any,
+            !(campoSelecionado as any)?.usarGradiente
+          )
+        }
+        className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+      >
+        {(campoSelecionado as any)?.usarGradiente
+          ? "Desativar degradê"
+          : "Ativar degradê"}
+      </button>
+
+      {(campoSelecionado as any)?.usarGradiente && (
+        <>
+          <div>
+            <p className="mb-1 text-xs font-semibold text-slate-500">
+              Segunda cor
+            </p>
+            <input
+              type="color"
+              value={(campoSelecionado as any)?.cor2 || "#60a5fa"}
+              onChange={(e) =>
+                atualizarCampoLocal("cor2" as any, e.target.value)
+              }
+              className="h-10 w-full cursor-pointer rounded-lg border"
+            />
+          </div>
+
+          <select
+            value={(campoSelecionado as any)?.direcaoGradiente || "90deg"}
+            onChange={(e) =>
+              atualizarCampoLocal("direcaoGradiente" as any, e.target.value)
+            }
+            className="w-full rounded-xl border px-3 py-2 text-sm"
+          >
+            <option value="90deg">Esquerda para direita</option>
+            <option value="180deg">Cima para baixo</option>
+            <option value="45deg">Diagonal</option>
+            <option value="135deg">Diagonal invertida</option>
+          </select>
+        </>
+      )}
+    </div>
+  </div>
+)}
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -6203,233 +6430,6 @@ atualizarCampoLocal("tamanho", tamanho);
           </div>
         </>
       )}
-
-{campoSelecionado?.tipo === "FORMA" && (
-  <div className="rounded-2xl border border-slate-200 bg-white p-4">
-    <p className="mb-3 text-sm font-semibold text-slate-700">
-      Aparência da forma
-    </p>
-
-    <div className="space-y-3">
-      <div>
-        <div>
-  <p className="mb-1 text-xs font-semibold text-slate-500">
-    Preenchimento
-  </p>
-
-  <div className="grid grid-cols-2 gap-2">
-    <button
-      type="button"
-      onClick={() =>
-        atualizarCampoLocal(
-          "mostrarPreenchimento" as any,
-          (campoSelecionado as any)?.mostrarPreenchimento === false ? true : false
-        )
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      {(campoSelecionado as any)?.mostrarPreenchimento === false
-        ? "Sem preenchimento"
-        : "Com preenchimento"}
-    </button>
-
-    <input
-      type="color"
-      value={(campoSelecionado as any)?.preenchimentoCor || campoSelecionado?.cor || "#1d4ed8"}
-      onChange={(e) =>
-        atualizarCampoLocal("preenchimentoCor" as any, e.target.value)
-      }
-      className="h-10 w-full cursor-pointer rounded-lg border"
-    />
-  </div>
-</div>
-
-<div>
-  <p className="mb-1 text-xs font-semibold text-slate-500">
-    Contorno
-  </p>
-
-  <div className="grid grid-cols-2 gap-2">
-    <button
-      type="button"
-      onClick={() => {
-  const ativo =
-    (campoSelecionado as any)?.mostrarContorno === false ? true : false;
-
-  if (
-    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-    temSelecaoTextoLivreSalva()
-  ) {
-    aplicarEstiloTextoSelecionado({
-      WebkitTextStrokeWidth: ativo
-        ? `${(campoSelecionado as any)?.contornoEspessura || 1.5}px`
-        : "0px",
-      WebkitTextStrokeColor:
-        (campoSelecionado as any)?.contornoCor || "#1d4ed8",
-    } as React.CSSProperties);
-
-    return;
-  }
-
-  atualizarCampoLocal("mostrarContorno" as any, ativo);
-}}
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      {(campoSelecionado as any)?.mostrarContorno === false
-        ? "Sem contorno"
-        : "Com contorno"}
-    </button>
-
-    <input
-      type="color"
-      value={(campoSelecionado as any)?.contornoCor || campoSelecionado?.cor || "#1d4ed8"}
-      onChange={(e) =>
-        atualizarCampoLocal("contornoCor" as any, e.target.value)
-      }
-      className="h-10 w-full cursor-pointer rounded-lg border"
-    />
-  </div>
-
-<label className="mb-2 block text-xs font-semibold text-slate-600">
-  Tipo do contorno
-</label>
-
-<div className="mb-3 flex gap-2">
-  <button
-    type="button"
-    onMouseDown={(e) => e.preventDefault()}
-    onClick={() => {
-      setTipoContornoTexto("externo");
-
-      aplicarContornoTextoSelecionado(
-        corContornoTexto,
-        espessuraContornoTexto,
-        "externo"
-      );
-    }}
-    className={`rounded-lg px-3 py-2 text-xs font-bold ${
-      tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
-    }`}
-  >
-    Externo
-  </button>
-
-  <button
-    type="button"
-    onMouseDown={(e) => e.preventDefault()}
-    onClick={() => {
-      setTipoContornoTexto("interno");
-
-      aplicarContornoTextoSelecionado(
-        corContornoTexto,
-        espessuraContornoTexto,
-        "interno"
-      );
-    }}
-    className={`rounded-lg px-3 py-2 text-xs font-bold ${
-      tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
-    }`}
-  >
-    Interno
-  </button>
-</div>
-
-  <label className="mt-3 block text-xs text-slate-500">
-    Espessura do contorno
-  </label>
-  <input
-    type="range"
-    min={0}
-    max={20}
-    value={(campoSelecionado as any)?.contornoEspessura ?? 1.5}
-    onChange={(e) =>
-      atualizarCampoLocal("contornoEspessura" as any, Number(e.target.value))
-    }
-    className="w-full"
-  />
-</div>
-      </div>
-
-      <div>
-        <p className="mb-1 text-xs font-semibold text-slate-500">
-          Transparência
-        </p>
-
-<label className="mt-3 block text-xs text-slate-500">
-  Arredondamento dos cantos
-</label>
-<input
-  type="range"
-  min={0}
-  max={80}
-  value={(campoSelecionado as any)?.raioBorda ?? 8}
-  onChange={(e) =>
-    atualizarCampoLocal("raioBorda" as any, Number(e.target.value))
-  }
-  className="w-full"
-/>
-
-        <input
-          type="range"
-          min={0.1}
-          max={1}
-          step={0.05}
-          value={campoSelecionado?.opacity || 1}
-          onChange={(e) =>
-            atualizarCampoLocal("opacity" as any, Number(e.target.value))
-          }
-          className="w-full"
-        />
-      </div>
-
-      <button
-        type="button"
-        onClick={() =>
-          atualizarCampoLocal(
-            "usarGradiente" as any,
-            !(campoSelecionado as any)?.usarGradiente
-          )
-        }
-        className="w-full rounded-xl border bg-slate-50 px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-      >
-        {(campoSelecionado as any)?.usarGradiente
-          ? "Desativar degradê"
-          : "Ativar degradê"}
-      </button>
-
-      {(campoSelecionado as any)?.usarGradiente && (
-        <>
-          <div>
-            <p className="mb-1 text-xs font-semibold text-slate-500">
-              Segunda cor
-            </p>
-            <input
-              type="color"
-              value={(campoSelecionado as any)?.cor2 || "#60a5fa"}
-              onChange={(e) =>
-                atualizarCampoLocal("cor2" as any, e.target.value)
-              }
-              className="h-10 w-full cursor-pointer rounded-lg border"
-            />
-          </div>
-
-          <select
-            value={(campoSelecionado as any)?.direcaoGradiente || "90deg"}
-            onChange={(e) =>
-              atualizarCampoLocal("direcaoGradiente" as any, e.target.value)
-            }
-            className="w-full rounded-xl border px-3 py-2 text-sm"
-          >
-            <option value="90deg">Esquerda para direita</option>
-            <option value="180deg">Cima para baixo</option>
-            <option value="45deg">Diagonal</option>
-            <option value="135deg">Diagonal invertida</option>
-          </select>
-        </>
-      )}
-    </div>
-  </div>
-)}
 
 <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4">
   <button
