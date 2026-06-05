@@ -61,13 +61,11 @@ function formatarTelefone(valor: string) {
 function traduzirRole(role?: string) {
   switch (String(role || "").toUpperCase()) {
     case "ADMIN":
-      return "Admin";
-    case "GERENCIA":
-      return "Gerência";
+      return "Administrador";
     case "SECRETARIA":
       return "Secretaria";
     case "COORDENADOR":
-      return "Coordenador";
+      return "Coordenação";
     case "FINANCEIRO":
       return "Financeiro";
     case "SUPORTE":
@@ -435,7 +433,7 @@ function AdminFuncionariosPage() {
 
           <div className="space-y-1">
             <label className="text-sm font-medium text-slate-700">
-              Perfil de acesso
+              Perfil de acesso ao sistema
             </label>
 
             <select
@@ -658,7 +656,7 @@ function AdminFuncionariosPage() {
     <p className="text-sm text-gray-600">{f.user?.email}</p>
 
     <p className="text-sm text-gray-600">
-      Perfil de acesso: {traduzirRole(f.user?.role)}
+      Perfil de acesso ao sistema: {traduzirRole(f.user?.role)}
     </p>
 
     <p className="text-sm text-gray-600">
