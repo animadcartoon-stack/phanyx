@@ -4941,6 +4941,8 @@ onPaste={(e) => {
 
   const editor = e.currentTarget;
   const texto = e.clipboardData.getData("text/plain");
+  
+  if (!texto.trim()) return;
   const textoAtual = editor.innerText.trim();
 
   const ehTextoPadrao =
@@ -4985,6 +4987,34 @@ onPaste={(e) => {
 
   onKeyDown={(e) => {
   e.stopPropagation();
+
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+  const editor = e.currentTarget;
+  const textoAtual = editor.innerText.trim();
+
+  const ehTextoPadrao =
+    textoAtual === "Digite seu texto" ||
+    textoAtual === "Digite seu título";
+
+  if (ehTextoPadrao) {
+    e.preventDefault();
+
+    navigator.clipboard.readText().then((texto) => {
+      if (!texto.trim()) return;
+
+      salvarHistoricoTextoLivre(editor);
+
+      editor.textContent = texto;
+      atualizarTextoLivreNoEstado(editor);
+
+      setTimeout(() => {
+        salvarHistoricoTextoLivre(editor);
+      }, 0);
+    });
+
+    return;
+  }
+}
 
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
   if (desfazerTextoLivre(e.currentTarget)) {
