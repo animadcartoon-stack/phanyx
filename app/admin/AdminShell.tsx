@@ -587,6 +587,59 @@ function abrirTourAdmin() {
                   onClick={() => toggleMenu("configuracoes")}
                   className={buttonClass}
                 >
+
+                  <div className="border-t pt-2 mt-2">
+  <button
+    type="button"
+    onClick={() => toggleMenu("rh")}
+    className={buttonClass}
+  >
+    <span className={sectionTitleClass}>👥 RH</span>
+    <span>{menuAberto === "rh" ? "▾" : "▸"}</span>
+  </button>
+
+  {menuAberto === "rh" && (
+    <div className="ml-3 mt-2 flex flex-col space-y-1">
+
+      <Link
+        href="/admin/rh"
+        className={getLinkClass("/admin/rh")}
+      >
+        👥 Visão Geral
+      </Link>
+
+      <Link
+        href="/admin/funcionarios"
+        className={getLinkClass("/admin/funcionarios")}
+      >
+        👤 Funcionários
+      </Link>
+
+      <Link
+        href="/admin/departamentos"
+        className={getLinkClass("/admin/departamentos")}
+      >
+        🏢 Departamentos
+      </Link>
+
+      <Link
+        href="/admin/documentos/templates"
+        className={getLinkClass("/admin/documentos/templates")}
+      >
+        📄 Documentos RH
+      </Link>
+
+      <Link
+  href="/admin/rh/historico"
+  className={getLinkClass("/admin/rh/historico")}
+>
+  🕒 Histórico Funcional
+</Link>
+
+    </div>
+  )}
+</div>
+
                   <span className={sectionTitleClass}>⚙️ Configurações</span>
                   <span>{menuAberto === "configuracoes" ? "▾" : "▸"}</span>
                 </button>

@@ -105,6 +105,7 @@ model Instituicao {
   turmaDisciplinaHorarios    TurmaDisciplinaHorario[]
   ouvidorias                 Ouvidoria[]
   reunioes                   Reuniao[]
+  documentosRH               DocumentoRH[]
 }
 
 model User {
@@ -942,6 +943,15 @@ model Funcionario {
   fotoPerfil        String?
   documentoUrl      String?
   codigoFuncionario String?
+  dataAdmissao      DateTime?
+  dataDesligamento  DateTime?
+  salario           Decimal?      @db.Decimal(10, 2)
+  tipoContrato      String?
+  jornadaTrabalho   String?
+  banco             String?
+  agencia           String?
+  conta             String?
+  pix               String?
   instituicaoId     Int
   userId            Int           @unique
   departamentoId    Int?
@@ -949,7 +959,9 @@ model Funcionario {
   instituicao       Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  permissoes FuncionarioPermissao[]
+  permissoes   FuncionarioPermissao[]
+  historicosRH HistoricoRH[]
+  documentosRH DocumentoRH[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -1201,6 +1213,7 @@ model DocumentoTemplate {
   instituicaoId     Int
   documentosGerados DocumentoGerado[]
   instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  DocumentoRH       DocumentoRH[]
 
   @@index([instituicaoId])
   @@index([tipo])
@@ -1827,6 +1840,63 @@ model FuncionarioPermissao {
   @@unique([funcionarioId, chave])
   @@index([funcionarioId])
   @@index([chave])
+}
+
+model HistoricoRH {
+  id Int @id @default(autoincrement())
+
+  funcionarioId Int
+
+  tipo String
+
+  titulo String
+
+  descricao String? @db.Text
+
+  dataEvento DateTime @default(now())
+
+  documentoGerado String?
+
+  observacoes String? @db.Text
+
+  criadoPorId Int?
+
+  criadoEm DateTime @default(now())
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([tipo])
+  @@index([dataEvento])
+}
+
+model DocumentoRH {
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
+
+  tipo   String
+  titulo String
+  status String @default("GERADO")
+
+  templateId Int?
+  arquivoUrl String?
+  conteudo   String? @db.Text
+
+  dataDocumento DateTime @default(now())
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  funcionario Funcionario        @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  template    DocumentoTemplate? @relation(fields: [templateId], references: [id])
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([tipo])
+  @@index([status])
+  @@index([templateId])
 }
 
 enum TipoDocumentoAluno {

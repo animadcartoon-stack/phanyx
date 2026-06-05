@@ -34,6 +34,17 @@ export const PERMISSOES_PHANYX = [
   { chave: "departamentos.editar", nome: "Editar departamentos" },
   { chave: "departamentos.permissoes", nome: "Gerenciar permissões dos departamentos" },
 
+  { chave: "rh.ver", nome: "Ver RH" },
+  { chave: "rh.funcionarios", nome: "RH - Funcionários" },
+  { chave: "rh.professores", nome: "RH - Professores" },
+  { chave: "rh.departamentos", nome: "RH - Departamentos" },
+  { chave: "rh.permissoes", nome: "RH - Permissões por setor" },
+  { chave: "rh.admissoes", nome: "RH - Admissões" },
+  { chave: "rh.desligamentos", nome: "RH - Desligamentos" },
+  { chave: "rh.ocorrencias", nome: "RH - Ocorrências funcionais" },
+  { chave: "rh.documentos", nome: "RH - Documentos" },
+  { chave: "rh.historico", nome: "RH - Histórico funcional" },
+
   { chave: "reunioes.ver", nome: "Ver reuniões" },
   { chave: "reunioes.criar", nome: "Criar reuniões" },
   { chave: "reunioes.gerenciar", nome: "Gerenciar reuniões" },
