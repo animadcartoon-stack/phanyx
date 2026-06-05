@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { funcionarioTemPermissao } from "@/lib/permissoes-funcionario";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -12,9 +13,18 @@ export async function GET(
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+    if (!user) {
+  return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+}
+
+const podeGerenciarPermissoes =
+  user.role === "ADMIN" ||
+  user.isMasterAdmin === true ||
+  (await funcionarioTemPermissao(user.id, "departamentos.permissoes"));
+
+if (!podeGerenciarPermissoes) {
+  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+}
 
     const departamentoId = Number(params.id);
 
@@ -67,9 +77,18 @@ export async function PUT(
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-    }
+    if (!user) {
+  return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+}
+
+const podeGerenciarPermissoes =
+  user.role === "ADMIN" ||
+  user.isMasterAdmin === true ||
+  (await funcionarioTemPermissao(user.id, "departamentos.permissoes"));
+
+if (!podeGerenciarPermissoes) {
+  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+}
 
     const departamentoId = Number(params.id);
     const body = await req.json();

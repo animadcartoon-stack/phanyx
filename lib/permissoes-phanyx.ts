@@ -32,6 +32,7 @@ export const PERMISSOES_PHANYX = [
 
   { chave: "departamentos.ver", nome: "Ver departamentos" },
   { chave: "departamentos.editar", nome: "Editar departamentos" },
+  { chave: "departamentos.permissoes", nome: "Gerenciar permissões dos departamentos" },
 
   { chave: "reunioes.ver", nome: "Ver reuniões" },
   { chave: "reunioes.criar", nome: "Criar reuniões" },
