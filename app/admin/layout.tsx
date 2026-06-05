@@ -24,9 +24,17 @@ export default async function AdminLayout({
       instituicaoId: number;
     };
 
-    if (decoded.role !== "ADMIN" && decoded.role !== "admin") {
-      redirect("/login?portal=admin");
-    }
+    const role = String(decoded.role || "").toUpperCase();
+
+const podeEntrarNoPortalAdmin = [
+  "ADMIN",
+  "FUNCIONARIO",
+  "SECRETARIA",
+  "FINANCEIRO",
+  "COORDENADOR",
+  "SUPORTE",
+  "GERENCIA",
+].includes(role);
   } catch {
     redirect("/login?portal=admin");
   }
