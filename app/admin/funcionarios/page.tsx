@@ -444,13 +444,29 @@ function AdminFuncionariosPage() {
   className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
   required
 >
-              <option value="">Selecione o perfil</option>
-              <option value="ADMIN" className="bg-slate-900 text-white">Admin</option>
-              <option value="GERENCIA" className="bg-slate-900 text-white">Gerência</option>
-              <option value="SECRETARIA" className="bg-slate-900 text-white">Secretaria</option>
-              <option value="COORDENADOR" className="bg-slate-900 text-white">Coordenador</option>
-              <option value="FINANCEIRO" className="bg-slate-900 text-white">Financeiro</option>
-              <option value="SUPORTE" className="bg-slate-900 text-white">Suporte</option>
+              <option value="" className="bg-slate-900 text-white">
+  Selecione o perfil
+</option>
+
+<option value="ADMIN" className="bg-slate-900 text-white">
+  Administrador
+</option>
+
+<option value="SECRETARIA" className="bg-slate-900 text-white">
+  Secretaria
+</option>
+
+<option value="FINANCEIRO" className="bg-slate-900 text-white">
+  Financeiro
+</option>
+
+<option value="COORDENADOR" className="bg-slate-900 text-white">
+  Coordenação
+</option>
+
+<option value="SUPORTE" className="bg-slate-900 text-white">
+  Suporte
+</option>
               
             </select>
           </div>
