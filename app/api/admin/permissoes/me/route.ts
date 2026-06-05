@@ -13,7 +13,9 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    if (user.role === "ADMIN" || user.isMasterAdmin) {
+    const role = String(user.role || "").toUpperCase();
+
+if (role === "ADMIN" || user.isMasterAdmin) {
       return NextResponse.json({
         permissoes: ["*"],
       });

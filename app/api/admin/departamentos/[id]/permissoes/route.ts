@@ -17,8 +17,10 @@ export async function GET(
   return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 }
 
+const role = String(user.role || "").toUpperCase();
+
 const podeGerenciarPermissoes =
-  user.role === "ADMIN" ||
+  role === "ADMIN" ||
   user.isMasterAdmin === true ||
   (await funcionarioTemPermissao(user.id, "departamentos.permissoes"));
 
@@ -81,8 +83,10 @@ export async function PUT(
   return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 }
 
+const role = String(user.role || "").toUpperCase();
+
 const podeGerenciarPermissoes =
-  user.role === "ADMIN" ||
+  role === "ADMIN" ||
   user.isMasterAdmin === true ||
   (await funcionarioTemPermissao(user.id, "departamentos.permissoes"));
 
