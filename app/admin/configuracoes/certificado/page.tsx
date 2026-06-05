@@ -610,6 +610,9 @@ function gerarPontosEstrela(
   const [mostrarHandlesForma, setMostrarHandlesForma] = useState(true);
 
   const [modoFormaLivre, setModoFormaLivre] = useState(false);
+  const [arrayQuantidade, setArrayQuantidade] = useState(5);
+  const [arrayDistancia, setArrayDistancia] = useState(32);
+  const [arrayDiagonal, setArrayDiagonal] = useState(32);
   const [pontosFormaLivre, setPontosFormaLivre] = useState<any[]>([]);
 
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
@@ -1674,6 +1677,40 @@ async function excluirCampo(id: number) {
       )
     );
   }
+
+  function aplicarArrayForma(opcoes: {
+  quantidade: number;
+  deslocamentoX: number;
+  deslocamentoY: number;
+}) {
+  if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
+
+  const quantidade = Math.max(1, Math.min(100, Number(opcoes.quantidade || 1)));
+
+  const base = JSON.parse(JSON.stringify(campoSelecionado));
+
+  const copias = Array.from({ length: quantidade }).map((_, index) => {
+    const passo = index + 1;
+    const novoId = Date.now() + passo;
+
+    return {
+      ...base,
+      id: novoId,
+      bancoId: undefined,
+      tempId: novoId,
+      x: Number(base.x || 0) + opcoes.deslocamentoX * passo,
+      y: Number(base.y || 0) + opcoes.deslocamentoY * passo,
+      ordem: Number(base.ordem || 5) + passo,
+      nomeCamada: `${base.nomeCamada || base.forma || "Forma"} cópia ${passo}`,
+    };
+  });
+
+  setCampos((prev) => [...prev, ...copias]);
+  setCampoSelecionadoId(copias[copias.length - 1].id);
+  setCamposSelecionadosIds(copias.map((c) => c.id));
+
+  setMensagemSucesso(`${quantidade} cópia(s) criadas com Array.`);
+}
 
 function idsAlvoDaAcao() {
   const campo = campos.find((item) => item.id === campoSelecionadoId);
@@ -4941,7 +4978,7 @@ onPaste={(e) => {
 
   const editor = e.currentTarget;
   const texto = e.clipboardData.getData("text/plain");
-  
+
   if (!texto.trim()) return;
   const textoAtual = editor.innerText.trim();
 
@@ -6133,6 +6170,130 @@ return;
         </>
       )}
     </div>
+
+<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+  <p className="mb-3 text-sm font-bold text-slate-700">
+    Array / Multiplicar forma
+  </p>
+
+  <label className="mb-1 block text-xs font-semibold text-slate-500">
+    Quantidade de cópias
+  </label>
+  <input
+    type="number"
+    min={1}
+    max={100}
+    value={arrayQuantidade}
+    onChange={(e) => setArrayQuantidade(Number(e.target.value))}
+    className="mb-3 w-full rounded-xl border px-3 py-2"
+  />
+
+  <label className="mb-1 block text-xs font-semibold text-slate-500">
+    Distância entre cópias
+  </label>
+  <input
+    type="number"
+    value={arrayDistancia}
+    onChange={(e) => setArrayDistancia(Number(e.target.value))}
+    className="mb-3 w-full rounded-xl border px-3 py-2"
+  />
+
+  <label className="mb-1 block text-xs font-semibold text-slate-500">
+    Descida/subida da diagonal
+  </label>
+  <input
+    type="number"
+    value={arrayDiagonal}
+    onChange={(e) => setArrayDiagonal(Number(e.target.value))}
+    className="mb-3 w-full rounded-xl border px-3 py-2"
+  />
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        aplicarArrayForma({
+          quantidade: arrayQuantidade,
+          deslocamentoX: arrayDistancia,
+          deslocamentoY: 0,
+        })
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      → Direita
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        aplicarArrayForma({
+          quantidade: arrayQuantidade,
+          deslocamentoX: -arrayDistancia,
+          deslocamentoY: 0,
+        })
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      ← Esquerda
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        aplicarArrayForma({
+          quantidade: arrayQuantidade,
+          deslocamentoX: 0,
+          deslocamentoY: -arrayDistancia,
+        })
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      ↑ Cima
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        aplicarArrayForma({
+          quantidade: arrayQuantidade,
+          deslocamentoX: 0,
+          deslocamentoY: arrayDistancia,
+        })
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      ↓ Baixo
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        aplicarArrayForma({
+          quantidade: arrayQuantidade,
+          deslocamentoX: arrayDistancia,
+          deslocamentoY: arrayDiagonal,
+        })
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      ↘ Diagonal direita
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        aplicarArrayForma({
+          quantidade: arrayQuantidade,
+          deslocamentoX: -arrayDistancia,
+          deslocamentoY: arrayDiagonal,
+        })
+      }
+      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
+    >
+      ↙ Diagonal esquerda
+    </button>
+  </div>
+</div>
   </div>
 )}
 
@@ -6438,9 +6599,10 @@ atualizarCampoLocal("tamanho", tamanho);
                     <option value="center">Centro</option>
                     <option value="right">Direita</option>
                   </select>
-                </div>
-      </>
-    )}
+                  </div>
+  </>
+)}
+
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
     type="button"
