@@ -159,6 +159,7 @@ function normalizarTexto(texto: string) {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/y/g, "i")
     .trim();
 }
 

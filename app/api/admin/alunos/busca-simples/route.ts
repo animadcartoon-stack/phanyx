@@ -26,38 +26,47 @@ function normalizarTexto(texto: string) {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
-    .trim();
+    .replace(/y/g, "i")
+.trim();
 }
 
 const busca = normalizarTexto(buscaOriginal);
+
+const variantesBusca = Array.from(
+  new Set([
+    buscaOriginal,
+    buscaOriginal.replace(/i/gi, "y"),
+    buscaOriginal.replace(/y/gi, "i"),
+  ].filter(Boolean))
+);
 
     const alunos = await prisma.aluno.findMany({
       where: {
         instituicaoId: user.instituicaoId,
         ...(busca
           ? {
-              OR: [
-                {
-                  nome: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  matricula: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  user: {
-                    email: {
-                      contains: busca,
-                      mode: "insensitive",
-                    },
-                  },
-                },
-              ],
+              OR: variantesBusca.flatMap((termo) => [
+  {
+    nome: {
+      contains: termo,
+      mode: "insensitive" as const,
+    },
+  },
+  {
+    matricula: {
+      contains: termo,
+      mode: "insensitive" as const,
+    },
+  },
+  {
+    user: {
+      email: {
+        contains: termo,
+        mode: "insensitive" as const,
+      },
+    },
+  },
+]),
             }
           : {}),
       },
