@@ -439,18 +439,19 @@ function AdminFuncionariosPage() {
             </label>
 
             <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full border rounded-lg p-2"
-              required
-            >
+  value={role}
+  onChange={(e) => setRole(e.target.value)}
+  className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
+  required
+>
               <option value="">Selecione o perfil</option>
-              <option value="ADMIN">Admin</option>
-              <option value="GERENCIA">Gerência</option>
-              <option value="SECRETARIA">Secretaria</option>
-              <option value="COORDENADOR">Coordenador</option>
-              <option value="FINANCEIRO">Financeiro</option>
-              <option value="SUPORTE">Suporte</option>
+              <option value="ADMIN" className="bg-slate-900 text-white">Admin</option>
+              <option value="GERENCIA" className="bg-slate-900 text-white">Gerência</option>
+              <option value="SECRETARIA" className="bg-slate-900 text-white">Secretaria</option>
+              <option value="COORDENADOR" className="bg-slate-900 text-white">Coordenador</option>
+              <option value="FINANCEIRO" className="bg-slate-900 text-white">Financeiro</option>
+              <option value="SUPORTE" className="bg-slate-900 text-white">Suporte</option>
+              
             </select>
           </div>
 
@@ -460,17 +461,27 @@ function AdminFuncionariosPage() {
             </label>
 
             <select
-              value={departamentoId}
-              onChange={(e) => setDepartamentoId(e.target.value)}
-              className="w-full border rounded-lg p-2"
-            >
-              <option value="">Selecione um departamento</option>
-              {departamentos.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.nome}
-                </option>
-              ))}
-            </select>
+  value={departamentoId}
+  onChange={(e) => setDepartamentoId(e.target.value)}
+  className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
+>
+  <option
+    value=""
+    className="bg-slate-900 text-white"
+  >
+    Selecione um departamento
+  </option>
+
+  {departamentos.map((d) => (
+    <option
+      key={d.id}
+      value={d.id}
+      className="bg-slate-900 text-white"
+    >
+      {d.nome}
+    </option>
+  ))}
+</select>
           </div>
 
           <input
@@ -527,17 +538,34 @@ function AdminFuncionariosPage() {
   <label className="text-sm font-medium">Status</label>
 
   <select
-    value={statusFuncionario}
-    onChange={(e) => setStatusFuncionario(e.target.value)}
-    className="w-full border rounded-lg p-2"
-  >
-    <option value="ATIVO">Ativo</option>
-    <option value="DEMITIDO">Demitido</option>
-    <option value="AFASTADO">Afastado</option>
-    <option value="ADVERTENCIA">Advertência</option>
-    <option value="FERIAS">Férias</option>
-    <option value="READMITIDO">Readmitido</option>
-  </select>
+  value={statusFuncionario}
+  onChange={(e) => setStatusFuncionario(e.target.value)}
+  className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
+>
+  <option value="ATIVO" className="bg-slate-900 text-white">
+    Ativo
+  </option>
+
+  <option value="DEMITIDO" className="bg-slate-900 text-white">
+    Demitido
+  </option>
+
+  <option value="AFASTADO" className="bg-slate-900 text-white">
+    Afastado
+  </option>
+
+  <option value="ADVERTENCIA" className="bg-slate-900 text-white">
+    Advertência
+  </option>
+
+  <option value="FERIAS" className="bg-slate-900 text-white">
+    Férias
+  </option>
+
+  <option value="READMITIDO" className="bg-slate-900 text-white">
+    Readmitido
+  </option>
+</select>
 </div>
 
 <input
