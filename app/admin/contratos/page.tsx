@@ -226,12 +226,39 @@ const alunosFiltrados = [...alunos]
             <label className="mb-1 block text-sm font-medium text-slate-700">
               Buscar aluno
             </label>
-            <input
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
-              placeholder="Digite nome, matrícula ou email"
-            />
+            <div className="relative">
+  <input
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+    placeholder="Digite nome, matrícula ou email"
+  />
+
+  {busca.trim() && alunosFiltrados.length > 0 && (
+    <div className="absolute z-50 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
+      {alunosFiltrados.map((aluno) => (
+        <button
+          key={aluno.id}
+          type="button"
+          onClick={() => {
+            setAlunoId(String(aluno.id));
+            setBusca(
+              `${aluno.nome}${aluno.matricula ? ` - ${aluno.matricula}` : ""}${
+                aluno.email ? ` - ${aluno.email}` : ""
+              }`
+            );
+            carregarContrato(String(aluno.id));
+          }}
+          className="block w-full px-4 py-2 text-left text-sm text-white hover:bg-blue-600"
+        >
+          {aluno.nome}
+          {aluno.matricula ? ` - ${aluno.matricula}` : ""}
+          {aluno.email ? ` - ${aluno.email}` : ""}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
             {loadingAlunos && (
               <p className="mt-1 text-xs text-slate-500">Buscando alunos...</p>
             )}
