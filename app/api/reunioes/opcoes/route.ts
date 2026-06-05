@@ -13,8 +13,8 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const [funcionarios, professores, alunos, turmas, cursos] =
-      await Promise.all([
+    const [funcionarios, professores, alunos, turmas, cursos, departamentos] =
+  await Promise.all([
         prisma.funcionario.findMany({
           where: {
             instituicaoId: user.instituicaoId,
@@ -60,14 +60,23 @@ export async function GET() {
           },
           orderBy: { nome: "asc" },
         }),
+
+        prisma.departamento.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+  },
+  orderBy: { nome: "asc" },
+}),
+
       ]);
 
     const setores: string[] = Array.from(
-  new Set(
-    funcionarios
+  new Set([
+    ...departamentos.map((d) => d.nome),
+    ...funcionarios
       .map((f) => f.setor)
-      .filter((setor): setor is string => Boolean(setor?.trim()))
-  )
+      .filter((setor): setor is string => Boolean(setor?.trim())),
+  ].filter(Boolean))
 );
 
 setores.sort((a, b) => a.localeCompare(b, "pt-BR"));
