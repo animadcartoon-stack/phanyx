@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type HistoricoRH = {
   id: number;
@@ -23,6 +23,66 @@ export default function HistoricoRHPage() {
   const [historicos, setHistoricos] = useState<HistoricoRH[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+
+  const [busca, setBusca] = useState("");
+
+function normalizar(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/y/g, "i")
+    .trim();
+}
+
+const historicosFiltrados = useMemo(() => {
+  const termo = normalizar(busca);
+
+  const lista = [...historicos].sort((a, b) =>
+    String(a.funcionario?.nome || "").localeCompare(
+      String(b.funcionario?.nome || ""),
+      "pt-BR"
+    )
+  );
+
+  if (!termo) return lista;
+
+  return lista.filter((item) => {
+    const nome = normalizar(item.funcionario?.nome || "");
+    const cargo = normalizar(item.funcionario?.cargo || "");
+    const departamento = normalizar(item.funcionario?.departamento?.nome || "");
+    const tipo = normalizar(item.tipo || "");
+    const titulo = normalizar(item.titulo || "");
+
+    return (
+      nome.includes(termo) ||
+      cargo.includes(termo) ||
+      departamento.includes(termo) ||
+      tipo.includes(termo) ||
+      titulo.includes(termo)
+    );
+  });
+}, [historicos, busca]);
+
+const sugestoes = useMemo(() => {
+  const termo = normalizar(busca);
+  if (!termo) return [];
+
+  const nomes = new Map<string, string>();
+
+  historicos.forEach((item) => {
+    const nome = item.funcionario?.nome || "";
+    if (!nome) return;
+
+    if (normalizar(nome).includes(termo)) {
+      nomes.set(nome, nome);
+    }
+  });
+
+  return Array.from(nomes.values())
+    .sort((a, b) => a.localeCompare(b, "pt-BR"))
+    .slice(0, 8);
+}, [historicos, busca]);
 
   async function carregarHistorico() {
     try {
@@ -61,6 +121,29 @@ export default function HistoricoRHPage() {
           Acompanhe admissões, férias, advertências, suspensões, exames,
           desligamentos e demais eventos funcionais.
         </p>
+        <div className="relative mt-5 max-w-xl">
+  <input
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    placeholder="Buscar por funcionário, cargo, departamento ou evento..."
+    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+
+  {busca.trim() && sugestoes.length > 0 && (
+    <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl">
+      {sugestoes.map((nome) => (
+        <button
+          key={nome}
+          type="button"
+          onClick={() => setBusca(nome)}
+          className="block w-full px-4 py-3 text-left text-sm text-white hover:bg-blue-600"
+        >
+          {nome}
+        </button>
+      ))}
+    </div>
+  )}
+</div>
       </div>
 
       {erro && (
@@ -73,13 +156,13 @@ export default function HistoricoRHPage() {
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           Carregando histórico funcional...
         </div>
-      ) : historicos.length === 0 ? (
+      ) : historicosFiltrados.length === 0 ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-6 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           Nenhum evento funcional registrado ainda.
         </div>
       ) : (
         <div className="space-y-4">
-          {historicos.map((item) => (
+          {historicosFiltrados.map((item) => (
             <div
               key={item.id}
               className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900"

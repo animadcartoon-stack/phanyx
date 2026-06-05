@@ -286,7 +286,7 @@ function AdminDepartamentosPage() {
   Editar
 </button>
 
-{temPermissao("departamentos.permissoes") && (
+{(permissoes.includes("*") || temPermissao("departamentos.permissoes")) && (
   <a
     href={`/admin/departamentos/${d.id}/permissoes`}
     className="text-emerald-600 text-sm"
