@@ -154,6 +154,43 @@ async function enviarParaAssinatura() {
   }
 }
 
+function normalizarTexto(texto: string) {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+const termoBuscaNormalizado = normalizarTexto(busca);
+
+const alunosFiltrados = [...alunos]
+  .filter((aluno) => {
+    if (!termoBuscaNormalizado) return true;
+
+    const nome = normalizarTexto(aluno.nome || "");
+    const email = normalizarTexto(aluno.email || "");
+    const matricula = normalizarTexto(aluno.matricula || "");
+
+    return (
+      nome.includes(termoBuscaNormalizado) ||
+      email.includes(termoBuscaNormalizado) ||
+      matricula.includes(termoBuscaNormalizado)
+    );
+  })
+  .sort((a, b) => {
+    const nomeA = normalizarTexto(a.nome || "");
+    const nomeB = normalizarTexto(b.nome || "");
+
+    const aComeca = nomeA.startsWith(termoBuscaNormalizado);
+    const bComeca = nomeB.startsWith(termoBuscaNormalizado);
+
+    if (aComeca && !bComeca) return -1;
+    if (!aComeca && bComeca) return 1;
+
+    return nomeA.localeCompare(nomeB, "pt-BR");
+  });
+
   useEffect(() => {
     const t = setTimeout(() => {
       buscarAlunos();
@@ -210,11 +247,20 @@ async function enviarParaAssinatura() {
                 setAlunoId(e.target.value);
                 carregarContrato(e.target.value);
               }}
-              className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
             >
-              <option value="">Selecione um aluno</option>
-              {alunos.map((aluno) => (
-                <option key={aluno.id} value={aluno.id}>
+              <option
+  value=""
+  className="bg-slate-900 text-white"
+>
+  Selecione um aluno
+</option>
+              {alunosFiltrados.map((aluno) => (
+                <option
+  key={aluno.id}
+  value={aluno.id}
+  className="bg-slate-900 text-white"
+>
                   {aluno.nome}
                   {aluno.matricula ? ` - ${aluno.matricula}` : ""}
                   {aluno.email ? ` - ${aluno.email}` : ""}
