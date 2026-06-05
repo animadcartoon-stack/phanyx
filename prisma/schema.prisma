@@ -949,6 +949,8 @@ model Funcionario {
   instituicao       Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  permissoes FuncionarioPermissao[]
+
   @@index([instituicaoId])
   @@index([departamentoId])
   @@index([nome])
@@ -956,15 +958,16 @@ model Funcionario {
 }
 
 model Departamento {
-  id            Int           @id @default(autoincrement())
+  id            Int                     @id @default(autoincrement())
   nome          String
   slug          String?
-  ativo         Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  ativo         Boolean                 @default(true)
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
   instituicaoId Int
-  instituicao   Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   funcionarios  Funcionario[]
+  permissoes    DepartamentoPermissao[]
 
   @@unique([instituicaoId, nome])
   @@index([instituicaoId])
@@ -1796,6 +1799,34 @@ model ReuniaoParticipante {
   @@index([alunoId])
   @@index([tipo])
   @@index([status])
+}
+
+model DepartamentoPermissao {
+  id             Int      @id @default(autoincrement())
+  departamentoId Int
+  chave          String
+  ativo          Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+
+  departamento Departamento @relation(fields: [departamentoId], references: [id], onDelete: Cascade)
+
+  @@unique([departamentoId, chave])
+  @@index([departamentoId])
+  @@index([chave])
+}
+
+model FuncionarioPermissao {
+  id            Int      @id @default(autoincrement())
+  funcionarioId Int
+  chave         String
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+
+  @@unique([funcionarioId, chave])
+  @@index([funcionarioId])
+  @@index([chave])
 }
 
 enum TipoDocumentoAluno {

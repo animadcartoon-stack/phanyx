@@ -104,6 +104,7 @@ const notificacoesAdmin = [
 );
 
   const [usuario, setUsuario] = useState<UsuarioLogado | null>(null);
+  const [permissoes, setPermissoes] = useState<string[]>([]);
   const [funcionario, setFuncionario] = useState<{
   nome?: string;
   fotoPerfil?: string | null;
@@ -177,6 +178,20 @@ const notificacoesAdmin = [
 setUsuario(data.user ?? null);
 
 try {
+  const resPermissoes = await fetch("/api/admin/permissoes/me", {
+    cache: "no-store",
+    credentials: "include",
+  });
+
+  if (resPermissoes.ok) {
+    const permissoesData = await resPermissoes.json();
+    setPermissoes(Array.isArray(permissoesData.permissoes) ? permissoesData.permissoes : []);
+  }
+} catch {
+  setPermissoes([]);
+}
+
+try {
   const resFuncionario = await fetch("/api/admin/funcionarios/me", {
     cache: "no-store",
     credentials: "include",
@@ -214,6 +229,10 @@ try {
   function toggleMenu(menu: string) {
     setMenuAberto((atual) => (atual === menu ? null : menu));
   }
+
+  function temPermissao(chave: string) {
+  return permissoes.includes("*") || permissoes.includes(chave);
+}
 
   function isActive(path: string) {
     if (path === "/admin") return pathname === "/admin";
@@ -451,59 +470,64 @@ function abrirTourAdmin() {
                   <span>{menuAberto === "financeiro" ? "▾" : "▸"}</span>
                 </button>
 
-                {menuAberto === "financeiro" && (
-                  <div className="ml-3 mt-2 flex flex-col space-y-1">
-                    <Link
-                      href="/admin/financeiro"
-                      className={getLinkClass("/admin/financeiro")}
-                    >
-                      💰 Visão Geral
-                    </Link>
+                {temPermissao("financeiro.ver") && (
+  <Link
+    href="/admin/financeiro"
+    className={getLinkClass("/admin/financeiro")}
+  >
+    💰 Visão Geral
+  </Link>
+)}
 
-                    <Link
-  href="/admin/financeiro/recebimentos"
-  className={getLinkClass("/admin/financeiro/recebimentos")}
-  data-tour="financeiro-recebimentos"
->
-  💵 Recebimentos
-</Link>
+{temPermissao("financeiro.recebimentos") && (
+  <Link
+    href="/admin/financeiro/recebimentos"
+    className={getLinkClass("/admin/financeiro/recebimentos")}
+    data-tour="financeiro-recebimentos"
+  >
+    💵 Recebimentos
+  </Link>
+)}
 
-                    <Link
-  href="/admin/financeiro/caixa"
-  className={getLinkClass("/admin/financeiro/caixa")}
-  data-tour="financeiro-caixa"
->
-  🏦 Caixa
-</Link>
+{temPermissao("caixa.ver") && (
+  <Link
+    href="/admin/financeiro/caixa"
+    className={getLinkClass("/admin/financeiro/caixa")}
+    data-tour="financeiro-caixa"
+  >
+    🏦 Caixa
+  </Link>
+)}
 
-                    <Link
-  href="/admin/financeiro/relatorios"
-  className={getLinkClass("/admin/financeiro/relatorios")}
-  data-tour="financeiro-relatorios"
->
-  📊 Relatórios
-</Link>
+{temPermissao("financeiro.relatorios") && (
+  <Link
+    href="/admin/financeiro/relatorios"
+    className={getLinkClass("/admin/financeiro/relatorios")}
+    data-tour="financeiro-relatorios"
+  >
+    📊 Relatórios
+  </Link>
+)}
 
-                    <Link
-  href="/admin/financeiro/inadimplentes"
-  className={getLinkClass("/admin/financeiro/inadimplentes")}
-  data-tour="financeiro-inadimplentes"
->
-  🚨 Inadimplentes
-</Link>
+{temPermissao("financeiro.inadimplentes") && (
+  <Link
+    href="/admin/financeiro/inadimplentes"
+    className={getLinkClass("/admin/financeiro/inadimplentes")}
+    data-tour="financeiro-inadimplentes"
+  >
+    🚨 Inadimplentes
+  </Link>
+)}
 
-                    <Link
-  href="/admin/financeiro/fechamento-geral"
-  className={getLinkClass(
-    "/admin/financeiro/fechamento-geral"
-  )}
-  data-tour="financeiro-fechamento"
->
-  📦 Fechamento Geral
-</Link>
-
-                  </div>
-                )}
+{temPermissao("financeiro.fechamento") && (
+  <Link
+    href="/admin/financeiro/fechamento-geral"
+    className={getLinkClass("/admin/financeiro/fechamento-geral")}
+    data-tour="financeiro-fechamento"
+  >
+    📦 Fechamento Geral
+  </Link>
+)}
               </div>
 
               <div className="border-t pt-2 mt-2">

@@ -202,10 +202,17 @@ export async function POST(req: NextRequest) {
     where: {
       instituicaoId: user.instituicaoId,
       ativo: true,
-      setor,
-      user: {
-        ativo: true,
-      },
+      OR: [
+  { setor },
+  {
+    departamento: {
+      nome: setor,
+    },
+  },
+],
+user: {
+  ativo: true,
+},
     },
     include: {
       user: true,
@@ -392,6 +399,12 @@ const dataFormatada = new Date(reuniao.dataHora).toLocaleString("pt-BR", {
   timeStyle: "short",
 });
 
+function linkReuniaoPorTipo(tipo: string) {
+  if (tipo === "ALUNO") return "/aluno/reunioes";
+  if (tipo === "PROFESSOR") return "/professor/reunioes";
+  return "/admin/reunioes";
+}
+
 const notificacoes = reuniao.participantes
   .filter((participante) => participante.userId)
   .map((participante) => ({
@@ -399,7 +412,7 @@ const notificacoes = reuniao.participantes
     tipo: "REUNIAO",
     titulo: "📅 Nova reunião agendada",
     descricao: `${reuniao.titulo} • ${dataFormatada}`,
-    link: "/aluno/reunioes",
+    link: linkReuniaoPorTipo(participante.tipo),
   }));
 
 if (notificacoes.length > 0) {
