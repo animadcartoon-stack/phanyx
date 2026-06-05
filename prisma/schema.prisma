@@ -104,31 +104,34 @@ model Instituicao {
   turmaSemestres             TurmaSemestre[]
   turmaDisciplinaHorarios    TurmaDisciplinaHorario[]
   ouvidorias                 Ouvidoria[]
+  reunioes                   Reuniao[]
 }
 
 model User {
-  id                 Int           @id @default(autoincrement())
-  nome               String
-  email              String        @unique
-  senha              String
-  createdAt          DateTime      @default(now())
-  instituicaoId      Int
-  ativo              Boolean       @default(true)
-  updatedAt          DateTime      @updatedAt
-  role               Role
-  ultimoLoginAt      DateTime?
-  aluno              Aluno?
-  funcionario        Funcionario?
-  professor          Professor?
-  resetToken         String?
-  resetTokenExpira   DateTime?
-  precisaTrocarSenha Boolean       @default(false)
-  isMasterAdmin      Boolean       @default(false)
-  instituicao        Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  cursosCriados      Curso[]       @relation("CursoCriadoPor")
-  cursosExcluidos    Curso[]       @relation("CursoExcluidoPor")
-  CreditoIA          CreditoIA?
-  notificacoes       Notificacao[]
+  id                   Int                   @id @default(autoincrement())
+  nome                 String
+  email                String                @unique
+  senha                String
+  createdAt            DateTime              @default(now())
+  instituicaoId        Int
+  ativo                Boolean               @default(true)
+  updatedAt            DateTime              @updatedAt
+  role                 Role
+  ultimoLoginAt        DateTime?
+  aluno                Aluno?
+  funcionario          Funcionario?
+  professor            Professor?
+  resetToken           String?
+  resetTokenExpira     DateTime?
+  precisaTrocarSenha   Boolean               @default(false)
+  isMasterAdmin        Boolean               @default(false)
+  instituicao          Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  cursosCriados        Curso[]               @relation("CursoCriadoPor")
+  cursosExcluidos      Curso[]               @relation("CursoExcluidoPor")
+  CreditoIA            CreditoIA?
+  notificacoes         Notificacao[]
+  reunioesCriadas      Reuniao[]             @relation("ReuniaoCriadaPor")
+  reunioesParticipante ReuniaoParticipante[]
 
   @@index([instituicaoId])
   @@index([role])
@@ -189,6 +192,7 @@ model Aluno {
   respostas                    RespostaProva[]
   resultadosFinais             ResultadoFinal[]
   tentativas                   TentativaProva[]
+  reunioesParticipante         ReuniaoParticipante[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -228,6 +232,7 @@ model Professor {
   disciplinasHabilitadas ProfessorDisciplina[]
   poloId                 Int?
   polo                   Polo?                 @relation(fields: [poloId], references: [id])
+  reunioesCriadas        Reuniao[]             @relation("ReuniaoProfessor")
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -265,6 +270,7 @@ model Curso {
   periodosMatricula           PeriodoMatricula[]
   disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
   cursosPolos                 CursoPolo[]
+  reunioes                    Reuniao[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -446,6 +452,7 @@ model Turma {
   semestres        TurmaSemestre[]
   poloId           Int?
   polo             Polo?             @relation(fields: [poloId], references: [id])
+  reunioes         Reuniao[]
 
   @@unique([instituicaoId, nome, semestre])
   @@index([instituicaoId])
@@ -1720,6 +1727,75 @@ model Notificacao {
   @@index([tipo])
   @@index([lida])
   @@index([criadoEm])
+}
+
+model Reuniao {
+  id            Int  @id @default(autoincrement())
+  instituicaoId Int
+  criadoPorId   Int?
+  professorId   Int?
+  turmaId       Int?
+  cursoId       Int?
+
+  titulo    String
+  descricao String?
+  link      String
+  dataHora  DateTime
+  status    String   @default("AGENDADA")
+
+  publicoTipo String
+  setor       String?
+
+  enviarWhatsApp Boolean @default(false)
+  enviarChat     Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id])
+  criadoPor   User?       @relation("ReuniaoCriadaPor", fields: [criadoPorId], references: [id])
+  professor   Professor?  @relation("ReuniaoProfessor", fields: [professorId], references: [id])
+  turma       Turma?      @relation(fields: [turmaId], references: [id])
+  curso       Curso?      @relation(fields: [cursoId], references: [id])
+
+  participantes ReuniaoParticipante[]
+
+  @@index([instituicaoId])
+  @@index([criadoPorId])
+  @@index([professorId])
+  @@index([turmaId])
+  @@index([cursoId])
+  @@index([publicoTipo])
+  @@index([dataHora])
+  @@index([status])
+}
+
+model ReuniaoParticipante {
+  id        Int  @id @default(autoincrement())
+  reuniaoId Int
+  userId    Int?
+  alunoId   Int?
+
+  tipo     String
+  nome     String
+  email    String?
+  telefone String?
+
+  status    String    @default("CONVIDADO")
+  avisadoEm DateTime?
+  entrouEm  DateTime?
+
+  criadoEm DateTime @default(now())
+
+  reuniao Reuniao @relation(fields: [reuniaoId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  aluno   Aluno?  @relation(fields: [alunoId], references: [id])
+
+  @@index([reuniaoId])
+  @@index([userId])
+  @@index([alunoId])
+  @@index([tipo])
+  @@index([status])
 }
 
 enum TipoDocumentoAluno {

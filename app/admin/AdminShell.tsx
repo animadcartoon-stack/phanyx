@@ -548,7 +548,34 @@ function abrirTourAdmin() {
                   </div>
                 )}
               </div>
+<div className="border-t pt-2 mt-2">
+  <button
+    type="button"
+    onClick={() => toggleMenu("comunicacao")}
+    className={buttonClass}
+  >
+    <span className={sectionTitleClass}>💬 Comunicação</span>
+    <span>{menuAberto === "comunicacao" ? "▾" : "▸"}</span>
+  </button>
 
+  {menuAberto === "comunicacao" && (
+    <div className="ml-3 mt-2 flex flex-col space-y-1">
+      <Link
+        href="/admin/reunioes"
+        className={getLinkClass("/admin/reunioes")}
+      >
+        📅 Reuniões
+      </Link>
+
+      <Link
+        href="/admin/ouvidoria"
+        className={getLinkClass("/admin/ouvidoria")}
+      >
+        🧠 Ouvidoria
+      </Link>
+    </div>
+  )}
+</div>
               <div className="border-t pt-2 mt-2">
                 <button
                   type="button"
@@ -593,14 +620,6 @@ function abrirTourAdmin() {
                       🏅 Certificados
                     </Link>
                     
-
-<Link
-  href="/admin/ouvidoria"
-  className={getLinkClass("/admin/ouvidoria")}
->
-  🧠 Ouvidoria
-</Link>
-
                   </div>
                 )}
               </div>
@@ -687,6 +706,24 @@ function abrirTourAdmin() {
           </div>
         )}
 
+        {menuMobileAberto === "Comunicação" && (
+  <div className="grid grid-cols-1 gap-2">
+    <Link
+      href="/admin/reunioes"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      📅 Reuniões
+    </Link>
+
+    <Link
+      href="/admin/ouvidoria"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      🧠 Ouvidoria
+    </Link>
+  </div>
+)}
+
         {menuMobileAberto === "Documentos" && (
           <div className="grid grid-cols-2 gap-2">
             <Link href="/admin/contratos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
@@ -757,10 +794,18 @@ function abrirTourAdmin() {
           Config.
         </button>
 
-        <Link href="/admin/perfil" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-          <span className="text-lg">👤</span>
-          Perfil
-        </Link>
+        <button
+  type="button"
+  onClick={() =>
+    setMenuMobileAberto(
+      menuMobileAberto === "Comunicação" ? null : "Comunicação"
+    )
+  }
+  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
+>
+  <span className="text-lg">💬</span>
+  Comun.
+</button>
       </div>
     </nav>
   </>
