@@ -198,28 +198,73 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const funcionarios = await prisma.funcionario.findMany({
-    where: {
-      instituicaoId: user.instituicaoId,
+ const funcionarios = await prisma.funcionario.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    ativo: true,
+    OR: [
+      { setor },
+      {
+        departamento: {
+          nome: setor,
+        },
+      },
+    ],
+    user: {
       ativo: true,
-      OR: [
-  { setor },
-  {
-    departamento: {
-      nome: setor,
     },
   },
-],
-user: {
-  ativo: true,
-},
+  include: {
+    user: true,
+    permissoes: true,
+    departamento: {
+      include: {
+        permissoes: true,
+      },
     },
-    include: {
-      user: true,
-    },
-  });
+  },
+});
 
-  funcionarios.forEach((funcionario) =>
+function funcionarioTemPermissaoReuniaoSetor(funcionario: any) {
+  const setorNormalizado = String(setor || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  let permissaoObrigatoria: string | null = null;
+
+  if (setorNormalizado.includes("financeiro")) {
+    permissaoObrigatoria = "financeiro.ver";
+  }
+
+  if (setorNormalizado.includes("rh")) {
+    permissaoObrigatoria = "funcionarios.ver";
+  }
+
+  if (setorNormalizado.includes("secretaria")) {
+    permissaoObrigatoria = "matriculas.ver";
+  }
+
+  if (setorNormalizado.includes("comercial")) {
+    permissaoObrigatoria = "leads.ver";
+  }
+
+  if (!permissaoObrigatoria) return true;
+
+  const temPermissaoIndividual = funcionario.permissoes?.some(
+    (p: any) => p.chave === permissaoObrigatoria && p.ativo
+  );
+
+  const temPermissaoDepartamento = funcionario.departamento?.permissoes?.some(
+    (p: any) => p.chave === permissaoObrigatoria && p.ativo
+  );
+
+  return Boolean(temPermissaoIndividual || temPermissaoDepartamento);
+}
+
+funcionarios
+  .filter(funcionarioTemPermissaoReuniaoSetor)
+  .forEach((funcionario) =>
     adicionarParticipante({
       userId: funcionario.userId,
       tipo: funcionario.user.role,
@@ -228,6 +273,7 @@ user: {
       telefone: funcionario.telefone || null,
     })
   );
+
 }
 
 if (publicoTipo === "TURMA") {
