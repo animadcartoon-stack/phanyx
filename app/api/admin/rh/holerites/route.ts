@@ -73,15 +73,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const totalVencimentos = eventos
-      .filter((e: any) => e.tipo === "VENCIMENTO")
-      .reduce((acc: number, e: any) => acc + toDecimalNumber(e.valor), 0);
+    const totalEventosVencimentos = eventos
+  .filter((e: any) => e.tipo === "VENCIMENTO")
+  .reduce((acc: number, e: any) => acc + toDecimalNumber(e.valor), 0);
 
-    const totalDescontos = eventos
-      .filter((e: any) => e.tipo === "DESCONTO")
-      .reduce((acc: number, e: any) => acc + toDecimalNumber(e.valor), 0);
+const totalDescontos = eventos
+  .filter((e: any) => e.tipo === "DESCONTO")
+  .reduce((acc: number, e: any) => acc + toDecimalNumber(e.valor), 0);
 
-    const valorLiquido = totalVencimentos - totalDescontos;
+const totalVencimentos = salarioBase + totalEventosVencimentos;
+
+const valorLiquido = totalVencimentos - totalDescontos;
 
     const holerite = await prisma.holeriteRH.create({
       data: {
