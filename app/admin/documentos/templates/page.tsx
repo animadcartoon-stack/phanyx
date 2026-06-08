@@ -253,6 +253,32 @@ Documento emitido para comprovação de comparecimento.
 {{blocoAssinaturaDiretor}}
 `;
 
+    case "CONTRATO_TRABALHO":
+      return `CONTRATO DE TRABALHO
+
+Pelo presente instrumento, {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, com sede em {{enderecoInstituicao}}, neste ato representada por {{responsavelLegal}}, contrata o(a) colaborador(a) {{nomeFuncionario}}, CPF {{cpfFuncionario}}, RG {{rgFuncionario}}, PIS/PASEP {{pisPasepFuncionario}}, para exercer a função de {{cargoFuncionario}}, no departamento {{departamentoFuncionario}}.
+
+A admissão ocorrerá em {{dataAdmissaoFuncionario}}, sob o tipo de contrato {{tipoContratoFuncionario}}, com carga horária mensal de {{cargaHorariaMensalFuncionario}} horas e salário base de {{salarioBaseFuncionario}}.
+
+O(a) colaborador(a) compromete-se a cumprir as normas internas da instituição, zelar pelo patrimônio, manter sigilo sobre informações institucionais e desempenhar suas atividades com responsabilidade, ética e pontualidade.
+
+Este contrato passa a vigorar a partir da data de admissão informada acima.
+
+{{cidadeAssinatura}}, {{dataAtual}}.
+
+EMPREGADOR:
+{{nomeInstituicao}}
+CNPJ: {{cnpjInstituicao}}
+
+EMPREGADO(A):
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+
+{{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
     case "HISTORICO":
       return `[CABEÇALHO INSTITUCIONAL]
 
