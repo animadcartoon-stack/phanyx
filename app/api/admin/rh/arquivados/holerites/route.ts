@@ -39,3 +39,66 @@ export async function GET() {
     );
   }
 }
+
+export async function PATCH(req: Request) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const holeriteId = Number(body.holeriteId);
+
+    if (!holeriteId) {
+      return NextResponse.json({ error: "Informe o holerite." }, { status: 400 });
+    }
+
+    const holerite = await prisma.holeriteRH.findFirst({
+      where: {
+        id: holeriteId,
+        instituicaoId: user.instituicaoId,
+        arquivado: true,
+      },
+    });
+
+    if (!holerite) {
+      return NextResponse.json(
+        { error: "Holerite arquivado não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    const restaurado = await prisma.holeriteRH.update({
+      where: { id: holerite.id },
+      data: {
+        arquivado: false,
+        arquivadoEm: null,
+        arquivadoPorId: null,
+        motivoArquivo: null,
+        status: "GERADO",
+      },
+    });
+
+    await prisma.historicoRH.create({
+      data: {
+        funcionarioId: holerite.funcionarioId,
+        instituicaoId: user.instituicaoId!,
+        criadoPorId: user.id,
+        tipo: "RESTAURACAO_HOLERITE",
+        titulo: "Holerite restaurado",
+        descricao: "Holerite restaurado a partir da central de arquivados.",
+        dataEvento: new Date(),
+        observacoes: "Registro retornou para a lista principal de Holerites RH.",
+      },
+    });
+
+    return NextResponse.json(restaurado);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || "Erro ao restaurar holerite." },
+      { status: 500 }
+    );
+  }
+}
