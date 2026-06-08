@@ -587,6 +587,15 @@ export default function Page() {
       👁 Visualizar
     </button>
 
+<a
+  href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
+  target="_blank"
+  rel="noopener noreferrer"
+  className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
+>
+  📄 PDF
+</a>
+
     <button
       type="button"
       onClick={() => setHoleriteParaExcluir(holerite)}

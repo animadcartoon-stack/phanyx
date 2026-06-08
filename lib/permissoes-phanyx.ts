@@ -35,15 +35,42 @@ export const PERMISSOES_PHANYX = [
   { chave: "departamentos.permissoes", nome: "Gerenciar permissões dos departamentos" },
 
   { chave: "rh.ver", nome: "Ver RH" },
-  { chave: "rh.funcionarios", nome: "RH - Funcionários" },
-  { chave: "rh.professores", nome: "RH - Professores" },
-  { chave: "rh.departamentos", nome: "RH - Departamentos" },
-  { chave: "rh.permissoes", nome: "RH - Permissões por setor" },
-  { chave: "rh.admissoes", nome: "RH - Admissões" },
-  { chave: "rh.desligamentos", nome: "RH - Desligamentos" },
-  { chave: "rh.ocorrencias", nome: "RH - Ocorrências funcionais" },
-  { chave: "rh.documentos", nome: "RH - Documentos" },
-  { chave: "rh.historico", nome: "RH - Histórico funcional" },
+
+{ chave: "rh.funcionarios", nome: "RH - Funcionários" },
+{ chave: "rh.professores", nome: "RH - Professores" },
+{ chave: "rh.departamentos", nome: "RH - Departamentos" },
+{ chave: "rh.permissoes", nome: "RH - Permissões por setor" },
+
+{ chave: "rh.admissoes", nome: "RH - Admissões" },
+{ chave: "rh.desligamentos", nome: "RH - Desligamentos" },
+
+{ chave: "rh.ocorrencias", nome: "RH - Ocorrências funcionais" },
+{ chave: "rh.historico", nome: "RH - Histórico funcional" },
+
+{ chave: "rh.documentos", nome: "RH - Documentos" },
+{ chave: "rh.documentos_modelos", nome: "RH - Modelos de documentos" },
+{ chave: "rh.documentos_gerar", nome: "RH - Gerar documentos" },
+
+{ chave: "rh.ponto", nome: "RH - Controle de ponto" },
+{ chave: "rh.ponto_editar", nome: "RH - Ajustar registros de ponto" },
+{ chave: "rh.ponto_integracoes", nome: "RH - Integrações de relógio ponto" },
+
+{ chave: "rh.holerites", nome: "RH - Holerites" },
+{ chave: "rh.holerites_gerar", nome: "RH - Gerar holerites" },
+{ chave: "rh.holerites_excluir", nome: "RH - Excluir holerites" },
+
+{ chave: "rh.ferias", nome: "RH - Férias" },
+{ chave: "rh.ferias_aprovar", nome: "RH - Aprovar férias" },
+
+{ chave: "rh.exames", nome: "RH - Exames ocupacionais" },
+
+{ chave: "rh.rescisoes", nome: "RH - Rescisões" },
+
+{ chave: "rh.cargos", nome: "RH - Cargos" },
+{ chave: "rh.salarios", nome: "RH - Faixas salariais" },
+
+{ chave: "rh.relatorios", nome: "RH - Relatórios" },
+{ chave: "rh.indicadores", nome: "RH - Indicadores e métricas" },
 
   { chave: "reunioes.ver", nome: "Ver reuniões" },
   { chave: "reunioes.criar", nome: "Criar reuniões" },
