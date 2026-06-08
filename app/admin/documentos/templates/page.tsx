@@ -827,11 +827,12 @@ const todasAsTags = [
 const descricoesVariaveis: Record<
   string,
   {
-    titulo: string;
-    descricao: string;
-    ondeUsar: string;
-    palavras: string[];
-  }
+  titulo: string;
+  descricao: string;
+  ondeUsar: string;
+  palavras: string[];
+  categoria?: string;
+}
 > = {
   "{{logoInstituicao}}": {
     titulo: "Logo da instituição",
@@ -1689,7 +1690,7 @@ const descricoesVariaveis: Record<
     titulo: "Tipo de ASO",
     descricao: "Mostra o tipo do atestado de saúde ocupacional.",
     ondeUsar: "ASO admissional, periódico, retorno, mudança de função e demissional.",
-    palavras: ["aso", "exame ocupacional", "admissional", "demissional"],
+    palavras: ["aso", "exame ocupacional", "tipo do exame", "tipo do aso", "admissional", "demissional", "periódico", "retorno ao trabalho", "mudança de função"],
   },
 
   "{{numeroAso}}": {
@@ -1703,21 +1704,21 @@ const descricoesVariaveis: Record<
     titulo: "Data do ASO",
     descricao: "Mostra a data do exame ocupacional.",
     ondeUsar: "ASO e exames médicos ocupacionais.",
-    palavras: ["data aso", "data exame", "exame ocupacional"],
+    palavras: ["data aso", "data exame", "exame ocupacional", "data do exame ocupacional", "data do aso", "quando foi feito o exame", "exame admissional", "exame demissional"],
   },
 
   "{{medicoResponsavel}}": {
     titulo: "Médico responsável",
     descricao: "Mostra o nome do médico responsável pelo exame.",
     ondeUsar: "ASO e documentos de medicina ocupacional.",
-    palavras: ["médico", "medico", "responsável aso"],
+    palavras: ["médico", "medico", "responsável aso", "médico do exame", "nome do médico", "quem assinou o exame ocupacional"],
   },
 
   "{{crmMedico}}": {
     titulo: "CRM do médico",
     descricao: "Mostra o CRM do médico responsável.",
     ondeUsar: "ASO e documentos de medicina ocupacional.",
-    palavras: ["crm", "registro médico", "médico"],
+    palavras: ["crm", "registro médico", "médico", "crm do médico", "número do crm", "registro do médico"],
   },
 
   "{{resultadoAso}}": {
@@ -1806,6 +1807,7 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
       info?.ondeUsar ||
       "Contratos, históricos, certificados, declarações e documentos.",
     palavras: [tag, tag.toLowerCase(), ...(info?.palavras || [])],
+categoria: info?.categoria || "Geral",
   };
 });
 
@@ -2059,6 +2061,9 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
           }
           className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
         >
+          <div className="mb-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
+  {variavel.categoria}
+</div>
           <div className="font-mono font-bold text-blue-700">
             {variavel.tag}
           </div>
