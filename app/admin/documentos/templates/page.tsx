@@ -409,6 +409,566 @@ ____________________________________
 {{blocoAssinaturaDiretor}}
 `;
 
+    case "SUSPENSAO":
+      return `SUSPENSÃO DISCIPLINAR
+
+Ao(À) colaborador(a):
+
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+Cargo: {{cargoFuncionario}}
+Departamento: {{departamentoFuncionario}}
+
+Comunicamos a aplicação de suspensão disciplinar em razão do seguinte fato:
+
+{{motivoSuspensao}}
+
+Descrição detalhada:
+
+{{descricaoSuspensao}}
+
+Período de suspensão:
+Início: {{dataInicioSuspensao}}
+Fim: {{dataFimSuspensao}}
+
+Quantidade de dias:
+{{diasSuspensao}}
+
+O colaborador declara estar ciente da presente suspensão disciplinar.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+CIENTE:
+____________________________________
+{{nomeFuncionario}}
+
+EMPREGADOR:
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "ASO":
+    case "ASO_ADMISSIONAL":
+    case "ASO_PERIODICO":
+    case "ASO_RETORNO":
+    case "ASO_MUDANCA_FUNCAO":
+    case "ASO_DEMISSIONAL":
+      return `ATESTADO DE SAÚDE OCUPACIONAL - ASO
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Tipo de ASO:
+{{tipoAso}}
+
+Número do ASO:
+{{numeroAso}}
+
+Data do exame:
+{{dataAso}}
+
+Resultado:
+{{resultadoAso}}
+
+Médico responsável:
+{{medicoResponsavel}}
+
+CRM:
+{{crmMedico}}
+
+Observações:
+{{observacoesAso}}
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{medicoResponsavel}}
+CRM: {{crmMedico}}
+
+____________________________________
+{{nomeFuncionario}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "AFASTAMENTO_MEDICO":
+    case "AFASTAMENTO_MATERNIDADE":
+    case "AFASTAMENTO_PERICIA":
+    case "RETORNO_TRABALHO":
+      return `DOCUMENTO DE AFASTAMENTO / RETORNO AO TRABALHO
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Tipo de afastamento:
+{{tipoAfastamento}}
+
+Motivo:
+{{motivoAfastamento}}
+
+CID:
+{{cidAfastamento}}
+
+Data de início:
+{{dataInicioAfastamento}}
+
+Data final prevista:
+{{dataFimAfastamento}}
+
+Quantidade de dias:
+{{diasAfastamento}}
+
+Data da perícia:
+{{dataPericia}}
+
+Resultado da perícia:
+{{resultadoPericia}}
+
+O presente documento registra as informações relacionadas ao afastamento ou retorno ao trabalho do colaborador.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "DEMISSAO":
+    case "PEDIDO_DEMISSAO":
+      return `DOCUMENTO DE DEMISSÃO
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Data de admissão:
+{{dataAdmissaoFuncionario}}
+
+Data de desligamento:
+{{dataDemissao}}
+
+Motivo da demissão:
+{{motivoDemissao}}
+
+Tipo de rescisão:
+{{tipoRescisao}}
+
+O presente documento registra o desligamento do colaborador conforme informações acima.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "AVISO_PREVIO":
+      return `AVISO PRÉVIO
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Data de admissão:
+{{dataAdmissaoFuncionario}}
+
+Data de desligamento prevista:
+{{dataDemissao}}
+
+Motivo:
+{{motivoDemissao}}
+
+Aviso prévio:
+{{avisoPrevio}}
+
+O colaborador declara ciência do aviso prévio conforme informações acima.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "TRCT":
+      return `TERMO DE RESCISÃO DE CONTRATO DE TRABALHO
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Data de admissão:
+{{dataAdmissaoFuncionario}}
+
+Data de desligamento:
+{{dataDemissao}}
+
+Motivo da demissão:
+{{motivoDemissao}}
+
+Tipo de rescisão:
+{{tipoRescisao}}
+
+Saldo de salário:
+{{saldoSalario}}
+
+Férias vencidas:
+{{feriasVencidas}}
+
+Férias proporcionais:
+{{feriasProporcionais}}
+
+13º proporcional:
+{{decimoTerceiroProporcional}}
+
+Aviso prévio:
+{{avisoPrevio}}
+
+Valor total da rescisão:
+{{valorRescisao}}
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "HOLERITE":
+      return `HOLERITE
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Competência:
+{{competenciaHolerite}}
+
+Salário base:
+{{salarioBaseFuncionario}}
+
+Eventos:
+{{eventosHolerite}}
+
+Total de vencimentos:
+{{totalVencimentos}}
+
+Total de descontos:
+{{totalDescontos}}
+
+Base INSS:
+{{baseInss}}
+
+Base FGTS:
+{{baseFgts}}
+
+FGTS do mês:
+{{fgtsMes}}
+
+Base IRRF:
+{{baseIrrf}}
+
+Valor líquido:
+{{valorLiquido}}
+
+Declaro ter recebido a importância líquida discriminada neste holerite.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+{{nomeInstituicao}}
+CNPJ: {{cnpjInstituicao}}
+`;
+
+    case "ADMISSAO":
+      return `DOCUMENTO DE ADMISSÃO
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+RG:
+{{rgFuncionario}}
+
+PIS/PASEP:
+{{pisPasepFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Tipo de contrato:
+{{tipoContratoFuncionario}}
+
+Data de admissão:
+{{dataAdmissaoFuncionario}}
+
+Carga horária mensal:
+{{cargaHorariaMensalFuncionario}}
+
+Salário base:
+{{salarioBaseFuncionario}}
+
+O presente documento registra a admissão do colaborador na instituição.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "CONTRATO_EXPERIENCIA":
+      return `CONTRATO DE EXPERIÊNCIA
+
+A instituição {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, contrata o(a) colaborador(a) {{nomeFuncionario}}, CPF {{cpfFuncionario}}, RG {{rgFuncionario}}, PIS/PASEP {{pisPasepFuncionario}}, para exercer a função de {{cargoFuncionario}}, no departamento {{departamentoFuncionario}}.
+
+Data de admissão:
+{{dataAdmissaoFuncionario}}
+
+Tipo de contrato:
+{{tipoContratoFuncionario}}
+
+Carga horária mensal:
+{{cargaHorariaMensalFuncionario}}
+
+Salário base:
+{{salarioBaseFuncionario}}
+
+O presente contrato de experiência observará as normas internas da instituição e a legislação aplicável.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+EMPREGADOR:
+{{nomeInstituicao}}
+CNPJ: {{cnpjInstituicao}}
+
+EMPREGADO(A):
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "TERMO_LGPD_RH":
+      return `TERMO DE CIÊNCIA E CONSENTIMENTO - LGPD
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+O colaborador declara ciência de que seus dados pessoais poderão ser tratados pela instituição {{nomeInstituicao}} para fins administrativos, trabalhistas, legais, contábeis, previdenciários, fiscais e operacionais, conforme legislação aplicável.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "TERMO_EQUIPAMENTOS":
+      return `TERMO DE RESPONSABILIDADE PELO USO DE EQUIPAMENTOS
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+O colaborador declara receber equipamentos, materiais ou acessos institucionais necessários ao desempenho de suas atividades, comprometendo-se a utilizá-los com zelo, responsabilidade e exclusivamente para fins profissionais.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "DOCUMENTO_RH":
+      return `DOCUMENTO RH
+
+Funcionário:
+{{nomeFuncionario}}
+
+CPF:
+{{cpfFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Departamento:
+{{departamentoFuncionario}}
+
+Conteúdo do documento:
+
+Digite aqui o conteúdo do documento RH personalizado.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+____________________________________
+{{nomeFuncionario}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
+    case "SUSPENSAO":
+  return `SUSPENSÃO DISCIPLINAR
+
+Ao(À) colaborador(a):
+
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+Cargo: {{cargoFuncionario}}
+Departamento: {{departamentoFuncionario}}
+
+Comunicamos a aplicação de suspensão disciplinar em razão do seguinte fato:
+
+{{motivoSuspensao}}
+
+Descrição detalhada:
+
+{{descricaoSuspensao}}
+
+Período de suspensão:
+
+Início: {{dataInicioSuspensao}}
+Fim: {{dataFimSuspensao}}
+
+Quantidade de dias:
+{{diasSuspensao}}
+
+Durante o período acima informado, o colaborador ficará afastado de suas atividades laborais sem prejuízo das demais obrigações previstas na legislação e regulamentos internos aplicáveis.
+
+O colaborador declara estar ciente da presente suspensão disciplinar.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+CIENTE:
+
+____________________________________
+{{nomeFuncionario}}
+
+EMPREGADOR:
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
     case "HISTORICO":
       return `[CABEÇALHO INSTITUCIONAL]
 
