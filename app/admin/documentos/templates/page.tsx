@@ -838,60 +838,70 @@ const descricoesVariaveis: Record<
     titulo: "Logo da instituição",
     descricao: "Insere a logo cadastrada da instituição.",
     ondeUsar: "Cabeçalhos de históricos, certificados e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["logo", "marca", "brasão", "imagem da escola", "logo da escola", "logo da faculdade"],
   },
   "{{nomeInstituicao}}": {
     titulo: "Nome da instituição",
     descricao: "Mostra o nome fantasia da instituição cadastrada.",
     ondeUsar: "Cabeçalhos, rodapés, contratos, declarações e históricos.",
+    categoria: "Documentos Gerais",
     palavras: ["nome da escola", "nome da faculdade", "instituição", "faculdade", "escola"],
   },
   "{{cnpjInstituicao}}": {
     titulo: "CNPJ da instituição",
     descricao: "Mostra o CNPJ cadastrado da instituição.",
     ondeUsar: "Contratos, recibos, históricos, certificados e rodapés.",
+    categoria: "Documentos Gerais",
     palavras: ["cnpj", "cnpj da escola", "cnpj da faculdade", "documento da instituição"],
   },
   "{{enderecoInstituicao}}": {
     titulo: "Endereço da instituição",
     descricao: "Mostra o endereço completo cadastrado da instituição.",
     ondeUsar: "Cabeçalhos, contratos, declarações e rodapés.",
+    categoria: "Documentos Gerais",
     palavras: ["endereço", "rua", "local da escola", "localização"],
   },
   "{{telefoneInstituicao}}": {
     titulo: "Telefone da instituição",
     descricao: "Mostra o telefone cadastrado da instituição.",
     ondeUsar: "Cabeçalhos, contratos e rodapés.",
+    categoria: "Documentos Gerais",
     palavras: ["telefone", "contato", "whatsapp", "número da escola"],
   },
   "{{emailInstituicao}}": {
     titulo: "E-mail da instituição",
     descricao: "Mostra o e-mail institucional cadastrado.",
     ondeUsar: "Cabeçalhos, contratos e rodapés.",
+    categoria: "Documentos Gerais",
     palavras: ["email", "e-mail", "contato", "email da escola"],
   },
   "{{cidadeInstituicao}}": {
     titulo: "Cidade da instituição",
     descricao: "Mostra a cidade cadastrada da instituição.",
     ondeUsar: "Cabeçalhos, declarações, contratos e assinaturas.",
+    categoria: "Documentos Gerais",
     palavras: ["cidade", "município", "cidade da escola"],
   },
   "{{estadoInstituicao}}": {
     titulo: "Estado da instituição",
     descricao: "Mostra o estado/UF cadastrado da instituição.",
     ondeUsar: "Cabeçalhos, contratos e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["estado", "uf", "estado da escola"],
   },
   "{{cepInstituicao}}": {
     titulo: "CEP da instituição",
     descricao: "Mostra o CEP cadastrado da instituição.",
     ondeUsar: "Cabeçalhos, contratos e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["cep", "código postal"],
   },
   "{{blocoInstituicao}}": {
     titulo: "Bloco completo da instituição",
     descricao: "Insere nome, CNPJ, endereço, telefone e e-mail da instituição.",
     ondeUsar: "Cabeçalho de históricos, contratos, declarações e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["dados da escola", "dados da instituição", "cabeçalho", "bloco da escola"],
   },
 
@@ -899,48 +909,56 @@ const descricoesVariaveis: Record<
     titulo: "Nome do aluno",
     descricao: "Mostra o nome completo do aluno cadastrado.",
     ondeUsar: "Todos os documentos acadêmicos.",
+    categoria: "Documentos Gerais",
     palavras: ["aluno", "estudante", "nome do aluno", "nome estudante"],
   },
   "{{cpfAluno}}": {
     titulo: "CPF do aluno",
     descricao: "Mostra o CPF cadastrado no perfil do aluno.",
     ondeUsar: "Contratos, históricos, certificados e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["cpf", "cpf estudante", "documento do aluno"],
   },
   "{{rgAluno}}": {
     titulo: "RG do aluno",
     descricao: "Mostra o RG cadastrado do aluno.",
     ondeUsar: "Históricos, declarações e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["rg", "identidade", "documento identidade"],
   },
   "{{orgaoExpedidorAluno}}": {
     titulo: "Órgão expedidor do aluno",
     descricao: "Mostra o órgão expedidor do RG do aluno.",
     ondeUsar: "Históricos e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["órgão expedidor", "orgao expedidor", "rg"],
   },
   "{{dataNascimentoAluno}}": {
     titulo: "Data de nascimento do aluno",
     descricao: "Mostra a data de nascimento cadastrada do aluno.",
     ondeUsar: "Históricos, declarações e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["nascimento", "data nascimento", "idade"],
   },
   "{{naturalidadeAluno}}": {
     titulo: "Naturalidade do aluno",
     descricao: "Mostra a cidade/estado de naturalidade do aluno.",
     ondeUsar: "Históricos acadêmicos e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["naturalidade", "cidade natal"],
   },
   "{{nacionalidadeAluno}}": {
     titulo: "Nacionalidade do aluno",
     descricao: "Mostra a nacionalidade cadastrada do aluno.",
     ondeUsar: "Históricos acadêmicos e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["nacionalidade", "país", "brasileiro"],
   },
   "{{sexoAluno}}": {
     titulo: "Sexo do aluno",
     descricao: "Mostra o sexo cadastrado do aluno.",
     ondeUsar: "Históricos e documentos oficiais quando necessário.",
+    categoria: "Documentos Gerais",
     palavras: ["sexo", "gênero"],
   },
 
@@ -948,48 +966,56 @@ const descricoesVariaveis: Record<
     titulo: "Matrícula do aluno",
     descricao: "Mostra o número de matrícula do aluno.",
     ondeUsar: "Históricos, contratos, certificados e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["matrícula", "numero da matrícula", "registro acadêmico"],
   },
   "{{numeroMatricula}}": {
     titulo: "Número da matrícula",
     descricao: "Mostra o número de matrícula do aluno.",
     ondeUsar: "Históricos e documentos acadêmicos.",
+    categoria: "Documentos Gerais",
     palavras: ["número matrícula", "matrícula", "registro"],
   },
   "{{statusAluno}}": {
     titulo: "Status do aluno",
     descricao: "Mostra a situação cadastral do aluno.",
     ondeUsar: "Históricos, declarações e relatórios acadêmicos.",
+    categoria: "Documentos Gerais",
     palavras: ["status", "situação do aluno", "ativo", "inativo", "concluído"],
   },
   "{{statusMatricula}}": {
     titulo: "Status da matrícula",
     descricao: "Mostra a situação da matrícula no curso.",
     ondeUsar: "Históricos, contratos e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["status matrícula", "situação matrícula", "ativa", "desistência", "trancada"],
   },
   "{{dataMatricula}}": {
     titulo: "Data da matrícula",
     descricao: "Mostra a data em que a matrícula foi criada.",
     ondeUsar: "Contratos, históricos e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["data matrícula", "ingresso", "entrada"],
   },
   "{{dataInicioAluno}}": {
     titulo: "Data de início do aluno",
     descricao: "Mostra a data de início/ingresso do aluno.",
     ondeUsar: "Históricos, contratos e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["data início", "começou", "ingresso", "entrada"],
   },
   "{{dataConclusao}}": {
     titulo: "Data de conclusão",
     descricao: "Mostra a data de conclusão da matrícula quando houver.",
     ondeUsar: "Históricos, certificados e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["conclusão", "finalizou", "terminou"],
   },
   "{{dataConclusaoAluno}}": {
     titulo: "Data de conclusão do aluno",
     descricao: "Mostra a data de conclusão do aluno no curso.",
     ondeUsar: "Históricos, certificados e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["data conclusão", "conclusão do curso", "formatura"],
   },
 
@@ -997,54 +1023,63 @@ const descricoesVariaveis: Record<
     titulo: "Nome do curso",
     descricao: "Mostra o curso vinculado ao aluno.",
     ondeUsar: "Históricos, certificados, contratos e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["curso", "nome do curso", "bacharelado", "graduação", "teologia"],
   },
   "{{semestreAtual}}": {
     titulo: "Semestre atual",
     descricao: "Mostra o semestre atual do aluno no curso.",
     ondeUsar: "Históricos e relatórios acadêmicos.",
+    categoria: "Documentos Gerais",
     palavras: ["semestre", "período", "fase atual"],
   },
   "{{cargaHorariaCurso}}": {
     titulo: "Carga horária do curso",
     descricao: "Mostra a carga horária total cadastrada para o curso.",
     ondeUsar: "Históricos, certificados e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["carga horária", "horas do curso", "total de horas"],
   },
   "{{cargaHorariaMinimaCurso}}": {
     titulo: "Carga horária mínima do curso",
     descricao: "Mostra a carga horária mínima exigida do curso.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["carga mínima", "horas mínimas"],
   },
   "{{cargaHorariaMaximaCurso}}": {
     titulo: "Carga horária máxima do curso",
     descricao: "Mostra a carga horária máxima prevista do curso.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["carga máxima", "horas máximas"],
   },
   "{{percentualConclusao}}": {
     titulo: "Percentual de conclusão",
     descricao: "Mostra o percentual de conclusão do curso/matrícula.",
     ondeUsar: "Históricos e relatórios acadêmicos.",
+    categoria: "Histórico",
     palavras: ["percentual", "progresso", "conclusão", "andamento"],
   },
   "{{curriculoAluno}}": {
     titulo: "Currículo do aluno",
     descricao: "Mostra o currículo ou grade curricular vinculada ao aluno.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["currículo", "grade", "matriz curricular"],
   },
   "{{formaIngressoAluno}}": {
     titulo: "Forma de ingresso",
     descricao: "Mostra como o aluno ingressou no curso.",
     ondeUsar: "Históricos e documentos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["forma ingresso", "entrada", "vestibular", "transferência"],
   },
   "{{situacaoAcademicaAluno}}": {
     titulo: "Situação acadêmica",
     descricao: "Mostra a situação acadêmica do aluno.",
     ondeUsar: "Históricos e declarações.",
+    categoria: "Histórico",
     palavras: ["situação acadêmica", "status acadêmico", "ativo", "concluído"],
   },
 
@@ -1052,24 +1087,28 @@ const descricoesVariaveis: Record<
     titulo: "Lista de disciplinas",
     descricao: "Lista as disciplinas vinculadas ao aluno ou matrícula.",
     ondeUsar: "Históricos, contratos e declarações acadêmicas.",
+    categoria: "Histórico",
     palavras: ["disciplinas", "matérias", "componentes curriculares", "grade"],
   },
   "{{disciplinasPorSemestre}}": {
     titulo: "Disciplinas por semestre",
     descricao: "Lista as disciplinas organizadas por semestre/período.",
     ondeUsar: "Históricos acadêmicos de faculdade ou curso superior.",
+    categoria: "Histórico",
     palavras: ["disciplinas semestre", "matérias por período", "grade por semestre"],
   },
   "{{disciplinasBaseNacionalComum}}": {
     titulo: "Disciplinas da Base Nacional Comum",
     descricao: "Lista disciplinas da Base Nacional Comum.",
     ondeUsar: "Históricos do ensino fundamental e médio.",
+    categoria: "Histórico",
     palavras: ["base nacional", "bncc", "ensino médio", "ensino fundamental"],
   },
   "{{disciplinasParteDiversificada}}": {
     titulo: "Disciplinas da Parte Diversificada",
     descricao: "Lista disciplinas da parte diversificada do currículo.",
     ondeUsar: "Históricos do ensino fundamental e médio.",
+    categoria: "Histórico",
     palavras: ["parte diversificada", "currículo", "ensino médio"],
   },
 
@@ -1077,60 +1116,70 @@ const descricoesVariaveis: Record<
     titulo: "H/A máxima do curso",
     descricao: "Mostra a carga horária/aulas máxima do curso.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["ha máxima", "hora aula máxima", "carga máxima"],
   },
   "{{haTotalCursada}}": {
     titulo: "H/A total cursada",
     descricao: "Mostra o total de horas/aula cursadas pelo aluno.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["horas cursadas", "ha cursada", "total cursado"],
   },
   "{{haTotalAprovada}}": {
     titulo: "H/A total aprovada",
     descricao: "Mostra o total de horas/aula aprovadas pelo aluno.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["horas aprovadas", "ha aprovada", "total aprovado"],
   },
   "{{indiceAproveitamentoSemestral}}": {
     titulo: "Índice de aproveitamento semestral",
     descricao: "Mostra o índice de aproveitamento do semestre.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["ia", "índice", "aproveitamento semestral"],
   },
   "{{indiceAproveitamentoAcumulado}}": {
     titulo: "Índice de aproveitamento acumulado",
     descricao: "Mostra o índice de aproveitamento acumulado do aluno.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["iaa", "aproveitamento acumulado"],
   },
   "{{indiceAproveitamentoAprovadas}}": {
     titulo: "Índice de aproveitamento das aprovadas",
     descricao: "Mostra o índice considerando disciplinas aprovadas.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["iap", "aprovadas", "índice aprovadas"],
   },
   "{{prazoIntegralizacao}}": {
     titulo: "Prazo de integralização",
     descricao: "Mostra o prazo previsto para integralização do curso.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["integralização", "prazo", "concluir curso"],
   },
   "{{semestresCursados}}": {
     titulo: "Semestres cursados",
     descricao: "Mostra a quantidade de semestres cursados pelo aluno.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Histórico",
     palavras: ["semestres cursados", "períodos cursados"],
   },
   "{{semestresRevalidados}}": {
     titulo: "Semestres revalidados",
     descricao: "Mostra semestres aproveitados ou revalidados.",
     ondeUsar: "Históricos acadêmicos.",
+    categoria: "Documentos Gerais",
     palavras: ["revalidados", "aproveitamento", "semestres aproveitados"],
   },
   "{{provavelSemestreFormatura}}": {
     titulo: "Provável semestre de formatura",
     descricao: "Mostra o semestre previsto para conclusão/formatura.",
     ondeUsar: "Históricos e relatórios acadêmicos.",
+    categoria: "Documentos Gerais",
     palavras: ["formatura", "previsão conclusão", "provável formatura"],
   },
 
@@ -1138,48 +1187,56 @@ const descricoesVariaveis: Record<
     titulo: "Nome do polo",
     descricao: "Mostra o nome do polo/unidade vinculada ao aluno.",
     ondeUsar: "Históricos, contratos e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["polo", "unidade", "campus"],
   },
   "{{enderecoPolo}}": {
     titulo: "Endereço do polo",
     descricao: "Mostra o endereço cadastrado do polo.",
     ondeUsar: "Documentos por unidade, polo ou campus.",
+    categoria: "Documentos Gerais",
     palavras: ["endereço polo", "unidade", "campus"],
   },
   "{{telefonePolo}}": {
     titulo: "Telefone do polo",
     descricao: "Mostra o telefone cadastrado do polo.",
     ondeUsar: "Cabeçalhos e documentos por polo.",
+    categoria: "Documentos Gerais",
     palavras: ["telefone polo", "contato polo"],
   },
   "{{emailPolo}}": {
     titulo: "E-mail do polo",
     descricao: "Mostra o e-mail cadastrado do polo.",
     ondeUsar: "Cabeçalhos e documentos por polo.",
+    categoria: "Documentos Gerais",
     palavras: ["email polo", "contato polo"],
   },
   "{{cidadePolo}}": {
     titulo: "Cidade do polo",
     descricao: "Mostra a cidade cadastrada do polo.",
     ondeUsar: "Documentos por polo/unidade.",
+    categoria: "Documentos Gerais",
     palavras: ["cidade polo", "município polo"],
   },
   "{{estadoPolo}}": {
     titulo: "Estado do polo",
     descricao: "Mostra o estado/UF do polo.",
     ondeUsar: "Documentos por polo/unidade.",
+    categoria: "Documentos Gerais",
     palavras: ["estado polo", "uf polo"],
   },
   "{{cepPolo}}": {
     titulo: "CEP do polo",
     descricao: "Mostra o CEP cadastrado do polo.",
     ondeUsar: "Documentos por polo/unidade.",
+    categoria: "Documentos Gerais",
     palavras: ["cep polo", "código postal polo"],
   },
   "{{blocoPolo}}": {
     titulo: "Bloco completo do polo",
     descricao: "Insere nome, endereço, telefone e e-mail do polo.",
     ondeUsar: "Cabeçalhos e documentos por unidade.",
+    categoria: "Documentos Gerais",
     palavras: ["dados do polo", "dados da unidade", "campus"],
   },
 
@@ -1187,18 +1244,21 @@ const descricoesVariaveis: Record<
     titulo: "Imagem da assinatura do diretor",
     descricao: "Insere apenas a imagem da assinatura cadastrada.",
     ondeUsar: "Área visual de assinatura.",
+    categoria: "Assinatura de diretor",
     palavras: ["assinatura", "imagem assinatura", "assinatura diretor"],
   },
   "{{blocoAssinaturaDiretor}}": {
     titulo: "Bloco de assinatura do diretor",
     descricao: "Insere assinatura, nome, cargo e instituição do responsável.",
     ondeUsar: "Final de históricos, certificados, contratos e declarações.",
+    categoria: "Documentos Gerais",
     palavras: ["assinatura diretor", "assinatura reitor", "responsável", "coordenador"],
   },
   "{{responsavelLegal}}": {
     titulo: "Responsável legal",
     descricao: "Mostra o responsável legal cadastrado pela instituição.",
     ondeUsar: "Contratos, declarações e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["responsável", "diretor", "representante legal"],
   },
 
@@ -1206,12 +1266,14 @@ const descricoesVariaveis: Record<
     titulo: "Valor do contrato",
     descricao: "Mostra o valor financeiro vinculado ao contrato ou matrícula.",
     ondeUsar: "Contratos, recibos e comprovantes.",
+    categoria: "Contratos e Comprovantes",
     palavras: ["valor", "pagamento", "mensalidade", "preço"],
   },
   "{{referenciaFinanceira}}": {
     titulo: "Referência financeira",
     descricao: "Mostra a referência financeira do pagamento/documento.",
     ondeUsar: "Recibos e comprovantes.",
+    categoria: "Comprovantes",
     palavras: ["referência", "pagamento", "financeiro"],
   },
 
@@ -1219,30 +1281,35 @@ const descricoesVariaveis: Record<
     titulo: "Data atual",
     descricao: "Mostra a data do dia em que o documento foi gerado.",
     ondeUsar: "Todos os documentos.",
+    categoria: "Documentos Gerais",
     palavras: ["data", "hoje", "emitido em"],
   },
   "{{dataEmissao}}": {
     titulo: "Data de emissão",
     descricao: "Mostra a data de emissão do documento.",
     ondeUsar: "Rodapés e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["emissão", "data emissão", "emitido"],
   },
   "{{horaEmissao}}": {
     titulo: "Hora de emissão",
     descricao: "Mostra a hora em que o documento foi emitido.",
     ondeUsar: "Rodapés e validação documental.",
+    categoria: "Documentos Gerais",
     palavras: ["hora", "horário", "hora emissão"],
   },
   "{{dataHoraEmissao}}": {
     titulo: "Data e hora de emissão",
     descricao: "Mostra data e hora completas da emissão.",
     ondeUsar: "Documentos oficiais e validação.",
+    categoria: "Documentos Gerais",
     palavras: ["data e hora", "emissão completa", "horário"],
   },
   "{{cidadeAssinatura}}": {
     titulo: "Cidade da assinatura",
     descricao: "Mostra a cidade usada no local de assinatura.",
     ondeUsar: "Final de contratos, declarações e recibos.",
+    categoria: "Documentos Gerais",
     palavras: ["cidade assinatura", "local assinatura"],
   },
 
@@ -1250,24 +1317,28 @@ const descricoesVariaveis: Record<
     titulo: "Número do documento",
     descricao: "Mostra o número identificador do documento gerado.",
     ondeUsar: "Rodapés, protocolos e validação.",
+    categoria: "Documentos Gerais",
     palavras: ["número documento", "protocolo", "identificador"],
   },
   "{{codigoValidacao}}": {
     titulo: "Código de validação",
     descricao: "Mostra o código usado para validar a autenticidade do documento.",
     ondeUsar: "Rodapé de históricos, certificados e documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["validação", "autenticidade", "código validar", "validar documento"],
   },
   "{{urlValidacao}}": {
     titulo: "Link de validação",
     descricao: "Mostra o endereço onde o documento pode ser validado.",
     ondeUsar: "Rodapé de documentos oficiais.",
+    categoria: "Documentos Gerais",
     palavras: ["link validação", "site validar", "url validar"],
   },
   "{{tituloDocumento}}": {
     titulo: "Título do documento",
     descricao: "Mostra o título personalizado informado para o documento.",
     ondeUsar: "Documentos personalizados.",
+    categoria: "Documentos Gerais",
     palavras: ["título", "nome documento", "documento"],
   },
 
@@ -1275,24 +1346,28 @@ const descricoesVariaveis: Record<
     titulo: "Ato legal de criação",
     descricao: "Mostra o ato legal de criação/autorização da instituição ou curso.",
     ondeUsar: "Históricos oficiais e documentos regulatórios.",
+    categoria: "Histórico Aluno",
     palavras: ["ato legal", "autorização", "criação"],
   },
   "{{numeroAutorizacaoCurso}}": {
     titulo: "Número de autorização do curso",
     descricao: "Mostra o número de autorização do curso.",
     ondeUsar: "Históricos e documentos oficiais.",
+    categoria: "Histórico Aluno",
     palavras: ["autorização curso", "número autorização"],
   },
   "{{dataPublicacaoAutorizacao}}": {
     titulo: "Data de publicação da autorização",
     descricao: "Mostra a data de publicação da autorização do curso.",
     ondeUsar: "Históricos e documentos oficiais.",
+    categoria: "Histórico Aluno",
     palavras: ["data publicação", "autorização", "diário oficial"],
   },
   "{{diarioOficialAutorizacao}}": {
     titulo: "Diário oficial da autorização",
     descricao: "Mostra o diário oficial ou referência de publicação da autorização.",
     ondeUsar: "Históricos e documentos oficiais.",
+    categoria: "Histórico Aluno",
     palavras: ["diário oficial", "publicação", "autorização"],
   },
 
@@ -1300,24 +1375,28 @@ const descricoesVariaveis: Record<
     titulo: "Total de aulas da Base Nacional Comum",
     descricao: "Mostra o total de aulas da Base Nacional Comum.",
     ondeUsar: "Históricos do ensino fundamental e médio.",
+    categoria: "Histórico Aluno",
     palavras: ["total base nacional", "base comum", "ensino médio"],
   },
   "{{totalAulasParteDiversificada}}": {
     titulo: "Total de aulas da Parte Diversificada",
     descricao: "Mostra o total de aulas da parte diversificada.",
     ondeUsar: "Históricos do ensino fundamental e médio.",
+    categoria: "Histórico Aluno",
     palavras: ["parte diversificada", "total aulas"],
   },
   "{{totalCargaHorariaAnualAulas}}": {
     titulo: "Total anual em aulas",
     descricao: "Mostra o total de carga horária anual em aulas.",
     ondeUsar: "Históricos escolares.",
+    categoria: "Histórico Aluno",
     palavras: ["total anual aulas", "carga anual"],
   },
   "{{totalCargaHorariaAnualHoras}}": {
     titulo: "Total anual em horas",
     descricao: "Mostra o total de carga horária anual em horas.",
     ondeUsar: "Históricos escolares.",
+    categoria: "Histórico Aluno",
     palavras: ["total anual horas", "carga horária anual"],
   },
 
@@ -1325,30 +1404,35 @@ const descricoesVariaveis: Record<
     titulo: "Observações do histórico",
     descricao: "Mostra observações acadêmicas do histórico.",
     ondeUsar: "Campo de observações do histórico acadêmico.",
+    categoria: "Histórico Aluno",
     palavras: ["observações", "observação", "histórico observação"],
   },
   "{{legendaHistorico}}": {
     titulo: "Legenda do histórico",
     descricao: "Mostra legenda de notas, frequência, siglas e situação acadêmica.",
     ondeUsar: "Rodapé ou observações de históricos.",
+    categoria: "Histórico Aluno",
     palavras: ["legenda", "siglas", "notas", "frequência"],
   },
   "{{certificacaoDeclaracao}}": {
     titulo: "Certificação ou declaração",
     descricao: "Texto de certificação/declaratória usado no histórico.",
     ondeUsar: "Históricos escolares e documentos oficiais.",
+    categoria: "Histórico Aluno",
     palavras: ["certifico", "declaro", "certificação", "declaração"],
   },
   "{{escolaOrigem}}": {
     titulo: "Escola de origem",
     descricao: "Mostra a escola de origem do aluno quando cadastrada.",
     ondeUsar: "Históricos escolares e documentos de transferência.",
+    categoria: "Histórico Aluno",
     palavras: ["escola origem", "transferência", "instituição anterior"],
   },
     "{{nomeFuncionario}}": {
     titulo: "Nome do funcionário",
     descricao: "Mostra o nome completo do funcionário.",
     ondeUsar: "Contratos de trabalho, holerites, férias, advertências e rescisões.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["funcionário", "colaborador", "nome funcionário"],
   },
 
@@ -1356,6 +1440,7 @@ const descricoesVariaveis: Record<
     titulo: "CPF do funcionário",
     descricao: "Mostra o CPF cadastrado do funcionário.",
     ondeUsar: "Documentos trabalhistas e contratuais.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["cpf", "documento", "cpf funcionário"],
   },
 
@@ -1363,6 +1448,7 @@ const descricoesVariaveis: Record<
     titulo: "RG do funcionário",
     descricao: "Mostra o RG cadastrado do funcionário.",
     ondeUsar: "Contratos e documentos trabalhistas.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["rg", "identidade", "documento"],
   },
 
@@ -1370,6 +1456,7 @@ const descricoesVariaveis: Record<
     titulo: "PIS/PASEP",
     descricao: "Mostra o número do PIS/PASEP do funcionário.",
     ondeUsar: "Holerites, admissões e documentos trabalhistas.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["pis", "pasep", "número pis"],
   },
 
@@ -1377,6 +1464,7 @@ const descricoesVariaveis: Record<
     titulo: "Código do funcionário",
     descricao: "Mostra o código interno do colaborador.",
     ondeUsar: "Holerites e relatórios.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["código", "matrícula funcionário"],
   },
 
@@ -1384,6 +1472,7 @@ const descricoesVariaveis: Record<
     titulo: "Cargo do funcionário",
     descricao: "Mostra o cargo atual do colaborador.",
     ondeUsar: "Contratos, holerites e documentos RH.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["cargo", "função", "ocupação"],
   },
 
@@ -1391,6 +1480,7 @@ const descricoesVariaveis: Record<
     titulo: "Departamento",
     descricao: "Mostra o departamento do funcionário.",
     ondeUsar: "Documentos RH e relatórios.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["departamento", "setor", "área"],
   },
 
@@ -1398,6 +1488,7 @@ const descricoesVariaveis: Record<
     titulo: "Salário base",
     descricao: "Mostra o salário base cadastrado.",
     ondeUsar: "Contratos e holerites.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["salário", "salário base", "remuneração"],
   },
 
@@ -1405,6 +1496,7 @@ const descricoesVariaveis: Record<
     titulo: "Tipo de contrato",
     descricao: "Mostra o tipo de contrato do colaborador.",
     ondeUsar: "Contratos e documentos RH.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["contrato", "clt", "pj", "temporário"],
   },
 
@@ -1412,6 +1504,7 @@ const descricoesVariaveis: Record<
     titulo: "Carga horária mensal",
     descricao: "Mostra a carga horária mensal cadastrada.",
     ondeUsar: "Contratos e documentos trabalhistas.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["carga horária", "horas mensais"],
   },
 
@@ -1419,6 +1512,7 @@ const descricoesVariaveis: Record<
     titulo: "Data de admissão",
     descricao: "Mostra a data de admissão do funcionário.",
     ondeUsar: "Contratos, férias e documentos RH.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["admissão", "entrada", "início"],
   },
 
@@ -1426,6 +1520,7 @@ const descricoesVariaveis: Record<
     titulo: "Data de desligamento",
     descricao: "Mostra a data de desligamento quando existir.",
     ondeUsar: "Rescisões e documentos de demissão.",
+    categoria: "Cadastro do Funcionário",
     palavras: ["desligamento", "demissão", "saída"],
   },
 
@@ -1433,6 +1528,7 @@ const descricoesVariaveis: Record<
     titulo: "Competência mês",
     descricao: "Mostra o mês de referência do holerite.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["competência", "mês folha"],
   },
 
@@ -1440,6 +1536,7 @@ const descricoesVariaveis: Record<
     titulo: "Competência ano",
     descricao: "Mostra o ano de referência do holerite.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["competência", "ano folha"],
   },
 
@@ -1447,6 +1544,7 @@ const descricoesVariaveis: Record<
     titulo: "Competência completa",
     descricao: "Mostra mês e ano da folha.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["competência", "folha pagamento"],
   },
 
@@ -1454,6 +1552,7 @@ const descricoesVariaveis: Record<
     titulo: "Total de vencimentos",
     descricao: "Mostra a soma de todos os proventos.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["vencimentos", "proventos", "ganhos"],
   },
 
@@ -1461,6 +1560,7 @@ const descricoesVariaveis: Record<
     titulo: "Total de descontos",
     descricao: "Mostra a soma dos descontos da folha.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["descontos", "abatimentos"],
   },
 
@@ -1468,6 +1568,7 @@ const descricoesVariaveis: Record<
     titulo: "Valor líquido",
     descricao: "Mostra o valor líquido do holerite.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["líquido", "valor final", "receber"],
   },
 
@@ -1475,6 +1576,7 @@ const descricoesVariaveis: Record<
     titulo: "Base INSS",
     descricao: "Mostra a base de cálculo do INSS.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["inss", "base inss"],
   },
 
@@ -1482,6 +1584,7 @@ const descricoesVariaveis: Record<
     titulo: "Base FGTS",
     descricao: "Mostra a base de cálculo do FGTS.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["fgts", "base fgts"],
   },
 
@@ -1489,6 +1592,7 @@ const descricoesVariaveis: Record<
     titulo: "FGTS do mês",
     descricao: "Mostra o valor de FGTS do período.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["fgts", "fgts mês"],
   },
 
@@ -1496,12 +1600,14 @@ const descricoesVariaveis: Record<
     titulo: "Base IRRF",
     descricao: "Mostra a base de cálculo do IRRF.",
     ondeUsar: "Holerites.",
+    categoria: "Holerite",
     palavras: ["irrf", "imposto renda"],
   },
     "{{periodoAquisitivoInicio}}": {
     titulo: "Início do período aquisitivo",
     descricao: "Mostra a data inicial do período aquisitivo das férias.",
     ondeUsar: "Aviso e recibo de férias.",
+    categoria: "Férias",
     palavras: ["férias", "período aquisitivo", "início férias"],
   },
 
@@ -1509,6 +1615,7 @@ const descricoesVariaveis: Record<
     titulo: "Fim do período aquisitivo",
     descricao: "Mostra a data final do período aquisitivo das férias.",
     ondeUsar: "Aviso e recibo de férias.",
+    categoria: "Férias",
     palavras: ["férias", "período aquisitivo", "fim férias"],
   },
 
@@ -1516,6 +1623,7 @@ const descricoesVariaveis: Record<
     titulo: "Início do gozo de férias",
     descricao: "Mostra a data de início das férias.",
     ondeUsar: "Aviso e recibo de férias.",
+    categoria: "Férias",
     palavras: ["gozo", "férias", "início férias"],
   },
 
@@ -1523,6 +1631,7 @@ const descricoesVariaveis: Record<
     titulo: "Fim do gozo de férias",
     descricao: "Mostra a data final das férias.",
     ondeUsar: "Aviso e recibo de férias.",
+    categoria: "Férias",
     palavras: ["gozo", "fim férias", "retorno"],
   },
 
@@ -1530,6 +1639,7 @@ const descricoesVariaveis: Record<
     titulo: "Quantidade de dias de férias",
     descricao: "Mostra a quantidade de dias concedidos.",
     ondeUsar: "Aviso e recibo de férias.",
+    categoria: "Férias",
     palavras: ["dias férias", "30 dias", "período férias"],
   },
 
@@ -1537,6 +1647,7 @@ const descricoesVariaveis: Record<
     titulo: "Data de pagamento das férias",
     descricao: "Mostra a data do pagamento das férias.",
     ondeUsar: "Recibo de férias.",
+    categoria: "Férias",
     palavras: ["pagamento férias", "recebimento férias"],
   },
 
@@ -1544,6 +1655,7 @@ const descricoesVariaveis: Record<
     titulo: "Retorno ao trabalho",
     descricao: "Mostra a data prevista de retorno após as férias.",
     ondeUsar: "Aviso e recibo de férias.",
+    categoria: "Férias",
     palavras: ["retorno", "volta trabalho"],
   },
 
@@ -1551,6 +1663,7 @@ const descricoesVariaveis: Record<
     titulo: "Valor das férias",
     descricao: "Mostra o valor bruto das férias.",
     ondeUsar: "Recibo de férias.",
+    categoria: "Férias",
     palavras: ["valor férias", "férias bruto"],
   },
 
@@ -1558,6 +1671,7 @@ const descricoesVariaveis: Record<
     titulo: "Terço constitucional",
     descricao: "Mostra o valor do adicional de 1/3 de férias.",
     ondeUsar: "Recibo de férias.",
+    categoria: "Férias",
     palavras: ["1/3", "terço constitucional"],
   },
 
@@ -1565,6 +1679,7 @@ const descricoesVariaveis: Record<
     titulo: "Valor líquido das férias",
     descricao: "Mostra o valor líquido a receber.",
     ondeUsar: "Recibo de férias.",
+    categoria: "Férias",
     palavras: ["líquido férias", "receber férias"],
   },
 
@@ -1572,6 +1687,7 @@ const descricoesVariaveis: Record<
     titulo: "Motivo da demissão",
     descricao: "Mostra o motivo informado para desligamento.",
     ondeUsar: "Demissão, rescisão e TRCT.",
+    categoria: "Rescisão",
     palavras: ["motivo demissão", "desligamento"],
   },
 
@@ -1579,6 +1695,7 @@ const descricoesVariaveis: Record<
     titulo: "Tipo de rescisão",
     descricao: "Mostra o tipo de rescisão aplicada.",
     ondeUsar: "TRCT e documentos rescisórios.",
+    categoria: "Rescisão",
     palavras: ["rescisão", "tipo rescisão"],
   },
 
@@ -1586,6 +1703,7 @@ const descricoesVariaveis: Record<
     titulo: "Data da demissão",
     descricao: "Mostra a data oficial de desligamento.",
     ondeUsar: "TRCT e documentos rescisórios.",
+    categoria: "Rescisão",
     palavras: ["demissão", "desligamento", "saída"],
   },
 
@@ -1593,6 +1711,7 @@ const descricoesVariaveis: Record<
     titulo: "Saldo de salário",
     descricao: "Mostra o saldo de salário calculado na rescisão.",
     ondeUsar: "TRCT.",
+    categoria: "Rescisão",
     palavras: ["saldo salário", "rescisão"],
   },
 
@@ -1600,6 +1719,7 @@ const descricoesVariaveis: Record<
     titulo: "Férias vencidas",
     descricao: "Mostra o valor das férias vencidas.",
     ondeUsar: "TRCT.",
+    categoria: "Rescisão",
     palavras: ["férias vencidas"],
   },
 
@@ -1607,6 +1727,7 @@ const descricoesVariaveis: Record<
     titulo: "Férias proporcionais",
     descricao: "Mostra o valor das férias proporcionais.",
     ondeUsar: "TRCT.",
+    categoria: "Rescisão",
     palavras: ["férias proporcionais"],
   },
 
@@ -1614,6 +1735,7 @@ const descricoesVariaveis: Record<
     titulo: "13º proporcional",
     descricao: "Mostra o valor proporcional do décimo terceiro.",
     ondeUsar: "TRCT.",
+    categoria: "Rescisão",
     palavras: ["13º", "décimo terceiro"],
   },
 
@@ -1621,6 +1743,7 @@ const descricoesVariaveis: Record<
     titulo: "Aviso prévio",
     descricao: "Mostra o valor do aviso prévio.",
     ondeUsar: "TRCT e rescisões.",
+    categoria: "Rescisão",
     palavras: ["aviso prévio"],
   },
 
@@ -1628,6 +1751,7 @@ const descricoesVariaveis: Record<
     titulo: "Valor total da rescisão",
     descricao: "Mostra o valor líquido final da rescisão.",
     ondeUsar: "TRCT.",
+    categoria: "Rescisão",
     palavras: ["valor rescisão", "liquido rescisão"],
   },
 
@@ -1635,6 +1759,7 @@ const descricoesVariaveis: Record<
     titulo: "Motivo da advertência",
     descricao: "Mostra o motivo da advertência disciplinar.",
     ondeUsar: "Advertências.",
+    categoria: "Advertência",
     palavras: ["advertência", "motivo advertência"],
   },
 
@@ -1642,6 +1767,7 @@ const descricoesVariaveis: Record<
     titulo: "Descrição da advertência",
     descricao: "Mostra a descrição detalhada da advertência.",
     ondeUsar: "Advertências.",
+    categoria: "Advertência",
     palavras: ["advertência", "ocorrência"],
   },
 
@@ -1649,6 +1775,7 @@ const descricoesVariaveis: Record<
     titulo: "Data da advertência",
     descricao: "Mostra a data da advertência.",
     ondeUsar: "Advertências.",
+    categoria: "Advertência",
     palavras: ["data advertência"],
   },
 
@@ -1656,6 +1783,7 @@ const descricoesVariaveis: Record<
     titulo: "Motivo da suspensão",
     descricao: "Mostra o motivo da suspensão disciplinar.",
     ondeUsar: "Suspensões.",
+    categoria: "Suspensão",
     palavras: ["suspensão", "motivo suspensão"],
   },
 
@@ -1663,6 +1791,7 @@ const descricoesVariaveis: Record<
     titulo: "Descrição da suspensão",
     descricao: "Mostra a descrição da suspensão.",
     ondeUsar: "Suspensões.",
+    categoria: "Suspensão",
     palavras: ["suspensão", "ocorrência"],
   },
 
@@ -1670,6 +1799,7 @@ const descricoesVariaveis: Record<
     titulo: "Início da suspensão",
     descricao: "Mostra a data inicial da suspensão.",
     ondeUsar: "Suspensões.",
+    categoria: "Suspensão",
     palavras: ["início suspensão"],
   },
 
@@ -1677,6 +1807,7 @@ const descricoesVariaveis: Record<
     titulo: "Fim da suspensão",
     descricao: "Mostra a data final da suspensão.",
     ondeUsar: "Suspensões.",
+    categoria: "Suspensão",
     palavras: ["fim suspensão"],
   },
 
@@ -1684,12 +1815,14 @@ const descricoesVariaveis: Record<
     titulo: "Dias de suspensão",
     descricao: "Mostra a quantidade de dias suspensos.",
     ondeUsar: "Suspensões.",
+    categoria: "Suspensão",
     palavras: ["dias suspensão"],
   },
     "{{tipoAso}}": {
     titulo: "Tipo de ASO",
     descricao: "Mostra o tipo do atestado de saúde ocupacional.",
     ondeUsar: "ASO admissional, periódico, retorno, mudança de função e demissional.",
+    categoria: "Medicina Ocupacional",
     palavras: ["aso", "exame ocupacional", "tipo do exame", "tipo do aso", "admissional", "demissional", "periódico", "retorno ao trabalho", "mudança de função"],
   },
 
@@ -1697,6 +1830,7 @@ const descricoesVariaveis: Record<
     titulo: "Número do ASO",
     descricao: "Mostra o número ou identificador do ASO.",
     ondeUsar: "Documentos de medicina ocupacional.",
+    categoria: "Medicina Ocupacional",
     palavras: ["número aso", "aso", "protocolo exame"],
   },
 
@@ -1704,6 +1838,7 @@ const descricoesVariaveis: Record<
     titulo: "Data do ASO",
     descricao: "Mostra a data do exame ocupacional.",
     ondeUsar: "ASO e exames médicos ocupacionais.",
+    categoria: "Medicina Ocupacional",
     palavras: ["data aso", "data exame", "exame ocupacional", "data do exame ocupacional", "data do aso", "quando foi feito o exame", "exame admissional", "exame demissional"],
   },
 
@@ -1711,6 +1846,7 @@ const descricoesVariaveis: Record<
     titulo: "Médico responsável",
     descricao: "Mostra o nome do médico responsável pelo exame.",
     ondeUsar: "ASO e documentos de medicina ocupacional.",
+    categoria: "Medicina Ocupacional",
     palavras: ["médico", "medico", "responsável aso", "médico do exame", "nome do médico", "quem assinou o exame ocupacional"],
   },
 
@@ -1718,6 +1854,7 @@ const descricoesVariaveis: Record<
     titulo: "CRM do médico",
     descricao: "Mostra o CRM do médico responsável.",
     ondeUsar: "ASO e documentos de medicina ocupacional.",
+    categoria: "Medicina Ocupacional",
     palavras: ["crm", "registro médico", "médico", "crm do médico", "número do crm", "registro do médico"],
   },
 
@@ -1725,6 +1862,7 @@ const descricoesVariaveis: Record<
     titulo: "Resultado do ASO",
     descricao: "Mostra o resultado, como apto ou inapto.",
     ondeUsar: "ASO admissional, periódico, retorno, mudança de função e demissional.",
+    categoria: "Medicina Ocupacional",
     palavras: ["apto", "inapto", "resultado aso"],
   },
 
@@ -1732,6 +1870,7 @@ const descricoesVariaveis: Record<
     titulo: "Observações do ASO",
     descricao: "Mostra observações médicas ou ocupacionais do exame.",
     ondeUsar: "ASO e exames médicos ocupacionais.",
+    categoria: "Medicina Ocupacional",
     palavras: ["observações aso", "restrições", "observação médica"],
   },
 
@@ -1739,6 +1878,7 @@ const descricoesVariaveis: Record<
     titulo: "Tipo de afastamento",
     descricao: "Mostra o tipo do afastamento do funcionário.",
     ondeUsar: "Afastamento médico, maternidade, perícia e retorno ao trabalho.",
+    categoria: "Medicina Ocupacional",
     palavras: ["afastamento", "licença", "maternidade", "perícia"],
   },
 
@@ -1746,6 +1886,7 @@ const descricoesVariaveis: Record<
     titulo: "Motivo do afastamento",
     descricao: "Mostra o motivo informado para o afastamento.",
     ondeUsar: "Afastamentos e documentos médicos.",
+    categoria: "Afastamento Funcionário",
     palavras: ["motivo afastamento", "licença", "atestado"],
   },
 
@@ -1753,6 +1894,7 @@ const descricoesVariaveis: Record<
     titulo: "CID do afastamento",
     descricao: "Mostra o CID informado, quando houver autorização e registro.",
     ondeUsar: "Afastamentos médicos e perícias.",
+    categoria: "Afastamento Funcionário",
     palavras: ["cid", "código doença", "afastamento médico"],
   },
 
@@ -1760,6 +1902,7 @@ const descricoesVariaveis: Record<
     titulo: "Início do afastamento",
     descricao: "Mostra a data inicial do afastamento.",
     ondeUsar: "Afastamentos médicos, maternidade e perícia.",
+    categoria: "Afastamento Funcionário",
     palavras: ["início afastamento", "data afastamento"],
   },
 
@@ -1767,6 +1910,7 @@ const descricoesVariaveis: Record<
     titulo: "Fim do afastamento",
     descricao: "Mostra a data final ou prevista do afastamento.",
     ondeUsar: "Afastamentos médicos, maternidade e perícia.",
+    categoria: "Afastamento Funcionário",
     palavras: ["fim afastamento", "retorno afastamento"],
   },
 
@@ -1774,6 +1918,7 @@ const descricoesVariaveis: Record<
     titulo: "Dias de afastamento",
     descricao: "Mostra a quantidade de dias afastados.",
     ondeUsar: "Afastamentos e relatórios de RH.",
+    categoria: "Afastamento Funcionário",
     palavras: ["dias afastamento", "quantos dias", "licença"],
   },
 
@@ -1781,6 +1926,7 @@ const descricoesVariaveis: Record<
     titulo: "Data da perícia",
     descricao: "Mostra a data agendada ou realizada da perícia médica.",
     ondeUsar: "Afastamento perícia.",
+    categoria: "Afastamento Funcionário",
     palavras: ["perícia", "inss", "data perícia"],
   },
 
@@ -1788,6 +1934,7 @@ const descricoesVariaveis: Record<
     titulo: "Resultado da perícia",
     descricao: "Mostra o resultado da perícia médica.",
     ondeUsar: "Afastamento perícia e retorno ao trabalho.",
+    categoria: "Afastamento Funcionário",
     palavras: ["resultado perícia", "inss", "aprovado", "indeferido"],
   },
 };
