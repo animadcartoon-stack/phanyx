@@ -17,6 +17,20 @@ type OcorrenciaArquivada = {
   } | null;
 };
 
+type HoleriteArquivado = {
+  id: number;
+  competenciaMes: number;
+  competenciaAno: number;
+  valorLiquido: string | number;
+  status: string;
+  arquivadoEm?: string | null;
+  motivoArquivo?: string | null;
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
+  } | null;
+};
+
 function formatarData(data?: string | null) {
   if (!data) return "-";
   const d = new Date(data);
@@ -27,8 +41,9 @@ function formatarData(data?: string | null) {
 export default function ArquivadosRHPage() {
 
     const [ocorrencias, setOcorrencias] = useState<OcorrenciaArquivada[]>([]);
-const [carregando, setCarregando] = useState(true);
-const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
+    const [holerites, setHolerites] = useState<HoleriteArquivado[]>([]);
+    const [carregando, setCarregando] = useState(true);
+    const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
 
 useEffect(() => {
   async function carregarOcorrenciasArquivadas() {
@@ -48,6 +63,15 @@ useEffect(() => {
       const dados = await res.json();
 
       setOcorrencias(Array.isArray(dados) ? dados : []);
+      const resHolerites = await fetch("/api/admin/rh/arquivados/holerites");
+
+if (!resHolerites.ok) {
+  throw new Error("Não foi possível carregar os holerites arquivados.");
+}
+
+const dadosHolerites = await resHolerites.json();
+
+setHolerites(Array.isArray(dadosHolerites) ? dadosHolerites : []);
     } catch (error) {
       console.error(error);
     } finally {
@@ -175,7 +199,7 @@ useEffect(() => {
     </button>
   </div>
 
-{abaAtiva !== "OCORRENCIAS" && (
+{abaAtiva !== "OCORRENCIAS" && abaAtiva !== "HOLERITES" && (
   <div className="mt-6 rounded-2xl border border-dashed border-slate-700 p-8 text-center">
     <p className="text-lg font-bold text-white">
       {abaAtiva} em preparação
@@ -184,6 +208,63 @@ useEffect(() => {
     <p className="mt-2 text-sm text-slate-400">
       Esta aba será conectada aos registros arquivados do banco na próxima etapa.
     </p>
+  </div>
+)}
+
+{abaAtiva === "HOLERITES" && (
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+          <th className="p-3">Funcionário</th>
+          <th className="p-3">Competência</th>
+          <th className="p-3">Valor Líquido</th>
+          <th className="p-3">Arquivado em</th>
+          <th className="p-3">Motivo</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {holerites.length === 0 ? (
+          <tr>
+            <td
+              colSpan={5}
+              className="p-6 text-center text-slate-400"
+            >
+              Nenhum holerite arquivado encontrado.
+            </td>
+          </tr>
+        ) : (
+          holerites.map((holerite) => (
+            <tr
+              key={holerite.id}
+              className="border-b border-slate-800"
+            >
+              <td className="p-3 text-white">
+                {holerite.funcionario?.nome || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {String(holerite.competenciaMes).padStart(2, "0")}/
+                {holerite.competenciaAno}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                R$ {Number(holerite.valorLiquido || 0).toFixed(2)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(holerite.arquivadaEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {holerite.motivoArquivo || "-"}
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
   </div>
 )}
 
