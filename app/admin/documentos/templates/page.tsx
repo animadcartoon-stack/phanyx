@@ -279,6 +279,43 @@ CPF: {{cpfFuncionario}}
 {{blocoAssinaturaDiretor}}
 `;
 
+    case "AVISO_FERIAS":
+      return `AVISO DE FÉRIAS
+
+Comunicamos ao(à) colaborador(a) {{nomeFuncionario}}, CPF {{cpfFuncionario}}, ocupante do cargo de {{cargoFuncionario}}, no departamento {{departamentoFuncionario}}, que suas férias serão concedidas conforme as informações abaixo:
+
+Período aquisitivo:
+{{periodoAquisitivoInicio}} a {{periodoAquisitivoFim}}
+
+Período de gozo:
+{{periodoGozoInicio}} a {{periodoGozoFim}}
+
+Quantidade de dias:
+{{diasFerias}}
+
+Data prevista de pagamento:
+{{dataPagamentoFerias}}
+
+Retorno ao trabalho:
+{{dataRetornoTrabalho}}
+
+O(a) colaborador(a) deverá retornar às suas atividades na data informada acima.
+
+{{cidadeAssinatura}}, {{dataAtual}}.
+
+EMPREGADOR:
+{{nomeInstituicao}}
+CNPJ: {{cnpjInstituicao}}
+
+COLABORADOR(A):
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+
+{{assinaturaDiretor}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
     case "HISTORICO":
       return `[CABEÇALHO INSTITUCIONAL]
 
