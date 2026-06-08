@@ -101,7 +101,8 @@ export default function ArquivadosRHPage() {
     const [documentos, setDocumentos] = useState<DocumentoArquivado[]>([]);
     const [carregando, setCarregando] = useState(true);
     const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
-
+    const [restaurandoId, setRestaurandoId] = useState<number | null>(null);
+    
 useEffect(() => {
   async function carregarOcorrenciasArquivadas() {
     try {
@@ -172,6 +173,41 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
 
   carregarOcorrenciasArquivadas();
 }, []);
+
+async function restaurarOcorrencia(id: number) {
+  try {
+    setRestaurandoId(id);
+
+    const res = await fetch(
+      "/api/admin/rh/arquivados/ocorrencias",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ocorrenciaId: id,
+        }),
+      }
+    );
+
+    const dados = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        dados?.error || "Erro ao restaurar ocorrência."
+      );
+    }
+
+    setOcorrencias((atual) =>
+      atual.filter((o) => o.id !== id)
+    );
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRestaurandoId(null);
+  }
+}
 
   return (
     <div className="space-y-6">
@@ -346,6 +382,7 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
           <th className="p-3">Valor Líquido</th>
           <th className="p-3">Arquivado em</th>
           <th className="p-3">Motivo</th>
+          <th className="p-3">Ações</th>
         </tr>
       </thead>
 
@@ -353,7 +390,7 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
         {holerites.length === 0 ? (
           <tr>
             <td
-              colSpan={5}
+              colSpan={6}
               className="p-6 text-center text-slate-400"
             >
               Nenhum holerite arquivado encontrado.
@@ -650,6 +687,20 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
             <td className="p-3 text-slate-300">
               {ocorrencia.motivoArquivo || "-"}
             </td>
+
+<td className="p-3">
+  <button
+    type="button"
+    onClick={() => restaurarOcorrencia(ocorrencia.id)}
+    disabled={restaurandoId === ocorrencia.id}
+    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+  >
+    {restaurandoId === ocorrencia.id
+      ? "Restaurando..."
+      : "Restaurar"}
+  </button>
+</td>
+
           </tr>
         ))
       )}
