@@ -521,40 +521,84 @@ function abrirTourAdmin() {
   </button>
 
   {menuAberto === "rh" && (
-    <div className="ml-3 mt-2 flex flex-col space-y-1">
-      <Link href="/admin/rh" className={getLinkClass("/admin/rh")}>
-        👥 Visão Geral
-      </Link>
+  <div className="ml-3 mt-2 flex flex-col space-y-1">
 
-      <Link
-        href="/admin/funcionarios"
-        className={getLinkClass("/admin/funcionarios")}
-      >
-        👤 Funcionários
-      </Link>
+    <Link href="/admin/rh" className={getLinkClass("/admin/rh")}>
+      👥 Visão Geral
+    </Link>
 
-      <Link
-        href="/admin/departamentos"
-        className={getLinkClass("/admin/departamentos")}
-      >
-        🏢 Departamentos
-      </Link>
+    <Link
+      href="/admin/funcionarios"
+      className={getLinkClass("/admin/funcionarios")}
+    >
+      👤 Funcionários
+    </Link>
 
-      <Link
-        href="/admin/documentos/templates"
-        className={getLinkClass("/admin/documentos/templates")}
-      >
-        📄 Documentos RH
-      </Link>
+    <Link
+      href="/admin/departamentos"
+      className={getLinkClass("/admin/departamentos")}
+    >
+      🏢 Departamentos
+    </Link>
 
-      <Link
-        href="/admin/rh/historico"
-        className={getLinkClass("/admin/rh/historico")}
-      >
-        🕒 Histórico Funcional
-      </Link>
-    </div>
-  )}
+    <Link
+      href="/admin/rh/ponto"
+      className={getLinkClass("/admin/rh/ponto")}
+    >
+      ⏱️ Ponto
+    </Link>
+
+    <Link
+      href="/admin/rh/holerites"
+      className={getLinkClass("/admin/rh/holerites")}
+    >
+      💵 Holerites
+    </Link>
+
+    <Link
+      href="/admin/rh/ferias"
+      className={getLinkClass("/admin/rh/ferias")}
+    >
+      🏖️ Férias
+    </Link>
+
+    <Link
+      href="/admin/rh/exames"
+      className={getLinkClass("/admin/rh/exames")}
+    >
+      🩺 Exames Médicos
+    </Link>
+
+    <Link
+      href="/admin/rh/rescisoes"
+      className={getLinkClass("/admin/rh/rescisoes")}
+    >
+      🚪 Rescisões
+    </Link>
+
+    <Link
+      href="/admin/rh/historico"
+      className={getLinkClass("/admin/rh/historico")}
+    >
+      🕒 Histórico Funcional
+    </Link>
+
+    <Link
+      href="/admin/rh/contabilidade"
+      className={getLinkClass("/admin/rh/contabilidade")}
+    >
+      📊 Relatórios Contábeis
+    </Link>
+
+    <Link
+      href="/admin/documentos/templates"
+      className={getLinkClass("/admin/documentos/templates")}
+    >
+      📄 Documentos RH
+    </Link>
+
+  </div>
+)}
 </div>
 
 </div>

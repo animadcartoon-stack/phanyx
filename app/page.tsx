@@ -477,7 +477,7 @@ export default function HomePage() {
                 ECOSSISTEMA PHANYX
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Uma plataforma completa para instituições em crescimento
+                Plataforma completa para instituições em crescimento
               </h2>
               <p className="mt-4 text-lg text-gray-600">
                 Do processo de matrícula à emissão de documentos, a PHANYX centraliza operações acadêmicas, administrativas e financeiras em um único ambiente.

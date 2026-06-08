@@ -106,6 +106,14 @@ model Instituicao {
   ouvidorias                 Ouvidoria[]
   reunioes                   Reuniao[]
   documentosRH               DocumentoRH[]
+  feriasRH                   FeriasRH[]
+  examesRH                   ExameMedicoRH[]
+  rescisoesRH                RescisaoRH[]
+  holeritesRH                HoleriteRH[]
+  pontosRH                   PontoFuncionarioRH[]
+  historicosRH               HistoricoRH[]
+  escalasRH                  EscalaTrabalhoRH[]
+  bancoHorasRH               BancoHorasRH[]
 }
 
 model User {
@@ -962,6 +970,13 @@ model Funcionario {
   permissoes   FuncionarioPermissao[]
   historicosRH HistoricoRH[]
   documentosRH DocumentoRH[]
+  feriasRH     FeriasRH[]
+  examesRH     ExameMedicoRH[]
+  rescisoesRH  RescisaoRH[]
+  holeritesRH  HoleriteRH[]
+  pontosRH     PontoFuncionarioRH[]
+  escalasRH    EscalaTrabalhoRH[]
+  bancoHorasRH BancoHorasRH[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -1843,29 +1858,24 @@ model FuncionarioPermissao {
 }
 
 model HistoricoRH {
-  id Int @id @default(autoincrement())
-
+  id            Int  @id @default(autoincrement())
   funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
 
-  tipo String
-
-  titulo String
-
-  descricao String? @db.Text
-
-  dataEvento DateTime @default(now())
-
+  tipo            String
+  titulo          String
+  descricao       String?  @db.Text
+  dataEvento      DateTime @default(now())
   documentoGerado String?
-
-  observacoes String? @db.Text
-
-  criadoPorId Int?
-
-  criadoEm DateTime @default(now())
+  observacoes     String?  @db.Text
+  criadoEm        DateTime @default(now())
 
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@index([funcionarioId])
+  @@index([instituicaoId])
   @@index([tipo])
   @@index([dataEvento])
 }
@@ -1897,6 +1907,229 @@ model DocumentoRH {
   @@index([tipo])
   @@index([status])
   @@index([templateId])
+}
+
+model FeriasRH {
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
+
+  periodoAquisitivoInicio DateTime?
+  periodoAquisitivoFim    DateTime?
+  dataInicio              DateTime
+  dataFim                 DateTime
+  dias                    Int
+  abonoPecuniario         Boolean   @default(false)
+  status                  String    @default("AGENDADA")
+  observacoes             String?   @db.Text
+
+  avisoUrl  String?
+  reciboUrl String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([status])
+}
+
+model ExameMedicoRH {
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
+
+  tipo        String
+  dataExame   DateTime
+  clinica     String?
+  medico      String?
+  crm         String?
+  resultado   String?
+  validade    DateTime?
+  arquivoUrl  String?
+  observacoes String?   @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([tipo])
+  @@index([validade])
+}
+
+model RescisaoRH {
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
+
+  tipo             String
+  dataAviso        DateTime?
+  dataDesligamento DateTime
+  motivo           String?
+  status           String    @default("EM_ANDAMENTO")
+  observacoes      String?   @db.Text
+
+  termoUrl     String?
+  trctUrl      String?
+  checklistUrl String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([status])
+}
+
+model HoleriteRH {
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
+
+  competenciaMes Int
+  competenciaAno Int
+
+  salarioBase      Decimal? @db.Decimal(10, 2)
+  totalVencimentos Decimal  @default(0) @db.Decimal(10, 2)
+  totalDescontos   Decimal  @default(0) @db.Decimal(10, 2)
+  valorLiquido     Decimal  @default(0) @db.Decimal(10, 2)
+
+  baseInss Decimal? @db.Decimal(10, 2)
+  baseFgts Decimal? @db.Decimal(10, 2)
+  fgtsMes  Decimal? @db.Decimal(10, 2)
+  baseIrrf Decimal? @db.Decimal(10, 2)
+
+  status     String  @default("RASCUNHO")
+  arquivoUrl String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  funcionario Funcionario        @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  eventos     HoleriteEventoRH[]
+
+  @@unique([funcionarioId, competenciaMes, competenciaAno])
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([competenciaMes, competenciaAno])
+}
+
+model HoleriteEventoRH {
+  id         Int @id @default(autoincrement())
+  holeriteId Int
+
+  codigo     String?
+  descricao  String
+  referencia String?
+  tipo       String
+  valor      Decimal @db.Decimal(10, 2)
+
+  holerite HoleriteRH @relation(fields: [holeriteId], references: [id], onDelete: Cascade)
+
+  @@index([holeriteId])
+  @@index([tipo])
+}
+
+model PontoFuncionarioRH {
+  id            Int @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+
+  data          DateTime
+  entrada       DateTime?
+  saidaAlmoco   DateTime?
+  retornoAlmoco DateTime?
+  saida         DateTime?
+
+  horasTrabalhadas Decimal? @db.Decimal(10, 2)
+  horasExtras      Decimal? @db.Decimal(10, 2)
+  horasAtraso      Decimal? @db.Decimal(10, 2)
+
+  observacoes String? @db.Text
+  status      String  @default("ABERTO")
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  bancoHoras BancoHorasRH[]
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([data])
+  @@index([status])
+}
+
+model EscalaTrabalhoRH {
+  id            Int @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+
+  nome            String
+  tipo            String   @default("PADRAO") // PADRAO, 12X36, PERSONALIZADA
+  diaSemana       Int? // 0 domingo, 1 segunda...
+  horaEntrada     String?
+  horaSaida       String?
+  intervaloMin    Int      @default(60)
+  cargaHorariaDia Decimal? @db.Decimal(10, 2)
+
+  toleranciaAtrasoMin Int @default(10)
+  toleranciaExtraMin  Int @default(10)
+
+  ativo        Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([diaSemana])
+  @@index([ativo])
+}
+
+model BancoHorasRH {
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  pontoId       Int?
+
+  data        DateTime @default(now())
+  tipo        String // CREDITO, DEBITO, AJUSTE
+  origem      String // PONTO, MANUAL, FOLHA
+  horas       Decimal  @db.Decimal(10, 2)
+  saldoApos   Decimal? @db.Decimal(10, 2)
+  observacoes String?  @db.Text
+
+  criadoEm DateTime @default(now())
+
+  funcionario Funcionario         @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  ponto       PontoFuncionarioRH? @relation(fields: [pontoId], references: [id])
+
+  @@index([funcionarioId])
+  @@index([instituicaoId])
+  @@index([pontoId])
+  @@index([tipo])
+  @@index([data])
 }
 
 enum TipoDocumentoAluno {
