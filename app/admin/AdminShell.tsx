@@ -583,6 +583,13 @@ function abrirTourAdmin() {
       🕒 Histórico Funcional
     </Link>
 
+<Link
+  href="/admin/rh/ocorrencias"
+  className={getLinkClass("/admin/rh/ocorrencias")}
+>
+  ⚠️ Ocorrências
+</Link>
+
     <Link
       href="/admin/rh/contabilidade"
       className={getLinkClass("/admin/rh/contabilidade")}
