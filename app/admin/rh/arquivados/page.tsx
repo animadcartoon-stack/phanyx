@@ -28,6 +28,7 @@ export default function ArquivadosRHPage() {
 
     const [ocorrencias, setOcorrencias] = useState<OcorrenciaArquivada[]>([]);
 const [carregando, setCarregando] = useState(true);
+const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
 
 useEffect(() => {
   async function carregarOcorrenciasArquivadas() {
@@ -133,13 +134,29 @@ useEffect(() => {
 
 <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
   <div className="flex flex-wrap gap-2">
-    <button className="rounded-2xl bg-cyan-600 px-4 py-2 text-sm font-bold text-white">
-      Ocorrências
-    </button>
+    <button
+  type="button"
+  onClick={() => setAbaAtiva("OCORRENCIAS")}
+  className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+    abaAtiva === "OCORRENCIAS"
+      ? "bg-cyan-600 text-white"
+      : "border border-slate-700 text-slate-300"
+  }`}
+>
+  Ocorrências
+</button>
 
-    <button className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300">
-      Holerites
-    </button>
+    <button
+  type="button"
+  onClick={() => setAbaAtiva("HOLERITES")}
+  className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+    abaAtiva === "HOLERITES"
+      ? "bg-amber-600 text-white"
+      : "border border-slate-700 text-slate-300"
+  }`}
+>
+  Holerites
+</button>
 
     <button className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300">
       Férias
@@ -158,6 +175,19 @@ useEffect(() => {
     </button>
   </div>
 
+{abaAtiva !== "OCORRENCIAS" && (
+  <div className="mt-6 rounded-2xl border border-dashed border-slate-700 p-8 text-center">
+    <p className="text-lg font-bold text-white">
+      {abaAtiva} em preparação
+    </p>
+
+    <p className="mt-2 text-sm text-slate-400">
+      Esta aba será conectada aos registros arquivados do banco na próxima etapa.
+    </p>
+  </div>
+)}
+
+{abaAtiva === "OCORRENCIAS" && (
   <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
   <table className="min-w-full">
     <thead>
@@ -220,6 +250,7 @@ useEffect(() => {
     </tbody>
   </table>
 </div>
+)}
 </div>
     </div>
   );
