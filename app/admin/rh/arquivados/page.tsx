@@ -196,7 +196,7 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
     </p>
 
     <p className="mt-2 text-3xl font-black text-white">
-      0
+      {ocorrencias.length}
     </p>
 
     <p className="mt-1 text-xs text-slate-400">
@@ -210,7 +210,7 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
     </p>
 
     <p className="mt-2 text-3xl font-black text-white">
-      0
+      {holerites.length}
     </p>
 
     <p className="mt-1 text-xs text-slate-400">
@@ -224,7 +224,7 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
     </p>
 
     <p className="mt-2 text-3xl font-black text-white">
-      0
+      {ferias.length}
     </p>
 
     <p className="mt-1 text-xs text-slate-400">
@@ -238,7 +238,7 @@ setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
     </p>
 
     <p className="mt-2 text-3xl font-black text-white">
-      0
+      {exames.length}
     </p>
 
     <p className="mt-1 text-xs text-slate-400">
