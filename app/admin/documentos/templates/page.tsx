@@ -13,6 +13,40 @@ type TipoDocumentoTemplate =
   | "TRANCAMENTO"
   | "COMPARECIMENTO"
   | "HISTORICO"
+
+  | "HOLERITE"
+
+  | "DOCUMENTO_RH"
+  | "CONTRATO_TRABALHO"
+  | "CONTRATO_EXPERIENCIA"
+  | "TERMO_LGPD_RH"
+  | "TERMO_EQUIPAMENTOS"
+
+  | "ADMISSAO"
+  | "DEMISSAO"
+  | "PEDIDO_DEMISSAO"
+  | "AVISO_PREVIO"
+  | "TRCT"
+
+  | "FERIAS"
+  | "AVISO_FERIAS"
+  | "RECIBO_FERIAS"
+
+  | "ADVERTENCIA"
+  | "SUSPENSAO"
+
+  | "AFASTAMENTO_MEDICO"
+  | "AFASTAMENTO_MATERNIDADE"
+  | "AFASTAMENTO_PERICIA"
+  | "RETORNO_TRABALHO"
+
+  | "ASO"
+  | "ASO_ADMISSIONAL"
+  | "ASO_PERIODICO"
+  | "ASO_RETORNO"
+  | "ASO_MUDANCA_FUNCAO"
+  | "ASO_DEMISSIONAL"
+
   | "OUTRO";
 
 type TemplateDocumento = {
@@ -47,13 +81,47 @@ const TIPOS_DOCUMENTO: Array<{
   value: TipoDocumentoTemplate;
   label: string;
 }> = [
-  { value: "CONTRATO", label: "Contrato" },
+  { value: "CONTRATO", label: "Contrato acadêmico" },
   { value: "DECLARACAO", label: "Declaração" },
   { value: "RECIBO", label: "Recibo" },
   { value: "COMPROVANTE", label: "Comprovante" },
   { value: "TRANCAMENTO", label: "Trancamento" },
   { value: "COMPARECIMENTO", label: "Comparecimento" },
-  { value: "HISTORICO", label: "Histórico" },
+  { value: "HISTORICO", label: "Histórico acadêmico" },
+
+  { value: "HOLERITE", label: "RH - Holerite" },
+
+  { value: "DOCUMENTO_RH", label: "RH - Documento geral" },
+  { value: "CONTRATO_TRABALHO", label: "RH - Contrato de trabalho" },
+  { value: "CONTRATO_EXPERIENCIA", label: "RH - Contrato de experiência" },
+  { value: "TERMO_LGPD_RH", label: "RH - Termo LGPD" },
+  { value: "TERMO_EQUIPAMENTOS", label: "RH - Termo de uso de equipamentos" },
+
+  { value: "ADMISSAO", label: "RH - Documento de admissão" },
+  { value: "DEMISSAO", label: "RH - Documento de demissão" },
+  { value: "PEDIDO_DEMISSAO", label: "RH - Pedido de demissão" },
+  { value: "AVISO_PREVIO", label: "RH - Aviso prévio" },
+  { value: "TRCT", label: "RH - TRCT" },
+
+  { value: "FERIAS", label: "RH - Documento de férias" },
+  { value: "AVISO_FERIAS", label: "RH - Aviso de férias" },
+  { value: "RECIBO_FERIAS", label: "RH - Recibo de férias" },
+
+  { value: "ADVERTENCIA", label: "RH - Advertência" },
+  { value: "SUSPENSAO", label: "RH - Suspensão" },
+
+  { value: "AFASTAMENTO_MEDICO", label: "RH - Afastamento médico" },
+  { value: "AFASTAMENTO_MATERNIDADE", label: "RH - Afastamento maternidade" },
+  { value: "AFASTAMENTO_PERICIA", label: "RH - Afastamento perícia" },
+  { value: "RETORNO_TRABALHO", label: "RH - Retorno ao trabalho" },
+
+  { value: "ASO", label: "RH - ASO geral" },
+  { value: "ASO_ADMISSIONAL", label: "RH - ASO admissional" },
+  { value: "ASO_PERIODICO", label: "RH - ASO periódico" },
+  { value: "ASO_RETORNO", label: "RH - ASO retorno ao trabalho" },
+  { value: "ASO_MUDANCA_FUNCAO", label: "RH - ASO mudança de função" },
+  { value: "ASO_DEMISSIONAL", label: "RH - ASO demissional" },
+
   { value: "OUTRO", label: "Outro" },
 ];
 
