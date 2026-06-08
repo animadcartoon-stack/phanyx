@@ -559,14 +559,19 @@ export default function OcorrenciasRHPage() {
         placeholder="Explique por que esta ocorrência está sendo arquivada."
         className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
       />
-
+{erro && (
+  <div className="mt-3 rounded-xl border border-red-500 bg-red-950/40 px-4 py-3 text-sm font-semibold text-red-200">
+    {erro}
+  </div>
+)}
       <div className="mt-6 flex justify-end gap-3">
         <button
           type="button"
           onClick={() => {
-            setOcorrenciaParaArquivar(null);
-            setMotivoArquivo("");
-          }}
+  setOcorrenciaParaArquivar(null);
+  setMotivoArquivo("");
+  setErro("");
+}}
           className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-slate-800"
         >
           Cancelar
