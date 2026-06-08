@@ -57,6 +57,11 @@ export default function OcorrenciasRHPage() {
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
 
+  const [ocorrenciaParaArquivar, setOcorrenciaParaArquivar] =
+  useState<OcorrenciaRH | null>(null);
+  const [motivoArquivo, setMotivoArquivo] = useState("");
+  const [arquivando, setArquivando] = useState(false);
+
   const [buscaFuncionario, setBuscaFuncionario] = useState("");
   const [funcionarioSelecionado, setFuncionarioSelecionado] =
     useState<Funcionario | null>(null);
@@ -204,6 +209,48 @@ export default function OcorrenciasRHPage() {
       setSalvando(false);
     }
   }
+
+  async function arquivarOcorrencia() {
+  if (!ocorrenciaParaArquivar) return;
+
+  if (!motivoArquivo.trim()) {
+    setErro("Informe o motivo do arquivamento.");
+    return;
+  }
+
+  try {
+    setArquivando(true);
+    setErro("");
+
+    const response = await fetch("/api/admin/rh/ocorrencias", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ocorrenciaId: ocorrenciaParaArquivar.id,
+        motivoArquivo,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao arquivar ocorrência.");
+    }
+
+    setOcorrenciaParaArquivar(null);
+    setMotivoArquivo("");
+
+    setMensagem("Ocorrência arquivada com sucesso.");
+
+    await carregarDados();
+  } catch (error: any) {
+    setErro(error.message || "Erro ao arquivar ocorrência.");
+  } finally {
+    setArquivando(false);
+  }
+}
 
   return (
     <div className="space-y-8">
@@ -435,18 +482,19 @@ export default function OcorrenciasRHPage() {
                 <th className="p-3">Data</th>
                 <th className="p-3">Motivo</th>
                 <th className="p-3">Status</th>
+                <th className="p-3 text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="p-4 text-slate-400" colSpan={5}>
+                  <td className="p-4 text-slate-400" colSpan={6}>
                     Carregando...
                   </td>
                 </tr>
               ) : ocorrencias.length === 0 ? (
                 <tr>
-                  <td className="p-4 text-slate-400" colSpan={5}>
+                  <td className="p-4 text-slate-400" colSpan={6}>
                     Nenhuma ocorrência registrada ainda.
                   </td>
                 </tr>
@@ -462,11 +510,18 @@ export default function OcorrenciasRHPage() {
                     <td className="p-3">{ocorrencia.tipo}</td>
                     <td className="p-3">{formatarData(ocorrencia.dataEvento)}</td>
                     <td className="p-3">{ocorrencia.motivo || "-"}</td>
-                    <td className="p-3">
-                      <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-bold text-blue-200">
-                        {ocorrencia.status}
-                      </span>
-                    </td>
+                   <td className="p-3 text-right">
+  <button
+    type="button"
+    onClick={() => {
+      setOcorrenciaParaArquivar(ocorrencia);
+      setMotivoArquivo("");
+    }}
+    className="rounded-xl border border-amber-500 px-3 py-1 text-xs font-bold text-amber-300 transition hover:bg-amber-500 hover:text-white"
+  >
+    Arquivar
+  </button>
+</td>
                   </tr>
                 ))
               )}
@@ -474,6 +529,62 @@ export default function OcorrenciasRHPage() {
           </table>
         </div>
       </div>
+
+{ocorrenciaParaArquivar && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+      <h2 className="text-xl font-bold text-white">
+        Arquivar ocorrência
+      </h2>
+
+      <p className="mt-2 text-sm text-slate-300">
+        Esta ocorrência não será excluída do sistema. Ela ficará preservada para auditoria e direção.
+      </p>
+
+      <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+        <strong>{ocorrenciaParaArquivar.funcionario?.nome}</strong>
+        <div className="mt-1 text-slate-400">
+          {ocorrenciaParaArquivar.tipo} — {ocorrenciaParaArquivar.motivo || "Sem motivo informado"}
+        </div>
+      </div>
+
+      <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+        Motivo do arquivamento
+      </label>
+
+      <textarea
+        value={motivoArquivo}
+        onChange={(e) => setMotivoArquivo(e.target.value)}
+        rows={4}
+        placeholder="Explique por que esta ocorrência está sendo arquivada."
+        className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+      />
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setOcorrenciaParaArquivar(null);
+            setMotivoArquivo("");
+          }}
+          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-slate-800"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={arquivarOcorrencia}
+          disabled={arquivando}
+          className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:bg-slate-600"
+        >
+          {arquivando ? "Arquivando..." : "Arquivar ocorrência"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }

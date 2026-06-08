@@ -1914,7 +1914,11 @@ model OcorrenciaRH {
   dataPericia      DateTime?
   resultadoPericia String?
 
-  documentoUrl String?
+  documentoUrl   String?
+  arquivada      Boolean   @default(false)
+  arquivadaEm    DateTime?
+  arquivadaPorId Int?
+  motivoArquivo  String?   @db.Text
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
