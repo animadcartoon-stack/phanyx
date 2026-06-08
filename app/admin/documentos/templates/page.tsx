@@ -367,6 +367,48 @@ EMPREGADOR
 {{blocoAssinaturaDiretor}}
 `;
 
+    case "ADVERTENCIA":
+  return `ADVERTÊNCIA DISCIPLINAR
+
+Ao(À) colaborador(a):
+
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+Cargo: {{cargoFuncionario}}
+Departamento: {{departamentoFuncionario}}
+
+Pela presente, fica registrada advertência disciplinar em razão do seguinte fato:
+
+{{motivoAdvertencia}}
+
+Descrição detalhada:
+
+{{descricaoAdvertencia}}
+
+Data da ocorrência:
+{{dataAdvertencia}}
+
+Esta advertência tem caráter educativo e preventivo, visando orientar o colaborador quanto ao cumprimento das normas internas, procedimentos institucionais, ética profissional e responsabilidades inerentes à sua função.
+
+O colaborador declara estar ciente do conteúdo desta advertência e das consequências previstas em caso de reincidência.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+CIENTE:
+
+____________________________________
+{{nomeFuncionario}}
+
+EMPREGADOR:
+
+____________________________________
+{{responsavelLegal}}
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
     case "HISTORICO":
       return `[CABEÇALHO INSTITUCIONAL]
 
