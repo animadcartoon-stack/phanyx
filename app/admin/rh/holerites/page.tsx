@@ -69,6 +69,8 @@ export default function Page() {
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [holeriteParaExcluir, setHoleriteParaExcluir] = useState<Holerite | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
@@ -169,6 +171,34 @@ export default function Page() {
   function removerEvento(index: number) {
     setEventos((atuais) => atuais.filter((_, i) => i !== index));
   }
+
+  async function excluirHolerite() {
+  if (!holeriteParaExcluir) return;
+
+  try {
+    setErro("");
+    setSucesso("");
+    setExcluindo(true);
+
+    const res = await fetch(`/api/admin/rh/holerites/${holeriteParaExcluir.id}`, {
+      method: "DELETE",
+    });
+
+    const dados = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(dados?.error || "Não foi possível excluir o holerite.");
+    }
+
+    setSucesso("Holerite excluído com sucesso.");
+    setHoleriteParaExcluir(null);
+    await carregarDados();
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao excluir holerite.");
+  } finally {
+    setExcluindo(false);
+  }
+}
 
   async function gerarHolerite() {
     try {
@@ -490,6 +520,7 @@ export default function Page() {
                 <th className="py-3">Descontos</th>
                 <th className="py-3">Líquido</th>
                 <th className="py-3">Status</th>
+                <th className="py-3 text-right">Ações</th>
               </tr>
             </thead>
 
@@ -536,13 +567,68 @@ export default function Page() {
                         {holerite.status || "GERADO"}
                       </span>
                     </td>
+                    <td className="py-3 text-right">
+  <button
+    type="button"
+    onClick={() => setHoleriteParaExcluir(holerite)}
+    className="rounded-xl border border-red-500 px-3 py-1 text-sm font-semibold text-red-400 transition hover:bg-red-500 hover:text-white"
+  >
+    🗑 Excluir
+  </button>
+</td>
                   </tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-      </div>
+            </div>
+
+      {holeriteParaExcluir && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+          <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+            <h2 className="text-xl font-bold text-white">
+              Excluir holerite
+            </h2>
+
+            <p className="mt-3 text-sm text-slate-300">
+              Esta ação removerá o holerite e todos os eventos vinculados.
+            </p>
+
+            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+              <p>
+                <strong>Funcionário:</strong>{" "}
+                {holeriteParaExcluir.funcionario?.nome || "Funcionário"}
+              </p>
+              <p className="mt-2">
+                <strong>Competência:</strong>{" "}
+                {String(holeriteParaExcluir.competenciaMes).padStart(2, "0")}/
+                {holeriteParaExcluir.competenciaAno}
+              </p>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setHoleriteParaExcluir(null)}
+                disabled={excluindo}
+                className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={excluirHolerite}
+                disabled={excluindo}
+                className="rounded-2xl bg-red-600 px-5 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-60"
+              >
+                {excluindo ? "Excluindo..." : "Excluir holerite"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
