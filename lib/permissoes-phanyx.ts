@@ -47,6 +47,17 @@ export const PERMISSOES_PHANYX = [
 { chave: "rh.ocorrencias", nome: "RH - Ocorrências funcionais" },
 { chave: "rh.historico", nome: "RH - Histórico funcional" },
 
+{ chave: "rh.arquivados", nome: "RH - Arquivados" },
+
+{ chave: "rh.arquivar_ocorrencias", nome: "RH - Arquivar ocorrências" },
+{ chave: "rh.arquivar_holerites", nome: "RH - Arquivar holerites" },
+{ chave: "rh.arquivar_ferias", nome: "RH - Arquivar férias" },
+{ chave: "rh.arquivar_exames", nome: "RH - Arquivar exames" },
+{ chave: "rh.arquivar_rescisoes", nome: "RH - Arquivar rescisões" },
+{ chave: "rh.arquivar_documentos", nome: "RH - Arquivar documentos RH" },
+
+{ chave: "rh.restaurar_arquivados", nome: "RH - Restaurar registros arquivados" },
+
 { chave: "rh.documentos", nome: "RH - Documentos" },
 { chave: "rh.documentos_modelos", nome: "RH - Modelos de documentos" },
 { chave: "rh.documentos_gerar", nome: "RH - Gerar documentos" },

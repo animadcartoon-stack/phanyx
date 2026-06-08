@@ -584,6 +584,13 @@ function abrirTourAdmin() {
     </Link>
 
 <Link
+  href="/admin/rh/arquivados"
+  className={getLinkClass("/admin/rh/arquivados")}
+>
+  🗄️ Arquivados RH
+</Link>
+
+<Link
   href="/admin/rh/ocorrencias"
   className={getLinkClass("/admin/rh/ocorrencias")}
 >
