@@ -254,7 +254,7 @@ setHolerites(Array.isArray(dadosHolerites) ? dadosHolerites : []);
               </td>
 
               <td className="p-3 text-slate-300">
-                {formatarData(holerite.arquivadaEm)}
+                {formatarData(holerite.arquivadoEm)}
               </td>
 
               <td className="p-3 text-slate-300">
