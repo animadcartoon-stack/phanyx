@@ -231,7 +231,7 @@ export default function PontoRHPage() {
                 setBuscaFuncionario(e.target.value);
                 setFuncionarioSelecionado(null);
               }}
-              placeholder="Buscar funcionário..."
+              placeholder="🔎 Digite nome, cargo, código ou departamento"
               className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
             />
 
@@ -286,6 +286,11 @@ export default function PontoRHPage() {
               <option value="ATESTADO">Atestado</option>
               <option value="FERIAS">Férias</option>
               <option value="AFASTADO">Afastado</option>
+              <option value="HOME_OFFICE">Home Office</option>
+              <option value="LICENCA">Licença</option>
+              <option value="SUSPENSAO">Suspensão</option>
+              <option value="TREINAMENTO">Treinamento</option>
+              <option value="VIAGEM">Viagem</option>
             </select>
           </div>
 

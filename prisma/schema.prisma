@@ -24,6 +24,8 @@ model Instituicao {
   metaPageId          String?
   metaPageName        String?
   metaPageAccessToken String?
+  usaControlePonto    Boolean @default(false)
+  usaBancoHoras       Boolean @default(true)
 
   googleAnalyticsId          String?
   googleAnalyticsPropertyId  String?
@@ -44,6 +46,9 @@ model Instituicao {
   googleBusinessLocationId   String?
   googleBusinessName         String?
   googleSearchConsoleMeta    String?
+  responsavelRH              String?
+  emailRH                    String?
+  telefoneRH                 String?
   googleSearchConsoleAtivo   Boolean @default(false)
 
   alternativas               Alternativa[]
@@ -99,21 +104,23 @@ model Instituicao {
   certificadoAssinaturaUrl   String?
   certificadoCoordenadorNome String?
   certificadoCidade          String?
-  cursosPolos                CursoPolo[]
-  professoresDisciplinas     ProfessorDisciplina[]
-  turmaSemestres             TurmaSemestre[]
-  turmaDisciplinaHorarios    TurmaDisciplinaHorario[]
-  ouvidorias                 Ouvidoria[]
-  reunioes                   Reuniao[]
-  documentosRH               DocumentoRH[]
-  feriasRH                   FeriasRH[]
-  examesRH                   ExameMedicoRH[]
-  rescisoesRH                RescisaoRH[]
-  holeritesRH                HoleriteRH[]
-  pontosRH                   PontoFuncionarioRH[]
-  historicosRH               HistoricoRH[]
-  escalasRH                  EscalaTrabalhoRH[]
-  bancoHorasRH               BancoHorasRH[]
+
+  cursosPolos             CursoPolo[]
+  professoresDisciplinas  ProfessorDisciplina[]
+  turmaSemestres          TurmaSemestre[]
+  turmaDisciplinaHorarios TurmaDisciplinaHorario[]
+  ouvidorias              Ouvidoria[]
+  reunioes                Reuniao[]
+  documentosRH            DocumentoRH[]
+  feriasRH                FeriasRH[]
+  examesRH                ExameMedicoRH[]
+  rescisoesRH             RescisaoRH[]
+  holeritesRH             HoleriteRH[]
+  pontosRH                PontoFuncionarioRH[]
+  historicosRH            HistoricoRH[]
+  escalasRH               EscalaTrabalhoRH[]
+  bancoHorasRH            BancoHorasRH[]
+  integracoesPontoRH      IntegracaoPontoRH[]
 }
 
 model User {
@@ -928,44 +935,48 @@ model Certificado {
 }
 
 model Funcionario {
-  id                Int           @id @default(autoincrement())
-  nome              String
-  ativo             Boolean       @default(true)
-  statusFuncionario String        @default("ATIVO")
-  motivoStatus      String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  cpf               String?
-  rg                String?
-  telefone          String?
-  dataNascimento    DateTime?
-  endereco          String?
-  numero            String?
-  complemento       String?
-  bairro            String?
-  cidade            String?
-  estado            String?
-  cep               String?
-  cargo             String?
-  setor             String?
-  fotoPerfil        String?
-  documentoUrl      String?
-  codigoFuncionario String?
-  dataAdmissao      DateTime?
-  dataDesligamento  DateTime?
-  salario           Decimal?      @db.Decimal(10, 2)
-  tipoContrato      String?
-  jornadaTrabalho   String?
-  banco             String?
-  agencia           String?
-  conta             String?
-  pix               String?
-  instituicaoId     Int
-  userId            Int           @unique
-  departamentoId    Int?
-  departamento      Departamento? @relation(fields: [departamentoId], references: [id])
-  instituicao       Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 Int           @id @default(autoincrement())
+  nome               String
+  ativo              Boolean       @default(true)
+  statusFuncionario  String        @default("ATIVO")
+  motivoStatus       String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  cpf                String?
+  rg                 String?
+  telefone           String?
+  dataNascimento     DateTime?
+  endereco           String?
+  numero             String?
+  complemento        String?
+  bairro             String?
+  cidade             String?
+  estado             String?
+  cep                String?
+  cargo              String?
+  setor              String?
+  fotoPerfil         String?
+  documentoUrl       String?
+  codigoFuncionario  String?
+  dataAdmissao       DateTime?
+  dataDesligamento   DateTime?
+  salario            Decimal?      @db.Decimal(10, 2)
+  tipoContrato       String?
+  jornadaTrabalho    String?
+  banco              String?
+  agencia            String?
+  conta              String?
+  pix                String?
+  codigoPonto        String?
+  pisPasep           String?
+  salarioBase        Decimal?      @db.Decimal(10, 2)
+  cargaHorariaMensal Int?
+  instituicaoId      Int
+  userId             Int           @unique
+  departamentoId     Int?
+  departamento       Departamento? @relation(fields: [departamentoId], references: [id])
+  instituicao        Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   permissoes   FuncionarioPermissao[]
   historicosRH HistoricoRH[]
@@ -2130,6 +2141,34 @@ model BancoHorasRH {
   @@index([pontoId])
   @@index([tipo])
   @@index([data])
+}
+
+model IntegracaoPontoRH {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome     String
+  provedor String // API_GENERICA, CONTROL_ID, HENRY, TOPDATA, AHGORA, OUTRO
+  ativo    Boolean @default(true)
+
+  baseUrl String?
+  apiKey  String?
+  usuario String?
+  senha   String?
+  token   String?
+
+  ultimoSyncEm DateTime?
+  status       String    @default("NAO_CONFIGURADA")
+  observacoes  String?   @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([provedor])
+  @@index([ativo])
 }
 
 enum TipoDocumentoAluno {
