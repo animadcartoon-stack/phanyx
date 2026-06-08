@@ -30,7 +30,16 @@ type Holerite = {
   status: string;
   funcionario?: {
     nome: string;
+    cargo?: string | null;
   };
+  eventos?: {
+    id: number;
+    codigo?: string | null;
+    descricao: string;
+    referencia?: string | null;
+    tipo: string;
+    valor: string | number;
+  }[];
 };
 
 const eventoInicial: Evento = {
@@ -70,6 +79,7 @@ export default function Page() {
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [holeriteParaExcluir, setHoleriteParaExcluir] = useState<Holerite | null>(null);
+  const [holeriteParaVisualizar, setHoleriteParaVisualizar] = useState<Holerite | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
@@ -568,13 +578,23 @@ export default function Page() {
                       </span>
                     </td>
                     <td className="py-3 text-right">
-  <button
-    type="button"
-    onClick={() => setHoleriteParaExcluir(holerite)}
-    className="rounded-xl border border-red-500 px-3 py-1 text-sm font-semibold text-red-400 transition hover:bg-red-500 hover:text-white"
-  >
-    🗑 Excluir
-  </button>
+  <div className="flex justify-end gap-2">
+    <button
+      type="button"
+      onClick={() => setHoleriteParaVisualizar(holerite)}
+      className="rounded-xl border border-blue-500 px-3 py-1 text-sm font-semibold text-blue-300 transition hover:bg-blue-500 hover:text-white"
+    >
+      👁 Visualizar
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setHoleriteParaExcluir(holerite)}
+      className="rounded-xl border border-red-500 px-3 py-1 text-sm font-semibold text-red-400 transition hover:bg-red-500 hover:text-white"
+    >
+      🗑 Excluir
+    </button>
+  </div>
 </td>
                   </tr>
                 ))
@@ -583,6 +603,163 @@ export default function Page() {
           </table>
         </div>
             </div>
+
+{holeriteParaVisualizar && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-white">
+          Holerite
+        </h2>
+
+        <button
+          type="button"
+          onClick={() => setHoleriteParaVisualizar(null)}
+          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-slate-800"
+        >
+          Fechar
+        </button>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs uppercase text-slate-400">
+            Funcionário
+          </p>
+
+          <p className="mt-1 font-bold text-white">
+            {holeriteParaVisualizar.funcionario?.nome}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs uppercase text-slate-400">
+            Competência
+          </p>
+
+          <p className="mt-1 font-bold text-white">
+            {String(
+              holeriteParaVisualizar.competenciaMes
+            ).padStart(2, "0")}
+            /
+            {holeriteParaVisualizar.competenciaAno}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs uppercase text-slate-400">
+            Salário Base
+          </p>
+
+          <p className="mt-1 font-bold text-white">
+            {moeda(
+              Number(
+                holeriteParaVisualizar.salarioBase || 0
+              )
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <p className="text-xs uppercase text-slate-400">
+            Status
+          </p>
+
+          <p className="mt-1 font-bold text-green-400">
+            {holeriteParaVisualizar.status}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+        <table className="min-w-full">
+          <thead>
+            <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+              <th className="p-3">Código</th>
+              <th className="p-3">Descrição</th>
+              <th className="p-3">Referência</th>
+              <th className="p-3">Tipo</th>
+              <th className="p-3">Valor</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {holeriteParaVisualizar.eventos?.map((evento: any) => (
+              <tr
+                key={evento.id}
+                className="border-b border-slate-800"
+              >
+                <td className="p-3 text-slate-200">
+                  {evento.codigo}
+                </td>
+
+                <td className="p-3 text-slate-200">
+                  {evento.descricao}
+                </td>
+
+                <td className="p-3 text-slate-200">
+                  {evento.referencia}
+                </td>
+
+                <td className="p-3 text-slate-200">
+                  {evento.tipo}
+                </td>
+
+                <td className="p-3 font-bold text-white">
+                  {moeda(Number(evento.valor))}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-3">
+        <div className="rounded-2xl border border-emerald-700 bg-emerald-950/40 p-4">
+          <p className="text-xs uppercase text-emerald-400">
+            Vencimentos
+          </p>
+
+          <p className="mt-2 text-2xl font-bold text-emerald-300">
+            {moeda(
+              Number(
+                holeriteParaVisualizar.totalVencimentos
+              )
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-red-700 bg-red-950/40 p-4">
+          <p className="text-xs uppercase text-red-400">
+            Descontos
+          </p>
+
+          <p className="mt-2 text-2xl font-bold text-red-300">
+            {moeda(
+              Number(
+                holeriteParaVisualizar.totalDescontos
+              )
+            )}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-blue-700 bg-blue-950/40 p-4">
+          <p className="text-xs uppercase text-blue-400">
+            Líquido
+          </p>
+
+          <p className="mt-2 text-2xl font-bold text-blue-300">
+            {moeda(
+              Number(
+                holeriteParaVisualizar.valorLiquido
+              )
+            )}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {holeriteParaExcluir && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
