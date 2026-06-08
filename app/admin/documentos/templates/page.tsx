@@ -743,6 +743,85 @@ const todasAsTags = [
   "{{legendaHistorico}}",
   "{{certificacaoDeclaracao}}",
   "{{escolaOrigem}}",
+
+    // RH - Funcionário
+  "{{nomeFuncionario}}",
+  "{{cpfFuncionario}}",
+  "{{rgFuncionario}}",
+  "{{pisPasepFuncionario}}",
+  "{{codigoFuncionario}}",
+  "{{cargoFuncionario}}",
+  "{{departamentoFuncionario}}",
+  "{{salarioBaseFuncionario}}",
+  "{{tipoContratoFuncionario}}",
+  "{{cargaHorariaMensalFuncionario}}",
+  "{{dataAdmissaoFuncionario}}",
+  "{{dataDesligamentoFuncionario}}",
+
+  // RH - Holerite
+  "{{competenciaMes}}",
+  "{{competenciaAno}}",
+  "{{competenciaHolerite}}",
+  "{{eventosHolerite}}",
+  "{{totalVencimentos}}",
+  "{{totalDescontos}}",
+  "{{valorLiquido}}",
+  "{{baseInss}}",
+  "{{baseFgts}}",
+  "{{fgtsMes}}",
+  "{{baseIrrf}}",
+
+  // RH - Férias
+  "{{periodoAquisitivoInicio}}",
+  "{{periodoAquisitivoFim}}",
+  "{{periodoGozoInicio}}",
+  "{{periodoGozoFim}}",
+  "{{diasFerias}}",
+  "{{dataPagamentoFerias}}",
+  "{{dataRetornoTrabalho}}",
+  "{{valorFerias}}",
+  "{{valorTercoConstitucional}}",
+  "{{valorLiquidoFerias}}",
+
+  // RH - Rescisão / Demissão
+  "{{motivoDemissao}}",
+  "{{tipoRescisao}}",
+  "{{dataDemissao}}",
+  "{{saldoSalario}}",
+  "{{feriasVencidas}}",
+  "{{feriasProporcionais}}",
+  "{{decimoTerceiroProporcional}}",
+  "{{avisoPrevio}}",
+  "{{valorRescisao}}",
+
+  // RH - Advertência / Suspensão
+  "{{motivoAdvertencia}}",
+  "{{descricaoAdvertencia}}",
+  "{{dataAdvertencia}}",
+  "{{motivoSuspensao}}",
+  "{{descricaoSuspensao}}",
+  "{{dataInicioSuspensao}}",
+  "{{dataFimSuspensao}}",
+  "{{diasSuspensao}}",
+
+  // RH - ASO / Medicina ocupacional
+  "{{tipoAso}}",
+  "{{numeroAso}}",
+  "{{dataAso}}",
+  "{{medicoResponsavel}}",
+  "{{crmMedico}}",
+  "{{resultadoAso}}",
+  "{{observacoesAso}}",
+
+  // RH - Afastamentos
+  "{{tipoAfastamento}}",
+  "{{motivoAfastamento}}",
+  "{{cidAfastamento}}",
+  "{{dataInicioAfastamento}}",
+  "{{dataFimAfastamento}}",
+  "{{diasAfastamento}}",
+  "{{dataPericia}}",
+  "{{resultadoPericia}}",
 ];
 
 const descricoesVariaveis: Record<
@@ -1264,6 +1343,451 @@ const descricoesVariaveis: Record<
     descricao: "Mostra a escola de origem do aluno quando cadastrada.",
     ondeUsar: "Históricos escolares e documentos de transferência.",
     palavras: ["escola origem", "transferência", "instituição anterior"],
+  },
+    "{{nomeFuncionario}}": {
+    titulo: "Nome do funcionário",
+    descricao: "Mostra o nome completo do funcionário.",
+    ondeUsar: "Contratos de trabalho, holerites, férias, advertências e rescisões.",
+    palavras: ["funcionário", "colaborador", "nome funcionário"],
+  },
+
+  "{{cpfFuncionario}}": {
+    titulo: "CPF do funcionário",
+    descricao: "Mostra o CPF cadastrado do funcionário.",
+    ondeUsar: "Documentos trabalhistas e contratuais.",
+    palavras: ["cpf", "documento", "cpf funcionário"],
+  },
+
+  "{{rgFuncionario}}": {
+    titulo: "RG do funcionário",
+    descricao: "Mostra o RG cadastrado do funcionário.",
+    ondeUsar: "Contratos e documentos trabalhistas.",
+    palavras: ["rg", "identidade", "documento"],
+  },
+
+  "{{pisPasepFuncionario}}": {
+    titulo: "PIS/PASEP",
+    descricao: "Mostra o número do PIS/PASEP do funcionário.",
+    ondeUsar: "Holerites, admissões e documentos trabalhistas.",
+    palavras: ["pis", "pasep", "número pis"],
+  },
+
+  "{{codigoFuncionario}}": {
+    titulo: "Código do funcionário",
+    descricao: "Mostra o código interno do colaborador.",
+    ondeUsar: "Holerites e relatórios.",
+    palavras: ["código", "matrícula funcionário"],
+  },
+
+  "{{cargoFuncionario}}": {
+    titulo: "Cargo do funcionário",
+    descricao: "Mostra o cargo atual do colaborador.",
+    ondeUsar: "Contratos, holerites e documentos RH.",
+    palavras: ["cargo", "função", "ocupação"],
+  },
+
+  "{{departamentoFuncionario}}": {
+    titulo: "Departamento",
+    descricao: "Mostra o departamento do funcionário.",
+    ondeUsar: "Documentos RH e relatórios.",
+    palavras: ["departamento", "setor", "área"],
+  },
+
+  "{{salarioBaseFuncionario}}": {
+    titulo: "Salário base",
+    descricao: "Mostra o salário base cadastrado.",
+    ondeUsar: "Contratos e holerites.",
+    palavras: ["salário", "salário base", "remuneração"],
+  },
+
+  "{{tipoContratoFuncionario}}": {
+    titulo: "Tipo de contrato",
+    descricao: "Mostra o tipo de contrato do colaborador.",
+    ondeUsar: "Contratos e documentos RH.",
+    palavras: ["contrato", "clt", "pj", "temporário"],
+  },
+
+  "{{cargaHorariaMensalFuncionario}}": {
+    titulo: "Carga horária mensal",
+    descricao: "Mostra a carga horária mensal cadastrada.",
+    ondeUsar: "Contratos e documentos trabalhistas.",
+    palavras: ["carga horária", "horas mensais"],
+  },
+
+  "{{dataAdmissaoFuncionario}}": {
+    titulo: "Data de admissão",
+    descricao: "Mostra a data de admissão do funcionário.",
+    ondeUsar: "Contratos, férias e documentos RH.",
+    palavras: ["admissão", "entrada", "início"],
+  },
+
+  "{{dataDesligamentoFuncionario}}": {
+    titulo: "Data de desligamento",
+    descricao: "Mostra a data de desligamento quando existir.",
+    ondeUsar: "Rescisões e documentos de demissão.",
+    palavras: ["desligamento", "demissão", "saída"],
+  },
+
+  "{{competenciaMes}}": {
+    titulo: "Competência mês",
+    descricao: "Mostra o mês de referência do holerite.",
+    ondeUsar: "Holerites.",
+    palavras: ["competência", "mês folha"],
+  },
+
+  "{{competenciaAno}}": {
+    titulo: "Competência ano",
+    descricao: "Mostra o ano de referência do holerite.",
+    ondeUsar: "Holerites.",
+    palavras: ["competência", "ano folha"],
+  },
+
+  "{{competenciaHolerite}}": {
+    titulo: "Competência completa",
+    descricao: "Mostra mês e ano da folha.",
+    ondeUsar: "Holerites.",
+    palavras: ["competência", "folha pagamento"],
+  },
+
+  "{{totalVencimentos}}": {
+    titulo: "Total de vencimentos",
+    descricao: "Mostra a soma de todos os proventos.",
+    ondeUsar: "Holerites.",
+    palavras: ["vencimentos", "proventos", "ganhos"],
+  },
+
+  "{{totalDescontos}}": {
+    titulo: "Total de descontos",
+    descricao: "Mostra a soma dos descontos da folha.",
+    ondeUsar: "Holerites.",
+    palavras: ["descontos", "abatimentos"],
+  },
+
+  "{{valorLiquido}}": {
+    titulo: "Valor líquido",
+    descricao: "Mostra o valor líquido do holerite.",
+    ondeUsar: "Holerites.",
+    palavras: ["líquido", "valor final", "receber"],
+  },
+
+  "{{baseInss}}": {
+    titulo: "Base INSS",
+    descricao: "Mostra a base de cálculo do INSS.",
+    ondeUsar: "Holerites.",
+    palavras: ["inss", "base inss"],
+  },
+
+  "{{baseFgts}}": {
+    titulo: "Base FGTS",
+    descricao: "Mostra a base de cálculo do FGTS.",
+    ondeUsar: "Holerites.",
+    palavras: ["fgts", "base fgts"],
+  },
+
+  "{{fgtsMes}}": {
+    titulo: "FGTS do mês",
+    descricao: "Mostra o valor de FGTS do período.",
+    ondeUsar: "Holerites.",
+    palavras: ["fgts", "fgts mês"],
+  },
+
+  "{{baseIrrf}}": {
+    titulo: "Base IRRF",
+    descricao: "Mostra a base de cálculo do IRRF.",
+    ondeUsar: "Holerites.",
+    palavras: ["irrf", "imposto renda"],
+  },
+    "{{periodoAquisitivoInicio}}": {
+    titulo: "Início do período aquisitivo",
+    descricao: "Mostra a data inicial do período aquisitivo das férias.",
+    ondeUsar: "Aviso e recibo de férias.",
+    palavras: ["férias", "período aquisitivo", "início férias"],
+  },
+
+  "{{periodoAquisitivoFim}}": {
+    titulo: "Fim do período aquisitivo",
+    descricao: "Mostra a data final do período aquisitivo das férias.",
+    ondeUsar: "Aviso e recibo de férias.",
+    palavras: ["férias", "período aquisitivo", "fim férias"],
+  },
+
+  "{{periodoGozoInicio}}": {
+    titulo: "Início do gozo de férias",
+    descricao: "Mostra a data de início das férias.",
+    ondeUsar: "Aviso e recibo de férias.",
+    palavras: ["gozo", "férias", "início férias"],
+  },
+
+  "{{periodoGozoFim}}": {
+    titulo: "Fim do gozo de férias",
+    descricao: "Mostra a data final das férias.",
+    ondeUsar: "Aviso e recibo de férias.",
+    palavras: ["gozo", "fim férias", "retorno"],
+  },
+
+  "{{diasFerias}}": {
+    titulo: "Quantidade de dias de férias",
+    descricao: "Mostra a quantidade de dias concedidos.",
+    ondeUsar: "Aviso e recibo de férias.",
+    palavras: ["dias férias", "30 dias", "período férias"],
+  },
+
+  "{{dataPagamentoFerias}}": {
+    titulo: "Data de pagamento das férias",
+    descricao: "Mostra a data do pagamento das férias.",
+    ondeUsar: "Recibo de férias.",
+    palavras: ["pagamento férias", "recebimento férias"],
+  },
+
+  "{{dataRetornoTrabalho}}": {
+    titulo: "Retorno ao trabalho",
+    descricao: "Mostra a data prevista de retorno após as férias.",
+    ondeUsar: "Aviso e recibo de férias.",
+    palavras: ["retorno", "volta trabalho"],
+  },
+
+  "{{valorFerias}}": {
+    titulo: "Valor das férias",
+    descricao: "Mostra o valor bruto das férias.",
+    ondeUsar: "Recibo de férias.",
+    palavras: ["valor férias", "férias bruto"],
+  },
+
+  "{{valorTercoConstitucional}}": {
+    titulo: "Terço constitucional",
+    descricao: "Mostra o valor do adicional de 1/3 de férias.",
+    ondeUsar: "Recibo de férias.",
+    palavras: ["1/3", "terço constitucional"],
+  },
+
+  "{{valorLiquidoFerias}}": {
+    titulo: "Valor líquido das férias",
+    descricao: "Mostra o valor líquido a receber.",
+    ondeUsar: "Recibo de férias.",
+    palavras: ["líquido férias", "receber férias"],
+  },
+
+  "{{motivoDemissao}}": {
+    titulo: "Motivo da demissão",
+    descricao: "Mostra o motivo informado para desligamento.",
+    ondeUsar: "Demissão, rescisão e TRCT.",
+    palavras: ["motivo demissão", "desligamento"],
+  },
+
+  "{{tipoRescisao}}": {
+    titulo: "Tipo de rescisão",
+    descricao: "Mostra o tipo de rescisão aplicada.",
+    ondeUsar: "TRCT e documentos rescisórios.",
+    palavras: ["rescisão", "tipo rescisão"],
+  },
+
+  "{{dataDemissao}}": {
+    titulo: "Data da demissão",
+    descricao: "Mostra a data oficial de desligamento.",
+    ondeUsar: "TRCT e documentos rescisórios.",
+    palavras: ["demissão", "desligamento", "saída"],
+  },
+
+  "{{saldoSalario}}": {
+    titulo: "Saldo de salário",
+    descricao: "Mostra o saldo de salário calculado na rescisão.",
+    ondeUsar: "TRCT.",
+    palavras: ["saldo salário", "rescisão"],
+  },
+
+  "{{feriasVencidas}}": {
+    titulo: "Férias vencidas",
+    descricao: "Mostra o valor das férias vencidas.",
+    ondeUsar: "TRCT.",
+    palavras: ["férias vencidas"],
+  },
+
+  "{{feriasProporcionais}}": {
+    titulo: "Férias proporcionais",
+    descricao: "Mostra o valor das férias proporcionais.",
+    ondeUsar: "TRCT.",
+    palavras: ["férias proporcionais"],
+  },
+
+  "{{decimoTerceiroProporcional}}": {
+    titulo: "13º proporcional",
+    descricao: "Mostra o valor proporcional do décimo terceiro.",
+    ondeUsar: "TRCT.",
+    palavras: ["13º", "décimo terceiro"],
+  },
+
+  "{{avisoPrevio}}": {
+    titulo: "Aviso prévio",
+    descricao: "Mostra o valor do aviso prévio.",
+    ondeUsar: "TRCT e rescisões.",
+    palavras: ["aviso prévio"],
+  },
+
+  "{{valorRescisao}}": {
+    titulo: "Valor total da rescisão",
+    descricao: "Mostra o valor líquido final da rescisão.",
+    ondeUsar: "TRCT.",
+    palavras: ["valor rescisão", "liquido rescisão"],
+  },
+
+  "{{motivoAdvertencia}}": {
+    titulo: "Motivo da advertência",
+    descricao: "Mostra o motivo da advertência disciplinar.",
+    ondeUsar: "Advertências.",
+    palavras: ["advertência", "motivo advertência"],
+  },
+
+  "{{descricaoAdvertencia}}": {
+    titulo: "Descrição da advertência",
+    descricao: "Mostra a descrição detalhada da advertência.",
+    ondeUsar: "Advertências.",
+    palavras: ["advertência", "ocorrência"],
+  },
+
+  "{{dataAdvertencia}}": {
+    titulo: "Data da advertência",
+    descricao: "Mostra a data da advertência.",
+    ondeUsar: "Advertências.",
+    palavras: ["data advertência"],
+  },
+
+  "{{motivoSuspensao}}": {
+    titulo: "Motivo da suspensão",
+    descricao: "Mostra o motivo da suspensão disciplinar.",
+    ondeUsar: "Suspensões.",
+    palavras: ["suspensão", "motivo suspensão"],
+  },
+
+  "{{descricaoSuspensao}}": {
+    titulo: "Descrição da suspensão",
+    descricao: "Mostra a descrição da suspensão.",
+    ondeUsar: "Suspensões.",
+    palavras: ["suspensão", "ocorrência"],
+  },
+
+  "{{dataInicioSuspensao}}": {
+    titulo: "Início da suspensão",
+    descricao: "Mostra a data inicial da suspensão.",
+    ondeUsar: "Suspensões.",
+    palavras: ["início suspensão"],
+  },
+
+  "{{dataFimSuspensao}}": {
+    titulo: "Fim da suspensão",
+    descricao: "Mostra a data final da suspensão.",
+    ondeUsar: "Suspensões.",
+    palavras: ["fim suspensão"],
+  },
+
+  "{{diasSuspensao}}": {
+    titulo: "Dias de suspensão",
+    descricao: "Mostra a quantidade de dias suspensos.",
+    ondeUsar: "Suspensões.",
+    palavras: ["dias suspensão"],
+  },
+    "{{tipoAso}}": {
+    titulo: "Tipo de ASO",
+    descricao: "Mostra o tipo do atestado de saúde ocupacional.",
+    ondeUsar: "ASO admissional, periódico, retorno, mudança de função e demissional.",
+    palavras: ["aso", "exame ocupacional", "admissional", "demissional"],
+  },
+
+  "{{numeroAso}}": {
+    titulo: "Número do ASO",
+    descricao: "Mostra o número ou identificador do ASO.",
+    ondeUsar: "Documentos de medicina ocupacional.",
+    palavras: ["número aso", "aso", "protocolo exame"],
+  },
+
+  "{{dataAso}}": {
+    titulo: "Data do ASO",
+    descricao: "Mostra a data do exame ocupacional.",
+    ondeUsar: "ASO e exames médicos ocupacionais.",
+    palavras: ["data aso", "data exame", "exame ocupacional"],
+  },
+
+  "{{medicoResponsavel}}": {
+    titulo: "Médico responsável",
+    descricao: "Mostra o nome do médico responsável pelo exame.",
+    ondeUsar: "ASO e documentos de medicina ocupacional.",
+    palavras: ["médico", "medico", "responsável aso"],
+  },
+
+  "{{crmMedico}}": {
+    titulo: "CRM do médico",
+    descricao: "Mostra o CRM do médico responsável.",
+    ondeUsar: "ASO e documentos de medicina ocupacional.",
+    palavras: ["crm", "registro médico", "médico"],
+  },
+
+  "{{resultadoAso}}": {
+    titulo: "Resultado do ASO",
+    descricao: "Mostra o resultado, como apto ou inapto.",
+    ondeUsar: "ASO admissional, periódico, retorno, mudança de função e demissional.",
+    palavras: ["apto", "inapto", "resultado aso"],
+  },
+
+  "{{observacoesAso}}": {
+    titulo: "Observações do ASO",
+    descricao: "Mostra observações médicas ou ocupacionais do exame.",
+    ondeUsar: "ASO e exames médicos ocupacionais.",
+    palavras: ["observações aso", "restrições", "observação médica"],
+  },
+
+  "{{tipoAfastamento}}": {
+    titulo: "Tipo de afastamento",
+    descricao: "Mostra o tipo do afastamento do funcionário.",
+    ondeUsar: "Afastamento médico, maternidade, perícia e retorno ao trabalho.",
+    palavras: ["afastamento", "licença", "maternidade", "perícia"],
+  },
+
+  "{{motivoAfastamento}}": {
+    titulo: "Motivo do afastamento",
+    descricao: "Mostra o motivo informado para o afastamento.",
+    ondeUsar: "Afastamentos e documentos médicos.",
+    palavras: ["motivo afastamento", "licença", "atestado"],
+  },
+
+  "{{cidAfastamento}}": {
+    titulo: "CID do afastamento",
+    descricao: "Mostra o CID informado, quando houver autorização e registro.",
+    ondeUsar: "Afastamentos médicos e perícias.",
+    palavras: ["cid", "código doença", "afastamento médico"],
+  },
+
+  "{{dataInicioAfastamento}}": {
+    titulo: "Início do afastamento",
+    descricao: "Mostra a data inicial do afastamento.",
+    ondeUsar: "Afastamentos médicos, maternidade e perícia.",
+    palavras: ["início afastamento", "data afastamento"],
+  },
+
+  "{{dataFimAfastamento}}": {
+    titulo: "Fim do afastamento",
+    descricao: "Mostra a data final ou prevista do afastamento.",
+    ondeUsar: "Afastamentos médicos, maternidade e perícia.",
+    palavras: ["fim afastamento", "retorno afastamento"],
+  },
+
+  "{{diasAfastamento}}": {
+    titulo: "Dias de afastamento",
+    descricao: "Mostra a quantidade de dias afastados.",
+    ondeUsar: "Afastamentos e relatórios de RH.",
+    palavras: ["dias afastamento", "quantos dias", "licença"],
+  },
+
+  "{{dataPericia}}": {
+    titulo: "Data da perícia",
+    descricao: "Mostra a data agendada ou realizada da perícia médica.",
+    ondeUsar: "Afastamento perícia.",
+    palavras: ["perícia", "inss", "data perícia"],
+  },
+
+  "{{resultadoPericia}}": {
+    titulo: "Resultado da perícia",
+    descricao: "Mostra o resultado da perícia médica.",
+    ondeUsar: "Afastamento perícia e retorno ao trabalho.",
+    palavras: ["resultado perícia", "inss", "aprovado", "indeferido"],
   },
 };
 
