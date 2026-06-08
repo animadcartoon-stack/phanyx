@@ -316,6 +316,57 @@ CPF: {{cpfFuncionario}}
 {{blocoAssinaturaDiretor}}
 `;
 
+    case "RECIBO_FERIAS":
+      return `RECIBO DE FÉRIAS
+
+Recebi de {{nomeInstituicao}}, inscrita no CNPJ {{cnpjInstituicao}}, os valores referentes às férias do período abaixo:
+
+Funcionário:
+{{nomeFuncionario}}
+
+Cargo:
+{{cargoFuncionario}}
+
+Período aquisitivo:
+{{periodoAquisitivoInicio}} até {{periodoAquisitivoFim}}
+
+Período de gozo:
+{{periodoGozoInicio}} até {{periodoGozoFim}}
+
+Dias de férias:
+{{diasFerias}}
+
+Valor das férias:
+{{valorFerias}}
+
+Terço constitucional:
+{{valorTercoConstitucional}}
+
+Valor líquido:
+{{valorLiquidoFerias}}
+
+Data do pagamento:
+{{dataPagamentoFerias}}
+
+Retorno ao trabalho:
+{{dataRetornoTrabalho}}
+
+Declaro ter recebido os valores acima referentes ao período de férias informado.
+
+{{cidadeAssinatura}}, {{dataAtual}}
+
+FUNCIONÁRIO
+
+{{nomeFuncionario}}
+CPF: {{cpfFuncionario}}
+
+EMPREGADOR
+
+{{nomeInstituicao}}
+
+{{blocoAssinaturaDiretor}}
+`;
+
     case "HISTORICO":
       return `[CABEÇALHO INSTITUCIONAL]
 
@@ -674,9 +725,46 @@ function AdminDocumentosTemplatesPage() {
   setConteudo(templateInicialPorTipo(tipo));
 }
 
+function ehTipoRh(tipoDocumento: TipoDocumentoTemplate) {
+  return [
+    "HOLERITE",
+    "DOCUMENTO_RH",
+    "CONTRATO_TRABALHO",
+    "CONTRATO_EXPERIENCIA",
+    "TERMO_LGPD_RH",
+    "TERMO_EQUIPAMENTOS",
+    "ADMISSAO",
+    "DEMISSAO",
+    "PEDIDO_DEMISSAO",
+    "AVISO_PREVIO",
+    "TRCT",
+    "FERIAS",
+    "AVISO_FERIAS",
+    "RECIBO_FERIAS",
+    "ADVERTENCIA",
+    "SUSPENSAO",
+    "AFASTAMENTO_MEDICO",
+    "AFASTAMENTO_MATERNIDADE",
+    "AFASTAMENTO_PERICIA",
+    "RETORNO_TRABALHO",
+    "ASO",
+    "ASO_ADMISSIONAL",
+    "ASO_PERIODICO",
+    "ASO_RETORNO",
+    "ASO_MUDANCA_FUNCAO",
+    "ASO_DEMISSIONAL",
+  ].includes(tipoDocumento);
+}
+
 function trocarTipoDocumento(novoTipo: TipoDocumentoTemplate) {
   setTipo(novoTipo);
   setConteudo(templateInicialPorTipo(novoTipo));
+
+  if (ehTipoRh(novoTipo)) {
+    setContexto("FUNCIONARIO");
+  } else {
+    setContexto("MATRICULA");
+  }
 
   if (!nome.trim()) {
     setNome(`${labelTipo(novoTipo)} padrão`);
@@ -1559,7 +1647,7 @@ const descricoesVariaveis: Record<
     titulo: "Tipo de contrato",
     descricao: "Mostra o tipo de contrato do colaborador.",
     ondeUsar: "Contratos e documentos RH.",
-    categoria: "Cadastro do Funcionário",
+    categoria: "Admissão",
     palavras: ["contrato", "clt", "pj", "temporário"],
   },
 
@@ -1567,7 +1655,7 @@ const descricoesVariaveis: Record<
     titulo: "Carga horária mensal",
     descricao: "Mostra a carga horária mensal cadastrada.",
     ondeUsar: "Contratos e documentos trabalhistas.",
-    categoria: "Cadastro do Funcionário",
+    categoria: "Admissão",
     palavras: ["carga horária", "horas mensais"],
   },
 
@@ -1575,7 +1663,7 @@ const descricoesVariaveis: Record<
     titulo: "Data de admissão",
     descricao: "Mostra a data de admissão do funcionário.",
     ondeUsar: "Contratos, férias e documentos RH.",
-    categoria: "Cadastro do Funcionário",
+    categoria: "Admissão",
     palavras: ["admissão", "entrada", "início"],
   },
 
@@ -1941,7 +2029,7 @@ const descricoesVariaveis: Record<
     titulo: "Tipo de afastamento",
     descricao: "Mostra o tipo do afastamento do funcionário.",
     ondeUsar: "Afastamento médico, maternidade, perícia e retorno ao trabalho.",
-    categoria: "Medicina Ocupacional",
+    categoria: "Afastamento Funcionário",
     palavras: ["afastamento", "licença", "maternidade", "perícia"],
   },
 
