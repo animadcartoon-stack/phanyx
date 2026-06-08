@@ -220,7 +220,7 @@ const provasConfianca = [
 ];
 
 const provaSocialMetricas = [
-  { valor: "100%", titulo: "Acesso por perfil", descricao: "Admin, professor e aluno com autenticação separada e segura." },
+  { valor: "3 perfis dedicados", titulo: "Admin, professor e aluno com acessos independentes e seguros.", descricao: "Admin, professor e aluno com autenticação separada e segura." },
   { valor: "3 em 1", titulo: "Acadêmico + LMS + financeiro", descricao: "Uma base unificada para reduzir retrabalho institucional." },
   { valor: "QR", titulo: "Documentos validados", descricao: "Com verificação pública e mais confiança para a instituição." },
   { valor: "SaaS", titulo: "Arquitetura multi-instituição", descricao: "Preparada para operar diferentes instituições com isolamento por tenant." },
@@ -384,16 +384,13 @@ if (alvo) {
           <div className="mx-auto max-w-7xl px-6 py-14 md:px-10 lg:px-12">
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-                Prova social
+                POR QUE ESCOLHER A PHANYX
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Estrutura pensada para transmitir confiança desde a primeira apresentação
+                Tecnologia preparada para instituições que buscam crescimento e eficiência
               </h2>
               <p className="mt-4 text-lg text-slate-600">
-                A página de planos não comunica apenas preço. Ela reforça
-                robustez, segurança, maturidade operacional e prontidão para
-                implantação.
-              </p>
+                O PHANYX reúne gestão acadêmica, LMS, financeiro e documentos em uma única solução, reduzindo retrabalho e fortalecendo a operação institucional.              </p>
             </div>
 
             <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -858,14 +855,14 @@ if (alvo) {
           <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-                Posicionamento comercial
+                BENEFÍCIOS DA PLATAFORMA
+
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Uma proposta mais forte para vender o PHANYX com confiança
+                Uma solução preparada para reduzir retrabalho e aumentar a eficiência institucional
               </h2>
               <p className="mt-4 text-lg text-slate-600">
-                Os planos não servem apenas para cobrar. Eles ajudam a comunicar
-                valor, maturidade e evolução institucional.
+                A PHANYX centraliza processos acadêmicos, financeiros, documentais e administrativos em um único ambiente.
               </p>
             </div>
 
@@ -887,14 +884,13 @@ if (alvo) {
           <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
             <div className="mx-auto max-w-3xl text-center">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-                Confiança comercial
+                POR QUE ESCOLHER A PHANYX
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Uma apresentação mais forte para instituições que precisam decidir com segurança
+                Tecnologia preparada para instituições que buscam crescimento sustentável
               </h2>
               <p className="mt-4 text-lg text-slate-600">
-                Estes blocos ajudam a transmitir valor, maturidade e confiança
-                para quem está avaliando implantação, migração ou modernização da operação.
+                Arquitetura moderna, documentos validados, controle por perfil e operação multi-instituição para acompanhar a evolução da sua organização.
               </p>
             </div>
 

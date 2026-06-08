@@ -400,7 +400,7 @@ export default function HomePage() {
                   Diferenciais
                 </p>
                 <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                  O PHANYX foi pensado para ter cara de produto sério e escalável
+                  Uma plataforma preparada para escolas, faculdades, universidades, seminários e instituições de ensino em expansão.
                 </h2>
                 <p className="mt-4 text-lg text-gray-600">
                   Não é apenas uma tela de login. É uma plataforma com visão de
@@ -474,15 +474,13 @@ export default function HomePage() {
           <div className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
             <div className="max-w-3xl">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
-                Páginas estratégicas
+                ECOSSISTEMA PHANYX
               </p>
               <h2 className="mt-3 text-3xl font-bold md:text-4xl">
-                Conteúdos pensados para posicionamento orgânico no Google
+                Uma plataforma completa para instituições em crescimento
               </h2>
               <p className="mt-4 text-lg text-gray-600">
-                Estas páginas ajudam o PHANYX a competir por buscas importantes
-                como gestão escolar, sistema escolar, plataforma EAD e software
-                para cursos.
+                Do processo de matrícula à emissão de documentos, a PHANYX centraliza operações acadêmicas, administrativas e financeiras em um único ambiente.
               </p>
             </div>
 
