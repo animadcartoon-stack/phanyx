@@ -31,6 +31,59 @@ type HoleriteArquivado = {
   } | null;
 };
 
+type FeriasArquivada = {
+  id: number;
+  dataInicio: string;
+  dataFim: string;
+  dias: number;
+  status: string;
+  arquivadaEm?: string | null;
+  motivoArquivo?: string | null;
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
+  } | null;
+};
+
+type ExameArquivado = {
+  id: number;
+  tipo: string;
+  dataExame: string;
+  resultado?: string | null;
+  arquivadoEm?: string | null;
+  motivoArquivo?: string | null;
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
+  } | null;
+};
+
+type RescisaoArquivada = {
+  id: number;
+  tipo: string;
+  dataDesligamento: string;
+  motivo?: string | null;
+  arquivadaEm?: string | null;
+  motivoArquivo?: string | null;
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
+  } | null;
+};
+
+type DocumentoArquivado = {
+  id: number;
+  tipo: string;
+  titulo: string;
+  dataDocumento: string;
+  arquivadoEm?: string | null;
+  motivoArquivo?: string | null;
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
+  } | null;
+};
+
 function formatarData(data?: string | null) {
   if (!data) return "-";
   const d = new Date(data);
@@ -42,6 +95,10 @@ export default function ArquivadosRHPage() {
 
     const [ocorrencias, setOcorrencias] = useState<OcorrenciaArquivada[]>([]);
     const [holerites, setHolerites] = useState<HoleriteArquivado[]>([]);
+    const [ferias, setFerias] = useState<FeriasArquivada[]>([]);
+    const [exames, setExames] = useState<ExameArquivado[]>([]);
+    const [rescisoes, setRescisoes] = useState<RescisaoArquivada[]>([]);
+    const [documentos, setDocumentos] = useState<DocumentoArquivado[]>([]);
     const [carregando, setCarregando] = useState(true);
     const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
 
@@ -72,6 +129,40 @@ if (!resHolerites.ok) {
 const dadosHolerites = await resHolerites.json();
 
 setHolerites(Array.isArray(dadosHolerites) ? dadosHolerites : []);
+const [resFerias, resExames, resRescisoes, resDocumentos] =
+  await Promise.all([
+    fetch("/api/admin/rh/arquivados/ferias"),
+    fetch("/api/admin/rh/arquivados/exames"),
+    fetch("/api/admin/rh/arquivados/rescisoes"),
+    fetch("/api/admin/rh/arquivados/documentos"),
+  ]);
+
+if (!resFerias.ok) {
+  throw new Error("Não foi possível carregar as férias arquivadas.");
+}
+
+if (!resExames.ok) {
+  throw new Error("Não foi possível carregar os exames arquivados.");
+}
+
+if (!resRescisoes.ok) {
+  throw new Error("Não foi possível carregar as rescisões arquivadas.");
+}
+
+if (!resDocumentos.ok) {
+  throw new Error("Não foi possível carregar os documentos arquivados.");
+}
+
+const dadosFerias = await resFerias.json();
+const dadosExames = await resExames.json();
+const dadosRescisoes = await resRescisoes.json();
+const dadosDocumentos = await resDocumentos.json();
+
+setFerias(Array.isArray(dadosFerias) ? dadosFerias : []);
+setExames(Array.isArray(dadosExames) ? dadosExames : []);
+setRescisoes(Array.isArray(dadosRescisoes) ? dadosRescisoes : []);
+setDocumentos(Array.isArray(dadosDocumentos) ? dadosDocumentos : []);
+
     } catch (error) {
       console.error(error);
     } finally {
@@ -182,24 +273,58 @@ setHolerites(Array.isArray(dadosHolerites) ? dadosHolerites : []);
   Holerites
 </button>
 
-    <button className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300">
-      Férias
-    </button>
+    <button
+  type="button"
+  onClick={() => setAbaAtiva("FERIAS")}
+  className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+    abaAtiva === "FERIAS"
+      ? "bg-emerald-600 text-white"
+      : "border border-slate-700 text-slate-300"
+  }`}
+>
+  Férias
+</button>
 
-    <button className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300">
-      Exames
-    </button>
+    <button
+  type="button"
+  onClick={() => setAbaAtiva("EXAMES")}
+  className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+    abaAtiva === "EXAMES"
+      ? "bg-purple-600 text-white"
+      : "border border-slate-700 text-slate-300"
+  }`}
+>
+  Exames
+</button>
 
-    <button className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300">
-      Rescisões
-    </button>
+    <button
+  type="button"
+  onClick={() => setAbaAtiva("RESCISOES")}
+  className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+    abaAtiva === "RESCISOES"
+      ? "bg-red-600 text-white"
+      : "border border-slate-700 text-slate-300"
+  }`}
+>
+  Rescisões
+</button>
 
-    <button className="rounded-2xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-300">
-      Documentos RH
-    </button>
+    <button
+  type="button"
+  onClick={() => setAbaAtiva("DOCUMENTOS")}
+  className={`rounded-2xl px-4 py-2 text-sm font-bold ${
+    abaAtiva === "DOCUMENTOS"
+      ? "bg-blue-600 text-white"
+      : "border border-slate-700 text-slate-300"
+  }`}
+>
+  Documentos RH
+</button>
   </div>
 
-{abaAtiva !== "OCORRENCIAS" && abaAtiva !== "HOLERITES" && (
+{!["OCORRENCIAS", "HOLERITES", "FERIAS", "EXAMES", "RESCISOES", "DOCUMENTOS"].includes(
+  abaAtiva
+) && (
   <div className="mt-6 rounded-2xl border border-dashed border-slate-700 p-8 text-center">
     <p className="text-lg font-bold text-white">
       {abaAtiva} em preparação
@@ -259,6 +384,206 @@ setHolerites(Array.isArray(dadosHolerites) ? dadosHolerites : []);
 
               <td className="p-3 text-slate-300">
                 {holerite.motivoArquivo || "-"}
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+)}
+
+{abaAtiva === "FERIAS" && (
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+          <th className="p-3">Funcionário</th>
+          <th className="p-3">Período</th>
+          <th className="p-3">Dias</th>
+          <th className="p-3">Arquivado em</th>
+          <th className="p-3">Motivo</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {ferias.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="p-6 text-center text-slate-400">
+              Nenhuma férias arquivada encontrada.
+            </td>
+          </tr>
+        ) : (
+          ferias.map((item) => (
+            <tr key={item.id} className="border-b border-slate-800">
+              <td className="p-3 text-white">
+                {item.funcionario?.nome || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.dataInicio)} até {formatarData(item.dataFim)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.dias}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.arquivadaEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.motivoArquivo || "-"}
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+)}
+
+{abaAtiva === "EXAMES" && (
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+          <th className="p-3">Funcionário</th>
+          <th className="p-3">Tipo</th>
+          <th className="p-3">Data</th>
+          <th className="p-3">Resultado</th>
+          <th className="p-3">Arquivado em</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {exames.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="p-6 text-center text-slate-400">
+              Nenhum exame arquivado encontrado.
+            </td>
+          </tr>
+        ) : (
+          exames.map((item) => (
+            <tr key={item.id} className="border-b border-slate-800">
+              <td className="p-3 text-white">
+                {item.funcionario?.nome || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.tipo}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.dataExame)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.resultado || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.arquivadoEm)}
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+)}
+
+{abaAtiva === "RESCISOES" && (
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+          <th className="p-3">Funcionário</th>
+          <th className="p-3">Tipo</th>
+          <th className="p-3">Desligamento</th>
+          <th className="p-3">Arquivado em</th>
+          <th className="p-3">Motivo</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {rescisoes.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="p-6 text-center text-slate-400">
+              Nenhuma rescisão arquivada encontrada.
+            </td>
+          </tr>
+        ) : (
+          rescisoes.map((item) => (
+            <tr key={item.id} className="border-b border-slate-800">
+              <td className="p-3 text-white">
+                {item.funcionario?.nome || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.tipo}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.dataDesligamento)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.arquivadaEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.motivoArquivo || "-"}
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
+)}
+
+{abaAtiva === "DOCUMENTOS" && (
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+          <th className="p-3">Funcionário</th>
+          <th className="p-3">Título</th>
+          <th className="p-3">Tipo</th>
+          <th className="p-3">Data</th>
+          <th className="p-3">Arquivado em</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {documentos.length === 0 ? (
+          <tr>
+            <td colSpan={5} className="p-6 text-center text-slate-400">
+              Nenhum documento arquivado encontrado.
+            </td>
+          </tr>
+        ) : (
+          documentos.map((item) => (
+            <tr key={item.id} className="border-b border-slate-800">
+              <td className="p-3 text-white">
+                {item.funcionario?.nome || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.titulo}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.tipo}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.dataDocumento)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(item.arquivadoEm)}
               </td>
             </tr>
           ))
