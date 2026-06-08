@@ -1947,6 +1947,16 @@ model DocumentoRH {
   arquivoUrl String?
   conteudo   String? @db.Text
 
+  arquivado      Boolean   @default(false)
+  arquivadoEm    DateTime?
+  arquivadoPorId Int?
+  motivoArquivo  String?   @db.Text
+
+  cancelado          Boolean   @default(false)
+  canceladoEm        DateTime?
+  canceladoPorId     Int?
+  motivoCancelamento String?   @db.Text
+
   dataDocumento DateTime @default(now())
   criadoEm      DateTime @default(now())
   atualizadoEm  DateTime @updatedAt
@@ -1985,6 +1995,16 @@ model FeriasRH {
   avisoUrl  String?
   reciboUrl String?
 
+  arquivada      Boolean   @default(false)
+  arquivadaEm    DateTime?
+  arquivadaPorId Int?
+  motivoArquivo  String?   @db.Text
+
+  cancelada          Boolean   @default(false)
+  canceladaEm        DateTime?
+  canceladaPorId     Int?
+  motivoCancelamento String?   @db.Text
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
@@ -2011,6 +2031,16 @@ model ExameMedicoRH {
   validade    DateTime?
   arquivoUrl  String?
   observacoes String?   @db.Text
+
+  arquivado      Boolean   @default(false)
+  arquivadoEm    DateTime?
+  arquivadoPorId Int?
+  motivoArquivo  String?   @db.Text
+
+  cancelado          Boolean   @default(false)
+  canceladoEm        DateTime?
+  canceladoPorId     Int?
+  motivoCancelamento String?   @db.Text
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -2046,6 +2076,16 @@ model RescisaoRH {
   termoUrl     String?
   trctUrl      String?
   checklistUrl String?
+
+  arquivada      Boolean   @default(false)
+  arquivadaEm    DateTime?
+  arquivadaPorId Int?
+  motivoArquivo  String?   @db.Text
+
+  cancelada          Boolean   @default(false)
+  canceladaEm        DateTime?
+  canceladaPorId     Int?
+  motivoCancelamento String?   @db.Text
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
