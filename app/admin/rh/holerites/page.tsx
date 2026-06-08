@@ -78,9 +78,12 @@ export default function Page() {
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
-  const [holeriteParaExcluir, setHoleriteParaExcluir] = useState<Holerite | null>(null);
-  const [holeriteParaVisualizar, setHoleriteParaVisualizar] = useState<Holerite | null>(null);
-  const [excluindo, setExcluindo] = useState(false);
+  const [holeriteParaArquivar, setHoleriteParaArquivar] = useState<Holerite | null>(null);
+
+  const [motivoArquivo, setMotivoArquivo] = useState("");
+
+  const [arquivando, setArquivando] = useState(false);
+
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
@@ -182,31 +185,44 @@ export default function Page() {
     setEventos((atuais) => atuais.filter((_, i) => i !== index));
   }
 
-  async function excluirHolerite() {
-  if (!holeriteParaExcluir) return;
+async function arquivarHolerite() {
+  if (!holeriteParaArquivar) return;
+
+  if (!motivoArquivo.trim()) {
+    setErro("Informe o motivo do arquivamento.");
+    return;
+  }
 
   try {
     setErro("");
     setSucesso("");
-    setExcluindo(true);
+    setArquivando(true);
 
-    const res = await fetch(`/api/admin/rh/holerites/${holeriteParaExcluir.id}`, {
-      method: "DELETE",
+    const res = await fetch("/api/admin/rh/holerites", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        holeriteId: holeriteParaArquivar.id,
+        motivoArquivo,
+      }),
     });
 
     const dados = await res.json().catch(() => null);
 
     if (!res.ok) {
-      throw new Error(dados?.error || "Não foi possível excluir o holerite.");
+      throw new Error(dados?.error || "Não foi possível arquivar o holerite.");
     }
 
-    setSucesso("Holerite excluído com sucesso.");
-    setHoleriteParaExcluir(null);
+    setSucesso("Holerite arquivado com sucesso.");
+    setHoleriteParaArquivar(null);
+    setMotivoArquivo("");
     await carregarDados();
   } catch (error: any) {
-    setErro(error?.message || "Erro ao excluir holerite.");
+    setErro(error?.message || "Erro ao arquivar holerite.");
   } finally {
-    setExcluindo(false);
+    setArquivando(false);
   }
 }
 
@@ -579,29 +595,24 @@ export default function Page() {
                     </td>
                     <td className="py-3 text-right">
   <div className="flex justify-end gap-2">
-    <button
-      type="button"
-      onClick={() => setHoleriteParaVisualizar(holerite)}
-      className="rounded-xl border border-blue-500 px-3 py-1 text-sm font-semibold text-blue-300 transition hover:bg-blue-500 hover:text-white"
+    <a
+      href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
     >
-      👁 Visualizar
-    </button>
-
-<a
-  href={`/api/admin/rh/holerites/${holerite.id}/pdf`}
-  target="_blank"
-  rel="noopener noreferrer"
-  className="rounded-xl border border-emerald-500 px-3 py-1 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
->
-  📄 PDF
-</a>
+      📄 PDF
+    </a>
 
     <button
       type="button"
-      onClick={() => setHoleriteParaExcluir(holerite)}
-      className="rounded-xl border border-red-500 px-3 py-1 text-sm font-semibold text-red-400 transition hover:bg-red-500 hover:text-white"
+      onClick={() => {
+        setHoleriteParaArquivar(holerite);
+        setMotivoArquivo("");
+      }}
+      className="rounded-xl border border-amber-500 px-3 py-1 text-sm font-semibold text-amber-300 transition hover:bg-amber-500 hover:text-white"
     >
-      🗑 Excluir
+      Arquivar
     </button>
   </div>
 </td>
@@ -613,208 +624,73 @@ export default function Page() {
         </div>
             </div>
 
-{holeriteParaVisualizar && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-    <div className="max-h-[90vh] w-full max-w-5xl overflow-y-auto rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-white">
-          Holerite
-        </h2>
+      {holeriteParaArquivar && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+      <h2 className="text-xl font-bold text-white">
+        Arquivar holerite
+      </h2>
+
+      <p className="mt-3 text-sm text-slate-300">
+        Este holerite não será excluído do sistema. Ele ficará preservado para auditoria, direção e conferências futuras.
+      </p>
+
+      <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+        <p>
+          <strong>Funcionário:</strong>{" "}
+          {holeriteParaArquivar.funcionario?.nome || "Funcionário"}
+        </p>
+        <p className="mt-2">
+          <strong>Competência:</strong>{" "}
+          {String(holeriteParaArquivar.competenciaMes).padStart(2, "0")}/
+          {holeriteParaArquivar.competenciaAno}
+        </p>
+      </div>
+
+      <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+        Motivo do arquivamento
+      </label>
+
+      <textarea
+        value={motivoArquivo}
+        onChange={(e) => setMotivoArquivo(e.target.value)}
+        rows={4}
+        placeholder="Explique por que este holerite está sendo arquivado."
+        className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+      />
+
+      {erro && (
+        <div className="mt-3 rounded-xl border border-red-500 bg-red-950/40 px-4 py-3 text-sm font-semibold text-red-200">
+          {erro}
+        </div>
+      )}
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setHoleriteParaArquivar(null);
+            setMotivoArquivo("");
+            setErro("");
+          }}
+          disabled={arquivando}
+          className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+        >
+          Cancelar
+        </button>
 
         <button
           type="button"
-          onClick={() => setHoleriteParaVisualizar(null)}
-          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-slate-800"
+          onClick={arquivarHolerite}
+          disabled={arquivando}
+          className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
         >
-          Fechar
+          {arquivando ? "Arquivando..." : "Arquivar holerite"}
         </button>
-      </div>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs uppercase text-slate-400">
-            Funcionário
-          </p>
-
-          <p className="mt-1 font-bold text-white">
-            {holeriteParaVisualizar.funcionario?.nome}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs uppercase text-slate-400">
-            Competência
-          </p>
-
-          <p className="mt-1 font-bold text-white">
-            {String(
-              holeriteParaVisualizar.competenciaMes
-            ).padStart(2, "0")}
-            /
-            {holeriteParaVisualizar.competenciaAno}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs uppercase text-slate-400">
-            Salário Base
-          </p>
-
-          <p className="mt-1 font-bold text-white">
-            {moeda(
-              Number(
-                holeriteParaVisualizar.salarioBase || 0
-              )
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-slate-800 bg-slate-900 p-4">
-          <p className="text-xs uppercase text-slate-400">
-            Status
-          </p>
-
-          <p className="mt-1 font-bold text-green-400">
-            {holeriteParaVisualizar.status}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
-        <table className="min-w-full">
-          <thead>
-            <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
-              <th className="p-3">Código</th>
-              <th className="p-3">Descrição</th>
-              <th className="p-3">Referência</th>
-              <th className="p-3">Tipo</th>
-              <th className="p-3">Valor</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {holeriteParaVisualizar.eventos?.map((evento: any) => (
-              <tr
-                key={evento.id}
-                className="border-b border-slate-800"
-              >
-                <td className="p-3 text-slate-200">
-                  {evento.codigo}
-                </td>
-
-                <td className="p-3 text-slate-200">
-                  {evento.descricao}
-                </td>
-
-                <td className="p-3 text-slate-200">
-                  {evento.referencia}
-                </td>
-
-                <td className="p-3 text-slate-200">
-                  {evento.tipo}
-                </td>
-
-                <td className="p-3 font-bold text-white">
-                  {moeda(Number(evento.valor))}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-emerald-700 bg-emerald-950/40 p-4">
-          <p className="text-xs uppercase text-emerald-400">
-            Vencimentos
-          </p>
-
-          <p className="mt-2 text-2xl font-bold text-emerald-300">
-            {moeda(
-              Number(
-                holeriteParaVisualizar.totalVencimentos
-              )
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-red-700 bg-red-950/40 p-4">
-          <p className="text-xs uppercase text-red-400">
-            Descontos
-          </p>
-
-          <p className="mt-2 text-2xl font-bold text-red-300">
-            {moeda(
-              Number(
-                holeriteParaVisualizar.totalDescontos
-              )
-            )}
-          </p>
-        </div>
-
-        <div className="rounded-2xl border border-blue-700 bg-blue-950/40 p-4">
-          <p className="text-xs uppercase text-blue-400">
-            Líquido
-          </p>
-
-          <p className="mt-2 text-2xl font-bold text-blue-300">
-            {moeda(
-              Number(
-                holeriteParaVisualizar.valorLiquido
-              )
-            )}
-          </p>
-        </div>
       </div>
     </div>
   </div>
 )}
-
-      {holeriteParaExcluir && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-white">
-              Excluir holerite
-            </h2>
-
-            <p className="mt-3 text-sm text-slate-300">
-              Esta ação removerá o holerite e todos os eventos vinculados.
-            </p>
-
-            <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
-              <p>
-                <strong>Funcionário:</strong>{" "}
-                {holeriteParaExcluir.funcionario?.nome || "Funcionário"}
-              </p>
-              <p className="mt-2">
-                <strong>Competência:</strong>{" "}
-                {String(holeriteParaExcluir.competenciaMes).padStart(2, "0")}/
-                {holeriteParaExcluir.competenciaAno}
-              </p>
-            </div>
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setHoleriteParaExcluir(null)}
-                disabled={excluindo}
-                className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
-              >
-                Cancelar
-              </button>
-
-              <button
-                type="button"
-                onClick={excluirHolerite}
-                disabled={excluindo}
-                className="rounded-2xl bg-red-600 px-5 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-60"
-              >
-                {excluindo ? "Excluindo..." : "Excluir holerite"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

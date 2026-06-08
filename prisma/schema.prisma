@@ -2080,6 +2080,18 @@ model HoleriteRH {
   status     String  @default("RASCUNHO")
   arquivoUrl String?
 
+  arquivado      Boolean   @default(false)
+  arquivadoEm    DateTime?
+  arquivadoPorId Int?
+  motivoArquivo  String?   @db.Text
+
+  cancelado          Boolean   @default(false)
+  canceladoEm        DateTime?
+  canceladoPorId     Int?
+  motivoCancelamento String?   @db.Text
+
+  substituidoPorId Int?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
