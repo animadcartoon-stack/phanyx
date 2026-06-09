@@ -209,6 +209,34 @@ async function restaurarOcorrencia(id: number) {
   }
 }
 
+async function restaurarHolerite(id: number) {
+  try {
+    setRestaurandoId(id);
+
+    const res = await fetch("/api/admin/rh/arquivados/holerites", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        holeriteId: id,
+      }),
+    });
+
+    const dados = await res.json();
+
+    if (!res.ok) {
+      throw new Error(dados?.error || "Erro ao restaurar holerite.");
+    }
+
+    setHolerites((atual) => atual.filter((h) => h.id !== id));
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRestaurandoId(null);
+  }
+}
+
   return (
     <div className="space-y-6">
       <div>
@@ -422,6 +450,18 @@ async function restaurarOcorrencia(id: number) {
               <td className="p-3 text-slate-300">
                 {holerite.motivoArquivo || "-"}
               </td>
+
+<td className="p-3">
+  <button
+    type="button"
+    onClick={() => restaurarHolerite(holerite.id)}
+    disabled={restaurandoId === holerite.id}
+    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+  >
+    {restaurandoId === holerite.id ? "Restaurando..." : "Restaurar"}
+  </button>
+</td>
+
             </tr>
           ))
         )}
@@ -640,6 +680,7 @@ async function restaurarOcorrencia(id: number) {
         <th className="p-3">Data</th>
         <th className="p-3">Arquivado em</th>
         <th className="p-3">Motivo</th>
+        <th className="p-3">Ações</th>
       </tr>
     </thead>
 
@@ -647,7 +688,7 @@ async function restaurarOcorrencia(id: number) {
       {carregando ? (
         <tr>
           <td
-            colSpan={5}
+            colSpan={6}
             className="p-6 text-center text-slate-400"
           >
             Carregando...
@@ -656,7 +697,7 @@ async function restaurarOcorrencia(id: number) {
       ) : ocorrencias.length === 0 ? (
         <tr>
           <td
-            colSpan={5}
+            colSpan={6}
             className="p-6 text-center text-slate-400"
           >
             Nenhuma ocorrência arquivada encontrada.
