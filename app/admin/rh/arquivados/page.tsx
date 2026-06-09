@@ -93,6 +93,7 @@ function formatarData(data?: string | null) {
 
 export default function ArquivadosRHPage() {
 
+    const [busca, setBusca] = useState("");
     const [ocorrencias, setOcorrencias] = useState<OcorrenciaArquivada[]>([]);
     const [holerites, setHolerites] = useState<HoleriteArquivado[]>([]);
     const [ferias, setFerias] = useState<FeriasArquivada[]>([]);
@@ -426,6 +427,16 @@ async function restaurarDocumento(id: number) {
 </button>
   </div>
 
+  <div className="mt-6">
+    <input
+      type="text"
+      value={busca}
+      onChange={(e) => setBusca(e.target.value)}
+      placeholder="Pesquisar funcionário, título, tipo, competência ou motivo..."
+      className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-500 focus:outline-none"
+    />
+  </div>
+
 {!["OCORRENCIAS", "HOLERITES", "FERIAS", "EXAMES", "RESCISOES", "DOCUMENTOS"].includes(
   abaAtiva
 ) && (
@@ -465,7 +476,23 @@ async function restaurarDocumento(id: number) {
             </td>
           </tr>
         ) : (
-          holerites.map((holerite) => (
+          holerites
+.filter((holerite) => {
+  const termo = busca.toLowerCase();
+
+  return (
+    holerite.funcionario?.nome
+      ?.toLowerCase()
+      .includes(termo) ||
+    holerite.motivoArquivo
+      ?.toLowerCase()
+      .includes(termo) ||
+    `${holerite.competenciaMes}/${holerite.competenciaAno}`
+      .toLowerCase()
+      .includes(termo)
+  );
+})
+.map((holerite) => (
             <tr
               key={holerite.id}
               className="border-b border-slate-800"
