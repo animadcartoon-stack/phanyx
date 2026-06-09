@@ -1106,10 +1106,26 @@ function AdminDocumentosTemplatesPage() {
   const [buscaVariavel, setBuscaVariavel] = useState("");
   const [mostrarTodasVariaveis, setMostrarTodasVariaveis] = useState(false);
 
-  function copiarVariavel(texto: string) {
-  navigator.clipboard.writeText(texto);
+  async function copiarVariavel(texto: string) {
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(texto);
+    } else {
+      const area = document.createElement("textarea");
+      area.value = texto;
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.focus();
+      area.select();
+      document.execCommand("copy");
+      document.body.removeChild(area);
+    }
 
-  setMensagem(`Variável ${texto} copiada.`);
+    setMensagem(`Variável ${texto} copiada.`);
+  } catch {
+    setErro(`Não foi possível copiar ${texto}. Selecione e copie manualmente.`);
+  }
 }
 
   async function carregarTemplates() {
@@ -2730,7 +2746,7 @@ const descricoesVariaveis: Record<
   },
 };
 
-const variaveisInteligentes = todasAsTags.map((tag) => {
+const variaveisInteligentesBase = todasAsTags.map((tag) => {
   const info = descricoesVariaveis[tag];
 
   return {
@@ -2745,8 +2761,24 @@ const variaveisInteligentes = todasAsTags.map((tag) => {
       info?.ondeUsar ||
       "Contratos, históricos, certificados, declarações e documentos.",
     palavras: [tag, tag.toLowerCase(), ...(info?.palavras || [])],
-categoria: info?.categoria || "Geral",
+    categoria: info?.categoria || "Geral",
   };
+});
+
+const prioridadeTags: Record<string, number> = {
+  "{{nomeAluno}}": 1000,
+  "{{numeroMatricula}}": 990,
+  "{{matriculaAluno}}": 980,
+  "{{cpfAluno}}": 970,
+  "{{curso}}": 960,
+  "{{statusMatricula}}": 950,
+  "{{dataMatricula}}": 940,
+  "{{codigoValidacao}}": 930,
+  "{{urlValidacao}}": 920,
+};
+
+const variaveisInteligentes = [...variaveisInteligentesBase].sort((a, b) => {
+  return (prioridadeTags[b.tag] || 0) - (prioridadeTags[a.tag] || 0);
 });
 
 function gerarPreviaAmigavelTemplate(conteudo: string) {
@@ -2983,24 +3015,29 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     })
   
       .map((variavel) => (
-        <button
-          key={variavel.tag}
-          type="button"
-          onClick={() => {
-  copiarVariavel(variavel.tag);
-
-  setConteudo((atual) =>
-    atual ? `${atual}\n${variavel.tag}` : variavel.tag
-  );
-}}
-          className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
-        >
+  <button
+    key={variavel.tag}
+    type="button"
+    onClick={() => {
+      copiarVariavel(variavel.tag);
+      setConteudo((atual) =>
+        atual ? `${atual}\n${variavel.tag}` : variavel.tag
+      );
+    }}
+    className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
+  >
           <div className="mb-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
   {variavel.categoria}
 </div>
-          <div className="font-mono font-bold text-blue-700">
-            {variavel.tag}
-          </div>
+          <div className="flex items-center justify-between gap-2">
+  <div className="font-mono font-bold text-blue-700">
+    {variavel.tag}
+  </div>
+
+  <span className="rounded-full bg-blue-600 px-2 py-1 text-[10px] font-bold text-white">
+    📋 Copiar
+  </span>
+</div>
 
           <div className="mt-1 font-semibold text-slate-800">
             {variavel.titulo}

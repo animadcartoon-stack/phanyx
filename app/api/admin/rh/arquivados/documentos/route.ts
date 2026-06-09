@@ -18,6 +18,7 @@ export async function GET() {
         arquivado: true,
       },
       include: {
+  include: {
   funcionario: {
     select: {
       id: true,
@@ -25,6 +26,31 @@ export async function GET() {
       cargo: true,
     },
   },
+
+  criadoPor: {
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  },
+
+  arquivadoPor: {
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  },
+
+  restauradoPor: {
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  },
+},
 
   criadoPor: {
     select: {

@@ -126,30 +126,34 @@ model Instituicao {
 }
 
 model User {
-  id                   Int                   @id @default(autoincrement())
-  nome                 String
-  email                String                @unique
-  senha                String
-  createdAt            DateTime              @default(now())
-  instituicaoId        Int
-  ativo                Boolean               @default(true)
-  updatedAt            DateTime              @updatedAt
-  role                 Role
-  ultimoLoginAt        DateTime?
-  aluno                Aluno?
-  funcionario          Funcionario?
-  professor            Professor?
-  resetToken           String?
-  resetTokenExpira     DateTime?
-  precisaTrocarSenha   Boolean               @default(false)
-  isMasterAdmin        Boolean               @default(false)
-  instituicao          Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  cursosCriados        Curso[]               @relation("CursoCriadoPor")
-  cursosExcluidos      Curso[]               @relation("CursoExcluidoPor")
-  CreditoIA            CreditoIA?
-  notificacoes         Notificacao[]
-  reunioesCriadas      Reuniao[]             @relation("ReuniaoCriadaPor")
-  reunioesParticipante ReuniaoParticipante[]
+  id                 Int          @id @default(autoincrement())
+  nome               String
+  email              String       @unique
+  senha              String
+  createdAt          DateTime     @default(now())
+  instituicaoId      Int
+  ativo              Boolean      @default(true)
+  updatedAt          DateTime     @updatedAt
+  role               Role
+  ultimoLoginAt      DateTime?
+  aluno              Aluno?
+  funcionario        Funcionario?
+  professor          Professor?
+  resetToken         String?
+  resetTokenExpira   DateTime?
+  precisaTrocarSenha Boolean      @default(false)
+  isMasterAdmin      Boolean      @default(false)
+  instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  cursosCriados           Curso[]               @relation("CursoCriadoPor")
+  cursosExcluidos         Curso[]               @relation("CursoExcluidoPor")
+  CreditoIA               CreditoIA?
+  notificacoes            Notificacao[]
+  reunioesCriadas         Reuniao[]             @relation("ReuniaoCriadaPor")
+  reunioesParticipante    ReuniaoParticipante[]
+  documentosRHCriados     DocumentoRH[]         @relation("DocumentoRHCriadoPor")
+  documentosRHArquivados  DocumentoRH[]         @relation("DocumentoRHArquivadoPor")
+  documentosRHRestaurados DocumentoRH[]         @relation("DocumentoRHRestauradoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -560,6 +564,7 @@ model Matricula {
   instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   polo                   Polo?                  @relation(fields: [poloId], references: [id])
 
+  @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([cursoId])
@@ -567,7 +572,6 @@ model Matricula {
   @@index([periodoMatriculaId])
   @@index([periodoLetivo])
   @@index([poloId])
-  @@unique([instituicaoId, numeroMatricula])
 }
 
 model ItemMatricula {
@@ -1970,6 +1974,10 @@ model DocumentoRH {
   funcionario Funcionario        @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   template    DocumentoTemplate? @relation(fields: [templateId], references: [id])
+
+  criadoPor     User? @relation("DocumentoRHCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadoPor  User? @relation("DocumentoRHArquivadoPor", fields: [arquivadoPorId], references: [id])
+  restauradoPor User? @relation("DocumentoRHRestauradoPor", fields: [restauradoPorId], references: [id])
 
   @@index([funcionarioId])
   @@index([instituicaoId])
