@@ -3004,17 +3004,48 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
 
   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
   {variaveisInteligentes
-    .filter((v) => {
-      const termo = normalizarTextoBusca(buscaVariavel);
+  .map((v) => {
+    const termo = normalizarTextoBusca(buscaVariavel);
 
-      if (!mostrarTodasVariaveis && !termo) return false;
+    if (!mostrarTodasVariaveis && !termo) {
+      return { variavel: v, score: 0 };
+    }
 
-      if (mostrarTodasVariaveis && !termo) return true;
+    if (mostrarTodasVariaveis && !termo) {
+      return { variavel: v, score: 1 };
+    }
 
-      return buscaInteligenteVariavel(v, termo);
-    })
-  
-      .map((variavel) => (
+    const titulo = normalizarTextoBusca(v.titulo);
+    const tag = normalizarTextoBusca(v.tag);
+    const descricao = normalizarTextoBusca(v.descricao);
+    const palavras = normalizarTextoBusca((v.palavras || []).join(" "));
+
+    let score = 0;
+
+    if (titulo === termo) score += 1000;
+    if (titulo.startsWith(termo)) score += 800;
+    if (tag.includes(termo.replaceAll(" ", ""))) score += 700;
+    if (titulo.includes(termo)) score += 600;
+    if (palavras.includes(termo)) score += 400;
+    if (descricao.includes(termo)) score += 100;
+
+    const partes = termo.split(" ").filter(Boolean);
+    const todasPartesBatendo = partes.every(
+      (p) =>
+        titulo.includes(p) ||
+        tag.includes(p) ||
+        palavras.includes(p)
+    );
+
+    if (todasPartesBatendo) score += 300;
+
+    return { variavel: v, score };
+  })
+  .filter((item) => item.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, buscaVariavel.trim() ? 4 : 999)
+  .map(({ variavel }) => (
+
   <button
     key={variavel.tag}
     type="button"
@@ -3034,9 +3065,17 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     {variavel.tag}
   </div>
 
-  <span className="rounded-full bg-blue-600 px-2 py-1 text-[10px] font-bold text-white">
-    📋 Copiar
-  </span>
+  <button
+  type="button"
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    copiarVariavel(variavel.tag);
+  }}
+  className="rounded-full bg-blue-600 px-2 py-1 text-[10px] font-bold text-white hover:bg-blue-700"
+>
+  📋 Copiar
+</button>
 </div>
 
           <div className="mt-1 font-semibold text-slate-800">
