@@ -237,6 +237,34 @@ async function restaurarHolerite(id: number) {
   }
 }
 
+async function restaurarDocumento(id: number) {
+  try {
+    setRestaurandoId(id);
+
+    const res = await fetch("/api/admin/rh/arquivados/documentos", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        documentoId: id,
+      }),
+    });
+
+    const dados = await res.json();
+
+    if (!res.ok) {
+      throw new Error(dados?.error || "Erro ao restaurar documento.");
+    }
+
+    setDocumentos((atual) => atual.filter((d) => d.id !== id));
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRestaurandoId(null);
+  }
+}
+
   return (
     <div className="space-y-6">
       <div>
@@ -624,19 +652,20 @@ async function restaurarHolerite(id: number) {
   <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
-          <th className="p-3">Funcionário</th>
-          <th className="p-3">Título</th>
-          <th className="p-3">Tipo</th>
-          <th className="p-3">Data</th>
-          <th className="p-3">Arquivado em</th>
-        </tr>
-      </thead>
+  <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+    <th className="p-3">Funcionário</th>
+    <th className="p-3">Título</th>
+    <th className="p-3">Tipo</th>
+    <th className="p-3">Data</th>
+    <th className="p-3">Arquivado em</th>
+    <th className="p-3">Ações</th>
+  </tr>
+</thead>
 
       <tbody>
         {documentos.length === 0 ? (
           <tr>
-            <td colSpan={5} className="p-6 text-center text-slate-400">
+            <td colSpan={6} className="p-6 text-center text-slate-400">
               Nenhum documento arquivado encontrado.
             </td>
           </tr>
@@ -662,6 +691,18 @@ async function restaurarHolerite(id: number) {
               <td className="p-3 text-slate-300">
                 {formatarData(item.arquivadoEm)}
               </td>
+              <td className="p-3">
+  <button
+    type="button"
+    onClick={() => restaurarDocumento(item.id)}
+    disabled={restaurandoId === item.id}
+    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+  >
+    {restaurandoId === item.id
+      ? "Restaurando..."
+      : "Restaurar"}
+  </button>
+</td>
             </tr>
           ))
         )}
@@ -674,15 +715,15 @@ async function restaurarHolerite(id: number) {
   <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
   <table className="min-w-full">
     <thead>
-      <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
-        <th className="p-3">Funcionário</th>
-        <th className="p-3">Tipo</th>
-        <th className="p-3">Data</th>
-        <th className="p-3">Arquivado em</th>
-        <th className="p-3">Motivo</th>
-        <th className="p-3">Ações</th>
-      </tr>
-    </thead>
+  <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+    <th className="p-3">Funcionário</th>
+    <th className="p-3">Título</th>
+    <th className="p-3">Tipo</th>
+    <th className="p-3">Data</th>
+    <th className="p-3">Arquivado em</th>
+    <th className="p-3">Ações</th>
+  </tr>
+</thead>
 
     <tbody>
       {carregando ? (
