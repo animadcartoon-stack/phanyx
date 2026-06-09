@@ -1943,6 +1943,10 @@ model DocumentoRH {
   titulo String
   status String @default("GERADO")
 
+  restauradoEm      DateTime?
+  restauradoPorId   Int?
+  motivoRestauracao String?   @db.Text
+
   templateId Int?
   arquivoUrl String?
   conteudo   String? @db.Text
@@ -1992,6 +1996,10 @@ model FeriasRH {
   status                   String    @default("AGENDADA")
   observacoes              String?   @db.Text
 
+  restauradoEm      DateTime?
+  restauradoPorId   Int?
+  motivoRestauracao String?   @db.Text
+
   avisoUrl  String?
   reciboUrl String?
 
@@ -2031,6 +2039,10 @@ model ExameMedicoRH {
   validade    DateTime?
   arquivoUrl  String?
   observacoes String?   @db.Text
+
+  restauradoEm      DateTime?
+  restauradoPorId   Int?
+  motivoRestauracao String?   @db.Text
 
   arquivado      Boolean   @default(false)
   arquivadoEm    DateTime?
@@ -2072,6 +2084,10 @@ model RescisaoRH {
   valorRescisao              Decimal?  @db.Decimal(10, 2)
   status                     String    @default("EM_ANDAMENTO")
   observacoes                String?   @db.Text
+
+  restauradoEm      DateTime?
+  restauradoPorId   Int?
+  motivoRestauracao String?   @db.Text
 
   termoUrl     String?
   trctUrl      String?

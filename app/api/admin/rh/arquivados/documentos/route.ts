@@ -76,17 +76,39 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const atualizado = await prisma.documentoRH.update({
-      where: {
-        id: documento.id,
-      },
-      data: {
-        arquivado: false,
-        arquivadoEm: null,
-        arquivadoPorId: null,
-        motivoArquivo: null,
-      },
-    });
+    const motivoRestauracao = String(
+  body.motivoRestauracao || "Restauração solicitada pelo administrador."
+).trim();
+
+const atualizado = await prisma.documentoRH.update({
+  where: {
+    id: documento.id,
+  },
+  data: {
+    arquivado: false,
+    arquivadoEm: null,
+    arquivadoPorId: null,
+    motivoArquivo: null,
+    restauradoEm: new Date(),
+    restauradoPorId: user.id,
+    motivoRestauracao,
+    status: "GERADO",
+  },
+});
+
+await prisma.historicoRH.create({
+  data: {
+    funcionarioId: documento.funcionarioId,
+    instituicaoId: user.instituicaoId!,
+    criadoPorId: user.id,
+    tipo: "RESTAURACAO_DOCUMENTO_RH",
+    titulo: "Documento RH restaurado",
+    descricao: motivoRestauracao,
+    dataEvento: new Date(),
+    observacoes:
+      "Documento RH restaurado para documentos ativos. A restauração foi registrada para auditoria.",
+  },
+});
 
     return NextResponse.json(atualizado);
   } catch (error: any) {

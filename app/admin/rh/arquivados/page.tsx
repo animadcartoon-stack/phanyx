@@ -102,6 +102,15 @@ export default function ArquivadosRHPage() {
     const [carregando, setCarregando] = useState(true);
     const [abaAtiva, setAbaAtiva] = useState("OCORRENCIAS");
     const [restaurandoId, setRestaurandoId] = useState<number | null>(null);
+
+    const [itemParaRestaurar, setItemParaRestaurar] = useState<{
+      tipo: "HOLERITE" | "DOCUMENTO" | "FERIAS" | "EXAME" | "RESCISAO" | "OCORRENCIA";
+      id: number;
+      titulo: string;
+      funcionario?: string | null;
+    } | null>(null);
+
+const [motivoRestauracao, setMotivoRestauracao] = useState("");
     
 useEffect(() => {
   async function carregarOcorrenciasArquivadas() {
@@ -220,6 +229,7 @@ async function restaurarHolerite(id: number) {
       },
       body: JSON.stringify({
         holeriteId: id,
+        motivoRestauracao,
       }),
     });
 
@@ -230,6 +240,8 @@ async function restaurarHolerite(id: number) {
     }
 
     setHolerites((atual) => atual.filter((h) => h.id !== id));
+    setItemParaRestaurar(null);
+    setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
   } finally {
@@ -482,7 +494,15 @@ async function restaurarDocumento(id: number) {
 <td className="p-3">
   <button
     type="button"
-    onClick={() => restaurarHolerite(holerite.id)}
+    onClick={() => {
+      setItemParaRestaurar({
+        tipo: "HOLERITE",
+        id: holerite.id,
+        titulo: `Holerite ${String(holerite.competenciaMes).padStart(2, "0")}/${holerite.competenciaAno}`,
+        funcionario: holerite.funcionario?.nome || "-",
+      });
+      setMotivoRestauracao("");
+    }}
     disabled={restaurandoId === holerite.id}
     className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
   >
@@ -791,6 +811,69 @@ async function restaurarDocumento(id: number) {
 </div>
 )}
 </div>
+
+{itemParaRestaurar && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+    <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
+      <h2 className="text-xl font-bold text-white">
+        Restaurar registro RH
+      </h2>
+
+      <p className="mt-3 text-sm text-slate-300">
+        A restauração será registrada com data, hora, usuário responsável e motivo para auditoria.
+      </p>
+
+      <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900 p-4 text-sm text-slate-200">
+        <p>
+          <strong>Registro:</strong> {itemParaRestaurar.titulo}
+        </p>
+
+        <p className="mt-2">
+          <strong>Funcionário:</strong> {itemParaRestaurar.funcionario || "-"}
+        </p>
+      </div>
+
+      <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+        Motivo da restauração
+      </label>
+
+      <textarea
+        value={motivoRestauracao}
+        onChange={(e) => setMotivoRestauracao(e.target.value)}
+        className="mt-2 min-h-28 w-full rounded-2xl border border-slate-700 bg-slate-900 p-4 text-sm text-white outline-none focus:border-emerald-500"
+        placeholder="Explique por que este registro está sendo restaurado."
+      />
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setItemParaRestaurar(null);
+            setMotivoRestauracao("");
+          }}
+          disabled={restaurandoId !== null}
+          className="rounded-2xl border border-slate-600 px-5 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800 disabled:opacity-60"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            if (itemParaRestaurar.tipo === "HOLERITE") {
+              restaurarHolerite(itemParaRestaurar.id);
+            }
+          }}
+          disabled={restaurandoId !== null || !motivoRestauracao.trim()}
+          className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
+        >
+          {restaurandoId !== null ? "Restaurando..." : "Restaurar registro"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
