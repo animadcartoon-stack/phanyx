@@ -605,8 +605,8 @@ function abrirTourAdmin() {
     </Link>
 
     <Link
-      href="/admin/documentos/templates"
-      className={getLinkClass("/admin/documentos/templates")}
+      href="/admin/rh/documentos"
+      className={getLinkClass("/admin/rh/documentos")}
     >
       📄 Documentos RH
     </Link>
