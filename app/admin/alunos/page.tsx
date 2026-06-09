@@ -119,7 +119,7 @@ function AdminAlunosPage() {
   const [nomeSocial, setNomeSocial] = useState("");
   const [genero, setGenero] = useState("");
   const [email, setEmail] = useState("");
-  const [matricula, setMatricula] = useState("");
+  const [matricula] = useState("");
   const [cpf, setCpf] = useState("");
   const [rg, setRg] = useState("");
   const [telefone, setTelefone] = useState("");
@@ -151,7 +151,7 @@ function AdminAlunosPage() {
   const [editNomeSocial, setEditNomeSocial] = useState("");
   const [editGenero, setEditGenero] = useState("");
   const [editEmail, setEditEmail] = useState("");
-  const [editMatricula, setEditMatricula] = useState("");
+  const [editMatricula] = useState("");
   const [editCpf, setEditCpf] = useState("");
   const [editRg, setEditRg] = useState("");
   const [editTelefone, setEditTelefone] = useState("");
@@ -325,7 +325,6 @@ async function carregarPolos() {
     setNomeSocial("");
     setGenero("");
     setEmail("");
-    setMatricula("");
     setCpf("");
     setRg("");
     setTelefone("");
@@ -365,7 +364,6 @@ async function carregarPolos() {
           email,
           nomeSocial,
           genero,
-          matricula,
           cpf,
           rg,
           telefone,
@@ -436,7 +434,6 @@ window.scrollTo({ top: 0, behavior: "smooth" });
     setEditNomeSocial(aluno.nomeSocial || "");
     setEditGenero(aluno.genero || "");
     setEditEmail(aluno.user?.email || "");
-    setEditMatricula(aluno.matricula || "");
     setEditCpf(aluno.cpf || "");
     setEditRg(aluno.rg || "");
     setEditTelefone(aluno.telefone || "");
@@ -486,7 +483,6 @@ window.scrollTo({ top: 0, behavior: "smooth" });
           email: editEmail,
           nomeSocial: editNomeSocial,
           genero: editGenero,
-          matricula: editMatricula,
           cpf: editCpf,
           rg: editRg,
           telefone: editTelefone,
@@ -957,12 +953,11 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                   required
                 />
 
-                <input
-                  placeholder="Matrícula"
-                  value={matricula}
-                  onChange={(e) => setMatricula(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
+                <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
+  <strong>Número da matrícula</strong>
+  <br />
+  Será gerado automaticamente após a matrícula oficial do aluno.
+</div>
 
                 <input
                   placeholder="CPF"
@@ -1470,12 +1465,9 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                       className="rounded-xl border p-2.5"
                       placeholder="Email"
                     />
-                    <input
-                      value={editMatricula}
-                      onChange={(e) => setEditMatricula(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Matrícula"
-                    />
+                    <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
+  Matrícula gerada automaticamente pelo sistema.
+</div>
                     <input
                       value={editCpf}
                       onChange={(e) => setEditCpf(e.target.value)}

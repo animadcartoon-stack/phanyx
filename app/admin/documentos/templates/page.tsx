@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
@@ -1105,6 +1105,26 @@ function AdminDocumentosTemplatesPage() {
   useState<ConfiguracaoInstituicao | null>(null);
   const [buscaVariavel, setBuscaVariavel] = useState("");
   const [mostrarTodasVariaveis, setMostrarTodasVariaveis] = useState(false);
+
+  const editorRef = useRef<HTMLDivElement | null>(null);
+
+function atualizarConteudoEditor() {
+  if (!editorRef.current) return;
+  setConteudo(editorRef.current.innerHTML);
+}
+
+function aplicarComandoEditor(comando: string, valor?: string) {
+  editorRef.current?.focus();
+  document.execCommand(comando, false, valor);
+  atualizarConteudoEditor();
+}
+
+function inserirVariavelNoEditor(tag: string) {
+  editorRef.current?.focus();
+  document.execCommand("insertText", false, tag);
+  atualizarConteudoEditor();
+  copiarVariavel(tag);
+}
 
   async function copiarVariavel(texto: string) {
   try {
@@ -3098,11 +3118,8 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     key={variavel.tag}
     type="button"
     onClick={() => {
-      copiarVariavel(variavel.tag);
-      setConteudo((atual) =>
-        atual ? `${atual}\n${variavel.tag}` : variavel.tag
-      );
-    }}
+  inserirVariavelNoEditor(variavel.tag);
+}}
     className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
   >
           <div className="mb-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
@@ -3147,12 +3164,86 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                 <label className="text-sm font-medium text-gray-700">
                   Conteúdo do template
                 </label>
-                <textarea
-                  value={conteudo}
-                  onChange={(e) => setConteudo(e.target.value)}
-                  className="mt-1 min-h-[320px] w-full rounded-2xl border px-3 py-3 font-mono text-sm"
-                  placeholder="Digite o conteúdo do documento com as variáveis dinâmicas..."
-                />
+                <div className="mt-1 rounded-2xl border bg-white">
+  <div className="flex flex-wrap gap-2 border-b bg-slate-50 p-3">
+    <button type="button" onClick={() => aplicarComandoEditor("bold")} className="rounded-lg border bg-white px-3 py-1 text-sm font-bold">
+      B
+    </button>
+
+    <button type="button" onClick={() => aplicarComandoEditor("italic")} className="rounded-lg border bg-white px-3 py-1 text-sm italic">
+      I
+    </button>
+
+    <button type="button" onClick={() => aplicarComandoEditor("underline")} className="rounded-lg border bg-white px-3 py-1 text-sm underline">
+      U
+    </button>
+
+    <button type="button" onClick={() => aplicarComandoEditor("justifyLeft")} className="rounded-lg border bg-white px-3 py-1 text-sm">
+      ⬅
+    </button>
+
+    <button type="button" onClick={() => aplicarComandoEditor("justifyCenter")} className="rounded-lg border bg-white px-3 py-1 text-sm">
+      ⬌ Centro
+    </button>
+
+    <button type="button" onClick={() => aplicarComandoEditor("justifyRight")} className="rounded-lg border bg-white px-3 py-1 text-sm">
+      ➡
+    </button>
+
+    <button type="button" onClick={() => aplicarComandoEditor("justifyFull")} className="rounded-lg border bg-white px-3 py-1 text-sm">
+      Justificar
+    </button>
+
+    <select
+      onChange={(e) => aplicarComandoEditor("fontName", e.target.value)}
+      className="rounded-lg border bg-white px-2 py-1 text-sm"
+      defaultValue=""
+    >
+      <option value="" disabled>Fonte</option>
+      <option value="Arial">Arial</option>
+      <option value="Times New Roman">Times</option>
+      <option value="Georgia">Georgia</option>
+      <option value="Verdana">Verdana</option>
+    </select>
+
+    <select
+      onChange={(e) => aplicarComandoEditor("fontSize", e.target.value)}
+      className="rounded-lg border bg-white px-2 py-1 text-sm"
+      defaultValue=""
+    >
+      <option value="" disabled>Tamanho</option>
+      <option value="2">Pequeno</option>
+      <option value="3">Normal</option>
+      <option value="4">Médio</option>
+      <option value="5">Grande</option>
+      <option value="6">Título</option>
+    </select>
+
+    <input
+      type="color"
+      onChange={(e) => aplicarComandoEditor("foreColor", e.target.value)}
+      className="h-8 w-10 rounded-lg border bg-white"
+      title="Cor do texto"
+    />
+  </div>
+
+  <div
+    ref={editorRef}
+    contentEditable
+    suppressContentEditableWarning
+    onInput={atualizarConteudoEditor}
+    onKeyDown={(e) => {
+      if (e.key === "Tab") {
+        e.preventDefault();
+        document.execCommand("insertHTML", false, "&nbsp;&nbsp;&nbsp;&nbsp;");
+        atualizarConteudoEditor();
+      }
+    }}
+    className="min-h-[360px] w-full rounded-b-2xl px-4 py-4 text-sm leading-7 outline-none"
+    style={{ whiteSpace: "pre-wrap" }}
+    dangerouslySetInnerHTML={{ __html: conteudo }}
+  />
+</div>
               </div>
 
 <div className="rounded-2xl border bg-slate-50 p-4">
