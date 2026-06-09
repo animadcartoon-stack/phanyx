@@ -123,9 +123,9 @@ export async function renderizarHtmlTipTapNoPdf({
 
   for (const bloco of blocos) {
     if (bloco.vazio) {
-      y -= 18;
-      continue;
-    }
+  y -= 28;
+  continue;
+}
 
     const fonte = bloco.bold ? bold : font;
     const tamanho = bloco.bold ? 11 : 10;
@@ -160,7 +160,7 @@ export async function renderizarHtmlTipTapNoPdf({
       y -= 17;
     }
 
-    y -= bloco.bold ? 10 : 4;
+    y -= bloco.bold ? 18 : 10;
   }
 
   return { page: pagina, y };
