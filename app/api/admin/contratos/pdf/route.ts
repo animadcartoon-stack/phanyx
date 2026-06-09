@@ -49,6 +49,7 @@ function quebrarTextoEmLinhas(
 function htmlParaTextoContrato(html: string) {
   return String(html || "")
     .replace(/\r\n/g, "\n")
+    .replace(/<p[^>]*>\s*<\/p>/gi, "\n\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n\n")
     .replace(/<\/div>/gi, "\n\n")
@@ -62,8 +63,7 @@ function htmlParaTextoContrato(html: string) {
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
     .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n{3,}/g, "\n\n")
-    .trim();
+    .replace(/\n+$/g, "");
 }
 
 function normalizarEstilo(estilo?: string) {
@@ -570,19 +570,6 @@ const temAssinaturaDiretorVisual = camposAssinaturaDiretor.length > 0;
         ? pageHeight - 126
         : pageHeight - 118;
 
-    page.drawText("CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS", {
-      x: margemX,
-      y,
-      size: 15,
-      font: bold,
-      color:
-        estilo === "PHANYX_MODERNO"
-          ? rgb(0.12, 0.22, 0.4)
-          : rgb(0.08, 0.08, 0.08),
-    });
-
-    y -= 34;
-
     let valorContratoNumerico =
   Number(data?.matricula?.valorMatricula || 0) ||
   Number(data?.matricula?.valorPagoMatricula || 0) ||
@@ -685,11 +672,27 @@ const paragrafos = contratoFinalTexto.split("\n");
     });
   }
 } else {
-  page.drawText(linha || " ", {
-    x: margemX,
+  if (!linha.trim()) {
+    y -= 14;
+    continue;
+  }
+
+  const ehTituloContrato =
+    linha.trim().toUpperCase() ===
+    "CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS";
+
+  const fonteLinha = ehTituloContrato ? bold : font;
+  const tamanhoLinha = ehTituloContrato ? 14 : 11;
+
+  const larguraLinha = fonteLinha.widthOfTextAtSize(linha, tamanhoLinha);
+
+  page.drawText(linha, {
+    x: ehTituloContrato
+      ? margemX + (larguraTexto - larguraLinha) / 2
+      : margemX,
     y,
-    size: 11,
-    font,
+    size: tamanhoLinha,
+    font: fonteLinha,
     color: rgb(0, 0, 0),
   });
 }
