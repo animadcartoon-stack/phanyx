@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
 type DocumentoRH = {
@@ -23,13 +23,82 @@ function formatarData(data?: string | null) {
   return d.toLocaleDateString("pt-BR");
 }
 
+function normalizarTexto(texto?: string | null) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function distanciaLevenshtein(a: string, b: string) {
+  const s = normalizarTexto(a);
+  const t = normalizarTexto(b);
+
+  if (!s) return t.length;
+  if (!t) return s.length;
+
+  const dp = Array.from({ length: s.length + 1 }, () =>
+    Array(t.length + 1).fill(0)
+  );
+
+  for (let i = 0; i <= s.length; i++) dp[i][0] = i;
+  for (let j = 0; j <= t.length; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= s.length; i++) {
+    for (let j = 1; j <= t.length; j++) {
+      const custo = s[i - 1] === t[j - 1] ? 0 : 1;
+
+      dp[i][j] = Math.min(
+        dp[i - 1][j] + 1,
+        dp[i][j - 1] + 1,
+        dp[i - 1][j - 1] + custo
+      );
+    }
+  }
+
+  return dp[s.length][t.length];
+}
+
+function pontuarDocumento(documento: DocumentoRH, termoBusca: string) {
+  const termo = normalizarTexto(termoBusca);
+
+  if (!termo) return 0;
+
+  const campos = [
+    documento.funcionario?.nome,
+    documento.funcionario?.cargo,
+    documento.titulo,
+    documento.tipo,
+    documento.status,
+    documento.dataDocumento,
+  ]
+    .filter(Boolean)
+    .map((item) => normalizarTexto(item));
+
+  const textoCompleto = campos.join(" ");
+
+  if (textoCompleto.includes(termo)) return 1000;
+
+  const palavras = textoCompleto.split(/\s+/).filter(Boolean);
+
+  const menorDistancia = palavras.reduce((menor, palavra) => {
+    return Math.min(menor, distanciaLevenshtein(termo, palavra));
+  }, 999);
+
+  return Math.max(0, 100 - menorDistancia * 12);
+}
+
 export default function DocumentosRHPage() {
-  const [documentos, setDocumentos] = useState<DocumentoRH[]>([]);
-  const [carregando, setCarregando] = useState(true);
-  const [documentoParaArquivar, setDocumentoParaArquivar] =
-    useState<DocumentoRH | null>(null);
-  const [motivoArquivo, setMotivoArquivo] = useState("");
-  const [arquivando, setArquivando] = useState(false);
+    const [documentos, setDocumentos] = useState<DocumentoRH[]>([]);
+    const [carregando, setCarregando] = useState(true);
+    const [documentoParaArquivar, setDocumentoParaArquivar] =
+        useState<DocumentoRH | null>(null);
+    const [motivoArquivo, setMotivoArquivo] = useState("");
+    const [arquivando, setArquivando] = useState(false);
+    const [busca, setBusca] = useState("");
+    const [filtroStatus, setFiltroStatus] = useState("");
+    const [filtroTipo, setFiltroTipo] = useState("");
 
   async function carregarDocumentos() {
     try {
@@ -45,6 +114,33 @@ export default function DocumentosRHPage() {
   useEffect(() => {
     carregarDocumentos();
   }, []);
+
+  const documentosFiltrados = useMemo(() => {
+  const termo = busca.trim();
+
+  return documentos
+    .filter((documento) => {
+      const bateStatus = !filtroStatus || documento.status === filtroStatus;
+      const bateTipo = !filtroTipo || documento.tipo === filtroTipo;
+
+      if (!termo) return bateStatus && bateTipo;
+
+      return (
+        bateStatus &&
+        bateTipo &&
+        pontuarDocumento(documento, termo) > 35
+      );
+    })
+    .sort((a, b) => {
+      if (!termo) {
+        return normalizarTexto(a.funcionario?.nome).localeCompare(
+          normalizarTexto(b.funcionario?.nome)
+        );
+      }
+
+      return pontuarDocumento(b, termo) - pontuarDocumento(a, termo);
+    });
+}, [documentos, busca, filtroStatus, filtroTipo]);
 
   async function arquivarDocumento() {
     if (!documentoParaArquivar) return;
@@ -77,26 +173,84 @@ export default function DocumentosRHPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
-          RH EMPRESARIAL
-        </p>
+      <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+        RH EMPRESARIAL
+      </p>
 
-        <h1 className="mt-2 text-4xl font-black text-white">
-          Documentos RH
-        </h1>
+      <h1 className="mt-2 text-4xl font-black text-white">
+        Documentos RH
+      </h1>
 
-<Link
-  href="/admin/rh/documentos/gerar"
-  className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
->
-  + Novo Documento RH
-</Link>
+      <p className="mt-2 text-slate-400">
+        Dossiê documental dos funcionários, preservado para auditoria,
+        compliance e histórico permanente.
+      </p>
+    </div>
 
-        <p className="mt-2 text-slate-400">
-          Documentos funcionais gerados e preservados com auditoria.
-        </p>
-      </div>
+    <Link
+      href="/admin/rh/documentos/gerar"
+      className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
+    >
+      + Novo Documento RH
+    </Link>
+  </div>
+
+  <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
+    <div>
+      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+        Busca inteligente
+      </label>
+
+      <input
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+        placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+        Status
+      </label>
+
+      <select
+        value={filtroStatus}
+        onChange={(e) => setFiltroStatus(e.target.value)}
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+      >
+        <option value="">Todos</option>
+        <option value="GERADO">Gerado</option>
+        <option value="ASSINADO">Assinado</option>
+        <option value="PENDENTE">Pendente</option>
+      </select>
+    </div>
+
+    <div>
+      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+        Tipo
+      </label>
+
+      <select
+        value={filtroTipo}
+        onChange={(e) => setFiltroTipo(e.target.value)}
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+      >
+        <option value="">Todos</option>
+        <option value="DECLARACAO">Declaração</option>
+        <option value="ADVERTENCIA">Advertência</option>
+        <option value="SUSPENSAO">Suspensão</option>
+        <option value="TERMO_RESPONSABILIDADE">Termo responsabilidade</option>
+        <option value="TERMO_RECEBIMENTO">Termo recebimento</option>
+        <option value="AVALIACAO_DESEMPENHO">Avaliação desempenho</option>
+        <option value="DOCUMENTO_LIVRE">Documento livre</option>
+      </select>
+    </div>
+  </div>
+</div>
 
       <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
         <h2 className="text-xl font-bold text-white">
@@ -123,14 +277,14 @@ export default function DocumentosRHPage() {
                     Carregando...
                   </td>
                 </tr>
-              ) : documentos.length === 0 ? (
+              ) : documentosFiltrados.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="p-6 text-center text-slate-400">
                     Nenhum documento RH gerado ainda.
                   </td>
                 </tr>
               ) : (
-                documentos.map((documento) => (
+                documentosFiltrados.map((documento) => (
                   <tr key={documento.id} className="border-b border-slate-800">
                     <td className="p-3 text-white">
                       {documento.funcionario?.nome || "-"}
