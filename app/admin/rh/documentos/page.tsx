@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 type DocumentoRH = {
   id: number;
@@ -84,6 +85,13 @@ export default function DocumentosRHPage() {
         <h1 className="mt-2 text-4xl font-black text-white">
           Documentos RH
         </h1>
+
+<Link
+  href="/admin/rh/documentos/gerar"
+  className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
+>
+  + Novo Documento RH
+</Link>
 
         <p className="mt-2 text-slate-400">
           Documentos funcionais gerados e preservados com auditoria.
