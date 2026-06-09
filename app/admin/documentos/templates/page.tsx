@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/lib/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import EditorTemplatePHANYX from "@/components/documentos/EditorTemplatePHANYX";
 
 type TipoDocumentoTemplate =
   | "CONTRATO"
@@ -3164,140 +3165,10 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                 <label className="text-sm font-medium text-gray-700">
                   Conteúdo do template
                 </label>
-                <div className="mt-1 rounded-2xl border bg-white">
-  <div className="border-b bg-slate-50 p-3">
-  <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-    Ferramentas de edição
-  </p>
-
-  <div className="flex flex-wrap gap-2">
-
-    <button
-  type="button"
-  onClick={() => aplicarComandoEditor("bold")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold hover:bg-slate-100"
-  title="Negrito"
->
-  🅱️ Negrito
-</button>
-
-    <button
-  type="button"
-  onClick={() => aplicarComandoEditor("italic")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-  title="Itálico"
->
-  𝑰 Itálico
-</button>
-
-    <button
-  type="button"
-  onClick={() => aplicarComandoEditor("underline")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-  title="Sublinhado"
->
-  U̲ Sublinhado
-</button>
-
-    <button type="button" onClick={() => aplicarComandoEditor("justifyLeft")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ⬅ Esquerda
-    </button>
-
-    <button type="button" onClick={() => aplicarComandoEditor("justifyCenter")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ↔ Centro
-    </button>
-
-    <button type="button" onClick={() => aplicarComandoEditor("justifyRight")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ➡ Direita
-    </button>
-
-    <button type="button" onClick={() => aplicarComandoEditor("justifyFull")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ☰ Justificar
-    </button>
-
-<button
-  type="button"
-  onClick={() => aplicarComandoEditor("insertUnorderedList")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
->
-  • Lista
-</button>
-
-<button
-  type="button"
-  onClick={() => aplicarComandoEditor("insertHorizontalRule")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
->
-  ━ Linha
-</button>
-
-<button
-  type="button"
-  onClick={() => aplicarComandoEditor("formatBlock", "<h1>")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
->
-  Título
-</button>
-
-<button
-  type="button"
-  onClick={() => aplicarComandoEditor("formatBlock", "<h2>")}
-  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
->
-  Subtítulo
-</button>
-
-    <select
-      onChange={(e) => aplicarComandoEditor("fontName", e.target.value)}
-      className="rounded-lg border bg-white px-2 py-1 text-sm"
-      defaultValue=""
-    >
-      <option value="" disabled>Fonte</option>
-      <option value="Arial">Arial</option>
-      <option value="Times New Roman">Times</option>
-      <option value="Georgia">Georgia</option>
-      <option value="Verdana">Verdana</option>
-    </select>
-
-    <select
-      onChange={(e) => aplicarComandoEditor("fontSize", e.target.value)}
-      className="rounded-lg border bg-white px-2 py-1 text-sm"
-      defaultValue=""
-    >
-      <option value="" disabled>Tamanho</option>
-      <option value="2">Pequeno</option>
-      <option value="3">Normal</option>
-      <option value="4">Médio</option>
-      <option value="5">Grande</option>
-      <option value="6">Título</option>
-    </select>
-
-        <input
-      type="color"
-      onChange={(e) => aplicarComandoEditor("foreColor", e.target.value)}
-      className="h-8 w-10 rounded-lg border bg-white"
-      title="Cor do texto"
-    />
-  </div>
-</div>
-
-  <div
-    ref={editorRef}
-    contentEditable
-    suppressContentEditableWarning
-    onInput={atualizarConteudoEditor}
-    onKeyDown={(e) => {
-      if (e.key === "Tab") {
-        e.preventDefault();
-        document.execCommand("insertHTML", false, "&nbsp;&nbsp;&nbsp;&nbsp;");
-        atualizarConteudoEditor();
-      }
-    }}
-    className="min-h-[360px] w-full rounded-b-2xl px-4 py-4 text-sm leading-7 outline-none"
-    style={{ whiteSpace: "pre-wrap" }}
-    dangerouslySetInnerHTML={{ __html: conteudo }}
-  />
-</div>
+                <EditorTemplatePHANYX
+  value={conteudo}
+  onChange={setConteudo}
+/>
               </div>
 
 <div className="rounded-2xl border bg-slate-50 p-4">
