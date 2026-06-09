@@ -1085,6 +1085,7 @@ function AdminDocumentosTemplatesPage() {
   const [templates, setTemplates] = useState<TemplateDocumento[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [visualizandoPdf, setVisualizandoPdf] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [mensagem, setMensagem] = useState("");
@@ -1382,6 +1383,10 @@ function inserirVariavelNoEditor(tag: string) {
 
   async function visualizarPdfTemplate() {
   try {
+    setVisualizandoPdf(true);
+    setErro("");
+    setMensagem("Gerando prévia do PDF...");
+
     const res = await fetch("/api/admin/documentos/templates/preview", {
       method: "POST",
       headers: {
@@ -1403,6 +1408,8 @@ function inserirVariavelNoEditor(tag: string) {
     window.open(url, "_blank");
   } catch (error: any) {
     setErro(error?.message || "Erro ao visualizar PDF.");
+  } finally {
+    setVisualizandoPdf(false);
   }
 }
 
@@ -3072,9 +3079,12 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                   <button
   type="button"
   onClick={visualizarPdfTemplate}
+  disabled={visualizandoPdf}
   className="rounded-xl border bg-white px-3 py-2 text-sm hover:border-blue-400"
 >
-  👁 Visualizar PDF
+  {visualizandoPdf
+  ? "⏳ Gerando PDF..."
+  : "👁 Visualizar PDF"}
 </button>
                 </div>
 

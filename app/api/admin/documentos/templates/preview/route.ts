@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { renderizarHtmlTipTapNoPdf } from "@/lib/pdf/renderizarHtmlTipTap";
 
 async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null, baseUrl?: string) {
   try {
@@ -79,25 +80,6 @@ function substituirExemplos(texto: string, config: any) {
   return final.replaceAll(/{{[^}]+}}/g, "-");
 }
 
-function htmlParaTextoPreview(html: string) {
-  return String(html || "")
-    .replace(/\r\n/g, "\n")
-    .replace(/<p[^>]*>\s*<\/p>/gi, "\n\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<\/div>/gi, "\n\n")
-    .replace(/<\/h1>/gi, "\n\n")
-    .replace(/<\/h2>/gi, "\n\n")
-    .replace(/<li[^>]*>/gi, "- ")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/[ \t]+\n/g, "\n")
-    .replace(/\n+$/g, "");
-}
 
 export async function POST(req: NextRequest) {
   const user = await getUserFromToken();
@@ -115,7 +97,6 @@ export async function POST(req: NextRequest) {
   const baseUrl = new URL(req.url).origin;
 
   const conteudoHtml = substituirExemplos(String(body?.conteudo || ""), config);
-  const conteudo = htmlParaTextoPreview(conteudoHtml);
 
   const pdfDoc = await PDFDocument.create();
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
@@ -220,17 +201,22 @@ export async function POST(req: NextRequest) {
 
   aplicarLayoutPagina();
 
-  for (const linha of conteudo.split("\n")) {
-    const limpa = linha.trim();
-
-    if (!limpa) {
-      y -= 8;
-      continue;
-    }
-
-    const ehTitulo = limpa.startsWith("[") && limpa.endsWith("]");
-    drawLine(limpa, ehTitulo);
-  }
+  await renderizarHtmlTipTapNoPdf({
+  html: conteudoHtml,
+  page,
+  pdfDoc,
+  font,
+  bold: fontBold,
+  x: 55,
+  yInicial: y,
+  maxWidth: 485,
+  pageWidth: 595.28,
+  pageHeight: 841.89,
+  criarNovaPagina: async () => {
+    novaPagina();
+    return page;
+  },
+});
 
   const bytes = await pdfDoc.save();
 
