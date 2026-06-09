@@ -2986,11 +2986,13 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
         <button
           key={variavel.tag}
           type="button"
-          onClick={() =>
-            setConteudo((atual) =>
-              atual ? `${atual}\n${variavel.tag}` : variavel.tag
-            )
-          }
+          onClick={() => {
+  copiarVariavel(variavel.tag);
+
+  setConteudo((atual) =>
+    atual ? `${atual}\n${variavel.tag}` : variavel.tag
+  );
+}}
           className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
         >
           <div className="mb-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
