@@ -1041,6 +1041,38 @@ Emitido em {{dataAtual}} por {{nomeInstituicao}}.
   }
 }
 
+function normalizarTextoBusca(texto: string) {
+  return String(texto || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[{}]/g, "")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function buscaInteligenteVariavel(variavel: any, busca: string) {
+  const termo = normalizarTextoBusca(busca);
+
+  if (!termo) return true;
+
+  const textoVariavel = normalizarTextoBusca(
+    [
+      variavel.tag,
+      variavel.titulo,
+      variavel.descricao,
+      variavel.ondeUsar,
+      variavel.categoria,
+      ...(variavel.palavras || []),
+    ].join(" ")
+  );
+
+  const palavrasBusca = termo.split(" ").filter(Boolean);
+
+  return palavrasBusca.every((palavra) => textoVariavel.includes(palavra));
+}
+
 function formatarData(data?: string) {
   if (!data) return "-";
   const d = new Date(data);
@@ -1073,6 +1105,12 @@ function AdminDocumentosTemplatesPage() {
   useState<ConfiguracaoInstituicao | null>(null);
   const [buscaVariavel, setBuscaVariavel] = useState("");
   const [mostrarTodasVariaveis, setMostrarTodasVariaveis] = useState(false);
+
+  function copiarVariavel(texto: string) {
+  navigator.clipboard.writeText(texto);
+
+  setMensagem(`Variável ${texto} copiada.`);
+}
 
   async function carregarTemplates() {
     try {
@@ -2935,19 +2973,13 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
   <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
   {variaveisInteligentes
     .filter((v) => {
-      const termo = buscaVariavel.trim().toLowerCase();
+      const termo = normalizarTextoBusca(buscaVariavel);
 
       if (!mostrarTodasVariaveis && !termo) return false;
 
       if (mostrarTodasVariaveis && !termo) return true;
 
-      return (
-        v.tag.toLowerCase().includes(termo) ||
-        v.titulo.toLowerCase().includes(termo) ||
-        v.descricao.toLowerCase().includes(termo) ||
-        v.ondeUsar.toLowerCase().includes(termo) ||
-        v.palavras.some((p) => p.toLowerCase().includes(termo))
-      );
+      return buscaInteligenteVariavel(v, termo);
     })
   
       .map((variavel) => (

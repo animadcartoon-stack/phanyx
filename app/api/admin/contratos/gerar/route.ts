@@ -221,6 +221,9 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
 {{cidadeAssinatura}}, {{dataAtual}}.`;
 
+    const numeroMatriculaOficial =
+      matricula.numeroMatricula || matricula.aluno?.matricula || "-";
+
     const contratoGerado = substituirTemplate(template, {
       nomeInstituicao:
         config?.nomeFantasia || matricula.aluno?.instituicao?.nome || "Instituição",
@@ -228,8 +231,8 @@ E por estarem de pleno acordo, firmam o presente contrato.
       responsavelLegal: config?.responsavelNome || "-",
       nomeAluno: matricula.aluno?.nome || "-",
       cpfAluno: matricula.aluno?.cpf || "-",
-      matriculaAluno: matricula.aluno?.matricula || "-",
-      numeroMatricula: matricula.aluno?.matricula || "-",
+      matriculaAluno: numeroMatriculaOficial,
+      numeroMatricula: numeroMatriculaOficial,
       curso: cursoNome,
       disciplinas: disciplinasTexto,
       cursoNome,
@@ -279,11 +282,11 @@ const contratoFinal = contratoGerado;
             contratoExistente.assinaturaSecretariaEm || null,
           }
         : null,
-      aluno: {
+            aluno: {
         id: matricula.aluno.id,
         nome: matricula.aluno.nome,
         cpf: matricula.aluno.cpf,
-        matricula: matricula.aluno.matricula,
+        matricula: numeroMatriculaOficial,
       },
       instituicao: {
         nomeFantasia:
