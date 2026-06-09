@@ -500,15 +500,23 @@ async function restaurarDocumento(id: number) {
 </button>
   </div>
 
-  <div className="mt-6">
-    <input
-      type="text"
-      value={busca}
-      onChange={(e) => setBusca(e.target.value)}
-      placeholder="Pesquisar funcionário, título, tipo, competência ou motivo..."
-      className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white placeholder:text-slate-500 focus:border-cyan-500 focus:outline-none"
-    />
-  </div>
+  <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/40 p-5">
+  <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">
+    Busca inteligente
+  </p>
+
+  <input
+    type="text"
+    value={busca}
+    onChange={(e) => setBusca(e.target.value)}
+    placeholder="Busque por funcionário, título, tipo, competência, motivo ou responsável..."
+    className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+  />
+
+  <p className="mt-2 text-xs text-slate-500">
+    A busca considera registros arquivados, motivos, datas e responsáveis pela auditoria.
+  </p>
+</div>
 
 {!["OCORRENCIAS", "HOLERITES", "FERIAS", "EXAMES", "RESCISOES", "DOCUMENTOS"].includes(
   abaAtiva
