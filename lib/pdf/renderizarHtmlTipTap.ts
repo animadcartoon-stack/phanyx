@@ -1,21 +1,88 @@
 import { rgb } from "pdf-lib";
 
-function limparHtml(html: string) {
-  return String(html || "")
-    .replace(/\r\n/g, "\n")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>/gi, "\n\n")
-    .replace(/<\/div>/gi, "\n\n")
-    .replace(/<\/h1>/gi, "\n\n")
-    .replace(/<\/h2>/gi, "\n\n")
-    .replace(/<li[^>]*>/gi, "- ")
-    .replace(/<\/li>/gi, "\n")
-    .replace(/<[^>]+>/g, "")
+type BlocoPdf = {
+  texto: string;
+  align: "left" | "center" | "right";
+  bold: boolean;
+  vazio: boolean;
+};
+
+function decodificarHtml(texto: string) {
+  return String(texto || "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
-    .replace(/\n+$/g, "");
+    .trim();
+}
+
+function extrairBlocosTipTap(html: string): BlocoPdf[] {
+  const entrada = String(html || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n");
+
+  const blocos: BlocoPdf[] = [];
+  const regex = /<(p|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
+
+  let match;
+
+  while ((match = regex.exec(entrada)) !== null) {
+    const tag = match[1].toLowerCase();
+    const attrs = match[2] || "";
+    const bruto = match[3] || "";
+
+    const align =
+      attrs.includes("text-align: center")
+        ? "center"
+        : attrs.includes("text-align: right")
+        ? "right"
+        : "left";
+
+    const bold =
+      tag === "h1" ||
+      tag === "h2" ||
+      /<strong[\s\S]*?>/i.test(bruto) ||
+      /<b[\s\S]*?>/i.test(bruto);
+
+    const texto = decodificarHtml(
+      bruto
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<[^>]+>/g, "")
+    );
+
+    if (!texto) {
+      blocos.push({ texto: "", align, bold, vazio: true });
+      continue;
+    }
+
+    const linhas = texto.split("\n");
+
+    for (const linha of linhas) {
+      if (!linha.trim()) {
+        blocos.push({ texto: "", align, bold, vazio: true });
+      } else {
+        blocos.push({
+          texto: tag === "li" ? `- ${linha.trim()}` : linha.trim(),
+          align,
+          bold,
+          vazio: false,
+        });
+      }
+    }
+
+    blocos.push({ texto: "", align, bold: false, vazio: true });
+  }
+
+  if (!blocos.length) {
+    return entrada.split("\n").map((linha) => ({
+      texto: decodificarHtml(linha.replace(/<[^>]+>/g, "")),
+      align: "left",
+      bold: false,
+      vazio: !linha.trim(),
+    }));
+  }
+
+  return blocos;
 }
 
 function quebrarLinha(texto: string, maxWidth: number, font: any, size: number) {
@@ -41,52 +108,49 @@ function quebrarLinha(texto: string, maxWidth: number, font: any, size: number) 
 export async function renderizarHtmlTipTapNoPdf({
   html,
   page,
-  pdfDoc,
   font,
   bold,
   x,
   yInicial,
   maxWidth,
-  pageWidth,
   pageHeight,
   criarNovaPagina,
 }: any) {
   let pagina = page;
   let y = yInicial;
 
-  const texto = limparHtml(html);
-  const linhasOriginais = texto.split("\n");
+  const blocos = extrairBlocosTipTap(html);
 
-  for (const linhaOriginal of linhasOriginais) {
-    const linha = linhaOriginal.trim();
-
-    if (!linha) {
+  for (const bloco of blocos) {
+    if (bloco.vazio) {
       y -= 18;
       continue;
     }
 
-    const ehTitulo =
-      linha.toUpperCase() === "CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS" ||
-      linha.startsWith("CLÁUSULA ");
+    const fonte = bloco.bold ? bold : font;
+    const tamanho = bloco.bold ? 11 : 10;
+    const linhas = quebrarLinha(bloco.texto, maxWidth, fonte, tamanho);
 
-    const fonte = ehTitulo ? bold : font;
-    const tamanho = ehTitulo ? 12 : 10;
-
-    const linhas = quebrarLinha(linha, maxWidth, fonte, tamanho);
-
-    for (const l of linhas) {
+    for (const linha of linhas) {
       if (y < 70) {
         pagina = await criarNovaPagina();
         y = pageHeight - 135;
       }
 
-      const centralizar =
-        linha.toUpperCase() === "CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS";
+      const largura = fonte.widthOfTextAtSize(linha, tamanho);
 
-      const largura = fonte.widthOfTextAtSize(l, tamanho);
+      let posX = x;
 
-      pagina.drawText(l, {
-        x: centralizar ? x + (maxWidth - largura) / 2 : x,
+      if (bloco.align === "center") {
+        posX = x + (maxWidth - largura) / 2;
+      }
+
+      if (bloco.align === "right") {
+        posX = x + maxWidth - largura;
+      }
+
+      pagina.drawText(linha, {
+        x: posX,
         y,
         size: tamanho,
         font: fonte,
@@ -96,7 +160,7 @@ export async function renderizarHtmlTipTapNoPdf({
       y -= 17;
     }
 
-    y -= ehTitulo ? 14 : 6;
+    y -= bloco.bold ? 10 : 4;
   }
 
   return { page: pagina, y };
