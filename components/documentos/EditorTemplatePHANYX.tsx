@@ -13,6 +13,36 @@ type Props = {
   onChange: (html: string) => void;
 };
 
+function conteudoParaHtmlSeguro(valor: string) {
+  const texto = String(valor || "");
+
+  const pareceHtml =
+    texto.includes("<p") ||
+    texto.includes("<div") ||
+    texto.includes("<h1") ||
+    texto.includes("<h2") ||
+    texto.includes("<strong") ||
+    texto.includes("<span") ||
+    texto.includes("<br");
+
+  if (pareceHtml) return texto;
+
+  return texto
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((bloco) => bloco.trim())
+    .filter(Boolean)
+    .map((bloco) => {
+      const linhas = bloco
+        .split("\n")
+        .map((linha) => linha.trim())
+        .filter(Boolean);
+
+      return `<p>${linhas.join("<br />")}</p>`;
+    })
+    .join("\n");
+}
+
 export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   const editor = useEditor({
     extensions: [
@@ -24,7 +54,7 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
         types: ["heading", "paragraph"],
       }),
     ],
-    content: value || "",
+    content: conteudoParaHtmlSeguro(value),
     editorProps: {
       attributes: {
         class:
@@ -46,13 +76,17 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   });
 
   useEffect(() => {
-    if (!editor) return;
+  if (!editor) return;
 
-    const atual = editor.getHTML();
-    if (value !== atual) {
-      editor.commands.setContent(value || "");
-    }
-  }, [value, editor]);
+  const novoConteudo = conteudoParaHtmlSeguro(value);
+  const atual = editor.getHTML();
+
+  if (atual === novoConteudo) return;
+
+  editor.commands.setContent(novoConteudo, {
+    emitUpdate: false,
+  });
+}, [editor]);
 
   if (!editor) return null;
 
