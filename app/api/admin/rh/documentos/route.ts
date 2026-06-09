@@ -40,6 +40,94 @@ export async function GET() {
   }
 }
 
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    const funcionarioId = Number(body.funcionarioId);
+    const tipo = String(body.tipo || "DOCUMENTO_RH").trim();
+    const titulo = String(body.titulo || "").trim();
+    const conteudo = String(body.conteudo || "").trim();
+    const templateId = body.templateId ? Number(body.templateId) : null;
+
+    if (!funcionarioId) {
+      return NextResponse.json(
+        { error: "Selecione o funcionário." },
+        { status: 400 }
+      );
+    }
+
+    if (!titulo) {
+      return NextResponse.json(
+        { error: "Informe o título do documento." },
+        { status: 400 }
+      );
+    }
+
+    if (!conteudo) {
+      return NextResponse.json(
+        { error: "Informe o conteúdo do documento." },
+        { status: 400 }
+      );
+    }
+
+    const funcionario = await prisma.funcionario.findFirst({
+      where: {
+        id: funcionarioId,
+        instituicaoId: user.instituicaoId,
+      },
+    });
+
+    if (!funcionario) {
+      return NextResponse.json(
+        { error: "Funcionário não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    const documento = await prisma.documentoRH.create({
+      data: {
+        funcionarioId,
+        instituicaoId: user.instituicaoId!,
+        criadoPorId: user.id,
+        templateId,
+        tipo,
+        titulo,
+        conteudo,
+        status: "GERADO",
+        arquivado: false,
+      },
+    });
+
+    await prisma.historicoRH.create({
+      data: {
+        funcionarioId,
+        instituicaoId: user.instituicaoId!,
+        criadoPorId: user.id,
+        tipo: "GERACAO_DOCUMENTO_RH",
+        titulo: "Documento RH gerado",
+        descricao: titulo,
+        dataEvento: new Date(),
+        observacoes:
+          "Documento RH gerado e preservado para histórico funcional e auditoria.",
+      },
+    });
+
+    return NextResponse.json(documento);
+  } catch (error: any) {
+    return NextResponse.json(
+      { error: error?.message || "Erro ao gerar documento RH." },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PATCH(req: NextRequest) {
   try {
     const user = await getUserFromToken();
