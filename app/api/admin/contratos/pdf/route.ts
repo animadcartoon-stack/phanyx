@@ -46,6 +46,26 @@ function quebrarTextoEmLinhas(
   return linhas;
 }
 
+function htmlParaTextoContrato(html: string) {
+  return String(html || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<\/div>/gi, "\n\n")
+    .replace(/<\/h1>/gi, "\n\n")
+    .replace(/<\/h2>/gi, "\n\n")
+    .replace(/<li[^>]*>/gi, "- ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function normalizarEstilo(estilo?: string) {
   switch (estilo) {
     case "PHANYX_MODERNO":
@@ -597,7 +617,9 @@ const contratoFinalCorrigido = String(data?.contratoFinal || "").replace(
   valorContratoFormatado
 );
 
-const paragrafos = contratoFinalCorrigido.split("\n");
+const contratoFinalTexto = htmlParaTextoContrato(contratoFinalCorrigido);
+
+const paragrafos = contratoFinalTexto.split("\n");
 
     for (const paragrafo of paragrafos) {
       const linhasQuebradas =

@@ -1213,21 +1213,25 @@ function inserirVariavelNoEditor(tag: string) {
   }
 
   function preencherFormulario(template: TemplateDocumento) {
-    setEditingId(template.id);
-    setNome(template.nome || "");
-    setDescricao(template.descricao || "");
-    setTipo(template.tipo);
-    setContexto(template.contexto || "");
-    setConteudo(template.conteudo || "");
-    setAtivo(Boolean(template.ativo));
-    setExigeAssinatura(Boolean(template.exigeAssinatura));
-    setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
-    setTimeout(() => {
-  document
-    .getElementById("editor-template-phanyx")
-    ?.scrollIntoView({ behavior: "smooth", block: "center" });
-}, 100);
-  }
+  setEditingId(template.id);
+  setNome(template.nome || "");
+  setDescricao(template.descricao || "");
+  setTipo(template.tipo);
+  setContexto(template.contexto || "");
+  setConteudo(template.conteudo || "");
+  setAtivo(Boolean(template.ativo));
+  setExigeAssinatura(Boolean(template.exigeAssinatura));
+  setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
+
+  setTimeout(() => {
+    const editor = document.getElementById("editor-template-phanyx");
+
+    if (editor) {
+      const topo = editor.getBoundingClientRect().top + window.scrollY - 140;
+      window.scrollTo({ top: topo, behavior: "smooth" });
+    }
+  }, 400);
+}
 
   async function salvarTemplate() {
     try {
@@ -2854,16 +2858,33 @@ const variaveisInteligentes = [...variaveisInteligentesBase].sort((a, b) => {
   return (prioridadeTags[b.tag] || 0) - (prioridadeTags[a.tag] || 0);
 });
 
+function limparHtmlParaPrevia(conteudo: string) {
+  return String(conteudo || "")
+    .replace(/\r\n/g, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<\/div>/gi, "\n\n")
+    .replace(/<\/h1>/gi, "\n\n")
+    .replace(/<\/h2>/gi, "\n\n")
+    .replace(/<li[^>]*>/gi, "- ")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function gerarPreviaAmigavelTemplate(conteudo: string) {
-  let texto = conteudo || "";
+  let texto = limparHtmlParaPrevia(conteudo);
 
   for (const variavel of variaveisInteligentes) {
     texto = texto.replaceAll(variavel.tag, `[${variavel.titulo}]`);
   }
 
-  return texto
-    .replaceAll("[Logo da instituição]", "[Logo institucional]")
-    .slice(0, 1200);
+  return texto.slice(0, 1200);
 }
 
   return (
@@ -3166,16 +3187,18 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700">
-                  Conteúdo do template
-                </label>
-                id="editor-template-phanyx"
-                <EditorTemplatePHANYX
-  key={editingId ?? "novo"}
-  value={conteudo}
-  onChange={setConteudo}
-/>
-              </div>
+  <label className="text-sm font-medium text-gray-700">
+    Conteúdo do template
+  </label>
+
+  <div id="editor-template-phanyx" className="mt-1">
+    <EditorTemplatePHANYX
+      key={editingId ?? "novo"}
+      value={conteudo}
+      onChange={setConteudo}
+    />
+  </div>
+</div>
 
 <div className="rounded-2xl border bg-slate-50 p-4">
   <div className="mb-3 flex items-center justify-between gap-3">
