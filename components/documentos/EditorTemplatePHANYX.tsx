@@ -86,7 +86,7 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
   editor.commands.setContent(novoConteudo, {
     emitUpdate: false,
   });
-}, [editor]);
+}, [value, editor]);
 
   if (!editor) return null;
 

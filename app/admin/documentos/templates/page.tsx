@@ -1222,7 +1222,11 @@ function inserirVariavelNoEditor(tag: string) {
     setAtivo(Boolean(template.ativo));
     setExigeAssinatura(Boolean(template.exigeAssinatura));
     setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setTimeout(() => {
+  document
+    .getElementById("editor-template-phanyx")
+    ?.scrollIntoView({ behavior: "smooth", block: "center" });
+}, 100);
   }
 
   async function salvarTemplate() {
@@ -3165,7 +3169,9 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                 <label className="text-sm font-medium text-gray-700">
                   Conteúdo do template
                 </label>
+                id="editor-template-phanyx"
                 <EditorTemplatePHANYX
+  key={editingId ?? "novo"}
   value={conteudo}
   onChange={setConteudo}
 />
