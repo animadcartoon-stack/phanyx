@@ -27,8 +27,8 @@ export async function GET() {
         },
       },
       orderBy: {
-        arquivadaEm: "desc",
-      },
+  arquivadoEm: "desc",
+},
     });
 
     return NextResponse.json(documentos);
