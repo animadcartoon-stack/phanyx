@@ -177,6 +177,7 @@ export async function PATCH(req: NextRequest) {
       },
     });
 
+
     await prisma.historicoRH.create({
       data: {
         funcionarioId: documento.funcionarioId,
