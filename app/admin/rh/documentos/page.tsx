@@ -99,6 +99,7 @@ export default function DocumentosRHPage() {
     const [busca, setBusca] = useState("");
     const [filtroStatus, setFiltroStatus] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("");
+    const [mostrarSugestoes, setMostrarSugestoes] = useState(false);
 
   async function carregarDocumentos() {
     try {
@@ -115,11 +116,35 @@ export default function DocumentosRHPage() {
     carregarDocumentos();
   }, []);
 
+  const sugestoesBusca = useMemo(() => {
+  const termo = busca.trim();
+
+  if (!termo) return [];
+
+  return documentos
+    .map((documento) => ({
+      documento,
+      pontuacao: pontuarDocumento(documento, termo),
+    }))
+    .filter((item) => item.pontuacao > 35)
+    .sort((a, b) => {
+      if (b.pontuacao !== a.pontuacao) {
+        return b.pontuacao - a.pontuacao;
+      }
+
+      return normalizarTexto(a.documento.funcionario?.nome).localeCompare(
+        normalizarTexto(b.documento.funcionario?.nome)
+      );
+    })
+    .slice(0, 8);
+}, [documentos, busca]);
+
   const documentosFiltrados = useMemo(() => {
   const termo = busca.trim();
 
   return documentos
-    .filter((documento) => {
+  .filter((documento) => documento.status !== "ARQUIVADO")
+  .filter((documento) => {
       const bateStatus = !filtroStatus || documento.status === filtroStatus;
       const bateTipo = !filtroTipo || documento.tipo === filtroTipo;
 
@@ -199,18 +224,53 @@ export default function DocumentosRHPage() {
   </div>
 
   <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
-    <div>
-      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-        Busca inteligente
-      </label>
+    <div className="relative">
+  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+    Busca inteligente
+  </label>
 
-      <input
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
-        placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
-      />
+  <input
+    value={busca}
+    onChange={(e) => {
+      setBusca(e.target.value);
+      setMostrarSugestoes(true);
+    }}
+    onFocus={() => setMostrarSugestoes(true)}
+    placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
+    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+  />
+
+  {mostrarSugestoes && busca.trim() && sugestoesBusca.length > 0 && (
+    <div className="absolute left-0 right-0 top-[76px] z-50 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl">
+      {sugestoesBusca.map(({ documento }) => (
+        <button
+          key={documento.id}
+          type="button"
+          onMouseDown={(e) => {
+            e.preventDefault();
+            setBusca(documento.funcionario?.nome || documento.titulo || "");
+            setMostrarSugestoes(false);
+          }}
+          className="block w-full border-b border-slate-800 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-800"
+        >
+          <div className="text-sm font-bold text-white">
+            {documento.funcionario?.nome || "-"}
+          </div>
+
+          <div className="mt-1 text-xs text-slate-400">
+            {documento.titulo} • {documento.tipo} • {documento.status}
+          </div>
+        </button>
+      ))}
     </div>
+  )}
+
+  {mostrarSugestoes && busca.trim() && sugestoesBusca.length === 0 && (
+    <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-400 shadow-2xl">
+      Nenhum documento encontrado.
+    </div>
+  )}
+</div>
 
     <div>
       <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
