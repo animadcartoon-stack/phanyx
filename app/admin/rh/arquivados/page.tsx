@@ -717,10 +717,10 @@ async function restaurarDocumento(id: number) {
     <thead>
   <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
     <th className="p-3">Funcionário</th>
-    <th className="p-3">Título</th>
     <th className="p-3">Tipo</th>
     <th className="p-3">Data</th>
     <th className="p-3">Arquivado em</th>
+    <th className="p-3">Motivo</th>
     <th className="p-3">Ações</th>
   </tr>
 </thead>
