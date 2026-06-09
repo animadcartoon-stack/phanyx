@@ -49,7 +49,7 @@ function quebrarTextoEmLinhas(
 function htmlParaTextoContrato(html: string) {
   return String(html || "")
     .replace(/\r\n/g, "\n")
-    .replace(/<p[^>]*>\s*<\/p>/gi, "\n\n")
+    .replace(/<p[^>]*>\s*<\/p>/gi, "\n\n\n")
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<\/p>/gi, "\n\n")
     .replace(/<\/div>/gi, "\n\n")
@@ -673,9 +673,9 @@ const paragrafos = contratoFinalTexto.split("\n");
   }
 } else {
   if (!linha.trim()) {
-    y -= 14;
-    continue;
-  }
+  y -= 19;
+  continue;
+}
 
   const ehTituloContrato =
     linha.trim().toUpperCase() ===
@@ -700,7 +700,7 @@ const paragrafos = contratoFinalTexto.split("\n");
 y -= 19;
       }
 
-      y -= 7;
+      y -= 0;
     }
 
     y -= 20;
