@@ -119,6 +119,24 @@ type DocumentoArquivado = {
   motivoArquivo?: string | null;
   motivoRestauracao?: string | null;
 
+  criadoPor?: {
+  id: number;
+  nome?: string | null;
+  email?: string | null;
+} | null;
+
+arquivadoPor?: {
+  id: number;
+  nome?: string | null;
+  email?: string | null;
+} | null;
+
+restauradoPor?: {
+  id: number;
+  nome?: string | null;
+  email?: string | null;
+} | null;
+
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
@@ -759,9 +777,9 @@ async function restaurarDocumento(id: number) {
     <th className="p-3">Título</th>
     <th className="p-3">Tipo</th>
     <th className="p-3">Criado em</th>
-    <th className="p-3">Criado por ID</th>
+    <th className="p-3">Criado por</th>
     <th className="p-3">Arquivado em</th>
-    <th className="p-3">Arquivado por ID</th>
+    <th className="p-3">Arquivado por</th>
     <th className="p-3">Motivo</th>
     <th className="p-3">Ações</th>
   </tr>
@@ -794,7 +812,7 @@ async function restaurarDocumento(id: number) {
 </td>
 
 <td className="p-3 text-slate-300">
-  {item.criadoPorId || "-"}
+  {item.criadoPor?.nome || item.criadoPor?.email || item.criadoPorId || "-"}
 </td>
 
 <td className="p-3 text-slate-300">
@@ -802,7 +820,7 @@ async function restaurarDocumento(id: number) {
 </td>
 
 <td className="p-3 text-slate-300">
-  {item.arquivadoPorId || "-"}
+  {item.arquivadoPor?.nome || item.arquivadoPor?.email || item.arquivadoPorId || "-"}
 </td>
 
 <td className="p-3 text-slate-300">

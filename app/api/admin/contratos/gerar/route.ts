@@ -29,6 +29,50 @@ function substituirTemplate(
   return texto;
 }
 
+function calcularIdade(dataNascimento?: Date | string | null) {
+  if (!dataNascimento) return null;
+
+  const nascimento = new Date(dataNascimento);
+  if (Number.isNaN(nascimento.getTime())) return null;
+
+  const hoje = new Date();
+  let idade = hoje.getFullYear() - nascimento.getFullYear();
+
+  const aindaNaoFezAniversario =
+    hoje.getMonth() < nascimento.getMonth() ||
+    (hoje.getMonth() === nascimento.getMonth() &&
+      hoje.getDate() < nascimento.getDate());
+
+  if (aindaNaoFezAniversario) idade--;
+
+  return idade;
+}
+
+function obterTitularContrato(aluno: any) {
+  const idade = calcularIdade(aluno?.dataNascimento);
+  const alunoEhMenor = idade !== null && idade < 18;
+
+  if (alunoEhMenor) {
+    return {
+      nome: aluno?.nomeResponsavel || aluno?.nome || "-",
+      cpf: aluno?.cpfResponsavel || aluno?.cpf || "-",
+      email: aluno?.emailResponsavel || "-",
+      telefone: aluno?.telefoneResponsavel || "-",
+      parentesco: aluno?.parentescoResponsavel || "-",
+      tipo: "RESPONSAVEL",
+    };
+  }
+
+  return {
+    nome: aluno?.nome || "-",
+    cpf: aluno?.cpf || "-",
+    email: aluno?.email || "-",
+    telefone: aluno?.telefone || "-",
+    parentesco: "Aluno maior de idade",
+    tipo: "ALUNO",
+  };
+}
+
 export async function GET(req: Request) {
   try {
     const user = await getUserFromToken();
@@ -222,9 +266,11 @@ E por estarem de pleno acordo, firmam o presente contrato.
 {{cidadeAssinatura}}, {{dataAtual}}.`;
 
     const numeroMatriculaOficial =
-      matricula.numeroMatricula || matricula.aluno?.matricula || "-";
+  matricula.numeroMatricula || matricula.aluno?.matricula || "-";
 
-    const contratoGerado = substituirTemplate(template, {
+const titularContrato = obterTitularContrato(matricula.aluno);
+
+const contratoGerado = substituirTemplate(template, {
       nomeInstituicao:
         config?.nomeFantasia || matricula.aluno?.instituicao?.nome || "Instituição",
       cnpjInstituicao: config?.cnpj || "-",
@@ -233,6 +279,12 @@ E por estarem de pleno acordo, firmam o presente contrato.
       cpfAluno: matricula.aluno?.cpf || "-",
       matriculaAluno: numeroMatriculaOficial,
       numeroMatricula: numeroMatriculaOficial,
+      nomeTitularContrato: titularContrato.nome,
+      cpfTitularContrato: titularContrato.cpf,
+      emailTitularContrato: titularContrato.email,
+      telefoneTitularContrato: titularContrato.telefone,
+      parentescoTitularContrato: titularContrato.parentesco,
+      tipoTitularContrato: titularContrato.tipo,
       curso: cursoNome,
       disciplinas: disciplinasTexto,
       cursoNome,
