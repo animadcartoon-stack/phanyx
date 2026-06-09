@@ -14,6 +14,12 @@ type OcorrenciaArquivada = {
     nome?: string | null;
     cargo?: string | null;
     codigoFuncionario?: string | null;
+    criadoEm?: string | null;
+  criadoPorId?: number | null;
+  arquivadoPorId?: number | null;
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+  motivoRestauracao?: string | null;
   } | null;
 };
 
@@ -28,6 +34,12 @@ type HoleriteArquivado = {
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
+    criadoEm?: string | null;
+  criadoPorId?: number | null;
+  arquivadoPorId?: number | null;
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+  motivoRestauracao?: string | null;
   } | null;
 };
 
@@ -42,6 +54,12 @@ type FeriasArquivada = {
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
+    criadoEm?: string | null;
+  criadoPorId?: number | null;
+  arquivadoPorId?: number | null;
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+  motivoRestauracao?: string | null;
   } | null;
 };
 
@@ -55,6 +73,12 @@ type ExameArquivado = {
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
+    criadoEm?: string | null;
+  criadoPorId?: number | null;
+  arquivadoPorId?: number | null;
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+  motivoRestauracao?: string | null;
   } | null;
 };
 
@@ -68,6 +92,12 @@ type RescisaoArquivada = {
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
+    criadoEm?: string | null;
+  criadoPorId?: number | null;
+  arquivadoPorId?: number | null;
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+  motivoRestauracao?: string | null;
   } | null;
 };
 
@@ -76,8 +106,19 @@ type DocumentoArquivado = {
   tipo: string;
   titulo: string;
   dataDocumento: string;
+
+  criadoEm?: string | null;
+  criadoPorId?: number | null;
+
   arquivadoEm?: string | null;
+  arquivadoPorId?: number | null;
+
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+
   motivoArquivo?: string | null;
+  motivoRestauracao?: string | null;
+
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
@@ -89,6 +130,20 @@ function formatarData(data?: string | null) {
   const d = new Date(data);
   if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("pt-BR");
+}
+
+function formatarDataHora(data?: string | null) {
+  if (!data) return "-";
+  const d = new Date(data);
+  if (Number.isNaN(d.getTime())) return "-";
+
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export default function ArquivadosRHPage() {
@@ -703,8 +758,11 @@ async function restaurarDocumento(id: number) {
     <th className="p-3">Funcionário</th>
     <th className="p-3">Título</th>
     <th className="p-3">Tipo</th>
-    <th className="p-3">Data</th>
+    <th className="p-3">Criado em</th>
+    <th className="p-3">Criado por ID</th>
     <th className="p-3">Arquivado em</th>
+    <th className="p-3">Arquivado por ID</th>
+    <th className="p-3">Motivo</th>
     <th className="p-3">Ações</th>
   </tr>
 </thead>
@@ -712,7 +770,7 @@ async function restaurarDocumento(id: number) {
       <tbody>
         {documentos.length === 0 ? (
           <tr>
-            <td colSpan={6} className="p-6 text-center text-slate-400">
+            <td colSpan={9} className="p-6 text-center text-slate-400">
               Nenhum documento arquivado encontrado.
             </td>
           </tr>
@@ -732,13 +790,26 @@ async function restaurarDocumento(id: number) {
               </td>
 
               <td className="p-3 text-slate-300">
-                {formatarData(item.dataDocumento)}
-              </td>
+  {formatarDataHora(item.criadoEm || item.dataDocumento)}
+</td>
 
-              <td className="p-3 text-slate-300">
-                {formatarData(item.arquivadoEm)}
-              </td>
-              <td className="p-3">
+<td className="p-3 text-slate-300">
+  {item.criadoPorId || "-"}
+</td>
+
+<td className="p-3 text-slate-300">
+  {formatarDataHora(item.arquivadoEm)}
+</td>
+
+<td className="p-3 text-slate-300">
+  {item.arquivadoPorId || "-"}
+</td>
+
+<td className="p-3 text-slate-300">
+  {item.motivoArquivo || "-"}
+</td>
+
+<td className="p-3">
   <button
     type="button"
     onClick={() => restaurarDocumento(item.id)}
