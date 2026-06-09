@@ -532,6 +532,9 @@ model TurmaDisciplinaHorario {
 
 model Matricula {
   id                     Int                    @id @default(autoincrement())
+  numeroMatriculaLegado  String?
+  sistemaOrigem          String?
+  importadaSistemaAntigo Boolean                @default(false)
   alunoId                Int
   numeroMatricula        String?
   createdAt              DateTime               @default(now())
@@ -572,6 +575,8 @@ model Matricula {
   @@index([periodoMatriculaId])
   @@index([periodoLetivo])
   @@index([poloId])
+  @@index([numeroMatricula])
+  @@index([numeroMatriculaLegado])
 }
 
 model ItemMatricula {
