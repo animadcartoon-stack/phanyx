@@ -3165,34 +3165,87 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                   Conteúdo do template
                 </label>
                 <div className="mt-1 rounded-2xl border bg-white">
-  <div className="flex flex-wrap gap-2 border-b bg-slate-50 p-3">
-    <button type="button" onClick={() => aplicarComandoEditor("bold")} className="rounded-lg border bg-white px-3 py-1 text-sm font-bold">
-      B
-    </button>
+  <div className="border-b bg-slate-50 p-3">
+  <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
+    Ferramentas de edição
+  </p>
 
-    <button type="button" onClick={() => aplicarComandoEditor("italic")} className="rounded-lg border bg-white px-3 py-1 text-sm italic">
-      I
-    </button>
+  <div className="flex flex-wrap gap-2">
 
-    <button type="button" onClick={() => aplicarComandoEditor("underline")} className="rounded-lg border bg-white px-3 py-1 text-sm underline">
-      U
-    </button>
+    <button
+  type="button"
+  onClick={() => aplicarComandoEditor("bold")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold hover:bg-slate-100"
+  title="Negrito"
+>
+  🅱️ Negrito
+</button>
+
+    <button
+  type="button"
+  onClick={() => aplicarComandoEditor("italic")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
+  title="Itálico"
+>
+  𝑰 Itálico
+</button>
+
+    <button
+  type="button"
+  onClick={() => aplicarComandoEditor("underline")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
+  title="Sublinhado"
+>
+  U̲ Sublinhado
+</button>
 
     <button type="button" onClick={() => aplicarComandoEditor("justifyLeft")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ⬅
+      ⬅ Esquerda
     </button>
 
     <button type="button" onClick={() => aplicarComandoEditor("justifyCenter")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ⬌ Centro
+      ↔ Centro
     </button>
 
     <button type="button" onClick={() => aplicarComandoEditor("justifyRight")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      ➡
+      ➡ Direita
     </button>
 
     <button type="button" onClick={() => aplicarComandoEditor("justifyFull")} className="rounded-lg border bg-white px-3 py-1 text-sm">
-      Justificar
+      ☰ Justificar
     </button>
+
+<button
+  type="button"
+  onClick={() => aplicarComandoEditor("insertUnorderedList")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
+>
+  • Lista
+</button>
+
+<button
+  type="button"
+  onClick={() => aplicarComandoEditor("insertHorizontalRule")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
+>
+  ━ Linha
+</button>
+
+<button
+  type="button"
+  onClick={() => aplicarComandoEditor("formatBlock", "<h1>")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
+>
+  Título
+</button>
+
+<button
+  type="button"
+  onClick={() => aplicarComandoEditor("formatBlock", "<h2>")}
+  className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
+>
+  Subtítulo
+</button>
 
     <select
       onChange={(e) => aplicarComandoEditor("fontName", e.target.value)}
@@ -3219,13 +3272,14 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
       <option value="6">Título</option>
     </select>
 
-    <input
+        <input
       type="color"
       onChange={(e) => aplicarComandoEditor("foreColor", e.target.value)}
       className="h-8 w-10 rounded-lg border bg-white"
       title="Cor do texto"
     />
   </div>
+</div>
 
   <div
     ref={editorRef}
