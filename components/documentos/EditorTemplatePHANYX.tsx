@@ -54,11 +54,14 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
         types: ["heading", "paragraph"],
       }),
     ],
-    content: conteudoParaHtmlSeguro(value),
-    editorProps: {
+    content: conteudoParaHtmlSeguro(value) || "<p></p>",
+parseOptions: {
+  preserveWhitespace: "full",
+},
+editorProps: {
       attributes: {
         class:
-          "min-h-[380px] rounded-b-2xl bg-white px-5 py-5 text-sm leading-7 text-slate-900 outline-none",
+          "editor-template-phanyx min-h-[380px] rounded-b-2xl bg-white px-5 py-5 text-sm leading-7 text-slate-900 outline-none",
       },
       handleKeyDown(view, event) {
         if (event.key === "Tab") {
@@ -83,9 +86,10 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
 
   if (atual === novoConteudo) return;
 
-  editor.commands.setContent(novoConteudo, {
-    emitUpdate: false,
-  });
+  editor.commands.setContent(novoConteudo || "<p></p>", {
+  emitUpdate: false,
+  preserveWhitespace: "full",
+} as any);
 }, [value, editor]);
 
   if (!editor) return null;
