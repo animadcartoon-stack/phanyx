@@ -366,9 +366,10 @@ async function restaurarOcorrencia(id: number) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ocorrenciaId: id,
-        }),
+       body: JSON.stringify({
+  ocorrenciaId: id,
+  motivoRestauracao: motivoRestauracao.trim(),
+}),
       }
     );
 
@@ -383,6 +384,8 @@ async function restaurarOcorrencia(id: number) {
     setOcorrencias((atual) =>
       atual.filter((o) => o.id !== id)
     );
+    setItemParaRestaurar(null);
+setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
   } finally {
@@ -447,6 +450,105 @@ async function restaurarDocumento(id: number) {
     }
 
     setDocumentos((atual) => atual.filter((d) => d.id !== id));
+    setItemParaRestaurar(null);
+    setMotivoRestauracao("");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRestaurandoId(null);
+  }
+}
+
+async function restaurarFerias(id: number) {
+  try {
+    if (!motivoRestauracao.trim()) return;
+
+    setRestaurandoId(id);
+
+    const res = await fetch("/api/admin/rh/arquivados/ferias", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        feriasId: id,
+        motivoRestauracao: motivoRestauracao.trim(),
+      }),
+    });
+
+    const dados = await res.json();
+
+    if (!res.ok) {
+      throw new Error(dados?.error || "Erro ao restaurar férias.");
+    }
+
+    setFerias((atual) => atual.filter((f) => f.id !== id));
+    setItemParaRestaurar(null);
+    setMotivoRestauracao("");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRestaurandoId(null);
+  }
+}
+
+async function restaurarExame(id: number) {
+  try {
+    if (!motivoRestauracao.trim()) return;
+
+    setRestaurandoId(id);
+
+    const res = await fetch("/api/admin/rh/arquivados/exames", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        exameId: id,
+        motivoRestauracao: motivoRestauracao.trim(),
+      }),
+    });
+
+    const dados = await res.json();
+
+    if (!res.ok) {
+      throw new Error(dados?.error || "Erro ao restaurar exame.");
+    }
+
+    setExames((atual) => atual.filter((e) => e.id !== id));
+    setItemParaRestaurar(null);
+    setMotivoRestauracao("");
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setRestaurandoId(null);
+  }
+}
+
+async function restaurarRescisao(id: number) {
+  try {
+    if (!motivoRestauracao.trim()) return;
+
+    setRestaurandoId(id);
+
+    const res = await fetch("/api/admin/rh/arquivados/rescisoes", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        rescisaoId: id,
+        motivoRestauracao: motivoRestauracao.trim(),
+      }),
+    });
+
+    const dados = await res.json();
+
+    if (!res.ok) {
+      throw new Error(dados?.error || "Erro ao restaurar rescisão.");
+    }
+
+    setRescisoes((atual) => atual.filter((r) => r.id !== id));
     setItemParaRestaurar(null);
     setMotivoRestauracao("");
   } catch (error) {
@@ -1195,17 +1297,39 @@ async function restaurarDocumento(id: number) {
         </button>
 
         <button
-          type="button"
-          onClick={() => {
-            if (itemParaRestaurar.tipo === "HOLERITE") {
-              restaurarHolerite(itemParaRestaurar.id);
-            }
-          }}
-          disabled={restaurandoId !== null || !motivoRestauracao.trim()}
-          className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
-        >
-          {restaurandoId !== null ? "Restaurando..." : "Restaurar registro"}
-        </button>
+  type="button"
+  onClick={() => {
+    if (!itemParaRestaurar) return;
+
+    if (itemParaRestaurar.tipo === "HOLERITE") {
+      restaurarHolerite(itemParaRestaurar.id);
+    }
+
+    if (itemParaRestaurar.tipo === "DOCUMENTO") {
+      restaurarDocumento(itemParaRestaurar.id);
+    }
+
+    if (itemParaRestaurar.tipo === "FERIAS") {
+      restaurarFerias(itemParaRestaurar.id);
+    }
+
+    if (itemParaRestaurar.tipo === "EXAME") {
+      restaurarExame(itemParaRestaurar.id);
+    }
+
+    if (itemParaRestaurar.tipo === "RESCISAO") {
+      restaurarRescisao(itemParaRestaurar.id);
+    }
+
+    if (itemParaRestaurar.tipo === "OCORRENCIA") {
+      restaurarOcorrencia(itemParaRestaurar.id);
+    }
+  }}
+  disabled={restaurandoId !== null || !motivoRestauracao.trim()}
+  className="rounded-2xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white hover:bg-emerald-700 disabled:opacity-60"
+>
+  {restaurandoId !== null ? "Restaurando..." : "Restaurar registro"}
+</button>
       </div>
     </div>
   </div>
