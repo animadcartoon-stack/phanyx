@@ -10,36 +10,69 @@ type OcorrenciaArquivada = {
   arquivadaEm?: string | null;
   dataEvento?: string | null;
   status: string;
+
+  criadoEm?: string | null;
+  criadoPorId?: number | null;
+
+  arquivadaPorId?: number | null;
+
+  restauradoEm?: string | null;
+  restauradoPorId?: number | null;
+  motivoRestauracao?: string | null;
+
+  criadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  arquivadaPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
     codigoFuncionario?: string | null;
-    criadoEm?: string | null;
-  criadoPorId?: number | null;
-  arquivadoPorId?: number | null;
-  restauradoEm?: string | null;
-  restauradoPorId?: number | null;
-  motivoRestauracao?: string | null;
   } | null;
 };
 
 type HoleriteArquivado = {
   id: number;
+  funcionarioId?: number;
   competenciaMes: number;
   competenciaAno: number;
   valorLiquido: string | number;
   status: string;
-  arquivadoEm?: string | null;
-  motivoArquivo?: string | null;
-  funcionario?: {
-    nome?: string | null;
-    cargo?: string | null;
-    criadoEm?: string | null;
+
+  criadoEm?: string | null;
   criadoPorId?: number | null;
+
+  arquivadoEm?: string | null;
   arquivadoPorId?: number | null;
+  motivoArquivo?: string | null;
+
   restauradoEm?: string | null;
   restauradoPorId?: number | null;
   motivoRestauracao?: string | null;
+
+  criadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  arquivadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
   } | null;
 };
 
@@ -49,17 +82,33 @@ type FeriasArquivada = {
   dataFim: string;
   dias: number;
   status: string;
-  arquivadaEm?: string | null;
-  motivoArquivo?: string | null;
-  funcionario?: {
-    nome?: string | null;
-    cargo?: string | null;
-    criadoEm?: string | null;
+
+  criadoEm?: string | null;
   criadoPorId?: number | null;
-  arquivadoPorId?: number | null;
+
+  arquivadaEm?: string | null;
+  arquivadaPorId?: number | null;
+  motivoArquivo?: string | null;
+
   restauradoEm?: string | null;
   restauradoPorId?: number | null;
   motivoRestauracao?: string | null;
+
+  criadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  arquivadaPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
   } | null;
 };
 
@@ -68,17 +117,33 @@ type ExameArquivado = {
   tipo: string;
   dataExame: string;
   resultado?: string | null;
-  arquivadoEm?: string | null;
-  motivoArquivo?: string | null;
-  funcionario?: {
-    nome?: string | null;
-    cargo?: string | null;
-    criadoEm?: string | null;
+
+  criadoEm?: string | null;
   criadoPorId?: number | null;
+
+  arquivadoEm?: string | null;
   arquivadoPorId?: number | null;
+  motivoArquivo?: string | null;
+
   restauradoEm?: string | null;
   restauradoPorId?: number | null;
   motivoRestauracao?: string | null;
+
+  criadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  arquivadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
   } | null;
 };
 
@@ -87,17 +152,33 @@ type RescisaoArquivada = {
   tipo: string;
   dataDesligamento: string;
   motivo?: string | null;
-  arquivadaEm?: string | null;
-  motivoArquivo?: string | null;
-  funcionario?: {
-    nome?: string | null;
-    cargo?: string | null;
-    criadoEm?: string | null;
+
+  criadoEm?: string | null;
   criadoPorId?: number | null;
-  arquivadoPorId?: number | null;
+
+  arquivadaEm?: string | null;
+  arquivadaPorId?: number | null;
+  motivoArquivo?: string | null;
+
   restauradoEm?: string | null;
   restauradoPorId?: number | null;
   motivoRestauracao?: string | null;
+
+  criadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  arquivadaPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
+  funcionario?: {
+    nome?: string | null;
+    cargo?: string | null;
   } | null;
 };
 
@@ -577,8 +658,11 @@ async function restaurarDocumento(id: number) {
         <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
           <th className="p-3">Funcionário</th>
           <th className="p-3">Competência</th>
-          <th className="p-3">Valor Líquido</th>
+          <th className="p-3">Valor líquido</th>
+          <th className="p-3">Criado em</th>
+          <th className="p-3">Criado por</th>
           <th className="p-3">Arquivado em</th>
+          <th className="p-3">Arquivado por</th>
           <th className="p-3">Motivo</th>
           <th className="p-3">Ações</th>
         </tr>
@@ -587,77 +671,88 @@ async function restaurarDocumento(id: number) {
       <tbody>
         {holerites.length === 0 ? (
           <tr>
-            <td
-              colSpan={6}
-              className="p-6 text-center text-slate-400"
-            >
+            <td colSpan={9} className="p-6 text-center text-slate-400">
               Nenhum holerite arquivado encontrado.
             </td>
           </tr>
         ) : (
           holerites
-.filter((holerite) => {
-  const termo = busca.toLowerCase();
+            .filter((holerite) => {
+              const termo = busca.toLowerCase();
 
-  return (
-    holerite.funcionario?.nome
-      ?.toLowerCase()
-      .includes(termo) ||
-    holerite.motivoArquivo
-      ?.toLowerCase()
-      .includes(termo) ||
-    `${holerite.competenciaMes}/${holerite.competenciaAno}`
-      .toLowerCase()
-      .includes(termo)
-  );
-})
-.map((holerite) => (
-            <tr
-              key={holerite.id}
-              className="border-b border-slate-800"
-            >
-              <td className="p-3 text-white">
-                {holerite.funcionario?.nome || "-"}
-              </td>
+              return (
+                holerite.funcionario?.nome?.toLowerCase().includes(termo) ||
+                holerite.motivoArquivo?.toLowerCase().includes(termo) ||
+                `${holerite.competenciaMes}/${holerite.competenciaAno}`
+                  .toLowerCase()
+                  .includes(termo)
+              );
+            })
+            .map((holerite) => (
+              <tr key={holerite.id} className="border-b border-slate-800">
+                <td className="p-3 text-white">
+                  {holerite.funcionario?.nome || "-"}
+                </td>
 
-              <td className="p-3 text-slate-300">
-                {String(holerite.competenciaMes).padStart(2, "0")}/
-                {holerite.competenciaAno}
-              </td>
+                <td className="p-3 text-slate-300">
+                  {String(holerite.competenciaMes).padStart(2, "0")}/
+                  {holerite.competenciaAno}
+                </td>
 
-              <td className="p-3 text-slate-300">
-                R$ {Number(holerite.valorLiquido || 0).toFixed(2)}
-              </td>
+                <td className="p-3 text-slate-300">
+                  R$ {Number(holerite.valorLiquido || 0).toFixed(2)}
+                </td>
 
-              <td className="p-3 text-slate-300">
-                {formatarData(holerite.arquivadoEm)}
-              </td>
+                <td className="p-3 text-slate-300">
+                  {formatarDataHora(holerite.criadoEm)}
+                </td>
 
-              <td className="p-3 text-slate-300">
-                {holerite.motivoArquivo || "-"}
-              </td>
+                <td className="p-3 text-slate-300">
+                  {holerite.criadoPor?.nome ||
+                    holerite.criadoPor?.email ||
+                    holerite.criadoPorId ||
+                    "-"}
+                </td>
 
-<td className="p-3">
-  <button
-    type="button"
-    onClick={() => {
-      setItemParaRestaurar({
-        tipo: "HOLERITE",
-        id: holerite.id,
-        titulo: `Holerite ${String(holerite.competenciaMes).padStart(2, "0")}/${holerite.competenciaAno}`,
-        funcionario: holerite.funcionario?.nome || "-",
-      });
-      setMotivoRestauracao("");
-    }}
-    disabled={restaurandoId === holerite.id}
-    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
-  >
-    {restaurandoId === holerite.id ? "Restaurando..." : "Restaurar"}
-  </button>
-</td>
+                <td className="p-3 text-slate-300">
+                  {formatarDataHora(holerite.arquivadoEm)}
+                </td>
 
-            </tr>
-          ))
+                <td className="p-3 text-slate-300">
+                  {holerite.arquivadoPor?.nome ||
+                    holerite.arquivadoPor?.email ||
+                    holerite.arquivadoPorId ||
+                    "-"}
+                </td>
+
+                <td className="p-3 text-slate-300">
+                  {holerite.motivoArquivo || "-"}
+                </td>
+
+                <td className="p-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setItemParaRestaurar({
+                        tipo: "HOLERITE",
+                        id: holerite.id,
+                        titulo: `Holerite ${String(
+                          holerite.competenciaMes
+                        ).padStart(2, "0")}/${holerite.competenciaAno}`,
+                        funcionario: holerite.funcionario?.nome || "-",
+                      });
+                      setMotivoRestauracao("");
+                    }}
+                    disabled={restaurandoId === holerite.id}
+                    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                  >
+                    {restaurandoId === holerite.id
+                      ? "Restaurando..."
+                      : "Restaurar"}
+                  </button>
+                </td>
+              </tr>
+            ))
         )}
       </tbody>
     </table>
@@ -672,7 +767,10 @@ async function restaurarDocumento(id: number) {
           <th className="p-3">Funcionário</th>
           <th className="p-3">Período</th>
           <th className="p-3">Dias</th>
+          <th className="p-3">Criado em</th>
+          <th className="p-3">Criado por</th>
           <th className="p-3">Arquivado em</th>
+          <th className="p-3">Arquivado por</th>
           <th className="p-3">Motivo</th>
         </tr>
       </thead>
@@ -680,27 +778,35 @@ async function restaurarDocumento(id: number) {
       <tbody>
         {ferias.length === 0 ? (
           <tr>
-            <td colSpan={5} className="p-6 text-center text-slate-400">
+            <td colSpan={8} className="p-6 text-center text-slate-400">
               Nenhuma férias arquivada encontrada.
             </td>
           </tr>
         ) : (
           ferias.map((item) => (
             <tr key={item.id} className="border-b border-slate-800">
-              <td className="p-3 text-white">
-                {item.funcionario?.nome || "-"}
-              </td>
+              <td className="p-3 text-white">{item.funcionario?.nome || "-"}</td>
 
               <td className="p-3 text-slate-300">
                 {formatarData(item.dataInicio)} até {formatarData(item.dataFim)}
               </td>
 
+              <td className="p-3 text-slate-300">{item.dias}</td>
+
               <td className="p-3 text-slate-300">
-                {item.dias}
+                {formatarDataHora(item.criadoEm)}
               </td>
 
               <td className="p-3 text-slate-300">
-                {formatarData(item.arquivadaEm)}
+                {item.criadoPor?.nome || item.criadoPor?.email || item.criadoPorId || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarDataHora(item.arquivadaEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.arquivadaPor?.nome || item.arquivadaPor?.email || item.arquivadaPorId || "-"}
               </td>
 
               <td className="p-3 text-slate-300">
@@ -723,14 +829,18 @@ async function restaurarDocumento(id: number) {
           <th className="p-3">Tipo</th>
           <th className="p-3">Data</th>
           <th className="p-3">Resultado</th>
+          <th className="p-3">Criado em</th>
+          <th className="p-3">Criado por</th>
           <th className="p-3">Arquivado em</th>
+          <th className="p-3">Arquivado por</th>
+          <th className="p-3">Motivo</th>
         </tr>
       </thead>
 
       <tbody>
         {exames.length === 0 ? (
           <tr>
-            <td colSpan={5} className="p-6 text-center text-slate-400">
+            <td colSpan={9} className="p-6 text-center text-slate-400">
               Nenhum exame arquivado encontrado.
             </td>
           </tr>
@@ -741,9 +851,7 @@ async function restaurarDocumento(id: number) {
                 {item.funcionario?.nome || "-"}
               </td>
 
-              <td className="p-3 text-slate-300">
-                {item.tipo}
-              </td>
+              <td className="p-3 text-slate-300">{item.tipo}</td>
 
               <td className="p-3 text-slate-300">
                 {formatarData(item.dataExame)}
@@ -754,7 +862,29 @@ async function restaurarDocumento(id: number) {
               </td>
 
               <td className="p-3 text-slate-300">
-                {formatarData(item.arquivadoEm)}
+                {formatarDataHora(item.criadoEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.criadoPor?.nome ||
+                  item.criadoPor?.email ||
+                  item.criadoPorId ||
+                  "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarDataHora(item.arquivadoEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.arquivadoPor?.nome ||
+                  item.arquivadoPor?.email ||
+                  item.arquivadoPorId ||
+                  "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.motivoArquivo || "-"}
               </td>
             </tr>
           ))
@@ -772,7 +902,10 @@ async function restaurarDocumento(id: number) {
           <th className="p-3">Funcionário</th>
           <th className="p-3">Tipo</th>
           <th className="p-3">Desligamento</th>
+          <th className="p-3">Criado em</th>
+          <th className="p-3">Criado por</th>
           <th className="p-3">Arquivado em</th>
+          <th className="p-3">Arquivado por</th>
           <th className="p-3">Motivo</th>
         </tr>
       </thead>
@@ -780,7 +913,7 @@ async function restaurarDocumento(id: number) {
       <tbody>
         {rescisoes.length === 0 ? (
           <tr>
-            <td colSpan={5} className="p-6 text-center text-slate-400">
+            <td colSpan={8} className="p-6 text-center text-slate-400">
               Nenhuma rescisão arquivada encontrada.
             </td>
           </tr>
@@ -800,7 +933,25 @@ async function restaurarDocumento(id: number) {
               </td>
 
               <td className="p-3 text-slate-300">
-                {formatarData(item.arquivadaEm)}
+                {formatarDataHora(item.criadoEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.criadoPor?.nome ||
+                  item.criadoPor?.email ||
+                  item.criadoPorId ||
+                  "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarDataHora(item.arquivadaEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {item.arquivadaPor?.nome ||
+                  item.arquivadaPor?.email ||
+                  item.arquivadaPorId ||
+                  "-"}
               </td>
 
               <td className="p-3 text-slate-300">
@@ -895,82 +1046,91 @@ async function restaurarDocumento(id: number) {
 
 {abaAtiva === "OCORRENCIAS" && (
   <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
-  <table className="min-w-full">
-    <thead>
-  <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
-    <th className="p-3">Funcionário</th>
-    <th className="p-3">Tipo</th>
-    <th className="p-3">Data</th>
-    <th className="p-3">Arquivado em</th>
-    <th className="p-3">Motivo</th>
-    <th className="p-3">Ações</th>
-  </tr>
-</thead>
-
-    <tbody>
-      {carregando ? (
-        <tr>
-          <td
-            colSpan={6}
-            className="p-6 text-center text-slate-400"
-          >
-            Carregando...
-          </td>
+    <table className="min-w-full">
+      <thead>
+        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+          <th className="p-3">Funcionário</th>
+          <th className="p-3">Tipo</th>
+          <th className="p-3">Data</th>
+          <th className="p-3">Criado em</th>
+          <th className="p-3">Criado por</th>
+          <th className="p-3">Arquivado em</th>
+          <th className="p-3">Arquivado por</th>
+          <th className="p-3">Motivo</th>
+          <th className="p-3">Ações</th>
         </tr>
-      ) : ocorrencias.length === 0 ? (
-        <tr>
-          <td
-            colSpan={6}
-            className="p-6 text-center text-slate-400"
-          >
-            Nenhuma ocorrência arquivada encontrada.
-          </td>
-        </tr>
-      ) : (
-        ocorrencias.map((ocorrencia) => (
-          <tr
-            key={ocorrencia.id}
-            className="border-b border-slate-800"
-          >
-            <td className="p-3 text-white">
-              {ocorrencia.funcionario?.nome || "-"}
+      </thead>
+
+      <tbody>
+        {carregando ? (
+          <tr>
+            <td colSpan={9} className="p-6 text-center text-slate-400">
+              Carregando...
             </td>
-
-            <td className="p-3 text-slate-300">
-              {ocorrencia.tipo}
-            </td>
-
-            <td className="p-3 text-slate-300">
-              {formatarData(ocorrencia.dataEvento)}
-            </td>
-
-            <td className="p-3 text-slate-300">
-              {formatarData(ocorrencia.arquivadaEm)}
-            </td>
-
-            <td className="p-3 text-slate-300">
-              {ocorrencia.motivoArquivo || "-"}
-            </td>
-
-<td className="p-3">
-  <button
-    type="button"
-    onClick={() => restaurarOcorrencia(ocorrencia.id)}
-    disabled={restaurandoId === ocorrencia.id}
-    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
-  >
-    {restaurandoId === ocorrencia.id
-      ? "Restaurando..."
-      : "Restaurar"}
-  </button>
-</td>
-
           </tr>
-        ))
-      )}
-    </tbody>
-  </table>
-</div>
+        ) : ocorrencias.length === 0 ? (
+          <tr>
+            <td colSpan={9} className="p-6 text-center text-slate-400">
+              Nenhuma ocorrência arquivada encontrada.
+            </td>
+          </tr>
+        ) : (
+          ocorrencias.map((ocorrencia) => (
+            <tr key={ocorrencia.id} className="border-b border-slate-800">
+              <td className="p-3 text-white">
+                {ocorrencia.funcionario?.nome || "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {ocorrencia.tipo}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarData(ocorrencia.dataEvento)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarDataHora(ocorrencia.criadoEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {ocorrencia.criadoPor?.nome ||
+                  ocorrencia.criadoPor?.email ||
+                  ocorrencia.criadoPorId ||
+                  "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {formatarDataHora(ocorrencia.arquivadaEm)}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {ocorrencia.arquivadaPor?.nome ||
+                  ocorrencia.arquivadaPor?.email ||
+                  ocorrencia.arquivadaPorId ||
+                  "-"}
+              </td>
+
+              <td className="p-3 text-slate-300">
+                {ocorrencia.motivoArquivo || "-"}
+              </td>
+
+              <td className="p-3">
+                <button
+                  type="button"
+                  onClick={() => restaurarOcorrencia(ocorrencia.id)}
+                  disabled={restaurandoId === ocorrencia.id}
+                  className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {restaurandoId === ocorrencia.id ? "Restaurando..." : "Restaurar"}
+                </button>
+              </td>
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  </div>
 )}
 </div>
 

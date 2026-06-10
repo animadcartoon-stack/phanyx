@@ -18,14 +18,28 @@ export async function GET() {
         arquivado: true,
       },
       include: {
-        funcionario: {
-          select: {
-            id: true,
-            nome: true,
-            cargo: true,
-          },
-        },
-      },
+  funcionario: {
+    select: {
+      id: true,
+      nome: true,
+      cargo: true,
+    },
+  },
+  criadoPor: {
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  },
+  arquivadoPor: {
+    select: {
+      id: true,
+      nome: true,
+      email: true,
+    },
+  },
+},
       orderBy: {
         arquivadoEm: "desc",
       },

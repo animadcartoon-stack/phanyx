@@ -154,6 +154,23 @@ model User {
   documentosRHCriados     DocumentoRH[]         @relation("DocumentoRHCriadoPor")
   documentosRHArquivados  DocumentoRH[]         @relation("DocumentoRHArquivadoPor")
   documentosRHRestaurados DocumentoRH[]         @relation("DocumentoRHRestauradoPor")
+  ocorrenciasRHCriadas    OcorrenciaRH[]        @relation("OcorrenciaRHCriadoPor")
+  ocorrenciasRHArquivadas OcorrenciaRH[]        @relation("OcorrenciaRHArquivadaPor")
+
+  feriasRHCriadas     FeriasRH[] @relation("FeriasRHCriadoPor")
+  feriasRHArquivadas  FeriasRH[] @relation("FeriasRHArquivadaPor")
+  feriasRHRestauradas FeriasRH[] @relation("FeriasRHRestauradoPor")
+
+  examesRHCriados     ExameMedicoRH[] @relation("ExameMedicoRHCriadoPor")
+  examesRHArquivados  ExameMedicoRH[] @relation("ExameMedicoRHArquivadoPor")
+  examesRHRestaurados ExameMedicoRH[] @relation("ExameMedicoRHRestauradoPor")
+
+  rescisoesRHCriadas     RescisaoRH[] @relation("RescisaoRHCriadoPor")
+  rescisoesRHArquivadas  RescisaoRH[] @relation("RescisaoRHArquivadaPor")
+  rescisoesRHRestauradas RescisaoRH[] @relation("RescisaoRHRestauradoPor")
+
+  holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
+  holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -1937,6 +1954,9 @@ model OcorrenciaRH {
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
+  criadoPor    User? @relation("OcorrenciaRHCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadaPor User? @relation("OcorrenciaRHArquivadaPor", fields: [arquivadaPorId], references: [id])
+
   @@index([funcionarioId])
   @@index([instituicaoId])
   @@index([tipo])
@@ -2034,6 +2054,10 @@ model FeriasRH {
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
+  criadoPor     User? @relation("FeriasRHCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadaPor  User? @relation("FeriasRHArquivadaPor", fields: [arquivadaPorId], references: [id])
+  restauradoPor User? @relation("FeriasRHRestauradoPor", fields: [restauradoPorId], references: [id])
+
   @@index([funcionarioId])
   @@index([instituicaoId])
   @@index([status])
@@ -2074,6 +2098,10 @@ model ExameMedicoRH {
 
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor     User? @relation("ExameMedicoRHCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadoPor  User? @relation("ExameMedicoRHArquivadoPor", fields: [arquivadoPorId], references: [id])
+  restauradoPor User? @relation("ExameMedicoRHRestauradoPor", fields: [restauradoPorId], references: [id])
 
   @@index([funcionarioId])
   @@index([instituicaoId])
@@ -2124,6 +2152,10 @@ model RescisaoRH {
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
+  criadoPor     User? @relation("RescisaoRHCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadaPor  User? @relation("RescisaoRHArquivadaPor", fields: [arquivadaPorId], references: [id])
+  restauradoPor User? @relation("RescisaoRHRestauradoPor", fields: [restauradoPorId], references: [id])
+
   @@index([funcionarioId])
   @@index([instituicaoId])
   @@index([status])
@@ -2169,6 +2201,9 @@ model HoleriteRH {
   funcionario Funcionario        @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   eventos     HoleriteEventoRH[]
+
+  criadoPor    User? @relation("HoleriteRHCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadoPor User? @relation("HoleriteRHArquivadoPor", fields: [arquivadoPorId], references: [id])
 
   @@unique([funcionarioId, competenciaMes, competenciaAno])
   @@index([funcionarioId])
