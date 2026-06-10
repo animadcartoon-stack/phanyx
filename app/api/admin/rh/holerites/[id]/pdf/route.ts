@@ -118,8 +118,10 @@ export async function GET(
       });
     }
 
+    function desenharVia(origemY: number) {
+
     const x = 25;
-    const yTop = height - 30;
+    const yTop = origemY;
     const tableW = width - 90;
     const assinaturaW = 55;
 
@@ -227,6 +229,9 @@ export async function GET(
     drawText("Assinatura do Funcionário", x + tableW + 14, 140, 5);
     line(x + tableW + 17, 105, x + tableW + assinaturaW - 5, 105);
     drawText("Data", x + tableW + 28, 95, 5);
+    desenharVia(height - 30);
+    desenharVia(260);
+    }
 
     const bytes = await pdfDoc.save();
 
