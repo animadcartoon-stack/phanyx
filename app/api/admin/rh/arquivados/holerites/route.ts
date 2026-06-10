@@ -53,6 +53,17 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const holeriteId = Number(body.holeriteId);
 
+    const motivoRestauracao = String(
+  body.motivoRestauracao || ""
+).trim();
+
+if (!motivoRestauracao) {
+  return NextResponse.json(
+    { error: "Informe o motivo da restauração." },
+    { status: 400 }
+  );
+}
+
     if (!holeriteId) {
       return NextResponse.json({ error: "Informe o holerite." }, { status: 400 });
     }
@@ -75,12 +86,17 @@ export async function PATCH(req: Request) {
     const restaurado = await prisma.holeriteRH.update({
       where: { id: holerite.id },
       data: {
-        arquivado: false,
-        arquivadoEm: null,
-        arquivadoPorId: null,
-        motivoArquivo: null,
-        status: "GERADO",
-      },
+  arquivado: false,
+  arquivadoEm: null,
+  arquivadoPorId: null,
+  motivoArquivo: null,
+
+  restauradoEm: new Date(),
+  restauradoPorId: user.id,
+  motivoRestauracao,
+
+  status: "GERADO",
+},
     });
 
     await prisma.historicoRH.create({
@@ -90,7 +106,7 @@ export async function PATCH(req: Request) {
         criadoPorId: user.id,
         tipo: "RESTAURACAO_HOLERITE",
         titulo: "Holerite restaurado",
-        descricao: "Holerite restaurado a partir da central de arquivados.",
+        descricao: motivoRestauracao,
         dataEvento: new Date(),
         observacoes: "Registro retornou para a lista principal de Holerites RH.",
       },

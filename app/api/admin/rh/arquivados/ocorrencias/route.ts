@@ -60,6 +60,17 @@ export async function PATCH(req: Request) {
     const body = await req.json();
     const ocorrenciaId = Number(body.ocorrenciaId);
 
+    const motivoRestauracao = String(
+  body.motivoRestauracao || ""
+).trim();
+
+if (!motivoRestauracao) {
+  return NextResponse.json(
+    { error: "Informe o motivo da restauração." },
+    { status: 400 }
+  );
+}
+
     if (!ocorrenciaId) {
       return NextResponse.json(
         { error: "Informe a ocorrência." },
@@ -85,12 +96,17 @@ export async function PATCH(req: Request) {
     const restaurada = await prisma.ocorrenciaRH.update({
       where: { id: ocorrencia.id },
       data: {
-        arquivada: false,
-        arquivadaEm: null,
-        arquivadaPorId: null,
-        motivoArquivo: null,
-        status: "REGISTRADA",
-      },
+  arquivada: false,
+  arquivadaEm: null,
+  arquivadaPorId: null,
+  motivoArquivo: null,
+
+  restauradoEm: new Date(),
+  restauradoPorId: user.id,
+  motivoRestauracao,
+
+  status: "REGISTRADA",
+},
     });
 
     await prisma.historicoRH.create({
@@ -100,7 +116,7 @@ export async function PATCH(req: Request) {
         criadoPorId: user.id,
         tipo: "RESTAURACAO_OCORRENCIA",
         titulo: "Ocorrência RH restaurada",
-        descricao: "Ocorrência restaurada a partir da central de arquivados.",
+        descricao: motivoRestauracao,
         dataEvento: new Date(),
         observacoes:
           "Registro retornou para a lista principal de Ocorrências RH.",

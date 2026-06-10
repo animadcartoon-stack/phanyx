@@ -13,73 +13,49 @@ export async function GET() {
     }
 
     const documentos = await prisma.documentoRH.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-        arquivado: true,
-      },
-      include: {
+  where: {
+    instituicaoId: user.instituicaoId,
+    arquivado: true,
+  },
+
   include: {
-  funcionario: {
-    select: {
-      id: true,
-      nome: true,
-      cargo: true,
+    funcionario: {
+      select: {
+        id: true,
+        nome: true,
+        cargo: true,
+      },
+    },
+
+    criadoPor: {
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+      },
+    },
+
+    arquivadoPor: {
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+      },
+    },
+
+    restauradoPor: {
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+      },
     },
   },
 
-  criadoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
+  orderBy: {
+    arquivadoEm: "desc",
   },
-
-  arquivadoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
-  },
-
-  restauradoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
-  },
-},
-
-  criadoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
-  },
-
-  arquivadoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
-  },
-
-  restauradoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
-  },
-},
-      orderBy: {
-  arquivadoEm: "desc",
-},
-    });
+});
 
     return NextResponse.json(documentos);
   } catch (error: any) {
@@ -126,24 +102,33 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const motivoRestauracao = String(
-  body.motivoRestauracao || "Restauração solicitada pelo administrador."
+   const motivoRestauracao = String(
+  body.motivoRestauracao || ""
 ).trim();
+
+if (!motivoRestauracao) {
+  return NextResponse.json(
+    { error: "Informe o motivo da restauração." },
+    { status: 400 }
+  );
+}
 
 const atualizado = await prisma.documentoRH.update({
   where: {
     id: documento.id,
   },
   data: {
-    arquivado: false,
-    arquivadoEm: null,
-    arquivadoPorId: null,
-    motivoArquivo: null,
-    restauradoEm: new Date(),
-    restauradoPorId: user.id,
-    motivoRestauracao,
-    status: "GERADO",
-  },
+  arquivado: false,
+  arquivadoEm: null,
+  arquivadoPorId: null,
+  motivoArquivo: null,
+
+  restauradoEm: new Date(),
+  restauradoPorId: user.id,
+  motivoRestauracao,
+
+  status: "GERADO",
+},
 });
 
 await prisma.historicoRH.create({
