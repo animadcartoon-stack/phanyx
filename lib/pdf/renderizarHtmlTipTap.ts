@@ -1,23 +1,54 @@
 import { rgb } from "pdf-lib";
 
-type BlocoPdf = {
+type Align = "left" | "center" | "right";
+
+type Token = {
   texto: string;
-  align: "left" | "center" | "right";
   bold: boolean;
-  vazio: boolean;
 };
 
-const ESPACO_LINHA = 16;
-const ESPACO_PARAGRAFO = 0;
-const ESPACO_LINHA_VAZIA = 16;
-const ESPACO_TITULO = 18;
+type BlocoPdf = {
+  tokens: Token[];
+  align: Align;
+  vazio: boolean;
+  titulo: boolean;
+};
 
-function decodificarHtml(texto: string) {
+const ESPACO_LINHA = 14;
+const ESPACO_PARAGRAFO = 10;
+const ESPACO_LINHA_VAZIA = 18;
+const ESPACO_TITULO = 16;
+
+function decode(texto: string) {
   return String(texto || "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">");
+}
+
+function tokensInline(html: string): Token[] {
+  const tokens: Token[] = [];
+  const partes = String(html || "").split(/(<\/?strong>|<\/?b>)/gi);
+
+  let emNegrito = false;
+
+  for (const parte of partes) {
+    if (/^<strong>$/i.test(parte) || /^<b>$/i.test(parte)) {
+      emNegrito = true;
+      continue;
+    }
+
+    if (/^<\/strong>$/i.test(parte) || /^<\/b>$/i.test(parte)) {
+      emNegrito = false;
+      continue;
+    }
+
+    const texto = decode(parte.replace(/<[^>]+>/g, ""));
+    if (texto) tokens.push({ texto, bold: emNegrito });
+  }
+
+  return tokens;
 }
 
 function extrairBlocosTipTap(html: string): BlocoPdf[] {
@@ -35,56 +66,82 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     const attrs = match[2] || "";
     const bruto = match[3] || "";
 
-    const align = attrs.includes("text-align: center")
+    const align: Align = attrs.includes("text-align: center")
       ? "center"
       : attrs.includes("text-align: right")
       ? "right"
       : "left";
 
-    const bold =
-  tag === "h1" ||
-  tag === "h2";
+    const titulo = tag === "h1" || tag === "h2";
 
-    const texto = decodificarHtml(
-      bruto.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "")
-    );
+    const partesLinha = bruto.split("\n");
 
-    const linhas = texto.split("\n");
+    for (const parteLinha of partesLinha) {
+      const semTags = parteLinha.replace(/<[^>]+>/g, "").trim();
 
-    for (const linha of linhas) {
-      if (!linha.trim()) {
-        blocos.push({ texto: "", align, bold, vazio: true });
-      } else {
+      if (!semTags) {
         blocos.push({
-          texto: tag === "li" ? `- ${linha}` : linha,
+          tokens: [],
           align,
-          bold,
-          vazio: false,
+          vazio: true,
+          titulo,
         });
+        continue;
       }
+
+      const tokens = tokensInline(parteLinha);
+
+      if (tag === "li") {
+        tokens.unshift({ texto: "- ", bold: false });
+      }
+
+      blocos.push({
+        tokens,
+        align,
+        vazio: false,
+        titulo,
+      });
     }
   }
 
   return blocos;
 }
 
-function quebrarLinha(texto: string, maxWidth: number, font: any, size: number) {
-  const palavras = texto.split(" ");
-  const linhas: string[] = [];
-  let atual = "";
+function quebrarTokensEmLinhas(tokens: Token[], maxWidth: number, font: any, bold: any, size: number) {
+  const palavras: Token[] = [];
 
-  for (const palavra of palavras) {
-    const tentativa = atual ? `${atual} ${palavra}` : palavra;
+  for (const token of tokens) {
+    const pedacos = token.texto.split(/(\s+)/);
 
-    if (font.widthOfTextAtSize(tentativa, size) <= maxWidth) {
-      atual = tentativa;
-    } else {
-      if (atual) linhas.push(atual);
-      atual = palavra;
+    for (const pedaco of pedacos) {
+      if (pedaco === "") continue;
+      palavras.push({ texto: pedaco, bold: token.bold });
     }
   }
 
-  if (atual) linhas.push(atual);
+  const linhas: Token[][] = [];
+  let atual: Token[] = [];
+
+  function largura(tokensLinha: Token[]) {
+    return tokensLinha.reduce((soma, token) => {
+      const fonte = token.bold ? bold : font;
+      return soma + fonte.widthOfTextAtSize(token.texto, size);
+    }, 0);
+  }
+
+  for (const palavra of palavras) {
+    const tentativa = [...atual, palavra];
+
+    if (largura(tentativa) <= maxWidth || atual.length === 0) {
+      atual = tentativa;
+    } else {
+      linhas.push(atual);
+      atual = [palavra];
+    }
+  }
+
+  if (atual.length) linhas.push(atual);
+
   return linhas;
 }
 
@@ -110,40 +167,57 @@ export async function renderizarHtmlTipTapNoPdf({
       continue;
     }
 
-    const fonte = bloco.bold ? bold : font;
-    const tamanho = bloco.bold ? 12 : 10;
-    const linhas = quebrarLinha(bloco.texto, maxWidth, fonte, tamanho);
+    const tamanho = bloco.titulo ? 12 : 10;
+    const linhas = quebrarTokensEmLinhas(
+      bloco.tokens.map((t) => ({
+        ...t,
+        bold: bloco.titulo ? true : t.bold,
+      })),
+      maxWidth,
+      font,
+      bold,
+      tamanho
+    );
 
-    for (const linha of linhas) {
+    for (const linhaTokens of linhas) {
       if (y < 70) {
         pagina = await criarNovaPagina();
         y = pageHeight - 135;
       }
 
-      const largura = fonte.widthOfTextAtSize(linha, tamanho);
+      const larguraLinha = linhaTokens.reduce((soma, token) => {
+        const fonte = token.bold ? bold : font;
+        return soma + fonte.widthOfTextAtSize(token.texto, tamanho);
+      }, 0);
 
       let posX = x;
 
       if (bloco.align === "center") {
-        posX = x + (maxWidth - largura) / 2;
+        posX = x + (maxWidth - larguraLinha) / 2;
       }
 
       if (bloco.align === "right") {
-        posX = x + maxWidth - largura;
+        posX = x + maxWidth - larguraLinha;
       }
 
-      pagina.drawText(linha, {
-        x: posX,
-        y,
-        size: tamanho,
-        font: fonte,
-        color: rgb(0, 0, 0),
-      });
+      for (const token of linhaTokens) {
+        const fonte = token.bold ? bold : font;
+
+        pagina.drawText(token.texto, {
+          x: posX,
+          y,
+          size: tamanho,
+          font: fonte,
+          color: rgb(0, 0, 0),
+        });
+
+        posX += fonte.widthOfTextAtSize(token.texto, tamanho);
+      }
 
       y -= ESPACO_LINHA;
     }
 
-    y -= bloco.bold ? ESPACO_TITULO : ESPACO_PARAGRAFO;
+    y -= bloco.titulo ? ESPACO_TITULO : ESPACO_PARAGRAFO;
   }
 
   return { page: pagina, y };
