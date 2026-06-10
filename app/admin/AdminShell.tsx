@@ -520,7 +520,7 @@ function abrirTourAdmin() {
     <span>{menuAberto === "rh" ? "▾" : "▸"}</span>
   </button>
 
-  {menuAberto === "rh" && (
+  {menuAberto === "DEPARTAMENTO PESSOAL" && (
   <div className="ml-3 mt-2 flex flex-col space-y-1">
 
     <Link href="/admin/rh" className={getLinkClass("/admin/rh")}>
