@@ -7,10 +7,10 @@ type BlocoPdf = {
   vazio: boolean;
 };
 
-const ESPACO_LINHA = 15;
-const ESPACO_PARAGRAFO = 8;
-const ESPACO_LINHA_VAZIA = 18;
-const ESPACO_TITULO = 14;
+const ESPACO_LINHA = 16;
+const ESPACO_PARAGRAFO = 0;
+const ESPACO_LINHA_VAZIA = 16;
+const ESPACO_TITULO = 18;
 
 function decodificarHtml(texto: string) {
   return String(texto || "")
@@ -42,10 +42,8 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
       : "left";
 
     const bold =
-      tag === "h1" ||
-      tag === "h2" ||
-      /<strong[\s\S]*?>/i.test(bruto) ||
-      /<b[\s\S]*?>/i.test(bruto);
+  tag === "h1" ||
+  tag === "h2";
 
     const texto = decodificarHtml(
       bruto.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "")
@@ -65,8 +63,6 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
         });
       }
     }
-
-    blocos.push({ texto: "", align, bold: false, vazio: true });
   }
 
   return blocos;
@@ -115,7 +111,7 @@ export async function renderizarHtmlTipTapNoPdf({
     }
 
     const fonte = bloco.bold ? bold : font;
-    const tamanho = bloco.bold ? 11 : 10;
+    const tamanho = bloco.bold ? 12 : 10;
     const linhas = quebrarLinha(bloco.texto, maxWidth, fonte, tamanho);
 
     for (const linha of linhas) {
