@@ -230,7 +230,7 @@ export async function GET(
     line(x + tableW + 17, 105, x + tableW + assinaturaW - 5, 105);
     drawText("Data", x + tableW + 28, 95, 5);
     desenharVia(height - 30);
-    desenharVia(260);
+    
     }
 
     const bytes = await pdfDoc.save();
