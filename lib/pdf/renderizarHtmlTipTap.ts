@@ -14,10 +14,10 @@ type BlocoPdf = {
   titulo: boolean;
 };
 
-const ESPACO_LINHA = 14;
-const ESPACO_PARAGRAFO = 10;
-const ESPACO_LINHA_VAZIA = 18;
-const ESPACO_TITULO = 16;
+const ESPACO_LINHA = 12;
+const ESPACO_PARAGRAFO = 4;
+const ESPACO_LINHA_VAZIA = 14;
+const ESPACO_TITULO = 12;
 
 function decode(texto: string) {
   return String(texto || "")

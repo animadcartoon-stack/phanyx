@@ -265,8 +265,19 @@ E por estarem de pleno acordo, firmam o presente contrato.
 
 {{cidadeAssinatura}}, {{dataAtual}}.`;
 
-    const numeroMatriculaOficial =
-  matricula.numeroMatricula || matricula.aluno?.matricula || "-";
+    let numeroMatriculaOficial =
+  matricula.numeroMatricula || matricula.aluno?.matricula || "";
+
+if (!numeroMatriculaOficial) {
+  const novoNumero = String(matricula.id).padStart(8, "0");
+
+  await prisma.matricula.update({
+    where: { id: matricula.id },
+    data: { numeroMatricula: novoNumero },
+  });
+
+  numeroMatriculaOficial = novoNumero;
+}
 
 const titularContrato = obterTitularContrato(matricula.aluno);
 
