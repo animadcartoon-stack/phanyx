@@ -233,6 +233,9 @@ export async function GET(
     
     }
 
+    desenharVia(height - 30);
+    desenharVia(260);
+
     const bytes = await pdfDoc.save();
 
     return new NextResponse(Buffer.from(bytes), {
