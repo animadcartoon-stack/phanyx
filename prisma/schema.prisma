@@ -123,6 +123,7 @@ model Instituicao {
   escalasRH          EscalaTrabalhoRH[]
   bancoHorasRH       BancoHorasRH[]
   integracoesPontoRH IntegracaoPontoRH[]
+  eventosFolhaRH     EventoFolhaRH[]
 }
 
 model User {
@@ -2339,6 +2340,33 @@ model IntegracaoPontoRH {
 
   @@index([instituicaoId])
   @@index([provedor])
+  @@index([ativo])
+}
+
+model EventoFolhaRH {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  codigo    String
+  descricao String
+  tipo      String // VENCIMENTO | DESCONTO | INFORMATIVO
+  natureza  String? // SALARIO | HORA_EXTRA | INSS | IRRF | FGTS | BENEFICIO etc.
+
+  incideINSS Boolean @default(false)
+  incideFGTS Boolean @default(false)
+  incideIRRF Boolean @default(false)
+
+  ativo Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([instituicaoId, codigo])
+  @@index([instituicaoId])
+  @@index([tipo])
+  @@index([natureza])
   @@index([ativo])
 }
 
