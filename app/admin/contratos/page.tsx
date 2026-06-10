@@ -318,9 +318,12 @@ const alunosFiltrados = [...alunos]
                 Pré-visualização do contrato
               </h2>
 
-              <div className="whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-800">
-                {contrato.contratoFinal}
-              </div>
+              <div
+  className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-800 [&_p]:mb-4 [&_h1]:mb-6 [&_h1]:text-center [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mb-4 [&_h2]:mt-6 [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
+  dangerouslySetInnerHTML={{
+    __html: contrato.contratoFinal,
+  }}
+/>
 
               {contrato.observacoesContrato && (
                 <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">

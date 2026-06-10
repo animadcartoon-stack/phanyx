@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { getUserFromToken } from "@/lib/server-auth";
 import { prisma } from "@/lib/prisma";
 import crypto from "node:crypto";
+import { renderizarHtmlTipTapNoPdf } from "@/lib/pdf/renderizarHtmlTipTap";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -604,106 +605,30 @@ const contratoFinalCorrigido = String(data?.contratoFinal || "").replace(
   valorContratoFormatado
 );
 
-const contratoFinalTexto = htmlParaTextoContrato(contratoFinalCorrigido);
+const resultado = await renderizarHtmlTipTapNoPdf({
+  html: contratoFinalCorrigido,
+  page,
+  font,
+  bold,
+  x: margemX,
+  yInicial: y,
+  maxWidth: larguraTexto,
+  pageHeight,
+  criarNovaPagina: async () => {
+    const novaPagina = pdfDoc.addPage([pageWidth, pageHeight]);
 
-const paragrafos = contratoFinalTexto.split("\n");
+    await desenharCabecalho(novaPagina);
 
-    for (const paragrafo of paragrafos) {
-      const linhasQuebradas =
-        paragrafo.trim() === ""
-          ? [""]
-          : quebrarTextoEmLinhas(paragrafo, larguraTexto, font, 11);
+    page = novaPagina;
 
-      for (const linha of linhasQuebradas) {
-        if (y < 150) {
-          page = pdfDoc.addPage([pageWidth, pageHeight]);
-          await desenharCabecalho(page);
+    return novaPagina;
+  },
+});
 
-          y =
-            estilo === "PHANYX_MODERNO"
-              ? pageHeight - 132
-              : estilo === "PHANYX_CLASSICO"
-              ? pageHeight - 126
-              : pageHeight - 118;
-        }
+page = resultado.page;
+y = resultado.y;
 
-        if (linha.includes("{{assinaturaDiretor}}")) {
-  const partes = linha.split("{{assinaturaDiretor}}");
-  const textoAntes = partes[0] || "";
-  const textoDepois = partes[1] || "";
-
-  const xAssinatura = margemX + font.widthOfTextAtSize(textoAntes, 11);
-
-  if (textoAntes.trim()) {
-    page.drawText(textoAntes, {
-      x: margemX,
-      y,
-      size: 11,
-      font,
-      color: rgb(0, 0, 0),
-    });
-  }
-
-  if (assinaturaDiretorEmbed) {
-    page.drawImage(assinaturaDiretorEmbed, {
-      x: xAssinatura,
-      y: y - 12,
-      width: 125,
-      height: 34,
-      opacity: 1,
-    });
-  } else {
-    page.drawText("Assinatura do diretor", {
-      x: xAssinatura,
-      y,
-      size: 10,
-      font,
-      color: rgb(0, 0, 0),
-    });
-  }
-
-  if (textoDepois.trim()) {
-    page.drawText(textoDepois, {
-      x: xAssinatura + 130,
-      y,
-      size: 11,
-      font,
-      color: rgb(0, 0, 0),
-    });
-  }
-} else {
-  if (!linha.trim()) {
-  y -= 19;
-  continue;
-}
-
-  const ehTituloContrato =
-    linha.trim().toUpperCase() ===
-    "CONTRATO DE PRESTAÇÃO DE SERVIÇOS EDUCACIONAIS";
-
-  const fonteLinha = ehTituloContrato ? bold : font;
-  const tamanhoLinha = ehTituloContrato ? 14 : 11;
-
-  const larguraLinha = fonteLinha.widthOfTextAtSize(linha, tamanhoLinha);
-
-  page.drawText(linha, {
-    x: ehTituloContrato
-      ? margemX + (larguraTexto - larguraLinha) / 2
-      : margemX,
-    y,
-    size: tamanhoLinha,
-    font: fonteLinha,
-    color: rgb(0, 0, 0),
-  });
-}
-
-y -= 19;
-      }
-
-      y -= 0;
-    }
-
-    y -= 20;
+y -= 20;
 
     if (y < 190) {
       page = pdfDoc.addPage([pageWidth, pageHeight]);
