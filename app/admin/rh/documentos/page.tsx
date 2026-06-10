@@ -9,7 +9,16 @@ type DocumentoRH = {
   titulo: string;
   status: string;
   dataDocumento: string;
+
+  criadoEm?: string;
   motivoArquivo?: string | null;
+
+  criadoPor?: {
+    id?: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
   funcionario?: {
     nome?: string | null;
     cargo?: string | null;
@@ -324,8 +333,10 @@ export default function DocumentosRHPage() {
                 <th className="p-3">Funcionário</th>
                 <th className="p-3">Título</th>
                 <th className="p-3">Tipo</th>
-                <th className="p-3">Data</th>
+                <th className="p-3">Criado em</th>
+                <th className="p-3">Criado por</th>
                 <th className="p-3">Status</th>
+                <th className="p-3">Motivo</th>
                 <th className="p-3">Ações</th>
               </tr>
             </thead>
@@ -333,13 +344,13 @@ export default function DocumentosRHPage() {
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-slate-400">
+                  <td colSpan={8} className="p-6 text-center text-slate-400">
                     Carregando...
                   </td>
                 </tr>
               ) : documentosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-slate-400">
+                  <td colSpan={8} className="p-6 text-center text-slate-400">
                     Nenhum documento RH gerado ainda.
                   </td>
                 </tr>
@@ -359,12 +370,20 @@ export default function DocumentosRHPage() {
                     </td>
 
                     <td className="p-3 text-slate-300">
-                      {formatarData(documento.dataDocumento)}
-                    </td>
+  {formatarData(documento.criadoEm)}
+</td>
 
-                    <td className="p-3 text-slate-300">
-                      {documento.status}
-                    </td>
+<td className="p-3 text-slate-300">
+  {documento.criadoPor?.nome || "-"}
+</td>
+
+<td className="p-3 text-slate-300">
+  {documento.status}
+</td>
+
+<td className="p-3 text-slate-300">
+  {documento.motivoArquivo || "-"}
+</td>
 
                     <td className="p-3">
                       <button
