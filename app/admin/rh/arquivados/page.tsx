@@ -185,6 +185,22 @@ export default function ArquivadosRHPage() {
     } | null>(null);
 
 const [motivoRestauracao, setMotivoRestauracao] = useState("");
+
+const sugestoesBusca = Array.from(
+  new Set([
+    ...ocorrencias.map((o) => o.funcionario?.nome).filter(Boolean),
+    ...holerites.map((h) => h.funcionario?.nome).filter(Boolean),
+    ...ferias.map((f) => f.funcionario?.nome).filter(Boolean),
+    ...exames.map((e) => e.funcionario?.nome).filter(Boolean),
+    ...rescisoes.map((r) => r.funcionario?.nome).filter(Boolean),
+    ...documentos.map((d) => d.funcionario?.nome).filter(Boolean),
+  ])
+)
+.filter((nome) =>
+  busca.length > 0 &&
+  nome!.toLowerCase().includes(busca.toLowerCase())
+)
+.slice(0, 8);
     
 useEffect(() => {
   async function carregarOcorrenciasArquivadas() {
@@ -512,6 +528,21 @@ async function restaurarDocumento(id: number) {
     placeholder="Busque por funcionário, título, tipo, competência, motivo ou responsável..."
     className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
   />
+
+{busca.length > 0 && sugestoesBusca.length > 0 && (
+  <div className="mt-2 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
+    {sugestoesBusca.map((sugestao) => (
+      <button
+        key={sugestao}
+        type="button"
+        onClick={() => setBusca(sugestao!)}
+        className="block w-full border-b border-slate-800 px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-900"
+      >
+        {sugestao}
+      </button>
+    ))}
+  </div>
+)}
 
   <p className="mt-2 text-xs text-slate-500">
     A busca considera registros arquivados, motivos, datas e responsáveis pela auditoria.
