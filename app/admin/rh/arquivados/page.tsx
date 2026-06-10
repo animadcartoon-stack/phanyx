@@ -167,6 +167,7 @@ function formatarDataHora(data?: string | null) {
 export default function ArquivadosRHPage() {
 
     const [busca, setBusca] = useState("");
+    const [mostrarSugestoesBusca, setMostrarSugestoesBusca] = useState(false);
     const [ocorrencias, setOcorrencias] = useState<OcorrenciaArquivada[]>([]);
     const [holerites, setHolerites] = useState<HoleriteArquivado[]>([]);
     const [ferias, setFerias] = useState<FeriasArquivada[]>([]);
@@ -524,18 +525,24 @@ async function restaurarDocumento(id: number) {
   <input
     type="text"
     value={busca}
-    onChange={(e) => setBusca(e.target.value)}
+    onChange={(e) => {
+  setBusca(e.target.value);
+  setMostrarSugestoesBusca(true);
+}}
     placeholder="Busque por funcionário, título, tipo, competência, motivo ou responsável..."
     className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
   />
 
-{busca.length > 0 && sugestoesBusca.length > 0 && (
+{mostrarSugestoesBusca && busca.length > 0 && sugestoesBusca.length > 0 && (
   <div className="mt-2 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950">
     {sugestoesBusca.map((sugestao) => (
       <button
         key={sugestao}
         type="button"
-        onClick={() => setBusca(sugestao!)}
+        onClick={() => {
+  setBusca(sugestao!);
+  setMostrarSugestoesBusca(false);
+}}
         className="block w-full border-b border-slate-800 px-4 py-3 text-left text-sm text-slate-300 hover:bg-slate-900"
       >
         {sugestao}
