@@ -374,7 +374,7 @@ export default function DocumentosRHPage() {
 </td>
 
 <td className="p-3 text-slate-300">
-  {documento.criadoPor?.nome || "-"}
+  {documento.criadoPor?.nome || documento.criadoPor?.email || "-"}
 </td>
 
 <td className="p-3 text-slate-300">
