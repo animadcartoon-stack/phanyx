@@ -19,25 +19,13 @@ export async function GET() {
       },
       include: {
   funcionario: {
-    select: {
-      id: true,
-      nome: true,
-      cargo: true,
-    },
+    select: { id: true, nome: true, cargo: true },
   },
   criadoPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
+    select: { id: true, nome: true, email: true },
   },
   arquivadaPor: {
-    select: {
-      id: true,
-      nome: true,
-      email: true,
-    },
+    select: { id: true, nome: true, email: true },
   },
 },
       orderBy: {
