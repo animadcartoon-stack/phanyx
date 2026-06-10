@@ -7,13 +7,17 @@ type BlocoPdf = {
   vazio: boolean;
 };
 
+const ESPACO_LINHA = 15;
+const ESPACO_PARAGRAFO = 8;
+const ESPACO_LINHA_VAZIA = 18;
+const ESPACO_TITULO = 14;
+
 function decodificarHtml(texto: string) {
   return String(texto || "")
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .trim();
+    .replace(/&gt;/g, ">");
 }
 
 function extrairBlocosTipTap(html: string): BlocoPdf[] {
@@ -31,12 +35,11 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     const attrs = match[2] || "";
     const bruto = match[3] || "";
 
-    const align =
-      attrs.includes("text-align: center")
-        ? "center"
-        : attrs.includes("text-align: right")
-        ? "right"
-        : "left";
+    const align = attrs.includes("text-align: center")
+      ? "center"
+      : attrs.includes("text-align: right")
+      ? "right"
+      : "left";
 
     const bold =
       tag === "h1" ||
@@ -45,15 +48,8 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
       /<b[\s\S]*?>/i.test(bruto);
 
     const texto = decodificarHtml(
-      bruto
-        .replace(/<br\s*\/?>/gi, "\n")
-        .replace(/<[^>]+>/g, "")
+      bruto.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, "")
     );
-
-    if (!texto) {
-      blocos.push({ texto: "", align, bold, vazio: true });
-      continue;
-    }
 
     const linhas = texto.split("\n");
 
@@ -62,7 +58,7 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
         blocos.push({ texto: "", align, bold, vazio: true });
       } else {
         blocos.push({
-          texto: tag === "li" ? `- ${linha.trim()}` : linha.trim(),
+          texto: tag === "li" ? `- ${linha}` : linha,
           align,
           bold,
           vazio: false,
@@ -71,15 +67,6 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     }
 
     blocos.push({ texto: "", align, bold: false, vazio: true });
-  }
-
-  if (!blocos.length) {
-    return entrada.split("\n").map((linha) => ({
-      texto: decodificarHtml(linha.replace(/<[^>]+>/g, "")),
-      align: "left",
-      bold: false,
-      vazio: !linha.trim(),
-    }));
   }
 
   return blocos;
@@ -123,9 +110,9 @@ export async function renderizarHtmlTipTapNoPdf({
 
   for (const bloco of blocos) {
     if (bloco.vazio) {
-  y -= 28;
-  continue;
-}
+      y -= ESPACO_LINHA_VAZIA;
+      continue;
+    }
 
     const fonte = bloco.bold ? bold : font;
     const tamanho = bloco.bold ? 11 : 10;
@@ -157,10 +144,10 @@ export async function renderizarHtmlTipTapNoPdf({
         color: rgb(0, 0, 0),
       });
 
-      y -= 17;
+      y -= ESPACO_LINHA;
     }
 
-    y -= bloco.bold ? 18 : 10;
+    y -= bloco.bold ? ESPACO_TITULO : ESPACO_PARAGRAFO;
   }
 
   return { page: pagina, y };
