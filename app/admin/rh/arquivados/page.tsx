@@ -423,6 +423,10 @@ async function restaurarHolerite(id: number) {
 
 async function restaurarDocumento(id: number) {
   try {
+    if (!motivoRestauracao.trim()) {
+      return;
+    }
+
     setRestaurandoId(id);
 
     const res = await fetch("/api/admin/rh/arquivados/documentos", {
@@ -432,6 +436,7 @@ async function restaurarDocumento(id: number) {
       },
       body: JSON.stringify({
         documentoId: id,
+        motivoRestauracao: motivoRestauracao.trim(),
       }),
     });
 
@@ -442,6 +447,8 @@ async function restaurarDocumento(id: number) {
     }
 
     setDocumentos((atual) => atual.filter((d) => d.id !== id));
+    setItemParaRestaurar(null);
+    setMotivoRestauracao("");
   } catch (error) {
     console.error(error);
   } finally {
@@ -1027,7 +1034,15 @@ async function restaurarDocumento(id: number) {
 <td className="p-3">
   <button
     type="button"
-    onClick={() => restaurarDocumento(item.id)}
+    onClick={() => {
+  setItemParaRestaurar({
+    tipo: "DOCUMENTO",
+    id: item.id,
+    titulo: item.titulo || "Documento RH",
+    funcionario: item.funcionario?.nome || "-",
+  });
+  setMotivoRestauracao("");
+}}
     disabled={restaurandoId === item.id}
     className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
   >
