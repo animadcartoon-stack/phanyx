@@ -336,7 +336,6 @@ export default function DocumentosRHPage() {
                 <th className="p-3">Criado em</th>
                 <th className="p-3">Criado por</th>
                 <th className="p-3">Status</th>
-                <th className="p-3">Motivo</th>
                 <th className="p-3">Ações</th>
               </tr>
             </thead>
@@ -344,13 +343,13 @@ export default function DocumentosRHPage() {
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={8} className="p-6 text-center text-slate-400">
+                  <td colSpan={7} className="p-6 text-center text-slate-400">
                     Carregando...
                   </td>
                 </tr>
               ) : documentosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-6 text-center text-slate-400">
+                  <td colSpan={7} className="p-6 text-center text-slate-400">
                     Nenhum documento RH gerado ainda.
                   </td>
                 </tr>
@@ -381,9 +380,6 @@ export default function DocumentosRHPage() {
   {documento.status}
 </td>
 
-<td className="p-3 text-slate-300">
-  {documento.motivoArquivo || "-"}
-</td>
 
                     <td className="p-3">
                       <button
