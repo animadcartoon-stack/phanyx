@@ -100,6 +100,44 @@ const [formTrabalhista, setFormTrabalhista] = useState({
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
 
+  const BANCOS_BRASIL = [
+  { codigo: "001", nome: "Banco do Brasil" },
+  { codigo: "033", nome: "Santander" },
+  { codigo: "104", nome: "Caixa Econômica Federal" },
+  { codigo: "237", nome: "Bradesco" },
+  { codigo: "341", nome: "Itaú" },
+  { codigo: "745", nome: "Citibank" },
+  { codigo: "399", nome: "HSBC" },
+  { codigo: "041", nome: "Banrisul" },
+  { codigo: "748", nome: "Sicredi" },
+  { codigo: "756", nome: "Sicoob" },
+  { codigo: "422", nome: "Safra" },
+  { codigo: "655", nome: "Votorantim" },
+  { codigo: "633", nome: "Rendimento" },
+  { codigo: "707", nome: "Daycoval" },
+  { codigo: "121", nome: "Agibank" },
+  { codigo: "077", nome: "Banco Inter" },
+  { codigo: "212", nome: "Banco Original" },
+  { codigo: "218", nome: "BS2" },
+  { codigo: "290", nome: "PagBank" },
+  { codigo: "336", nome: "C6 Bank" },
+  { codigo: "260", nome: "Nubank" },
+  { codigo: "323", nome: "Mercado Pago" },
+  { codigo: "380", nome: "PicPay Bank" },
+  { codigo: "197", nome: "Stone" },
+  { codigo: "274", nome: "Gerencianet / Efí" },
+  { codigo: "403", nome: "Cora" },
+  { codigo: "461", nome: "Asaas Money" },
+  { codigo: "085", nome: "Ailos" },
+  { codigo: "097", nome: "Credisis" },
+  { codigo: "136", nome: "Unicred" },
+  { codigo: "364", nome: "Gerencianet" },
+  { codigo: "637", nome: "Sofisa Direto" },
+  { codigo: "654", nome: "Renner" },
+  { codigo: "746", nome: "Modal" },
+  { codigo: "735", nome: "Neon" },
+];
+
   async function carregarFuncionario() {
   try {
     const res = await fetch(`/api/funcionario/${funcionarioId}`, {
