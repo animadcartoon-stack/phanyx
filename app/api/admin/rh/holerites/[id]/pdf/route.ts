@@ -75,12 +75,12 @@ export async function GET(
     }
 
     const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([842, 595]);
+    const page = pdfDoc.addPage([595, 842]); // A4 em pé
 
     const font = await pdfDoc.embedFont(StandardFonts.Courier);
     const fontBold = await pdfDoc.embedFont(StandardFonts.CourierBold);
 
-    const { width } = page.getSize();
+    const { width, height } = page.getSize();
 
     const cfg = holerite.instituicao.configuracaoInstituicao;
 
@@ -166,198 +166,183 @@ export async function GET(
     }
 
     function desenharVia(topY: number, bottomY: number) {
-      const x = 22;
-      const gap = 7;
-      const assinaturaW = 68;
-      const mainW = width - x * 2 - gap - assinaturaW;
-      const h = topY - bottomY;
+  const x = 10;
+  const gap = 5;
+  const assinaturaW = 48;
+  const mainW = width - x * 2 - gap - assinaturaW;
+  const h = topY - bottomY;
 
-      const headerY = topY - 16;
-      const dadosTopY = topY - 54;
-      const tabelaTopY = topY - 92;
-      const tabelaBottomY = bottomY + 74;
-      const totaisTopY = tabelaBottomY;
-      const basesTopY = bottomY + 40;
+  rect(x, bottomY, mainW, h);
+  rect(x + mainW + gap, bottomY, assinaturaW, h);
 
-      rect(x, bottomY, mainW, h);
-      rect(x + mainW + gap, bottomY, assinaturaW, h);
+  const sx = x + mainW + gap;
 
-      drawText(empresa.toUpperCase(), x + 8, topY - 12, 8, true, mainW - 185);
-      drawText(`CNPJ: ${cnpj}  CC:`, x + 8, topY - 25, 7);
-      drawText("Folha Mensal", x + mainW - 112, topY - 12, 7, true);
-      drawText(competenciaExtenso, x + mainW - 112, topY - 25, 7, false, 105);
+  const headerBottomY = topY - 48;
+  const dadosBottomY = topY - 82;
+  const tabelaTopY = dadosBottomY;
+  const basesTopY = bottomY + 28;
+  const totaisTopY = bottomY + 86;
+  const tabelaBottomY = totaisTopY;
 
-      line(x, headerY - 18, x + mainW, headerY - 18);
+  drawText(empresa.toUpperCase(), x + 6, topY - 13, 7, true, 310);
+  drawText(`CNPJ: ${cnpj}`, x + 6, topY - 27, 7);
+  drawText("CC:", x + 275, topY - 27, 7);
+  drawText(texto(empresa).slice(0, 24).toUpperCase(), x + 300, topY - 27, 7, false, 130);
 
-      drawText("Código", x + 8, dadosTopY, 6, true);
-      drawText("Nome do Funcionário", x + 72, dadosTopY, 6, true);
-      drawText("CBO", x + 430, dadosTopY, 6, true);
-      drawText("Departamento", x + 500, dadosTopY, 6, true);
-      drawText("Filial", x + mainW - 45, dadosTopY, 6, true);
+  drawText("Folha Mensal", x + mainW - 78, topY - 13, 7, true);
+  drawText(competenciaExtenso, x + mainW - 78, topY - 27, 7, false, 74);
 
-      drawText(
-        texto(holerite.funcionario.codigoFuncionario || holerite.funcionario.id),
-        x + 8,
-        dadosTopY - 13,
-        7,
-        false,
-        55
-      );
+  drawText(texto(holerite.funcionario.tipoContrato || "Mensalista"), x + 320, topY - 40, 7);
 
-      drawText(
-        holerite.funcionario.nome.toUpperCase(),
-        x + 72,
-        dadosTopY - 13,
-        7,
-        true,
-        340
-      );
+  line(x, headerBottomY, x + mainW, headerBottomY);
 
-      drawText("", x + 430, dadosTopY - 13, 7);
-      drawText(
-        texto(holerite.funcionario.departamento?.nome || holerite.funcionario.setor || ""),
-        x + 500,
-        dadosTopY - 13,
-        7,
-        false,
-        85
-      );
-      drawText("1", x + mainW - 35, dadosTopY - 13, 7);
+  drawText("Código", x + 18, topY - 59, 4.8, true);
+  drawText("Nome do Funcionário", x + 58, topY - 59, 4.8, true);
+  drawText("CBO", x + 375, topY - 59, 4.8, true);
+  drawText("Departamento", x + 445, topY - 59, 4.8, true);
+  drawText("Filial", x + mainW - 30, topY - 59, 4.8, true);
 
-      drawText(
-        texto(holerite.funcionario.tipoContrato || "Mensalista"),
-        x + 72,
-        dadosTopY - 27,
-        7,
-        false,
-        115
-      );
-      drawText(
-        texto(holerite.funcionario.cargo || ""),
-        x + 210,
-        dadosTopY - 27,
-        7,
-        true,
-        240
-      );
-      drawText("Admissão:", x + 500, dadosTopY - 27, 6, true);
-      drawText(dataBR(holerite.funcionario.dataAdmissao), x + 558, dadosTopY - 27, 7);
+  drawText(
+    texto(holerite.funcionario.codigoFuncionario || holerite.funcionario.id),
+    x + 18,
+    topY - 70,
+    7,
+    false,
+    32
+  );
 
-      line(x, tabelaTopY + 14, x + mainW, tabelaTopY + 14);
+  drawText(
+    holerite.funcionario.nome.toUpperCase(),
+    x + 58,
+    topY - 70,
+    7,
+    true,
+    260
+  );
 
-      const colCodigo = x + 52;
-      const colDesc = x + 405;
-      const colRef = x + 505;
-      const colVenc = x + 590;
+  drawText("", x + 375, topY - 70, 7);
+  drawText(
+    texto(holerite.funcionario.departamento?.nome || holerite.funcionario.setor || ""),
+    x + 445,
+    topY - 70,
+    7,
+    false,
+    58
+  );
+  drawText("1", x + mainW - 25, topY - 70, 7);
 
-      line(colCodigo, tabelaTopY + 14, colCodigo, tabelaBottomY);
-      line(colDesc, tabelaTopY + 14, colDesc, tabelaBottomY);
-      line(colRef, tabelaTopY + 14, colRef, tabelaBottomY);
-      line(colVenc, tabelaTopY + 14, colVenc, tabelaBottomY);
+  drawText(texto(holerite.funcionario.cargo || ""), x + 58, topY - 81, 7, true, 220);
+  drawText("Admissão:", x + 375, topY - 81, 6, true);
+  drawText(dataBR(holerite.funcionario.dataAdmissao), x + 430, topY - 81, 7);
 
-      drawText("Código", x + 8, tabelaTopY + 3, 6, true);
-      drawText("Descrição", x + 150, tabelaTopY + 3, 6, true);
-      drawText("Referência", colDesc + 15, tabelaTopY + 3, 6, true);
-      drawText("Vencimentos", colRef + 25, tabelaTopY + 3, 6, true);
-      drawText("Descontos", colVenc + 38, tabelaTopY + 3, 6, true);
+  line(x, dadosBottomY, x + mainW, dadosBottomY);
 
-      line(x, tabelaTopY, x + mainW, tabelaTopY);
-      line(x, tabelaBottomY, x + mainW, tabelaBottomY);
+  const colCodigo = x + 38;
+  const colDesc = x + 285;
+  const colRef = x + 375;
+  const colVenc = x + 465;
 
-      let y = tabelaTopY - 13;
-      const rowH = 13;
-      const maxEventos = Math.floor((tabelaTopY - tabelaBottomY - 8) / rowH);
+  line(colCodigo, tabelaTopY, colCodigo, tabelaBottomY);
+  line(colDesc, tabelaTopY, colDesc, tabelaBottomY);
+  line(colRef, tabelaTopY, colRef, tabelaBottomY);
+  line(colVenc, tabelaTopY, colVenc, tabelaBottomY);
 
-      holerite.eventos.slice(0, maxEventos).forEach((evento) => {
-        drawText(texto(evento.codigo), x + 8, y, 7, false, 38);
-        drawText(texto(evento.descricao).toUpperCase(), colCodigo + 8, y, 7, false, 335);
-        drawText(texto(evento.referencia), colDesc + 12, y, 7, false, 85);
+  drawText("Código", x + 3, tabelaTopY - 11, 6, true);
+  drawText("Descrição", x + 150, tabelaTopY - 11, 6, true);
+  drawText("Referência", colDesc + 20, tabelaTopY - 11, 6, true);
+  drawText("Vencimentos", colRef + 22, tabelaTopY - 11, 6, true);
+  drawText("Descontos", colVenc + 24, tabelaTopY - 11, 6, true);
 
-        if (evento.tipo === "VENCIMENTO") {
-          drawRight(moeda(evento.valor), colVenc - 12, y, 7);
-        } else {
-          drawRight(moeda(evento.valor), x + mainW - 10, y, 7);
-        }
+  line(x, tabelaTopY - 15, x + mainW, tabelaTopY - 15);
 
-        y -= rowH;
-      });
+  let y = tabelaTopY - 28;
+  const rowH = 12;
+  const maxEventos = Math.floor((tabelaTopY - tabelaBottomY - 24) / rowH);
 
-      if (holerite.eventos.length > maxEventos) {
-        drawText(
-          `+ ${holerite.eventos.length - maxEventos} evento(s) não exibido(s)`,
-          colCodigo + 8,
-          tabelaBottomY + 8,
-          6,
-          true
-        );
-      }
+  holerite.eventos.slice(0, maxEventos).forEach((evento) => {
+    drawText(texto(evento.codigo), x + 4, y, 7, false, 30);
+    drawText(texto(evento.descricao).toUpperCase(), colCodigo + 6, y, 7, false, 235);
+    drawRight(texto(evento.referencia), colRef - 5, y, 7);
 
-      drawText("Total de Vencimentos", colRef + 6, totaisTopY - 14, 6, true);
-      drawText("Total de Descontos", colVenc + 6, totaisTopY - 14, 6, true);
-      drawRight(moeda(holerite.totalVencimentos), colVenc - 12, totaisTopY - 29, 8);
-      drawRight(moeda(holerite.totalDescontos), x + mainW - 10, totaisTopY - 29, 8);
+    if (evento.tipo === "VENCIMENTO") {
+      drawRight(moeda(evento.valor), colVenc - 8, y, 7);
+    } else {
+      drawRight(moeda(evento.valor), x + mainW - 5, y, 7);
+    }
 
-      line(colRef, totaisTopY - 38, x + mainW, totaisTopY - 38);
+    y -= rowH;
+  });
 
-      drawText("Valor Líquido", colRef + 6, totaisTopY - 55, 7, true);
-      drawRight(moeda(holerite.valorLiquido), x + mainW - 10, totaisTopY - 57, 10, true);
+  line(x, tabelaBottomY, x + mainW, tabelaBottomY);
 
-      line(x, basesTopY, x + mainW, basesTopY);
+  line(colRef, tabelaBottomY, colRef, basesTopY);
+  line(colVenc, tabelaBottomY, colVenc, basesTopY);
 
-      const baseCols = [
-        { label: "Sal. Contr. INSS", value: moeda(holerite.salarioBase), px: x + 8 },
-        { label: "Salário Base", value: moeda(holerite.salarioBase), px: x + 118 },
-        { label: "Base Cálc. FGTS", value: moeda(holerite.baseFgts || holerite.salarioBase), px: x + 228 },
-        { label: "F.G.T.S do Mês", value: moeda(holerite.fgtsMes || 0), px: x + 348 },
-        { label: "Base Cálc. IRRF", value: moeda(holerite.baseIrrf || holerite.salarioBase), px: x + 468 },
-        { label: "Faixa IRRF", value: "0,00", px: x + 588 },
-      ];
+  drawText("Total de Vencimentos", colRef + 5, totaisTopY - 12, 5, true);
+  drawText("Total de Descontos", colVenc + 5, totaisTopY - 12, 5, true);
 
-      baseCols.forEach((c) => {
-        drawText(c.label, c.px, bottomY + 24, 5.5, true);
-        drawText(c.value, c.px, bottomY + 10, 7);
-      });
+  drawRight(moeda(holerite.totalVencimentos), colVenc - 8, totaisTopY - 28, 8);
+  drawRight(moeda(holerite.totalDescontos), x + mainW - 5, totaisTopY - 28, 8);
 
-      const sx = x + mainW + gap;
-const sw = assinaturaW;
+  line(colRef, totaisTopY - 39, x + mainW, totaisTopY - 39);
 
-page.drawText(
-  "Declaro ter recebido a importância líquida discriminada neste recibo.",
-  {
-    x: sx + 20,
-    y: bottomY + 55,
-    size: 5.4,
+  drawText("Valor Líquido", colRef + 5, totaisTopY - 54, 6, true);
+  drawText("=>", colRef + 78, totaisTopY - 56, 11, true);
+  drawRight(moeda(holerite.valorLiquido), x + mainW - 5, totaisTopY - 56, 9, true);
+
+  line(x, basesTopY, x + mainW, basesTopY);
+
+  const baseCols = [
+    { label: "Salário Base", value: moeda(holerite.salarioBase), px: x + 22 },
+    { label: "Sal. Contr. INSS", value: moeda(holerite.baseInss || holerite.salarioBase), px: x + 112 },
+    { label: "Base Cálc. FGTS", value: moeda(holerite.baseFgts || holerite.salarioBase), px: x + 208 },
+    { label: "F.G.T.S do Mês", value: moeda(holerite.fgtsMes || 0), px: x + 312 },
+    { label: "Base Cálc. IRRF", value: moeda(holerite.baseIrrf || holerite.salarioBase), px: x + 408 },
+    { label: "Faixa IRRF", value: "0,00", px: x + 500 },
+  ];
+
+  baseCols.forEach((c) => {
+    drawText(c.label, c.px, bottomY + 18, 4.8, true);
+    drawText(c.value, c.px, bottomY + 6, 7);
+  });
+
+  page.drawText(
+    "Declaro ter recebido a importância líquida discriminada neste recibo.",
+    {
+      x: sx + 15,
+      y: bottomY + 78,
+      size: 4.8,
+      font,
+      color: rgb(0, 0, 0),
+      rotate: degrees(90),
+    }
+  );
+
+  line(sx + 30, bottomY + 150, sx + 30, bottomY + 215);
+
+  page.drawText("Assinatura do Funcionário", {
+    x: sx + 38,
+    y: bottomY + 148,
+    size: 4.8,
     font,
     color: rgb(0, 0, 0),
     rotate: degrees(90),
-  }
-);
+  });
 
-line(sx + 37, bottomY + 98, sx + 37, topY - 70);
+  line(sx + 30, bottomY + 33, sx + 30, bottomY + 70);
 
-page.drawText("Assinatura do Funcionário", {
-  x: sx + 49,
-  y: bottomY + 92,
-  size: 5.4,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
+  page.drawText("Data", {
+    x: sx + 38,
+    y: bottomY + 39,
+    size: 4.8,
+    font,
+    color: rgb(0, 0, 0),
+    rotate: degrees(90),
+  });
+}
 
-line(sx + 37, bottomY + 24, sx + 37, bottomY + 62);
-
-page.drawText("Data", {
-  x: sx + 49,
-  y: bottomY + 32,
-  size: 5.4,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-    }
-
-    desenharVia(570, 310);
-    desenharVia(285, 25);
+    desenharVia(height - 12, 455);
+    desenharVia(405, 25);
 
     const bytes = await pdfDoc.save();
 
