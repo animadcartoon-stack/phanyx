@@ -276,9 +276,38 @@ export async function GET(
   });
 
   page.drawText("Declaro ter recebido a importância líquida discriminada neste recibo.", {
-  x: sx + 14,
-  y: bottomY + 92,
+  x: sx + 13,
+  y: bottomY + 82,
   size: 4.3,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
+
+line(sx + 30, bottomY + 160, sx + 30, bottomY + 245);
+
+page.drawText("Assinatura do Funcionário", {
+  x: sx + 38,
+  y: bottomY + 165,
+  size: 4.4,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
+
+page.drawText("____/____/_______", {
+  x: sx + 20,
+  y: bottomY + 30,
+  size: 4.6,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
+
+page.drawText("Data", {
+  x: sx + 38,
+  y: bottomY + 33,
+  size: 4.4,
   font,
   color: rgb(0, 0, 0),
   rotate: degrees(90),
