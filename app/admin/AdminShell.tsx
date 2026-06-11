@@ -516,7 +516,7 @@ function abrirTourAdmin() {
     onClick={() => toggleMenu("rh")}
     className={buttonClass}
   >
-    <span className={sectionTitleClass}>👥 DEPARTAMENTO PESSOAL</span>
+    <span className={sectionTitleClass}>👥 PESSOAL / RH</span>
     <span>{menuAberto === "rh" ? "▾" : "▸"}</span>
   </button>
 
