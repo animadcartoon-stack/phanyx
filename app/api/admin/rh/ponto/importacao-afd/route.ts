@@ -185,17 +185,27 @@ export async function POST(req: NextRequest) {
 
       const horasTrabalhadas = calcularHoras(ordenadas);
 
-      const dados = {
+        const jornadaPadrao = 8;
+        const saldoHoras =
+  horasTrabalhadas === null ? null : Number((horasTrabalhadas - jornadaPadrao).toFixed(2));
+
+        const horasExtras =
+  saldoHoras !== null && saldoHoras > 0 ? saldoHoras : null;
+
+        const horasAtraso =
+  saldoHoras !== null && saldoHoras < 0 ? Math.abs(saldoHoras) : null;
+
+        const dados = {
         data,
         entrada: ordenadas[0] || null,
         saidaAlmoco: ordenadas[1] || null,
         retornoAlmoco: ordenadas[2] || null,
         saida: ordenadas[3] || null,
         horasTrabalhadas: horasTrabalhadas as any,
-        horasExtras: null,
-        horasAtraso: null,
+        horasExtras: horasExtras as any,
+        horasAtraso: horasAtraso as any,
         status: "IMPORTADO_AFD",
-        observacoes: `Importado via arquivo AFD. Marcações encontradas: ${ordenadas.length}.`,
+        observacoes: `Importado via arquivo AFD. Marcações encontradas: ${ordenadas.length}. Jornada padrão: ${jornadaPadrao}h. Saldo do dia: ${saldoHoras ?? 0}h.`,
       };
 
       if (existente) {

@@ -51,6 +51,10 @@ function numero(valor: any) {
   return Number(valor || 0);
 }
 
+function saldoBanco(ponto: RegistroPonto) {
+  return numero(ponto.horasExtras) - numero(ponto.horasAtraso);
+}
+
 export default function PontoRHPage() {
   const [funcionarios, setFuncionarios] = useState<FuncionarioOpcao[]>([]);
   const [pontos, setPontos] = useState<RegistroPonto[]>([]);
@@ -402,6 +406,7 @@ export default function PontoRHPage() {
                   <th className="px-3 py-3">Trabalhadas</th>
                   <th className="px-3 py-3">Extras</th>
                   <th className="px-3 py-3">Atraso</th>
+                  <th className="px-3 py-3">Saldo</th>
                   <th className="px-3 py-3">Status</th>
                 </tr>
               </thead>
@@ -453,10 +458,19 @@ export default function PontoRHPage() {
                     </td>
 
                     <td className="px-3 py-3 text-red-600 font-semibold">
-                      {numero(ponto.horasAtraso).toFixed(2)}h
-                    </td>
+  {numero(ponto.horasAtraso).toFixed(2)}h
+</td>
 
-                    <td className="px-3 py-3">
+<td
+  className={`px-3 py-3 font-bold ${
+    saldoBanco(ponto) >= 0 ? "text-green-600" : "text-red-600"
+  }`}
+>
+  {saldoBanco(ponto) >= 0 ? "+" : ""}
+  {saldoBanco(ponto).toFixed(2)}h
+</td>
+
+<td className="px-3 py-3">
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
                         {ponto.status}
                       </span>
