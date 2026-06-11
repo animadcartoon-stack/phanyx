@@ -90,27 +90,47 @@ export async function PUT(
     await prisma.funcionario.update({
       where: { id },
       data: {
-        nome: body.nome,
-        cpf: body.cpf || null,
-        rg: body.rg || null,
-        telefone: body.telefone || null,
-        dataNascimento: body.dataNascimento
-          ? new Date(body.dataNascimento)
-          : null,
-        endereco: body.endereco || null,
-        numero: body.numero || null,
-        complemento: body.complemento || null,
-        bairro: body.bairro || null,
-        cidade: body.cidade || null,
-        estado: body.estado || null,
-        cep: body.cep || null,
-        cargo: body.cargo || null,
-        setor: body.setor || null,
-        fotoPerfil: body.fotoPerfil || null,
-        documentoUrl: body.documentoUrl || null,
-        codigoFuncionario: body.codigoFuncionario || null,
-        departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
-      },
+  nome: body.nome,
+  cpf: body.cpf || null,
+  rg: body.rg || null,
+  telefone: body.telefone || null,
+  dataNascimento: body.dataNascimento
+    ? new Date(body.dataNascimento)
+    : null,
+  endereco: body.endereco || null,
+  numero: body.numero || null,
+  complemento: body.complemento || null,
+  bairro: body.bairro || null,
+  cidade: body.cidade || null,
+  estado: body.estado || null,
+  cep: body.cep || null,
+  cargo: body.cargo || null,
+  setor: body.setor || null,
+  fotoPerfil: body.fotoPerfil || null,
+  documentoUrl: body.documentoUrl || null,
+  codigoFuncionario: body.codigoFuncionario || null,
+  departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
+
+  dataAdmissao: body.dataAdmissao ? new Date(body.dataAdmissao) : null,
+  dataDesligamento: body.dataDesligamento
+    ? new Date(body.dataDesligamento)
+    : null,
+  salario: body.salario ? Number(String(body.salario).replace(",", ".")) : null,
+  salarioBase: body.salarioBase
+    ? Number(String(body.salarioBase).replace(",", "."))
+    : null,
+  tipoContrato: body.tipoContrato || null,
+  jornadaTrabalho: body.jornadaTrabalho || null,
+  cargaHorariaMensal: body.cargaHorariaMensal
+    ? Number(body.cargaHorariaMensal)
+    : null,
+  codigoPonto: body.codigoPonto || null,
+  pisPasep: body.pisPasep || null,
+  banco: body.banco || null,
+  agencia: body.agencia || null,
+  conta: body.conta || null,
+  pix: body.pix || null,
+},
     });
 
     await prisma.user.update({
