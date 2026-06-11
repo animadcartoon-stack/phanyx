@@ -149,6 +149,36 @@ export default function EventosFolhaPage() {
           >
             Salvar evento
           </button>
+          
+          <button
+  type="button"
+  onClick={async () => {
+    try {
+      const res = await fetch("/api/admin/rh/eventos-folha/padrao", {
+        method: "POST",
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        console.error(json.error || "Erro ao importar eventos.");
+        return;
+      }
+
+      console.log(
+        `Eventos importados. Criados: ${json.criados} | Já existentes: ${json.ignorados}`
+      );
+
+      await carregar();
+    } catch (error) {
+      console.error("Erro ao importar eventos.", error);
+    }
+  }}
+  className="rounded-2xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-700"
+>
+  Importar eventos padrão CLT
+</button>
+
         </div>
       </section>
 
