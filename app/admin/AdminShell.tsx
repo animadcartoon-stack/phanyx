@@ -548,6 +548,13 @@ function abrirTourAdmin() {
       ⏱️ Ponto
     </Link>
 
+<Link
+  href="/admin/rh/ponto/configuracoes"
+  className={getLinkClass("/admin/rh/ponto/configuracoes")}
+>
+  ⚙️ Configurações de Ponto
+</Link>
+
     <Link
       href="/admin/rh/holerites"
       className={getLinkClass("/admin/rh/holerites")}

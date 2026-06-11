@@ -2325,14 +2325,20 @@ model IntegracaoPontoRH {
   instituicaoId Int
 
   nome     String
+  modo     String  @default("MANUAL") // MANUAL, AFD, API, COLETOR
   provedor String // API_GENERICA, CONTROL_ID, HENRY, TOPDATA, AHGORA, OUTRO
   ativo    Boolean @default(true)
 
-  baseUrl String?
+  baseUrl       String?
+  ipEquipamento String?
+  porta         Int?
+
   apiKey  String?
   usuario String?
   senha   String?
   token   String?
+
+  coletorIdentificador String?
 
   ultimoSyncEm DateTime?
   status       String    @default("NAO_CONFIGURADA")
@@ -2346,6 +2352,7 @@ model IntegracaoPontoRH {
   @@index([instituicaoId])
   @@index([provedor])
   @@index([ativo])
+  @@index([modo])
 }
 
 model EventoFolhaRH {
