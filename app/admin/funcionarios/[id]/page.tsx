@@ -36,6 +36,8 @@ function FuncionarioFichaPage() {
   const params = useParams();
   const funcionarioId = Number(params.id);
 
+  const [funcionario, setFuncionario] = useState<any>(null);
+
   const [beneficiosDisponiveis, setBeneficiosDisponiveis] = useState<Beneficio[]>([]);
   const [beneficiosVinculados, setBeneficiosVinculados] = useState<Vinculo[]>([]);
 
@@ -48,6 +50,25 @@ function FuncionarioFichaPage() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+
+  async function carregarFuncionario() {
+  try {
+    const res = await fetch(`/api/funcionario/${funcionarioId}`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao carregar funcionário.");
+    }
+
+    setFuncionario(data.funcionario);
+  } catch (e: any) {
+    setErro(e.message || "Erro ao carregar funcionário.");
+  }
+}
 
   async function carregarBeneficios() {
     try {
@@ -75,8 +96,11 @@ function FuncionarioFichaPage() {
   }
 
   useEffect(() => {
-    if (funcionarioId) carregarBeneficios();
-  }, [funcionarioId]);
+  if (!funcionarioId) return;
+
+  carregarFuncionario();
+  carregarBeneficios();
+}, [funcionarioId]);
 
   async function vincularBeneficio(e: React.FormEvent) {
     e.preventDefault();
@@ -132,6 +156,61 @@ function FuncionarioFichaPage() {
           </p>
 
           <h1 className="mt-2 text-3xl font-bold">Ficha do Funcionário</h1>
+
+          {funcionario && (
+  <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+    <h2 className="text-lg font-bold">
+      👤 Dados Gerais
+    </h2>
+
+    <div className="mt-4 grid gap-4 md:grid-cols-3 text-sm">
+      <div>
+        <p className="text-slate-400">Nome</p>
+        <p>{funcionario.nome || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">CPF</p>
+        <p>{funcionario.cpf || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">RG</p>
+        <p>{funcionario.rg || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Telefone</p>
+        <p>{funcionario.telefone || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Cargo</p>
+        <p>{funcionario.cargo || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Departamento</p>
+        <p>{funcionario.departamento?.nome || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Código</p>
+        <p>{funcionario.codigoFuncionario || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Status</p>
+        <p>{funcionario.statusFuncionario || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Email</p>
+        <p>{funcionario.user?.email || "-"}</p>
+      </div>
+    </div>
+  </div>
+)}
 
           <p className="mt-2 text-sm text-slate-400">
             Área central do Departamento Pessoal. Primeiro módulo ativo: benefícios vinculados ao funcionário.
