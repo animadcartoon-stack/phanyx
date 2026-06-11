@@ -296,8 +296,8 @@ page.drawText("Assinatura do Funcionário", {
 });
 
 page.drawText("____/____/_______", {
-  x: sx + 22,
-  y: bottomY + 52,
+  x: sx + 30,
+  y: bottomY + 39,
   size: 4.8,
   font: fontBold,
   color: rgb(0, 0, 0),
@@ -306,7 +306,7 @@ page.drawText("____/____/_______", {
 
 page.drawText("Data", {
   x: sx + 38,
-  y: bottomY + 48,
+  y: bottomY + 40,
   size: 4.4,
   font,
   color: rgb(0, 0, 0),
