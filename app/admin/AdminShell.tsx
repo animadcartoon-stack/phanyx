@@ -548,6 +548,8 @@ function abrirTourAdmin() {
       ⏱️ Ponto
     </Link>
 
+
+
 <Link
   href="/admin/rh/ponto/configuracoes"
   className={getLinkClass("/admin/rh/ponto/configuracoes")}
@@ -560,6 +562,13 @@ function abrirTourAdmin() {
   className={getLinkClass("/admin/rh/ponto/importacao-afd")}
 >
   📥 Importação AFD
+</Link>
+
+<Link
+  href="/admin/rh/banco-horas"
+  className={getLinkClass("/admin/rh/banco-horas")}
+>
+  📊 Banco de Horas
 </Link>
 
     <Link
