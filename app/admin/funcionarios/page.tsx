@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
+import Link from "next/link";
 
 interface Departamento {
   id: number;
@@ -688,13 +689,12 @@ function AdminFuncionariosPage() {
 </div>
   
               <div className="flex flex-wrap gap-2">
-                <button
-  type="button"
-  onClick={() => preencherFormularioParaEdicao(f)}
-  className="px-3 py-1.5 rounded-lg border text-sm"
+                <Link
+  href={`/admin/funcionarios/${f.id}`}
+  className="px-3 py-1.5 rounded-lg border text-sm inline-flex items-center"
 >
   Editar
-</button>
+</Link>
 
                 <button
   type="button"
