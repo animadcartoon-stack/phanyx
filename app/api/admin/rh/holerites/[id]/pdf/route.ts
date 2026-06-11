@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, degrees } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -168,7 +168,7 @@ export async function GET(
     function desenharVia(topY: number, bottomY: number) {
       const x = 22;
       const gap = 7;
-      const assinaturaW = 125;
+      const assinaturaW = 68;
       const mainW = width - x * 2 - gap - assinaturaW;
       const h = topY - bottomY;
 
@@ -319,30 +319,41 @@ export async function GET(
       });
 
       const sx = x + mainW + gap;
-      const sw = assinaturaW;
+const sw = assinaturaW;
 
-      drawText(
-        "Declaro ter recebido a importância líquida",
-        sx + 8,
-        topY - 72,
-        5.4,
-        false,
-        sw - 16
-      );
-      drawText(
-        "discriminada neste recibo.",
-        sx + 8,
-        topY - 84,
-        5.4,
-        false,
-        sw - 16
-      );
+page.drawText(
+  "Declaro ter recebido a importância líquida discriminada neste recibo.",
+  {
+    x: sx + 20,
+    y: bottomY + 55,
+    size: 5.4,
+    font,
+    color: rgb(0, 0, 0),
+    rotate: degrees(90),
+  }
+);
 
-      line(sx + 14, bottomY + 92, sx + sw - 14, bottomY + 92);
-      drawText("Assinatura do Funcionário", sx + 18, bottomY + 80, 5.4);
+line(sx + 37, bottomY + 98, sx + 37, topY - 70);
 
-      drawText("____/____/_______", sx + 24, bottomY + 45, 6);
-      drawText("Data", sx + 53, bottomY + 32, 5.4);
+page.drawText("Assinatura do Funcionário", {
+  x: sx + 49,
+  y: bottomY + 92,
+  size: 5.4,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
+
+line(sx + 37, bottomY + 24, sx + 37, bottomY + 62);
+
+page.drawText("Data", {
+  x: sx + 49,
+  y: bottomY + 32,
+  size: 5.4,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
     }
 
     desenharVia(570, 310);
