@@ -2,6 +2,59 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
+export async function GET(
+  request: Request,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (!isAdminLike(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const id = Number(context.params.id);
+
+    const funcionario = await prisma.funcionario.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
+      },
+      include: {
+        user: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            role: true,
+            ativo: true,
+          },
+        },
+        departamento: true,
+      },
+    });
+
+    if (!funcionario) {
+      return NextResponse.json(
+        { error: "Funcionário não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({ funcionario });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Erro ao buscar funcionário" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   request: Request,
   context: { params: { id: string } }
