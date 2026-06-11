@@ -6,7 +6,8 @@ import Footer from "@/components/layout/Footer";
 export const metadata = {
   title: "PHANYX | Sistema de Gestão Escolar, Acadêmica e Plataforma EAD",
   description:
-    "PHANYX é uma plataforma completa para gestão escolar, gestão acadêmica, ensino EAD, financeiro, documentos e operação institucional escalável.",
+    "PHANYX é uma plataforma completa para gestão acadêmica, EAD, financeiro, documentos, certificados e portais para aluno e professor.",
+
   keywords: [
     "sistema de gestão escolar",
     "gestão acadêmica",
@@ -16,6 +17,32 @@ export const metadata = {
     "software educacional",
     "plataforma acadêmica",
   ],
+
+  openGraph: {
+    title: "PHANYX | Gestão Acadêmica, EAD e Plataforma Escolar",
+    description:
+      "Sistema completo para escolas, faculdades, seminários e cursos livres.",
+    url: "https://www.phanyx.com.br",
+    siteName: "PHANYX",
+    images: [
+      {
+        url: "https://www.phanyx.com.br/og-phanyx.png",
+        width: 1200,
+        height: 630,
+        alt: "PHANYX - Plataforma completa para gestão acadêmica e EAD",
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "PHANYX | Gestão Acadêmica, EAD e Plataforma Escolar",
+    description:
+      "Sistema completo para escolas, faculdades, seminários e cursos livres.",
+    images: ["https://www.phanyx.com.br/og-phanyx.png"],
+  },
 };
 
 const modulos = [
