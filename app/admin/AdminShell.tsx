@@ -555,6 +555,13 @@ function abrirTourAdmin() {
   ⚙️ Configurações de Ponto
 </Link>
 
+<Link
+  href="/admin/rh/ponto/importacao-afd"
+  className={getLinkClass("/admin/rh/ponto/importacao-afd")}
+>
+  📥 Importação AFD
+</Link>
+
     <Link
       href="/admin/rh/holerites"
       className={getLinkClass("/admin/rh/holerites")}
