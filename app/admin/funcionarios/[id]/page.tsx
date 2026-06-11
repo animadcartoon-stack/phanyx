@@ -770,14 +770,22 @@ hover:bg-blue-100 dark:hover:bg-blue-600
     </span>
 
     <input
-      type={tipo}
-      value={(formTrabalhista as any)[campo]}
-      onChange={(e) =>
-        setFormTrabalhista((p) => ({
-          ...p,
-          [campo]: e.target.value,
-        }))
-      }
+  type={tipo}
+  value={(formTrabalhista as any)[campo]}
+  onChange={(e) =>
+    setFormTrabalhista((p) => ({
+      ...p,
+      [campo]: e.target.value,
+    }))
+  }
+  className="
+    w-full rounded-xl
+    border border-slate-300 dark:border-slate-700
+    bg-white dark:bg-slate-950
+    px-3 py-2 text-sm
+    text-slate-900 dark:text-white
+  "
+/>
       className="
 w-full rounded-xl
 border border-slate-300 dark:border-slate-700
@@ -863,11 +871,17 @@ text-slate-900 dark:text-white
             <label className="space-y-1 md:col-span-2">
               <span className="text-xs font-semibold text-slate-300">Benefício</span>
               <select
-                value={beneficioId}
-                onChange={(e) => setBeneficioId(e.target.value)}
-                
-                required
-              >
+  value={beneficioId}
+  onChange={(e) => setBeneficioId(e.target.value)}
+  required
+  className="
+    w-full rounded-xl
+    border border-slate-300 dark:border-slate-700
+    bg-white dark:bg-slate-950
+    px-3 py-2 text-sm
+    text-slate-900 dark:text-white
+  "
+>
                 <option value="">Selecione</option>
                 {beneficiosDisponiveis.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -883,7 +897,13 @@ text-slate-900 dark:text-white
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}
                 placeholder="Ex.: 120,00"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                className="
+  w-full rounded-xl
+  border border-slate-300 dark:border-slate-700
+  bg-white dark:bg-slate-950
+  px-3 py-2 text-sm
+  text-slate-900 dark:text-white
+"
               />
             </label>
 
@@ -893,7 +913,13 @@ text-slate-900 dark:text-white
                 value={percentual}
                 onChange={(e) => setPercentual(e.target.value)}
                 placeholder="Ex.: 6"
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm"
+                className="
+  w-full rounded-xl
+  border border-slate-300 dark:border-slate-700
+  bg-white dark:bg-slate-950
+  px-3 py-2 text-sm
+  text-slate-900 dark:text-white
+"
               />
             </label>
 
