@@ -26,7 +26,7 @@ export const metadata = {
     siteName: "PHANYX",
     images: [
       {
-        url: "https://www.phanyx.com.br/og-phanyx.png",
+        url: "https://www.phanyx.com.br/og-phanyx-v3.png",
         width: 1200,
         height: 630,
         alt: "PHANYX - Plataforma completa para gestão acadêmica e EAD",
@@ -41,7 +41,7 @@ export const metadata = {
     title: "PHANYX | Gestão Acadêmica, EAD e Plataforma Escolar",
     description:
       "Sistema completo para escolas, faculdades, seminários e cursos livres.",
-    images: ["https://www.phanyx.com.br/og-phanyx.png"],
+    images: ["https://www.phanyx.com.br/og-phanyx-v3.png"],
   },
 };
 
