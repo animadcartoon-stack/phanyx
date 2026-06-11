@@ -562,6 +562,13 @@ function abrirTourAdmin() {
   🧾 Eventos da Folha
 </Link>
 
+<Link
+  href="/admin/rh/beneficios"
+  className={getLinkClass("/admin/rh/beneficios")}
+>
+  🎁 Benefícios
+</Link>
+
     <Link
       href="/admin/rh/ferias"
       className={getLinkClass("/admin/rh/ferias")}
