@@ -24,12 +24,28 @@ type Vinculo = {
   beneficio: Beneficio;
 };
 
+type RegistroPonto = {
+  id: number;
+  data: string;
+  horasExtras?: string | number | null;
+  horasAtraso?: string | number | null;
+};
+
 function moeda(v: any) {
   const n = Number(v || 0);
   return n.toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
+}
+
+function numero(v: any) {
+  return Number(v || 0);
+}
+
+function formatarHoras(v: number) {
+  const sinal = v > 0 ? "+" : v < 0 ? "-" : "";
+  return `${sinal}${Math.abs(v).toFixed(2)}h`;
 }
 
 function FuncionarioFichaPage() {
@@ -71,6 +87,8 @@ const [formTrabalhista, setFormTrabalhista] = useState({
 
   const [beneficiosDisponiveis, setBeneficiosDisponiveis] = useState<Beneficio[]>([]);
   const [beneficiosVinculados, setBeneficiosVinculados] = useState<Vinculo[]>([]);
+
+  const [pontosFuncionario, setPontosFuncionario] = useState<RegistroPonto[]>([]);
 
   const [beneficioId, setBeneficioId] = useState("");
   const [valor, setValor] = useState("");
@@ -160,11 +178,35 @@ function preencherFormTrabalhista(f: any) {
     }
   }
 
+  async function carregarBancoHorasFuncionario() {
+  try {
+    const res = await fetch("/api/admin/rh/ponto", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) return;
+
+    const todos = Array.isArray(data) ? data : [];
+
+    const filtrados = todos.filter(
+      (p: any) => Number(p.funcionario?.id) === funcionarioId
+    );
+
+    setPontosFuncionario(filtrados);
+  } catch {
+    setPontosFuncionario([]);
+  }
+}
+
   useEffect(() => {
   if (!funcionarioId) return;
 
-  carregarFuncionario();
-  carregarBeneficios();
+    carregarFuncionario();
+    carregarBeneficios();
+    carregarBancoHorasFuncionario();
 }, [funcionarioId]);
 
   async function vincularBeneficio(e: React.FormEvent) {
@@ -282,6 +324,31 @@ function preencherFormTrabalhista(f: any) {
     setSalvando(false);
   }
 }
+
+const resumoBancoHoras = pontosFuncionario.reduce(
+  (acc, p) => {
+    const credito = numero(p.horasExtras);
+    const debito = numero(p.horasAtraso);
+
+    acc.creditos += credito;
+    acc.debitos += debito;
+    acc.saldo += credito - debito;
+    acc.registros += 1;
+
+    if (!acc.ultimaData || new Date(p.data) > new Date(acc.ultimaData)) {
+      acc.ultimaData = p.data;
+    }
+
+    return acc;
+  },
+  {
+    creditos: 0,
+    debitos: 0,
+    saldo: 0,
+    registros: 0,
+    ultimaData: "",
+  }
+);
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
@@ -561,6 +628,68 @@ function preencherFormTrabalhista(f: any) {
       </div>
     )}
   </form>
+)}
+
+{funcionario && (
+  <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <h2 className="text-lg font-bold">📊 Banco de Horas</h2>
+
+      <Link
+        href="/admin/rh/banco-horas"
+        className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10"
+      >
+        Ver banco geral
+      </Link>
+    </div>
+
+    <div className="mt-5 grid gap-4 md:grid-cols-4">
+      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4">
+        <p className="text-sm text-emerald-200">Créditos</p>
+        <p className="mt-2 text-2xl font-bold text-emerald-300">
+          {formatarHoras(resumoBancoHoras.creditos)}
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-4">
+        <p className="text-sm text-red-200">Débitos</p>
+        <p className="mt-2 text-2xl font-bold text-red-300">
+          {formatarHoras(-resumoBancoHoras.debitos)}
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-blue-500/20 bg-blue-950/20 p-4">
+        <p className="text-sm text-blue-200">Saldo Atual</p>
+        <p
+          className={`mt-2 text-2xl font-bold ${
+            resumoBancoHoras.saldo >= 0
+              ? "text-emerald-300"
+              : "text-red-300"
+          }`}
+        >
+          {formatarHoras(resumoBancoHoras.saldo)}
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4">
+        <p className="text-sm text-slate-400">Registros</p>
+        <p className="mt-2 text-2xl font-bold">
+          {resumoBancoHoras.registros}
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300">
+      <p>
+        Último ponto:{" "}
+        <strong>
+          {resumoBancoHoras.ultimaData
+            ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
+            : "-"}
+        </strong>
+      </p>
+    </div>
+  </section>
 )}
 
         <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
