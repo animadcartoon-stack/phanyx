@@ -390,7 +390,14 @@ const resumoBancoHoras = pontosFuncionario.reduce(
 );
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
+    <main
+  className="
+min-h-screen
+bg-slate-50 dark:bg-slate-950
+text-slate-900 dark:text-slate-100
+p-6
+"
+>
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
           <Link href="/admin/funcionarios" className="text-sm text-blue-300 hover:text-blue-200">
@@ -406,7 +413,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           {funcionario && (
   <form
     onSubmit={salvarDadosGerais}
-    className="mt-6 rounded-3xl border border-slate-800 bg-slate-900/80 p-5"
+    className="mt-6 rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5"
   >
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-lg font-bold">👤 Dados Gerais</h2>
@@ -471,7 +478,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           <input
             value={formGeral.nome}
             onChange={(e) => setFormGeral((p) => ({ ...p, nome: e.target.value }))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -480,7 +493,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           <input
             value={formGeral.cpf}
             onChange={(e) => setFormGeral((p) => ({ ...p, cpf: e.target.value }))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -489,7 +508,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           <input
             value={formGeral.rg}
             onChange={(e) => setFormGeral((p) => ({ ...p, rg: e.target.value }))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -498,7 +523,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           <input
             value={formGeral.telefone}
             onChange={(e) => setFormGeral((p) => ({ ...p, telefone: e.target.value }))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -507,7 +538,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           <input
             value={formGeral.cargo}
             onChange={(e) => setFormGeral((p) => ({ ...p, cargo: e.target.value }))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -518,7 +555,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
             onChange={(e) =>
               setFormGeral((p) => ({ ...p, codigoFuncionario: e.target.value }))
             }
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -528,7 +571,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
             type="email"
             value={formGeral.email}
             onChange={(e) => setFormGeral((p) => ({ ...p, email: e.target.value }))}
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
           />
         </label>
 
@@ -539,7 +588,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
             onChange={(e) =>
               setFormGeral((p) => ({ ...p, statusFuncionario: e.target.value }))
             }
-            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            
           >
             <option value="ATIVO">Ativo</option>
             <option value="DEMITIDO">Demitido</option>
@@ -579,7 +628,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
 {funcionario && (
   <form
     onSubmit={salvarDadosTrabalhistas}
-    className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5"
+    className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5"
   >
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-lg font-bold">💼 Dados Trabalhistas</h2>
@@ -656,7 +705,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
                   [campo]: e.target.value,
                 }))
               }
-              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+              
             />
           </label>
         ))}
@@ -671,11 +720,17 @@ const resumoBancoHoras = pontosFuncionario.reduce(
       setFormTrabalhista((p) => ({ ...p, banco: "" }));
     }}
     placeholder="Digite nome ou código do banco"
-    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+    
   />
 
   {buscaBanco && (
-    <div className="absolute z-50 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-700 bg-slate-950 shadow-xl">
+    <div className="
+absolute z-50 mt-2 max-h-64 w-full overflow-y-auto
+rounded-2xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+shadow-xl
+">
       {BANCOS_BRASIL.filter((banco) => {
         const termo = buscaBanco.toLowerCase();
         return (
@@ -691,7 +746,11 @@ const resumoBancoHoras = pontosFuncionario.reduce(
             setFormTrabalhista((p) => ({ ...p, banco: valorBanco }));
             setBuscaBanco("");
           }}
-          className="block w-full px-4 py-3 text-left text-sm text-white hover:bg-blue-600"
+          className="
+block w-full px-4 py-3 text-left text-sm
+text-slate-900 dark:text-white
+hover:bg-blue-100 dark:hover:bg-blue-600
+"
         >
           {banco.codigo} - {banco.nome}
         </button>
@@ -719,7 +778,13 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           [campo]: e.target.value,
         }))
       }
-      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+      className="
+w-full rounded-xl
+border border-slate-300 dark:border-slate-700
+bg-white dark:bg-slate-950
+px-3 py-2 text-sm
+text-slate-900 dark:text-white
+"
     />
   </label>
 ))}
@@ -730,7 +795,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
 )}
 
 {funcionario && (
-  <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+  <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-lg font-bold">📊 Banco de Horas</h2>
 
@@ -791,7 +856,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
   </section>
 )}
 
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+        <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
           <h2 className="text-lg font-bold">🎁 Benefícios</h2>
 
           <form onSubmit={vincularBeneficio} className="mt-5 grid gap-4 md:grid-cols-4">
@@ -800,7 +865,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
               <select
                 value={beneficioId}
                 onChange={(e) => setBeneficioId(e.target.value)}
-                className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+                
                 required
               >
                 <option value="">Selecione</option>
@@ -852,7 +917,7 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           </form>
         </section>
 
-        <section className="rounded-3xl border border-slate-800 bg-slate-900/80">
+        <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80">
           <div className="border-b border-slate-800 p-5">
             <h2 className="text-lg font-bold">Benefícios vinculados</h2>
           </div>
