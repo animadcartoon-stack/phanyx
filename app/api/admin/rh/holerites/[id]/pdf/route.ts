@@ -284,11 +284,11 @@ export async function GET(
   rotate: degrees(90),
 });
 
-line(sx + 30, bottomY + 160, sx + 30, bottomY + 245);
+line(sx + 30, bottomY + 158, sx + 30, bottomY + 248, 0.9);
 
 page.drawText("Assinatura do Funcionário", {
   x: sx + 38,
-  y: bottomY + 165,
+  y: bottomY + 162,
   size: 4.4,
   font,
   color: rgb(0, 0, 0),
@@ -297,78 +297,16 @@ page.drawText("Assinatura do Funcionário", {
 
 page.drawText("____/____/_______", {
   x: sx + 20,
-  y: bottomY + 30,
-  size: 4.6,
-  font,
+  y: bottomY + 32,
+  size: 5.2,
+  font: fontBold,
   color: rgb(0, 0, 0),
   rotate: degrees(90),
 });
 
 page.drawText("Data", {
   x: sx + 38,
-  y: bottomY + 33,
-  size: 4.4,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-
-// linha da assinatura maior
-line(sx + 30, bottomY + 150, sx + 30, bottomY + 250);
-
-// texto centralizado abaixo da linha
-page.drawText("Assinatura do Funcionário", {
-  x: sx + 38,
-  y: bottomY + 170,
-  size: 4.4,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-
-// data com barrinhas, mais baixa
-page.drawText("____/____/_______", {
-  x: sx + 20,
-  y: bottomY + 12,
-  size: 4.6,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-
-// palavra Data logo abaixo
-page.drawText("Data", {
-  x: sx + 38,
-  y: bottomY + 24,
-  size: 4.4,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-
-  line(sx + 30, bottomY + 165, sx + 30, bottomY + 235);
-
-page.drawText("Assinatura do Funcionário", {
-  x: sx + 38,
-  y: bottomY + 148,
-  size: 4.4,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-
-page.drawText("____/____/_______", {
-  x: sx + 18,
-  y: bottomY + 24,
-  size: 4.6,
-  font,
-  color: rgb(0, 0, 0),
-  rotate: degrees(90),
-});
-
-page.drawText("Data", {
-  x: sx + 38,
-  y: bottomY + 42,
+  y: bottomY + 36,
   size: 4.4,
   font,
   color: rgb(0, 0, 0),
