@@ -297,9 +297,9 @@ page.drawText("Assinatura do Funcionário", {
 
 page.drawText("____/____/_______", {
   x: sx + 22,
-  y: bottomY + 42,
-  size: 4.6,
-  font,
+  y: bottomY + 52,
+  size: 4.8,
+  font: fontBold,
   color: rgb(0, 0, 0),
   rotate: degrees(90),
 });
