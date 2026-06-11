@@ -19,6 +19,14 @@ type Evento = {
   valor: string;
 };
 
+type EventoFolhaPadrao = {
+  id: number;
+  codigo: string;
+  descricao: string;
+  tipo: "VENCIMENTO" | "DESCONTO" | "INFORMATIVO";
+  natureza?: string | null;
+};
+
 type Holerite = {
   id: number;
   competenciaMes: number;
@@ -75,6 +83,7 @@ export default function Page() {
   const [salarioBase, setSalarioBase] = useState("");
 
   const [eventos, setEventos] = useState<Evento[]>([{ ...eventoInicial }]);
+  const [eventosPadrao, setEventosPadrao] = useState<EventoFolhaPadrao[]>([]);
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -119,9 +128,14 @@ export default function Page() {
       setCarregando(true);
       setErro("");
 
-      const [resFuncionarios, resHolerites] = await Promise.all([
+      const [
+  resFuncionarios,
+  resHolerites,
+  resEventosFolha,
+] = await Promise.all([
         fetch("/api/admin/funcionarios"),
         fetch("/api/admin/rh/holerites"),
+        fetch("/api/admin/rh/eventos-folha"),
       ]);
 
       if (!resFuncionarios.ok) {
@@ -134,6 +148,8 @@ export default function Page() {
 
       const dadosFuncionarios = await resFuncionarios.json();
       const dadosHolerites = await resHolerites.json();
+      const dadosEventosFolha = await resEventosFolha.json();
+
 
       setFuncionarios(
         dadosFuncionarios.funcionarios ||
@@ -148,6 +164,13 @@ export default function Page() {
           dadosHolerites ||
           []
       );
+
+      setEventosPadrao(
+  Array.isArray(dadosEventosFolha)
+    ? dadosEventosFolha
+    : []
+);
+
     } catch (error: any) {
       setErro(error?.message || "Erro ao carregar dados de holerites.");
     } finally {
@@ -427,21 +450,41 @@ async function arquivarHolerite() {
               key={index}
               className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:grid-cols-6"
             >
-              <input
-                value={evento.codigo}
-                onChange={(e) => atualizarEvento(index, "codigo", e.target.value)}
-                placeholder="Código"
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              />
+             <select
+  value={evento.codigo}
+  onChange={(e) => {
+    const selecionado = eventosPadrao.find(
+      (item) => item.codigo === e.target.value
+    );
 
-              <input
-                value={evento.descricao}
-                onChange={(e) =>
-                  atualizarEvento(index, "descricao", e.target.value)
-                }
-                placeholder="Descrição"
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white md:col-span-2"
-              />
+    if (!selecionado) return;
+
+    atualizarEvento(index, "codigo", selecionado.codigo);
+    atualizarEvento(index, "descricao", selecionado.descricao);
+
+    if (
+      selecionado.tipo === "VENCIMENTO" ||
+      selecionado.tipo === "DESCONTO"
+    ) {
+      atualizarEvento(index, "tipo", selecionado.tipo);
+    }
+  }}
+  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+>
+  <option value="">Selecione um evento</option>
+
+  {eventosPadrao
+    .filter((item) => item.tipo !== "INFORMATIVO")
+    .map((item) => (
+      <option key={item.id} value={item.codigo}>
+        {item.codigo} - {item.descricao}
+      </option>
+    ))}
+</select>
+
+<div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 md:col-span-2">
+  {evento.descricao || "Descrição do evento"}
+</div>
 
               <input
                 value={evento.referencia}
