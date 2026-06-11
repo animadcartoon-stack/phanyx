@@ -5,24 +5,39 @@ export type StatusAssinaturaPhanyx =
   | "CANCELADA";
 
 export function assinaturaPermiteUso(
-  status: string | null | undefined
+  status: string | null | undefined,
+  isentaPagamento?: boolean | null
 ) {
+  if (isentaPagamento) {
+    return true;
+  }
+
   const statusNormalizado = (status || "ATIVA").toUpperCase();
 
   return statusNormalizado === "ATIVA" || statusNormalizado === "EM_ATRASO";
 }
 
 export function assinaturaBloqueada(
-  status: string | null | undefined
+  status: string | null | undefined,
+  isentaPagamento?: boolean | null
 ) {
+  if (isentaPagamento) {
+    return false;
+  }
+
   const statusNormalizado = (status || "ATIVA").toUpperCase();
 
   return statusNormalizado === "SUSPENSA" || statusNormalizado === "CANCELADA";
 }
 
 export function mensagemBloqueioAssinatura(
-  status: string | null | undefined
+  status: string | null | undefined,
+  isentaPagamento?: boolean | null
 ) {
+  if (isentaPagamento) {
+    return "";
+  }
+
   const statusNormalizado = (status || "ATIVA").toUpperCase();
 
   if (statusNormalizado === "EM_ATRASO") {

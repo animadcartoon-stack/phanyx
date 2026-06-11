@@ -121,12 +121,16 @@ export async function GET() {
       select: {
         plano: true,
         statusAssinatura: true,
+        isentaPagamento: true,
       },
     });
 
     const podeGerar =
       planoTemRecurso(instituicao?.plano, "DOCUMENTOS_DINAMICOS") &&
-      assinaturaPermiteUso(instituicao?.statusAssinatura);
+      assinaturaPermiteUso(
+  instituicao?.statusAssinatura,
+  instituicao?.isentaPagamento
+);
 
     if (!podeGerar) {
       return NextResponse.json(

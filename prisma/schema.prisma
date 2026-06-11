@@ -126,6 +126,8 @@ model Instituicao {
   eventosFolhaRH           EventoFolhaRH[]
   beneficiosRH             BeneficioRH[]
   funcionariosBeneficiosRH FuncionarioBeneficioRH[]
+  isentaPagamento          Boolean                  @default(false)
+  motivoIsencao            String?
 }
 
 model User {

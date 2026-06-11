@@ -18,12 +18,16 @@ const instituicao = await prisma.instituicao.findUnique({
   select: {
     plano: true,
     statusAssinatura: true,
+    isentaPagamento: true,
   },
 });
 
 const podeGerarCertificado =
   planoTemRecurso(instituicao?.plano, "CERTIFICADOS_AUTOMATICOS") &&
-  assinaturaPermiteUso(instituicao?.statusAssinatura);
+  assinaturaPermiteUso(
+  instituicao?.statusAssinatura,
+  instituicao?.isentaPagamento
+);
 
 if (!podeGerarCertificado) {
   return NextResponse.json(
