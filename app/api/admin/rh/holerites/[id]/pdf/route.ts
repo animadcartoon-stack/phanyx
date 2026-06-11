@@ -171,28 +171,26 @@ export async function GET(
   const assinaturaW = 48;
   const mainW = width - x * 2 - gap - assinaturaW;
   const h = topY - bottomY;
-
-  rect(x, bottomY, mainW, h);
-  rect(x + mainW + gap, bottomY, assinaturaW, h);
-
   const sx = x + mainW + gap;
 
   const headerBottomY = topY - 48;
   const dadosBottomY = topY - 82;
-  const tabelaTopY = dadosBottomY;
+  const tabelaHeaderY = dadosBottomY - 14;
   const basesTopY = bottomY + 28;
   const totaisTopY = bottomY + 86;
   const tabelaBottomY = totaisTopY;
 
+  rect(x, bottomY, mainW, h);
+  rect(sx, bottomY, assinaturaW, h);
+
   drawText(empresa.toUpperCase(), x + 6, topY - 13, 7, true, 310);
   drawText(`CNPJ: ${cnpj}`, x + 6, topY - 27, 7);
-  drawText("CC:", x + 275, topY - 27, 7);
-  drawText(texto(empresa).slice(0, 24).toUpperCase(), x + 300, topY - 27, 7, false, 130);
+  drawText("CC:", x + 265, topY - 27, 7);
+  drawText(empresa.toUpperCase(), x + 290, topY - 27, 7, false, 140);
 
   drawText("Folha Mensal", x + mainW - 78, topY - 13, 7, true);
   drawText(competenciaExtenso, x + mainW - 78, topY - 27, 7, false, 74);
-
-  drawText(texto(holerite.funcionario.tipoContrato || "Mensalista"), x + 320, topY - 40, 7);
+  drawText(texto(holerite.funcionario.tipoContrato || "Mensalista"), x + 318, topY - 40, 7);
 
   line(x, headerBottomY, x + mainW, headerBottomY);
 
@@ -202,33 +200,9 @@ export async function GET(
   drawText("Departamento", x + 445, topY - 59, 4.8, true);
   drawText("Filial", x + mainW - 30, topY - 59, 4.8, true);
 
-  drawText(
-    texto(holerite.funcionario.codigoFuncionario || holerite.funcionario.id),
-    x + 18,
-    topY - 70,
-    7,
-    false,
-    32
-  );
-
-  drawText(
-    holerite.funcionario.nome.toUpperCase(),
-    x + 58,
-    topY - 70,
-    7,
-    true,
-    260
-  );
-
-  drawText("", x + 375, topY - 70, 7);
-  drawText(
-    texto(holerite.funcionario.departamento?.nome || holerite.funcionario.setor || ""),
-    x + 445,
-    topY - 70,
-    7,
-    false,
-    58
-  );
+  drawText(texto(holerite.funcionario.codigoFuncionario || holerite.funcionario.id), x + 18, topY - 70, 7);
+  drawText(holerite.funcionario.nome.toUpperCase(), x + 58, topY - 70, 7, true, 260);
+  drawText(texto(holerite.funcionario.departamento?.nome || holerite.funcionario.setor || ""), x + 445, topY - 70, 7, false, 58);
   drawText("1", x + mainW - 25, topY - 70, 7);
 
   drawText(texto(holerite.funcionario.cargo || ""), x + 58, topY - 81, 7, true, 220);
@@ -242,22 +216,21 @@ export async function GET(
   const colRef = x + 375;
   const colVenc = x + 465;
 
-  line(colCodigo, tabelaTopY, colCodigo, tabelaBottomY);
-  line(colDesc, tabelaTopY, colDesc, tabelaBottomY);
-  line(colRef, tabelaTopY, colRef, tabelaBottomY);
-  line(colVenc, tabelaTopY, colVenc, tabelaBottomY);
+  line(x, tabelaHeaderY, x + mainW, tabelaHeaderY);
+  line(colCodigo, dadosBottomY, colCodigo, tabelaBottomY);
+  line(colDesc, dadosBottomY, colDesc, basesTopY);
+  line(colRef, dadosBottomY, colRef, basesTopY);
+  line(colVenc, dadosBottomY, colVenc, basesTopY);
 
-  drawText("Código", x + 3, tabelaTopY - 11, 6, true);
-  drawText("Descrição", x + 150, tabelaTopY - 11, 6, true);
-  drawText("Referência", colDesc + 20, tabelaTopY - 11, 6, true);
-  drawText("Vencimentos", colRef + 22, tabelaTopY - 11, 6, true);
-  drawText("Descontos", colVenc + 24, tabelaTopY - 11, 6, true);
+  drawText("Código", x + 3, dadosBottomY - 10, 6, true);
+  drawText("Descrição", x + 150, dadosBottomY - 10, 6, true);
+  drawText("Referência", colDesc + 20, dadosBottomY - 10, 6, true);
+  drawText("Vencimentos", colRef + 22, dadosBottomY - 10, 6, true);
+  drawText("Descontos", colVenc + 24, dadosBottomY - 10, 6, true);
 
-  line(x, tabelaTopY - 15, x + mainW, tabelaTopY - 15);
-
-  let y = tabelaTopY - 28;
+  let y = tabelaHeaderY - 12;
   const rowH = 12;
-  const maxEventos = Math.floor((tabelaTopY - tabelaBottomY - 24) / rowH);
+  const maxEventos = Math.floor((tabelaHeaderY - tabelaBottomY - 8) / rowH);
 
   holerite.eventos.slice(0, maxEventos).forEach((evento) => {
     drawText(texto(evento.codigo), x + 4, y, 7, false, 30);
@@ -275,12 +248,8 @@ export async function GET(
 
   line(x, tabelaBottomY, x + mainW, tabelaBottomY);
 
-  line(colRef, tabelaBottomY, colRef, basesTopY);
-  line(colVenc, tabelaBottomY, colVenc, basesTopY);
-
   drawText("Total de Vencimentos", colRef + 5, totaisTopY - 12, 5, true);
   drawText("Total de Descontos", colVenc + 5, totaisTopY - 12, 5, true);
-
   drawRight(moeda(holerite.totalVencimentos), colVenc - 8, totaisTopY - 28, 8);
   drawRight(moeda(holerite.totalDescontos), x + mainW - 5, totaisTopY - 28, 8);
 
@@ -306,35 +275,32 @@ export async function GET(
     drawText(c.value, c.px, bottomY + 6, 7);
   });
 
-  page.drawText(
-    "Declaro ter recebido a importância líquida discriminada neste recibo.",
-    {
-      x: sx + 15,
-      y: bottomY + 78,
-      size: 4.8,
-      font,
-      color: rgb(0, 0, 0),
-      rotate: degrees(90),
-    }
-  );
-
-  line(sx + 30, bottomY + 150, sx + 30, bottomY + 215);
-
-  page.drawText("Assinatura do Funcionário", {
-    x: sx + 38,
-    y: bottomY + 148,
-    size: 4.8,
+  page.drawText("Declaro ter recebido a importância líquida discriminada neste recibo.", {
+    x: sx + 15,
+    y: bottomY + 92,
+    size: 4.3,
     font,
     color: rgb(0, 0, 0),
     rotate: degrees(90),
   });
 
-  line(sx + 30, bottomY + 33, sx + 30, bottomY + 70);
+  line(sx + 30, bottomY + 190, sx + 30, bottomY + 260);
+
+  page.drawText("Assinatura do Funcionário", {
+    x: sx + 38,
+    y: bottomY + 185,
+    size: 4.5,
+    font,
+    color: rgb(0, 0, 0),
+    rotate: degrees(90),
+  });
+
+  line(sx + 30, bottomY + 35, sx + 30, bottomY + 72);
 
   page.drawText("Data", {
     x: sx + 38,
-    y: bottomY + 39,
-    size: 4.8,
+    y: bottomY + 42,
+    size: 4.5,
     font,
     color: rgb(0, 0, 0),
     rotate: degrees(90),
