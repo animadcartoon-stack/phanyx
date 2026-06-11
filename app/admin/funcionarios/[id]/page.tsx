@@ -643,7 +643,6 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
           ["codigoPonto", "Código do Ponto", "text"],
           ["pisPasep", "PIS / PASEP", "text"],
-          ["banco", "Banco", "text"],
           ["agencia", "Agência", "text"],
           ["conta", "Conta", "text"],
           ["pix", "PIX", "text"],
@@ -663,7 +662,36 @@ const resumoBancoHoras = pontosFuncionario.reduce(
             />
           </label>
         ))}
-      </div>
+
+<label className="space-y-1">
+  <span className="text-xs font-semibold text-slate-300">
+    Banco
+  </span>
+
+  <select
+    value={formTrabalhista.banco}
+    onChange={(e) =>
+      setFormTrabalhista((p) => ({
+        ...p,
+        banco: e.target.value,
+      }))
+    }
+    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+  >
+    <option value="">Selecione o banco</option>
+
+    {BANCOS_BRASIL.map((banco) => (
+      <option
+        key={banco.codigo}
+        value={`${banco.codigo} - ${banco.nome}`}
+      >
+        {banco.codigo} - {banco.nome}
+      </option>
+    ))}
+  </select>
+</label>
+
+</div>
     )}
   </form>
 )}
