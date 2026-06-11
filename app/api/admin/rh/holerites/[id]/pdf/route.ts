@@ -296,17 +296,17 @@ page.drawText("Assinatura do Funcionário", {
 });
 
 page.drawText("____/____/_______", {
-  x: sx + 20,
-  y: bottomY + 32,
-  size: 5.2,
-  font: fontBold,
+  x: sx + 22,
+  y: bottomY + 42,
+  size: 4.6,
+  font,
   color: rgb(0, 0, 0),
   rotate: degrees(90),
 });
 
 page.drawText("Data", {
   x: sx + 38,
-  y: bottomY + 36,
+  y: bottomY + 48,
   size: 4.4,
   font,
   color: rgb(0, 0, 0),
