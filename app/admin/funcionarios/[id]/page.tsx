@@ -235,6 +235,107 @@ function FuncionarioFichaPage() {
           />
         )}
 
+{funcionario && (
+  <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
+    <h2 className="text-lg font-bold">
+      💼 Dados Trabalhistas
+    </h2>
+
+    <div className="mt-4 grid gap-4 md:grid-cols-4 text-sm">
+      <div>
+        <p className="text-slate-400">Data de Admissão</p>
+        <p>
+          {funcionario.dataAdmissao
+            ? new Date(funcionario.dataAdmissao).toLocaleDateString("pt-BR")
+            : "-"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Data de Desligamento</p>
+        <p>
+          {funcionario.dataDesligamento
+            ? new Date(funcionario.dataDesligamento).toLocaleDateString("pt-BR")
+            : "-"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Salário Base</p>
+        <p>
+          {funcionario.salarioBase
+            ? Number(funcionario.salarioBase).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })
+            : "-"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Salário Atual</p>
+        <p>
+          {funcionario.salario
+            ? Number(funcionario.salario).toLocaleString("pt-BR", {
+                style: "currency",
+                currency: "BRL",
+              })
+            : "-"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Tipo de Contrato</p>
+        <p>{funcionario.tipoContrato || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Jornada</p>
+        <p>{funcionario.jornadaTrabalho || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Carga Horária Mensal</p>
+        <p>
+          {funcionario.cargaHorariaMensal
+            ? `${funcionario.cargaHorariaMensal}h`
+            : "-"}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Código do Ponto</p>
+        <p>{funcionario.codigoPonto || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">PIS / PASEP</p>
+        <p>{funcionario.pisPasep || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Banco</p>
+        <p>{funcionario.banco || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Agência</p>
+        <p>{funcionario.agencia || "-"}</p>
+      </div>
+
+      <div>
+        <p className="text-slate-400">Conta</p>
+        <p>{funcionario.conta || "-"}</p>
+      </div>
+
+      <div className="md:col-span-2">
+        <p className="text-slate-400">PIX</p>
+        <p>{funcionario.pix || "-"}</p>
+      </div>
+    </div>
+  </div>
+)}
+
         <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
           <h2 className="text-lg font-bold">🎁 Benefícios</h2>
 
