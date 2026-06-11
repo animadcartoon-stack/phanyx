@@ -40,6 +40,19 @@ function FuncionarioFichaPage() {
 
   const [editandoTrabalhista, setEditandoTrabalhista] = useState(false);
 
+  const [editandoGeral, setEditandoGeral] = useState(false);
+
+const [formGeral, setFormGeral] = useState({
+  nome: "",
+  cpf: "",
+  rg: "",
+  telefone: "",
+  cargo: "",
+  codigoFuncionario: "",
+  email: "",
+  statusFuncionario: "",
+});
+
 const [formTrabalhista, setFormTrabalhista] = useState({
   dataAdmissao: "",
   dataDesligamento: "",
@@ -83,6 +96,16 @@ const [formTrabalhista, setFormTrabalhista] = useState({
     }
 
     setFuncionario(data.funcionario);
+    setFormGeral({
+  nome: data.funcionario.nome || "",
+  cpf: data.funcionario.cpf || "",
+  rg: data.funcionario.rg || "",
+  telefone: data.funcionario.telefone || "",
+  cargo: data.funcionario.cargo || "",
+  codigoFuncionario: data.funcionario.codigoFuncionario || "",
+  email: data.funcionario.user?.email || "",
+  statusFuncionario: data.funcionario.statusFuncionario || "ATIVO",
+});
     preencherFormTrabalhista(data.funcionario);
   } catch (e: any) {
     setErro(e.message || "Erro ao carregar funcionário.");
@@ -185,6 +208,45 @@ function preencherFormTrabalhista(f: any) {
     }
   }
 
+  async function salvarDadosGerais(e: React.FormEvent) {
+  e.preventDefault();
+
+  try {
+    setSalvando(true);
+    setErro("");
+    setSucesso("");
+
+    const res = await fetch(`/api/funcionario/${funcionarioId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        ...funcionario,
+        ...formGeral,
+        email: formGeral.email,
+        role: funcionario?.user?.role,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao salvar.");
+    }
+
+    setSucesso("Dados gerais atualizados.");
+    setEditandoGeral(false);
+
+    await carregarFuncionario();
+  } catch (e: any) {
+    setErro(e.message || "Erro ao salvar.");
+  } finally {
+    setSalvando(false);
+  }
+}
+
   async function salvarDadosTrabalhistas(e: React.FormEvent) {
   e.preventDefault();
 
@@ -236,58 +298,153 @@ function preencherFormTrabalhista(f: any) {
           <h1 className="mt-2 text-3xl font-bold">Ficha do Funcionário</h1>
 
           {funcionario && (
-  <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-    <h2 className="text-lg font-bold">
-      👤 Dados Gerais
-    </h2>
+  <form
+    onSubmit={salvarDadosGerais}
+    className="mt-6 rounded-3xl border border-slate-800 bg-slate-900/80 p-5"
+  >
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <h2 className="text-lg font-bold">👤 Dados Gerais</h2>
 
-    <div className="mt-4 grid gap-4 md:grid-cols-3 text-sm">
-      <div>
-        <p className="text-slate-400">Nome</p>
-        <p>{funcionario.nome || "-"}</p>
-      </div>
+      {!editandoGeral ? (
+        <button
+          type="button"
+          onClick={() => setEditandoGeral(true)}
+          className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10"
+        >
+          Editar dados gerais
+        </button>
+      ) : (
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={salvando}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
+          >
+            {salvando ? "Salvando..." : "Salvar"}
+          </button>
 
-      <div>
-        <p className="text-slate-400">CPF</p>
-        <p>{funcionario.cpf || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">RG</p>
-        <p>{funcionario.rg || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Telefone</p>
-        <p>{funcionario.telefone || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Cargo</p>
-        <p>{funcionario.cargo || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Departamento</p>
-        <p>{funcionario.departamento?.nome || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Código</p>
-        <p>{funcionario.codigoFuncionario || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Status</p>
-        <p>{funcionario.statusFuncionario || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Email</p>
-        <p>{funcionario.user?.email || "-"}</p>
-      </div>
+          <button
+            type="button"
+            onClick={() => {
+              setFormGeral({
+                nome: funcionario.nome || "",
+                cpf: funcionario.cpf || "",
+                rg: funcionario.rg || "",
+                telefone: funcionario.telefone || "",
+                cargo: funcionario.cargo || "",
+                codigoFuncionario: funcionario.codigoFuncionario || "",
+                email: funcionario.user?.email || "",
+                statusFuncionario: funcionario.statusFuncionario || "ATIVO",
+              });
+              setEditandoGeral(false);
+            }}
+            className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
-  </div>
+
+    {!editandoGeral ? (
+      <div className="mt-4 grid gap-4 text-sm md:grid-cols-3">
+        <div><p className="text-slate-400">Nome</p><p>{funcionario.nome || "-"}</p></div>
+        <div><p className="text-slate-400">CPF</p><p>{funcionario.cpf || "-"}</p></div>
+        <div><p className="text-slate-400">RG</p><p>{funcionario.rg || "-"}</p></div>
+        <div><p className="text-slate-400">Telefone</p><p>{funcionario.telefone || "-"}</p></div>
+        <div><p className="text-slate-400">Cargo</p><p>{funcionario.cargo || "-"}</p></div>
+        <div><p className="text-slate-400">Departamento</p><p>{funcionario.departamento?.nome || "-"}</p></div>
+        <div><p className="text-slate-400">Código</p><p>{funcionario.codigoFuncionario || "-"}</p></div>
+        <div><p className="text-slate-400">Status</p><p>{funcionario.statusFuncionario || "-"}</p></div>
+        <div><p className="text-slate-400">Email</p><p>{funcionario.user?.email || "-"}</p></div>
+      </div>
+    ) : (
+      <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">Nome</span>
+          <input
+            value={formGeral.nome}
+            onChange={(e) => setFormGeral((p) => ({ ...p, nome: e.target.value }))}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">CPF</span>
+          <input
+            value={formGeral.cpf}
+            onChange={(e) => setFormGeral((p) => ({ ...p, cpf: e.target.value }))}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">RG</span>
+          <input
+            value={formGeral.rg}
+            onChange={(e) => setFormGeral((p) => ({ ...p, rg: e.target.value }))}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">Telefone</span>
+          <input
+            value={formGeral.telefone}
+            onChange={(e) => setFormGeral((p) => ({ ...p, telefone: e.target.value }))}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">Cargo</span>
+          <input
+            value={formGeral.cargo}
+            onChange={(e) => setFormGeral((p) => ({ ...p, cargo: e.target.value }))}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">Código</span>
+          <input
+            value={formGeral.codigoFuncionario}
+            onChange={(e) =>
+              setFormGeral((p) => ({ ...p, codigoFuncionario: e.target.value }))
+            }
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">Email</span>
+          <input
+            type="email"
+            value={formGeral.email}
+            onChange={(e) => setFormGeral((p) => ({ ...p, email: e.target.value }))}
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-300">Status</span>
+          <select
+            value={formGeral.statusFuncionario}
+            onChange={(e) =>
+              setFormGeral((p) => ({ ...p, statusFuncionario: e.target.value }))
+            }
+            className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+          >
+            <option value="ATIVO">Ativo</option>
+            <option value="DEMITIDO">Demitido</option>
+            <option value="AFASTADO">Afastado</option>
+            <option value="FERIAS">Férias</option>
+            <option value="READMITIDO">Readmitido</option>
+          </select>
+        </label>
+      </div>
+    )}
+  </form>
 )}
 
           <p className="mt-2 text-sm text-slate-400">
