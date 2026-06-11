@@ -556,6 +556,13 @@ function abrirTourAdmin() {
     </Link>
 
     <Link
+  href="/admin/rh/eventos-folha"
+  className={getLinkClass("/admin/rh/eventos-folha")}
+>
+  🧾 Eventos da Folha
+</Link>
+
+    <Link
       href="/admin/rh/ferias"
       className={getLinkClass("/admin/rh/ferias")}
     >
