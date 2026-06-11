@@ -469,7 +469,7 @@ async function arquivarHolerite() {
       atualizarEvento(index, "tipo", selecionado.tipo);
     }
   }}
-  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white md:col-span-2"
 >
   <option value="">Selecione um evento</option>
 
@@ -482,7 +482,7 @@ async function arquivarHolerite() {
     ))}
 </select>
 
-<div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 md:col-span-2">
+<div className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300 md:col-span-1">
   {evento.descricao || "Descrição do evento"}
 </div>
 
