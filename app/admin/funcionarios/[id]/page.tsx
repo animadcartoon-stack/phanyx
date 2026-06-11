@@ -99,6 +99,7 @@ const [formTrabalhista, setFormTrabalhista] = useState({
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  const [buscaBanco, setBuscaBanco] = useState("");
 
   const BANCOS_BRASIL = [
   { codigo: "001", nome: "Banco do Brasil" },
@@ -660,32 +661,43 @@ const resumoBancoHoras = pontosFuncionario.reduce(
           </label>
         ))}
 
-<label className="space-y-1">
-  <span className="text-xs font-semibold text-slate-300">
-    Banco
-  </span>
+<label className="relative space-y-1">
+  <span className="text-xs font-semibold text-slate-300">Banco</span>
 
   <input
-    list="bancos-brasil"
-    value={formTrabalhista.banco}
-    onChange={(e) =>
-      setFormTrabalhista((p) => ({
-        ...p,
-        banco: e.target.value,
-      }))
-    }
+    value={buscaBanco || formTrabalhista.banco}
+    onChange={(e) => {
+      setBuscaBanco(e.target.value);
+      setFormTrabalhista((p) => ({ ...p, banco: "" }));
+    }}
     placeholder="Digite nome ou código do banco"
     className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
   />
 
-  <datalist id="bancos-brasil">
-    {BANCOS_BRASIL.map((banco) => (
-      <option
-        key={banco.codigo}
-        value={`${banco.codigo} - ${banco.nome}`}
-      />
-    ))}
-  </datalist>
+  {buscaBanco && (
+    <div className="absolute z-50 mt-2 max-h-64 w-full overflow-y-auto rounded-2xl border border-slate-700 bg-slate-950 shadow-xl">
+      {BANCOS_BRASIL.filter((banco) => {
+        const termo = buscaBanco.toLowerCase();
+        return (
+          banco.nome.toLowerCase().includes(termo) ||
+          banco.codigo.includes(termo)
+        );
+      }).map((banco) => (
+        <button
+          key={banco.codigo}
+          type="button"
+          onClick={() => {
+            const valorBanco = `${banco.codigo} - ${banco.nome}`;
+            setFormTrabalhista((p) => ({ ...p, banco: valorBanco }));
+            setBuscaBanco("");
+          }}
+          className="block w-full px-4 py-3 text-left text-sm text-white hover:bg-blue-600"
+        >
+          {banco.codigo} - {banco.nome}
+        </button>
+      ))}
+    </div>
+  )}
 </label>
 
 {[
