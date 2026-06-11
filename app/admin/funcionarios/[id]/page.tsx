@@ -38,6 +38,24 @@ function FuncionarioFichaPage() {
 
   const [funcionario, setFuncionario] = useState<any>(null);
 
+  const [editandoTrabalhista, setEditandoTrabalhista] = useState(false);
+
+const [formTrabalhista, setFormTrabalhista] = useState({
+  dataAdmissao: "",
+  dataDesligamento: "",
+  salarioBase: "",
+  salario: "",
+  tipoContrato: "",
+  jornadaTrabalho: "",
+  cargaHorariaMensal: "",
+  codigoPonto: "",
+  pisPasep: "",
+  banco: "",
+  agencia: "",
+  conta: "",
+  pix: "",
+});
+
   const [beneficiosDisponiveis, setBeneficiosDisponiveis] = useState<Beneficio[]>([]);
   const [beneficiosVinculados, setBeneficiosVinculados] = useState<Vinculo[]>([]);
 
@@ -65,9 +83,33 @@ function FuncionarioFichaPage() {
     }
 
     setFuncionario(data.funcionario);
+    preencherFormTrabalhista(data.funcionario);
   } catch (e: any) {
     setErro(e.message || "Erro ao carregar funcionário.");
   }
+}
+
+function dataInput(v: any) {
+  if (!v) return "";
+  return new Date(v).toISOString().slice(0, 10);
+}
+
+function preencherFormTrabalhista(f: any) {
+  setFormTrabalhista({
+    dataAdmissao: dataInput(f.dataAdmissao),
+    dataDesligamento: dataInput(f.dataDesligamento),
+    salarioBase: f.salarioBase ? String(f.salarioBase) : "",
+    salario: f.salario ? String(f.salario) : "",
+    tipoContrato: f.tipoContrato || "",
+    jornadaTrabalho: f.jornadaTrabalho || "",
+    cargaHorariaMensal: f.cargaHorariaMensal ? String(f.cargaHorariaMensal) : "",
+    codigoPonto: f.codigoPonto || "",
+    pisPasep: f.pisPasep || "",
+    banco: f.banco || "",
+    agencia: f.agencia || "",
+    conta: f.conta || "",
+    pix: f.pix || "",
+  });
 }
 
   async function carregarBeneficios() {
@@ -142,6 +184,42 @@ function FuncionarioFichaPage() {
       setSalvando(false);
     }
   }
+
+  async function salvarDadosTrabalhistas(e: React.FormEvent) {
+  e.preventDefault();
+
+  try {
+    setSalvando(true);
+    setErro("");
+    setSucesso("");
+
+    const res = await fetch(`/api/funcionario/${funcionarioId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        ...funcionario,
+        email: funcionario?.user?.email,
+        role: funcionario?.user?.role,
+        ...formTrabalhista,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao salvar dados trabalhistas.");
+    }
+
+    setSucesso("Dados trabalhistas atualizados com sucesso.");
+    setEditandoTrabalhista(false);
+    await carregarFuncionario();
+  } catch (e: any) {
+    setErro(e.message || "Erro ao salvar dados trabalhistas.");
+  } finally {
+    setSalvando(false);
+  }
+}
 
   return (
     <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
@@ -236,104 +314,96 @@ function FuncionarioFichaPage() {
         )}
 
 {funcionario && (
-  <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
-    <h2 className="text-lg font-bold">
-      💼 Dados Trabalhistas
-    </h2>
+  <form
+    onSubmit={salvarDadosTrabalhistas}
+    className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5"
+  >
+    <div className="flex flex-wrap items-center justify-between gap-3">
+      <h2 className="text-lg font-bold">💼 Dados Trabalhistas</h2>
 
-    <div className="mt-4 grid gap-4 md:grid-cols-4 text-sm">
-      <div>
-        <p className="text-slate-400">Data de Admissão</p>
-        <p>
-          {funcionario.dataAdmissao
-            ? new Date(funcionario.dataAdmissao).toLocaleDateString("pt-BR")
-            : "-"}
-        </p>
-      </div>
+      {!editandoTrabalhista ? (
+        <button
+          type="button"
+          onClick={() => setEditandoTrabalhista(true)}
+          className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10"
+        >
+          Editar dados trabalhistas
+        </button>
+      ) : (
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={salvando}
+            className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
+          >
+            {salvando ? "Salvando..." : "Salvar"}
+          </button>
 
-      <div>
-        <p className="text-slate-400">Data de Desligamento</p>
-        <p>
-          {funcionario.dataDesligamento
-            ? new Date(funcionario.dataDesligamento).toLocaleDateString("pt-BR")
-            : "-"}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Salário Base</p>
-        <p>
-          {funcionario.salarioBase
-            ? Number(funcionario.salarioBase).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })
-            : "-"}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Salário Atual</p>
-        <p>
-          {funcionario.salario
-            ? Number(funcionario.salario).toLocaleString("pt-BR", {
-                style: "currency",
-                currency: "BRL",
-              })
-            : "-"}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Tipo de Contrato</p>
-        <p>{funcionario.tipoContrato || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Jornada</p>
-        <p>{funcionario.jornadaTrabalho || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Carga Horária Mensal</p>
-        <p>
-          {funcionario.cargaHorariaMensal
-            ? `${funcionario.cargaHorariaMensal}h`
-            : "-"}
-        </p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Código do Ponto</p>
-        <p>{funcionario.codigoPonto || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">PIS / PASEP</p>
-        <p>{funcionario.pisPasep || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Banco</p>
-        <p>{funcionario.banco || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Agência</p>
-        <p>{funcionario.agencia || "-"}</p>
-      </div>
-
-      <div>
-        <p className="text-slate-400">Conta</p>
-        <p>{funcionario.conta || "-"}</p>
-      </div>
-
-      <div className="md:col-span-2">
-        <p className="text-slate-400">PIX</p>
-        <p>{funcionario.pix || "-"}</p>
-      </div>
+          <button
+            type="button"
+            onClick={() => {
+              preencherFormTrabalhista(funcionario);
+              setEditandoTrabalhista(false);
+            }}
+            className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800"
+          >
+            Cancelar
+          </button>
+        </div>
+      )}
     </div>
-  </div>
+
+    {!editandoTrabalhista ? (
+      <div className="mt-4 grid gap-4 text-sm md:grid-cols-4">
+        <div><p className="text-slate-400">Data de Admissão</p><p>{funcionario.dataAdmissao ? new Date(funcionario.dataAdmissao).toLocaleDateString("pt-BR") : "-"}</p></div>
+        <div><p className="text-slate-400">Data de Desligamento</p><p>{funcionario.dataDesligamento ? new Date(funcionario.dataDesligamento).toLocaleDateString("pt-BR") : "-"}</p></div>
+        <div><p className="text-slate-400">Salário Base</p><p>{funcionario.salarioBase ? moeda(funcionario.salarioBase) : "-"}</p></div>
+        <div><p className="text-slate-400">Salário Atual</p><p>{funcionario.salario ? moeda(funcionario.salario) : "-"}</p></div>
+        <div><p className="text-slate-400">Tipo de Contrato</p><p>{funcionario.tipoContrato || "-"}</p></div>
+        <div><p className="text-slate-400">Jornada</p><p>{funcionario.jornadaTrabalho || "-"}</p></div>
+        <div><p className="text-slate-400">Carga Horária Mensal</p><p>{funcionario.cargaHorariaMensal ? `${funcionario.cargaHorariaMensal}h` : "-"}</p></div>
+        <div><p className="text-slate-400">Código do Ponto</p><p>{funcionario.codigoPonto || "-"}</p></div>
+        <div><p className="text-slate-400">PIS / PASEP</p><p>{funcionario.pisPasep || "-"}</p></div>
+        <div><p className="text-slate-400">Banco</p><p>{funcionario.banco || "-"}</p></div>
+        <div><p className="text-slate-400">Agência</p><p>{funcionario.agencia || "-"}</p></div>
+        <div><p className="text-slate-400">Conta</p><p>{funcionario.conta || "-"}</p></div>
+        <div className="md:col-span-2"><p className="text-slate-400">PIX</p><p>{funcionario.pix || "-"}</p></div>
+      </div>
+    ) : (
+      <div className="mt-5 grid gap-4 md:grid-cols-4">
+        {[
+          ["dataAdmissao", "Data de Admissão", "date"],
+          ["dataDesligamento", "Data de Desligamento", "date"],
+          ["salarioBase", "Salário Base", "text"],
+          ["salario", "Salário Atual", "text"],
+          ["tipoContrato", "Tipo de Contrato", "text"],
+          ["jornadaTrabalho", "Jornada", "text"],
+          ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
+          ["codigoPonto", "Código do Ponto", "text"],
+          ["pisPasep", "PIS / PASEP", "text"],
+          ["banco", "Banco", "text"],
+          ["agencia", "Agência", "text"],
+          ["conta", "Conta", "text"],
+          ["pix", "PIX", "text"],
+        ].map(([campo, label, tipo]) => (
+          <label key={campo} className="space-y-1">
+            <span className="text-xs font-semibold text-slate-300">{label}</span>
+            <input
+              type={tipo}
+              value={(formTrabalhista as any)[campo]}
+              onChange={(e) =>
+                setFormTrabalhista((p) => ({
+                  ...p,
+                  [campo]: e.target.value,
+                }))
+              }
+              className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+            />
+          </label>
+        ))}
+      </div>
+    )}
+  </form>
 )}
 
         <section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5">
