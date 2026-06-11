@@ -173,8 +173,8 @@ export async function GET(
   const h = topY - bottomY;
   const sx = x + mainW + gap;
 
-  const headerBottomY = topY - 48;
-  const dadosBottomY = topY - 82;
+  const headerBottomY = topY - 38;
+  const dadosBottomY = topY - 68;
   const tabelaHeaderY = dadosBottomY - 14;
   const basesTopY = bottomY + 28;
   const totaisTopY = bottomY + 86;
@@ -276,7 +276,7 @@ export async function GET(
   });
 
   page.drawText("Declaro ter recebido a importância líquida discriminada neste recibo.", {
-    x: sx + 15,
+    x: sx + 11,
     y: bottomY + 92,
     size: 4.3,
     font,
@@ -284,27 +284,34 @@ export async function GET(
     rotate: degrees(90),
   });
 
-  line(sx + 30, bottomY + 190, sx + 30, bottomY + 260);
+  line(sx + 30, bottomY + 165, sx + 30, bottomY + 235);
 
-  page.drawText("Assinatura do Funcionário", {
-    x: sx + 38,
-    y: bottomY + 185,
-    size: 4.5,
-    font,
-    color: rgb(0, 0, 0),
-    rotate: degrees(90),
-  });
+page.drawText("Assinatura do Funcionário", {
+  x: sx + 38,
+  y: bottomY + 148,
+  size: 4.4,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
 
-  line(sx + 30, bottomY + 35, sx + 30, bottomY + 72);
+page.drawText("____/____/_______", {
+  x: sx + 18,
+  y: bottomY + 24,
+  size: 4.6,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
 
-  page.drawText("Data", {
-    x: sx + 38,
-    y: bottomY + 42,
-    size: 4.5,
-    font,
-    color: rgb(0, 0, 0),
-    rotate: degrees(90),
-  });
+page.drawText("Data", {
+  x: sx + 38,
+  y: bottomY + 42,
+  size: 4.4,
+  font,
+  color: rgb(0, 0, 0),
+  rotate: degrees(90),
+});
 }
 
     desenharVia(height - 12, 455);
