@@ -634,19 +634,16 @@ const resumoBancoHoras = pontosFuncionario.reduce(
     ) : (
       <div className="mt-5 grid gap-4 md:grid-cols-4">
         {[
-          ["dataAdmissao", "Data de Admissão", "date"],
-          ["dataDesligamento", "Data de Desligamento", "date"],
-          ["salarioBase", "Salário Base", "text"],
-          ["salario", "Salário Atual", "text"],
-          ["tipoContrato", "Tipo de Contrato", "text"],
-          ["jornadaTrabalho", "Jornada", "text"],
-          ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
-          ["codigoPonto", "Código do Ponto", "text"],
-          ["pisPasep", "PIS / PASEP", "text"],
-          ["agencia", "Agência", "text"],
-          ["conta", "Conta", "text"],
-          ["pix", "PIX", "text"],
-        ].map(([campo, label, tipo]) => (
+  ["dataAdmissao", "Data de Admissão", "date"],
+  ["dataDesligamento", "Data de Desligamento", "date"],
+  ["salarioBase", "Salário Base", "text"],
+  ["salario", "Salário Atual", "text"],
+  ["tipoContrato", "Tipo de Contrato", "text"],
+  ["jornadaTrabalho", "Jornada", "text"],
+  ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
+  ["codigoPonto", "Código do Ponto", "text"],
+  ["pisPasep", "PIS / PASEP", "text"],
+].map(([campo, label, tipo]) => (
           <label key={campo} className="space-y-1">
             <span className="text-xs font-semibold text-slate-300">{label}</span>
             <input
@@ -668,7 +665,8 @@ const resumoBancoHoras = pontosFuncionario.reduce(
     Banco
   </span>
 
-  <select
+  <input
+    list="bancos-brasil"
     value={formTrabalhista.banco}
     onChange={(e) =>
       setFormTrabalhista((p) => ({
@@ -676,20 +674,43 @@ const resumoBancoHoras = pontosFuncionario.reduce(
         banco: e.target.value,
       }))
     }
+    placeholder="Digite nome ou código do banco"
     className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
-  >
-    <option value="">Selecione o banco</option>
+  />
 
+  <datalist id="bancos-brasil">
     {BANCOS_BRASIL.map((banco) => (
       <option
         key={banco.codigo}
         value={`${banco.codigo} - ${banco.nome}`}
-      >
-        {banco.codigo} - {banco.nome}
-      </option>
+      />
     ))}
-  </select>
+  </datalist>
 </label>
+
+{[
+  ["agencia", "Agência", "text"],
+  ["conta", "Conta", "text"],
+  ["pix", "PIX", "text"],
+].map(([campo, label, tipo]) => (
+  <label key={campo} className="space-y-1">
+    <span className="text-xs font-semibold text-slate-300">
+      {label}
+    </span>
+
+    <input
+      type={tipo}
+      value={(formTrabalhista as any)[campo]}
+      onChange={(e) =>
+        setFormTrabalhista((p) => ({
+          ...p,
+          [campo]: e.target.value,
+        }))
+      }
+      className="w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+    />
+  </label>
+))}
 
 </div>
     )}
