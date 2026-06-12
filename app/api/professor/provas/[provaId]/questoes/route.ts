@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { provaPertenceAoProfessor } from "@/lib/services/provaProfessor.service";
-import { createQuestaoSchema } from "@/lib/validators/prova";
+
+type AlternativaPayload = {
+  texto?: string;
+  correta?: boolean;
+};
 
 export async function POST(
   req: NextRequest,
@@ -17,6 +21,7 @@ export async function POST(
 
     const professor = await prisma.professor.findUnique({
       where: { userId: user.id },
+      select: { id: true, instituicaoId: true },
     });
 
     if (!professor) {
@@ -38,6 +43,13 @@ export async function POST(
       instituicaoId: user.instituicaoId,
     });
 
+    if (!prova) {
+      return NextResponse.json(
+        { error: "Prova não encontrada para este professor" },
+        { status: 404 }
+      );
+    }
+
     if (prova.status !== "RASCUNHO") {
       return NextResponse.json(
         { error: "Só pode editar questões em RASCUNHO" },
@@ -47,53 +59,113 @@ export async function POST(
 
     const body = await req.json();
 
-    const parsed = createQuestaoSchema.safeParse({
-      ...body,
-      valor:
-        body.valor !== undefined && body.valor !== null && body.valor !== ""
-          ? Number(body.valor)
-          : undefined,
-    });
+    const enunciado = String(body.enunciado || "").trim();
+    const tipo = String(body.tipo || "").trim();
+    const valor = Number(body.valor);
+    const respostaModelo =
+      body.respostaModelo !== undefined && body.respostaModelo !== null
+        ? String(body.respostaModelo).trim()
+        : "";
 
-    if (!parsed.success) {
+    const alternativasRecebidas: AlternativaPayload[] = Array.isArray(
+      body.alternativas
+    )
+      ? body.alternativas
+      : [];
+
+    if (!enunciado) {
       return NextResponse.json(
-        {
-          error: "Dados inválidos",
-          details: parsed.error.flatten(),
-        },
+        { error: "Digite o enunciado da questão" },
         { status: 400 }
       );
     }
 
-    const { enunciado, tipo, valor } = parsed.data;
-    const tipoConvertido =
-    tipo === "MULTIPLA_ESCOLHA" ? "multipla_escolha" : "discursiva";
+    if (tipo !== "MULTIPLA_ESCOLHA" && tipo !== "DISCURSIVA") {
+      return NextResponse.json(
+        { error: "Tipo de questão inválido" },
+        { status: 400 }
+      );
+    }
 
+    if (!Number.isFinite(valor) || valor <= 0) {
+      return NextResponse.json(
+        { error: "O valor da questão precisa ser maior que zero" },
+        { status: 400 }
+      );
+    }
 
-    const last: any = await prisma.questao.findFirst({
-      where: { provaId },
-      orderBy: { ordem: "desc" } as any,
-      select: { ordem: true } as any,
+    let alternativasValidas: { texto: string; correta: boolean }[] = [];
+
+    if (tipo === "MULTIPLA_ESCOLHA") {
+      alternativasValidas = alternativasRecebidas
+        .map((alt) => ({
+          texto: String(alt.texto || "").trim(),
+          correta: Boolean(alt.correta),
+        }))
+        .filter((alt) => alt.texto.length > 0);
+
+      if (alternativasValidas.length < 2) {
+        return NextResponse.json(
+          {
+            error:
+              "Questão de múltipla escolha precisa ter pelo menos 2 alternativas",
+          },
+          { status: 400 }
+        );
+      }
+
+      const corretas = alternativasValidas.filter((alt) => alt.correta);
+
+      if (corretas.length !== 1) {
+        return NextResponse.json(
+          {
+            error:
+              "Marque exatamente uma alternativa correta para a questão de múltipla escolha",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    const last = await prisma.questao.findFirst({
+      where: {
+        provaId,
+        instituicaoId: user.instituicaoId,
+      },
+      orderBy: { ordem: "desc" },
+      select: { ordem: true },
     });
 
-   const questao = await prisma.questao.create({
-  data: {
-    enunciado,
-    tipo: tipoConvertido as any,
-    valor: valor ?? 1,
-    ordem: last ? last.ordem + 1 : 1,
-    prova: {
-      connect: {
-        id: provaId,
+    const novaOrdem = last ? last.ordem + 1 : 1;
+
+    const questao = await prisma.questao.create({
+      data: {
+        enunciado,
+        tipo: tipo as any,
+        valor,
+        respostaModelo:
+          tipo === "DISCURSIVA" && respostaModelo ? respostaModelo : null,
+        ordem: novaOrdem,
+        provaId,
+        instituicaoId: user.instituicaoId,
+        alternativas:
+          tipo === "MULTIPLA_ESCOLHA"
+            ? {
+                create: alternativasValidas.map((alt, index) => ({
+                  texto: alt.texto,
+                  correta: alt.correta,
+                  ordem: index + 1,
+                  instituicaoId: user.instituicaoId,
+                })),
+              }
+            : undefined,
       },
-    },
-    instituicao: {
-      connect: {
-        id: user.instituicaoId!,
+      include: {
+        alternativas: {
+          orderBy: { ordem: "asc" },
+        },
       },
-    },
-  } as any,
-});
+    });
 
     return NextResponse.json(questao, { status: 201 });
   } catch (e: any) {
