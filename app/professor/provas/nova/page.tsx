@@ -353,11 +353,11 @@ if (!turmaId) {
                   />
                 </div>
                 <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
-  <h3 className="text-sm font-bold text-blue-900">
+  <h3 className="text-sm font-bold text-blue-900 dark:text-sky-300">
     Liberação da nota para o aluno
   </h3>
 
-  <p className="mt-1 text-xs text-blue-700">
+  <p className="mt-1 text-xs text-blue-700 dark:text-sky-200">
     Defina se o aluno verá a nota ao finalizar a prova ou somente em uma data futura.
   </p>
 
@@ -372,7 +372,7 @@ if (!turmaId) {
 
   {!mostrarNotaAoFinal && (
     <div className="mt-4 space-y-2">
-      <label className="block text-sm font-medium text-blue-900">
+      <label className="block text-sm font-medium text-blue-900 dark:text-sky-300">
         Data e hora para liberar a nota
       </label>
       <input
@@ -381,7 +381,7 @@ if (!turmaId) {
         onChange={(e) => setNotaDisponivelEm(e.target.value)}
         className="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm outline-none focus:border-blue-500"
       />
-      <p className="text-xs text-blue-700">
+      <p className="text-xs text-blue-700 dark:text-sky-200">
         Enquanto essa data não chegar, o aluno verá apenas “Nota ainda não liberada”.
       </p>
     </div>
