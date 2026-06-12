@@ -333,7 +333,7 @@ setTotalDisciplinasMatriculadas(total);
         <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white text-slate-900 shadow-sm dark:border-slate-800 dark:bg-gradient-to-r dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 dark:text-white">
           <div className="grid gap-6 px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
+              <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-700 dark:text-blue-700 dark:text-blue-200">
                 Painel acadêmico do aluno
               </p>
 
@@ -346,32 +346,32 @@ setTotalDisciplinasMatriculadas(total);
         className="h-full w-full object-cover"
       />
     ) : (
-      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-900 dark:text-white">
+      <div className="flex h-full w-full items-center justify-center text-3xl font-bold text-slate-900 dark:text-slate-900 dark:text-white">
         {data?.aluno?.nome?.charAt(0)?.toUpperCase() || "A"}
       </div>
     )}
   </div>
 
   <div>
-    <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
+    <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
       Aluno
     </p>
 
-    <h2 className="text-2xl font-bold text-white">
+    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
       {data?.aluno?.nome || "Aluno"}
     </h2>
     <button
   type="button"
   onClick={() => inputFotoRef.current?.click()}
   disabled={enviandoFoto}
-  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20 disabled:opacity-60"
+  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white transition hover:bg-white/20 disabled:opacity-60"
 >
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
 <button
   type="button"
   onClick={() => setModalDicaFotoAberto(true)}
-  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/20"
+  className="mt-2 rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-white transition hover:bg-white/20"
 >
   ℹ️ Dicas da foto
 </button>
@@ -383,7 +383,7 @@ setTotalDisciplinasMatriculadas(total);
                 desempenho e foco
               </h1>
 
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-blue-100 md:text-base">
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-blue-700 dark:text-blue-100 md:text-base">
                 Veja seu curso, seu desempenho, suas disciplinas e seus próximos
                 passos em um painel pensado para uma experiência acadêmica
                 moderna, organizada e profissional.
@@ -403,14 +403,14 @@ setTotalDisciplinasMatriculadas(total);
 
                 <a
                   href="/aluno/boletim"
-                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-white/15"
                 >
                   Abrir boletim
                 </a>
 
                 <a
                   href="/aluno"
-                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-transparent px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-transparent px-5 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-white/10"
                 >
                   Atualizar painel
                 </a>
@@ -419,22 +419,22 @@ setTotalDisciplinasMatriculadas(total);
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/10 dark:backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
+                <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
                   Curso atual
                 </p>
-                <p className="mt-2 text-lg font-semibold text-white">
+                <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
                   {matricula?.curso?.nome || "Curso não identificado"}
                 </p>
-                <p className="mt-2 text-sm text-blue-100">
+                <p className="mt-2 text-sm text-blue-700 dark:text-blue-100">
                   Status: {matricula?.status || "Não informado"}
                 </p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/10 dark:backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.18em] text-blue-200">
+                <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-2000">
                   Aproveitamento atual
                 </p>
-                <p className="mt-2 text-lg font-semibold text-white">
+                <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
                   {progressoAproveitamento}%
                 </p>
 
@@ -445,7 +445,7 @@ setTotalDisciplinasMatriculadas(total);
                   />
                 </div>
 
-                <p className="mt-3 text-sm text-blue-100">
+                <p className="mt-3 text-sm text-blue-700 dark:text-blue-100">
                   Baseado na sua média geral atual.
                 </p>
               </div>
@@ -484,7 +484,7 @@ setTotalDisciplinasMatriculadas(total);
               <div className="flex flex-wrap gap-3">
                 <a
                   href="/suporte"
-                  className="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                  className="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-slate-900 dark:text-slate-700 dark:text-white/90 transition hover:bg-red-700"
                 >
                   Falar com suporte
                 </a>
@@ -707,7 +707,7 @@ setTotalDisciplinasMatriculadas(total);
 
                     <a
                       href={proximoPasso.href}
-                      className="mt-4 inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      className="mt-4 inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-blue-700"
                     >
                       {proximoPasso.label}
                     </a>
@@ -754,7 +754,7 @@ setTotalDisciplinasMatriculadas(total);
                           ? `/aluno/disciplina/${disciplinaPrincipal.id}`
                           : "/aluno"
                       }
-                      className="block rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      className="block rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-blue-700"
                     >
                       {disciplinaPrincipal
                         ? "Continuar estudos"
@@ -856,7 +856,7 @@ setTotalDisciplinasMatriculadas(total);
             <button
               type="button"
               onClick={() => setModalDicaFotoAberto(false)}
-              className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white"
+              className="mt-6 w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-slate-900 dark:text-white"
             >
               Entendi
             </button>
