@@ -242,20 +242,20 @@ if (!turmaId) {
                     Disciplina
                   </label>
                   <select
-                    value={disciplinaId}
-                    onChange={(e) => setDisciplinaId(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                    required
-                  >
-                    <option value="">Selecione uma disciplina</option>
-                    {disciplinas.map((disciplina) => (
-                      <option key={disciplina.id} value={disciplina.id}>
-                        {disciplina.nome ||
-                          disciplina.titulo ||
-                          `Disciplina ${disciplina.id}`}
-                      </option>
-                    ))}
-                  </select>
+  value={disciplinaId}
+  onChange={(e) => setDisciplinaId(e.target.value)}
+  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  required
+>
+  <option value="">Selecione uma disciplina</option>
+  {disciplinas.map((disciplina) => (
+    <option key={disciplina.id} value={disciplina.id}>
+      {disciplina.nome ||
+        disciplina.titulo ||
+        `Disciplina ${disciplina.id}`}
+    </option>
+  ))}
+</select>
                 </div>
 
                 <div className="space-y-2">
@@ -263,18 +263,18 @@ if (!turmaId) {
                     Turma
                   </label>
                   <select
-                    value={turmaId}
-                    onChange={(e) => setTurmaId(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-                    disabled={!disciplinaId}
-                  >
-                    <option value="">Selecione uma turma</option>
-                    {turmasFiltradas.map((turma) => (
-                      <option key={turma.id} value={turma.id}>
-                        {turma.nome || `Turma ${turma.id}`}
-                      </option>
-                    ))}
-                  </select>
+  value={turmaId}
+  onChange={(e) => setTurmaId(e.target.value)}
+  className="w-full rounded-lg border border-slate-300 bg-white text-slate-900 px-3 py-2 text-sm outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  disabled={!disciplinaId}
+>
+  <option value="">Selecione uma turma</option>
+  {turmasFiltradas.map((turma) => (
+    <option key={turma.id} value={turma.id}>
+      {turma.nome || `Turma ${turma.id}`}
+    </option>
+  ))}
+</select>
                   {!disciplinaId && (
                     <p className="text-xs text-gray-500">
                       Selecione uma disciplina para listar as turmas.
