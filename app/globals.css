@@ -394,3 +394,24 @@ html[data-theme="light"] .text-slate-200,
 html[data-theme="light"] .text-slate-300 {
   color: #334155 !important;
 }
+
+/* MASTER PHANYX - tema fix */
+html[data-theme="light"] .phanyx-master-hero .text-white,
+html[data-theme="system"] .phanyx-master-hero .text-white,
+html[data-theme="dark"] .phanyx-master-hero .text-white {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-master-hero .text-slate-300,
+html[data-theme="light"] .phanyx-master-hero .text-slate-200 {
+  color: #dbeafe !important;
+}
+
+.phanyx-master-back {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-master-back,
+html[data-theme="system"] .phanyx-master-back {
+  color: #ffffff !important;
+}

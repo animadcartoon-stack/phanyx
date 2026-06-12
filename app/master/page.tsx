@@ -302,13 +302,13 @@ function MasterPage() {
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-8 text-white md:px-6 md:py-10">
       <div className="mx-auto max-w-7xl space-y-8">
-        <section className="overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 p-8 shadow-2xl">
+        <section className="phanyx-master-hero overflow-hidden rounded-[32px] border border-white/10 bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 p-8 shadow-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-300">
             Painel master PHANYX
           </p>
 <Link
   href="/admin"
-  className="inline-flex rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  className="phanyx-master-back inline-flex rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
 >
   ← Voltar para Admin
 </Link>
