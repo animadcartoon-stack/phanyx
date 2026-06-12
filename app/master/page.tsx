@@ -306,10 +306,10 @@ function MasterPage() {
 
           <div className="mt-3 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
-              <h1 className="text-4xl font-bold md:text-5xl">
+              <h1 className="text-4xl font-bold text-white md:text-5xl">
                 Controle global da plataforma
               </h1>
-              <p className="mt-4 text-lg leading-8 text-slate-300">
+              <p className="mt-4 text-lg leading-8 text-white">
                 Acompanhe instituições, adesões, conversão comercial e a
                 expansão operacional do PHANYX em um só painel.
               </p>

@@ -285,7 +285,7 @@ function AdminDocumentosGeradosPage() {
 )}
       <div>
         <h1 className="text-2xl font-bold">📚 Documentos gerados</h1>
-        <p className="mt-1 text-gray-600">
+        <p className="mt-1 text-gray-600 dark:text-gray-300">
           Visualize o histórico de documentos gerados pela instituição.
         </p>
       </div>
@@ -298,11 +298,11 @@ function AdminDocumentosGeradosPage() {
 
       <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
-          <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+          <div className="rounded-2xl border bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold">Histórico documental</h2>
+                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Histórico documental</h2>
                   <p className="mt-1 text-sm text-gray-600">
                     Contratos, declarações, recibos, comprovantes e outros documentos.
                   </p>
@@ -355,7 +355,7 @@ function AdminDocumentosGeradosPage() {
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                       <div className="min-w-0 space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-gray-900">
+                          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
                             {doc.titulo}
                           </h3>
 
@@ -385,36 +385,36 @@ function AdminDocumentosGeradosPage() {
 
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 text-sm">
                           <div>
-                            <p className="text-gray-500">Aluno</p>
-                            <p className="font-medium text-gray-800">
+                            <p className="text-gray-500 dark:text-gray-400">Aluno</p>
+                            <p className="font-medium text-gray-800 dark:text-gray-100">
                               {doc.aluno?.nome || "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-gray-500">Matrícula</p>
-                            <p className="font-medium text-gray-800">
+                            <p className="text-gray-500 dark:text-gray-400">Matrícula</p>
+                            <p className="font-medium text-gray-800 dark:text-gray-100">
                               {doc.matricula?.id ? `#${doc.matricula.id}` : "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-gray-500">Contexto</p>
-                            <p className="font-medium text-gray-800">
+                            <p className="text-gray-500 dark:text-gray-400">Contexto</p>
+                            <p className="font-medium text-gray-800 dark:text-gray-100">
                               {doc.contexto || "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-gray-500">Gerado em</p>
-                            <p className="font-medium text-gray-800">
+                            <p className="text-gray-500 dark:text-gray-400">Gerado em</p>
+                            <p className="font-medium text-gray-800 dark:text-gray-100">
                               {formatarData(doc.criadoEm)}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-gray-500">Template</p>
-                            <p className="font-medium text-gray-800">
+                            <p className="text-gray-500 dark:text-gray-400">Template</p>
+                            <p className="font-medium text-gray-800 dark:text-gray-100">
                               {doc.template?.nome || "-"}
                             </p>
                           </div>
@@ -467,10 +467,10 @@ function AdminDocumentosGeradosPage() {
         </div>
 
         <div className="min-w-0">
-          <div className="rounded-2xl border bg-white p-4 shadow-sm min-h-[240px] max-h-[520px] overflow-auto">
+          <div className="rounded-2xl border bg-white dark:bg-slate-900 p-4 shadow-sm min-h-[240px] max-h-[520px] overflow-auto">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold">Visualização</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Visualização</h2>
                 <p className="mt-1 text-sm text-gray-600">
                   Abra um documento gerado para ver os detalhes.
                 </p>
@@ -537,29 +537,29 @@ function AdminDocumentosGeradosPage() {
 
                 <div className="grid grid-cols-1 gap-3 text-sm">
                   <div>
-                    <p className="text-gray-500">Aluno</p>
-                    <p className="font-medium text-gray-800">
+                    <p className="text-gray-500 dark:text-gray-400">Aluno</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-100">
                       {documentoSelecionado.aluno?.nome || "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">CPF</p>
-                    <p className="font-medium text-gray-800">
+                    <p className="text-gray-500 dark:text-gray-400">CPF</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-100">
                       {documentoSelecionado.aluno?.cpf || "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Matrícula</p>
-                    <p className="font-medium text-gray-800">
+                    <p className="text-gray-500 dark:text-gray-400">Matrícula</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-100">
                       {documentoSelecionado.aluno?.matricula || "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-gray-500">Contexto</p>
-                    <p className="font-medium text-gray-800">
+                    <p className="text-gray-500 dark:text-gray-400">Contexto</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-100">
                       {documentoSelecionado.contexto || "-"}
                     </p>
                   </div>

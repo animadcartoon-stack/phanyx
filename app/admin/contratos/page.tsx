@@ -229,10 +229,14 @@ const alunosFiltrados = [...alunos]
             </label>
             <div className="relative">
   <input
+    autoComplete="off"
+    spellCheck={false}
+    name="buscarAlunoContrato"
     value={busca}
     onChange={(e) => setBusca(e.target.value)}
     className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
     placeholder="Digite nome, matrícula ou email"
+    
   />
 
   {busca.trim() && alunosFiltrados.length > 0 && (
