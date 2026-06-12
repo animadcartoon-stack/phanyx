@@ -492,7 +492,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   <select
     value={cursoFiltroId}
     onChange={(e) => setCursoFiltroId(e.target.value)}
-    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
   >
     <option value="">Todos os cursos</option>
     {cursos.map((curso) => (
@@ -505,7 +505,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   <select
     value={turmaFiltroId}
     onChange={(e) => setTurmaFiltroId(e.target.value)}
-    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
   >
     <option value="">Todas as turmas</option>
     {turmas.map((turma) => (
@@ -518,7 +518,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   <select
     value={disciplinaFiltroId}
     onChange={(e) => setDisciplinaFiltroId(e.target.value)}
-    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
   >
     <option value="">Todas as disciplinas</option>
     {disciplinas.map((disciplina) => (
@@ -531,8 +531,8 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   <input
     value={buscaAluno}
     onChange={(e) => setBuscaAluno(e.target.value)}
-    placeholder="Buscar aluno por nome, matrícula ou e-mail..."
-    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    placeholder="Buscar aluno..."
+    className="w-full min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2 text-xs text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
   />
 </div>
 
