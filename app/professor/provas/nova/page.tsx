@@ -15,6 +15,13 @@ type Turma = {
   disciplinaId?: number;
 };
 
+type AlunoTurma = {
+  alunoId: number;
+  nome: string;
+  email?: string | null;
+  matricula?: string | null;
+};
+
 export default function NovaProvaPage() {
   const router = useRouter();
 
@@ -27,6 +34,12 @@ export default function NovaProvaPage() {
   const [expiraEm, setExpiraEm] = useState("");
   const [notaDisponivelEm, setNotaDisponivelEm] = useState("");
   const [mostrarNotaAoFinal, setMostrarNotaAoFinal] = useState(false);
+
+  const [tipoPublico, setTipoPublico] = useState<"TURMA" | "ALUNOS_SELECIONADOS">("TURMA");
+  const [exigirAulasConcluidas, setExigirAulasConcluidas] = useState(false);
+  const [alunosTurma, setAlunosTurma] = useState<AlunoTurma[]>([]);
+  const [alunosSelecionadosIds, setAlunosSelecionadosIds] = useState<number[]>([]);
+  const [loadingAlunos, setLoadingAlunos] = useState(false);
 
   const [disciplinaId, setDisciplinaId] = useState("");
   const [turmaId, setTurmaId] = useState("");
@@ -84,6 +97,41 @@ export default function NovaProvaPage() {
     }
   }, [disciplinaId, turmaId, turmas]);
 
+  useEffect(() => {
+  async function carregarAlunosDaTurma() {
+    if (!turmaId) {
+      setAlunosTurma([]);
+      setAlunosSelecionadosIds([]);
+      return;
+    }
+
+    try {
+      setLoadingAlunos(true);
+
+      const res = await fetch(`/api/professor/alunos?turmaId=${turmaId}`, {
+        cache: "no-store",
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao carregar alunos da turma");
+      }
+
+      setAlunosTurma(Array.isArray(data?.alunos) ? data.alunos : []);
+      setAlunosSelecionadosIds([]);
+    } catch {
+      setAlunosTurma([]);
+      setAlunosSelecionadosIds([]);
+    } finally {
+      setLoadingAlunos(false);
+    }
+  }
+
+  carregarAlunosDaTurma();
+}, [turmaId]);
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
 
@@ -94,6 +142,11 @@ export default function NovaProvaPage() {
 
 if (!turmaId) {
   setErro("Selecione uma turma.");
+  return;
+}
+
+if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0) {
+  setErro("Selecione pelo menos um aluno para liberar esta prova.");
   return;
 }
 
@@ -129,6 +182,9 @@ if (!turmaId) {
             ? new Date(notaDisponivelEm).toISOString()
           : null,
           mostrarNotaAoFinal,
+          tipoPublico,
+          exigirAulasConcluidas,
+          alunosIds: alunosSelecionadosIds,
           disciplinaId: Number(disciplinaId),
           turmaId: turmaId ? Number(turmaId) : null,
         }),
@@ -352,6 +408,126 @@ if (!turmaId) {
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                   />
                 </div>
+
+<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+    Disponibilização da prova
+  </h3>
+
+  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+    Escolha se a prova será liberada para toda a turma ou apenas para alunos específicos.
+  </p>
+
+  <div className="mt-4 grid gap-3 md:grid-cols-2">
+    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+      <input
+        type="radio"
+        name="tipoPublico"
+        checked={tipoPublico === "TURMA"}
+        onChange={() => {
+          setTipoPublico("TURMA");
+          setAlunosSelecionadosIds([]);
+        }}
+      />
+      Para toda a turma
+    </label>
+
+    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+      <input
+        type="radio"
+        name="tipoPublico"
+        checked={tipoPublico === "ALUNOS_SELECIONADOS"}
+        onChange={() => setTipoPublico("ALUNOS_SELECIONADOS")}
+      />
+      Somente alunos selecionados
+    </label>
+  </div>
+
+  <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+    <input
+      type="checkbox"
+      checked={exigirAulasConcluidas}
+      onChange={(e) => setExigirAulasConcluidas(e.target.checked)}
+    />
+    Exigir conclusão das aulas antes de liberar a prova
+  </label>
+
+  {tipoPublico === "ALUNOS_SELECIONADOS" && (
+    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+            Alunos liberados
+          </h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Use para recuperação, segunda chamada ou exames especiais.
+          </p>
+        </div>
+
+        {loadingAlunos && (
+          <span className="text-xs font-semibold text-blue-600 dark:text-sky-300">
+            Carregando...
+          </span>
+        )}
+      </div>
+
+      {!turmaId && (
+        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+          Selecione uma turma para listar os alunos.
+        </p>
+      )}
+
+      {turmaId && !loadingAlunos && alunosTurma.length === 0 && (
+        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+          Nenhum aluno encontrado para esta turma.
+        </p>
+      )}
+
+      {alunosTurma.length > 0 && (
+        <div className="mt-4 grid max-h-72 gap-2 overflow-auto pr-1">
+          {alunosTurma.map((aluno) => {
+            const marcado = alunosSelecionadosIds.includes(aluno.alunoId);
+
+            return (
+              <label
+                key={aluno.alunoId}
+                className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm text-slate-700 hover:bg-blue-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-900"
+              >
+                <input
+                  type="checkbox"
+                  checked={marcado}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setAlunosSelecionadosIds((prev) => [
+                        ...prev,
+                        aluno.alunoId,
+                      ]);
+                    } else {
+                      setAlunosSelecionadosIds((prev) =>
+                        prev.filter((id) => id !== aluno.alunoId)
+                      );
+                    }
+                  }}
+                />
+
+                <span>
+                  <span className="block font-semibold">
+                    {aluno.nome}
+                  </span>
+                  <span className="block text-xs text-slate-500 dark:text-slate-400">
+                    {aluno.matricula || "Sem matrícula"}{" "}
+                    {aluno.email ? `• ${aluno.email}` : ""}
+                  </span>
+                </span>
+              </label>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
                 <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
   <h3 className="text-sm font-bold text-blue-900 dark:text-sky-300">
     Liberação da nota para o aluno

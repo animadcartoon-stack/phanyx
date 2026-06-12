@@ -182,61 +182,62 @@ model User {
 }
 
 model Aluno {
-  id                           Int                    @id @default(autoincrement())
-  nome                         String
-  createdAt                    DateTime               @default(now())
-  instituicaoId                Int
-  userId                       Int                    @unique
-  ativo                        Boolean                @default(true)
-  matricula                    String?
-  updatedAt                    DateTime               @updatedAt
-  bairro                       String?
-  cep                          String?
-  cidade                       String?
-  complemento                  String?
-  cpf                          String?
-  dataNascimento               DateTime?
-  documentoUrl                 String?
-  endereco                     String?
-  estado                       String?
-  numero                       String?
-  rg                           String?
-  slug                         String?
-  telefone                     String?
-  cpfResponsavel               String?
-  emailResponsavel             String?
-  nomeResponsavel              String?
-  fotoPerfil                   String?
-  parentescoResponsavel        String?
-  telefoneResponsavel          String?
-  statusAluno                  StatusAluno            @default(ATIVO)
-  descricaoNecessidadeEspecial String?
-  observacoesAcessibilidade    String?
-  possuiNecessidadeEspecial    Boolean                @default(false)
-  genero                       String?
-  nomeSocial                   String?
-  poloId                       Int?
-  instituicao                  Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                         Polo?                  @relation(fields: [poloId], references: [id])
-  user                         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  atestadosMedicos             AtestadoMedico[]
-  certificados                 Certificado[]
-  cobrancas                    Cobranca[]
-  contratos                    Contrato[]
-  documentos                   DocumentoAluno[]
-  DocumentoGerado              DocumentoGerado[]
-  entregas                     EntregaAtividade[]
-  lancamentosFinanceiros       LancamentoFinanceiro[]
-  matriculas                   Matricula[]
-  movimentosCaixa              MovimentoCaixa[]
-  notas                        Nota[]
-  pagamentos                   Pagamento[]
-  presencasAula                PresencaAula[]
-  progresso                    ProgressoAula[]
-  respostas                    RespostaProva[]
-  resultadosFinais             ResultadoFinal[]
-  tentativas                   TentativaProva[]
-  reunioesParticipante         ReuniaoParticipante[]
+  id                            Int                    @id @default(autoincrement())
+  nome                          String
+  createdAt                     DateTime               @default(now())
+  instituicaoId                 Int
+  userId                        Int                    @unique
+  ativo                         Boolean                @default(true)
+  matricula                     String?
+  updatedAt                     DateTime               @updatedAt
+  bairro                        String?
+  cep                           String?
+  cidade                        String?
+  complemento                   String?
+  cpf                           String?
+  dataNascimento                DateTime?
+  documentoUrl                  String?
+  endereco                      String?
+  estado                        String?
+  numero                        String?
+  rg                            String?
+  slug                          String?
+  telefone                      String?
+  cpfResponsavel                String?
+  emailResponsavel              String?
+  nomeResponsavel               String?
+  fotoPerfil                    String?
+  parentescoResponsavel         String?
+  telefoneResponsavel           String?
+  statusAluno                   StatusAluno            @default(ATIVO)
+  descricaoNecessidadeEspecial  String?
+  observacoesAcessibilidade     String?
+  possuiNecessidadeEspecial     Boolean                @default(false)
+  genero                        String?
+  nomeSocial                    String?
+  poloId                        Int?
+  instituicao                   Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                          Polo?                  @relation(fields: [poloId], references: [id])
+  user                          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atestadosMedicos              AtestadoMedico[]
+  certificados                  Certificado[]
+  cobrancas                     Cobranca[]
+  contratos                     Contrato[]
+  documentos                    DocumentoAluno[]
+  DocumentoGerado               DocumentoGerado[]
+  entregas                      EntregaAtividade[]
+  lancamentosFinanceiros        LancamentoFinanceiro[]
+  matriculas                    Matricula[]
+  movimentosCaixa               MovimentoCaixa[]
+  notas                         Nota[]
+  pagamentos                    Pagamento[]
+  presencasAula                 PresencaAula[]
+  progresso                     ProgressoAula[]
+  respostas                     RespostaProva[]
+  resultadosFinais              ResultadoFinal[]
+  tentativas                    TentativaProva[]
+  reunioesParticipante          ReuniaoParticipante[]
+  provasLiberadas               ProvaAluno[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -779,29 +780,32 @@ model EntregaAtividade {
 }
 
 model Prova {
-  id                  Int              @id @default(autoincrement())
-  titulo              String
-  notaMaxima          Float            @default(10)
-  ativa               Boolean          @default(true)
-  createdAt           DateTime         @default(now())
-  descricao           String?
-  disponivelEm        DateTime?
-  notaDisponivelEm    DateTime?
-  mostrarNotaAoFinal  Boolean          @default(false)
-  encerradaAt         DateTime?
-  expiraEm            DateTime?
-  instituicaoId       Int
-  publicadaAt         DateTime?
-  status              StatusProva      @default(RASCUNHO)
-  tempoMin            Int?
-  tentativasMax       Int              @default(1)
-  turmaId             Int
-  updatedAt           DateTime         @updatedAt
-  notas               Nota[]
-  instituicao         Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  turma               Turma            @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  questoes            Questao[]
-  tentativas          TentativaProva[]
+  id                      Int               @id @default(autoincrement())
+  titulo                  String
+  notaMaxima              Float             @default(10)
+  ativa                   Boolean           @default(true)
+  createdAt               DateTime          @default(now())
+  descricao               String?
+  disponivelEm            DateTime?
+  notaDisponivelEm        DateTime?
+  mostrarNotaAoFinal      Boolean           @default(false)
+  encerradaAt             DateTime? 
+  expiraEm                DateTime?
+  instituicaoId           Int
+  publicadaAt             DateTime?
+  status                  StatusProva       @default(RASCUNHO)
+  tempoMin                Int?
+  tentativasMax           Int               @default(1)
+  turmaId                 Int
+  updatedAt               DateTime          @updatedAt
+  notas                   Nota[]
+  instituicao             Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  turma                   Turma             @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  tipoPublico             String            @default("TURMA")
+  exigirAulasConcluidas   Boolean           @default(false)
+  alunosLiberados         ProvaAluno[]
+  questoes                Questao[]
+  tentativas              TentativaProva[]
 
   @@index([instituicaoId])
   @@index([turmaId])
@@ -2432,6 +2436,22 @@ model FuncionarioBeneficioRH {
   @@index([funcionarioId])
   @@index([beneficioId])
   @@index([instituicaoId])
+}
+
+model ProvaAluno {
+  id            Int      @id @default(autoincrement())
+  provaId       Int
+  alunoId       Int
+  instituicaoId Int
+  criadoEm      DateTime @default(now())
+
+  prova Prova @relation(fields: [provaId], references: [id], onDelete: Cascade)
+  aluno Aluno @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  @@unique([provaId, alunoId])
+  @@index([instituicaoId])
+  @@index([provaId])
+  @@index([alunoId])
 }
 
 enum TipoDocumentoAluno {

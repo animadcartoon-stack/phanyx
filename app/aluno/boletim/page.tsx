@@ -6,8 +6,10 @@ type ProvaBoletim = {
   tentativaId: number;
   provaId: number;
   titulo: string;
-  nota: number;
+  nota: number | null;
   notaMaxima: number;
+  notaLiberada?: boolean;
+  notaDisponivelEm?: string | null;
   finalizada: boolean;
   startedAt?: string;
   finishedAt?: string | null;
@@ -271,9 +273,18 @@ export default function AlunoBoletimPage() {
                           <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500">
                             <span>
                               <strong className="font-medium text-slate-700">
-                                Nota:
-                              </strong>{" "}
-                              {prova.nota} / {prova.notaMaxima}
+  Nota:
+</strong>{" "}
+
+{prova.notaLiberada ? (
+  <>
+    {prova.nota} / {prova.notaMaxima}
+  </>
+) : (
+  <span className="font-medium text-amber-600">
+    Nota ainda não liberada
+  </span>
+)}
                             </span>
 
                             <span>
@@ -295,14 +306,20 @@ export default function AlunoBoletimPage() {
                         </div>
 
                         <div>
-                          <span
-                            className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getDesempenhoClass(
-                              prova.nota
-                            )}`}
-                          >
-                            {getDesempenhoLabel(prova.nota)}
-                          </span>
-                        </div>
+  {prova.notaLiberada ? (
+    <span
+      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getDesempenhoClass(
+        Number(prova.nota)
+      )}`}
+    >
+      {getDesempenhoLabel(Number(prova.nota))}
+    </span>
+  ) : (
+    <span className="inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
+      Aguardando liberação
+    </span>
+  )}
+</div>
                       </div>
                     ))}
                   </div>

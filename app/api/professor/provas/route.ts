@@ -124,6 +124,9 @@ export async function POST(req: Request) {
   mostrarNotaAoFinal,
   turmaId,
   disciplinaId,
+  tipoPublico,
+  exigirAulasConcluidas,
+  alunosIds,
 } = body;
 
    if (!titulo || !turmaId || !body.disciplinaId) {
@@ -181,6 +184,22 @@ export async function POST(req: Request) {
         disponivelEm: disponivelEm ? new Date(disponivelEm) : null,
         notaDisponivelEm: notaDisponivelEm ? new Date(notaDisponivelEm) : null,
         mostrarNotaAoFinal: Boolean(mostrarNotaAoFinal),
+        tipoPublico:
+  tipoPublico === "ALUNOS_SELECIONADOS"
+    ? "ALUNOS_SELECIONADOS"
+    : "TURMA",
+exigirAulasConcluidas: Boolean(exigirAulasConcluidas),
+alunosLiberados:
+  tipoPublico === "ALUNOS_SELECIONADOS" &&
+  Array.isArray(alunosIds) &&
+  alunosIds.length > 0
+    ? {
+        create: alunosIds.map((alunoId: number) => ({
+          alunoId: Number(alunoId),
+          instituicaoId: user.instituicaoId,
+        })),
+      }
+    : undefined,
         expiraEm: expiraEm ? new Date(expiraEm) : null,
         turmaId: Number(turmaId),
         instituicaoId: user.instituicaoId,
