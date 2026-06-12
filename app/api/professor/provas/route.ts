@@ -120,6 +120,8 @@ export async function POST(req: Request) {
   tentativasMax,
   disponivelEm,
   expiraEm,
+  notaDisponivelEm,
+  mostrarNotaAoFinal,
   turmaId,
   disciplinaId,
 } = body;
@@ -177,6 +179,8 @@ export async function POST(req: Request) {
         tempoMin: tempoMin ? Number(tempoMin) : null,
         tentativasMax: tentativasMax ? Number(tentativasMax) : 1,
         disponivelEm: disponivelEm ? new Date(disponivelEm) : null,
+        notaDisponivelEm: notaDisponivelEm ? new Date(notaDisponivelEm) : null,
+        mostrarNotaAoFinal: Boolean(mostrarNotaAoFinal),
         expiraEm: expiraEm ? new Date(expiraEm) : null,
         turmaId: Number(turmaId),
         instituicaoId: user.instituicaoId,

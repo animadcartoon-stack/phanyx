@@ -779,27 +779,29 @@ model EntregaAtividade {
 }
 
 model Prova {
-  id            Int              @id @default(autoincrement())
-  titulo        String
-  notaMaxima    Float            @default(10)
-  ativa         Boolean          @default(true)
-  createdAt     DateTime         @default(now())
-  descricao     String?
-  disponivelEm  DateTime?
-  encerradaAt   DateTime?
-  expiraEm      DateTime?
-  instituicaoId Int
-  publicadaAt   DateTime?
-  status        StatusProva      @default(RASCUNHO)
-  tempoMin      Int?
-  tentativasMax Int              @default(1)
-  turmaId       Int
-  updatedAt     DateTime         @updatedAt
-  notas         Nota[]
-  instituicao   Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  turma         Turma            @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  questoes      Questao[]
-  tentativas    TentativaProva[]
+  id                  Int              @id @default(autoincrement())
+  titulo              String
+  notaMaxima          Float            @default(10)
+  ativa               Boolean          @default(true)
+  createdAt           DateTime         @default(now())
+  descricao           String?
+  disponivelEm        DateTime?
+  notaDisponivelEm    DateTime?
+  mostrarNotaAoFinal  Boolean          @default(false)
+  encerradaAt         DateTime?
+  expiraEm            DateTime?
+  instituicaoId       Int
+  publicadaAt         DateTime?
+  status              StatusProva      @default(RASCUNHO)
+  tempoMin            Int?
+  tentativasMax       Int              @default(1)
+  turmaId             Int
+  updatedAt           DateTime         @updatedAt
+  notas               Nota[]
+  instituicao         Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  turma               Turma            @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  questoes            Questao[]
+  tentativas          TentativaProva[]
 
   @@index([instituicaoId])
   @@index([turmaId])

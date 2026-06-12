@@ -25,6 +25,8 @@ export default function NovaProvaPage() {
   const [tentativasMax, setTentativasMax] = useState("1");
   const [disponivelEm, setDisponivelEm] = useState("");
   const [expiraEm, setExpiraEm] = useState("");
+  const [notaDisponivelEm, setNotaDisponivelEm] = useState("");
+  const [mostrarNotaAoFinal, setMostrarNotaAoFinal] = useState(false);
 
   const [disciplinaId, setDisciplinaId] = useState("");
   const [turmaId, setTurmaId] = useState("");
@@ -123,6 +125,10 @@ if (!turmaId) {
             ? new Date(disponivelEm).toISOString()
             : null,
           expiraEm: expiraEm ? new Date(expiraEm).toISOString() : null,
+          notaDisponivelEm: notaDisponivelEm
+            ? new Date(notaDisponivelEm).toISOString()
+          : null,
+          mostrarNotaAoFinal,
           disciplinaId: Number(disciplinaId),
           turmaId: turmaId ? Number(turmaId) : null,
         }),
@@ -346,6 +352,41 @@ if (!turmaId) {
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
                   />
                 </div>
+                <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+  <h3 className="text-sm font-bold text-blue-900">
+    Liberação da nota para o aluno
+  </h3>
+
+  <p className="mt-1 text-xs text-blue-700">
+    Defina se o aluno verá a nota ao finalizar a prova ou somente em uma data futura.
+  </p>
+
+  <label className="mt-4 flex items-center gap-3 rounded-xl bg-white p-3 text-sm text-slate-700">
+    <input
+      type="checkbox"
+      checked={mostrarNotaAoFinal}
+      onChange={(e) => setMostrarNotaAoFinal(e.target.checked)}
+    />
+    Mostrar nota ao aluno assim que finalizar a prova
+  </label>
+
+  {!mostrarNotaAoFinal && (
+    <div className="mt-4 space-y-2">
+      <label className="block text-sm font-medium text-blue-900">
+        Data e hora para liberar a nota
+      </label>
+      <input
+        type="datetime-local"
+        value={notaDisponivelEm}
+        onChange={(e) => setNotaDisponivelEm(e.target.value)}
+        className="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm outline-none focus:border-blue-500"
+      />
+      <p className="text-xs text-blue-700">
+        Enquanto essa data não chegar, o aluno verá apenas “Nota ainda não liberada”.
+      </p>
+    </div>
+  )}
+</div>
               </div>
 
               <div className="flex items-center justify-end gap-3">

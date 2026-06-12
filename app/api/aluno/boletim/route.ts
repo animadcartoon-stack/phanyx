@@ -104,11 +104,22 @@ export async function GET() {
 
       const item = disciplinasMap.get(disciplinaId);
 
+      const agora = new Date();
+
+const mostrarNota =
+  tentativa.prova?.mostrarNotaAoFinal === true ||
+  (tentativa.prova?.notaDisponivelEm &&
+    new Date(tentativa.prova.notaDisponivelEm) <= agora);
+
+const notaLiberada = Boolean(mostrarNota);
+
       item.provas.push({
         tentativaId: tentativa.id,
         provaId: tentativa.provaId,
         titulo: tentativa.prova?.titulo || `Prova ${tentativa.provaId}`,
-        nota: tentativa.notaFinal ?? 0,
+        nota: notaLiberada ? tentativa.notaFinal ?? 0 : null,
+        notaLiberada,
+        notaDisponivelEm: tentativa.prova?.notaDisponivelEm ?? null,
         notaMaxima: tentativa.prova?.notaMaxima ?? 10,
         finalizada: tentativa.finalizada,
         startedAt: tentativa.startedAt,
