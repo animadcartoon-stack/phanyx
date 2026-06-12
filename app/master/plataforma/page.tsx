@@ -20,7 +20,7 @@ export default function EscalabilidadePhanyxPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-sky-300">
           PHANYX Enterprise
         </p>
@@ -35,7 +35,7 @@ export default function EscalabilidadePhanyxPage() {
         </p>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">
           Checklist de estabilidade
         </h2>
@@ -50,7 +50,7 @@ export default function EscalabilidadePhanyxPage() {
                 className={
                   status
                     ? "flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm font-black text-green-700"
-                    : "flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-black text-slate-400 dark:bg-slate-800 dark:text-slate-400"
+                    : "flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-sm font-black text-slate-400 dark:bg-slate-800"
                 }
               >
                 {status || "•"}
