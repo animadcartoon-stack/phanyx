@@ -230,3 +230,114 @@ html[data-theme="dark"] .phanyx-admin-hero {
   background: #111111 !important;
   border-color: #222222 !important;
 }
+
+/* ================================
+   PHANYX UI TOKENS GLOBAIS
+================================ */
+
+.phanyx-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+.phanyx-input,
+.phanyx-select,
+.phanyx-textarea {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-muted {
+  color: #64748b;
+}
+
+html[data-theme="dark"] .phanyx-card,
+html[data-theme="system"] .phanyx-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-input,
+html[data-theme="dark"] .phanyx-select,
+html[data-theme="dark"] .phanyx-textarea,
+html[data-theme="system"] .phanyx-input,
+html[data-theme="system"] .phanyx-select,
+html[data-theme="system"] .phanyx-textarea {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-muted,
+html[data-theme="system"] .phanyx-muted {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] option,
+html[data-theme="system"] option {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+/* ========================================
+   PHANYX AUTO THEME FIX
+======================================== */
+
+html[data-theme="dark"] .text-black {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .text-black {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .border-gray-300 {
+  border-color: #374151 !important;
+}
+
+html[data-theme="system"] .border-gray-300 {
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+  background: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #374151 !important;
+}
+
+html[data-theme="system"] input,
+html[data-theme="system"] select,
+html[data-theme="system"] textarea {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] table thead {
+  background: #1e293b !important;
+}
+
+html[data-theme="system"] table thead {
+  background: #3f3f46 !important;
+}
+
+html[data-theme="dark"] .hover\:bg-gray-100:hover {
+  background: #1f2937 !important;
+}
+
+html[data-theme="system"] .hover\:bg-gray-100:hover {
+  background: #404040 !important;
+}
+
+html[data-theme="dark"] .bg-gray-100 {
+  background: #0f172a !important;
+}
+
+html[data-theme="system"] .bg-gray-100 {
+  background: #3a3a3a !important;
+}
