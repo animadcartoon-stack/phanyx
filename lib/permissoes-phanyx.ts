@@ -89,4 +89,61 @@ export const PERMISSOES_PHANYX = [
 
   { chave: "ouvidoria.ver", nome: "Ver ouvidoria" },
   { chave: "ouvidoria.responder", nome: "Responder ouvidoria" },
+
+  {
+  chave: "academico.publicacoes.ver",
+  nome: "Apoio Docente - Ver publicações pendentes",
+},
+{
+  chave: "academico.publicacoes.gerenciar",
+  nome: "Apoio Docente - Gerenciar publicações acadêmicas",
+},
+
+{
+  chave: "academico.materiais.anexar",
+  nome: "Apoio Docente - Anexar materiais",
+},
+{
+  chave: "academico.materiais.publicar",
+  nome: "Apoio Docente - Publicar materiais para alunos",
+},
+
+{
+  chave: "academico.trabalhos.anexar",
+  nome: "Apoio Docente - Anexar arquivos em trabalhos",
+},
+{
+  chave: "academico.trabalhos.publicar",
+  nome: "Apoio Docente - Publicar trabalhos para alunos",
+},
+
+{
+  chave: "academico.turmas.selecionar",
+  nome: "Apoio Docente - Selecionar turmas acadêmicas",
+},
+{
+  chave: "academico.disciplinas.selecionar",
+  nome: "Apoio Docente - Selecionar disciplinas",
+},
+{
+  chave: "academico.professores.selecionar",
+  nome: "Apoio Docente - Selecionar professor responsável",
+},
+{
+  chave: "academico.alunos.selecionar",
+  nome: "Apoio Docente - Selecionar alunos específicos",
+},
+  { chave: "academico.publicacoes.ver", nome: "Acadêmico - Ver publicações pendentes" },
+  { chave: "academico.publicacoes.gerenciar", nome: "Acadêmico - Gerenciar publicações acadêmicas" },
+
+  { chave: "academico.materiais.anexar", nome: "Acadêmico - Anexar materiais" },
+  { chave: "academico.materiais.publicar", nome: "Acadêmico - Publicar materiais para alunos" },
+
+  { chave: "academico.trabalhos.anexar", nome: "Acadêmico - Anexar arquivos em trabalhos" },
+  { chave: "academico.trabalhos.publicar", nome: "Acadêmico - Publicar trabalhos para alunos" },
+
+  { chave: "academico.turmas.selecionar", nome: "Acadêmico - Selecionar turmas" },
+  { chave: "academico.disciplinas.selecionar", nome: "Acadêmico - Selecionar disciplinas" },
+  { chave: "academico.professores.selecionar", nome: "Acadêmico - Selecionar professor responsável" },
+  { chave: "academico.alunos.selecionar", nome: "Acadêmico - Selecionar alunos específicos" },
 ] as const;
