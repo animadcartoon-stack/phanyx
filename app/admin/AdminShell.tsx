@@ -462,6 +462,12 @@ function abrirTourAdmin() {
                     >
                       🏫 Turmas
                     </Link>
+                    <Link
+  href="/admin/academico/publicacoes"
+  className={getLinkClass("/admin/academico/publicacoes")}
+>
+  📤 Publicações Acadêmicas
+</Link>
                   </div>
                 )}
               </div>
@@ -850,6 +856,12 @@ function abrirTourAdmin() {
             <Link href="/admin/turmas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🏫 Turmas
             </Link>
+            <Link
+  href="/admin/academico/publicacoes"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  📤 Publicações Acadêmicas
+</Link>
           </div>
         )}
 
