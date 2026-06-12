@@ -21,27 +21,27 @@ export default function EscalabilidadePhanyxPage() {
   ];
 
   return (
-    <div className="min-h-screen space-y-6 bg-slate-100 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <div className="phanyx-master-platforma min-h-screen space-y-6 bg-slate-100 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
       <Link
   href="/admin"
-  className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  className="phanyx-master-back inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
 >
   ← Voltar para Admin
 </Link>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-sky-300">
-          PHANYX Enterprise
-        </p>
+        <p className="phanyx-master-platforma-title text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-sky-300">
+  PHANYX Enterprise
+</p>
 
-        <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
-          Escalabilidade PHANYX V1
-        </h1>
+<h1 className="phanyx-master-platforma-title mt-2 text-2xl font-black text-slate-900 dark:text-white">
+  Escalabilidade PHANYX V1
+</h1>
 
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-          Checklist técnico para preparar o PHANYX para alto volume de instituições,
-          alunos simultâneos, provas, documentos, notificações e operações críticas.
-        </p>
+<p className="phanyx-master-platforma-text mt-2 text-sm text-slate-600 dark:text-slate-300">
+  Checklist técnico para preparar o PHANYX para alto volume de instituições,
+  alunos simultâneos, provas, documentos, notificações e operações críticas.
+</p>
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">

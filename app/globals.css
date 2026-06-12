@@ -415,3 +415,67 @@ html[data-theme="dark"] .phanyx-master-back,
 html[data-theme="system"] .phanyx-master-back {
   color: #ffffff !important;
 }
+
+.phanyx-master-back {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-master-back,
+html[data-theme="system"] .phanyx-master-back {
+  color: #ffffff !important;
+}
+
+.phanyx-master-platforma,
+.phanyx-master-platforma * {
+  color: inherit;
+}
+
+.phanyx-master-platforma-title {
+  color: #0f172a !important;
+}
+
+.phanyx-master-platforma-text {
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-master-platforma-title,
+html[data-theme="system"] .phanyx-master-platforma-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-master-platforma-text,
+html[data-theme="system"] .phanyx-master-platforma-text {
+  color: #cbd5e1 !important;
+}
+
+.phanyx-master-back {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-master-back,
+html[data-theme="system"] .phanyx-master-back {
+  color: #ffffff !important;
+}
+
+.phanyx-master-platforma,
+.phanyx-master-platforma * {
+  color: inherit;
+}
+
+.phanyx-master-platforma-title {
+  color: #0f172a !important;
+}
+
+.phanyx-master-platforma-text {
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-master-platforma-title,
+html[data-theme="system"] .phanyx-master-platforma-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-master-platforma-text,
+html[data-theme="system"] .phanyx-master-platforma-text {
+  color: #cbd5e1 !important;
+}
