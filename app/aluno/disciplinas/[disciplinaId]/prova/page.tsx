@@ -146,22 +146,25 @@ export default function ProvaPage() {
 
   // 2) marcar resposta (salvar em tempo real)
   async function responderQuestao(questao: QuestaoApi, value: number | string) {
-    setRespostas((prev) => ({ ...prev, [questao.id]: value }));
+  setRespostas((prev) => ({ ...prev, [questao.id]: value }));
 
-    if (!tentativaId) return;
+  if (!tentativaId) return;
 
-    // salva no banco em tempo real
-    await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        questaoId: questao.id,
-        alternativaId: typeof value === "number" ? value : null,
-        respostaTexto: typeof value === "string" ? value : null,
-      }),
-    });
-  }
+  // Múltipla escolha salva imediatamente.
+  // Discursiva fica só no navegador e será enviada ao finalizar.
+  if (questao.tipo !== "MULTIPLA_ESCOLHA") return;
+
+  await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      questaoId: questao.id,
+      alternativaId: typeof value === "number" ? value : null,
+      respostaTexto: null,
+    }),
+  });
+}
 
   // 3) finalizar prova (autocorreção objetiva)
   async function finalizarProva() {
@@ -179,6 +182,23 @@ export default function ProvaPage() {
       setErro("Responda todas as perguntas antes de finalizar a prova.");
       return;
     }
+
+    const questoesDiscursivas = questoes.filter((q) => q.tipo === "DISCURSIVA");
+
+for (const questao of questoesDiscursivas) {
+  const respostaTexto = String(respostas[questao.id] || "").trim();
+
+  await fetch(`/api/aluno/provas/tentativas/${tentativaId}/responder`, {
+    method: "POST",
+    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      questaoId: questao.id,
+      alternativaId: null,
+      respostaTexto,
+    }),
+  });
+}
 
     const res = await fetch(`/api/aluno/provas/tentativas/${tentativaId}/finalizar`, {
       method: "POST",

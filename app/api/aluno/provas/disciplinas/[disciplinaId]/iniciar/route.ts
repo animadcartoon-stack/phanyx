@@ -42,19 +42,22 @@ export async function POST(
     }
 
     const itemMatricula = await prisma.itemMatricula.findFirst({
-      where: {
-        alunoId: aluno.id as any,
-        instituicaoId: user.instituicaoId,
-        disciplinaId,
-        status: {
-          in: ["A_CURSAR", "EM_CURSO"] as any,
-        },
-      } as any,
-      select: {
-        turmaId: true,
-        disciplinaId: true,
-      },
-    });
+  where: {
+    instituicaoId: user.instituicaoId,
+    disciplinaId,
+    status: {
+      in: ["A_CURSAR", "EM_CURSO"] as any,
+    },
+    matricula: {
+      alunoId: aluno.id,
+      instituicaoId: user.instituicaoId,
+    },
+  },
+  select: {
+    turmaId: true,
+    disciplinaId: true,
+  },
+});
 
     if (!itemMatricula) {
       return NextResponse.json(

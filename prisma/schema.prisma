@@ -810,6 +810,10 @@ model Prova {
   @@index([instituicaoId])
   @@index([turmaId])
   @@index([status])
+  @@index([instituicaoId, turmaId, status, ativa])
+  @@index([instituicaoId, tipoPublico])
+  @@index([instituicaoId, disponivelEm])
+  @@index([instituicaoId, expiraEm])
 }
 
 model Questao {
@@ -876,6 +880,9 @@ model TentativaProva {
   @@index([alunoId])
   @@index([provaId])
   @@index([status])
+  @@index([instituicaoId, alunoId, provaId])
+  @@index([instituicaoId, provaId, status])
+  @@index([instituicaoId, alunoId, status])
 }
 
 model RespostaProva {
@@ -903,6 +910,9 @@ model RespostaProva {
   @@index([instituicaoId])
   @@index([tentativaId])
   @@index([questaoId])
+  @@index([instituicaoId, tentativaId, questaoId])
+  @@index([instituicaoId, alunoId])
+  @@index([alternativaId])
 }
 
 model Nota {
@@ -929,6 +939,9 @@ model Nota {
   @@index([turmaId])
   @@index([atividadeId])
   @@index([provaId])
+  @@index([instituicaoId, alunoId, turmaId])
+  @@index([instituicaoId, alunoId, provaId])
+  @@index([instituicaoId, turmaId, tipo])
 }
 
 model ResultadoFinal {

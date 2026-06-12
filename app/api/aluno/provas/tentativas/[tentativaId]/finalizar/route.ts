@@ -86,7 +86,7 @@ export async function POST(
   let notaCalculada = 0;
 
   for (const q of tentativa.prova.questoes) {
-    if (q.tipo !== "multipla_escolha") continue;
+  if (String(q.tipo).toUpperCase() !== "MULTIPLA_ESCOLHA") continue;
 
     const correta = q.alternativas.find((a) => a.correta);
     if (!correta) continue;

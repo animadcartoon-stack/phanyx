@@ -361,6 +361,12 @@ function abrirTourAdmin() {
                       <Link href="/master" className={getLinkClass("/master")}>
                         🚀 Painel Master
                       </Link>
+                      <Link
+  href="/master/plataforma"
+  className={getLinkClass("/master/plataforma")}
+>
+  🧠 Plataforma PHANYX
+</Link>
                     </div>
                   )}
                 </div>
