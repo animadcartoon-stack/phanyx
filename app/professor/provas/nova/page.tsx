@@ -47,6 +47,13 @@ export default function NovaProvaPage() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
   const [turmas, setTurmas] = useState<Turma[]>([]);
 
+  const [cursos, setCursos] = useState<any[]>([]);
+
+  const [cursoFiltroId, setCursoFiltroId] = useState("");
+  const [turmaFiltroId, setTurmaFiltroId] = useState("");
+  const [disciplinaFiltroId, setDisciplinaFiltroId] = useState("");
+  const [buscaAluno, setBuscaAluno] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [loadingInicial, setLoadingInicial] = useState(true);
   const [erro, setErro] = useState("");
@@ -57,9 +64,10 @@ export default function NovaProvaPage() {
         setLoadingInicial(true);
         setErro("");
 
-        const [resDisciplinas, resTurmas] = await Promise.all([
+        const [resDisciplinas, resTurmas, resCursos] = await Promise.all([
           fetch("/api/professor/disciplinas"),
           fetch("/api/professor/turmas"),
+          fetch("/api/professor/cursos"),
         ]);
 
         const disciplinasData = resDisciplinas.ok
@@ -67,9 +75,11 @@ export default function NovaProvaPage() {
           : [];
 
         const turmasData = resTurmas.ok ? await resTurmas.json() : [];
+        const cursosData = resCursos.ok ? await resCursos.json() : [];
 
         setDisciplinas(Array.isArray(disciplinasData) ? disciplinasData : []);
         setTurmas(Array.isArray(turmasData) ? turmasData : []);
+        setCursos(Array.isArray(cursosData) ? cursosData : []);
       } catch {
         setErro("Erro ao carregar dados do formulário");
       } finally {
@@ -108,7 +118,14 @@ export default function NovaProvaPage() {
     try {
       setLoadingAlunos(true);
 
-      const res = await fetch(`/api/professor/alunos?turmaId=${turmaId}`, {
+      const params = new URLSearchParams();
+
+if (cursoFiltroId) params.set("cursoId", cursoFiltroId);
+if (turmaFiltroId || turmaId) params.set("turmaId", turmaFiltroId || turmaId);
+if (disciplinaFiltroId || disciplinaId) params.set("disciplinaId", disciplinaFiltroId || disciplinaId);
+if (buscaAluno.trim()) params.set("busca", buscaAluno.trim());
+
+const res = await fetch(`/api/professor/alunos?${params.toString()}`, {
         cache: "no-store",
         credentials: "include",
       });
@@ -130,7 +147,7 @@ export default function NovaProvaPage() {
   }
 
   carregarAlunosDaTurma();
-}, [turmaId]);
+}, [turmaId, cursoFiltroId, turmaFiltroId, disciplinaFiltroId, buscaAluno, disciplinaId]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -455,75 +472,112 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   {tipoPublico === "ALUNOS_SELECIONADOS" && (
     <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
       <div className="flex items-center justify-between gap-3">
-        <div>
-          <h4 className="text-sm font-bold text-slate-900 dark:text-white">
-            Alunos liberados
-          </h4>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Use para recuperação, segunda chamada ou exames especiais.
-          </p>
-        </div>
+  <div>
+    <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+      Alunos liberados
+    </h4>
+    <p className="text-xs text-slate-500 dark:text-slate-400">
+      Filtre por curso, turma, disciplina ou busque diretamente pelo aluno.
+    </p>
+  </div>
 
-        {loadingAlunos && (
-          <span className="text-xs font-semibold text-blue-600 dark:text-sky-300">
-            Carregando...
+  {loadingAlunos && (
+    <span className="text-xs font-semibold text-blue-600 dark:text-sky-300">
+      Carregando...
+    </span>
+  )}
+</div>
+
+<div className="mt-4 grid gap-3 md:grid-cols-2">
+  <select
+    value={cursoFiltroId}
+    onChange={(e) => setCursoFiltroId(e.target.value)}
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  >
+    <option value="">Todos os cursos</option>
+    {cursos.map((curso) => (
+      <option key={curso.id} value={curso.id}>
+        {curso.nome || `Curso ${curso.id}`}
+      </option>
+    ))}
+  </select>
+
+  <select
+    value={turmaFiltroId}
+    onChange={(e) => setTurmaFiltroId(e.target.value)}
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  >
+    <option value="">Todas as turmas</option>
+    {turmas.map((turma) => (
+      <option key={turma.id} value={turma.id}>
+        {turma.nome || `Turma ${turma.id}`}
+      </option>
+    ))}
+  </select>
+
+  <select
+    value={disciplinaFiltroId}
+    onChange={(e) => setDisciplinaFiltroId(e.target.value)}
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  >
+    <option value="">Todas as disciplinas</option>
+    {disciplinas.map((disciplina) => (
+      <option key={disciplina.id} value={disciplina.id}>
+        {disciplina.nome || disciplina.titulo || `Disciplina ${disciplina.id}`}
+      </option>
+    ))}
+  </select>
+
+  <input
+    value={buscaAluno}
+    onChange={(e) => setBuscaAluno(e.target.value)}
+    placeholder="Buscar aluno por nome, matrícula ou e-mail..."
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  />
+</div>
+
+{!loadingAlunos && alunosTurma.length === 0 && (
+  <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+    Nenhum aluno encontrado com os filtros selecionados.
+  </p>
+)}
+
+{alunosTurma.length > 0 && (
+  <div className="mt-4 grid max-h-72 gap-2 overflow-auto pr-1">
+    {alunosTurma.map((aluno) => {
+      const marcado = alunosSelecionadosIds.includes(aluno.alunoId);
+
+      return (
+        <label
+          key={aluno.alunoId}
+          className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm text-slate-700 hover:bg-blue-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-900"
+        >
+          <input
+            type="checkbox"
+            checked={marcado}
+            onChange={(e) => {
+              if (e.target.checked) {
+                setAlunosSelecionadosIds((prev) => [...prev, aluno.alunoId]);
+              } else {
+                setAlunosSelecionadosIds((prev) =>
+                  prev.filter((id) => id !== aluno.alunoId)
+                );
+              }
+            }}
+          />
+
+          <span>
+            <span className="block font-semibold">{aluno.nome}</span>
+            <span className="block text-xs text-slate-500 dark:text-slate-400">
+              {aluno.matricula || "Sem matrícula"}{" "}
+              {aluno.email ? `• ${aluno.email}` : ""}
+            </span>
           </span>
-        )}
-      </div>
-
-      {!turmaId && (
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          Selecione uma turma para listar os alunos.
-        </p>
-      )}
-
-      {turmaId && !loadingAlunos && alunosTurma.length === 0 && (
-        <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
-          Nenhum aluno encontrado para esta turma.
-        </p>
-      )}
-
-      {alunosTurma.length > 0 && (
-        <div className="mt-4 grid max-h-72 gap-2 overflow-auto pr-1">
-          {alunosTurma.map((aluno) => {
-            const marcado = alunosSelecionadosIds.includes(aluno.alunoId);
-
-            return (
-              <label
-                key={aluno.alunoId}
-                className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 p-3 text-sm text-slate-700 hover:bg-blue-50 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-900"
-              >
-                <input
-                  type="checkbox"
-                  checked={marcado}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setAlunosSelecionadosIds((prev) => [
-                        ...prev,
-                        aluno.alunoId,
-                      ]);
-                    } else {
-                      setAlunosSelecionadosIds((prev) =>
-                        prev.filter((id) => id !== aluno.alunoId)
-                      );
-                    }
-                  }}
-                />
-
-                <span>
-                  <span className="block font-semibold">
-                    {aluno.nome}
-                  </span>
-                  <span className="block text-xs text-slate-500 dark:text-slate-400">
-                    {aluno.matricula || "Sem matrícula"}{" "}
-                    {aluno.email ? `• ${aluno.email}` : ""}
-                  </span>
-                </span>
-              </label>
-            );
-          })}
-        </div>
-      )}
+        </label>
+      );
+    })}
+  </div>
+)}
     </div>
   )}
 </div>

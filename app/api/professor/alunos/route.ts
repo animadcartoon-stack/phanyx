@@ -6,6 +6,14 @@ function isProfessorRole(role: unknown) {
   return String(role || "").trim().toUpperCase() === "PROFESSOR";
 }
 
+function normalizarTexto(valor: unknown) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
@@ -32,8 +40,20 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const turmaIdParam = String(searchParams.get("turmaId") || "").trim();
-    const turmaId = turmaIdParam ? Number(turmaIdParam) : null;
+
+    const turmaId = searchParams.get("turmaId")
+      ? Number(searchParams.get("turmaId"))
+      : null;
+
+    const cursoId = searchParams.get("cursoId")
+      ? Number(searchParams.get("cursoId"))
+      : null;
+
+    const disciplinaId = searchParams.get("disciplinaId")
+      ? Number(searchParams.get("disciplinaId"))
+      : null;
+
+    const busca = normalizarTexto(searchParams.get("busca") || "");
 
     const filtroProfessorNaTurma = {
       instituicaoId: user.instituicaoId,
@@ -58,12 +78,21 @@ export async function GET(req: NextRequest) {
     const itens = await prisma.itemMatricula.findMany({
       where: {
         instituicaoId: user.instituicaoId,
+
         ...(turmaId && Number.isFinite(turmaId) ? { turmaId } : {}),
-        turma: filtroProfessorNaTurma,
+        ...(disciplinaId && Number.isFinite(disciplinaId)
+          ? { disciplinaId }
+          : {}),
+
+        turma: {
+          ...filtroProfessorNaTurma,
+          ...(cursoId && Number.isFinite(cursoId) ? { cursoId } : {}),
+        },
       },
       include: {
         turma: {
           include: {
+            curso: true,
             disciplinas: {
               where: {
                 disciplina: {
@@ -92,6 +121,7 @@ export async function GET(req: NextRequest) {
                 user: true,
               },
             },
+            curso: true,
           },
         },
       },
@@ -171,10 +201,30 @@ export async function GET(req: NextRequest) {
       .map((item) => {
         const aluno = item.matricula?.aluno;
         const turma = item.turma;
-        const turmaDisciplina = turma?.disciplinas?.[0];
-        const disciplina = turmaDisciplina?.disciplina;
+        const disciplina =
+          item.turma?.disciplinas?.find(
+            (td) => td.disciplinaId === item.disciplinaId
+          )?.disciplina || item.turma?.disciplinas?.[0]?.disciplina;
 
         if (!aluno || !turma) return null;
+
+        const textoBusca = normalizarTexto(
+          [
+            aluno.nome,
+            aluno.user?.email,
+            aluno.matricula,
+            turma.nome,
+            disciplina?.nome,
+            item.matricula?.curso?.nome,
+            turma.curso?.nome,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        );
+
+        if (busca && !textoBusca.includes(busca)) {
+          return null;
+        }
 
         const chaveNota = `${aluno.id}-${turma.id}`;
         const notasAluno = notasPorAlunoTurma.get(chaveNota) || [];
@@ -204,15 +254,23 @@ export async function GET(req: NextRequest) {
           matricula: aluno.matricula || null,
           statusAluno: (aluno as any).statusAluno || null,
           statusDisciplina: item.status || null,
+
+          curso: {
+            id: item.matricula?.curso?.id || turma.curso?.id || null,
+            nome: item.matricula?.curso?.nome || turma.curso?.nome || null,
+          },
+
           turma: {
             id: turma.id,
             nome: turma.nome,
             semestre: turma.semestre || null,
           },
+
           disciplina: {
             id: disciplina?.id || null,
             nome: disciplina?.nome || null,
           },
+
           notas: notasAluno,
           media,
           frequencia: {
@@ -223,7 +281,7 @@ export async function GET(req: NextRequest) {
                 : null,
           },
         };
-            })
+      })
       .filter(Boolean) as any[];
 
     const prioridadeStatus = (status?: string | null) => {
@@ -251,11 +309,14 @@ export async function GET(req: NextRequest) {
       }
     }
 
-    const alunosSemDuplicar = Array.from(alunosSemDuplicarMap.values());
+    const alunosSemDuplicar = Array.from(alunosSemDuplicarMap.values()).sort(
+      (a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+    );
 
     const turmasProfessor = await prisma.turma.findMany({
       where: filtroProfessorNaTurma,
       include: {
+        curso: true,
         disciplinas: {
           where: {
             disciplina: {
@@ -282,15 +343,18 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({
-  alunos: alunosSemDuplicar,
-  turmas: turmasProfessor.map((turma) => ({
+      alunos: alunosSemDuplicar,
+      turmas: turmasProfessor.map((turma) => ({
         id: turma.id,
         nome: turma.nome,
+        cursoId: turma.cursoId || null,
+        cursoNome: turma.curso?.nome || null,
         disciplinaNome: turma.disciplinas?.[0]?.disciplina?.nome || null,
       })),
     });
   } catch (e: any) {
     console.error("ERRO API PROFESSOR ALUNOS:", e);
+
     return NextResponse.json(
       { error: e?.message || "Erro ao carregar alunos do professor" },
       { status: 500 }
