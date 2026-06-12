@@ -479,3 +479,22 @@ html[data-theme="dark"] .phanyx-master-platforma-text,
 html[data-theme="system"] .phanyx-master-platforma-text {
   color: #cbd5e1 !important;
 }
+
+/* CORREÇÃO DEFINITIVA /MASTER/PLATAFORMA */
+html[data-theme="light"] .phanyx-master-platforma,
+html[data-theme="light"] .phanyx-master-platforma * {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-master-platforma p {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-master-platforma .phanyx-master-back {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-master-platforma .text-blue-700,
+html[data-theme="light"] .phanyx-master-platforma .text-sky-300 {
+  color: #2563eb !important;
+}
