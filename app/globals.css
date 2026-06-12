@@ -381,3 +381,16 @@ html[data-theme="light"] .bg-slate-700 {
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
+
+html[data-theme="light"] .text-white\/90,
+html[data-theme="light"] .text-white\/80,
+html[data-theme="light"] .text-white\/70,
+html[data-theme="light"] .text-white\/60 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .text-slate-100,
+html[data-theme="light"] .text-slate-200,
+html[data-theme="light"] .text-slate-300 {
+  color: #334155 !important;
+}
