@@ -507,6 +507,14 @@ function abrirTourAdmin() {
           📦 Fechamento Geral
         </Link>
       )}
+      {temPermissao("financeiro.configuracoes") && (
+  <Link
+    href="/admin/financeiro/configuracoes"
+    className={getLinkClass("/admin/financeiro/configuracoes")}
+  >
+    ⚙️ Configurações
+  </Link>
+)}
     </div>
   )}
 
@@ -859,6 +867,12 @@ function abrirTourAdmin() {
             <Link href="/admin/financeiro/fechamento-geral" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               📦 Fechamento
             </Link>
+            <Link
+  href="/admin/financeiro/configuracoes"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  ⚙️ Configurações
+</Link>
           </div>
         )}
 
