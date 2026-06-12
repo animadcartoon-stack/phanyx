@@ -247,15 +247,27 @@ export default function ConfiguracoesFinanceirasPage() {
           </div>
         </div>
 
-        <div>
-          <button
-            type="submit"
-            disabled={saving}
-            className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
-          >
-            {saving ? "Salvando..." : "Salvar configurações"}
-          </button>
-        </div>
+        <div className="border-t border-slate-700 pt-6">
+  <button
+    type="submit"
+    disabled={saving}
+    className="
+      inline-flex items-center justify-center
+      rounded-2xl
+      bg-blue-600
+      px-6 py-3
+      text-sm font-bold text-white
+      shadow-lg shadow-blue-900/20
+      transition
+      hover:bg-blue-700
+      disabled:opacity-60
+    "
+  >
+    {saving
+      ? "Salvando..."
+      : "💾 Salvar configurações financeiras"}
+  </button>
+</div>
       </form>
     </div>
   );
