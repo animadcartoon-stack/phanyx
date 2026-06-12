@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
+import Link from "next/link";
 
 type DashboardMasterResponse = {
   filtros: {
@@ -118,6 +119,7 @@ function CardResumo({
   valor: string | number;
   descricao: string;
 }) {
+
   return (
     <div className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
       <p className="text-sm uppercase tracking-[0.18em] text-slate-400">
@@ -126,6 +128,7 @@ function CardResumo({
       <p className="mt-3 text-4xl font-bold text-white">{valor}</p>
       <p className="mt-2 text-sm text-slate-500">{descricao}</p>
     </div>
+
   );
 }
 
@@ -303,12 +306,17 @@ function MasterPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.25em] text-blue-300">
             Painel master PHANYX
           </p>
-
+<Link
+  href="/admin"
+  className="inline-flex rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-800 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+>
+  ← Voltar para Admin
+</Link>
           <div className="mt-3 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <h1 className="text-4xl font-bold text-white md:text-5xl">
-                Controle global da plataforma
-              </h1>
+  Controle global da plataforma
+</h1>
               <p className="mt-4 text-lg leading-8 text-white">
                 Acompanhe instituições, adesões, conversão comercial e a
                 expansão operacional do PHANYX em um só painel.
