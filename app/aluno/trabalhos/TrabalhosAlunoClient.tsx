@@ -11,6 +11,15 @@ type AtividadeAluno = {
   notaMaxima?: number | null;
   disciplinaNome?: string | null;
   turmaNome?: string | null;
+
+  anexos?: {
+    id: number;
+    titulo: string;
+    url: string;
+    arquivoNome?: string | null;
+    mimeType?: string | null;
+  }[];
+
   entrega?: {
     id?: number;
     texto?: string | null;
@@ -385,9 +394,34 @@ async function handleEnviar(e: FormEvent) {
       </p>
 
       <p className="mt-1">
-        <strong className="font-medium text-slate-800">Prazo:</strong>{" "}
+        <strong className="font-medium text-slate-800">
+          Prazo:
+          </strong>{" "}
         {formatarData(atividadeSelecionada.prazo)}
       </p>
+
+      {atividadeSelecionada.anexos &&
+  atividadeSelecionada.anexos.length > 0 && (
+    <div className="mt-4">
+      <p className="font-semibold text-slate-800 mb-2">
+        Arquivos da atividade
+      </p>
+
+      <div className="space-y-2">
+        {atividadeSelecionada.anexos.map((anexo) => (
+          <a
+            key={anexo.id}
+            href={anexo.url}
+            target="_blank"
+            rel="noreferrer"
+            className="block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100"
+          >
+            📎 {anexo.arquivoNome || anexo.titulo}
+          </a>
+        ))}
+      </div>
+    </div>
+)}
 
       {atividadeSelecionada.entrega && (
   <div className="mt-3 space-y-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-700">

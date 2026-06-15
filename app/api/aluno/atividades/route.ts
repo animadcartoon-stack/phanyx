@@ -55,6 +55,9 @@ export async function GET(_req: NextRequest) {
     },
   },
 },
+
+anexos: true,
+
         entregas: {
           where: {
             alunoId: aluno.id,
@@ -89,6 +92,7 @@ export async function GET(_req: NextRequest) {
         prazo: atividade.prazo,
         status: atividade.status,
         notaMaxima: atividade.notaMaxima,
+        anexos: atividade.anexos || [],
         turmaNome: atividade.turma?.nome || null,
         disciplinaNome:
   atividade.turma?.disciplinas?.[0]?.disciplina?.nome || null,
