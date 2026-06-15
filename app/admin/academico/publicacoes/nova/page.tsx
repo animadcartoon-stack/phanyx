@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
+import { upload } from "@vercel/blob/client";
 
 type Opcao = {
   id: number;
@@ -22,6 +23,10 @@ export default function NovaPublicacaoAcademicaPage() {
   const [notaMaxima, setNotaMaxima] = useState("10");
   const [linkExterno, setLinkExterno] = useState("");
   const [publicarAgora, setPublicarAgora] = useState(true);
+
+  const [arquivos, setArquivos] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [progressoUpload, setProgressoUpload] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -87,6 +92,33 @@ export default function NovaPublicacaoAcademicaPage() {
         throw new Error(data?.error || "Erro ao criar publicação");
       }
 
+      const atividadeId = Number(data?.atividade?.id);
+
+if (arquivos.length > 0) {
+  if (!atividadeId || !Number.isFinite(atividadeId)) {
+    throw new Error("Publicação criada, mas não foi possível anexar arquivos.");
+  }
+
+  setUploading(true);
+
+  for (let i = 0; i < arquivos.length; i++) {
+    const arquivo = arquivos[i];
+
+    setProgressoUpload(`Enviando ${i + 1} de ${arquivos.length}: ${arquivo.name}`);
+
+    await upload(arquivo.name, arquivo, {
+      access: "public",
+      handleUploadUrl: "/api/admin/academico/publicacoes/upload-url",
+      clientPayload: JSON.stringify({
+        atividadeId,
+      }),
+    });
+  }
+
+  setUploading(false);
+  setProgressoUpload("");
+}
+
       setMensagem(
         publicarAgora
           ? "Atividade publicada para os alunos com sucesso."
@@ -102,6 +134,7 @@ export default function NovaPublicacaoAcademicaPage() {
       setNotaMaxima("10");
       setLinkExterno("");
       setPublicarAgora(true);
+      setArquivos([]);
     } catch (e: any) {
       setErro(e?.message || "Erro ao criar publicação");
     } finally {
@@ -270,16 +303,62 @@ export default function NovaPublicacaoAcademicaPage() {
               </div>
 
               <div>
-                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
-                  Link externo opcional
-                </label>
-                <input
-                  value={linkExterno}
-                  onChange={(e) => setLinkExterno(e.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-                  placeholder="https://..."
-                />
-              </div>
+  <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
+    Link externo opcional
+  </label>
+
+  <input
+    value={linkExterno}
+    onChange={(e) => setLinkExterno(e.target.value)}
+    className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+    placeholder="https://..."
+  />
+</div>
+
+<div className="md:col-span-2">
+  <label className="text-sm font-bold text-slate-700 dark:text-slate-200">
+    Arquivos da publicação
+  </label>
+
+  <input
+    type="file"
+    multiple
+    onChange={(e) => {
+      setArquivos(Array.from(e.target.files || []));
+    }}
+    className="mt-2 w-full rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-4 text-sm text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+
+  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+    Aceita PDF, imagens, vídeos, PowerPoint, Word, Excel, ZIP, Blender, Maya,
+    After Effects e outros formatos comuns. Limite: 500 MB por arquivo.
+  </p>
+
+  {arquivos.length > 0 && (
+    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+        Arquivos selecionados
+      </p>
+
+      <div className="mt-2 space-y-2">
+        {arquivos.map((arquivo) => (
+          <div
+            key={`${arquivo.name}-${arquivo.size}`}
+            className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+          >
+            {arquivo.name} — {(arquivo.size / 1024 / 1024).toFixed(2)} MB
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {progressoUpload && (
+    <p className="mt-3 text-sm font-semibold text-blue-700 dark:text-blue-300">
+      {progressoUpload}
+    </p>
+  )}
+</div>
 
               <div className="md:col-span-2">
                 <button
@@ -321,10 +400,10 @@ export default function NovaPublicacaoAcademicaPage() {
 
               <button
                 type="submit"
-                disabled={salvando}
+                disabled={salvando || uploading}
                 className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
               >
-                {salvando ? "Salvando..." : "Salvar publicação"}
+                {salvando || uploading ? "Salvando..." : "Salvar publicação"}
               </button>
             </div>
           </form>
