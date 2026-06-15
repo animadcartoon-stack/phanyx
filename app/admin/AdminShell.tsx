@@ -786,6 +786,13 @@ function abrirTourAdmin() {
 </Link>
 
 <Link
+  href="/admin/configuracoes/portais"
+  className={getLinkClass("/admin/configuracoes/portais")}
+>
+  👁️ Visibilidade dos Portais
+</Link>
+
+<Link
   href="/admin/certificados"
   className={getLinkClass("/admin/certificados")}
 >
