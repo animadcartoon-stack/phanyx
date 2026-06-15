@@ -10,6 +10,14 @@ type AtividadeItem = {
     createdAt?: string | null;
     notaMaxima: number;
     status: string;
+    anexos?: {
+    id: number;
+    titulo?: string | null;
+    url: string;
+    arquivoNome?: string | null;
+    mimeType?: string | null;
+    tamanho?: number | null;
+}[];
     disciplina?: {
     id: number;
     nome?: string | null;
@@ -365,6 +373,29 @@ function formatarTempoRelativo(data?: string | null) {
                         {atividade.descricao}
                       </p>
                     )}
+
+{atividade.anexos && atividade.anexos.length > 0 && (
+  <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900">
+    <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+      Arquivos anexados
+    </p>
+
+    <div className="mt-2 flex flex-wrap gap-2">
+      {atividade.anexos.map((anexo) => (
+        <a
+          key={anexo.id}
+          href={anexo.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-200"
+        >
+          📎 {anexo.arquivoNome || anexo.titulo || "Arquivo"}
+        </a>
+      ))}
+    </div>
+  </div>
+)}
+
                   </div>
 
                   <div className="flex flex-wrap gap-2">
