@@ -616,7 +616,7 @@ const disciplinasFiltradas = useMemo(() => {
     </button>
 
     {disciplinasAbertas && (
-  <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
+  <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-950">
     <div className="grid grid-cols-1 gap-3">
       {disciplinas.map((disciplina) => {
         const selecionada = disciplinasSelecionadas.includes(disciplina.id);
@@ -624,7 +624,7 @@ const disciplinasFiltradas = useMemo(() => {
         return (
           <div
             key={disciplina.id}
-            className="rounded-lg border border-slate-200 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="rounded-lg border border-slate-300 bg-white p-3 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
@@ -650,7 +650,9 @@ const disciplinasFiltradas = useMemo(() => {
                 }}
               />
 
-              <span>{disciplina.nome}</span>
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+  {disciplina.nome}
+</span>
             </label>
 
                         {selecionada && (
@@ -942,7 +944,7 @@ const disciplinasFiltradas = useMemo(() => {
   </button>
 
  {editDisciplinasAbertas && (
-  <div className="mt-2 max-h-72 overflow-auto rounded border p-2">
+  <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-950">
     <div className="grid grid-cols-1 gap-3">
       {disciplinasFiltradas.map((disciplina) => {
         const selecionada = editDisciplinasSelecionadas.includes(disciplina.id);
@@ -950,7 +952,7 @@ const disciplinasFiltradas = useMemo(() => {
         return (
           <div
             key={disciplina.id}
-            className="rounded-lg border border-slate-200 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="rounded-lg border border-slate-300 bg-white p-3 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
@@ -976,7 +978,9 @@ const disciplinasFiltradas = useMemo(() => {
                 }}
               />
 
-              <span>{disciplina.nome}</span>
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+  {disciplina.nome || `Disciplina ${disciplina.id}`}
+</span>
             </label>
 
             {selecionada && (
