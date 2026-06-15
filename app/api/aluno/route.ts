@@ -28,7 +28,7 @@ function gerarSenhaTemporaria() {
   return `Phx@${sufixo}`;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getUserFromToken();
 
@@ -36,68 +36,180 @@ export async function GET() {
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    const alunos = await prisma.aluno.findMany({
-      where: {
-        instituicaoId: user.instituicaoId ?? undefined,
-      },
-      include: {
-  user: true,
-  polo: true,
-        matriculas: {
-          orderBy: {
-            createdAt: "desc",
+    const { searchParams } = new URL(request.url);
+
+    const page = Math.max(Number(searchParams.get("page") || 1), 1);
+    const limit = Math.min(
+      Math.max(Number(searchParams.get("limit") || 20), 1),
+      100
+    );
+    const skip = (page - 1) * limit;
+
+    const busca = String(searchParams.get("busca") || "").trim();
+    const status = String(searchParams.get("status") || "TODOS").trim();
+    const poloIdParam = String(searchParams.get("poloId") || "").trim();
+
+    const where: any = {
+      instituicaoId: user.instituicaoId ?? undefined,
+    };
+
+    if (status && status !== "TODOS") {
+      where.statusAluno = status;
+    }
+
+    if (poloIdParam && poloIdParam !== "TODOS") {
+      where.poloId = Number(poloIdParam);
+    }
+
+    if (busca) {
+      const buscaNumerica = busca.replace(/\D/g, "");
+
+      where.OR = [
+        { nome: { contains: busca, mode: "insensitive" } },
+        { nomeSocial: { contains: busca, mode: "insensitive" } },
+        { matricula: { contains: busca, mode: "insensitive" } },
+        { cpf: { contains: buscaNumerica || busca, mode: "insensitive" } },
+        { rg: { contains: busca, mode: "insensitive" } },
+        { telefone: { contains: buscaNumerica || busca, mode: "insensitive" } },
+        {
+          user: {
+            email: { contains: busca, mode: "insensitive" },
           },
-          take: 1,
-          include: {
-            curso: true,
-            itens: {
-              include: {
-                turma: {
-  include: {
-    professor: true,
-    disciplinas: {
-      include: {
-        disciplina: true,
-      },
-    },
-  },
-},
+        },
+      ];
+    }
+
+    const [alunos, total] = await prisma.$transaction([
+      prisma.aluno.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          nome: true,
+          nomeSocial: true,
+          genero: true,
+          matricula: true,
+          cpf: true,
+          rg: true,
+          telefone: true,
+          dataNascimento: true,
+          cep: true,
+          endereco: true,
+          numero: true,
+          complemento: true,
+          bairro: true,
+          cidade: true,
+          estado: true,
+          documentoUrl: true,
+          nomeResponsavel: true,
+          cpfResponsavel: true,
+          telefoneResponsavel: true,
+          emailResponsavel: true,
+          parentescoResponsavel: true,
+          statusAluno: true,
+          possuiNecessidadeEspecial: true,
+          descricaoNecessidadeEspecial: true,
+          observacoesAcessibilidade: true,
+          poloId: true,
+          user: {
+            select: {
+              id: true,
+              email: true,
+              ativo: true,
+            },
+          },
+          polo: {
+            select: {
+              id: true,
+              nome: true,
+              codigo: true,
+            },
+          },
+          matriculas: {
+            orderBy: {
+              createdAt: "desc",
+            },
+            take: 1,
+            select: {
+              id: true,
+              status: true,
+              semestre: true,
+              numeroMatricula: true,
+              curso: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+              itens: {
+                select: {
+                  status: true,
+                  turma: {
+                    select: {
+                      id: true,
+                      nome: true,
+                      professor: {
+                        select: {
+                          id: true,
+                          nome: true,
+                        },
+                      },
+                      disciplinas: {
+                        take: 1,
+                        select: {
+                          disciplina: {
+                            select: {
+                              id: true,
+                              nome: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
               },
             },
           },
         },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+      }),
+
+      prisma.aluno.count({ where }),
+    ]);
 
     const alunosFormatados = alunos.map((aluno) => {
       const matriculaRecente = aluno.matriculas?.[0] || null;
 
+      const { matriculas, ...alunoSemMatriculas } = aluno;
+
       return {
-        ...aluno,
+        ...alunoSemMatriculas,
         resumoMatricula: matriculaRecente
           ? {
               id: matriculaRecente.id,
               status: matriculaRecente.status,
               semestre: matriculaRecente.semestre,
+              numeroMatricula: matriculaRecente.numeroMatricula,
               curso: matriculaRecente.curso
                 ? {
                     id: matriculaRecente.curso.id,
                     nome: matriculaRecente.curso.nome,
                   }
-                : null, // force deploy novo
+                : null,
               turmas: matriculaRecente.itens.map((item) => ({
                 id: item.turma?.id,
                 nome: item.turma?.nome || null,
                 status: item.status,
                 disciplina: item.turma?.disciplinas?.[0]?.disciplina
-  ? {
-      id: item.turma.disciplinas[0].disciplina.id,
-      nome: item.turma.disciplinas[0].disciplina.nome,
-    }
-  : null,
+                  ? {
+                      id: item.turma.disciplinas[0].disciplina.id,
+                      nome: item.turma.disciplinas[0].disciplina.nome,
+                    }
+                  : null,
                 professor: item.turma?.professor
                   ? {
                       id: item.turma.professor.id,
@@ -110,18 +222,28 @@ export async function GET() {
       };
     });
 
-    return NextResponse.json(alunosFormatados);
+    return NextResponse.json({
+      data: alunosFormatados,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        hasNextPage: page * limit < total,
+        hasPreviousPage: page > 1,
+      },
+    });
   } catch (error: any) {
-  console.error("ERRO AO BUSCAR ALUNOS:", error);
+    console.error("ERRO AO BUSCAR ALUNOS:", error);
 
-  return NextResponse.json(
-    {
-      error: "Erro ao buscar alunos.",
-      detalhe: error?.message || "Erro interno",
-    },
-    { status: 500 }
-  );
-}
+    return NextResponse.json(
+      {
+        error: "Erro ao buscar alunos.",
+        detalhe: error?.message || "Erro interno",
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request: Request) {

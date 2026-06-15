@@ -89,7 +89,12 @@ function AdminAlunosPage() {
   const searchParams = useSearchParams();
 
   const [alunos, setAlunos] = useState<Aluno[]>([]);
-  const [matriculas, setMatriculas] = useState<any[]>([]);
+  const [carregandoAlunos, setCarregandoAlunos] = useState(false);
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [totalAlunos, setTotalAlunos] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(1);
+  const limitePorPagina = 20;
+  
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
@@ -189,8 +194,12 @@ function AdminAlunosPage() {
   }, [feedback]);
 
   useEffect(() => {
-    carregarTudo();
-  }, []);
+  carregarTudo();
+}, []);
+
+useEffect(() => {
+  carregarAlunos();
+}, [paginaAtual, filtroStatus, busca]);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
@@ -218,7 +227,6 @@ function AdminAlunosPage() {
  async function carregarTudo() {
   await Promise.all([
     carregarAlunos(),
-    carregarMatriculas(),
     carregarTurmas(),
     carregarPolos(),
   ]);
@@ -226,7 +234,21 @@ function AdminAlunosPage() {
 
   async function carregarAlunos() {
   try {
-    const res = await fetch("/api/aluno", {
+    setCarregandoAlunos(true);
+
+    const params = new URLSearchParams();
+    params.set("page", String(paginaAtual));
+    params.set("limit", String(limitePorPagina));
+
+    if (busca.trim()) {
+      params.set("busca", busca.trim());
+    }
+
+    if (filtroStatus !== "TODOS") {
+      params.set("status", filtroStatus);
+    }
+
+    const res = await fetch(`/api/aluno?${params.toString()}`, {
       credentials: "include",
       cache: "no-store",
     });
@@ -240,37 +262,47 @@ function AdminAlunosPage() {
         data?.error || "Não foi possível carregar a lista de alunos."
       );
       setAlunos([]);
+      setTotalAlunos(0);
+      setTotalPaginas(1);
       return;
     }
 
-    console.log("📚 /api/aluno retornou:", data);
+    const lista = Array.isArray(data?.data)
+      ? data.data.map((aluno: any) => ({
+          ...aluno,
+          resumoMatricula: aluno.resumoMatricula
+            ? {
+                id: aluno.resumoMatricula.id,
+                status: aluno.resumoMatricula.status,
+                cursoNome: aluno.resumoMatricula.curso?.nome || null,
+                semestre: aluno.resumoMatricula.semestre ?? null,
+                turmas: Array.isArray(aluno.resumoMatricula.turmas)
+                  ? aluno.resumoMatricula.turmas.map((turma: any) => ({
+                      turmaId: Number(turma.id),
+                      turmaNome: String(turma.nome || "Turma"),
+                      disciplinaNome: turma.disciplina?.nome || null,
+                      professorNome: turma.professor?.nome || null,
+                      status: turma.status || null,
+                    }))
+                  : [],
+              }
+            : null,
+        }))
+      : [];
 
-    setAlunos(Array.isArray(data) ? data : []);
+    setAlunos(lista);
+    setTotalAlunos(Number(data?.meta?.total || 0));
+    setTotalPaginas(Number(data?.meta?.totalPages || 1));
   } catch (error) {
     console.error("Erro ao carregar alunos:", error);
     mostrarFeedback("erro", "Erro ao carregar alunos.");
     setAlunos([]);
+    setTotalAlunos(0);
+    setTotalPaginas(1);
+  } finally {
+    setCarregandoAlunos(false);
   }
 }
-
-  async function carregarMatriculas() {
-    try {
-      const res = await fetch("/api/matricula", {
-        credentials: "include",
-        cache: "no-store",
-      });
-
-      if (!res.ok) {
-        console.error("Erro ao buscar matrículas");
-        return;
-      }
-
-      const data = await res.json();
-      setMatriculas(Array.isArray(data) ? data : []);
-    } catch (error) {
-      console.error("Erro ao carregar matrículas:", error);
-    }
-  }
 
   async function carregarTurmas() {
     try {
@@ -655,45 +687,9 @@ window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
 
-  const mapaMatriculasPorAluno = useMemo(() => {
-    const mapa = new Map<number, MatriculaResumo>();
-
-    for (const matricula of matriculas) {
-      const alunoId = Number(matricula?.aluno?.id);
-      if (!Number.isFinite(alunoId)) continue;
-
-      const resumo: MatriculaResumo = {
-        id: Number(matricula.id),
-        status: matricula?.status || null,
-        cursoNome: matricula?.curso?.nome || null,
-        semestre: matricula?.semestre ?? null,
-        turmas: Array.isArray(matricula?.itens)
-          ? matricula.itens
-              .map((item: any) => ({
-                turmaId: Number(item?.turma?.id),
-                turmaNome: String(item?.turma?.nome || "Turma"),
-                disciplinaNome: item?.turma?.disciplina?.nome || null,
-                professorNome: item?.turma?.professor?.nome || null,
-                status: item?.status || null,
-              }))
-              .filter((t: any) => Number.isFinite(t.turmaId))
-          : [],
-      };
-
-      if (!mapa.has(alunoId)) {
-        mapa.set(alunoId, resumo);
-      }
-    }
-
-    return mapa;
-  }, [matriculas]);
-
   const alunosComResumo = useMemo<AlunoComResumo[]>(() => {
-    return alunos.map((aluno) => ({
-  ...aluno,
-  resumoMatricula: mapaMatriculasPorAluno.get(aluno.id) || null,
-}));
-  }, [alunos, mapaMatriculasPorAluno]);
+  return alunos as AlunoComResumo[];
+}, [alunos]);
 
   const alunosFiltrados = useMemo(() => {
     const termoTexto = busca.trim().toLowerCase();
@@ -844,6 +840,7 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                   setFiltroStatus("TODOS");
                   setFiltroSituacaoAcademica("TODOS");
                   setFiltroTurmaId("TODAS");
+                  setPaginaAtual(1);
                 }}
                 className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
               >
@@ -1184,13 +1181,19 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                 type="text"
                 placeholder="Buscar por nome, email, matrícula, CPF..."
                 value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                onChange={(e) => {
+  setBusca(e.target.value);
+  setPaginaAtual(1);
+}}
                 className="rounded-xl border px-3 py-2.5"
               />
 
               <select
                 value={filtroStatus}
-                onChange={(e) => setFiltroStatus(e.target.value)}
+                onChange={(e) => {
+  setFiltroStatus(e.target.value);
+  setPaginaAtual(1);
+}}
                 className="rounded-xl border px-3 py-2.5"
               >
                 <option value="TODOS">Todos os status</option>
@@ -1231,11 +1234,42 @@ window.scrollTo({ top: 0, behavior: "smooth" });
             </div>
 
             <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-              Exibindo <strong>{alunosFiltrados.length}</strong> aluno(s) —
+              Exibindo <strong>{alunosFiltrados.length}</strong> de{" "}
+<strong>{totalAlunos}</strong> aluno(s) —
               filtro atual: <strong>{turmaNomeSelecionada}</strong>
             </div>
           </div>
         </section>
+
+<section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+  <div className="text-sm text-slate-600">
+    Página <strong>{paginaAtual}</strong> de{" "}
+    <strong>{totalPaginas}</strong> — total de{" "}
+    <strong>{totalAlunos}</strong> aluno(s)
+  </div>
+
+  <div className="flex flex-wrap gap-2">
+    <button
+      type="button"
+      disabled={paginaAtual <= 1 || carregandoAlunos}
+      onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
+      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Anterior
+    </button>
+
+    <button
+      type="button"
+      disabled={paginaAtual >= totalPaginas || carregandoAlunos}
+      onClick={() =>
+        setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))
+      }
+      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Próxima
+    </button>
+  </div>
+</section>
 
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
