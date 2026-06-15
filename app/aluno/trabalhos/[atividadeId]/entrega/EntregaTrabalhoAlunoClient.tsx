@@ -11,10 +11,14 @@ export default function EntregaTrabalhoAlunoClient({
   const [link, setLink] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
 
   async function enviarEntrega() {
     try {
-      setSalvando(true);
+        setMensagem("");
+        setErro("");
+        setSalvando(true);
 
       const response = await fetch(
         `/api/aluno/atividades/${atividadeId}/entregar`,
@@ -37,9 +41,9 @@ export default function EntregaTrabalhoAlunoClient({
         throw new Error(data.error || "Erro ao enviar atividade");
       }
 
-      alert("Atividade enviada com sucesso");
+      setMensagem("Atividade enviada com sucesso.");
     } catch (error: any) {
-      alert(error.message || "Erro ao enviar atividade");
+      setErro(error.message || "Erro ao enviar atividade");
     } finally {
       setSalvando(false);
     }
@@ -55,6 +59,18 @@ export default function EntregaTrabalhoAlunoClient({
         <p className="mt-2 text-sm text-slate-500">
           Envie texto, link ou arquivo para o professor.
         </p>
+
+{mensagem && (
+  <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-700 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
+    {mensagem}
+  </div>
+)}
+
+{erro && (
+  <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
+    {erro}
+  </div>
+)}
 
         <div className="mt-6">
           <label className="mb-2 block text-sm font-medium">
