@@ -687,6 +687,52 @@ window.scrollTo({ top: 0, behavior: "smooth" });
     }
   }
 
+async function buscarEnderecoPorCep(valorCep: string) {
+  const cepLimpo = valorCep.replace(/\D/g, "");
+
+  if (cepLimpo.length !== 8) return;
+
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+    const data = await res.json();
+
+    if (data?.erro) {
+      mostrarFeedback("erro", "CEP não encontrado.");
+      return;
+    }
+
+    setEndereco(data.logradouro || "");
+    setBairro(data.bairro || "");
+    setCidade(data.localidade || "");
+    setEstado(data.uf || "");
+  } catch {
+    mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
+  }
+}
+
+async function buscarEnderecoEdicaoPorCep(valorCep: string) {
+  const cepLimpo = valorCep.replace(/\D/g, "");
+
+  if (cepLimpo.length !== 8) return;
+
+  try {
+    const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+    const data = await res.json();
+
+    if (data?.erro) {
+      mostrarFeedback("erro", "CEP não encontrado.");
+      return;
+    }
+
+    setEditEndereco(data.logradouro || "");
+    setEditBairro(data.bairro || "");
+    setEditCidade(data.localidade || "");
+    setEditEstado(data.uf || "");
+  } catch {
+    mostrarFeedback("erro", "Não foi possível buscar o endereço pelo CEP.");
+  }
+}
+
   const alunosComResumo = useMemo<AlunoComResumo[]>(() => {
   return alunos as AlunoComResumo[];
 }, [alunos]);
@@ -1017,11 +1063,12 @@ window.scrollTo({ top: 0, behavior: "smooth" });
 </select>
 
                 <input
-                  placeholder="CEP"
-                  value={cep}
-                  onChange={(e) => setCep(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                />
+  placeholder="CEP"
+  value={cep}
+  onChange={(e) => setCep(e.target.value)}
+  onBlur={(e) => buscarEnderecoPorCep(e.target.value)}
+  className="w-full rounded-xl border p-2.5"
+/>
 
                 <input
                   placeholder="Endereço"
@@ -1565,11 +1612,12 @@ window.scrollTo({ top: 0, behavior: "smooth" });
 </select>
 
                     <input
-                      value={editCep}
-                      onChange={(e) => setEditCep(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="CEP"
-                    />
+  value={editCep}
+  onChange={(e) => setEditCep(e.target.value)}
+  onBlur={(e) => buscarEnderecoEdicaoPorCep(e.target.value)}
+  className="rounded-xl border p-2.5"
+  placeholder="CEP"
+/>
                     <input
                       value={editEndereco}
                       onChange={(e) => setEditEndereco(e.target.value)}
