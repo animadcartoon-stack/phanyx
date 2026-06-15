@@ -112,23 +112,24 @@ model Instituicao {
   ouvidorias              Ouvidoria[]
   reunioes                Reuniao[]
 
-  documentosRH             DocumentoRH[]
-  feriasRH                 FeriasRH[]
-  examesRH                 ExameMedicoRH[]
-  rescisoesRH              RescisaoRH[]
-  holeritesRH              HoleriteRH[]
-  pontosRH                 PontoFuncionarioRH[]
-  historicosRH             HistoricoRH[]
-  ocorrenciasRH            OcorrenciaRH[]
-  escalasRH                EscalaTrabalhoRH[]
-  bancoHorasRH             BancoHorasRH[]
-  integracoesPontoRH       IntegracaoPontoRH[]
-  eventosFolhaRH           EventoFolhaRH[]
-  beneficiosRH             BeneficioRH[]
-  funcionariosBeneficiosRH FuncionarioBeneficioRH[]
-  configuracoesPortais     ConfiguracaoPortalInstituicao[]
-  isentaPagamento          Boolean                         @default(false)
-  motivoIsencao            String?
+  documentosRH              DocumentoRH[]
+  feriasRH                  FeriasRH[]
+  examesRH                  ExameMedicoRH[]
+  rescisoesRH               RescisaoRH[]
+  holeritesRH               HoleriteRH[]
+  pontosRH                  PontoFuncionarioRH[]
+  historicosRH              HistoricoRH[]
+  ocorrenciasRH             OcorrenciaRH[]
+  escalasRH                 EscalaTrabalhoRH[]
+  bancoHorasRH              BancoHorasRH[]
+  integracoesPontoRH        IntegracaoPontoRH[]
+  eventosFolhaRH            EventoFolhaRH[]
+  beneficiosRH              BeneficioRH[]
+  funcionariosBeneficiosRH  FuncionarioBeneficioRH[]
+  configuracoesPortais      ConfiguracaoPortalInstituicao[]
+  isentaPagamento           Boolean                         @default(false)
+  motivoIsencao             String?
+  EntregaAtividadeHistorico EntregaAtividadeHistorico[]
 }
 
 model User {
@@ -186,14 +187,14 @@ model User {
 }
 
 model Aluno {
-  id                           Int                    @id @default(autoincrement())
+  id                           Int                         @id @default(autoincrement())
   nome                         String
-  createdAt                    DateTime               @default(now())
+  createdAt                    DateTime                    @default(now())
   instituicaoId                Int
-  userId                       Int                    @unique
-  ativo                        Boolean                @default(true)
+  userId                       Int                         @unique
+  ativo                        Boolean                     @default(true)
   matricula                    String?
-  updatedAt                    DateTime               @updatedAt
+  updatedAt                    DateTime                    @updatedAt
   bairro                       String?
   cep                          String?
   cidade                       String?
@@ -213,16 +214,16 @@ model Aluno {
   fotoPerfil                   String?
   parentescoResponsavel        String?
   telefoneResponsavel          String?
-  statusAluno                  StatusAluno            @default(ATIVO)
+  statusAluno                  StatusAluno                 @default(ATIVO)
   descricaoNecessidadeEspecial String?
   observacoesAcessibilidade    String?
-  possuiNecessidadeEspecial    Boolean                @default(false)
+  possuiNecessidadeEspecial    Boolean                     @default(false)
   genero                       String?
   nomeSocial                   String?
   poloId                       Int?
-  instituicao                  Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                         Polo?                  @relation(fields: [poloId], references: [id])
-  user                         User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instituicao                  Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                         Polo?                       @relation(fields: [poloId], references: [id])
+  user                         User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
   atestadosMedicos             AtestadoMedico[]
   certificados                 Certificado[]
   cobrancas                    Cobranca[]
@@ -242,6 +243,7 @@ model Aluno {
   tentativas                   TentativaProva[]
   reunioesParticipante         ReuniaoParticipante[]
   provasLiberadas              ProvaAluno[]
+  EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -750,9 +752,10 @@ model Atividade {
   publicadoPor         User?       @relation("AtividadePublicadaPor", fields: [publicadoPorId], references: [id])
   professorResponsavel Professor?  @relation("AtividadeProfessorResponsavel", fields: [professorResponsavelId], references: [id])
 
-  anexos   AtividadeAnexo[]
-  entregas EntregaAtividade[]
-  notas    Nota[]
+  anexos                    AtividadeAnexo[]
+  entregas                  EntregaAtividade[]
+  notas                     Nota[]
+  EntregaAtividadeHistorico EntregaAtividadeHistorico[]
 
   @@index([instituicaoId])
   @@index([turmaId])
@@ -806,10 +809,41 @@ model EntregaAtividade {
   atividade     Atividade   @relation(fields: [atividadeId], references: [id], onDelete: Cascade)
   instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
+  historicos EntregaAtividadeHistorico[]
+
   @@unique([atividadeId, alunoId])
   @@index([instituicaoId])
   @@index([atividadeId])
   @@index([alunoId])
+}
+
+model EntregaAtividadeHistorico {
+  id          Int       @id @default(autoincrement())
+  texto       String?
+  link        String?
+  arquivoUrl  String?
+  nota        Float?
+  feedback    String?
+  entregueEm  DateTime?
+  corrigidaEm DateTime?
+  versao      Int       @default(1)
+  createdAt   DateTime  @default(now())
+
+  instituicaoId Int
+  atividadeId   Int
+  alunoId       Int
+  entregaId     Int
+
+  entrega     EntregaAtividade @relation(fields: [entregaId], references: [id], onDelete: Cascade)
+  aluno       Aluno            @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  atividade   Atividade        @relation(fields: [atividadeId], references: [id], onDelete: Cascade)
+  instituicao Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([atividadeId])
+  @@index([alunoId])
+  @@index([entregaId])
+  @@index([entregaId, versao])
 }
 
 model Prova {

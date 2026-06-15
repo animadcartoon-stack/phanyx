@@ -93,6 +93,51 @@ export async function POST(
       );
     }
 
+    const entregaExistente = await prisma.entregaAtividade.findUnique({
+  where: {
+    atividadeId_alunoId: {
+      atividadeId: atividade.id,
+      alunoId: aluno.id,
+    },
+  },
+});
+
+if (entregaExistente) {
+  const ultimaVersao =
+    await prisma.entregaAtividadeHistorico.findFirst({
+      where: {
+        entregaId: entregaExistente.id,
+      },
+      orderBy: {
+        versao: "desc",
+      },
+      select: {
+        versao: true,
+      },
+    });
+
+  await prisma.entregaAtividadeHistorico.create({
+    data: {
+      entregaId: entregaExistente.id,
+      instituicaoId: entregaExistente.instituicaoId,
+      atividadeId: entregaExistente.atividadeId,
+      alunoId: entregaExistente.alunoId,
+
+      texto: entregaExistente.texto,
+      link: entregaExistente.link,
+      arquivoUrl: entregaExistente.arquivoUrl,
+
+      nota: entregaExistente.nota,
+      feedback: entregaExistente.feedback,
+
+      entregueEm: entregaExistente.entregueEm,
+      corrigidaEm: entregaExistente.corrigidaEm,
+
+      versao: (ultimaVersao?.versao || 0) + 1,
+    },
+  });
+}
+
     const entrega = await prisma.entregaAtividade.upsert({
       where: {
         atividadeId_alunoId: {
