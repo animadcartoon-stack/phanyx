@@ -10,6 +10,7 @@ import { ToastProvider } from "@/components/providers/ToastProvider";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
+import { paginaVisivel } from "@/lib/portal-config";
 
 export default async function ProfessorLayout({
   children,
@@ -62,6 +63,54 @@ export default async function ProfessorLayout({
     redirect("/login?portal=professor");
   }
 
+  const visibilidadeProfessor = {
+  painel: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.painel"
+  ),
+  turmas: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.turmas"
+  ),
+  alunos: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.alunos"
+  ),
+  atividades: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.atividades"
+  ),
+  provas: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.provas"
+  ),
+  trabalhos: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.trabalhos"
+  ),
+  reunioes: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.reunioes"
+  ),
+  ouvidoria: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.ouvidoria"
+  ),
+  materiais: await paginaVisivel(
+    professor.instituicaoId,
+    "PROFESSOR",
+    "professor.materiais"
+  ),
+};
+
   return (
   <ProfessorProvider>
     <InstallPromptPHANYX />
@@ -70,50 +119,69 @@ export default async function ProfessorLayout({
         <Header />
         <div className="min-h-[calc(100dvh-56px)] bg-gray-100 lg:flex">
           <div className="hidden lg:block">
-  <ProfessorSidebar professor={professor} />
+  <ProfessorSidebar
+  professor={professor}
+  visibilidade={visibilidadeProfessor}
+/>
 </div>
 
 <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
   <div className="grid grid-cols-8 gap-1 text-[8px] font-semibold text-slate-600">
-   <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">📊</span>
-  Painel
-</a>
+   {visibilidadeProfessor.painel && (
+  <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">📊</span>
+    Painel
+  </a>
+)}
 
-<a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">🏫</span>
-  Turmas
-</a>
+{visibilidadeProfessor.turmas && (
+  <a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">🏫</span>
+    Turmas
+  </a>
+)}
 
-<a href="/professor/alunos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">👥</span>
-  Alunos
-</a>
+{visibilidadeProfessor.alunos && (
+  <a href="/professor/alunos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">👥</span>
+    Alunos
+  </a>
+)}
 
-<a href="/professor/aulas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">🎬</span>
-  Aulas
-</a>
+{visibilidadeProfessor.materiais && (
+  <a href="/professor/aulas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">🎬</span>
+    Aulas
+  </a>
+)}
 
-<a href="/professor/atividades" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">📝</span>
-  Atividades
-</a>
+{visibilidadeProfessor.atividades && (
+  <a href="/professor/atividades" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">📝</span>
+    Atividades
+  </a>
+)}
 
-<a href="/professor/provas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">✅</span>
-  Avaliações
-</a>
+{visibilidadeProfessor.provas && (
+  <a href="/professor/provas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">✅</span>
+    Avaliações
+  </a>
+)}
 
-<a href="/professor/trabalhos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">📄</span>
-  Trabalhos
-</a>
+{visibilidadeProfessor.trabalhos && (
+  <a href="/professor/trabalhos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">📄</span>
+    Trabalhos
+  </a>
+)}
 
-<a href="/professor/reunioes" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-  <span className="text-lg">📅</span>
-  Reuniões
-</a>
+{visibilidadeProfessor.reunioes && (
+  <a href="/professor/reunioes" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">📅</span>
+    Reuniões
+  </a>
+)}
 
   </div>
 </nav>
