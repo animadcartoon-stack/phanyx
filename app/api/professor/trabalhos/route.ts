@@ -91,6 +91,8 @@ export async function GET() {
       }))
     );
 
+    console.log(trabalhos);
+
     return NextResponse.json({ ok: true, trabalhos });
   } catch (e: any) {
     console.error("ERRO AO LISTAR TRABALHOS:", e);
