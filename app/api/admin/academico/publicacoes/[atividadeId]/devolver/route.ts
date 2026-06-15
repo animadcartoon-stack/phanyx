@@ -17,6 +17,19 @@ export async function POST(
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
+    const adminGeral =
+  String(user.role).toUpperCase() === "ADMIN" ||
+  String(user.role).toUpperCase() === "SUPER_ADMIN";
+
+if (adminGeral) {
+  // continua normalmente sem exigir permissão setorial
+} else {
+  return NextResponse.json(
+    { error: "Você não tem permissão para acessar publicações acadêmicas." },
+    { status: 403 }
+  );
+}
+
     const permissoes = await prisma.departamentoPermissao.findMany({
       where: {
         departamento: {
