@@ -234,6 +234,16 @@ try {
   return permissoes.includes("*") || permissoes.includes(chave);
 }
 
+const roleUsuario = String(usuario?.role || "").toUpperCase();
+
+const usuarioAdmin =
+  roleUsuario === "ADMIN" ||
+  roleUsuario === "SUPER_ADMIN" ||
+  usuario?.isMasterAdmin === true;
+
+const podeVerPublicacoesAcademicas =
+  usuarioAdmin || temPermissao("academico.publicacoes.ver");
+
   function isActive(path: string) {
     if (path === "/admin") return pathname === "/admin";
     return pathname === path || pathname.startsWith(path + "/");
@@ -463,7 +473,7 @@ function abrirTourAdmin() {
                       🏫 Turmas
                     </Link>
                     
-  {temPermissao("academico.publicacoes.ver") && (
+  {podeVerPublicacoesAcademicas && (
   <Link
     href="/admin/academico/publicacoes"
     className={getLinkClass("/admin/academico/publicacoes")}
@@ -867,7 +877,7 @@ function abrirTourAdmin() {
             <Link href="/admin/turmas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🏫 Turmas
             </Link>
-            {temPermissao("academico.publicacoes.ver") && (
+            {podeVerPublicacoesAcademicas && (
   <Link
     href="/admin/academico/publicacoes"
     className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
