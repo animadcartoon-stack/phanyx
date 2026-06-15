@@ -69,6 +69,35 @@ export async function GET() {
       },
     });
 
+    const entregasAtividades: any[] = await prisma.entregaAtividade.findMany({
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: aluno.instituicaoId,
+    nota: {
+      not: null,
+    },
+  },
+  include: {
+    atividade: {
+      include: {
+        disciplina: true,
+        turma: {
+          include: {
+            disciplinas: {
+              include: {
+                disciplina: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  orderBy: {
+    entregueEm: "desc",
+  },
+});
+
     const provasMap = new Map<number, any>();
 
     for (const tentativa of tentativas) {
@@ -128,6 +157,46 @@ const notaLiberada = Boolean(mostrarNota);
           tentativa.finalizada === true ? "FINALIZADA" : "EM_ANDAMENTO",
       });
     }
+
+    for (const entrega of entregasAtividades) {
+  const disciplina =
+    entrega.atividade?.disciplina ||
+    entrega.atividade?.turma?.disciplinas?.[0]?.disciplina;
+
+  if (!disciplina) continue;
+
+  const disciplinaId = disciplina.id;
+
+  if (!disciplinasMap.has(disciplinaId)) {
+    disciplinasMap.set(disciplinaId, {
+      disciplinaId,
+      disciplinaNome:
+        disciplina.nome ||
+        disciplina.titulo ||
+        `Disciplina ${disciplina.id}`,
+      provas: [],
+      media: 0,
+    });
+  }
+
+  const item = disciplinasMap.get(disciplinaId);
+
+  item.provas.push({
+    tentativaId: `atividade-${entrega.id}`,
+    provaId: entrega.atividadeId,
+    tipo: "ATIVIDADE",
+    titulo: entrega.atividade?.titulo || `Atividade ${entrega.atividadeId}`,
+    nota: Number(entrega.nota ?? 0),
+    notaLiberada: true,
+    notaDisponivelEm: null,
+    notaMaxima: entrega.atividade?.notaMaxima ?? 10,
+    finalizada: true,
+    startedAt: entrega.createdAt,
+    finishedAt: entrega.entregueEm,
+    status: "FINALIZADA",
+    feedback: entrega.feedback || null,
+  });
+}
 
     const boletim = Array.from(disciplinasMap.values()).map((item) => {
       const total = item.provas.length;
