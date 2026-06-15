@@ -94,11 +94,21 @@ export default function AlunoBoletimPage() {
   }, []);
 
   const mediaGeral = useMemo(() => {
-    if (!data || data.boletim.length === 0) return 0;
+  if (!data || data.boletim.length === 0) return 0;
 
-    const soma = data.boletim.reduce((acc, item) => acc + Number(item.media || 0), 0);
-    return Number((soma / data.boletim.length).toFixed(1));
-  }, [data]);
+  const disciplinasComNota = data.boletim.filter((item) =>
+    item.provas.some((prova) => prova.notaLiberada && prova.nota !== null)
+  );
+
+  if (disciplinasComNota.length === 0) return 0;
+
+  const soma = disciplinasComNota.reduce(
+    (acc, item) => acc + Number(item.media || 0),
+    0
+  );
+
+  return Number((soma / disciplinasComNota.length).toFixed(1));
+}, [data]);
 
   const totalProvas = useMemo(() => {
     if (!data) return 0;
