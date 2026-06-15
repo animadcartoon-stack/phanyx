@@ -14,6 +14,38 @@ export async function GET() {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
+    const permissoes = await prisma.departamentoPermissao.findMany({
+  where: {
+    departamento: {
+      funcionarios: {
+        some: {
+          userId: user.id,
+          instituicaoId: user.instituicaoId,
+        },
+      },
+    },
+    chave: {
+      in: ["*", "academico.publicacoes.ver", "academico.publicacoes.gerenciar"],
+    },
+    ativo: true,
+  },
+  select: {
+    chave: true,
+  },
+});
+
+const temAcesso =
+  permissoes.some((p) => p.chave === "*") ||
+  permissoes.some((p) => p.chave === "academico.publicacoes.ver") ||
+  permissoes.some((p) => p.chave === "academico.publicacoes.gerenciar");
+
+if (!temAcesso) {
+  return NextResponse.json(
+    { error: "Você não tem permissão para acessar publicações acadêmicas." },
+    { status: 403 }
+  );
+}
+
     const atividades = await prisma.atividade.findMany({
       where: {
         instituicaoId: user.instituicaoId,

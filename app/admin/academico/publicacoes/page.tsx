@@ -67,6 +67,54 @@ export default function PublicacoesAcademicasPage() {
     }
   }
 
+  async function publicarAtividade(atividadeId: number) {
+  try {
+    setErro("");
+
+    const res = await fetch(
+      `/api/admin/academico/publicacoes/${atividadeId}/publicar`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao publicar atividade");
+    }
+
+    await carregar();
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao publicar atividade");
+  }
+}
+
+async function devolverAtividade(atividadeId: number) {
+  try {
+    setErro("");
+
+    const res = await fetch(
+      `/api/admin/academico/publicacoes/${atividadeId}/devolver`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao devolver atividade");
+    }
+
+    await carregar();
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao devolver atividade");
+  }
+}
+
   return (
     <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -197,18 +245,20 @@ export default function PublicacoesAcademicasPage() {
 
                   <div className="flex min-w-[220px] flex-col gap-2">
                     <button
-                      type="button"
-                      className="rounded-2xl bg-green-600 px-4 py-3 text-sm font-bold text-white hover:bg-green-700"
-                    >
-                      Publicar para alunos
-                    </button>
+  type="button"
+  onClick={() => publicarAtividade(item.id)}
+  className="rounded-2xl bg-green-600 px-4 py-3 text-sm font-bold text-white hover:bg-green-700"
+>
+  Publicar para alunos
+</button>
 
                     <button
-                      type="button"
-                      className="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                    >
-                      Devolver ao professor
-                    </button>
+  type="button"
+  onClick={() => devolverAtividade(item.id)}
+  className="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+>
+  Devolver ao professor
+</button>
                   </div>
                 </div>
               </article>

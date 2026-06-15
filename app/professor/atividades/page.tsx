@@ -3,19 +3,19 @@
 import { useEffect, useMemo, useState } from "react";
 
 type AtividadeItem = {
-  id: number;
-  titulo: string;
-  descricao?: string | null;
-  prazo?: string | null;
-  createdAt?: string | null;
-  notaMaxima: number;
-  status: string;
-  disciplina?: {
+    id: number;
+    titulo: string;
+    descricao?: string | null;
+    prazo?: string | null;
+    createdAt?: string | null;
+    notaMaxima: number;
+    status: string;
+    disciplina?: {
     id: number;
     nome?: string | null;
     titulo?: string | null;
   } | null;
-  turma?: {
+    turma?: {
     id: number;
     nome?: string | null;
   } | null;
@@ -24,6 +24,13 @@ type AtividadeItem = {
     nome?: string | null;
     email?: string | null;
     matricula?: string | null;
+    enviadoParaApoioDocenteEm?: string | null;
+    publicadoPeloApoioDocenteEm?: string | null;
+    publicadoPor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+} | null;
   }[];
 };
 
@@ -132,22 +139,32 @@ function formatarTempoRelativo(data?: string | null) {
 }
 
   function getStatusBadge(status: string) {
-    if (status === "PUBLICADA") {
-      return "bg-green-100 text-green-700";
-    }
-
-    if (status === "ENCERRADA") {
-      return "bg-gray-100 text-gray-700";
-    }
-
-    return "bg-yellow-100 text-yellow-700";
+  if (status === "PUBLICADA") {
+    return "bg-green-100 text-green-700";
   }
+
+  if (status === "AGUARDANDO_PUBLICACAO") {
+    return "bg-blue-100 text-blue-700";
+  }
+
+  if (status === "ENCERRADA") {
+    return "bg-gray-100 text-gray-700";
+  }
+
+  return "bg-yellow-100 text-yellow-700";
+}
 
   function getStatusLabel(status: string) {
-    if (status === "PUBLICADA") return "Publicada";
-    if (status === "ENCERRADA") return "Encerrada";
-    return "Rascunho";
+  if (status === "PUBLICADA") return "Publicada";
+
+  if (status === "AGUARDANDO_PUBLICACAO") {
+    return "Aguardando publicação";
   }
+
+  if (status === "ENCERRADA") return "Encerrada";
+
+  return "Rascunho";
+}
 
     const atividadesFiltradas = useMemo(() => {
     const termo = normalizarTexto(busca);
@@ -358,6 +375,39 @@ function formatarTempoRelativo(data?: string | null) {
   Abrir
 </a>
 
+{atividade.status === "AGUARDANDO_PUBLICACAO" && (
+  <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+    <strong>📤 Enviado para Apoio Docente</strong>
+
+    {"enviadoParaApoioDocenteEm" in atividade &&
+      (atividade as any).enviadoParaApoioDocenteEm && (
+        <p className="mt-1">
+          Enviado em:{" "}
+          {formatarData((atividade as any).enviadoParaApoioDocenteEm)}
+        </p>
+      )}
+  </div>
+)}
+
+{atividade.status === "PUBLICADA" &&
+  "publicadoPeloApoioDocenteEm" in atividade &&
+  (atividade as any).publicadoPeloApoioDocenteEm && (
+    <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+      <strong>✅ Publicada pelo Apoio Docente</strong>
+
+      {(atividade as any).publicadoPor?.nome && (
+        <p className="mt-1">
+          Publicado por: {(atividade as any).publicadoPor.nome}
+        </p>
+      )}
+
+      <p className="mt-1">
+        Publicado em:{" "}
+        {formatarData((atividade as any).publicadoPeloApoioDocenteEm)}
+      </p>
+    </div>
+  )}
+
 {atividade.status === "RASCUNHO" && (
   <button
     onClick={async () => {
@@ -388,6 +438,55 @@ function formatarTempoRelativo(data?: string | null) {
     className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
   >
     {acaoEmAndamento === `publicar-${atividade.id}` ? "Publicando..." : "Publicar"}
+  </button>
+)}
+
+{atividade.status === "RASCUNHO" && (
+  <button
+    onClick={async () => {
+      try {
+        setAcaoEmAndamento(`apoio-${atividade.id}`);
+
+        const res = await fetch(
+          `/api/professor/atividades/${atividade.id}/enviar-apoio-docente`,
+          {
+            method: "POST",
+          }
+        );
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          mostrarFeedback(
+            "erro",
+            data?.error || "Erro ao enviar para apoio docente"
+          );
+          return;
+        }
+
+        mostrarFeedback(
+          "sucesso",
+          "Atividade enviada para apoio docente"
+        );
+
+        await carregarAtividades();
+      } catch (error) {
+        console.error(error);
+
+        mostrarFeedback(
+          "erro",
+          "Erro ao enviar para apoio docente"
+        );
+      } finally {
+        setAcaoEmAndamento("");
+      }
+    }}
+    disabled={acaoEmAndamento === `apoio-${atividade.id}`}
+    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+  >
+    {acaoEmAndamento === `apoio-${atividade.id}`
+      ? "Enviando..."
+      : "Enviar para Apoio Docente"}
   </button>
 )}
 

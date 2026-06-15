@@ -126,7 +126,8 @@ model Instituicao {
   eventosFolhaRH           EventoFolhaRH[]
   beneficiosRH             BeneficioRH[]
   funcionariosBeneficiosRH FuncionarioBeneficioRH[]
-  isentaPagamento          Boolean                  @default(false)
+  configuracoesPortais     ConfiguracaoPortalInstituicao[]
+  isentaPagamento          Boolean                         @default(false)
   motivoIsencao            String?
 }
 
@@ -2497,6 +2498,23 @@ model ProvaAluno {
   @@index([instituicaoId])
   @@index([provaId])
   @@index([alunoId])
+}
+
+model ConfiguracaoPortalInstituicao {
+  id            Int      @id @default(autoincrement())
+  instituicaoId Int
+  portal        String
+  chavePagina   String
+  visivel       Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@unique([instituicaoId, portal, chavePagina])
+  @@index([instituicaoId])
+  @@index([portal])
+  @@index([chavePagina])
 }
 
 enum TipoDocumentoAluno {

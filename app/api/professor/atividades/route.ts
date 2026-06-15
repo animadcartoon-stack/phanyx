@@ -34,44 +34,72 @@ export async function GET(_req: NextRequest) {
     const atividades = await prisma.atividade.findMany({
       where: {
         instituicaoId: user.instituicaoId,
-        turma: {
-  instituicaoId: user.instituicaoId,
-  OR: [
-    { professorId: professor.id },
-    {
-      disciplinas: {
-        some: {
-          disciplina: {
-            professorId: professor.id,
+        OR: [
+          {
+            professorResponsavelId: professor.id,
           },
-        },
-      },
-    },
-  ],
-},
+          {
+            turma: {
+              instituicaoId: user.instituicaoId,
+              OR: [
+                { professorId: professor.id },
+                {
+                  disciplinas: {
+                    some: {
+                      disciplina: {
+                        professorId: professor.id,
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
       },
       include: {
         turma: {
           include: {
             disciplinas: {
-  include: {
-    disciplina: true,
-  },
-},
+              include: {
+                disciplina: true,
+              },
+            },
+          },
+        },
+        disciplina: true,
+        professorResponsavel: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+        criadoPor: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+          },
+        },
+        publicadoPor: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
           },
         },
         anexos: true,
-entregas: {
-  include: {
-    aluno: {
-      select: {
-  id: true,
-  nome: true,
-  matricula: true,
-},
-    },
-  },
-},
+        entregas: {
+          include: {
+            aluno: {
+              select: {
+                id: true,
+                nome: true,
+                matricula: true,
+              },
+            },
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -81,9 +109,15 @@ entregas: {
     return NextResponse.json(
       atividades.map((atividade) => ({
         ...atividade,
-        disciplina: atividade.turma?.disciplinas?.[0]?.disciplina || null,
-disciplinas: atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
-alunos: atividade.entregas?.map((entrega) => entrega.aluno).filter(Boolean) || [],
+        disciplina:
+          atividade.disciplina ||
+          atividade.turma?.disciplinas?.[0]?.disciplina ||
+          null,
+        disciplinas:
+          atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
+        alunos:
+          atividade.entregas?.map((entrega) => entrega.aluno).filter(Boolean) ||
+          [],
       }))
     );
   } catch (e: any) {
@@ -128,13 +162,20 @@ export async function POST(req: NextRequest) {
       body?.prazo && String(body.prazo).trim()
         ? new Date(body.prazo)
         : null;
+
     const notaMaxima =
       body?.notaMaxima !== undefined && body?.notaMaxima !== ""
         ? Number(body.notaMaxima)
         : 10;
+
     const turmaId =
       body?.turmaId !== undefined && body?.turmaId !== ""
         ? Number(body.turmaId)
+        : null;
+
+    const disciplinaId =
+      body?.disciplinaId !== undefined && body?.disciplinaId !== ""
+        ? Number(body.disciplinaId)
         : null;
 
     if (!titulo) {
@@ -159,36 +200,54 @@ export async function POST(req: NextRequest) {
     }
 
     const turma = await prisma.turma.findFirst({
-  where: {
-    id: turmaId,
-    instituicaoId: user.instituicaoId,
-    OR: [
-      { professorId: professor.id },
-      {
-        disciplinas: {
-          some: {
-            disciplina: {
-              professorId: professor.id,
+      where: {
+        id: turmaId,
+        instituicaoId: user.instituicaoId,
+        OR: [
+          { professorId: professor.id },
+          {
+            disciplinas: {
+              some: {
+                disciplina: {
+                  professorId: professor.id,
+                },
+              },
             },
           },
-        },
+        ],
       },
-    ],
-  },
       include: {
         disciplinas: {
-  include: {
-    disciplina: true,
-  },
-},
+          include: {
+            disciplina: true,
+          },
+        },
       },
     });
 
     if (!turma) {
-      return NextResponse.json(
-        { error: "Turma inválida" },
-        { status: 403 }
+      return NextResponse.json({ error: "Turma inválida" }, { status: 403 });
+    }
+
+    let disciplinaFinalId: number | null = null;
+
+    if (disciplinaId && Number.isFinite(disciplinaId) && disciplinaId > 0) {
+      const disciplinaPermitida = turma.disciplinas.some(
+        (item) =>
+          item.disciplinaId === disciplinaId ||
+          item.disciplina?.id === disciplinaId
       );
+
+      if (!disciplinaPermitida) {
+        return NextResponse.json(
+          { error: "Disciplina inválida para esta turma" },
+          { status: 403 }
+        );
+      }
+
+      disciplinaFinalId = disciplinaId;
+    } else {
+      disciplinaFinalId = turma.disciplinas?.[0]?.disciplina?.id || null;
     }
 
     const anexo = body?.anexo ?? null;
@@ -200,9 +259,12 @@ export async function POST(req: NextRequest) {
         prazo,
         notaMaxima,
         turmaId: turma.id,
+        disciplinaId: disciplinaFinalId,
         instituicaoId: user.instituicaoId,
         status: "RASCUNHO",
         publicadaAt: null,
+        criadoPorId: user.id,
+        professorResponsavelId: professor.id,
         anexos: anexo
           ? {
               create: {
@@ -215,6 +277,7 @@ export async function POST(req: NextRequest) {
                     ? Number(anexo.tamanho)
                     : null,
                 instituicaoId: user.instituicaoId,
+                criadoPorId: user.id,
               },
             }
           : undefined,
@@ -223,10 +286,24 @@ export async function POST(req: NextRequest) {
         turma: {
           include: {
             disciplinas: {
-  include: {
-    disciplina: true,
-  },
-},
+              include: {
+                disciplina: true,
+              },
+            },
+          },
+        },
+        disciplina: true,
+        professorResponsavel: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+        criadoPor: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
           },
         },
         anexos: true,
@@ -236,8 +313,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         ...atividade,
-        disciplina: atividade.turma?.disciplinas?.[0]?.disciplina || null,
-disciplinas: atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
+        disciplina:
+          atividade.disciplina ||
+          atividade.turma?.disciplinas?.[0]?.disciplina ||
+          null,
+        disciplinas:
+          atividade.turma?.disciplinas?.map((item) => item.disciplina) || [],
       },
       { status: 201 }
     );

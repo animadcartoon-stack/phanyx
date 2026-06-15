@@ -8,6 +8,7 @@ import { AlunoProvider } from "@/app/context/AlunoContext";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
+import { paginaVisivel } from "@/lib/portal-config";
 
 export default async function AlunoLayout({
   children,
@@ -78,6 +79,7 @@ export default async function AlunoLayout({
   );
 
   if (bloqueioFinanceiroAtivo && aluno.statusAluno === "INADIMPLENTE") {
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-amber-50 flex items-center justify-center p-6">
         <div className="w-full max-w-3xl bg-white border border-red-100 rounded-3xl shadow-xl overflow-hidden">
@@ -168,58 +170,100 @@ export default async function AlunoLayout({
     );
   }
 
+  const visibilidadeAluno = {
+  painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
+  disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
+  progresso: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.progresso"),
+  trabalhos: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.trabalhos"),
+  presenca: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.presenca"),
+  boletim: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.boletim"),
+  certificados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.certificados"),
+  reunioes: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.reunioes"),
+  dados: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.dados"),
+};
+
   return (
     <AlunoProvider>
       <InstallPromptPHANYX />
       <Header />
       <div className="flex bg-gray-100 min-h-[calc(100vh-56px)]">
   <div className="hidden lg:block">
-    <AlunoSidebar aluno={aluno} />
+    <AlunoSidebar
+  aluno={aluno}
+  visibilidade={{
+    painel: visibilidadeAluno.painel,
+    disciplinas: visibilidadeAluno.disciplinas,
+    progresso: visibilidadeAluno.progresso,
+    trabalhos: visibilidadeAluno.trabalhos,
+    presenca: visibilidadeAluno.presenca,
+    boletim: visibilidadeAluno.boletim,
+    historico: await paginaVisivel(
+      aluno.instituicaoId,
+      "ALUNO",
+      "aluno.historico"
+    ),
+    reunioes: visibilidadeAluno.reunioes,
+    certificados: visibilidadeAluno.certificados,
+    ouvidoria: await paginaVisivel(
+      aluno.instituicaoId,
+      "ALUNO",
+      "aluno.ouvidoria"
+    ),
+  }}
+/>
   </div>
 
 <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
   <div className="grid grid-cols-8 gap-1 text-[9px] font-semibold text-slate-600">
     
-    <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
-      <span className="text-lg">📊</span>
-      Painel
-    </a>
-
+    {visibilidadeAluno.painel && (
+  <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
+    <span className="text-lg">📊</span>
+    Painel
+  </a>
+)}
+ {visibilidadeAluno.disciplinas && (
     <a href="/aluno/disciplinas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📘</span>
       Disciplinas
     </a>
-
+)}
+{visibilidadeAluno.progresso && (
     <a href="/aluno/progresso" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📈</span>
       Progresso
     </a>
-
+)}
+{visibilidadeAluno.trabalhos && (
     <a href="/aluno/trabalhos" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📄</span>
       Trabalhos
     </a>
-
+)}
+{visibilidadeAluno.presenca && (
     <a href="/aluno/presencas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">🗓️</span>
       Presença
     </a>
-
+)}
+{visibilidadeAluno.boletim && (
     <a href="/aluno/boletim" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📋</span>
       Boletim
     </a>
-
+)}
+{visibilidadeAluno.certificados && (
     <a href="/aluno/certificados" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">🏅</span>
       Certificados
     </a>
-
+)}
+{visibilidadeAluno.reunioes && (
     <a href="/aluno/reunioes" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
   <span className="text-lg">📅</span>
   Reuniões
 </a>
-
+)}
   </div>
 </nav>
 
@@ -243,6 +287,7 @@ export default async function AlunoLayout({
   <PhanyxThemeToggle />
 </div>
 
+  {visibilidadeAluno.dados && (
   <div className="mb-5 rounded-2xl border border-blue-100 bg-white p-4 shadow-sm">
     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div>
@@ -262,6 +307,8 @@ export default async function AlunoLayout({
       </a>
     </div>
   </div>
+)}
+  
 
   {children}
 </main>
