@@ -942,13 +942,15 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                 </select>
 
                 <input
-                  placeholder="Email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full rounded-xl border p-2.5"
-                  required
-                />
+  placeholder="Email"
+  type="email"
+  name="email-aluno-phanyx"
+  autoComplete="new-password"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className="w-full rounded-xl border p-2.5"
+  required
+/>
 
                 <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
   <strong>Número da matrícula</strong>
@@ -1241,36 +1243,6 @@ window.scrollTo({ top: 0, behavior: "smooth" });
           </div>
         </section>
 
-<section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
-  <div className="text-sm text-slate-600">
-    Página <strong>{paginaAtual}</strong> de{" "}
-    <strong>{totalPaginas}</strong> — total de{" "}
-    <strong>{totalAlunos}</strong> aluno(s)
-  </div>
-
-  <div className="flex flex-wrap gap-2">
-    <button
-      type="button"
-      disabled={paginaAtual <= 1 || carregandoAlunos}
-      onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
-      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Anterior
-    </button>
-
-    <button
-      type="button"
-      disabled={paginaAtual >= totalPaginas || carregandoAlunos}
-      onClick={() =>
-        setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))
-      }
-      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Próxima
-    </button>
-  </div>
-</section>
-
         <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
@@ -1420,6 +1392,37 @@ window.scrollTo({ top: 0, behavior: "smooth" });
             </table>
           </div>
         </section>
+
+<section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:flex-row md:items-center md:justify-between">
+  <div className="text-sm text-slate-600">
+    Página <strong>{paginaAtual}</strong> de{" "}
+    <strong>{totalPaginas}</strong> — total de{" "}
+    <strong>{totalAlunos}</strong> aluno(s)
+  </div>
+
+  <div className="flex flex-wrap gap-2">
+    <button
+      type="button"
+      disabled={paginaAtual <= 1 || carregandoAlunos}
+      onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
+      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Anterior
+    </button>
+
+    <button
+      type="button"
+      disabled={paginaAtual >= totalPaginas || carregandoAlunos}
+      onClick={() =>
+        setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))
+      }
+      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Próxima
+    </button>
+  </div>
+</section>
+
       </div>
 
       {painelAlunoAberto && alunoSelecionado && (
@@ -1494,11 +1497,14 @@ window.scrollTo({ top: 0, behavior: "smooth" });
                       </option>
                     </select>
                     <input
-                      value={editEmail}
-                      onChange={(e) => setEditEmail(e.target.value)}
-                      className="rounded-xl border p-2.5"
-                      placeholder="Email"
-                    />
+  value={editEmail}
+  onChange={(e) => setEditEmail(e.target.value)}
+  className="rounded-xl border p-2.5"
+  placeholder="Email"
+  type="email"
+  name="edit-email-aluno-phanyx"
+  autoComplete="off"
+/>
                     <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-3 text-sm text-slate-600">
   Matrícula gerada automaticamente pelo sistema.
 </div>
