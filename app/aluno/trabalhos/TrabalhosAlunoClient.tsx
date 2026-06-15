@@ -327,6 +327,25 @@ async function handleEnviar(e: FormEvent) {
                               {atividade.descricao}
                             </p>
                           )}
+                          {atividade.anexos && atividade.anexos.length > 0 && (
+  <div className="mt-3 space-y-2">
+    <p className="text-sm font-semibold text-slate-800">
+      Arquivos da atividade
+    </p>
+
+    {atividade.anexos.map((anexo) => (
+      <a
+        key={anexo.id}
+        href={anexo.url}
+        target="_blank"
+        rel="noreferrer"
+        className="block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+      >
+        📎 {anexo.arquivoNome || anexo.titulo}
+      </a>
+    ))}
+  </div>
+)}
                         </div>
 
                         <span
