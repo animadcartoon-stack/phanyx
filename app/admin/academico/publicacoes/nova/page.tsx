@@ -106,13 +106,34 @@ if (arquivos.length > 0) {
 
     setProgressoUpload(`Enviando ${i + 1} de ${arquivos.length}: ${arquivo.name}`);
 
-    await upload(arquivo.name, arquivo, {
-      access: "public",
-      handleUploadUrl: "/api/admin/academico/publicacoes/upload-url",
-      clientPayload: JSON.stringify({
-        atividadeId,
-      }),
-    });
+    const blob = await upload(arquivo.name, arquivo, {
+  access: "public",
+  handleUploadUrl: "/api/admin/academico/publicacoes/upload-url",
+  clientPayload: JSON.stringify({
+    atividadeId,
+  }),
+});
+
+const resAnexo = await fetch("/api/admin/academico/publicacoes/anexos", {
+  method: "POST",
+  credentials: "include",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    atividadeId,
+    url: blob.url,
+    arquivoNome: arquivo.name,
+    mimeType: arquivo.type || "application/octet-stream",
+    tamanho: arquivo.size,
+  }),
+});
+
+const dataAnexo = await resAnexo.json();
+
+if (!resAnexo.ok) {
+  throw new Error(dataAnexo?.error || "Arquivo enviado, mas não foi registrado.");
+}
   }
 
   setUploading(false);

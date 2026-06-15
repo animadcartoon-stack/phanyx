@@ -69,26 +69,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         };
       },
 
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        const payload = JSON.parse(tokenPayload || "{}");
-
-        const atividadeId = Number(payload?.atividadeId);
-        const instituicaoId = Number(payload?.instituicaoId);
-
-        const nomeArquivo = blob.pathname?.split("/").pop() || "arquivo";
-
-        await prisma.atividadeAnexo.create({
-          data: {
-            atividadeId,
-            instituicaoId,
-            titulo: nomeArquivo,
-            url: blob.url,
-            arquivoNome: nomeArquivo,
-            mimeType: blob.contentType || null,
-            tamanho: null,
-          },
-        });
-      },
+      onUploadCompleted: async () => {},
     });
 
     return NextResponse.json(jsonResponse);
