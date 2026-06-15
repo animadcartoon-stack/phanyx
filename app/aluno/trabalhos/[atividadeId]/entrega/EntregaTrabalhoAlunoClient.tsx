@@ -15,39 +15,87 @@ export default function EntregaTrabalhoAlunoClient({
   const [erro, setErro] = useState("");
 
   async function enviarEntrega() {
-    try {
-        setMensagem("");
-        setErro("");
-        setSalvando(true);
+  try {
+    setMensagem("");
+    setErro("");
+    setSalvando(true);
 
-      const response = await fetch(
-        `/api/aluno/atividades/${atividadeId}/entregar`,
+    let arquivoUrl = "";
+
+    if (arquivo) {
+      if (arquivo.size > 500 * 1024 * 1024) {
+        throw new Error("O arquivo excede o limite de 500 MB.");
+      }
+
+      const resUploadUrl = await fetch(
+        `/api/aluno/atividades/${atividadeId}/upload-url`,
         {
           method: "POST",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            texto,
-            link,
-            arquivoUrl: "",
+            nomeOriginal: arquivo.name,
+            mimeType: arquivo.type || "application/octet-stream",
+            tamanho: arquivo.size,
           }),
         }
       );
 
-      const data = await response.json();
+      const jsonUploadUrl = await resUploadUrl.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao enviar atividade");
+      if (!resUploadUrl.ok || !jsonUploadUrl?.uploadUrl) {
+        throw new Error(jsonUploadUrl?.error || "Erro ao preparar upload.");
       }
 
-      setMensagem("Atividade enviada com sucesso.");
-    } catch (error: any) {
-      setErro(error.message || "Erro ao enviar atividade");
-    } finally {
-      setSalvando(false);
+      const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": arquivo.type || "application/octet-stream",
+        },
+        body: arquivo,
+      });
+
+      if (!resUploadDireto.ok) {
+        throw new Error("Erro ao enviar arquivo.");
+      }
+
+      arquivoUrl = jsonUploadUrl.arquivoUrl;
     }
+
+    const response = await fetch(
+      `/api/aluno/atividades/${atividadeId}/entregar`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          texto,
+          link,
+          arquivoUrl,
+        }),
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Erro ao enviar atividade.");
+    }
+
+    setMensagem("Atividade enviada com sucesso.");
+    setTexto("");
+    setLink("");
+    setArquivo(null);
+  } catch (error: any) {
+    setErro(error.message || "Erro ao enviar atividade.");
+  } finally {
+    setSalvando(false);
   }
+}
 
   return (
     <div className="mx-auto max-w-5xl p-6">
