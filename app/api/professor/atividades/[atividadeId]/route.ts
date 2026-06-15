@@ -27,9 +27,17 @@ export async function GET(
       include: {
   turma: {
     include: {
-      disciplina: true,
+      disciplinas: {
+        include: {
+          disciplina: true,
+        },
+      },
     },
   },
+
+  disciplina: true,
+  anexos: true,
+
   entregas: {
     include: {
       aluno: true,
