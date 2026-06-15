@@ -950,6 +950,12 @@ function abrirTourAdmin() {
             <Link href="/admin/configuracoes/documentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               📄 Documentos institucionais
             </Link>
+            <Link
+  href="/admin/configuracoes/portais"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  👁️ Visibilidade dos Portais
+</Link>
             <Link href="/admin/certificados" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🏅 Gestão de Certificados
             </Link>
