@@ -25,7 +25,6 @@ export default function AdminShell({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-
   const esconderSidebar = pathname?.includes(
     "/admin/configuracoes/certificado"
   );
