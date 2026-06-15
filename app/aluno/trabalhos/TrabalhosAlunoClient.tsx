@@ -348,15 +348,12 @@ async function handleEnviar(e: FormEvent) {
 )}
                         </div>
 
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                            selecionada
-                              ? "bg-blue-600 text-white"
-                              : "bg-slate-100 text-slate-600"
-                          }`}
-                        >
-                          {selecionada ? "Selecionada" : "Selecionar"}
-                        </span>
+                        <a
+  href={`/aluno/trabalhos/${atividade.id}`}
+  className="inline-flex rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+>
+  Abrir atividade
+</a>
                       </div>
                     </button>
                   );
