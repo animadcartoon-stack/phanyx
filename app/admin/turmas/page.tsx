@@ -624,7 +624,7 @@ const disciplinasFiltradas = useMemo(() => {
         return (
           <div
             key={disciplina.id}
-            className="rounded-lg border bg-gray-50 p-3"
+            className="rounded-lg border border-slate-200 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
@@ -663,7 +663,7 @@ const disciplinasFiltradas = useMemo(() => {
                       [disciplina.id]: e.target.value,
                     }))
                   }
-                  className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+                  className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                 >
                   <option value="">Professor desta disciplina</option>
                   {professoresDaDisciplina(disciplina).map((professor) => (
@@ -673,7 +673,7 @@ const disciplinasFiltradas = useMemo(() => {
                   ))}
                 </select>
 
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3">
+                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 dark:border-slate-700 dark:bg-slate-900">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-sm font-bold text-blue-900">
                       Horários desta disciplina
@@ -950,7 +950,7 @@ const disciplinasFiltradas = useMemo(() => {
         return (
           <div
             key={disciplina.id}
-            className="rounded-lg border bg-gray-50 p-3"
+            className="rounded-lg border border-slate-200 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
@@ -1009,7 +1009,7 @@ const disciplinasFiltradas = useMemo(() => {
             [disciplina.id]: e.target.value,
           }))
         }
-        className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
       />
 
       <input
@@ -1021,7 +1021,7 @@ const disciplinasFiltradas = useMemo(() => {
             [disciplina.id]: e.target.value,
           }))
         }
-        className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
       />
 
       <select
@@ -1032,7 +1032,7 @@ const disciplinasFiltradas = useMemo(() => {
             [disciplina.id]: e.target.value,
           }))
         }
-        className="h-[42px] w-full rounded-lg border bg-white p-2 text-sm"
+        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
       >
         <option value="">Status</option>
         <option value="A_INICIAR">A iniciar</option>
