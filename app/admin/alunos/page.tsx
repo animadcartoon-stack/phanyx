@@ -149,6 +149,13 @@ function AdminAlunosPage() {
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
   const [documentoUrl, setDocumentoUrl] = useState("");
+
+  const [novoAlunoDocumentos, setNovoAlunoDocumentos] = useState<{
+  proprietario: "ALUNO" | "RESPONSAVEL";
+  tipo: string;
+  arquivo: File;
+}[]>([]);
+
   const [nomeResponsavel, setNomeResponsavel] = useState("");
   const [cpfResponsavel, setCpfResponsavel] = useState("");
   const [telefoneResponsavel, setTelefoneResponsavel] = useState("");
@@ -406,7 +413,45 @@ async function carregarPolos() {
     setPossuiNecessidadeEspecial(false);
     setDescricaoNecessidadeEspecial("");
     setObservacoesAcessibilidade("");
+    setNovoAlunoDocumentos([]);
   }
+
+  function adicionarDocumentoNovoAluno(
+  proprietario: "ALUNO" | "RESPONSAVEL",
+  tipo: string,
+  arquivo: File | null
+) {
+  if (!arquivo) return;
+
+  setNovoAlunoDocumentos((prev) => [
+    ...prev,
+    {
+      proprietario,
+      tipo,
+      arquivo,
+    },
+  ]);
+}
+
+async function enviarDocumentosDepoisCriacao(alunoId: number) {
+  for (const doc of novoAlunoDocumentos) {
+    const formData = new FormData();
+
+    formData.append(
+      "titulo",
+      `${doc.tipo} - ${doc.proprietario === "ALUNO" ? "Aluno" : "Responsável"}`
+    );
+    formData.append("tipo", doc.tipo);
+    formData.append("proprietario", doc.proprietario);
+    formData.append("arquivo", doc.arquivo);
+
+    await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+  }
+}
 
   async function handleCriarAluno(e: React.FormEvent) {
     e.preventDefault();
@@ -465,6 +510,10 @@ if (data?.id) {
     data,
     ...prev.filter((aluno) => aluno.id !== data.id),
   ]);
+}
+
+if (data?.id && novoAlunoDocumentos.length > 0) {
+  await enviarDocumentosDepoisCriacao(data.id);
 }
 
 await carregarTudo();
@@ -1281,12 +1330,42 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                   className="w-full rounded-xl border p-2.5"
                 />
 
-                <input
-                  placeholder="URL do documento"
-                  value={documentoUrl}
-                  onChange={(e) => setDocumentoUrl(e.target.value)}
-                  className="w-full rounded-xl border p-2.5 md:col-span-2"
-                />
+<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+    Documentos do aluno
+  </h3>
+
+  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+    Opcional. Envie RG, CPF, CNH, Histórico Escolar, Comprovante de Residência ou Título de Eleitor.
+  </p>
+
+  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+    {["RG", "CPF", "CNH", "HISTORICO_ESCOLAR", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
+      <label
+        key={`aluno-${tipo}`}
+        className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+      >
+        <span className="mb-2 block font-semibold">
+          {tipo.replaceAll("_", " ")}
+        </span>
+
+        <input
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+          onChange={(e) =>
+            adicionarDocumentoNovoAluno(
+              "ALUNO",
+              tipo,
+              e.target.files?.[0] || null
+            )
+          }
+          className="w-full text-xs"
+        />
+      </label>
+    ))}
+  </div>
+</div>
+                
               </div>
 
               <div className="border-t pt-4">
@@ -1369,6 +1448,43 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                     onChange={(e) => setParentescoResponsavel(e.target.value)}
                     className="w-full rounded-xl border p-2.5 md:col-span-2"
                   />
+
+<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+    Documentos do responsável
+  </h3>
+
+  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+    Opcional. Envie documentos do titular/responsável pelo aluno.
+  </p>
+
+  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+    {["RG", "CPF", "CNH", "COMPROVANTE_RESIDENCIA", "TITULO_ELEITOR"].map((tipo) => (
+      <label
+        key={`responsavel-${tipo}`}
+        className="rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+      >
+        <span className="mb-2 block font-semibold">
+          {tipo.replaceAll("_", " ")}
+        </span>
+
+        <input
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+          onChange={(e) =>
+            adicionarDocumentoNovoAluno(
+              "RESPONSAVEL",
+              tipo,
+              e.target.files?.[0] || null
+            )
+          }
+          className="w-full text-xs"
+        />
+      </label>
+    ))}
+  </div>
+</div>
+
                 </div>
               </div>
 
