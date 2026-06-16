@@ -148,14 +148,7 @@ export async function GET(request: Request) {
       codigo: true,
     },
   },
-  periodoMatricula: {
-    select: {
-      id: true,
-      nome: true,
-      inicio: true,
-      fim: true,
-    },
-  },
+  
               curso: {
                 select: {
                   id: true,
@@ -220,14 +213,7 @@ polo: matriculaRecente.polo
       codigo: matriculaRecente.polo.codigo,
     }
   : null,
-periodoMatricula: matriculaRecente.periodoMatricula
-  ? {
-      id: matriculaRecente.periodoMatricula.id,
-      nome: matriculaRecente.periodoMatricula.nome,
-      inicio: matriculaRecente.periodoMatricula.inicio,
-      fim: matriculaRecente.periodoMatricula.fim,
-    }
-  : null,
+
               curso: matriculaRecente.curso
                 ? {
                     id: matriculaRecente.curso.id,

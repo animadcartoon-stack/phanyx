@@ -1651,10 +1651,13 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
               <input
                 type="text"
                 placeholder="Buscar por nome, email, matrícula, CPF..."
+                autoComplete="off"
+name="busca-alunos-phanyx"
                 value={busca}
                 onChange={(e) => {
   setBusca(e.target.value);
   setPaginaAtual(1);
+
 }}
                 className="rounded-xl border px-3 py-2.5"
               />
