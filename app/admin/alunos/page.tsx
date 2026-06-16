@@ -81,6 +81,18 @@ type MatriculaResumo = {
   }>;
 };
 
+type DocumentoAlunoAdmin = {
+  id: number;
+  titulo: string;
+  tipo: string;
+  proprietario: "ALUNO" | "RESPONSAVEL" | string;
+  arquivoUrl?: string | null;
+  arquivoNome?: string | null;
+  mimeType?: string | null;
+  tamanho?: number | null;
+  criadoEm?: string;
+};
+
 type AlunoComResumo = Aluno & {
   resumoMatricula?: MatriculaResumo | null;
 };
@@ -191,6 +203,14 @@ function AdminAlunosPage() {
   const [paginaDisciplina, setPaginaDisciplina] = useState(1);
   const [alunoDesempenhoId, setAlunoDesempenhoId] = useState<number | null>(null);
   
+  const [documentosAluno, setDocumentosAluno] = useState<DocumentoAlunoAdmin[]>([]);
+  const [carregandoDocumentosAluno, setCarregandoDocumentosAluno] = useState(false);
+  const [enviandoDocumentoAluno, setEnviandoDocumentoAluno] = useState(false);
+
+  const [documentoProprietario, setDocumentoProprietario] = useState<"ALUNO" | "RESPONSAVEL">("ALUNO");
+  const [documentoTipo, setDocumentoTipo] = useState("RG");
+  const [documentoArquivo, setDocumentoArquivo] = useState<File | null>(null);
+
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -836,6 +856,91 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
     };
   }, [alunosComResumo]);
 
+  async function carregarDocumentosAluno(alunoId: number) {
+  try {
+    setCarregandoDocumentosAluno(true);
+
+    const res = await fetch(`/api/admin/alunos/${alunoId}/documentos`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao carregar documentos.");
+    }
+
+    setDocumentosAluno(Array.isArray(data) ? data : []);
+  } catch (error: any) {
+    setDocumentosAluno([]);
+    mostrarFeedback("erro", error?.message || "Erro ao carregar documentos.");
+  } finally {
+    setCarregandoDocumentosAluno(false);
+  }
+}
+
+async function enviarDocumentoAluno() {
+  if (!alunoSelecionado) return;
+
+  if (!documentoArquivo) {
+    abrirModalAviso(
+      "erro",
+      "Arquivo obrigatório",
+      "Selecione um arquivo antes de enviar."
+    );
+    return;
+  }
+
+  try {
+    setEnviandoDocumentoAluno(true);
+
+    const formData = new FormData();
+    formData.append(
+      "titulo",
+      `${documentoTipo} - ${
+        documentoProprietario === "ALUNO" ? "Aluno" : "Responsável"
+      }`
+    );
+    formData.append("tipo", documentoTipo);
+    formData.append("proprietario", documentoProprietario);
+    formData.append("arquivo", documentoArquivo);
+
+    const res = await fetch(
+      `/api/admin/alunos/${alunoSelecionado.id}/documentos`,
+      {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar documento.");
+    }
+
+    setDocumentoArquivo(null);
+    await carregarDocumentosAluno(alunoSelecionado.id);
+
+    mostrarFeedback("sucesso", "Documento enviado com sucesso.");
+    abrirModalAviso(
+      "sucesso",
+      "Documento enviado",
+      "O documento foi salvo no cadastro do aluno."
+    );
+  } catch (error: any) {
+    abrirModalAviso(
+      "erro",
+      "Erro ao enviar documento",
+      error?.message || "Não foi possível enviar o documento."
+    );
+  } finally {
+    setEnviandoDocumentoAluno(false);
+  }
+}
+
   async function carregarDesempenhoAluno(
   alunoId: number,
   busca = "",
@@ -877,16 +982,18 @@ const res = await fetch(
   }
 }
 
-  function abrirDetalhesAluno(aluno: AlunoComResumo) {
+function abrirDetalhesAluno(aluno: AlunoComResumo) {
   setAlunoSelecionado(aluno);
   setPainelAlunoAberto(true);
   setAlunoDesempenhoId(aluno.id);
 
-carregarDesempenhoAluno(
-  aluno.id,
-  buscaDisciplina,
-  paginaDisciplina
-);
+  carregarDocumentosAluno(aluno.id);
+
+  carregarDesempenhoAluno(
+    aluno.id,
+    buscaDisciplina,
+    paginaDisciplina
+  );
 }
 
   const turmaNomeSelecionada = useMemo(() => {
