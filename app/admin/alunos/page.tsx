@@ -2113,6 +2113,106 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                       </div>
                     </div>
 
+{/* DOCUMENTOS DO ALUNO E RESPONSÁVEL */}
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2 dark:border-slate-700 dark:bg-slate-900">
+  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+    Documentos do aluno e responsável
+  </h3>
+
+  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+    Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
+  </p>
+
+  <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+    <select
+      value={documentoProprietario}
+      onChange={(e) =>
+        setDocumentoProprietario(e.target.value as "ALUNO" | "RESPONSAVEL")
+      }
+      className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+    >
+      <option value="ALUNO">Aluno</option>
+      <option value="RESPONSAVEL">Responsável</option>
+    </select>
+
+    <select
+      value={documentoTipo}
+      onChange={(e) => setDocumentoTipo(e.target.value)}
+      className="rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+    >
+      <option value="RG">RG</option>
+      <option value="CPF">CPF</option>
+      <option value="CNH">CNH</option>
+      <option value="HISTORICO_ESCOLAR">Histórico Escolar</option>
+      <option value="COMPROVANTE_RESIDENCIA">
+        Comprovante de Residência
+      </option>
+      <option value="TITULO_ELEITOR">Título de Eleitor</option>
+      <option value="OUTRO">Outro</option>
+    </select>
+
+    <input
+      type="file"
+      accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+      onChange={(e) => setDocumentoArquivo(e.target.files?.[0] || null)}
+      className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 file:mr-3 file:rounded-lg file:border-0 file:bg-blue-50 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-blue-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+    />
+  </div>
+
+  <button
+    type="button"
+    onClick={enviarDocumentoAluno}
+    disabled={enviandoDocumentoAluno}
+    className="mt-4 rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-60"
+  >
+    {enviandoDocumentoAluno ? "Enviando..." : "Enviar documento"}
+  </button>
+
+  <div className="mt-5">
+    {carregandoDocumentosAluno ? (
+      <p className="text-sm text-slate-500 dark:text-slate-400">
+        Carregando documentos...
+      </p>
+    ) : documentosAluno.length === 0 ? (
+      <p className="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
+        Nenhum documento enviado ainda.
+      </p>
+    ) : (
+      <div className="space-y-2">
+        {documentosAluno.map((doc) => (
+          <div
+            key={doc.id}
+            className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
+          >
+            <div>
+              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                {doc.titulo}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {doc.proprietario === "RESPONSAVEL"
+                  ? "Responsável"
+                  : "Aluno"}{" "}
+                • {doc.arquivoNome || "Arquivo"}
+              </p>
+            </div>
+
+            {doc.arquivoUrl && (
+              <a
+                href={doc.arquivoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-1.5 text-center text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
+              >
+                Abrir documento
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
 {/* DESEMPENHO ACADÊMICO */}
 
 <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
