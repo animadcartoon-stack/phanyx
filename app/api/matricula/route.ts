@@ -38,6 +38,7 @@ type MatriculaBody = {
   periodoMatriculaId?: number | string;
   semestre?: number | string;
   periodoLetivo?: string;
+  modalidade?: string;
   turmaId?: number | string;
   turmaIds?: Array<number | string>;
   disciplinaIds?: Array<number | string>;
@@ -722,13 +723,19 @@ export async function POST(request: Request) {
       periodoMatricula?.periodoLetivo ||
       (semestreFinal !== null ? `${semestreFinal}` : null);
 
+      const modalidadeFinal =
+  String(body.modalidade || "").trim() || null;
+
     const matricula = await prisma.matricula.create({
       data: {
-        alunoId,
-        cursoId: cursoIdFinal,
-        cursoSemestreId,
-        periodoMatriculaId,
-        periodoLetivo: periodoLetivoFinal || null,
+  alunoId,
+  cursoId: cursoIdFinal,
+  cursoSemestreId,
+  periodoMatriculaId,
+
+  periodoLetivo: periodoLetivoFinal || null,
+  modalidade: modalidadeFinal,
+
         realizadaPeloAluno: Boolean(body.realizadaPeloAluno),
         confirmadaEm: new Date(),
         semestre: semestreFinal,
@@ -1188,6 +1195,10 @@ export async function PUT(request: Request) {
           String(body.periodoLetivo || "").trim() ||
           matriculaExistente.periodoLetivo ||
           null,
+          modalidade:
+  String(body.modalidade || "").trim() ||
+  matriculaExistente.modalidade ||
+  null,
         semestre: semestreFinal,
         valorMatricula: valorPagoMatricula,
         valorMensalidade,

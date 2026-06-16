@@ -131,6 +131,7 @@ function AdminMatriculasPage() {
   const [quantidadeParcelas, setQuantidadeParcelas] = useState<string>("");
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
   const [periodoLetivo, setPeriodoLetivo] = useState<string>("");
+  const [modalidade, setModalidade] = useState<string>("");
 
   const [statusInicialMatricula, setStatusInicialMatricula] =
   useState<string>("ATIVA");
@@ -673,6 +674,7 @@ console.log("DEBUG MATRÍCULA", {
   turmaId: turmaIdsParaEnviar[0] ?? null,
   disciplinaIds: disciplinasIdsParaEnviar,
   periodoLetivo,
+  modalidade,
   status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
   valorMensalidade: Number(valorMensalidade || 0),
@@ -1553,6 +1555,23 @@ function renderGrupoDisciplina(
     Turma do aluno
   </label>
   
+  <div>
+  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+    Modalidade
+  </label>
+
+  <select
+    value={modalidade}
+    onChange={(e) => setModalidade(e.target.value)}
+    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+  >
+    <option value="">Selecione a modalidade</option>
+    <option value="PRESENCIAL">Presencial</option>
+    <option value="EAD">EAD</option>
+    <option value="HIBRIDO">Híbrido</option>
+  </select>
+</div>
+
   <div>
   <label className="text-sm font-medium text-gray-700">
     Período / horário letivo
