@@ -1918,12 +1918,12 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
 
               <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
   {[
-    { id: "DADOS", label: "Dados" },
-    { id: "DOCUMENTOS", label: "Documentos" },
-    { id: "MATRICULAS", label: "Matrículas" },
-    { id: "DESEMPENHO", label: "Desempenho" },
-    { id: "HISTORICO", label: "Histórico" },
-  ].map((aba) => (
+  { id: "DADOS", label: "Dados" },
+  { id: "DOCUMENTOS", label: "Documentos" },
+  { id: "MATRICULAS", label: "Matrículas" },
+  { id: "DESEMPENHO", label: "Desempenho" },
+  { id: "HISTORICO", label: "Histórico" },
+].map((aba) => (
     <button
       key={aba.id}
       type="button"
@@ -2375,200 +2375,9 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                       </div>
                     </div>
 
-{/* DESEMPENHO ACADÊMICO */}
-
-<div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
-  <h3 className="text-lg font-semibold">
-    Desempenho Acadêmico
-  </h3>
-
-<div className="mt-4">
-  <input
-    type="text"
-    placeholder="Buscar disciplina..."
-    value={buscaDisciplina}
-    onChange={(e) => {
-      const valor = e.target.value;
-
-      setBuscaDisciplina(valor);
-      setPaginaDisciplina(1);
-
-      if (alunoDesempenhoId) {
-        carregarDesempenhoAluno(alunoDesempenhoId, valor, 1);
-      }
-    }}
-    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
-  />
-</div>
-
-  {carregandoDesempenho ? (
-    <div className="mt-3 text-sm opacity-70">
-      Carregando desempenho...
-    </div>
-  ) : desempenhoAluno ? (
-    <div className="space-y-4 mt-4">
-
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-xl border border-slate-700 p-3">
-          <div className="text-xs opacity-70">
-            Média Geral
-          </div>
-
-          <div className="text-2xl font-bold">
-            {desempenhoAluno.mediaGeral}
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-slate-700 p-3">
-          <div className="text-xs opacity-70">
-            Disciplinas
-          </div>
-
-          <div className="text-2xl font-bold">
-            {desempenhoAluno.totalDisciplinas}
-          </div>
-        </div>
-      </div>
-
-{desempenhoAluno.disciplinas?.map((disciplina: any) => (
-  <div
-    key={disciplina.disciplinaId}
-    className="rounded-xl border border-slate-700 p-4"
-  >
-    <div className="font-semibold">
-      {disciplina.disciplinaNome}
-    </div>
-
-    <div className="mb-2 text-sm opacity-70">
-      Média: {disciplina.media}
-    </div>
-
-    {disciplina.avaliacoes?.map((avaliacao: any, idx: number) => (
-      <div
-        key={idx}
-        className="mt-2 rounded-lg border border-slate-800 p-3"
-      >
-        <div className="font-medium">
-          {avaliacao.titulo}
-        </div>
-
-        <div className="text-sm">
-          Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
-        </div>
-
-        {avaliacao.feedback && (
-          <div className="mt-1 text-sm opacity-80">
-            Feedback: {avaliacao.feedback}
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-))}
-
-{desempenhoAluno.meta?.totalPages > 1 && (
-  <div className="mt-4 flex items-center justify-center gap-2">
-    <button
-      type="button"
-      disabled={desempenhoAluno.meta.page <= 1}
-      onClick={() =>
-        carregarDesempenhoAluno(
-          desempenhoAluno.aluno.id,
-          buscaDisciplina,
-          desempenhoAluno.meta.page - 1
-        )
-      }
-      className="rounded-lg border border-slate-700 px-3 py-2 disabled:opacity-40"
-    >
-      Anterior
-    </button>
-
-    <span className="text-sm">
-      Página {desempenhoAluno.meta.page} de {desempenhoAluno.meta.totalPages}
-    </span>
-
-    <button
-      type="button"
-      disabled={desempenhoAluno.meta.page >= desempenhoAluno.meta.totalPages}
-      onClick={() =>
-        carregarDesempenhoAluno(
-          desempenhoAluno.aluno.id,
-          buscaDisciplina,
-          desempenhoAluno.meta.page + 1
-        )
-      }
-      className="rounded-lg border border-slate-700 px-3 py-2 disabled:opacity-40"
-    >
-      Próxima
-    </button>
-  </div>
-)}
- </div>
-  ) : (
-    <div className="mt-3 text-sm opacity-70">
-      Nenhum dado acadêmico encontrado.
-    </div>
-  )}
-  
-</div>
-
                   </section>
 
-                  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <h3 className="text-lg font-semibold text-slate-900">
-                      Situação acadêmica
-                    </h3>
-
-                    {alunoSelecionado.resumoMatricula ? (
-                      <div className="mt-4 space-y-3 text-sm text-slate-600">
-                        <p>
-                          <strong>Curso:</strong>{" "}
-                          {alunoSelecionado.resumoMatricula.cursoNome || "-"}
-                        </p>
-                        <p>
-                          <strong>Status da matrícula:</strong>{" "}
-                          {alunoSelecionado.resumoMatricula.status || "-"}
-                        </p>
-                        <p>
-                          <strong>Semestre:</strong>{" "}
-                          {alunoSelecionado.resumoMatricula.semestre || "-"}
-                        </p>
-
-                        <div>
-                          <p className="font-semibold text-slate-900">
-                            Turmas vinculadas
-                          </p>
-                          <div className="mt-2 grid gap-3 md:grid-cols-2">
-                            {alunoSelecionado.resumoMatricula.turmas.map(
-                              (turma) => (
-                                <div
-                                  key={turma.turmaId}
-                                  className="rounded-xl border border-slate-200 p-3"
-                                >
-                                  <p className="font-medium text-slate-900">
-                                    {turma.turmaNome}
-                                  </p>
-                                  <p className="text-slate-600">
-                                    {turma.disciplinaNome || "-"}
-                                  </p>
-                                  <p className="text-slate-500">
-                                    Prof. {turma.professorNome || "-"}
-                                  </p>
-                                  <p className="text-xs text-slate-400">
-                                    Status da disciplina: {turma.status || "-"}
-                                  </p>
-                                </div>
-                              )
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
-                        Este aluno ainda não possui matrícula vinculada.
-                      </div>
-                    )}
-                  </section>
+                 
                 </>
                 </>
 )}
@@ -2781,6 +2590,243 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
       </button>
     </section>
   </div>
+)}
+
+{abaPainelAluno === "MATRICULAS" && (
+  <>
+    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="text-lg font-semibold text-slate-900">
+        Situação acadêmica
+      </h3>
+
+      {alunoSelecionado.resumoMatricula ? (
+        <div className="mt-4 space-y-3 text-sm text-slate-600">
+          <p>
+            <strong>Curso:</strong>{" "}
+            {alunoSelecionado.resumoMatricula.cursoNome || "-"}
+          </p>
+
+          <p>
+            <strong>Status da matrícula:</strong>{" "}
+            {alunoSelecionado.resumoMatricula.status || "-"}
+          </p>
+
+          <p>
+            <strong>Semestre:</strong>{" "}
+            {alunoSelecionado.resumoMatricula.semestre || "-"}
+          </p>
+
+          <div>
+            <p className="font-semibold text-slate-900">
+              Turmas vinculadas
+            </p>
+
+            <div className="mt-2 grid gap-3 md:grid-cols-2">
+              {alunoSelecionado.resumoMatricula.turmas.map((turma) => (
+                <div
+                  key={turma.turmaId}
+                  className="rounded-xl border border-slate-200 p-3"
+                >
+                  <p className="font-medium text-slate-900">
+                    {turma.turmaNome}
+                  </p>
+
+                  <p className="text-slate-600">
+                    {turma.disciplinaNome || "-"}
+                  </p>
+
+                  <p className="text-slate-500">
+                    Prof. {turma.professorNome || "-"}
+                  </p>
+
+                  <p className="text-xs text-slate-400">
+                    Status da disciplina: {turma.status || "-"}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
+          Este aluno ainda não possui matrícula vinculada.
+        </div>
+      )}
+    </section>
+  </>
+)}
+
+{abaPainelAluno === "DESEMPENHO" && (
+  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      Desempenho acadêmico
+    </h3>
+
+    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      Médias, avaliações, notas e feedbacks do aluno.
+    </p>
+
+    <div className="mt-4">
+      <input
+        type="text"
+        placeholder="Buscar disciplina..."
+        value={buscaDisciplina}
+        onChange={(e) => {
+          const valor = e.target.value;
+          setBuscaDisciplina(valor);
+          setPaginaDisciplina(1);
+
+          if (alunoSelecionado?.id) {
+            carregarDesempenhoAluno(alunoSelecionado.id, valor, 1);
+          }
+        }}
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+      />
+    </div>
+
+    {carregandoDesempenho ? (
+      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        Carregando desempenho...
+      </p>
+    ) : desempenhoAluno ? (
+      <div className="mt-5 space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Média Geral
+            </p>
+            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {desempenhoAluno.mediaGeral ?? "-"}
+            </p>
+          </div>
+
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Disciplinas
+            </p>
+            <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">
+              {desempenhoAluno.totalDisciplinas ?? 0}
+            </p>
+          </div>
+        </div>
+
+        {desempenhoAluno.disciplinas?.length ? (
+          desempenhoAluno.disciplinas.map((disciplina: any) => (
+            <div
+              key={disciplina.disciplinaId}
+              className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                  {disciplina.disciplinaNome}
+                </p>
+
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                  Média: {disciplina.media ?? "-"}
+                </span>
+              </div>
+
+              <div className="mt-3 space-y-2">
+                {disciplina.avaliacoes?.length ? (
+                  disciplina.avaliacoes.map((avaliacao: any, idx: number) => (
+                    <div
+                      key={idx}
+                      className="rounded-lg border border-slate-200 bg-white p-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+                    >
+                      <p className="font-medium text-slate-900 dark:text-slate-100">
+                        {avaliacao.titulo}
+                      </p>
+
+                      <p className="text-slate-600 dark:text-slate-300">
+                        Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
+                      </p>
+
+                      {avaliacao.feedback && (
+                        <p className="mt-1 text-slate-500 dark:text-slate-400">
+                          Feedback: {avaliacao.feedback}
+                        </p>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    Nenhuma avaliação registrada nesta disciplina.
+                  </p>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+            Nenhuma disciplina encontrada.
+          </p>
+        )}
+      </div>
+    ) : (
+      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        Nenhum dado acadêmico encontrado.
+      </p>
+    )}
+  </section>
+)}
+
+{abaPainelAluno === "HISTORICO" && (
+  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      Histórico acadêmico
+    </h3>
+
+    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      Resumo acadêmico do aluno gerado a partir das disciplinas, avaliações e médias registradas no PHANYX.
+    </p>
+
+    {carregandoDesempenho ? (
+      <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">
+        Carregando histórico acadêmico...
+      </p>
+    ) : !desempenhoAluno?.disciplinas?.length ? (
+      <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        Ainda não há disciplinas avaliadas para compor o histórico acadêmico.
+      </div>
+    ) : (
+      <div className="mt-5 space-y-3">
+        {desempenhoAluno.disciplinas.map((disciplina: any) => (
+          <div
+            key={disciplina.disciplinaId}
+            className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
+          >
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="font-semibold text-slate-900 dark:text-slate-100">
+                  {disciplina.disciplinaNome}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Disciplina cursada/avaliada no PHANYX
+                </p>
+              </div>
+
+              <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                Média: {disciplina.media ?? "-"}
+              </span>
+            </div>
+
+            <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-slate-600 dark:text-slate-300 md:grid-cols-3">
+              <p>
+                <strong>Situação:</strong>{" "}
+                {Number(disciplina.media || 0) >= 7 ? "Aprovado" : "Em andamento"}
+              </p>
+              <p>
+                <strong>Frequência:</strong> -
+              </p>
+              <p>
+                <strong>Carga horária:</strong> -
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    )}
+  </section>
 )}
 
 {/* DOCUMENTOS DO ALUNO E RESPONSÁVEL */}
