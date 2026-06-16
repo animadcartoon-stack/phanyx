@@ -331,22 +331,42 @@ useEffect(() => {
       ? data.data.map((aluno: any) => ({
           ...aluno,
           resumoMatricula: aluno.resumoMatricula
-            ? {
-                id: aluno.resumoMatricula.id,
-                status: aluno.resumoMatricula.status,
-                cursoNome: aluno.resumoMatricula.curso?.nome || null,
-                semestre: aluno.resumoMatricula.semestre ?? null,
-                turmas: Array.isArray(aluno.resumoMatricula.turmas)
-                  ? aluno.resumoMatricula.turmas.map((turma: any) => ({
-                      turmaId: Number(turma.id),
-                      turmaNome: String(turma.nome || "Turma"),
-                      disciplinaNome: turma.disciplina?.nome || null,
-                      professorNome: turma.professor?.nome || null,
-                      status: turma.status || null,
-                    }))
-                  : [],
-              }
-            : null,
+  ? {
+      id: aluno.resumoMatricula.id,
+      status: aluno.resumoMatricula.status,
+
+      cursoNome: aluno.resumoMatricula.curso?.nome || null,
+      semestre: aluno.resumoMatricula.semestre ?? null,
+
+      numeroMatricula:
+        aluno.resumoMatricula.numeroMatricula || null,
+
+      dataMatricula:
+        aluno.resumoMatricula.dataMatricula || null,
+
+      periodoLetivo:
+        aluno.resumoMatricula.periodoLetivo || null,
+
+      modalidade:
+        aluno.resumoMatricula.modalidade || null,
+
+      previsaoConclusao:
+        aluno.resumoMatricula.previsaoConclusao || null,
+
+      polo:
+        aluno.resumoMatricula.polo || null,
+
+      turmas: Array.isArray(aluno.resumoMatricula.turmas)
+        ? aluno.resumoMatricula.turmas.map((turma: any) => ({
+            turmaId: Number(turma.id),
+            turmaNome: String(turma.nome || "Turma"),
+            disciplinaNome: turma.disciplina?.nome || null,
+            professorNome: turma.professor?.nome || null,
+            status: turma.status || null,
+          }))
+        : [],
+    }
+  : null,
         }))
       : [];
 
