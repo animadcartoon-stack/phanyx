@@ -934,6 +934,46 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
   }
 }
 
+async function arquivarDocumentoAluno(documentoId: number) {
+  if (!alunoSelecionado) return;
+
+  try {
+    const res = await fetch(
+      `/api/admin/alunos/${alunoSelecionado.id}/documentos`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          documentoId,
+          motivo: "Arquivado pelo administrador.",
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao arquivar documento.");
+    }
+
+    await carregarDocumentosAluno(alunoSelecionado.id);
+
+    mostrarFeedback("sucesso", "Documento arquivado com sucesso.");
+    abrirModalAviso(
+      "sucesso",
+      "Documento arquivado",
+      "O documento foi arquivado e não aparece mais na lista ativa."
+    );
+  } catch (error: any) {
+    abrirModalAviso(
+      "erro",
+      "Erro ao arquivar",
+      error?.message || "Não foi possível arquivar o documento."
+    );
+  }
+}
+
 async function enviarDocumentoAluno() {
   if (!alunoSelecionado) return;
 
@@ -2488,16 +2528,27 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                   </p>
                 </div>
 
-                {doc.arquivoUrl && (
-                  <a
-                    href={doc.arquivoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
-                  >
-                    Abrir
-                  </a>
-                )}
+                <div className="flex flex-wrap gap-2">
+  {doc.arquivoUrl && (
+    <a
+      href={doc.arquivoUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
+    >
+      Abrir
+    </a>
+  )}
+
+  <button
+    type="button"
+    onClick={() => arquivarDocumentoAluno(doc.id)}
+    className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
+  >
+    Arquivar
+  </button>
+</div>
+                
               </div>
             ))
         )}
@@ -2531,16 +2582,27 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                   </p>
                 </div>
 
-                {doc.arquivoUrl && (
-                  <a
-                    href={doc.arquivoUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
-                  >
-                    Abrir
-                  </a>
-                )}
+                <div className="flex flex-wrap gap-2">
+  {doc.arquivoUrl && (
+    <a
+      href={doc.arquivoUrl}
+      target="_blank"
+      rel="noreferrer"
+      className="rounded-xl bg-blue-600 px-3 py-2 text-center text-xs font-semibold text-white transition hover:bg-blue-700"
+    >
+      Abrir
+    </a>
+  )}
+
+  <button
+    type="button"
+    onClick={() => arquivarDocumentoAluno(doc.id)}
+    className="rounded-xl border border-orange-200 bg-orange-50 px-3 py-2 text-center text-xs font-semibold text-orange-700 transition hover:bg-orange-100"
+  >
+    Arquivar
+  </button>
+</div>
+     
               </div>
             ))
         )}
