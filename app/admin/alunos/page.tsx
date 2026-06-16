@@ -187,6 +187,10 @@ function AdminAlunosPage() {
   const [desempenhoAluno, setDesempenhoAluno] = useState<any | null>(null);
   const [carregandoDesempenho, setCarregandoDesempenho] = useState(false);
 
+  const [buscaDisciplina, setBuscaDisciplina] = useState("");
+  const [paginaDisciplina, setPaginaDisciplina] = useState(1);
+  const [alunoDesempenhoId, setAlunoDesempenhoId] = useState<number | null>(null);
+
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -832,15 +836,28 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
     };
   }, [alunosComResumo]);
 
-  async function carregarDesempenhoAluno(alunoId: number) {
+  async function carregarDesempenhoAluno(
+  alunoId: number,
+  busca = "",
+  page = 1
+) {
   try {
     setCarregandoDesempenho(true);
     setDesempenhoAluno(null);
 
-    const res = await fetch(`/api/admin/alunos/${alunoId}/desempenho`, {
-      credentials: "include",
-      cache: "no-store",
-    });
+    const params = new URLSearchParams({
+  busca,
+  page: String(page),
+  limit: "10",
+});
+
+const res = await fetch(
+  `/api/admin/alunos/${alunoId}/desempenho?${params.toString()}`,
+  {
+    credentials: "include",
+    cache: "no-store",
+  }
+);
 
     const data = await res.json();
 
@@ -863,7 +880,13 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
   function abrirDetalhesAluno(aluno: AlunoComResumo) {
   setAlunoSelecionado(aluno);
   setPainelAlunoAberto(true);
-  carregarDesempenhoAluno(aluno.id);
+  setAlunoDesempenhoId(aluno.id);
+
+carregarDesempenhoAluno(
+  aluno.id,
+  buscaDisciplina,
+  paginaDisciplina
+);
 }
 
   const turmaNomeSelecionada = useMemo(() => {
