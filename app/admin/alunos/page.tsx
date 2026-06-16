@@ -223,6 +223,9 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [documentoTipo, setDocumentoTipo] = useState("RG");
   const [documentoArquivo, setDocumentoArquivo] = useState<File | null>(null);
 
+  const [documentosArquivadosAluno, setDocumentosArquivadosAluno] = useState<any[]>([]);
+  const [carregandoArquivadosAluno, setCarregandoArquivadosAluno] = useState(false);
+
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -910,6 +913,36 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
     };
   }, [alunosComResumo]);
 
+  async function carregarDocumentosArquivadosAluno(alunoId: number) {
+  try {
+    setCarregandoArquivadosAluno(true);
+
+    const res = await fetch(
+      `/api/admin/alunos/${alunoId}/documentos/arquivados`,
+      {
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao carregar documentos arquivados.");
+    }
+
+    setDocumentosArquivadosAluno(Array.isArray(data) ? data : []);
+  } catch (error: any) {
+    setDocumentosArquivadosAluno([]);
+    mostrarFeedback(
+      "erro",
+      error?.message || "Erro ao carregar documentos arquivados."
+    );
+  } finally {
+    setCarregandoArquivadosAluno(false);
+  }
+}
+
   async function carregarDocumentosAluno(alunoId: number) {
   try {
     setCarregandoDocumentosAluno(true);
@@ -931,6 +964,46 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
     mostrarFeedback("erro", error?.message || "Erro ao carregar documentos.");
   } finally {
     setCarregandoDocumentosAluno(false);
+  }
+}
+
+async function restaurarDocumentoAluno(documentoId: number) {
+  if (!alunoSelecionado) return;
+
+  try {
+    const res = await fetch(
+      `/api/admin/alunos/${alunoSelecionado.id}/documentos/arquivados`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          documentoId,
+          motivo: "Documento restaurado pelo administrador.",
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao restaurar documento.");
+    }
+
+    await carregarDocumentosAluno(alunoSelecionado.id);
+    await carregarDocumentosArquivadosAluno(alunoSelecionado.id);
+
+    abrirModalAviso(
+      "sucesso",
+      "Documento restaurado",
+      "O documento voltou para a lista ativa."
+    );
+  } catch (error: any) {
+    abrirModalAviso(
+      "erro",
+      "Erro ao restaurar",
+      error?.message || "Não foi possível restaurar o documento."
+    );
   }
 }
 
@@ -1083,6 +1156,7 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
   setAlunoDesempenhoId(aluno.id);
 
   carregarDocumentosAluno(aluno.id);
+  carregarDocumentosArquivadosAluno(aluno.id);
 
   carregarDesempenhoAluno(
     aluno.id,
@@ -2613,6 +2687,49 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
         Enviar novo documento
       </h3>
+
+<section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+    Documentos arquivados
+  </h3>
+
+  <div className="mt-4 space-y-2">
+    {carregandoArquivadosAluno ? (
+      <p className="text-sm text-slate-500 dark:text-slate-400">
+        Carregando documentos arquivados...
+      </p>
+    ) : documentosArquivadosAluno.length === 0 ? (
+      <p className="rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        Nenhum documento arquivado.
+      </p>
+    ) : (
+      documentosArquivadosAluno.map((doc) => (
+        <div
+          key={doc.id}
+          className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm dark:border-slate-700 dark:bg-slate-950 md:flex-row md:items-center md:justify-between"
+        >
+          <div>
+            <p className="font-semibold text-slate-900 dark:text-slate-100">
+              {doc.titulo}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {doc.proprietario === "RESPONSAVEL" ? "Responsável" : "Aluno"} •{" "}
+              Arquivado em {doc.arquivadoEm ? formatarData(doc.arquivadoEm) : "-"}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => restaurarDocumentoAluno(doc.id)}
+            className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-center text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100"
+          >
+            Restaurar
+          </button>
+        </div>
+      ))
+    )}
+  </div>
+</section>
 
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
