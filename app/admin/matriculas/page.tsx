@@ -1366,7 +1366,7 @@ function renderGrupoDisciplina(
         {grupo.turmas.map((t) => (
           <label
             key={t.id}
-            className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-gray-50"
+            className="flex items-start gap-3 border rounded-xl p-3 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
           >
             <input
               type="checkbox"
@@ -1826,7 +1826,7 @@ function renderGrupoDisciplina(
 
           return (
             <React.Fragment key={m.id}>
-              <tr key={`linha-${m.id}`} className="border-b align-top hover:bg-gray-50">
+              <tr key={`linha-${m.id}`} className="border-b align-top hover:bg-slate-100 dark:hover:bg-slate-800">
                 <td className="px-4 py-3">
                   <div className="font-medium text-gray-900">{alunoNome}</div>
                   <div className="text-xs text-gray-500">ID #{m.id}</div>
@@ -1913,7 +1913,7 @@ function renderGrupoDisciplina(
               </tr>
 
               {expandida && (
-                <tr key={`detalhes-${m.id}`} className="border-b bg-gray-50">
+                <tr key={`detalhes-${m.id}`} className="border-b bg-slate-50 dark:bg-slate-900">
                   <td colSpan={6} className="px-4 py-4">
                     <div className="space-y-4">
                       <div className="flex flex-wrap gap-2">
