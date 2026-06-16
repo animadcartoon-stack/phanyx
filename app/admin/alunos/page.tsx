@@ -2205,13 +2205,7 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                 <>
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex flex-wrap gap-3">
-                      <button
-                        onClick={() => iniciarEdicao(alunoSelecionado)}
-                        className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100"
-                      >
-                        Editar aluno
-                      </button>
-
+                      
                       <button
                         onClick={() =>
                           window.open(
