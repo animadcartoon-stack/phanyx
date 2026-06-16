@@ -583,6 +583,7 @@ model Matricula {
   importadaSistemaAntigo Boolean                @default(false)
   alunoId                Int
   numeroMatricula        String?
+  modalidade             String?
   createdAt              DateTime               @default(now())
   instituicaoId          Int
   poloId                 Int?

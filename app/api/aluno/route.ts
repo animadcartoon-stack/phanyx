@@ -139,6 +139,7 @@ export async function GET(request: Request) {
     status: true,
     semestre: true,
     numeroMatricula: true,
+    modalidade: true,
     createdAt: true,
     periodoLetivo: true,
     
@@ -207,6 +208,7 @@ export async function GET(request: Request) {
       status: matriculaRecente.status,
       semestre: matriculaRecente.semestre,
       numeroMatricula: matriculaRecente.numeroMatricula,
+      modalidade: matriculaRecente.modalidade,
       dataMatricula: matriculaRecente.createdAt,
       periodoLetivo: matriculaRecente.periodoLetivo,
       polo: matriculaRecente.polo
