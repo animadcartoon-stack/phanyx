@@ -2062,285 +2062,293 @@ function renderGrupoDisciplina(
 </button>
       <h2 className="text-lg font-bold mb-4">Editar matrícula</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div>
-          <label className="text-sm font-medium text-gray-700">Aluno</label>
-          <select
-            value={matriculaEditando.alunoId}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev ? { ...prev, alunoId: e.target.value } : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-          >
-            <option value="">Selecione...</option>
-            {alunos.map((a) => (
-              <option key={a.id} value={String(a.id)}>
-                {a.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">Curso</label>
-          <select
-            value={matriculaEditando.cursoId}
-            onChange={async (e) => {
-              const novoCursoId = e.target.value;
-              await carregarSemestresDoCurso(novoCursoId);
-
-              setMatriculaEditando((prev) =>
-                prev
-                  ? {
-                      ...prev,
-                      cursoId: novoCursoId,
-                      cursoSemestreId: "",
-                      semestre: "",
-                      turmaIds: [],
-                    }
-                  : prev
-              );
-            }}
-            className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-          >
-            <option value="">Selecione...</option>
-            {cursos.map((c) => (
-              <option key={c.id} value={String(c.id)}>
-                {c.nome}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Semestre do curso
-          </label>
-          <select
-            value={matriculaEditando.cursoSemestreId}
-            onChange={(e) => {
-              const semestreId = e.target.value;
-              const semestreObj = semestresCurso.find(
-                (s) => s.id === Number(semestreId)
-              );
-
-              setMatriculaEditando((prev) =>
-                prev
-                  ? {
-                      ...prev,
-                      cursoSemestreId: semestreId,
-                      semestre: semestreObj ? Number(semestreObj.numero) : "",
-                      turmaIds: [],
-                    }
-                  : prev
-              );
-            }}
-            className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-            disabled={!matriculaEditando.cursoId}
-          >
-            <option value="">Selecione...</option>
-            {semestresCurso.map((s) => (
-              <option key={s.id} value={String(s.id)}>
-                {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">Nome social</label>
-          <input
-            type="text"
-            value={matriculaEditando.nomeSocial}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev ? { ...prev, nomeSocial: e.target.value } : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">Gênero</label>
-          <select
-            value={matriculaEditando.genero}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev ? { ...prev, genero: e.target.value } : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
-          >
-            <option value="">Selecione...</option>
-            <option value="FEMININO">Feminino</option>
-            <option value="MASCULINO">Masculino</option>
-            <option value="NAO_BINARIO">Não binário</option>
-            <option value="OUTRO">Outro</option>
-            <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
-          </select>
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Valor pago no ato da matrícula
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={matriculaEditando.valorPagoMatricula}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev ? { ...prev, valorPagoMatricula: e.target.value } : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Valor da mensalidade
-          </label>
-          <input
-            type="number"
-            step="0.01"
-            min="0"
-            value={matriculaEditando.valorMensalidade}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev ? { ...prev, valorMensalidade: e.target.value } : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Quantidade de mensalidades
-          </label>
-          <input
-            type="number"
-            min="1"
-            value={matriculaEditando.quantidadeMensalidades}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev
-                  ? { ...prev, quantidadeMensalidades: e.target.value }
-                  : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2"
-          />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-gray-700">
-            Primeiro vencimento
-          </label>
-
-<div>
-  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-    Modalidade
-  </label>
-  <select
-    value={matriculaEditando.modalidade}
-    onChange={(e) =>
-      setMatriculaEditando((prev) =>
-        prev ? { ...prev, modalidade: e.target.value } : prev
-      )
-    }
-    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Selecione a modalidade</option>
-    <option value="PRESENCIAL">Presencial</option>
-    <option value="EAD">EAD</option>
-    <option value="HIBRIDO">Híbrido</option>
-  </select>
-</div>
-
-<div>
-  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-    Período / horário letivo
-  </label>
-
-<div>
-  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
-    Turma do aluno
-  </label>
-
-  <select
-    value={matriculaEditando.turmaIds[0] ? String(matriculaEditando.turmaIds[0]) : ""}
-    onChange={(e) => {
-      const turmaId = Number(e.target.value);
-
-      setMatriculaEditando((prev) =>
-        prev
-          ? {
-              ...prev,
-              turmaIds:
-                Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : [],
-            }
-          : prev
-      );
-    }}
-    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Selecione a turma...</option>
-
-    {turmas
-      .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
-      .map((t) => (
-        <option key={t.id} value={String(t.id)}>
-          {t.nome}
-          {t.semestre ? ` — ${t.semestre}` : ""}
-          {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Aluno
+    </label>
+    <select
+      value={matriculaEditando.alunoId}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, alunoId: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <option value="">Selecione...</option>
+      {alunos.map((a) => (
+        <option key={a.id} value={String(a.id)}>
+          {a.nome}
         </option>
       ))}
-  </select>
-</div>
+    </select>
+  </div>
 
-  <select
-    value={matriculaEditando.periodoLetivo}
-    onChange={(e) =>
-      setMatriculaEditando((prev) =>
-        prev ? { ...prev, periodoLetivo: e.target.value } : prev
-      )
-    }
-    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Selecione o período</option>
-    <option value="MATUTINO">Matutino</option>
-    <option value="VESPERTINO">Vespertino</option>
-    <option value="NOTURNO">Noturno</option>
-    <option value="INTEGRAL">Integral</option>
-    <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
-    <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
-    <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
-    <option value="EAD_LIVRE">EAD Livre</option>
-    <option value="EAD_MATUTINO">EAD Matutino</option>
-    <option value="EAD_VESPERTINO">EAD Vespertino</option>
-    <option value="EAD_NOTURNO">EAD Noturno</option>
-    <option value="EAD_INTEGRAL">EAD Integral</option>
-  </select>
-</div>
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Curso
+    </label>
+    <select
+      value={matriculaEditando.cursoId}
+      onChange={async (e) => {
+        const novoCursoId = e.target.value;
+        await carregarSemestresDoCurso(novoCursoId);
 
-          <input
-            type="date"
-            value={matriculaEditando.primeiroVencimento}
-            onChange={(e) =>
-              setMatriculaEditando((prev) =>
-                prev ? { ...prev, primeiroVencimento: e.target.value } : prev
-              )
-            }
-            className="mt-1 w-full border rounded-xl px-3 py-2"
-          />
-        </div>
-      </div>
+        setMatriculaEditando((prev) =>
+          prev
+            ? {
+                ...prev,
+                cursoId: novoCursoId,
+                cursoSemestreId: "",
+                semestre: "",
+                turmaIds: [],
+              }
+            : prev
+        );
+      }}
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <option value="">Selecione...</option>
+      {cursos.map((c) => (
+        <option key={c.id} value={String(c.id)}>
+          {c.nome}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Semestre do curso
+    </label>
+    <select
+      value={matriculaEditando.cursoSemestreId}
+      onChange={(e) => {
+        const semestreId = e.target.value;
+        const semestreObj = semestresCurso.find(
+          (s) => s.id === Number(semestreId)
+        );
+
+        setMatriculaEditando((prev) =>
+          prev
+            ? {
+                ...prev,
+                cursoSemestreId: semestreId,
+                semestre: semestreObj ? Number(semestreObj.numero) : "",
+                turmaIds: [],
+              }
+            : prev
+        );
+      }}
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+      disabled={!matriculaEditando.cursoId}
+    >
+      <option value="">Selecione...</option>
+      {semestresCurso.map((s) => (
+        <option key={s.id} value={String(s.id)}>
+          {s.numero}º semestre{s.titulo ? ` — ${s.titulo}` : ""}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Nome social
+    </label>
+    <input
+      type="text"
+      value={matriculaEditando.nomeSocial}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, nomeSocial: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    />
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Gênero
+    </label>
+    <select
+      value={matriculaEditando.genero}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, genero: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <option value="">Selecione...</option>
+      <option value="FEMININO">Feminino</option>
+      <option value="MASCULINO">Masculino</option>
+      <option value="NAO_BINARIO">Não binário</option>
+      <option value="OUTRO">Outro</option>
+      <option value="PREFIRO_NAO_INFORMAR">Prefiro não informar</option>
+    </select>
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Modalidade
+    </label>
+    <select
+      value={matriculaEditando.modalidade}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, modalidade: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <option value="">Selecione a modalidade</option>
+      <option value="PRESENCIAL">Presencial</option>
+      <option value="EAD">EAD</option>
+      <option value="HIBRIDO">Híbrido</option>
+    </select>
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Turma do aluno
+    </label>
+    <select
+      value={
+        matriculaEditando.turmaIds[0]
+          ? String(matriculaEditando.turmaIds[0])
+          : ""
+      }
+      onChange={(e) => {
+        const turmaId = Number(e.target.value);
+
+        setMatriculaEditando((prev) =>
+          prev
+            ? {
+                ...prev,
+                turmaIds:
+                  Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : [],
+              }
+            : prev
+        );
+      }}
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <option value="">Selecione a turma...</option>
+      {turmas
+        .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+        .map((t) => (
+          <option key={t.id} value={String(t.id)}>
+            {t.nome}
+            {t.professorNome ? ` • Prof. ${t.professorNome}` : ""}
+            {t.semestre ? ` • ${t.semestre}º semestre` : ""}
+          </option>
+        ))}
+    </select>
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Período / horário letivo
+    </label>
+    <select
+      value={matriculaEditando.periodoLetivo}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, periodoLetivo: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    >
+      <option value="">Selecione o período</option>
+      <option value="MATUTINO">Matutino</option>
+      <option value="VESPERTINO">Vespertino</option>
+      <option value="NOTURNO">Noturno</option>
+      <option value="INTEGRAL">Integral</option>
+      <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
+      <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
+      <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
+      <option value="EAD_LIVRE">EAD Livre</option>
+      <option value="EAD_MATUTINO">EAD Matutino</option>
+      <option value="EAD_VESPERTINO">EAD Vespertino</option>
+      <option value="EAD_NOTURNO">EAD Noturno</option>
+      <option value="EAD_INTEGRAL">EAD Integral</option>
+    </select>
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Primeiro vencimento
+    </label>
+    <input
+      type="date"
+      value={matriculaEditando.primeiroVencimento}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, primeiroVencimento: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    />
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Valor da mensalidade
+    </label>
+    <input
+      type="number"
+      step="0.01"
+      min="0"
+      value={matriculaEditando.valorMensalidade}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, valorMensalidade: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    />
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Quantidade de mensalidades
+    </label>
+    <input
+      type="number"
+      min="1"
+      value={matriculaEditando.quantidadeMensalidades}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev
+            ? { ...prev, quantidadeMensalidades: e.target.value }
+            : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    />
+  </div>
+
+  <div>
+    <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+      Valor pago no ato da matrícula
+    </label>
+    <input
+      type="number"
+      step="0.01"
+      min="0"
+      value={matriculaEditando.valorPagoMatricula}
+      onChange={(e) =>
+        setMatriculaEditando((prev) =>
+          prev ? { ...prev, valorPagoMatricula: e.target.value } : prev
+        )
+      }
+      className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+    />
+  </div>
+</div>
 
       <div className="mt-5">
   <label className="text-sm font-medium text-gray-700">
