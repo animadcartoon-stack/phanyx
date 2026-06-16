@@ -141,8 +141,7 @@ export async function GET(request: Request) {
     numeroMatricula: true,
     createdAt: true,
     periodoLetivo: true,
-    modalidade: true,
-    previsaoConclusao: true,
+    
 
     polo: {
       select: {
@@ -210,8 +209,6 @@ export async function GET(request: Request) {
       numeroMatricula: matriculaRecente.numeroMatricula,
       dataMatricula: matriculaRecente.createdAt,
       periodoLetivo: matriculaRecente.periodoLetivo,
-      modalidade: matriculaRecente.modalidade,
-      previsaoConclusao: matriculaRecente.previsaoConclusao,
       polo: matriculaRecente.polo
         ? {
             id: matriculaRecente.polo.id,
