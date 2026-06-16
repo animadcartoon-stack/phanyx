@@ -328,48 +328,60 @@ useEffect(() => {
     }
 
     const lista = Array.isArray(data?.data)
-      ? data.data.map((aluno: any) => ({
-          ...aluno,
-          resumoMatricula: aluno.resumoMatricula
-  ? {
-      id: aluno.resumoMatricula.id,
-      status: aluno.resumoMatricula.status,
+  ? data.data.map((aluno: any) => ({
+      ...aluno,
+      resumoMatricula: aluno.resumoMatricula
+        ? {
+            id: aluno.resumoMatricula.id,
+            status: aluno.resumoMatricula.status || null,
 
-      cursoNome: aluno.resumoMatricula.curso?.nome || null,
-      semestre: aluno.resumoMatricula.semestre ?? null,
+            cursoNome:
+              aluno.resumoMatricula.curso?.nome ||
+              aluno.resumoMatricula.cursoNome ||
+              null,
 
-      numeroMatricula:
-        aluno.resumoMatricula.numeroMatricula || null,
+            semestre: aluno.resumoMatricula.semestre ?? null,
 
-      dataMatricula:
-        aluno.resumoMatricula.dataMatricula || null,
+            numeroMatricula:
+              aluno.resumoMatricula.numeroMatricula || null,
 
-      periodoLetivo:
-        aluno.resumoMatricula.periodoLetivo || null,
+            dataMatricula:
+              aluno.resumoMatricula.dataMatricula || null,
 
-      modalidade:
-        aluno.resumoMatricula.modalidade || null,
+            periodoLetivo:
+              aluno.resumoMatricula.periodoLetivo || null,
 
-      previsaoConclusao:
-        aluno.resumoMatricula.previsaoConclusao || null,
+            modalidade:
+              aluno.resumoMatricula.modalidade || null,
 
-      polo:
-        aluno.resumoMatricula.polo || null,
+            previsaoConclusao:
+              aluno.resumoMatricula.previsaoConclusao || null,
 
-      turmas: Array.isArray(aluno.resumoMatricula.turmas)
-        ? aluno.resumoMatricula.turmas.map((turma: any) => ({
-            turmaId: Number(turma.id),
-            turmaNome: String(turma.nome || "Turma"),
-            disciplinaNome: turma.disciplina?.nome || null,
-            professorNome: turma.professor?.nome || null,
-            status: turma.status || null,
-          }))
-        : [],
-    }
-  : null,
-        }))
-      : [];
+            polo:
+              aluno.resumoMatricula.polo || null,
 
+            turmas: Array.isArray(aluno.resumoMatricula.turmas)
+              ? aluno.resumoMatricula.turmas.map((turma: any) => ({
+                  turmaId: Number(turma.turmaId || turma.id),
+                  turmaNome: String(
+                    turma.turmaNome || turma.nome || "Turma"
+                  ),
+                  disciplinaNome:
+                    turma.disciplinaNome ||
+                    turma.disciplina?.nome ||
+                    null,
+                  professorNome:
+                    turma.professorNome ||
+                    turma.professor?.nome ||
+                    null,
+                  status: turma.status || null,
+                }))
+              : [],
+          }
+        : null,
+    }))
+  : [];
+      
     setAlunos(lista);
     setTotalAlunos(Number(data?.meta?.total || 0));
     setTotalPaginas(Number(data?.meta?.totalPages || 1));
