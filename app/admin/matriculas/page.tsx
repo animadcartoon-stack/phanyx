@@ -1853,15 +1853,24 @@ function renderGrupoDisciplina(
 
           return (
             <React.Fragment key={m.id}>
-              <tr key={`linha-${m.id}`} className="border-b align-top hover:bg-slate-100 dark:hover:bg-slate-800">
+              <tr
+  key={`linha-${m.id}`}
+  className="border-b align-top bg-white text-slate-900 transition hover:bg-slate-100 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-900">{alunoNome}</div>
-                  <div className="text-xs text-gray-500">ID #{m.id}</div>
+                  <div className="font-medium text-slate-900 dark:text-slate-100">
+  {alunoNome}
+</div>
+<div className="text-xs text-slate-500 dark:text-slate-400">
+  ID #{m.id}
+</div>
                 </td>
 
-                <td className="px-4 py-3 text-gray-700">{cursoNome}</td>
+                <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+  {cursoNome}
+</td>
 
-                <td className="px-4 py-3 text-gray-700">
+                <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
                   {m.semestre ? `${m.semestre}º semestre` : "-"}
                 </td>
 
