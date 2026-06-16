@@ -226,6 +226,9 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [documentosArquivadosAluno, setDocumentosArquivadosAluno] = useState<any[]>([]);
   const [carregandoArquivadosAluno, setCarregandoArquivadosAluno] = useState(false);
 
+  const [buscaMatricula, setBuscaMatricula] = useState("");
+  const [turmasMatriculaAbertas, setTurmasMatriculaAbertas] = useState<Record<number, boolean>>({});
+
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -2587,67 +2590,112 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
 )}
 
 {abaPainelAluno === "MATRICULAS" && (
-  <>
-    <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="text-lg font-semibold text-slate-900">
-        Situação acadêmica
-      </h3>
+  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      Matrícula e vínculo acadêmico
+    </h3>
 
-      {alunoSelecionado.resumoMatricula ? (
-        <div className="mt-4 space-y-3 text-sm text-slate-600">
-          <p>
-            <strong>Curso:</strong>{" "}
-            {alunoSelecionado.resumoMatricula.cursoNome || "-"}
+    {alunoSelecionado.resumoMatricula ? (
+      <div className="mt-4 space-y-4 text-sm text-slate-600 dark:text-slate-300">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+          <p><strong>Curso:</strong> {alunoSelecionado.resumoMatricula.cursoNome || "-"}</p>
+          <p><strong>Status:</strong> {alunoSelecionado.resumoMatricula.status || "-"}</p>
+          <p><strong>Semestre:</strong> {alunoSelecionado.resumoMatricula.semestre || "-"}</p>
+          <p><strong>Número da matrícula:</strong> {alunoSelecionado.matricula || "-"}</p>
+          <p><strong>Polo:</strong> {alunoSelecionado.polo?.nome || "-"}</p>
+          <p><strong>Modalidade:</strong> -</p>
+          <p><strong>Horário letivo:</strong> -</p>
+          <p><strong>Previsão de conclusão:</strong> -</p>
+        </div>
+
+        <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
+          <p className="font-semibold text-slate-900 dark:text-slate-100">
+            Turmas e disciplinas
           </p>
 
-          <p>
-            <strong>Status da matrícula:</strong>{" "}
-            {alunoSelecionado.resumoMatricula.status || "-"}
-          </p>
+          <input
+            type="text"
+            placeholder="Buscar turma, disciplina, professor ou status..."
+            value={buscaMatricula}
+            onChange={(e) => setBuscaMatricula(e.target.value)}
+            className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          />
 
-          <p>
-            <strong>Semestre:</strong>{" "}
-            {alunoSelecionado.resumoMatricula.semestre || "-"}
-          </p>
+          <div className="mt-3 space-y-2">
+            {alunoSelecionado.resumoMatricula.turmas
+              .filter((turma) => {
+                const termo = buscaMatricula
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase()
+                  .trim();
 
-          <div>
-            <p className="font-semibold text-slate-900">
-              Turmas vinculadas
-            </p>
+                if (!termo) return true;
 
-            <div className="mt-2 grid gap-3 md:grid-cols-2">
-              {alunoSelecionado.resumoMatricula.turmas.map((turma) => (
-                <div
-                  key={turma.turmaId}
-                  className="rounded-xl border border-slate-200 p-3"
-                >
-                  <p className="font-medium text-slate-900">
-                    {turma.turmaNome}
-                  </p>
+                const texto = [
+                  turma.turmaNome,
+                  turma.disciplinaNome,
+                  turma.professorNome,
+                  turma.status,
+                ]
+                  .join(" ")
+                  .normalize("NFD")
+                  .replace(/[\u0300-\u036f]/g, "")
+                  .toLowerCase();
 
-                  <p className="text-slate-600">
-                    {turma.disciplinaNome || "-"}
-                  </p>
+                return texto.includes(termo);
+              })
+              .map((turma) => {
+                const aberta = !!turmasMatriculaAbertas[turma.turmaId];
 
-                  <p className="text-slate-500">
-                    Prof. {turma.professorNome || "-"}
-                  </p>
+                return (
+                  <div
+                    key={turma.turmaId}
+                    className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950"
+                  >
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setTurmasMatriculaAbertas((prev) => ({
+                          ...prev,
+                          [turma.turmaId]: !prev[turma.turmaId],
+                        }))
+                      }
+                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
+                    >
+                      <div>
+                        <p className="font-semibold text-slate-900 dark:text-slate-100">
+                          {turma.turmaNome}
+                        </p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {turma.disciplinaNome || "Disciplina não informada"}
+                        </p>
+                      </div>
 
-                  <p className="text-xs text-slate-400">
-                    Status da disciplina: {turma.status || "-"}
-                  </p>
-                </div>
-              ))}
-            </div>
+                      <span className="text-lg text-slate-500">
+                        {aberta ? "⌃" : "⌄"}
+                      </span>
+                    </button>
+
+                    {aberta && (
+                      <div className="border-t border-slate-200 px-4 py-3 text-sm dark:border-slate-700">
+                        <p><strong>Disciplina:</strong> {turma.disciplinaNome || "-"}</p>
+                        <p><strong>Professor:</strong> {turma.professorNome || "-"}</p>
+                        <p><strong>Status da disciplina:</strong> {turma.status || "-"}</p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
           </div>
         </div>
-      ) : (
-        <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500">
-          Este aluno ainda não possui matrícula vinculada.
-        </div>
-      )}
-    </section>
-  </>
+      </div>
+    ) : (
+      <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+        Este aluno ainda não possui matrícula vinculada.
+      </div>
+    )}
+  </section>
 )}
 
 {abaPainelAluno === "DESEMPENHO" && (
