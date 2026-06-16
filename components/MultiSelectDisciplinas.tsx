@@ -72,12 +72,12 @@ export default function MultiSelectDisciplinas({
       <button
         type="button"
         onClick={() => setAberto((prev) => !prev)}
-        className="flex w-full items-center justify-between px-4 py-4 text-left transition hover:bg-slate-100 dark:hover:bg-slate-800"
+        className="flex w-full items-center justify-between px-4 py-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800"
       >
         <div className="flex flex-col">
           <span className="font-semibold text-slate-900 dark:text-slate-100">
-            {titulo}
-          </span>
+  {titulo}
+</span>
           <span className="text-xs text-slate-500 dark:text-slate-400">
             {selecionadas.length > 0
               ? `${selecionadas.length} disciplina(s) selecionada(s) • ${cargaHorariaSelecionada}h selecionadas`

@@ -130,6 +130,7 @@ model Instituicao {
   isentaPagamento           Boolean                         @default(false)
   motivoIsencao             String?
   EntregaAtividadeHistorico EntregaAtividadeHistorico[]
+  documentosProfessor       DocumentoProfessor[]
 }
 
 model User {
@@ -181,6 +182,10 @@ model User {
 
   holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
   holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
+
+  documentosProfessorCriados     DocumentoProfessor[] @relation("DocumentoProfessorCriadoPor")
+  documentosProfessorArquivados  DocumentoProfessor[] @relation("DocumentoProfessorArquivadoPor")
+  documentosProfessorRestaurados DocumentoProfessor[] @relation("DocumentoProfessorRestauradoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -423,31 +428,31 @@ model LancamentoFinanceiro {
 }
 
 model DocumentoAluno {
-  id                      Int                 @id @default(autoincrement())
-  titulo                  String
-  tipo                    TipoDocumentoAluno
-  proprietario            String              @default("ALUNO") // ALUNO | RESPONSAVEL
-  arquivoUrl              String?
-  arquivoNome             String?
-  mimeType                String?
-  tamanho                 Int?
-  conteudo                String?
-  criadoEm                DateTime            @default(now())
-  atualizadoEm            DateTime            @default(now()) @updatedAt
-  alunoId                 Int
-  instituicaoId           Int
-  matriculaId             Int?
-  arquivado               Boolean             @default(false)
-  arquivadoEm             DateTime?
-  arquivadoPorId          Int?
-  motivoArquivamento      String?
-  restauradoEm            DateTime?
-  restauradoPorId         Int?
-  motivoRestauracao       String?
+  id                 Int                @id @default(autoincrement())
+  titulo             String
+  tipo               TipoDocumentoAluno
+  proprietario       String             @default("ALUNO") // ALUNO | RESPONSAVEL
+  arquivoUrl         String?
+  arquivoNome        String?
+  mimeType           String?
+  tamanho            Int?
+  conteudo           String?
+  criadoEm           DateTime           @default(now())
+  atualizadoEm       DateTime           @default(now()) @updatedAt
+  alunoId            Int
+  instituicaoId      Int
+  matriculaId        Int?
+  arquivado          Boolean            @default(false)
+  arquivadoEm        DateTime?
+  arquivadoPorId     Int?
+  motivoArquivamento String?
+  restauradoEm       DateTime?
+  restauradoPorId    Int?
+  motivoRestauracao  String?
 
-  aluno                   Aluno               @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  instituicao             Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  matricula               Matricula?          @relation(fields: [matriculaId], references: [id])
+  aluno       Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula?  @relation(fields: [matriculaId], references: [id])
 
   @@index([alunoId])
   @@index([instituicaoId])
@@ -2569,15 +2574,15 @@ model ConfiguracaoPortalInstituicao {
 }
 
 model DocumentoProfessor {
-  id            Int      @id @default(autoincrement())
-  professorId  Int
+  id            Int  @id @default(autoincrement())
+  professorId   Int
   instituicaoId Int
-  criadoPorId  Int?
+  criadoPorId   Int?
 
   tipo       String
   titulo     String
   arquivoUrl String?
-  status     String   @default("ATIVO")
+  status     String  @default("ATIVO")
 
   arquivado      Boolean   @default(false)
   arquivadoEm    DateTime?
@@ -2586,7 +2591,7 @@ model DocumentoProfessor {
 
   restauradoEm      DateTime?
   restauradoPorId   Int?
-  motivoRestauracao String? @db.Text
+  motivoRestauracao String?   @db.Text
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -2618,6 +2623,7 @@ enum TipoDocumentoAluno {
   TITULO_ELEITOR
   OUTRO
 }
+
 enum Role {
   SUPER_ADMIN
   ADMIN
