@@ -285,6 +285,7 @@ model Professor {
   polo                   Polo?                 @relation(fields: [poloId], references: [id])
   reunioesCriadas        Reuniao[]             @relation("ReuniaoProfessor")
   atividadesResponsavel  Atividade[]           @relation("AtividadeProfessorResponsavel")
+  documentosProfessor    DocumentoProfessor[]
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -2565,6 +2566,42 @@ model ConfiguracaoPortalInstituicao {
   @@index([instituicaoId])
   @@index([portal])
   @@index([chavePagina])
+}
+
+model DocumentoProfessor {
+  id            Int      @id @default(autoincrement())
+  professorId  Int
+  instituicaoId Int
+  criadoPorId  Int?
+
+  tipo       String
+  titulo     String
+  arquivoUrl String?
+  status     String   @default("ATIVO")
+
+  arquivado      Boolean   @default(false)
+  arquivadoEm    DateTime?
+  arquivadoPorId Int?
+  motivoArquivo  String?   @db.Text
+
+  restauradoEm      DateTime?
+  restauradoPorId   Int?
+  motivoRestauracao String? @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  professor   Professor   @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  criadoPor     User? @relation("DocumentoProfessorCriadoPor", fields: [criadoPorId], references: [id])
+  arquivadoPor  User? @relation("DocumentoProfessorArquivadoPor", fields: [arquivadoPorId], references: [id])
+  restauradoPor User? @relation("DocumentoProfessorRestauradoPor", fields: [restauradoPorId], references: [id])
+
+  @@index([professorId])
+  @@index([instituicaoId])
+  @@index([tipo])
+  @@index([status])
 }
 
 enum TipoDocumentoAluno {
