@@ -1939,7 +1939,7 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
   ))}
 </div>
 
-              {abaPainelAluno === "DADOS" && (
+{abaPainelAluno === "DADOS" && (
   <>
   editandoId === alunoSelecionado.id ? (
                 <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -2382,7 +2382,7 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
                 </>
 )}
 
-              {abaPainelAluno === "DOCUMENTOS" && (
+{abaPainelAluno === "DOCUMENTOS" && (
   <div className="space-y-6">
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
