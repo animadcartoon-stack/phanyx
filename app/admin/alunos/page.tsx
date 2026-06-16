@@ -190,6 +190,7 @@ function AdminAlunosPage() {
   const [buscaDisciplina, setBuscaDisciplina] = useState("");
   const [paginaDisciplina, setPaginaDisciplina] = useState(1);
   const [alunoDesempenhoId, setAlunoDesempenhoId] = useState<number | null>(null);
+  const [buscaDesempenho, setBuscaDesempenho] = useState("");
 
   useEffect(() => {
     if (!feedback) return;
@@ -2061,51 +2062,109 @@ carregarDesempenhoAluno(
         </div>
       </div>
 
-      {desempenhoAluno.disciplinas?.map(
-        (disciplina: any) => (
-          <div
-            key={disciplina.disciplinaId}
-            className="rounded-xl border border-slate-700 p-4"
-          >
-            <div className="font-semibold">
-              {disciplina.disciplinaNome}
-            </div>
+      <div className="mb-4 flex gap-2">
+  <input
+    type="text"
+    placeholder="Buscar disciplina..."
+    value={buscaDesempenho}
+    onChange={(e) => setBuscaDesempenho(e.target.value)}
+    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
+  />
 
-            <div className="text-sm opacity-70 mb-2">
-              Média: {disciplina.media}
-            </div>
+  <button
+    onClick={() =>
+      carregarDesempenhoAluno(
+        desempenhoAluno.aluno.id,
+        buscaDesempenho,
+        1
+      )
+    }
+    className="rounded-xl bg-blue-600 px-4 py-2 text-white"
+  >
+    Buscar
+  </button>
+</div>
 
-            {disciplina.avaliacoes?.map(
-              (avaliacao: any, idx: number) => (
-                <div
-                  key={idx}
-                  className="mt-2 rounded-lg border border-slate-800 p-3"
-                >
-                  <div className="font-medium">
-                    {avaliacao.titulo}
-                  </div>
-
-                  <div className="text-sm">
-                    Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
-                  </div>
-
-                  {avaliacao.feedback && (
-                    <div className="text-sm mt-1 opacity-80">
-                      Feedback: {avaliacao.feedback}
-                    </div>
-                  )}
-                </div>
-              )
-            )}
-          </div>
-        )
-      )}
+{desempenhoAluno.disciplinas?.map((disciplina: any) => (
+  <div
+    key={disciplina.disciplinaId}
+    className="rounded-xl border border-slate-700 p-4"
+  >
+    <div className="font-semibold">
+      {disciplina.disciplinaNome}
     </div>
+
+    <div className="mb-2 text-sm opacity-70">
+      Média: {disciplina.media}
+    </div>
+
+    {disciplina.avaliacoes?.map((avaliacao: any, idx: number) => (
+      <div
+        key={idx}
+        className="mt-2 rounded-lg border border-slate-800 p-3"
+      >
+        <div className="font-medium">
+          {avaliacao.titulo}
+        </div>
+
+        <div className="text-sm">
+          Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
+        </div>
+
+        {avaliacao.feedback && (
+          <div className="mt-1 text-sm opacity-80">
+            Feedback: {avaliacao.feedback}
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+))}
+
+{desempenhoAluno.meta?.totalPages > 1 && (
+  <div className="mt-4 flex items-center justify-center gap-2">
+    <button
+      type="button"
+      disabled={desempenhoAluno.meta.page <= 1}
+      onClick={() =>
+        carregarDesempenhoAluno(
+          desempenhoAluno.aluno.id,
+          buscaDisciplina,
+          desempenhoAluno.meta.page - 1
+        )
+      }
+      className="rounded-lg border border-slate-700 px-3 py-2 disabled:opacity-40"
+    >
+      Anterior
+    </button>
+
+    <span className="text-sm">
+      Página {desempenhoAluno.meta.page} de {desempenhoAluno.meta.totalPages}
+    </span>
+
+    <button
+      type="button"
+      disabled={desempenhoAluno.meta.page >= desempenhoAluno.meta.totalPages}
+      onClick={() =>
+        carregarDesempenhoAluno(
+          desempenhoAluno.aluno.id,
+          buscaDisciplina,
+          desempenhoAluno.meta.page + 1
+        )
+      }
+      className="rounded-lg border border-slate-700 px-3 py-2 disabled:opacity-40"
+    >
+      Próxima
+    </button>
+  </div>
+)}
+ </div>
   ) : (
     <div className="mt-3 text-sm opacity-70">
       Nenhum dado acadêmico encontrado.
     </div>
   )}
+  
 </div>
 
                   </section>
