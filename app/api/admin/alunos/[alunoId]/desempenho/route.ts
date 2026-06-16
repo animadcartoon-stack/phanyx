@@ -8,7 +8,7 @@ function isAdmin(role: unknown) {
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   ctx: { params: { alunoId: string } }
 ) {
   try {
@@ -23,6 +23,18 @@ export async function GET(
     if (!Number.isFinite(alunoId) || alunoId <= 0) {
       return NextResponse.json({ error: "Aluno inválido" }, { status: 400 });
     }
+
+    const { searchParams } = new URL(req.url);
+
+const busca = String(searchParams.get("busca") || "")
+  .trim()
+  .toLowerCase();
+
+const page = Math.max(Number(searchParams.get("page") || 1), 1);
+const limit = Math.min(
+  Math.max(Number(searchParams.get("limit") || 10), 1),
+  50
+);
 
     const aluno = await prisma.aluno.findFirst({
       where: {
@@ -114,6 +126,19 @@ export async function GET(
       };
     });
 
+    const disciplinasFiltradas = busca
+  ? disciplinas.filter((disciplina) =>
+      String(disciplina.disciplinaNome || "")
+        .toLowerCase()
+        .includes(busca)
+    )
+  : disciplinas;
+
+const total = disciplinasFiltradas.length;
+const totalPages = Math.max(Math.ceil(total / limit), 1);
+const start = (page - 1) * limit;
+const disciplinasPaginadas = disciplinasFiltradas.slice(start, start + limit);
+
     const disciplinasComNota = disciplinas.filter((d) => d.avaliacoes.length > 0);
 
     const mediaGeral =
@@ -133,7 +158,14 @@ export async function GET(
       aluno,
       mediaGeral,
       totalDisciplinas: disciplinas.length,
-      disciplinas,
+      disciplinas: disciplinasPaginadas,
+      meta: {
+      page,
+      limit,
+      total,
+      totalPages,
+      busca,
+    },
     });
   } catch (e: any) {
     return NextResponse.json(
