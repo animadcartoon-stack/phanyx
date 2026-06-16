@@ -184,6 +184,9 @@ function AdminAlunosPage() {
   const [editObservacoesAcessibilidade, setEditObservacoesAcessibilidade] =
     useState("");
 
+  const [desempenhoAluno, setDesempenhoAluno] = useState<any | null>(null);
+  const [carregandoDesempenho, setCarregandoDesempenho] = useState(false);
+
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -829,10 +832,39 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
     };
   }, [alunosComResumo]);
 
-  function abrirDetalhesAluno(aluno: AlunoComResumo) {
-    setAlunoSelecionado(aluno);
-    setPainelAlunoAberto(true);
+  async function carregarDesempenhoAluno(alunoId: number) {
+  try {
+    setCarregandoDesempenho(true);
+    setDesempenhoAluno(null);
+
+    const res = await fetch(`/api/admin/alunos/${alunoId}/desempenho`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao carregar desempenho.");
+    }
+
+    setDesempenhoAluno(data);
+  } catch (error: any) {
+    setDesempenhoAluno(null);
+    mostrarFeedback(
+      "erro",
+      error?.message || "Erro ao carregar desempenho acadêmico."
+    );
+  } finally {
+    setCarregandoDesempenho(false);
   }
+}
+
+  function abrirDetalhesAluno(aluno: AlunoComResumo) {
+  setAlunoSelecionado(aluno);
+  setPainelAlunoAberto(true);
+  carregarDesempenhoAluno(aluno.id);
+}
 
   const turmaNomeSelecionada = useMemo(() => {
     if (filtroTurmaId === "TODAS") return "Todas as turmas";
@@ -1065,8 +1097,15 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
                 <input
   placeholder="CEP"
   value={cep}
-  onChange={(e) => setCep(e.target.value)}
-  onBlur={(e) => buscarEnderecoPorCep(e.target.value)}
+  onChange={(e) => {
+    const valor = e.target.value;
+
+    setCep(valor);
+
+    if (valor.replace(/\D/g, "").length === 8) {
+      buscarEnderecoPorCep(valor);
+    }
+  }}
   className="w-full rounded-xl border p-2.5"
 />
 
@@ -1613,8 +1652,15 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
 
                     <input
   value={editCep}
-  onChange={(e) => setEditCep(e.target.value)}
-  onBlur={(e) => buscarEnderecoEdicaoPorCep(e.target.value)}
+  onChange={(e) => {
+    const valor = e.target.value;
+
+    setEditCep(valor);
+
+    if (valor.replace(/\D/g, "").length === 8) {
+      buscarEnderecoEdicaoPorCep(valor);
+    }
+  }}
   className="rounded-xl border p-2.5"
   placeholder="CEP"
 />
@@ -1936,6 +1982,90 @@ async function buscarEnderecoEdicaoPorCep(valorCep: string) {
                         </p>
                       </div>
                     </div>
+
+{/* DESEMPENHO ACADÊMICO */}
+
+<div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+  <h3 className="text-lg font-semibold">
+    Desempenho Acadêmico
+  </h3>
+
+  {carregandoDesempenho ? (
+    <div className="mt-3 text-sm opacity-70">
+      Carregando desempenho...
+    </div>
+  ) : desempenhoAluno ? (
+    <div className="space-y-4 mt-4">
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-slate-700 p-3">
+          <div className="text-xs opacity-70">
+            Média Geral
+          </div>
+
+          <div className="text-2xl font-bold">
+            {desempenhoAluno.mediaGeral}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-700 p-3">
+          <div className="text-xs opacity-70">
+            Disciplinas
+          </div>
+
+          <div className="text-2xl font-bold">
+            {desempenhoAluno.totalDisciplinas}
+          </div>
+        </div>
+      </div>
+
+      {desempenhoAluno.disciplinas?.map(
+        (disciplina: any) => (
+          <div
+            key={disciplina.disciplinaId}
+            className="rounded-xl border border-slate-700 p-4"
+          >
+            <div className="font-semibold">
+              {disciplina.disciplinaNome}
+            </div>
+
+            <div className="text-sm opacity-70 mb-2">
+              Média: {disciplina.media}
+            </div>
+
+            {disciplina.avaliacoes?.map(
+              (avaliacao: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="mt-2 rounded-lg border border-slate-800 p-3"
+                >
+                  <div className="font-medium">
+                    {avaliacao.titulo}
+                  </div>
+
+                  <div className="text-sm">
+                    Nota: {avaliacao.nota} / {avaliacao.notaMaxima}
+                  </div>
+
+                  {avaliacao.feedback && (
+                    <div className="text-sm mt-1 opacity-80">
+                      Feedback: {avaliacao.feedback}
+                    </div>
+                  )}
+                </div>
+              )
+            )}
+          </div>
+        )
+      )}
+    </div>
+  ) : (
+    <div className="mt-3 text-sm opacity-70">
+      Nenhum dado acadêmico encontrado.
+    </div>
+  )}
+</div>
+
                   </section>
 
                   <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
