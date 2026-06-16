@@ -2267,6 +2267,43 @@ function renderGrupoDisciplina(
   <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
     Período / horário letivo
   </label>
+
+<div>
+  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+    Turma do aluno
+  </label>
+
+  <select
+    value={matriculaEditando.turmaIds[0] ? String(matriculaEditando.turmaIds[0]) : ""}
+    onChange={(e) => {
+      const turmaId = Number(e.target.value);
+
+      setMatriculaEditando((prev) =>
+        prev
+          ? {
+              ...prev,
+              turmaIds:
+                Number.isFinite(turmaId) && turmaId > 0 ? [turmaId] : [],
+            }
+          : prev
+      );
+    }}
+    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+  >
+    <option value="">Selecione a turma...</option>
+
+    {turmas
+      .filter((t) => Number(t.cursoId) === Number(matriculaEditando.cursoId))
+      .map((t) => (
+        <option key={t.id} value={String(t.id)}>
+          {t.nome}
+          {t.semestre ? ` — ${t.semestre}` : ""}
+          {t.professorNome ? ` — Prof. ${t.professorNome}` : ""}
+        </option>
+      ))}
+  </select>
+</div>
+
   <select
     value={matriculaEditando.periodoLetivo}
     onChange={(e) =>
