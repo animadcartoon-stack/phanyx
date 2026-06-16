@@ -2013,6 +2013,25 @@ carregarDesempenhoAluno(
     Desempenho Acadêmico
   </h3>
 
+<div className="mt-4">
+  <input
+    type="text"
+    placeholder="Buscar disciplina..."
+    value={buscaDisciplina}
+    onChange={(e) => {
+      const valor = e.target.value;
+
+      setBuscaDisciplina(valor);
+      setPaginaDisciplina(1);
+
+      if (alunoDesempenhoId) {
+        carregarDesempenhoAluno(alunoDesempenhoId, valor, 1);
+      }
+    }}
+    className="w-full rounded-xl border border-slate-300 px-3 py-2 text-sm"
+  />
+</div>
+
   {carregandoDesempenho ? (
     <div className="mt-3 text-sm opacity-70">
       Carregando desempenho...
