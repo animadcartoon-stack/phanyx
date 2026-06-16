@@ -130,6 +130,7 @@ function AdminMatriculasPage() {
   const [valorMensalidade, setValorMensalidade] = useState<string>("");
   const [quantidadeParcelas, setQuantidadeParcelas] = useState<string>("");
   const [dataPrimeiroVencimento, setDataPrimeiroVencimento] = useState<string>("");
+  const [periodoLetivo, setPeriodoLetivo] = useState<string>("");
 
   const [statusInicialMatricula, setStatusInicialMatricula] =
   useState<string>("ATIVA");
@@ -671,7 +672,7 @@ console.log("DEBUG MATRÍCULA", {
   turmaIds: turmaIdsParaEnviar,
   turmaId: turmaIdsParaEnviar[0] ?? null,
   disciplinaIds: disciplinasIdsParaEnviar,
-
+  periodoLetivo,
   status: statusInicialMatricula,
   valorPagoMatricula: Number(valorPagoMatricula || 0),
   valorMensalidade: Number(valorMensalidade || 0),
@@ -698,6 +699,7 @@ console.log("DEBUG MATRÍCULA", {
       setDataPrimeiroVencimento("");
       setSemestresCurso([]);
       setStatusInicialMatricula("ATIVA");
+      setPeriodoLetivo("");
       await carregarTudo();
     } catch (e: any) {
       setErro(e.message || "Erro ao criar matrícula.");
@@ -1550,6 +1552,32 @@ function renderGrupoDisciplina(
   <label className="text-sm font-medium text-gray-700">
     Turma do aluno
   </label>
+  
+  <div>
+  <label className="text-sm font-medium text-gray-700">
+    Período / horário letivo
+  </label>
+
+  <select
+    value={periodoLetivo}
+    onChange={(e) => setPeriodoLetivo(e.target.value)}
+    className="mt-1 w-full border rounded-xl px-3 py-2 bg-white"
+  >
+    <option value="">Selecione o período</option>
+    <option value="MATUTINO">Matutino</option>
+    <option value="VESPERTINO">Vespertino</option>
+    <option value="NOTURNO">Noturno</option>
+    <option value="INTEGRAL">Integral</option>
+    <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
+    <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
+    <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
+    <option value="EAD_LIVRE">EAD Livre</option>
+    <option value="EAD_MATUTINO">EAD Matutino</option>
+    <option value="EAD_VESPERTINO">EAD Vespertino</option>
+    <option value="EAD_NOTURNO">EAD Noturno</option>
+    <option value="EAD_INTEGRAL">EAD Integral</option>
+  </select>
+</div>
 
   <select
     value={turmasSelecionadas[0] ? String(turmasSelecionadas[0]) : ""}
