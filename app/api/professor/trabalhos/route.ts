@@ -52,14 +52,19 @@ export async function GET() {
         entregas: {
           orderBy: { entregueEm: "desc" },
           include: {
-            aluno: {
-              select: {
-                id: true,
-                nome: true,
-                matricula: true,
-              },
-            },
-          },
+  aluno: {
+    select: {
+      id: true,
+      nome: true,
+      matricula: true,
+    },
+  },
+  historicos: {
+    orderBy: {
+      versao: "desc",
+    },
+  },
+},
         },
       },
     });
@@ -87,6 +92,7 @@ export async function GET() {
         feedback: entrega.feedback,
         entregueEm: entrega.entregueEm,
         corrigidaEm: entrega.corrigidaEm,
+        historicos: entrega.historicos || [],
         status: entrega.corrigidaEm || entrega.nota !== null ? "Avaliado" : "Enviado",
       }))
     );

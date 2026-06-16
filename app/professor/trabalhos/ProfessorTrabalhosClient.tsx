@@ -23,6 +23,17 @@ type Trabalho = {
   entregueEm?: string;
   corrigidaEm?: string | null;
   status: "Enviado" | "Avaliado";
+  historicos?: {
+  id: number;
+  texto?: string | null;
+  link?: string | null;
+  arquivoUrl?: string | null;
+  nota?: number | null;
+  feedback?: string | null;
+  entregueEm?: string | null;
+  corrigidaEm?: string | null;
+  versao: number;
+}[];
 };
 
 function normalizarTexto(valor: string) {
@@ -464,6 +475,59 @@ className="block text-sm font-bold text-blue-600 hover:underline"
           {trabalho.texto}
         </div>
       )}
+
+{trabalho.historicos && trabalho.historicos.length > 0 && (
+  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+    <p className="text-sm font-black text-amber-900">
+      Histórico de entregas
+    </p>
+
+    <div className="mt-3 space-y-3">
+      {trabalho.historicos.map((historico) => (
+        <div
+          key={historico.id}
+          className="rounded-xl border border-amber-200 bg-white p-3 text-sm text-slate-700"
+        >
+          <p className="font-bold text-slate-900">
+            Versão {historico.versao}
+          </p>
+
+          <p className="mt-1 text-xs text-slate-500">
+            Enviada em: {formatarData(historico.entregueEm)}
+          </p>
+
+          {historico.texto && (
+            <p className="mt-2 whitespace-pre-line">
+              {historico.texto}
+            </p>
+          )}
+
+          {historico.arquivoUrl && (
+            <a
+              href={historico.arquivoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex text-sm font-bold text-blue-600 hover:underline"
+            >
+              Abrir arquivo desta versão
+            </a>
+          )}
+
+          {historico.link && (
+            <a
+              href={historico.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 block text-sm font-bold text-blue-600 hover:underline"
+            >
+              Abrir link desta versão
+            </a>
+          )}
+        </div>
+      ))}
+    </div>
+  </div>
+)}
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[140px_1fr_160px]">
         <input
