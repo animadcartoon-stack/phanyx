@@ -2601,7 +2601,8 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
           <p><strong>Curso:</strong> {alunoSelecionado.resumoMatricula.cursoNome || "-"}</p>
           <p><strong>Status:</strong> {alunoSelecionado.resumoMatricula.status || "-"}</p>
           <p><strong>Semestre:</strong> {alunoSelecionado.resumoMatricula.semestre || "-"}</p>
-          <p><strong>Número da matrícula:</strong> {alunoSelecionado.matricula || "-"}</p>
+          <p><strong>Número da matrícula:</strong>{" "}
+{alunoSelecionado.resumoMatricula?.numeroMatricula || "-"}</p>
           <p><strong>Polo:</strong> {alunoSelecionado.polo?.nome || "-"}</p>
           <p><strong>Modalidade:</strong> -</p>
           <p><strong>Horário letivo:</strong> -</p>

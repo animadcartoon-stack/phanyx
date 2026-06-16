@@ -135,10 +135,27 @@ export async function GET(request: Request) {
             },
             take: 1,
             select: {
-              id: true,
-              status: true,
-              semestre: true,
-              numeroMatricula: true,
+  id: true,
+  status: true,
+  semestre: true,
+  numeroMatricula: true,
+  createdAt: true,
+  periodoLetivo: true,
+  polo: {
+    select: {
+      id: true,
+      nome: true,
+      codigo: true,
+    },
+  },
+  periodoMatricula: {
+    select: {
+      id: true,
+      nome: true,
+      inicio: true,
+      fim: true,
+    },
+  },
               curso: {
                 select: {
                   id: true,
@@ -194,6 +211,23 @@ export async function GET(request: Request) {
               status: matriculaRecente.status,
               semestre: matriculaRecente.semestre,
               numeroMatricula: matriculaRecente.numeroMatricula,
+              dataMatricula: matriculaRecente.createdAt,
+periodoLetivo: matriculaRecente.periodoLetivo,
+polo: matriculaRecente.polo
+  ? {
+      id: matriculaRecente.polo.id,
+      nome: matriculaRecente.polo.nome,
+      codigo: matriculaRecente.polo.codigo,
+    }
+  : null,
+periodoMatricula: matriculaRecente.periodoMatricula
+  ? {
+      id: matriculaRecente.periodoMatricula.id,
+      nome: matriculaRecente.periodoMatricula.nome,
+      inicio: matriculaRecente.periodoMatricula.inicio,
+      fim: matriculaRecente.periodoMatricula.fim,
+    }
+  : null,
               curso: matriculaRecente.curso
                 ? {
                     id: matriculaRecente.curso.id,
