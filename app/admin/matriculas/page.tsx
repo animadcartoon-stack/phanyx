@@ -59,6 +59,8 @@ type CursoSemestreOption = {
 type MatriculaApi = {
   id: number;
   status?: string;
+  periodoLetivo?: string | null;
+  modalidade?: string | null;
   semestre?: number | null;
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
@@ -84,6 +86,8 @@ type MatriculaApi = {
 type MatriculaEdicao = {
   id: number;
   alunoId: string;
+  periodoLetivo: string;
+  modalidade: string;
   cursoId: string;
   cursoSemestreId: string;
   semestre: number | "";
@@ -1040,6 +1044,8 @@ setDisciplinasExtrasEdicaoSelecionadas(
   setMatriculaEditando({
     id: matricula.id,
     alunoId: matricula.aluno?.id ? String(matricula.aluno.id) : "",
+    periodoLetivo: String(matricula.periodoLetivo ?? ""),
+    modalidade: String(matricula.modalidade ?? ""),
     cursoId: cursoIdAtual,
     cursoSemestreId: semestreEncontrado ? String(semestreEncontrado.id) : "",
     semestre: semestreAtual,
@@ -1135,6 +1141,8 @@ async function salvarEdicao() {
         primeiroVencimento: matriculaEditando.primeiroVencimento || null,
         nomeSocial: matriculaEditando.nomeSocial,
         genero: matriculaEditando.genero,
+        periodoLetivo: matriculaEditando.periodoLetivo,
+modalidade: matriculaEditando.modalidade,
       }),
     });
 
@@ -2234,6 +2242,56 @@ function renderGrupoDisciplina(
           <label className="text-sm font-medium text-gray-700">
             Primeiro vencimento
           </label>
+
+<div>
+  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+    Modalidade
+  </label>
+  <select
+    value={matriculaEditando.modalidade}
+    onChange={(e) =>
+      setMatriculaEditando((prev) =>
+        prev ? { ...prev, modalidade: e.target.value } : prev
+      )
+    }
+    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+  >
+    <option value="">Selecione a modalidade</option>
+    <option value="PRESENCIAL">Presencial</option>
+    <option value="EAD">EAD</option>
+    <option value="HIBRIDO">Híbrido</option>
+  </select>
+</div>
+
+<div>
+  <label className="text-sm font-medium text-gray-700 dark:text-slate-200">
+    Período / horário letivo
+  </label>
+  <select
+    value={matriculaEditando.periodoLetivo}
+    onChange={(e) =>
+      setMatriculaEditando((prev) =>
+        prev ? { ...prev, periodoLetivo: e.target.value } : prev
+      )
+    }
+    className="mt-1 w-full rounded-xl border px-3 py-2 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+  >
+    <option value="">Selecione o período</option>
+    <option value="MATUTINO">Matutino</option>
+    <option value="VESPERTINO">Vespertino</option>
+    <option value="NOTURNO">Noturno</option>
+    <option value="INTEGRAL">Integral</option>
+    <option value="MATUTINO_VESPERTINO">Matutino/Vespertino</option>
+    <option value="MATUTINO_NOTURNO">Matutino/Noturno</option>
+    <option value="VESPERTINO_NOTURNO">Vespertino/Noturno</option>
+    <option value="EAD_LIVRE">EAD Livre</option>
+    <option value="EAD_MATUTINO">EAD Matutino</option>
+    <option value="EAD_VESPERTINO">EAD Vespertino</option>
+    <option value="EAD_NOTURNO">EAD Noturno</option>
+    <option value="EAD_INTEGRAL">EAD Integral</option>
+  </select>
+</div>
+
           <input
             type="date"
             value={matriculaEditando.primeiroVencimento}
