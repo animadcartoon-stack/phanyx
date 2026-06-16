@@ -422,24 +422,31 @@ model LancamentoFinanceiro {
 }
 
 model DocumentoAluno {
-  id            Int                @id @default(autoincrement())
-  titulo        String
-  tipo          TipoDocumentoAluno
-  proprietario  String             @default("ALUNO") // ALUNO | RESPONSAVEL
-  arquivoUrl    String?
-  arquivoNome   String?
-  mimeType      String?
-  tamanho       Int?
-  conteudo      String?
-  criadoEm      DateTime           @default(now())
-  atualizadoEm  DateTime           @default(now()) @updatedAt
-  alunoId       Int
-  instituicaoId Int
-  matriculaId   Int?
+  id                      Int                 @id @default(autoincrement())
+  titulo                  String
+  tipo                    TipoDocumentoAluno
+  proprietario            String              @default("ALUNO") // ALUNO | RESPONSAVEL
+  arquivoUrl              String?
+  arquivoNome             String?
+  mimeType                String?
+  tamanho                 Int?
+  conteudo                String?
+  criadoEm                DateTime            @default(now())
+  atualizadoEm            DateTime            @default(now()) @updatedAt
+  alunoId                 Int
+  instituicaoId           Int
+  matriculaId             Int?
+  arquivado               Boolean             @default(false)
+  arquivadoEm             DateTime?
+  arquivadoPorId          Int?
+  motivoArquivamento      String?
+  restauradoEm            DateTime?
+  restauradoPorId         Int?
+  motivoRestauracao       String?
 
-  aluno       Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  matricula   Matricula?  @relation(fields: [matriculaId], references: [id])
+  aluno                   Aluno               @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  instituicao             Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula               Matricula?          @relation(fields: [matriculaId], references: [id])
 
   @@index([alunoId])
   @@index([instituicaoId])
