@@ -2,6 +2,37 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+function normalizarTexto(texto: string) {
+  return String(texto || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function distanciaLevenshtein(a: string, b: string) {
+  const matriz = Array.from({ length: a.length + 1 }, () =>
+    Array(b.length + 1).fill(0)
+  );
+
+  for (let i = 0; i <= a.length; i++) matriz[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matriz[0][j] = j;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+
+      matriz[i][j] = Math.min(
+        matriz[i - 1][j] + 1,
+        matriz[i][j - 1] + 1,
+        matriz[i - 1][j - 1] + custo
+      );
+    }
+  }
+
+  return matriz[a.length][b.length];
+}
+
 function isAdmin(role: unknown) {
   const r = String(role || "").toUpperCase();
   return r === "ADMIN" || r === "SUPER_ADMIN";
@@ -126,13 +157,28 @@ const limit = Math.min(
       };
     });
 
-    const disciplinasFiltradas = busca
-  ? disciplinas.filter((disciplina) =>
-      String(disciplina.disciplinaNome || "")
-        .toLowerCase()
-        .includes(busca)
-    )
-  : disciplinas;
+    const buscaNormalizada = normalizarTexto(busca);
+
+const disciplinasOrdenadas = [...disciplinas].sort((a, b) =>
+  String(a.disciplinaNome || "").localeCompare(
+    String(b.disciplinaNome || ""),
+    "pt-BR"
+  )
+);
+
+const disciplinasFiltradas = buscaNormalizada
+  ? disciplinasOrdenadas.filter((disciplina) => {
+      const nome = normalizarTexto(disciplina.disciplinaNome);
+
+      return (
+        nome.includes(buscaNormalizada) ||
+        buscaNormalizada
+          .split(" ")
+          .some((parte) => nome.includes(parte)) ||
+        distanciaLevenshtein(nome, buscaNormalizada) <= 4
+      );
+    })
+  : disciplinasOrdenadas;
 
 const total = disciplinasFiltradas.length;
 const totalPages = Math.max(Math.ceil(total / limit), 1);

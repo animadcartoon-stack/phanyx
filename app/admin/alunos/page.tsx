@@ -190,8 +190,7 @@ function AdminAlunosPage() {
   const [buscaDisciplina, setBuscaDisciplina] = useState("");
   const [paginaDisciplina, setPaginaDisciplina] = useState(1);
   const [alunoDesempenhoId, setAlunoDesempenhoId] = useState<number | null>(null);
-  const [buscaDesempenho, setBuscaDesempenho] = useState("");
-
+  
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -2061,29 +2060,6 @@ carregarDesempenhoAluno(
           </div>
         </div>
       </div>
-
-      <div className="mb-4 flex gap-2">
-  <input
-    type="text"
-    placeholder="Buscar disciplina..."
-    value={buscaDesempenho}
-    onChange={(e) => setBuscaDesempenho(e.target.value)}
-    className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm"
-  />
-
-  <button
-    onClick={() =>
-      carregarDesempenhoAluno(
-        desempenhoAluno.aluno.id,
-        buscaDesempenho,
-        1
-      )
-    }
-    className="rounded-xl bg-blue-600 px-4 py-2 text-white"
-  >
-    Buscar
-  </button>
-</div>
 
 {desempenhoAluno.disciplinas?.map((disciplina: any) => (
   <div
