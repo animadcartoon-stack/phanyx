@@ -72,20 +72,20 @@ type MatriculaResumo = {
   status?: string;
   cursoNome?: string | null;
   semestre?: number | null;
+
   numeroMatricula?: string | null;
   dataMatricula?: string | null;
+
+  modalidade?: string | null;
   periodoLetivo?: string | null;
+  previsaoConclusao?: string | null;
+
   polo?: {
     id: number;
     nome: string;
     codigo?: string | null;
   } | null;
-  periodoMatricula?: {
-    id: number;
-    nome: string;
-    inicio?: string | null;
-    fim?: string | null;
-  } | null;
+
   turmas: Array<{
     turmaId: number;
     turmaNome: string;
@@ -242,6 +242,7 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
 
   const [buscaMatricula, setBuscaMatricula] = useState("");
   const [turmasMatriculaAbertas, setTurmasMatriculaAbertas] = useState<Record<number, boolean>>({});
+  const [matriculaExpandida, setMatriculaExpandida] = useState(false);
 
   useEffect(() => {
     if (!feedback) return;
@@ -2618,95 +2619,115 @@ name="busca-alunos-phanyx"
           <p><strong>Curso:</strong> {alunoSelecionado.resumoMatricula.cursoNome || "-"}</p>
           <p><strong>Status:</strong> {alunoSelecionado.resumoMatricula.status || "-"}</p>
           <p><strong>Semestre:</strong> {alunoSelecionado.resumoMatricula.semestre || "-"}</p>
-          <p><strong>Número da matrícula:</strong>{" "}
-{alunoSelecionado.resumoMatricula?.numeroMatricula || "-"}</p>
-          <p><strong>Polo:</strong> {alunoSelecionado.polo?.nome || "-"}</p>
-          <p><strong>Modalidade:</strong> -</p>
-          <p><strong>Horário letivo:</strong> -</p>
-          <p><strong>Previsão de conclusão:</strong> -</p>
+          <p>
+  <strong>Número da matrícula:</strong>{" "}
+  {alunoSelecionado.resumoMatricula?.numeroMatricula ||
+    alunoSelecionado.matricula ||
+    "-"}
+</p>
+
+<p>
+  <strong>Data da matrícula:</strong>{" "}
+  {formatarData(alunoSelecionado.resumoMatricula?.dataMatricula)}
+</p>
+
+<p>
+  <strong>Polo:</strong>{" "}
+  {alunoSelecionado.resumoMatricula?.polo?.nome ||
+    alunoSelecionado.polo?.nome ||
+    "-"}
+</p>
+
+<p>
+  <strong>Modalidade:</strong>{" "}
+  {alunoSelecionado.resumoMatricula?.modalidade || "-"}
+</p>
+
+<p>
+  <strong>Horário letivo / Período:</strong>{" "}
+  {alunoSelecionado.resumoMatricula?.periodoLetivo || "-"}
+</p>
+
+<p>
+  <strong>Previsão de conclusão:</strong>{" "}
+  {formatarData(alunoSelecionado.resumoMatricula?.previsaoConclusao)}
+</p>
         </div>
 
         <div className="border-t border-slate-200 pt-4 dark:border-slate-700">
-          <p className="font-semibold text-slate-900 dark:text-slate-100">
-            Turmas e disciplinas
-          </p>
+  <button
+    type="button"
+    onClick={() => setMatriculaExpandida((prev) => !prev)}
+    className="flex w-full items-center justify-between rounded-xl border border-slate-700 px-4 py-3 text-left font-semibold text-slate-900 dark:text-slate-100"
+  >
+    <span>
+      Turmas e disciplinas (
+      {alunoSelecionado.resumoMatricula.turmas?.length || 0})
+    </span>
 
-          <input
-            type="text"
-            placeholder="Buscar turma, disciplina, professor ou status..."
-            value={buscaMatricula}
-            onChange={(e) => setBuscaMatricula(e.target.value)}
-            className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-          />
+    <span>{matriculaExpandida ? "⌃" : "⌄"}</span>
+  </button>
 
-          <div className="mt-3 space-y-2">
-            {alunoSelecionado.resumoMatricula.turmas
-              .filter((turma) => {
-                const termo = buscaMatricula
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .toLowerCase()
-                  .trim();
+  {matriculaExpandida && (
+    <div className="mt-4">
+      <input
+        type="text"
+        placeholder="Buscar turma, disciplina, professor ou status..."
+        value={buscaMatricula}
+        onChange={(e) => setBuscaMatricula(e.target.value)}
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+      />
 
-                if (!termo) return true;
+      <div className="mt-3 space-y-2">
+        {alunoSelecionado.resumoMatricula.turmas
+          .filter((turma) => {
+            const termo = buscaMatricula
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase()
+              .trim();
 
-                const texto = [
-                  turma.turmaNome,
-                  turma.disciplinaNome,
-                  turma.professorNome,
-                  turma.status,
-                ]
-                  .join(" ")
-                  .normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .toLowerCase();
+            if (!termo) return true;
 
-                return texto.includes(termo);
-              })
-              .map((turma) => {
-                const aberta = !!turmasMatriculaAbertas[turma.turmaId];
+            const texto = [
+              turma.turmaNome,
+              turma.disciplinaNome,
+              turma.professorNome,
+              turma.status,
+            ]
+              .join(" ")
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .toLowerCase();
 
-                return (
-                  <div
-                    key={turma.turmaId}
-                    className="rounded-xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950"
-                  >
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setTurmasMatriculaAbertas((prev) => ({
-                          ...prev,
-                          [turma.turmaId]: !prev[turma.turmaId],
-                        }))
-                      }
-                      className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left"
-                    >
-                      <div>
-                        <p className="font-semibold text-slate-900 dark:text-slate-100">
-                          {turma.turmaNome}
-                        </p>
-                        <p className="text-xs text-slate-500 dark:text-slate-400">
-                          {turma.disciplinaNome || "Disciplina não informada"}
-                        </p>
-                      </div>
+            return texto.includes(termo);
+          })
+          .map((turma) => (
+            <div
+              key={turma.turmaId}
+              className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"
+            >
+              <p className="font-semibold text-slate-900 dark:text-slate-100">
+                {turma.turmaNome}
+              </p>
 
-                      <span className="text-lg text-slate-500">
-                        {aberta ? "⌃" : "⌄"}
-                      </span>
-                    </button>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                Disciplina: {turma.disciplinaNome || "-"}
+              </p>
 
-                    {aberta && (
-                      <div className="border-t border-slate-200 px-4 py-3 text-sm dark:border-slate-700">
-                        <p><strong>Disciplina:</strong> {turma.disciplinaNome || "-"}</p>
-                        <p><strong>Professor:</strong> {turma.professorNome || "-"}</p>
-                        <p><strong>Status da disciplina:</strong> {turma.status || "-"}</p>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
-        </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Professor: {turma.professorNome || "-"}
+              </p>
+
+              <p className="text-xs text-slate-400">
+                Status da disciplina: {turma.status || "-"}
+              </p>
+            </div>
+          ))}
+      </div>
+    </div>
+  )}
+</div>
       </div>
     ) : (
       <div className="mt-4 rounded-xl border border-dashed border-slate-300 p-4 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
