@@ -72,6 +72,20 @@ type MatriculaResumo = {
   status?: string;
   cursoNome?: string | null;
   semestre?: number | null;
+  numeroMatricula?: string | null;
+  dataMatricula?: string | null;
+  periodoLetivo?: string | null;
+  polo?: {
+    id: number;
+    nome: string;
+    codigo?: string | null;
+  } | null;
+  periodoMatricula?: {
+    id: number;
+    nome: string;
+    inicio?: string | null;
+    fim?: string | null;
+  } | null;
   turmas: Array<{
     turmaId: number;
     turmaNome: string;
