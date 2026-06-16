@@ -130,51 +130,55 @@ export async function GET(request: Request) {
             },
           },
           matriculas: {
-            orderBy: {
-              createdAt: "desc",
-            },
-            take: 1,
-            select: {
-  id: true,
-  status: true,
-  semestre: true,
-  numeroMatricula: true,
-  createdAt: true,
-  periodoLetivo: true,
-  polo: {
-    select: {
-      id: true,
-      nome: true,
-      codigo: true,
-    },
+  orderBy: {
+    createdAt: "desc",
   },
-  
-              curso: {
-                select: {
-                  id: true,
-                  nome: true,
-                },
+  take: 1,
+  select: {
+    id: true,
+    status: true,
+    semestre: true,
+    numeroMatricula: true,
+    createdAt: true,
+    periodoLetivo: true,
+    modalidade: true,
+    previsaoConclusao: true,
+
+    polo: {
+      select: {
+        id: true,
+        nome: true,
+        codigo: true,
+      },
+    },
+
+    curso: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+
+    itens: {
+      select: {
+        status: true,
+        turma: {
+          select: {
+            id: true,
+            nome: true,
+            professor: {
+              select: {
+                id: true,
+                nome: true,
               },
-              itens: {
-                select: {
-                  status: true,
-                  turma: {
-                    select: {
-                      id: true,
-                      nome: true,
-                      professor: {
-                        select: {
-                          id: true,
-                          nome: true,
-                        },
-                      },
-                      disciplinas: {
-                        take: 1,
-                        select: {
-                          disciplina: {
-                            select: {
-                              id: true,
-                              nome: true,
+            },
+            disciplinas: {
+              take: 1,
+              select: {
+                disciplina: {
+                  select: {
+                    id: true,
+                     nome: true,
                             },
                           },
                         },
@@ -199,20 +203,22 @@ export async function GET(request: Request) {
       return {
         ...alunoSemMatriculas,
         resumoMatricula: matriculaRecente
-          ? {
-              id: matriculaRecente.id,
-              status: matriculaRecente.status,
-              semestre: matriculaRecente.semestre,
-              numeroMatricula: matriculaRecente.numeroMatricula,
-              dataMatricula: matriculaRecente.createdAt,
-periodoLetivo: matriculaRecente.periodoLetivo,
-polo: matriculaRecente.polo
   ? {
-      id: matriculaRecente.polo.id,
-      nome: matriculaRecente.polo.nome,
-      codigo: matriculaRecente.polo.codigo,
-    }
-  : null,
+      id: matriculaRecente.id,
+      status: matriculaRecente.status,
+      semestre: matriculaRecente.semestre,
+      numeroMatricula: matriculaRecente.numeroMatricula,
+      dataMatricula: matriculaRecente.createdAt,
+      periodoLetivo: matriculaRecente.periodoLetivo,
+      modalidade: matriculaRecente.modalidade,
+      previsaoConclusao: matriculaRecente.previsaoConclusao,
+      polo: matriculaRecente.polo
+        ? {
+            id: matriculaRecente.polo.id,
+            nome: matriculaRecente.polo.nome,
+            codigo: matriculaRecente.polo.codigo,
+          }
+        : null,
 
               curso: matriculaRecente.curso
                 ? {
