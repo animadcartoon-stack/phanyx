@@ -628,22 +628,23 @@ if (funcionarioIdCriado) {
   className="w-full border rounded-lg p-2"
 />
 
-<div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-    Documentos do funcionário
-  </h3>
+<div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
+  <div className="mb-4">
+    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+      Documentos do funcionário
+    </h3>
+    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+      Envie documentos, currículo, portfólio e links profissionais.
+    </p>
+  </div>
 
-  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-    Envie documentos, currículo, portfólio e links profissionais.
-  </p>
-
-  <div className="mt-4 grid gap-3 md:grid-cols-2">
+  <div className="grid gap-4 md:grid-cols-2">
     {documentosFuncionario.map((doc, index) => (
       <div
         key={doc.tipo}
-        className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+        className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
       >
-        <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+        <label className="mb-2 block text-sm font-bold text-slate-800 dark:text-slate-100">
           {doc.titulo}
         </label>
 
@@ -659,68 +660,70 @@ if (funcionarioIdCriado) {
               )
             );
           }}
-          className="mt-2 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+          className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         />
 
         {doc.tipo === "PORTFOLIO" && (
-          <div className="mt-4 space-y-3">
-            <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-              Links profissionais e portfólio
+          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/60 dark:bg-blue-950/30">
+            <h4 className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
+              Links do portfólio
             </h4>
 
-            {linksPortfolio.map((link, index) => (
-              <div key={index} className="grid gap-2 md:grid-cols-[150px_1fr_auto]">
-                <select
-                  value={link.tipo}
-                  onChange={(e) =>
-                    setLinksPortfolio((prev) =>
-                      prev.map((item, i) =>
-                        i === index ? { ...item, tipo: e.target.value } : item
+            <div className="space-y-3">
+              {linksPortfolio.map((link, index) => (
+                <div key={index} className="grid gap-2 md:grid-cols-[150px_1fr_auto]">
+                  <select
+                    value={link.tipo}
+                    onChange={(e) =>
+                      setLinksPortfolio((prev) =>
+                        prev.map((item, i) =>
+                          i === index ? { ...item, tipo: e.target.value } : item
+                        )
                       )
-                    )
-                  }
-                  className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                >
-                  <option value="LinkedIn">LinkedIn</option>
-                  <option value="Behance">Behance</option>
-                  <option value="ArtStation">ArtStation</option>
-                  <option value="Instagram">Instagram</option>
-                  <option value="YouTube">YouTube</option>
-                  <option value="Vimeo">Vimeo</option>
-                  <option value="GitHub">GitHub</option>
-                  <option value="Site">Site pessoal</option>
-                  <option value="Outro">Outro</option>
-                </select>
+                    }
+                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  >
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Behance">Behance</option>
+                    <option value="ArtStation">ArtStation</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Vimeo">Vimeo</option>
+                    <option value="GitHub">GitHub</option>
+                    <option value="Site">Site pessoal</option>
+                    <option value="Outro">Outro</option>
+                  </select>
 
-                <input
-                  type="url"
-                  placeholder="https://..."
-                  value={link.url}
-                  onChange={(e) =>
-                    setLinksPortfolio((prev) =>
-                      prev.map((item, i) =>
-                        i === index ? { ...item, url: e.target.value } : item
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={link.url}
+                    onChange={(e) =>
+                      setLinksPortfolio((prev) =>
+                        prev.map((item, i) =>
+                          i === index ? { ...item, url: e.target.value } : item
+                        )
                       )
-                    )
-                  }
-                  className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                />
+                    }
+                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setLinksPortfolio((prev) =>
-                      prev.length === 1
-                        ? prev
-                        : prev.filter((_, i) => i !== index)
-                    )
-                  }
-                  className="rounded-lg border border-red-500 px-3 py-2 text-sm text-red-400"
-                >
-                  Remover
-                </button>
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLinksPortfolio((prev) =>
+                        prev.length === 1
+                          ? prev
+                          : prev.filter((_, i) => i !== index)
+                      )
+                    }
+                    className="rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 dark:border-red-800 dark:bg-slate-900 dark:text-red-300"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ))}
+            </div>
 
             <button
               type="button"
@@ -730,7 +733,7 @@ if (funcionarioIdCriado) {
                   { tipo: "LinkedIn", url: "" },
                 ])
               }
-              className="rounded-lg border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-400"
+              className="mt-3 rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-700 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
             >
               + Adicionar link
             </button>
