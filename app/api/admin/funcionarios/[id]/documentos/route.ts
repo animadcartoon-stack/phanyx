@@ -5,7 +5,7 @@ import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
 export async function GET(
   req: NextRequest,
-  context: { params: { funcionarioId: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const user = await getUserFromToken();
@@ -14,7 +14,7 @@ export async function GET(
       return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
-    const funcionarioId = Number(context.params.funcionarioId);
+    const funcionarioId = Number(context.params.id);
 
     const funcionario = await prisma.funcionario.findFirst({
       where: {
@@ -55,7 +55,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  context: { params: { funcionarioId: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const user = await getUserFromToken();
@@ -68,7 +68,7 @@ export async function POST(
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
-    const funcionarioId = Number(context.params.funcionarioId);
+    const funcionarioId = Number(context.params.id);
 
     const funcionario = await prisma.funcionario.findFirst({
       where: {
@@ -156,7 +156,7 @@ export async function POST(
 
 export async function PATCH(
   req: NextRequest,
-  context: { params: { funcionarioId: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const user = await getUserFromToken();
@@ -169,7 +169,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
-    const funcionarioId = Number(context.params.funcionarioId);
+    const funcionarioId = Number(context.params.id);
     const body = await req.json();
 
     const documentoId = Number(body.documentoId);

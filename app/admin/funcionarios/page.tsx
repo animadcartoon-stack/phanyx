@@ -91,6 +91,19 @@ function AdminFuncionariosPage() {
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [statusFuncionario, setStatusFuncionario] = useState("ATIVO");
   const [motivoStatus, setMotivoStatus] = useState("");
+
+  const [documentosFuncionario, setDocumentosFuncionario] = useState<
+  { tipo: string; titulo: string; arquivo: File | null }[]
+>([
+  { tipo: "RG", titulo: "RG", arquivo: null },
+  { tipo: "CPF", titulo: "CPF", arquivo: null },
+  { tipo: "CNH", titulo: "CNH", arquivo: null },
+  { tipo: "COMPROVANTE_RESIDENCIA", titulo: "Comprovante de residência", arquivo: null },
+  { tipo: "CURRICULO", titulo: "Currículo", arquivo: null },
+  { tipo: "PORTFOLIO", titulo: "Portfólio", arquivo: null },
+  { tipo: "CERTIFICADOS", titulo: "Certificados", arquivo: null },
+]);
+
   const [departamentoId, setDepartamentoId] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(false);
@@ -565,6 +578,44 @@ function AdminFuncionariosPage() {
   onChange={(e) => setMotivoStatus(e.target.value)}
   className="w-full border rounded-lg p-2"
 />
+
+<div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+  <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+    Documentos do funcionário
+  </h3>
+
+  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+    Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
+  </p>
+
+  <div className="mt-4 grid gap-3 md:grid-cols-2">
+    {documentosFuncionario.map((doc, index) => (
+      <div
+        key={doc.tipo}
+        className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"
+      >
+        <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+          {doc.titulo}
+        </label>
+
+        <input
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+          onChange={(e) => {
+            const arquivo = e.target.files?.[0] || null;
+
+            setDocumentosFuncionario((prev) =>
+              prev.map((item, i) =>
+                i === index ? { ...item, arquivo } : item
+              )
+            );
+          }}
+          className="mt-2 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        />
+      </div>
+    ))}
+  </div>
+</div>
 
         <div className="flex flex-wrap gap-2">
   <button
