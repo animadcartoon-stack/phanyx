@@ -85,106 +85,117 @@ export async function POST(
       );
     }
 
-    const formData = await req.formData();
+    const contentType = req.headers.get("content-type") || "";
 
-    const titulo = String(formData.get("titulo") || "").trim();
-const tipo = String(formData.get("tipo") || "").trim();
-const url = String(formData.get("url") || "").trim();
-const arquivo = formData.get("arquivo") as File | null;
+    let titulo = "";
+    let tipo = "";
+    let url = "";
+    let arquivo: File | null = null;
 
-if (!titulo || !tipo) {
-  return NextResponse.json(
-    { error: "Título e tipo são obrigatórios." },
-    { status: 400 }
-  );
-}
+    if (contentType.includes("application/json")) {
+      const body = await req.json();
 
-if (!arquivo && !url) {
-  return NextResponse.json(
-    { error: "Envie um arquivo ou informe uma URL." },
-    { status: 400 }
-  );
-}
+      titulo = String(body.titulo || "").trim();
+      tipo = String(body.tipo || "").trim();
+      url = String(body.url || "").trim();
+    } else {
+      const formData = await req.formData();
 
-    const extensoesPermitidas = [
-  ".pdf",
-  ".png",
-  ".jpg",
-  ".jpeg",
-  ".webp",
-  ".doc",
-  ".docx",
-  ".xls",
-  ".xlsx",
-  ".csv",
-  ".ppt",
-  ".pptx",
-  ".psd",
-  ".ai",
-  ".eps",
-  ".svg",
-  ".blend",
-  ".fbx",
-  ".obj",
-  ".glb",
-  ".gltf",
-  ".ma",
-  ".mb",
-  ".max",
-  ".zip",
-  ".rar",
-];
+      titulo = String(formData.get("titulo") || "").trim();
+      tipo = String(formData.get("tipo") || "").trim();
+      url = String(formData.get("url") || "").trim();
+      arquivo = formData.get("arquivo") as File | null;
+    }
 
-if (arquivo) {
-  const nomeArquivo = arquivo.name.toLowerCase();
-  const extensaoValida = extensoesPermitidas.some((ext) =>
-    nomeArquivo.endsWith(ext)
-  );
+    if (!titulo || !tipo) {
+      return NextResponse.json(
+        { error: "Título e tipo são obrigatórios." },
+        { status: 400 }
+      );
+    }
 
-  if (!extensaoValida) {
-    return NextResponse.json(
-      { error: "Formato inválido para documento ou portfólio." },
-      { status: 400 }
-    );
-  }
-
-  const tamanhoMaximo = 50 * 1024 * 1024;
-
-  if (arquivo.size > tamanhoMaximo) {
-    return NextResponse.json(
-      { error: "Arquivo muito grande. O limite é 50MB." },
-      { status: 400 }
-    );
-  }
-}
+    if (!arquivo && !url) {
+      return NextResponse.json(
+        { error: "Envie um arquivo ou informe uma URL." },
+        { status: 400 }
+      );
+    }
 
     let arquivoUrl = url || null;
 
-if (arquivo) {
-  const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    if (arquivo) {
+      const extensoesPermitidas = [
+        ".pdf",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp",
+        ".doc",
+        ".docx",
+        ".xls",
+        ".xlsx",
+        ".csv",
+        ".ppt",
+        ".pptx",
+        ".psd",
+        ".ai",
+        ".eps",
+        ".svg",
+        ".blend",
+        ".fbx",
+        ".obj",
+        ".glb",
+        ".gltf",
+        ".ma",
+        ".mb",
+        ".max",
+        ".zip",
+        ".rar",
+      ];
 
-  const blob = await put(
-    `funcionarios/${user.instituicaoId}/${funcionarioId}/documentos/${Date.now()}-${nomeSeguro}`,
-    arquivo,
-    {
-      access: "public",
+      const nomeArquivo = arquivo.name.toLowerCase();
+      const extensaoValida = extensoesPermitidas.some((ext) =>
+        nomeArquivo.endsWith(ext)
+      );
+
+      if (!extensaoValida) {
+        return NextResponse.json(
+          { error: "Formato inválido para documento ou portfólio." },
+          { status: 400 }
+        );
+      }
+
+      const tamanhoMaximo = 50 * 1024 * 1024;
+
+      if (arquivo.size > tamanhoMaximo) {
+        return NextResponse.json(
+          { error: "Arquivo muito grande. O limite é 50MB." },
+          { status: 400 }
+        );
+      }
+
+      const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+      const blob = await put(
+        `funcionarios/${user.instituicaoId}/${funcionarioId}/documentos/${Date.now()}-${nomeSeguro}`,
+        arquivo,
+        { access: "public" }
+      );
+
+      arquivoUrl = blob.url;
     }
-  );
 
-  arquivoUrl = blob.url;
-}
-
-const documento = await prisma.documentoRH.create({
-  data: {
-    funcionarioId,
-    instituicaoId: user.instituicaoId!,
-    criadoPorId: user.id,
-    titulo,
-    tipo,
-    status: "GERADO",
-    arquivoUrl,
-  },
-});
+    const documento = await prisma.documentoRH.create({
+      data: {
+        funcionarioId,
+        instituicaoId: user.instituicaoId!,
+        criadoPorId: user.id,
+        titulo,
+        tipo,
+        status: "GERADO",
+        arquivoUrl,
+      },
+    });
 
     return NextResponse.json(documento);
   } catch (error) {

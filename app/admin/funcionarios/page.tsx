@@ -700,7 +700,7 @@ if (funcionarioIdCriado) {
     {linksPortfolio.map((link, index) => (
       <div
         key={index}
-        className="grid gap-3 md:grid-cols-[180px_1fr_auto]"
+        className="grid gap-3 md:grid-cols-[160px_minmax(0,1fr)] lg:grid-cols-[180px_minmax(0,1fr)_120px]"
       >
         <select
           value={link.tipo}
@@ -751,7 +751,7 @@ if (funcionarioIdCriado) {
                 : prev.filter((_, i) => i !== index)
             )
           }
-          className="rounded-lg border px-3 py-2"
+          className="w-full rounded-xl border border-red-500/40 px-3 py-2 text-sm font-bold text-red-300 lg:w-auto"
         >
           Remover
         </button>
