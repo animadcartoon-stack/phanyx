@@ -686,24 +686,58 @@ dark:text-white
         key={doc.tipo}
         className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
       >
-        <label className="mb-2 block text-sm font-bold !text-black dark:!text-white">
-          {doc.titulo}
-        </label>
+        <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+  {doc.titulo}
+</label>
 
         <input
-          type="file"
-          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
-          onChange={(e) => {
-            const arquivo = e.target.files?.[0] || null;
+  id={`arquivo-${doc.tipo}`}
+  type="file"
+  accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
+  className="hidden"
+  onChange={(e) => {
+    const arquivo = e.target.files?.[0] || null;
 
-            setDocumentosFuncionario((prev) =>
-              prev.map((item, i) =>
-                i === index ? { ...item, arquivo } : item
-              )
-            );
-          }}
-          className="w-full rounded-xl border border-slate-300 bg-slate-50 p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-        />
+    setDocumentosFuncionario((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, arquivo } : item
+      )
+    );
+  }}
+/>
+
+<label
+  htmlFor={`arquivo-${doc.tipo}`}
+  className="
+    flex
+    cursor-pointer
+    items-center
+    justify-center
+    rounded-xl
+    border
+    border-slate-300
+    bg-slate-50
+    px-4
+    py-3
+    text-sm
+    font-medium
+    text-slate-700
+    hover:bg-slate-100
+
+    dark:border-slate-700
+    dark:bg-slate-900
+    dark:text-slate-200
+    dark:hover:bg-slate-800
+  "
+>
+  📎 Selecionar arquivo
+</label>
+
+{doc.arquivo && (
+  <p className="mt-2 text-xs text-green-600 dark:text-green-400">
+    {doc.arquivo.name}
+  </p>
+)}
 
         {doc.tipo === "PORTFOLIO" && (
           <div className="mt-4 rounded-xl border border-blue-200 bg-slate-100 p-3 dark:border-blue-900/60 dark:bg-slate-800">
@@ -844,7 +878,7 @@ dark:text-red-300
         </div>
 
                 {funcionariosFiltrados.length === 0 ? (
-          <div className="bg-white border rounded-lg p-4 text-sm text-gray-600">
+          <div className="bg-white border rounded-lg p-5 text-sm text-gray-600">
             Nenhum funcionário encontrado para essa busca.
           </div>
         ) : (
@@ -854,7 +888,7 @@ border
 border-slate-200
 bg-white
 rounded-lg
-p-4
+p-5
 space-y-3
 dark:border-slate-700
 dark:bg-slate-900
