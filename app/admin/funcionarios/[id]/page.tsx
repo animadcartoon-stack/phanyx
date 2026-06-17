@@ -872,7 +872,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 )}
 
 {funcionario && (
-  <section className="rounded-3xl border border-slate-800 bg-white p-5 dark:bg-slate-900/80">
+  <section className="phanyx-documentos-funcionario rounded-3xl border p-5">
     <h2 className="text-lg font-bold">📎 Documentos e Portfólio</h2>
 
     <p className="mt-2 text-sm text-slate-400">

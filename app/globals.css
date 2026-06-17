@@ -959,3 +959,62 @@ html[data-theme="dark"] .phanyx-documentos-professor .dark\:bg-slate-800 {
 html[data-theme="dark"] .phanyx-documentos-professor button {
   color: #93c5fd !important;
 }
+
+/* FIX FUNCIONÁRIOS / DOCUMENTOS - claro, escuro e sistema */
+.phanyx-documentos-funcionario {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-documentos-funcionario h2,
+.phanyx-documentos-funcionario h3,
+.phanyx-documentos-funcionario h4,
+.phanyx-documentos-funcionario label,
+.phanyx-documentos-funcionario p,
+.phanyx-documentos-funcionario span {
+  color: #0f172a !important;
+}
+
+.phanyx-documentos-funcionario input,
+.phanyx-documentos-funcionario select,
+.phanyx-documentos-funcionario textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-documentos-funcionario input::placeholder {
+  color: #64748b !important;
+}
+
+.phanyx-documentos-funcionario a {
+  color: #1d4ed8 !important;
+  border-color: #2563eb !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-funcionario {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-funcionario h2,
+html[data-theme="dark"] .phanyx-documentos-funcionario h3,
+html[data-theme="dark"] .phanyx-documentos-funcionario h4,
+html[data-theme="dark"] .phanyx-documentos-funcionario label,
+html[data-theme="dark"] .phanyx-documentos-funcionario p,
+html[data-theme="dark"] .phanyx-documentos-funcionario span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-funcionario input,
+html[data-theme="dark"] .phanyx-documentos-funcionario select,
+html[data-theme="dark"] .phanyx-documentos-funcionario textarea {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-funcionario a {
+  color: #93c5fd !important;
+  border-color: #3b82f6 !important;
+}
