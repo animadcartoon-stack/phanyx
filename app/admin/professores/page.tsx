@@ -647,9 +647,19 @@ carregarDisciplinas();
   <div className="grid gap-4 md:grid-cols-2">
     {documentosProfessor.map((doc, index) => (
       <div
-        key={doc.tipo}
-        className="rounded-2xl border p-4 shadow-sm"
-      >
+  key={doc.tipo}
+  className="
+    rounded-2xl
+    border
+    border-slate-300
+    bg-white
+    p-4
+    shadow-sm
+
+    dark:border-slate-700
+    dark:bg-slate-900
+  "
+>
         <label className="mb-3 block text-sm font-semibold">
           {doc.titulo}
         </label>
@@ -952,12 +962,25 @@ carregarDisciplinas();
                         placeholder="URL do documento"
                       />
 
-<div className="phanyx-documentos-professor md:col-span-2 rounded-2xl border p-5 shadow-sm">
+<div
+  className="
+    phanyx-documentos-professor
+    md:col-span-2
+    rounded-2xl
+    border
+    border-slate-300
+    bg-white
+    p-5
+    shadow-sm
+    dark:border-slate-700
+    dark:bg-slate-900
+  "
+>
   <h3 className="text-lg font-bold text-slate-900 dark:text-white">
     📁 Documentos e Portfólio
   </h3>
 
-  <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-700 dark:text-slate-300">
+  <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
     Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
   </p>
 
