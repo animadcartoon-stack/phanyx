@@ -1444,7 +1444,7 @@ function renderGrupoDisciplina(
     onCancelar={() => setSucesso("")}
   />
 )}
-      <div className="bg-white border rounded-2xl p-5 shadow-sm">
+      <div className="matriculas-form-light-fix bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
         <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
           Selecione aluno, curso, semestre estruturado e as turmas que ele vai

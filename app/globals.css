@@ -528,3 +528,26 @@ html[data-theme="light"] .matriculas-light-fix select {
   color: #0f172a !important;
   background: #ffffff !important;
 }
+
+/* FIX LOCAL - FORMULÁRIO DE MATRÍCULAS EM TEMA CLARO */
+html[data-theme="light"] .matriculas-form-light-fix,
+html[data-theme="light"] .matriculas-form-light-fix * {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .matriculas-form-light-fix .text-slate-500,
+html[data-theme="light"] .matriculas-form-light-fix .text-slate-400,
+html[data-theme="light"] .matriculas-form-light-fix .text-gray-500,
+html[data-theme="light"] .matriculas-form-light-fix .text-gray-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .matriculas-form-light-fix input,
+html[data-theme="light"] .matriculas-form-light-fix select {
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .matriculas-form-light-fix button:disabled {
+  color: #475569 !important;
+}
