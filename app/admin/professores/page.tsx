@@ -65,6 +65,22 @@ function AdminProfessoresPage() {
   const [slug, setSlug] = useState("");
   const [poloId, setPoloId] = useState("");
 
+  const [documentosProfessor, setDocumentosProfessor] = useState<
+  { tipo: string; titulo: string; arquivo: File | null }[]
+>([
+  { tipo: "RG", titulo: "RG", arquivo: null },
+  { tipo: "CPF", titulo: "CPF", arquivo: null },
+  { tipo: "CNH", titulo: "CNH", arquivo: null },
+  { tipo: "COMPROVANTE_RESIDENCIA", titulo: "Comprovante de residência", arquivo: null },
+  { tipo: "CURRICULO", titulo: "Currículo", arquivo: null },
+  { tipo: "PORTFOLIO", titulo: "Portfólio", arquivo: null },
+  { tipo: "CERTIFICADOS", titulo: "Certificados", arquivo: null },
+]);
+
+const [linksPortfolioProfessor, setLinksPortfolioProfessor] = useState([
+  { tipo: "LinkedIn", url: "" },
+]);
+
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editNome, setEditNome] = useState("");
   const [editEmail, setEditEmail] = useState("");
@@ -202,6 +218,42 @@ async function carregarDisciplinas() {
         throw new Error(data.error || "Erro ao criar professor");
       }
 
+      const professorIdCriado = Number(data?.id);
+
+if (professorIdCriado) {
+  for (const doc of documentosProfessor) {
+    if (!doc.arquivo) continue;
+
+    const formData = new FormData();
+    formData.append("titulo", doc.titulo);
+    formData.append("tipo", doc.tipo);
+    formData.append("arquivo", doc.arquivo);
+
+    await fetch(`/api/admin/professores/${professorIdCriado}/documentos`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+  }
+
+  for (const link of linksPortfolioProfessor) {
+    if (!link.url.trim()) continue;
+
+    await fetch(`/api/admin/professores/${professorIdCriado}/documentos`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        tipo: link.tipo.toUpperCase(),
+        titulo: link.tipo,
+        url: link.url,
+      }),
+    });
+  }
+}
+
       setNome("");
       setEmail("");
       setCpf("");
@@ -217,6 +269,11 @@ async function carregarDisciplinas() {
       setDocumentoUrl("");
       setSlug("");
       setPoloId("");
+      setDocumentosProfessor((prev) =>
+  prev.map((doc) => ({ ...doc, arquivo: null }))
+);
+
+setLinksPortfolioProfessor([{ tipo: "LinkedIn", url: "" }]);
 
       await carregarProfessores();
       mostrarFeedback("sucesso", "Professor criado com sucesso.");
@@ -575,6 +632,142 @@ carregarDisciplinas();
               onChange={(e) => setDocumentoUrl(e.target.value)}
               className="w-full rounded-lg border p-2"
             />
+
+<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="mb-4">
+    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+      📁 Documentos e Portfólio
+    </h3>
+
+    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+      Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
+    </p>
+  </div>
+
+  <div className="grid gap-4 md:grid-cols-2">
+    {documentosProfessor.map((doc, index) => (
+      <div
+        key={doc.tipo}
+        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
+      >
+        <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+          {doc.titulo}
+        </label>
+
+        <input
+          id={`arquivo-professor-${doc.tipo}`}
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
+          className="hidden"
+          onChange={(e) => {
+            const arquivo = e.target.files?.[0] || null;
+
+            setDocumentosProfessor((prev) =>
+              prev.map((item, i) =>
+                i === index ? { ...item, arquivo } : item
+              )
+            );
+          }}
+        />
+
+        <label
+          htmlFor={`arquivo-professor-${doc.tipo}`}
+          className="phanyx-upload-funcionario"
+        >
+          <span>📎</span>
+          <span>Selecionar arquivo</span>
+        </label>
+
+        {doc.arquivo && (
+          <p className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+            {doc.arquivo.name}
+          </p>
+        )}
+
+        {doc.tipo === "PORTFOLIO" && (
+          <div className="mt-4 rounded-xl border border-blue-200 bg-slate-100 p-3 dark:border-blue-900/60 dark:bg-slate-800">
+            <h4 className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
+              Links do portfólio
+            </h4>
+
+            <div className="space-y-3">
+              {linksPortfolioProfessor.map((link, linkIndex) => (
+                <div
+                  key={linkIndex}
+                  className="flex flex-col gap-2 md:flex-row md:items-center"
+                >
+                  <select
+                    value={link.tipo}
+                    onChange={(e) =>
+                      setLinksPortfolioProfessor((prev) =>
+                        prev.map((item, i) =>
+                          i === linkIndex ? { ...item, tipo: e.target.value } : item
+                        )
+                      )
+                    }
+                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  >
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Behance">Behance</option>
+                    <option value="ArtStation">ArtStation</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="YouTube">YouTube</option>
+                    <option value="Vimeo">Vimeo</option>
+                    <option value="GitHub">GitHub</option>
+                    <option value="Site">Site pessoal</option>
+                    <option value="Outro">Outro</option>
+                  </select>
+
+                  <input
+                    type="url"
+                    placeholder="https://..."
+                    value={link.url}
+                    onChange={(e) =>
+                      setLinksPortfolioProfessor((prev) =>
+                        prev.map((item, i) =>
+                          i === linkIndex ? { ...item, url: e.target.value } : item
+                        )
+                      )
+                    }
+                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setLinksPortfolioProfessor((prev) =>
+                        prev.length === 1
+                          ? prev
+                          : prev.filter((_, i) => i !== linkIndex)
+                      )
+                    }
+                    className="shrink-0 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 dark:border-red-800 dark:bg-slate-900 dark:text-red-300"
+                  >
+                    Remover
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                setLinksPortfolioProfessor((prev) => [
+                  ...prev,
+                  { tipo: "LinkedIn", url: "" },
+                ])
+              }
+              className="mt-3 rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-700 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
+            >
+              + Adicionar link
+            </button>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
           </div>
 
           <textarea

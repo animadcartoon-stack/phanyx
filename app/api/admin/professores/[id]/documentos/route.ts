@@ -1,0 +1,210 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { put } from "@vercel/blob";
+import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+
+export async function GET(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const professorId = Number(context.params.id);
+
+    const professor = await prisma.professor.findFirst({
+      where: {
+        id: professorId,
+        instituicaoId: user.instituicaoId,
+      },
+      select: { id: true },
+    });
+
+    if (!professor) {
+      return NextResponse.json(
+        { error: "Professor não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const documentos = await prisma.documentoRH.findMany({
+      where: {
+        professorId,
+        instituicaoId: user.instituicaoId!,
+        arquivado: false,
+      },
+      orderBy: {
+        criadoEm: "desc",
+      },
+    });
+
+    return NextResponse.json(documentos);
+  } catch (error) {
+    console.error("ERRO AO BUSCAR DOCUMENTOS DO PROFESSOR:", error);
+
+    return NextResponse.json(
+      { error: "Erro ao buscar documentos." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+  context: { params: { id: string } }
+) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    if (!isAdminLike(user.role)) {
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const professorId = Number(context.params.id);
+
+    const professor = await prisma.professor.findFirst({
+      where: {
+        id: professorId,
+        instituicaoId: user.instituicaoId,
+      },
+      select: { id: true },
+    });
+
+    if (!professor) {
+      return NextResponse.json(
+        { error: "Professor não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const contentType = req.headers.get("content-type") || "";
+
+    let titulo = "";
+    let tipo = "";
+    let url = "";
+    let arquivo: File | null = null;
+
+    if (contentType.includes("application/json")) {
+      const body = await req.json();
+
+      titulo = String(body.titulo || "").trim();
+      tipo = String(body.tipo || "").trim();
+      url = String(body.url || "").trim();
+    } else {
+      const formData = await req.formData();
+
+      titulo = String(formData.get("titulo") || "").trim();
+      tipo = String(formData.get("tipo") || "").trim();
+      url = String(formData.get("url") || "").trim();
+      arquivo = formData.get("arquivo") as File | null;
+    }
+
+    if (!titulo || !tipo) {
+      return NextResponse.json(
+        { error: "Título e tipo são obrigatórios." },
+        { status: 400 }
+      );
+    }
+
+    if (!arquivo && !url) {
+      return NextResponse.json(
+        { error: "Envie um arquivo ou informe uma URL." },
+        { status: 400 }
+      );
+    }
+
+    let arquivoUrl = url || null;
+
+    if (arquivo) {
+      const extensoesPermitidas = [
+        ".pdf",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".webp",
+        ".doc",
+        ".docx",
+        ".xls",
+        ".xlsx",
+        ".csv",
+        ".ppt",
+        ".pptx",
+        ".psd",
+        ".ai",
+        ".eps",
+        ".svg",
+        ".blend",
+        ".fbx",
+        ".obj",
+        ".glb",
+        ".gltf",
+        ".ma",
+        ".mb",
+        ".max",
+        ".zip",
+        ".rar",
+      ];
+
+      const nomeArquivo = arquivo.name.toLowerCase();
+
+      const extensaoValida = extensoesPermitidas.some((ext) =>
+        nomeArquivo.endsWith(ext)
+      );
+
+      if (!extensaoValida) {
+        return NextResponse.json(
+          { error: "Formato inválido para documento ou portfólio." },
+          { status: 400 }
+        );
+      }
+
+      const tamanhoMaximo = 50 * 1024 * 1024;
+
+      if (arquivo.size > tamanhoMaximo) {
+        return NextResponse.json(
+          { error: "Arquivo muito grande. O limite é 50MB." },
+          { status: 400 }
+        );
+      }
+
+      const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+      const blob = await put(
+        `professores/${user.instituicaoId}/${professorId}/documentos/${Date.now()}-${nomeSeguro}`,
+        arquivo,
+        { access: "public" }
+      );
+
+      arquivoUrl = blob.url;
+    }
+
+    const documento = await prisma.documentoRH.create({
+      data: {
+        professorId,
+        instituicaoId: user.instituicaoId!,
+        criadoPorId: user.id,
+        titulo,
+        tipo,
+        status: "GERADO",
+        arquivoUrl,
+      },
+    });
+
+    return NextResponse.json(documento);
+  } catch (error) {
+    console.error("ERRO AO ENVIAR DOCUMENTO DO PROFESSOR:", error);
+
+    return NextResponse.json(
+      { error: "Erro ao enviar documento." },
+      { status: 500 }
+    );
+  }
+}
