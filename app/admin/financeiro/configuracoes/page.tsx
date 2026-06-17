@@ -99,13 +99,14 @@ export default function ConfiguracoesFinanceirasPage() {
   return (
     <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Configuração Financeira por Instituição
-        </h1>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
-          Defina os padrões financeiros usados pela instituição.
-        </p>
-      </div>
+  <h1 className="text-2xl font-bold !text-slate-900 dark:!text-white">
+    Configuração Financeira por Instituição
+  </h1>
+
+  <p className="text-sm !text-slate-700 dark:!text-slate-300">
+    Defina os padrões financeiros usados pela instituição.
+  </p>
+</div>
 
       {mensagem && (
         <div className="rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700">
