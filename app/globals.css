@@ -1018,3 +1018,99 @@ html[data-theme="dark"] .phanyx-documentos-funcionario a {
   color: #93c5fd !important;
   border-color: #3b82f6 !important;
 }
+
+/* FIX SISTEMA - FUNCIONÁRIOS / DOCUMENTOS SEM AZUL */
+html[data-theme="system"] .phanyx-documentos-funcionario {
+  background: #2a2a2a !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario > div,
+html[data-theme="system"] .phanyx-documentos-funcionario .rounded-2xl {
+  background: #2f2f2f !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario .rounded-xl {
+  background: #333333 !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario input,
+html[data-theme="system"] .phanyx-documentos-funcionario select {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-upload-funcionario {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="system"] .phanyx-upload-funcionario:hover {
+  background: #3a3a3a !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario h2,
+html[data-theme="system"] .phanyx-documentos-funcionario h3,
+html[data-theme="system"] .phanyx-documentos-funcionario h4,
+html[data-theme="system"] .phanyx-documentos-funcionario label,
+html[data-theme="system"] .phanyx-documentos-funcionario p,
+html[data-theme="system"] .phanyx-documentos-funcionario span {
+  color: #ffffff !important;
+}
+
+/* FIX SISTEMA - DOCUMENTOS FUNCIONÁRIO E PROFESSOR */
+html[data-theme="system"] .phanyx-documentos-funcionario,
+html[data-theme="system"] .phanyx-documentos-professor {
+  background: #2a2a2a !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario .rounded-2xl,
+html[data-theme="system"] .phanyx-documentos-professor .rounded-2xl {
+  background: #2f2f2f !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario .rounded-xl,
+html[data-theme="system"] .phanyx-documentos-professor .rounded-xl {
+  background: #333333 !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario input,
+html[data-theme="system"] .phanyx-documentos-funcionario select,
+html[data-theme="system"] .phanyx-documentos-professor input,
+html[data-theme="system"] .phanyx-documentos-professor select {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-upload-funcionario {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="system"] .phanyx-upload-funcionario:hover {
+  background: #3a3a3a !important;
+}
+
+html[data-theme="system"] .phanyx-documentos-funcionario h2,
+html[data-theme="system"] .phanyx-documentos-funcionario h3,
+html[data-theme="system"] .phanyx-documentos-funcionario h4,
+html[data-theme="system"] .phanyx-documentos-funcionario label,
+html[data-theme="system"] .phanyx-documentos-funcionario p,
+html[data-theme="system"] .phanyx-documentos-funcionario span,
+html[data-theme="system"] .phanyx-documentos-professor h2,
+html[data-theme="system"] .phanyx-documentos-professor h3,
+html[data-theme="system"] .phanyx-documentos-professor h4,
+html[data-theme="system"] .phanyx-documentos-professor label,
+html[data-theme="system"] .phanyx-documentos-professor p,
+html[data-theme="system"] .phanyx-documentos-professor span {
+  color: #ffffff !important;
+}
