@@ -672,10 +672,10 @@ dark:text-white
 
 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 phanyx-documentos-funcionario">
   <div className="mb-4">
-    <h3 className="text-base font-bold !text-slate-900 dark:!text-white">
+    <h3 className="text-base font-bold !text-black dark:!text-white">
   Documentos do funcionário
 </h3>
-    <p className="mt-1 text-sm !text-slate-600 dark:!text-slate-300">
+    <p className="mt-1 text-sm !text-black dark:!text-slate-300">
       Envie documentos, currículo, portfólio e links profissionais.
     </p>
   </div>
@@ -686,7 +686,7 @@ dark:text-white
         key={doc.tipo}
         className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
       >
-        <label className="mb-2 block text-sm font-bold !text-slate-800 dark:!text-white">
+        <label className="mb-2 block text-sm font-bold !text-black dark:!text-white">
           {doc.titulo}
         </label>
 
@@ -713,7 +713,10 @@ dark:text-white
 
             <div className="space-y-3">
               {linksPortfolio.map((link, index) => (
-                <div key={index} className="grid gap-2 md:grid-cols-[150px_1fr_auto]">
+                <div
+  key={index}
+  className="flex flex-col gap-2 md:flex-row md:items-center"
+>
                   <select
                     value={link.tipo}
                     onChange={(e) =>
@@ -759,7 +762,21 @@ dark:text-white
                           : prev.filter((_, i) => i !== index)
                       )
                     }
-                    className="rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 dark:border-red-800 dark:bg-slate-900 dark:text-red-300"
+                    className="
+shrink-0
+rounded-lg
+border
+border-red-300
+bg-white
+px-3
+py-2
+text-sm
+font-semibold
+text-red-600
+dark:border-red-800
+dark:bg-slate-900
+dark:text-red-300
+"
                   >
                     Remover
                   </button>
