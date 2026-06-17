@@ -54,11 +54,20 @@ function FuncionarioFichaPage() {
 
   const [funcionario, setFuncionario] = useState<any>(null);
 
+  const [documentosFuncionario, setDocumentosFuncionario] = useState<any[]>([]);
+  const [enviandoDocumento, setEnviandoDocumento] = useState(false);
+
+  const [novoDocumento, setNovoDocumento] = useState({
+  tipo: "RG",
+  titulo: "RG",
+  arquivo: null as File | null,
+});
+
   const [editandoTrabalhista, setEditandoTrabalhista] = useState(false);
 
   const [editandoGeral, setEditandoGeral] = useState(false);
 
-const [formGeral, setFormGeral] = useState({
+  const [formGeral, setFormGeral] = useState({
   nome: "",
   cpf: "",
   rg: "",
@@ -69,7 +78,7 @@ const [formGeral, setFormGeral] = useState({
   statusFuncionario: "",
 });
 
-const [formTrabalhista, setFormTrabalhista] = useState({
+  const [formTrabalhista, setFormTrabalhista] = useState({
   dataAdmissao: "",
   dataDesligamento: "",
   salarioBase: "",
@@ -240,12 +249,68 @@ function preencherFormTrabalhista(f: any) {
   }
 }
 
+async function carregarDocumentosFuncionario() {
+  try {
+    const res = await fetch(`/api/admin/funcionarios/${funcionarioId}/documentos`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setDocumentosFuncionario(Array.isArray(data) ? data : []);
+    }
+  } catch {
+    setDocumentosFuncionario([]);
+  }
+}
+
+async function enviarDocumentoFuncionario(e: React.FormEvent) {
+  e.preventDefault();
+
+  if (!novoDocumento.arquivo) {
+    setErro("Selecione um arquivo antes de enviar.");
+    return;
+  }
+
+  try {
+    setEnviandoDocumento(true);
+
+    const formData = new FormData();
+    formData.append("tipo", novoDocumento.tipo);
+    formData.append("titulo", novoDocumento.titulo);
+    formData.append("arquivo", novoDocumento.arquivo);
+
+    const res = await fetch(`/api/admin/funcionarios/${funcionarioId}/documentos`, {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao enviar documento.");
+    }
+
+    setSucesso("Documento enviado com sucesso.");
+    setNovoDocumento({ tipo: "RG", titulo: "RG", arquivo: null });
+    await carregarDocumentosFuncionario();
+  } catch (e: any) {
+    setErro(e.message || "Erro ao enviar documento.");
+  } finally {
+    setEnviandoDocumento(false);
+  }
+}
+
   useEffect(() => {
   if (!funcionarioId) return;
 
     carregarFuncionario();
     carregarBeneficios();
     carregarBancoHorasFuncionario();
+    carregarDocumentosFuncionario();
 }, [funcionarioId]);
 
   async function vincularBeneficio(e: React.FormEvent) {
@@ -796,19 +861,81 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 )}
 
 {funcionario && (
-  <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
-    <div className="flex items-center justify-between">
-      <h2 className="text-lg font-bold">
-        📎 Documentos e Portfólio
-      </h2>
-    </div>
+  <section className="rounded-3xl border border-slate-800 bg-white p-5 dark:bg-slate-900/80">
+    <h2 className="text-lg font-bold">📎 Documentos e Portfólio</h2>
 
     <p className="mt-2 text-sm text-slate-400">
       Documentos profissionais, currículo e links de portfólio.
     </p>
 
-    <div className="mt-5">
-      {/* vamos colocar os campos aqui */}
+    <form onSubmit={enviarDocumentoFuncionario} className="mt-5 grid gap-4 md:grid-cols-3">
+      <select
+        value={novoDocumento.tipo}
+        onChange={(e) => {
+          const tipo = e.target.value;
+          setNovoDocumento((p) => ({ ...p, tipo, titulo: tipo }));
+        }}
+        className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+      >
+        <option value="RG">RG</option>
+        <option value="CPF">CPF</option>
+        <option value="CNH">CNH</option>
+        <option value="COMPROVANTE_RESIDENCIA">Comprovante de residência</option>
+        <option value="CURRICULO">Currículo</option>
+        <option value="PORTFOLIO">Portfólio</option>
+        <option value="CERTIFICADOS">Certificados</option>
+      </select>
+
+      <input
+        type="file"
+        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+        onChange={(e) =>
+          setNovoDocumento((p) => ({
+            ...p,
+            arquivo: e.target.files?.[0] || null,
+          }))
+        }
+        className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+      />
+
+      <button
+        type="submit"
+        disabled={enviandoDocumento}
+        className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-500 disabled:opacity-60"
+      >
+        {enviandoDocumento ? "Enviando..." : "Enviar documento"}
+      </button>
+    </form>
+
+    <div className="mt-5 space-y-2">
+      {documentosFuncionario.length === 0 ? (
+        <p className="text-sm text-slate-400">
+          Nenhum documento enviado ainda.
+        </p>
+      ) : (
+        documentosFuncionario.map((doc) => (
+          <div
+            key={doc.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-950 p-3"
+          >
+            <div>
+              <p className="font-semibold">{doc.titulo}</p>
+              <p className="text-xs text-slate-400">{doc.tipo}</p>
+            </div>
+
+            {doc.arquivoUrl && (
+              <a
+                href={doc.arquivoUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg border border-blue-400 px-3 py-1.5 text-sm font-bold text-blue-300"
+              >
+                Abrir
+              </a>
+            )}
+          </div>
+        ))
+      )}
     </div>
   </section>
 )}
