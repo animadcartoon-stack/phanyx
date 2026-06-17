@@ -671,10 +671,10 @@ dark:text-white
 
 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
   <div className="mb-4">
-    <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
-      Documentos do funcionário
-    </h3>
-    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+    <h3 className="text-base font-bold text-slate-800 dark:text-white">
+  Documentos do funcionário
+</h3>
+    <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
       Envie documentos, currículo, portfólio e links profissionais.
     </p>
   </div>
@@ -685,7 +685,7 @@ dark:text-white
         key={doc.tipo}
         className="rounded-2xl border border-slate-300 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
       >
-        <label className="mb-2 block text-sm font-bold text-slate-800 dark:text-slate-100">
+        <label className="mb-2 block text-sm font-semibold text-slate-700 dark:text-white">
           {doc.titulo}
         </label>
 
@@ -705,7 +705,7 @@ dark:text-white
         />
 
         {doc.tipo === "PORTFOLIO" && (
-          <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-900/60 dark:bg-blue-950/30">
+          <div className="mt-4 rounded-xl border border-blue-200 bg-slate-100 p-3 dark:border-blue-900/60 dark:bg-slate-800">
             <h4 className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
               Links do portfólio
             </h4>
