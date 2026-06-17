@@ -1034,7 +1034,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
       <Link
         href="/admin/rh/banco-horas"
-        className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-200 hover:bg-blue-500/10"
+        className="rounded-xl border border-blue-300 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-400/40 dark:text-blue-200 dark:hover:bg-blue-500/10"
       >
         Ver banco geral
       </Link>
@@ -1042,14 +1042,14 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
       <div className="phanyx-banco-card phanyx-banco-card-credito">
-        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-700 dark:text-emerald-300">Créditos</p>
+        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Créditos</p>
         <p className="mt-2 text-2xl font-bold text-emerald-700 dark:text-emerald-300">
           {formatarHoras(resumoBancoHoras.creditos)}
         </p>
       </div>
 
       <div className="phanyx-banco-card phanyx-banco-card-debito">
-        <p className="text-sm font-semibold text-red-700 dark:text-red-700 dark:text-red-300">Débitos</p>
+        <p className="text-sm font-semibold text-red-700 dark:text-red-300">Débitos</p>
         <p className="mt-2 text-2xl font-bold text-red-700 dark:text-red-300">
           {formatarHoras(-resumoBancoHoras.debitos)}
         </p>
@@ -1076,7 +1076,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
       </div>
     </div>
 
-    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
+    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
       <p>
         Último ponto:{" "}
         <strong>
