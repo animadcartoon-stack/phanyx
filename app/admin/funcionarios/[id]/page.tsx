@@ -1030,16 +1030,17 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 {funcionario && (
   <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="text-lg font-bold text-slate-950 dark:text-white">
-        📊 Banco de Horas
-      </h2>
+      <h2 style={{ color: "#020617" }} className="text-lg font-extrabold">
+  📊 Banco de Horas
+</h2>
 
       <Link
-        href="/admin/rh/banco-horas"
-        className="rounded-xl border border-blue-400 bg-white px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-500/40 dark:bg-slate-950 dark:text-blue-300"
-      >
-        Ver banco geral
-      </Link>
+  href="/admin/rh/banco-horas"
+  style={{ color: "#1d4ed8", borderColor: "#60a5fa", backgroundColor: "#ffffff" }}
+  className="rounded-xl border px-4 py-2 text-sm font-extrabold hover:bg-blue-50"
+>
+  Ver banco geral
+</Link>
     </div>
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
@@ -1072,14 +1073,17 @@ hover:bg-blue-100 dark:hover:bg-blue-600
       </div>
     </div>
 
-    <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 text-sm font-bold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-      Último ponto:{" "}
-      <strong className="text-slate-950 dark:text-white">
-        {resumoBancoHoras.ultimaData
-          ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
-          : "-"}
-      </strong>
-    </div>
+    <div
+  style={{ color: "#334155", borderColor: "#cbd5e1", backgroundColor: "#ffffff" }}
+  className="mt-4 rounded-2xl border p-4 text-sm font-extrabold shadow-sm"
+>
+  Último ponto:{" "}
+  <strong style={{ color: "#020617" }}>
+    {resumoBancoHoras.ultimaData
+      ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
+      : "-"}
+  </strong>
+</div>
   </section>
 )}
 
