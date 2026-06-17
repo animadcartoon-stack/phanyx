@@ -883,3 +883,79 @@ html[data-theme="dark"] .phanyx-rh-banco-ultimo strong {
     grid-template-columns: 1fr;
   }
 }
+
+/* FIX LOCAL - PROFESSORES / DOCUMENTOS */
+.phanyx-documentos-professor {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-documentos-professor h3,
+.phanyx-documentos-professor h4,
+.phanyx-documentos-professor label {
+  color: #0f172a !important;
+}
+
+.phanyx-documentos-professor p,
+.phanyx-documentos-professor span {
+  color: #334155 !important;
+}
+
+.phanyx-documentos-professor input,
+.phanyx-documentos-professor select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-documentos-professor input::placeholder {
+  color: #64748b !important;
+}
+
+.phanyx-documentos-professor .bg-slate-100,
+.phanyx-documentos-professor .dark\:bg-slate-800 {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-documentos-professor button {
+  color: #1d4ed8 !important;
+}
+
+/* Escuro/Sistema quando está em dark */
+html[data-theme="dark"] .phanyx-documentos-professor {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-professor h3,
+html[data-theme="dark"] .phanyx-documentos-professor h4,
+html[data-theme="dark"] .phanyx-documentos-professor label {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-professor p,
+html[data-theme="dark"] .phanyx-documentos-professor span {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-professor input,
+html[data-theme="dark"] .phanyx-documentos-professor select {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-professor input::placeholder {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-professor .bg-slate-100,
+html[data-theme="dark"] .phanyx-documentos-professor .dark\:bg-slate-800 {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-documentos-professor button {
+  color: #93c5fd !important;
+}
