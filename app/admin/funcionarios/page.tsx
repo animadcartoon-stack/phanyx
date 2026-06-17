@@ -672,12 +672,13 @@ dark:text-white
 
 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900 phanyx-documentos-funcionario">
   <div className="mb-4">
-    <h3 className="text-base font-bold !text-black dark:!text-white">
-  Documentos do funcionário
+    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+  📁 Documentos e Portfólio
 </h3>
-    <p className="mt-1 text-sm !text-black dark:!text-slate-300">
-      Envie documentos, currículo, portfólio e links profissionais.
-    </p>
+
+<p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+  Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
+</p>
   </div>
 
   <div className="grid gap-4 md:grid-cols-2">
