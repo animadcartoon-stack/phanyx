@@ -1042,41 +1042,41 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
       <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/20 p-4">
-        <p className="text-sm text-emerald-200">Créditos</p>
+        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Créditos</p>
         <p className="mt-2 text-2xl font-bold text-emerald-300">
           {formatarHoras(resumoBancoHoras.creditos)}
         </p>
       </div>
 
       <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-4">
-        <p className="text-sm text-red-200">Débitos</p>
+        <p className="text-sm font-semibold text-red-700 dark:text-red-300">Débitos</p>
         <p className="mt-2 text-2xl font-bold text-red-300">
           {formatarHoras(-resumoBancoHoras.debitos)}
         </p>
       </div>
 
       <div className="rounded-2xl border border-blue-500/20 bg-blue-950/20 p-4">
-        <p className="text-sm text-blue-200">Saldo Atual</p>
+        <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">Saldo Atual</p>
         <p
-          className={`mt-2 text-2xl font-bold ${
-            resumoBancoHoras.saldo >= 0
-              ? "text-emerald-300"
-              : "text-red-300"
-          }`}
-        >
+  className={`mt-2 text-2xl font-bold ${
+    resumoBancoHoras.saldo >= 0
+      ? "text-emerald-700 dark:text-emerald-300"
+      : "text-red-700 dark:text-red-300"
+  }`}
+>
           {formatarHoras(resumoBancoHoras.saldo)}
         </p>
       </div>
 
       <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4">
-        <p className="text-sm text-slate-400">Registros</p>
+        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Registros</p>
         <p className="mt-2 text-2xl font-bold">
           {resumoBancoHoras.registros}
         </p>
       </div>
     </div>
 
-    <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-950 p-4 text-sm text-slate-300">
+    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
       <p>
         Último ponto:{" "}
         <strong>
