@@ -469,6 +469,7 @@ if (funcionarioIdCriado) {
 )}
 
 <form
+  onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
   className="
   rounded-lg
   border
