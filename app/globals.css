@@ -602,3 +602,12 @@ html[data-theme="light"] .admin-matriculas-page .bg-yellow-500 {
   background: #eab308 !important;
   color: #ffffff !important;
 }
+
+/* FIX HOVER LOCAL - CAMPOS DE DISCIPLINAS EM MATRÍCULAS */
+html[data-theme="light"] .admin-matriculas-page .hover\:bg-slate-800:hover,
+html[data-theme="light"] .admin-matriculas-page .hover\:bg-slate-900:hover,
+html[data-theme="light"] .admin-matriculas-page .dark\:hover\:bg-slate-800:hover,
+html[data-theme="light"] .admin-matriculas-page .dark\:hover\:bg-slate-900:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
