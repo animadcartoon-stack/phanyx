@@ -26,14 +26,10 @@ function aplicarTema(tema: Tema) {
 
   const usarEscuro = tema === "dark" || (tema === "system" && prefereEscuro);
 
-  root.dataset.theme = tema;
+  root.dataset.theme = usarEscuro ? "dark" : "light";
+root.dataset.themeChoice = tema;
 
-  if (tema === "light") {
-    root.classList.remove("dark");
-    return;
-  }
-
-  root.classList.toggle("dark", usarEscuro);
+root.classList.toggle("dark", usarEscuro);
 }
 
 export default function PhanyxThemeToggle() {
@@ -52,13 +48,13 @@ export default function PhanyxThemeToggle() {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-2 py-1 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-2 py-1 shadow-sm dark:border-slate-700 dark:bg-slate-900 [&_button:not(.ativo-tema)]:text-slate-700 dark:[&_button:not(.ativo-tema)]:text-slate-300">
       <button
         type="button"
         onClick={() => alterarTema("light")}
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "light"
-            ? "bg-blue-600 text-white"
+            ? "ativo-tema bg-blue-600 text-white"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
@@ -70,7 +66,7 @@ export default function PhanyxThemeToggle() {
         onClick={() => alterarTema("dark")}
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "dark"
-            ? "bg-blue-600 text-white"
+            ? "ativo-tema bg-blue-600 text-white"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
@@ -82,7 +78,7 @@ export default function PhanyxThemeToggle() {
         onClick={() => alterarTema("system")}
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "system"
-            ? "bg-blue-600 text-white"
+            ? "ativo-tema bg-blue-600 text-white"
             : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >

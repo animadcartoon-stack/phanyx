@@ -9,12 +9,8 @@ function aplicarTema(tema: Tema) {
   const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const usarEscuro = tema === "dark" || (tema === "system" && prefereEscuro);
 
-  root.dataset.theme = tema;
-
-  if (tema === "light") {
-    root.classList.remove("dark");
-    return;
-  }
+  root.dataset.theme = usarEscuro ? "dark" : "light";
+  root.dataset.themeChoice = tema;
 
   root.classList.toggle("dark", usarEscuro);
 }
