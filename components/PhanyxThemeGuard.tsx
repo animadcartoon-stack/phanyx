@@ -31,10 +31,10 @@ export default function PhanyxThemeGuard() {
   const usarEscuro =
     tema === "dark" || (tema === "system" && prefereEscuro);
 
-  root.dataset.theme = usarEscuro ? "dark" : "light";
+  root.dataset.theme = tema === "system" ? "system" : usarEscuro ? "dark" : "light";
   root.dataset.themeChoice = tema;
 
-  root.classList.toggle("dark", usarEscuro);
+  root.classList.toggle("dark", tema === "system" || usarEscuro);
 }, [pathname]);
 
   return null;
