@@ -498,3 +498,33 @@ html[data-theme="light"] .phanyx-master-platforma .text-blue-700,
 html[data-theme="light"] .phanyx-master-platforma .text-sky-300 {
   color: #2563eb !important;
 }
+
+/* FIX LOCAL - MATRÍCULAS EM TEMA CLARO */
+html[data-theme="light"] .matriculas-light-fix,
+html[data-theme="light"] .matriculas-light-fix * {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .matriculas-light-fix .text-slate-500,
+html[data-theme="light"] .matriculas-light-fix .text-slate-400,
+html[data-theme="light"] .matriculas-light-fix .text-gray-500 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .matriculas-light-fix button {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .matriculas-light-fix button.bg-yellow-500 {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .matriculas-light-fix .bg-green-100 {
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .matriculas-light-fix input,
+html[data-theme="light"] .matriculas-light-fix select {
+  color: #0f172a !important;
+  background: #ffffff !important;
+}

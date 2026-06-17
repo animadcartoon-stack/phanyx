@@ -1774,7 +1774,7 @@ function renderGrupoDisciplina(
         </div>
       </div>
 
-      <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
+      <div className="matriculas-light-fix bg-white border rounded-2xl shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
   
