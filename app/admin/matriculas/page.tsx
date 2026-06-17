@@ -1361,13 +1361,13 @@ function renderGrupoDisciplina(
   return (
     <div
       key={`${grupo.disciplinaId ?? grupo.disciplinaNome}`}
-      className="border rounded-2xl p-4 space-y-3"
+      className="space-y-3 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
     >
       <div>
-        <p className="font-semibold text-gray-900">
+        <p className="font-semibold text-slate-900 dark:text-slate-100">
           {grupo.disciplinaNome}
         </p>
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Selecione a turma desta disciplina contratada.
         </p>
       </div>
@@ -1390,7 +1390,7 @@ function renderGrupoDisciplina(
                 Turma: {t.nome}
               </p>
 
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
                 {t.professorNome
                   ? `Prof. ${t.professorNome}`
                   : "Professor não informado"}
@@ -1417,7 +1417,7 @@ function renderGrupoDisciplina(
 
       <div>
         <h1 className="text-2xl font-bold">📌 Matrículas</h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-slate-600 dark:text-slate-300 mt-1">
           Gerencie a matrícula por curso, semestre do curso e disciplinas
           contratadas.
         </p>
@@ -1446,7 +1446,7 @@ function renderGrupoDisciplina(
 )}
       <div className="bg-white border rounded-2xl p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Nova matrícula</h2>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
           Selecione aluno, curso, semestre estruturado e as turmas que ele vai
           cursar.
         </p>
@@ -1528,7 +1528,7 @@ function renderGrupoDisciplina(
   {semestresAberto && (
     <div className="absolute z-20 mt-1 w-full border rounded-xl bg-white p-3 shadow-lg">
       {semestresCurso.length === 0 ? (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Selecione um curso primeiro...
         </p>
       ) : (
@@ -1765,7 +1765,7 @@ function renderGrupoDisciplina(
             className={[
               "px-4 py-2 rounded-xl font-semibold transition",
               !podeCriar || creating
-                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                ? "bg-gray-300 text-slate-600 dark:text-slate-300 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700",
             ].join(" ")}
           >
@@ -1827,9 +1827,9 @@ function renderGrupoDisciplina(
         </div>
 
         {loading ? (
-  <div className="p-6 text-gray-600">Carregando...</div>
+  <div className="p-6 text-slate-600 dark:text-slate-300">Carregando...</div>
 ) : matriculasFiltradas.length === 0 ? (
-  <div className="p-6 text-gray-600">Nenhuma matrícula encontrada.</div>
+  <div className="p-6 text-slate-600 dark:text-slate-300">Nenhuma matrícula encontrada.</div>
 ) : (
   <div className="overflow-x-auto">
     <table className="min-w-full text-sm">
@@ -1950,7 +1950,10 @@ function renderGrupoDisciplina(
               </tr>
 
               {expandida && (
-                <tr key={`detalhes-${m.id}`} className="border-b bg-slate-50 dark:bg-slate-900">
+                <tr
+  key={`detalhes-${m.id}`}
+  className="border-b bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100"
+>
                   <td colSpan={6} className="px-4 py-4">
                     <div className="space-y-4">
                       <div className="flex flex-wrap gap-2">
@@ -2002,7 +2005,7 @@ function renderGrupoDisciplina(
                           className={[
                             "px-4 py-2 rounded-xl text-sm font-semibold transition border",
                             removingId === m.id
-                              ? "bg-gray-100 text-gray-500 cursor-not-allowed"
+                              ? "bg-gray-100 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                               : "bg-white hover:border-red-400 hover:text-red-600",
                           ].join(" ")}
                         >
@@ -2012,7 +2015,7 @@ function renderGrupoDisciplina(
 
                       <div>
                         {itens.length === 0 ? (
-                          <p className="text-sm text-gray-500">
+                          <p className="text-sm text-slate-500 dark:text-slate-400">
                             Nenhuma disciplina vinculada.
                           </p>
                         ) : (
@@ -2028,9 +2031,9 @@ function renderGrupoDisciplina(
                               return (
                                 <div
                                   key={item.id}
-                                  className="text-sm text-gray-600 border rounded-xl p-3 bg-white"
+                                  className="rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                                 >
-                                  <p className="font-medium text-gray-800">
+                                  <p className="font-medium text-slate-900 dark:text-slate-100">
                                     {disciplinaNome}
                                   </p>
                                   <p>
@@ -2038,7 +2041,7 @@ function renderGrupoDisciplina(
                                   </p>
                                   <p className="mt-1">
                                     Status da disciplina:{" "}
-                                    <span className="font-medium text-gray-800">
+                                    <span className="font-medium text-slate-900 dark:text-slate-100">
                                       {labelStatusItem(item.status)}
                                     </span>
                                   </p>
@@ -2066,7 +2069,7 @@ function renderGrupoDisciplina(
     <div className="bg-white p-6 rounded-2xl w-full max-w-5xl shadow-xl max-h-[90vh] overflow-auto relative">
       <button
   onClick={() => setMatriculaEditando(null)}
-  className="absolute top-4 right-4 text-gray-500 hover:text-red-600 text-2xl font-bold"
+  className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-red-600 text-2xl font-bold"
 >
   ×
 </button>
@@ -2376,12 +2379,12 @@ function renderGrupoDisciplina(
           )
         )
       ) : (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Nenhuma disciplina encontrada para este semestre.
         </p>
       )
     ) : (
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-500 dark:text-slate-400">
         Selecione primeiro o curso e o semestre do curso.
       </p>
     )}
@@ -2392,7 +2395,7 @@ function renderGrupoDisciplina(
   <label className="text-sm font-medium text-gray-700">
     Disciplinas extras contratadas
   </label>
-  <p className="text-xs text-gray-500 mt-1">
+  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
     Use esta área para adicionar disciplinas fora da grade padrão daquele semestre.
   </p>
 
@@ -2407,12 +2410,12 @@ function renderGrupoDisciplina(
           )
         )
       ) : (
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-500 dark:text-slate-400">
           Nenhuma disciplina extra encontrada para este curso.
         </p>
       )
     ) : (
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-500 dark:text-slate-400">
         Selecione primeiro o curso e o semestre do curso.
       </p>
     )}
@@ -2461,10 +2464,10 @@ function renderGrupoDisciplina(
     <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-bold text-gray-900">
+          <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
             Assinatura do Atendente / Secretaria
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-slate-600 dark:text-slate-300">
             Assine abaixo para registrar a assinatura administrativa no contrato.
           </p>
         </div>
@@ -2472,7 +2475,7 @@ function renderGrupoDisciplina(
         <button
           type="button"
           onClick={() => setModalSecretariaAberto(false)}
-          className="text-2xl font-bold text-gray-500 hover:text-red-600"
+          className="text-2xl font-bold text-slate-500 dark:text-slate-400 hover:text-red-600"
         >
           ×
         </button>
