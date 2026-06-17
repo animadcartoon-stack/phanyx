@@ -708,29 +708,10 @@ dark:text-white
 
 <label
   htmlFor={`arquivo-${doc.tipo}`}
-  className="
-    flex
-    cursor-pointer
-    items-center
-    justify-center
-    rounded-xl
-    border
-    border-slate-300
-    bg-slate-50
-    px-4
-    py-3
-    text-sm
-    font-medium
-    text-slate-700
-    hover:bg-slate-100
-
-    dark:border-slate-700
-    dark:bg-slate-900
-    dark:text-slate-200
-    dark:hover:bg-slate-800
-  "
+  className="phanyx-upload-funcionario"
 >
-  📎 Selecionar arquivo
+  <span>📎</span>
+  <span>Selecionar arquivo</span>
 </label>
 
 {doc.arquivo && (
