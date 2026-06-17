@@ -98,14 +98,10 @@ export default function ConfiguracoesFinanceirasPage() {
 
   return (
     <div className="space-y-6 p-6">
-      <div>
-  <h1 className="text-2xl font-bold !text-slate-900 dark:!text-white">
-    Configuração Financeira por Instituição
-  </h1>
+      <div className="phanyx-financeiro-config-titulo">
+  <h1>Configuração Financeira por Instituição</h1>
 
-  <p className="text-sm !text-slate-700 dark:!text-slate-300">
-    Defina os padrões financeiros usados pela instituição.
-  </p>
+  <p>Defina os padrões financeiros usados pela instituição.</p>
 </div>
 
       {mensagem && (

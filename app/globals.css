@@ -1179,3 +1179,29 @@ html[data-theme="system"] .phanyx-rh-banco-card.registro strong,
 html[data-theme="system"] .phanyx-rh-banco-ultimo strong {
   color: #ffffff !important;
 }
+
+/* FIX TÍTULO - CONFIGURAÇÃO FINANCEIRA */
+.phanyx-financeiro-config-titulo h1 {
+  color: #0f172a !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+}
+
+.phanyx-financeiro-config-titulo p {
+  color: #334155 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 0.875rem !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-config-titulo h1,
+html[data-theme="system"] .phanyx-financeiro-config-titulo h1 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-config-titulo p,
+html[data-theme="system"] .phanyx-financeiro-config-titulo p {
+  color: #d1d5db !important;
+}
