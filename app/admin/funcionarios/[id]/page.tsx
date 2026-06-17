@@ -994,36 +994,75 @@ hover:bg-blue-100 dark:hover:bg-blue-600
       </button>
     </form>
 
-    <div className="mt-5 space-y-2">
-      {documentosFuncionario.length === 0 ? (
-        <p className="text-sm text-slate-400">
-          Nenhum documento enviado ainda.
-        </p>
-      ) : (
-        documentosFuncionario.map((doc) => (
-          <div
-            key={doc.id}
-            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-700 bg-slate-950 p-3"
-          >
-            <div>
-              <p className="font-semibold">{doc.titulo}</p>
-              <p className="text-xs text-slate-400">{doc.tipo}</p>
-            </div>
+    <div className="mt-6 space-y-3">
+  <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+    Documentos enviados
+  </h3>
 
-            {doc.arquivoUrl && (
-              <a
-                href={doc.arquivoUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-lg border border-blue-400 px-3 py-1.5 text-sm font-bold text-blue-300"
-              >
-                Abrir
-              </a>
-            )}
-          </div>
-        ))
-      )}
-    </div>
+  {documentosFuncionario.length === 0 ? (
+    <p className="text-sm text-slate-600 dark:text-slate-400">
+      Nenhum documento enviado ainda.
+    </p>
+  ) : (
+    documentosFuncionario.map((doc) => (
+      <div
+        key={doc.id}
+        className="
+          flex
+          flex-wrap
+          items-center
+          justify-between
+          gap-3
+          rounded-xl
+          border
+          border-slate-200
+          bg-white
+          p-4
+          shadow-sm
+          dark:border-slate-700
+          dark:bg-slate-950
+        "
+      >
+        <div>
+          <p className="font-bold text-slate-900 dark:text-white">
+            {doc.titulo || "Documento"}
+          </p>
+
+          <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
+            Tipo: {doc.tipo || "-"}
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {doc.arquivoUrl && (
+            <a
+              href={doc.arquivoUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="
+                rounded-lg
+                border
+                border-blue-300
+                bg-blue-50
+                px-3
+                py-1.5
+                text-sm
+                font-bold
+                text-blue-700
+                hover:bg-blue-100
+                dark:border-blue-700
+                dark:bg-blue-950/30
+                dark:text-blue-300
+              "
+            >
+              Abrir documento
+            </a>
+          )}
+        </div>
+      </div>
+    ))
+  )}
+</div>
   </section>
 )}
 
