@@ -634,14 +634,14 @@ if (funcionarioIdCriado) {
   </h3>
 
   <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-    Envie documentos opcionais em PDF, PNG, JPG ou JPEG.
+    Envie documentos, currículo, portfólio e links profissionais.
   </p>
 
   <div className="mt-4 grid gap-3 md:grid-cols-2">
     {documentosFuncionario.map((doc, index) => (
       <div
         key={doc.tipo}
-        className="rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950"
+        className="rounded-xl border border-slate-200 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
       >
         <label className="text-sm font-semibold text-slate-900 dark:text-slate-100">
           {doc.titulo}
@@ -649,34 +649,7 @@ if (funcionarioIdCriado) {
 
         <input
           type="file"
-          accept="
-.pdf,
-.png,
-.jpg,
-.jpeg,
-.webp,
-.doc,
-.docx,
-.xls,
-.xlsx,
-.csv,
-.ppt,
-.pptx,
-.psd,
-.ai,
-.eps,
-.svg,
-.blend,
-.fbx,
-.obj,
-.glb,
-.gltf,
-.ma,
-.mb,
-.max,
-.zip,
-.rar
-"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
           onChange={(e) => {
             const arquivo = e.target.files?.[0] || null;
 
@@ -688,91 +661,83 @@ if (funcionarioIdCriado) {
           }}
           className="mt-2 w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         />
+
+        {doc.tipo === "PORTFOLIO" && (
+          <div className="mt-4 space-y-3">
+            <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+              Links profissionais e portfólio
+            </h4>
+
+            {linksPortfolio.map((link, index) => (
+              <div key={index} className="grid gap-2 md:grid-cols-[150px_1fr_auto]">
+                <select
+                  value={link.tipo}
+                  onChange={(e) =>
+                    setLinksPortfolio((prev) =>
+                      prev.map((item, i) =>
+                        i === index ? { ...item, tipo: e.target.value } : item
+                      )
+                    )
+                  }
+                  className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                >
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="Behance">Behance</option>
+                  <option value="ArtStation">ArtStation</option>
+                  <option value="Instagram">Instagram</option>
+                  <option value="YouTube">YouTube</option>
+                  <option value="Vimeo">Vimeo</option>
+                  <option value="GitHub">GitHub</option>
+                  <option value="Site">Site pessoal</option>
+                  <option value="Outro">Outro</option>
+                </select>
+
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={link.url}
+                  onChange={(e) =>
+                    setLinksPortfolio((prev) =>
+                      prev.map((item, i) =>
+                        i === index ? { ...item, url: e.target.value } : item
+                      )
+                    )
+                  }
+                  className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                />
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setLinksPortfolio((prev) =>
+                      prev.length === 1
+                        ? prev
+                        : prev.filter((_, i) => i !== index)
+                    )
+                  }
+                  className="rounded-lg border border-red-500 px-3 py-2 text-sm text-red-400"
+                >
+                  Remover
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={() =>
+                setLinksPortfolio((prev) => [
+                  ...prev,
+                  { tipo: "LinkedIn", url: "" },
+                ])
+              }
+              className="rounded-lg border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-400"
+            >
+              + Adicionar link
+            </button>
+          </div>
+        )}
       </div>
     ))}
-
-<div className="mt-6">
-  <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
-    Links profissionais e portfólio
-  </h4>
-
-  <div className="space-y-3">
-    {linksPortfolio.map((link, index) => (
-      <div
-        key={index}
-        className="grid gap-3 md:grid-cols-[160px_minmax(0,1fr)] lg:grid-cols-[180px_minmax(0,1fr)_120px]"
-      >
-        <select
-          value={link.tipo}
-          onChange={(e) =>
-            setLinksPortfolio((prev) =>
-              prev.map((item, i) =>
-                i === index
-                  ? { ...item, tipo: e.target.value }
-                  : item
-              )
-            )
-          }
-          className="rounded-lg border p-2"
-        >
-          <option value="LinkedIn">LinkedIn</option>
-          <option value="Behance">Behance</option>
-          <option value="ArtStation">ArtStation</option>
-          <option value="Instagram">Instagram</option>
-          <option value="YouTube">YouTube</option>
-          <option value="Vimeo">Vimeo</option>
-          <option value="GitHub">GitHub</option>
-          <option value="Site">Site pessoal</option>
-          <option value="Outro">Outro</option>
-        </select>
-
-        <input
-          type="url"
-          placeholder="https://..."
-          value={link.url}
-          onChange={(e) =>
-            setLinksPortfolio((prev) =>
-              prev.map((item, i) =>
-                i === index
-                  ? { ...item, url: e.target.value }
-                  : item
-              )
-            )
-          }
-          className="rounded-lg border p-2"
-        />
-
-        <button
-          type="button"
-          onClick={() =>
-            setLinksPortfolio((prev) =>
-              prev.length === 1
-                ? prev
-                : prev.filter((_, i) => i !== index)
-            )
-          }
-          className="w-full rounded-xl border border-red-500/40 px-3 py-2 text-sm font-bold text-red-300 lg:w-auto"
-        >
-          Remover
-        </button>
-      </div>
-    ))}
-
-    <button
-      type="button"
-      onClick={() =>
-        setLinksPortfolio((prev) => [
-          ...prev,
-          { tipo: "LinkedIn", url: "" },
-        ])
-      }
-      className="rounded-lg border px-4 py-2"
-    >
-      + Adicionar link
-    </button>
-  </div>
-</div>
-
   </div>
 </div>
 
