@@ -61,6 +61,7 @@ function FuncionarioFichaPage() {
   tipo: "RG",
   titulo: "RG",
   arquivo: null as File | null,
+  url: "",
 });
 
   const [editandoTrabalhista, setEditandoTrabalhista] = useState(false);
@@ -280,7 +281,13 @@ async function enviarDocumentoFuncionario(e: React.FormEvent) {
     const formData = new FormData();
     formData.append("tipo", novoDocumento.tipo);
     formData.append("titulo", novoDocumento.titulo);
-    formData.append("arquivo", novoDocumento.arquivo);
+    if (novoDocumento.arquivo) {
+  formData.append("arquivo", novoDocumento.arquivo);
+}
+
+if (novoDocumento.url.trim()) {
+  formData.append("url", novoDocumento.url.trim());
+}
 
     const res = await fetch(`/api/admin/funcionarios/${funcionarioId}/documentos`, {
       method: "POST",
@@ -295,7 +302,7 @@ async function enviarDocumentoFuncionario(e: React.FormEvent) {
     }
 
     setSucesso("Documento enviado com sucesso.");
-    setNovoDocumento({ tipo: "RG", titulo: "RG", arquivo: null });
+    setNovoDocumento({ tipo: "RG", titulo: "RG", arquivo: null, url: "" });
     await carregarDocumentosFuncionario();
   } catch (e: any) {
     setErro(e.message || "Erro ao enviar documento.");
@@ -883,6 +890,14 @@ hover:bg-blue-100 dark:hover:bg-blue-600
         <option value="COMPROVANTE_RESIDENCIA">Comprovante de residência</option>
         <option value="CURRICULO">Currículo</option>
         <option value="PORTFOLIO">Portfólio</option>
+        <option value="LINKEDIN">LinkedIn</option>
+        <option value="BEHANCE">Behance</option>
+        <option value="ARTSTATION">ArtStation</option>
+        <option value="SITE">Site</option>
+        <option value="YOUTUBE">YouTube</option>
+        <option value="VIMEO">Vimeo</option>
+        <option value="INSTAGRAM">Instagram Profissional</option>
+        <option value="GITHUB">GitHub</option>
         <option value="CERTIFICADOS">Certificados</option>
       </select>
 
@@ -897,6 +912,19 @@ hover:bg-blue-100 dark:hover:bg-blue-600
         }
         className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
       />
+
+<input
+  type="url"
+  placeholder="LinkedIn, Behance, ArtStation, Site, Vimeo, YouTube..."
+  value={novoDocumento.url}
+  onChange={(e) =>
+    setNovoDocumento((p) => ({
+      ...p,
+      url: e.target.value,
+    }))
+  }
+  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+/>
 
       <button
         type="submit"

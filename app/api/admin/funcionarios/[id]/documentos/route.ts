@@ -88,60 +88,105 @@ export async function POST(
     const formData = await req.formData();
 
     const titulo = String(formData.get("titulo") || "").trim();
-    const tipo = String(formData.get("tipo") || "").trim();
-    const arquivo = formData.get("arquivo") as File | null;
+const tipo = String(formData.get("tipo") || "").trim();
+const url = String(formData.get("url") || "").trim();
+const arquivo = formData.get("arquivo") as File | null;
 
-    if (!titulo || !tipo || !arquivo) {
-      return NextResponse.json(
-        { error: "Título, tipo e arquivo são obrigatórios." },
-        { status: 400 }
-      );
-    }
+if (!titulo || !tipo) {
+  return NextResponse.json(
+    { error: "Título e tipo são obrigatórios." },
+    { status: 400 }
+  );
+}
 
-    const tiposPermitidos = [
-      "application/pdf",
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-    ];
+if (!arquivo && !url) {
+  return NextResponse.json(
+    { error: "Envie um arquivo ou informe uma URL." },
+    { status: 400 }
+  );
+}
 
-    if (!tiposPermitidos.includes(arquivo.type)) {
-      return NextResponse.json(
-        { error: "Formato inválido. Envie PDF, PNG, JPG ou JPEG." },
-        { status: 400 }
-      );
-    }
+    const extensoesPermitidas = [
+  ".pdf",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".doc",
+  ".docx",
+  ".xls",
+  ".xlsx",
+  ".csv",
+  ".ppt",
+  ".pptx",
+  ".psd",
+  ".ai",
+  ".eps",
+  ".svg",
+  ".blend",
+  ".fbx",
+  ".obj",
+  ".glb",
+  ".gltf",
+  ".ma",
+  ".mb",
+  ".max",
+  ".zip",
+  ".rar",
+];
 
-    const tamanhoMaximo = 10 * 1024 * 1024;
+if (arquivo) {
+  const nomeArquivo = arquivo.name.toLowerCase();
+  const extensaoValida = extensoesPermitidas.some((ext) =>
+    nomeArquivo.endsWith(ext)
+  );
 
-    if (arquivo.size > tamanhoMaximo) {
-      return NextResponse.json(
-        { error: "Arquivo muito grande. O limite é 10MB." },
-        { status: 400 }
-      );
-    }
+  if (!extensaoValida) {
+    return NextResponse.json(
+      { error: "Formato inválido para documento ou portfólio." },
+      { status: 400 }
+    );
+  }
+
+  const tamanhoMaximo = 50 * 1024 * 1024;
+
+  if (arquivo.size > tamanhoMaximo) {
+    return NextResponse.json(
+      { error: "Arquivo muito grande. O limite é 50MB." },
+      { status: 400 }
+    );
+  }
+}
 
     const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
 
-    const blob = await put(
-      `funcionarios/${user.instituicaoId}/${funcionarioId}/documentos/${Date.now()}-${nomeSeguro}`,
-      arquivo,
-      {
-        access: "public",
-      }
-    );
+    let arquivoUrl = url || null;
 
-    const documento = await prisma.documentoRH.create({
-      data: {
-        funcionarioId,
-        instituicaoId: user.instituicaoId!,
-        criadoPorId: user.id,
-        titulo,
-        tipo,
-        status: "GERADO",
-        arquivoUrl: blob.url,
-      },
-    });
+if (arquivo) {
+  const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+  const blob = await put(
+    `funcionarios/${user.instituicaoId}/${funcionarioId}/documentos/${Date.now()}-${nomeSeguro}`,
+    arquivo,
+    {
+      access: "public",
+    }
+  );
+
+  arquivoUrl = blob.url;
+}
+
+const documento = await prisma.documentoRH.create({
+  data: {
+    funcionarioId,
+    instituicaoId: user.instituicaoId!,
+    criadoPorId: user.id,
+    titulo,
+    tipo,
+    status: "GERADO",
+    arquivoUrl,
+  },
+});
 
     return NextResponse.json(documento);
   } catch (error) {
