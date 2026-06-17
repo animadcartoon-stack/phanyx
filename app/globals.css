@@ -830,15 +830,36 @@ html[data-theme="dark"] .phanyx-rh-banco-link {
 }
 
 html[data-theme="dark"] .phanyx-rh-banco-card.credito {
-  background: rgba(6, 78, 59, 0.35) !important;
+  background: rgba(16, 185, 129, 0.18) !important;
+  border-color: #10b981 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.credito p,
+html[data-theme="dark"] .phanyx-rh-banco-card.credito strong {
+  color: #34d399 !important;
 }
 
 html[data-theme="dark"] .phanyx-rh-banco-card.debito {
-  background: rgba(127, 29, 29, 0.35) !important;
+  background: rgba(239, 68, 68, 0.18) !important;
+  border-color: #ef4444 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.debito p,
+html[data-theme="dark"] .phanyx-rh-banco-card.debito strong {
+  color: #f87171 !important;
 }
 
 html[data-theme="dark"] .phanyx-rh-banco-card.saldo {
-  background: rgba(30, 58, 138, 0.35) !important;
+  background: rgba(59, 130, 246, 0.18) !important;
+  border-color: #3b82f6 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.saldo p {
+  color: #60a5fa !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.saldo strong {
+  color: #34d399 !important;
 }
 
 html[data-theme="dark"] .phanyx-rh-banco-card.registro,
