@@ -1028,19 +1028,23 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 )}
 
 {funcionario && (
-  <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+  <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 style={{ color: "#020617" }} className="text-lg font-extrabold">
-  📊 Banco de Horas
-</h2>
+      <h2 className="text-lg font-extrabold" style={{ color: "#020617" }}>
+        <span style={{ color: "#020617" }}>📊 Banco de Horas</span>
+      </h2>
 
       <Link
-  href="/admin/rh/banco-horas"
-  style={{ color: "#1d4ed8", borderColor: "#60a5fa", backgroundColor: "#ffffff" }}
-  className="rounded-xl border px-4 py-2 text-sm font-extrabold hover:bg-blue-50"
->
-  Ver banco geral
-</Link>
+        href="/admin/rh/banco-horas"
+        className="rounded-xl border px-4 py-2 text-sm font-extrabold"
+        style={{
+          color: "#1d4ed8",
+          borderColor: "#60a5fa",
+          backgroundColor: "#ffffff",
+        }}
+      >
+        <span style={{ color: "#1d4ed8" }}>Ver banco geral</span>
+      </Link>
     </div>
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
@@ -1060,7 +1064,10 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
       <div style={{ backgroundColor: "#eff6ff", borderColor: "#2563eb" }} className="rounded-2xl border p-4">
         <p style={{ color: "#1d4ed8" }} className="text-sm font-bold">Saldo Atual</p>
-        <p style={{ color: resumoBancoHoras.saldo >= 0 ? "#047857" : "#b91c1c" }} className="mt-2 text-2xl font-extrabold">
+        <p
+          style={{ color: resumoBancoHoras.saldo >= 0 ? "#047857" : "#b91c1c" }}
+          className="mt-2 text-2xl font-extrabold"
+        >
           {formatarHoras(resumoBancoHoras.saldo)}
         </p>
       </div>
@@ -1074,16 +1081,20 @@ hover:bg-blue-100 dark:hover:bg-blue-600
     </div>
 
     <div
-  style={{ color: "#334155", borderColor: "#cbd5e1", backgroundColor: "#ffffff" }}
-  className="mt-4 rounded-2xl border p-4 text-sm font-extrabold shadow-sm"
->
-  Último ponto:{" "}
-  <strong style={{ color: "#020617" }}>
-    {resumoBancoHoras.ultimaData
-      ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
-      : "-"}
-  </strong>
-</div>
+      style={{
+        color: "#334155",
+        borderColor: "#cbd5e1",
+        backgroundColor: "#ffffff",
+      }}
+      className="mt-4 rounded-2xl border p-4 text-sm font-extrabold shadow-sm"
+    >
+      <span style={{ color: "#334155" }}>Último ponto: </span>
+      <strong style={{ color: "#020617" }}>
+        {resumoBancoHoras.ultimaData
+          ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
+          : "-"}
+      </strong>
+    </div>
   </section>
 )}
 
