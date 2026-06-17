@@ -1811,7 +1811,7 @@ function renderGrupoDisciplina(
   {/* DIREITA */}
   <button
     onClick={carregarTudo}
-    className="px-3 py-2 rounded-xl border bg-white hover:border-blue-400 transition"
+    className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
   >
     Recarregar
   </button>
@@ -1820,7 +1820,7 @@ function renderGrupoDisciplina(
 
   <button
             onClick={carregarTudo}
-            className="px-3 py-2 rounded-xl border bg-white hover:border-blue-400 transition text-sm"
+            className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
           >
             Recarregar
           </button>
@@ -1905,7 +1905,7 @@ function renderGrupoDisciplina(
                       onClick={() =>
                         setMatriculaExpandidaId(expandida ? null : m.id)
                       }
-                      className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400"
+                      className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                     >
                       {expandida ? "Ocultar detalhes" : "Ver detalhes"}
                     </button>
@@ -1933,7 +1933,7 @@ function renderGrupoDisciplina(
 
                     <button
                       onClick={() => assinarContratoDaMatricula(m.id)}
-                      className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400 hover:text-blue-700"
+                      className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                     >
                       ✍️ Assinar
                     </button>
@@ -1956,7 +1956,7 @@ function renderGrupoDisciplina(
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
-                          className="px-3 py-2 rounded-xl text-sm border bg-white hover:border-blue-400"
+                          className="px-3 py-2 rounded-xl text-sm border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 hover:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                         >
                           A iniciar
                         </button>
