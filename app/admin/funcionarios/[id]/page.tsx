@@ -1041,54 +1041,21 @@ hover:bg-blue-100 dark:hover:bg-blue-600
     </div>
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
-      <div
-  className="
-    rounded-2xl
-    border
-    border-emerald-200
-    bg-emerald-50
-    p-4
-
-    dark:border-emerald-500/20
-    dark:bg-emerald-950/20
-  "
->
+      <div className="phanyx-banco-card phanyx-banco-card-debito">
         <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Créditos</p>
         <p className="mt-2 text-2xl font-bold text-emerald-300">
           {formatarHoras(resumoBancoHoras.creditos)}
         </p>
       </div>
 
-      <div
-  className="
-    rounded-2xl
-    border
-    border-red-200
-    bg-red-50
-    p-4
-
-    dark:border-red-500/20
-    dark:bg-red-950/20
-  "
->
+      <div className="phanyx-banco-card phanyx-banco-card-debito">
         <p className="text-sm font-semibold text-red-700 dark:text-red-300">Débitos</p>
         <p className="mt-2 text-2xl font-bold text-red-300">
           {formatarHoras(-resumoBancoHoras.debitos)}
         </p>
       </div>
 
-      <div
-  className="
-    rounded-2xl
-    border
-    border-blue-200
-    bg-blue-50
-    p-4
-
-    dark:border-blue-500/20
-    dark:bg-blue-950/20
-  "
->
+      <div className="phanyx-banco-card phanyx-banco-card-saldo">
         <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">Saldo Atual</p>
         <p
   className={`mt-2 text-2xl font-bold ${
@@ -1101,18 +1068,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
         </p>
       </div>
 
-      <div
-  className="
-    rounded-2xl
-    border
-    border-slate-200
-    bg-white
-    p-4
-
-    dark:border-slate-700
-    dark:bg-slate-950
-  "
->
+      <div className="phanyx-banco-card phanyx-banco-card-registro">
         <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Registros</p>
         <p className="mt-2 text-2xl font-bold">
           {resumoBancoHoras.registros}

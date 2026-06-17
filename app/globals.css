@@ -692,3 +692,51 @@ html[data-theme="dark"] .phanyx-upload-funcionario:hover,
 html[data-theme="system"] .phanyx-upload-funcionario:hover {
   background: #1e293b;
 }
+
+/* FIX LOCAL - BANCO DE HORAS FUNCIONÁRIO */
+.phanyx-banco-card {
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+}
+
+.phanyx-banco-card-credito {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.phanyx-banco-card-debito {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.phanyx-banco-card-saldo {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.phanyx-banco-card-registro {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="dark"] .phanyx-banco-card-credito {
+  background: rgba(6, 78, 59, 0.35);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+html[data-theme="dark"] .phanyx-banco-card-debito {
+  background: rgba(127, 29, 29, 0.35);
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+html[data-theme="dark"] .phanyx-banco-card-saldo {
+  background: rgba(30, 58, 138, 0.35);
+  border-color: rgba(96, 165, 250, 0.35);
+}
+
+html[data-theme="dark"] .phanyx-banco-card-registro {
+  background: #020617;
+  border-color: #334155;
+}
