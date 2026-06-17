@@ -8,38 +8,34 @@ type Tema = "light" | "dark" | "system";
 export default function PhanyxThemeGuard() {
   const pathname = usePathname();
 
-  useEffect(() => {
-    const root = document.documentElement;
+ useEffect(() => {
+  const root = document.documentElement;
 
-    const rotaComTemaPrivado =
-      pathname.startsWith("/admin") ||
-      pathname.startsWith("/professor") ||
-      pathname.startsWith("/aluno");
+  const rotaComTemaPrivado =
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/professor") ||
+    pathname.startsWith("/aluno");
 
-    if (!rotaComTemaPrivado) {
-      root.dataset.theme = "light";
-      root.classList.remove("dark");
-      return;
-    }
+  if (!rotaComTemaPrivado) {
+    root.dataset.theme = "light";
+    root.classList.remove("dark");
+    return;
+  }
 
-    const tema = (localStorage.getItem("phanyx_tema") as Tema) || "light";
+  const tema = (localStorage.getItem("phanyx_tema") as Tema) || "light";
 
-    const prefereEscuro = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
+  const prefereEscuro = window.matchMedia(
+    "(prefers-color-scheme: dark)"
+  ).matches;
 
-    const usarEscuro =
-      tema === "dark" || (tema === "system" && prefereEscuro);
+  const usarEscuro =
+    tema === "dark" || (tema === "system" && prefereEscuro);
 
-    root.dataset.theme = tema;
+  root.dataset.theme = usarEscuro ? "dark" : "light";
+  root.dataset.themeChoice = tema;
 
-    if (tema === "light") {
-      root.classList.remove("dark");
-      return;
-    }
-
-    root.classList.toggle("dark", usarEscuro);
-  }, [pathname]);
+  root.classList.toggle("dark", usarEscuro);
+}, [pathname]);
 
   return null;
 }
