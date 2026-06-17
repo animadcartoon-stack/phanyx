@@ -1041,16 +1041,16 @@ hover:bg-blue-100 dark:hover:bg-blue-600
     </div>
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
-      <div className="phanyx-banco-card phanyx-banco-card-debito">
-        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Créditos</p>
-        <p className="mt-2 text-2xl font-bold text-emerald-300">
+      <div className="phanyx-banco-card phanyx-banco-card-credito">
+        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-700 dark:text-emerald-300">Créditos</p>
+        <p className="mt-2 text-2xl font-bold text-emerald-700 dark:text-emerald-300">
           {formatarHoras(resumoBancoHoras.creditos)}
         </p>
       </div>
 
       <div className="phanyx-banco-card phanyx-banco-card-debito">
-        <p className="text-sm font-semibold text-red-700 dark:text-red-300">Débitos</p>
-        <p className="mt-2 text-2xl font-bold text-red-300">
+        <p className="text-sm font-semibold text-red-700 dark:text-red-700 dark:text-red-300">Débitos</p>
+        <p className="mt-2 text-2xl font-bold text-red-700 dark:text-red-300">
           {formatarHoras(-resumoBancoHoras.debitos)}
         </p>
       </div>
