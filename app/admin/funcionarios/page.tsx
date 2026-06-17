@@ -104,6 +104,10 @@ function AdminFuncionariosPage() {
   { tipo: "CERTIFICADOS", titulo: "Certificados", arquivo: null },
 ]);
 
+  const [linksPortfolio, setLinksPortfolio] = useState([
+  { tipo: "LinkedIn", url: "" },
+]);
+
   const [departamentoId, setDepartamentoId] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [carregando, setCarregando] = useState(false);
@@ -600,7 +604,34 @@ function AdminFuncionariosPage() {
 
         <input
           type="file"
-          accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+          accept="
+.pdf,
+.png,
+.jpg,
+.jpeg,
+.webp,
+.doc,
+.docx,
+.xls,
+.xlsx,
+.csv,
+.ppt,
+.pptx,
+.psd,
+.ai,
+.eps,
+.svg,
+.blend,
+.fbx,
+.obj,
+.glb,
+.gltf,
+.ma,
+.mb,
+.max,
+.zip,
+.rar
+"
           onChange={(e) => {
             const arquivo = e.target.files?.[0] || null;
 
@@ -614,6 +645,89 @@ function AdminFuncionariosPage() {
         />
       </div>
     ))}
+
+<div className="mt-6">
+  <h4 className="mb-3 text-sm font-semibold text-slate-900 dark:text-slate-100">
+    Links profissionais e portfólio
+  </h4>
+
+  <div className="space-y-3">
+    {linksPortfolio.map((link, index) => (
+      <div
+        key={index}
+        className="grid gap-3 md:grid-cols-[180px_1fr_auto]"
+      >
+        <select
+          value={link.tipo}
+          onChange={(e) =>
+            setLinksPortfolio((prev) =>
+              prev.map((item, i) =>
+                i === index
+                  ? { ...item, tipo: e.target.value }
+                  : item
+              )
+            )
+          }
+          className="rounded-lg border p-2"
+        >
+          <option value="LinkedIn">LinkedIn</option>
+          <option value="Behance">Behance</option>
+          <option value="ArtStation">ArtStation</option>
+          <option value="Instagram">Instagram</option>
+          <option value="YouTube">YouTube</option>
+          <option value="Vimeo">Vimeo</option>
+          <option value="GitHub">GitHub</option>
+          <option value="Site">Site pessoal</option>
+          <option value="Outro">Outro</option>
+        </select>
+
+        <input
+          type="url"
+          placeholder="https://..."
+          value={link.url}
+          onChange={(e) =>
+            setLinksPortfolio((prev) =>
+              prev.map((item, i) =>
+                i === index
+                  ? { ...item, url: e.target.value }
+                  : item
+              )
+            )
+          }
+          className="rounded-lg border p-2"
+        />
+
+        <button
+          type="button"
+          onClick={() =>
+            setLinksPortfolio((prev) =>
+              prev.length === 1
+                ? prev
+                : prev.filter((_, i) => i !== index)
+            )
+          }
+          className="rounded-lg border px-3 py-2"
+        >
+          Remover
+        </button>
+      </div>
+    ))}
+
+    <button
+      type="button"
+      onClick={() =>
+        setLinksPortfolio((prev) => [
+          ...prev,
+          { tipo: "LinkedIn", url: "" },
+        ])
+      }
+      className="rounded-lg border px-4 py-2"
+    >
+      + Adicionar link
+    </button>
+  </div>
+</div>
+
   </div>
 </div>
 

@@ -64,6 +64,10 @@ function FuncionarioFichaPage() {
   url: "",
 });
 
+const [linksPortfolio, setLinksPortfolio] = useState([
+  { tipo: "LinkedIn", url: "" },
+]);
+
   const [editandoTrabalhista, setEditandoTrabalhista] = useState(false);
 
   const [editandoGeral, setEditandoGeral] = useState(false);
@@ -903,7 +907,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
       <input
         type="file"
-        accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg"
+        accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
         onChange={(e) =>
           setNovoDocumento((p) => ({
             ...p,
@@ -913,18 +917,73 @@ hover:bg-blue-100 dark:hover:bg-blue-600
         className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
       />
 
-<input
-  type="url"
-  placeholder="LinkedIn, Behance, ArtStation, Site, Vimeo, YouTube..."
-  value={novoDocumento.url}
-  onChange={(e) =>
-    setNovoDocumento((p) => ({
-      ...p,
-      url: e.target.value,
-    }))
-  }
-  className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
-/>
+<div className="md:col-span-3 space-y-3">
+  <p className="text-sm font-semibold text-slate-100">
+    Links profissionais e portfólio online
+  </p>
+
+  {linksPortfolio.map((link, index) => (
+    <div key={index} className="grid gap-3 md:grid-cols-[180px_1fr_auto]">
+      <select
+        value={link.tipo}
+        onChange={(e) =>
+          setLinksPortfolio((prev) =>
+            prev.map((item, i) =>
+              i === index ? { ...item, tipo: e.target.value } : item
+            )
+          )
+        }
+        className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+      >
+        <option value="LinkedIn">LinkedIn</option>
+        <option value="Behance">Behance</option>
+        <option value="ArtStation">ArtStation</option>
+        <option value="Site">Site pessoal</option>
+        <option value="Vimeo">Vimeo</option>
+        <option value="YouTube">YouTube</option>
+        <option value="GitHub">GitHub</option>
+        <option value="Instagram">Instagram profissional</option>
+        <option value="Outro">Outro</option>
+      </select>
+
+      <input
+        type="url"
+        placeholder="https://..."
+        value={link.url}
+        onChange={(e) =>
+          setLinksPortfolio((prev) =>
+            prev.map((item, i) =>
+              i === index ? { ...item, url: e.target.value } : item
+            )
+          )
+        }
+        className="rounded-xl border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white"
+      />
+
+      <button
+        type="button"
+        onClick={() =>
+          setLinksPortfolio((prev) =>
+            prev.length === 1 ? prev : prev.filter((_, i) => i !== index)
+          )
+        }
+        className="rounded-xl border border-red-500/40 px-3 py-2 text-sm font-bold text-red-300"
+      >
+        Remover
+      </button>
+    </div>
+  ))}
+
+  <button
+    type="button"
+    onClick={() =>
+      setLinksPortfolio((prev) => [...prev, { tipo: "LinkedIn", url: "" }])
+    }
+    className="rounded-xl border border-blue-400/40 px-4 py-2 text-sm font-bold text-blue-300"
+  >
+    + Adicionar link
+  </button>
+</div>
 
       <button
         type="submit"
