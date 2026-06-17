@@ -1025,12 +1025,22 @@ hover:bg-blue-100 dark:hover:bg-blue-600
       >
         <div>
           <p className="font-bold text-slate-900 dark:text-white">
-            {doc.titulo || "Documento"}
-          </p>
+  {doc.titulo || "Documento"}
+</p>
 
-          <p className="text-xs font-medium text-slate-600 dark:text-slate-400">
-            Tipo: {doc.tipo || "-"}
-          </p>
+<div className="mt-1 flex flex-wrap gap-2 text-xs font-medium text-slate-600 dark:text-slate-400">
+  <span>Tipo: {doc.tipo || "-"}</span>
+
+  <span>
+    {doc.criadoEm
+      ? `Enviado em: ${new Date(doc.criadoEm).toLocaleDateString("pt-BR")}`
+      : "Data não informada"}
+  </span>
+
+  <span>
+    {doc.arquivoUrl?.startsWith("http") ? "Arquivo/link disponível" : "Sem arquivo"}
+  </span>
+</div>
         </div>
 
         <div className="flex flex-wrap gap-2">
