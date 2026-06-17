@@ -469,8 +469,16 @@ if (funcionarioIdCriado) {
 )}
 
 <form
-  onSubmit={editandoId ? salvarEdicaoFuncionario : criarFuncionario}
-  className="bg-white border rounded-lg p-6 space-y-4"
+  className="
+  rounded-lg
+  border
+  border-slate-200
+  bg-white
+  p-6
+  space-y-4
+  dark:border-slate-700
+  dark:bg-slate-900
+  "
 >
         <h2 className="font-semibold">
   {editandoId ? "Editar funcionário" : "Novo funcionário"}
@@ -502,7 +510,18 @@ if (funcionarioIdCriado) {
             <select
   value={role}
   onChange={(e) => setRole(e.target.value)}
-  className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
+  className="
+w-full
+rounded-lg
+border
+border-slate-300
+bg-white
+p-2
+text-slate-900
+dark:border-slate-700
+dark:bg-slate-900
+dark:text-white
+"
   required
 >
               <option value="" className="bg-slate-900 text-white">
@@ -528,7 +547,18 @@ if (funcionarioIdCriado) {
             <select
   value={departamentoId}
   onChange={(e) => setDepartamentoId(e.target.value)}
-  className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
+  className="
+w-full
+rounded-lg
+border
+border-slate-300
+bg-white
+p-2
+text-slate-900
+dark:border-slate-700
+dark:bg-slate-900
+dark:text-white
+"
 >
   <option
     value=""
@@ -593,7 +623,18 @@ if (funcionarioIdCriado) {
   <select
   value={statusFuncionario}
   onChange={(e) => setStatusFuncionario(e.target.value)}
-  className="w-full rounded-lg border border-slate-600 bg-slate-900 p-2 text-white"
+  className="
+w-full
+rounded-lg
+border
+border-slate-300
+bg-white
+p-2
+text-slate-900
+dark:border-slate-700
+dark:bg-slate-900
+dark:text-white
+"
 >
   <option value="ATIVO" className="bg-slate-900 text-white">
     Ativo
@@ -628,7 +669,7 @@ if (funcionarioIdCriado) {
   className="w-full border rounded-lg p-2"
 />
 
-<div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-900">
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
   <div className="mb-4">
     <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
       Documentos do funcionário
@@ -790,7 +831,16 @@ if (funcionarioIdCriado) {
           </div>
         ) : (
           funcionariosFiltrados.map((f) => (
-            <div key={f.id} className="bg-white border rounded-lg p-4 space-y-3">
+            <div key={f.id} className="
+border
+border-slate-200
+bg-white
+rounded-lg
+p-4
+space-y-3
+dark:border-slate-700
+dark:bg-slate-900
+">
               <div className="flex items-start gap-4">
   <div className="h-16 w-16 overflow-hidden rounded-2xl border bg-slate-100 flex-shrink-0">
     {f.fotoPerfil ? (
