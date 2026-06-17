@@ -551,3 +551,54 @@ html[data-theme="light"] .matriculas-form-light-fix select {
 html[data-theme="light"] .matriculas-form-light-fix button:disabled {
   color: #475569 !important;
 }
+
+/* FIX DEFINITIVO LOCAL - ADMIN MATRÍCULAS / TEMA CLARO */
+html[data-theme="light"] .admin-matriculas-page,
+html[data-theme="light"] .admin-matriculas-page * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page p,
+html[data-theme="light"] .admin-matriculas-page span,
+html[data-theme="light"] .admin-matriculas-page label,
+html[data-theme="light"] .admin-matriculas-page td,
+html[data-theme="light"] .admin-matriculas-page th {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page .text-slate-500,
+html[data-theme="light"] .admin-matriculas-page .text-slate-600,
+html[data-theme="light"] .admin-matriculas-page .text-gray-500,
+html[data-theme="light"] .admin-matriculas-page .text-gray-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page input,
+html[data-theme="light"] .admin-matriculas-page select,
+html[data-theme="light"] .admin-matriculas-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page input::placeholder,
+html[data-theme="light"] .admin-matriculas-page textarea::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page button:disabled {
+  background: #cbd5e1 !important;
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page .bg-green-100 {
+  background: #dcfce7 !important;
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .admin-matriculas-page .bg-yellow-500 {
+  background: #eab308 !important;
+  color: #ffffff !important;
+}

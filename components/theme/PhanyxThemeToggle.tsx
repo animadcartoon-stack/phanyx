@@ -59,7 +59,7 @@ export default function PhanyxThemeToggle() {
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "light"
             ? "bg-blue-600 text-white"
-            : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
         Claro
@@ -71,7 +71,7 @@ export default function PhanyxThemeToggle() {
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "dark"
             ? "bg-blue-600 text-white"
-            : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
         Escuro
@@ -83,7 +83,7 @@ export default function PhanyxThemeToggle() {
         className={`rounded-xl px-3 py-1.5 text-xs font-bold transition ${
           tema === "system"
             ? "bg-blue-600 text-white"
-            : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
+            : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
         }`}
       >
         Sistema

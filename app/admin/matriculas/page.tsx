@@ -1405,7 +1405,7 @@ function renderGrupoDisciplina(
 }
 
   return (
-  <div className="space-y-6">
+  <div className="admin-matriculas-page space-y-6">
 
     {toast && (
       <PhanyxToast

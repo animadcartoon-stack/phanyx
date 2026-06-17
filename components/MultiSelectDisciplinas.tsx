@@ -72,7 +72,7 @@ export default function MultiSelectDisciplinas({
       <button
         type="button"
         onClick={() => setAberto((prev) => !prev)}
-        className="flex w-full items-center justify-between px-4 py-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800"
+        className="flex w-full items-center justify-between px-4 py-4 text-left transition hover:bg-white dark:hover:bg-slate-800"
       >
         <div className="flex flex-col">
           <span className="font-semibold text-slate-900 dark:text-slate-100">
@@ -126,7 +126,7 @@ export default function MultiSelectDisciplinas({
                   filtradas.map((d) => (
                     <label
                       key={d.id}
-                      className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-slate-800 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
+                      className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-slate-800 transition hover:bg-white dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800"
                     >
                       <input
                         type="checkbox"
