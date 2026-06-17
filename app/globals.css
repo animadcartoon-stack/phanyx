@@ -693,3 +693,172 @@ html[data-theme="system"] .phanyx-upload-funcionario:hover {
   background: #1e293b;
 }
 
+/* RH - Banco de Horas / compatível claro, escuro e sistema */
+.phanyx-rh-banco {
+  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  border-radius: 24px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+}
+
+.phanyx-rh-banco-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.phanyx-rh-banco-titulo {
+  color: #020617 !important;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.phanyx-rh-banco-link {
+  border: 1px solid #60a5fa !important;
+  background: #ffffff !important;
+  color: #1d4ed8 !important;
+  border-radius: 12px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.phanyx-rh-banco-grid {
+  margin-top: 20px;
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.phanyx-rh-banco-card {
+  border-radius: 18px;
+  padding: 16px;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.phanyx-rh-banco-card p {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.phanyx-rh-banco-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 26px;
+  font-weight: 900;
+}
+
+.phanyx-rh-banco-card.credito {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+
+.phanyx-rh-banco-card.credito p,
+.phanyx-rh-banco-card.credito strong {
+  color: #047857 !important;
+}
+
+.phanyx-rh-banco-card.debito {
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+}
+
+.phanyx-rh-banco-card.debito p,
+.phanyx-rh-banco-card.debito strong {
+  color: #b91c1c !important;
+}
+
+.phanyx-rh-banco-card.saldo {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+}
+
+.phanyx-rh-banco-card.saldo p {
+  color: #1d4ed8 !important;
+}
+
+.phanyx-rh-banco-card.saldo strong {
+  color: #047857 !important;
+}
+
+.phanyx-rh-banco-card.registro {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+}
+
+.phanyx-rh-banco-card.registro p {
+  color: #475569 !important;
+}
+
+.phanyx-rh-banco-card.registro strong {
+  color: #020617 !important;
+}
+
+.phanyx-rh-banco-ultimo {
+  margin-top: 16px;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #334155 !important;
+  border-radius: 18px;
+  padding: 16px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.phanyx-rh-banco-ultimo strong {
+  color: #020617 !important;
+}
+
+/* Escuro e Sistema quando viram dark */
+html[data-theme="dark"] .phanyx-rh-banco {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-link {
+  background: #020617 !important;
+  color: #93c5fd !important;
+  border-color: #3b82f6 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.credito {
+  background: rgba(6, 78, 59, 0.35) !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.debito {
+  background: rgba(127, 29, 29, 0.35) !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.saldo {
+  background: rgba(30, 58, 138, 0.35) !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.registro,
+html[data-theme="dark"] .phanyx-rh-banco-ultimo {
+  background: #020617 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.registro p,
+html[data-theme="dark"] .phanyx-rh-banco-ultimo {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-banco-card.registro strong,
+html[data-theme="dark"] .phanyx-rh-banco-ultimo strong {
+  color: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  .phanyx-rh-banco-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1028,68 +1028,42 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 )}
 
 {funcionario && (
-  <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
-    <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="text-lg font-extrabold" style={{ color: "#020617" }}>
-        <span style={{ color: "#020617" }}>📊 Banco de Horas</span>
-      </h2>
+  <section className="phanyx-rh-banco">
+    <div className="phanyx-rh-banco-topo">
+      <h2 className="phanyx-rh-banco-titulo">📊 Banco de Horas</h2>
 
-      <Link
-        href="/admin/rh/banco-horas"
-        className="rounded-xl border px-4 py-2 text-sm font-extrabold"
-        style={{
-          color: "#1d4ed8",
-          borderColor: "#60a5fa",
-          backgroundColor: "#ffffff",
-        }}
-      >
-        <span style={{ color: "#1d4ed8" }}>Ver banco geral</span>
+      <Link href="/admin/rh/banco-horas" className="phanyx-rh-banco-link">
+        Ver banco geral
       </Link>
     </div>
 
-    <div className="mt-5 grid gap-4 md:grid-cols-4">
-      <div style={{ backgroundColor: "#ecfdf5", borderColor: "#10b981" }} className="rounded-2xl border p-4">
-        <p style={{ color: "#047857" }} className="text-sm font-bold">Créditos</p>
-        <p style={{ color: "#047857" }} className="mt-2 text-2xl font-extrabold">
-          {formatarHoras(resumoBancoHoras.creditos)}
-        </p>
+    <div className="phanyx-rh-banco-grid">
+      <div className="phanyx-rh-banco-card credito">
+        <p>Créditos</p>
+        <strong>{formatarHoras(resumoBancoHoras.creditos)}</strong>
       </div>
 
-      <div style={{ backgroundColor: "#fef2f2", borderColor: "#ef4444" }} className="rounded-2xl border p-4">
-        <p style={{ color: "#b91c1c" }} className="text-sm font-bold">Débitos</p>
-        <p style={{ color: "#b91c1c" }} className="mt-2 text-2xl font-extrabold">
-          {formatarHoras(-resumoBancoHoras.debitos)}
-        </p>
+      <div className="phanyx-rh-banco-card debito">
+        <p>Débitos</p>
+        <strong>{formatarHoras(-resumoBancoHoras.debitos)}</strong>
       </div>
 
-      <div style={{ backgroundColor: "#eff6ff", borderColor: "#2563eb" }} className="rounded-2xl border p-4">
-        <p style={{ color: "#1d4ed8" }} className="text-sm font-bold">Saldo Atual</p>
-        <p
-          style={{ color: resumoBancoHoras.saldo >= 0 ? "#047857" : "#b91c1c" }}
-          className="mt-2 text-2xl font-extrabold"
-        >
+      <div className="phanyx-rh-banco-card saldo">
+        <p>Saldo Atual</p>
+        <strong>
           {formatarHoras(resumoBancoHoras.saldo)}
-        </p>
+        </strong>
       </div>
 
-      <div style={{ backgroundColor: "#ffffff", borderColor: "#94a3b8" }} className="rounded-2xl border p-4">
-        <p style={{ color: "#475569" }} className="text-sm font-bold">Registros</p>
-        <p style={{ color: "#020617" }} className="mt-2 text-2xl font-extrabold">
-          {resumoBancoHoras.registros}
-        </p>
+      <div className="phanyx-rh-banco-card registro">
+        <p>Registros</p>
+        <strong>{resumoBancoHoras.registros}</strong>
       </div>
     </div>
 
-    <div
-      style={{
-        color: "#334155",
-        borderColor: "#cbd5e1",
-        backgroundColor: "#ffffff",
-      }}
-      className="mt-4 rounded-2xl border p-4 text-sm font-extrabold shadow-sm"
-    >
-      <span style={{ color: "#334155" }}>Último ponto: </span>
-      <strong style={{ color: "#020617" }}>
+    <div className="phanyx-rh-banco-ultimo">
+      Último ponto:{" "}
+      <strong>
         {resumoBancoHoras.ultimaData
           ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
           : "-"}
