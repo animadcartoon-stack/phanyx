@@ -1028,63 +1028,57 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 )}
 
 {funcionario && (
-  <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
+  <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="text-lg font-bold">📊 Banco de Horas</h2>
+      <h2 className="text-lg font-bold text-slate-950 dark:text-white">
+        📊 Banco de Horas
+      </h2>
 
       <Link
         href="/admin/rh/banco-horas"
-        className="rounded-xl border border-blue-300 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-400/40 dark:text-blue-200 dark:hover:bg-blue-500/10"
+        className="rounded-xl border border-blue-400 bg-white px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-500/40 dark:bg-slate-950 dark:text-blue-300"
       >
         Ver banco geral
       </Link>
     </div>
 
     <div className="mt-5 grid gap-4 md:grid-cols-4">
-      <div className="rounded-2xl border border-emerald-300 bg-emerald-50 p-4 dark:border-emerald-700 dark:bg-emerald-950/20">
-        <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">Créditos</p>
-        <p className="mt-2 text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+      <div style={{ backgroundColor: "#ecfdf5", borderColor: "#10b981" }} className="rounded-2xl border p-4">
+        <p style={{ color: "#047857" }} className="text-sm font-bold">Créditos</p>
+        <p style={{ color: "#047857" }} className="mt-2 text-2xl font-extrabold">
           {formatarHoras(resumoBancoHoras.creditos)}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-red-300 bg-red-50 p-4 dark:border-red-700 dark:bg-red-950/20">
-        <p className="text-sm font-semibold text-red-700 dark:text-red-300">Débitos</p>
-        <p className="mt-2 text-2xl font-bold text-red-700 dark:text-red-300">
+      <div style={{ backgroundColor: "#fef2f2", borderColor: "#ef4444" }} className="rounded-2xl border p-4">
+        <p style={{ color: "#b91c1c" }} className="text-sm font-bold">Débitos</p>
+        <p style={{ color: "#b91c1c" }} className="mt-2 text-2xl font-extrabold">
           {formatarHoras(-resumoBancoHoras.debitos)}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-blue-300 bg-blue-50 p-4 dark:border-blue-700 dark:bg-blue-950/20">
-        <p className="text-sm font-semibold text-blue-700 dark:text-blue-300">Saldo Atual</p>
-        <p
-  className={`mt-2 text-2xl font-bold ${
-    resumoBancoHoras.saldo >= 0
-      ? "text-emerald-700 dark:text-emerald-300"
-      : "text-red-700 dark:text-red-300"
-  }`}
->
+      <div style={{ backgroundColor: "#eff6ff", borderColor: "#2563eb" }} className="rounded-2xl border p-4">
+        <p style={{ color: "#1d4ed8" }} className="text-sm font-bold">Saldo Atual</p>
+        <p style={{ color: resumoBancoHoras.saldo >= 0 ? "#047857" : "#b91c1c" }} className="mt-2 text-2xl font-extrabold">
           {formatarHoras(resumoBancoHoras.saldo)}
         </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
-        <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">Registros</p>
-        <p className="mt-2 text-2xl font-bold">
+      <div style={{ backgroundColor: "#ffffff", borderColor: "#94a3b8" }} className="rounded-2xl border p-4">
+        <p style={{ color: "#475569" }} className="text-sm font-bold">Registros</p>
+        <p style={{ color: "#020617" }} className="mt-2 text-2xl font-extrabold">
           {resumoBancoHoras.registros}
         </p>
       </div>
     </div>
 
-    <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm font-semibold text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-300">
-      <p>
-        Último ponto:{" "}
-        <strong>
-          {resumoBancoHoras.ultimaData
-            ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
-            : "-"}
-        </strong>
-      </p>
+    <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 text-sm font-bold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+      Último ponto:{" "}
+      <strong className="text-slate-950 dark:text-white">
+        {resumoBancoHoras.ultimaData
+          ? new Date(resumoBancoHoras.ultimaData).toLocaleDateString("pt-BR")
+          : "-"}
+      </strong>
     </div>
   </section>
 )}
