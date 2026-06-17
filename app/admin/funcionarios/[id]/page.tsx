@@ -797,6 +797,24 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
 {funcionario && (
   <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
+    <div className="flex items-center justify-between">
+      <h2 className="text-lg font-bold">
+        📎 Documentos e Portfólio
+      </h2>
+    </div>
+
+    <p className="mt-2 text-sm text-slate-400">
+      Documentos profissionais, currículo e links de portfólio.
+    </p>
+
+    <div className="mt-5">
+      {/* vamos colocar os campos aqui */}
+    </div>
+  </section>
+)}
+
+{funcionario && (
+  <section className="rounded-3xl border border-slate-800 bg-white dark:bg-slate-900/80 p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-lg font-bold">📊 Banco de Horas</h2>
 
