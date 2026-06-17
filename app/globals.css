@@ -611,3 +611,29 @@ html[data-theme="light"] .admin-matriculas-page .dark\:hover\:bg-slate-900:hover
   background: #ffffff !important;
   color: #0f172a !important;
 }
+
+/* ========================================
+   PHANYX FUNCIONÁRIOS - DOCUMENTOS
+======================================== */
+
+html[data-theme="light"] .phanyx-documentos-funcionario {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-documentos-funcionario h3,
+html[data-theme="light"] .phanyx-documentos-funcionario h4,
+html[data-theme="light"] .phanyx-documentos-funcionario label {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-documentos-funcionario p {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-documentos-funcionario .bg-slate-100 {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-documentos-funcionario .border-blue-200 {
+  border-color: #cbd5e1 !important;
+}
