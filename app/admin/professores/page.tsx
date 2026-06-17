@@ -470,7 +470,7 @@ carregarDisciplinas();
 
         <form
           onSubmit={handleCriarProfessor}
-          className="space-y-4 rounded-lg border bg-white p-6"
+          className="space-y-4 rounded-lg border bg-white dark:bg-slate-950 p-6"
         >
           <h2 className="font-semibold">Novo professor</h2>
 
@@ -633,13 +633,13 @@ carregarDisciplinas();
               className="w-full rounded-lg border p-2"
             />
 
-<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-white dark:bg-slate-950bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
   <div className="mb-4">
-    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+    <h3 className="text-lg font-bold text-slate-900 dark:text-slate-900 dark:text-white">
       📁 Documentos e Portfólio
     </h3>
 
-    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-700 dark:text-slate-300">
       Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
     </p>
   </div>
@@ -648,7 +648,7 @@ carregarDisciplinas();
     {documentosProfessor.map((doc, index) => (
       <div
         key={doc.tipo}
-        className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
+        className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-950 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
       >
         <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
           {doc.titulo}
@@ -705,7 +705,7 @@ carregarDisciplinas();
                         )
                       )
                     }
-                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="rounded-lg border border-slate-300 bg-white dark:bg-slate-950 p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-900 dark:text-white"
                   >
                     <option value="LinkedIn">LinkedIn</option>
                     <option value="Behance">Behance</option>
@@ -729,7 +729,7 @@ carregarDisciplinas();
                         )
                       )
                     }
-                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="rounded-lg border border-slate-300 bg-white dark:bg-slate-950 p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-900 dark:text-white"
                   />
 
                   <button
@@ -741,7 +741,7 @@ carregarDisciplinas();
                           : prev.filter((_, i) => i !== linkIndex)
                       )
                     }
-                    className="shrink-0 rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 dark:border-red-800 dark:bg-slate-900 dark:text-red-300"
+                    className="shrink-0 rounded-lg border border-red-300 bg-white dark:bg-slate-950 px-3 py-2 text-sm font-semibold text-red-600 dark:border-red-800 dark:bg-slate-900 dark:text-red-300"
                   >
                     Remover
                   </button>
@@ -757,7 +757,7 @@ carregarDisciplinas();
                   { tipo: "LinkedIn", url: "" },
                 ])
               }
-              className="mt-3 rounded-lg border border-blue-300 bg-white px-4 py-2 text-sm font-bold text-blue-700 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
+              className="mt-3 rounded-lg border border-blue-300 bg-white dark:bg-slate-950 px-4 py-2 text-sm font-bold text-blue-700 dark:border-blue-800 dark:bg-slate-900 dark:text-blue-300"
             >
               + Adicionar link
             </button>
@@ -779,7 +779,7 @@ carregarDisciplinas();
 
           <button
             disabled={criando}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-white disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-slate-900 dark:text-white disabled:opacity-50"
           >
             {criando ? "Criando..." : "Criar professor"}
           </button>
@@ -799,12 +799,12 @@ carregarDisciplinas();
           </div>
 
           {professoresFiltrados.length === 0 ? (
-            <div className="rounded-lg border bg-white p-4 text-sm text-gray-600">
+            <div className="rounded-lg border bg-white dark:bg-slate-950 p-4 text-sm text-gray-600">
               Nenhum professor encontrado para essa busca.
             </div>
           ) : (
             professoresFiltrados.map((p) => (
-              <div key={p.id} className="rounded-lg border bg-white p-4">
+              <div key={p.id} className="rounded-lg border bg-white dark:bg-slate-950 p-4">
                 {editandoId === p.id ? (
                   <div className="space-y-3">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -951,6 +951,60 @@ carregarDisciplinas();
                         className="rounded border p-2"
                         placeholder="URL do documento"
                       />
+
+<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+    📁 Documentos e Portfólio
+  </h3>
+
+  <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-700 dark:text-slate-300">
+    Envie documentos pessoais, currículo, certificados, portfólio e links profissionais.
+  </p>
+
+  <div className="mt-4 grid gap-4 md:grid-cols-2">
+    {documentosProfessor.map((doc, index) => (
+      <div
+        key={doc.tipo}
+        className="rounded-2xl border border-slate-200 bg-white dark:bg-slate-950 p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950"
+      >
+        <label className="mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+          {doc.titulo}
+        </label>
+
+        <input
+          id={`edit-arquivo-professor-${doc.tipo}`}
+          type="file"
+          accept=".pdf,.png,.jpg,.jpeg,.webp,.doc,.docx,.xls,.xlsx,.csv,.ppt,.pptx,.psd,.ai,.eps,.svg,.blend,.fbx,.obj,.glb,.gltf,.ma,.mb,.max,.zip,.rar"
+          className="hidden"
+          onChange={(e) => {
+            const arquivo = e.target.files?.[0] || null;
+
+            setDocumentosProfessor((prev) =>
+              prev.map((item, i) =>
+                i === index ? { ...item, arquivo } : item
+              )
+            );
+          }}
+        />
+
+        <label
+          htmlFor={`edit-arquivo-professor-${doc.tipo}`}
+          className="phanyx-upload-funcionario"
+        >
+          <span>📎</span>
+          <span>Selecionar arquivo</span>
+        </label>
+
+        {doc.arquivo && (
+          <p className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+            {doc.arquivo.name}
+          </p>
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
                     </div>
 
                     <textarea
@@ -964,14 +1018,14 @@ carregarDisciplinas();
                       <button
                         onClick={() => salvarEdicao(p.id)}
                         disabled={salvandoId === p.id}
-                        className="rounded bg-green-600 px-3 py-1 text-white disabled:opacity-50"
+                        className="rounded bg-green-600 px-3 py-1 text-slate-900 dark:text-white disabled:opacity-50"
                       >
                         {salvandoId === p.id ? "Salvando..." : "Salvar"}
                       </button>
 
                       <button
                         onClick={() => setEditandoId(null)}
-                        className="rounded bg-gray-400 px-3 py-1 text-white"
+                        className="rounded bg-gray-400 px-3 py-1 text-slate-900 dark:text-white"
                       >
                         Cancelar
                       </button>
@@ -1030,7 +1084,7 @@ carregarDisciplinas();
 
       {professorParaExcluir && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/50 p-4">
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl">
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white dark:bg-slate-950 p-6 shadow-2xl">
             <div className="flex items-start gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-xl">
                 🗑️
@@ -1064,7 +1118,7 @@ carregarDisciplinas();
                 type="button"
                 onClick={confirmarExclusaoProfessor}
                 disabled={excluindoId === professorParaExcluir.id}
-                className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {excluindoId === professorParaExcluir.id
                   ? "Excluindo..."
