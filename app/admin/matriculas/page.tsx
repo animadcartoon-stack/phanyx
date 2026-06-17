@@ -1765,8 +1765,8 @@ function renderGrupoDisciplina(
             className={[
               "px-4 py-2 rounded-xl font-semibold transition",
               !podeCriar || creating
-                ? "bg-gray-300 text-slate-600 dark:text-slate-300 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700",
+  ? "bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-400 cursor-not-allowed"
+  : "bg-blue-600 text-white hover:bg-blue-700"
             ].join(" ")}
           >
             {creating ? "Criando..." : "Matricular aluno"}
