@@ -729,9 +729,9 @@ dark:text-white
 
             <div className="space-y-3">
               {linksPortfolio.map((link, index) => (
-                <div
+               <div
   key={index}
-  className="flex flex-col gap-2 md:flex-row md:items-center"
+  className="grid gap-2 md:grid-cols-[180px_1fr_auto] md:items-center"
 >
                   <select
                     value={link.tipo}
@@ -766,7 +766,7 @@ dark:text-white
                         )
                       )
                     }
-                    className="rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    className="min-w-0 rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                   />
 
                   <button
