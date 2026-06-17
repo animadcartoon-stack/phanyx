@@ -952,7 +952,7 @@ carregarDisciplinas();
                         placeholder="URL do documento"
                       />
 
-<div className="md:col-span-2 rounded-2xl border border-slate-200 bg-white dark:bg-slate-950 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+<div className="phanyx-documentos-professor md:col-span-2 rounded-2xl border p-5 shadow-sm">
   <h3 className="text-lg font-bold text-slate-900 dark:text-white">
     📁 Documentos e Portfólio
   </h3>
