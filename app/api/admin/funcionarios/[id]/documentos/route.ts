@@ -158,8 +158,6 @@ if (arquivo) {
   }
 }
 
-    const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-
     let arquivoUrl = url || null;
 
 if (arquivo) {

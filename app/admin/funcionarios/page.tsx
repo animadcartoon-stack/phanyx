@@ -326,6 +326,51 @@ function AdminFuncionariosPage() {
         return;
       }
 
+const funcionarioIdCriado = Number(data?.id);
+
+if (funcionarioIdCriado) {
+  // DOCUMENTOS
+  for (const doc of documentosFuncionario) {
+    if (!doc.arquivo) continue;
+
+    const formData = new FormData();
+
+    formData.append("titulo", doc.titulo);
+    formData.append("tipo", doc.tipo);
+    formData.append("arquivo", doc.arquivo);
+
+    await fetch(
+      `/api/admin/funcionarios/${funcionarioIdCriado}/documentos`,
+      {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      }
+    );
+  }
+
+  // LINKS DE PORTFÓLIO
+  for (const link of linksPortfolio) {
+    if (!link.url.trim()) continue;
+
+    await fetch(
+      `/api/admin/funcionarios/${funcionarioIdCriado}/documentos`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tipo: link.tipo.toUpperCase(),
+          titulo: link.tipo,
+          url: link.url,
+        }),
+      }
+    );
+  }
+}
+
       setNome("");
       setEmail("");
       setRole("");
