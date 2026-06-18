@@ -817,7 +817,7 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, nomeFantasia: e.target.value }))
                   }
-                  cclassName="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Ex.: IBE"
                 />
               </div>
