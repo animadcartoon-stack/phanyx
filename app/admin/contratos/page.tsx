@@ -217,98 +217,94 @@ const alunosFiltrados = [...alunos]
         </div>
       )}
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-slate-800">
-          Selecionar aluno
-        </h2>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+    Selecionar aluno
+  </h2>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Buscar aluno
-            </label>
-            <div className="relative">
-  <input
-    autoComplete="off"
-    spellCheck={false}
-    name="buscarAlunoContrato"
-    value={busca}
-    onChange={(e) => setBusca(e.target.value)}
-    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-    placeholder="Digite nome, matrícula ou email"
-    
-  />
+  <div className="grid gap-4 md:grid-cols-2">
+    <div>
+      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+        Buscar aluno
+      </label>
 
-  {busca.trim() && alunosFiltrados.length > 0 && (
-    <div className="absolute z-50 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-slate-700 bg-slate-900 shadow-xl">
-      {alunosFiltrados.map((aluno) => (
-        <button
-          key={aluno.id}
-          type="button"
-          onClick={() => {
-            setAlunoId(String(aluno.id));
-            setBusca(
-              `${aluno.nome}${aluno.matricula ? ` - ${aluno.matricula}` : ""}${
-                aluno.email ? ` - ${aluno.email}` : ""
-              }`
-            );
-            carregarContrato(String(aluno.id));
-          }}
-          className="block w-full px-4 py-2 text-left text-sm text-white hover:bg-blue-600"
-        >
-          <div className="flex flex-col">
-  <span className="font-medium text-white">
-    {aluno.nome}
-  </span>
+      <div className="relative">
+        <input
+          autoComplete="off"
+          spellCheck={false}
+          name="buscarAlunoContrato"
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+          placeholder="Digite nome, matrícula ou email"
+        />
 
-  <span className="text-xs text-blue-400">
-    {aluno.matricula || ""}
-    {aluno.email ? ` • ${aluno.email}` : ""}
-  </span>
-</div>
-        </button>
-      ))}
-    </div>
-  )}
-</div>
-            {loadingAlunos && (
-              <p className="mt-1 text-xs text-slate-500">Buscando alunos...</p>
-            )}
+        {busca.trim() && alunosFiltrados.length > 0 && (
+          <div className="absolute z-50 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-slate-300 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-950">
+            {alunosFiltrados.map((aluno) => (
+              <button
+                key={aluno.id}
+                type="button"
+                onClick={() => {
+                  setAlunoId(String(aluno.id));
+                  setBusca(
+                    `${aluno.nome}${aluno.matricula ? ` - ${aluno.matricula}` : ""}${
+                      aluno.email ? ` - ${aluno.email}` : ""
+                    }`
+                  );
+                  carregarContrato(String(aluno.id));
+                }}
+                className="block w-full px-4 py-2 text-left text-sm text-slate-900 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-600"
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium text-slate-900 dark:text-white">
+                    {aluno.nome}
+                  </span>
+
+                  <span className="text-xs text-blue-700 dark:text-blue-300">
+                    {aluno.matricula || ""}
+                    {aluno.email ? ` • ${aluno.email}` : ""}
+                  </span>
+                </div>
+              </button>
+            ))}
           </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-slate-700">
-              Selecionar aluno
-            </label>
-            <select
-              value={alunoId}
-              onChange={(e) => {
-                setAlunoId(e.target.value);
-                carregarContrato(e.target.value);
-              }}
-              className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
-            >
-              <option
-  value=""
-  className="bg-slate-900 text-white"
->
-  Selecione um aluno
-</option>
-              {alunosFiltrados.map((aluno) => (
-                <option
-  key={aluno.id}
-  value={aluno.id}
-  className="bg-slate-900 text-white"
->
-                  {aluno.nome}
-                  {aluno.matricula ? ` - ${aluno.matricula}` : ""}
-                  {aluno.email ? ` - ${aluno.email}` : ""}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        )}
       </div>
+
+      {loadingAlunos && (
+        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+          Buscando alunos...
+        </p>
+      )}
+    </div>
+
+    <div>
+      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+        Selecionar aluno
+      </label>
+
+      <select
+        value={alunoId}
+        onChange={(e) => {
+          setAlunoId(e.target.value);
+          carregarContrato(e.target.value);
+        }}
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+      >
+        <option value="">Selecione um aluno</option>
+
+        {alunosFiltrados.map((aluno) => (
+          <option key={aluno.id} value={aluno.id}>
+            {aluno.nome}
+            {aluno.matricula ? ` - ${aluno.matricula}` : ""}
+            {aluno.email ? ` - ${aluno.email}` : ""}
+          </option>
+        ))}
+      </select>
+    </div>
+  </div>
+</div>
 
       {loadingContrato ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-slate-600">
