@@ -57,7 +57,7 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     .replace(/<br\s*\/?>/gi, "\n");
 
   const blocos: BlocoPdf[] = [];
-  const regex = /<(p|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
+  const regex = /<(p|div|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
 
   let match;
 
@@ -102,6 +102,37 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
         titulo,
       });
     }
+  }
+
+    if (blocos.length === 0) {
+    const textoLimpo = decode(
+      entrada
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/<\/div>/gi, "\n")
+        .replace(/<\/p>/gi, "\n")
+        .replace(/<[^>]+>/g, "")
+    );
+
+    textoLimpo.split("\n").forEach((linha) => {
+      const texto = linha.trim();
+
+      if (!texto) {
+        blocos.push({
+          tokens: [],
+          align: "left",
+          vazio: true,
+          titulo: false,
+        });
+        return;
+      }
+
+      blocos.push({
+        tokens: [{ texto, bold: false }],
+        align: "left",
+        vazio: false,
+        titulo: false,
+      });
+    });
   }
 
   return blocos;
