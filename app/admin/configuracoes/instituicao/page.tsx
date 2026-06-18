@@ -625,7 +625,7 @@ async function enviarAssinaturaDiretor(file: File) {
         }
         className={`rounded-xl border p-3 text-left transition ${
           ativo
-            ? "border-blue-600 bg-blue-50 shadow-sm"
+ ? "border-blue-600 bg-slate-100 dark:bg-slate-800 shadow-sm"
             : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
         }`}
       >
@@ -1190,12 +1190,12 @@ async function enviarAssinaturaDiretor(file: File) {
   onClick={() => setModoLayout("SIMPLES")}
   className={`rounded-xl border p-3 text-left transition ${
     modoLayout === "SIMPLES"
-      ? `
-          border-blue-500
-          bg-blue-50
-          dark:border-blue-500
-          dark:bg-slate-800
-        `
+  ? `
+      border-blue-500
+      bg-slate-100
+      dark:border-blue-500
+      dark:bg-slate-800
+    `
       : `
           border-slate-200
           bg-white
@@ -1218,7 +1218,7 @@ async function enviarAssinaturaDiretor(file: File) {
                   onClick={() => setModoLayout("PHANYX")}
                   className={`rounded-xl border p-3 text-left transition ${
                     modoLayout === "PHANYX"
-                      ? "border-blue-600 bg-blue-50"
+  ? "border-blue-600 bg-slate-100 dark:bg-slate-800"
                       : "border-slate-200 bg-white"
                   }`}
                 >
@@ -1235,7 +1235,7 @@ async function enviarAssinaturaDiretor(file: File) {
                   onClick={() => setModoLayout("PERSONALIZADO")}
                   className={`rounded-xl border p-3 text-left transition ${
                     modoLayout === "PERSONALIZADO"
-                      ? "border-amber-500 bg-amber-50"
+  ? "border-amber-500 bg-slate-100 dark:bg-slate-800"
                       : "border-slate-200 bg-white"
                   }`}
                 >
