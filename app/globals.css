@@ -1255,3 +1255,20 @@ html[data-theme="dark"] .phanyx-contratos-selecionar-aluno input::placeholder,
 html[data-theme="system"] .phanyx-contratos-selecionar-aluno input::placeholder {
   color: #94a3b8 !important;
 }
+
+/* FIX CONTRATOS - TEMA SISTEMA CINZA */
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno input,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno select {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno input::placeholder {
+  color: #a3a3a3 !important;
+}
