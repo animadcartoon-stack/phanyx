@@ -1346,3 +1346,74 @@ html.dark .phanyx-ouvidoria-card h3,
 [data-theme="system"] .phanyx-ouvidoria-card h3 {
   color: white;
 }
+
+/* OUVIDORIA - CORREÇÃO FINAL CARDS/FILTROS */
+
+.phanyx-ouvidoria-card.total {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+.phanyx-ouvidoria-card.total p {
+  color: #475569 !important;
+}
+
+.phanyx-ouvidoria-card.total h3 {
+  color: #020617 !important;
+}
+
+.phanyx-ouvidoria-filtros button {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-ouvidoria-filtros button.ativo {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* ESCURO */
+html[data-theme="dark"] .phanyx-ouvidoria-card,
+html.dark .phanyx-ouvidoria-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-ouvidoria-card p,
+html[data-theme="dark"] .phanyx-ouvidoria-card h3,
+html.dark .phanyx-ouvidoria-card p,
+html.dark .phanyx-ouvidoria-card h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-ouvidoria-filtros button,
+html.dark .phanyx-ouvidoria-filtros button {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+/* SISTEMA CINZA */
+html[data-theme="system"] .phanyx-ouvidoria-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-ouvidoria-card p,
+html[data-theme="system"] .phanyx-ouvidoria-card h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-ouvidoria-filtros button {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-ouvidoria-filtros button.ativo {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
