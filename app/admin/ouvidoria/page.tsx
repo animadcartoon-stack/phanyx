@@ -315,28 +315,14 @@ async function salvarResposta() {
   </div>
 </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="phanyx-ouvidoria-filtros flex flex-wrap gap-2">
   {["Todos", "Aluno", "Professor", "Crítico", "Neutro", "Positivo", "Pendente", "Em análise", "Resolvido"].map(
     (item) => (
       <button
         key={item}
         type="button"
         onClick={() => setFiltro(item)}
-        className={`rounded-full px-4 py-2 text-xs font-black transition ${
-         filtro === item
-  ? "bg-blue-600 text-white"
-  : `
-      border border-slate-300
-      bg-white
-      text-slate-700
-      hover:bg-slate-100
-
-      dark:border-slate-700
-      dark:bg-slate-900
-      dark:text-slate-100
-      dark:hover:bg-slate-800
-    `
-        }`}
+        className={filtro === item ? "ativo" : ""}
       >
         {item}
       </button>
