@@ -1205,3 +1205,53 @@ html[data-theme="dark"] .phanyx-financeiro-config-titulo p,
 html[data-theme="system"] .phanyx-financeiro-config-titulo p {
   color: #d1d5db !important;
 }
+
+/* FIX CONTRATOS - SELECIONAR ALUNO */
+.phanyx-contratos-selecionar-aluno {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-contratos-selecionar-aluno h2,
+.phanyx-contratos-selecionar-aluno label {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-contratos-selecionar-aluno input,
+.phanyx-contratos-selecionar-aluno select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 2px solid #cbd5e1 !important;
+}
+
+.phanyx-contratos-selecionar-aluno input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .phanyx-contratos-selecionar-aluno,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno {
+  background: #111827 !important;
+  border-color: #374151 !important;
+}
+
+html[data-theme="dark"] .phanyx-contratos-selecionar-aluno h2,
+html[data-theme="dark"] .phanyx-contratos-selecionar-aluno label,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno h2,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno label {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-contratos-selecionar-aluno input,
+html[data-theme="dark"] .phanyx-contratos-selecionar-aluno select,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno input,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno select {
+  background: #020617 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-contratos-selecionar-aluno input::placeholder,
+html[data-theme="system"] .phanyx-contratos-selecionar-aluno input::placeholder {
+  color: #94a3b8 !important;
+}
