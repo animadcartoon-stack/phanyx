@@ -235,7 +235,27 @@ const alunosFiltrados = [...alunos]
           name="buscarAlunoContrato"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+          className="
+  w-full
+  rounded-xl
+  border-2
+  border-slate-300
+  bg-white
+  px-3
+  py-2
+  text-slate-900
+  shadow-sm
+  outline-none
+  placeholder:text-slate-500
+  focus:border-blue-500
+  focus:ring-2
+  focus:ring-blue-500/20
+
+  dark:border-slate-600
+  dark:bg-slate-950
+  dark:text-white
+  dark:placeholder:text-slate-400
+"
           placeholder="Digite nome, matrícula ou email"
         />
 
@@ -290,7 +310,25 @@ const alunosFiltrados = [...alunos]
           setAlunoId(e.target.value);
           carregarContrato(e.target.value);
         }}
-        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+        className="
+  w-full
+  rounded-xl
+  border-2
+  border-slate-300
+  bg-white
+  px-4
+  py-3
+  text-slate-900
+  shadow-sm
+  outline-none
+  focus:border-blue-500
+  focus:ring-2
+  focus:ring-blue-500/20
+
+  dark:border-slate-600
+  dark:bg-slate-950
+  dark:text-white
+"
       >
         <option value="">Selecione um aluno</option>
 
