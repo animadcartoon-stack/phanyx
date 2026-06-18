@@ -431,6 +431,45 @@ async function enviarAssinaturaDiretor(file: File) {
   }
 
   function renderPreviewPapelTimbrado() {
+    if (modoLayout === "SIMPLES") {
+  return (
+    <div className="preview-papel relative h-full w-full bg-white p-6">
+      <div className="mb-6 flex items-center gap-2">
+        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-white">
+          {form.logoUrl ? (
+            <img
+              src={form.logoUrl}
+              alt="Logo da instituição"
+              className="max-h-9 max-w-9 object-contain"
+            />
+          ) : (
+            <span className="text-[8px] text-slate-400">LOGO</span>
+          )}
+        </div>
+
+        <div>
+          <div className="text-[10px] font-semibold text-slate-900">
+            {nomePreview}
+          </div>
+          <div className="text-[8px] text-slate-500">
+            {cidadeEstadoPreview || "Cidade / Estado"}
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <div className="mb-4 text-[11px] font-semibold text-slate-900">
+          Documento institucional
+        </div>
+        {renderLinhasTexto()}
+      </div>
+
+      <div className="absolute bottom-5 left-6 right-6 border-t border-slate-200 pt-2 text-center text-[7px] text-slate-500">
+        {contatoPreview}
+      </div>
+    </div>
+  );
+}
     if (layoutSelecionado === "PHANYX_MODERNO") {
       return (
         <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
@@ -623,11 +662,7 @@ async function enviarAssinaturaDiretor(file: File) {
             estiloPapelTimbrado: value,
           }))
         }
-        className={`rounded-xl border p-3 text-left transition ${
-          ativo
- ? "border-blue-600 bg-slate-100 dark:bg-slate-800 shadow-sm"
-            : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-        }`}
+        className={`cfg-layout-card ${ativo ? "ativo" : ""}`}
       >
         <div className="mb-2 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <div className="h-[96px] w-full">{renderMiniatura(value)}</div>
@@ -1188,64 +1223,29 @@ async function enviarAssinaturaDiretor(file: File) {
 <button
   type="button"
   onClick={() => setModoLayout("SIMPLES")}
-  className={`rounded-xl border p-3 text-left transition ${
-    modoLayout === "SIMPLES"
-  ? `
-      border-blue-500
-      bg-slate-100
-      dark:border-blue-500
-      dark:bg-slate-800
-    `
-      : `
-          border-slate-200
-          bg-white
-          dark:border-slate-700
-          dark:bg-slate-900
-        `
-  }`}
+  className={`cfg-layout-card ${modoLayout === "SIMPLES" ? "ativo" : ""}`}
 >
-  <div className="text-sm font-semibold text-slate-800 dark:text-white">
-    Sem papel
-  </div>
-
-  <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
-    Layout simples
-  </p>
+  <div className="text-sm font-semibold">Sem papel</div>
+  <p className="mt-1 text-[11px]">Layout simples</p>
 </button>
 
-                <button
-                  type="button"
-                  onClick={() => setModoLayout("PHANYX")}
-                  className={`rounded-xl border p-3 text-left transition ${
-                    modoLayout === "PHANYX"
-  ? "border-blue-600 bg-slate-100 dark:bg-slate-800"
-                      : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-slate-800">
-                    Modelo PHANYX
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    Pronto para uso
-                  </p>
-                </button>
+<button
+  type="button"
+  onClick={() => setModoLayout("PHANYX")}
+  className={`cfg-layout-card ${modoLayout === "PHANYX" ? "ativo" : ""}`}
+>
+  <div className="text-sm font-semibold">Modelo PHANYX</div>
+  <p className="mt-1 text-[11px]">Pronto para uso</p>
+</button>
 
-                <button
-                  type="button"
-                  onClick={() => setModoLayout("PERSONALIZADO")}
-                  className={`rounded-xl border p-3 text-left transition ${
-                    modoLayout === "PERSONALIZADO"
-  ? "border-amber-500 bg-slate-100 dark:bg-slate-800"
-                      : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-slate-800">
-                    Papel próprio
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    Arte institucional
-                  </p>
-                </button>
+<button
+  type="button"
+  onClick={() => setModoLayout("PERSONALIZADO")}
+  className={`cfg-layout-card ${modoLayout === "PERSONALIZADO" ? "ativo" : ""}`}
+>
+  <div className="text-sm font-semibold">Papel próprio</div>
+  <p className="mt-1 text-[11px]">Arte institucional</p>
+</button>
 
               </div>
 

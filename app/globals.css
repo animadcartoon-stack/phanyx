@@ -1589,3 +1589,43 @@ html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card * {
 .phanyx-config-instituicao .preview-papel .text-slate-600 {
   color: #475569 !important;
 }
+
+.phanyx-config-instituicao .cfg-layout-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #020617 !important;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  text-align: left;
+}
+
+.phanyx-config-instituicao .cfg-layout-card * {
+  color: inherit !important;
+}
+
+.phanyx-config-instituicao .cfg-layout-card.ativo {
+  border-color: #2563eb !important;
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-instituicao .cfg-layout-card,
+html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-instituicao .cfg-layout-card.ativo,
+html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card.ativo {
+  background: #1f2937 !important;
+  border-color: #60a5fa !important;
+}
+
+.phanyx-config-instituicao .preview-papel {
+  background: #ffffff !important;
+  color: #020617 !important;
+}
+
+.phanyx-config-instituicao .logo-preview-bg {
+  background: #ffffff !important;
+}
