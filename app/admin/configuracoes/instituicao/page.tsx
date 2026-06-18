@@ -802,14 +802,14 @@ async function enviarAssinaturaDiretor(file: File) {
         )}
 
         <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-slate-800">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
               Dados institucionais
             </h2>
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Nome fantasia
                 </label>
                 <input
@@ -817,13 +817,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, nomeFantasia: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  cclassName="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Ex.: IBE"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Razão social
                 </label>
                 <input
@@ -831,13 +831,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, razaoSocial: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Ex.: Instituto Batista de Educação"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   CNPJ
                 </label>
                 <input
@@ -845,13 +845,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, cnpj: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="00.000.000/0000-00"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Telefone
                 </label>
                 <input
@@ -859,13 +859,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, telefone: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="(00) 00000-0000"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   E-mail
                 </label>
                 <input
@@ -873,13 +873,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, email: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="contato@instituicao.com"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   CEP
                 </label>
                 <input
@@ -888,7 +888,7 @@ async function enviarAssinaturaDiretor(file: File) {
                     setForm((prev) => ({ ...prev, cep: e.target.value }))
                   }
                   onBlur={(e) => buscarEnderecoPorCep(e.target.value)}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="00000-000"
                 />
                 {buscandoCep && (
@@ -899,7 +899,7 @@ async function enviarAssinaturaDiretor(file: File) {
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Estado
                 </label>
                 <input
@@ -907,13 +907,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, estado: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="SC"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Endereço
                 </label>
                 <input
@@ -921,13 +921,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, endereco: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Rua, número, bairro"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Número
                 </label>
                 <input
@@ -935,13 +935,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, numero: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Ex.: 398"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Cidade
                 </label>
                 <input
@@ -949,13 +949,13 @@ async function enviarAssinaturaDiretor(file: File) {
                   onChange={(e) =>
                     setForm((prev) => ({ ...prev, cidade: e.target.value }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="São José"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Responsável legal
                 </label>
                 <input
@@ -966,13 +966,13 @@ async function enviarAssinaturaDiretor(file: File) {
                       responsavelNome: e.target.value,
                     }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Nome do responsável"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Cargo do responsável
                 </label>
                 <input
@@ -983,13 +983,13 @@ async function enviarAssinaturaDiretor(file: File) {
                       responsavelCargo: e.target.value,
                     }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Diretor(a)"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Cidade de assinatura
                 </label>
                 <input
@@ -1000,13 +1000,13 @@ async function enviarAssinaturaDiretor(file: File) {
                       cidadeAssinatura: e.target.value,
                     }))
                   }
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Ex.: Florianópolis"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
                   Observações contratuais
                 </label>
                 <textarea
@@ -1018,7 +1018,7 @@ async function enviarAssinaturaDiretor(file: File) {
                     }))
                   }
                   rows={3}
-                  className="w-full rounded-xl border border-slate-300 px-3 py-2 outline-none"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   placeholder="Informações adicionais do contrato"
                 />
               </div>
