@@ -386,7 +386,7 @@ async function enviarAssinaturaDiretor(file: File) {
   function renderCabecalhoPreview(claro = false) {
     return (
       <div className="flex items-center gap-2">
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-white">
+        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-white">
           {form.logoUrl ? (
             <img
               src={form.logoUrl}
@@ -1366,7 +1366,7 @@ async function enviarAssinaturaDiretor(file: File) {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="preview-papel h-[297px] w-[210px] overflow-hidden rounded-lg border bg-white shadow-sm">
+                  <div className="preview-papel h-[297px] w-[210px] overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900 shadow-sm">
                     {renderPreviewPapelTimbrado()}
                   </div>
                 </div>
