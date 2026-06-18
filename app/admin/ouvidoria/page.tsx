@@ -287,51 +287,32 @@ async function salvarResposta() {
   </p>
 </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-    <p className="text-xs font-black uppercase text-slate-600 dark:text-slate-300">
-      Total
-    </p>
-    <h3 className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-      {chamados.length}
+      <div className="phanyx-ouvidoria-cards grid gap-4 md:grid-cols-4">
+  <div className="phanyx-ouvidoria-card total">
+    <p>Total</p>
+    <h3>{chamados.length}</h3>
+  </div>
+
+  <div className="phanyx-ouvidoria-card criticos">
+    <p>Críticos</p>
+    <h3>
+      {chamados.filter((item) => item.sentimento === "CRITICO").length}
     </h3>
   </div>
 
-  <div className="rounded-2xl border border-red-200 bg-red-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="phanyx-ouvidoria-card analise">
+    <p>Em análise</p>
+    <h3>
+      {chamados.filter((item) => item.status === "EM_ANALISE").length}
+    </h3>
+  </div>
 
-  <p className="text-xs font-black uppercase text-red-700 dark:text-slate-300">
-    Críticos
-  </p>
-
-  <h3 className="mt-2 text-3xl font-black text-red-900 dark:text-white">
-    {chamados.filter((item) => item.sentimento === "CRITICO").length}
-  </h3>
-
-</div>
-
-  <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-
-  <p className="text-xs font-black uppercase text-amber-700 dark:text-slate-300">
-    Em análise
-  </p>
-
-  <h3 className="mt-2 text-3xl font-black text-amber-900 dark:text-white">
-    {chamados.filter((item) => item.status === "EM_ANALISE").length}
-  </h3>
-
-</div>
-
-  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-
-  <p className="text-xs font-black uppercase text-emerald-700 dark:text-slate-300">
-    Resolvidos
-  </p>
-
-  <h3 className="mt-2 text-3xl font-black text-emerald-900 dark:text-white">
-    {chamados.filter((item) => item.status === "RESOLVIDO").length}
-  </h3>
-
-</div>
+  <div className="phanyx-ouvidoria-card resolvidos">
+    <p>Resolvidos</p>
+    <h3>
+      {chamados.filter((item) => item.status === "RESOLVIDO").length}
+    </h3>
+  </div>
 </div>
 
       <div className="flex flex-wrap gap-2">
