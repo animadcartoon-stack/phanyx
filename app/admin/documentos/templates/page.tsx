@@ -2965,11 +2965,110 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
               <div>
-  <label className="text-sm font-medium text-gray-700">
+  <label className="text-sm font-medium text-slate-900 dark:text-white">
     Conteúdo do template
   </label>
 
-  <div id="editor-template-phanyx" className="mt-1">
+  {tipo === "HISTORICO" && (
+    <div className="mt-3 rounded-2xl border border-slate-300 bg-white p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+      <h3 className="text-base font-bold">
+        Modelo visual do Histórico Acadêmico
+      </h3>
+
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        O histórico usa um layout acadêmico estruturado. As seções abaixo serão convertidas automaticamente em caixas, tabela e rodapé no PDF final.
+      </p>
+
+      <div className="mt-4 space-y-3">
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-sm font-bold">Cabeçalho institucional</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            No PDF final vira o retângulo superior com logo, nome, CNPJ, endereço, telefone e e-mail da instituição.
+          </p>
+          <code className="mt-2 block rounded bg-slate-100 p-2 text-xs text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+            [CABEÇALHO INSTITUCIONAL] {"{{blocoInstituicao}}"}
+          </code>
+        </div>
+
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-sm font-bold">Título do documento</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            No PDF final aparece como título centralizado abaixo do cabeçalho.
+          </p>
+          <code className="mt-2 block rounded bg-slate-100 p-2 text-xs text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+            [TÍTULO] HISTÓRICO ACADÊMICO ESCOLAR
+          </code>
+        </div>
+
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-sm font-bold">Dados do aluno</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            No PDF final vira o retângulo “DADOS DO ALUNO”.
+          </p>
+          <code className="mt-2 block whitespace-pre-wrap rounded bg-slate-100 p-2 text-xs text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+{`[DADOS DO ALUNO]
+Aluno(a): {{nomeAluno}}
+CPF: {{cpfAluno}}
+Matrícula: {{matriculaAluno}}
+Status do aluno: {{statusAluno}}`}
+          </code>
+        </div>
+
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-sm font-bold">Dados da matrícula</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            No PDF final vira o retângulo “DADOS DA MATRÍCULA”, quando usado.
+          </p>
+          <code className="mt-2 block whitespace-pre-wrap rounded bg-slate-100 p-2 text-xs text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+{`[DADOS DA MATRÍCULA]
+Curso: {{curso}}
+Status da matrícula: {{statusMatricula}}
+Data da matrícula: {{dataMatricula}}
+Data de conclusão: {{dataConclusao}}
+Semestre atual: {{semestreAtual}}
+Carga horária do curso: {{cargaHorariaCurso}}
+Percentual de conclusão: {{percentualConclusao}}`}
+          </code>
+        </div>
+
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-sm font-bold">Componentes curriculares</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            No PDF final vira a tabela de disciplinas com carga horária, nota, frequência e situação.
+          </p>
+          <code className="mt-2 block rounded bg-slate-100 p-2 text-xs text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+            [COMPONENTES CURRICULARES] {"{{disciplinas}}"}
+          </code>
+        </div>
+
+        <div className="rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+          <p className="text-sm font-bold">Observações, assinatura e rodapé</p>
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+            No PDF final essas áreas aparecem no fechamento do histórico com assinatura institucional e validação.
+          </p>
+          <code className="mt-2 block whitespace-pre-wrap rounded bg-slate-100 p-2 text-xs text-slate-800 dark:bg-slate-950 dark:text-slate-200">
+{`[OBSERVAÇÕES]
+Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
+
+[ASSINATURA INSTITUCIONAL]
+{{blocoAssinaturaDiretor}}
+
+[RODAPÉ]
+{{nomeInstituicao}} - CNPJ {{cnpjInstituicao}}`}
+          </code>
+        </div>
+      </div>
+
+      <p className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200">
+        Para conferir o resultado real, use o botão “Visualizar PDF”. A prévia já mostra o histórico com os retângulos e a tabela final.
+      </p>
+    </div>
+  )}
+
+  <div
+    id="editor-template-phanyx"
+    className={tipo === "HISTORICO" ? "mt-4" : "mt-1"}
+  >
     <EditorTemplatePHANYX
       key={editingId ?? "novo"}
       value={conteudo}
