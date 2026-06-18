@@ -1152,6 +1152,9 @@ function inserirVariavelNoEditor(tag: string) {
     setErro("");
     setMensagem("Gerando prévia do PDF...");
 
+    const conteudoAtual =
+  editorRef.current?.innerHTML?.trim() || conteudo;
+
     const res = await fetch("/api/admin/documentos/templates/preview", {
       method: "POST",
       headers: {
@@ -1159,9 +1162,9 @@ function inserirVariavelNoEditor(tag: string) {
       },
       credentials: "include",
       body: JSON.stringify({
-        tipo,
-        conteudo,
-      }),
+  tipo,
+  conteudo: conteudoAtual,
+}),
     });
 
     if (!res.ok) {
