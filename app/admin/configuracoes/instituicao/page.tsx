@@ -785,7 +785,7 @@ async function enviarAssinaturaDiretor(file: File) {
         </div>
       )}
 
-      <div className="max-w-7xl space-y-6 p-6">
+      <div className="phanyx-config-instituicao max-w-7xl space-y-6 p-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">
             🏢 Configurações da Instituição
