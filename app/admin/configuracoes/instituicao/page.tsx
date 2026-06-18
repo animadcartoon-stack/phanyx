@@ -483,9 +483,9 @@ async function enviarAssinaturaDiretor(file: File) {
           <div className="absolute bottom-0 right-[8%] h-2 w-[22%] bg-[#63b3ed]" />
 
           <div className="relative z-10 flex h-full flex-col justify-between px-6 pb-5 pt-4">
-            <div className="ml-4 mt-1">{renderCabecalhoPreview(true)}</div>
+            <div className="ml-4 mt-1">{renderCabecalhoPreview(false)}</div>
 
-            <div className="ml-6 mr-3 rounded-xl border border-slate-200 bg-white/95 p-4 shadow-sm">
+            <div className="ml-6 mr-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
               <div className="mb-4 text-[11px] font-semibold text-slate-800">
                 Documento institucional
               </div>
@@ -552,7 +552,7 @@ async function enviarAssinaturaDiretor(file: File) {
           <div className="absolute bottom-0 left-0 h-14 w-full bg-[#1b1b1b]" />
           <div className="absolute bottom-10 left-0 h-[1px] w-full bg-slate-300" />
 
-          <div className="relative z-10 flex h-full flex-col justify-between bg-white px-5 py-5">
+          <div className="relative z-10 flex h-full flex-col justify-between px-5 py-5">
             <div>
               <div className="flex items-start justify-between">
                 <div className="max-w-[60%]">{renderCabecalhoPreview()}</div>
@@ -569,7 +569,7 @@ async function enviarAssinaturaDiretor(file: File) {
               <div className="mt-4">{renderLinhasTexto()}</div>
             </div>
 
-            <div className="text-center text-[7px] text-white">
+            <div className="text-center text-[7px] text-slate-500">
               {contatoPreview}
             </div>
           </div>
@@ -608,16 +608,16 @@ async function enviarAssinaturaDiretor(file: File) {
     if (layoutSelecionado === "PERSONALIZADO_MODERNO") {
       return (
         <div className="relative h-full w-full bg-white">
-          <div className="absolute left-0 top-0 h-full w-5 bg-slate-800" />
+          <div className="absolute left-0 top-0 h-full w-5 bg-slate-200" />
           <img
   src={previewSrc}
   alt="Prévia do papel timbrado"
   className="absolute inset-0 m-auto max-h-[75%] max-w-[75%] object-contain opacity-15"
 />
-          <div className="absolute left-8 right-3 top-3 rounded-lg bg-white/85 p-2">
+          <div className="absolute left-8 right-3 top-3 rounded-lg bg-white p-2">
             {renderCabecalhoPreview()}
           </div>
-          <div className="absolute bottom-3 left-8 right-3 rounded-lg bg-white/85 p-2 text-center text-[7px] text-slate-600">
+          <div className="absolute bottom-3 left-8 right-3 rounded-lg bg-white p-2 text-center text-[7px] text-slate-600">
             {contatoPreview}
           </div>
         </div>
