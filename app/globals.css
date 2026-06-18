@@ -1642,3 +1642,17 @@ html[data-theme="system"] .phanyx-config-instituicao .text-blue-800 {
 .phanyx-config-instituicao .documento-preview * {
   color: inherit;
 }
+
+/* CONFIG INSTITUIÇÃO - CARD SELECIONADO PAPEL */
+html[data-theme="dark"] .phanyx-config-instituicao .bg-white,
+html[data-theme="system"] .phanyx-config-instituicao .bg-white {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-config-instituicao .bg-white p,
+html[data-theme="dark"] .phanyx-config-instituicao .bg-white span,
+html[data-theme="system"] .phanyx-config-instituicao .bg-white p,
+html[data-theme="system"] .phanyx-config-instituicao .bg-white span {
+  color: #cbd5e1 !important;
+}

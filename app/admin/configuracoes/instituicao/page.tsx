@@ -510,7 +510,7 @@ async function enviarAssinaturaDiretor(file: File) {
           <div className="absolute bottom-0 left-0 h-14 w-full bg-[#1b1b1b]" />
           <div className="absolute bottom-10 left-0 h-[1px] w-full bg-slate-300" />
 
-          <div className="relative z-10 flex h-full flex-col justify-between px-5 py-5">
+          <div className="relative z-10 flex h-full flex-col justify-between bg-white px-5 py-5">
             <div>
               <div className="flex items-start justify-between">
                 <div className="max-w-[60%]">{renderCabecalhoPreview()}</div>
@@ -685,7 +685,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layout === "PHANYX_CLASSICO") {
       return (
-        <div className="relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-2.5 w-full bg-[#1b1b1b]" />
           <div className="absolute right-0 top-0 h-2.5 w-12 bg-[#1693d1]" />
           <div className="absolute bottom-0 left-0 h-8 w-full bg-[#1b1b1b]" />
