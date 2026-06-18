@@ -1705,3 +1705,25 @@ html[data-theme="system"] .phanyx-config-instituicao button.bg-white * {
 .phanyx-config-instituicao .preview-papel .text-slate-500 {
   color: #64748b !important;
 }
+
+/* CONFIG INSTITUIÇÃO - SISTEMA FORÇADO CINZA */
+html[data-theme="system"] .phanyx-config-instituicao input,
+html[data-theme="system"] .phanyx-config-instituicao textarea,
+html[data-theme="system"] .phanyx-config-instituicao select {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+/* CONFIG INSTITUIÇÃO - PRÉVIA PAPEL SEMPRE BRANCA */
+html[data-theme="dark"] .phanyx-config-instituicao .preview-papel,
+html[data-theme="system"] .phanyx-config-instituicao .preview-papel {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-instituicao .preview-papel > div,
+html[data-theme="system"] .phanyx-config-instituicao .preview-papel > div {
+  background-color: #ffffff !important;
+}

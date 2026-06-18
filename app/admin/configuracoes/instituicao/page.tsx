@@ -1186,21 +1186,32 @@ async function enviarAssinaturaDiretor(file: File) {
               <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 
 <button
-                  type="button"
-                  onClick={() => setModoLayout("SIMPLES")}
-                  className={`rounded-xl border p-3 text-left transition ${
-                    modoLayout === "SIMPLES"
-                      ? "border-slate-800 bg-slate-100"
-                      : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="text-sm font-semibold text-slate-800">
-                    Sem papel
-                  </div>
-                  <p className="mt-1 text-[11px] text-slate-600">
-                    Layout simples
-                  </p>
-                </button>
+  type="button"
+  onClick={() => setModoLayout("SIMPLES")}
+  className={`rounded-xl border p-3 text-left transition ${
+    modoLayout === "SIMPLES"
+      ? `
+          border-blue-500
+          bg-blue-50
+          dark:border-blue-500
+          dark:bg-slate-800
+        `
+      : `
+          border-slate-200
+          bg-white
+          dark:border-slate-700
+          dark:bg-slate-900
+        `
+  }`}
+>
+  <div className="text-sm font-semibold text-slate-800 dark:text-white">
+    Sem papel
+  </div>
+
+  <p className="mt-1 text-[11px] text-slate-600 dark:text-slate-400">
+    Layout simples
+  </p>
+</button>
 
                 <button
                   type="button"
