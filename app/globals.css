@@ -1675,3 +1675,63 @@ html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card.ativo {
 .phanyx-config-instituicao .preview-papel .logo-preview-bg {
   background: transparent !important;
 }
+
+/* =========================================
+   PHANYX PAPER SURFACE
+   Papel/documento SEMPRE branco
+========================================= */
+
+.phanyx-paper-surface {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+.phanyx-paper-surface * {
+  color: inherit;
+}
+
+.phanyx-paper-surface img {
+  background: transparent !important;
+}
+
+.phanyx-paper-surface .logo-preview-bg {
+  background: transparent !important;
+}
+
+html[data-theme="dark"] .phanyx-paper-surface,
+html[data-theme="system"] .phanyx-paper-surface {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+/* PHANYX - papel branco sem apagar identidade visual */
+.phanyx-paper-surface {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+.phanyx-paper-surface .bg-white,
+.phanyx-paper-surface .bg-white\/85,
+.phanyx-paper-surface .bg-white\/95 {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+.phanyx-paper-surface img,
+.phanyx-paper-surface .logo-preview-bg {
+  background: transparent !important;
+}
+
+.phanyx-paper-surface .text-slate-800,
+.phanyx-paper-surface .text-slate-900 {
+  color: #020617 !important;
+}
+
+.phanyx-paper-surface .text-slate-400,
+.phanyx-paper-surface .text-slate-500,
+.phanyx-paper-surface .text-slate-600 {
+  color: #64748b !important;
+}

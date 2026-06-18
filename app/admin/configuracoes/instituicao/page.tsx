@@ -386,7 +386,7 @@ async function enviarAssinaturaDiretor(file: File) {
   function renderCabecalhoPreview(claro = false) {
     return (
       <div className="flex items-center gap-2">
-        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-slate-200 bg-white">
+        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md">
           {form.logoUrl ? (
             <img
               src={form.logoUrl}
@@ -434,7 +434,7 @@ async function enviarAssinaturaDiretor(file: File) {
     if (modoLayout === "SIMPLES") {
   return (
     <div
-  className="preview-papel relative h-full w-full p-6"
+  className="preview-papel phanyx-paper-surface relative h-full w-full p-6"
   style={{ backgroundColor: "#ffffff", color: "#020617" }}
 >
       <div className="mb-6 flex items-center gap-2">
@@ -475,7 +475,7 @@ async function enviarAssinaturaDiretor(file: File) {
 }
     if (layoutSelecionado === "PHANYX_MODERNO") {
       return (
-        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel phanyx-paper-surface relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-full w-5 bg-slate-300" />
           <div className="absolute left-0 top-0 h-14 w-full bg-slate-100" />
           <div className="absolute bottom-0 right-0 h-5 w-[60%] bg-slate-200" />
@@ -502,7 +502,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layoutSelecionado === "PHANYX_ACADEMICO") {
       return (
-        <div className="preview-papel relative flex h-full w-full flex-col justify-between overflow-hidden bg-white px-5 py-4">
+        <div className="preview-papel phanyx-paper-surface relative flex h-full w-full flex-col justify-between overflow-hidden bg-white px-5 py-4">
           {form.logoUrl && (
             <img
               src={form.logoUrl}
@@ -546,7 +546,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layoutSelecionado === "PHANYX_CLASSICO") {
       return (
-        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel phanyx-paper-surface relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-4 w-full bg-[#1b1b1b]" />
           <div className="absolute right-0 top-0 h-4 w-24 bg-[#1693d1]" />
           <div className="absolute bottom-0 left-0 h-14 w-full bg-[#1b1b1b]" />
@@ -587,7 +587,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layoutSelecionado === "PERSONALIZADO_MARCA") {
       return (
-        <div className="relative h-full w-full bg-white">
+        <div className="phanyx-paper-surface relative h-full w-full bg-white">
           <img
             src={previewSrc}
             alt="Prévia do papel timbrado"
@@ -607,7 +607,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layoutSelecionado === "PERSONALIZADO_MODERNO") {
       return (
-        <div className="relative h-full w-full bg-white">
+        <div className="phanyx-paper-surface relative h-full w-full bg-white">
           <div className="absolute left-0 top-0 h-full w-5 bg-slate-200" />
           <img
   src={previewSrc}
@@ -625,7 +625,7 @@ async function enviarAssinaturaDiretor(file: File) {
     }
 
     return (
-      <div className="relative h-full w-full bg-white">
+      <div className="phanyx-paper-surface relative h-full w-full bg-white">
         <div className="absolute top-0 h-4 w-full bg-slate-300" />
         <img
           src={previewSrc}
@@ -686,7 +686,7 @@ async function enviarAssinaturaDiretor(file: File) {
   function renderMiniatura(layout: LayoutProfissional) {
     if (layout === "PHANYX_MODERNO") {
       return (
-        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel phanyx-paper-surface relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-full w-3 bg-slate-900" />
           <div className="absolute left-0 top-0 h-7 w-full bg-[#0e2f5a]" />
           <div className="absolute bottom-0 right-0 h-3 w-[55%] bg-[#0e2f5a]" />
@@ -706,7 +706,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layout === "PHANYX_ACADEMICO") {
       return (
-        <div className="relative h-full w-full bg-white px-3 py-2">
+        <div className="phanyx-paper-surface relative h-full w-full bg-white px-3 py-2">
           <div className="mx-auto mb-2 h-6 w-6 rounded-full border bg-white" />
           <div className="border-b border-slate-300 pb-2 text-center">
             <div className="mx-auto h-1.5 w-20 rounded bg-slate-300" />
@@ -723,7 +723,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layout === "PHANYX_CLASSICO") {
       return (
-        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel phanyx-paper-surface relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-2.5 w-full bg-[#1b1b1b]" />
           <div className="absolute right-0 top-0 h-2.5 w-12 bg-[#1693d1]" />
           <div className="absolute bottom-0 left-0 h-8 w-full bg-[#1b1b1b]" />
@@ -740,7 +740,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layout === "PERSONALIZADO_MARCA") {
       return (
-        <div className="relative h-full w-full bg-white">
+        <div className="phanyx-paper-surface relative h-full w-full bg-white">
           {previewSrc ? (
             <img
               src={previewSrc}
@@ -760,7 +760,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layout === "PERSONALIZADO_MODERNO") {
       return (
-        <div className="relative h-full w-full bg-white">
+        <div className="phanyx-paper-surface relative h-full w-full bg-white">
           <div className="absolute left-0 top-0 h-full w-3 bg-slate-800" />
           {previewSrc ? (
             <img
@@ -1369,7 +1369,7 @@ async function enviarAssinaturaDiretor(file: File) {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="preview-papel h-[297px] w-[210px] overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900 shadow-sm">
+                  <div className="preview-papel phanyx-paper-surface h-[297px] w-[210px] overflow-hidden rounded-lg border border-slate-200 bg-white text-slate-900 shadow-sm">
                     {renderPreviewPapelTimbrado()}
                   </div>
                 </div>
