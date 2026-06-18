@@ -1439,3 +1439,10 @@ html[data-theme="system"] .phanyx-ouvidoria-card p,
 html[data-theme="system"] .phanyx-ouvidoria-card h3 {
   color: #ffffff !important;
 }
+
+/* OUVIDORIA - HERO SISTEMA CINZA */
+html[data-theme="system"] .phanyx-ouvidoria-hero {
+  background-image: none !important;
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
