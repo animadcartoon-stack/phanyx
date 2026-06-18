@@ -1447,152 +1447,13 @@ html[data-theme="system"] .phanyx-ouvidoria-hero {
   border-color: #525252 !important;
 }
 
-/* CONFIGURAÇÕES DA INSTITUIÇÃO - TEMAS */
+/* CONFIGURAÇÕES DA INSTITUIÇÃO - FINAL */
 
-.phanyx-config-instituicao h1,
-.phanyx-config-instituicao h2,
-.phanyx-config-instituicao h3,
-.phanyx-config-instituicao label {
-  color: #020617 !important;
-}
-
-.phanyx-config-instituicao p,
-.phanyx-config-instituicao span {
-  color: #334155 !important;
-}
-
-.phanyx-config-instituicao input,
-.phanyx-config-instituicao textarea,
-.phanyx-config-instituicao select {
-  background: #ffffff !important;
-  color: #020617 !important;
-  border-color: #cbd5e1 !important;
-}
-
-.phanyx-config-instituicao input::placeholder,
-.phanyx-config-instituicao textarea::placeholder {
-  color: #64748b !important;
-}
-
-/* Escuro e sistema */
-html[data-theme="dark"] .phanyx-config-instituicao h1,
-html[data-theme="dark"] .phanyx-config-instituicao h2,
-html[data-theme="dark"] .phanyx-config-instituicao h3,
-html[data-theme="dark"] .phanyx-config-instituicao label,
-html[data-theme="system"] .phanyx-config-instituicao h1,
-html[data-theme="system"] .phanyx-config-instituicao h2,
-html[data-theme="system"] .phanyx-config-instituicao h3,
-html[data-theme="system"] .phanyx-config-instituicao label {
-  color: #ffffff !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao p,
-html[data-theme="dark"] .phanyx-config-instituicao span,
-html[data-theme="system"] .phanyx-config-instituicao p,
-html[data-theme="system"] .phanyx-config-instituicao span {
-  color: #cbd5e1 !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao input,
-html[data-theme="dark"] .phanyx-config-instituicao textarea,
-html[data-theme="dark"] .phanyx-config-instituicao select,
-html[data-theme="system"] .phanyx-config-instituicao input,
-html[data-theme="system"] .phanyx-config-instituicao textarea,
-html[data-theme="system"] .phanyx-config-instituicao select {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border-color: #475569 !important;
-}
-
-/* Pré-visualização: papel sempre branco */
-.phanyx-config-instituicao .preview-papel,
-.phanyx-config-instituicao .documento-preview,
-.phanyx-config-instituicao [class*="preview"] {
-  background: #ffffff !important;
-  color: #020617 !important;
-}
-
-/* Cards selecionados */
-.phanyx-config-instituicao button,
-.phanyx-config-instituicao .rounded-xl,
-.phanyx-config-instituicao .rounded-2xl {
-  border-color: #cbd5e1;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao .bg-blue-50,
-html[data-theme="system"] .phanyx-config-instituicao .bg-blue-50 {
-  background: #1e293b !important;
-  color: #ffffff !important;
-}
-
-/* CONFIGURAÇÕES DA INSTITUIÇÃO - CORREÇÃO DE TEMAS */
-
-.phanyx-config-instituicao h1,
-.phanyx-config-instituicao h2,
-.phanyx-config-instituicao h3,
-.phanyx-config-instituicao label {
-  color: #020617 !important;
-}
-
-.phanyx-config-instituicao p,
-.phanyx-config-instituicao span,
-.phanyx-config-instituicao div {
-  color: inherit;
-}
-
-.phanyx-config-instituicao input,
-.phanyx-config-instituicao textarea,
-.phanyx-config-instituicao select {
-  background: #ffffff !important;
-  color: #020617 !important;
-  border-color: #cbd5e1 !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao h1,
-html[data-theme="dark"] .phanyx-config-instituicao h2,
-html[data-theme="dark"] .phanyx-config-instituicao h3,
-html[data-theme="dark"] .phanyx-config-instituicao label,
-html[data-theme="system"] .phanyx-config-instituicao h1,
-html[data-theme="system"] .phanyx-config-instituicao h2,
-html[data-theme="system"] .phanyx-config-instituicao h3,
-html[data-theme="system"] .phanyx-config-instituicao label {
-  color: #ffffff !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao input,
-html[data-theme="dark"] .phanyx-config-instituicao textarea,
-html[data-theme="dark"] .phanyx-config-instituicao select,
-html[data-theme="system"] .phanyx-config-instituicao input,
-html[data-theme="system"] .phanyx-config-instituicao textarea,
-html[data-theme="system"] .phanyx-config-instituicao select {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border-color: #475569 !important;
-}
-
-html[data-theme="system"] .phanyx-config-instituicao .bg-blue-50,
-html[data-theme="dark"] .phanyx-config-instituicao .bg-blue-50 {
-  background: #1e293b !important;
-  border-color: #475569 !important;
-}
-
-html[data-theme="system"] .phanyx-config-instituicao .bg-amber-50,
-html[data-theme="dark"] .phanyx-config-instituicao .bg-amber-50 {
+html[data-theme="system"] .phanyx-config-instituicao .cfg-card {
   background: #262626 !important;
   border-color: #525252 !important;
 }
 
-/* a folha/preview do documento deve continuar branca */
-.phanyx-config-instituicao .bg-white .bg-white,
-.phanyx-config-instituicao [class*="h-[297px]"],
-.phanyx-config-instituicao [class*="h-[80vh]"],
-.phanyx-config-instituicao [class*="h-full"][class*="w-full"] {
-  background-color: #ffffff !important;
-}
-
-/* CONFIG INSTITUIÇÃO - AJUSTES FINOS */
-
-/* Sistema: campos não devem ficar brancos */
 html[data-theme="system"] .phanyx-config-instituicao input,
 html[data-theme="system"] .phanyx-config-instituicao textarea,
 html[data-theme="system"] .phanyx-config-instituicao select {
@@ -1601,129 +1462,38 @@ html[data-theme="system"] .phanyx-config-instituicao select {
   border-color: #525252 !important;
 }
 
-/* Botões/cards selecionados não podem ficar brancos no escuro/sistema */
-html[data-theme="dark"] .phanyx-config-instituicao button.bg-white,
-html[data-theme="system"] .phanyx-config-instituicao button.bg-white,
-html[data-theme="dark"] .phanyx-config-instituicao .bg-white,
-html[data-theme="system"] .phanyx-config-instituicao .bg-white {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border-color: #475569 !important;
-}
-
-/* Cards de aviso/mensagem em escuro/sistema */
-html[data-theme="dark"] .phanyx-config-instituicao .bg-cyan-50,
-html[data-theme="system"] .phanyx-config-instituicao .bg-cyan-50,
-html[data-theme="dark"] .phanyx-config-instituicao .bg-blue-50,
-html[data-theme="system"] .phanyx-config-instituicao .bg-blue-50 {
-  background: #1e293b !important;
-  color: #dbeafe !important;
-  border-color: #475569 !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao .text-blue-900,
-html[data-theme="dark"] .phanyx-config-instituicao .text-blue-800,
-html[data-theme="system"] .phanyx-config-instituicao .text-blue-900,
-html[data-theme="system"] .phanyx-config-instituicao .text-blue-800 {
-  color: #93c5fd !important;
-}
-
-/* Pré-visualização: a folha deve ser sempre branca */
-.phanyx-config-instituicao .preview-papel,
-.phanyx-config-instituicao .papel-preview,
-.phanyx-config-instituicao .documento-preview {
+.phanyx-config-instituicao .cfg-layout-card {
+  border: 1px solid #cbd5e1 !important;
   background: #ffffff !important;
   color: #020617 !important;
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  text-align: left;
 }
 
-/* Dentro da prévia, textos escuros continuam visíveis */
-.phanyx-config-instituicao .preview-papel *,
-.phanyx-config-instituicao .papel-preview *,
-.phanyx-config-instituicao .documento-preview * {
-  color: inherit;
+.phanyx-config-instituicao .cfg-layout-card.ativo {
+  border-color: #2563eb !important;
+  background: #eff6ff !important;
 }
 
-/* CONFIG INSTITUIÇÃO - CARD SELECIONADO PAPEL */
-html[data-theme="dark"] .phanyx-config-instituicao .bg-white,
-html[data-theme="system"] .phanyx-config-instituicao .bg-white {
-  background: #0f172a !important;
-  color: #ffffff !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao .bg-white p,
-html[data-theme="dark"] .phanyx-config-instituicao .bg-white span,
-html[data-theme="system"] .phanyx-config-instituicao .bg-white p,
-html[data-theme="system"] .phanyx-config-instituicao .bg-white span {
-  color: #cbd5e1 !important;
-}
-
-/* CONFIG INSTITUIÇÃO - SISTEMA CINZA, NÃO AZUL */
-html[data-theme="system"] .phanyx-config-instituicao .rounded-2xl,
-html[data-theme="system"] .phanyx-config-instituicao .rounded-3xl {
+html[data-theme="dark"] .phanyx-config-instituicao .cfg-layout-card,
+html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card {
   background: #262626 !important;
-  border-color: #525252 !important;
-}
-
-/* Campos no sistema */
-html[data-theme="system"] .phanyx-config-instituicao input,
-html[data-theme="system"] .phanyx-config-instituicao textarea,
-html[data-theme="system"] .phanyx-config-instituicao select {
-  background: #1f1f1f !important;
   color: #ffffff !important;
   border-color: #525252 !important;
 }
 
-/* Botão/card selecionado não pode ficar branco no escuro/sistema */
-html[data-theme="dark"] .phanyx-config-instituicao button.bg-white,
-html[data-theme="system"] .phanyx-config-instituicao button.bg-white {
-  background: #0f172a !important;
-  color: #ffffff !important;
-  border-color: #475569 !important;
+html[data-theme="dark"] .phanyx-config-instituicao .cfg-layout-card.ativo,
+html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card.ativo {
+  background: #1f2937 !important;
+  border-color: #60a5fa !important;
 }
 
-html[data-theme="dark"] .phanyx-config-instituicao button.bg-white *,
-html[data-theme="system"] .phanyx-config-instituicao button.bg-white * {
-  color: #ffffff !important;
-}
-
-/* Preview do papel SEMPRE branco */
 .phanyx-config-instituicao .preview-papel {
   background: #ffffff !important;
-  background-color: #ffffff !important;
   color: #020617 !important;
 }
 
-.phanyx-config-instituicao .preview-papel .bg-white {
+.phanyx-config-instituicao .logo-preview-bg {
   background: #ffffff !important;
-  background-color: #ffffff !important;
-}
-
-.phanyx-config-instituicao .preview-papel .text-slate-800 {
-  color: #1e293b !important;
-}
-
-.phanyx-config-instituicao .preview-papel .text-slate-500 {
-  color: #64748b !important;
-}
-
-/* CONFIG INSTITUIÇÃO - SISTEMA FORÇADO CINZA */
-html[data-theme="system"] .phanyx-config-instituicao input,
-html[data-theme="system"] .phanyx-config-instituicao textarea,
-html[data-theme="system"] .phanyx-config-instituicao select {
-  background: #1f1f1f !important;
-  color: #ffffff !important;
-  border-color: #525252 !important;
-}
-
-/* CONFIG INSTITUIÇÃO - PRÉVIA PAPEL SEMPRE BRANCA */
-html[data-theme="dark"] .phanyx-config-instituicao .preview-papel,
-html[data-theme="system"] .phanyx-config-instituicao .preview-papel {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  color: #020617 !important;
-}
-
-html[data-theme="dark"] .phanyx-config-instituicao .preview-papel > div,
-html[data-theme="system"] .phanyx-config-instituicao .preview-papel > div {
-  background-color: #ffffff !important;
 }
