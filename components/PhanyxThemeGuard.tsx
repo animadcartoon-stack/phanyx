@@ -17,10 +17,11 @@ export default function PhanyxThemeGuard() {
     pathname.startsWith("/aluno");
 
   if (!rotaComTemaPrivado) {
-    root.dataset.theme = "light";
-    root.classList.remove("dark");
-    return;
-  }
+  root.removeAttribute("data-theme");
+  root.dataset.themeChoice = "public";
+  root.classList.remove("dark");
+  return;
+}
 
   const tema = (localStorage.getItem("phanyx_tema") as Tema) || "light";
 

@@ -14,11 +14,11 @@ function aplicarTema(tema: Tema) {
     rotaAtual.startsWith("/aluno");
 
   if (!rotaComTemaPrivado) {
-    root.dataset.theme = "light";
-    root.dataset.themeChoice = "light";
-    root.classList.remove("dark");
-    return;
-  }
+  root.removeAttribute("data-theme");
+  root.dataset.themeChoice = "public";
+  root.classList.remove("dark");
+  return;
+}
 
   const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const usarEscuro = tema === "dark" || (tema === "system" && prefereEscuro);
