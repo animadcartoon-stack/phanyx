@@ -433,9 +433,12 @@ async function enviarAssinaturaDiretor(file: File) {
   function renderPreviewPapelTimbrado() {
     if (modoLayout === "SIMPLES") {
   return (
-    <div className="preview-papel relative h-full w-full bg-white p-6">
+    <div
+  className="preview-papel relative h-full w-full p-6"
+  style={{ backgroundColor: "#ffffff", color: "#020617" }}
+>
       <div className="mb-6 flex items-center gap-2">
-        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border bg-white">
+        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-slate-200">
           {form.logoUrl ? (
             <img
               src={form.logoUrl}

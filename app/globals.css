@@ -1660,3 +1660,18 @@ html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card.ativo {
 .phanyx-config-instituicao .preview-papel .text-slate-400 {
   color: #475569 !important;
 }
+
+/* PREVIEW DO PAPEL - NÃO HERDAR TEMA */
+.phanyx-config-instituicao .preview-papel {
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+.phanyx-config-instituicao .preview-papel * {
+  color: inherit;
+}
+
+.phanyx-config-instituicao .preview-papel img,
+.phanyx-config-instituicao .preview-papel .logo-preview-bg {
+  background: transparent !important;
+}
