@@ -476,9 +476,9 @@ async function enviarAssinaturaDiretor(file: File) {
     if (layoutSelecionado === "PHANYX_MODERNO") {
       return (
         <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
-          <div className="absolute left-0 top-0 h-full w-5 bg-slate-900" />
-          <div className="absolute left-0 top-0 h-14 w-full bg-[#0e2f5a]" />
-          <div className="absolute bottom-0 right-0 h-5 w-[60%] bg-[#0e2f5a]" />
+          <div className="absolute left-0 top-0 h-full w-5 bg-slate-300" />
+          <div className="absolute left-0 top-0 h-14 w-full bg-slate-100" />
+          <div className="absolute bottom-0 right-0 h-5 w-[60%] bg-slate-200" />
           <div className="absolute bottom-0 right-[18%] h-3 w-[35%] bg-[#2b6cb0]" />
           <div className="absolute bottom-0 right-[8%] h-2 w-[22%] bg-[#63b3ed]" />
 
@@ -610,10 +610,10 @@ async function enviarAssinaturaDiretor(file: File) {
         <div className="relative h-full w-full bg-white">
           <div className="absolute left-0 top-0 h-full w-5 bg-slate-800" />
           <img
-            src={previewSrc}
-            alt="Prévia do papel timbrado"
-            className="absolute left-6 top-0 h-full w-[calc(100%-24px)] object-cover"
-          />
+  src={previewSrc}
+  alt="Prévia do papel timbrado"
+  className="absolute inset-0 m-auto max-h-[75%] max-w-[75%] object-contain opacity-15"
+/>
           <div className="absolute left-8 right-3 top-3 rounded-lg bg-white/85 p-2">
             {renderCabecalhoPreview()}
           </div>
