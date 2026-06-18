@@ -281,23 +281,23 @@ async function salvarResposta() {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {["Todos", "Aluno", "Professor", "Crítico", "Neutro", "Positivo", "Pendente", "Em análise", "Resolvido"].map(
-          (item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setFiltro(item)}
-              className={`rounded-full px-4 py-2 text-xs font-black ${
-                filtro === item
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {item}
-            </button>
-          )
-        )}
-      </div>
+  {["Todos", "Aluno", "Professor", "Crítico", "Neutro", "Positivo", "Pendente", "Em análise", "Resolvido"].map(
+    (item) => (
+      <button
+        key={item}
+        type="button"
+        onClick={() => setFiltro(item)}
+        className={`rounded-full px-4 py-2 text-xs font-black transition ${
+          filtro === item
+            ? "bg-blue-600 text-white"
+            : "border border-slate-300 bg-white text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+        }`}
+      >
+        {item}
+      </button>
+    )
+  )}
+</div>
 
       <div className="space-y-4">
 
