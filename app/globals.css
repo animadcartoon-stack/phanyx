@@ -1543,3 +1543,49 @@ html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card.ativo {
 .phanyx-config-instituicao .logo-preview-bg {
   background: #ffffff !important;
 }
+
+/* CONFIG INSTITUIÇÃO - REFORÇO FINAL */
+
+/* Sistema: campos cinza, não azul */
+html[data-theme="system"] .phanyx-config-instituicao input,
+html[data-theme="system"] .phanyx-config-instituicao textarea,
+html[data-theme="system"] .phanyx-config-instituicao select {
+  background-color: #262626 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+/* Textos azuis escuros dentro dos cards ficam legíveis */
+html[data-theme="dark"] .phanyx-config-instituicao .text-blue-900,
+html[data-theme="dark"] .phanyx-config-instituicao .text-blue-800,
+html[data-theme="system"] .phanyx-config-instituicao .text-blue-900,
+html[data-theme="system"] .phanyx-config-instituicao .text-blue-800 {
+  color: #93c5fd !important;
+}
+
+/* Cards de layout: textos internos legíveis */
+html[data-theme="dark"] .phanyx-config-instituicao .cfg-layout-card *,
+html[data-theme="system"] .phanyx-config-instituicao .cfg-layout-card * {
+  color: #ffffff !important;
+}
+
+/* Pré-visualização: a folha e o miolo devem ficar brancos */
+.phanyx-config-instituicao .preview-papel,
+.phanyx-config-instituicao .preview-papel > div {
+  background-color: #ffffff !important;
+  background-image: none !important;
+  color: #020617 !important;
+}
+
+/* Textos dentro da prévia precisam ser escuros */
+.phanyx-config-instituicao .preview-papel .text-slate-800,
+.phanyx-config-instituicao .preview-papel .text-slate-900,
+.phanyx-config-instituicao .preview-papel .font-semibold {
+  color: #020617 !important;
+}
+
+.phanyx-config-instituicao .preview-papel .text-slate-500,
+.phanyx-config-instituicao .preview-papel .text-slate-600 {
+  color: #475569 !important;
+}
