@@ -239,21 +239,53 @@ async function salvarResposta() {
     + Nova manifestação
   </button>
 </div>
-      <div className="rounded-3xl border bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 p-8 text-white shadow-2xl">
-        <p className="text-xs font-black uppercase tracking-[0.35em] text-cyan-300">
-          Painel executivo
-        </p>
+      <div
+  className="
+    rounded-3xl border p-8 shadow-2xl
+    border-slate-200
+    bg-gradient-to-br
+    from-blue-50
+    via-white
+    to-blue-100
 
-        <h2 className="mt-4 text-4xl font-black">
-          Ouvidoria conectada à Reputação IA
-        </h2>
+    dark:border-slate-700
+    dark:from-slate-950
+    dark:via-slate-900
+    dark:to-blue-950
+  "
+>
+  <p
+    className="
+      text-xs font-black uppercase tracking-[0.35em]
+      text-blue-700
+      dark:text-cyan-300
+    "
+  >
+    Painel executivo
+  </p>
 
-        <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300">
-          Reclamações internas, sugestões e elogios passam a alimentar o módulo
-          reputacional da instituição, ajudando a IA a identificar riscos,
-          gargalos e oportunidades de melhoria.
-        </p>
-      </div>
+  <h2
+    className="
+      mt-4 text-4xl font-black
+      text-slate-900
+      dark:text-white
+    "
+  >
+    Ouvidoria conectada à Reputação IA
+  </h2>
+
+  <p
+    className="
+      mt-4 max-w-3xl text-sm leading-7
+      text-slate-700
+      dark:text-slate-300
+    "
+  >
+    Reclamações internas, sugestões e elogios passam a alimentar o módulo
+    reputacional da instituição, ajudando a IA a identificar riscos,
+    gargalos e oportunidades de melhoria.
+  </p>
+</div>
 
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
