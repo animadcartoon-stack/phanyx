@@ -6,13 +6,27 @@ type Tema = "light" | "dark" | "system";
 
 function aplicarTema(tema: Tema) {
   const root = document.documentElement;
+  const rotaAtual = window.location.pathname;
+
+  const rotaComTemaPrivado =
+    rotaAtual.startsWith("/admin") ||
+    rotaAtual.startsWith("/professor") ||
+    rotaAtual.startsWith("/aluno");
+
+  if (!rotaComTemaPrivado) {
+    root.dataset.theme = "light";
+    root.dataset.themeChoice = "light";
+    root.classList.remove("dark");
+    return;
+  }
+
   const prefereEscuro = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const usarEscuro = tema === "dark" || (tema === "system" && prefereEscuro);
 
   root.dataset.theme = tema === "system" ? "system" : usarEscuro ? "dark" : "light";
   root.dataset.themeChoice = tema;
 
-  root.classList.toggle("dark", tema === "system" || usarEscuro);
+  root.classList.toggle("dark", usarEscuro);
 }
 
 export default function PhanyxThemeBoot() {
