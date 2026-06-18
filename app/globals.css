@@ -1273,80 +1273,6 @@ html[data-theme="system"] .phanyx-contratos-selecionar-aluno input::placeholder 
   color: #a3a3a3 !important;
 }
 
-/* OUVIDORIA */
-
-.phanyx-ouvidoria-card {
-  border-radius: 1rem;
-  padding: 1.25rem;
-  border: 1px solid #e2e8f0;
-  background: white;
-  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08);
-}
-
-.phanyx-ouvidoria-card p {
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  margin-bottom: 0.5rem;
-}
-
-.phanyx-ouvidoria-card h3 {
-  font-size: 2rem;
-  font-weight: 900;
-}
-
-.phanyx-ouvidoria-card.total p {
-  color: #64748b;
-}
-
-.phanyx-ouvidoria-card.criticos {
-  background: #fef2f2;
-  border-color: #fecaca;
-}
-
-.phanyx-ouvidoria-card.criticos p,
-.phanyx-ouvidoria-card.criticos h3 {
-  color: #991b1b;
-}
-
-.phanyx-ouvidoria-card.analise {
-  background: #fffbeb;
-  border-color: #fde68a;
-}
-
-.phanyx-ouvidoria-card.analise p,
-.phanyx-ouvidoria-card.analise h3 {
-  color: #92400e;
-}
-
-.phanyx-ouvidoria-card.resolvidos {
-  background: #ecfdf5;
-  border-color: #a7f3d0;
-}
-
-.phanyx-ouvidoria-card.resolvidos p,
-.phanyx-ouvidoria-card.resolvidos h3 {
-  color: #065f46;
-}
-
-/* DARK + SISTEMA */
-
-html.dark .phanyx-ouvidoria-card,
-[data-theme="dark"] .phanyx-ouvidoria-card,
-[data-theme="system"] .phanyx-ouvidoria-card {
-  background: #0f172a;
-  border-color: #334155;
-}
-
-html.dark .phanyx-ouvidoria-card p,
-html.dark .phanyx-ouvidoria-card h3,
-[data-theme="dark"] .phanyx-ouvidoria-card p,
-[data-theme="dark"] .phanyx-ouvidoria-card h3,
-[data-theme="system"] .phanyx-ouvidoria-card p,
-[data-theme="system"] .phanyx-ouvidoria-card h3 {
-  color: white;
-}
-
 /* OUVIDORIA - CORREÇÃO FINAL CARDS/FILTROS */
 
 .phanyx-ouvidoria-card.total {
@@ -1362,21 +1288,8 @@ html.dark .phanyx-ouvidoria-card h3,
   color: #020617 !important;
 }
 
-.phanyx-ouvidoria-filtros button {
-  background: #ffffff !important;
-  border: 1px solid #cbd5e1 !important;
-  color: #0f172a !important;
-}
-
-.phanyx-ouvidoria-filtros button.ativo {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-  color: #ffffff !important;
-}
-
 /* ESCURO */
-html[data-theme="dark"] .phanyx-ouvidoria-card,
-html.dark .phanyx-ouvidoria-card {
+html[data-theme="dark"] .phanyx-ouvidoria-card {
   background: #0f172a !important;
   border-color: #334155 !important;
 }
@@ -1385,13 +1298,6 @@ html[data-theme="dark"] .phanyx-ouvidoria-card p,
 html[data-theme="dark"] .phanyx-ouvidoria-card h3,
 html.dark .phanyx-ouvidoria-card p,
 html.dark .phanyx-ouvidoria-card h3 {
-  color: #ffffff !important;
-}
-
-html[data-theme="dark"] .phanyx-ouvidoria-filtros button,
-html.dark .phanyx-ouvidoria-filtros button {
-  background: #262626 !important;
-  border-color: #525252 !important;
   color: #ffffff !important;
 }
 
@@ -1406,14 +1312,6 @@ html[data-theme="system"] .phanyx-ouvidoria-card h3 {
   color: #ffffff !important;
 }
 
-html[data-theme="system"] .phanyx-ouvidoria-filtros button {
-  background: #262626 !important;
-  border-color: #525252 !important;
-  color: #ffffff !important;
-}
-
-html[data-theme="system"] .phanyx-ouvidoria-filtros button.ativo {
-  background: #2563eb !important;
-  border-color: #2563eb !important;
-  color: #ffffff !important;
+html[data-theme="light"] .admin-ouvidoria-filtros button:not(.ativo) {
+  color: #0f172a !important;
 }
