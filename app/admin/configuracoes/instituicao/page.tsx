@@ -433,7 +433,7 @@ async function enviarAssinaturaDiretor(file: File) {
   function renderPreviewPapelTimbrado() {
     if (layoutSelecionado === "PHANYX_MODERNO") {
       return (
-        <div className="relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-full w-5 bg-slate-900" />
           <div className="absolute left-0 top-0 h-14 w-full bg-[#0e2f5a]" />
           <div className="absolute bottom-0 right-0 h-5 w-[60%] bg-[#0e2f5a]" />
@@ -460,7 +460,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layoutSelecionado === "PHANYX_ACADEMICO") {
       return (
-        <div className="relative flex h-full w-full flex-col justify-between overflow-hidden bg-white px-5 py-4">
+        <div className="preview-papel relative flex h-full w-full flex-col justify-between overflow-hidden bg-white px-5 py-4">
           {form.logoUrl && (
             <img
               src={form.logoUrl}
@@ -504,7 +504,7 @@ async function enviarAssinaturaDiretor(file: File) {
 
     if (layoutSelecionado === "PHANYX_CLASSICO") {
       return (
-        <div className="relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-4 w-full bg-[#1b1b1b]" />
           <div className="absolute right-0 top-0 h-4 w-24 bg-[#1693d1]" />
           <div className="absolute bottom-0 left-0 h-14 w-full bg-[#1b1b1b]" />
@@ -648,7 +648,7 @@ async function enviarAssinaturaDiretor(file: File) {
   function renderMiniatura(layout: LayoutProfissional) {
     if (layout === "PHANYX_MODERNO") {
       return (
-        <div className="relative h-full w-full overflow-hidden bg-white">
+        <div className="preview-papel relative h-full w-full overflow-hidden bg-white">
           <div className="absolute left-0 top-0 h-full w-3 bg-slate-900" />
           <div className="absolute left-0 top-0 h-7 w-full bg-[#0e2f5a]" />
           <div className="absolute bottom-0 right-0 h-3 w-[55%] bg-[#0e2f5a]" />
@@ -1355,7 +1355,7 @@ async function enviarAssinaturaDiretor(file: File) {
                 </div>
 
                 <div className="flex justify-center">
-                  <div className="h-[297px] w-[210px] overflow-hidden rounded-lg border bg-white shadow-sm">
+                  <div className="preview-papel h-[297px] w-[210px] overflow-hidden rounded-lg border bg-white shadow-sm">
                     {renderPreviewPapelTimbrado()}
                   </div>
                 </div>

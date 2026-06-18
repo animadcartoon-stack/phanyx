@@ -1589,3 +1589,56 @@ html[data-theme="dark"] .phanyx-config-instituicao .bg-amber-50 {
 .phanyx-config-instituicao [class*="h-full"][class*="w-full"] {
   background-color: #ffffff !important;
 }
+
+/* CONFIG INSTITUIÇÃO - AJUSTES FINOS */
+
+/* Sistema: campos não devem ficar brancos */
+html[data-theme="system"] .phanyx-config-instituicao input,
+html[data-theme="system"] .phanyx-config-instituicao textarea,
+html[data-theme="system"] .phanyx-config-instituicao select {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+/* Botões/cards selecionados não podem ficar brancos no escuro/sistema */
+html[data-theme="dark"] .phanyx-config-instituicao button.bg-white,
+html[data-theme="system"] .phanyx-config-instituicao button.bg-white,
+html[data-theme="dark"] .phanyx-config-instituicao .bg-white,
+html[data-theme="system"] .phanyx-config-instituicao .bg-white {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+/* Cards de aviso/mensagem em escuro/sistema */
+html[data-theme="dark"] .phanyx-config-instituicao .bg-cyan-50,
+html[data-theme="system"] .phanyx-config-instituicao .bg-cyan-50,
+html[data-theme="dark"] .phanyx-config-instituicao .bg-blue-50,
+html[data-theme="system"] .phanyx-config-instituicao .bg-blue-50 {
+  background: #1e293b !important;
+  color: #dbeafe !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-instituicao .text-blue-900,
+html[data-theme="dark"] .phanyx-config-instituicao .text-blue-800,
+html[data-theme="system"] .phanyx-config-instituicao .text-blue-900,
+html[data-theme="system"] .phanyx-config-instituicao .text-blue-800 {
+  color: #93c5fd !important;
+}
+
+/* Pré-visualização: a folha deve ser sempre branca */
+.phanyx-config-instituicao .preview-papel,
+.phanyx-config-instituicao .papel-preview,
+.phanyx-config-instituicao .documento-preview {
+  background: #ffffff !important;
+  color: #020617 !important;
+}
+
+/* Dentro da prévia, textos escuros continuam visíveis */
+.phanyx-config-instituicao .preview-papel *,
+.phanyx-config-instituicao .papel-preview *,
+.phanyx-config-instituicao .documento-preview * {
+  color: inherit;
+}
