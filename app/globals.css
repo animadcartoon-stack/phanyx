@@ -1273,11 +1273,26 @@ html[data-theme="system"] .phanyx-contratos-selecionar-aluno input::placeholder 
   color: #a3a3a3 !important;
 }
 
-/* OUVIDORIA - CORREÇÃO FINAL CARDS/FILTROS */
+/* OUVIDORIA - FINAL */
 
-.phanyx-ouvidoria-card.total {
+.phanyx-ouvidoria-card {
+  border-radius: 1rem !important;
+  padding: 1.25rem !important;
+  border: 1px solid #e2e8f0 !important;
   background: #ffffff !important;
-  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.08) !important;
+}
+
+.phanyx-ouvidoria-card p {
+  font-size: 0.75rem !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.phanyx-ouvidoria-card h3 {
+  font-size: 2rem !important;
+  font-weight: 900 !important;
 }
 
 .phanyx-ouvidoria-card.total p {
@@ -1288,20 +1303,46 @@ html[data-theme="system"] .phanyx-contratos-selecionar-aluno input::placeholder 
   color: #020617 !important;
 }
 
-/* ESCURO */
+.phanyx-ouvidoria-card.criticos {
+  background: #fef2f2 !important;
+  border-color: #fecaca !important;
+}
+
+.phanyx-ouvidoria-card.criticos p,
+.phanyx-ouvidoria-card.criticos h3 {
+  color: #991b1b !important;
+}
+
+.phanyx-ouvidoria-card.analise {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+}
+
+.phanyx-ouvidoria-card.analise p,
+.phanyx-ouvidoria-card.analise h3 {
+  color: #92400e !important;
+}
+
+.phanyx-ouvidoria-card.resolvidos {
+  background: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+}
+
+.phanyx-ouvidoria-card.resolvidos p,
+.phanyx-ouvidoria-card.resolvidos h3 {
+  color: #065f46 !important;
+}
+
 html[data-theme="dark"] .phanyx-ouvidoria-card {
   background: #0f172a !important;
   border-color: #334155 !important;
 }
 
 html[data-theme="dark"] .phanyx-ouvidoria-card p,
-html[data-theme="dark"] .phanyx-ouvidoria-card h3,
-html.dark .phanyx-ouvidoria-card p,
-html.dark .phanyx-ouvidoria-card h3 {
+html[data-theme="dark"] .phanyx-ouvidoria-card h3 {
   color: #ffffff !important;
 }
 
-/* SISTEMA CINZA */
 html[data-theme="system"] .phanyx-ouvidoria-card {
   background: #262626 !important;
   border-color: #525252 !important;
