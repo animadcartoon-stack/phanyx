@@ -1656,3 +1656,52 @@ html[data-theme="system"] .phanyx-config-instituicao .bg-white p,
 html[data-theme="system"] .phanyx-config-instituicao .bg-white span {
   color: #cbd5e1 !important;
 }
+
+/* CONFIG INSTITUIÇÃO - SISTEMA CINZA, NÃO AZUL */
+html[data-theme="system"] .phanyx-config-instituicao .rounded-2xl,
+html[data-theme="system"] .phanyx-config-instituicao .rounded-3xl {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+/* Campos no sistema */
+html[data-theme="system"] .phanyx-config-instituicao input,
+html[data-theme="system"] .phanyx-config-instituicao textarea,
+html[data-theme="system"] .phanyx-config-instituicao select {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+/* Botão/card selecionado não pode ficar branco no escuro/sistema */
+html[data-theme="dark"] .phanyx-config-instituicao button.bg-white,
+html[data-theme="system"] .phanyx-config-instituicao button.bg-white {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-instituicao button.bg-white *,
+html[data-theme="system"] .phanyx-config-instituicao button.bg-white * {
+  color: #ffffff !important;
+}
+
+/* Preview do papel SEMPRE branco */
+.phanyx-config-instituicao .preview-papel {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #020617 !important;
+}
+
+.phanyx-config-instituicao .preview-papel .bg-white {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+}
+
+.phanyx-config-instituicao .preview-papel .text-slate-800 {
+  color: #1e293b !important;
+}
+
+.phanyx-config-instituicao .preview-papel .text-slate-500 {
+  color: #64748b !important;
+}
