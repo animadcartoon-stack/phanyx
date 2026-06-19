@@ -1816,3 +1816,55 @@ html[data-theme="light"] .phanyx-rh-ferias-page button.bg-blue-600 {
   background: #2563eb !important;
   color: #ffffff !important;
 }
+
+/* FIX LOCAL - PROFESSOR REUNIÕES */
+html[data-theme="light"] .professor-reunioes-fix h1 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .professor-reunioes-fix p {
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .professor-reunioes-fix h1,
+html[data-theme="system"] .professor-reunioes-fix h1 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .professor-reunioes-fix p,
+html[data-theme="system"] .professor-reunioes-fix p {
+  color: #cbd5e1 !important;
+}
+
+/* FIX LOCAL - DASHBOARD PROFESSOR */
+html[data-theme="light"] .professor-dashboard-fix h2,
+html[data-theme="light"] .professor-dashboard-fix h3,
+html[data-theme="light"] .professor-dashboard-fix strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .professor-dashboard-fix p,
+html[data-theme="light"] .professor-dashboard-fix span {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .professor-dashboard-fix a:not(.bg-blue-600) {
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix h2,
+html[data-theme="dark"] .professor-dashboard-fix h3,
+html[data-theme="dark"] .professor-dashboard-fix strong,
+html[data-theme="system"] .professor-dashboard-fix h2,
+html[data-theme="system"] .professor-dashboard-fix h3,
+html[data-theme="system"] .professor-dashboard-fix strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix p,
+html[data-theme="dark"] .professor-dashboard-fix span,
+html[data-theme="system"] .professor-dashboard-fix p,
+html[data-theme="system"] .professor-dashboard-fix span {
+  color: #cbd5e1 !important;
+}

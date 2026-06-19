@@ -93,7 +93,7 @@ export default function OuvidoriaProfessorPage() {
               Mensagem
             </label>
 
-           <textarea
+          <textarea
   value={mensagem}
   onChange={(e) => setMensagem(e.target.value)}
   rows={8}
@@ -105,22 +105,16 @@ export default function OuvidoriaProfessorPage() {
     bg-white
     p-4
     text-slate-900
-    shadow-sm
-    transition-all
+    shadow-md
     outline-none
     placeholder:text-slate-400
-
     hover:border-blue-400
-
     focus:border-blue-600
     focus:ring-4
     focus:ring-blue-100
-
     dark:border-slate-600
     dark:bg-slate-900
     dark:text-white
-    dark:placeholder:text-slate-400
-    dark:focus:ring-blue-900/30
   "
   placeholder="Descreva sua sugestão, elogio, reclamação ou relato..."
 />

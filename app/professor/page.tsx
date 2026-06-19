@@ -301,7 +301,7 @@ async function alterarFotoPerfil(file: File | null) {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-3">
-              <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm lg:col-span-2 ">
+              <div className="professor-dashboard-fix rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm lg:col-span-2">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="
@@ -403,7 +403,7 @@ async function alterarFotoPerfil(file: File | null) {
               </div>
 
               <div className="space-y-6">
-                <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm">
+                <div className="professor-dashboard-fix rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm">
   <h2 className="
   text-lg
   font-semibold
@@ -441,7 +441,7 @@ dark:hover:bg-[#222222]
                   </div>
                 </div>
 
-                <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm ">
+                <div className="professor-dashboard-fix rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm">
                   <h2 className="
   text-lg
   font-semibold
