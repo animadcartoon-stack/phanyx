@@ -302,12 +302,12 @@ export default function ProfessorReunioesClient() {
             }}
             className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
           >
-            <option value="SETOR" className="bg-slate-900 text-white">Setor</option>
-            <option value="TODA_EQUIPE" className="bg-slate-900 text-white">Toda equipe</option>
-            <option value="INDIVIDUAL" className="bg-slate-900 text-white">Individual</option>
-            <option value="TURMA" className="bg-slate-900 text-white">Turma</option>
-            <option value="CURSO" className="bg-slate-900 text-white">Curso</option>
-            <option value="TODOS_ALUNOS" className="bg-slate-900 text-white">Todos os alunos matriculados</option>
+            <option value="SETOR">Setor</option>
+<option value="TODA_EQUIPE">Toda equipe</option>
+<option value="INDIVIDUAL">Individual</option>
+<option value="TURMA">Turma</option>
+<option value="CURSO">Curso</option>
+<option value="TODOS_ALUNOS">Todos os alunos matriculados</option>
           </select>
 
           {publicoTipo === "SETOR" && (
