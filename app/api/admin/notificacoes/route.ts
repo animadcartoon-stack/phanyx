@@ -6,7 +6,16 @@ export async function GET() {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
+    const role = String(user?.role || "").toUpperCase();
+
+if (
+  !user ||
+  (
+    role !== "ADMIN" &&
+    role !== "SUPER_ADMIN" &&
+    user?.isMasterAdmin !== true
+  )
+) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
@@ -49,7 +58,16 @@ export async function POST(req: Request) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
+    const role = String(user?.role || "").toUpperCase();
+
+if (
+  !user ||
+  (
+    role !== "ADMIN" &&
+    role !== "SUPER_ADMIN" &&
+    user?.isMasterAdmin !== true
+  )
+) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
