@@ -84,6 +84,34 @@ export default function NotificacoesPage() {
     }
   }
 
+  async function abrirNotificacao(item: Notificacao) {
+  try {
+    await fetch("/api/admin/notificacoes", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        id: item.id,
+        lida: true,
+      }),
+    });
+
+    setNotificacoes((atual) =>
+      atual.map((n) =>
+        n.id === item.id ? { ...n, lida: true } : n
+      )
+    );
+
+    if (item.link) {
+      window.location.href = item.link;
+    }
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao abrir notificação.");
+  }
+}
+
   useEffect(() => {
     carregar();
   }, []);
@@ -271,17 +299,13 @@ export default function NotificacoesPage() {
                     </td>
 
                     <td className="p-3">
-                      {!item.lida && (
-                        <button
-                          onClick={() =>
-                            marcarComoLida(item.id)
-                          }
-                          className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-                        >
-                          Marcar como lida
-                        </button>
-                      )}
-                    </td>
+  <button
+    onClick={() => abrirNotificacao(item)}
+    className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+  >
+    Abrir
+  </button>
+</td>
                   </tr>
                 ))
               )}

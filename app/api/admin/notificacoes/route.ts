@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { gerarNotificacoesSistema } from "@/lib/notificacoes/gerarNotificacoesSistema";
 
 export async function GET() {
   try {
@@ -33,6 +34,8 @@ export async function GET() {
         { status: 400 }
       );
     }
+
+    await gerarNotificacoesSistema(usuarioBanco.instituicaoId);
 
     const notificacoes = await prisma.notificacao.findMany({
       where: {
