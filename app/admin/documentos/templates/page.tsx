@@ -1178,9 +1178,10 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
         "Content-Type": "application/json",
       },
       credentials: "include",
-      body: JSON.stringify({
+     body: JSON.stringify({
   tipo,
   conteudo: conteudoAtual,
+  formatoImpressao,
 }),
     });
 
