@@ -70,6 +70,7 @@ export default function Page() {
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [acaoId, setAcaoId] = useState<number | null>(null);
 
   const [funcionarioId, setFuncionarioId] = useState("");
   const [periodoAquisitivoInicio, setPeriodoAquisitivoInicio] = useState("");
@@ -187,6 +188,66 @@ async function carregarDados() {
     setAbonoPecuniario(false);
     setObservacoes("");
   }
+
+  async function arquivarFerias(id: number) {
+  try {
+    setAcaoId(id);
+    setErro("");
+    setMensagem("");
+
+    const res = await fetch(`/api/admin/rh/ferias/${id}/arquivar`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        motivo: "Arquivamento realizado pela tela de férias.",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao arquivar férias.");
+    }
+
+    setMensagem("Férias arquivadas com sucesso.");
+    await carregarDados();
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao arquivar férias.");
+  } finally {
+    setAcaoId(null);
+  }
+}
+
+async function cancelarFerias(id: number) {
+  try {
+    setAcaoId(id);
+    setErro("");
+    setMensagem("");
+
+    const res = await fetch(`/api/admin/rh/ferias/${id}/cancelar`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        motivo: "Cancelamento realizado pela tela de férias.",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao cancelar férias.");
+    }
+
+    setMensagem("Férias canceladas com sucesso.");
+    await carregarDados();
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao cancelar férias.");
+  } finally {
+    setAcaoId(null);
+  }
+}
 
   async function salvarFerias() {
     try {
@@ -451,19 +512,20 @@ if (!periodoGozoInicio || !periodoGozoFim) {
                 <th className="p-3">Dias</th>
                 <th className="p-3">Valor</th>
                 <th className="p-3">Status</th>
+                <th className="p-3">Ações</th>
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={6}>
+                  <td className="p-3 text-slate-500" colSpan={7}>
                     Carregando...
                   </td>
                 </tr>
               ) : ferias.length === 0 ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={6}>
+                  <td className="p-3 text-slate-500" colSpan={7}>
                     Nenhuma férias cadastrada.
                   </td>
                 </tr>
@@ -490,6 +552,29 @@ if (!periodoGozoInicio || !periodoGozoFim) {
                         {item.status}
                       </span>
                     </td>
+                    <td className="p-3">
+  <div className="flex flex-wrap gap-2">
+    <button
+      type="button"
+      onClick={() => arquivarFerias(item.id)}
+      disabled={acaoId === item.id}
+      className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+    >
+      {acaoId === item.id ? "Aguarde..." : "Arquivar"}
+    </button>
+
+    {item.status !== "CANCELADA" && (
+      <button
+        type="button"
+        onClick={() => cancelarFerias(item.id)}
+        disabled={acaoId === item.id}
+        className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
+      >
+        Cancelar
+      </button>
+    )}
+  </div>
+</td>
                   </tr>
                 ))
               )}
