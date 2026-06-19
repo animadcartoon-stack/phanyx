@@ -132,38 +132,21 @@ async function carregarDados() {
     setLoading(true);
     setErro("");
 
-    const [resFerias, resFuncionarios] = await Promise.all([
-      fetch("/api/admin/rh/ferias", {
-        credentials: "include",
-        cache: "no-store",
-      }),
-      fetch("/api/admin/funcionarios", {
-        credentials: "include",
-        cache: "no-store",
-      }),
-    ]);
-
-    const dataFerias = await lerJsonSeguro(
-      resFerias,
-      "/api/admin/rh/ferias"
-    );
+    const resFuncionarios = await fetch("/api/admin/funcionarios", {
+      credentials: "include",
+      cache: "no-store",
+    });
 
     const dataFuncionarios = await lerJsonSeguro(
       resFuncionarios,
       "/api/admin/funcionarios"
     );
 
-    if (!resFerias.ok) {
-      throw new Error(dataFerias?.error || "Erro ao carregar férias.");
-    }
-
     if (!resFuncionarios.ok) {
       throw new Error(
         dataFuncionarios?.error || "Erro ao carregar funcionários."
       );
     }
-
-    setFerias(Array.isArray(dataFerias) ? dataFerias : []);
 
     setFuncionarios(
       Array.isArray(dataFuncionarios)
@@ -172,6 +155,19 @@ async function carregarDados() {
         ? dataFuncionarios.funcionarios
         : []
     );
+
+    const resFerias = await fetch("/api/admin/rh/ferias", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const dataFerias = await lerJsonSeguro(resFerias, "/api/admin/rh/ferias");
+
+    if (!resFerias.ok) {
+      throw new Error(dataFerias?.error || "Erro ao carregar férias.");
+    }
+
+    setFerias(Array.isArray(dataFerias) ? dataFerias : []);
   } catch (error: any) {
     setErro(error?.message || "Erro ao carregar dados.");
   } finally {
@@ -198,6 +194,20 @@ async function carregarDados() {
       setErro("");
       setMensagem("");
 
+      if (!funcionarioId) {
+  setErro("Selecione um funcionário antes de programar as férias.");
+  return;
+}
+
+if (!periodoAquisitivoInicio || !periodoAquisitivoFim) {
+  setErro("Informe o período aquisitivo das férias.");
+  return;
+}
+
+if (!periodoGozoInicio || !periodoGozoFim) {
+  setErro("Informe o início e o fim das férias.");
+  return;
+}
       const res = await fetch("/api/admin/rh/ferias", {
         method: "POST",
         headers: {
@@ -239,7 +249,7 @@ async function carregarDados() {
   }
 
   return (
-    <div className="space-y-6 !text-slate-950 opacity-100 dark:!text-white">
+    <div className="phanyx-rh-ferias-page space-y-6 !text-slate-950 opacity-100 dark:!text-white">
       <div>
         <p className="text-sm font-bold uppercase text-blue-700 dark:text-blue-400">
           Departamento Pessoal

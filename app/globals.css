@@ -1735,3 +1735,27 @@ html[data-theme="system"] .phanyx-paper-surface {
 .phanyx-paper-surface .text-slate-600 {
   color: #64748b !important;
 }
+
+/* =========================================
+   RH - FÉRIAS
+========================================= */
+
+html[data-theme="light"] .phanyx-rh-ferias-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page h1,
+html[data-theme="light"] .phanyx-rh-ferias-page h2,
+html[data-theme="light"] .phanyx-rh-ferias-page h3,
+html[data-theme="light"] .phanyx-rh-ferias-page p,
+html[data-theme="light"] .phanyx-rh-ferias-page label,
+html[data-theme="light"] .phanyx-rh-ferias-page span {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page .text-slate-500,
+html[data-theme="light"] .phanyx-rh-ferias-page .text-slate-600,
+html[data-theme="light"] .phanyx-rh-ferias-page .text-gray-500 {
+  color: #475569 !important;
+}
