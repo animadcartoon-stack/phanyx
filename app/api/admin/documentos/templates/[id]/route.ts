@@ -109,10 +109,15 @@ export async function PATCH(
       body?.exigeAssinatura !== undefined
         ? Boolean(body.exigeAssinatura)
         : undefined;
-
+    const formatoImpressao =
+      body?.formatoImpressao !== undefined
+      ? body.formatoImpressao === "DUAS_VIAS_A4"
+      ? "DUAS_VIAS_A4"
+      : "A4_INTEIRA"
+    : undefined;
         const camposVisuais =
-  body?.camposVisuais !== undefined
-    ? Array.isArray(body.camposVisuais)
+      body?.camposVisuais !== undefined
+      ? Array.isArray(body.camposVisuais)
       ? body.camposVisuais
       : []
     : undefined;
@@ -127,8 +132,14 @@ export async function PATCH(
         ...(conteudo !== undefined ? { conteudo } : {}),
         ...(ativo !== undefined ? { ativo } : {}),
         ...(exigeAssinatura !== undefined
-          ? { exigeAssinatura }
-          : {}),
+  ? { exigeAssinatura }
+  : {}),
+...(formatoImpressao !== undefined
+  ? { formatoImpressao }
+  : {}),
+...(camposVisuais !== undefined
+  ? { camposVisuais }
+  : {}),
       },
     });
 

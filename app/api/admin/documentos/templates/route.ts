@@ -44,6 +44,12 @@ export async function POST(req: Request) {
     const conteudo = String(body?.conteudo || "").trim();
     const ativo = Boolean(body?.ativo ?? true);
     const exigeAssinatura = Boolean(body?.exigeAssinatura ?? false);
+
+    const formatoImpressao =
+        body?.formatoImpressao === "DUAS_VIAS_A4"
+    ? "DUAS_VIAS_A4"
+    : "A4_INTEIRA";
+
     const camposVisuais = Array.isArray(body?.camposVisuais)
   ? body.camposVisuais
   : [];
@@ -78,6 +84,7 @@ export async function POST(req: Request) {
         conteudo,
         ativo,
         exigeAssinatura,
+        formatoImpressao,
         camposVisuais,
         instituicaoId: user.instituicaoId,
       },

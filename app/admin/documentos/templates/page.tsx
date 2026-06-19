@@ -59,6 +59,7 @@ type TemplateDocumento = {
   conteudo: string;
   ativo: boolean;
   exigeAssinatura: boolean;
+  formatoImpressao?: "A4_INTEIRA" | "DUAS_VIAS_A4";
   camposVisuais?: CampoVisualContrato[] | null;
   criadoEm?: string;
   atualizadoEm?: string;
@@ -867,6 +868,7 @@ function AdminDocumentosTemplatesPage() {
   const [conteudo, setConteudo] = useState(MODELO_INICIAL_CONTRATO);
   const [ativo, setAtivo] = useState(true);
   const [exigeAssinatura, setExigeAssinatura] = useState(true);
+  const [formatoImpressao, setFormatoImpressao] = useState<"A4_INTEIRA" | "DUAS_VIAS_A4">("A4_INTEIRA");
   const [camposVisuais, setCamposVisuais] = useState<CampoVisualContrato[]>([]);
   const [configInstituicao, setConfigInstituicao] =
   useState<ConfiguracaoInstituicao | null>(null);
@@ -985,6 +987,7 @@ function inserirVariavelNoEditor(tag: string) {
     setConteudo(MODELO_INICIAL_CONTRATO);
     setAtivo(true);
     setExigeAssinatura(true);
+    setFormatoImpressao("A4_INTEIRA");
     setCamposVisuais([]);
   }
 
@@ -997,7 +1000,12 @@ function inserirVariavelNoEditor(tag: string) {
   setConteudo(template.conteudo || "");
   setAtivo(Boolean(template.ativo));
   setExigeAssinatura(Boolean(template.exigeAssinatura));
-  setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
+  setFormatoImpressao(
+  template.formatoImpressao === "DUAS_VIAS_A4"
+    ? "DUAS_VIAS_A4"
+    : "A4_INTEIRA"
+);
+setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais : []);
 
   setTimeout(() => {
     const editor = document.getElementById("editor-template-phanyx");
@@ -1037,6 +1045,7 @@ function inserirVariavelNoEditor(tag: string) {
         conteudo: conteudo.trim(),
         ativo,
         exigeAssinatura,
+        formatoImpressao,
         camposVisuais,
         
       };
@@ -2835,6 +2844,31 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
                   Exige assinatura
                 </label>
               </div>
+
+<div>
+  <label className="text-sm font-medium text-slate-900 dark:text-white">
+    Formato de impressão
+  </label>
+
+  <select
+    value={formatoImpressao}
+    onChange={(e) =>
+      setFormatoImpressao(
+        e.target.value === "DUAS_VIAS_A4"
+          ? "DUAS_VIAS_A4"
+          : "A4_INTEIRA"
+      )
+    }
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+  >
+    <option value="A4_INTEIRA">Folha inteira A4</option>
+    <option value="DUAS_VIAS_A4">2 vias na mesma folha A4</option>
+  </select>
+
+  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+    Use 2 vias para recibos, comprovantes, trancamentos e declarações simples.
+  </p>
+</div>
 
               <div className="rounded-2xl border bg-slate-50 p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">

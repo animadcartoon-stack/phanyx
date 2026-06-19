@@ -1377,11 +1377,15 @@ model DocumentoTemplate {
   contexto          String?
   conteudo          String
   camposVisuais     Json?
+
+  formatoImpressao  String                @default("A4_INTEIRA")
+
   ativo             Boolean               @default(true)
   exigeAssinatura   Boolean               @default(false)
   criadoEm          DateTime              @default(now())
   atualizadoEm      DateTime              @updatedAt
   instituicaoId     Int
+
   documentosGerados DocumentoGerado[]
   instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   DocumentoRH       DocumentoRH[]

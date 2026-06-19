@@ -87,6 +87,74 @@ function substituirExemplos(texto: string, config: any) {
   return final.replaceAll(/{{[^}]+}}/g, "-");
 }
 
+async function montarDuasViasA4(pdfBytesOriginais: Uint8Array) {
+  const finalDoc = await PDFDocument.create();
+  const font = await finalDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await finalDoc.embedFont(StandardFonts.HelveticaBold);
+
+  const [paginaOriginal] = await finalDoc.embedPdf(pdfBytesOriginais, [0]);
+
+  const pageWidth = 595.28;
+  const pageHeight = 841.89;
+  const metade = pageHeight / 2;
+
+  const page = finalDoc.addPage([pageWidth, pageHeight]);
+
+  const escala = 0.44;
+  const larguraVia = pageWidth * escala;
+  const alturaVia = pageHeight * escala;
+  const x = (pageWidth - larguraVia) / 2;
+
+  const yViaInstituicao = metade + (metade - alturaVia) / 2 - 8;
+  const yViaAluno = (metade - alturaVia) / 2 - 8;
+
+  page.drawText("VIA DA INSTITUIÇÃO", {
+    x: 40,
+    y: pageHeight - 28,
+    size: 9,
+    font: fontBold,
+    color: rgb(0.25, 0.25, 0.25),
+  });
+
+  page.drawPage(paginaOriginal, {
+    x,
+    y: yViaInstituicao,
+    width: larguraVia,
+    height: alturaVia,
+  });
+
+  page.drawLine({
+    start: { x: 30, y: metade },
+    end: { x: pageWidth - 30, y: metade },
+    thickness: 0.7,
+    color: rgb(0.7, 0.7, 0.7),
+  });
+
+  page.drawText("CORTE AQUI", {
+    x: pageWidth / 2 - 28,
+    y: metade + 7,
+    size: 7,
+    font,
+    color: rgb(0.45, 0.45, 0.45),
+  });
+
+  page.drawText("VIA DO ALUNO", {
+    x: 40,
+    y: metade - 28,
+    size: 9,
+    font: fontBold,
+    color: rgb(0.25, 0.25, 0.25),
+  });
+
+  page.drawPage(paginaOriginal, {
+    x,
+    y: yViaAluno,
+    width: larguraVia,
+    height: alturaVia,
+  });
+
+  return await finalDoc.save();
+}
 
 export async function POST(req: NextRequest) {
   const user = await getUserFromToken();
@@ -436,7 +504,17 @@ export async function POST(req: NextRequest) {
 
   const bytes = await pdfDoc.save();
 
-  return new NextResponse(Buffer.from(bytes), {
+const formatoImpressao =
+  body?.formatoImpressao === "DUAS_VIAS_A4"
+    ? "DUAS_VIAS_A4"
+    : "A4_INTEIRA";
+
+const bytesFinais =
+  formatoImpressao === "DUAS_VIAS_A4"
+    ? await montarDuasViasA4(bytes)
+    : bytes;
+
+return new NextResponse(Buffer.from(bytesFinais), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": "inline; filename=previa-template.pdf",
