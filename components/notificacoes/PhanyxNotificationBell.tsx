@@ -59,7 +59,7 @@ export default function PhanyxNotificationBell() {
       </button>
 
       {aberto && (
-        <div className="mt-3 w-80 rounded-2xl border border-slate-700 bg-slate-950 p-3 shadow-2xl">
+        <div className="mt-3 max-h-[420px] w-80 overflow-y-auto rounded-2xl border border-slate-700 bg-slate-950 p-3 shadow-2xl">
           <p className="mb-3 text-sm font-bold text-white">
             Notificações
           </p>
@@ -149,9 +149,10 @@ export default function PhanyxNotificationBell() {
   <button
     type="button"
     onClick={() => {
+      setAberto(false);
       window.location.href = "/admin/notificacoes";
     }}
-    className="w-full rounded-xl bg-slate-800 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+    className="w-full rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
   >
     Ver todas as notificações →
   </button>
