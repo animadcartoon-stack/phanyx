@@ -304,10 +304,19 @@ async function alterarFotoPerfil(file: File | null) {
               <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm lg:col-span-2 ">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    <h2 className="
+  text-lg
+  font-semibold
+  text-slate-900
+  dark:text-white
+">
                       Provas recentes
                     </h2>
-                    <p className="text-sm text-gray-500 dark:text-slate-400">
+                    <p className="
+  text-sm
+  text-slate-600
+  dark:text-slate-400
+">
                       Visão rápida das provas mais recentes do professor
                     </p>
                   </div>
@@ -395,7 +404,12 @@ async function alterarFotoPerfil(file: File | null) {
 
               <div className="space-y-6">
                 <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm">
-  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+  <h2 className="
+  text-lg
+  font-semibold
+  text-slate-900
+  dark:text-white
+">
     Atalhos
                   </h2>
 
@@ -409,15 +423,31 @@ async function alterarFotoPerfil(file: File | null) {
 
                     <a
                       href="/professor/provas"
-                      className="block rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
-                    >
+className="
+block
+rounded-lg
+border
+px-4
+py-3
+text-sm
+font-medium
+text-slate-700
+hover:bg-slate-50
+dark:text-slate-200
+dark:hover:bg-[#222222]
+"                    >
                       Gerenciar provas
                     </a>
                   </div>
                 </div>
 
                 <div className="rounded-2xl border bg-white phanyx-theme-card p-6 shadow-sm ">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h2 className="
+  text-lg
+  font-semibold
+  text-slate-900
+  dark:text-white
+">
                     Resumo acadêmico
                   </h2>
 

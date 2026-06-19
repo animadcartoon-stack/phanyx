@@ -69,7 +69,7 @@ export default function OuvidoriaProfessorPage() {
         </p>
       </div>
 
-      <div className="rounded-3xl border bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border bg-white p-6 shadow-sm phanyx-theme-card">
         <div className="space-y-5">
           <div>
             <label className="mb-2 block text-sm font-bold text-slate-700">
@@ -93,13 +93,37 @@ export default function OuvidoriaProfessorPage() {
               Mensagem
             </label>
 
-            <textarea
-              value={mensagem}
-              onChange={(e) => setMensagem(e.target.value)}
-              rows={8}
-              className="w-full rounded-xl border p-3"
-              placeholder="Descreva sua sugestão, elogio, reclamação ou relato..."
-            />
+           <textarea
+  value={mensagem}
+  onChange={(e) => setMensagem(e.target.value)}
+  rows={8}
+  className="
+    w-full
+    rounded-2xl
+    border-2
+    border-slate-300
+    bg-white
+    p-4
+    text-slate-900
+    shadow-sm
+    transition-all
+    outline-none
+    placeholder:text-slate-400
+
+    hover:border-blue-400
+
+    focus:border-blue-600
+    focus:ring-4
+    focus:ring-blue-100
+
+    dark:border-slate-600
+    dark:bg-slate-900
+    dark:text-white
+    dark:placeholder:text-slate-400
+    dark:focus:ring-blue-900/30
+  "
+  placeholder="Descreva sua sugestão, elogio, reclamação ou relato..."
+/>
           </div>
 
 {sucesso && (

@@ -250,9 +250,9 @@ export default function ProfessorReunioesClient() {
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
           📅 Reuniões
         </h1>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-          Agende reuniões por setor, equipe, participante individual, turma, curso ou todos os alunos.
-        </p>
+        <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
+  Agende reuniões por setor, equipe, participante individual, turma, curso ou todos os alunos.
+</p>
       </div>
 
       {mensagem && (
@@ -267,7 +267,7 @@ export default function ProfessorReunioesClient() {
         </div>
       )}
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md phanyx-theme-card">
         <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
           Nova reunião
         </h2>
@@ -423,7 +423,31 @@ export default function ProfessorReunioesClient() {
             value={descricao}
             onChange={(e) => setDescricao(e.target.value)}
             placeholder="Descrição"
-            className="md:col-span-2 min-h-28 rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none dark:border-slate-600 dark:bg-slate-950 dark:text-white"
+            className="
+md:col-span-2
+min-h-28
+rounded-2xl
+border-2
+border-slate-300
+bg-white
+px-4
+py-3
+text-slate-900
+shadow-sm
+transition-all
+outline-none
+
+hover:border-blue-400
+
+focus:border-blue-600
+focus:ring-4
+focus:ring-blue-100
+
+dark:border-slate-600
+dark:bg-slate-950
+dark:text-white
+dark:focus:ring-blue-900/30
+"
           />
         </div>
 
