@@ -43,6 +43,64 @@ export async function POST() {
       new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 7)
     );
 
+    const fimDeOntem = fimDoDia(
+  new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() - 1)
+);
+
+await prisma.feriasRH.updateMany({
+  where: {
+    instituicaoId: usuarioBanco.instituicaoId,
+    arquivada: false,
+    cancelada: false,
+    status: {
+      not: "CANCELADA",
+    },
+    dataFim: {
+      lte: fimDeOntem,
+    },
+  },
+  data: {
+    status: "CONCLUIDA",
+  },
+});
+
+await prisma.feriasRH.updateMany({
+  where: {
+    instituicaoId: usuarioBanco.instituicaoId,
+    arquivada: false,
+    cancelada: false,
+    status: {
+      notIn: ["CANCELADA", "CONCLUIDA"],
+    },
+    dataInicio: {
+      lte: fimDoDia(hoje),
+    },
+    dataFim: {
+      gte: hoje,
+    },
+  },
+  data: {
+    status: "EM_ANDAMENTO",
+  },
+});
+
+await prisma.feriasRH.updateMany({
+  where: {
+    instituicaoId: usuarioBanco.instituicaoId,
+    arquivada: false,
+    cancelada: false,
+    status: {
+      not: "CANCELADA",
+    },
+    dataInicio: {
+      gt: fimDoDia(hoje),
+    },
+  },
+  data: {
+    status: "AGENDADA",
+  },
+});
+
     const ferias = await prisma.feriasRH.findMany({
       where: {
         instituicaoId: usuarioBanco.instituicaoId,
