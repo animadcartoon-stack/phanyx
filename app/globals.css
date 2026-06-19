@@ -1906,14 +1906,6 @@ html[data-theme="system"] .aluno-reunioes-card {
 
 
 /* FIX LOCAL - ALUNO DASHBOARD HERO */
-html[data-theme="light"] .aluno-dashboard-hero h1,
-html[data-theme="light"] .aluno-dashboard-hero h2 {
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .aluno-dashboard-hero p {
-  color: #475569 !important;
-}
 
 html[data-theme="light"] .aluno-dashboard-hero .text-blue-700 {
   color: #2563eb !important;
@@ -1934,4 +1926,20 @@ html[data-theme="light"] .aluno-boletim-hero h1 {
 
 html[data-theme="light"] .aluno-boletim-hero p {
   color: #dbeafe !important;
+}
+
+/* FIX DEFINITIVO - ALUNO DASHBOARD HERO IGUAL NOS 3 TEMAS */
+.aluno-dashboard-hero,
+.aluno-dashboard-hero h1,
+.aluno-dashboard-hero h2 {
+  color: #ffffff !important;
+}
+
+.aluno-dashboard-hero p {
+  color: #dbeafe !important;
+}
+
+.aluno-dashboard-hero .text-blue-700,
+.aluno-dashboard-hero .text-blue-200 {
+  color: #93c5fd !important;
 }
