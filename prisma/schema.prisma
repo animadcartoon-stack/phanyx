@@ -1922,7 +1922,7 @@ model Notificacao {
 
   lida          Boolean  @default(false)
   criadoEm      DateTime @default(now())
-  atualizadoEm  DateTime @updatedAt
+  atualizadoEm  DateTime @default(now()) @updatedAt
 
   usuario     User?        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao? @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
