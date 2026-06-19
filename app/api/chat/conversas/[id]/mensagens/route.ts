@@ -98,9 +98,15 @@ const remetente = await prisma.user.findUnique({
   where: { id: user.id },
   select: {
     nome: true,
+    email: true,
     role: true,
   },
 });
+
+const nomeRemetente =
+  remetente?.nome?.trim() ||
+  remetente?.email?.split("@")[0] ||
+  "Usuário";
 
 await prisma.notificacao.createMany({
   data: participantes.map((participante) => ({
@@ -110,15 +116,15 @@ await prisma.notificacao.createMany({
     tipo: "CHAT",
     categoria: "CHAT",
 
-    titulo: `Nova mensagem de ${remetente?.nome || "Usuário"}`,
-    descricao: `${remetente?.nome || "Usuário"} enviou uma mensagem.`,
+    titulo: `Nova mensagem de ${nomeRemetente}`,
+    descricao: `${nomeRemetente} enviou uma mensagem.`,
 
     link: `/chat?conversaId=${conversaId}&nome=${encodeURIComponent(
-      remetente?.nome || "Usuário"
+      nomeRemetente
     )}&role=${encodeURIComponent(remetente?.role || "CHAT")}`,
 
     quantidade: 1,
-    chaveAgrupada: `CHAT_CONVERSA_${conversaId}_USUARIO_${participante.usuarioId}`,
+    chaveAgrupada: `CHAT_CONVERSA_${conversaId}_USUARIO_${participante.usuarioId}_${Date.now()}`,
 
     lida: false,
   })),
