@@ -96,7 +96,10 @@ export async function POST(
 
 const remetente = await prisma.user.findUnique({
   where: { id: user.id },
-  select: { nome: true },
+  select: {
+    nome: true,
+    role: true,
+  },
 });
 
 await prisma.notificacao.createMany({
@@ -110,7 +113,9 @@ await prisma.notificacao.createMany({
     titulo: `Nova mensagem de ${remetente?.nome || "Usuário"}`,
     descricao: `${remetente?.nome || "Usuário"} enviou uma mensagem.`,
 
-    link: `/admin?conversaId=${conversaId}`,
+    link: `/chat?conversaId=${conversaId}&nome=${encodeURIComponent(
+      remetente?.nome || "Usuário"
+    )}&role=${encodeURIComponent(remetente?.role || "CHAT")}`,
 
     quantidade: 1,
     chaveAgrupada: `CHAT_CONVERSA_${conversaId}_USUARIO_${participante.usuarioId}`,

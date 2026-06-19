@@ -101,29 +101,40 @@ export default function PhanyxNotificationBell() {
     );
 
     if (item.link?.includes("conversaId=")) {
-      const conversaId = Number(
-        item.link.split("conversaId=")[1]
-      );
+  const params = new URLSearchParams(item.link.split("?")[1] || "");
 
-      window.dispatchEvent(
-        new CustomEvent("phanyx:abrir-chat", {
-          detail: {
-            conversaId,
-            remetenteNome:
-              item.descricao?.replace(
-                " enviou uma mensagem",
-                ""
-              ) ||
-              item.titulo ||
-              "Conversa",
-            remetenteRole: item.tipo || "",
-          },
-        })
-      );
+  const conversaId = Number(params.get("conversaId"));
+  <div className="mb-1 flex items-center gap-2">
+  {!item.lida && (
+    <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
+  )}
 
-      setAberto(false);
-      return;
-    }
+  <p className="font-semibold text-white">
+    {item.titulo}
+  </p>
+</div>
+  const remetenteNome =
+    params.get("nome") ||
+    item.titulo.replace("Nova mensagem de ", "") ||
+    "Conversa";
+
+  const remetenteRole =
+    params.get("role") ||
+    "CHAT";
+
+  window.dispatchEvent(
+    new CustomEvent("phanyx:abrir-chat", {
+      detail: {
+        conversaId,
+        remetenteNome,
+        remetenteRole,
+      },
+    })
+  );
+
+  setAberto(false);
+  return;
+}
 
     if (item.link) {
       window.location.href = item.link;
