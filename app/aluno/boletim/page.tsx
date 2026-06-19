@@ -119,7 +119,7 @@ export default function AlunoBoletimPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-6xl space-y-6 p-6">
-        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
+        <section className="aluno-boletim-hero overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
           <div className="grid gap-8 px-6 py-8 md:px-8 lg:grid-cols-[1.3fr_0.8fr] lg:items-center">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-200">

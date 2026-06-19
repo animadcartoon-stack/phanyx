@@ -330,7 +330,7 @@ setTotalDisciplinasMatriculadas(total);
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 px-2 py-3 sm:space-y-6 sm:p-6">
-        <section className="overflow-hidden rounded-[30px] border border-slate-200 bg-white text-slate-900 shadow-sm dark:border-slate-800 dark:bg-gradient-to-r dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 dark:text-white">
+        <section className="aluno-dashboard-hero overflow-hidden rounded-[30px] border border-slate-200 bg-white text-slate-900 shadow-sm dark:border-slate-800 dark:bg-gradient-to-r dark:from-slate-950 dark:via-blue-950 dark:to-slate-900 dark:text-white">
           <div className="grid gap-6 px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.18em] text-blue-700 dark:text-blue-700 dark:text-blue-200">
@@ -431,7 +431,7 @@ setTotalDisciplinasMatriculadas(total);
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-white/10 dark:bg-white/10 dark:backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-2000">
+                <p className="text-xs uppercase tracking-[0.18em] text-blue-700 dark:text-blue-200">
                   Aproveitamento atual
                 </p>
                 <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">

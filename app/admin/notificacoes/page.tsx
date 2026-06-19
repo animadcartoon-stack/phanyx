@@ -22,6 +22,7 @@ export default function NotificacoesPage() {
   const [notificacoes, setNotificacoes] = useState<Notificacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [filtro, setFiltro] = useState("TODAS");
 
   async function carregar() {
     try {
@@ -104,6 +105,19 @@ export default function NotificacoesPage() {
     return unicas;
   }, [notificacoes]);
 
+  const notificacoesFiltradas = useMemo(() => {
+  if (filtro === "TODAS") return notificacoes;
+
+  if (filtro === "NAO_LIDAS") {
+    return notificacoes.filter((n) => !n.lida);
+  }
+
+  return notificacoes.filter(
+    (n) =>
+      String(n.categoria || n.tipo || "").toUpperCase() === filtro
+  );
+}, [notificacoes, filtro]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -163,6 +177,33 @@ export default function NotificacoesPage() {
           Notificações
         </h2>
 
+<div className="mt-4 flex flex-wrap gap-2">
+  {[
+    { chave: "TODAS", label: "Todas" },
+    { chave: "NAO_LIDAS", label: "Não lidas" },
+    { chave: "RH", label: "RH" },
+    { chave: "FINANCEIRO", label: "Financeiro" },
+    { chave: "ACADEMICO", label: "Acadêmico" },
+    { chave: "OUVIDORIA", label: "Ouvidoria" },
+    { chave: "CHAT", label: "Chat" },
+    { chave: "BIBLIOTECA", label: "Biblioteca" },
+  ].map((item) => (
+    <button
+      key={item.chave}
+      type="button"
+      onClick={() => setFiltro(item.chave)}
+      className={[
+        "rounded-full border px-4 py-2 text-sm font-semibold transition",
+        filtro === item.chave
+          ? "border-blue-600 bg-blue-600 text-white"
+          : "border-slate-300 bg-white text-slate-700 hover:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200",
+      ].join(" ")}
+    >
+      {item.label}
+    </button>
+  ))}
+</div>
+
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full">
             <thead>
@@ -186,7 +227,7 @@ export default function NotificacoesPage() {
                     Carregando...
                   </td>
                 </tr>
-              ) : notificacoes.length === 0 ? (
+              ) : notificacoesFiltradas.length === 0 ? (
                 <tr>
                   <td
                     colSpan={6}
@@ -196,7 +237,7 @@ export default function NotificacoesPage() {
                   </td>
                 </tr>
               ) : (
-                notificacoes.map((item) => (
+                notificacoesFiltradas.map((item) => (
                   <tr
                     key={item.id}
                     className="border-b border-slate-100 dark:border-slate-800"
