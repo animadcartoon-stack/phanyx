@@ -1238,6 +1238,20 @@ function trocarTipoDocumento(novoTipo: TipoDocumentoTemplate) {
   setTipo(novoTipo);
   setConteudo(templateInicialPorTipo(novoTipo));
 
+const tiposDuasVias = [
+  "DECLARACAO",
+  "RECIBO",
+  "COMPROVANTE",
+  "TRANCAMENTO",
+  "COMPARECIMENTO",
+];
+
+setFormatoImpressao(
+  tiposDuasVias.includes(novoTipo)
+    ? "DUAS_VIAS_A4"
+    : "A4_INTEIRA"
+);
+
   if (ehTipoRh(novoTipo)) {
     setContexto("FUNCIONARIO");
   } else {
