@@ -117,34 +117,53 @@ export async function POST(req: Request) {
       );
     }
 
-    const ferias = await prisma.feriasRH.create({
-      data: {
-        funcionarioId,
-        instituicaoId: user.instituicaoId,
+   const ferias = await prisma.$transaction(async (tx) => {
+  const novaFerias = await tx.feriasRH.create({
+    data: {
+      funcionarioId,
+      instituicaoId: user.instituicaoId,
 
-        periodoAquisitivoInicio,
-        periodoAquisitivoFim,
-        dataInicio: periodoGozoInicio,
-dataFim: periodoGozoFim,
-dias,
+      periodoAquisitivoInicio,
+      periodoAquisitivoFim,
+      dataInicio: periodoGozoInicio,
+      dataFim: periodoGozoFim,
+      dias,
 
-dataPagamento,
-dataRetorno,
+      dataPagamento,
+      dataRetorno,
 
-abonoPecuniario: Boolean(body?.abonoPecuniario ?? false),
+      abonoPecuniario: Boolean(body?.abonoPecuniario ?? false),
 
-valorFerias: parseDecimal(body?.valorFerias),
-valorTercoConstitucional: parseDecimal(body?.valorTercoConstitucional),
-valorLiquidoFerias: parseDecimal(body?.valorLiquidoFerias),
+      valorFerias: parseDecimal(body?.valorFerias),
+      valorTercoConstitucional: parseDecimal(body?.valorTercoConstitucional),
+      valorLiquidoFerias: parseDecimal(body?.valorLiquidoFerias),
 
-status: String(body?.status || "AGENDADA"),
-        observacoes: body?.observacoes ? String(body.observacoes).trim() : null,
+      status: String(body?.status || "AGENDADA"),
+      observacoes: body?.observacoes ? String(body.observacoes).trim() : null,
 
-        criadoPorId: user.id,
-      },
-    });
+      criadoPorId: user.id,
+    },
+  });
 
-    return NextResponse.json(ferias, { status: 201 });
+  await tx.historicoRH.create({
+    data: {
+      funcionarioId,
+      instituicaoId: user.instituicaoId,
+      criadoPorId: user.id,
+      tipo: "FERIAS",
+      titulo: "Férias programadas",
+      descricao: `Férias programadas de ${periodoGozoInicio.toLocaleDateString(
+        "pt-BR"
+      )} até ${periodoGozoFim.toLocaleDateString("pt-BR")}.`,
+      dataEvento: new Date(),
+      observacoes: body?.observacoes ? String(body.observacoes).trim() : null,
+    },
+  });
+
+  return novaFerias;
+});
+
+return NextResponse.json(ferias, { status: 201 });
   } catch (error: any) {
     console.error("Erro ao criar férias RH:", error);
     return NextResponse.json(
