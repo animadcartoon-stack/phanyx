@@ -1868,3 +1868,13 @@ html[data-theme="system"] .professor-dashboard-fix p,
 html[data-theme="system"] .professor-dashboard-fix span {
   color: #cbd5e1 !important;
 }
+
+/* FIX LOCAL - TÍTULOS PROFESSOR REUNIÕES */
+html[data-theme="light"] .phanyx-reunioes-titulo {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-reunioes-titulo,
+html[data-theme="system"] .phanyx-reunioes-titulo {
+  color: #ffffff !important;
+}

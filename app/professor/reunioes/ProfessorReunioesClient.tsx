@@ -268,9 +268,9 @@ export default function ProfessorReunioesClient() {
       )}
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-md phanyx-theme-card">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
-          Nova reunião
-        </h2>
+        <h2 className="phanyx-reunioes-titulo mb-4 text-lg font-semibold">
+  Nova reunião
+</h2>
 
         <div className="grid gap-4 md:grid-cols-2">
           <input
@@ -461,9 +461,9 @@ dark:focus:ring-blue-900/30
       </div>
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
-          Reuniões agendadas
-        </h2>
+        <h2 className="phanyx-reunioes-titulo mb-4 text-lg font-semibold">
+  Reuniões agendadas
+</h2>
 
         <div className="space-y-3">
           {reunioes.map((reuniao) => (
