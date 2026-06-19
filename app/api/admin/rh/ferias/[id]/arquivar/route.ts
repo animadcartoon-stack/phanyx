@@ -34,19 +34,38 @@ export async function PATCH(
       );
     }
 
-    const atualizada = await prisma.feriasRH.update({
-      where: { id },
-      data: {
-        arquivada: true,
-        arquivadaEm: new Date(),
-        arquivadaPorId: user.id,
-        motivoArquivo: body?.motivo
-          ? String(body.motivo).trim()
-          : "Arquivamento realizado pelo Admin.",
-      },
-    });
+    const atualizada = await prisma.$transaction(async (tx) => {
+  const feriasArquivada = await tx.feriasRH.update({
+    where: { id },
+    data: {
+      arquivada: true,
+      arquivadaEm: new Date(),
+      arquivadaPorId: user.id,
+      motivoArquivo: body?.motivo
+        ? String(body.motivo).trim()
+        : "Arquivamento realizado pelo Admin.",
+    },
+  });
 
-    return NextResponse.json(atualizada);
+  await tx.historicoRH.create({
+    data: {
+      funcionarioId: ferias.funcionarioId,
+      instituicaoId: user.instituicaoId,
+      criadoPorId: user.id,
+      tipo: "FERIAS",
+      titulo: "Férias arquivadas",
+      descricao: "Registro de férias arquivado.",
+      dataEvento: new Date(),
+      observacoes: body?.motivo
+        ? String(body.motivo).trim()
+        : "Arquivamento realizado pelo Admin.",
+    },
+  });
+
+  return feriasArquivada;
+});
+
+return NextResponse.json(atualizada);
   } catch (error: any) {
     console.error("Erro ao arquivar férias RH:", error);
     return NextResponse.json(

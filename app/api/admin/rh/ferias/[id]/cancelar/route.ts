@@ -34,20 +34,39 @@ export async function PATCH(
       );
     }
 
-    const atualizada = await prisma.feriasRH.update({
-      where: { id },
-      data: {
-        cancelada: true,
-        canceladaEm: new Date(),
-        canceladaPorId: user.id,
-        motivoCancelamento: body?.motivo
-          ? String(body.motivo).trim()
-          : "Cancelamento realizado pelo Admin.",
-        status: "CANCELADA",
-      },
-    });
+    const atualizada = await prisma.$transaction(async (tx) => {
+  const feriasCancelada = await tx.feriasRH.update({
+    where: { id },
+    data: {
+      cancelada: true,
+      canceladaEm: new Date(),
+      canceladaPorId: user.id,
+      motivoCancelamento: body?.motivo
+        ? String(body.motivo).trim()
+        : "Cancelamento realizado pelo Admin.",
+      status: "CANCELADA",
+    },
+  });
 
-    return NextResponse.json(atualizada);
+  await tx.historicoRH.create({
+    data: {
+      funcionarioId: ferias.funcionarioId,
+      instituicaoId: user.instituicaoId,
+      criadoPorId: user.id,
+      tipo: "FERIAS",
+      titulo: "Férias canceladas",
+      descricao: "Registro de férias cancelado.",
+      dataEvento: new Date(),
+      observacoes: body?.motivo
+        ? String(body.motivo).trim()
+        : "Cancelamento realizado pelo Admin.",
+    },
+  });
+
+  return feriasCancelada;
+});
+
+return NextResponse.json(atualizada);
   } catch (error: any) {
     console.error("Erro ao cancelar férias RH:", error);
     return NextResponse.json(
