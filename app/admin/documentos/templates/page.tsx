@@ -91,8 +91,6 @@ const TIPOS_DOCUMENTO: Array<{
   { value: "COMPARECIMENTO", label: "Comparecimento" },
   { value: "HISTORICO", label: "Histórico acadêmico" },
 
-  { value: "HOLERITE", label: "RH - Holerite" },
-
   { value: "DOCUMENTO_RH", label: "RH - Documento geral" },
   { value: "CONTRATO_TRABALHO", label: "RH - Contrato de trabalho" },
   { value: "CONTRATO_EXPERIENCIA", label: "RH - Contrato de experiência" },
