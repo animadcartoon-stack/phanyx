@@ -19,9 +19,9 @@ export default function PhanyxNotificationBell() {
 
   async function carregar() {
     try {
-      const res = await fetch("/api/admin/notificacoes", {
-        credentials: "include",
-      });
+      const res = await fetch("/api/notificacoes", {
+  credentials: "include",
+});
 
       const data = await res.json();
 
@@ -80,7 +80,7 @@ export default function PhanyxNotificationBell() {
   type="button"
  onClick={async () => {
   try {
-    await fetch("/api/admin/notificacoes", {
+    await fetch("/api/notificacoes", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
