@@ -131,6 +131,7 @@ model Instituicao {
   motivoIsencao             String?
   EntregaAtividadeHistorico EntregaAtividadeHistorico[]
   documentosProfessor       DocumentoProfessor[]
+  notificacoes              Notificacao[]
 }
 
 model User {
@@ -1903,21 +1904,36 @@ model ChatPresenca {
 }
 
 model Notificacao {
-  id        Int      @id @default(autoincrement())
-  usuarioId Int
-  tipo      String
-  titulo    String
-  descricao String?
-  link      String?
-  lida      Boolean  @default(false)
-  criadoEm  DateTime @default(now())
+  id            Int      @id @default(autoincrement())
 
-  usuario User @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuarioId     Int?
+  instituicaoId Int?
+
+  tipo          String
+  categoria     String?  @default("SISTEMA")
+
+  titulo        String
+  descricao     String?
+  link          String?
+
+  quantidade    Int      @default(1)
+
+  chaveAgrupada String?
+
+  lida          Boolean  @default(false)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  usuario     User?        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  instituicao Instituicao? @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   @@index([usuarioId])
+  @@index([instituicaoId])
   @@index([tipo])
+  @@index([categoria])
   @@index([lida])
   @@index([criadoEm])
+  @@index([chaveAgrupada])
 }
 
 model Reuniao {
