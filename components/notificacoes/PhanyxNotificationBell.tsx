@@ -144,6 +144,19 @@ export default function PhanyxNotificationBell() {
               )}
             </button>
           ))}
+
+<div className="mt-3 border-t border-slate-800 pt-3">
+  <button
+    type="button"
+    onClick={() => {
+      window.location.href = "/admin/notificacoes";
+    }}
+    className="w-full rounded-xl bg-slate-800 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-700"
+  >
+    Ver todas as notificações →
+  </button>
+</div>
+
         </div>
       )}
     </div>
