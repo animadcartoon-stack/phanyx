@@ -554,26 +554,44 @@ if (!periodoGozoInicio || !periodoGozoFim) {
                     </td>
                     <td className="p-3">
   <div className="flex flex-wrap gap-2">
+  <a
+    href={`/api/admin/rh/ferias/${item.id}/aviso`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="rounded-lg border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+  >
+    Aviso
+  </a>
+
+  <a
+    href={`/api/admin/rh/ferias/${item.id}/recibo`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="rounded-lg border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-950/40"
+  >
+    Recibo
+  </a>
+
+  <button
+    type="button"
+    onClick={() => arquivarFerias(item.id)}
+    disabled={acaoId === item.id}
+    className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+  >
+    {acaoId === item.id ? "Aguarde..." : "Arquivar"}
+  </button>
+
+  {item.status !== "CANCELADA" && (
     <button
       type="button"
-      onClick={() => arquivarFerias(item.id)}
+      onClick={() => cancelarFerias(item.id)}
       disabled={acaoId === item.id}
-      className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+      className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
     >
-      {acaoId === item.id ? "Aguarde..." : "Arquivar"}
+      Cancelar
     </button>
-
-    {item.status !== "CANCELADA" && (
-      <button
-        type="button"
-        onClick={() => cancelarFerias(item.id)}
-        disabled={acaoId === item.id}
-        className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
-      >
-        Cancelar
-      </button>
-    )}
-  </div>
+  )}
+</div>
 </td>
                   </tr>
                 ))
