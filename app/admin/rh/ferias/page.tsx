@@ -225,7 +225,7 @@ export default function Page() {
           Departamento Pessoal
         </p>
         <h1 className="text-3xl font-bold">Férias</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-300">
+        <p className="text-sm text-slate-700 dark:text-slate-300">
           Programe férias, calcule valores e prepare documentos para assinatura.
         </p>
       </div>
@@ -243,23 +243,23 @@ export default function Page() {
       )}
 
       <div className="grid gap-4 md:grid-cols-4">
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Total</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-sm text-slate-700 dark:text-slate-300">Total</p>
           <p className="text-2xl font-bold">{resumo.total}</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Agendadas</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-sm text-slate-700 dark:text-slate-300">Agendadas</p>
           <p className="text-2xl font-bold">{resumo.agendadas}</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Em andamento</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-sm text-slate-700 dark:text-slate-300">Em andamento</p>
           <p className="text-2xl font-bold">{resumo.andamento}</p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-          <p className="text-sm text-slate-500 dark:text-slate-400">Concluídas</p>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-sm text-slate-700 dark:text-slate-300">Concluídas</p>
           <p className="text-2xl font-bold">{resumo.concluidas}</p>
         </div>
       </div>
@@ -376,18 +376,18 @@ export default function Page() {
         </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
-          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-950">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Valor férias</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            <p className="text-sm text-slate-700 dark:text-slate-300">Valor férias</p>
             <p className="text-xl font-bold">{moeda(valorFerias)}</p>
           </div>
 
-          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-950">
-            <p className="text-sm text-slate-500 dark:text-slate-400">1/3 constitucional</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            <p className="text-sm text-slate-700 dark:text-slate-300">1/3 constitucional</p>
             <p className="text-xl font-bold">{moeda(valorTercoConstitucional)}</p>
           </div>
 
-          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-950">
-            <p className="text-sm text-slate-500 dark:text-slate-400">Total estimado</p>
+          <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+            <p className="text-sm text-slate-700 dark:text-slate-300">Total estimado</p>
             <p className="text-xl font-bold">{moeda(valorLiquidoFerias)}</p>
           </div>
         </div>
