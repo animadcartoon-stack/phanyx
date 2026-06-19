@@ -97,10 +97,10 @@ export default function ChatGlobalWidget() {
     setModoNovaConversa(false);
 
     setConversaAberta({
-      id: conversaId,
-      nome: "Conversa",
-      role: "",
-    });
+  id: conversaId,
+  nome: event.detail?.remetenteNome || "Conversa",
+  role: event.detail?.remetenteRole || "",
+});
 
     carregarMensagens(conversaId);
   }

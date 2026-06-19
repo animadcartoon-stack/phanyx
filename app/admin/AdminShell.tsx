@@ -81,23 +81,8 @@ setTimeout(() => {
 
   const [notificacoesAberto, setNotificacoesAberto] = useState(false);
 
-const notificacoesAdmin = [
-  {
-    titulo: "Nova manifestação na Ouvidoria",
-    descricao: "Clique para acompanhar sugestões, elogios e reclamações.",
-    link: "/admin/ouvidoria",
-    emoji: "📣",
-    importante: true,
-  },
-  {
-    titulo: "Reputação atualizada",
-    descricao: "Novos sinais reputacionais foram processados.",
-    link: "/admin/integracoes/reputacao",
-    emoji: "⭐",
-    importante: false,
-  },
-];
-
+  const [notificacoesAdmin, setNotificacoesAdmin] = useState<any[]>([]);
+  const [totalNaoLidas, setTotalNaoLidas] = useState(0);
   const [menuAberto, setMenuAberto] = useState<string | null>(
   descobrirMenuInicial()
 );
@@ -215,6 +200,11 @@ try {
     }
 
     carregarUsuario();
+carregarNotificacoes();
+
+const intervaloNotificacoes = setInterval(carregarNotificacoes, 30000);
+
+return () => clearInterval(intervaloNotificacoes);
   }, []);
 
   async function handleLogout() {
@@ -224,6 +214,25 @@ try {
 
     router.push("/login");
   }
+
+  async function carregarNotificacoes() {
+  try {
+    const res = await fetch("/api/admin/notificacoes", {
+      cache: "no-store",
+      credentials: "include",
+    });
+
+    if (!res.ok) return;
+
+    const data = await res.json();
+
+    setNotificacoesAdmin(Array.isArray(data.notificacoes) ? data.notificacoes : []);
+    setTotalNaoLidas(Number(data.totalNaoLidas || 0));
+  } catch {
+    setNotificacoesAdmin([]);
+    setTotalNaoLidas(0);
+  }
+}
 
   function toggleMenu(menu: string) {
     setMenuAberto((atual) => (atual === menu ? null : menu));
@@ -1046,9 +1055,9 @@ function abrirTourAdmin() {
         >
           🔔
 
-          {notificacoesAdmin.length > 0 && (
+          {totalNaoLidas > 0 && (
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[11px] font-black text-white">
-              {notificacoesAdmin.length}
+              {totalNaoLidas}
             </span>
           )}
         </button>

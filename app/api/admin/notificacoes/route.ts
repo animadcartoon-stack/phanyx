@@ -11,14 +11,31 @@ export async function GET() {
     }
 
     const notificacoes = await prisma.notificacao.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-      },
-      orderBy: [{ lida: "asc" }, { criadoEm: "desc" }],
-      take: 100,
-    });
+  where: {
+    OR: [
+      { instituicaoId: user.instituicaoId },
+      { usuarioId: user.id },
+    ],
+  },
+  orderBy: [{ lida: "asc" }, { criadoEm: "desc" }],
+  take: 20,
+});
 
-    return NextResponse.json(notificacoes);
+const totalNaoLidas = await prisma.notificacao.count({
+  where: {
+    OR: [
+      { instituicaoId: user.instituicaoId },
+      { usuarioId: user.id },
+    ],
+    lida: false,
+  },
+});
+
+return NextResponse.json({
+  notificacoes,
+  totalNaoLidas,
+});
+
   } catch (error: any) {
     console.error("Erro ao listar notificações:", error);
     return NextResponse.json(

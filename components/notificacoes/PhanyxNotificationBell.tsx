@@ -19,7 +19,7 @@ export default function PhanyxNotificationBell() {
 
   async function carregar() {
     try {
-      const res = await fetch("/api/notificacoes", {
+      const res = await fetch("/api/admin/notificacoes", {
         credentials: "include",
       });
 
@@ -74,19 +74,31 @@ export default function PhanyxNotificationBell() {
             <button
   key={item.id}
   type="button"
-  onClick={() => {
-    if (item.link?.includes("conversaId=")) {
-      const conversaId = Number(item.link.split("conversaId=")[1]);
+ onClick={() => {
+  if (item.link?.includes("conversaId=")) {
+    const conversaId = Number(item.link.split("conversaId=")[1]);
 
-      window.dispatchEvent(
-        new CustomEvent("phanyx:abrir-chat", {
-          detail: { conversaId },
-        })
-      );
+    window.dispatchEvent(
+      new CustomEvent("phanyx:abrir-chat", {
+        detail: {
+          conversaId,
+          remetenteNome:
+            item.descricao?.replace(" enviou uma mensagem", "") ||
+            item.titulo ||
+            "Conversa",
+          remetenteRole: item.tipo || "",
+        },
+      })
+    );
 
-      setAberto(false);
-    }
-  }}
+    setAberto(false);
+    return;
+  }
+
+  if (item.link) {
+    window.location.href = item.link;
+  }
+}}
   className="mb-2 w-full rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
 >
               <p className="font-semibold text-white">
