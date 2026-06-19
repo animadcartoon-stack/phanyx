@@ -27,7 +27,11 @@ export default function PhanyxNotificationBell() {
 
       if (!res.ok) return;
 
-      setNotificacoes(data.notificacoes || []);
+      setNotificacoes(
+  (data.notificacoes || []).filter(
+    (n: any) => !n.lida
+  )
+);
       setTotalNaoLidas(data.totalNaoLidas || 0);
     } catch (error) {
       console.error(error);
