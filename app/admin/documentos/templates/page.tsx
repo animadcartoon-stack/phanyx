@@ -875,6 +875,16 @@ function AdminDocumentosTemplatesPage() {
 
   const editorRef = useRef<HTMLDivElement | null>(null);
 
+  const tiposEstruturados = [
+  "HISTORICO",
+  "CERTIFICADO",
+  "DECLARACAO_MATRICULA",
+  "DECLARACAO_CONCLUSAO",
+  "ATA",
+];
+
+const usaModoGuiado = tiposEstruturados.includes(tipo);
+
 function atualizarConteudoEditor() {
   if (!editorRef.current) return;
   setConteudo(editorRef.current.innerHTML);
@@ -2975,6 +2985,62 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
         Modelo visual do Histórico Acadêmico
       </h3>
 
+<div className="mt-6 mx-auto max-w-3xl rounded-xl border bg-white p-6 text-black">
+
+  <div className="border p-4">
+    <div className="font-bold">
+      CABEÇALHO INSTITUCIONAL
+    </div>
+    <div className="text-sm text-slate-600">
+      Logo + Dados da instituição
+    </div>
+  </div>
+
+  <div className="mt-4 border p-4 text-center font-bold">
+    HISTÓRICO ACADÊMICO
+  </div>
+
+  <div className="mt-4 border">
+    <div className="border-b bg-slate-100 p-2 font-semibold">
+      DADOS DO ALUNO
+    </div>
+
+    <div className="p-3 text-sm">
+      Nome, CPF, Matrícula,
+      Situação Acadêmica
+    </div>
+  </div>
+
+  <div className="mt-4 border">
+    <div className="border-b bg-slate-100 p-2 font-semibold">
+      COMPONENTES CURRICULARES
+    </div>
+
+    <div className="p-3 text-sm">
+      Tabela de disciplinas
+    </div>
+  </div>
+
+  <div className="mt-4 border p-4 text-center">
+    Assinatura Institucional
+  </div>
+
+</div>
+
+<details className="mt-4">
+  <summary className="cursor-pointer font-medium">
+    Mostrar código avançado do template
+  </summary>
+
+  <div className="mt-3">
+    <EditorTemplatePHANYX
+      key={editingId ?? "novo"}
+      value={conteudo}
+      onChange={setConteudo}
+    />
+  </div>
+</details>
+
       <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
         O histórico usa um layout acadêmico estruturado. As seções abaixo serão convertidas automaticamente em caixas, tabela e rodapé no PDF final.
       </p>
@@ -3069,11 +3135,13 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
     id="editor-template-phanyx"
     className={tipo === "HISTORICO" ? "mt-4" : "mt-1"}
   >
-    <EditorTemplatePHANYX
-      key={editingId ?? "novo"}
-      value={conteudo}
-      onChange={setConteudo}
-    />
+    {!usaModoGuiado && (
+  <EditorTemplatePHANYX
+    key={editingId ?? "novo"}
+    value={conteudo}
+    onChange={setConteudo}
+  />
+)}
   </div>
 </div>
 
