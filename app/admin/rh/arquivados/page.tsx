@@ -465,15 +465,14 @@ async function restaurarFerias(id: number) {
 
     setRestaurandoId(id);
 
-    const res = await fetch("/api/admin/rh/arquivados/ferias", {
+    const res = await fetch(`/api/admin/rh/ferias/${id}/restaurar`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        feriasId: id,
-        motivoRestauracao: motivoRestauracao.trim(),
-      }),
+  motivo: motivoRestauracao.trim(),
+}),
     });
 
     const dados = await res.json();
@@ -881,13 +880,14 @@ async function restaurarRescisao(id: number) {
           <th className="p-3">Arquivado em</th>
           <th className="p-3">Arquivado por</th>
           <th className="p-3">Motivo</th>
+          <th className="p-3">Ações</th>
         </tr>
       </thead>
 
       <tbody>
         {ferias.length === 0 ? (
           <tr>
-            <td colSpan={8} className="p-6 text-center text-slate-400">
+            <td colSpan={9} className="p-6 text-center text-slate-400">
               Nenhuma férias arquivada encontrada.
             </td>
           </tr>
@@ -921,6 +921,24 @@ async function restaurarRescisao(id: number) {
               <td className="p-3 text-slate-300">
                 {item.motivoArquivo || "-"}
               </td>
+              <td className="p-3">
+  <button
+    type="button"
+    onClick={() => {
+      setItemParaRestaurar({
+        tipo: "FERIAS",
+        id: item.id,
+        titulo: `Férias de ${formatarData(item.dataInicio)} até ${formatarData(item.dataFim)}`,
+        funcionario: item.funcionario?.nome || "-",
+      });
+      setMotivoRestauracao("");
+    }}
+    disabled={restaurandoId === item.id}
+    className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700 disabled:opacity-50"
+  >
+    {restaurandoId === item.id ? "Restaurando..." : "Restaurar"}
+  </button>
+</td>
             </tr>
           ))
         )}
