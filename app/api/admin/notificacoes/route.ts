@@ -8,43 +8,57 @@ export async function GET() {
 
     const role = String(user?.role || "").toUpperCase();
 
-if (
-  !user ||
-  (
-    role !== "ADMIN" &&
-    role !== "SUPER_ADMIN" &&
-    user?.isMasterAdmin !== true
-  )
-) {
+    if (
+      !user ||
+      (
+        role !== "ADMIN" &&
+        role !== "SUPER_ADMIN" &&
+        user?.isMasterAdmin !== true
+      )
+    ) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
+    const usuarioBanco = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        instituicaoId: true,
+      },
+    });
+
+    if (!usuarioBanco?.instituicaoId) {
+      return NextResponse.json(
+        { error: "Instituição do usuário não encontrada." },
+        { status: 400 }
+      );
+    }
+
     const notificacoes = await prisma.notificacao.findMany({
-  where: {
-    OR: [
-      { instituicaoId: user.instituicaoId },
-      { usuarioId: user.id },
-    ],
-  },
-  orderBy: [{ lida: "asc" }, { criadoEm: "desc" }],
-  take: 20,
-});
+      where: {
+        OR: [
+          { instituicaoId: usuarioBanco.instituicaoId },
+          { usuarioId: usuarioBanco.id },
+        ],
+      },
+      orderBy: [{ lida: "asc" }, { criadoEm: "desc" }],
+      take: 20,
+    });
 
-const totalNaoLidas = await prisma.notificacao.count({
-  where: {
-    OR: [
-      { instituicaoId: user.instituicaoId },
-      { usuarioId: user.id },
-    ],
-    lida: false,
-  },
-});
+    const totalNaoLidas = await prisma.notificacao.count({
+      where: {
+        OR: [
+          { instituicaoId: usuarioBanco.instituicaoId },
+          { usuarioId: usuarioBanco.id },
+        ],
+        lida: false,
+      },
+    });
 
-return NextResponse.json({
-  notificacoes,
-  totalNaoLidas,
-});
-
+    return NextResponse.json({
+      notificacoes,
+      totalNaoLidas,
+    });
   } catch (error: any) {
     console.error("Erro ao listar notificações:", error);
     return NextResponse.json(
@@ -60,15 +74,30 @@ export async function POST(req: Request) {
 
     const role = String(user?.role || "").toUpperCase();
 
-if (
-  !user ||
-  (
-    role !== "ADMIN" &&
-    role !== "SUPER_ADMIN" &&
-    user?.isMasterAdmin !== true
-  )
-) {
+    if (
+      !user ||
+      (
+        role !== "ADMIN" &&
+        role !== "SUPER_ADMIN" &&
+        user?.isMasterAdmin !== true
+      )
+    ) {
       return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
+    }
+
+    const usuarioBanco = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        id: true,
+        instituicaoId: true,
+      },
+    });
+
+    if (!usuarioBanco?.instituicaoId) {
+      return NextResponse.json(
+        { error: "Instituição do usuário não encontrada." },
+        { status: 400 }
+      );
     }
 
     const body = await req.json();
@@ -85,7 +114,7 @@ if (
 
     const notificacao = await prisma.notificacao.create({
       data: {
-        instituicaoId: user.instituicaoId,
+        instituicaoId: usuarioBanco.instituicaoId,
         usuarioId: body?.usuarioId ? Number(body.usuarioId) : null,
         tipo,
         categoria: body?.categoria ? String(body.categoria) : "SISTEMA",
