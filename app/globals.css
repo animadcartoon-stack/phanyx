@@ -1759,3 +1759,60 @@ html[data-theme="light"] .phanyx-rh-ferias-page .text-slate-600,
 html[data-theme="light"] .phanyx-rh-ferias-page .text-gray-500 {
   color: #475569 !important;
 }
+
+/* =========================================
+   RH - FÉRIAS / FIX TEMA CLARO
+========================================= */
+
+html[data-theme="light"] .phanyx-rh-ferias-page,
+html[data-theme="light"] .phanyx-rh-ferias-page * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page p,
+html[data-theme="light"] .phanyx-rh-ferias-page label,
+html[data-theme="light"] .phanyx-rh-ferias-page span,
+html[data-theme="light"] .phanyx-rh-ferias-page td,
+html[data-theme="light"] .phanyx-rh-ferias-page th {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page .text-slate-500,
+html[data-theme="light"] .phanyx-rh-ferias-page .text-slate-600,
+html[data-theme="light"] .phanyx-rh-ferias-page .text-slate-700 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page input,
+html[data-theme="light"] .phanyx-rh-ferias-page select,
+html[data-theme="light"] .phanyx-rh-ferias-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page .bg-slate-950,
+html[data-theme="light"] .phanyx-rh-ferias-page .dark\:bg-slate-950 {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page .rounded-xl.border {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page table thead,
+html[data-theme="light"] .phanyx-rh-ferias-page thead tr {
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page button {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-ferias-page button.bg-blue-600 {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
