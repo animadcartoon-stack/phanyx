@@ -91,19 +91,39 @@ export async function gerarNotificacoesSistema(instituicaoId: number) {
     },
   });
 
-  if (feriasProximas > 0) {
-    await criarOuAtualizarNotificacao({
+  const chaveFeriasProximas = `RH_FERIAS_PROXIMAS_7_DIAS_${instituicaoId}`;
+
+if (feriasProximas > 0) {
+  await criarOuAtualizarNotificacao({
+    instituicaoId,
+    tipo: "RH",
+    categoria: "RH",
+    titulo: "Férias próximas",
+    descricao:
+      feriasProximas === 1
+        ? "1 funcionário entra em férias nos próximos 7 dias."
+        : `${feriasProximas} funcionários entram em férias nos próximos 7 dias.`,
+    link: "/admin/rh/ferias",
+    quantidade: feriasProximas,
+    chaveAgrupada: chaveFeriasProximas,
+  });
+} else {
+  await prisma.notificacao.updateMany({
+    where: {
       instituicaoId,
-      tipo: "RH",
-      categoria: "RH",
-      titulo: "Férias próximas",
-      descricao:
-        feriasProximas === 1
-          ? "1 funcionário entra em férias nos próximos 7 dias."
-          : `${feriasProximas} funcionários entram em férias nos próximos 7 dias.`,
-      link: "/admin/rh/ferias",
-      quantidade: feriasProximas,
-      chaveAgrupada: "RH_FERIAS_PROXIMAS_7_DIAS",
-    });
-  }
+      chaveAgrupada: {
+        in: [
+          "RH_FERIAS_PROXIMAS_7_DIAS",
+          chaveFeriasProximas,
+        ],
+      },
+      lida: false,
+    },
+    data: {
+      lida: true,
+      quantidade: 0,
+      descricao: "Nenhuma férias próxima encontrada.",
+    },
+  });
+}
 }

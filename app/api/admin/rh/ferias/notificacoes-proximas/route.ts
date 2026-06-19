@@ -68,12 +68,30 @@ export async function POST() {
     });
 
     if (ferias.length === 0) {
-      return NextResponse.json({
-        ok: true,
-        mensagem: "Nenhuma férias próxima encontrada.",
-        quantidade: 0,
-      });
-    }
+  await prisma.notificacao.updateMany({
+    where: {
+      instituicaoId: usuarioBanco.instituicaoId,
+      chaveAgrupada: {
+        in: [
+          "RH_FERIAS_PROXIMAS_7_DIAS",
+          `RH_FERIAS_PROXIMAS_7_DIAS_${usuarioBanco.instituicaoId}`,
+        ],
+      },
+      lida: false,
+    },
+    data: {
+      lida: true,
+      quantidade: 0,
+      descricao: "Nenhuma férias próxima encontrada.",
+    },
+  });
+
+  return NextResponse.json({
+    ok: true,
+    mensagem: "Nenhuma férias próxima encontrada.",
+    quantidade: 0,
+  });
+}
 
     const chaveAgrupada = `RH_FERIAS_PROXIMAS_7_DIAS_${usuarioBanco.instituicaoId}`;
 
