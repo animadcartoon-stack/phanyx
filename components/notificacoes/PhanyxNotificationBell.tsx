@@ -74,29 +74,61 @@ export default function PhanyxNotificationBell() {
             <button
   key={item.id}
   type="button"
- onClick={() => {
-  if (item.link?.includes("conversaId=")) {
-    const conversaId = Number(item.link.split("conversaId=")[1]);
+ onClick={async () => {
+  try {
+    await fetch("/api/admin/notificacoes", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        id: item.id,
+        lida: true,
+      }),
+    });
 
-    window.dispatchEvent(
-      new CustomEvent("phanyx:abrir-chat", {
-        detail: {
-          conversaId,
-          remetenteNome:
-            item.descricao?.replace(" enviou uma mensagem", "") ||
-            item.titulo ||
-            "Conversa",
-          remetenteRole: item.tipo || "",
-        },
-      })
+    setNotificacoes((atual) =>
+      atual.filter((n) => n.id !== item.id)
     );
 
-    setAberto(false);
-    return;
-  }
+    setTotalNaoLidas((atual) =>
+      Math.max(0, atual - 1)
+    );
 
-  if (item.link) {
-    window.location.href = item.link;
+    if (item.link?.includes("conversaId=")) {
+      const conversaId = Number(
+        item.link.split("conversaId=")[1]
+      );
+
+      window.dispatchEvent(
+        new CustomEvent("phanyx:abrir-chat", {
+          detail: {
+            conversaId,
+            remetenteNome:
+              item.descricao?.replace(
+                " enviou uma mensagem",
+                ""
+              ) ||
+              item.titulo ||
+              "Conversa",
+            remetenteRole: item.tipo || "",
+          },
+        })
+      );
+
+      setAberto(false);
+      return;
+    }
+
+    if (item.link) {
+      window.location.href = item.link;
+      return;
+    }
+
+    setAberto(false);
+  } catch (error) {
+    console.error(error);
   }
 }}
   className="mb-2 w-full rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"

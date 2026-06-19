@@ -41,7 +41,7 @@ export default function NotificacoesPage() {
         );
       }
 
-      setNotificacoes(Array.isArray(data) ? data : []);
+      setNotificacoes(Array.isArray(data?.notificacoes) ? data.notificacoes : []);
     } catch (error: any) {
       setErro(error?.message || "Erro ao carregar notificações.");
     } finally {
