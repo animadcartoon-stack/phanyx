@@ -101,11 +101,21 @@ const remetente = await prisma.user.findUnique({
 
 await prisma.notificacao.createMany({
   data: participantes.map((participante) => ({
+    instituicaoId: user.instituicaoId,
     usuarioId: participante.usuarioId,
+
     tipo: "CHAT",
-    titulo: "Nova mensagem",
-    descricao: `${remetente?.nome || "Usuário"}: ${texto}`,
-    link: `/chat?conversaId=${conversaId}`,
+    categoria: "CHAT",
+
+    titulo: `Nova mensagem de ${remetente?.nome || "Usuário"}`,
+    descricao: `${remetente?.nome || "Usuário"} enviou uma mensagem.`,
+
+    link: `/admin?conversaId=${conversaId}`,
+
+    quantidade: 1,
+    chaveAgrupada: `CHAT_CONVERSA_${conversaId}_USUARIO_${participante.usuarioId}`,
+
+    lida: false,
   })),
 });
 
