@@ -1097,6 +1097,17 @@ function abrirTourAdmin() {
                 </a>
               ))}
             </div>
+            <div className="mt-3 border-t border-slate-800 pt-3">
+  <button
+    type="button"
+    onClick={() => {
+      window.location.href = "/admin/notificacoes";
+    }}
+    className="w-full rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+  >
+    Ver todas as notificações →
+  </button>
+</div>
           </div>
         )}
       </div>
