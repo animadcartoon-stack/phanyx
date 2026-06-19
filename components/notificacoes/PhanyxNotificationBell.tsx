@@ -104,22 +104,24 @@ export default function PhanyxNotificationBell() {
   const params = new URLSearchParams(item.link.split("?")[1] || "");
 
   const conversaId = Number(params.get("conversaId"));
-  <div className="mb-1 flex items-center gap-2">
-  {!item.lida && (
-    <span className="h-2.5 w-2.5 rounded-full bg-red-500" />
-  )}
 
-  <p className="font-semibold text-white">
-    {item.titulo}
-  </p>
-</div>
+  const nomePeloTitulo = item.titulo?.startsWith("Nova mensagem de ")
+    ? item.titulo.replace("Nova mensagem de ", "")
+    : "";
+
+  const nomePelaDescricao = item.descricao?.includes(":")
+    ? item.descricao.split(":")[0]
+    : item.descricao?.replace(" enviou uma mensagem.", "");
+
   const remetenteNome =
     params.get("nome") ||
-    item.titulo.replace("Nova mensagem de ", "") ||
+    nomePeloTitulo ||
+    nomePelaDescricao ||
     "Conversa";
 
   const remetenteRole =
     params.get("role") ||
+    item.tipo ||
     "CHAT";
 
   window.dispatchEvent(
@@ -148,9 +150,15 @@ export default function PhanyxNotificationBell() {
 }}
   className="mb-2 w-full rounded-xl border border-slate-800 bg-slate-900 p-3 text-left hover:bg-blue-950"
 >
-              <p className="font-semibold text-white">
-                {item.titulo}
-              </p>
+              <div className="mb-1 flex items-center gap-2">
+  {!item.lida && (
+    <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-red-500" />
+  )}
+
+  <p className="font-semibold text-white">
+    {item.titulo}
+  </p>
+</div>
 
               {item.descricao && (
                 <p className="mt-1 text-xs text-slate-400">
