@@ -115,49 +115,69 @@ export default function Page() {
     setDataRetorno(calcularRetorno(fim));
   }, [periodoGozoInicio, dias]);
 
-  async function carregarDados() {
-    try {
-      setLoading(true);
-      setErro("");
+  async function lerJsonSeguro(res: Response, nomeRota: string) {
+  const texto = await res.text();
 
-      const [resFerias, resFuncionarios] = await Promise.all([
-        fetch("/api/admin/rh/ferias", {
-          credentials: "include",
-          cache: "no-store",
-        }),
-        fetch("/api/admin/rh/funcionarios", {
-          credentials: "include",
-          cache: "no-store",
-        }),
-      ]);
-
-      const dataFerias = await resFerias.json();
-      const dataFuncionarios = await resFuncionarios.json();
-
-      if (!resFerias.ok) {
-        throw new Error(dataFerias?.error || "Erro ao carregar férias.");
-      }
-
-      if (!resFuncionarios.ok) {
-        throw new Error(
-          dataFuncionarios?.error || "Erro ao carregar funcionários."
-        );
-      }
-
-      setFerias(Array.isArray(dataFerias) ? dataFerias : []);
-      setFuncionarios(
-        Array.isArray(dataFuncionarios)
-          ? dataFuncionarios
-          : Array.isArray(dataFuncionarios?.funcionarios)
-          ? dataFuncionarios.funcionarios
-          : []
-      );
-    } catch (error: any) {
-      setErro(error?.message || "Erro ao carregar dados.");
-    } finally {
-      setLoading(false);
-    }
+  try {
+    return JSON.parse(texto);
+  } catch {
+    throw new Error(
+      `${nomeRota} não retornou JSON. Verifique se a rota existe e se não está redirecionando para HTML.`
+    );
   }
+}
+
+async function carregarDados() {
+  try {
+    setLoading(true);
+    setErro("");
+
+    const [resFerias, resFuncionarios] = await Promise.all([
+      fetch("/api/admin/rh/ferias", {
+        credentials: "include",
+        cache: "no-store",
+      }),
+      fetch("/api/admin/funcionarios", {
+        credentials: "include",
+        cache: "no-store",
+      }),
+    ]);
+
+    const dataFerias = await lerJsonSeguro(
+      resFerias,
+      "/api/admin/rh/ferias"
+    );
+
+    const dataFuncionarios = await lerJsonSeguro(
+      resFuncionarios,
+      "/api/admin/funcionarios"
+    );
+
+    if (!resFerias.ok) {
+      throw new Error(dataFerias?.error || "Erro ao carregar férias.");
+    }
+
+    if (!resFuncionarios.ok) {
+      throw new Error(
+        dataFuncionarios?.error || "Erro ao carregar funcionários."
+      );
+    }
+
+    setFerias(Array.isArray(dataFerias) ? dataFerias : []);
+
+    setFuncionarios(
+      Array.isArray(dataFuncionarios)
+        ? dataFuncionarios
+        : Array.isArray(dataFuncionarios?.funcionarios)
+        ? dataFuncionarios.funcionarios
+        : []
+    );
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao carregar dados.");
+  } finally {
+    setLoading(false);
+  }
+}
 
   function limparFormulario() {
     setFuncionarioId("");
@@ -219,12 +239,14 @@ export default function Page() {
   }
 
   return (
-    <div className="space-y-6 text-slate-900 dark:text-white">
+    <div className="space-y-6 !text-slate-950 opacity-100 dark:!text-white">
       <div>
-        <p className="text-sm font-semibold uppercase text-blue-600 dark:text-blue-400">
+        <p className="text-sm font-bold uppercase text-blue-700 dark:text-blue-400">
           Departamento Pessoal
         </p>
-        <h1 className="text-3xl font-bold">Férias</h1>
+        <h1 className="text-3xl font-bold !text-slate-950 dark:!text-white">
+  Férias
+</h1>
         <p className="text-sm text-slate-700 dark:text-slate-300">
           Programe férias, calcule valores e prepare documentos para assinatura.
         </p>
@@ -265,7 +287,9 @@ export default function Page() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-xl font-bold">Programar férias</h2>
+        <h2 className="text-xl font-bold !text-slate-950 dark:!text-white">
+  Programar férias
+</h2>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="md:col-span-3">
@@ -403,7 +427,9 @@ export default function Page() {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-xl font-bold">Férias cadastradas</h2>
+        <h2 className="text-xl font-bold !text-slate-950 dark:!text-white">
+  Férias cadastradas
+</h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
