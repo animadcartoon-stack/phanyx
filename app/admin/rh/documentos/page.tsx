@@ -236,7 +236,7 @@ export default function DocumentosRHPage() {
   <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
     <div className="relative">
   <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
-    Busca inteligente
+    Busca 
   </label>
 
   <input

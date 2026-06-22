@@ -309,7 +309,19 @@ async function gerarDocumentoOcorrencia(
       );
     }
 
-    setMensagem("Documento RH gerado com sucesso.");
+    await fetch("/api/admin/rh/ocorrencias", {
+  method: "PATCH",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    ocorrenciaId: ocorrencia.id,
+    documentoUrl: `/admin/rh/documentos?documentoId=${data.id}`,
+  }),
+});
+
+setMensagem("Documento RH gerado e vinculado à ocorrência.");
+await carregarDados();
   } catch (error: any) {
     setErro(
       error?.message || "Erro ao gerar documento."
@@ -587,14 +599,25 @@ async function gerarDocumentoOcorrencia(
   "AFASTAMENTO_PERICIA",
   "RETORNO_TRABALHO",
 ].includes(ocorrencia.tipo) && (
-  <button
-    type="button"
-    onClick={() => gerarDocumentoOcorrencia(ocorrencia)}
-    disabled={gerandoDocumentoId === ocorrencia.id}
-    className="mr-2 rounded-xl border border-blue-500 px-3 py-1 text-xs font-bold text-blue-300 transition hover:bg-blue-500 hover:text-white disabled:opacity-60"
-  >
-    {gerandoDocumentoId === ocorrencia.id ? "Gerando..." : "Gerar documento"}
-  </button>
+  ocorrencia.documentoUrl ? (
+    <a
+      href={ocorrencia.documentoUrl}
+      className="mr-2 rounded-xl border border-emerald-500 px-3 py-1 text-xs font-bold text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
+    >
+      Abrir documento
+    </a>
+  ) : (
+    <button
+      type="button"
+      onClick={() => gerarDocumentoOcorrencia(ocorrencia)}
+      disabled={gerandoDocumentoId === ocorrencia.id}
+      className="mr-2 rounded-xl border border-blue-500 px-3 py-1 text-xs font-bold text-blue-300 transition hover:bg-blue-500 hover:text-white disabled:opacity-60"
+    >
+      {gerandoDocumentoId === ocorrencia.id
+        ? "Gerando..."
+        : "Gerar documento"}
+    </button>
+  )
 )}
 
   <button
