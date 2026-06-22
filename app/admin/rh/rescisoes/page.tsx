@@ -315,6 +315,10 @@ async function gerarDocumentoRescisao(item: RescisaoRH) {
     }
 
     setMensagem("Documento da rescisão gerado com sucesso em Documentos RH.");
+
+if (data?.id) {
+  window.open(`/api/admin/rh/documentos/${data.id}/imprimir`, "_blank");
+}
   } catch (error: any) {
     setErro(error?.message || "Erro ao gerar documento da rescisão.");
   } finally {
