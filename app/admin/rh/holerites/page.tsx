@@ -533,32 +533,32 @@ async function arquivarHolerite() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-emerald-200 bg-white p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
-            <p className="text-xs font-bold uppercase text-emerald-700 dark:text-emerald-300">
-              Total vencimentos
-            </p>
-            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-emerald-200">
-              {moeda(totalVencimentos)}
-            </p>
-          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+    Total vencimentos
+  </p>
+  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+    {moeda(totalVencimentos)}
+  </p>
+</div>
 
-          <div className="rounded-2xl border border-red-200 bg-white p-4 dark:border-red-800 dark:bg-red-950/30">
-            <p className="text-xs font-bold uppercase text-red-700 dark:text-red-300">
-              Total descontos
-            </p>
-            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-red-200">
-              {moeda(totalDescontos)}
-            </p>
-          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+    Total descontos
+  </p>
+  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+    {moeda(totalDescontos)}
+  </p>
+</div>
 
-          <div className="rounded-2xl border border-blue-200 bg-white p-4 dark:border-blue-800 dark:bg-blue-950/30">
-            <p className="text-xs font-bold uppercase text-blue-700 dark:text-blue-300">
-              Valor líquido
-            </p>
-            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-blue-200">
-              {moeda(valorLiquido)}
-            </p>
-          </div>
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+  <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
+    Valor líquido
+  </p>
+  <p className="mt-1 text-2xl font-black text-slate-900 dark:text-white">
+    {moeda(valorLiquido)}
+  </p>
+</div>
         </div>
 
         <div className="mt-6 flex justify-end">
