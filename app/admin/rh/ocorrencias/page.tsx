@@ -340,7 +340,7 @@ await carregarDados();
         <h1 className="text-3xl font-bold text-[#020617] dark:text-white">
           Ocorrências funcionais
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-[#020617] dark:text-slate-300">
+        <p className="mt-2 max-w-3xl text-sm text-slate-700 dark:text-slate-300">
           Registre advertências, suspensões, afastamentos, promoções e eventos
           importantes do histórico funcional.
         </p>
