@@ -208,18 +208,18 @@ export default function DocumentosRHPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
     <div>
       <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
         RH EMPRESARIAL
       </p>
 
-      <h1 className="mt-2 text-4xl font-black text-white">
+      <h1 className="mt-2 text-4xl font-black text-slate-950 dark:text-slate-900 dark:text-white">
         Documentos RH
       </h1>
 
-      <p className="mt-2 text-slate-400">
+      <p className="mt-2 text-slate-600 dark:text-slate-400">
         Dossiê documental dos funcionários, preservado para auditoria,
         compliance e histórico permanente.
       </p>
@@ -227,7 +227,7 @@ export default function DocumentosRHPage() {
 
     <Link
       href="/admin/rh/documentos/gerar"
-      className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-lg transition hover:bg-blue-500"
+      className="inline-flex shrink-0 items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-slate-900 dark:text-white shadow-lg transition hover:bg-blue-500"
     >
       + Novo Documento RH
     </Link>
@@ -235,7 +235,7 @@ export default function DocumentosRHPage() {
 
   <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_220px_220px]">
     <div className="relative">
-  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
     Busca 
   </label>
 
@@ -247,11 +247,11 @@ export default function DocumentosRHPage() {
     }}
     onFocus={() => setMostrarSugestoes(true)}
     placeholder="Busque por funcionário, título, tipo, status ou cargo. Ex.: Jose, declaraçao, secretaria..."
-    className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-900 dark:text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
   />
 
   {mostrarSugestoes && busca.trim() && sugestoesBusca.length > 0 && (
-    <div className="absolute left-0 right-0 top-[76px] z-50 overflow-hidden rounded-2xl border border-slate-700 bg-slate-950 shadow-2xl">
+    <div className="absolute left-0 right-0 top-[76px] z-50 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-950">
       {sugestoesBusca.map(({ documento }) => (
         <button
           key={documento.id}
@@ -261,13 +261,13 @@ export default function DocumentosRHPage() {
             setBusca(documento.funcionario?.nome || documento.titulo || "");
             setMostrarSugestoes(false);
           }}
-          className="block w-full border-b border-slate-800 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-800"
+          className="block w-full border-b border-slate-200 px-4 py-3 text-left transition last:border-b-0 hover:bg-slate-100 dark:border-slate-800 dark:hover:bg-slate-800"
         >
-          <div className="text-sm font-bold text-white">
+          <div className="text-sm font-bold text-slate-900 dark:text-white">
             {documento.funcionario?.nome || "-"}
           </div>
 
-          <div className="mt-1 text-xs text-slate-400">
+          <div className="mt-1 text-xs text-slate-600 dark:text-slate-400">
             {documento.titulo} • {documento.tipo} • {documento.status}
           </div>
         </button>
@@ -276,21 +276,21 @@ export default function DocumentosRHPage() {
   )}
 
   {mostrarSugestoes && busca.trim() && sugestoesBusca.length === 0 && (
-    <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-400 shadow-2xl">
+    <div className="absolute left-0 right-0 top-[76px] z-50 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-700 dark:text-slate-400 shadow-2xl">
       Nenhum documento encontrado.
     </div>
   )}
 </div>
 
     <div>
-      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em]text-slate-700 dark:text-slate-400">
         Status
       </label>
 
       <select
         value={filtroStatus}
         onChange={(e) => setFiltroStatus(e.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500"
       >
         <option value="">Todos</option>
         <option value="GERADO">Gerado</option>
@@ -300,14 +300,14 @@ export default function DocumentosRHPage() {
     </div>
 
     <div>
-      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-400">
+      <label className="mb-2 block text-xs font-bold uppercase tracking-[0.18em] text-slate-700 dark:text-slate-400">
         Tipo
       </label>
 
       <select
         value={filtroTipo}
         onChange={(e) => setFiltroTipo(e.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500"
       >
         <option value="">Todos</option>
         <option value="DECLARACAO">Declaração</option>
@@ -323,14 +323,14 @@ export default function DocumentosRHPage() {
 </div>
 
       <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
-        <h2 className="text-xl font-bold text-white">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white">
           Documentos gerados
         </h2>
 
         <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+              <tr className="border-b border-slate-800 text-left text-sm text-slate-700 dark:text-slate-400">
                 <th className="p-3">Funcionário</th>
                 <th className="p-3">Título</th>
                 <th className="p-3">Tipo</th>
@@ -345,20 +345,20 @@ export default function DocumentosRHPage() {
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={8} className="p-6 text-center text-slate-400">
+                  <td colSpan={8} className="p-6 text-center text-slate-700 dark:text-slate-400">
                     Carregando...
                   </td>
                 </tr>
               ) : documentosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-6 text-center text-slate-400">
+                  <td colSpan={8} className="p-6 text-center text-slate-700 dark:text-slate-400">
                     Nenhum documento RH gerado ainda.
                   </td>
                 </tr>
               ) : (
                 documentosFiltrados.map((documento) => (
                   <tr key={documento.id} className="border-b border-slate-800">
-                    <td className="p-3 text-white">
+                    <td className="p-3 text-slate-900 dark:text-white">
                       {documento.funcionario?.nome || "-"}
                     </td>
 
@@ -388,7 +388,7 @@ export default function DocumentosRHPage() {
       href={documento.arquivoUrl}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-300 hover:bg-blue-500 hover:text-white"
+      className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-300 hover:bg-blue-500 hover:text-slate-900 dark:text-white"
     >
       Abrir
     </a>
@@ -404,7 +404,7 @@ export default function DocumentosRHPage() {
                           setDocumentoParaArquivar(documento);
                           setMotivoArquivo("");
                         }}
-                        className="rounded-xl border border-amber-500 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500 hover:text-white"
+                        className="rounded-xl border border-amber-500 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-500 hover:text-slate-900 dark:text-white"
                       >
                         Arquivar
                       </button>
@@ -420,7 +420,7 @@ export default function DocumentosRHPage() {
       {documentoParaArquivar && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
           <div className="w-full max-w-lg rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-2xl">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
               Arquivar documento RH
             </h2>
 
@@ -448,7 +448,7 @@ export default function DocumentosRHPage() {
             <textarea
               value={motivoArquivo}
               onChange={(e) => setMotivoArquivo(e.target.value)}
-              className="mt-2 min-h-28 w-full rounded-2xl border border-slate-700 bg-slate-900 p-4 text-sm text-white outline-none focus:border-amber-500"
+              className="mt-2 min-h-28 w-full rounded-2xl border border-slate-700 bg-slate-900 p-4 text-sm text-slate-900 dark:text-white outline-none focus:border-amber-500"
               placeholder="Explique por que este documento está sendo arquivado."
             />
 
@@ -466,7 +466,7 @@ export default function DocumentosRHPage() {
                 type="button"
                 onClick={arquivarDocumento}
                 disabled={arquivando || !motivoArquivo.trim()}
-                className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-white hover:bg-amber-700 disabled:opacity-60"
+                className="rounded-2xl bg-amber-600 px-5 py-2 text-sm font-bold text-slate-900 dark:text-white hover:bg-amber-700 disabled:opacity-60"
               >
                 {arquivando ? "Arquivando..." : "Arquivar documento"}
               </button>
