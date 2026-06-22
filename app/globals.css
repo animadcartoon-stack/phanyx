@@ -1943,3 +1943,118 @@ html[data-theme="light"] .aluno-boletim-hero p {
 .aluno-dashboard-hero .text-blue-200 {
   color: #93c5fd !important;
 }
+
+/* =========================================
+   PHANYX RH - FIX GLOBAL TEMA CLARO
+   Corrige páginas RH com classes dark fixas
+========================================= */
+
+html[data-theme="light"] [class*="rh"] h1,
+html[data-theme="light"] [class*="rh"] h2,
+html[data-theme="light"] [class*="rh"] h3 {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] [class*="rh"] p,
+html[data-theme="light"] [class*="rh"] label,
+html[data-theme="light"] [class*="rh"] span,
+html[data-theme="light"] [class*="rh"] td,
+html[data-theme="light"] [class*="rh"] th {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] [class*="rh"] .text-slate-300,
+html[data-theme="light"] [class*="rh"] .text-slate-400,
+html[data-theme="light"] [class*="rh"] .text-slate-500,
+html[data-theme="light"] [class*="rh"] .text-slate-600 {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] [class*="rh"] input,
+html[data-theme="light"] [class*="rh"] select,
+html[data-theme="light"] [class*="rh"] textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] [class*="rh"] input::placeholder,
+html[data-theme="light"] [class*="rh"] textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Cards escuros fixos viram cards claros no tema claro */
+html[data-theme="light"] [class*="rh"] .bg-slate-950,
+html[data-theme="light"] [class*="rh"] .bg-slate-900,
+html[data-theme="light"] [class*="rh"] .bg-slate-900\/70,
+html[data-theme="light"] [class*="rh"] .bg-slate-900\/80,
+html[data-theme="light"] [class*="rh"] .bg-slate-800,
+html[data-theme="light"] [class*="rh"] .bg-slate-700 {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Cabeçalho de tabela no claro */
+html[data-theme="light"] [class*="rh"] thead,
+html[data-theme="light"] [class*="rh"] thead tr {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Evita conteúdo administrativo empurrar/amassar menu lateral */
+html[data-theme="light"] main,
+html[data-theme="dark"] main,
+html[data-theme="system"] main {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+html[data-theme="light"] main > div,
+html[data-theme="dark"] main > div,
+html[data-theme="system"] main > div {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* Tabelas largas rolam dentro da área, não empurram layout */
+html[data-theme="light"] table,
+html[data-theme="dark"] table,
+html[data-theme="system"] table {
+  max-width: 100% !important;
+}
+
+/* =========================================
+   PHANYX ADMIN - NÃO AMASSAR MENU LATERAL
+========================================= */
+
+html[data-theme] body {
+  overflow-x: hidden !important;
+}
+
+html[data-theme] aside,
+html[data-theme] nav {
+  flex-shrink: 0 !important;
+}
+
+html[data-theme] main {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+html[data-theme] main > * {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+html[data-theme] .overflow-x-auto {
+  max-width: 100% !important;
+}
