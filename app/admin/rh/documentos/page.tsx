@@ -383,18 +383,36 @@ export default function DocumentosRHPage() {
 </td>
 
 <td className="p-3">
-  {documento.arquivoUrl ? (
+  <div className="flex flex-wrap gap-2">
+    {documento.arquivoUrl ? (
+      <a
+        href={documento.arquivoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
+      >
+        Abrir
+      </a>
+    ) : (
+      <a
+        href={`/api/admin/rh/documentos/${documento.id}/imprimir`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-950/40"
+      >
+        Abrir
+      </a>
+    )}
+
     <a
-      href={documento.arquivoUrl}
+      href={`/api/admin/rh/documentos/${documento.id}/imprimir`}
       target="_blank"
       rel="noopener noreferrer"
-      className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-300 hover:bg-blue-500 hover:text-slate-900 dark:text-white"
+      className="rounded-xl border border-emerald-500 px-3 py-2 text-xs font-bold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
     >
-      Abrir
+      Imprimir
     </a>
-  ) : (
-    <span className="text-slate-500">-</span>
-  )}
+  </div>
 </td>
 
 <td className="p-3">
