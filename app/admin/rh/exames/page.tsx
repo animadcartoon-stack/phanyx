@@ -290,7 +290,7 @@ async function cancelarExame(id: number) {
   }
 
   return (
-    <div className="space-y-6 text-slate-950 dark:text-white">
+    <div className="phanyx-rh-page space-y-6 text-slate-950 dark:text-white">
       <div>
         <p className="text-sm font-bold uppercase text-purple-700 dark:text-purple-400">
           Departamento Pessoal
@@ -320,24 +320,24 @@ async function cancelarExame(id: number) {
       <div className="grid gap-4 md:grid-cols-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <p className="text-sm text-slate-700 dark:text-slate-300">Total</p>
-          <p className="text-2xl font-bold">{resumo.total}</p>
+          <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.total}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <p className="text-sm text-slate-700 dark:text-slate-300">Aptos</p>
-          <p className="text-2xl font-bold">{resumo.aptos}</p>
+          <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.aptos}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <p className="text-sm text-slate-700 dark:text-slate-300">
             Vencendo em 30 dias
           </p>
-          <p className="text-2xl font-bold">{resumo.vencendo}</p>
+          <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.vencendo}</p>
         </div>
 
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
           <p className="text-sm text-slate-700 dark:text-slate-300">Vencidos</p>
-          <p className="text-2xl font-bold">{resumo.vencidos}</p>
+          <p className="text-2xl font-bold text-slate-950 dark:text-white">{resumo.vencidos}</p>
         </div>
       </div>
 
