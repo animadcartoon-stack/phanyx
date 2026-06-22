@@ -12,6 +12,7 @@ type DocumentoRH = {
 
   criadoEm?: string;
   motivoArquivo?: string | null;
+  arquivoUrl?: string | null;
 
   criadoPor?: {
     id?: number;
@@ -336,6 +337,7 @@ export default function DocumentosRHPage() {
                 <th className="p-3">Criado em</th>
                 <th className="p-3">Criado por</th>
                 <th className="p-3">Status</th>
+                <th className="p-3">Arquivo</th>
                 <th className="p-3">Ações</th>
               </tr>
             </thead>
@@ -343,13 +345,13 @@ export default function DocumentosRHPage() {
             <tbody>
               {carregando ? (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-slate-400">
+                  <td colSpan={8} className="p-6 text-center text-slate-400">
                     Carregando...
                   </td>
                 </tr>
               ) : documentosFiltrados.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-6 text-center text-slate-400">
+                  <td colSpan={8} className="p-6 text-center text-slate-400">
                     Nenhum documento RH gerado ainda.
                   </td>
                 </tr>
@@ -380,8 +382,22 @@ export default function DocumentosRHPage() {
   {documento.status}
 </td>
 
+<td className="p-3">
+  {documento.arquivoUrl ? (
+    <a
+      href={documento.arquivoUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="rounded-xl border border-blue-500 px-3 py-2 text-xs font-bold text-blue-300 hover:bg-blue-500 hover:text-white"
+    >
+      Abrir
+    </a>
+  ) : (
+    <span className="text-slate-500">-</span>
+  )}
+</td>
 
-                    <td className="p-3">
+<td className="p-3">
                       <button
                         type="button"
                         onClick={() => {

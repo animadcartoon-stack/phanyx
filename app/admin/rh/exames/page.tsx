@@ -178,6 +178,60 @@ export default function ExamesMedicosRHPage() {
     setObservacoes("");
   }
 
+  async function arquivarExame(id: number) {
+  try {
+    setErro("");
+    setMensagem("");
+
+    const res = await fetch(`/api/admin/rh/exames/${id}/arquivar`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        motivo: "Arquivamento realizado pela tela de exames médicos.",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao arquivar exame médico.");
+    }
+
+    setMensagem("Exame médico arquivado com sucesso.");
+    await carregarDados();
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao arquivar exame médico.");
+  }
+}
+
+async function cancelarExame(id: number) {
+  try {
+    setErro("");
+    setMensagem("");
+
+    const res = await fetch(`/api/admin/rh/exames/${id}/cancelar`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        motivo: "Cancelamento realizado pela tela de exames médicos.",
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao cancelar exame médico.");
+    }
+
+    setMensagem("Exame médico cancelado com sucesso.");
+    await carregarDados();
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao cancelar exame médico.");
+  }
+}
+
   async function salvarExame() {
     try {
       setSalvando(true);
@@ -436,19 +490,20 @@ export default function ExamesMedicosRHPage() {
                 <th className="p-3">Resultado</th>
                 <th className="p-3">Clínica/Médico</th>
                 <th className="p-3">Arquivo</th>
+                <th className="p-3">Ações</th>
               </tr>
             </thead>
 
             <tbody>
               {loading ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={7}>
+                  <td className="p-3 text-slate-500" colSpan={8}>
                     Carregando...
                   </td>
                 </tr>
               ) : exames.length === 0 ? (
                 <tr>
-                  <td className="p-3 text-slate-500" colSpan={7}>
+                  <td className="p-3 text-slate-500" colSpan={8}>
                     Nenhum exame médico cadastrado.
                   </td>
                 </tr>
@@ -506,6 +561,27 @@ export default function ExamesMedicosRHPage() {
                           "-"
                         )}
                       </td>
+                      <td className="p-3">
+  <div className="flex flex-wrap gap-2">
+    <button
+      type="button"
+      onClick={() => arquivarExame(item.id)}
+      className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+    >
+      Arquivar
+    </button>
+
+    {item.resultado !== "CANCELADO" && (
+      <button
+        type="button"
+        onClick={() => cancelarExame(item.id)}
+        className="rounded-lg border border-red-300 px-3 py-1 text-xs font-semibold text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-950/40"
+      >
+        Cancelar
+      </button>
+    )}
+  </div>
+</td>
                     </tr>
                   );
                 })

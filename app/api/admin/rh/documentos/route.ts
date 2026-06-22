@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { put } from "@vercel/blob";
 import { getUserFromToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
@@ -56,13 +57,38 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
     }
 
-    const body = await req.json();
+    const contentType = req.headers.get("content-type") || "";
 
-    const funcionarioId = Number(body.funcionarioId);
-    const tipo = String(body.tipo || "DOCUMENTO_RH").trim();
-    const titulo = String(body.titulo || "").trim();
-    const conteudo = String(body.conteudo || "").trim();
-    const templateId = body.templateId ? Number(body.templateId) : null;
+    let funcionarioId = 0;
+    let tipo = "DOCUMENTO_RH";
+    let titulo = "";
+    let conteudo = "";
+    let arquivoUrl = "";
+    let templateId: number | null = null;
+    let arquivo: File | null = null;
+
+    if (contentType.includes("application/json")) {
+      const body = await req.json();
+
+      funcionarioId = Number(body.funcionarioId);
+      tipo = String(body.tipo || "DOCUMENTO_RH").trim();
+      titulo = String(body.titulo || "").trim();
+      conteudo = String(body.conteudo || "").trim();
+      arquivoUrl = String(body.arquivoUrl || "").trim();
+      templateId = body.templateId ? Number(body.templateId) : null;
+    } else {
+      const formData = await req.formData();
+
+      funcionarioId = Number(formData.get("funcionarioId") || 0);
+      tipo = String(formData.get("tipo") || "DOCUMENTO_RH").trim();
+      titulo = String(formData.get("titulo") || "").trim();
+      conteudo = String(formData.get("conteudo") || "").trim();
+      arquivoUrl = String(formData.get("arquivoUrl") || "").trim();
+      templateId = formData.get("templateId")
+        ? Number(formData.get("templateId"))
+        : null;
+      arquivo = formData.get("arquivo") as File | null;
+    }
 
     if (!funcionarioId) {
       return NextResponse.json(
@@ -78,9 +104,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!conteudo) {
+    if (!conteudo && !arquivoUrl && !arquivo) {
       return NextResponse.json(
-        { error: "Informe o conteúdo do documento." },
+        { error: "Informe o conteúdo do documento ou anexe um arquivo." },
         { status: 400 }
       );
     }
@@ -99,6 +125,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let urlFinal = arquivoUrl || null;
+
+    if (arquivo && arquivo.size > 0) {
+      const extensoesPermitidas = [
+        ".pdf",
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".doc",
+        ".docx",
+      ];
+
+      const nomeArquivo = arquivo.name.toLowerCase();
+      const extensaoValida = extensoesPermitidas.some((ext) =>
+        nomeArquivo.endsWith(ext)
+      );
+
+      if (!extensaoValida) {
+        return NextResponse.json(
+          { error: "Formato inválido. Envie PDF, DOCX, PNG, JPG ou JPEG." },
+          { status: 400 }
+        );
+      }
+
+      const tamanhoMaximo = 50 * 1024 * 1024;
+
+      if (arquivo.size > tamanhoMaximo) {
+        return NextResponse.json(
+          { error: "Arquivo muito grande. O limite é 50MB." },
+          { status: 400 }
+        );
+      }
+
+      const nomeSeguro = arquivo.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+
+      const blob = await put(
+        `rh/documentos/${user.instituicaoId}/${funcionarioId}/${Date.now()}-${nomeSeguro}`,
+        arquivo,
+        { access: "public" }
+      );
+
+      urlFinal = blob.url;
+    }
+
     const documento = await prisma.documentoRH.create({
       data: {
         funcionarioId,
@@ -107,7 +177,8 @@ export async function POST(req: NextRequest) {
         templateId,
         tipo,
         titulo,
-        conteudo,
+        conteudo: conteudo || null,
+        arquivoUrl: urlFinal,
         status: "GERADO",
         arquivado: false,
       },
@@ -122,8 +193,9 @@ export async function POST(req: NextRequest) {
         titulo: "Documento RH gerado",
         descricao: titulo,
         dataEvento: new Date(),
-        observacoes:
-          "Documento RH gerado e preservado para histórico funcional e auditoria.",
+        observacoes: urlFinal
+          ? "Documento RH gerado com anexo e preservado para auditoria."
+          : "Documento RH gerado e preservado para histórico funcional e auditoria.",
       },
     });
 

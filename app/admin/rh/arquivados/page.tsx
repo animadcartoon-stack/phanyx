@@ -497,14 +497,13 @@ async function restaurarExame(id: number) {
 
     setRestaurandoId(id);
 
-    const res = await fetch("/api/admin/rh/arquivados/exames", {
+    const res = await fetch(`/api/admin/rh/exames/${id}/restaurar`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        exameId: id,
-        motivoRestauracao: motivoRestauracao.trim(),
+        motivo: motivoRestauracao.trim(),
       }),
     });
 
@@ -530,14 +529,13 @@ async function restaurarRescisao(id: number) {
 
     setRestaurandoId(id);
 
-    const res = await fetch("/api/admin/rh/arquivados/rescisoes", {
+    const res = await fetch(`/api/admin/rh/rescisoes/${id}/restaurar`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        rescisaoId: id,
-        motivoRestauracao: motivoRestauracao.trim(),
+        motivo: motivoRestauracao.trim(),
       }),
     });
 

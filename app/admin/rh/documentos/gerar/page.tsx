@@ -26,6 +26,8 @@ export default function GerarDocumentoRHPage() {
   const [tipo, setTipo] = useState("DECLARACAO");
   const [titulo, setTitulo] = useState("");
   const [conteudo, setConteudo] = useState("");
+  const [arquivoUrl, setArquivoUrl] = useState("");
+  const [arquivo, setArquivo] = useState<File | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
@@ -77,19 +79,23 @@ export default function GerarDocumentoRHPage() {
     setSalvando(true);
 
     try {
-      const res = await fetch("/api/admin/rh/documentos", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          funcionarioId: Number(funcionarioId),
-          tipo,
-          titulo,
-          conteudo,
-        }),
-      });
+      const formData = new FormData();
+
+formData.append("funcionarioId", funcionarioId);
+formData.append("tipo", tipo);
+formData.append("titulo", titulo);
+formData.append("conteudo", conteudo);
+formData.append("arquivoUrl", arquivoUrl);
+
+if (arquivo) {
+  formData.append("arquivo", arquivo);
+}
+
+const res = await fetch("/api/admin/rh/documentos", {
+  method: "POST",
+  credentials: "include",
+  body: formData,
+});
 
       const data = await res.json();
 
@@ -103,6 +109,8 @@ export default function GerarDocumentoRHPage() {
       setTipo("DECLARACAO");
       setTitulo("");
       setConteudo("");
+      setArquivoUrl("");
+      setArquivo(null);
     } catch {
       setErro("Erro ao gerar documento RH.");
     } finally {
@@ -203,6 +211,46 @@ export default function GerarDocumentoRHPage() {
             className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
           />
         </div>
+
+<div className="mt-5">
+  <label className="mb-2 block text-sm font-bold text-slate-200">
+    Arquivo URL
+  </label>
+
+<div className="mt-5">
+  <label className="mb-2 block text-sm font-bold text-slate-200">
+    Anexar arquivo
+  </label>
+
+  <input
+    type="file"
+    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+    onChange={(e) => setArquivo(e.target.files?.[0] || null)}
+    className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-white file:mr-4 file:rounded-xl file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-blue-500"
+  />
+
+  {arquivo && (
+    <p className="mt-2 text-xs text-emerald-300">
+      Arquivo selecionado: {arquivo.name}
+    </p>
+  )}
+
+  <p className="mt-2 text-xs text-slate-400">
+    Formatos aceitos: PDF, DOCX, PNG, JPG e JPEG. Limite atual: 50MB.
+  </p>
+</div>
+
+  <input
+    value={arquivoUrl}
+    onChange={(e) => setArquivoUrl(e.target.value)}
+    placeholder="Cole aqui o link do PDF, imagem ou documento anexado"
+    className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-blue-500"
+  />
+
+  <p className="mt-2 text-xs text-slate-400">
+    Use este campo para anexar RG, CPF, CNH, comprovante, certificado, portfólio ou outro documento já hospedado.
+  </p>
+</div>
 
         {erro && (
           <div className="mt-5 rounded-2xl border border-red-500/40 bg-red-950/50 p-4 text-sm font-bold text-red-200">
