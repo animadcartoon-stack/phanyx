@@ -9,14 +9,25 @@ export async function GET(req: Request) {
     const ano = Number(searchParams.get("ano")) || new Date().getFullYear();
 
     const holerites = await prisma.holeriteRH.findMany({
-      where: {
-        mes,
-        ano,
+  where: {
+    competenciaMes: mes,
+    competenciaAno: ano,
+  },
+
+  include: {
+    funcionario: {
+      select: {
+        id: true,
+        nome: true,
+        cargo: true,
       },
-      orderBy: {
-        id: "desc",
-      },
-    });
+    },
+  },
+
+  orderBy: {
+    id: "desc",
+  },
+});
 
     const totais = holerites.reduce(
       (acc, item: any) => {
