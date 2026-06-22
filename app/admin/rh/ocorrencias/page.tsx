@@ -61,6 +61,7 @@ export default function OcorrenciasRHPage() {
   useState<OcorrenciaRH | null>(null);
   const [motivoArquivo, setMotivoArquivo] = useState("");
   const [arquivando, setArquivando] = useState(false);
+  const [gerandoDocumentoId, setGerandoDocumentoId] = useState<number | null>(null);
 
   const [buscaFuncionario, setBuscaFuncionario] = useState("");
   const [funcionarioSelecionado, setFuncionarioSelecionado] =
@@ -249,6 +250,72 @@ export default function OcorrenciasRHPage() {
     setErro(error.message || "Erro ao arquivar ocorrência.");
   } finally {
     setArquivando(false);
+  }
+}
+
+async function gerarDocumentoOcorrencia(
+  ocorrencia: OcorrenciaRH
+) {
+  try {
+    setGerandoDocumentoId(ocorrencia.id);
+
+    const tipoTemplate =
+      ocorrencia.tipo === "ADVERTENCIA"
+        ? "ADVERTENCIA"
+        : ocorrencia.tipo === "SUSPENSAO"
+        ? "SUSPENSAO"
+        : "AFASTAMENTO";
+
+    const resTemplate = await fetch(
+      `/api/admin/documentos/templates?tipo=${tipoTemplate}`,
+      {
+        cache: "no-store",
+      }
+    );
+
+    const templates = await resTemplate.json();
+
+    const template =
+      Array.isArray(templates) && templates.length > 0
+        ? templates[0]
+        : null;
+
+    if (!template) {
+      throw new Error(
+        "Nenhum template compatível encontrado."
+      );
+    }
+
+    const res = await fetch(
+      "/api/admin/rh/documentos/gerar",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          funcionarioId: ocorrencia.funcionario.id,
+          templateId: template.id,
+          ocorrenciaId: ocorrencia.id,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error || "Erro ao gerar documento."
+      );
+    }
+
+    setMensagem("Documento RH gerado com sucesso.");
+  } catch (error: any) {
+    setErro(
+      error?.message || "Erro ao gerar documento."
+    );
+  } finally {
+    setGerandoDocumentoId(null);
   }
 }
 
@@ -511,6 +578,25 @@ export default function OcorrenciasRHPage() {
                     <td className="p-3">{formatarData(ocorrencia.dataEvento)}</td>
                     <td className="p-3">{ocorrencia.motivo || "-"}</td>
                    <td className="p-3 text-right">
+
+{[
+  "ADVERTENCIA",
+  "SUSPENSAO",
+  "AFASTAMENTO_MEDICO",
+  "AFASTAMENTO_MATERNIDADE",
+  "AFASTAMENTO_PERICIA",
+  "RETORNO_TRABALHO",
+].includes(ocorrencia.tipo) && (
+  <button
+    type="button"
+    onClick={() => gerarDocumentoOcorrencia(ocorrencia)}
+    disabled={gerandoDocumentoId === ocorrencia.id}
+    className="mr-2 rounded-xl border border-blue-500 px-3 py-1 text-xs font-bold text-blue-300 transition hover:bg-blue-500 hover:text-white disabled:opacity-60"
+  >
+    {gerandoDocumentoId === ocorrencia.id ? "Gerando..." : "Gerar documento"}
+  </button>
+)}
+
   <button
     type="button"
     onClick={() => {

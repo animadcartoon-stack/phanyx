@@ -42,6 +42,7 @@ export async function POST(req: NextRequest) {
 
     const funcionarioId = Number(body.funcionarioId);
     const templateId = Number(body.templateId);
+    const ocorrenciaId = body.ocorrenciaId ? Number(body.ocorrenciaId) : null;
 
     if (!funcionarioId || !templateId) {
       return NextResponse.json(
@@ -110,10 +111,33 @@ export async function POST(req: NextRequest) {
       orderBy: { criadoEm: "desc" },
     });
 
-    const ocorrencia = await prisma.ocorrenciaRH.findFirst({
+    const ocorrencia = ocorrenciaId
+  ? await prisma.ocorrenciaRH.findFirst({
+      where: {
+        id: ocorrenciaId,
+        funcionarioId,
+        instituicaoId: user.instituicaoId,
+      },
+    })
+  : await prisma.ocorrenciaRH.findFirst({
       where: {
         funcionarioId,
         instituicaoId: user.instituicaoId,
+        tipo: {
+          in:
+            template.tipo === "ADVERTENCIA"
+              ? ["ADVERTENCIA"]
+              : template.tipo === "SUSPENSAO"
+              ? ["SUSPENSAO"]
+              : [
+                  "ADVERTENCIA",
+                  "SUSPENSAO",
+                  "AFASTAMENTO_MEDICO",
+                  "AFASTAMENTO_MATERNIDADE",
+                  "AFASTAMENTO_PERICIA",
+                  "RETORNO_TRABALHO",
+                ],
+        },
       },
       orderBy: { criadoEm: "desc" },
     });
