@@ -194,7 +194,7 @@ export default function PontoRHPage() {
   }
 
     return (
-    <div className="w-full max-w-full space-y-6 overflow-x-hidden px-4 py-6 sm:px-6">
+    <div className="phanyx-rh-page w-full max-w-full space-y-6 overflow-x-hidden px-4 py-6 sm:px-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
           ⏱️ Controle de Ponto

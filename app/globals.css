@@ -2058,3 +2058,48 @@ html[data-theme] main > * {
 html[data-theme] .overflow-x-auto {
   max-width: 100% !important;
 }
+
+/* =========================================
+   PHANYX RH PAGE - FIX TEMA CLARO REAL
+========================================= */
+
+html[data-theme="light"] .phanyx-rh-page h1,
+html[data-theme="light"] .phanyx-rh-page h2,
+html[data-theme="light"] .phanyx-rh-page h3 {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-page p,
+html[data-theme="light"] .phanyx-rh-page label,
+html[data-theme="light"] .phanyx-rh-page span,
+html[data-theme="light"] .phanyx-rh-page td,
+html[data-theme="light"] .phanyx-rh-page th {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-page .text-white,
+html[data-theme="light"] .phanyx-rh-page .text-slate-100,
+html[data-theme="light"] .phanyx-rh-page .text-slate-200,
+html[data-theme="light"] .phanyx-rh-page .text-slate-300,
+html[data-theme="light"] .phanyx-rh-page .text-slate-400,
+html[data-theme="light"] .phanyx-rh-page .text-slate-500,
+html[data-theme="light"] .phanyx-rh-page .text-slate-600 {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-page input,
+html[data-theme="light"] .phanyx-rh-page select,
+html[data-theme="light"] .phanyx-rh-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-page input::placeholder,
+html[data-theme="light"] .phanyx-rh-page textarea::placeholder {
+  color: #64748b !important;
+}
