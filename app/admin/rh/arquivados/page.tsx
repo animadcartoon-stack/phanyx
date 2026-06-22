@@ -556,77 +556,45 @@ async function restaurarRescisao(id: number) {
 }
 
   return (
-    <div className="space-y-6">
+    <div className="phanyx-rh-page space-y-6">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-600 dark:text-cyan-400">
           RH EMPRESARIAL
         </p>
 
-        <h1 className="mt-2 text-4xl font-black text-slate-900 dark:text-white">
+        <h1 className="mt-2 text-4xl font-black !text-slate-950 dark:!text-white">
           Arquivados RH
         </h1>
 
-        <p className="mt-2 text-slate-600 dark:text-slate-400">
+        <p className="mt-2 text-slate-600 dark:text-slate-700 dark:text-slate-400">
           Registros preservados para auditoria, direção e compliance.
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">
-  <div className="rounded-3xl border border-cyan-800 bg-cyan-950/30 p-5">
-    <p className="text-xs uppercase text-cyan-400">
-      Ocorrências
-    </p>
+  {[
+    { titulo: "Ocorrências", total: ocorrencias.length, subtitulo: "Arquivadas" },
+    { titulo: "Holerites", total: holerites.length, subtitulo: "Arquivados" },
+    { titulo: "Férias", total: ferias.length, subtitulo: "Arquivadas" },
+    { titulo: "Exames", total: exames.length, subtitulo: "Arquivados" },
+  ].map((card) => (
+    <div
+      key={card.titulo}
+      className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/60"
+    >
+      <p className="text-xs font-bold uppercase text-cyan-700 dark:text-cyan-300">
+        {card.titulo}
+      </p>
 
-    <p className="mt-2 text-3xl font-black text-white">
-      {ocorrencias.length}
-    </p>
+      <p className="mt-2 text-3xl font-black text-slate-950 dark:text-white">
+        {card.total}
+      </p>
 
-    <p className="mt-1 text-xs text-slate-400">
-      Arquivadas
-    </p>
-  </div>
-
-  <div className="rounded-3xl border border-amber-800 bg-amber-950/30 p-5">
-    <p className="text-xs uppercase text-amber-400">
-      Holerites
-    </p>
-
-    <p className="mt-2 text-3xl font-black text-white">
-      {holerites.length}
-    </p>
-
-    <p className="mt-1 text-xs text-slate-400">
-      Arquivados
-    </p>
-  </div>
-
-  <div className="rounded-3xl border border-emerald-800 bg-emerald-950/30 p-5">
-    <p className="text-xs uppercase text-emerald-400">
-      Férias
-    </p>
-
-    <p className="mt-2 text-3xl font-black text-white">
-      {ferias.length}
-    </p>
-
-    <p className="mt-1 text-xs text-slate-400">
-      Arquivadas
-    </p>
-  </div>
-
-  <div className="rounded-3xl border border-purple-800 bg-purple-950/30 p-5">
-    <p className="text-xs uppercase text-purple-400">
-      Exames
-    </p>
-
-    <p className="mt-2 text-3xl font-black text-white">
-      {exames.length}
-    </p>
-
-    <p className="mt-1 text-xs text-slate-400">
-      Arquivados
-    </p>
-  </div>
+      <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+        {card.subtitulo}
+      </p>
+    </div>
+  ))}
 </div>
 
 <div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900/50">
@@ -704,7 +672,7 @@ async function restaurarRescisao(id: number) {
 </button>
   </div>
 
-  <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950/40">
+  <div className="mt-6 rounded-3xl border border-slate-200 !bg-slate-50 p-5 dark:border-slate-800 dark:!bg-slate-950/40">
   <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-700 dark:text-cyan-300">
     Busca inteligente
   </p>
@@ -738,7 +706,7 @@ async function restaurarRescisao(id: number) {
   </div>
 )}
 
-  <p className="mt-2 text-xs text-slate-500">
+  <p className="mt-2 text-xs text-slate-700 dark:text-slate-400">
     A busca considera registros arquivados, motivos, datas e responsáveis pela auditoria.
   </p>
 </div>
