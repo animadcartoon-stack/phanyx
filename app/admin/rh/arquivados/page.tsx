@@ -562,11 +562,11 @@ async function restaurarRescisao(id: number) {
           RH EMPRESARIAL
         </p>
 
-        <h1 className="mt-2 text-4xl font-black !text-slate-950 dark:!text-white">
+        <h1 className="mt-2 text-4xl font-black text-slate-950 dark:text-white">
           Arquivados RH
         </h1>
 
-        <p className="mt-2 text-slate-600 dark:text-slate-700 dark:text-slate-400">
+        <p className="mt-2 text-slate-700 dark:text-slate-400">
           Registros preservados para auditoria, direção e compliance.
         </p>
       </div>
@@ -672,9 +672,9 @@ async function restaurarRescisao(id: number) {
 </button>
   </div>
 
-  <div className="mt-6 rounded-3xl border border-slate-200 !bg-slate-50 p-5 dark:border-slate-800 dark:!bg-slate-950/40">
+  <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950/40">
   <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-700 dark:text-cyan-300">
-    Busca inteligente
+    Busca 
   </p>
 
   <input
