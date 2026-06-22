@@ -465,10 +465,10 @@ async function cancelarRescisao(id: number) {
             />
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-slate-100 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
-            <p className="text-sm text-slate-700 dark:text-slate-300">Valor estimado</p>
-            <p className="text-xl font-bold">{moeda(valorRescisao)}</p>
-          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+  <p className="text-sm text-slate-700 dark:text-slate-300">Valor estimado</p>
+  <p className="text-xl font-bold text-slate-950 dark:text-white">{moeda(valorRescisao)}</p>
+</div>
 
           <div className="md:col-span-3">
             <label className="text-sm font-medium">Observações</label>
