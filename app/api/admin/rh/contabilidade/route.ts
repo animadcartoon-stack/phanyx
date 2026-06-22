@@ -12,7 +12,6 @@ export async function GET(req: Request) {
       where: {
         mes,
         ano,
-        arquivado: false,
       },
       include: {
         funcionario: {
@@ -20,16 +19,11 @@ export async function GET(req: Request) {
             id: true,
             nome: true,
             cargo: true,
-            departamento: {
-              select: { nome: true },
-            },
           },
         },
       },
       orderBy: {
-        funcionario: {
-          nome: "asc",
-        },
+        id: "desc",
       },
     });
 
@@ -49,18 +43,16 @@ export async function GET(req: Request) {
       }
     );
 
-    const encargosEstimados = {
-      inssPatronal: totais.salarios * 0.2,
-      fgts: totais.salarios * 0.08,
-      provisaoFerias: totais.salarios / 12,
-      provisaoDecimo: totais.salarios / 12,
-    };
-
     return NextResponse.json({
       mes,
       ano,
       totais,
-      encargosEstimados,
+      encargosEstimados: {
+        inssPatronal: totais.salarios * 0.2,
+        fgts: totais.salarios * 0.08,
+        provisaoFerias: totais.salarios / 12,
+        provisaoDecimo: totais.salarios / 12,
+      },
       holerites,
     });
   } catch (error) {
