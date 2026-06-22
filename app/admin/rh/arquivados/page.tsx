@@ -558,15 +558,15 @@ async function restaurarRescisao(id: number) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-400">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-600 dark:text-cyan-400">
           RH EMPRESARIAL
         </p>
 
-        <h1 className="mt-2 text-4xl font-black text-white">
+        <h1 className="mt-2 text-4xl font-black text-slate-900 dark:text-white">
           Arquivados RH
         </h1>
 
-        <p className="mt-2 text-slate-400">
+        <p className="mt-2 text-slate-600 dark:text-slate-400">
           Registros preservados para auditoria, direção e compliance.
         </p>
       </div>
@@ -629,7 +629,7 @@ async function restaurarRescisao(id: number) {
   </div>
 </div>
 
-<div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+<div className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900/50">
   <div className="flex flex-wrap gap-2">
     <button
   type="button"
@@ -704,8 +704,8 @@ async function restaurarRescisao(id: number) {
 </button>
   </div>
 
-  <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/40 p-5">
-  <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-300">
+  <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950/40">
+  <p className="text-xs font-bold uppercase tracking-[0.25em] text-cyan-700 dark:text-cyan-300">
     Busca inteligente
   </p>
 
@@ -717,7 +717,7 @@ async function restaurarRescisao(id: number) {
   setMostrarSugestoesBusca(true);
 }}
     placeholder="Busque por funcionário, título, tipo, competência, motivo ou responsável..."
-    className="mt-3 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+    className="mt-3 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-600 dark:text-slate-500 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
   />
 
 {mostrarSugestoesBusca && busca.length > 0 && sugestoesBusca.length > 0 && (
@@ -758,10 +758,10 @@ async function restaurarRescisao(id: number) {
 )}
 
 {abaAtiva === "HOLERITES" && (
-  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+        <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
           <th className="p-3">Funcionário</th>
           <th className="p-3">Competência</th>
           <th className="p-3">Valor líquido</th>
@@ -866,10 +866,10 @@ async function restaurarRescisao(id: number) {
 )}
 
 {abaAtiva === "FERIAS" && (
-  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+        <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
           <th className="p-3">Funcionário</th>
           <th className="p-3">Período</th>
           <th className="p-3">Dias</th>
@@ -946,10 +946,10 @@ async function restaurarRescisao(id: number) {
 )}
 
 {abaAtiva === "EXAMES" && (
-  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+        <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
           <th className="p-3">Funcionário</th>
           <th className="p-3">Tipo</th>
           <th className="p-3">Data</th>
@@ -1020,10 +1020,10 @@ async function restaurarRescisao(id: number) {
 )}
 
 {abaAtiva === "RESCISOES" && (
-  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+        <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
           <th className="p-3">Funcionário</th>
           <th className="p-3">Tipo</th>
           <th className="p-3">Desligamento</th>
@@ -1091,10 +1091,10 @@ async function restaurarRescisao(id: number) {
 )}
 
 {abaAtiva === "DOCUMENTOS" && (
-  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
-  <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+  <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
     <th className="p-3">Funcionário</th>
     <th className="p-3">Título</th>
     <th className="p-3">Tipo</th>
@@ -1178,10 +1178,10 @@ async function restaurarRescisao(id: number) {
 )}
 
 {abaAtiva === "OCORRENCIAS" && (
-  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+  <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
     <table className="min-w-full">
       <thead>
-        <tr className="border-b border-slate-800 text-left text-sm text-slate-400">
+        <tr className="border-b border-slate-200 text-left text-sm text-slate-600 dark:border-slate-800 dark:text-slate-400">
           <th className="p-3">Funcionário</th>
           <th className="p-3">Tipo</th>
           <th className="p-3">Data</th>
@@ -1210,7 +1210,7 @@ async function restaurarRescisao(id: number) {
         ) : (
           ocorrencias.map((ocorrencia) => (
             <tr key={ocorrencia.id} className="border-b border-slate-800">
-              <td className="p-3 text-white">
+              <td className="p-3 text-slate-900 dark:text-white">
                 {ocorrencia.funcionario?.nome || "-"}
               </td>
 
