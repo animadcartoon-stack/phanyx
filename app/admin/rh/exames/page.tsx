@@ -591,19 +591,29 @@ async function cancelarExame(id: number) {
                       </td>
 
                       <td className="p-3">
-                        {item.arquivoUrl ? (
-                          <a
-                            href={item.arquivoUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="font-semibold text-purple-700 hover:underline dark:text-purple-300"
-                          >
-                            Abrir
-                          </a>
-                        ) : (
-                          "-"
-                        )}
-                      </td>
+  {item.arquivoUrl ? (
+    <div className="flex flex-wrap gap-2">
+      <a
+        href={item.arquivoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="rounded-lg border border-blue-300 px-3 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-300 dark:hover:bg-blue-950/40"
+      >
+        Abrir
+      </a>
+
+      <a
+        href={item.arquivoUrl}
+        download
+        className="rounded-lg border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+      >
+        Baixar
+      </a>
+    </div>
+  ) : (
+    <span className="text-slate-500 dark:text-slate-400">-</span>
+  )}
+</td>
                       <td className="p-3">
   <div className="flex flex-wrap gap-2">
     <button
