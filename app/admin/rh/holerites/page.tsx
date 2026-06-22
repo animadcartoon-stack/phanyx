@@ -533,29 +533,29 @@ async function arquivarHolerite() {
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
+          <div className="rounded-2xl border border-emerald-200 bg-white p-4 dark:border-emerald-800 dark:bg-emerald-950/30">
             <p className="text-xs font-bold uppercase text-emerald-700 dark:text-emerald-300">
               Total vencimentos
             </p>
-            <p className="mt-1 text-2xl font-black text-emerald-800 dark:text-emerald-200">
+            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-emerald-200">
               {moeda(totalVencimentos)}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-950/30">
+          <div className="rounded-2xl border border-red-200 bg-white p-4 dark:border-red-800 dark:bg-red-950/30">
             <p className="text-xs font-bold uppercase text-red-700 dark:text-red-300">
               Total descontos
             </p>
-            <p className="mt-1 text-2xl font-black text-red-800 dark:text-red-200">
+            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-red-200">
               {moeda(totalDescontos)}
             </p>
           </div>
 
-          <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30">
+          <div className="rounded-2xl border border-blue-200 bg-white p-4 dark:border-blue-800 dark:bg-blue-950/30">
             <p className="text-xs font-bold uppercase text-blue-700 dark:text-blue-300">
               Valor líquido
             </p>
-            <p className="mt-1 text-2xl font-black text-blue-800 dark:text-blue-200">
+            <p className="mt-1 text-2xl font-black text-slate-900 dark:text-blue-200">
               {moeda(valorLiquido)}
             </p>
           </div>
@@ -632,9 +632,11 @@ async function arquivarHolerite() {
                       {moeda(numero(holerite.valorLiquido))}
                     </td>
                     <td className="py-3">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                        {holerite.status || "GERADO"}
-                      </span>
+                      <span
+  className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-bold text-slate-700"
+>
+  {holerite.status || "GERADO"}
+</span>
                     </td>
                     <td className="py-3 text-right">
   <div className="flex justify-end gap-2">
