@@ -207,7 +207,7 @@ export default function DocumentosRHPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="phanyx-rh-documentos-page space-y-6">
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
     <div>

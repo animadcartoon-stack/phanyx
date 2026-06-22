@@ -2150,3 +2150,28 @@ html[data-theme="light"] .phanyx-rh-page input::placeholder,
 html[data-theme="light"] .phanyx-rh-page textarea::placeholder {
   color: #64748b;
 }
+
+/* PHANYX RH - Documentos - correção tema claro */
+html:not(.dark) .phanyx-rh-documentos-page h1 {
+  color: #020617 !important;
+}
+
+html:not(.dark) .phanyx-rh-documentos-page h2,
+html:not(.dark) .phanyx-rh-documentos-page th,
+html:not(.dark) .phanyx-rh-documentos-page td {
+  color: #020617 !important;
+}
+
+html:not(.dark) .phanyx-rh-documentos-page thead tr {
+  background: #f1f5f9 !important;
+  color: #020617 !important;
+}
+
+html:not(.dark) .phanyx-rh-documentos-page tbody tr {
+  background: #ffffff !important;
+}
+
+html:not(.dark) .phanyx-rh-documentos-page a,
+html:not(.dark) .phanyx-rh-documentos-page button {
+  color: inherit;
+}
