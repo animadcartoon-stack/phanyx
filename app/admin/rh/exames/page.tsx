@@ -468,7 +468,7 @@ async function cancelarExame(id: number) {
           type="button"
           onClick={salvarExame}
           disabled={salvando}
-          className="mt-5 rounded-xl bg-purple-600 px-4 py-2 font-semibold text-white hover:bg-purple-700 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="mt-5 rounded-xl bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-400"
         >
           {salvando ? "Salvando..." : "Registrar exame"}
         </button>
@@ -542,7 +542,7 @@ async function cancelarExame(id: number) {
 
                       <td className="p-3">
                         <div>{item.clinica || "-"}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                        <div className="text-xs text-slate-500 dark:text-slate-700 dark:text-slate-400">
                           {item.medico || ""} {item.crm ? `• CRM ${item.crm}` : ""}
                         </div>
                       </td>
