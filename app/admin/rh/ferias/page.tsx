@@ -358,7 +358,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-xl font-bold !text-slate-950 dark:!text-white">
+        <h2 className="text-xl font-bold text-slate-950 dark:text-white">
   Programar férias
 </h2>
 
