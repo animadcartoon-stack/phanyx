@@ -215,7 +215,7 @@ export default function DocumentosRHPage() {
         RH EMPRESARIAL
       </p>
 
-      <h1 className="mt-2 text-4xl font-black text-slate-950 dark:text-slate-900 dark:text-white">
+      <h1 className="mt-2 text-4xl font-black !text-slate-950 dark:!text-white">
         Documentos RH
       </h1>
 
@@ -322,15 +322,15 @@ export default function DocumentosRHPage() {
   </div>
 </div>
 
-      <div className="rounded-3xl border border-slate-800 bg-slate-900/50 p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/50">
         <h2 className="text-xl font-bold text-slate-900 dark:text-white">
           Documentos gerados
         </h2>
 
-        <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-800">
+        <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-slate-800 text-left text-sm text-slate-700 dark:text-slate-400">
+              <tr className="border-b border-slate-200 bg-slate-100 text-left text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-700 dark:text-slate-300">
                 <th className="p-3">Funcionário</th>
                 <th className="p-3">Título</th>
                 <th className="p-3">Tipo</th>
@@ -357,28 +357,28 @@ export default function DocumentosRHPage() {
                 </tr>
               ) : (
                 documentosFiltrados.map((documento) => (
-                  <tr key={documento.id} className="border-b border-slate-800">
+                  <tr key={documento.id} className="border-b border-slate-200 dark:border-slate-800">
                     <td className="p-3 text-slate-900 dark:text-white">
                       {documento.funcionario?.nome || "-"}
                     </td>
 
-                    <td className="p-3 text-slate-300">
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
                       {documento.titulo}
                     </td>
 
-                    <td className="p-3 text-slate-300">
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
                       {documento.tipo}
                     </td>
 
-                    <td className="p-3 text-slate-300">
+                    <td className="p-3 text-slate-700 dark:text-slate-300">
   {formatarData(documento.criadoEm)}
 </td>
 
-<td className="p-3 text-slate-300">
+<td className="p-3 text-slate-700 dark:text-slate-300">
   {documento.criadoPor?.nome || documento.criadoPor?.email || "-"}
 </td>
 
-<td className="p-3 text-slate-300">
+<td className="p-3 text-slate-700 dark:text-slate-300">
   {documento.status}
 </td>
 
@@ -424,7 +424,7 @@ export default function DocumentosRHPage() {
               Arquivar documento RH
             </h2>
 
-            <p className="mt-3 text-sm text-slate-300">
+            <p className="mt-3 text-sm text-slate-700 dark:text-slate-300">
               Este documento não será excluído. Ele ficará preservado para
               auditoria e poderá ser restaurado depois.
             </p>
@@ -441,7 +441,7 @@ export default function DocumentosRHPage() {
               </p>
             </div>
 
-            <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+            <label className="mt-5 block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Motivo do arquivamento
             </label>
 
