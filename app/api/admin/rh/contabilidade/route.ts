@@ -13,23 +13,14 @@ export async function GET(req: Request) {
         mes,
         ano,
       },
-      include: {
-        funcionario: {
-          select: {
-            id: true,
-            nome: true,
-            cargo: true,
-          },
-        },
-      },
       orderBy: {
         id: "desc",
       },
     });
 
     const totais = holerites.reduce(
-      (acc, item) => {
-        acc.salarios += Number(item.salarioBase || 0);
+      (acc, item: any) => {
+        acc.salarios += Number(item.salarioBase || item.salario || 0);
         acc.vencimentos += Number(item.totalVencimentos || 0);
         acc.descontos += Number(item.totalDescontos || 0);
         acc.liquido += Number(item.valorLiquido || 0);
@@ -55,11 +46,15 @@ export async function GET(req: Request) {
       },
       holerites,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Erro ao carregar contabilidade RH:", error);
 
     return NextResponse.json(
-      { error: "Erro ao carregar dados da contabilidade RH." },
+      {
+        error:
+          error?.message ||
+          "Erro ao carregar dados da contabilidade RH.",
+      },
       { status: 500 }
     );
   }
