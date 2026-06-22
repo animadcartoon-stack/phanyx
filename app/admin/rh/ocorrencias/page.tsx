@@ -332,15 +332,15 @@ await carregarDados();
 }
 
   return (
-    <div className="space-y-8">
+    <div className="phanyx-rh-page space-y-8 text-slate-950 dark:text-white">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.28em] text-blue-400">
           RH Empresarial
         </p>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-3xl font-bold !text-slate-950 dark:!text-white">
           Ocorrências funcionais
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-700 dark:text-slate-300">
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:!text-slate-700 dark:!text-slate-300">
           Registre advertências, suspensões, afastamentos, promoções e eventos
           importantes do histórico funcional.
         </p>
@@ -363,7 +363,7 @@ await carregarDados();
 
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
               Funcionário
             </label>
             <input
@@ -405,7 +405,7 @@ await carregarDados();
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
               Tipo
             </label>
             <select
@@ -422,7 +422,7 @@ await carregarDados();
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
               Data do evento
             </label>
             <input
@@ -434,7 +434,7 @@ await carregarDados();
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
               Motivo
             </label>
             <input
@@ -448,7 +448,7 @@ await carregarDados();
           {mostrarCamposPeriodo && (
             <>
               <div>
-                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
                   Data inicial
                 </label>
                 <input
@@ -460,7 +460,7 @@ await carregarDados();
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
                   Data final
                 </label>
                 <input
@@ -472,7 +472,7 @@ await carregarDados();
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
                   Dias
                 </label>
                 <input
@@ -488,7 +488,7 @@ await carregarDados();
           {mostrarCamposAfastamento && (
             <>
               <div>
-                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
                   CID
                 </label>
                 <input
@@ -500,7 +500,7 @@ await carregarDados();
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
                   Data da perícia
                 </label>
                 <input
@@ -512,7 +512,7 @@ await carregarDados();
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+                <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
                   Resultado da perícia
                 </label>
                 <input
@@ -526,7 +526,7 @@ await carregarDados();
           )}
 
           <div className="lg:col-span-3">
-            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            <label className="text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
               Descrição detalhada
             </label>
             <textarea
@@ -646,7 +646,7 @@ await carregarDados();
         Arquivar ocorrência
       </h2>
 
-      <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+      <p className="mt-2 text-sm !text-slate-700 dark:!text-slate-300">
         Esta ocorrência não será excluída do sistema. Ela ficará preservada para auditoria e direção.
       </p>
 
@@ -657,7 +657,7 @@ await carregarDados();
         </div>
       </div>
 
-      <label className="mt-5 block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+      <label className="mt-5 block text-xs font-bold uppercase !text-slate-700 dark:!text-slate-300">
         Motivo do arquivamento
       </label>
 
@@ -681,7 +681,7 @@ await carregarDados();
   setMotivoArquivo("");
   setErro("");
 }}
-          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-800"
+          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold !text-slate-700 dark:!text-slate-300 hover:bg-slate-800"
         >
           Cancelar
         </button>
