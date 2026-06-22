@@ -112,7 +112,7 @@ const sugestoes = useMemo(() => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+    <div className="phanyx-rh-page mx-auto max-w-6xl space-y-6 p-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           🕒 Histórico Funcional
@@ -130,13 +130,13 @@ const sugestoes = useMemo(() => {
   />
 
   {busca.trim() && sugestoes.length > 0 && (
-    <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-xl">
+    <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900">
       {sugestoes.map((nome) => (
         <button
           key={nome}
           type="button"
           onClick={() => setBusca(nome)}
-          className="block w-full px-4 py-3 text-left text-sm text-white hover:bg-blue-600"
+          className="block w-full px-4 py-3 text-left text-sm text-slate-900 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-600"
         >
           {nome}
         </button>
