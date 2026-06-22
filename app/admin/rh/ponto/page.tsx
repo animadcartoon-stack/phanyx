@@ -194,9 +194,9 @@ export default function PontoRHPage() {
   }
 
     return (
-    <div className="mx-auto max-w-7xl space-y-6 p-6">
+    <div className="w-full max-w-full space-y-6 overflow-x-hidden px-4 py-6 sm:px-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
           ⏱️ Controle de Ponto
         </h1>
 
@@ -225,7 +225,7 @@ export default function PontoRHPage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
 
           <div className="relative lg:col-span-2">
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Funcionário
             </label>
 
@@ -236,7 +236,7 @@ export default function PontoRHPage() {
                 setFuncionarioSelecionado(null);
               }}
               placeholder="🔎 Digite nome, cargo, código ou departamento"
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
 
             {buscaFuncionario &&
@@ -262,7 +262,7 @@ export default function PontoRHPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Data
             </label>
 
@@ -270,19 +270,19 @@ export default function PontoRHPage() {
               type="date"
               value={data}
               onChange={(e) => setData(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Status
             </label>
 
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             >
               <option value="REGISTRADO">Registrado</option>
               <option value="ATRASADO">Atrasado</option>
@@ -299,7 +299,7 @@ export default function PontoRHPage() {
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Entrada
             </label>
 
@@ -307,12 +307,12 @@ export default function PontoRHPage() {
               type="time"
               value={entrada}
               onChange={(e) => setEntrada(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Saída Almoço
             </label>
 
@@ -320,12 +320,12 @@ export default function PontoRHPage() {
               type="time"
               value={saidaAlmoco}
               onChange={(e) => setSaidaAlmoco(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Retorno Almoço
             </label>
 
@@ -333,12 +333,12 @@ export default function PontoRHPage() {
               type="time"
               value={retornoAlmoco}
               onChange={(e) => setRetornoAlmoco(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Saída
             </label>
 
@@ -346,12 +346,12 @@ export default function PontoRHPage() {
               type="time"
               value={saida}
               onChange={(e) => setSaida(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
+            <label className="mb-1 block text-sm font-medium text-slate-900 dark:text-slate-100">
               Jornada (horas)
             </label>
 
@@ -359,7 +359,7 @@ export default function PontoRHPage() {
               type="number"
               value={jornada}
               onChange={(e) => setJornada(e.target.value)}
-              className="w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+              className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
             />
           </div>
         </div>
@@ -369,7 +369,7 @@ export default function PontoRHPage() {
             value={observacoes}
             onChange={(e) => setObservacoes(e.target.value)}
             placeholder="Observações..."
-            className="min-h-[100px] w-full rounded-xl border p-3 dark:border-slate-700 dark:bg-slate-950"
+            className="min-h-[100px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 placeholder:text-slate-400 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500"
           />
         </div>
 
