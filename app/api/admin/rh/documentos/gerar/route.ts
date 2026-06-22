@@ -43,6 +43,7 @@ export async function POST(req: NextRequest) {
     const funcionarioId = Number(body.funcionarioId);
     const templateId = Number(body.templateId);
     const ocorrenciaId = body.ocorrenciaId ? Number(body.ocorrenciaId) : null;
+    const rescisaoId = body.rescisaoId ? Number(body.rescisaoId) : null;
 
     if (!funcionarioId || !templateId) {
       return NextResponse.json(
@@ -103,7 +104,15 @@ export async function POST(req: NextRequest) {
       orderBy: { criadoEm: "desc" },
     });
 
-    const rescisao = await prisma.rescisaoRH.findFirst({
+    const rescisao = rescisaoId
+  ? await prisma.rescisaoRH.findFirst({
+      where: {
+        id: rescisaoId,
+        funcionarioId,
+        instituicaoId: user.instituicaoId,
+      },
+    })
+  : await prisma.rescisaoRH.findFirst({
       where: {
         funcionarioId,
         instituicaoId: user.instituicaoId,

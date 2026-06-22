@@ -28,6 +28,14 @@ type RescisaoRH = {
   funcionario?: Funcionario | null;
 };
 
+type TemplateDocumento = {
+  id: number;
+  nome: string;
+  tipo: string;
+  ativo: boolean;
+  contexto?: string | null;
+};
+
 const tiposRescisao = [
   "Pedido de demissão",
   "Dispensa sem justa causa",
@@ -63,6 +71,9 @@ export default function RescisoesRHPage() {
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [templatesRh, setTemplatesRh] = useState<TemplateDocumento[]>([]);
+  const [templatePorRescisao, setTemplatePorRescisao] = useState<Record<number, string>>({});
+  const [gerandoDocumentoId, setGerandoDocumentoId] = useState<number | null>(null);
 
   const [funcionarioId, setFuncionarioId] = useState("");
   const [tipo, setTipo] = useState("Pedido de demissão");
@@ -162,6 +173,35 @@ export default function RescisoesRHPage() {
         throw new Error(dataRescisoes?.error || "Erro ao carregar rescisões.");
       }
 
+      const resTemplates = await fetch("/api/admin/documentos/templates", {
+  credentials: "include",
+  cache: "no-store",
+});
+
+const dataTemplates = await lerJsonSeguro(
+  resTemplates,
+  "/api/admin/documentos/templates"
+);
+
+if (!resTemplates.ok) {
+  throw new Error(dataTemplates?.error || "Erro ao carregar templates.");
+}
+
+const tiposRescisaoTemplate = [
+  "DEMISSAO",
+  "PEDIDO_DEMISSAO",
+  "AVISO_PREVIO",
+  "TRCT",
+];
+
+setTemplatesRh(
+  Array.isArray(dataTemplates)
+    ? dataTemplates.filter(
+        (t) => t?.ativo && tiposRescisaoTemplate.includes(t?.tipo)
+      )
+    : []
+);
+
       setRescisoes(Array.isArray(dataRescisoes) ? dataRescisoes : []);
     } catch (error: any) {
       setErro(error?.message || "Erro ao carregar dados.");
@@ -235,6 +275,50 @@ async function cancelarRescisao(id: number) {
     await carregarDados();
   } catch (error: any) {
     setErro(error?.message || "Erro ao cancelar rescisão.");
+  }
+}
+
+async function gerarDocumentoRescisao(item: RescisaoRH) {
+  try {
+    setErro("");
+    setMensagem("");
+
+    const templateId = Number(templatePorRescisao[item.id] || 0);
+
+    if (!templateId) {
+      setErro("Selecione um template antes de gerar o documento da rescisão.");
+      return;
+    }
+
+    if (!item.funcionario?.id) {
+      setErro("Funcionário não identificado nesta rescisão.");
+      return;
+    }
+
+    setGerandoDocumentoId(item.id);
+
+    const res = await fetch("/api/admin/rh/documentos/gerar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        funcionarioId: item.funcionario.id,
+        templateId,
+        rescisaoId: item.id,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao gerar documento da rescisão.");
+    }
+
+    setMensagem("Documento da rescisão gerado com sucesso em Documentos RH.");
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao gerar documento da rescisão.");
+  } finally {
+    setGerandoDocumentoId(null);
   }
 }
 
@@ -549,6 +633,32 @@ async function cancelarRescisao(id: number) {
                     </td>
                     <td className="p-3">
   <div className="flex flex-wrap gap-2">
+    <select
+  value={templatePorRescisao[item.id] || ""}
+  onChange={(e) =>
+    setTemplatePorRescisao((atual) => ({
+      ...atual,
+      [item.id]: e.target.value,
+    }))
+  }
+  className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+>
+  <option value="">Template</option>
+  {templatesRh.map((template) => (
+    <option key={template.id} value={template.id}>
+      {template.nome}
+    </option>
+  ))}
+</select>
+
+<button
+  type="button"
+  onClick={() => gerarDocumentoRescisao(item)}
+  disabled={gerandoDocumentoId === item.id}
+  className="rounded-lg border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-700 hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-emerald-800 dark:text-emerald-300 dark:hover:bg-emerald-950/40"
+>
+  {gerandoDocumentoId === item.id ? "Gerando..." : "Gerar documento"}
+</button>
     <button
       type="button"
       onClick={() => arquivarRescisao(item.id)}
