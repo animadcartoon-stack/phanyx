@@ -442,15 +442,58 @@ async function cancelarExame(id: number) {
             </select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Arquivo URL</label>
-            <input
-              value={arquivoUrl}
-              onChange={(e) => setArquivoUrl(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Link do ASO anexado"
-            />
-          </div>
+         <div>
+  <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+    Documento do Exame (PDF, JPG ou PNG)
+  </label>
+
+  <input
+    type="file"
+    accept=".pdf,.png,.jpg,.jpeg"
+    className="mt-1 block w-full text-sm text-slate-700 dark:text-slate-300
+      file:mr-4 file:rounded-xl file:border-0
+      file:bg-blue-600 file:px-4 file:py-2
+      file:text-white hover:file:bg-blue-700"
+    onChange={async (e) => {
+      const arquivo = e.target.files?.[0];
+      if (!arquivo) return;
+
+      const formData = new FormData();
+      formData.append("arquivo", arquivo);
+
+      try {
+        const resp = await fetch(
+          "/api/admin/rh/exames/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        const data = await resp.json();
+
+        if (!resp.ok) {
+          throw new Error(data.error);
+        }
+
+        setArquivoUrl(data.url);
+      } catch (err: any) {
+        setErro(err.message || "Erro ao enviar arquivo.");
+      }
+    }}
+  />
+
+  {arquivoUrl && (
+    <a
+      href={arquivoUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2 inline-flex text-sm text-blue-600 hover:underline dark:text-blue-400"
+    >
+      Visualizar documento enviado
+    </a>
+  )}
+</div>
 
           <div className="md:col-span-3">
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Observações</label>

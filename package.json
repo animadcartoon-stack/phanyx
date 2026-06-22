@@ -24,7 +24,7 @@
     "@tiptap/extension-underline": "^3.26.0",
     "@tiptap/react": "^3.26.0",
     "@tiptap/starter-kit": "^3.26.0",
-    "@vercel/blob": "^2.3.3",
+    "@vercel/blob": "^2.4.1",
     "bcryptjs": "^3.0.3",
     "google-ads-api": "^23.0.0",
     "google-auth-library": "^10.6.2",
