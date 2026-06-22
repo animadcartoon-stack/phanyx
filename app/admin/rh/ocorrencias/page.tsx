@@ -340,7 +340,7 @@ await carregarDados();
         <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
           Ocorrências funcionais
         </h1>
-        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-300">
+        <p className="mt-2 max-w-3xl text-sm text-slate-600 dark:text-slate-700 dark:text-slate-300">
           Registre advertências, suspensões, afastamentos, promoções e eventos
           importantes do histórico funcional.
         </p>
@@ -358,12 +358,12 @@ await carregarDados();
         </div>
       )}
 
-      <div className="rounded-3xl border border-slate-700 bg-slate-900/70 p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-white">Nova ocorrência</h2>
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+  <h2 className="text-xl font-bold text-slate-950 dark:text-white">Nova ocorrência</h2>
 
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <label className="text-xs font-bold uppercase text-slate-300">
+            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Funcionário
             </label>
             <input
@@ -373,7 +373,7 @@ await carregarDados();
                 setFuncionarioSelecionado(null);
               }}
               placeholder="Digite o nome do funcionário"
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
             />
 
             {buscaFuncionario && !funcionarioSelecionado && (
@@ -405,13 +405,13 @@ await carregarDados();
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-300">
+            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Tipo
             </label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
             >
               {TIPOS_OCORRENCIA.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -422,64 +422,64 @@ await carregarDados();
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-300">
+            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Data do evento
             </label>
             <input
               type="date"
               value={dataEvento}
               onChange={(e) => setDataEvento(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
             />
           </div>
 
           <div>
-            <label className="text-xs font-bold uppercase text-slate-300">
+            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Motivo
             </label>
             <input
               value={motivo}
               onChange={(e) => setMotivo(e.target.value)}
               placeholder="Ex.: atraso recorrente, retorno ao trabalho..."
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
             />
           </div>
 
           {mostrarCamposPeriodo && (
             <>
               <div>
-                <label className="text-xs font-bold uppercase text-slate-300">
+                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                   Data inicial
                 </label>
                 <input
                   type="date"
                   value={dataInicio}
                   onChange={(e) => setDataInicio(e.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-300">
+                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                   Data final
                 </label>
                 <input
                   type="date"
                   value={dataFim}
                   onChange={(e) => setDataFim(e.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-300">
+                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                   Dias
                 </label>
                 <input
                   type="number"
                   value={dias}
                   onChange={(e) => setDias(e.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
               </div>
             </>
@@ -488,45 +488,45 @@ await carregarDados();
           {mostrarCamposAfastamento && (
             <>
               <div>
-                <label className="text-xs font-bold uppercase text-slate-300">
+                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                   CID
                 </label>
                 <input
                   value={cid}
                   onChange={(e) => setCid(e.target.value)}
                   placeholder="Opcional"
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-300">
+                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                   Data da perícia
                 </label>
                 <input
                   type="date"
                   value={dataPericia}
                   onChange={(e) => setDataPericia(e.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold uppercase text-slate-300">
+                <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
                   Resultado da perícia
                 </label>
                 <input
                   value={resultadoPericia}
                   onChange={(e) => setResultadoPericia(e.target.value)}
                   placeholder="Ex.: aprovado, indeferido, aguardando"
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
                 />
               </div>
             </>
           )}
 
           <div className="lg:col-span-3">
-            <label className="text-xs font-bold uppercase text-slate-300">
+            <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Descrição detalhada
             </label>
             <textarea
@@ -534,7 +534,7 @@ await carregarDados();
               onChange={(e) => setDescricao(e.target.value)}
               rows={5}
               placeholder="Descreva o ocorrido com clareza."
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500"
+              className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400 outline-none focus:border-blue-500"
             />
           </div>
         </div>
@@ -549,8 +549,8 @@ await carregarDados();
         </button>
       </div>
 
-      <div className="rounded-3xl border border-slate-700 bg-slate-900/70 p-6 shadow-sm">
-        <h2 className="text-xl font-bold text-white">Ocorrências registradas</h2>
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+  <h2 className="text-xl font-bold text-slate-950 dark:text-white">Ocorrências registradas</h2>
 
         <div className="mt-5 overflow-x-auto">
           <table className="min-w-full text-sm">
@@ -646,7 +646,7 @@ await carregarDados();
         Arquivar ocorrência
       </h2>
 
-      <p className="mt-2 text-sm text-slate-300">
+      <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
         Esta ocorrência não será excluída do sistema. Ela ficará preservada para auditoria e direção.
       </p>
 
@@ -657,7 +657,7 @@ await carregarDados();
         </div>
       </div>
 
-      <label className="mt-5 block text-xs font-bold uppercase text-slate-300">
+      <label className="mt-5 block text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
         Motivo do arquivamento
       </label>
 
@@ -681,7 +681,7 @@ await carregarDados();
   setMotivoArquivo("");
   setErro("");
 }}
-          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-300 hover:bg-slate-800"
+          className="rounded-xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-800"
         >
           Cancelar
         </button>
