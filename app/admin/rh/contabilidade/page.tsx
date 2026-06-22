@@ -71,9 +71,13 @@ export default function ContabilidadeRHPage() {
 
       const data = await res.json();
 
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao carregar contabilidade RH.");
-      }
+console.log("CONTABILIDADE RH", data);
+
+if (!res.ok) {
+  throw new Error(
+    JSON.stringify(data, null, 2)
+  );
+}
 
       setDados(data);
     } catch (error: any) {
@@ -99,7 +103,7 @@ export default function ContabilidadeRHPage() {
   }, [dados]);
 
   return (
-    <div className="phanyx-rh-page space-y-6 text-slate-950 dark:text-white">
+    <div className="phanyx-rh-contabilidade-page space-y-6 text-slate-950 dark:text-white">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.28em] text-blue-700 dark:text-blue-400">
           RH Empresarial
@@ -210,7 +214,7 @@ export default function ContabilidadeRHPage() {
         </h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-5">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
               INSS Patronal
             </p>
@@ -219,7 +223,7 @@ export default function ContabilidadeRHPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
               FGTS
             </p>
@@ -228,7 +232,7 @@ export default function ContabilidadeRHPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
               Provisão férias
             </p>
@@ -237,7 +241,7 @@ export default function ContabilidadeRHPage() {
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-950">
             <p className="text-xs font-bold uppercase text-slate-600 dark:text-slate-400">
               Provisão 13º
             </p>

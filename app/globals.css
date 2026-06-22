@@ -2175,3 +2175,11 @@ html:not(.dark) .phanyx-rh-documentos-page a,
 html:not(.dark) .phanyx-rh-documentos-page button {
   color: inherit;
 }
+
+html:not(.dark) .phanyx-rh-contabilidade-page .dark\:bg-slate-950 {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) .phanyx-rh-contabilidade-page .dark\:text-white {
+  color: #020617 !important;
+}
