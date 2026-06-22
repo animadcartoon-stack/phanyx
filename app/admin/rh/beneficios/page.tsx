@@ -113,7 +113,7 @@ export default function BeneficiosRHPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6 text-slate-100">
+    <main className="phanyx-rh-page min-h-screen p-6">
       <div className="mx-auto max-w-7xl space-y-6">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-blue-300">
