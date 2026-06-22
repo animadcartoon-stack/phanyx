@@ -70,15 +70,15 @@ export default function EventosFolhaPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 p-6 text-white">
-      <section className="rounded-3xl border border-slate-800 bg-slate-900/70 p-6">
+    <main className="phanyx-rh-page min-h-screen p-6">
+      <section className="rounded-3xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-900">
         <p className="text-xs font-bold uppercase tracking-[0.35em] text-cyan-400">
           Departamento Pessoal
         </p>
 
-        <h1 className="mt-3 text-4xl font-black">Eventos da Folha</h1>
+        <h1 className="mt-3 text-4xl font-black text-slate-950 dark:text-white">Eventos da Folha</h1>
 
-        <p className="mt-2 text-sm text-slate-400">
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
           Cadastro dos códigos usados no holerite: vencimentos, descontos,
           benefícios, bases e informativos.
         </p>
