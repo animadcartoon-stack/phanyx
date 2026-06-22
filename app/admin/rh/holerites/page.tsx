@@ -314,7 +314,7 @@ async function arquivarHolerite() {
   }
 
   return (
-    <div className="phanyx-rh-page space-y-6">
+    <div className="phanyx-rh-page phanyx-holerite-page space-y-6">
       <div>
         <p className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-300">
           RH Empresarial
