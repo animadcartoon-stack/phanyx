@@ -310,12 +310,12 @@ if (!periodoGozoInicio || !periodoGozoFim) {
   }
 
   return (
-    <div className="phanyx-rh-ferias-page space-y-6 !text-slate-950 opacity-100 dark:!text-white">
+    <div className="phanyx-rh-page phanyx-rh-ferias-page space-y-6">
       <div>
         <p className="text-sm font-bold uppercase text-blue-700 dark:text-blue-400">
           Departamento Pessoal
         </p>
-        <h1 className="text-3xl font-bold !text-slate-950 dark:!text-white">
+        <h1 className="text-3xl font-bold text-slate-950 dark:text-white">
   Férias
 </h1>
         <p className="text-sm text-slate-700 dark:text-slate-300">
@@ -498,7 +498,7 @@ if (!periodoGozoInicio || !periodoGozoFim) {
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-xl font-bold !text-slate-950 dark:!text-white">
+        <h2 className="text-xl font-bold text-slate-950 dark:text-white">
   Férias cadastradas
 </h2>
 
