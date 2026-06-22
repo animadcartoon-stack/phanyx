@@ -685,7 +685,7 @@ async function restaurarRescisao(id: number) {
   setMostrarSugestoesBusca(true);
 }}
     placeholder="Busque por funcionário, título, tipo, competência, motivo ou responsável..."
-    className="mt-3 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-600 dark:text-slate-500 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+    className="mt-3 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 dark:text-slate-500 outline-none transition focus:border-cyan-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 placeholder:text-slate-500 outline-none transition focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
   />
 
 {mostrarSugestoesBusca && busca.length > 0 && sugestoesBusca.length > 0 && (

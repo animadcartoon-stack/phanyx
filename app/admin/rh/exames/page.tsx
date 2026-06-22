@@ -348,7 +348,7 @@ async function cancelarExame(id: number) {
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Funcionário</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Funcionário</label>
             <select
               value={funcionarioId}
               onChange={(e) => setFuncionarioId(e.target.value)}
@@ -364,7 +364,7 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Tipo de exame</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de exame</label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
@@ -379,57 +379,57 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Data do exame</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Data do exame</label>
             <input
               type="date"
               value={dataExame}
               onChange={(e) => setDataExame(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Validade</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Validade</label>
             <input
               type="date"
               value={validade}
               onChange={(e) => setValidade(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Clínica</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Clínica</label>
             <input
               value={clinica}
               onChange={(e) => setClinica(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               placeholder="Nome da clínica"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Médico</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Médico</label>
             <input
               value={medico}
               onChange={(e) => setMedico(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               placeholder="Nome do médico"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">CRM</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">CRM</label>
             <input
               value={crm}
               onChange={(e) => setCrm(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               placeholder="CRM"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Resultado</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Resultado</label>
             <select
               value={resultado}
               onChange={(e) => setResultado(e.target.value)}
@@ -443,22 +443,22 @@ async function cancelarExame(id: number) {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Arquivo URL</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Arquivo URL</label>
             <input
               value={arquivoUrl}
               onChange={(e) => setArquivoUrl(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               placeholder="Link do ASO anexado"
             />
           </div>
 
           <div className="md:col-span-3">
-            <label className="text-sm font-medium">Observações</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Observações</label>
             <textarea
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
               rows={3}
-              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+              className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-500 dark:placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
               placeholder="Observações internas"
             />
           </div>
@@ -483,14 +483,14 @@ async function cancelarExame(id: number) {
           <table className="min-w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 text-left dark:border-slate-700">
-                <th className="p-3">Funcionário</th>
-                <th className="p-3">Tipo</th>
-                <th className="p-3">Data</th>
-                <th className="p-3">Validade</th>
-                <th className="p-3">Resultado</th>
-                <th className="p-3">Clínica/Médico</th>
-                <th className="p-3">Arquivo</th>
-                <th className="p-3">Ações</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Funcionário</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Tipo</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Data</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Validade</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Resultado</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Clínica/Médico</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Arquivo</th>
+                <th className="p-3 text-slate-700 dark:text-slate-300">Ações</th>
               </tr>
             </thead>
 
