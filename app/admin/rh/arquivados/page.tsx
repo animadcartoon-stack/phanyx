@@ -927,13 +927,14 @@ async function restaurarRescisao(id: number) {
           <th className="p-3">Arquivado em</th>
           <th className="p-3">Arquivado por</th>
           <th className="p-3">Motivo</th>
+          <th className="p-3">Ações</th>
         </tr>
       </thead>
 
       <tbody>
         {exames.length === 0 ? (
           <tr>
-            <td colSpan={9} className="p-6 text-center text-slate-400">
+            <td colSpan={10} className="p-6 text-center text-slate-400">
               Nenhum exame arquivado encontrado.
             </td>
           </tr>
@@ -979,6 +980,14 @@ async function restaurarRescisao(id: number) {
               <td className="p-3 text-slate-300">
                 {item.motivoArquivo || "-"}
               </td>
+              <td className="p-3">
+  <button
+    onClick={() => restaurarExame(item.id)}
+    className="rounded-lg border border-emerald-500 px-3 py-1 text-xs font-semibold text-emerald-600 hover:bg-emerald-50 dark:text-emerald-400 dark:hover:bg-emerald-950/30"
+  >
+    Restaurar
+  </button>
+</td>
             </tr>
           ))
         )}
