@@ -215,7 +215,7 @@ export default function DocumentosRHPage() {
         RH EMPRESARIAL
       </p>
 
-      <h1 className="mt-2 text-4xl font-black !text-slate-950 dark:!text-white">
+      <h1 className="mt-2 text-4xl font-black text-[#020617] dark:text-white">
         Documentos RH
       </h1>
 
@@ -290,7 +290,7 @@ export default function DocumentosRHPage() {
       <select
         value={filtroStatus}
         onChange={(e) => setFiltroStatus(e.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500"
+        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
       >
         <option value="">Todos</option>
         <option value="GERADO">Gerado</option>
@@ -307,7 +307,7 @@ export default function DocumentosRHPage() {
       <select
         value={filtroTipo}
         onChange={(e) => setFiltroTipo(e.target.value)}
-        className="w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-slate-900 dark:text-white outline-none focus:border-blue-500"
+        className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
       >
         <option value="">Todos</option>
         <option value="DECLARACAO">Declaração</option>
@@ -330,7 +330,7 @@ export default function DocumentosRHPage() {
         <div className="mt-6 overflow-x-auto rounded-2xl border border-slate-200 dark:border-slate-800">
           <table className="min-w-full">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-100 text-left text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-700 dark:text-slate-300">
+              <tr className="border-b border-slate-200 bg-slate-100 text-left text-sm text-slate-700 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-300">
                 <th className="p-3">Funcionário</th>
                 <th className="p-3">Título</th>
                 <th className="p-3">Tipo</th>
