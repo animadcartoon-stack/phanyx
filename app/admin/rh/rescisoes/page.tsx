@@ -299,7 +299,7 @@ async function cancelarRescisao(id: number) {
   }
 
   return (
-    <div className="space-y-6 text-slate-950 dark:text-white">
+    <div className="phanyx-rh-page space-y-6 text-slate-950 dark:text-white">
       <div>
         <p className="text-sm font-bold uppercase text-red-700 dark:text-red-400">
           Departamento Pessoal

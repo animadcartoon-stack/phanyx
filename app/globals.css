@@ -2120,3 +2120,33 @@ html[data-theme="light"] .phanyx-holerite-page .text-slate-200,
 html[data-theme="light"] .phanyx-holerite-page .text-slate-300 {
   color: #0f172a !important;
 }
+
+/* PHANYX RH - correção global segura para tema claro */
+html[data-theme="light"] .phanyx-rh-page,
+html[data-theme="light"] .phanyx-rh-page * {
+  color: #020617;
+}
+
+html[data-theme="light"] .phanyx-rh-page p,
+html[data-theme="light"] .phanyx-rh-page span,
+html[data-theme="light"] .phanyx-rh-page label,
+html[data-theme="light"] .phanyx-rh-page h1,
+html[data-theme="light"] .phanyx-rh-page h2,
+html[data-theme="light"] .phanyx-rh-page h3,
+html[data-theme="light"] .phanyx-rh-page th,
+html[data-theme="light"] .phanyx-rh-page td {
+  color: #020617;
+}
+
+html[data-theme="light"] .phanyx-rh-page input,
+html[data-theme="light"] .phanyx-rh-page select,
+html[data-theme="light"] .phanyx-rh-page textarea {
+  background: #ffffff;
+  color: #020617;
+  border-color: #cbd5e1;
+}
+
+html[data-theme="light"] .phanyx-rh-page input::placeholder,
+html[data-theme="light"] .phanyx-rh-page textarea::placeholder {
+  color: #64748b;
+}
