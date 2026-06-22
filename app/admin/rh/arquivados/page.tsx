@@ -493,18 +493,18 @@ async function restaurarFerias(id: number) {
 
 async function restaurarExame(id: number) {
   try {
-    if (!motivoRestauracao.trim()) return;
-
     setRestaurandoId(id);
+
+    const motivo =
+      motivoRestauracao.trim() ||
+      "Exame médico restaurado pela tela de Arquivados RH.";
 
     const res = await fetch(`/api/admin/rh/exames/${id}/restaurar`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        motivo: motivoRestauracao.trim(),
-      }),
+      body: JSON.stringify({ motivo }),
     });
 
     const dados = await res.json();
