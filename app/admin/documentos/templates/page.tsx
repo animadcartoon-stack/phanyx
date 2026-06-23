@@ -1241,29 +1241,25 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
     setErro("");
     setMensagem("Gerando prévia do PDF...");
 
-    atualizarConteudoEditor();
-    const conteudoAtual = editorRef.current?.innerHTML || conteudo;
+    const editor = document.getElementById("editor-template-phanyx");
+    const conteudoAtual = editor?.innerHTML || conteudo;
 
-    console.log("================================");
-    console.log("HTML ENVIADO PARA O PDF");
-    console.log(conteudoAtual);
-    console.log("================================");
-
-    const res = await fetch("/api/admin/documentos/templates/preview", {
+    const res = await fetch("/api/admin/documentos/templates/preview-pdf-fiel", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include",
-     body: JSON.stringify({
-  tipo,
-  conteudo: conteudoAtual,
-  formatoImpressao,
-}),
+      body: JSON.stringify({
+        tipo,
+        conteudo: conteudoAtual,
+        formatoImpressao,
+      }),
     });
 
     if (!res.ok) {
-      throw new Error("Não foi possível gerar a prévia.");
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || "Não foi possível gerar a prévia.");
     }
 
     const blob = await res.blob();
@@ -1275,7 +1271,6 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
     setVisualizandoPdf(false);
   }
 }
-
   function aplicarModeloInicial() {
   setConteudo(templateInicialPorTipo(tipo));
 }
