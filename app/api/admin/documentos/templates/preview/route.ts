@@ -223,6 +223,8 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = new URL(req.url).origin;
     const conteudoHtml = substituirExemplos(String(body?.conteudo || ""), config);
+    console.log("HTML FINAL PDF");
+    console.log(conteudoHtml);
 
     if (body?.tipo === "HISTORICO") {
       const pdfDoc = await PDFDocument.create();
