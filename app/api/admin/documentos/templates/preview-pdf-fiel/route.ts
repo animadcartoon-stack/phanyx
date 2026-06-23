@@ -140,8 +140,10 @@ export async function POST(req: NextRequest) {
     }
 
     body {
-      font-family: Arial, Helvetica, sans-serif;
-    }
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  line-height: 1;
+}
 
     .pagina-a4 {
       width: 210mm;
@@ -212,7 +214,53 @@ export async function POST(req: NextRequest) {
         : ""
     }
 
-    .conteudo {
+   .conteudo {
+  position: relative;
+  z-index: 1;
+  padding-left: 18mm;
+  padding-right: 18mm;
+  ${
+    usaPhanyxClassico
+      ? "padding-top: 14mm; padding-bottom: 14mm;"
+      : "padding-top: 18mm; padding-bottom: 18mm;"
+  }
+  ${usaPapelProprio ? "padding-top: 18mm; padding-bottom: 18mm;" : ""}
+}
+
+.conteudo p,
+.conteudo div {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+}
+
+.conteudo p + p,
+.conteudo div + div {
+  margin-top: 0;
+}
+
+.conteudo br {
+  line-height: 1;
+}
+
+.conteudo,
+.conteudo * {
+  line-height: inherit;
+}
+
+.conteudo p + p,
+.conteudo div + div {
+  margin-top: 0;
+}
+
+.conteudo br {
+  line-height: 1;
+}
+
+.conteudo,
+.conteudo * {
+  line-height: inherit;
+}
       position: relative;
       z-index: 1;
       padding-left: 18mm;
@@ -234,9 +282,6 @@ export async function POST(req: NextRequest) {
       border-collapse: collapse;
     }
 
-    .conteudo p {
-      margin-top: 0;
-    }
   </style>
 </head>
 <body>
