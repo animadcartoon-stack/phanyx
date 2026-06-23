@@ -145,149 +145,149 @@ editorProps: {
   if (!editor) return null;
 
   return (
-    <div className="rounded-2xl border bg-white">
-      <div className="border-b bg-slate-50 p-3">
-        <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
-          Ferramentas de edição
-        </p>
+  <div className="rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <div className="border-b border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800">
+      <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-300">
+        Ferramentas de edição
+      </p>
 
-<select
-  defaultValue=""
-  onChange={(e) => {
-    const fonte = e.target.value;
-    if (!fonte) return;
-    editor.chain().focus().setFontFamily(fonte).run();
-  }}
-  className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
->
-  <option value="" disabled>
-    Fonte
-  </option>
-  {FONTES_WINDOWS.map((fonte) => (
-    <option key={fonte} value={fonte}>
-      {fonte}
-    </option>
-  ))}
-</select>
+      <div className="flex flex-wrap gap-2">
+        <select
+          defaultValue=""
+          onChange={(e) => {
+            const fonte = e.target.value;
+            if (!fonte) return;
+            editor.chain().focus().setFontFamily(fonte).run();
+          }}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          <option value="" disabled>
+            Fonte
+          </option>
+          {FONTES_WINDOWS.map((fonte) => (
+            <option key={fonte} value={fonte}>
+              {fonte}
+            </option>
+          ))}
+        </select>
 
-<select
-  defaultValue=""
-  onChange={(e) => {
-    const tamanho = e.target.value;
-    if (!tamanho) return;
-    editor.chain().focus().setMark("textStyle", {
-      fontSize: `${tamanho}pt`,
-    }).run();
-  }}
-  className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
->
-  <option value="" disabled>
-    Tamanho
-  </option>
-  {TAMANHOS_FONTE.map((tamanho) => (
-    <option key={tamanho} value={tamanho}>
-      {tamanho} pt
-    </option>
-  ))}
-</select>
+        <select
+          defaultValue=""
+          onChange={(e) => {
+            const tamanho = e.target.value;
+            if (!tamanho) return;
+            editor.chain().focus().setMark("textStyle", {
+              fontSize: `${tamanho}pt`,
+            }).run();
+          }}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          <option value="" disabled>
+            Tamanho
+          </option>
+          {TAMANHOS_FONTE.map((tamanho) => (
+            <option key={tamanho} value={tamanho}>
+              {tamanho} pt
+            </option>
+          ))}
+        </select>
 
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleBold().run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold hover:bg-slate-100"
-          >
-            🅱️ Negrito
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBold().run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          🅱️ Negrito
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleItalic().run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            𝑰 Itálico
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleItalic().run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          𝑰 Itálico
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleUnderline().run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            U̲ Sublinhado
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleUnderline().run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          U̲ Sublinhado
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("left").run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            ← Esquerda
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("left").run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          ← Esquerda
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("center").run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            ↔ Centro
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("center").run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          ↔ Centro
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("right").run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            → Direita
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("right").run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          → Direita
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            ☰ Justificar
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          ☰ Justificar
+        </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 1 }).run()
-            }
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            Título
-          </button>
+        <button
+          type="button"
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 1 }).run()
+          }
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          Título
+        </button>
 
-          <button
-            type="button"
-            onClick={() =>
-              editor.chain().focus().toggleHeading({ level: 2 }).run()
-            }
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            Subtítulo
-          </button>
+        <button
+          type="button"
+          onClick={() =>
+            editor.chain().focus().toggleHeading({ level: 2 }).run()
+          }
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          Subtítulo
+        </button>
 
-          <button
-            type="button"
-            onClick={() => editor.chain().focus().toggleBulletList().run()}
-            className="rounded-xl border bg-white px-3 py-2 text-sm hover:bg-slate-100"
-          >
-            • Lista
-          </button>
+        <button
+          type="button"
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+        >
+          • Lista
+        </button>
 
-          <input
-            type="color"
-            onChange={(e) =>
-              editor.chain().focus().setColor(e.target.value).run()
-            }
-            className="h-10 w-12 rounded-xl border bg-white"
-            title="Cor do texto"
-          />
-        </div>
+        <input
+          type="color"
+          onChange={(e) =>
+            editor.chain().focus().setColor(e.target.value).run()
+          }
+          className="h-10 w-12 rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+          title="Cor do texto"
+        />
       </div>
-
-      <EditorContent editor={editor} />
     </div>
-  );
+
+    <EditorContent editor={editor} />
+  </div>
+);
 }
