@@ -3424,9 +3424,9 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                             {template.nome}
                           </h3>
 
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
-                            {labelTipo(template.tipo)}
-                          </span>
+                          <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-200">
+  {labelTipo(template.tipo)}
+</span>
 
                           <span
                             className={[
