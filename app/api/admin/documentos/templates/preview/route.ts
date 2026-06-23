@@ -172,6 +172,7 @@ export async function POST(req: NextRequest) {
   const baseUrl = new URL(req.url).origin;
 
   const conteudoHtml = substituirExemplos(String(body?.conteudo || ""), config);
+  console.log("HTML PREVIEW RECEBIDO:", conteudoHtml);
 
     if (body?.tipo === "HISTORICO") {
     const pdfDoc = await PDFDocument.create();
