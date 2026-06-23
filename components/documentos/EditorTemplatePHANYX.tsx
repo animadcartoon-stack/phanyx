@@ -207,13 +207,55 @@ editorProps: {
 useEffect(() => {
   if (!editor) return;
 
-  function atualizarSelecao() {
-    const atributos = editor.getAttributes("textStyle");
+  function limparFonte(valor: any) {
+    return String(valor || "")
+      .replaceAll('"', "")
+      .replaceAll("'", "")
+      .trim();
+  }
 
-    setFonteAtual(atributos.fontFamily || "Arial");
-    setTamanhoAtual(
-  atributos.fontSize ? String(atributos.fontSize).replace("pt", "") : "12"
-);
+  function limparTamanho(valor: any) {
+    return String(valor || "")
+      .replace("pt", "")
+      .replace("px", "")
+      .trim();
+  }
+
+  function atualizarSelecao() {
+    const { from, to } = editor.state.selection;
+
+    let fonteEncontrada = "";
+    let tamanhoEncontrado = "";
+
+    editor.state.doc.nodesBetween(from, to, (node) => {
+      if (!node.isText) return;
+
+      const marca = node.marks.find((m) => m.type.name === "textStyle");
+      const attrs = marca?.attrs || {};
+
+      if (attrs.fontFamily && !fonteEncontrada) {
+        fonteEncontrada = limparFonte(attrs.fontFamily);
+      }
+
+      if (attrs.fontSize && !tamanhoEncontrado) {
+        tamanhoEncontrado = limparTamanho(attrs.fontSize);
+      }
+    });
+
+    if (!fonteEncontrada || !tamanhoEncontrado) {
+      const attrs = editor.getAttributes("textStyle");
+
+      if (!fonteEncontrada) {
+        fonteEncontrada = limparFonte(attrs.fontFamily);
+      }
+
+      if (!tamanhoEncontrado) {
+        tamanhoEncontrado = limparTamanho(attrs.fontSize);
+      }
+    }
+
+    setFonteAtual(fonteEncontrada);
+    setTamanhoAtual(tamanhoEncontrado);
   }
 
   editor.on("selectionUpdate", atualizarSelecao);
@@ -238,7 +280,7 @@ useEffect(() => {
 
       <div className="flex flex-wrap gap-2">
         <select
-          value={tamanhoAtual || "12"}
+          value={tamanhoAtual}
           onChange={(e) => {
   const fonte = e.target.value;
   if (!fonte) return;
@@ -260,7 +302,7 @@ useEffect(() => {
         </select>
 
         <select
-          value={fonteAtual || "Arial"}
+          value={fonteAtual}
           onChange={(e) => {
   const tamanho = e.target.value;
   if (!tamanho) return;
