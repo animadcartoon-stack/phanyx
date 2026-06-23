@@ -428,7 +428,28 @@ export async function POST(req: NextRequest) {
         ? "DUAS_VIAS_A4"
         : "A4_INTEIRA";
 
-    const htmlFinal = `
+    const logoUrl = config?.logoUrl
+  ? config.logoUrl.startsWith("http")
+    ? config.logoUrl
+    : `${baseUrl}${config.logoUrl}`
+  : "";
+
+const papelUrl = config?.papelTimbradoUrl
+  ? config.papelTimbradoUrl.startsWith("http")
+    ? config.papelTimbradoUrl
+    : `${baseUrl}${config.papelTimbradoUrl}`
+  : "";
+
+const usaPapelProprio =
+  config?.usarPapelTimbrado &&
+  config?.estiloPapelTimbrado === "PAPEL_PROPRIO" &&
+  papelUrl;
+
+const usaPhanyxClassico =
+  config?.usarPapelTimbrado &&
+  config?.estiloPapelTimbrado === "PHANYX_CLASSICO";
+
+const htmlFinal = `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -436,7 +457,7 @@ export async function POST(req: NextRequest) {
   <style>
     @page {
       size: A4;
-      margin: 18mm;
+      margin: 0;
     }
 
     * {
@@ -447,51 +468,154 @@ export async function POST(req: NextRequest) {
     body {
       margin: 0;
       padding: 0;
-      background: white;
-      color: #000;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 12pt;
-      line-height: 1.2;
+      background: #ffffff;
+      color: #000000;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
 
-    .documento {
-      width: 100%;
+    body {
+      font-family: Arial, Helvetica, sans-serif;
     }
 
-    .documento p {
+    .pagina {
+      width: 210mm;
+      min-height: 297mm;
+      position: relative;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    ${
+      usaPapelProprio
+        ? `
+    .papel-proprio {
+      position: fixed;
+      inset: 0;
+      width: 210mm;
+      height: 297mm;
+      object-fit: cover;
+      z-index: 0;
+    }
+    `
+        : ""
+    }
+
+    ${
+      usaPhanyxClassico
+        ? `
+    .cabecalho-phanyx {
+      height: 34mm;
+      background: #111111;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      padding: 8mm 18mm;
+      gap: 8mm;
+    }
+
+    .cabecalho-phanyx img {
+      width: 22mm;
+      height: 22mm;
+      object-fit: contain;
+    }
+
+    .cabecalho-phanyx h1 {
+      margin: 0;
+      font-size: 16pt;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .cabecalho-phanyx p {
+      margin: 3mm 0 0 0;
+      font-size: 9pt;
+    }
+
+    .rodape-phanyx {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 8mm;
+      background: #111111;
+      color: #ffffff;
+      font-size: 6pt;
+      padding: 2.5mm 18mm;
+    }
+    `
+        : ""
+    }
+
+    .conteudo {
+      position: relative;
+      z-index: 1;
+      padding-left: 18mm;
+      padding-right: 18mm;
+      ${
+        usaPhanyxClassico
+          ? "padding-top: 14mm; padding-bottom: 14mm;"
+          : "padding-top: 18mm; padding-bottom: 18mm;"
+      }
+      ${usaPapelProprio ? "padding-top: 18mm; padding-bottom: 18mm;" : ""}
+    }
+
+    .conteudo p {
       margin-top: 0;
     }
 
-    .documento img {
+    .conteudo img {
       max-width: 100%;
     }
 
-    .documento table {
+    .conteudo table {
       width: 100%;
       border-collapse: collapse;
     }
 
-    .documento strong,
-    .documento b {
-      font-weight: 700;
-    }
-
-    .documento em,
-    .documento i {
-      font-style: italic;
-    }
-
-    .documento u {
-      text-decoration: underline;
+    .conteudo span,
+    .conteudo p,
+    .conteudo div {
+      max-width: 100%;
     }
   </style>
 </head>
 <body>
-  <main class="documento">
-    ${conteudoHtml}
-  </main>
+  <section class="pagina">
+    ${
+      usaPapelProprio
+        ? `<img class="papel-proprio" src="${papelUrl}" />`
+        : ""
+    }
+
+    ${
+      usaPhanyxClassico
+        ? `
+    <header class="cabecalho-phanyx">
+      ${logoUrl ? `<img src="${logoUrl}" />` : ""}
+      <div>
+        <h1>${config?.nomeFantasia || "Instituição"}</h1>
+        <p>Prévia de documento</p>
+      </div>
+    </header>
+    `
+        : ""
+    }
+
+    <main class="conteudo">
+      ${conteudoHtml}
+    </main>
+
+    ${
+      usaPhanyxClassico
+        ? `
+    <footer class="rodape-phanyx">
+      ${config?.cnpj || ""} ${config?.telefone || ""}
+    </footer>
+    `
+        : ""
+    }
+  </section>
 </body>
 </html>
 `;
