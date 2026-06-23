@@ -14,13 +14,14 @@ type BlocoPdf = {
   align: Align;
   vazio: boolean;
   titulo: boolean;
+  fontSize?: number | null;
+  fontFamily?: string | null;
   lineHeight?: number | null;
 };
 
-const ESPACO_LINHA = 12;
-const ESPACO_PARAGRAFO = 4;
-const ESPACO_LINHA_VAZIA = 14;
-const ESPACO_TITULO = 12;
+const ESPACO_PARAGRAFO = 2;
+const ESPACO_LINHA_VAZIA = 8;
+const ESPACO_TITULO = 6;
 
 function decode(texto: string) {
   return String(texto || "")
@@ -41,11 +42,10 @@ function extrairFontSize(style: string) {
   if (!valor) return null;
 
   const numero = Number(String(valor).replace("pt", "").replace("px", "").trim());
-
   if (!Number.isFinite(numero)) return null;
 
   if (String(valor).includes("px")) {
-    return Math.round(numero * 0.75);
+    return Number((numero * 0.75).toFixed(2));
   }
 
   return numero;
@@ -62,14 +62,20 @@ function extrairLineHeight(style: string) {
   const valor = extrairStyle(style, "line-height");
   if (!valor) return null;
 
-  const numero = Number(
-    String(valor)
-      .replace("px", "")
-      .replace("pt", "")
-      .trim()
-  );
+  const texto = String(valor).trim();
 
+  if (texto.endsWith("%")) {
+    const numero = Number(texto.replace("%", "").trim());
+    if (!Number.isFinite(numero)) return null;
+    return numero / 100;
+  }
+
+  const numero = Number(texto.replace("px", "").replace("pt", "").trim());
   if (!Number.isFinite(numero)) return null;
+
+  if (texto.includes("px")) {
+    return Number((numero * 0.75).toFixed(2));
+  }
 
   return numero;
 }
@@ -100,7 +106,7 @@ function tokensInline(html: string): Token[] {
       const style =
         parte.match(/style="([^"]*)"/i)?.[1] ||
         parte.match(/style='([^']*)'/i)?.[1] ||
-  "";
+        "";
 
       const tamanho = extrairFontSize(style);
       const fonte = extrairFontFamily(style);
@@ -150,17 +156,19 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     const style =
       attrs.match(/style="([^"]*)"/i)?.[1] ||
       attrs.match(/style='([^']*)'/i)?.[1] ||
-  "";
-    const lineHeight = extrairLineHeight(style);
+      "";
 
-    const align: Align = attrs.includes("text-align: center")
+    const lineHeight = extrairLineHeight(style);
+    const fontSizeBloco = extrairFontSize(style);
+    const fontFamilyBloco = extrairFontFamily(style);
+
+    const align: Align = /text-align\s*:\s*center/i.test(style)
       ? "center"
-      : attrs.includes("text-align: right")
+      : /text-align\s*:\s*right/i.test(style)
       ? "right"
       : "left";
 
     const titulo = tag === "h1" || tag === "h2";
-
     const partesLinha = bruto.split("\n");
 
     for (const parteLinha of partesLinha) {
@@ -172,15 +180,26 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
           align,
           vazio: true,
           titulo,
+          fontSize: fontSizeBloco,
+          fontFamily: fontFamilyBloco,
           lineHeight,
         });
         continue;
       }
 
-      const tokens = tokensInline(parteLinha);
+      const tokens = tokensInline(parteLinha).map((token) => ({
+        ...token,
+        fontSize: token.fontSize || fontSizeBloco || null,
+        fontFamily: token.fontFamily || fontFamilyBloco || null,
+      }));
 
       if (tag === "li") {
-        tokens.unshift({ texto: "- ", bold: false });
+        tokens.unshift({
+  texto: "- ",
+  bold: false,
+  fontSize: fontSizeBloco || null,
+  fontFamily: fontFamilyBloco || null,
+});
       }
 
       blocos.push({
@@ -188,12 +207,14 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
         align,
         vazio: false,
         titulo,
+        fontSize: fontSizeBloco,
+        fontFamily: fontFamilyBloco,
         lineHeight,
       });
     }
   }
 
-    if (blocos.length === 0) {
+  if (blocos.length === 0) {
     const textoLimpo = decode(
       entrada
         .replace(/<br\s*\/?>/gi, "\n")
@@ -207,29 +228,35 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
 
       if (!texto) {
         blocos.push({
-  tokens: [],
-  align: "left",
-  vazio: true,
-  titulo: false,
-  lineHeight: null,
-});
+          tokens: [],
+          align: "left",
+          vazio: true,
+          titulo: false,
+          lineHeight: null,
+        });
         return;
       }
 
       blocos.push({
-  tokens: [{ texto, bold: false }],
-  align: "left",
-  vazio: false,
-  titulo: false,
-  lineHeight: null,
-});
+        tokens: [{ texto, bold: false }],
+        align: "left",
+        vazio: false,
+        titulo: false,
+        lineHeight: null,
+      });
     });
   }
 
   return blocos;
 }
 
-function quebrarTokensEmLinhas(tokens: Token[], maxWidth: number, font: any, bold: any, size: number) {
+function quebrarTokensEmLinhas(
+  tokens: Token[],
+  maxWidth: number,
+  font: any,
+  bold: any,
+  size: number
+) {
   const palavras: Token[] = [];
 
   for (const token of tokens) {
@@ -237,12 +264,13 @@ function quebrarTokensEmLinhas(tokens: Token[], maxWidth: number, font: any, bol
 
     for (const pedaco of pedacos) {
       if (pedaco === "") continue;
+
       palavras.push({
-  texto: pedaco,
-  bold: token.bold,
-  fontSize: token.fontSize,
-  fontFamily: token.fontFamily,
-});
+        texto: pedaco,
+        bold: token.bold,
+        fontSize: token.fontSize,
+        fontFamily: token.fontFamily,
+      });
     }
   }
 
@@ -272,6 +300,14 @@ function quebrarTokensEmLinhas(tokens: Token[], maxWidth: number, font: any, bol
   return linhas;
 }
 
+function calcularAlturaLinha(maiorFonteLinha: number, lineHeight?: number | null) {
+  if (!lineHeight) return maiorFonteLinha * 1.12;
+
+  if (lineHeight > 4) return lineHeight;
+
+  return maiorFonteLinha * lineHeight;
+}
+
 export async function renderizarHtmlTipTapNoPdf({
   html,
   page,
@@ -289,21 +325,28 @@ export async function renderizarHtmlTipTapNoPdf({
   const blocos = extrairBlocosTipTap(html);
 
   for (const bloco of blocos) {
+    const tamanhoBase =
+      bloco.fontSize || (bloco.titulo ? 12 : 10);
+
     if (bloco.vazio) {
-      y -= ESPACO_LINHA_VAZIA;
+      const alturaVazia = calcularAlturaLinha(
+        tamanhoBase,
+        bloco.lineHeight
+      );
+      y -= Math.max(alturaVazia, ESPACO_LINHA_VAZIA);
       continue;
     }
 
-    const tamanho = bloco.titulo ? 12 : 10;
     const linhas = quebrarTokensEmLinhas(
       bloco.tokens.map((t) => ({
         ...t,
         bold: bloco.titulo ? true : t.bold,
+        fontSize: t.fontSize || tamanhoBase,
       })),
       maxWidth,
       font,
       bold,
-      tamanho
+      tamanhoBase
     );
 
     for (const linhaTokens of linhas) {
@@ -314,7 +357,8 @@ export async function renderizarHtmlTipTapNoPdf({
 
       const larguraLinha = linhaTokens.reduce((soma, token) => {
         const fonte = token.bold ? bold : font;
-        return soma + fonte.widthOfTextAtSize(token.texto, token.fontSize || tamanho);
+        const tamanho = token.fontSize || tamanhoBase;
+        return soma + fonte.widthOfTextAtSize(token.texto, tamanho);
       }, 0);
 
       let posX = x;
@@ -329,25 +373,24 @@ export async function renderizarHtmlTipTapNoPdf({
 
       for (const token of linhaTokens) {
         const fonte = token.bold ? bold : font;
+        const tamanho = token.fontSize || tamanhoBase;
 
         pagina.drawText(token.texto, {
           x: posX,
           y,
-          size: token.fontSize || tamanho,
+          size: tamanho,
           font: fonte,
           color: rgb(0, 0, 0),
         });
 
-        posX += fonte.widthOfTextAtSize(token.texto, token.fontSize || tamanho);
+        posX += fonte.widthOfTextAtSize(token.texto, tamanho);
       }
 
       const maiorFonteLinha = Math.max(
-  ...linhaTokens.map((token) => token.fontSize || tamanho)
-);
+        ...linhaTokens.map((token) => token.fontSize || tamanhoBase)
+      );
 
-const alturaLinha = maiorFonteLinha * (bloco.lineHeight || 1.2);
-
-y -= alturaLinha;
+      y -= calcularAlturaLinha(maiorFonteLinha, bloco.lineHeight);
     }
 
     y -= bloco.titulo ? ESPACO_TITULO : ESPACO_PARAGRAFO;
