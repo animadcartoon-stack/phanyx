@@ -97,7 +97,10 @@ function tokensInline(html: string): Token[] {
     }
 
     if (/^<span/i.test(parte)) {
-      const style = parte.match(/style="([^"]*)"/i)?.[1] || "";
+      const style =
+        parte.match(/style="([^"]*)"/i)?.[1] ||
+        parte.match(/style='([^']*)'/i)?.[1] ||
+  "";
 
       const tamanho = extrairFontSize(style);
       const fonte = extrairFontFamily(style);
@@ -144,7 +147,10 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     const attrs = match[2] || "";
     const bruto = match[3] || "";
 
-    const style = attrs.match(/style="([^"]*)"/i)?.[1] || "";
+    const style =
+      attrs.match(/style="([^"]*)"/i)?.[1] ||
+      attrs.match(/style='([^']*)'/i)?.[1] ||
+  "";
     const lineHeight = extrairLineHeight(style);
 
     const align: Align = attrs.includes("text-align: center")
