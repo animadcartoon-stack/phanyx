@@ -371,13 +371,6 @@ if (body.professorId === null || body.professorId === "") {
   ? body.turmaIds.map((id: any) => Number(id)).filter((id: number) => Number.isFinite(id))
   : [];
 
-    if (turmaIds.length === 0) {
-  return NextResponse.json(
-    { error: "Selecione pelo menos uma turma." },
-    { status: 400 }
-  );
-}
-
 const professoresHabilitadosIds = Array.isArray(body.professoresHabilitadosIds)
   ? body.professoresHabilitadosIds
       .map((id: any) => Number(id))

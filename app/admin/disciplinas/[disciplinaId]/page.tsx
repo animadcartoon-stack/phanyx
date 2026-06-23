@@ -238,7 +238,7 @@ try {
           cargaHoraria: cargaHoraria ? Number(cargaHoraria) : null,
           semestre: semestre ? Number(semestre) : null,
           cursoId: cursoId ? Number(cursoId) : null,
-          turmaIds: turmaIds.map(Number),
+          turmaIds: turmaIds.length > 0 ? turmaIds.map(Number) : [],
           professorId: professorId ? Number(professorId) : null,
           professoresHabilitadosIds: professoresHabilitadosIds.map(Number),
           preRequisitoIds: preRequisitoIds.map(Number),
@@ -293,7 +293,7 @@ try {
       <div>
         <h1 className="text-2xl font-bold">✏️ Editar disciplina</h1>
         <p className="mt-1 text-gray-600">
-          Atualize os dados da disciplina e vincule esta disciplina às turmas desejadas.
+          Atualize os dados da disciplina, defina o curso e o semestre. O vínculo com turma é opcional.
         </p>
       </div>
 
@@ -494,7 +494,7 @@ try {
           </div>
 
           <p className="mt-1 text-xs text-slate-500">
-            Você pode vincular esta disciplina a várias turmas.
+            Opcional: vincule esta disciplina a uma turma apenas se a turma já existir.
           </p>
         </div>
 
