@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Extension } from "@tiptap/core";
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
@@ -57,6 +58,30 @@ const TAMANHOS_FONTE = [
   "72",
 ];
 
+const FontSize = Extension.create({
+  name: "fontSize",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["textStyle"],
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: (element) => element.style.fontSize || null,
+            renderHTML: (attributes) => {
+              if (!attributes.fontSize) return {};
+              return {
+                style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
 type Props = {
   value: string;
   onChange: (html: string) => void;
@@ -93,12 +118,15 @@ function conteudoParaHtmlSeguro(valor: string) {
 }
 
 export default function EditorTemplatePHANYX({ value, onChange }: Props) {
+  const [fonteAtual, setFonteAtual] = useState("");
+  const [tamanhoAtual, setTamanhoAtual] = useState("");
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
       TextStyle,
       FontFamily,
+      FontSize,
       Color,
       TextAlign.configure({
         types: ["heading", "paragraph"],
@@ -142,6 +170,29 @@ editorProps: {
 } as any);
 }, [value, editor]);
 
+useEffect(() => {
+  if (!editor) return;
+
+  function atualizarSelecao() {
+    const atributos = editor.getAttributes("textStyle");
+
+    setFonteAtual(atributos.fontFamily || "");
+    setTamanhoAtual(
+      atributos.fontSize ? String(atributos.fontSize).replace("pt", "") : ""
+    );
+  }
+
+  editor.on("selectionUpdate", atualizarSelecao);
+  editor.on("transaction", atualizarSelecao);
+
+  atualizarSelecao();
+
+  return () => {
+    editor.off("selectionUpdate", atualizarSelecao);
+    editor.off("transaction", atualizarSelecao);
+  };
+}, [editor]);
+
   if (!editor) return null;
 
   return (
@@ -153,12 +204,15 @@ editorProps: {
 
       <div className="flex flex-wrap gap-2">
         <select
-          defaultValue=""
+          value={tamanhoAtual}
           onChange={(e) => {
-            const fonte = e.target.value;
-            if (!fonte) return;
-            editor.chain().focus().setFontFamily(fonte).run();
-          }}
+  const fonte = e.target.value;
+  if (!fonte) return;
+
+  editor.chain().focus().setFontFamily(fonte).run();
+  setFonteAtual(fonte);
+  onChange(editor.getHTML());
+}}
           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
         >
           <option value="" disabled>
@@ -172,14 +226,22 @@ editorProps: {
         </select>
 
         <select
-          defaultValue=""
+          value={fonteAtual}
           onChange={(e) => {
-            const tamanho = e.target.value;
-            if (!tamanho) return;
-            editor.chain().focus().setMark("textStyle", {
-              fontSize: `${tamanho}pt`,
-            }).run();
-          }}
+  const tamanho = e.target.value;
+  if (!tamanho) return;
+
+  editor
+    .chain()
+    .focus()
+    .setMark("textStyle", {
+      fontSize: `${tamanho}pt`,
+    })
+    .run();
+
+  setTamanhoAtual(tamanho);
+  onChange(editor.getHTML());
+}}
           className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
         >
           <option value="" disabled>
