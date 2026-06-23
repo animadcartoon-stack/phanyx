@@ -14,6 +14,7 @@ type BlocoPdf = {
   align: Align;
   vazio: boolean;
   titulo: boolean;
+  lineHeight?: number | null;
 };
 
 const ESPACO_LINHA = 12;
@@ -55,6 +56,22 @@ function extrairFontFamily(style: string) {
   if (!valor) return null;
 
   return valor.replaceAll("'", "").replaceAll('"', "").trim();
+}
+
+function extrairLineHeight(style: string) {
+  const valor = extrairStyle(style, "line-height");
+  if (!valor) return null;
+
+  const numero = Number(
+    String(valor)
+      .replace("px", "")
+      .replace("pt", "")
+      .trim()
+  );
+
+  if (!Number.isFinite(numero)) return null;
+
+  return numero;
 }
 
 function tokensInline(html: string): Token[] {
@@ -127,6 +144,9 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
     const attrs = match[2] || "";
     const bruto = match[3] || "";
 
+    const style = attrs.match(/style="([^"]*)"/i)?.[1] || "";
+    const lineHeight = extrairLineHeight(style);
+
     const align: Align = attrs.includes("text-align: center")
       ? "center"
       : attrs.includes("text-align: right")
@@ -146,6 +166,7 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
           align,
           vazio: true,
           titulo,
+          lineHeight,
         });
         continue;
       }
@@ -161,6 +182,7 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
         align,
         vazio: false,
         titulo,
+        lineHeight,
       });
     }
   }
@@ -179,20 +201,22 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
 
       if (!texto) {
         blocos.push({
-          tokens: [],
-          align: "left",
-          vazio: true,
-          titulo: false,
-        });
+  tokens: [],
+  align: "left",
+  vazio: true,
+  titulo: false,
+  lineHeight: null,
+});
         return;
       }
 
       blocos.push({
-        tokens: [{ texto, bold: false }],
-        align: "left",
-        vazio: false,
-        titulo: false,
-      });
+  tokens: [{ texto, bold: false }],
+  align: "left",
+  vazio: false,
+  titulo: false,
+  lineHeight: null,
+});
     });
   }
 
@@ -306,7 +330,13 @@ export async function renderizarHtmlTipTapNoPdf({
         posX += fonte.widthOfTextAtSize(token.texto, token.fontSize || tamanho);
       }
 
-      y -= ESPACO_LINHA;
+      const maiorFonteLinha = Math.max(
+  ...linhaTokens.map((token) => token.fontSize || tamanho)
+);
+
+const alturaLinha = maiorFonteLinha * (bloco.lineHeight || 1.2);
+
+y -= alturaLinha;
     }
 
     y -= bloco.titulo ? ESPACO_TITULO : ESPACO_PARAGRAFO;

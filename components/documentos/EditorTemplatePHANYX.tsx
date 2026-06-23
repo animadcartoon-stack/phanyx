@@ -58,6 +58,15 @@ const TAMANHOS_FONTE = [
   "72",
 ];
 
+const ESPACAMENTOS_LINHA = [
+  { label: "Linha 1.0", value: "1" },
+  { label: "Linha 1.15", value: "1.15" },
+  { label: "Linha 1.5", value: "1.5" },
+  { label: "Linha 2.0", value: "2" },
+  { label: "Linha 2.5", value: "2.5" },
+  { label: "Linha 3.0", value: "3" },
+];
+
 const FontSize = Extension.create({
   name: "fontSize",
 
@@ -73,6 +82,30 @@ const FontSize = Extension.create({
               if (!attributes.fontSize) return {};
               return {
                 style: `font-size: ${attributes.fontSize}`,
+              };
+            },
+          },
+        },
+      },
+    ];
+  },
+});
+
+const LineHeight = Extension.create({
+  name: "lineHeight",
+
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["paragraph", "heading"],
+        attributes: {
+          lineHeight: {
+            default: null,
+            parseHTML: (element) => element.style.lineHeight || null,
+            renderHTML: (attributes) => {
+              if (!attributes.lineHeight) return {};
+              return {
+                style: `line-height: ${attributes.lineHeight}`,
               };
             },
           },
@@ -127,6 +160,7 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
       TextStyle,
       FontFamily,
       FontSize,
+      LineHeight,
       Color,
       TextAlign.configure({
         types: ["heading", "paragraph"],
@@ -253,6 +287,33 @@ useEffect(() => {
             </option>
           ))}
         </select>
+
+<select
+  defaultValue=""
+  onChange={(e) => {
+    const lineHeight = e.target.value;
+    if (!lineHeight) return;
+
+    editor
+      .chain()
+      .focus()
+      .updateAttributes("paragraph", { lineHeight })
+      .updateAttributes("heading", { lineHeight })
+      .run();
+
+    onChange(editor.getHTML());
+  }}
+  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+>
+  <option value="" disabled>
+    Espaçamento
+  </option>
+  {ESPACAMENTOS_LINHA.map((item) => (
+    <option key={item.value} value={item.value}>
+      {item.label}
+    </option>
+  ))}
+</select>
 
         <button
           type="button"
