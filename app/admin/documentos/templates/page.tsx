@@ -1248,7 +1248,7 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
     console.log(conteudo);
     console.log("================================");
 
-    const res = await fetch("/api/admin/documentos/templates/preview-html", {
+    const res = await fetch("/api/admin/documentos/templates/preview", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
