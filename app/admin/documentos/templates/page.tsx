@@ -1243,7 +1243,12 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
 
     const conteudoAtual = conteudo;
 
-    const res = await fetch("/api/admin/documentos/templates/preview", {
+    console.log("================================");
+    console.log("HTML ENVIADO PARA O PDF");
+    console.log(conteudo);
+    console.log("================================");
+
+    const res = await fetch("/api/admin/documentos/templates/preview-html", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

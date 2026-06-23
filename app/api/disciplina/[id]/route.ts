@@ -4,6 +4,7 @@ import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
 function disciplinaPertenceAInstituicao(
   disciplina: {
+    instituicaoId?: number | null;
     curso?: { instituicaoId?: number | null } | null;
     turmaDisciplinas?:
       | Array<{
@@ -16,6 +17,8 @@ function disciplinaPertenceAInstituicao(
 ) {
   if (!disciplina) return false;
 
+  const disciplinaDaInstituicao = disciplina.instituicaoId === instituicaoId;
+
   const cursoDaInstituicao = disciplina.curso?.instituicaoId === instituicaoId;
 
   const turmaDaInstituicao =
@@ -26,7 +29,7 @@ function disciplinaPertenceAInstituicao(
         vinculo.turma?.instituicaoId === instituicaoId
     );
 
-  return cursoDaInstituicao || turmaDaInstituicao;
+  return disciplinaDaInstituicao || cursoDaInstituicao || turmaDaInstituicao;
 }
 
 export async function GET(

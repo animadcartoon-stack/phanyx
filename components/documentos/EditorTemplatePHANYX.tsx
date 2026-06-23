@@ -173,7 +173,7 @@ parseOptions: {
 editorProps: {
       attributes: {
         class:
-          "editor-template-phanyx min-h-[380px] rounded-b-2xl bg-white px-5 py-5 text-sm leading-7 text-slate-900 outline-none",
+  "editor-template-phanyx min-h-[261mm] text-[11pt] leading-[normal] text-slate-900 outline-none",
       },
       handleKeyDown(view, event) {
         if (event.key === "Tab") {
@@ -211,61 +211,57 @@ useEffect(() => {
     return String(valor || "")
       .replaceAll('"', "")
       .replaceAll("'", "")
+      .split(",")[0]
       .trim();
   }
 
   function limparTamanho(valor: any) {
-    return String(valor || "")
-      .replace("pt", "")
-      .replace("px", "")
-      .trim();
+    const texto = String(valor || "").trim();
+    if (!texto) return "";
+
+    if (texto.includes("px")) {
+      const numero = Number(texto.replace("px", ""));
+      return Number.isFinite(numero) ? String(Math.round(numero * 0.75)) : "";
+    }
+
+    return texto.replace("pt", "").trim();
   }
 
   function atualizarSelecao() {
-    const { from, to } = editor.state.selection;
+    const attrs = editor.getAttributes("textStyle");
 
-    let fonteEncontrada = "";
-    let tamanhoEncontrado = "";
+    let fonte = limparFonte(attrs.fontFamily);
+    let tamanho = limparTamanho(attrs.fontSize);
 
-    editor.state.doc.nodesBetween(from, to, (node) => {
-      if (!node.isText) return;
+    const selection = window.getSelection();
+    const node = selection?.anchorNode;
 
-      const marca = node.marks.find((m) => m.type.name === "textStyle");
-      const attrs = marca?.attrs || {};
+    const elemento =
+      node?.nodeType === Node.TEXT_NODE
+        ? node.parentElement
+        : (node as HTMLElement | null);
 
-      if (attrs.fontFamily && !fonteEncontrada) {
-        fonteEncontrada = limparFonte(attrs.fontFamily);
-      }
+    if (elemento) {
+      const computed = window.getComputedStyle(elemento);
 
-      if (attrs.fontSize && !tamanhoEncontrado) {
-        tamanhoEncontrado = limparTamanho(attrs.fontSize);
-      }
-    });
-
-    if (!fonteEncontrada || !tamanhoEncontrado) {
-      const attrs = editor.getAttributes("textStyle");
-
-      if (!fonteEncontrada) {
-        fonteEncontrada = limparFonte(attrs.fontFamily);
-      }
-
-      if (!tamanhoEncontrado) {
-        tamanhoEncontrado = limparTamanho(attrs.fontSize);
-      }
+      if (!fonte) fonte = limparFonte(computed.fontFamily);
+      if (!tamanho) tamanho = limparTamanho(computed.fontSize);
     }
 
-    setFonteAtual(fonteEncontrada);
-    setTamanhoAtual(tamanhoEncontrado);
+    setFonteAtual(fonte || "");
+    setTamanhoAtual(tamanho || "");
   }
 
   editor.on("selectionUpdate", atualizarSelecao);
   editor.on("transaction", atualizarSelecao);
+  document.addEventListener("selectionchange", atualizarSelecao);
 
   atualizarSelecao();
 
   return () => {
     editor.off("selectionUpdate", atualizarSelecao);
     editor.off("transaction", atualizarSelecao);
+    document.removeEventListener("selectionchange", atualizarSelecao);
   };
 }, [editor]);
 
@@ -280,7 +276,7 @@ useEffect(() => {
 
       <div className="flex flex-wrap gap-2">
         <select
-          value={tamanhoAtual}
+  value={fonteAtual}
           onChange={(e) => {
   const fonte = e.target.value;
   if (!fonte) return;
@@ -302,7 +298,7 @@ useEffect(() => {
         </select>
 
         <select
-          value={fonteAtual}
+  value={tamanhoAtual}
           onChange={(e) => {
   const tamanho = e.target.value;
   if (!tamanho) return;
@@ -452,7 +448,13 @@ useEffect(() => {
       </div>
     </div>
 
-    <EditorContent editor={editor} />
+    <div className="overflow-x-auto bg-slate-100 p-6 dark:bg-slate-950">
+  <div className="mx-auto min-h-[297mm] w-[210mm] bg-white text-black shadow-2xl">
+    <div className="min-h-[297mm] p-[18mm]">
+      <EditorContent editor={editor} />
+    </div>
+  </div>
+</div>
   </div>
 );
 }
