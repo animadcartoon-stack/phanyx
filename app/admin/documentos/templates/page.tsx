@@ -1241,11 +1241,12 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
     setErro("");
     setMensagem("Gerando prévia do PDF...");
 
-    const conteudoAtual = conteudo;
+    atualizarConteudoEditor();
+    const conteudoAtual = editorRef.current?.innerHTML || conteudo;
 
     console.log("================================");
     console.log("HTML ENVIADO PARA O PDF");
-    console.log(conteudo);
+    console.log(conteudoAtual);
     console.log("================================");
 
     const res = await fetch("/api/admin/documentos/templates/preview", {
