@@ -19,9 +19,9 @@ type BlocoPdf = {
   lineHeight?: number | null;
 };
 
-const ESPACO_PARAGRAFO = 2;
-const ESPACO_LINHA_VAZIA = 8;
-const ESPACO_TITULO = 6;
+const ESPACO_PARAGRAFO = 0.5;
+const ESPACO_LINHA_VAZIA = 4;
+const ESPACO_TITULO = 2;
 
 function decode(texto: string) {
   return String(texto || "")
@@ -301,7 +301,7 @@ function quebrarTokensEmLinhas(
 }
 
 function calcularAlturaLinha(maiorFonteLinha: number, lineHeight?: number | null) {
-  if (!lineHeight) return maiorFonteLinha * 1.12;
+  if (!lineHeight) return maiorFonteLinha * 0.95;
 
   if (lineHeight > 4) return lineHeight;
 
@@ -326,7 +326,7 @@ export async function renderizarHtmlTipTapNoPdf({
 
   for (const bloco of blocos) {
     const tamanhoBase =
-      bloco.fontSize || (bloco.titulo ? 12 : 10);
+  bloco.fontSize || (bloco.titulo ? 8 : 7);
 
     if (bloco.vazio) {
       const alturaVazia = calcularAlturaLinha(
