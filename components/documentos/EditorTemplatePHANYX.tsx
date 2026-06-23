@@ -7,6 +7,55 @@ import TextAlign from "@tiptap/extension-text-align";
 import Underline from "@tiptap/extension-underline";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
+import FontFamily from "@tiptap/extension-font-family";
+
+const FONTES_WINDOWS = [
+  "Arial",
+  "Arial Black",
+  "Bahnschrift",
+  "Calibri",
+  "Cambria",
+  "Candara",
+  "Comic Sans MS",
+  "Consolas",
+  "Constantia",
+  "Corbel",
+  "Courier New",
+  "Franklin Gothic Medium",
+  "Gabriola",
+  "Georgia",
+  "Impact",
+  "Lucida Console",
+  "Lucida Sans Unicode",
+  "Microsoft Sans Serif",
+  "Palatino Linotype",
+  "Segoe Print",
+  "Segoe Script",
+  "Segoe UI",
+  "Tahoma",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana",
+];
+
+const TAMANHOS_FONTE = [
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "14",
+  "16",
+  "18",
+  "20",
+  "22",
+  "24",
+  "28",
+  "32",
+  "36",
+  "48",
+  "72",
+];
 
 type Props = {
   value: string;
@@ -49,6 +98,7 @@ export default function EditorTemplatePHANYX({ value, onChange }: Props) {
       StarterKit,
       Underline,
       TextStyle,
+      FontFamily,
       Color,
       TextAlign.configure({
         types: ["heading", "paragraph"],
@@ -100,6 +150,46 @@ editorProps: {
         <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">
           Ferramentas de edição
         </p>
+
+<select
+  defaultValue=""
+  onChange={(e) => {
+    const fonte = e.target.value;
+    if (!fonte) return;
+    editor.chain().focus().setFontFamily(fonte).run();
+  }}
+  className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+>
+  <option value="" disabled>
+    Fonte
+  </option>
+  {FONTES_WINDOWS.map((fonte) => (
+    <option key={fonte} value={fonte}>
+      {fonte}
+    </option>
+  ))}
+</select>
+
+<select
+  defaultValue=""
+  onChange={(e) => {
+    const tamanho = e.target.value;
+    if (!tamanho) return;
+    editor.chain().focus().setMark("textStyle", {
+      fontSize: `${tamanho}pt`,
+    }).run();
+  }}
+  className="rounded-xl border bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+>
+  <option value="" disabled>
+    Tamanho
+  </option>
+  {TAMANHOS_FONTE.map((tamanho) => (
+    <option key={tamanho} value={tamanho}>
+      {tamanho} pt
+    </option>
+  ))}
+</select>
 
         <div className="flex flex-wrap gap-2">
           <button

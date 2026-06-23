@@ -19,6 +19,7 @@
     "@tensorflow-models/body-segmentation": "^1.0.2",
     "@tensorflow/tfjs": "^4.22.0",
     "@tiptap/extension-color": "^3.26.0",
+    "@tiptap/extension-font-family": "^3.26.0",
     "@tiptap/extension-text-align": "^3.26.0",
     "@tiptap/extension-text-style": "^3.26.0",
     "@tiptap/extension-underline": "^3.26.0",

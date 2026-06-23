@@ -885,6 +885,54 @@ function AdminDocumentosTemplatesPage() {
 
 const usaModoGuiado = tiposEstruturados.includes(tipo);
 
+const FONTES_WINDOWS = [
+  "Arial",
+  "Arial Black",
+  "Bahnschrift",
+  "Calibri",
+  "Cambria",
+  "Candara",
+  "Comic Sans MS",
+  "Consolas",
+  "Constantia",
+  "Corbel",
+  "Courier New",
+  "Franklin Gothic Medium",
+  "Gabriola",
+  "Georgia",
+  "Impact",
+  "Lucida Console",
+  "Lucida Sans Unicode",
+  "Microsoft Sans Serif",
+  "Palatino Linotype",
+  "Segoe Print",
+  "Segoe Script",
+  "Segoe UI",
+  "Tahoma",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana",
+];
+
+const TAMANHOS_FONTE = [
+  "8",
+  "9",
+  "10",
+  "11",
+  "12",
+  "14",
+  "16",
+  "18",
+  "20",
+  "22",
+  "24",
+  "28",
+  "32",
+  "36",
+  "48",
+  "72",
+];
+
 function atualizarConteudoEditor() {
   if (!editorRef.current) return;
   setConteudo(editorRef.current.innerHTML);
@@ -893,6 +941,30 @@ function atualizarConteudoEditor() {
 function aplicarComandoEditor(comando: string, valor?: string) {
   editorRef.current?.focus();
   document.execCommand(comando, false, valor);
+  atualizarConteudoEditor();
+}
+
+function aplicarFonteEditor(fonte: string) {
+  editorRef.current?.focus();
+  document.execCommand("fontName", false, fonte);
+  atualizarConteudoEditor();
+}
+
+function aplicarTamanhoFonte(tamanho: string) {
+  editorRef.current?.focus();
+
+  document.execCommand("fontSize", false, "7");
+
+  const editor = editorRef.current;
+  if (!editor) return;
+
+  editor.querySelectorAll('font[size="7"]').forEach((el) => {
+    const span = document.createElement("span");
+    span.style.fontSize = `${tamanho}pt`;
+    span.innerHTML = el.innerHTML;
+    el.replaceWith(span);
+  });
+
   atualizarConteudoEditor();
 }
 
