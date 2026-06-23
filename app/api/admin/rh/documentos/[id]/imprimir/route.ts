@@ -1,48 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { renderizarHtmlTipTapNoPdf } from "@/lib/pdf/renderizarHtmlTipTap";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-function escaparHtml(texto: string) {
-  return String(texto || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
+async function carregarImagemPdf(
+  pdfDoc: PDFDocument,
+  url?: string | null,
+  baseUrl?: string
+) {
+  try {
+    if (!url) return null;
 
-function normalizarConteudo(conteudo: string) {
-  const texto = String(conteudo || "");
+    const finalUrl = url.startsWith("http") ? url : `${baseUrl}${url}`;
+    const res = await fetch(finalUrl);
 
-  const pareceHtml =
-    texto.includes("<p") ||
-    texto.includes("<div") ||
-    texto.includes("<br") ||
-    texto.includes("<table") ||
-    texto.includes("<h1") ||
-    texto.includes("<strong");
+    if (!res.ok) return null;
 
-  if (pareceHtml) return texto;
+    const bytes = await res.arrayBuffer();
 
-  return escaparHtml(texto).replace(/\n/g, "<br />");
+    if (finalUrl.toLowerCase().includes(".png")) {
+      return await pdfDoc.embedPng(bytes);
+    }
+
+    return await pdfDoc.embedJpg(bytes);
+  } catch {
+    return null;
+  }
 }
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const user = await getUserFromToken();
 
     if (!user || user.role !== "ADMIN") {
-      return new NextResponse("Sem permissão", { status: 403 });
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
     const id = Number(params.id);
 
     if (!id) {
-      return new NextResponse("Documento inválido", { status: 400 });
+      return NextResponse.json({ error: "Documento inválido" }, { status: 400 });
     }
 
     const documento = await prisma.documentoRH.findFirst({
@@ -57,161 +61,155 @@ export async function GET(
             cpf: true,
           },
         },
+        instituicao: {
+          include: {
+            configuracaoInstituicao: true,
+          },
+        },
       },
     });
 
     if (!documento) {
-      return new NextResponse("Documento não encontrado", { status: 404 });
+      return NextResponse.json(
+        { error: "Documento não encontrado" },
+        { status: 404 }
+      );
     }
 
-    const conteudo = normalizarConteudo(documento.conteudo || "");
+    const config = documento.instituicao?.configuracaoInstituicao;
+    const baseUrl = new URL(req.url).origin;
 
-    const html = `<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <title>${documento.titulo || "Documento RH"}</title>
-  <style>
-    @page {
-      size: A4;
-      margin: 18mm;
-    }
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    * {
-      box-sizing: border-box;
-    }
+    const logo = await carregarImagemPdf(pdfDoc, config?.logoUrl, baseUrl);
+    const papel = await carregarImagemPdf(
+      pdfDoc,
+      config?.papelTimbradoUrl,
+      baseUrl
+    );
 
-    body {
-      margin: 0;
-      background: #e5e7eb;
-      color: #111827;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 12pt;
-      line-height: 1.45;
-    }
+    let page = pdfDoc.addPage([595.28, 841.89]);
+    let y = 700;
 
-    .barra {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 18px;
-      background: #0f172a;
-      color: #ffffff;
-      border-bottom: 1px solid #1e293b;
-    }
+    function aplicarLayoutPagina() {
+      const largura = page.getWidth();
+      const altura = page.getHeight();
 
-    .barra strong {
-      font-size: 14px;
-    }
+      if (
+        config?.usarPapelTimbrado &&
+        config?.estiloPapelTimbrado === "PAPEL_PROPRIO" &&
+        papel
+      ) {
+        page.drawImage(papel, {
+          x: 0,
+          y: 0,
+          width: largura,
+          height: altura,
+        });
 
-    .barra span {
-      display: block;
-      font-size: 12px;
-      color: #cbd5e1;
-      margin-top: 2px;
-    }
-
-    .acoes {
-      display: flex;
-      gap: 8px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 10px;
-      padding: 9px 14px;
-      cursor: pointer;
-      font-weight: 700;
-      color: #ffffff;
-      background: #dc2626;
-    }
-
-    button.secundario {
-      background: #334155;
-    }
-
-    .pagina {
-      width: 210mm;
-      min-height: 297mm;
-      margin: 18px auto;
-      padding: 18mm;
-      background: #ffffff;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.20);
-    }
-
-    .conteudo {
-      width: 100%;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    td, th {
-      border: 1px solid #d1d5db;
-      padding: 6px;
-      vertical-align: top;
-    }
-
-    h1, h2, h3 {
-      margin-top: 0;
-    }
-
-    @media print {
-      body {
-        background: #ffffff;
+        y = 720;
+        return;
       }
 
-      .barra {
-        display: none;
+      if (
+        config?.usarPapelTimbrado &&
+        config?.estiloPapelTimbrado === "PHANYX_CLASSICO"
+      ) {
+        page.drawRectangle({
+          x: 0,
+          y: 742,
+          width: largura,
+          height: 100,
+          color: rgb(0.07, 0.07, 0.07),
+        });
+
+        if (logo) {
+          page.drawImage(logo, {
+            x: 55,
+            y: 765,
+            width: 62,
+            height: 62,
+          });
+        }
+
+        page.drawText(config?.nomeFantasia || "Instituição", {
+          x: 130,
+          y: 797,
+          size: 16,
+          font: fontBold,
+          color: rgb(1, 1, 1),
+        });
+
+        page.drawText(documento.titulo || "Documento RH", {
+          x: 130,
+          y: 775,
+          size: 9,
+          font,
+          color: rgb(1, 1, 1),
+        });
+
+        page.drawRectangle({
+          x: 0,
+          y: 0,
+          width: largura,
+          height: 28,
+          color: rgb(0.07, 0.07, 0.07),
+        });
+
+        page.drawText(`${config?.cnpj || ""}  ${config?.telefone || ""}`, {
+          x: 45,
+          y: 10,
+          size: 6,
+          font,
+          color: rgb(1, 1, 1),
+        });
+
+        y = 705;
+        return;
       }
 
-      .pagina {
-        width: auto;
-        min-height: auto;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-      }
+      y = 790;
     }
-  </style>
-</head>
-<body>
-  <div class="barra">
-    <div>
-      <strong>${documento.titulo || "Documento RH"}</strong>
-      <span>${documento.funcionario?.nome || ""}</span>
-    </div>
 
-    <div class="acoes">
-      <button type="button" onclick="window.print()">Imprimir</button>
-      <button type="button" class="secundario" onclick="window.close()">Fechar</button>
-    </div>
-  </div>
+    function novaPagina() {
+      page = pdfDoc.addPage([595.28, 841.89]);
+      aplicarLayoutPagina();
+    }
 
-  <main class="pagina">
-    <section class="conteudo">
-      ${conteudo}
-    </section>
-  </main>
-</body>
-</html>`;
+    aplicarLayoutPagina();
 
-    return new NextResponse(html, {
-      status: 200,
+    await renderizarHtmlTipTapNoPdf({
+      html: documento.conteudo || "",
+      page,
+      pdfDoc,
+      font,
+      bold: fontBold,
+      x: 55,
+      yInicial: y,
+      maxWidth: 485,
+      pageWidth: 595.28,
+      pageHeight: 841.89,
+      criarNovaPagina: async () => {
+        novaPagina();
+        return page;
+      },
+    });
+
+    const bytes = await pdfDoc.save();
+
+    return new NextResponse(Buffer.from(bytes), {
       headers: {
-        "Content-Type": "text/html; charset=utf-8",
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `inline; filename=documento-rh-${documento.id}.pdf`,
         "Cache-Control": "no-store",
       },
     });
   } catch (error: any) {
-    return new NextResponse(
-      error?.message || "Erro ao abrir documento para impressão.",
+    console.error("Erro ao gerar PDF RH:", error);
+    return NextResponse.json(
+      { error: error?.message || "Erro ao gerar PDF RH." },
       { status: 500 }
     );
   }
