@@ -176,10 +176,10 @@ useEffect(() => {
   function atualizarSelecao() {
     const atributos = editor.getAttributes("textStyle");
 
-    setFonteAtual(atributos.fontFamily || "");
+    setFonteAtual(atributos.fontFamily || "Arial");
     setTamanhoAtual(
-      atributos.fontSize ? String(atributos.fontSize).replace("pt", "") : ""
-    );
+  atributos.fontSize ? String(atributos.fontSize).replace("pt", "") : "12"
+);
   }
 
   editor.on("selectionUpdate", atualizarSelecao);
@@ -204,7 +204,7 @@ useEffect(() => {
 
       <div className="flex flex-wrap gap-2">
         <select
-          value={tamanhoAtual}
+          value={tamanhoAtual || "12"}
           onChange={(e) => {
   const fonte = e.target.value;
   if (!fonte) return;
@@ -226,7 +226,7 @@ useEffect(() => {
         </select>
 
         <select
-          value={fonteAtual}
+          value={fonteAtual || "Arial"}
           onChange={(e) => {
   const tamanho = e.target.value;
   if (!tamanho) return;
