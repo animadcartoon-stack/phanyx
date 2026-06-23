@@ -231,7 +231,12 @@ function quebrarTokensEmLinhas(tokens: Token[], maxWidth: number, font: any, bol
 
     for (const pedaco of pedacos) {
       if (pedaco === "") continue;
-      palavras.push({ texto: pedaco, bold: token.bold });
+      palavras.push({
+  texto: pedaco,
+  bold: token.bold,
+  fontSize: token.fontSize,
+  fontFamily: token.fontFamily,
+});
     }
   }
 
