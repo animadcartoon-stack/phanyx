@@ -610,10 +610,20 @@ if (data?.id) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900">
-        <h2 className="text-xl font-bold text-slate-950 dark:text-white">
-          Registrar rescisão
-        </h2>
+      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="mb-6 border-b border-slate-200 pb-4 dark:border-slate-700">
+    <p className="text-xs font-semibold uppercase tracking-wider text-red-600 dark:text-red-400">
+      Departamento Pessoal
+    </p>
+
+    <h2 className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
+      Registrar rescisão
+    </h2>
+
+    <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+      Cadastre desligamentos, calcule verbas rescisórias e gere documentos para auditoria.
+    </p>
+  </div>
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           <div className="md:col-span-3">
