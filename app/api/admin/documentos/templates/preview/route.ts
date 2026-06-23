@@ -475,8 +475,10 @@ const htmlFinal = `
     }
 
     body {
-      font-family: Arial, Helvetica, sans-serif;
-    }
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8pt;
+  line-height: 1;
+}
 
     .pagina {
       width: 210mm;
@@ -560,10 +562,13 @@ const htmlFinal = `
       ${usaPapelProprio ? "padding-top: 18mm; padding-bottom: 18mm;" : ""}
     }
 
-    .conteudo p {
-      margin-top: 0;
-    }
-
+    .conteudo p,
+.conteudo div {
+  margin-top: 0;
+  margin-bottom: 0;
+  line-height: inherit;
+}
+    
     .conteudo img {
       max-width: 100%;
     }
