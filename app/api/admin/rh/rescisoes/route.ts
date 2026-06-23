@@ -91,6 +91,10 @@ export async function POST(req: Request) {
 
     const dataAviso = parseDate(body?.dataAviso);
     const dataDesligamento = parseDate(body?.dataDesligamento);
+    const dataAdmissaoBase =
+      parseDate(body?.dataAdmissaoBase) || funcionario.dataAdmissao || null;
+    const dataComunicacaoOficial =
+      parseDate(body?.dataComunicacaoOficial) || dataAviso;
 
     if (!body?.tipo) {
       return NextResponse.json(
@@ -117,6 +121,48 @@ export async function POST(req: Request) {
           dataAviso,
           dataDesligamento,
           motivo: body?.motivo ? String(body.motivo).trim() : null,
+
+          dataAdmissaoBase,
+dataComunicacaoOficial,
+salarioBaseMensal:
+  parseDecimal(body?.salarioBaseMensal) ??
+  parseDecimal(funcionario.salarioBase) ??
+  parseDecimal(funcionario.salario),
+
+quantidadeDependentesIRRF: Number(body?.quantidadeDependentesIRRF || 0),
+quantidadeFilhosSalarioFamilia: Number(
+  body?.quantidadeFilhosSalarioFamilia || 0
+),
+
+tipoAvisoPrevio: body?.tipoAvisoPrevio
+  ? String(body.tipoAvisoPrevio).trim()
+  : null,
+
+motivoRescisaoDetalhado: body?.motivoRescisaoDetalhado
+  ? String(body.motivoRescisaoDetalhado).trim()
+  : null,
+
+diasAvisoPrevioTrabalhado: Number(body?.diasAvisoPrevioTrabalhado || 0),
+diasAvisoPrevioIndenizado: Number(body?.diasAvisoPrevioIndenizado || 0),
+
+possuiFeriasVencidas: Boolean(body?.possuiFeriasVencidas),
+quantidadeFeriasVencidas: Number(body?.quantidadeFeriasVencidas || 0),
+mesesFeriasProporcionais: Number(body?.mesesFeriasProporcionais || 0),
+mesesDecimoTerceiro: Number(body?.mesesDecimoTerceiro || 0),
+
+saldoFgts: parseDecimal(body?.saldoFgts),
+fgtsMesAnterior: parseDecimal(body?.fgtsMesAnterior),
+fgtsMesRescisao: parseDecimal(body?.fgtsMesRescisao),
+multaFgts: parseDecimal(body?.multaFgts),
+
+descontoInss: parseDecimal(body?.descontoInss),
+descontoIrrf: parseDecimal(body?.descontoIrrf),
+outrosDescontos: parseDecimal(body?.outrosDescontos),
+
+valorBrutoRescisao: parseDecimal(body?.valorBrutoRescisao),
+valorLiquidoRescisao: parseDecimal(body?.valorLiquidoRescisao),
+
+calculoAutomatico: body?.calculoAutomatico !== false,
 
           saldoSalario: parseDecimal(body?.saldoSalario),
           feriasVencidas: parseDecimal(body?.feriasVencidas),

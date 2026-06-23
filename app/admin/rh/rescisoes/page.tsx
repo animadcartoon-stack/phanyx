@@ -8,6 +8,8 @@ type Funcionario = {
   cpf?: string | null;
   cargo?: string | null;
   salarioBase?: string | number | null;
+  salario?: string | number | null;
+  dataAdmissao?: string | null;
   departamento?: { nome?: string | null } | null;
 };
 
@@ -52,6 +54,13 @@ function dataBR(data?: string | null) {
   return d.toLocaleDateString("pt-BR");
 }
 
+function dataInput(data?: string | null) {
+  if (!data) return "";
+  const d = new Date(data);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toISOString().slice(0, 10);
+}
+
 function numero(valor: unknown) {
   if (valor === null || valor === undefined || valor === "") return 0;
   return Number(String(valor).replace(",", ".")) || 0;
@@ -62,6 +71,23 @@ function moeda(valor: unknown) {
     style: "currency",
     currency: "BRL",
   });
+}
+
+function diferencaMesesProporcionais(dataInicio: string, dataFim: string) {
+  if (!dataInicio || !dataFim) return 0;
+
+  const inicio = new Date(dataInicio);
+  const fim = new Date(dataFim);
+
+  if (Number.isNaN(inicio.getTime()) || Number.isNaN(fim.getTime())) return 0;
+
+  let meses = fim.getMonth() - inicio.getMonth() + 12 * (fim.getFullYear() - inicio.getFullYear());
+
+  if (fim.getDate() >= 15) {
+    meses += 1;
+  }
+
+  return Math.max(0, Math.min(12, meses));
 }
 
 export default function RescisoesRHPage() {
@@ -81,6 +107,27 @@ export default function RescisoesRHPage() {
   const [dataDesligamento, setDataDesligamento] = useState("");
   const [motivo, setMotivo] = useState("");
 
+  const [dataAdmissaoBase, setDataAdmissaoBase] = useState("");
+  const [dataComunicacaoOficial, setDataComunicacaoOficial] = useState("");
+  const [salarioBaseMensal, setSalarioBaseMensal] = useState("");
+  const [quantidadeDependentesIRRF, setQuantidadeDependentesIRRF] = useState("");
+  const [quantidadeFilhosSalarioFamilia, setQuantidadeFilhosSalarioFamilia] = useState("");
+  const [tipoAvisoPrevio, setTipoAvisoPrevio] = useState("Trabalhado");
+  const [diasAvisoPrevioTrabalhado, setDiasAvisoPrevioTrabalhado] = useState("");
+  const [diasAvisoPrevioIndenizado, setDiasAvisoPrevioIndenizado] = useState("");
+  const [possuiFeriasVencidas, setPossuiFeriasVencidas] = useState(false);
+  const [quantidadeFeriasVencidas, setQuantidadeFeriasVencidas] = useState("");
+  const [mesesFeriasProporcionais, setMesesFeriasProporcionais] = useState("");
+  const [mesesDecimoTerceiro, setMesesDecimoTerceiro] = useState("");
+  const [saldoFgts, setSaldoFgts] = useState("");
+  const [fgtsMesAnterior, setFgtsMesAnterior] = useState("");
+  const [fgtsMesRescisao, setFgtsMesRescisao] = useState("");
+  const [multaFgts, setMultaFgts] = useState("");
+  const [descontoInss, setDescontoInss] = useState("");
+  const [descontoIrrf, setDescontoIrrf] = useState("");
+  const [outrosDescontos, setOutrosDescontos] = useState("");
+  const [motivoRescisaoDetalhado, setMotivoRescisaoDetalhado] = useState("");
+
   const [saldoSalario, setSaldoSalario] = useState("");
   const [feriasVencidas, setFeriasVencidas] = useState("");
   const [feriasProporcionais, setFeriasProporcionais] = useState("");
@@ -89,21 +136,35 @@ export default function RescisoesRHPage() {
   const [avisoPrevio, setAvisoPrevio] = useState("");
   const [observacoes, setObservacoes] = useState("");
 
-  const valorRescisao = useMemo(() => {
-    return (
-      numero(saldoSalario) +
-      numero(feriasVencidas) +
-      numero(feriasProporcionais) +
-      numero(decimoTerceiroProporcional) +
-      numero(avisoPrevio)
-    );
-  }, [
-    saldoSalario,
-    feriasVencidas,
-    feriasProporcionais,
-    decimoTerceiroProporcional,
-    avisoPrevio,
-  ]);
+  const valorBrutoRescisao = useMemo(() => {
+  return (
+    numero(saldoSalario) +
+    numero(feriasVencidas) +
+    numero(feriasProporcionais) +
+    numero(decimoTerceiroProporcional) +
+    numero(avisoPrevio) +
+    numero(multaFgts)
+  );
+}, [
+  saldoSalario,
+  feriasVencidas,
+  feriasProporcionais,
+  decimoTerceiroProporcional,
+  avisoPrevio,
+  multaFgts,
+]);
+
+const valorLiquidoRescisao = useMemo(() => {
+  return Math.max(
+    0,
+    valorBrutoRescisao -
+      numero(descontoInss) -
+      numero(descontoIrrf) -
+      numero(outrosDescontos)
+  );
+}, [valorBrutoRescisao, descontoInss, descontoIrrf, outrosDescontos]);
+
+const valorRescisao = valorLiquidoRescisao;
 
   const resumo = useMemo(() => {
     return {
@@ -117,6 +178,88 @@ export default function RescisoesRHPage() {
   useEffect(() => {
     carregarDados();
   }, []);
+
+  useEffect(() => {
+  const funcionario = funcionarios.find((f) => String(f.id) === funcionarioId);
+
+  if (!funcionario) return;
+
+  setDataAdmissaoBase(dataInput(funcionario.dataAdmissao));
+
+  const salario = funcionario.salarioBase ?? funcionario.salario ?? "";
+  setSalarioBaseMensal(String(salario || ""));
+}, [funcionarioId, funcionarios]);
+
+useEffect(() => {
+  const salario = numero(salarioBaseMensal);
+
+  if (!salario || !dataDesligamento) return;
+
+  const desligamento = new Date(dataDesligamento);
+
+  if (Number.isNaN(desligamento.getTime())) return;
+
+  const diasTrabalhados = Math.max(1, Math.min(30, desligamento.getDate()));
+  const saldo = (salario / 30) * diasTrabalhados;
+
+  const mesesFerias =
+    Number(mesesFeriasProporcionais || 0) ||
+    diferencaMesesProporcionais(dataAdmissaoBase, dataDesligamento);
+
+  const mesesDecimo =
+    Number(mesesDecimoTerceiro || 0) ||
+    diferencaMesesProporcionais(
+      `${desligamento.getFullYear()}-01-01`,
+      dataDesligamento
+    );
+
+  const valorFeriasVencidas = possuiFeriasVencidas
+    ? salario * Math.max(1, Number(quantidadeFeriasVencidas || 1)) * (4 / 3)
+    : 0;
+
+  const valorFeriasProporcionais =
+    ((salario / 12) * mesesFerias) * (4 / 3);
+
+  const valorDecimo = (salario / 12) * mesesDecimo;
+
+  const diasAviso =
+    Number(diasAvisoPrevioIndenizado || 0) ||
+    (tipoAvisoPrevio === "Indenizado pelo empregador" ? 30 : 0);
+
+  const valorAviso = (salario / 30) * diasAviso;
+
+  const valorMultaFgts =
+    tipo === "Dispensa sem justa causa"
+      ? numero(saldoFgts) * 0.4
+      : tipo === "Acordo entre as partes"
+      ? numero(saldoFgts) * 0.2
+      : 0;
+
+  setSaldoSalario(saldo.toFixed(2));
+  setFeriasVencidas(valorFeriasVencidas.toFixed(2));
+  setFeriasProporcionais(valorFeriasProporcionais.toFixed(2));
+  setDecimoTerceiroProporcional(valorDecimo.toFixed(2));
+  setAvisoPrevio(valorAviso.toFixed(2));
+  setMultaFgts(valorMultaFgts.toFixed(2));
+
+  if (!mesesFeriasProporcionais) {
+    setMesesFeriasProporcionais(String(mesesFerias));
+  }
+
+  if (!mesesDecimoTerceiro) {
+    setMesesDecimoTerceiro(String(mesesDecimo));
+  }
+}, [
+  salarioBaseMensal,
+  dataAdmissaoBase,
+  dataDesligamento,
+  tipo,
+  tipoAvisoPrevio,
+  diasAvisoPrevioIndenizado,
+  saldoFgts,
+  possuiFeriasVencidas,
+  quantidadeFeriasVencidas,
+]);
 
   async function lerJsonSeguro(res: Response, nomeRota: string) {
     const texto = await res.text();
@@ -359,12 +502,43 @@ if (data?.id) {
           dataAviso,
           dataDesligamento,
           motivo,
+
+          dataAdmissaoBase,
+          dataComunicacaoOficial,
+          salarioBaseMensal,
+
+          quantidadeDependentesIRRF,
+          quantidadeFilhosSalarioFamilia,
+
+          tipoAvisoPrevio,
+          diasAvisoPrevioTrabalhado,
+          diasAvisoPrevioIndenizado,
+
+          possuiFeriasVencidas,
+          quantidadeFeriasVencidas,
+          mesesFeriasProporcionais,
+          mesesDecimoTerceiro,
+
+          saldoFgts,
+          fgtsMesAnterior,
+          fgtsMesRescisao,
+          multaFgts,
+
+          descontoInss,
+          descontoIrrf,
+          outrosDescontos,
+
+          motivoRescisaoDetalhado,
+
           saldoSalario,
           feriasVencidas,
           feriasProporcionais,
           decimoTerceiroProporcional,
           avisoPrevio,
           valorRescisao,
+          valorBrutoRescisao,
+          valorLiquidoRescisao,
+          calculoAutomatico: true,
           status: "EM_ANDAMENTO",
           observacoes,
         }),
@@ -492,6 +666,218 @@ if (data?.id) {
               className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
             />
           </div>
+
+<div>
+  <label className="text-sm font-medium">Data de admissão</label>
+  <input
+    type="date"
+    value={dataAdmissaoBase}
+    onChange={(e) => setDataAdmissaoBase(e.target.value)}
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Comunicação oficial</label>
+  <input
+    type="date"
+    value={dataComunicacaoOficial}
+    onChange={(e) => setDataComunicacaoOficial(e.target.value)}
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Salário base mensal</label>
+  <input
+    value={salarioBaseMensal}
+    onChange={(e) => setSalarioBaseMensal(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Dependentes IRRF</label>
+  <input
+    type="number"
+    min="0"
+    value={quantidadeDependentesIRRF}
+    onChange={(e) => setQuantidadeDependentesIRRF(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Filhos salário-família</label>
+  <input
+    type="number"
+    min="0"
+    value={quantidadeFilhosSalarioFamilia}
+    onChange={(e) => setQuantidadeFilhosSalarioFamilia(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Tipo de aviso prévio</label>
+  <select
+    value={tipoAvisoPrevio}
+    onChange={(e) => setTipoAvisoPrevio(e.target.value)}
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  >
+    <option value="Trabalhado">Trabalhado</option>
+    <option value="Indenizado pelo empregador">Indenizado pelo empregador</option>
+    <option value="Não cumprido pelo empregado">Não cumprido pelo empregado</option>
+    <option value="Dispensado">Dispensado</option>
+  </select>
+</div>
+
+<div>
+  <label className="text-sm font-medium">Dias aviso trabalhado</label>
+  <input
+    type="number"
+    min="0"
+    value={diasAvisoPrevioTrabalhado}
+    onChange={(e) => setDiasAvisoPrevioTrabalhado(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Dias aviso indenizado</label>
+  <input
+    type="number"
+    min="0"
+    value={diasAvisoPrevioIndenizado}
+    onChange={(e) => setDiasAvisoPrevioIndenizado(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Saldo FGTS</label>
+  <input
+    value={saldoFgts}
+    onChange={(e) => setSaldoFgts(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">FGTS mês anterior</label>
+  <input
+    value={fgtsMesAnterior}
+    onChange={(e) => setFgtsMesAnterior(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">FGTS mês rescisão</label>
+  <input
+    value={fgtsMesRescisao}
+    onChange={(e) => setFgtsMesRescisao(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Multa FGTS</label>
+  <input
+    value={multaFgts}
+    onChange={(e) => setMultaFgts(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Possui férias vencidas?</label>
+  <select
+    value={possuiFeriasVencidas ? "SIM" : "NAO"}
+    onChange={(e) => setPossuiFeriasVencidas(e.target.value === "SIM")}
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  >
+    <option value="NAO">Não</option>
+    <option value="SIM">Sim</option>
+  </select>
+</div>
+
+<div>
+  <label className="text-sm font-medium">Qtd. férias vencidas</label>
+  <input
+    type="number"
+    min="0"
+    value={quantidadeFeriasVencidas}
+    onChange={(e) => setQuantidadeFeriasVencidas(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Meses férias proporcionais</label>
+  <input
+    type="number"
+    min="0"
+    max="12"
+    value={mesesFeriasProporcionais}
+    onChange={(e) => setMesesFeriasProporcionais(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Meses 13º proporcional</label>
+  <input
+    type="number"
+    min="0"
+    max="12"
+    value={mesesDecimoTerceiro}
+    onChange={(e) => setMesesDecimoTerceiro(e.target.value)}
+    placeholder="0"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Desconto INSS</label>
+  <input
+    value={descontoInss}
+    onChange={(e) => setDescontoInss(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Desconto IRRF</label>
+  <input
+    value={descontoIrrf}
+    onChange={(e) => setDescontoIrrf(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
+
+<div>
+  <label className="text-sm font-medium">Outros descontos</label>
+  <input
+    value={outrosDescontos}
+    onChange={(e) => setOutrosDescontos(e.target.value)}
+    placeholder="0,00"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  />
+</div>
 
           <div className="md:col-span-3">
             <label className="text-sm font-medium">Motivo</label>

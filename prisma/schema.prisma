@@ -2244,44 +2244,75 @@ model ExameMedicoRH {
 }
 
 model RescisaoRH {
-  id            Int  @id @default(autoincrement())
-  funcionarioId Int
-  instituicaoId Int
-  criadoPorId   Int?
+  id                             Int      @id @default(autoincrement())
+  funcionarioId                  Int
+  instituicaoId                  Int
+  criadoPorId                    Int?
 
-  tipo                       String
-  dataAviso                  DateTime?
-  dataDesligamento           DateTime
-  motivo                     String?
-  saldoSalario               Decimal?  @db.Decimal(10, 2)
-  feriasVencidas             Decimal?  @db.Decimal(10, 2)
-  feriasProporcionais        Decimal?  @db.Decimal(10, 2)
-  decimoTerceiroProporcional Decimal?  @db.Decimal(10, 2)
-  avisoPrevio                Decimal?  @db.Decimal(10, 2)
-  valorRescisao              Decimal?  @db.Decimal(10, 2)
-  status                     String    @default("EM_ANDAMENTO")
-  observacoes                String?   @db.Text
+  tipo                           String
+  dataAviso                      DateTime?
+  dataDesligamento               DateTime
+  motivo                         String?
 
-  restauradoEm      DateTime?
-  restauradoPorId   Int?
-  motivoRestauracao String?   @db.Text
+  dataAdmissaoBase               DateTime?
+  dataComunicacaoOficial         DateTime?
+  salarioBaseMensal              Decimal? @db.Decimal(10, 2)
+  quantidadeDependentesIRRF      Int?     @default(0)
+  quantidadeFilhosSalarioFamilia Int?     @default(0)
 
-  termoUrl     String?
-  trctUrl      String?
-  checklistUrl String?
+  tipoAvisoPrevio                String?
+  motivoRescisaoDetalhado        String?  @db.Text
+  diasAvisoPrevioTrabalhado      Int?     @default(0)
+  diasAvisoPrevioIndenizado      Int?     @default(0)
 
-  arquivada      Boolean   @default(false)
-  arquivadaEm    DateTime?
-  arquivadaPorId Int?
-  motivoArquivo  String?   @db.Text
+  possuiFeriasVencidas           Boolean  @default(false)
+  quantidadeFeriasVencidas       Int?     @default(0)
+  mesesFeriasProporcionais       Int?     @default(0)
+  mesesDecimoTerceiro            Int?     @default(0)
 
-  cancelada          Boolean   @default(false)
-  canceladaEm        DateTime?
-  canceladaPorId     Int?
-  motivoCancelamento String?   @db.Text
+  saldoFgts                      Decimal? @db.Decimal(10, 2)
+  fgtsMesAnterior                Decimal? @db.Decimal(10, 2)
+  fgtsMesRescisao                Decimal? @db.Decimal(10, 2)
+  multaFgts                      Decimal? @db.Decimal(10, 2)
 
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  descontoInss                   Decimal? @db.Decimal(10, 2)
+  descontoIrrf                   Decimal? @db.Decimal(10, 2)
+  outrosDescontos                Decimal? @db.Decimal(10, 2)
+
+  valorBrutoRescisao             Decimal? @db.Decimal(10, 2)
+  valorLiquidoRescisao           Decimal? @db.Decimal(10, 2)
+  calculoAutomatico              Boolean  @default(true)
+
+  saldoSalario                   Decimal? @db.Decimal(10, 2)
+  feriasVencidas                 Decimal? @db.Decimal(10, 2)
+  feriasProporcionais            Decimal? @db.Decimal(10, 2)
+  decimoTerceiroProporcional     Decimal? @db.Decimal(10, 2)
+  avisoPrevio                    Decimal? @db.Decimal(10, 2)
+  valorRescisao                  Decimal? @db.Decimal(10, 2)
+
+  status                         String   @default("EM_ANDAMENTO")
+  observacoes                    String?  @db.Text
+
+  restauradoEm                   DateTime?
+  restauradoPorId                Int?
+  motivoRestauracao              String?  @db.Text
+
+  termoUrl                       String?
+  trctUrl                        String?
+  checklistUrl                   String?
+
+  arquivada                      Boolean  @default(false)
+  arquivadaEm                    DateTime?
+  arquivadaPorId                 Int?
+  motivoArquivo                  String?  @db.Text
+
+  cancelada                      Boolean  @default(false)
+  canceladaEm                    DateTime?
+  canceladaPorId                 Int?
+  motivoCancelamento             String?  @db.Text
+
+  criadoEm                       DateTime @default(now())
+  atualizadoEm                   DateTime @updatedAt
 
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
