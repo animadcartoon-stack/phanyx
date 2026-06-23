@@ -335,13 +335,27 @@ const tiposRescisaoTemplate = [
   "PEDIDO_DEMISSAO",
   "AVISO_PREVIO",
   "TRCT",
+  "DOCUMENTO_RH",
+  "OUTRO",
 ];
 
 setTemplatesRh(
   Array.isArray(dataTemplates)
-    ? dataTemplates.filter(
-        (t) => t?.ativo && tiposRescisaoTemplate.includes(t?.tipo)
-      )
+    ? dataTemplates.filter((t) => {
+        const tipoTemplate = String(t?.tipo || "").toUpperCase();
+        const nomeTemplate = String(t?.nome || "").toLowerCase();
+        const contextoTemplate = String(t?.contexto || "").toUpperCase();
+
+        return (
+          t?.ativo &&
+          (
+            tiposRescisaoTemplate.includes(tipoTemplate) ||
+            nomeTemplate.includes("rescis") ||
+            nomeTemplate.includes("trct") ||
+            contextoTemplate === "FUNCIONARIO"
+          )
+        );
+      })
     : []
 );
 
