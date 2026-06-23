@@ -211,16 +211,30 @@ export async function POST(req: NextRequest) {
       "{{observacoesAso}}": exame?.observacoes || "",
 
       "{{motivoDemissao}}": rescisao?.motivo || "",
-      "{{tipoRescisao}}": rescisao?.tipo || "",
-      "{{dataDemissao}}": formatarData(rescisao?.dataDesligamento),
-      "{{saldoSalario}}": formatarMoeda(rescisao?.saldoSalario),
-      "{{feriasVencidas}}": formatarMoeda(rescisao?.feriasVencidas),
-      "{{feriasProporcionais}}": formatarMoeda(rescisao?.feriasProporcionais),
-      "{{decimoTerceiroProporcional}}": formatarMoeda(
-        rescisao?.decimoTerceiroProporcional
-      ),
-      "{{avisoPrevio}}": formatarMoeda(rescisao?.avisoPrevio),
-      "{{valorRescisao}}": formatarMoeda(rescisao?.valorRescisao),
+"{{tipoRescisao}}": rescisao?.tipo || "",
+"{{dataAdmissao}}": formatarData(
+  rescisao?.dataAdmissaoBase || funcionario.dataAdmissao
+),
+"{{dataDemissao}}": formatarData(rescisao?.dataDesligamento),
+
+"{{saldoSalario}}": formatarMoeda(rescisao?.saldoSalario),
+"{{feriasVencidas}}": formatarMoeda(rescisao?.feriasVencidas),
+"{{feriasProporcionais}}": formatarMoeda(rescisao?.feriasProporcionais),
+"{{decimoTerceiroProporcional}}": formatarMoeda(
+  rescisao?.decimoTerceiroProporcional
+),
+"{{avisoPrevio}}": formatarMoeda(rescisao?.avisoPrevio),
+"{{multaFgts}}": formatarMoeda(rescisao?.multaFgts),
+
+"{{descontoInss}}": formatarMoeda(rescisao?.descontoInss),
+"{{descontoIrrf}}": formatarMoeda(rescisao?.descontoIrrf),
+"{{outrosDescontos}}": formatarMoeda(rescisao?.outrosDescontos),
+
+"{{valorBrutoRescisao}}": formatarMoeda(rescisao?.valorBrutoRescisao),
+"{{valorLiquidoRescisao}}": formatarMoeda(rescisao?.valorLiquidoRescisao),
+"{{valorRescisao}}": formatarMoeda(
+  rescisao?.valorLiquidoRescisao || rescisao?.valorRescisao
+),
 
       "{{motivoAdvertencia}}":
         ocorrencia?.tipo === "ADVERTENCIA" ? ocorrencia?.motivo || "" : "",

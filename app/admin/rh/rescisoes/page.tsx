@@ -100,6 +100,10 @@ export default function RescisoesRHPage() {
   const [templatesRh, setTemplatesRh] = useState<TemplateDocumento[]>([]);
   const [templatePorRescisao, setTemplatePorRescisao] = useState<Record<number, string>>({});
   const [gerandoDocumentoId, setGerandoDocumentoId] = useState<number | null>(null);
+  const [buscaRescisao, setBuscaRescisao] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+  const [filtroTipo, setFiltroTipo] = useState("");
+  const [filtroDepartamento, setFiltroDepartamento] = useState("");
 
   const [funcionarioId, setFuncionarioId] = useState("");
   const [tipo, setTipo] = useState("Pedido de demissão");
@@ -174,6 +178,34 @@ const valorRescisao = valorLiquidoRescisao;
       canceladas: rescisoes.filter((r) => r.status === "CANCELADA").length,
     };
   }, [rescisoes]);
+
+  const rescisoesFiltradas = useMemo(() => {
+  const termo = buscaRescisao.trim().toLowerCase();
+
+  return rescisoes.filter((r) => {
+    const nome = r.funcionario?.nome?.toLowerCase() || "";
+    const cpf = r.funcionario?.cpf?.toLowerCase() || "";
+    const cargo = r.funcionario?.cargo?.toLowerCase() || "";
+    const departamento = r.funcionario?.departamento?.nome?.toLowerCase() || "";
+    const tipoRescisao = r.tipo?.toLowerCase() || "";
+
+    const bateBusca =
+      !termo ||
+      nome.includes(termo) ||
+      cpf.includes(termo) ||
+      cargo.includes(termo) ||
+      departamento.includes(termo) ||
+      tipoRescisao.includes(termo);
+
+    const bateStatus = !filtroStatus || r.status === filtroStatus;
+    const bateTipo = !filtroTipo || r.tipo === filtroTipo;
+    const bateDepartamento =
+      !filtroDepartamento ||
+      departamento === filtroDepartamento.toLowerCase();
+
+    return bateBusca && bateStatus && bateTipo && bateDepartamento;
+  });
+}, [rescisoes, buscaRescisao, filtroStatus, filtroTipo, filtroDepartamento]);
 
   useEffect(() => {
     carregarDados();
@@ -1002,14 +1034,14 @@ if (data?.id) {
                     Carregando...
                   </td>
                 </tr>
-              ) : rescisoes.length === 0 ? (
+              ) : rescisoesFiltradas.length === 0 ? (
                 <tr>
                   <td className="p-3 text-slate-500" colSpan={7}>
                     Nenhuma rescisão cadastrada.
                   </td>
                 </tr>
               ) : (
-                rescisoes.map((item) => (
+                rescisoesFiltradas.map((item) => (
                   <tr
                     key={item.id}
                     className="border-b border-slate-100 dark:border-slate-800"
