@@ -1241,8 +1241,7 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
     setErro("");
     setMensagem("Gerando prévia do PDF...");
 
-    const editor = document.getElementById("editor-template-phanyx");
-    const conteudoAtual = editor?.innerHTML || conteudo;
+    const conteudoAtual = conteudo;
 
     const res = await fetch("/api/admin/documentos/templates/preview-pdf-fiel", {
       method: "POST",
