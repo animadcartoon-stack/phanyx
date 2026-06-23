@@ -1241,8 +1241,7 @@ setCamposVisuais(Array.isArray(template.camposVisuais) ? template.camposVisuais 
     setErro("");
     setMensagem("Gerando prévia do PDF...");
 
-    const conteudoAtual =
-  editorRef.current?.innerHTML?.trim() || conteudo;
+    const conteudoAtual = conteudo;
 
     const res = await fetch("/api/admin/documentos/templates/preview", {
       method: "POST",
