@@ -336,7 +336,9 @@ setEditProfessorId(
   carregarPolos();
   carregarCursos();
   carregarProfessores();
-  useEffect(() => {
+}, []);
+
+useEffect(() => {
   setDisciplinasSelecionadas([]);
   setProfessoresPorDisciplina({});
   setDatasInicioPorDisciplina({});
@@ -344,7 +346,6 @@ setEditProfessorId(
   setStatusPorDisciplina({});
   setHorariosPorDisciplina({});
 }, [cursoId, semestre]);
-}, []);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
