@@ -336,6 +336,14 @@ setEditProfessorId(
   carregarPolos();
   carregarCursos();
   carregarProfessores();
+  useEffect(() => {
+  setDisciplinasSelecionadas([]);
+  setProfessoresPorDisciplina({});
+  setDatasInicioPorDisciplina({});
+  setDatasFimPorDisciplina({});
+  setStatusPorDisciplina({});
+  setHorariosPorDisciplina({});
+}, [cursoId, semestre]);
 }, []);
 
   useEffect(() => {
@@ -618,7 +626,7 @@ const disciplinasFiltradas = useMemo(() => {
     {disciplinasAbertas && (
   <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-950">
     <div className="grid grid-cols-1 gap-3">
-      {disciplinas.map((disciplina) => {
+      {disciplinasFiltradas.map((disciplina) => {
         const selecionada = disciplinasSelecionadas.includes(disciplina.id);
 
         return (
