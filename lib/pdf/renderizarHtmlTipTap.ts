@@ -5,6 +5,8 @@ type Align = "left" | "center" | "right";
 type Token = {
   texto: string;
   bold: boolean;
+  fontSize?: number | null;
+  fontFamily?: string | null;
 };
 
 type BlocoPdf = {
@@ -27,11 +29,44 @@ function decode(texto: string) {
     .replace(/&gt;/g, ">");
 }
 
+function extrairStyle(valor: string, propriedade: string) {
+  const regex = new RegExp(`${propriedade}\\s*:\\s*([^;"]+)`, "i");
+  const match = String(valor || "").match(regex);
+  return match?.[1]?.trim() || null;
+}
+
+function extrairFontSize(style: string) {
+  const valor = extrairStyle(style, "font-size");
+  if (!valor) return null;
+
+  const numero = Number(String(valor).replace("pt", "").replace("px", "").trim());
+
+  if (!Number.isFinite(numero)) return null;
+
+  if (String(valor).includes("px")) {
+    return Math.round(numero * 0.75);
+  }
+
+  return numero;
+}
+
+function extrairFontFamily(style: string) {
+  const valor = extrairStyle(style, "font-family");
+  if (!valor) return null;
+
+  return valor.replaceAll("'", "").replaceAll('"', "").trim();
+}
+
 function tokensInline(html: string): Token[] {
   const tokens: Token[] = [];
-  const partes = String(html || "").split(/(<\/?strong>|<\/?b>)/gi);
 
   let emNegrito = false;
+  let fontSizeAtual: number | null = null;
+  let fontFamilyAtual: string | null = null;
+
+  const partes = String(html || "").split(
+    /(<\/?strong>|<\/?b>|<span[^>]*>|<\/span>)/gi
+  );
 
   for (const parte of partes) {
     if (/^<strong>$/i.test(parte) || /^<b>$/i.test(parte)) {
@@ -44,8 +79,34 @@ function tokensInline(html: string): Token[] {
       continue;
     }
 
+    if (/^<span/i.test(parte)) {
+      const style = parte.match(/style="([^"]*)"/i)?.[1] || "";
+
+      const tamanho = extrairFontSize(style);
+      const fonte = extrairFontFamily(style);
+
+      if (tamanho) fontSizeAtual = tamanho;
+      if (fonte) fontFamilyAtual = fonte;
+
+      continue;
+    }
+
+    if (/^<\/span>$/i.test(parte)) {
+      fontSizeAtual = null;
+      fontFamilyAtual = null;
+      continue;
+    }
+
     const texto = decode(parte.replace(/<[^>]+>/g, ""));
-    if (texto) tokens.push({ texto, bold: emNegrito });
+
+    if (texto) {
+      tokens.push({
+        texto,
+        bold: emNegrito,
+        fontSize: fontSizeAtual,
+        fontFamily: fontFamilyAtual,
+      });
+    }
   }
 
   return tokens;
@@ -156,7 +217,7 @@ function quebrarTokensEmLinhas(tokens: Token[], maxWidth: number, font: any, bol
   function largura(tokensLinha: Token[]) {
     return tokensLinha.reduce((soma, token) => {
       const fonte = token.bold ? bold : font;
-      return soma + fonte.widthOfTextAtSize(token.texto, size);
+      return soma + fonte.widthOfTextAtSize(token.texto, token.fontSize || size);
     }, 0);
   }
 
@@ -218,7 +279,7 @@ export async function renderizarHtmlTipTapNoPdf({
 
       const larguraLinha = linhaTokens.reduce((soma, token) => {
         const fonte = token.bold ? bold : font;
-        return soma + fonte.widthOfTextAtSize(token.texto, tamanho);
+        return soma + fonte.widthOfTextAtSize(token.texto, token.fontSize || tamanho);
       }, 0);
 
       let posX = x;
@@ -237,12 +298,12 @@ export async function renderizarHtmlTipTapNoPdf({
         pagina.drawText(token.texto, {
           x: posX,
           y,
-          size: tamanho,
+          size: token.fontSize || tamanho,
           font: fonte,
           color: rgb(0, 0, 0),
         });
 
-        posX += fonte.widthOfTextAtSize(token.texto, tamanho);
+        posX += fonte.widthOfTextAtSize(token.texto, token.fontSize || tamanho);
       }
 
       y -= ESPACO_LINHA;
