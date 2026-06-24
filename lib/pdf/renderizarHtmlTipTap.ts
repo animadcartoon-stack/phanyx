@@ -393,6 +393,12 @@ async function renderizarTabelaSimplesNoPdf({
   const tamanhoFonte = 8;
   const alturaLinha = 8.5;
 
+  const ESPACO_ANTES_ASSINATURA = 10;
+
+function ehLinhaAssinatura(texto: string) {
+  return /^_{8,}$/.test(String(texto || "").replace(/\s/g, ""));
+}
+
   for (const linhaHtml of linhas) {
     const celulas = linhaHtml.match(/<td[\s\S]*?<\/td>/gi) || [];
 
@@ -432,15 +438,19 @@ const widthPercent = widthMatch
         .map((l) => l.trim())
         .filter(Boolean);
 
-      maiorAlturaCelula = Math.max(
-        maiorAlturaCelula,
-        linhasTexto.length * alturaLinha
-      );
+      const temLinhaAssinatura = linhasTexto.some(ehLinhaAssinatura);
+const espacoAntesAssinatura = temLinhaAssinatura ? ESPACO_ANTES_ASSINATURA : 0;
 
-      return {
+maiorAlturaCelula = Math.max(
+  maiorAlturaCelula,
+  espacoAntesAssinatura + linhasTexto.length * alturaLinha
+);
+
+return {
   linhasTexto,
   align,
   widthPercent,
+  espacoAntesAssinatura,
 };
     });
 
@@ -466,7 +476,7 @@ const larguraAtual =
     ? (maxWidth * celula.widthPercent) / 100
     : larguraCelula;
 
-      let linhaY = posY;
+      let linhaY = posY - (celula.espacoAntesAssinatura || 0);
 
       celula.linhasTexto.forEach((texto) => {
         const ehTitulo =
