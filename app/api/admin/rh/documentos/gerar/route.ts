@@ -168,6 +168,15 @@ export async function POST(req: NextRequest) {
       "{{dataAtual}}": formatarData(new Date()),
 
       "{{nomeFuncionario}}": funcionario.nome || "",
+      "{{funcionarioNome}}": funcionario.nome || "",
+      "{{funcionarioCpf}}": funcionario.cpf || "",
+      "{{funcionarioRg}}": funcionario.rg || "",
+      "{{funcionarioCargo}}": funcionario.cargo || "",
+      "{{funcionarioDepartamento}}": funcionario.departamento?.nome || funcionario.setor || "",
+      "{{funcionarioDataAdmissao}}": formatarData(funcionario.dataAdmissao),
+      "{{funcionarioDataDesligamento}}": formatarData(
+  rescisao?.dataDesligamento || funcionario.dataDesligamento
+),
       "{{cpfFuncionario}}": funcionario.cpf || "",
       "{{rgFuncionario}}": funcionario.rg || "",
       "{{pisPasepFuncionario}}": funcionario.pisPasep || "",
@@ -302,7 +311,9 @@ export async function POST(req: NextRequest) {
         instituicaoId: user.instituicaoId!,
         criadoPorId: user.id,
         tipo: template.tipo,
-        titulo: template.nome,
+        titulo: rescisao
+          ? `Rescisão - ${funcionario.nome}`
+          : template.nome,
         templateId: template.id,
         conteudo: conteudoFinal,
         status: "GERADO",
