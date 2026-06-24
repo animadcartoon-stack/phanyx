@@ -394,8 +394,7 @@ async function renderizarTabelaSimplesNoPdf({
   const alturaLinha = 9;
 
   for (const linhaHtml of linhas) {
-    const celulas =
-      linhaHtml.match(/<td[\s\S]*?<\/td>/gi) || [];
+    const celulas = linhaHtml.match(/<td[\s\S]*?<\/td>/gi) || [];
 
     if (celulas.length === 0) continue;
 
@@ -403,7 +402,19 @@ async function renderizarTabelaSimplesNoPdf({
     let maiorAlturaCelula = 0;
 
     const celulasPreparadas = celulas.map((celulaHtml: string) => {
-      const textoLimpo = decode(
+      const attrs = celulaHtml.match(/<td([^>]*)>/i)?.[1] || "";
+      const style =
+        attrs.match(/style="([^"]*)"/i)?.[1] ||
+        attrs.match(/style='([^']*)'/i)?.[1] ||
+        "";
+
+      const align: Align = /text-align\s*:\s*center/i.test(style)
+        ? "center"
+        : /text-align\s*:\s*right/i.test(style)
+        ? "right"
+        : "left";
+
+      const linhasTexto = decode(
         celulaHtml
           .replace(/<br\s*\/?>/gi, "\n")
           .replace(/<\/p>/gi, "\n")
@@ -416,10 +427,13 @@ async function renderizarTabelaSimplesNoPdf({
 
       maiorAlturaCelula = Math.max(
         maiorAlturaCelula,
-        textoLimpo.length * alturaLinha
+        linhasTexto.length * alturaLinha
       );
 
-      return textoLimpo;
+      return {
+        linhasTexto,
+        align,
+      };
     });
 
     if (posY - maiorAlturaCelula < 70) {
@@ -427,20 +441,33 @@ async function renderizarTabelaSimplesNoPdf({
       posY = pageHeight - 135;
     }
 
-    celulasPreparadas.forEach((linhasTexto: string[], index: number) => {
+    celulasPreparadas.forEach((celula, index: number) => {
       const colunaX = x + index * larguraCelula;
       let linhaY = posY;
 
-      linhasTexto.forEach((texto) => {
+      celula.linhasTexto.forEach((texto) => {
         const ehTitulo =
           texto.toUpperCase() === "EMPREGADOR" ||
           texto.toUpperCase() === "COLABORADOR";
 
+        const fonteUsada = ehTitulo ? bold : font;
+        const larguraTexto = fonteUsada.widthOfTextAtSize(texto, tamanhoFonte);
+
+        let textoX = colunaX;
+
+        if (celula.align === "center") {
+          textoX = colunaX + (larguraCelula - larguraTexto) / 2;
+        }
+
+        if (celula.align === "right") {
+          textoX = colunaX + larguraCelula - larguraTexto;
+        }
+
         pagina.drawText(texto, {
-          x: colunaX,
+          x: textoX,
           y: linhaY,
           size: tamanhoFonte,
-          font: ehTitulo ? bold : font,
+          font: fonteUsada,
           color: rgb(0, 0, 0),
         });
 
