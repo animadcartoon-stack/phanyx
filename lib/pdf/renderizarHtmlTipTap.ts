@@ -356,6 +356,87 @@ function calcularAlturaLinha(maiorFonteLinha: number, lineHeight?: number | null
   return maiorFonteLinha * lineHeight;
 }
 
+async function renderizarTabelaSimplesNoPdf({
+  html,
+  page,
+  font,
+  bold,
+  x,
+  y,
+  maxWidth,
+  pageHeight,
+  criarNovaPagina,
+}: any) {
+  let pagina = page;
+  let posY = y;
+
+  const regexLinha = /<tr[\s\S]*?<\/tr>/gi;
+  const linhas = String(html || "").match(regexLinha) || [];
+
+  const tamanhoFonte = 7;
+  const alturaLinha = 9;
+
+  for (const linhaHtml of linhas) {
+    const celulas =
+      linhaHtml.match(/<td[\s\S]*?<\/td>/gi) || [];
+
+    if (celulas.length === 0) continue;
+
+    const larguraCelula = maxWidth / celulas.length;
+    let maiorAlturaCelula = 0;
+
+    const celulasPreparadas = celulas.map((celulaHtml: string) => {
+      const textoLimpo = decode(
+        celulaHtml
+          .replace(/<br\s*\/?>/gi, "\n")
+          .replace(/<\/p>/gi, "\n")
+          .replace(/<\/div>/gi, "\n")
+          .replace(/<[^>]+>/g, "")
+      )
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      maiorAlturaCelula = Math.max(
+        maiorAlturaCelula,
+        textoLimpo.length * alturaLinha
+      );
+
+      return textoLimpo;
+    });
+
+    if (posY - maiorAlturaCelula < 70) {
+      pagina = await criarNovaPagina();
+      posY = pageHeight - 135;
+    }
+
+    celulasPreparadas.forEach((linhasTexto: string[], index: number) => {
+      const colunaX = x + index * larguraCelula;
+      let linhaY = posY;
+
+      linhasTexto.forEach((texto) => {
+        const ehTitulo =
+          texto.toUpperCase() === "EMPREGADOR" ||
+          texto.toUpperCase() === "COLABORADOR";
+
+        pagina.drawText(texto, {
+          x: colunaX,
+          y: linhaY,
+          size: tamanhoFonte,
+          font: ehTitulo ? bold : font,
+          color: rgb(0, 0, 0),
+        });
+
+        linhaY -= alturaLinha;
+      });
+    });
+
+    posY -= maiorAlturaCelula + 10;
+  }
+
+  return { page: pagina, y: posY };
+}
+
 export async function renderizarHtmlTipTapNoPdf({
   html,
   page,
@@ -392,7 +473,22 @@ for (const bloco of blocos) {
   }
 
   if (bloco.tipo === "table") {
-  y -= 10;
+  const resultadoTabela = await renderizarTabelaSimplesNoPdf({
+    html: bloco.htmlOriginal || "",
+    page: pagina,
+    pdfDoc: null,
+    font,
+    bold,
+    x,
+    y,
+    maxWidth,
+    pageHeight,
+    criarNovaPagina,
+  });
+
+  pagina = resultadoTabela.page;
+  y = resultadoTabela.y - 8;
+
   continue;
 }
 
