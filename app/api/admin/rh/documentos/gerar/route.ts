@@ -303,6 +303,106 @@ export async function POST(req: NextRequest) {
       "{{resultadoPericia}}": ocorrencia?.resultadoPericia || "",
     };
 
+    valores["{{blocoEmpregadorColaborador}}"] = `
+<table style="width:100%; border-collapse:collapse;">
+<tr>
+<td style="width:50%; vertical-align:top; padding-right:20px;">
+<strong>EMPREGADOR</strong><br><br>
+
+<strong>Nome:</strong> ${config?.nomeFantasia || ""}<br>
+<strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
+<strong>Telefone:</strong> ${config?.telefone || ""}<br>
+<strong>E-mail:</strong> ${config?.email || ""}
+</td>
+
+<td style="width:50%; vertical-align:top;">
+<strong>COLABORADOR</strong><br><br>
+
+<strong>Nome:</strong> ${funcionario.nome || ""}<br>
+<strong>CPF:</strong> ${funcionario.cpf || ""}<br>
+<strong>Cargo:</strong> ${funcionario.cargo || ""}<br>
+<strong>Departamento:</strong> ${
+  funcionario.departamento?.nome ||
+  funcionario.setor ||
+  ""
+}
+</td>
+</tr>
+</table>
+`;
+
+valores["{{blocoEmpregadorColaborador}}"] = `
+<table style="width:100%; border-collapse:collapse;">
+  <tr>
+    <td style="width:50%; vertical-align:top; padding-right:20px;">
+      <strong>EMPREGADOR</strong><br><br>
+      <strong>Nome:</strong> ${config?.nomeFantasia || instituicao.nome || ""}<br>
+      <strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
+      <strong>Telefone:</strong> ${config?.telefone || ""}<br>
+      <strong>E-mail:</strong> ${config?.email || ""}
+    </td>
+
+    <td style="width:50%; vertical-align:top;">
+      <strong>COLABORADOR</strong><br><br>
+      <strong>Nome:</strong> ${funcionario.nome || ""}<br>
+      <strong>CPF:</strong> ${funcionario.cpf || ""}<br>
+      <strong>Cargo:</strong> ${funcionario.cargo || ""}<br>
+      <strong>Departamento:</strong> ${
+        funcionario.departamento?.nome || funcionario.setor || ""
+      }
+    </td>
+  </tr>
+</table>
+`;
+
+valores["{{blocoVerbasRescisorias}}"] = `
+<strong>VERBAS RESCISÓRIAS</strong><br><br>
+Saldo de salário: ${formatarMoeda(rescisao?.saldoSalario)}<br>
+Férias vencidas: ${formatarMoeda(rescisao?.feriasVencidas)}<br>
+Férias proporcionais: ${formatarMoeda(rescisao?.feriasProporcionais)}<br>
+Décimo terceiro proporcional: ${formatarMoeda(
+  rescisao?.decimoTerceiroProporcional
+)}<br>
+Aviso prévio: ${formatarMoeda(rescisao?.avisoPrevio)}<br>
+Multa do FGTS: ${formatarMoeda(rescisao?.multaFgts)}
+`;
+
+valores["{{blocoValoresRescisao}}"] = `
+<strong>VALORES FINAIS</strong><br><br>
+Valor bruto da rescisão: ${formatarMoeda(rescisao?.valorBrutoRescisao)}<br>
+Desconto INSS: ${formatarMoeda(rescisao?.descontoInss)}<br>
+Desconto IRRF: ${formatarMoeda(rescisao?.descontoIrrf)}<br>
+Outros descontos: ${formatarMoeda(rescisao?.outrosDescontos)}<br>
+Valor líquido da rescisão: ${formatarMoeda(
+  rescisao?.valorLiquidoRescisao || rescisao?.valorRescisao
+)}
+`;
+
+valores["{{blocoAssinaturasRescisao}}"] = `
+<br><br><br>
+<p style="text-align:center;">
+______________________________________
+</p>
+<p style="text-align:center;">
+${funcionario.nome || ""}
+</p>
+<p style="text-align:center;">
+${funcionario.cpf || ""}
+</p>
+
+<br><br>
+
+<p style="text-align:center;">
+_______________________________________
+</p>
+<p style="text-align:center;">
+${config?.nomeFantasia || instituicao.nome || ""}
+</p>
+<p style="text-align:center;">
+${config?.cnpj || ""}
+</p>
+`;
+
     const conteudoFinal = substituirTags(template.conteudo, valores);
 
     const documento = await prisma.documentoRH.create({
