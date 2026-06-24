@@ -398,7 +398,7 @@ async function renderizarTabelaSimplesNoPdf({
 
     if (celulas.length === 0) continue;
 
-    const larguraCelula = maxWidth / celulas.length;
+    const larguraCelula = (maxWidth - 20) / celulas.length;
     let maiorAlturaCelula = 0;
 
     const celulasPreparadas = celulas.map((celulaHtml: string) => {
@@ -442,7 +442,7 @@ async function renderizarTabelaSimplesNoPdf({
     }
 
     celulasPreparadas.forEach((celula, index: number) => {
-      const colunaX = x + index * larguraCelula;
+      const colunaX = x + index * larguraCelula + (index * 10);
       let linhaY = posY;
 
       celula.linhasTexto.forEach((texto) => {
