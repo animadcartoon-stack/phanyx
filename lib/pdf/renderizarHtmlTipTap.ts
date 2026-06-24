@@ -403,10 +403,17 @@ async function renderizarTabelaSimplesNoPdf({
 
     const celulasPreparadas = celulas.map((celulaHtml: string) => {
       const attrs = celulaHtml.match(/<td([^>]*)>/i)?.[1] || "";
+      
       const style =
-        attrs.match(/style="([^"]*)"/i)?.[1] ||
-        attrs.match(/style='([^']*)'/i)?.[1] ||
-        "";
+  attrs.match(/style="([^"]*)"/i)?.[1] ||
+  attrs.match(/style='([^']*)'/i)?.[1] ||
+  "";
+
+const widthMatch = style.match(/width\s*:\s*(\d+)%/i);
+
+const widthPercent = widthMatch
+  ? Number(widthMatch[1])
+  : null;
 
       const align: Align = /text-align\s*:\s*center/i.test(style)
         ? "center"
@@ -431,9 +438,10 @@ async function renderizarTabelaSimplesNoPdf({
       );
 
       return {
-        linhasTexto,
-        align,
-      };
+  linhasTexto,
+  align,
+  widthPercent,
+};
     });
 
     if (posY - maiorAlturaCelula < 70) {
