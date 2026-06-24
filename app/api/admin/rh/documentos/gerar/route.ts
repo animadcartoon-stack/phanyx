@@ -360,8 +360,13 @@ valores["{{blocoAssinaturasRescisao}}"] = `
         ______________________________________
       </div>
 
-      <div>${funcionario.nome || ""}</div>
-      <div>${funcionario.cpf || ""}</div>
+      <div style="margin-top:1px; line-height:1;">
+  ${funcionario.nome || ""}
+</div>
+
+<div style="line-height:1;">
+  ${funcionario.cpf || ""}
+</div>
 
     </td>
 
@@ -371,8 +376,13 @@ valores["{{blocoAssinaturasRescisao}}"] = `
         ______________________________________
       </div>
 
-      <div>${config?.nomeFantasia || instituicao.nome || ""}</div>
-      <div>${config?.cnpj || ""}</div>
+      <div style="margin-top:1px; line-height:1;">
+  ${config?.nomeFantasia || instituicao.nome || ""}
+</div>
+
+<div style="line-height:1;">
+  ${config?.cnpj || ""}
+</div>
 
     </td>
   </tr>
