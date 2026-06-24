@@ -352,18 +352,28 @@ valores["{{blocoValoresRescisao}}"] = `
 `;
 
 valores["{{blocoAssinaturasRescisao}}"] = `
-<table style="width:100%; border-collapse:collapse; margin-top:18px; font-size:9pt; line-height:1.15;">
+<table style="width:100%; border-collapse:collapse; margin-top:18px;">
   <tr>
-    <td style="width:50%; text-align:center; vertical-align:top; padding-right:12px;">
-      <div style="border-top:1px solid #000; width:80%; margin:0 auto 3px auto;"></div>
+    <td style="width:50%; text-align:center;">
+
+      <div style="width:80%; margin:0 auto;">
+        ______________________________________
+      </div>
+
       <div>${funcionario.nome || ""}</div>
       <div>${funcionario.cpf || ""}</div>
+
     </td>
 
-    <td style="width:50%; text-align:center; vertical-align:top; padding-left:12px;">
-      <div style="border-top:1px solid #000; width:80%; margin:0 auto 3px auto;"></div>
+    <td style="width:50%; text-align:center;">
+
+      <div style="width:80%; margin:0 auto;">
+        ______________________________________
+      </div>
+
       <div>${config?.nomeFantasia || instituicao.nome || ""}</div>
       <div>${config?.cnpj || ""}</div>
+
     </td>
   </tr>
 </table>
