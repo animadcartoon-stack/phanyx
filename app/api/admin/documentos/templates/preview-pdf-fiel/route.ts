@@ -115,6 +115,10 @@ export async function POST(req: NextRequest) {
       config?.usarPapelTimbrado &&
       config?.estiloPapelTimbrado === "PHANYX_CLASSICO";
 
+      console.log("===== CONTEUDO HTML =====");
+      console.log(conteudoHtml);
+      console.log("===== FIM HTML =====");
+
     const html = `<!doctype html>
 <html lang="pt-BR">
 <head>
