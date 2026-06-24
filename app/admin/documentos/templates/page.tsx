@@ -1513,6 +1513,10 @@ const todasAsTags = [
   "{{decimoTerceiroProporcional}}",
   "{{avisoPrevio}}",
   "{{valorRescisao}}",
+  "{{blocoEmpregadorColaborador}}",
+  "{{blocoVerbasRescisorias}}",
+  "{{blocoValoresRescisao}}",
+  "{{blocoAssinaturasRescisao}}",
 
   // RH - Advertência / Suspensão
   "{{motivoAdvertencia}}",
@@ -2009,6 +2013,78 @@ const descricoesVariaveis: Record<
     categoria: "Assinatura de diretor",
     palavras: ["assinatura", "imagem assinatura", "assinatura diretor"],
   },
+  "{{blocoEmpregadorColaborador}}": {
+  titulo: "Bloco empregador e colaborador",
+  descricao: "Insere uma tabela pronta com dados da instituição e do funcionário.",
+  ondeUsar: "Termos de rescisão, contratos de trabalho, recibos e documentos RH.",
+  categoria: "RH - Blocos prontos",
+  palavras: [
+    "empregador",
+    "colaborador",
+    "funcionário",
+    "funcionario",
+    "empresa",
+    "instituição",
+    "dados do funcionário",
+    "dados da empresa",
+    "rescisão",
+    "contrato"
+  ],
+},
+
+"{{blocoVerbasRescisorias}}": {
+  titulo: "Bloco de verbas rescisórias",
+  descricao: "Insere saldo de salário, férias vencidas, férias proporcionais, 13º, aviso prévio e multa FGTS.",
+  ondeUsar: "Termo de rescisão, TRCT e documentos de desligamento.",
+  categoria: "RH - Rescisão",
+  palavras: [
+    "verbas",
+    "rescisórias",
+    "rescisorias",
+    "rescisão",
+    "valor de rescisão",
+    "saldo salário",
+    "férias",
+    "décimo terceiro",
+    "aviso prévio",
+    "fgts"
+  ],
+},
+
+"{{blocoValoresRescisao}}": {
+  titulo: "Bloco de valores finais da rescisão",
+  descricao: "Insere valor bruto, descontos de INSS, IRRF, outros descontos e valor líquido.",
+  ondeUsar: "Termo de rescisão, TRCT e recibos de quitação.",
+  categoria: "RH - Rescisão",
+  palavras: [
+    "valor",
+    "valor da rescisão",
+    "valor líquido",
+    "valor bruto",
+    "desconto",
+    "inss",
+    "irrf",
+    "pagamento",
+    "quitação",
+    "rescisão"
+  ],
+},
+
+"{{blocoAssinaturasRescisao}}": {
+  titulo: "Bloco de assinaturas da rescisão",
+  descricao: "Insere linhas de assinatura do colaborador e da instituição.",
+  ondeUsar: "Termos de rescisão, TRCT, recibos e documentos de desligamento.",
+  categoria: "RH - Blocos prontos",
+  palavras: [
+    "assinatura",
+    "assinar",
+    "colaborador",
+    "empregador",
+    "rescisão",
+    "termo",
+    "documento assinado"
+  ],
+},
   "{{blocoAssinaturaDiretor}}": {
     titulo: "Bloco de assinatura do diretor",
     descricao: "Insere assinatura, nome, cargo e instituição do responsável.",
