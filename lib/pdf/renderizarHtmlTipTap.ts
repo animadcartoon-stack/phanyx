@@ -19,6 +19,7 @@ type BlocoPdf = {
   lineHeight?: number | null;
 
   tipo?: "texto" | "hr" | "table";
+  htmlOriginal?: string;
 };
 
 const ESPACO_PARAGRAFO = 0.5;
@@ -140,18 +141,45 @@ function tokensInline(html: string): Token[] {
   return tokens;
 }
 
+function extrairTabelas(html: string): BlocoPdf[] {
+  const tabelas: BlocoPdf[] = [];
+  const regexTabela = /<table[\s\S]*?<\/table>/gi;
+
+  let match;
+
+  while ((match = regexTabela.exec(html)) !== null) {
+    tabelas.push({
+      tokens: [],
+      align: "left",
+      vazio: false,
+      titulo: false,
+      tipo: "table",
+      htmlOriginal: match[0],
+    });
+  }
+
+  return tabelas;
+}
 
 function extrairBlocosTipTap(html: string): BlocoPdf[] {
   const entrada = String(html || "")
     .replace(/\r\n/g, "\n")
     .replace(/<br\s*\/?>/gi, "\n");
 
-const entradaComHr = entrada.replace(
+let entradaComHr = entrada.replace(
   /<hr\s*\/?>/gi,
   "<div data-phanyx-hr='1'></div>"
 );
 
+const tabelas = extrairTabelas(entradaComHr);
+
+entradaComHr = entradaComHr.replace(/<table[\s\S]*?<\/table>/gi, "");
+
   const blocos: BlocoPdf[] = [];
+
+for (const tabela of tabelas) {
+  blocos.push(tabela);
+}
 
   const regex = /<(p|div|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
 
@@ -362,6 +390,11 @@ for (const bloco of blocos) {
     y -= 8;
     continue;
   }
+
+  if (bloco.tipo === "table") {
+  y -= 10;
+  continue;
+}
 
   const tamanhoBase =
     bloco.fontSize || (bloco.titulo ? 8 : 7);
