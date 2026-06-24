@@ -297,7 +297,7 @@ function abrirTourAdmin() {
 
     <div className="flex min-h-screen bg-gray-100">
       {!esconderSidebar && (
-        <aside className="hidden w-72 bg-white shadow-lg p-6 lg:flex flex-col h-screen overflow-y-auto">
+        <aside className="hidden fixed left-0 top-0 z-40 w-72 h-screen bg-white shadow-lg p-6 lg:flex flex-col overflow-y-auto">
           <div>
             <div className="mb-8">
               <h2 className="text-xl font-semibold">
@@ -1040,7 +1040,7 @@ function abrirTourAdmin() {
   className={
     esconderSidebar
       ? "flex-1 p-0"
-      : "flex-1 w-full px-3 py-4 pb-24 lg:p-10"
+      : "flex-1 w-full px-3 py-4 pb-24 lg:ml-72 lg:p-10"
   }
 >
   {!esconderSidebar && <PhanyxFeriadoAviso />}
