@@ -392,12 +392,11 @@ async function renderizarTabelaSimplesNoPdf({
 
   const tamanhoFonte = 8;
   const alturaLinha = 8.5;
+  const ESPACO_ANTES_LINHA_ASSINATURA = 14;
 
-  const ESPACO_ANTES_ASSINATURA = 10;
-
-function ehLinhaAssinatura(texto: string) {
-  return /^_{8,}$/.test(String(texto || "").replace(/\s/g, ""));
-}
+  function ehLinhaAssinatura(texto: string) {
+    return /^_{8,}$/.test(String(texto || "").replace(/\s/g, ""));
+  }
 
   for (const linhaHtml of linhas) {
     const celulas = linhaHtml.match(/<td[\s\S]*?<\/td>/gi) || [];
@@ -409,17 +408,15 @@ function ehLinhaAssinatura(texto: string) {
 
     const celulasPreparadas = celulas.map((celulaHtml: string) => {
       const attrs = celulaHtml.match(/<td([^>]*)>/i)?.[1] || "";
-      
+
       const style =
-  attrs.match(/style="([^"]*)"/i)?.[1] ||
-  attrs.match(/style='([^']*)'/i)?.[1] ||
-  "";
+        attrs.match(/style="([^"]*)"/i)?.[1] ||
+        attrs.match(/style='([^']*)'/i)?.[1] ||
+        "";
 
-const widthMatch = style.match(/width\s*:\s*(\d+)%/i);
+      const widthMatch = style.match(/width\s*:\s*(\d+)%/i);
 
-const widthPercent = widthMatch
-  ? Number(widthMatch[1])
-  : null;
+      const widthPercent = widthMatch ? Number(widthMatch[1]) : null;
 
       const align: Align = /text-align\s*:\s*center/i.test(style)
         ? "center"
@@ -438,50 +435,53 @@ const widthPercent = widthMatch
         .map((l) => l.trim())
         .filter(Boolean);
 
-      const temLinhaAssinatura = linhasTexto.some(ehLinhaAssinatura);
-const espacoAntesAssinatura = temLinhaAssinatura ? ESPACO_ANTES_ASSINATURA : 0;
+      maiorAlturaCelula = Math.max(
+        maiorAlturaCelula,
+        linhasTexto.length * alturaLinha
+      );
 
-maiorAlturaCelula = Math.max(
-  maiorAlturaCelula,
-  espacoAntesAssinatura + linhasTexto.length * alturaLinha
-);
-
-return {
-  linhasTexto,
-  align,
-  widthPercent,
-  espacoAntesAssinatura,
-};
+      return {
+        linhasTexto,
+        align,
+        widthPercent,
+      };
     });
 
-    if (posY - maiorAlturaCelula < 70) {
+    const linhaContemAssinatura = celulasPreparadas.some((celula) =>
+      celula.linhasTexto.some(ehLinhaAssinatura)
+    );
+
+    const espacoExtraLinha = linhaContemAssinatura
+      ? ESPACO_ANTES_LINHA_ASSINATURA
+      : 0;
+
+    if (posY - maiorAlturaCelula - espacoExtraLinha < 70) {
       pagina = await criarNovaPagina();
       posY = pageHeight - 135;
+    }
+
+    if (linhaContemAssinatura) {
+      posY -= ESPACO_ANTES_LINHA_ASSINATURA;
     }
 
     celulasPreparadas.forEach((celula, index: number) => {
       let colunaX = x;
 
-for (let i = 0; i < index; i++) {
-  const larguraAnterior =
-    celulasPreparadas[i].widthPercent
-      ? (maxWidth * celulasPreparadas[i].widthPercent) / 100
-      : larguraCelula;
+      for (let i = 0; i < index; i++) {
+        const larguraAnterior = celulasPreparadas[i].widthPercent
+          ? (maxWidth * celulasPreparadas[i].widthPercent) / 100
+          : larguraCelula;
 
-  colunaX += larguraAnterior;
-}
+        colunaX += larguraAnterior;
+      }
 
-const larguraAtual =
-  celula.widthPercent
-    ? (maxWidth * celula.widthPercent) / 100
-    : larguraCelula;
+      const larguraAtual = celula.widthPercent
+        ? (maxWidth * celula.widthPercent) / 100
+        : larguraCelula;
 
       let linhaY = posY;
 
       celula.linhasTexto.forEach((texto) => {
-        if (ehLinhaAssinatura(texto)) {
-  linhaY -= celula.espacoAntesAssinatura || 0;
-}
         const ehTitulo =
           texto.toUpperCase() === "EMPREGADOR" ||
           texto.toUpperCase() === "COLABORADOR";
