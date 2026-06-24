@@ -303,7 +303,7 @@ export async function POST(req: NextRequest) {
       "{{resultadoPericia}}": ocorrencia?.resultadoPericia || "",
     };
 valores["{{blocoEmpregadorColaborador}}"] = `
-<table style="width:100%; border-collapse:collapse; margin-top:8px; margin-bottom:8px; font-size:9pt; line-height:1.25;">
+<table style="width:100%; border-collapse:collapse; margin-top:8px; margin-bottom:8px; line-height:inherit; font-size:inherit;">
   <tr>
     <td style="width:50%; vertical-align:top; padding:6px 10px 6px 0;">
       <strong>EMPREGADOR</strong><br>
@@ -327,7 +327,7 @@ valores["{{blocoEmpregadorColaborador}}"] = `
 `;
 
 valores["{{blocoVerbasRescisorias}}"] = `
-<div style="font-size:10pt; line-height:1.15;">
+<div style="font-size:inherit; line-height:inherit;">
   <strong>VERBAS RESCISÓRIAS</strong><br>
   Saldo de salário: ${formatarMoeda(rescisao?.saldoSalario)}<br>
   Férias vencidas: ${formatarMoeda(rescisao?.feriasVencidas)}<br>
@@ -339,7 +339,7 @@ valores["{{blocoVerbasRescisorias}}"] = `
 `;
 
 valores["{{blocoValoresRescisao}}"] = `
-<div style="font-size:10pt; line-height:1.15;">
+<div style="font-size:inherit; line-height:inherit;">
   <strong>VALORES FINAIS</strong><br>
   Valor bruto da rescisão: ${formatarMoeda(rescisao?.valorBrutoRescisao)}<br>
   Desconto INSS: ${formatarMoeda(rescisao?.descontoInss)}<br>
