@@ -17,6 +17,8 @@ type BlocoPdf = {
   fontSize?: number | null;
   fontFamily?: string | null;
   lineHeight?: number | null;
+
+  tipo?: "texto" | "hr";
 };
 
 const ESPACO_PARAGRAFO = 0.5;
@@ -138,17 +140,23 @@ function tokensInline(html: string): Token[] {
   return tokens;
 }
 
+
 function extrairBlocosTipTap(html: string): BlocoPdf[] {
   const entrada = String(html || "")
     .replace(/\r\n/g, "\n")
     .replace(/<br\s*\/?>/gi, "\n");
+
+const entradaComHr = entrada.replace(
+  /<hr\s*\/?>/gi,
+  "<div data-phanyx-hr='1'></div>"
+);
 
   const blocos: BlocoPdf[] = [];
   const regex = /<(p|div|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
 
   let match;
 
-  while ((match = regex.exec(entrada)) !== null) {
+  while ((match = regex.exec(entradaComHr)) !== null) {
     const tag = match[1].toLowerCase();
     const attrs = match[2] || "";
     const bruto = match[3] || "";
@@ -169,6 +177,17 @@ function extrairBlocosTipTap(html: string): BlocoPdf[] {
       : "left";
 
     const titulo = tag === "h1" || tag === "h2";
+    if (attrs.includes("data-phanyx-hr")) {
+  blocos.push({
+    tokens: [],
+    align: "left",
+    vazio: false,
+    titulo: false,
+    tipo: "hr",
+  });
+
+  continue;
+}
     const partesLinha = bruto.split("\n");
 
     for (const parteLinha of partesLinha) {
@@ -327,6 +346,23 @@ export async function renderizarHtmlTipTapNoPdf({
   for (const bloco of blocos) {
     const tamanhoBase =
   bloco.fontSize || (bloco.titulo ? 8 : 7);
+
+  if (bloco.tipo === "hr") {
+  if (y < 70) {
+    pagina = await criarNovaPagina();
+    y = pageHeight - 135;
+  }
+
+  pagina.drawLine({
+    start: { x, y },
+    end: { x: x + maxWidth, y },
+    thickness: 1,
+    color: rgb(0, 0, 0),
+  });
+
+  y -= 8;
+  continue;
+}
 
     if (bloco.vazio) {
       const alturaVazia = calcularAlturaLinha(
