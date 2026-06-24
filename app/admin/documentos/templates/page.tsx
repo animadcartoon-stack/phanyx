@@ -1518,6 +1518,7 @@ const todasAsTags = [
   "{{blocoVerbasRescisorias}}",
   "{{blocoValoresRescisao}}",
   "{{blocoAssinaturasRescisao}}",
+  "{{blocoRescisaoAssinaturaCompleto}}",
 
   // RH - Advertência / Suspensão
   "{{motivoAdvertencia}}",
@@ -2084,6 +2085,29 @@ const descricoesVariaveis: Record<
     "rescisão",
     "termo",
     "documento assinado"
+  ],
+},
+"{{blocoRescisaoAssinaturaCompleto}}": {
+  titulo: "Bloco completo de rescisão",
+  descricao:
+    "Insere empregador, colaborador e assinaturas em um único bloco profissional.",
+  ondeUsar:
+    "Termos de rescisão, TRCT e documentos de desligamento.",
+  categoria: "RH - Rescisão",
+  palavras: [
+    "rescisao",
+    "rescisão",
+    "assinatura",
+    "empregador",
+    "colaborador",
+    "demissao",
+    "demissão",
+    "desligamento",
+    "trct",
+    "rh",
+    "empresa",
+    "funcionario",
+    "funcionário"
   ],
 },
   "{{blocoAssinaturaDiretor}}": {
