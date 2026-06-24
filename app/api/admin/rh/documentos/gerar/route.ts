@@ -370,17 +370,29 @@ valores["{{blocoAssinaturasRescisao}}"] = `
 `;
 
 valores["{{blocoRescisaoAssinaturaCompleto}}"] = `
-<table style="width:100%; border-collapse:collapse; margin-top:12px; page-break-inside:avoid; break-inside:avoid; font-size:inherit; line-height:1.15;">
+<table
+  style="
+    width:100%;
+    border-collapse:collapse;
+    margin-top:12px;
+    page-break-inside:avoid;
+    break-inside:avoid;
+    font-size:inherit;
+    line-height:1.2;
+  "
+>
   <tr>
-    <td style="width:50%; vertical-align:top; padding-right:18px;">
+    <td style="width:50%; vertical-align:top; padding-right:24px;">
       <strong>EMPREGADOR</strong><br><br>
+
       <strong>Nome:</strong> ${config?.nomeFantasia || instituicao.nome || ""}<br>
       <strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
       <strong>Telefone:</strong> ${config?.telefone || ""}
     </td>
 
-    <td style="width:50%; vertical-align:top; padding-left:18px;">
+    <td style="width:50%; vertical-align:top; padding-left:24px;">
       <strong>COLABORADOR</strong><br><br>
+
       <strong>Nome:</strong> ${funcionario.nome || ""}<br>
       <strong>CPF:</strong> ${funcionario.cpf || ""}<br>
       <strong>Cargo:</strong> ${funcionario.cargo || ""}
@@ -388,18 +400,62 @@ valores["{{blocoRescisaoAssinaturaCompleto}}"] = `
   </tr>
 
   <tr>
-    <td colspan="2" style="height:20px;"></td>
+    <td colspan="2" style="height:28px;"></td>
   </tr>
 
   <tr>
-    <td style="width:50%; text-align:center; vertical-align:top; padding-right:18px;">
-      <div style="width:78%; margin:0 auto; line-height:0.8;">__________________________</div>
-      <div style="margin-top:1px; line-height:1;">EMPREGADOR</div>
+    <td
+      style="
+        width:50%;
+        text-align:center;
+        vertical-align:top;
+        padding-right:24px;
+      "
+    >
+      <div
+        style="
+          width:70%;
+          margin:0 auto;
+          line-height:0.8;
+        "
+      >
+        ______________________________
+      </div>
+
+      <div style="margin-top:4px; line-height:1.2;">
+        ${config?.nomeFantasia || instituicao.nome || ""}
+      </div>
+
+      <div style="line-height:1.2;">
+        ${config?.cnpj || ""}
+      </div>
     </td>
 
-    <td style="width:50%; text-align:center; vertical-align:top; padding-left:18px;">
-      <div style="width:78%; margin:0 auto; line-height:0.8;">__________________________</div>
-      <div style="margin-top:1px; line-height:1;">COLABORADOR</div>
+    <td
+      style="
+        width:50%;
+        text-align:center;
+        vertical-align:top;
+        padding-left:24px;
+      "
+    >
+      <div
+        style="
+          width:70%;
+          margin:0 auto;
+          line-height:0.8;
+        "
+      >
+        ______________________________
+      </div>
+
+      <div style="margin-top:4px; line-height:1.2;">
+        ${funcionario.nome || ""}
+      </div>
+
+      <div style="line-height:1.2;">
+        ${funcionario.cpf || ""}
+      </div>
     </td>
   </tr>
 </table>
