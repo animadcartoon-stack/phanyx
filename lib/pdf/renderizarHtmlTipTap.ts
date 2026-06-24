@@ -450,7 +450,22 @@ const widthPercent = widthMatch
     }
 
     celulasPreparadas.forEach((celula, index: number) => {
-      const colunaX = x + index * larguraCelula + (index * 10);
+      let colunaX = x;
+
+for (let i = 0; i < index; i++) {
+  const larguraAnterior =
+    celulasPreparadas[i].widthPercent
+      ? (maxWidth * celulasPreparadas[i].widthPercent) / 100
+      : larguraCelula;
+
+  colunaX += larguraAnterior;
+}
+
+const larguraAtual =
+  celula.widthPercent
+    ? (maxWidth * celula.widthPercent) / 100
+    : larguraCelula;
+
       let linhaY = posY;
 
       celula.linhasTexto.forEach((texto) => {
@@ -464,11 +479,11 @@ const widthPercent = widthMatch
         let textoX = colunaX;
 
         if (celula.align === "center") {
-          textoX = colunaX + (larguraCelula - larguraTexto) / 2;
+          textoX = colunaX + (larguraAtual - larguraTexto) / 2;
         }
 
         if (celula.align === "right") {
-          textoX = colunaX + larguraCelula - larguraTexto;
+          textoX = colunaX + larguraAtual - larguraTexto;
         }
 
         pagina.drawText(texto, {
