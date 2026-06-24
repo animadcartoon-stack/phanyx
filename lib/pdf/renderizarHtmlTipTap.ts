@@ -476,9 +476,12 @@ const larguraAtual =
     ? (maxWidth * celula.widthPercent) / 100
     : larguraCelula;
 
-      let linhaY = posY - (celula.espacoAntesAssinatura || 0);
+      let linhaY = posY;
 
       celula.linhasTexto.forEach((texto) => {
+        if (ehLinhaAssinatura(texto)) {
+  linhaY -= celula.espacoAntesAssinatura || 0;
+}
         const ehTitulo =
           texto.toUpperCase() === "EMPREGADOR" ||
           texto.toUpperCase() === "COLABORADOR";
