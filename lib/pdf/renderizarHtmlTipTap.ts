@@ -171,15 +171,27 @@ let entradaComHr = entrada.replace(
   "<div data-phanyx-hr='1'></div>"
 );
 
-const tabelas = extrairTabelas(entradaComHr);
+const tabelas: Record<string, BlocoPdf> = {};
+let contadorTabela = 0;
 
-entradaComHr = entradaComHr.replace(/<table[\s\S]*?<\/table>/gi, "");
+entradaComHr = entradaComHr.replace(/<table[\s\S]*?<\/table>/gi, (htmlTabela) => {
+  const marcador = `PHANYX_TABLE_${contadorTabela}`;
 
-  const blocos: BlocoPdf[] = [];
+  tabelas[marcador] = {
+    tokens: [],
+    align: "left",
+    vazio: false,
+    titulo: false,
+    tipo: "table",
+    htmlOriginal: htmlTabela,
+  };
 
-for (const tabela of tabelas) {
-  blocos.push(tabela);
-}
+  contadorTabela += 1;
+
+  return `<div>${marcador}</div>`;
+});
+
+const blocos: BlocoPdf[] = [];
 
   const regex = /<(p|div|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
 
@@ -221,6 +233,11 @@ for (const tabela of tabelas) {
 
     for (const parteLinha of partesLinha) {
       const semTags = parteLinha.replace(/<[^>]+>/g, "").trim();
+
+if (tabelas[semTags]) {
+  blocos.push(tabelas[semTags]);
+  continue;
+}
 
       if (!semTags) {
         blocos.push({
