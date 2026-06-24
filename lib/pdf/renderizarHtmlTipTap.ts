@@ -390,8 +390,8 @@ async function renderizarTabelaSimplesNoPdf({
   const regexLinha = /<tr[\s\S]*?<\/tr>/gi;
   const linhas = String(html || "").match(regexLinha) || [];
 
-  const tamanhoFonte = 7;
-  const alturaLinha = 9;
+  const tamanhoFonte = 8;
+  const alturaLinha = 8.5;
 
   for (const linhaHtml of linhas) {
     const celulas = linhaHtml.match(/<td[\s\S]*?<\/td>/gi) || [];
@@ -498,7 +498,7 @@ const larguraAtual =
       });
     });
 
-    posY -= maiorAlturaCelula + 10;
+    posY -= maiorAlturaCelula + 4;
   }
 
   return { page: pagina, y: posY };
@@ -554,7 +554,7 @@ for (const bloco of blocos) {
   });
 
   pagina = resultadoTabela.page;
-  y = resultadoTabela.y - 8;
+  y = resultadoTabela.y - 2;
 
   continue;
 }
