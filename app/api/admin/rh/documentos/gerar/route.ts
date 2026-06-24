@@ -352,38 +352,18 @@ valores["{{blocoValoresRescisao}}"] = `
 `;
 
 valores["{{blocoAssinaturasRescisao}}"] = `
-<table style="width:100%; border-collapse:collapse; margin-top:18px;">
+<table style="width:100%; border-collapse:collapse; margin-top:10px; page-break-inside:avoid; break-inside:avoid; font-size:inherit; line-height:1;">
   <tr>
-    <td style="width:50%; text-align:center;">
-
-      <div style="width:80%; margin:0 auto;">
-        ______________________________________
-      </div>
-
-      <div style="margin-top:1px; line-height:1;">
-  ${funcionario.nome || ""}
-</div>
-
-<div style="line-height:1;">
-  ${funcionario.cpf || ""}
-</div>
-
+    <td style="width:50%; text-align:center; vertical-align:top; padding-right:10px;">
+      <div style="width:75%; margin:0 auto; line-height:0.8;">____________________________</div>
+      <div style="margin-top:0; line-height:1;">${config?.nomeFantasia || instituicao.nome || ""}</div>
+      <div style="margin-top:0; line-height:1;">${config?.cnpj || ""}</div>
     </td>
 
-    <td style="width:50%; text-align:center;">
-
-      <div style="width:80%; margin:0 auto;">
-        ______________________________________
-      </div>
-
-      <div style="margin-top:1px; line-height:1;">
-  ${config?.nomeFantasia || instituicao.nome || ""}
-</div>
-
-<div style="line-height:1;">
-  ${config?.cnpj || ""}
-</div>
-
+    <td style="width:50%; text-align:center; vertical-align:top; padding-left:10px;">
+      <div style="width:75%; margin:0 auto; line-height:0.8;">____________________________</div>
+      <div style="margin-top:0; line-height:1;">${funcionario.nome || ""}</div>
+      <div style="margin-top:0; line-height:1;">${funcionario.cpf || ""}</div>
     </td>
   </tr>
 </table>
