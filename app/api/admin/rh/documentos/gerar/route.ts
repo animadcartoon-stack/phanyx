@@ -302,48 +302,19 @@ export async function POST(req: NextRequest) {
       "{{dataPericia}}": formatarData(ocorrencia?.dataPericia),
       "{{resultadoPericia}}": ocorrencia?.resultadoPericia || "",
     };
-
-    valores["{{blocoEmpregadorColaborador}}"] = `
-<table style="width:100%; border-collapse:collapse;">
-<tr>
-<td style="width:50%; vertical-align:top; padding-right:20px;">
-<strong>EMPREGADOR</strong><br><br>
-
-<strong>Nome:</strong> ${config?.nomeFantasia || ""}<br>
-<strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
-<strong>Telefone:</strong> ${config?.telefone || ""}<br>
-<strong>E-mail:</strong> ${config?.email || ""}
-</td>
-
-<td style="width:50%; vertical-align:top;">
-<strong>COLABORADOR</strong><br><br>
-
-<strong>Nome:</strong> ${funcionario.nome || ""}<br>
-<strong>CPF:</strong> ${funcionario.cpf || ""}<br>
-<strong>Cargo:</strong> ${funcionario.cargo || ""}<br>
-<strong>Departamento:</strong> ${
-  funcionario.departamento?.nome ||
-  funcionario.setor ||
-  ""
-}
-</td>
-</tr>
-</table>
-`;
-
 valores["{{blocoEmpregadorColaborador}}"] = `
-<table style="width:100%; border-collapse:collapse;">
+<table style="width:100%; border-collapse:collapse; margin-top:8px; margin-bottom:8px; font-size:9pt; line-height:1.25;">
   <tr>
-    <td style="width:50%; vertical-align:top; padding-right:20px;">
-      <strong>EMPREGADOR</strong><br><br>
+    <td style="width:50%; vertical-align:top; padding:6px 10px 6px 0;">
+      <strong>EMPREGADOR</strong><br>
       <strong>Nome:</strong> ${config?.nomeFantasia || instituicao.nome || ""}<br>
       <strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
       <strong>Telefone:</strong> ${config?.telefone || ""}<br>
       <strong>E-mail:</strong> ${config?.email || ""}
     </td>
 
-    <td style="width:50%; vertical-align:top;">
-      <strong>COLABORADOR</strong><br><br>
+    <td style="width:50%; vertical-align:top; padding:6px 0 6px 10px;">
+      <strong>COLABORADOR</strong><br>
       <strong>Nome:</strong> ${funcionario.nome || ""}<br>
       <strong>CPF:</strong> ${funcionario.cpf || ""}<br>
       <strong>Cargo:</strong> ${funcionario.cargo || ""}<br>
@@ -356,53 +327,47 @@ valores["{{blocoEmpregadorColaborador}}"] = `
 `;
 
 valores["{{blocoVerbasRescisorias}}"] = `
-<strong>VERBAS RESCISÓRIAS</strong><br><br>
-Saldo de salário: ${formatarMoeda(rescisao?.saldoSalario)}<br>
-Férias vencidas: ${formatarMoeda(rescisao?.feriasVencidas)}<br>
-Férias proporcionais: ${formatarMoeda(rescisao?.feriasProporcionais)}<br>
-Décimo terceiro proporcional: ${formatarMoeda(
-  rescisao?.decimoTerceiroProporcional
-)}<br>
-Aviso prévio: ${formatarMoeda(rescisao?.avisoPrevio)}<br>
-Multa do FGTS: ${formatarMoeda(rescisao?.multaFgts)}
+<div style="font-size:10pt; line-height:1.15;">
+  <strong>VERBAS RESCISÓRIAS</strong><br>
+  Saldo de salário: ${formatarMoeda(rescisao?.saldoSalario)}<br>
+  Férias vencidas: ${formatarMoeda(rescisao?.feriasVencidas)}<br>
+  Férias proporcionais: ${formatarMoeda(rescisao?.feriasProporcionais)}<br>
+  Décimo terceiro proporcional: ${formatarMoeda(rescisao?.decimoTerceiroProporcional)}<br>
+  Aviso prévio: ${formatarMoeda(rescisao?.avisoPrevio)}<br>
+  Multa do FGTS: ${formatarMoeda(rescisao?.multaFgts)}
+</div>
 `;
 
 valores["{{blocoValoresRescisao}}"] = `
-<strong>VALORES FINAIS</strong><br><br>
-Valor bruto da rescisão: ${formatarMoeda(rescisao?.valorBrutoRescisao)}<br>
-Desconto INSS: ${formatarMoeda(rescisao?.descontoInss)}<br>
-Desconto IRRF: ${formatarMoeda(rescisao?.descontoIrrf)}<br>
-Outros descontos: ${formatarMoeda(rescisao?.outrosDescontos)}<br>
-Valor líquido da rescisão: ${formatarMoeda(
-  rescisao?.valorLiquidoRescisao || rescisao?.valorRescisao
-)}
+<div style="font-size:10pt; line-height:1.15;">
+  <strong>VALORES FINAIS</strong><br>
+  Valor bruto da rescisão: ${formatarMoeda(rescisao?.valorBrutoRescisao)}<br>
+  Desconto INSS: ${formatarMoeda(rescisao?.descontoInss)}<br>
+  Desconto IRRF: ${formatarMoeda(rescisao?.descontoIrrf)}<br>
+  Outros descontos: ${formatarMoeda(rescisao?.outrosDescontos)}<br>
+  Valor líquido da rescisão: ${formatarMoeda(
+    rescisao?.valorLiquidoRescisao || rescisao?.valorRescisao
+  )}
+</div>
 `;
 
 valores["{{blocoAssinaturasRescisao}}"] = `
-<br><br><br>
-<p style="text-align:center;">
-______________________________________
-</p>
-<p style="text-align:center;">
-${funcionario.nome || ""}
-</p>
-<p style="text-align:center;">
-${funcionario.cpf || ""}
-</p>
+<table style="width:100%; border-collapse:collapse; margin-top:18px; font-size:9pt; line-height:1.15;">
+  <tr>
+    <td style="width:50%; text-align:center; vertical-align:top; padding-right:12px;">
+      <div style="border-top:1px solid #000; width:80%; margin:0 auto 3px auto;"></div>
+      <div>${funcionario.nome || ""}</div>
+      <div>${funcionario.cpf || ""}</div>
+    </td>
 
-<br><br>
-
-<p style="text-align:center;">
-_______________________________________
-</p>
-<p style="text-align:center;">
-${config?.nomeFantasia || instituicao.nome || ""}
-</p>
-<p style="text-align:center;">
-${config?.cnpj || ""}
-</p>
+    <td style="width:50%; text-align:center; vertical-align:top; padding-left:12px;">
+      <div style="border-top:1px solid #000; width:80%; margin:0 auto 3px auto;"></div>
+      <div>${config?.nomeFantasia || instituicao.nome || ""}</div>
+      <div>${config?.cnpj || ""}</div>
+    </td>
+  </tr>
+</table>
 `;
-
     const conteudoFinal = substituirTags(template.conteudo, valores);
 
     const documento = await prisma.documentoRH.create({
