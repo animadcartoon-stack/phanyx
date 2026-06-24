@@ -370,16 +370,17 @@ valores["{{blocoAssinaturasRescisao}}"] = `
 `;
 
 valores["{{blocoRescisaoAssinaturaCompleto}}"] = `
-<table style="width:100%; border-collapse:collapse; margin-top:10px; page-break-inside:avoid; break-inside:avoid; font-size:inherit; line-height:1;">
+<table style="width:100%; border-collapse:collapse; margin-top:12px; page-break-inside:avoid; break-inside:avoid; font-size:inherit; line-height:1.15;">
   <tr>
-    <td style="width:50%; vertical-align:top; padding-right:12px;">
-      <strong>EMPREGADOR</strong><br>
+    <td style="width:50%; vertical-align:top; padding-right:18px;">
+      <strong>EMPREGADOR</strong><br><br>
       <strong>Nome:</strong> ${config?.nomeFantasia || instituicao.nome || ""}<br>
-      <strong>CNPJ:</strong> ${config?.cnpj || ""}
+      <strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
+      <strong>Telefone:</strong> ${config?.telefone || ""}
     </td>
 
-    <td style="width:50%; vertical-align:top; padding-left:12px;">
-      <strong>COLABORADOR</strong><br>
+    <td style="width:50%; vertical-align:top; padding-left:18px;">
+      <strong>COLABORADOR</strong><br><br>
       <strong>Nome:</strong> ${funcionario.nome || ""}<br>
       <strong>CPF:</strong> ${funcionario.cpf || ""}<br>
       <strong>Cargo:</strong> ${funcionario.cargo || ""}
@@ -387,20 +388,18 @@ valores["{{blocoRescisaoAssinaturaCompleto}}"] = `
   </tr>
 
   <tr>
-    <td colspan="2" style="height:14px;"></td>
+    <td colspan="2" style="height:20px;"></td>
   </tr>
 
   <tr>
-    <td style="width:50%; text-align:center; vertical-align:top; padding-right:12px;">
-      <div style="width:78%; margin:0 auto; line-height:0.8;">____________________________</div>
-      <div style="margin-top:0; line-height:1;">${config?.nomeFantasia || instituicao.nome || ""}</div>
-      <div style="margin-top:0; line-height:1;">${config?.cnpj || ""}</div>
+    <td style="width:50%; text-align:center; vertical-align:top; padding-right:18px;">
+      <div style="width:78%; margin:0 auto; line-height:0.8;">__________________________</div>
+      <div style="margin-top:1px; line-height:1;">EMPREGADOR</div>
     </td>
 
-    <td style="width:50%; text-align:center; vertical-align:top; padding-left:12px;">
-      <div style="width:78%; margin:0 auto; line-height:0.8;">____________________________</div>
-      <div style="margin-top:0; line-height:1;">${funcionario.nome || ""}</div>
-      <div style="margin-top:0; line-height:1;">${funcionario.cpf || ""}</div>
+    <td style="width:50%; text-align:center; vertical-align:top; padding-left:18px;">
+      <div style="width:78%; margin:0 auto; line-height:0.8;">__________________________</div>
+      <div style="margin-top:1px; line-height:1;">COLABORADOR</div>
     </td>
   </tr>
 </table>
