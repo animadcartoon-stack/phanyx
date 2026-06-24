@@ -370,64 +370,42 @@ valores["{{blocoAssinaturasRescisao}}"] = `
 `;
 
 valores["{{blocoRescisaoAssinaturaCompleto}}"] = `
-<table style="width:100%; border-collapse:collapse; margin-top:12px; font-size:inherit; line-height:inherit;">
+<table style="width:100%; border-collapse:collapse; margin-top:10px; page-break-inside:avoid; break-inside:avoid; font-size:inherit; line-height:1;">
   <tr>
-    <td style="width:50%; vertical-align:top; padding-right:20px;">
-
-      <strong>EMPREGADOR</strong><br><br>
-
+    <td style="width:50%; vertical-align:top; padding-right:12px;">
+      <strong>EMPREGADOR</strong><br>
       <strong>Nome:</strong> ${config?.nomeFantasia || instituicao.nome || ""}<br>
-      <strong>CNPJ:</strong> ${config?.cnpj || ""}<br>
-      <strong>Telefone:</strong> ${config?.telefone || ""}<br>
-      <strong>E-mail:</strong> ${config?.email || ""}
-
+      <strong>CNPJ:</strong> ${config?.cnpj || ""}
     </td>
 
-    <td style="width:50%; vertical-align:top;">
-
-      <strong>COLABORADOR</strong><br><br>
-
+    <td style="width:50%; vertical-align:top; padding-left:12px;">
+      <strong>COLABORADOR</strong><br>
       <strong>Nome:</strong> ${funcionario.nome || ""}<br>
       <strong>CPF:</strong> ${funcionario.cpf || ""}<br>
-      <strong>Cargo:</strong> ${funcionario.cargo || ""}<br>
-      <strong>Departamento:</strong> ${
-        funcionario.departamento?.nome ||
-        funcionario.setor ||
-        ""
-      }
-
+      <strong>Cargo:</strong> ${funcionario.cargo || ""}
     </td>
   </tr>
 
   <tr>
-    <td colspan="2" style="height:28px;"></td>
+    <td colspan="2" style="height:14px;"></td>
   </tr>
 
   <tr>
-    <td style="text-align:center;">
-
-      <div style="width:80%; margin:0 auto;">
-        ____________________________
-      </div>
-
-      <div>${config?.nomeFantasia || instituicao.nome || ""}</div>
-      <div>${config?.cnpj || ""}</div>
-
+    <td style="width:50%; text-align:center; vertical-align:top; padding-right:12px;">
+      <div style="width:78%; margin:0 auto; line-height:0.8;">____________________________</div>
+      <div style="margin-top:0; line-height:1;">${config?.nomeFantasia || instituicao.nome || ""}</div>
+      <div style="margin-top:0; line-height:1;">${config?.cnpj || ""}</div>
     </td>
 
-    <td style="text-align:center;">
-
-      <div style="width:80%; margin:0 auto;">
-        ____________________________
-      </div>
-
-      <div>${funcionario.nome || ""}</div>
-      <div>${funcionario.cpf || ""}</div>
-
+    <td style="width:50%; text-align:center; vertical-align:top; padding-left:12px;">
+      <div style="width:78%; margin:0 auto; line-height:0.8;">____________________________</div>
+      <div style="margin-top:0; line-height:1;">${funcionario.nome || ""}</div>
+      <div style="margin-top:0; line-height:1;">${funcionario.cpf || ""}</div>
     </td>
   </tr>
 </table>
 `;
+
 valores["{{blocoDadosFuncionarioRescisao}}"] = `
 <table style="width:100%; border-collapse:collapse; margin-bottom:8px; font-size:10pt; line-height:1.2;">
   <tr>
