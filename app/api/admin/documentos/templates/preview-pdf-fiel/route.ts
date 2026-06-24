@@ -141,8 +141,6 @@ export async function POST(req: NextRequest) {
 
     body {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 8pt;
-  line-height: 1;
 }
 
     .pagina-a4 {
@@ -227,26 +225,7 @@ export async function POST(req: NextRequest) {
   ${usaPapelProprio ? "padding-top: 18mm; padding-bottom: 18mm;" : ""}
 }
 
-.conteudo p,
-.conteudo div {
-  margin: 0;
-  padding: 0;
-  line-height: inherit;
-}
 
-.conteudo p + p,
-.conteudo div + div {
-  margin-top: 0;
-}
-
-.conteudo br {
-  line-height: 1;
-}
-
-.conteudo,
-.conteudo * {
-  line-height: inherit;
-}
 
 .conteudo p + p,
 .conteudo div + div {
