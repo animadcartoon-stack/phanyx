@@ -1477,6 +1477,7 @@ const todasAsTags = [
   "{{cargaHorariaMensalFuncionario}}",
   "{{dataAdmissaoFuncionario}}",
   "{{dataDesligamentoFuncionario}}",
+  "{{blocoDadosFuncionarioRescisao}}",
 
   // RH - Holerite
   "{{competenciaMes}}",
@@ -2536,7 +2537,24 @@ const descricoesVariaveis: Record<
     categoria: "Rescisão",
     palavras: ["rescisão", "tipo rescisão"],
   },
-
+"{{blocoDadosFuncionarioRescisao}}": {
+  titulo: "Bloco de dados do funcionário na rescisão",
+  descricao: "Insere nome, CPF, cargo, departamento, data de admissão, data de desligamento e tipo de rescisão.",
+  ondeUsar: "Termo de rescisão, TRCT, aviso prévio e documentos de desligamento.",
+  categoria: "RH - Rescisão",
+  palavras: [
+    "dados funcionário",
+    "dados funcionario",
+    "rescisão",
+    "demissão",
+    "desligamento",
+    "admissão",
+    "cargo",
+    "departamento",
+    "cpf",
+    "trct"
+  ],
+},
   "{{dataDemissao}}": {
     titulo: "Data da demissão",
     descricao: "Mostra a data oficial de desligamento.",

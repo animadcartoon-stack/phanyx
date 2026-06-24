@@ -378,6 +378,32 @@ valores["{{blocoAssinaturasRescisao}}"] = `
   </tr>
 </table>
 `;
+
+valores["{{blocoDadosFuncionarioRescisao}}"] = `
+<table style="width:100%; border-collapse:collapse; margin-bottom:8px; font-size:10pt; line-height:1.2;">
+  <tr>
+    <td style="width:50%; vertical-align:top; padding-right:10px;">
+      <strong>Funcionário:</strong> ${funcionario.nome || ""}<br>
+      <strong>CPF:</strong> ${funcionario.cpf || ""}<br>
+      <strong>Cargo:</strong> ${funcionario.cargo || ""}
+    </td>
+
+    <td style="width:50%; vertical-align:top; padding-left:10px;">
+      <strong>Departamento:</strong> ${
+        funcionario.departamento?.nome || funcionario.setor || ""
+      }<br>
+      <strong>Data de admissão:</strong> ${formatarData(
+        rescisao?.dataAdmissaoBase || funcionario.dataAdmissao
+      )}<br>
+      <strong>Data de desligamento:</strong> ${formatarData(
+        rescisao?.dataDesligamento || funcionario.dataDesligamento
+      )}<br>
+      <strong>Tipo de rescisão:</strong> ${rescisao?.tipo || ""}
+    </td>
+  </tr>
+</table>
+`;
+
     const conteudoFinal = substituirTags(template.conteudo, valores);
 
     const documento = await prisma.documentoRH.create({
