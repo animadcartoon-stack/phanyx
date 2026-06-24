@@ -166,6 +166,8 @@ const [linksPortfolio, setLinksPortfolio] = useState([
       throw new Error(data.error || "Erro ao carregar funcionário.");
     }
 
+    console.log("FUNCIONARIO RECEBIDO:", data.funcionario);
+
     setFuncionario(data.funcionario);
     setFormGeral({
   nome: data.funcionario.nome || "",
