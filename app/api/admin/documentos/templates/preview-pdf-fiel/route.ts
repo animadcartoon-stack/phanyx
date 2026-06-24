@@ -98,10 +98,14 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = new URL(req.url).origin;
 
-    const conteudoHtml = substituirExemplos(
-      String(body?.conteudo || ""),
-      config
-    );
+    let conteudoHtml = substituirExemplos(
+  String(body?.conteudo || ""),
+  config
+);
+
+conteudoHtml = conteudoHtml
+  .replace(/<p([^>]*)>\s*<\/p>/gi, "<p$1><br /></p>")
+  .replace(/<p([^>]*)>\s*&nbsp;\s*<\/p>/gi, "<p$1><br /></p>");
 
     const logoUrl = urlFinal(config?.logoUrl, baseUrl);
     const papelUrl = urlFinal(config?.papelTimbradoUrl, baseUrl);
@@ -264,6 +268,16 @@ export async function POST(req: NextRequest) {
       width: 100%;
       border-collapse: collapse;
     }
+
+    .conteudo p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.conteudo p:has(> br:only-child) {
+  min-height: 4px;
+  line-height: 4px;
+}
 
   </style>
 </head>
