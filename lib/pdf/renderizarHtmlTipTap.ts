@@ -18,7 +18,7 @@ type BlocoPdf = {
   fontFamily?: string | null;
   lineHeight?: number | null;
 
-  tipo?: "texto" | "hr";
+  tipo?: "texto" | "hr" | "table";
 };
 
 const ESPACO_PARAGRAFO = 0.5;
@@ -152,6 +152,7 @@ const entradaComHr = entrada.replace(
 );
 
   const blocos: BlocoPdf[] = [];
+
   const regex = /<(p|div|h1|h2|li)([^>]*)>([\s\S]*?)<\/\1>/gi;
 
   let match;
@@ -343,35 +344,43 @@ export async function renderizarHtmlTipTapNoPdf({
 
   const blocos = extrairBlocosTipTap(html);
 
-  for (const bloco of blocos) {
-    const tamanhoBase =
-  bloco.fontSize || (bloco.titulo ? 8 : 7);
+for (const bloco of blocos) {
 
   if (bloco.tipo === "hr") {
-  if (y < 70) {
-    pagina = await criarNovaPagina();
-    y = pageHeight - 135;
+    if (y < 70) {
+      pagina = await criarNovaPagina();
+      y = pageHeight - 135;
+    }
+
+    pagina.drawLine({
+      start: { x, y },
+      end: { x: x + maxWidth, y },
+      thickness: 1,
+      color: rgb(0, 0, 0),
+    });
+
+    y -= 8;
+    continue;
   }
 
-  pagina.drawLine({
-    start: { x, y },
-    end: { x: x + maxWidth, y },
-    thickness: 1,
-    color: rgb(0, 0, 0),
-  });
+  const tamanhoBase =
+    bloco.fontSize || (bloco.titulo ? 8 : 7);
 
-  y -= 8;
-  continue;
-}
+  if (bloco.vazio) {
+    const alturaVazia = calcularAlturaLinha(
+      tamanhoBase,
+      bloco.lineHeight
+    );
 
-    if (bloco.vazio) {
-      const alturaVazia = calcularAlturaLinha(
-        tamanhoBase,
-        bloco.lineHeight
-      );
-      y -= Math.max(alturaVazia, ESPACO_LINHA_VAZIA);
-      continue;
-    }
+    y -= Math.max(
+      alturaVazia,
+      ESPACO_LINHA_VAZIA
+    );
+
+    continue;
+  }
+
+  // restante do código...
 
     const linhas = quebrarTokensEmLinhas(
       bloco.tokens.map((t) => ({
@@ -431,6 +440,6 @@ export async function renderizarHtmlTipTapNoPdf({
 
     y -= bloco.titulo ? ESPACO_TITULO : ESPACO_PARAGRAFO;
   }
-
+  
   return { page: pagina, y };
 }
