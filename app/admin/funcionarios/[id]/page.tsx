@@ -664,7 +664,15 @@ text-slate-900 dark:text-white
             onChange={(e) =>
               setFormGeral((p) => ({ ...p, statusFuncionario: e.target.value }))
             }
-            
+            className="
+  w-full rounded-xl
+  border border-slate-300 dark:border-slate-700
+  bg-white dark:bg-slate-950
+  px-3 py-2 text-sm
+  text-slate-900 dark:text-white
+  outline-none
+  focus:border-blue-500
+"
           >
             <option value="ATIVO">Ativo</option>
             <option value="DEMITIDO">Demitido</option>
@@ -773,31 +781,47 @@ text-slate-900 dark:text-white
           <label key={campo} className="space-y-1">
             <span className="text-xs font-semibold text-slate-300">{label}</span>
             <input
-              type={tipo}
-              value={(formTrabalhista as any)[campo]}
-              onChange={(e) =>
-                setFormTrabalhista((p) => ({
-                  ...p,
-                  [campo]: e.target.value,
-                }))
-              }
-              
-            />
+  type={tipo}
+  value={(formTrabalhista as any)[campo]}
+  onChange={(e) =>
+    setFormTrabalhista((p) => ({
+      ...p,
+      [campo]: e.target.value,
+    }))
+  }
+  className="
+    w-full rounded-xl
+    border border-slate-300 dark:border-slate-700
+    bg-white dark:bg-slate-950
+    px-3 py-2 text-sm
+    text-slate-900 dark:text-white
+    outline-none
+    focus:border-blue-500
+  "
+/>
           </label>
         ))}
 
 <label className="relative space-y-1">
   <span className="text-xs font-semibold text-slate-300">Banco</span>
 
-  <input
-    value={buscaBanco || formTrabalhista.banco}
-    onChange={(e) => {
-      setBuscaBanco(e.target.value);
-      setFormTrabalhista((p) => ({ ...p, banco: "" }));
-    }}
-    placeholder="Digite nome ou código do banco"
-    
-  />
+ <input
+  value={buscaBanco || formTrabalhista.banco}
+  onChange={(e) => {
+    setBuscaBanco(e.target.value);
+    setFormTrabalhista((p) => ({ ...p, banco: "" }));
+  }}
+  placeholder="Digite nome ou código do banco"
+  className="
+    w-full rounded-xl
+    border border-slate-300 dark:border-slate-700
+    bg-white dark:bg-slate-950
+    px-3 py-2 text-sm
+    text-slate-900 dark:text-white
+    outline-none
+    focus:border-blue-500
+  "
+/>
 
   {buscaBanco && (
     <div className="
