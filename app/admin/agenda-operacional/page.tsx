@@ -34,6 +34,17 @@ const [polos, setPolos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
+  const [colunasPdf, setColunasPdf] = useState<string[]>([
+  "data",
+  "hora",
+  "tipo",
+  "evento",
+  "turma",
+  "professor",
+  "funcionario",
+  "status",
+]);
+
   async function carregarAgenda() {
     try {
       setLoading(true);
@@ -126,6 +137,22 @@ async function carregarFiltros() {
       ["Sem professor", resumo.disciplinasSemProfessor || 0],
     ];
   }, [dados]);
+
+  const colunasDisponiveis = [
+  { id: "data", nome: "Data" },
+  { id: "hora", nome: "Hora" },
+  { id: "tipo", nome: "Tipo" },
+  { id: "evento", nome: "Evento" },
+  { id: "curso", nome: "Curso" },
+  { id: "turma", nome: "Turma" },
+  { id: "disciplina", nome: "Disciplina" },
+  { id: "professor", nome: "Professor" },
+  { id: "funcionario", nome: "Funcionário" },
+  { id: "departamento", nome: "Departamento" },
+  { id: "polo", nome: "Polo" },
+  { id: "responsavel", nome: "Responsável" },
+  { id: "status", nome: "Status" },
+];
 
   return (
     <div className="agenda-operacional-page space-y-6">
@@ -268,6 +295,34 @@ async function carregarFiltros() {
 </div>
         </div>
       </section>
+
+<div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+  <p className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
+    Colunas para o PDF
+  </p>
+
+  <div className="flex flex-wrap gap-3">
+    {colunasDisponiveis.map((coluna) => (
+      <label
+        key={coluna.id}
+        className="flex items-center gap-2 text-sm font-medium text-slate-800 dark:text-slate-200"
+      >
+        <input
+          type="checkbox"
+          checked={colunasPdf.includes(coluna.id)}
+          onChange={() => {
+            setColunasPdf((atuais) =>
+              atuais.includes(coluna.id)
+                ? atuais.filter((id) => id !== coluna.id)
+                : [...atuais, coluna.id]
+            );
+          }}
+        />
+        {coluna.nome}
+      </label>
+    ))}
+  </div>
+</div>
 
       {erro && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">
