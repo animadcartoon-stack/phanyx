@@ -37,10 +37,10 @@ export async function GET() {
       }),
 
       prisma.professor.findMany({
-        where: { instituicaoId },
-        orderBy: { nome: "asc" },
-        select: { id: true, nome: true },
-      }),
+  where: { instituicaoId },
+  orderBy: { nome: "asc" },
+  select: { id: true, nome: true },
+}),
 
       prisma.funcionario.findMany({
   where: {
@@ -69,10 +69,14 @@ export async function GET() {
       }),
     ]);
 
+    const professoresOrdenados = [...professores].sort((a, b) =>
+  String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+);
+
     return NextResponse.json({
       cursos,
       turmas,
-      professores,
+      professores: professoresOrdenados,
       funcionarios,
       departamentos,
       disciplinas,
