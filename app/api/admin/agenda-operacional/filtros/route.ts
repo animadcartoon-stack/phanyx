@@ -43,10 +43,10 @@ export async function GET() {
       }),
 
       prisma.funcionario.findMany({
-        where: {
-          instituicaoId,
-          arquivado: false,
-        },
+  where: {
+    instituicaoId,
+    arquivadoRH: false,
+  },
         orderBy: { nome: "asc" },
         select: { id: true, nome: true },
       }),
