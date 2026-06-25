@@ -63,6 +63,21 @@ function periodoPorFiltro(filtro: string) {
   return { inicio: inicioHoje, fim: fimDoDia(hoje) };
 }
 
+function datasDoPeriodoPorDiaSemana(inicio: Date, fim: Date, diaSemana: number) {
+  const datas: Date[] = [];
+  const atual = new Date(inicio);
+
+  while (atual <= fim) {
+    if (atual.getDay() === diaSemana) {
+      datas.push(new Date(atual));
+    }
+
+    atual.setDate(atual.getDate() + 1);
+  }
+
+  return datas;
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -207,7 +222,26 @@ const { inicio, fim } = periodoPorFiltro(periodo);
       }),
     ]);
 
+    const aulasAgenda = horarios.flatMap((item) => {
+  const datas = datasDoPeriodoPorDiaSemana(inicio, fim, item.diaSemana);
+
+  return datas.map((dataAula) => ({
+    id: `aula-${item.id}-${dataAula.toISOString()}`,
+    tipo: "AULA",
+    data: dataAula,
+    hora: item.horaInicio || "",
+    titulo: `${item.turmaDisciplina?.disciplina?.nome || "Aula"} - ${
+      item.turmaDisciplina?.turma?.nome || "Turma"
+    }`,
+    descricao: item.turmaDisciplina?.turma?.curso?.nome || "",
+    responsavel: item.turmaDisciplina?.professor?.nome || "Sem professor",
+    status: item.turmaDisciplina?.status || "PROGRAMADA",
+  }));
+});
+
 const agenda = [
+  ...aulasAgenda,
+
   ...provas.map((item) => ({
     id: `prova-${item.id}`,
     tipo: "PROVA",
@@ -282,7 +316,7 @@ const agenda = [
       fim,
       agenda,
       resumo: {
-        aulas: horarios.length,
+        aulas: aulasAgenda.length,
         provas: provas.length,
         atividades: atividades.length,
         reunioes: reunioes.length,
