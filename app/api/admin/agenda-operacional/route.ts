@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { criarEventoAgenda } from "./agenda-builder";
+import { montarDisponibilidadeDocente } from "./disponibilidade-docente";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -109,7 +111,8 @@ const { inicio, fim } = periodoPorFiltro(periodo);
       ferias,
       escalasRH,
       disciplinasSemProfessor,
-    ] = await Promise.all([
+disponibilidadeDocente,
+] = await Promise.all([
       prisma.turmaDisciplinaHorario.findMany({
   where: {
   instituicaoId: user.instituicaoId,
@@ -360,49 +363,8 @@ const { inicio, fim } = periodoPorFiltro(periodo);
         },
         orderBy: [{ createdAt: "desc" }],
       }),
+      montarDisponibilidadeDocente(user.instituicaoId),
     ]);
-
-    function criarEventoAgenda({
-  id,
-  tipo,
-  data,
-  hora = "",
-  curso = "",
-  turma = "",
-  disciplina = "",
-  professor = "",
-  funcionario = "",
-  departamento = "",
-  polo = "",
-  titulo = "",
-  evento = "",
-  descricao = "",
-  responsavel = "",
-  local = "",
-  observacoes = "",
-  status = "",
-}: any) {
-  return {
-    id,
-    tipo,
-    data,
-    hora,
-    curso,
-    turma,
-    disciplina,
-    professor,
-    funcionario,
-    departamento,
-    polo,
-    titulo,
-    evento: evento || titulo,
-    descricao,
-    responsavel,
-    local,
-    observacoes,
-    status,
-  };
-}
 
     const aulasAgenda = horarios.flatMap((item) => {
   const datas = datasDoPeriodoPorDiaSemana(inicio, fim, item.diaSemana);
@@ -429,7 +391,7 @@ const { inicio, fim } = periodoPorFiltro(periodo);
   evento: item.turmaDisciplina?.disciplina?.nome || "Aula",
   descricao: "",
 
-  responsavel: item.turmaDisciplina?.professor?.nome || "Sem professor",
+  responsavel: item.turmaDisciplina?.professor?.nome ? "" : "Coordenação",
   local: "",
   observacoes: item.horaFim ? `Até ${item.horaFim}` : "",
   status: item.turmaDisciplina?.status || "PROGRAMADA",
@@ -493,7 +455,7 @@ const agenda = [
   evento: item.titulo,
   descricao: "",
 
-  responsavel: item.professorResponsavel?.nome || "Professor / Coordenação",
+  responsavel: item.professorResponsavel?.nome ? "" : "Coordenação",
   local: "",
   observacoes: "",
   status: item.status,
@@ -578,6 +540,7 @@ const agenda = [
         ferias: ferias.length,
         escalasRH: escalasRH.length,
         disciplinasSemProfessor: disciplinasSemProfessor.length,
+        professoresAtivos: disponibilidadeDocente.length,
       },
       horarios,
       provas,
@@ -586,7 +549,9 @@ const agenda = [
       ferias,
       escalasRH,
       disciplinasSemProfessor,
+      disponibilidadeDocente,
     });
+
   } catch (error: any) {
     console.error("Erro ao carregar agenda operacional:", error);
     return NextResponse.json(
