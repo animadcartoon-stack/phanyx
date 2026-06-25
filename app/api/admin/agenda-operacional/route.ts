@@ -209,10 +209,15 @@ const { inicio, fim } = periodoPorFiltro(periodo);
   }),
 },
         include: {
-          turma: true,
-          disciplina: true,
-          professorResponsavel: true,
-        },
+  turma: {
+    include: {
+      curso: true,
+      polo: true,
+    },
+  },
+  disciplina: true,
+  professorResponsavel: true,
+},
         orderBy: [{ prazo: "asc" }],
       }),
 
@@ -360,17 +365,31 @@ const { inicio, fim } = periodoPorFiltro(periodo);
   const datas = datasDoPeriodoPorDiaSemana(inicio, fim, item.diaSemana);
 
   return datas.map((dataAula) => ({
-    id: `aula-${item.id}-${dataAula.toISOString()}`,
-    tipo: "AULA",
-    data: dataAula,
-    hora: item.horaInicio || "",
-    titulo: `${item.turmaDisciplina?.disciplina?.nome || "Aula"} - ${
-      item.turmaDisciplina?.turma?.nome || "Turma"
-    }`,
-    descricao: item.turmaDisciplina?.turma?.curso?.nome || "",
-    responsavel: item.turmaDisciplina?.professor?.nome || "Sem professor",
-    status: item.turmaDisciplina?.status || "PROGRAMADA",
-  }));
+  id: `aula-${item.id}-${dataAula.toISOString()}`,
+  tipo: "AULA",
+
+  data: dataAula,
+  hora: item.horaInicio || "",
+
+  curso: item.turmaDisciplina?.turma?.curso?.nome || "",
+  turma: item.turmaDisciplina?.turma?.nome || "",
+  disciplina: item.turmaDisciplina?.disciplina?.nome || "",
+  professor: item.turmaDisciplina?.professor?.nome || "",
+  funcionario: "",
+  departamento: "",
+  polo: item.turmaDisciplina?.turma?.polo?.nome || "",
+
+  titulo: `${item.turmaDisciplina?.disciplina?.nome || "Aula"} - ${
+    item.turmaDisciplina?.turma?.nome || "Turma"
+  }`,
+  evento: item.turmaDisciplina?.disciplina?.nome || "Aula",
+  descricao: item.turmaDisciplina?.turma?.curso?.nome || "",
+
+  responsavel: item.turmaDisciplina?.professor?.nome || "Sem professor",
+  local: "",
+  observacoes: item.horaFim ? `Até ${item.horaFim}` : "",
+  status: item.turmaDisciplina?.status || "PROGRAMADA",
+}));
 });
 
 const agenda = [
@@ -403,20 +422,34 @@ const agenda = [
 })),
 
   ...atividades.map((item) => ({
-    id: `atividade-${item.id}`,
-    tipo: "ATIVIDADE",
-    data: item.prazo,
-    hora: item.prazo
-      ? new Date(item.prazo).toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "",
-    titulo: item.titulo,
-    descricao: item.turma?.nome || item.disciplina?.nome || "",
-    responsavel: item.professorResponsavel?.nome || "Professor / Coordenação",
-    status: item.status,
-  })),
+  id: `atividade-${item.id}`,
+  tipo: "ATIVIDADE",
+
+  data: item.prazo,
+  hora: item.prazo
+    ? new Date(item.prazo).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "",
+
+  curso: item.turma?.curso?.nome || "",
+  turma: item.turma?.nome || "",
+  disciplina: item.disciplina?.nome || "",
+  professor: item.professorResponsavel?.nome || "",
+  funcionario: "",
+  departamento: "",
+  polo: item.turma?.polo?.nome || "",
+
+  titulo: item.titulo,
+  evento: item.titulo,
+  descricao: item.turma?.nome || item.disciplina?.nome || "",
+
+  responsavel: item.professorResponsavel?.nome || "Professor / Coordenação",
+  local: "",
+  observacoes: "",
+  status: item.status,
+})),
 
   ...reunioes.map((item) => ({
     id: `reuniao-${item.id}`,
