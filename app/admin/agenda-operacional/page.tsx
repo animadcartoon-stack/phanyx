@@ -52,7 +52,7 @@ const [polos, setPolos] = useState<any[]>([]);
   { id: "observacoes", nome: "Observações" },
 ];
 
-const [colunasPdf, setColunasPdf] = useState<string[]>([
+const [colunasVisiveis, setcolunasVisiveis] = useState<string[]>([
   "data",
   "hora",
   "tipo",
@@ -311,9 +311,9 @@ async function carregarFiltros() {
       >
         <input
           type="checkbox"
-          checked={colunasPdf.includes(coluna.id)}
+          checked={colunasVisiveis.includes(coluna.id)}
           onChange={() => {
-            setColunasPdf((atuais) =>
+            setcolunasVisiveis((atuais) =>
               atuais.includes(coluna.id)
                 ? atuais.filter((id) => id !== coluna.id)
                 : [...atuais, coluna.id]
@@ -357,21 +357,21 @@ async function carregarFiltros() {
           <table className="min-w-full text-sm">
             <thead>
   <tr>
-    {colunasPdf.includes("data") && <th>Data</th>}
-    {colunasPdf.includes("hora") && <th>Hora</th>}
-    {colunasPdf.includes("tipo") && <th>Tipo</th>}
-    {colunasPdf.includes("curso") && <th>Curso</th>}
-    {colunasPdf.includes("turma") && <th>Turma</th>}
-    {colunasPdf.includes("disciplina") && <th>Disciplina</th>}
-    {colunasPdf.includes("evento") && <th>Evento</th>}
-    {colunasPdf.includes("professor") && <th>Professor</th>}
-    {colunasPdf.includes("funcionario") && <th>Funcionário</th>}
-    {colunasPdf.includes("departamento") && <th>Departamento</th>}
-    {colunasPdf.includes("polo") && <th>Polo</th>}
-    {colunasPdf.includes("responsavel") && <th>Responsável</th>}
-    {colunasPdf.includes("status") && <th>Status</th>}
-    {colunasPdf.includes("local") && <th>Local</th>}
-    {colunasPdf.includes("observacoes") && <th>Observações</th>}
+    {colunasVisiveis.includes("data") && <th>Data</th>}
+    {colunasVisiveis.includes("hora") && <th>Hora</th>}
+    {colunasVisiveis.includes("tipo") && <th>Tipo</th>}
+    {colunasVisiveis.includes("curso") && <th>Curso</th>}
+    {colunasVisiveis.includes("turma") && <th>Turma</th>}
+    {colunasVisiveis.includes("disciplina") && <th>Disciplina</th>}
+    {colunasVisiveis.includes("evento") && <th>Evento</th>}
+    {colunasVisiveis.includes("professor") && <th>Professor</th>}
+    {colunasVisiveis.includes("funcionario") && <th>Funcionário</th>}
+    {colunasVisiveis.includes("departamento") && <th>Departamento</th>}
+    {colunasVisiveis.includes("polo") && <th>Polo</th>}
+    {colunasVisiveis.includes("responsavel") && <th>Responsável</th>}
+    {colunasVisiveis.includes("status") && <th>Status</th>}
+    {colunasVisiveis.includes("local") && <th>Local</th>}
+    {colunasVisiveis.includes("observacoes") && <th>Observações</th>}
   </tr>
 </thead>
 
@@ -388,37 +388,74 @@ async function carregarFiltros() {
   key={item.id}
   className="border-b border-slate-200 text-slate-900 dark:border-slate-800 dark:text-slate-100"
 >
-    <td className="px-3 py-3">
-      {item.data
-        ? new Date(item.data).toLocaleDateString("pt-BR")
-        : "-"}
-    </td>
+    {colunasVisiveis.includes("data") && (
+  <td className="px-3 py-3">
+    {item.data ? new Date(item.data).toLocaleDateString("pt-BR") : "-"}
+  </td>
+)}
 
-    <td className="px-3 py-3">
-      {item.hora || "-"}
-    </td>
+{colunasVisiveis.includes("hora") && (
+  <td className="px-3 py-3">{item.hora || "-"}</td>
+)}
 
-    <td className="px-3 py-3">
-      {item.tipo}
-    </td>
+{colunasVisiveis.includes("tipo") && (
+  <td className="px-3 py-3">{item.tipo || "-"}</td>
+)}
 
-    <td className="px-3 py-3">
-      <div className="font-semibold text-slate-900 dark:text-slate-100">
-        {item.titulo}
-      </div>
+{colunasVisiveis.includes("curso") && (
+  <td className="px-3 py-3">{item.curso || item.descricao || "-"}</td>
+)}
 
-      <div className="text-xs text-slate-700 dark:text-slate-400">
-        {item.descricao || "-"}
-      </div>
-    </td>
+{colunasVisiveis.includes("turma") && (
+  <td className="px-3 py-3">{item.turma || "-"}</td>
+)}
 
-    <td className="px-3 py-3">
-      {item.responsavel || "-"}
-    </td>
+{colunasVisiveis.includes("disciplina") && (
+  <td className="px-3 py-3">{item.disciplina || "-"}</td>
+)}
 
-    <td className="px-3 py-3">
-      {item.status || "-"}
-    </td>
+{colunasVisiveis.includes("evento") && (
+  <td className="px-3 py-3">
+    <div className="font-semibold text-slate-900 dark:text-slate-100">
+      {item.titulo || "-"}
+    </div>
+    <div className="text-xs text-slate-700 dark:text-slate-400">
+      {item.descricao || "-"}
+    </div>
+  </td>
+)}
+
+{colunasVisiveis.includes("professor") && (
+  <td className="px-3 py-3">{item.professor || "-"}</td>
+)}
+
+{colunasVisiveis.includes("funcionario") && (
+  <td className="px-3 py-3">{item.funcionario || "-"}</td>
+)}
+
+{colunasVisiveis.includes("departamento") && (
+  <td className="px-3 py-3">{item.departamento || "-"}</td>
+)}
+
+{colunasVisiveis.includes("polo") && (
+  <td className="px-3 py-3">{item.polo || "-"}</td>
+)}
+
+{colunasVisiveis.includes("responsavel") && (
+  <td className="px-3 py-3">{item.responsavel || "-"}</td>
+)}
+
+{colunasVisiveis.includes("status") && (
+  <td className="px-3 py-3">{item.status || "-"}</td>
+)}
+
+{colunasVisiveis.includes("local") && (
+  <td className="px-3 py-3">{item.local || "-"}</td>
+)}
+
+{colunasVisiveis.includes("observacoes") && (
+  <td className="px-3 py-3">{item.observacoes || "-"}</td>
+)}
   </tr>
 ))
               ) : (
