@@ -112,17 +112,31 @@ const { inicio, fim } = periodoPorFiltro(periodo);
     ] = await Promise.all([
       prisma.turmaDisciplinaHorario.findMany({
   where: {
-    instituicaoId: user.instituicaoId,
-    ativo: true,
+  instituicaoId: user.instituicaoId,
+  ativo: true,
 
-    ...(cursoId > 0 && {
-      turmaDisciplina: {
-        turma: {
-          cursoId,
-        },
-      },
-    }),
-  },
+  AND: [
+    ...(cursoId > 0
+      ? [{ turmaDisciplina: { turma: { cursoId } } }]
+      : []),
+
+    ...(turmaId > 0
+      ? [{ turmaDisciplina: { turmaId } }]
+      : []),
+
+    ...(professorId > 0
+      ? [{ turmaDisciplina: { professorId } }]
+      : []),
+
+    ...(disciplinaId > 0
+      ? [{ turmaDisciplina: { disciplinaId } }]
+      : []),
+
+    ...(poloId > 0
+      ? [{ turmaDisciplina: { turma: { poloId } } }]
+      : []),
+  ],
+},
         include: {
           turmaDisciplina: {
             include: {
@@ -136,13 +150,29 @@ const { inicio, fim } = periodoPorFiltro(periodo);
       }),
 
       prisma.prova.findMany({
-        where: {
-          instituicaoId: user.instituicaoId,
-          OR: [
-            { disponivelEm: { gte: inicio, lte: fim } },
-            { expiraEm: { gte: inicio, lte: fim } },
-          ],
-        },
+       where: {
+  instituicaoId: user.instituicaoId,
+
+  OR: [
+    { disponivelEm: { gte: inicio, lte: fim } },
+    { expiraEm: { gte: inicio, lte: fim } },
+  ],
+
+  ...(turmaId > 0 && { turmaId }),
+
+  ...(cursoId > 0 && {
+    turma: {
+      cursoId,
+    },
+  }),
+
+  ...(pesquisa && {
+    titulo: {
+      contains: pesquisa,
+      mode: "insensitive",
+    },
+  }),
+},
         include: {
           turma: true,
         },
@@ -151,9 +181,28 @@ const { inicio, fim } = periodoPorFiltro(periodo);
 
       prisma.atividade.findMany({
         where: {
-          instituicaoId: user.instituicaoId,
-          prazo: { gte: inicio, lte: fim },
-        },
+  instituicaoId: user.instituicaoId,
+
+  prazo: {
+    gte: inicio,
+    lte: fim,
+  },
+
+  ...(turmaId > 0 && { turmaId }),
+
+  ...(disciplinaId > 0 && { disciplinaId }),
+
+  ...(professorId > 0 && {
+    professorResponsavelId: professorId,
+  }),
+
+  ...(pesquisa && {
+    titulo: {
+      contains: pesquisa,
+      mode: "insensitive",
+      },
+  }),
+},
         include: {
           turma: true,
           disciplina: true,
@@ -164,21 +213,62 @@ const { inicio, fim } = periodoPorFiltro(periodo);
 
       prisma.reuniao.findMany({
         where: {
-          instituicaoId: user.instituicaoId,
-          dataHora: { gte: inicio, lte: fim },
+  instituicaoId: user.instituicaoId,
+
+  dataHora: {
+    gte: inicio,
+    lte: fim,
+  },
+
+  ...(pesquisa && {
+    OR: [
+      {
+        titulo: {
+          contains: pesquisa,
+          mode: "insensitive",
         },
+      },
+      {
+        descricao: {
+          contains: pesquisa,
+          mode: "insensitive",
+        },
+      },
+    ],
+  }),
+},
         orderBy: [{ dataHora: "asc" }],
       }),
 
       prisma.feriasRH.findMany({
         where: {
-          instituicaoId: user.instituicaoId,
-          arquivada: false,
-          OR: [
-            { dataInicio: { gte: inicio, lte: fim } },
-            { dataFim: { gte: inicio, lte: fim } },
-          ],
-        },
+  instituicaoId: user.instituicaoId,
+  arquivada: false,
+
+  OR: [
+    { dataInicio: { gte: inicio, lte: fim } },
+    { dataFim: { gte: inicio, lte: fim } },
+  ],
+
+  ...(funcionarioId > 0 && {
+    funcionarioId,
+  }),
+
+  ...(departamentoId > 0 && {
+    funcionario: {
+      departamentoId,
+    },
+  }),
+
+  ...(pesquisa && {
+    funcionario: {
+      nome: {
+        contains: pesquisa,
+        mode: "insensitive",
+      },
+    },
+  }),
+},
         include: {
           funcionario: {
             select: {
@@ -194,9 +284,28 @@ const { inicio, fim } = periodoPorFiltro(periodo);
 
       prisma.escalaTrabalhoRH.findMany({
         where: {
-          instituicaoId: user.instituicaoId,
-          ativo: true,
-        },
+  instituicaoId: user.instituicaoId,
+  ativo: true,
+
+  ...(funcionarioId > 0 && {
+    funcionarioId,
+  }),
+
+  ...(departamentoId > 0 && {
+    funcionario: {
+      departamentoId,
+    },
+  }),
+
+  ...(pesquisa && {
+    funcionario: {
+      nome: {
+        contains: pesquisa,
+        mode: "insensitive",
+      },
+    },
+  }),
+},
         include: {
           funcionario: {
             select: {
@@ -211,9 +320,29 @@ const { inicio, fim } = periodoPorFiltro(periodo);
 
       prisma.turmaDisciplina.findMany({
         where: {
-          instituicaoId: user.instituicaoId,
-          professorId: null,
-        },
+  instituicaoId: user.instituicaoId,
+  professorId: null,
+
+  ...(cursoId > 0 && {
+    turma: {
+      cursoId,
+    },
+  }),
+
+  ...(turmaId > 0 && {
+    turmaId,
+  }),
+
+  ...(disciplinaId > 0 && {
+    disciplinaId,
+  }),
+
+  ...(poloId > 0 && {
+    turma: {
+      poloId,
+    },
+  }),
+},
         include: {
           turma: { include: { curso: true } },
           disciplina: true,
