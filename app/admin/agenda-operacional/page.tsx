@@ -562,53 +562,92 @@ async function salvarPreferencias(novasColunasTabela: string[]) {
     </tr>
 
     {linhaAberta === item.id && (
-  <tr className="bg-slate-50 dark:bg-slate-900">
-    <td colSpan={colunasVisiveis.length} className="px-6 py-4">
-      <div className="grid gap-3 md:grid-cols-3">
+  <tr className="border-b border-slate-200 dark:border-slate-700">
+    <td
+      colSpan={colunasVisiveis.length}
+      className="bg-slate-50 px-6 py-4 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+    >
+      <div className="grid gap-4 md:grid-cols-3">
         <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Curso</p>
-          <p>{item.curso || "-"}</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+            Curso
+          </p>
+          <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+            {item.curso || "-"}
+          </p>
         </div>
 
         <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Turma</p>
-          <p>{item.turma || "-"}</p>
-        </div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Turma
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.turma || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Disciplina</p>
-          <p>{item.disciplina || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Disciplina
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.disciplina || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Professor</p>
-          <p>{item.professor || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Professor
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.professor || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Funcionário</p>
-          <p>{item.funcionario || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Funcionário
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.funcionario || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Departamento</p>
-          <p>{item.departamento || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Departamento
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.departamento || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Polo</p>
-          <p>{item.polo || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Polo
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.polo || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Local</p>
-          <p>{item.local || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Local
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.local || "-"}
+  </p>
+</div>
 
-        <div>
-          <p className="text-xs font-bold uppercase text-slate-500">Observações</p>
-          <p>{item.observacoes || "-"}</p>
-        </div>
+<div>
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Observações
+  </p>
+  <p className="mt-1 font-medium text-slate-900 dark:text-slate-100">
+    {item.observacoes || "-"}
+  </p>
+</div>
       </div>
     </td>
   </tr>
