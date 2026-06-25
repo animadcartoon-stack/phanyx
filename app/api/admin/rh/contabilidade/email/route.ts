@@ -201,7 +201,7 @@ PHANYX`,
           <hr />
 
           <p style="font-size: 12px; color: #6b7280;">
-            Relatório gerado automaticamente pelo PHANYX.
+            Relatório gerado automaticamente pelo Sistema RH.
           </p>
         </div>
       `,
