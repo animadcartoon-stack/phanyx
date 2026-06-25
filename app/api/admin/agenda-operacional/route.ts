@@ -174,8 +174,13 @@ const { inicio, fim } = periodoPorFiltro(periodo);
   }),
 },
         include: {
-          turma: true,
-        },
+  turma: {
+    include: {
+      curso: true,
+      polo: true,
+    },
+  },
+},
         orderBy: [{ disponivelEm: "asc" }],
       }),
 
@@ -372,20 +377,30 @@ const agenda = [
   ...aulasAgenda,
 
   ...provas.map((item) => ({
-    id: `prova-${item.id}`,
-    tipo: "PROVA",
-    data: item.disponivelEm || item.expiraEm,
-    hora: item.disponivelEm
-      ? new Date(item.disponivelEm).toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "",
-    titulo: item.titulo,
-    descricao: item.turma?.nome || "",
-    responsavel: "Professor / Coordenação",
-    status: item.status,
-  })),
+  id: `prova-${item.id}`,
+  tipo: "PROVA",
+  data: item.disponivelEm || item.expiraEm,
+  hora: item.disponivelEm
+    ? new Date(item.disponivelEm).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "",
+  titulo: item.titulo,
+  evento: item.titulo,
+  curso: item.turma?.curso?.nome || "",
+  turma: item.turma?.nome || "",
+  disciplina: "",
+  professor: "",
+  funcionario: "",
+  departamento: "",
+  polo: item.turma?.polo?.nome || "",
+  local: "",
+  observacoes: "",
+  descricao: item.turma?.nome || "",
+  responsavel: "Professor / Coordenação",
+  status: item.status,
+})),
 
   ...atividades.map((item) => ({
     id: `atividade-${item.id}`,
