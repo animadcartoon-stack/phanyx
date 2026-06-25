@@ -310,7 +310,7 @@ async function carregarFiltros() {
             </thead>
 
             <tbody>
-              {loading ? (
+              {loading && !dados ? (
                 <tr>
                   <td colSpan={6} className="px-3 py-8 text-center text-slate-500">
                     Carregando agenda...
