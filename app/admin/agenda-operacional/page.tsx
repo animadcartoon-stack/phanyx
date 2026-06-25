@@ -34,7 +34,25 @@ const [polos, setPolos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
-  const [colunasPdf, setColunasPdf] = useState<string[]>([
+  const colunasDisponiveis = [
+  { id: "data", nome: "Data" },
+  { id: "hora", nome: "Hora" },
+  { id: "tipo", nome: "Tipo" },
+  { id: "curso", nome: "Curso" },
+  { id: "turma", nome: "Turma" },
+  { id: "disciplina", nome: "Disciplina" },
+  { id: "evento", nome: "Evento" },
+  { id: "professor", nome: "Professor" },
+  { id: "funcionario", nome: "Funcionário" },
+  { id: "departamento", nome: "Departamento" },
+  { id: "polo", nome: "Polo" },
+  { id: "responsavel", nome: "Responsável" },
+  { id: "status", nome: "Status" },
+  { id: "local", nome: "Local" },
+  { id: "observacoes", nome: "Observações" },
+];
+
+const [colunasPdf, setColunasPdf] = useState<string[]>([
   "data",
   "hora",
   "tipo",
@@ -137,22 +155,6 @@ async function carregarFiltros() {
       ["Sem professor", resumo.disciplinasSemProfessor || 0],
     ];
   }, [dados]);
-
-  const colunasDisponiveis = [
-  { id: "data", nome: "Data" },
-  { id: "hora", nome: "Hora" },
-  { id: "tipo", nome: "Tipo" },
-  { id: "evento", nome: "Evento" },
-  { id: "curso", nome: "Curso" },
-  { id: "turma", nome: "Turma" },
-  { id: "disciplina", nome: "Disciplina" },
-  { id: "professor", nome: "Professor" },
-  { id: "funcionario", nome: "Funcionário" },
-  { id: "departamento", nome: "Departamento" },
-  { id: "polo", nome: "Polo" },
-  { id: "responsavel", nome: "Responsável" },
-  { id: "status", nome: "Status" },
-];
 
   return (
     <div className="agenda-operacional-page space-y-6">
@@ -354,13 +356,22 @@ async function carregarFiltros() {
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-  <tr className="border-b border-slate-300 text-left text-slate-800 dark:border-slate-700 dark:text-slate-300">
-    <th className="px-3 py-3">Data</th>
-    <th className="px-3 py-3">Hora</th>
-    <th className="px-3 py-3">Tipo</th>
-    <th className="px-3 py-3">Evento</th>
-    <th className="px-3 py-3">Responsável</th>
-    <th className="px-3 py-3">Status</th>
+  <tr>
+    {colunasPdf.includes("data") && <th>Data</th>}
+    {colunasPdf.includes("hora") && <th>Hora</th>}
+    {colunasPdf.includes("tipo") && <th>Tipo</th>}
+    {colunasPdf.includes("curso") && <th>Curso</th>}
+    {colunasPdf.includes("turma") && <th>Turma</th>}
+    {colunasPdf.includes("disciplina") && <th>Disciplina</th>}
+    {colunasPdf.includes("evento") && <th>Evento</th>}
+    {colunasPdf.includes("professor") && <th>Professor</th>}
+    {colunasPdf.includes("funcionario") && <th>Funcionário</th>}
+    {colunasPdf.includes("departamento") && <th>Departamento</th>}
+    {colunasPdf.includes("polo") && <th>Polo</th>}
+    {colunasPdf.includes("responsavel") && <th>Responsável</th>}
+    {colunasPdf.includes("status") && <th>Status</th>}
+    {colunasPdf.includes("local") && <th>Local</th>}
+    {colunasPdf.includes("observacoes") && <th>Observações</th>}
   </tr>
 </thead>
 
