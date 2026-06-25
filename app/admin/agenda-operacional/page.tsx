@@ -197,6 +197,23 @@ async function salvarPreferencias(novasColunasTabela: string[]) {
   }
 }
 
+function abrirPdfAgenda() {
+  const params = new URLSearchParams();
+
+  params.set("periodo", periodo);
+
+  if (cursoId) params.set("cursoId", cursoId);
+  if (turmaId) params.set("turmaId", turmaId);
+  if (professorId) params.set("professorId", professorId);
+  if (funcionarioId) params.set("funcionarioId", funcionarioId);
+  if (disciplinaId) params.set("disciplinaId", disciplinaId);
+  if (departamentoId) params.set("departamentoId", departamentoId);
+  if (poloId) params.set("poloId", poloId);
+  if (pesquisa.trim()) params.set("pesquisa", pesquisa.trim());
+
+  window.open(`/api/admin/agenda-operacional/pdf?${params.toString()}`, "_blank");
+}
+
   useEffect(() => {
   carregarAgenda();
 }, [
@@ -370,6 +387,25 @@ async function salvarPreferencias(novasColunasTabela: string[]) {
 </div>
         </div>
       </section>
+
+<section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-[#111111] md:flex-row md:items-center md:justify-between">
+  <div>
+    <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
+      Relatórios da Agenda
+    </h2>
+    <p className="text-sm text-slate-600 dark:text-slate-400">
+      Exporte a agenda filtrada para conferência, impressão e acompanhamento.
+    </p>
+  </div>
+
+  <button
+    type="button"
+    onClick={abrirPdfAgenda}
+    className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+  >
+    Exportar PDF
+  </button>
+</section>
 
 <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
   <div className="mb-4">
