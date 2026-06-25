@@ -178,6 +178,25 @@ async function carregarPreferencias() {
   }
 }
 
+async function salvarPreferencias(novasColunasTabela: string[]) {
+  try {
+    await fetch("/api/admin/agenda-operacional/preferencias", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        colunasTabela: novasColunasTabela,
+        colunasPdf,
+        colunasExcel: novasColunasTabela,
+      }),
+    });
+  } catch (error) {
+    console.error("Erro ao salvar preferências:", error);
+  }
+}
+
   useEffect(() => {
   carregarAgenda();
 }, [
@@ -367,11 +386,15 @@ async function carregarPreferencias() {
           type="checkbox"
           checked={colunasVisiveis.includes(coluna.id)}
           onChange={() => {
-            setcolunasVisiveis((atuais) =>
-              atuais.includes(coluna.id)
-                ? atuais.filter((id) => id !== coluna.id)
-                : [...atuais, coluna.id]
-            );
+            setcolunasVisiveis((atuais) => {
+  const novasColunas = atuais.includes(coluna.id)
+    ? atuais.filter((id) => id !== coluna.id)
+    : [...atuais, coluna.id];
+
+  salvarPreferencias(novasColunas);
+
+  return novasColunas;
+});
           }}
         />
         {coluna.nome}
