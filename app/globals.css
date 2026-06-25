@@ -2232,3 +2232,43 @@ html[data-theme="system"] .agenda-operacional-page .dark\:bg-\[\#111111\] {
   background: #262626 !important;
   border-color: #525252 !important;
 }
+
+/* FIX LOCAL - AGENDA OPERACIONAL / LINHA EXPANDIDA */
+.agenda-operacional-detalhe {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.agenda-operacional-detalhe p {
+  color: #0f172a !important;
+}
+
+.agenda-operacional-detalhe p:first-child {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-detalhe {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-detalhe p {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-detalhe p:first-child {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="system"] .agenda-operacional-detalhe {
+  background: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .agenda-operacional-detalhe p {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .agenda-operacional-detalhe p:first-child {
+  color: #d4d4d4 !important;
+}

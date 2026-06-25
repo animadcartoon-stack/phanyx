@@ -601,7 +601,7 @@ function abrirPdfAgenda() {
   <tr className="border-b border-slate-200 dark:border-slate-700">
     <td
       colSpan={colunasVisiveis.length}
-      className="bg-slate-50 px-6 py-4 text-slate-900 dark:bg-slate-800 dark:text-slate-100"
+      className="agenda-operacional-detalhe px-6 py-4"
     >
       <div className="grid gap-4 md:grid-cols-3">
         <div>
