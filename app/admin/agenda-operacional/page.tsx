@@ -293,8 +293,8 @@ async function carregarFiltros() {
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
         <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">
-          Linha do tempo operacional[]
-        </h2>
+  Linha do tempo operacional
+</h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
