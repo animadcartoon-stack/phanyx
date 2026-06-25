@@ -132,6 +132,7 @@ model Instituicao {
   EntregaAtividadeHistorico EntregaAtividadeHistorico[]
   documentosProfessor       DocumentoProfessor[]
   notificacoes              Notificacao[]
+  substituicoesDocentes     SubstituicaoDocente[]
 }
 
 model User {
@@ -283,15 +284,17 @@ model Professor {
   instituicao       Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  turmas                 Turma[]
-  turmaDisciplinas       TurmaDisciplina[]
-  disciplinasPadrao      Disciplina[]
-  disciplinasHabilitadas ProfessorDisciplina[]
-  poloId                 Int?
-  polo                   Polo?                 @relation(fields: [poloId], references: [id])
-  reunioesCriadas        Reuniao[]             @relation("ReuniaoProfessor")
-  atividadesResponsavel  Atividade[]           @relation("AtividadeProfessorResponsavel")
-  documentosProfessor    DocumentoProfessor[]
+  turmas                      Turma[]
+  turmaDisciplinas            TurmaDisciplina[]
+  disciplinasPadrao           Disciplina[]
+  disciplinasHabilitadas      ProfessorDisciplina[]
+  poloId                      Int?
+  polo                        Polo?                 @relation(fields: [poloId], references: [id])
+  reunioesCriadas             Reuniao[]             @relation("ReuniaoProfessor")
+  atividadesResponsavel       Atividade[]           @relation("AtividadeProfessorResponsavel")
+  documentosProfessor         DocumentoProfessor[]
+  substituicoesComoTitular    SubstituicaoDocente[] @relation("ProfessorTitularSubstituicao")
+  substituicoesComoSubstituto SubstituicaoDocente[] @relation("ProfessorSubstitutoSubstituicao")
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -488,6 +491,7 @@ model Disciplina {
   professoresHabilitados    ProfessorDisciplina[]
   aulas                     Aula[]
   atividades                Atividade[]
+  substituicoesDocentes     SubstituicaoDocente[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -497,37 +501,38 @@ model Disciplina {
 }
 
 model Turma {
-  id               Int               @id @default(autoincrement())
-  nome             String
-  semestre         String
-  professorId      Int?
-  instituicaoId    Int
-  ativa            Boolean           @default(true)
-  codigo           String?
-  createdAt        DateTime          @default(now())
-  periodoLetivo    String?
-  updatedAt        DateTime          @updatedAt
-  capacidadeMaxima Int?
-  capacidadeMinima Int?
-  cursoId          Int?
-  dataInicio       DateTime?
-  dataFim          DateTime?
-  statusTurma      StatusTurma       @default(AGUARDANDO)
-  atividades       Atividade[]
-  aulas            Aula[]
-  itensMatricula   ItemMatricula[]
-  modulos          Modulo[]
-  notas            Nota[]
-  provas           Prova[]
-  resultadosFinais ResultadoFinal[]
-  curso            Curso?            @relation(fields: [cursoId], references: [id])
-  instituicao      Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  professor        Professor?        @relation(fields: [professorId], references: [id])
-  disciplinas      TurmaDisciplina[]
-  semestres        TurmaSemestre[]
-  poloId           Int?
-  polo             Polo?             @relation(fields: [poloId], references: [id])
-  reunioes         Reuniao[]
+  id                    Int                   @id @default(autoincrement())
+  nome                  String
+  semestre              String
+  professorId           Int?
+  instituicaoId         Int
+  ativa                 Boolean               @default(true)
+  codigo                String?
+  createdAt             DateTime              @default(now())
+  periodoLetivo         String?
+  updatedAt             DateTime              @updatedAt
+  capacidadeMaxima      Int?
+  capacidadeMinima      Int?
+  cursoId               Int?
+  dataInicio            DateTime?
+  dataFim               DateTime?
+  statusTurma           StatusTurma           @default(AGUARDANDO)
+  atividades            Atividade[]
+  aulas                 Aula[]
+  itensMatricula        ItemMatricula[]
+  modulos               Modulo[]
+  notas                 Nota[]
+  provas                Prova[]
+  resultadosFinais      ResultadoFinal[]
+  curso                 Curso?                @relation(fields: [cursoId], references: [id])
+  instituicao           Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professor             Professor?            @relation(fields: [professorId], references: [id])
+  disciplinas           TurmaDisciplina[]
+  semestres             TurmaSemestre[]
+  poloId                Int?
+  polo                  Polo?                 @relation(fields: [poloId], references: [id])
+  reunioes              Reuniao[]
+  substituicoesDocentes SubstituicaoDocente[]
 
   @@unique([instituicaoId, nome, semestre])
   @@index([instituicaoId])
@@ -1371,24 +1376,24 @@ model Assinatura {
 }
 
 model DocumentoTemplate {
-  id                Int                   @id @default(autoincrement())
-  nome              String
-  descricao         String?
-  tipo              TipoDocumentoTemplate
-  contexto          String?
-  conteudo          String
-  camposVisuais     Json?
+  id            Int                   @id @default(autoincrement())
+  nome          String
+  descricao     String?
+  tipo          TipoDocumentoTemplate
+  contexto      String?
+  conteudo      String
+  camposVisuais Json?
 
-  formatoImpressao  String                @default("A4_INTEIRA")
+  formatoImpressao String @default("A4_INTEIRA")
 
-  ativo             Boolean               @default(true)
-  exigeAssinatura   Boolean               @default(false)
-  criadoEm          DateTime              @default(now())
-  atualizadoEm      DateTime              @updatedAt
-  instituicaoId     Int
+  ativo           Boolean  @default(true)
+  exigeAssinatura Boolean  @default(false)
+  criadoEm        DateTime @default(now())
+  atualizadoEm    DateTime @updatedAt
+  instituicaoId   Int
 
   documentosGerados DocumentoGerado[]
-  instituicao       Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  instituicao       Instituicao       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   DocumentoRH       DocumentoRH[]
 
   @@index([instituicaoId])
@@ -1904,25 +1909,25 @@ model ChatPresenca {
 }
 
 model Notificacao {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   usuarioId     Int?
   instituicaoId Int?
 
-  tipo          String
-  categoria     String?  @default("SISTEMA")
+  tipo      String
+  categoria String? @default("SISTEMA")
 
-  titulo        String
-  descricao     String?
-  link          String?
+  titulo    String
+  descricao String?
+  link      String?
 
-  quantidade    Int      @default(1)
+  quantidade Int @default(1)
 
   chaveAgrupada String?
 
-  lida          Boolean  @default(false)
-  criadoEm      DateTime @default(now())
-  atualizadoEm  DateTime @default(now()) @updatedAt
+  lida         Boolean  @default(false)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
 
   usuario     User?        @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao? @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -2244,75 +2249,75 @@ model ExameMedicoRH {
 }
 
 model RescisaoRH {
-  id                             Int      @id @default(autoincrement())
-  funcionarioId                  Int
-  instituicaoId                  Int
-  criadoPorId                    Int?
+  id            Int  @id @default(autoincrement())
+  funcionarioId Int
+  instituicaoId Int
+  criadoPorId   Int?
 
-  tipo                           String
-  dataAviso                      DateTime?
-  dataDesligamento               DateTime
-  motivo                         String?
+  tipo             String
+  dataAviso        DateTime?
+  dataDesligamento DateTime
+  motivo           String?
 
   dataAdmissaoBase               DateTime?
   dataComunicacaoOficial         DateTime?
-  salarioBaseMensal              Decimal? @db.Decimal(10, 2)
-  quantidadeDependentesIRRF      Int?     @default(0)
-  quantidadeFilhosSalarioFamilia Int?     @default(0)
+  salarioBaseMensal              Decimal?  @db.Decimal(10, 2)
+  quantidadeDependentesIRRF      Int?      @default(0)
+  quantidadeFilhosSalarioFamilia Int?      @default(0)
 
-  tipoAvisoPrevio                String?
-  motivoRescisaoDetalhado        String?  @db.Text
-  diasAvisoPrevioTrabalhado      Int?     @default(0)
-  diasAvisoPrevioIndenizado      Int?     @default(0)
+  tipoAvisoPrevio           String?
+  motivoRescisaoDetalhado   String? @db.Text
+  diasAvisoPrevioTrabalhado Int?    @default(0)
+  diasAvisoPrevioIndenizado Int?    @default(0)
 
-  possuiFeriasVencidas           Boolean  @default(false)
-  quantidadeFeriasVencidas       Int?     @default(0)
-  mesesFeriasProporcionais       Int?     @default(0)
-  mesesDecimoTerceiro            Int?     @default(0)
+  possuiFeriasVencidas     Boolean @default(false)
+  quantidadeFeriasVencidas Int?    @default(0)
+  mesesFeriasProporcionais Int?    @default(0)
+  mesesDecimoTerceiro      Int?    @default(0)
 
-  saldoFgts                      Decimal? @db.Decimal(10, 2)
-  fgtsMesAnterior                Decimal? @db.Decimal(10, 2)
-  fgtsMesRescisao                Decimal? @db.Decimal(10, 2)
-  multaFgts                      Decimal? @db.Decimal(10, 2)
+  saldoFgts       Decimal? @db.Decimal(10, 2)
+  fgtsMesAnterior Decimal? @db.Decimal(10, 2)
+  fgtsMesRescisao Decimal? @db.Decimal(10, 2)
+  multaFgts       Decimal? @db.Decimal(10, 2)
 
-  descontoInss                   Decimal? @db.Decimal(10, 2)
-  descontoIrrf                   Decimal? @db.Decimal(10, 2)
-  outrosDescontos                Decimal? @db.Decimal(10, 2)
+  descontoInss    Decimal? @db.Decimal(10, 2)
+  descontoIrrf    Decimal? @db.Decimal(10, 2)
+  outrosDescontos Decimal? @db.Decimal(10, 2)
 
-  valorBrutoRescisao             Decimal? @db.Decimal(10, 2)
-  valorLiquidoRescisao           Decimal? @db.Decimal(10, 2)
-  calculoAutomatico              Boolean  @default(true)
+  valorBrutoRescisao   Decimal? @db.Decimal(10, 2)
+  valorLiquidoRescisao Decimal? @db.Decimal(10, 2)
+  calculoAutomatico    Boolean  @default(true)
 
-  saldoSalario                   Decimal? @db.Decimal(10, 2)
-  feriasVencidas                 Decimal? @db.Decimal(10, 2)
-  feriasProporcionais            Decimal? @db.Decimal(10, 2)
-  decimoTerceiroProporcional     Decimal? @db.Decimal(10, 2)
-  avisoPrevio                    Decimal? @db.Decimal(10, 2)
-  valorRescisao                  Decimal? @db.Decimal(10, 2)
+  saldoSalario               Decimal? @db.Decimal(10, 2)
+  feriasVencidas             Decimal? @db.Decimal(10, 2)
+  feriasProporcionais        Decimal? @db.Decimal(10, 2)
+  decimoTerceiroProporcional Decimal? @db.Decimal(10, 2)
+  avisoPrevio                Decimal? @db.Decimal(10, 2)
+  valorRescisao              Decimal? @db.Decimal(10, 2)
 
-  status                         String   @default("EM_ANDAMENTO")
-  observacoes                    String?  @db.Text
+  status      String  @default("EM_ANDAMENTO")
+  observacoes String? @db.Text
 
-  restauradoEm                   DateTime?
-  restauradoPorId                Int?
-  motivoRestauracao              String?  @db.Text
+  restauradoEm      DateTime?
+  restauradoPorId   Int?
+  motivoRestauracao String?   @db.Text
 
-  termoUrl                       String?
-  trctUrl                        String?
-  checklistUrl                   String?
+  termoUrl     String?
+  trctUrl      String?
+  checklistUrl String?
 
-  arquivada                      Boolean  @default(false)
-  arquivadaEm                    DateTime?
-  arquivadaPorId                 Int?
-  motivoArquivo                  String?  @db.Text
+  arquivada      Boolean   @default(false)
+  arquivadaEm    DateTime?
+  arquivadaPorId Int?
+  motivoArquivo  String?   @db.Text
 
-  cancelada                      Boolean  @default(false)
-  canceladaEm                    DateTime?
-  canceladaPorId                 Int?
-  motivoCancelamento             String?  @db.Text
+  cancelada          Boolean   @default(false)
+  canceladaEm        DateTime?
+  canceladaPorId     Int?
+  motivoCancelamento String?   @db.Text
 
-  criadoEm                       DateTime @default(now())
-  atualizadoEm                   DateTime @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -2658,6 +2663,41 @@ model DocumentoProfessor {
   @@index([instituicaoId])
   @@index([tipo])
   @@index([status])
+}
+
+model SubstituicaoDocente {
+  id                    Int       @id @default(autoincrement())
+  instituicaoId         Int
+  professorTitularId    Int
+  professorSubstitutoId Int
+  turmaId               Int
+  disciplinaId          Int
+  dataInicio            DateTime
+  dataFim               DateTime?
+  motivo                String?
+  observacoes           String?
+  status                String    @default("AGENDADA")
+  criadoEm              DateTime  @default(now())
+  atualizadoEm          DateTime  @updatedAt
+  criadoPorId           Int?
+  canceladoEm           DateTime?
+  canceladoPorId        Int?
+  motivoCancelamento    String?
+
+  instituicao         Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  professorTitular    Professor   @relation("ProfessorTitularSubstituicao", fields: [professorTitularId], references: [id])
+  professorSubstituto Professor   @relation("ProfessorSubstitutoSubstituicao", fields: [professorSubstitutoId], references: [id])
+  turma               Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina          Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  @@index([instituicaoId])
+  @@index([professorTitularId])
+  @@index([professorSubstitutoId])
+  @@index([turmaId])
+  @@index([disciplinaId])
+  @@index([status])
+  @@index([dataInicio])
+  @@index([dataFim])
 }
 
 enum TipoDocumentoAluno {

@@ -300,15 +300,15 @@ async function carregarFiltros() {
 
 <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
   <p className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
-    Colunas para o PDF
+    Personalizar colunas
   </p>
 
-  <div className="flex flex-wrap gap-3">
+  <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
     {colunasDisponiveis.map((coluna) => (
       <label
-        key={coluna.id}
-        className="flex items-center gap-2 text-sm font-medium text-slate-800 dark:text-slate-200"
-      >
+  key={coluna.id}
+  className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+>
         <input
           type="checkbox"
           checked={colunasVisiveis.includes(coluna.id)}
