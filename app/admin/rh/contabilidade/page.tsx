@@ -49,6 +49,34 @@ export default function ContabilidadeRHPage() {
   const [dados, setDados] = useState<DadosContabilidade | null>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
+  const [tipoRelatorio, setTipoRelatorio] = useState("contabil");
+  const [modalEmailAberto, setModalEmailAberto] = useState(false);
+  const [emailDestino, setEmailDestino] = useState("");
+  const [emailAssunto, setEmailAssunto] = useState("Relatório RH");
+  const [emailMensagem, setEmailMensagem] = useState("");
+  const [enviandoEmail, setEnviandoEmail] = useState(false);
+  const [sucesso, setSucesso] = useState("");
+
+const tiposRelatorio = [
+  { value: "contabil", label: "Relatório Contábil da Competência" },
+  { value: "folha", label: "Folha / Holerites" },
+  { value: "encargos", label: "Encargos e Provisões" },
+  { value: "rescisao", label: "Rescisões" },
+  { value: "ferias", label: "Férias" },
+  { value: "beneficios", label: "Benefícios" },
+  { value: "ocorrencias", label: "Ocorrências Funcionais" },
+  { value: "exames", label: "Exames Médicos / ASO" },
+  { value: "historico", label: "Histórico Funcional" },
+  { value: "arquivados", label: "Arquivados / Auditoria" },
+  { value: "geral", label: "Relatório Geral RH" },
+];
+
+function nomeRelatorioAtual() {
+  return (
+    tiposRelatorio.find((item) => item.value === tipoRelatorio)?.label ||
+    "Relatório RH"
+  );
+}
 
   function moeda(valor: number | string | null | undefined) {
     const numero = Number(valor || 0);
@@ -65,9 +93,9 @@ export default function ContabilidadeRHPage() {
       setErro("");
 
       const res = await fetch(
-        `/api/admin/rh/contabilidade?mes=${mes}&ano=${ano}`,
-        { cache: "no-store" }
-      );
+  `/api/admin/rh/contabilidade?mes=${mes}&ano=${ano}&tipo=${tipoRelatorio}`,
+  { cache: "no-store" }
+);
 
       const data = await res.json();
 
@@ -86,6 +114,52 @@ if (!res.ok) {
       setLoading(false);
     }
   }
+
+  function gerarPdf() {
+  const url = `/api/admin/rh/contabilidade/pdf?mes=${mes}&ano=${ano}&tipo=${tipoRelatorio}`;
+  window.open(url, "_blank");
+}
+
+function exportarExcel() {
+  const url = `/api/admin/rh/contabilidade/excel?mes=${mes}&ano=${ano}&tipo=${tipoRelatorio}`;
+  window.open(url, "_blank");
+}
+
+async function enviarEmail() {
+  try {
+    setEnviandoEmail(true);
+    setErro("");
+    setSucesso("");
+
+    const res = await fetch("/api/admin/rh/contabilidade/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        mes,
+        ano,
+        tipo: tipoRelatorio,
+        emailDestino,
+        assunto: emailAssunto,
+        mensagem: emailMensagem,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar relatório por e-mail.");
+    }
+
+    setSucesso("Relatório enviado por e-mail com sucesso.");
+    setModalEmailAberto(false);
+  } catch (error: any) {
+    setErro(error?.message || "Erro ao enviar relatório por e-mail.");
+  } finally {
+    setEnviandoEmail(false);
+  }
+}
 
   useEffect(() => {
     carregarDados();
@@ -125,8 +199,31 @@ if (!res.ok) {
         </div>
       )}
 
+{sucesso && (
+  <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-200">
+    {sucesso}
+  </div>
+)}
+
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-5">
+          <div className="md:col-span-2">
+  <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+    Tipo de relatório
+  </label>
+
+  <select
+    value={tipoRelatorio}
+    onChange={(e) => setTipoRelatorio(e.target.value)}
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  >
+    {tiposRelatorio.map((tipo) => (
+      <option key={tipo.value} value={tipo.value}>
+        {tipo.label}
+      </option>
+    ))}
+  </select>
+</div>
           <div>
             <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
               Mês
@@ -158,14 +255,43 @@ if (!res.ok) {
           </div>
 
           <div className="flex items-end md:col-span-2">
-            <button
-              type="button"
-              onClick={carregarDados}
-              disabled={loading}
-              className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {loading ? "Carregando..." : "Filtrar competência"}
-            </button>
+            <div className="flex flex-wrap items-end gap-3 md:col-span-5">
+  <button
+    type="button"
+    onClick={carregarDados}
+    disabled={loading}
+    className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+  >
+    {loading ? "Carregando..." : "Filtrar competência"}
+  </button>
+
+  <button
+    type="button"
+    onClick={gerarPdf}
+    className="rounded-xl border border-emerald-500 px-5 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/30"
+  >
+    Gerar PDF
+  </button>
+
+  <button
+    type="button"
+    onClick={exportarExcel}
+    className="rounded-xl border border-cyan-500 px-5 py-2 text-sm font-bold text-cyan-700 hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-cyan-950/30"
+  >
+    Exportar Excel
+  </button>
+
+  <button
+    type="button"
+    onClick={() => {
+      setEmailAssunto(`${nomeRelatorioAtual()} - ${String(mes).padStart(2, "0")}/${ano}`);
+      setModalEmailAberto(true);
+    }}
+    className="rounded-xl border border-amber-500 px-5 py-2 text-sm font-bold text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/30"
+  >
+    Enviar por e-mail
+  </button>
+</div>
           </div>
         </div>
       </section>
@@ -344,6 +470,101 @@ if (!res.ok) {
           </table>
         </div>
       </section>
+      
+      {modalEmailAberto && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="w-full max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-blue-700 dark:text-blue-400">
+            Envio de relatório
+          </p>
+
+          <h2 className="mt-2 text-2xl font-bold text-slate-950 dark:text-white">
+            Enviar por e-mail
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            {nomeRelatorioAtual()} — {String(mes).padStart(2, "0")}/{ano}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setModalEmailAberto(false)}
+          className="rounded-full border border-slate-300 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          Fechar
+        </button>
+      </div>
+
+      <div className="mt-5 space-y-4">
+        <div>
+          <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            E-mail da contabilidade
+          </label>
+
+          <input
+            value={emailDestino}
+            onChange={(e) => setEmailDestino(e.target.value)}
+            placeholder="contabilidade@empresa.com.br"
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            Assunto
+          </label>
+
+          <input
+            value={emailAssunto}
+            onChange={(e) => setEmailAssunto(e.target.value)}
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+            Mensagem
+          </label>
+
+          <textarea
+            value={emailMensagem}
+            onChange={(e) => setEmailMensagem(e.target.value)}
+            rows={4}
+            placeholder="Segue relatório RH da competência para conferência."
+            className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+          O envio deve anexar o PDF e a planilha Excel do relatório selecionado.
+        </div>
+
+        <div className="flex flex-wrap justify-end gap-3">
+          <button
+            type="button"
+            onClick={() => setModalEmailAberto(false)}
+            className="rounded-xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            onClick={enviarEmail}
+            disabled={enviandoEmail || !emailDestino.trim()}
+            className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          >
+            {enviandoEmail ? "Enviando..." : "Enviar relatório"}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
