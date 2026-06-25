@@ -480,6 +480,13 @@ function abrirTourAdmin() {
                     >
                       🏫 Turmas
                     </Link>
+
+                    <Link
+  href="/admin/agenda-operacional"
+  className={getLinkClass("/admin/agenda-operacional")}
+>
+  🗓️ Agenda / Escala
+</Link>
                     
   {podeVerPublicacoesAcademicas && (
   <Link
