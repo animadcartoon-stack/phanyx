@@ -223,13 +223,13 @@ export async function GET(req: NextRequest) {
 
     const pdfBytes = await pdfDoc.save();
 
-    return new NextResponse(pdfBytes, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": 'inline; filename="agenda-operacional.pdf"',
-      },
-    });
+    return new NextResponse(Buffer.from(pdfBytes), {
+  status: 200,
+  headers: {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": 'inline; filename="agenda-operacional.pdf"',
+  },
+});
   } catch (error) {
     console.error("Erro ao gerar PDF da agenda operacional:", error);
     return NextResponse.json(
