@@ -413,6 +413,7 @@ async function carregarFiltros() {
               ) : dados?.agenda?.length ? (
                dados.agenda.map((item: any) => (
   <>
+  
     <tr
       key={item.id}
   onClick={() =>
@@ -500,13 +501,58 @@ async function carregarFiltros() {
 )}
     </tr>
 
-  {linhaAberta === item.id && (
-    <tr className="bg-slate-50 dark:bg-slate-900">
-      <td colSpan={colunasVisiveis.length} className="px-6 py-4">
-        Detalhes do evento
-      </td>
-    </tr>
-  )}
+    {linhaAberta === item.id && (
+  <tr className="bg-slate-50 dark:bg-slate-900">
+    <td colSpan={colunasVisiveis.length} className="px-6 py-4">
+      <div className="grid gap-3 md:grid-cols-3">
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Curso</p>
+          <p>{item.curso || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Turma</p>
+          <p>{item.turma || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Disciplina</p>
+          <p>{item.disciplina || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Professor</p>
+          <p>{item.professor || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Funcionário</p>
+          <p>{item.funcionario || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Departamento</p>
+          <p>{item.departamento || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Polo</p>
+          <p>{item.polo || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Local</p>
+          <p>{item.local || "-"}</p>
+        </div>
+
+        <div>
+          <p className="text-xs font-bold uppercase text-slate-500">Observações</p>
+          <p>{item.observacoes || "-"}</p>
+        </div>
+      </div>
+    </td>
+  </tr>
+)}
   </>
 ))
               ) : (
