@@ -372,9 +372,20 @@ async function salvarPreferencias(novasColunasTabela: string[]) {
       </section>
 
 <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
-  <p className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
-    Visualização da tela
+  <div className="mb-4">
+  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+    Personalização da Agenda Operacional
+  </h2>
+
+  <p className="text-sm text-slate-600 dark:text-slate-400">
+    Escolha quais informações deseja visualizar na tela e, futuramente,
+    configurar também as colunas do PDF e do Excel.
   </p>
+</div>
+
+<h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-600">
+  Tabela
+</h3>
 
   <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
     {colunasDisponiveis.map((coluna) => (
