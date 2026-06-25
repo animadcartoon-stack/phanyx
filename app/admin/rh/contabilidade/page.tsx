@@ -57,6 +57,9 @@ export default function ContabilidadeRHPage() {
   const [enviandoEmail, setEnviandoEmail] = useState(false);
   const [sucesso, setSucesso] = useState("");
 
+  const [tipoRelatorioAberto, setTipoRelatorioAberto] = useState(false);
+  const [erroEmail, setErroEmail] = useState("");
+
 const tiposRelatorio = [
   { value: "contabil", label: "Relatório Contábil da Competência" },
   { value: "folha", label: "Folha / Holerites" },
@@ -127,9 +130,10 @@ function exportarExcel() {
 
 async function enviarEmail() {
   try {
-    setEnviandoEmail(true);
-    setErro("");
-    setSucesso("");
+  setEnviandoEmail(true);
+  setErro("");
+  setErroEmail("");
+  setSucesso("");
 
     const res = await fetch("/api/admin/rh/contabilidade/email", {
       method: "POST",
@@ -155,7 +159,7 @@ async function enviarEmail() {
     setSucesso("Relatório enviado por e-mail com sucesso.");
     setModalEmailAberto(false);
   } catch (error: any) {
-    setErro(error?.message || "Erro ao enviar relatório por e-mail.");
+    setErroEmail(error?.message || "Erro ao enviar relatório por e-mail.");
   } finally {
     setEnviandoEmail(false);
   }
@@ -207,22 +211,45 @@ async function enviarEmail() {
 
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <div className="grid gap-4 md:grid-cols-5">
-          <div className="md:col-span-2">
-  <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
+          <div className="relative md:col-span-2">
+  <label className="text-xs font-bold uppercase text-slate-800 dark:text-slate-200">
     Tipo de relatório
   </label>
 
-  <select
-    value={tipoRelatorio}
-    onChange={(e) => setTipoRelatorio(e.target.value)}
-    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  <button
+    type="button"
+    onClick={() => setTipoRelatorioAberto((aberto) => !aberto)}
+    className="mt-1 flex w-full items-center justify-between rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-950 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-900"
   >
-    {tiposRelatorio.map((tipo) => (
-      <option key={tipo.value} value={tipo.value}>
-        {tipo.label}
-      </option>
-    ))}
-  </select>
+    <span>{nomeRelatorioAtual()}</span>
+    <span className="text-slate-500 dark:text-slate-300">▾</span>
+  </button>
+
+  {tipoRelatorioAberto && (
+    <div className="absolute z-50 mt-2 max-h-80 w-full overflow-y-auto rounded-2xl border border-slate-300 bg-white p-1 shadow-2xl dark:border-slate-700 dark:bg-slate-950">
+      {tiposRelatorio.map((tipo) => {
+        const selecionado = tipoRelatorio === tipo.value;
+
+        return (
+          <button
+            key={tipo.value}
+            type="button"
+            onClick={() => {
+              setTipoRelatorio(tipo.value);
+              setTipoRelatorioAberto(false);
+            }}
+            className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-bold transition ${
+              selecionado
+                ? "bg-slate-900 text-white dark:bg-blue-600 dark:text-white"
+                : "text-slate-900 hover:bg-slate-100 dark:text-slate-100 dark:hover:bg-slate-800"
+            }`}
+          >
+            {tipo.label}
+          </button>
+        );
+      })}
+    </div>
+  )}
 </div>
           <div>
             <label className="text-xs font-bold uppercase text-slate-700 dark:text-slate-300">
@@ -266,31 +293,36 @@ async function enviarEmail() {
   </button>
 
   <button
-    type="button"
-    onClick={gerarPdf}
-    className="rounded-xl border border-emerald-500 px-5 py-2 text-sm font-bold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/30"
-  >
-    Gerar PDF
-  </button>
+  type="button"
+  onClick={gerarPdf}
+  className="rounded-xl bg-emerald-600 px-5 py-2 text-sm font-black text-white shadow-sm hover:bg-emerald-700"
+>
+  Gerar PDF
+</button>
 
-  <button
-    type="button"
-    onClick={exportarExcel}
-    className="rounded-xl border border-cyan-500 px-5 py-2 text-sm font-bold text-cyan-700 hover:bg-cyan-50 dark:text-cyan-300 dark:hover:bg-cyan-950/30"
-  >
-    Exportar Excel
-  </button>
+<button
+  type="button"
+  onClick={exportarExcel}
+  className="rounded-xl bg-cyan-600 px-5 py-2 text-sm font-black text-white shadow-sm hover:bg-cyan-700"
+>
+  Exportar Excel
+</button>
 
-  <button
-    type="button"
-    onClick={() => {
-      setEmailAssunto(`${nomeRelatorioAtual()} - ${String(mes).padStart(2, "0")}/${ano}`);
-      setModalEmailAberto(true);
-    }}
-    className="rounded-xl border border-amber-500 px-5 py-2 text-sm font-bold text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/30"
-  >
-    Enviar por e-mail
-  </button>
+<button
+  type="button"
+  onClick={() => {
+    setErroEmail("");
+
+    setEmailAssunto(
+      `${nomeRelatorioAtual()} - ${String(mes).padStart(2, "0")}/${ano}`
+    );
+
+    setModalEmailAberto(true);
+  }}
+  className="rounded-xl bg-amber-500 px-5 py-2 text-sm font-black text-slate-950 shadow-sm hover:bg-amber-400"
+>
+  Enviar por e-mail
+</button>
 </div>
           </div>
         </div>
@@ -459,9 +491,9 @@ async function enviarEmail() {
                     </td>
 
                     <td className="p-3">
-                      <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                        {item.status || "GERADO"}
-                      </span>
+                      <span className="inline-flex rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-black uppercase text-emerald-900 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200">
+  {item.status || "GERADO"}
+</span>
                     </td>
                   </tr>
                 ))
@@ -490,12 +522,12 @@ async function enviarEmail() {
         </div>
 
         <button
-          type="button"
-          onClick={() => setModalEmailAberto(false)}
-          className="rounded-full border border-slate-300 px-3 py-1 text-sm font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-        >
-          Fechar
-        </button>
+  type="button"
+  onClick={() => setModalEmailAberto(false)}
+  className="rounded-full border border-slate-400 bg-white px-3 py-1 text-sm font-black text-slate-800 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+>
+  Fechar
+</button>
       </div>
 
       <div className="mt-5 space-y-4">
@@ -537,19 +569,23 @@ async function enviarEmail() {
             className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </div>
-
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-          O envio deve anexar o PDF e a planilha Excel do relatório selecionado.
-        </div>
+{erroEmail && (
+  <div className="rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-bold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+    {erroEmail}
+  </div>
+)}
+        <div className="rounded-2xl border border-blue-300 bg-blue-50 p-4 text-sm font-semibold text-blue-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+  O envio deve anexar o PDF e a planilha Excel do relatório selecionado.
+</div>
 
         <div className="flex flex-wrap justify-end gap-3">
           <button
-            type="button"
-            onClick={() => setModalEmailAberto(false)}
-            className="rounded-xl border border-slate-300 px-5 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            Cancelar
-          </button>
+  type="button"
+  onClick={() => setModalEmailAberto(false)}
+  className="rounded-xl border border-slate-400 bg-white px-5 py-2 text-sm font-black text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+>
+  Cancelar
+</button>
 
           <button
             type="button"
