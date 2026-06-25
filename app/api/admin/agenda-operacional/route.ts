@@ -383,7 +383,7 @@ const { inicio, fim } = periodoPorFiltro(periodo);
     item.turmaDisciplina?.turma?.nome || "Turma"
   }`,
   evento: item.turmaDisciplina?.disciplina?.nome || "Aula",
-  descricao: item.turmaDisciplina?.turma?.curso?.nome || "",
+  descricao: "",
 
   responsavel: item.turmaDisciplina?.professor?.nome || "Sem professor",
   local: "",
@@ -416,7 +416,7 @@ const agenda = [
   polo: item.turma?.polo?.nome || "",
   local: "",
   observacoes: "",
-  descricao: item.turma?.nome || "",
+  descricao: "",
   responsavel: "Professor / Coordenação",
   status: item.status,
 })),
@@ -443,7 +443,7 @@ const agenda = [
 
   titulo: item.titulo,
   evento: item.titulo,
-  descricao: item.turma?.nome || item.disciplina?.nome || "",
+  descricao: "",
 
   responsavel: item.professorResponsavel?.nome || "Professor / Coordenação",
   local: "",
@@ -452,35 +452,60 @@ const agenda = [
 })),
 
   ...reunioes.map((item) => ({
-    id: `reuniao-${item.id}`,
-    tipo: "REUNIAO",
-    data: item.dataHora,
-    hora: item.dataHora
-      ? new Date(item.dataHora).toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-        })
-      : "",
-    titulo: item.titulo,
-    descricao: item.publicoTipo || "",
-    responsavel: "Administração",
-    status: item.status,
-  })),
+  id: `reuniao-${item.id}`,
+  tipo: "REUNIAO",
+
+  data: item.dataHora,
+  hora: item.dataHora
+    ? new Date(item.dataHora).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "",
+
+  curso: "",
+  turma: "",
+  disciplina: "",
+  professor: "",
+  funcionario: "",
+  departamento: "",
+  polo: "",
+
+  titulo: item.titulo,
+  evento: item.titulo,
+  descricao: "",
+
+  responsavel: "Administração",
+  local: "",
+  observacoes: item.publicoTipo || "",
+  status: item.status,
+})),
 
   ...ferias.map((item) => ({
-    id: `ferias-${item.id}`,
-    tipo: "FERIAS",
-    data: item.dataInicio,
-    hora: "",
-    titulo: `Férias - ${item.funcionario?.nome || "Funcionário"}`,
-    descricao: `${item.funcionario?.cargo || ""} ${
-      item.funcionario?.departamento?.nome
-        ? `• ${item.funcionario.departamento.nome}`
-        : ""
-    }`,
-    responsavel: "RH",
-    status: item.status,
-  })),
+  id: `ferias-${item.id}`,
+  tipo: "FERIAS",
+
+  data: item.dataInicio,
+  hora: "",
+
+  curso: "",
+  turma: "",
+  disciplina: "",
+  professor: "",
+  funcionario: item.funcionario?.nome || "",
+  departamento: item.funcionario?.departamento?.nome || "",
+  polo: "",
+
+  titulo: `Férias - ${item.funcionario?.nome || "Funcionário"}`,
+  evento: "Férias",
+  descricao: "",
+
+  responsavel: "RH",
+  local: "",
+  observacoes: item.funcionario?.cargo || "",
+  status: item.status,
+})),
+
 ].sort((a, b) => {
   const dataA = a.data ? new Date(a.data).getTime() : 0;
   const dataB = b.data ? new Date(b.data).getTime() : 0;
