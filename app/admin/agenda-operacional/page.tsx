@@ -134,11 +134,11 @@ async function carregarFiltros() {
           Secretaria / Coordenação
         </p>
 
-        <h1 className="mt-2 text-3xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 className="mt-2 text-3xl font-bold text-slate-950 dark:text-slate-100">
           Agenda Operacional
         </h1>
 
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        <p className="mt-2 text-sm font-medium text-slate-700 dark:text-slate-300">
           Acompanhe aulas, professores, disciplinas, reuniões, provas, atividades,
           férias e escalas da instituição.
         </p>
@@ -281,7 +281,7 @@ async function carregarFiltros() {
             key={String(titulo)}
             className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-700 dark:text-slate-400">
               {titulo}
             </p>
             <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -292,22 +292,22 @@ async function carregarFiltros() {
       </section>
 
       <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
-        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+        <h2 className="text-lg font-bold text-slate-950 dark:text-slate-100">
           Linha do tempo operacional[]
         </h2>
 
         <div className="mt-4 overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-slate-600 dark:text-slate-300">
-  <th className="px-3 py-3">Data</th>
-  <th className="px-3 py-3">Hora</th>
-  <th className="px-3 py-3">Tipo</th>
-  <th className="px-3 py-3">Evento</th>
-  <th className="px-3 py-3">Responsável</th>
-  <th className="px-3 py-3">Status</th>
-</tr>
-            </thead>
+  <tr className="border-b border-slate-300 text-left text-slate-800 dark:border-slate-700 dark:text-slate-300">
+    <th className="px-3 py-3">Data</th>
+    <th className="px-3 py-3">Hora</th>
+    <th className="px-3 py-3">Tipo</th>
+    <th className="px-3 py-3">Evento</th>
+    <th className="px-3 py-3">Responsável</th>
+    <th className="px-3 py-3">Status</th>
+  </tr>
+</thead>
 
             <tbody>
               {loading && !dados ? (
@@ -318,7 +318,10 @@ async function carregarFiltros() {
                 </tr>
               ) : dados?.agenda?.length ? (
                 dados.agenda.map((item: any) => (
-  <tr key={item.id} className="border-b dark:border-slate-800">
+  <tr
+  key={item.id}
+  className="border-b border-slate-200 text-slate-900 dark:border-slate-800 dark:text-slate-100"
+>
     <td className="px-3 py-3">
       {item.data
         ? new Date(item.data).toLocaleDateString("pt-BR")
@@ -338,7 +341,7 @@ async function carregarFiltros() {
         {item.titulo}
       </div>
 
-      <div className="text-xs text-slate-500 dark:text-slate-400">
+      <div className="text-xs text-slate-700 dark:text-slate-400">
         {item.descricao || "-"}
       </div>
     </td>
