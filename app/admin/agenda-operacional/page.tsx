@@ -153,6 +153,31 @@ async function carregarFiltros() {
   }
 }
 
+async function carregarPreferencias() {
+  try {
+    const res = await fetch("/api/admin/agenda-operacional/preferencias", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao carregar preferências.");
+    }
+
+    if (Array.isArray(data.colunasTabela)) {
+      setcolunasVisiveis(data.colunasTabela);
+    }
+
+    if (Array.isArray(data.colunasPdf)) {
+      setColunasPdf(data.colunasPdf);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
   useEffect(() => {
   carregarAgenda();
 }, [
@@ -168,6 +193,7 @@ async function carregarFiltros() {
 
   useEffect(() => {
   carregarFiltros();
+  carregarPreferencias();
 }, []);
 
   const cards = useMemo(() => {
