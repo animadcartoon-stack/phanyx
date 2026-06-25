@@ -30,6 +30,8 @@ const [departamentos, setDepartamentos] = useState<any[]>([]);
 const [disciplinas, setDisciplinas] = useState<any[]>([]);
 const [polos, setPolos] = useState<any[]>([]);
 
+const [linhaAberta, setLinhaAberta] = useState<number | null>(null);
+
   const [dados, setDados] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -386,12 +388,25 @@ async function carregarFiltros() {
                 dados.agenda.map((item: any) => (
   <tr
   key={item.id}
-  className="border-b border-slate-200 text-slate-900 dark:border-slate-800 dark:text-slate-100"
+  onClick={() =>
+    setLinhaAberta(linhaAberta === item.id ? null : item.id)
+  }
+  className="cursor-pointer border-b border-slate-200 text-slate-900 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-100 dark:hover:bg-slate-800"
 >
     {colunasVisiveis.includes("data") && (
   <td className="px-3 py-3">
-    {item.data ? new Date(item.data).toLocaleDateString("pt-BR") : "-"}
-  </td>
+  <div className="flex items-center gap-2">
+    <span>
+      {linhaAberta === item.id ? "▼" : "▶"}
+    </span>
+
+    <span>
+      {item.data
+        ? new Date(item.data).toLocaleDateString("pt-BR")
+        : "-"}
+    </span>
+  </div>
+</td>
 )}
 
 {colunasVisiveis.includes("hora") && (
