@@ -622,8 +622,7 @@ export async function GET(req: Request) {
 
           <h2>Observações para a Contabilidade</h2>
           <p>
-            Relatório gerado automaticamente pelo PHANYX com base nos registros
-            de RH da competência selecionada.
+            Relatório gerado automaticamente pelo Sistema RH, com base nos registros do Departamento Pessoal da competência selecionada.
           </p>
           <p>
             Conferir encargos, provisões e eventos variáveis conforme regras
