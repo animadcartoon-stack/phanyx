@@ -546,7 +546,10 @@ async function alterarFotoFuncionario(file: File | null) {
         turmasRes,
         matriculasRes,
       ] = await Promise.all([
-        fetch("/api/aluno", { credentials: "include" }),
+        fetch("/api/aluno?page=1&limit=1", {
+  credentials: "include",
+  cache: "no-store",
+}),
         fetch("/api/professor", { credentials: "include" }),
         fetch("/api/admin/cursos", { credentials: "include" }),
         fetch("/api/disciplina", { credentials: "include" }),
@@ -585,9 +588,18 @@ async function alterarFotoFuncionario(file: File | null) {
         matriculasRes.json(),
       ]);
 
+const alunosArray = Array.isArray(alunos)
+  ? alunos
+  : Array.isArray(alunos?.data)
+  ? alunos.data
+  : [];
+
+const totalAlunos = Number(
+  alunos?.meta?.total ?? alunos?.total ?? alunosArray.length
+);
+
       setAlunosLista(
-        Array.isArray(alunos)
-          ? alunos.map((item: any) => ({
+  alunosArray.map((item: any) => ({
               id: Number(item.id),
               nome: String(item.nome ?? "Sem nome"),
               tipo: "Aluno" as const,
@@ -595,7 +607,7 @@ async function alterarFotoFuncionario(file: File | null) {
                 String(item.nome ?? "")
               )}`,
             }))
-          : []
+          
       );
 
       setProfessoresLista(
@@ -667,7 +679,7 @@ async function alterarFotoFuncionario(file: File | null) {
       );
 
       setStats({
-        alunos: Array.isArray(alunos) ? alunos.length : 0,
+        alunos: totalAlunos,
         professores: Array.isArray(professores) ? professores.length : 0,
         cursos: Array.isArray(cursos) ? cursos.length : 0,
         disciplinas: Array.isArray(disciplinas) ? disciplinas.length : 0,
