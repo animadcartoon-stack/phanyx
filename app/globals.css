@@ -2183,3 +2183,52 @@ html:not(.dark) .phanyx-rh-contabilidade-page .dark\:bg-slate-950 {
 html:not(.dark) .phanyx-rh-contabilidade-page .dark\:text-white {
   color: #020617 !important;
 }
+
+/* FIX LOCAL - AGENDA OPERACIONAL / 3 TEMAS */
+
+html[data-theme="light"] .agenda-operacional-page,
+html[data-theme="light"] .agenda-operacional-page * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .agenda-operacional-page p,
+html[data-theme="light"] .agenda-operacional-page span,
+html[data-theme="light"] .agenda-operacional-page th,
+html[data-theme="light"] .agenda-operacional-page td {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .agenda-operacional-page .text-slate-400,
+html[data-theme="light"] .agenda-operacional-page .text-slate-500,
+html[data-theme="light"] .agenda-operacional-page .text-slate-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .agenda-operacional-page input,
+html[data-theme="light"] .agenda-operacional-page select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .agenda-operacional-page .bg-white,
+html[data-theme="light"] .agenda-operacional-page .dark\:bg-\[\#111111\] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-page h1,
+html[data-theme="dark"] .agenda-operacional-page h2,
+html[data-theme="dark"] .agenda-operacional-page h3,
+html[data-theme="system"] .agenda-operacional-page h1,
+html[data-theme="system"] .agenda-operacional-page h2,
+html[data-theme="system"] .agenda-operacional-page h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .agenda-operacional-page .bg-white,
+html[data-theme="system"] .agenda-operacional-page .dark\:bg-\[\#111111\] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}

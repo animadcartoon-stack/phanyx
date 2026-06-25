@@ -128,7 +128,7 @@ async function carregarFiltros() {
   }, [dados]);
 
   return (
-    <div className="space-y-6">
+    <div className="agenda-operacional-page space-y-6">
       <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-[#111111]">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">
           Secretaria / Coordenação
