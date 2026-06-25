@@ -103,7 +103,7 @@ console.log("CONTABILIDADE RH", data);
 
 if (!res.ok) {
   throw new Error(
-    JSON.stringify(data, null, 2)
+    data?.error || "Erro ao carregar contabilidade RH."
   );
 }
 
