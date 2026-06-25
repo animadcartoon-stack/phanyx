@@ -500,7 +500,8 @@ const agenda = [
 })
 ),
 
-  ...reunioes.map((item) => ({
+  ...reunioes.map((item) =>
+  criarEventoAgenda({
   id: `reuniao-${item.id}`,
   tipo: "REUNIAO",
 
@@ -528,9 +529,11 @@ const agenda = [
   local: "",
   observacoes: item.publicoTipo || "",
   status: item.status,
-})),
+})
+),
 
-  ...ferias.map((item) => ({
+  ...ferias.map((item) =>
+  criarEventoAgenda({
   id: `ferias-${item.id}`,
   tipo: "FERIAS",
 
@@ -553,7 +556,8 @@ const agenda = [
   local: "",
   observacoes: item.funcionario?.cargo || "",
   status: item.status,
-})),
+})
+),
 
 ].sort((a, b) => {
   const dataA = a.data ? new Date(a.data).getTime() : 0;
