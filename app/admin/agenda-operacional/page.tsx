@@ -65,6 +65,32 @@ const [colunasVisiveis, setcolunasVisiveis] = useState<string[]>([
   "status",
 ]);
 
+const colunasPdfDisponiveis = [
+  { id: "data", nome: "Data" },
+  { id: "hora", nome: "Hora" },
+  { id: "tipo", nome: "Tipo" },
+  { id: "curso", nome: "Curso" },
+  { id: "turma", nome: "Turma" },
+  { id: "disciplina", nome: "Disciplina" },
+  { id: "evento", nome: "Evento" },
+  { id: "professor", nome: "Professor" },
+  { id: "funcionario", nome: "Funcionário" },
+  { id: "departamento", nome: "Departamento" },
+  { id: "polo", nome: "Polo" },
+  { id: "responsavel", nome: "Responsável" },
+  { id: "status", nome: "Status" },
+  { id: "local", nome: "Local" },
+  { id: "observacoes", nome: "Observações" },
+];
+
+const [colunasPdf, setColunasPdf] = useState<string[]>([
+  "data",
+  "hora",
+  "tipo",
+  "evento",
+  "status",
+]);
+
   async function carregarAgenda() {
     try {
       setLoading(true);
@@ -302,7 +328,7 @@ async function carregarFiltros() {
 
 <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
   <p className="mb-3 text-sm font-bold text-slate-900 dark:text-slate-100">
-    Personalizar colunas
+    Visualização da tela
   </p>
 
   <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
@@ -385,9 +411,10 @@ async function carregarFiltros() {
                   </td>
                 </tr>
               ) : dados?.agenda?.length ? (
-                dados.agenda.map((item: any) => (
-  <tr
-  key={item.id}
+               dados.agenda.map((item: any) => (
+  <>
+    <tr
+      key={item.id}
   onClick={() =>
     setLinhaAberta(linhaAberta === item.id ? null : item.id)
   }
@@ -471,7 +498,16 @@ async function carregarFiltros() {
 {colunasVisiveis.includes("observacoes") && (
   <td className="px-3 py-3">{item.observacoes || "-"}</td>
 )}
-  </tr>
+    </tr>
+
+  {linhaAberta === item.id && (
+    <tr className="bg-slate-50 dark:bg-slate-900">
+      <td colSpan={colunasVisiveis.length} className="px-6 py-4">
+        Detalhes do evento
+      </td>
+    </tr>
+  )}
+  </>
 ))
               ) : (
                 <tr>
