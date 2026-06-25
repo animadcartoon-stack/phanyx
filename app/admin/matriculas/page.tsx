@@ -174,21 +174,22 @@ function AdminMatriculasPage() {
       }
 
       try {
-        const resAlunos = await fetch("/api/aluno", {
-          credentials: "include",
-          cache: "no-store",
-        });
+        const resAlunos = await fetch("/api/admin/alunos/busca-simples", {
+  credentials: "include",
+  cache: "no-store",
+});
 
-        const dataAlunos = await resAlunos.json();
+const dataAlunos = await resAlunos.json();
 
-        const listaAlunos: AlunoOption[] = (
-  Array.isArray(dataAlunos) ? dataAlunos : []
-)
+const listaAlunos: AlunoOption[] = (Array.isArray(dataAlunos) ? dataAlunos : [])
   .map((a: any) => ({
     id: Number(a?.id),
     nome: String(a?.nome ?? "Aluno"),
   }))
   .filter((a) => Number.isFinite(a.id) && a.id > 0);
+
+setAlunos(listaAlunos);
+  
 
 console.log("📚 Lista de alunos pronta para o select:", listaAlunos);
 

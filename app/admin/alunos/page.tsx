@@ -2278,13 +2278,29 @@ name="busca-alunos-phanyx"
                         >
                           Reativar aluno
                         </button>
+                        
                       ) : (
+                        <>
+                        <button
+  type="button"
+  onClick={() => {
+    if (!alunoSelecionado) return;
+    iniciarEdicao(alunoSelecionado);
+    setPainelAlunoAberto(false);
+    setMostrarFormulario(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }}
+  className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
+>
+  ✏️ Editar cadastro
+</button>
                         <button
                           onClick={() => cancelarAluno(alunoSelecionado.id)}
                           className="rounded-2xl border border-orange-200 bg-orange-50 px-4 py-2 text-sm font-semibold text-orange-700 transition hover:bg-orange-100"
                         >
                           Cancelar aluno
                         </button>
+                          </>
                       )}
                     </div>
                   </section>
