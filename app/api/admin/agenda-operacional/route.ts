@@ -362,10 +362,53 @@ const { inicio, fim } = periodoPorFiltro(periodo);
       }),
     ]);
 
+    function criarEventoAgenda({
+  id,
+  tipo,
+  data,
+  hora = "",
+  curso = "",
+  turma = "",
+  disciplina = "",
+  professor = "",
+  funcionario = "",
+  departamento = "",
+  polo = "",
+  titulo = "",
+  evento = "",
+  descricao = "",
+  responsavel = "",
+  local = "",
+  observacoes = "",
+  status = "",
+}: any) {
+  return {
+    id,
+    tipo,
+    data,
+    hora,
+    curso,
+    turma,
+    disciplina,
+    professor,
+    funcionario,
+    departamento,
+    polo,
+    titulo,
+    evento: evento || titulo,
+    descricao,
+    responsavel,
+    local,
+    observacoes,
+    status,
+  };
+}
+
     const aulasAgenda = horarios.flatMap((item) => {
   const datas = datasDoPeriodoPorDiaSemana(inicio, fim, item.diaSemana);
 
-  return datas.map((dataAula) => ({
+  return datas.map((dataAula) =>
+  criarEventoAgenda({
   id: `aula-${item.id}-${dataAula.toISOString()}`,
   tipo: "AULA",
 
@@ -390,13 +433,15 @@ const { inicio, fim } = periodoPorFiltro(periodo);
   local: "",
   observacoes: item.horaFim ? `Até ${item.horaFim}` : "",
   status: item.turmaDisciplina?.status || "PROGRAMADA",
-}));
+})
+);
 });
 
 const agenda = [
   ...aulasAgenda,
 
-  ...provas.map((item) => ({
+  ...provas.map((item) =>
+  criarEventoAgenda({
   id: `prova-${item.id}`,
   tipo: "PROVA",
   data: item.disponivelEm || item.expiraEm,
@@ -420,9 +465,11 @@ const agenda = [
   descricao: "",
   responsavel: item.turma?.professor?.nome ? "" : "Coordenação",
   status: item.status,
-})),
+})
+),
 
-  ...atividades.map((item) => ({
+  ...atividades.map((item) =>
+  criarEventoAgenda({
   id: `atividade-${item.id}`,
   tipo: "ATIVIDADE",
 
@@ -450,7 +497,8 @@ const agenda = [
   local: "",
   observacoes: "",
   status: item.status,
-})),
+})
+),
 
   ...reunioes.map((item) => ({
   id: `reuniao-${item.id}`,
