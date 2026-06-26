@@ -63,18 +63,19 @@ export async function GET() {
             },
           },
           turma: {
-            select: {
-              id: true,
-              nome: true,
-              cursoId: true,
-              curso: {
-                select: {
-                  id: true,
-                  nome: true,
-                },
-              },
-            },
-          },
+  select: {
+    id: true,
+    nome: true,
+    cursoId: true,
+    professorId: true,
+    curso: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+  },
+},
           disciplina: {
             select: {
               id: true,
@@ -145,20 +146,20 @@ export async function GET() {
               },
             },
           },
-          disciplina: {
-            select: {
-              id: true,
-              nome: true,
-              cursoId: true,
-              curso: {
-                select: {
-                  id: true,
-                  nome: true,
-                  professorId: true,
-                },
-              },
-            },
-          },
+         disciplina: {
+  select: {
+    id: true,
+    nome: true,
+    cursoId: true,
+    professorId: true,
+    curso: {
+      select: {
+        id: true,
+        nome: true,
+      },
+    },
+  },
+},
           professor: {
             select: {
               id: true,
