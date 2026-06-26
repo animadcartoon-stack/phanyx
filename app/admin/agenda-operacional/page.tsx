@@ -515,7 +515,7 @@ function abrirPdfAgenda() {
   onClick={() =>
     setLinhaAberta(linhaAberta === item.id ? null : item.id)
   }
-  className="cursor-pointer border-b border-slate-200 text-slate-900 transition hover:bg-slate-100 dark:border-slate-800 dark:text-slate-100 dark:hover:bg-slate-800"
+  className="cursor-pointer border-b border-slate-200 text-slate-900 transition hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-100"
 >
     {colunasVisiveis.includes("data") && (
   <td className="px-3 py-3">
