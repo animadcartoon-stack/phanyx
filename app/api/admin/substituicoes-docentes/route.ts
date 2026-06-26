@@ -10,8 +10,16 @@ function inicioDoDia(data: Date) {
   return d;
 }
 
-function calcularStatus(dataInicio: Date, dataFim: Date | null, statusAtual: string) {
-  if (statusAtual === "CANCELADA" || statusAtual === "ENCERRADA" || statusAtual === "SUSPENSA") {
+function calcularStatus(
+  dataInicio: Date,
+  dataFim: Date | null,
+  statusAtual: string
+) {
+  if (
+    statusAtual === "CANCELADA" ||
+    statusAtual === "ENCERRADA" ||
+    statusAtual === "SUSPENSA"
+  ) {
     return statusAtual;
   }
 
@@ -33,54 +41,148 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const registros = await prisma.substituicaoDocente.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-      },
-      orderBy: {
-        criadoEm: "desc",
-      },
-      include: {
-        professorTitular: {
-          select: {
-            id: true,
-            nome: true,
-          },
+    const [registros, professores, turmasDisciplinas] = await Promise.all([
+      prisma.substituicaoDocente.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
         },
-        professorSubstituto: {
-          select: {
-            id: true,
-            nome: true,
-          },
+        orderBy: {
+          criadoEm: "desc",
         },
-        turma: {
-          select: {
-            id: true,
-            nome: true,
-            cursoId: true,
-            curso: {
-              select: {
-                id: true,
-                nome: true,
+        include: {
+          professorTitular: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+          professorSubstituto: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+          turma: {
+            select: {
+              id: true,
+              nome: true,
+              cursoId: true,
+              curso: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+            },
+          },
+          disciplina: {
+            select: {
+              id: true,
+              nome: true,
+              cursoId: true,
+              curso: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
               },
             },
           },
         },
-        disciplina: {
-          select: {
-            id: true,
-            nome: true,
-            cursoId: true,
-            curso: {
-              select: {
-                id: true,
-                nome: true,
+      }),
+
+      prisma.professor.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          ativo: true,
+        },
+        orderBy: {
+          nome: "asc",
+        },
+        select: {
+          id: true,
+          nome: true,
+        },
+      }),
+
+      prisma.turmaDisciplina.findMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          turma: {
+            instituicaoId: user.instituicaoId,
+          },
+          disciplina: {
+            instituicaoId: user.instituicaoId,
+          },
+        },
+        orderBy: [
+          {
+            turma: {
+              nome: "asc",
+            },
+          },
+          {
+            disciplina: {
+              nome: "asc",
+            },
+          },
+        ],
+        select: {
+          id: true,
+          professorId: true,
+          turmaId: true,
+          disciplinaId: true,
+          turma: {
+            select: {
+              id: true,
+              nome: true,
+              cursoId: true,
+              curso: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
               },
             },
           },
+          disciplina: {
+            select: {
+              id: true,
+              nome: true,
+              cursoId: true,
+              curso: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+            },
+          },
+          professor: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
         },
-      },
-    });
+      }),
+    ]);
+
+    const vinculosTitular = turmasDisciplinas
+      .filter((item) => item.professorId)
+      .map((item) => ({
+        id: item.id,
+        professorTitularId: item.professorId,
+        turmaId: item.turmaId,
+        turmaNome: item.turma?.nome || "Turma sem nome",
+        disciplinaId: item.disciplinaId,
+        disciplinaNome: item.disciplina?.nome || "Disciplina sem nome",
+        cursoId: item.turma?.curso?.id || item.disciplina?.curso?.id || null,
+        cursoNome:
+          item.turma?.curso?.nome ||
+          item.disciplina?.curso?.nome ||
+          "Curso não informado",
+      }));
 
     const items = registros.map((item) => ({
       id: item.id,
@@ -96,7 +198,12 @@ export async function GET() {
       observacoes: item.observacoes,
     }));
 
-    return NextResponse.json({ ok: true, items });
+    return NextResponse.json({
+      ok: true,
+      items,
+      professores,
+      vinculosTitular,
+    });
   } catch (error) {
     console.error("Erro ao listar substituições docentes:", error);
 
@@ -122,18 +229,34 @@ export async function POST(req: NextRequest) {
     const turmaId = Number(body.turmaId);
     const disciplinaId = Number(body.disciplinaId);
     const dataInicio = body.dataInicio ? new Date(body.dataInicio) : null;
-    const dataFim = body.dataFim ? new Date(body.dataFim) : null;
+    const dataFim = body.semDataFim
+      ? null
+      : body.dataFim
+        ? new Date(body.dataFim)
+        : null;
 
-    if (!professorTitularId || !professorSubstitutoId || !turmaId || !disciplinaId || !dataInicio) {
+    if (
+      !professorTitularId ||
+      !professorSubstitutoId ||
+      !turmaId ||
+      !disciplinaId ||
+      !dataInicio
+    ) {
       return NextResponse.json(
-        { error: "Preencha professor titular, substituto, turma, disciplina e data inicial." },
+        {
+          error:
+            "Preencha professor titular, substituto, turma/disciplina e data inicial.",
+        },
         { status: 400 }
       );
     }
 
     if (professorTitularId === professorSubstitutoId) {
       return NextResponse.json(
-        { error: "O professor substituto não pode ser o mesmo professor titular." },
+        {
+          error:
+            "O professor substituto não pode ser o mesmo professor titular.",
+        },
         { status: 400 }
       );
     }
@@ -145,71 +268,66 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const [titular, substituto, turma, disciplina] = await Promise.all([
-      prisma.professor.findFirst({
-        where: {
-          id: professorTitularId,
-          instituicaoId: user.instituicaoId,
-          ativo: true,
-        },
-        select: { id: true },
-      }),
-      prisma.professor.findFirst({
-        where: {
-          id: professorSubstitutoId,
-          instituicaoId: user.instituicaoId,
-          ativo: true,
-        },
-        select: { id: true },
-      }),
-      prisma.turma.findFirst({
-        where: {
-          id: turmaId,
-          instituicaoId: user.instituicaoId,
-        },
-        select: { id: true },
-      }),
-      prisma.disciplina.findFirst({
-        where: {
-          id: disciplinaId,
-          instituicaoId: user.instituicaoId,
-        },
-        select: { id: true },
-      }),
-    ]);
-
-    if (!titular) {
-      return NextResponse.json({ error: "Professor titular não encontrado." }, { status: 404 });
-    }
-
-    if (!substituto) {
-      return NextResponse.json({ error: "Professor substituto não encontrado." }, { status: 404 });
-    }
-
-    if (!turma) {
-      return NextResponse.json({ error: "Turma não encontrada." }, { status: 404 });
-    }
-
-    if (!disciplina) {
-      return NextResponse.json({ error: "Disciplina não encontrada." }, { status: 404 });
-    }
-
-    const existente = await prisma.substituicaoDocente.findFirst({
+    const vinculoTitular = await prisma.turmaDisciplina.findFirst({
       where: {
         instituicaoId: user.instituicaoId,
-        professorSubstitutoId,
+        professorId: professorTitularId,
+        turmaId,
+        disciplinaId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!vinculoTitular) {
+      return NextResponse.json(
+        {
+          error:
+            "Esta turma/disciplina não pertence ao professor titular selecionado.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const substituto = await prisma.professor.findFirst({
+      where: {
+        id: professorSubstitutoId,
+        instituicaoId: user.instituicaoId,
+        ativo: true,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!substituto) {
+      return NextResponse.json(
+        { error: "Professor substituto não encontrado." },
+        { status: 404 }
+      );
+    }
+
+    const substituicaoAberta = await prisma.substituicaoDocente.findFirst({
+      where: {
+        instituicaoId: user.instituicaoId,
         turmaId,
         disciplinaId,
         status: {
           in: ["AGENDADA", "ATIVA", "SUSPENSA"],
         },
       },
-      select: { id: true },
+      select: {
+        id: true,
+      },
     });
 
-    if (existente) {
+    if (substituicaoAberta) {
       return NextResponse.json(
-        { error: "Já existe uma substituição aberta para este professor, turma e disciplina." },
+        {
+          error:
+            "Já existe uma substituição aberta para esta turma e disciplina.",
+        },
         { status: 400 }
       );
     }
@@ -232,7 +350,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ ok: true, item: registro });
+    return NextResponse.json({
+      ok: true,
+      item: registro,
+    });
   } catch (error) {
     console.error("Erro ao criar substituição docente:", error);
 

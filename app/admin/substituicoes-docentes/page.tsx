@@ -31,6 +31,17 @@ type Disciplina = {
   cursoId?: number | null;
 };
 
+type VinculoTitular = {
+  id: number;
+  professorTitularId: number;
+  turmaId: number;
+  turmaNome: string;
+  disciplinaId: number;
+  disciplinaNome: string;
+  cursoId?: number | null;
+  cursoNome: string;
+};
+
 type SubstituicaoDocente = {
   id: number;
   status: StatusSubstituicao;
@@ -47,12 +58,20 @@ type SubstituicaoDocente = {
 
 type FeedbackTipo = "sucesso" | "erro" | "";
 
+const motivosSubstituicao = [
+  "Licença médica",
+  "Licença maternidade",
+  "Férias",
+  "Capacitação",
+  "Afastamento",
+  "Vacância",
+  "Outro",
+];
+
 export default function SubstituicoesDocentesPage() {
   const [substituicoes, setSubstituicoes] = useState<SubstituicaoDocente[]>([]);
   const [professores, setProfessores] = useState<Professor[]>([]);
-  const [cursos, setCursos] = useState<Curso[]>([]);
-  const [turmas, setTurmas] = useState<Turma[]>([]);
-  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
+  const [vinculosTitular, setVinculosTitular] = useState<VinculoTitular[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [salvando, setSalvando] = useState(false);
@@ -66,13 +85,14 @@ export default function SubstituicoesDocentesPage() {
 
   const [professorTitularId, setProfessorTitularId] = useState("");
   const [professorSubstitutoId, setProfessorSubstitutoId] = useState("");
-  const [cursoId, setCursoId] = useState("");
-  const [turmaId, setTurmaId] = useState("");
-  const [disciplinaId, setDisciplinaId] = useState("");
+  const [vinculoSelecionadoId, setVinculoSelecionadoId] = useState("");
   const [dataInicio, setDataInicio] = useState("");
   const [dataFim, setDataFim] = useState("");
+  const [semDataFim, setSemDataFim] = useState(false);
   const [motivo, setMotivo] = useState("");
+  const [motivoOutro, setMotivoOutro] = useState("");
   const [observacoes, setObservacoes] = useState("");
+  const [permissoesAberto, setPermissoesAberto] = useState(false);
 
   function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
     setFeedbackTipo(tipo);
@@ -88,31 +108,27 @@ export default function SubstituicoesDocentesPage() {
     try {
       setLoading(true);
 
-      const [resSub, resProf, resCursos, resTurmas, resDisciplinas] =
-        await Promise.all([
-          fetch("/api/admin/substituicoes-docentes", {
-            credentials: "include",
-            cache: "no-store",
-          }),
-          fetch("/api/professor", { credentials: "include" }),
-          fetch("/api/curso", { credentials: "include" }),
-          fetch("/api/turma", { credentials: "include" }),
-          fetch("/api/disciplina", { credentials: "include" }),
-        ]);
+      const res = await fetch("/api/admin/substituicoes-docentes", {
+        credentials: "include",
+        cache: "no-store",
+      });
 
-      const sub = resSub.ok ? await resSub.json() : [];
-      const prof = resProf.ok ? await resProf.json() : [];
-      const cursosJson = resCursos.ok ? await resCursos.json() : [];
-      const turmasJson = resTurmas.ok ? await resTurmas.json() : [];
-      const disciplinasJson = resDisciplinas.ok ? await resDisciplinas.json() : [];
+      const json = await res.json();
 
-      setSubstituicoes(Array.isArray(sub) ? sub : sub.items || []);
-      setProfessores(Array.isArray(prof) ? prof : []);
-      setCursos(Array.isArray(cursosJson) ? cursosJson : []);
-      setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
-      setDisciplinas(Array.isArray(disciplinasJson) ? disciplinasJson : []);
-    } catch {
-      mostrarFeedback("erro", "Erro ao carregar substituições docentes.");
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao carregar substituições docentes.");
+      }
+
+      setSubstituicoes(Array.isArray(json.items) ? json.items : []);
+      setProfessores(Array.isArray(json.professores) ? json.professores : []);
+      setVinculosTitular(
+        Array.isArray(json.vinculosTitular) ? json.vinculosTitular : []
+      );
+    } catch (e: any) {
+      mostrarFeedback(
+        "erro",
+        e?.message || "Erro ao carregar substituições docentes."
+      );
     } finally {
       setLoading(false);
     }
@@ -122,15 +138,31 @@ export default function SubstituicoesDocentesPage() {
     carregarDados();
   }, []);
 
-  const turmasFiltradas = useMemo(() => {
-    if (!cursoId) return turmas;
-    return turmas.filter((t) => String(t.cursoId || "") === cursoId);
-  }, [turmas, cursoId]);
+    const vinculosDoTitular = useMemo(() => {
+    if (!professorTitularId) return [];
 
-  const disciplinasFiltradas = useMemo(() => {
-    if (!cursoId) return disciplinas;
-    return disciplinas.filter((d) => String(d.cursoId || "") === cursoId);
-  }, [disciplinas, cursoId]);
+    return vinculosTitular.filter(
+      (item) => String(item.professorTitularId) === professorTitularId
+    );
+  }, [vinculosTitular, professorTitularId]);
+
+  const vinculoSelecionado = useMemo(() => {
+    if (!vinculoSelecionadoId) return null;
+
+    return (
+      vinculosTitular.find(
+        (item) => String(item.id) === String(vinculoSelecionadoId)
+      ) || null
+    );
+  }, [vinculosTitular, vinculoSelecionadoId]);
+
+  const professoresSubstitutos = useMemo(() => {
+    if (!professorTitularId) return professores;
+
+    return professores.filter(
+      (professor) => String(professor.id) !== professorTitularId
+    );
+  }, [professores, professorTitularId]);
 
   const listaFiltrada = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -165,16 +197,17 @@ export default function SubstituicoesDocentesPage() {
     };
   }, [substituicoes]);
 
-  function limparFormulario() {
+    function limparFormulario() {
     setProfessorTitularId("");
     setProfessorSubstitutoId("");
-    setCursoId("");
-    setTurmaId("");
-    setDisciplinaId("");
+    setVinculoSelecionadoId("");
     setDataInicio("");
     setDataFim("");
+    setSemDataFim(false);
     setMotivo("");
+    setMotivoOutro("");
     setObservacoes("");
+    setPermissoesAberto(false);
   }
 
   async function criarSubstituicao(e: React.FormEvent) {
@@ -183,6 +216,13 @@ export default function SubstituicoesDocentesPage() {
     try {
       setSalvando(true);
 
+      if (!vinculoSelecionado) {
+        throw new Error("Selecione uma turma e disciplina vinculada ao professor titular.");
+      }
+
+      const motivoFinal =
+        motivo === "Outro" ? motivoOutro.trim() : motivo.trim();
+
       const res = await fetch("/api/admin/substituicoes-docentes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -190,12 +230,12 @@ export default function SubstituicoesDocentesPage() {
         body: JSON.stringify({
           professorTitularId: Number(professorTitularId),
           professorSubstitutoId: Number(professorSubstitutoId),
-          cursoId: cursoId ? Number(cursoId) : null,
-          turmaId: Number(turmaId),
-          disciplinaId: Number(disciplinaId),
+          turmaId: Number(vinculoSelecionado.turmaId),
+          disciplinaId: Number(vinculoSelecionado.disciplinaId),
           dataInicio,
-          dataFim: dataFim || null,
-          motivo,
+          dataFim: semDataFim ? null : dataFim || null,
+          semDataFim,
+          motivo: motivoFinal || null,
           observacoes,
         }),
       });
@@ -231,7 +271,7 @@ export default function SubstituicoesDocentesPage() {
   }
 
   return (
-    <main className="space-y-6 text-slate-900 dark:text-slate-100">
+    <main className="phanyx-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-sm ${
@@ -461,20 +501,55 @@ export default function SubstituicoesDocentesPage() {
                 {professores.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
               </select>
 
-              <select value={cursoId} onChange={(e) => setCursoId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
-                <option value="">Curso</option>
-                {cursos.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+              <select
+  required
+  value={vinculoSelecionadoId}
+  onChange={(e) => setVinculoSelecionadoId(e.target.value)}
+  className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2"
+>
+  <option value="">
+    Selecione uma turma e disciplina do professor titular
+  </option>
 
-              <select required value={turmaId} onChange={(e) => setTurmaId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
-                <option value="">Turma</option>
-                {turmasFiltradas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
-              </select>
+  {vinculosDoTitular.map((v) => (
+    <option key={v.id} value={v.id}>
+      {v.turmaNome} • {v.disciplinaNome}
+    </option>
+  ))}
+</select>
 
-              <select required value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
-                <option value="">Disciplina</option>
-                {disciplinasFiltradas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
-              </select>
+{vinculoSelecionado && (
+  <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-900 dark:bg-blue-950/30 md:col-span-2">
+    <div className="grid gap-3 md:grid-cols-3">
+      <div>
+        <p className="text-xs font-bold uppercase text-slate-500">
+          Curso
+        </p>
+        <p className="font-semibold">
+          {vinculoSelecionado.cursoNome}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs font-bold uppercase text-slate-500">
+          Turma
+        </p>
+        <p className="font-semibold">
+          {vinculoSelecionado.turmaNome}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs font-bold uppercase text-slate-500">
+          Disciplina
+        </p>
+        <p className="font-semibold">
+          {vinculoSelecionado.disciplinaNome}
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
               <input required type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
 
