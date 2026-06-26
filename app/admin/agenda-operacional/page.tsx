@@ -234,6 +234,23 @@ function abrirPdfAgenda() {
   window.open(`/api/admin/agenda-operacional/pdf?${params.toString()}`, "_blank");
 }
 
+function abrirExcelAgenda() {
+  const params = new URLSearchParams();
+
+  params.set("periodo", periodo);
+
+  if (cursoId) params.set("cursoId", cursoId);
+  if (turmaId) params.set("turmaId", turmaId);
+  if (professorId) params.set("professorId", professorId);
+  if (funcionarioId) params.set("funcionarioId", funcionarioId);
+  if (disciplinaId) params.set("disciplinaId", disciplinaId);
+  if (departamentoId) params.set("departamentoId", departamentoId);
+  if (poloId) params.set("poloId", poloId);
+  if (pesquisa.trim()) params.set("pesquisa", pesquisa.trim());
+
+  window.open(`/api/admin/agenda-operacional/excel?${params.toString()}`, "_blank");
+}
+
   useEffect(() => {
   carregarAgenda();
 }, [
@@ -424,6 +441,15 @@ function abrirPdfAgenda() {
   >
     Exportar PDF
   </button>
+
+<button
+  type="button"
+  onClick={abrirExcelAgenda}
+  className="rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-green-700"
+>
+  Exportar Excel
+</button>
+
 </section>
 
 <div className="mt-4 rounded-2xl border border-slate-300 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">

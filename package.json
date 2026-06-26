@@ -28,6 +28,7 @@
     "@tiptap/starter-kit": "^3.26.0",
     "@vercel/blob": "^2.4.1",
     "bcryptjs": "^3.0.3",
+    "exceljs": "^4.4.0",
     "google-ads-api": "^23.0.0",
     "google-auth-library": "^10.6.2",
     "googleapis": "^172.0.0",
