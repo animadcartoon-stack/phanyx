@@ -41,7 +41,7 @@ export async function GET() {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
     }
 
-    const [registros, professores, turmasDisciplinas] = await Promise.all([
+    const [registros, professores, turmasDisciplinas, professoresDisciplinas] = await Promise.all([
       prisma.substituicaoDocente.findMany({
         where: {
           instituicaoId: user.instituicaoId,
@@ -168,6 +168,23 @@ export async function GET() {
           },
         },
       }),
+      prisma.professorDisciplina.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    disciplina: {
+      instituicaoId: user.instituicaoId,
+      turmaDisciplinas: {
+        some: {
+          instituicaoId: user.instituicaoId,
+        },
+      },
+    },
+  },
+  select: {
+    professorId: true,
+    disciplinaId: true,
+  },
+}),
     ]);
 
     const vinculosTitular = turmasDisciplinas
@@ -190,6 +207,10 @@ export async function GET() {
       titulares.add(Number((item.turma as any).professorId));
     }
 
+    professoresDisciplinas
+  .filter((pd) => pd.disciplinaId === item.disciplinaId)
+  .forEach((pd) => titulares.add(pd.professorId));
+
     return Array.from(titulares).map((professorTitularId) => ({
       id: Number(`${item.id}${professorTitularId}`),
       professorTitularId,
@@ -204,6 +225,7 @@ export async function GET() {
         "Curso não informado",
     }));
   });
+
 
     const items = registros.map((item) => ({
       id: item.id,
