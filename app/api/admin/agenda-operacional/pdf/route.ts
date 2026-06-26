@@ -3,6 +3,7 @@ import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { desenharCabecalhoInstituicao } from "@/lib/pdf/cabecalhoInstituicao";
+import { desenharRodapeInstituicao } from "@/lib/pdf/rodapeInstituicao";
 
 const COLUNAS_PDF_PADRAO = ["data", "hora", "tipo", "evento", "turma", "professor", "status"];
 
@@ -247,22 +248,15 @@ y -= 30;
     const paginas = pdfDoc.getPages();
 
     paginas.forEach((p, index) => {
-      p.drawText(`Página ${index + 1} de ${paginas.length}`, {
-        x: largura - margem - 90,
-        y: 20,
-        size: 8,
-        font: fonteNormal,
-        color: rgb(0.35, 0.4, 0.5),
-      });
-
-      p.drawText(`Gerado pelo PHANYX • ${nomeInstituicao}`, {
-        x: margem,
-        y: 20,
-        size: 8,
-        font: fonteNormal,
-        color: rgb(0.35, 0.4, 0.5),
-      });
-    });
+  desenharRodapeInstituicao({
+    pagina: p,
+    fonteNormal,
+    larguraPagina: largura,
+    margem,
+    numeroPagina: index + 1,
+    totalPaginas: paginas.length,
+  });
+});
 
     const pdfBytes = await pdfDoc.save();
 
