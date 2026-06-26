@@ -312,16 +312,39 @@ export async function POST(req: NextRequest) {
     }
 
     const vinculoTitular = await prisma.turmaDisciplina.findFirst({
-      where: {
-        instituicaoId: user.instituicaoId,
+  where: {
+    instituicaoId: user.instituicaoId,
+    turmaId,
+    disciplinaId,
+    OR: [
+      {
         professorId: professorTitularId,
-        turmaId,
-        disciplinaId,
       },
-      select: {
-        id: true,
+      {
+        turma: {
+          professorId: professorTitularId,
+        },
       },
-    });
+      {
+        disciplina: {
+          professorId: professorTitularId,
+        },
+      },
+      {
+        disciplina: {
+          professoresHabilitados: {
+            some: {
+              professorId: professorTitularId,
+            },
+          },
+        },
+      },
+    ],
+  },
+  select: {
+    id: true,
+  },
+});
 
     if (!vinculoTitular) {
       return NextResponse.json(
