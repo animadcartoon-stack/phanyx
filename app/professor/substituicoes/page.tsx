@@ -129,7 +129,7 @@ export default function ProfessorSubstituicoesPage() {
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-2">
-                <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-800 dark:bg-slate-900/70">
+                <div className="info-box rounded-2xl p-4">
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
                     Professor titular
                   </p>
@@ -138,7 +138,7 @@ export default function ProfessorSubstituicoesPage() {
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/70 bg-white/80 p-4 dark:border-slate-800 dark:bg-slate-900/70">
+                <div className="info-box rounded-2xl p-4">
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
                     Período
                   </p>
@@ -149,7 +149,7 @@ export default function ProfessorSubstituicoesPage() {
               </div>
 
               {item.motivo && (
-                <p className="mt-4 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                <p className="motivo mt-4 text-sm leading-6">
                   <strong>Motivo:</strong> {item.motivo}
                 </p>
               )}

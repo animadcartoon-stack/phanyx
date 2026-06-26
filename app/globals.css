@@ -2486,21 +2486,46 @@ html[data-theme="system"] .phanyx-professor-turmas-page .phanyx-busca-sugestao:h
 
 /* PROFESSOR - SUBSTITUIÇÕES DOCENTES */
 
-.phanyx-professor-substituicoes-page {
-  color: #0f172a;
-}
-
-html[data-theme="dark"] .phanyx-professor-substituicoes-page,
-html[data-theme="system"] .phanyx-professor-substituicoes-page {
-  color: #ffffff;
-}
-
 .phanyx-professor-substituicoes-page .substituicao-header {
   background: #ffffff !important;
   border-color: #dbe3ef !important;
 }
 
+.phanyx-professor-substituicoes-page .substituicao-card {
+  background: #ffffff !important;
+  border-color: #9333ea !important;
+  color: #0f172a !important;
+}
+
+.phanyx-professor-substituicoes-page .substituicao-card h2,
+.phanyx-professor-substituicoes-page .substituicao-card p,
+.phanyx-professor-substituicoes-page .substituicao-card strong {
+  color: #0f172a !important;
+}
+
+.phanyx-professor-substituicoes-page .substituicao-info {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
 html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-header {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-card {
+  background: #1e063b !important;
+  border-color: #7e22ce !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-card h2,
+html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-card p,
+html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-card strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-info {
   background: #111827 !important;
   border-color: #334155 !important;
 }
@@ -2510,54 +2535,19 @@ html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-hea
   border-color: #525252 !important;
 }
 
-.phanyx-professor-substituicoes-page .substituicao-card {
-  background: #f3e8ff !important;
-  border-color: #9333ea !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-card {
-  background: #1e063b !important;
-  border-color: #7e22ce !important;
-  color: #ffffff !important;
-}
-
 html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-card {
   background: #2f1b3d !important;
   border-color: #9333ea !important;
   color: #ffffff !important;
 }
 
-.phanyx-professor-substituicoes-page .substituicao-info {
-  background: rgba(255, 255, 255, 0.85) !important;
-  border-color: #e2e8f0 !important;
-}
-
-html[data-theme="dark"] .phanyx-professor-substituicoes-page .substituicao-info,
-html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-info {
-  background: rgba(15, 23, 42, 0.85) !important;
-  border-color: #334155 !important;
-}
-
-/* Ajuste somente no tema claro - Substituições Docentes */
-html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card {
-  background: #f5e8ff !important;
-  border-color: #9333ea !important;
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card h2,
-html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card p,
-html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card strong {
-  color: #0f172a !important;
-}
-
-html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-info {
-  background: #ffffff !important;
-  border-color: #d8b4fe !important;
-}
-
-html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card a {
-  background: #2563eb !important;
+html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-card h2,
+html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-card p,
+html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-card strong {
   color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-info {
+  background: #262626 !important;
+  border-color: #525252 !important;
 }
