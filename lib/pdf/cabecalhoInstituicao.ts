@@ -69,19 +69,30 @@ export async function desenharCabecalhoInstituicao({
 
   const logoImage = await carregarImagemPdf(pdfDoc, dados.logoUrl);
 
+  const MAX_WIDTH = 80;
+  const MAX_HEIGHT = 50;
+
+  const scale = Math.min(
+  MAX_WIDTH / logoImage.width,
+  MAX_HEIGHT / logoImage.height
+);
+
+const logoWidth = logoImage.width * scale;
+const logoHeight = logoImage.height * scale;
+
   if (logoImage) {
     const larguraLogo = 60;
     const escala = larguraLogo / logoImage.width;
     const alturaLogo = logoImage.height * escala;
 
     pagina.drawImage(logoImage, {
-      x: margem,
-      y: y - alturaLogo + 4,
-      width: larguraLogo,
-      height: alturaLogo,
-    });
+  x: margem,
+  y: y - logoHeight + 8,
+  width: logoWidth,
+  height: logoHeight,
+});
 
-    xTexto = margem + 62;
+    xTexto = margem + MAX_WIDTH + 12;
   }
 
   pagina.drawText(dados.nomeInstituicao || "Instituição", {

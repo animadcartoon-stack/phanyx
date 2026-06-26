@@ -219,15 +219,22 @@ const poloFiltro = poloIdParam
       y = altura - margem;
     }
 
-    function escrever(texto: string, x: number, yPos: number, tamanho = 9, bold = false) {
-      pagina.drawText(texto, {
-        x,
-        y: yPos,
-        size: tamanho,
-        font: bold ? fonteBold : fonteNormal,
-        color: rgb(0.08, 0.12, 0.2),
-      });
-    }
+    function escrever(
+  texto: string,
+  x: number,
+  yPos: number,
+  tamanho = 9,
+  bold = false,
+  color = rgb(0.08, 0.12, 0.2)
+) {
+  pagina.drawText(texto, {
+    x,
+    y: yPos,
+    size: tamanho,
+    font: bold ? fonteBold : fonteNormal,
+    color,
+  });
+}
 
     y = await desenharCabecalhoInstituicao({
   pdfDoc,
@@ -277,52 +284,88 @@ escrever(filtrosPdf.slice(3).join("   |   "), margem + 8, y - 30, 8);
 y -= 52;
 
     const larguraTabela = largura - margem * 2;
-    const larguraColuna = larguraTabela / Math.max(colunasPdf.length, 1);
+    const PESOS_COLUNAS: Record<string, number> = {
+  data: 10,
+  hora: 8,
+  tipo: 10,
+  curso: 18,
+  turma: 12,
+  disciplina: 20,
+  evento: 20,
+  professor: 18,
+  funcionario: 18,
+  departamento: 16,
+  polo: 14,
+  responsavel: 18,
+  status: 10,
+  local: 16,
+  observacoes: 24,
+};
+
+const pesoTotal = colunasPdf.reduce(
+  (s, c) => s + (PESOS_COLUNAS[c] ?? 12),
+  0
+);
+
+const largurasColunas = colunasPdf.map((coluna) => {
+  const peso = PESOS_COLUNAS[coluna] ?? 12;
+  return (peso / pesoTotal) * larguraTabela;
+});
 
     pagina.drawRectangle({
-      x: margem,
-      y: y - 8,
-      width: larguraTabela,
-      height: 20,
-      color: rgb(0.9, 0.93, 0.97),
-    });
+  x: margem,
+  y: y - 10,
+  width: larguraTabela,
+  height: 22,
+  color: rgb(0.12, 0.28, 0.64), // azul PHANYX
+});
 
     colunasPdf.forEach((coluna, index) => {
-      escrever(
-        cortarTexto(NOMES_COLUNAS[coluna] || coluna, 16),
-        margem + index * larguraColuna + 4,
-        y,
-        7,
-        true
-      );
-    });
+  escrever(
+    cortarTexto(NOMES_COLUNAS[coluna] || coluna, 16),
+    margem +
+largurasColunas
+  .slice(0, index)
+  .reduce((s, l) => s + l, 0) +
+4,
+    y,
+    7,
+    true,
+    rgb(1, 1, 1) // texto branco
+  );
+});
 
-    y -= 24;
+y -= 24;
 
     agenda.forEach((item: any, linhaIndex: number) => {
       if (y < 50) {
-        novaPagina();
+  novaPagina();
 
-        pagina.drawRectangle({
-          x: margem,
-          y: y - 8,
-          width: larguraTabela,
-          height: 20,
-          color: rgb(0.9, 0.93, 0.97),
-        });
+  pagina.drawRectangle({
+    x: margem,
+    y: y - 10,
+    width: larguraTabela,
+    height: 22,
+    color: rgb(0.12, 0.28, 0.64),
+  });
 
-        colunasPdf.forEach((coluna, index) => {
-          escrever(
-            cortarTexto(NOMES_COLUNAS[coluna] || coluna, 16),
-            margem + index * larguraColuna + 4,
-            y,
-            7,
-            true
-          );
-        });
+  colunasPdf.forEach((coluna, index) => {
+    escrever(
+      cortarTexto(NOMES_COLUNAS[coluna] || coluna, 16),
+      margem +
+largurasColunas
+  .slice(0, index)
+  .reduce((s, l) => s + l, 0) +
+4,
+      y,
+      7,
+      true,
+      rgb(1, 1, 1)
+    );
+  });
 
-        y -= 24;
-      }
+  y -= 24;
+}
 
       if (linhaIndex % 2 === 0) {
         pagina.drawRectangle({
@@ -335,13 +378,25 @@ y -= 52;
       }
 
       colunasPdf.forEach((coluna, index) => {
-        escrever(
-          cortarTexto(String(textoItem(item, coluna)), 22),
-          margem + index * larguraColuna + 4,
-          y,
-          7
-        );
-      });
+  const limiteCaracteres = Math.max(
+    8,
+    Math.floor(largurasColunas[index] / 5)
+  );
+
+  escrever(
+    cortarTexto(
+      String(textoItem(item, coluna)),
+      limiteCaracteres
+    ),
+    margem +
+      largurasColunas
+        .slice(0, index)
+        .reduce((s, l) => s + l, 0) +
+      4,
+    y - 1,
+    7
+  );
+});
 
       y -= 18;
     });
