@@ -4,6 +4,12 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 
+function inicioDoDia(data: Date) {
+  const d = new Date(data);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -19,6 +25,7 @@ export async function GET() {
       },
       select: {
         id: true,
+        nome: true,
       },
     });
 
@@ -29,22 +36,71 @@ export async function GET() {
       );
     }
 
+    const hoje = inicioDoDia(new Date());
+
+    const substituicoesAtivas = await prisma.substituicaoDocente.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        professorSubstitutoId: professor.id,
+        status: {
+          notIn: ["CANCELADA", "ENCERRADA", "SUSPENSA"],
+        },
+        dataInicio: {
+          lte: hoje,
+        },
+        OR: [
+          {
+            dataFim: null,
+          },
+          {
+            dataFim: {
+              gte: hoje,
+            },
+          },
+        ],
+      },
+      select: {
+        id: true,
+        professorTitularId: true,
+        turmaId: true,
+        disciplinaId: true,
+        dataInicio: true,
+        dataFim: true,
+        professorTitular: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+      },
+    });
+
+    const filtrosSubstituicao = substituicoesAtivas.map((sub) => ({
+      turmaId: sub.turmaId,
+      disciplinaId: sub.disciplinaId,
+    }));
+
     const aulas = await prisma.aula.findMany({
       where: {
         instituicaoId: user.instituicaoId,
-        disciplina: {
-          instituicaoId: user.instituicaoId,
-          OR: [
-            { professorId: professor.id },
-            {
-              professoresHabilitados: {
-                some: {
-                  professorId: professor.id,
+        OR: [
+          {
+            disciplina: {
+              instituicaoId: user.instituicaoId,
+              OR: [
+                { professorId: professor.id },
+                {
+                  professoresHabilitados: {
+                    some: {
+                      professorId: professor.id,
+                    },
+                  },
                 },
-              },
+              ],
             },
-          ],
-        },
+          },
+          ...filtrosSubstituicao,
+        ],
       },
       orderBy: {
         createdAt: "desc",
@@ -56,6 +112,14 @@ export async function GET() {
         duracaoMin: true,
         videoUrl: true,
         createdAt: true,
+        turmaId: true,
+        disciplinaId: true,
+        turma: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
         disciplina: {
           select: {
             id: true,
@@ -65,9 +129,31 @@ export async function GET() {
       },
     });
 
+    const aulasComContexto = aulas.map((aula) => {
+      const substituicao = substituicoesAtivas.find(
+        (sub) =>
+          sub.turmaId === aula.turmaId &&
+          sub.disciplinaId === aula.disciplinaId
+      );
+
+      return {
+        ...aula,
+        substituicaoAtiva: substituicao
+          ? {
+              id: substituicao.id,
+              professorTitular: substituicao.professorTitular,
+              dataInicio: substituicao.dataInicio,
+              dataFim: substituicao.dataFim,
+            }
+          : null,
+      };
+    });
+
     return NextResponse.json({
       ok: true,
-      aulas,
+      professor,
+      substituicoesAtivas,
+      aulas: aulasComContexto,
     });
   } catch (e: any) {
     console.error("ERRO AO LISTAR AULAS DO PROFESSOR:", e);
