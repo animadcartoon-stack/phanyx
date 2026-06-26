@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { desenharCabecalhoInstituicao } from "@/lib/pdf/cabecalhoInstituicao";
 import { desenharRodapeInstituicao } from "@/lib/pdf/rodapeInstituicao";
+import { TIPOS_AGENDA } from "@/lib/agenda/tiposAgenda";
 
 const COLUNAS_PDF_PADRAO = ["data", "hora", "tipo", "evento", "turma", "professor", "status"];
 
@@ -23,6 +24,24 @@ const NOMES_COLUNAS: Record<string, string> = {
   status: "Status",
   local: "Local",
   observacoes: "Observações",
+};
+
+const LARGURA_COLUNAS: Record<string, number> = {
+  data: 60,
+  hora: 45,
+  tipo: 70,
+  curso: 120,
+  turma: 90,
+  disciplina: 130,
+  evento: 160,
+  professor: 120,
+  funcionario: 120,
+  departamento: 100,
+  polo: 90,
+  responsavel: 110,
+  status: 70,
+  local: 110,
+  observacoes: 180,
 };
 
 function textoItem(item: any, coluna: string) {
@@ -145,6 +164,16 @@ const nomeInstituicao =
     }
 
     const agenda = dadosAgenda?.agenda || [];
+
+    const resumoAgenda = {
+  aulas: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.AULA).length,
+  provas: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.PROVA).length,
+  atividades: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.ATIVIDADE).length,
+  reunioes: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.REUNIAO).length,
+  ferias: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.FERIAS_RH).length,
+  escalas: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.ESCALA_RH).length,
+  semProfessor: agenda.filter((i: any) => i.tipo === TIPOS_AGENDA.SEM_PROFESSOR).length,
+};
 
     const periodoParam = req.nextUrl.searchParams.get("periodo");
 const cursoIdParam = req.nextUrl.searchParams.get("cursoId");
@@ -269,6 +298,16 @@ const filtrosPdf = [
   `Polo: ${poloFiltro?.nome || "Todos"}`,
 ];
 
+escrever(
+  `Eventos encontrados (${agenda.length})`,
+  margem,
+  y,
+  10,
+  true
+);
+
+y -= 16;
+
 pagina.drawRectangle({
   x: margem,
   y: y - 28,
@@ -282,6 +321,32 @@ escrever(filtrosPdf.slice(0, 3).join("   |   "), margem + 8, y - 18, 8);
 escrever(filtrosPdf.slice(3).join("   |   "), margem + 8, y - 30, 8);
 
 y -= 52;
+
+pagina.drawRectangle({
+  x: margem,
+  y: y - 58,
+  width: largura - margem * 2,
+  height: 62,
+  color: rgb(0.98, 0.99, 1),
+});
+
+escrever("Resumo da Agenda", margem + 8, y - 10, 10, true);
+
+escrever(`Aulas: ${resumoAgenda.aulas}`, margem + 12, y - 26, 8);
+escrever(`Provas: ${resumoAgenda.provas}`, margem + 150, y - 26, 8);
+escrever(`Atividades: ${resumoAgenda.atividades}`, margem + 290, y - 26, 8);
+escrever(`Reuniões: ${resumoAgenda.reunioes}`, margem + 450, y - 26, 8);
+
+escrever(`Férias RH: ${resumoAgenda.ferias}`, margem + 12, y - 44, 8);
+escrever(`Escalas RH: ${resumoAgenda.escalas}`, margem + 150, y - 44, 8);
+escrever(
+  `Sem professor: ${resumoAgenda.semProfessor}`,
+  margem + 290,
+  y - 44,
+  8
+);
+
+y -= 72;
 
     const larguraTabela = largura - margem * 2;
     const PESOS_COLUNAS: Record<string, number> = {

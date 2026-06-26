@@ -1,3 +1,28 @@
+import { TIPOS_AGENDA, TipoAgenda } from "@/lib/agenda/tiposAgenda";
+
+interface CriarEventoAgendaParams {
+  id: number | string;
+  tipo: TipoAgenda;
+  data: Date | string;
+
+  hora?: string;
+  curso?: string;
+  turma?: string;
+  disciplina?: string;
+  professor?: string;
+  funcionario?: string;
+  departamento?: string;
+  polo?: string;
+
+  titulo?: string;
+  evento?: string;
+  descricao?: string;
+  responsavel?: string;
+  local?: string;
+  observacoes?: string;
+  status?: string;
+}
+
 export function criarEventoAgenda({
   id,
   tipo,
@@ -17,7 +42,7 @@ export function criarEventoAgenda({
   local = "",
   observacoes = "",
   status = "",
-}: any) {
+}: CriarEventoAgendaParams) {
   return {
     id,
     tipo,

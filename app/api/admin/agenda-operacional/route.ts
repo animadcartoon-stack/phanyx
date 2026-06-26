@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { criarEventoAgenda } from "./agenda-builder";
 import { montarDisponibilidadeDocente } from "./disponibilidade-docente";
+import { TIPOS_AGENDA } from "@/lib/agenda/tiposAgenda";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -372,7 +373,7 @@ disponibilidadeDocente,
   return datas.map((dataAula) =>
   criarEventoAgenda({
   id: `aula-${item.id}-${dataAula.toISOString()}`,
-  tipo: "AULA",
+  tipo: TIPOS_AGENDA.AULA,
 
   data: dataAula,
   hora: item.horaInicio || "",
@@ -405,7 +406,7 @@ const agenda = [
   ...provas.map((item) =>
   criarEventoAgenda({
   id: `prova-${item.id}`,
-  tipo: "PROVA",
+  tipo: TIPOS_AGENDA.PROVA,
   data: item.disponivelEm || item.expiraEm,
   hora: item.disponivelEm
     ? new Date(item.disponivelEm).toLocaleTimeString("pt-BR", {
@@ -433,7 +434,7 @@ const agenda = [
   ...atividades.map((item) =>
   criarEventoAgenda({
   id: `atividade-${item.id}`,
-  tipo: "ATIVIDADE",
+  tipo: TIPOS_AGENDA.ATIVIDADE,
 
   data: item.prazo,
   hora: item.prazo
@@ -465,7 +466,7 @@ const agenda = [
   ...reunioes.map((item) =>
   criarEventoAgenda({
   id: `reuniao-${item.id}`,
-  tipo: "REUNIAO",
+  tipo: TIPOS_AGENDA.REUNIAO,
 
   data: item.dataHora,
   hora: item.dataHora
@@ -497,7 +498,7 @@ const agenda = [
   ...ferias.map((item) =>
   criarEventoAgenda({
   id: `ferias-${item.id}`,
-  tipo: "FERIAS",
+  tipo: TIPOS_AGENDA.FERIAS_RH,
 
   data: item.dataInicio,
   hora: "",
