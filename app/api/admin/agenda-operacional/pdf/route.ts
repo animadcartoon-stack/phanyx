@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { desenharCabecalhoInstituicao } from "@/lib/pdf/cabecalhoInstituicao";
 
 const COLUNAS_PDF_PADRAO = ["data", "hora", "tipo", "evento", "turma", "professor", "status"];
 
@@ -149,30 +150,29 @@ const nomeInstituicao =
       });
     }
 
-    escrever(nomeInstituicao, margem, y, 16, true);
-escrever("Agenda Operacional", margem, y - 20, 14, true);
+    y = await desenharCabecalhoInstituicao({
+  pdfDoc,
+  pagina,
+  fonteNormal,
+  fonteBold,
+  margem,
+  y,
+  dados: {
+    nomeInstituicao,
+    tituloRelatorio: "Agenda Operacional",
+    cnpj: configuracaoInstituicao?.cnpj,
+    telefone: configuracaoInstituicao?.telefone,
+    email: configuracaoInstituicao?.email,
+    cidade: configuracaoInstituicao?.cidade,
+    estado: configuracaoInstituicao?.estado,
+    logoUrl: configuracaoInstituicao?.logoUrl,
+  },
+});
 
-const linhaContato = [
-  configuracaoInstituicao?.cnpj
-    ? `CNPJ: ${configuracaoInstituicao.cnpj}`
-    : "",
-  configuracaoInstituicao?.telefone || "",
-  configuracaoInstituicao?.email || "",
-  [configuracaoInstituicao?.cidade, configuracaoInstituicao?.estado]
-    .filter(Boolean)
-    .join(" - "),
-]
-  .filter(Boolean)
-  .join(" • ");
+escrever(`Emitido em: ${new Date().toLocaleString("pt-BR")}`, margem, y, 9);
+escrever(`Usuário: ${usuario?.nome || "-"}`, margem + 260, y, 9);
 
-if (linhaContato) {
-  escrever(linhaContato, margem, y - 40, 8);
-}
-
-escrever(`Emitido em: ${new Date().toLocaleString("pt-BR")}`, margem, y - 58, 9);
-escrever(`Usuário: ${usuario?.nome || "-"}`, margem + 260, y - 58, 9);
-
-y -= 88;
+y -= 30;
 
     const larguraTabela = largura - margem * 2;
     const larguraColuna = larguraTabela / Math.max(colunasPdf.length, 1);
