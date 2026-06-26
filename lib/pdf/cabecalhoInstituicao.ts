@@ -11,6 +11,35 @@ type DadosCabecalhoInstituicao = {
   logoUrl?: string | null;
 };
 
+async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
+  if (!url) return null;
+
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+
+    if (!res.ok) {
+      console.warn("Não foi possível carregar a imagem institucional:", res.status);
+      return null;
+    }
+
+    const bytes = await res.arrayBuffer();
+
+    try {
+      return await pdfDoc.embedPng(bytes);
+    } catch {
+      try {
+        return await pdfDoc.embedJpg(bytes);
+      } catch {
+        console.warn("Imagem institucional não é PNG/JPG compatível com pdf-lib.");
+        return null;
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao buscar imagem institucional:", error);
+    return null;
+  }
+}
+
 export async function desenharCabecalhoInstituicao({
   pdfDoc,
   pagina,
@@ -30,42 +59,21 @@ export async function desenharCabecalhoInstituicao({
 }) {
   let xTexto = margem;
 
-  if (dados.logoUrl) {
-    try {
-      const resLogo = await fetch(dados.logoUrl);
+  const logoImage = await carregarImagemPdf(pdfDoc, dados.logoUrl);
 
-      if (resLogo.ok) {
-        const logoBytes = await resLogo.arrayBuffer();
-        
-        let logoImage;
+  if (logoImage) {
+    const larguraLogo = 48;
+    const escala = larguraLogo / logoImage.width;
+    const alturaLogo = logoImage.height * escala;
 
-try {
-  logoImage = await pdfDoc.embedPng(logoBytes);
-} catch {
-  try {
-    logoImage = await pdfDoc.embedJpg(logoBytes);
-  } catch {
-    logoImage = null;
-  }
-}
+    pagina.drawImage(logoImage, {
+      x: margem,
+      y: y - alturaLogo + 4,
+      width: larguraLogo,
+      height: alturaLogo,
+    });
 
-if (!logoImage) {
-  console.warn("Logo institucional não pôde ser incorporada ao PDF.");
-  return y - 72;
-}
-
-        pagina.drawImage(logoImage, {
-  x: margem,
-  y: y - 42,
-  width: 44,
-  height: 44,
-});
-
-xTexto = margem + 56;
-      }
-    } catch (error) {
-      console.error("Erro ao carregar logo institucional no PDF:", error);
-    }
+    xTexto = margem + 62;
   }
 
   pagina.drawText(dados.nomeInstituicao || "Instituição", {
