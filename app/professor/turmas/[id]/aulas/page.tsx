@@ -205,11 +205,15 @@ export default function AulasDaTurmaPage() {
   ? turmasData.turmas
   : [];
 
-const turmaEncontrada = listaTurmas.find(
-  (t: TurmaApi) =>
-    Number(t.id) === turmaId &&
-    Number(t.disciplina?.id) === disciplinaId
-);
+const turmaEncontrada = listaTurmas.find((t: any) => {
+  const idDaTurma = Number(t.id);
+  const idDaDisciplina =
+    Number(t.disciplina?.id) ||
+    Number(t.disciplinaId) ||
+    Number(t.disciplina?.disciplinaId);
+
+  return idDaTurma === turmaId && idDaDisciplina === disciplinaId;
+});
 
       if (!turmaEncontrada) {
   throw new Error(
