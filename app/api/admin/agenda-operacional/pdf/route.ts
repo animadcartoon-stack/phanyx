@@ -93,6 +93,8 @@ const configuracaoInstituicao =
     },
   });
 
+  console.log("LOGO:", configuracaoInstituicao?.logoUrl);
+
 const instituicao = await prisma.instituicao.findUnique({
   where: {
     id: user.instituicaoId,
