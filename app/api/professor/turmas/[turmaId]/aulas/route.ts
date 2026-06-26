@@ -2,6 +2,67 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+function inicioDoDia(data: Date) {
+  const d = new Date(data);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+async function professorPodeAcessarTurmaDisciplina({
+  instituicaoId,
+  professorId,
+  turmaId,
+  disciplinaId,
+}: {
+  instituicaoId: number;
+  professorId: number;
+  turmaId: number;
+  disciplinaId: number;
+}) {
+  const hoje = inicioDoDia(new Date());
+
+  const vinculoTitularOuHabilitado = await prisma.turmaDisciplina.findFirst({
+    where: {
+      turmaId,
+      disciplinaId,
+      instituicaoId,
+      OR: [
+        { professorId },
+        { disciplina: { professorId } },
+        {
+          disciplina: {
+            professoresHabilitados: {
+              some: { professorId },
+            },
+          },
+        },
+      ],
+    },
+    select: { id: true },
+  });
+
+  if (vinculoTitularOuHabilitado) return true;
+
+  const substituicaoAtiva = await prisma.substituicaoDocente.findFirst({
+    where: {
+      instituicaoId,
+      professorSubstitutoId: professorId,
+      turmaId,
+      disciplinaId,
+      status: {
+        notIn: ["CANCELADA", "ENCERRADA", "SUSPENSA"],
+      },
+      dataInicio: {
+        lte: hoje,
+      },
+      OR: [{ dataFim: null }, { dataFim: { gte: hoje } }],
+    },
+    select: { id: true },
+  });
+
+  return Boolean(substituicaoAtiva);
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ turmaId: string }> }
@@ -45,30 +106,14 @@ export async function GET(
   );
 }
 
-const turmaDisciplina = await prisma.turmaDisciplina.findFirst({
-  where: {
-    turmaId,
-    disciplinaId,
-    instituicaoId: user.instituicaoId,
-    disciplina: {
-      OR: [
-        { professorId: professor.id },
-        {
-          professoresHabilitados: {
-            some: {
-              professorId: professor.id,
-            },
-          },
-        },
-      ],
-    },
-  },
-  select: {
-    turmaId: true,
-  },
+const podeAcessar = await professorPodeAcessarTurmaDisciplina({
+  instituicaoId: user.instituicaoId,
+  professorId: professor.id,
+  turmaId,
+  disciplinaId,
 });
 
-    if (!turmaDisciplina) {
+if (!podeAcessar) {
   return NextResponse.json(
     { error: "Disciplina não encontrada nesta turma ou professor sem permissão" },
     { status: 403 }
@@ -191,38 +236,14 @@ if (
   );
 }
 
-const turmaDisciplina = await prisma.turmaDisciplina.findFirst({
-  where: {
-    turmaId: turma.id,
-    disciplinaId,
-    instituicaoId: user.instituicaoId,
-    OR: [
-      {
-        professorId: professor.id,
-      },
-      {
-        disciplina: {
-          professorId: professor.id,
-        },
-      },
-      {
-        disciplina: {
-          professoresHabilitados: {
-            some: {
-              professorId: professor.id,
-            },
-          },
-        },
-      },
-      
-    ],
-  },
-  select: {
-    id: true,
-  },
+const podeAcessar = await professorPodeAcessarTurmaDisciplina({
+  instituicaoId: user.instituicaoId,
+  professorId: professor.id,
+  turmaId: turma.id,
+  disciplinaId,
 });
 
-if (!turmaDisciplina) {
+if (!podeAcessar) {
   return NextResponse.json(
     { error: "Disciplina não pertence a esta turma ou professor sem permissão" },
     { status: 403 }
