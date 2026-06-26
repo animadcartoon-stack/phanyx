@@ -12,6 +12,15 @@ type AulaProfessor = {
   turma?: {
     nome?: string;
   };
+  substituicaoAtiva?: {
+    id: number;
+    professorTitular?: {
+      id: number;
+      nome: string;
+    } | null;
+    dataInicio?: string | null;
+    dataFim?: string | null;
+  } | null;
 };
 
 export default function ProfessorAulasPage() {
@@ -51,6 +60,11 @@ export default function ProfessorAulasPage() {
 
     carregar();
   }, []);
+
+  function formatarData(data?: string | null) {
+  if (!data) return "sem previsão";
+  return new Date(data).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+}
 
   return (
     <main className="space-y-5 px-1 py-2 text-slate-900 sm:px-0">
@@ -101,6 +115,26 @@ export default function ProfessorAulasPage() {
                 {aula.titulo || aula.nome || "Aula sem título"}
               </h2>
 
+{aula.substituicaoAtiva && (
+  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+    <p className="font-black">
+      🔁 Substituição em andamento
+    </p>
+
+    <p className="mt-1">
+      Titular:{" "}
+      <strong>
+        {aula.substituicaoAtiva.professorTitular?.nome || "-"}
+      </strong>
+    </p>
+
+    <p>
+      Período: {formatarData(aula.substituicaoAtiva.dataInicio)} até{" "}
+      {formatarData(aula.substituicaoAtiva.dataFim)}
+    </p>
+  </div>
+)}
+
               <div className="mt-4 space-y-2 text-sm leading-6 text-slate-600">
                 <p>
                   <strong className="font-semibold text-slate-800">
@@ -121,7 +155,7 @@ export default function ProfessorAulasPage() {
                 href={`/professor/aulas/${aula.id}/materiais/novo`}
                 className="mt-5 inline-flex w-full items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
               >
-                Adicionar material
+                {aula.substituicaoAtiva ? "Adicionar material como substituto" : "Adicionar material"}
               </a>
             </article>
           ))}

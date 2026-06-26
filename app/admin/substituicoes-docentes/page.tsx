@@ -77,6 +77,8 @@ export default function SubstituicoesDocentesPage() {
   const [salvando, setSalvando] = useState(false);
 
   const [modalAberto, setModalAberto] = useState(false);
+  const [substituicaoVisualizada, setSubstituicaoVisualizada] =
+  useState<SubstituicaoDocente | null>(null);
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
 
@@ -417,11 +419,12 @@ export default function SubstituicoesDocentesPage() {
                       </td>
                       <td className="px-4 py-3">
                         <button
-                          type="button"
-                          className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-                        >
-                          Visualizar
-                        </button>
+  type="button"
+  onClick={() => setSubstituicaoVisualizada(item)}
+  className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+>
+  Visualizar
+</button>
                       </td>
                     </tr>
                   ))}
@@ -572,6 +575,121 @@ export default function SubstituicoesDocentesPage() {
           </div>
         </div>
       )}
+
+      {substituicaoVisualizada && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 p-4">
+    <div className="w-full max-w-4xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
+            Registro oficial
+          </p>
+
+          <h2 className="mt-1 text-xl font-black text-slate-900 dark:text-white">
+            Substituição Docente
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            Detalhes da substituição cadastrada no PHANYX.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setSubstituicaoVisualizada(null)}
+          className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+        >
+          Fechar
+        </button>
+      </div>
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2">
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Status
+          </p>
+          <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+            {substituicaoVisualizada.status}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Período
+          </p>
+          <p className="mt-1 text-lg font-black text-slate-900 dark:text-white">
+            {formatarData(substituicaoVisualizada.dataInicio)} até{" "}
+            {formatarData(substituicaoVisualizada.dataFim)}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Professor titular
+          </p>
+          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+            {substituicaoVisualizada.professorTitular?.nome || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Professor substituto
+          </p>
+          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+            {substituicaoVisualizada.professorSubstituto?.nome || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Curso
+          </p>
+          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+            {substituicaoVisualizada.curso?.nome || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Turma
+          </p>
+          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+            {substituicaoVisualizada.turma?.nome || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Disciplina
+          </p>
+          <p className="mt-1 text-base font-black text-slate-900 dark:text-white">
+            {substituicaoVisualizada.disciplina?.nome || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Motivo
+          </p>
+          <p className="mt-1 text-sm leading-6 text-slate-700 dark:text-slate-200">
+            {substituicaoVisualizada.motivo || "-"}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-900 md:col-span-2">
+          <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
+            Observações
+          </p>
+          <p className="mt-1 whitespace-pre-wrap text-sm leading-6 text-slate-700 dark:text-slate-200">
+            {substituicaoVisualizada.observacoes || "-"}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
     </main>
   );
 }
