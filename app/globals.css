@@ -2339,3 +2339,89 @@ html[data-theme="system"] .agenda-operacional-checkbox:hover {
   background: #333333 !important;
   color: #ffffff !important;
 }
+
+/* =========================================
+   SUBSTITUIÇÕES DOCENTES - CLARO / ESCURO / SISTEMA
+========================================= */
+
+.phanyx-substituicoes-page h1,
+.phanyx-substituicoes-page h2,
+.phanyx-substituicoes-page h3,
+.phanyx-substituicoes-page p,
+.phanyx-substituicoes-page span,
+.phanyx-substituicoes-page label,
+.phanyx-substituicoes-page td,
+.phanyx-substituicoes-page th,
+.phanyx-substituicoes-page strong {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-substituicoes-page,
+html[data-theme="light"] .phanyx-substituicoes-page * {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-substituicoes-page p,
+html[data-theme="light"] .phanyx-substituicoes-page .text-slate-500,
+html[data-theme="light"] .phanyx-substituicoes-page .text-slate-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-substituicoes-page input,
+html[data-theme="light"] .phanyx-substituicoes-page select,
+html[data-theme="light"] .phanyx-substituicoes-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-substituicoes-page input::placeholder,
+html[data-theme="light"] .phanyx-substituicoes-page textarea::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-substituicoes-page button.bg-blue-600,
+html[data-theme="light"] .phanyx-substituicoes-page button.bg-blue-600 * {
+  color: #ffffff !important;
+}
+
+/* Sistema: cinza, sem azul nos selects/filtros */
+html[data-theme="system"] .phanyx-substituicoes-page {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-substituicoes-page input,
+html[data-theme="system"] .phanyx-substituicoes-page select,
+html[data-theme="system"] .phanyx-substituicoes-page textarea {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  background-image: none !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-substituicoes-page option {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+/* Modal no sistema */
+html[data-theme="system"] .phanyx-substituicoes-page .fixed .rounded-3xl {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+/* Escuro */
+html[data-theme="dark"] .phanyx-substituicoes-page input,
+html[data-theme="dark"] .phanyx-substituicoes-page select,
+html[data-theme="dark"] .phanyx-substituicoes-page textarea {
+  background: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #374151 !important;
+}
+
+html[data-theme="dark"] .phanyx-substituicoes-page option {
+  background: #111827 !important;
+  color: #f8fafc !important;
+}
