@@ -29,26 +29,69 @@ export async function GET() {
       );
     }
 
+    const hoje = new Date();
+hoje.setHours(0, 0, 0, 0);
+
+const substituicoes = await prisma.substituicaoDocente.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    professorSubstitutoId: professor.id,
+    status: {
+      notIn: ["CANCELADA", "ENCERRADA", "SUSPENSA"],
+    },
+    dataInicio: {
+      lte: hoje,
+    },
+    OR: [
+      {
+        dataFim: null,
+      },
+      {
+        dataFim: {
+          gte: hoje,
+        },
+      },
+    ],
+  },
+  select: {
+    turmaId: true,
+    disciplinaId: true,
+  },
+});
+
+const filtrosSubstituicao = substituicoes.map((s) => ({
+  id: s.turmaId,
+}));
+
     const turmas = await prisma.turma.findMany({
       where: {
-        instituicaoId: user.instituicaoId,
-        disciplinas: {
-          some: {
-            disciplina: {
-              OR: [
-                { professorId: professor.id },
-                {
-                  professoresHabilitados: {
-                    some: {
-                      professorId: professor.id,
-                    },
+  instituicaoId: user.instituicaoId,
+
+  OR: [
+    {
+      disciplinas: {
+        some: {
+          disciplina: {
+            OR: [
+              {
+                professorId: professor.id,
+              },
+              {
+                professoresHabilitados: {
+                  some: {
+                    professorId: professor.id,
                   },
                 },
-              ],
-            },
+              },
+            ],
           },
         },
       },
+    },
+
+    ...filtrosSubstituicao,
+  ],
+},
       include: {
         disciplinas: {
           where: {
@@ -89,25 +132,41 @@ export async function GET() {
 
     return NextResponse.json(
       turmas.flatMap((t) =>
-        t.disciplinas.map((item) => ({
-          id: t.id,
-          turmaDisciplinaId: item.id,
-          nome: t.nome,
-          semestre: t.semestre,
-          periodoLetivo: t.periodoLetivo,
-          statusTurma: t.statusTurma,
-          alunos: t.itensMatricula.length,
+        t.disciplinas
+  .filter((item) => {
+    const professorDaDisciplina =
+      item.disciplina?.professorId === professor.id;
 
-          curso: item.disciplina?.curso ?? null,
+    const habilitado =
+      item.disciplina?.professoresHabilitados?.some(
+        (p) => p.professorId === professor.id
+      );
 
-          disciplinaId: item.disciplinaId,
-          disciplina: item.disciplina,
+    const substituicao = substituicoes.some(
+      (s) => s.turmaId === t.id && s.disciplinaId === item.disciplinaId
+    );
 
-          statusDisciplina: item.status,
-          dataInicio: item.dataInicio,
-          dataFim: item.dataFim,
-          horarios: item.horarios || [],
-        }))
+    return professorDaDisciplina || habilitado || substituicao;
+  })
+  .map((item) => ({
+    id: t.id,
+    turmaDisciplinaId: item.id,
+    nome: t.nome,
+    semestre: t.semestre,
+    periodoLetivo: t.periodoLetivo,
+    statusTurma: t.statusTurma,
+    alunos: t.itensMatricula.length,
+
+    curso: item.disciplina?.curso ?? null,
+
+    disciplinaId: item.disciplinaId,
+    disciplina: item.disciplina,
+
+    statusDisciplina: item.status,
+    dataInicio: item.dataInicio,
+    dataFim: item.dataFim,
+    horarios: item.horarios || [],
+  }))
       )
     );
   } catch (e: any) {
