@@ -2551,3 +2551,21 @@ html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-inf
   background: #262626 !important;
   border-color: #525252 !important;
 }
+
+/* Descrição da página */
+
+.phanyx-professor-substituicoes-page .substituicao-descricao {
+  color: #475569;
+}
+
+html[data-theme="dark"]
+.phanyx-professor-substituicoes-page
+.substituicao-descricao {
+  color: #cbd5e1;
+}
+
+html[data-theme="system"]
+.phanyx-professor-substituicoes-page
+.substituicao-descricao {
+  color: #d4d4d8;
+}

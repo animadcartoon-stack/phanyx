@@ -69,10 +69,10 @@ export default function ProfessorSubstituicoesPage() {
         Substituições Docentes
       </h1>
 
-      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-        Veja as turmas e disciplinas em que você está atuando como professor
-        substituto. Use sempre seu próprio login.
-      </p>
+      <p className="substituicao-descricao mt-2 text-sm">
+  Veja as turmas e disciplinas em que você está atuando como professor
+  substituto. Use sempre seu próprio login.
+</p>
     </section>
 
       {loading && (
