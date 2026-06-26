@@ -42,6 +42,25 @@ function cortarTexto(texto: string, limite: number) {
   return texto.length > limite ? `${texto.slice(0, limite - 3)}...` : texto;
 }
 
+function nomePeriodo(periodo?: string | null) {
+  switch (periodo) {
+    case "DIA":
+      return "Hoje";
+    case "SEMANA":
+      return "Semana";
+    case "MES":
+      return "Mês";
+    case "SEMESTRE_1":
+      return "1º semestre";
+    case "SEMESTRE_2":
+      return "2º semestre";
+    case "ANO":
+      return "Ano";
+    default:
+      return "Semana";
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -125,6 +144,63 @@ const nomeInstituicao =
 
     const agenda = dadosAgenda?.agenda || [];
 
+    const periodoParam = req.nextUrl.searchParams.get("periodo");
+const cursoIdParam = req.nextUrl.searchParams.get("cursoId");
+const turmaIdParam = req.nextUrl.searchParams.get("turmaId");
+const professorIdParam = req.nextUrl.searchParams.get("professorId");
+const departamentoIdParam = req.nextUrl.searchParams.get("departamentoId");
+const poloIdParam = req.nextUrl.searchParams.get("poloId");
+
+const cursoFiltro = cursoIdParam
+  ? await prisma.curso.findFirst({
+      where: {
+        id: Number(cursoIdParam),
+        instituicaoId: user.instituicaoId,
+      },
+      select: { nome: true },
+    })
+  : null;
+
+const turmaFiltro = turmaIdParam
+  ? await prisma.turma.findFirst({
+      where: {
+        id: Number(turmaIdParam),
+        instituicaoId: user.instituicaoId,
+      },
+      select: { nome: true },
+    })
+  : null;
+
+const professorFiltro = professorIdParam
+  ? await prisma.professor.findFirst({
+      where: {
+        id: Number(professorIdParam),
+        instituicaoId: user.instituicaoId,
+      },
+      select: { nome: true },
+    })
+  : null;
+
+const departamentoFiltro = departamentoIdParam
+  ? await prisma.departamento.findFirst({
+      where: {
+        id: Number(departamentoIdParam),
+        instituicaoId: user.instituicaoId,
+      },
+      select: { nome: true },
+    })
+  : null;
+
+const poloFiltro = poloIdParam
+  ? await prisma.polo.findFirst({
+      where: {
+        id: Number(poloIdParam),
+        instituicaoId: user.instituicaoId,
+      },
+      select: { nome: true },
+    })
+  : null;
+
     const pdfDoc = await PDFDocument.create();
     const fonteNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fonteBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
@@ -173,7 +249,30 @@ const nomeInstituicao =
 escrever(`Emitido em: ${new Date().toLocaleString("pt-BR")}`, margem, y, 9);
 escrever(`Usuário: ${usuario?.nome || "-"}`, margem + 260, y, 9);
 
-y -= 30;
+y -= 26;
+
+const filtrosPdf = [
+  `Período: ${nomePeriodo(periodoParam)}`,
+  `Curso: ${cursoFiltro?.nome || "Todos"}`,
+  `Turma: ${turmaFiltro?.nome || "Todas"}`,
+  `Professor: ${professorFiltro?.nome || "Todos"}`,
+  `Departamento: ${departamentoFiltro?.nome || "Todos"}`,
+  `Polo: ${poloFiltro?.nome || "Todos"}`,
+];
+
+pagina.drawRectangle({
+  x: margem,
+  y: y - 28,
+  width: largura - margem * 2,
+  height: 34,
+  color: rgb(0.96, 0.97, 0.99),
+});
+
+escrever("Filtros utilizados", margem + 8, y - 4, 9, true);
+escrever(filtrosPdf.slice(0, 3).join("   |   "), margem + 8, y - 18, 8);
+escrever(filtrosPdf.slice(3).join("   |   "), margem + 8, y - 30, 8);
+
+y -= 52;
 
     const larguraTabela = largura - margem * 2;
     const larguraColuna = larguraTabela / Math.max(colunasPdf.length, 1);
