@@ -433,7 +433,7 @@ function abrirPdfAgenda() {
   </h2>
 
   <p className="text-sm text-slate-600 dark:text-slate-400">
-    Personalize a visualização da Agenda Operacional. Configure independentemente as colunas exibidas na tela, no PDF e na exportação para Excel. Essas preferências ficam salvas para seu usuário.
+    Personalize a visualização da Agenda Operacional. Configure independentemente as colunas exibidas na tela, no PDF e na exportação para Excel. 
   </p>
 </div>
 
