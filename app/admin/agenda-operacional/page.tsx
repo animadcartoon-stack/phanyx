@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import PhanyxSelect from "@/components/ui/PhanyxSelect";
 
 type PeriodoFiltro =
   | "DIA"
@@ -293,19 +294,18 @@ function abrirPdfAgenda() {
     className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
   />
 
-  <select
+  <PhanyxSelect
   value={cursoId}
-  onChange={(e) => setCursoId(e.target.value)}
-  className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
->
-  <option value="">Todos os cursos</option>
-
-  {cursos.map((curso) => (
-    <option key={curso.id} value={curso.id}>
-      {curso.nome}
-    </option>
-  ))}
-</select>
+  onChange={setCursoId}
+  placeholder="Todos os cursos"
+  options={[
+    { value: "", label: "Todos os cursos" },
+    ...cursos.map((curso) => ({
+      value: String(curso.id),
+      label: curso.nome,
+    })),
+  ]}
+/>
 
   <select
     value={turmaId}
