@@ -586,7 +586,7 @@ const gruposPorCurso = useMemo(() => {
   }
 
   return (
-    <main className="min-h-screen space-y-6 bg-slate-50 p-8 text-gray-900">
+    <main className="phanyx-professor-turmas-page min-h-screen space-y-6 bg-slate-50 p-8 text-gray-900">
       <button onClick={() => router.back()} className="text-blue-600 hover:underline">
         ← Voltar
       </button>
@@ -602,19 +602,33 @@ const gruposPorCurso = useMemo(() => {
           Organização por turma, turno e disciplina para facilitar a rotina do professor.
         </p>
 
-        <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-800">
-          Hoje é <strong>{hoje}</strong>.
-          {feriado ? (
-            <span className="mt-1 block">
-              🎉 Bom feriado! Hoje é <strong>{feriado}</strong>. Verifique se sua instituição mantém
-              aula presencial, EAD, reposição ou atividade gravada.
-            </span>
-          ) : (
-            <span className="mt-1 block">
-              As turmas com aula hoje ficam destacadas em verde para ajudar no preparo das aulas.
-            </span>
-          )}
-        </div>
+        <div
+  className="
+    mt-4
+    rounded-2xl
+    border
+    border-sky-500/30
+    bg-sky-950/30
+    p-4
+  "
+>
+  <p className="font-semibold text-sky-100">
+    Hoje é <strong>{hoje}</strong>.
+  </p>
+
+  {feriado ? (
+    <p className="mt-2 text-sky-200">
+      🎉 <strong>Bom feriado!</strong> Hoje é{" "}
+      <strong>{feriado}</strong>. Verifique se sua instituição mantém
+      aula presencial, EAD, reposição ou atividade gravada.
+    </p>
+  ) : (
+    <p className="mt-2 text-sky-200">
+      As turmas com aula hoje ficam <strong>destacadas em verde</strong> para
+      ajudar no preparo das aulas.
+    </p>
+  )}
+</div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-[1fr_auto]">
           <div className="relative">
@@ -653,17 +667,40 @@ const gruposPorCurso = useMemo(() => {
   `/professor/turmas/${item.turmaId}/aulas?disciplinaId=${item.disciplinaId || ""}`
 );
 }}
-            className="w-full rounded-xl px-3 py-3 text-left hover:bg-blue-50"
+            className="
+w-full
+rounded-xl
+px-3
+py-3
+text-left
+transition
+hover:bg-blue-600/20
+dark:hover:bg-blue-500/20
+"
           >
-            <p className="text-sm font-black text-slate-900">
+            <p className="
+text-sm
+font-black
+text-slate-900
+dark:text-white
+">
               {item.disciplinaNome}
             </p>
 
-            <p className="text-xs text-slate-600">
+            <p className="
+text-xs
+text-slate-600
+dark:text-slate-300
+">
               Turma {item.turmaNome} • {item.periodo}
             </p>
 
-            <p className="text-xs font-semibold text-blue-700">
+            <p className="
+text-xs
+font-semibold
+text-blue-700
+dark:text-sky-300
+">
               {item.cursoNome}
             </p>
           </button>

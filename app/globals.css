@@ -2425,3 +2425,61 @@ html[data-theme="dark"] .phanyx-substituicoes-page option {
   background: #111827 !important;
   color: #f8fafc !important;
 }
+
+/* =========================================
+   PROFESSOR - TURMAS / CLARO, ESCURO E SISTEMA
+========================================= */
+
+.phanyx-professor-turmas-page .phanyx-aula-hoje-aviso {
+  border-color: rgba(14, 165, 233, 0.35) !important;
+  background: rgba(8, 47, 73, 0.35) !important;
+  color: #bae6fd !important;
+}
+
+.phanyx-professor-turmas-page .phanyx-aula-hoje-aviso p,
+.phanyx-professor-turmas-page .phanyx-aula-hoje-aviso strong {
+  color: #e0f2fe !important;
+}
+
+html[data-theme="light"] .phanyx-professor-turmas-page .phanyx-aula-hoje-aviso {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e40af !important;
+}
+
+html[data-theme="light"] .phanyx-professor-turmas-page .phanyx-aula-hoje-aviso p,
+html[data-theme="light"] .phanyx-professor-turmas-page .phanyx-aula-hoje-aviso strong {
+  color: #1e3a8a !important;
+}
+
+/* Sugestões da busca */
+.phanyx-professor-turmas-page .phanyx-busca-sugestoes {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-professor-turmas-page .phanyx-busca-sugestao {
+  color: #0f172a !important;
+}
+
+.phanyx-professor-turmas-page .phanyx-busca-sugestao:hover {
+  background: #dbeafe !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page .phanyx-busca-sugestoes,
+html[data-theme="system"] .phanyx-professor-turmas-page .phanyx-busca-sugestoes {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page .phanyx-busca-sugestao,
+html[data-theme="system"] .phanyx-professor-turmas-page .phanyx-busca-sugestao {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page .phanyx-busca-sugestao:hover,
+html[data-theme="system"] .phanyx-professor-turmas-page .phanyx-busca-sugestao:hover {
+  background: #1e40af !important;
+  color: #ffffff !important;
+}
