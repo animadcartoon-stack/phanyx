@@ -2538,3 +2538,26 @@ html[data-theme="system"] .phanyx-professor-substituicoes-page .substituicao-inf
   background: rgba(15, 23, 42, 0.85) !important;
   border-color: #334155 !important;
 }
+
+/* Ajuste somente no tema claro - Substituições Docentes */
+html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card {
+  background: #f5e8ff !important;
+  border-color: #9333ea !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card h2,
+html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card p,
+html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card strong {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-info {
+  background: #ffffff !important;
+  border-color: #d8b4fe !important;
+}
+
+html[data-theme="light"] .phanyx-professor-substituicoes-page .substituicao-card a {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
