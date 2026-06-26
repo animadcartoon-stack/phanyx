@@ -2617,3 +2617,33 @@ html[data-theme="system"] .professor-sidebar {
 html[data-theme="system"] .professor-sidebar a {
   color: #ffffff !important;
 }
+
+/* AVISO INTELIGENTE PHANYX - CLARO / ESCURO / SISTEMA */
+
+html[data-theme="light"] .phanyx-aviso-inteligente,
+html[data-theme="light"] .phanyx-aviso-inteligente * {
+  opacity: 1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-aviso-inteligente {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-aviso-inteligente p,
+html[data-theme="light"] .phanyx-aviso-inteligente span {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-aviso-inteligente .text-blue-300,
+html[data-theme="light"] .phanyx-aviso-inteligente .text-blue-700 {
+  color: #2563eb !important;
+}
+
+html[data-theme="light"] .phanyx-aviso-inteligente button,
+html[data-theme="light"] .phanyx-aviso-inteligente a {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}

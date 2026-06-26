@@ -26,6 +26,7 @@ export default function AvisoInteligenteBanner() {
   if (!visivel) return null;
 
   return (
+  <div className="phanyx-aviso-inteligente">
     <BannerPhanyx
       aviso={{
         titulo: aviso.titulo,
@@ -38,5 +39,6 @@ export default function AvisoInteligenteBanner() {
         onFechar: fecharAviso,
       }}
     />
-  );
+  </div>
+);
 }
