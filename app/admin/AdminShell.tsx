@@ -444,6 +444,13 @@ function abrirTourAdmin() {
                       👨‍🏫 Professores
                     </Link>
 
+<Link
+  href="/admin/substituicoes-docentes"
+  className={getLinkClass("/admin/substituicoes-docentes")}
+>
+  🔁 Substituições Docentes
+</Link>
+
                     <Link
                       href="/admin/funcionarios"
                       className={getLinkClass("/admin/funcionarios")}
@@ -877,6 +884,12 @@ function abrirTourAdmin() {
             <Link href="/admin/professores" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               👨‍🏫 Professores
             </Link>
+            <Link
+  href="/admin/substituicoes-docentes"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  🔁 Substituições Docentes
+</Link>
             <Link href="/admin/funcionarios" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🧑‍💼 Funcionários
             </Link>

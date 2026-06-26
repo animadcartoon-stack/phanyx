@@ -1,0 +1,502 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+
+type StatusSubstituicao =
+  | "AGENDADA"
+  | "ATIVA"
+  | "SUSPENSA"
+  | "ENCERRADA"
+  | "CANCELADA";
+
+type Professor = {
+  id: number;
+  nome: string;
+};
+
+type Curso = {
+  id: number;
+  nome: string;
+};
+
+type Turma = {
+  id: number;
+  nome: string;
+  cursoId?: number | null;
+};
+
+type Disciplina = {
+  id: number;
+  nome: string;
+  cursoId?: number | null;
+};
+
+type SubstituicaoDocente = {
+  id: number;
+  status: StatusSubstituicao;
+  professorTitular?: Professor | null;
+  professorSubstituto?: Professor | null;
+  curso?: Curso | null;
+  turma?: Turma | null;
+  disciplina?: Disciplina | null;
+  dataInicio: string;
+  dataFim?: string | null;
+  motivo?: string | null;
+  observacoes?: string | null;
+};
+
+type FeedbackTipo = "sucesso" | "erro" | "";
+
+export default function SubstituicoesDocentesPage() {
+  const [substituicoes, setSubstituicoes] = useState<SubstituicaoDocente[]>([]);
+  const [professores, setProfessores] = useState<Professor[]>([]);
+  const [cursos, setCursos] = useState<Curso[]>([]);
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [disciplinas, setDisciplinas] = useState<Disciplina[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [salvando, setSalvando] = useState(false);
+
+  const [modalAberto, setModalAberto] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
+
+  const [busca, setBusca] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState("");
+
+  const [professorTitularId, setProfessorTitularId] = useState("");
+  const [professorSubstitutoId, setProfessorSubstitutoId] = useState("");
+  const [cursoId, setCursoId] = useState("");
+  const [turmaId, setTurmaId] = useState("");
+  const [disciplinaId, setDisciplinaId] = useState("");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [motivo, setMotivo] = useState("");
+  const [observacoes, setObservacoes] = useState("");
+
+  function mostrarFeedback(tipo: Exclude<FeedbackTipo, "">, mensagem: string) {
+    setFeedbackTipo(tipo);
+    setFeedback(mensagem);
+
+    setTimeout(() => {
+      setFeedback("");
+      setFeedbackTipo("");
+    }, 3500);
+  }
+
+  async function carregarDados() {
+    try {
+      setLoading(true);
+
+      const [resSub, resProf, resCursos, resTurmas, resDisciplinas] =
+        await Promise.all([
+          fetch("/api/admin/substituicoes-docentes", {
+            credentials: "include",
+            cache: "no-store",
+          }),
+          fetch("/api/professor", { credentials: "include" }),
+          fetch("/api/curso", { credentials: "include" }),
+          fetch("/api/turma", { credentials: "include" }),
+          fetch("/api/disciplina", { credentials: "include" }),
+        ]);
+
+      const sub = resSub.ok ? await resSub.json() : [];
+      const prof = resProf.ok ? await resProf.json() : [];
+      const cursosJson = resCursos.ok ? await resCursos.json() : [];
+      const turmasJson = resTurmas.ok ? await resTurmas.json() : [];
+      const disciplinasJson = resDisciplinas.ok ? await resDisciplinas.json() : [];
+
+      setSubstituicoes(Array.isArray(sub) ? sub : sub.items || []);
+      setProfessores(Array.isArray(prof) ? prof : []);
+      setCursos(Array.isArray(cursosJson) ? cursosJson : []);
+      setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
+      setDisciplinas(Array.isArray(disciplinasJson) ? disciplinasJson : []);
+    } catch {
+      mostrarFeedback("erro", "Erro ao carregar substituições docentes.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  const turmasFiltradas = useMemo(() => {
+    if (!cursoId) return turmas;
+    return turmas.filter((t) => String(t.cursoId || "") === cursoId);
+  }, [turmas, cursoId]);
+
+  const disciplinasFiltradas = useMemo(() => {
+    if (!cursoId) return disciplinas;
+    return disciplinas.filter((d) => String(d.cursoId || "") === cursoId);
+  }, [disciplinas, cursoId]);
+
+  const listaFiltrada = useMemo(() => {
+    const termo = busca.trim().toLowerCase();
+
+    return substituicoes.filter((item) => {
+      const texto = [
+        item.professorTitular?.nome,
+        item.professorSubstituto?.nome,
+        item.curso?.nome,
+        item.turma?.nome,
+        item.disciplina?.nome,
+        item.status,
+        item.motivo,
+      ]
+        .join(" ")
+        .toLowerCase();
+
+      const bateBusca = !termo || texto.includes(termo);
+      const bateStatus = !filtroStatus || item.status === filtroStatus;
+
+      return bateBusca && bateStatus;
+    });
+  }, [substituicoes, busca, filtroStatus]);
+
+  const resumo = useMemo(() => {
+    return {
+      ativas: substituicoes.filter((s) => s.status === "ATIVA").length,
+      agendadas: substituicoes.filter((s) => s.status === "AGENDADA").length,
+      encerradas: substituicoes.filter((s) => s.status === "ENCERRADA").length,
+      canceladas: substituicoes.filter((s) => s.status === "CANCELADA").length,
+      total: substituicoes.length,
+    };
+  }, [substituicoes]);
+
+  function limparFormulario() {
+    setProfessorTitularId("");
+    setProfessorSubstitutoId("");
+    setCursoId("");
+    setTurmaId("");
+    setDisciplinaId("");
+    setDataInicio("");
+    setDataFim("");
+    setMotivo("");
+    setObservacoes("");
+  }
+
+  async function criarSubstituicao(e: React.FormEvent) {
+    e.preventDefault();
+
+    try {
+      setSalvando(true);
+
+      const res = await fetch("/api/admin/substituicoes-docentes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          professorTitularId: Number(professorTitularId),
+          professorSubstitutoId: Number(professorSubstitutoId),
+          cursoId: cursoId ? Number(cursoId) : null,
+          turmaId: Number(turmaId),
+          disciplinaId: Number(disciplinaId),
+          dataInicio,
+          dataFim: dataFim || null,
+          motivo,
+          observacoes,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (!res.ok) {
+        throw new Error(json?.error || "Erro ao cadastrar substituição.");
+      }
+
+      limparFormulario();
+      setModalAberto(false);
+      await carregarDados();
+      mostrarFeedback("sucesso", "Substituição docente cadastrada com sucesso.");
+    } catch (e: any) {
+      mostrarFeedback("erro", e?.message || "Erro ao cadastrar substituição.");
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  function formatarData(data?: string | null) {
+    if (!data) return "-";
+    return new Date(data).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+  }
+
+  function statusClasse(status: StatusSubstituicao) {
+    if (status === "ATIVA") return "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300";
+    if (status === "AGENDADA") return "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300";
+    if (status === "ENCERRADA") return "border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200";
+    if (status === "CANCELADA") return "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300";
+    return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900 dark:bg-yellow-950/40 dark:text-yellow-300";
+  }
+
+  return (
+    <main className="space-y-6 text-slate-900 dark:text-slate-100">
+      {feedback && (
+        <div
+          className={`rounded-2xl border px-4 py-3 text-sm font-semibold shadow-sm ${
+            feedbackTipo === "sucesso"
+              ? "border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
+              : "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300"
+          }`}
+        >
+          {feedback}
+        </div>
+      )}
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+              Acadêmico
+            </p>
+            <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">
+              Substituições Docentes
+            </h1>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+              Controle professores substitutos sem compartilhar login do professor titular.
+              O aluno continua acessando a mesma turma e disciplina.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setModalAberto(true)}
+            className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white shadow-sm transition hover:bg-blue-700"
+          >
+            + Nova Substituição
+          </button>
+        </div>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {[
+          ["Ativas", resumo.ativas],
+          ["Agendadas", resumo.agendadas],
+          ["Encerradas", resumo.encerradas],
+          ["Canceladas", resumo.canceladas],
+          ["Total", resumo.total],
+        ].map(([label, valor]) => (
+          <div
+            key={label}
+            className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950"
+          >
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
+              {label}
+            </p>
+            <p className="mt-2 text-3xl font-black text-slate-900 dark:text-white">
+              {valor}
+            </p>
+          </div>
+        ))}
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="grid gap-3 lg:grid-cols-[1fr_240px]">
+          <input
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            placeholder="Buscar por professor, turma, disciplina, curso ou motivo..."
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          />
+
+          <select
+            value={filtroStatus}
+            onChange={(e) => setFiltroStatus(e.target.value)}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          >
+            <option value="">Todos os status</option>
+            <option value="AGENDADA">Agendada</option>
+            <option value="ATIVA">Ativa</option>
+            <option value="SUSPENSA">Suspensa</option>
+            <option value="ENCERRADA">Encerrada</option>
+            <option value="CANCELADA">Cancelada</option>
+          </select>
+        </div>
+      </section>
+
+      <section className="rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-950">
+        <div className="border-b border-slate-200 p-5 dark:border-slate-800">
+          <h2 className="text-lg font-black text-slate-900 dark:text-white">
+            Registros de substituição
+          </h2>
+        </div>
+
+        {loading ? (
+          <div className="p-6 text-sm text-slate-500 dark:text-slate-400">
+            Carregando substituições...
+          </div>
+        ) : listaFiltrada.length === 0 ? (
+          <div className="p-6 text-sm text-slate-500 dark:text-slate-400">
+            Nenhuma substituição encontrada.
+          </div>
+        ) : (
+          <>
+            <div className="hidden overflow-x-auto lg:block">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-slate-50 text-xs uppercase text-slate-500 dark:bg-slate-900 dark:text-slate-400">
+                  <tr>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Titular</th>
+                    <th className="px-4 py-3">Substituto</th>
+                    <th className="px-4 py-3">Turma</th>
+                    <th className="px-4 py-3">Disciplina</th>
+                    <th className="px-4 py-3">Início</th>
+                    <th className="px-4 py-3">Fim</th>
+                    <th className="px-4 py-3">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {listaFiltrada.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="border-t border-slate-200 dark:border-slate-800"
+                    >
+                      <td className="px-4 py-3">
+                        <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClasse(item.status)}`}>
+                          {item.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                        {item.professorTitular?.nome || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                        {item.professorSubstituto?.nome || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                        {item.turma?.nome || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
+                        {item.disciplina?.nome || "-"}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                        {formatarData(item.dataInicio)}
+                      </td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
+                        {formatarData(item.dataFim)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                          Visualizar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="grid gap-3 p-4 lg:hidden">
+              {listaFiltrada.map((item) => (
+                <article
+                  key={item.id}
+                  className="rounded-3xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className={`rounded-full border px-3 py-1 text-xs font-bold ${statusClasse(item.status)}`}>
+                      {item.status}
+                    </span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400">
+                      {formatarData(item.dataInicio)}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-sm">
+                    <p>
+                      <strong>Titular:</strong>{" "}
+                      {item.professorTitular?.nome || "-"}
+                    </p>
+                    <p>
+                      <strong>Substituto:</strong>{" "}
+                      {item.professorSubstituto?.nome || "-"}
+                    </p>
+                    <p>
+                      <strong>Turma:</strong> {item.turma?.nome || "-"}
+                    </p>
+                    <p>
+                      <strong>Disciplina:</strong>{" "}
+                      {item.disciplina?.nome || "-"}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      {modalAberto && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/70 p-4">
+          <div className="max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-black text-slate-900 dark:text-white">
+                  Nova Substituição Docente
+                </h2>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  O substituto usará o próprio login e receberá acesso temporário.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setModalAberto(false)}
+                className="rounded-full bg-slate-100 px-3 py-1 text-sm font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+              >
+                Fechar
+              </button>
+            </div>
+
+            <form onSubmit={criarSubstituicao} className="mt-6 grid gap-4 md:grid-cols-2">
+              <select required value={professorTitularId} onChange={(e) => setProfessorTitularId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
+                <option value="">Professor titular</option>
+                {professores.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
+              </select>
+
+              <select required value={professorSubstitutoId} onChange={(e) => setProfessorSubstitutoId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
+                <option value="">Professor substituto</option>
+                {professores.map((p) => <option key={p.id} value={p.id}>{p.nome}</option>)}
+              </select>
+
+              <select value={cursoId} onChange={(e) => setCursoId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
+                <option value="">Curso</option>
+                {cursos.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+              </select>
+
+              <select required value={turmaId} onChange={(e) => setTurmaId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
+                <option value="">Turma</option>
+                {turmasFiltradas.map((t) => <option key={t.id} value={t.id}>{t.nome}</option>)}
+              </select>
+
+              <select required value={disciplinaId} onChange={(e) => setDisciplinaId(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900">
+                <option value="">Disciplina</option>
+                {disciplinasFiltradas.map((d) => <option key={d.id} value={d.id}>{d.nome}</option>)}
+              </select>
+
+              <input required type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
+
+              <input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900" />
+
+              <input value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="Motivo da substituição" className="rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2" />
+
+              <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)} placeholder="Observações" className="min-h-28 rounded-2xl border p-3 dark:border-slate-700 dark:bg-slate-900 md:col-span-2" />
+
+              <div className="flex flex-col gap-3 md:col-span-2 md:flex-row md:justify-end">
+                <button type="button" onClick={() => setModalAberto(false)} className="rounded-2xl border px-5 py-3 text-sm font-bold dark:border-slate-700">
+                  Cancelar
+                </button>
+
+                <button disabled={salvando} className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-black text-white hover:bg-blue-700 disabled:opacity-60">
+                  {salvando ? "Salvando..." : "Cadastrar substituição"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}
