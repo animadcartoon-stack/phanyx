@@ -604,11 +604,10 @@ const gruposPorCurso = useMemo(() => {
 
         <div
   className="
+    phanyx-aula-hoje-aviso
     mt-4
     rounded-2xl
     border
-    border-sky-500/30
-    bg-sky-950/30
     p-4
   "
 >
@@ -651,7 +650,22 @@ const gruposPorCurso = useMemo(() => {
   />
 
   {busca.trim() && (
-    <div className="absolute left-0 right-0 top-[56px] z-50 max-h-80 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+    <div
+  className="
+absolute
+left-0
+right-0
+top-[56px]
+z-50
+max-h-80
+overflow-auto
+rounded-2xl
+border
+p-2
+shadow-2xl
+phanyx-busca-sugestoes
+"
+>
       {sugestoesBusca.length === 0 ? (
         <p className="px-3 py-3 text-sm text-slate-500">
           Nenhuma sugestão encontrada.
@@ -668,14 +682,13 @@ const gruposPorCurso = useMemo(() => {
 );
 }}
             className="
+phanyx-busca-sugestao
 w-full
 rounded-xl
 px-3
 py-3
 text-left
 transition
-hover:bg-blue-600/20
-dark:hover:bg-blue-500/20
 "
           >
             <p className="

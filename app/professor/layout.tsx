@@ -74,6 +74,11 @@ export default async function ProfessorLayout({
     "PROFESSOR",
     "professor.turmas"
   ),
+  substituicoes: await paginaVisivel(
+  professor.instituicaoId,
+  "PROFESSOR",
+  "professor.substituicoes"
+),
   alunos: await paginaVisivel(
     professor.instituicaoId,
     "PROFESSOR",
@@ -126,7 +131,7 @@ export default async function ProfessorLayout({
 </div>
 
 <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid grid-cols-8 gap-1 text-[8px] font-semibold text-slate-600">
+  <div className="grid grid-cols-9 gap-1 text-[8px] font-semibold text-slate-600">
    {visibilidadeProfessor.painel && (
   <a href="/professor" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
     <span className="text-lg">📊</span>
@@ -138,6 +143,16 @@ export default async function ProfessorLayout({
   <a href="/professor/turmas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
     <span className="text-lg">🏫</span>
     Turmas
+  </a>
+)}
+
+{visibilidadeProfessor.substituicoes && (
+  <a
+    href="/professor/substituicoes"
+    className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
+  >
+    <span className="text-lg">🔁</span>
+    Subst.
   </a>
 )}
 

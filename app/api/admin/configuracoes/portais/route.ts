@@ -16,7 +16,7 @@ const PAGINAS_PADRAO = [
   { portal: "ALUNO", chavePagina: "aluno.dados", nome: "Atualizar meus dados" },
 
   { portal: "PROFESSOR", chavePagina: "professor.painel", nome: "Painel" },
-  { portal: "PROFESSOR", chavePagina: "professor.turmas", nome: "Turmas" },
+  { portal: "PROFESSOR", chavePagina: "professor.substituicoes", nome: "Substituições Docentes" },
   { portal: "PROFESSOR", chavePagina: "professor.alunos", nome: "Alunos" },
   { portal: "PROFESSOR", chavePagina: "professor.atividades", nome: "Atividades" },
   { portal: "PROFESSOR", chavePagina: "professor.provas", nome: "Avaliações/Provas" },

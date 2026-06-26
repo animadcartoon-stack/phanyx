@@ -9,6 +9,7 @@ import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotification
 type VisibilidadeProfessor = {
   painel?: boolean;
   turmas?: boolean;
+  substituicoes?: boolean;
   alunos?: boolean;
   atividades?: boolean;
   provas?: boolean;
@@ -35,6 +36,7 @@ export default function ProfessorSidebar({
   const podeVer = {
     painel: visibilidade?.painel ?? true,
     turmas: visibilidade?.turmas ?? true,
+    substituicoes: visibilidade?.substituicoes ?? true,
     alunos: visibilidade?.alunos ?? true,
     atividades: visibilidade?.atividades ?? true,
     provas: visibilidade?.provas ?? true,
@@ -47,7 +49,11 @@ export default function ProfessorSidebar({
   const menu = [
     podeVer.painel && { label: "Painel Docente", href: "/professor" },
     podeVer.turmas && { label: "Turmas", href: "/professor/turmas" },
-    podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
+podeVer.substituicoes && {
+  label: "Substituições Docentes",
+  href: "/professor/substituicoes",
+},
+podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
     podeVer.materiais && { label: "Materiais/Aulas", href: "/professor/aulas" },
     podeVer.atividades && { label: "Atividades", href: "/professor/atividades" },
     podeVer.provas && { label: "Avaliações", href: "/professor/provas" },
