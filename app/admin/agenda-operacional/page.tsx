@@ -427,7 +427,7 @@ function abrirPdfAgenda() {
     {colunasDisponiveis.map((coluna) => (
       <label
   key={coluna.id}
-  className="flex items-center gap-2 rounded-lg px-2 py-1 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+  className="agenda-operacional-checkbox flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
 >
         <input
           type="checkbox"

@@ -2306,3 +2306,36 @@ html[data-theme="system"] .agenda-operacional-linha:hover span,
 html[data-theme="system"] .agenda-operacional-linha:hover div {
   color: #ffffff !important;
 }
+
+/* FIX LOCAL - AGENDA OPERACIONAL / CHECKBOX HOVER */
+.agenda-operacional-checkbox {
+  color: #0f172a !important;
+}
+
+.agenda-operacional-checkbox:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.agenda-operacional-checkbox:hover span,
+.agenda-operacional-checkbox:hover label {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-checkbox {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-checkbox:hover {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .agenda-operacional-checkbox {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .agenda-operacional-checkbox:hover {
+  background: #333333 !important;
+  color: #ffffff !important;
+}
