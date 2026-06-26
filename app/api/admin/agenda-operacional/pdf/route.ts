@@ -49,16 +49,43 @@ export async function GET(req: NextRequest) {
     }
 
     const usuario = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        nome: true,
-        instituicao: {
-          select: {
-            nome: true,
-          },
-        },
-      },
-    });
+  where: { id: user.id },
+  select: {
+    nome: true,
+  },
+});
+
+const configuracaoInstituicao =
+  await prisma.configuracaoInstituicao.findUnique({
+    where: {
+      instituicaoId: user.instituicaoId,
+    },
+    select: {
+      nomeFantasia: true,
+      razaoSocial: true,
+      cnpj: true,
+      telefone: true,
+      email: true,
+      cidade: true,
+      estado: true,
+      logoUrl: true,
+    },
+  });
+
+const instituicao = await prisma.instituicao.findUnique({
+  where: {
+    id: user.instituicaoId,
+  },
+  select: {
+    nome: true,
+  },
+});
+
+const nomeInstituicao =
+  configuracaoInstituicao?.nomeFantasia ||
+  configuracaoInstituicao?.razaoSocial ||
+  instituicao?.nome ||
+  "Instituição";
 
     const preferencia = await prisma.preferenciaAgendaOperacional.findUnique({
       where: {
@@ -122,14 +149,30 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    escrever("PHANYX", margem, y, 16, true);
-    escrever("Agenda Operacional", margem, y - 20, 14, true);
+    escrever(nomeInstituicao, margem, y, 16, true);
+escrever("Agenda Operacional", margem, y - 20, 14, true);
 
-    escrever(usuario?.instituicao?.nome || "Instituição", margem, y - 42, 10, true);
-    escrever(`Emitido em: ${new Date().toLocaleString("pt-BR")}`, margem, y - 58, 9);
-    escrever(`Usuário: ${usuario?.nome || "-"}`, margem + 220, y - 58, 9);
+const linhaContato = [
+  configuracaoInstituicao?.cnpj
+    ? `CNPJ: ${configuracaoInstituicao.cnpj}`
+    : "",
+  configuracaoInstituicao?.telefone || "",
+  configuracaoInstituicao?.email || "",
+  [configuracaoInstituicao?.cidade, configuracaoInstituicao?.estado]
+    .filter(Boolean)
+    .join(" - "),
+]
+  .filter(Boolean)
+  .join(" • ");
 
-    y -= 88;
+if (linhaContato) {
+  escrever(linhaContato, margem, y - 40, 8);
+}
+
+escrever(`Emitido em: ${new Date().toLocaleString("pt-BR")}`, margem, y - 58, 9);
+escrever(`Usuário: ${usuario?.nome || "-"}`, margem + 260, y - 58, 9);
+
+y -= 88;
 
     const larguraTabela = largura - margem * 2;
     const larguraColuna = larguraTabela / Math.max(colunasPdf.length, 1);
@@ -212,7 +255,7 @@ export async function GET(req: NextRequest) {
         color: rgb(0.35, 0.4, 0.5),
       });
 
-      p.drawText("PHANYX • www.phanyx.com.br", {
+      p.drawText(`Gerado pelo PHANYX • ${nomeInstituicao}`, {
         x: margem,
         y: 20,
         size: 8,

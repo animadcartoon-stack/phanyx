@@ -2272,3 +2272,37 @@ html[data-theme="system"] .agenda-operacional-detalhe p {
 html[data-theme="system"] .agenda-operacional-detalhe p:first-child {
   color: #d4d4d4 !important;
 }
+
+/* FIX LOCAL - AGENDA OPERACIONAL / HOVER DA LINHA */
+.agenda-operacional-linha:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.agenda-operacional-linha:hover td,
+.agenda-operacional-linha:hover span,
+.agenda-operacional-linha:hover div {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-linha:hover {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .agenda-operacional-linha:hover td,
+html[data-theme="dark"] .agenda-operacional-linha:hover span,
+html[data-theme="dark"] .agenda-operacional-linha:hover div {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .agenda-operacional-linha:hover {
+  background: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .agenda-operacional-linha:hover td,
+html[data-theme="system"] .agenda-operacional-linha:hover span,
+html[data-theme="system"] .agenda-operacional-linha:hover div {
+  color: #ffffff !important;
+}
