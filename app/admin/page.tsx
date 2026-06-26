@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import PhanyxTour from "@/components/tutorial/PhanyxTour";
+import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 
 interface Stats {
   alunos: number;
@@ -879,6 +880,7 @@ async function alterarFoto(file: File | null) {
   return (
     <>
       <div className="space-y-8">
+        <CentralAvisosPhanyx />
         <section className="phanyx-admin-hero relative rounded-[28px] border border-slate-200 bg-gradient-to-r from-white via-slate-50 to-blue-50 p-8 shadow-sm">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">

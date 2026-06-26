@@ -1,6 +1,10 @@
-"use client";
-
-import BannerPhanyx from "@/components/phanyx/BannerPhanyx";
+export type FeriadoPhanyx = {
+  nome: string;
+  mensagem: string;
+  emoji: string;
+  diasRestantes: number;
+  dataTexto: string;
+};
 
 function calcularPascoa(ano: number) {
   const a = ano % 19;
@@ -51,17 +55,14 @@ function formatarDataFeriado(data: Date) {
   )}/${String(data.getMonth() + 1).padStart(2, "0")}`;
 }
 
-export function feriadoNacionalHoje() {
-  const hoje = new Date();
+export function feriadoNacionalHoje(dataBase = new Date()): FeriadoPhanyx | null {
+  const hoje = new Date(dataBase);
   hoje.setHours(0, 0, 0, 0);
 
   const ano = hoje.getFullYear();
   const pascoa = calcularPascoa(ano);
 
-  const feriados: Record<
-    string,
-    { nome: string; mensagem: string; emoji: string }
-  > = {
+  const feriados: Record<string, { nome: string; mensagem: string; emoji: string }> = {
     [`${ano}-01-01`]: {
       nome: "Confraternização Universal",
       emoji: "✨",
@@ -142,43 +143,12 @@ export function feriadoNacionalHoje() {
 
     if (feriado) {
       return {
-  ...feriado,
-  diasRestantes: i,
-  dataTexto: formatarDataFeriado(dataVerificada),
-};
+        ...feriado,
+        diasRestantes: i,
+        dataTexto: formatarDataFeriado(dataVerificada),
+      };
     }
   }
 
   return null;
-}
-export default function PhanyxFeriadoAviso() {
-  const feriado = feriadoNacionalHoje();
-
-  if (!feriado) return null;
-
-  return (
-  <div className="mb-6">
-    <BannerPhanyx
-      aviso={{
-        titulo:
-          feriado.diasRestantes === 0
-            ? `Hoje é feriado: ${feriado.nome}`
-            : feriado.diasRestantes === 1
-            ? `Amanhã será feriado: ${feriado.nome}`
-            : `Feriado chegando: ${feriado.nome}`,
-        descricao: feriado.dataTexto,
-        frase:
-          feriado.diasRestantes === 0
-            ? `Hoje (${feriado.dataTexto}) é ${feriado.nome}. ${feriado.mensagem}`
-            : feriado.diasRestantes === 1
-            ? `Amanhã (${feriado.dataTexto}) será celebrado ${feriado.nome}. ${feriado.mensagem}`
-            : `Nesta ${feriado.dataTexto} será celebrado ${feriado.nome}. ${feriado.mensagem}`,
-        icone: feriado.emoji,
-        categoria: "Feriado",
-        cor: "azul",
-        textoBotao: "Ver calendário",
-      }}
-    />
-  </div>
-);
 }
