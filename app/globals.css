@@ -2569,3 +2569,51 @@ html[data-theme="system"]
 .substituicao-descricao {
   color: #d4d4d8;
 }
+
+.phanyx-professor-substituicoes-page .substituicao-selo {
+  background: #7c3aed !important;
+  color: #ffffff !important;
+}
+
+/* PROFESSOR - SIDEBAR */
+
+.professor-sidebar {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-right: 1px solid #dbe3ef !important;
+}
+
+.professor-sidebar a {
+  color: #0f172a !important;
+}
+
+.professor-sidebar a:hover {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.professor-sidebar a.bg-blue-700,
+.professor-sidebar a.bg-blue-900 {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .professor-sidebar {
+  background: #020617 !important;
+  color: #ffffff !important;
+  border-right-color: #1e293b !important;
+}
+
+html[data-theme="dark"] .professor-sidebar a {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .professor-sidebar {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-right-color: #525252 !important;
+}
+
+html[data-theme="system"] .professor-sidebar a {
+  color: #ffffff !important;
+}

@@ -64,7 +64,7 @@ podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
 
   return (
     <>
-      <aside className="flex min-h-screen w-64 flex-col bg-blue-700 text-white">
+      <aside className="professor-sidebar flex min-h-screen w-64 flex-col">
         <div className="border-b border-blue-500 p-6">
           <div className="text-xl font-bold">👨‍🏫 Professor</div>
 
