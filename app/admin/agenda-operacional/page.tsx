@@ -198,6 +198,25 @@ async function salvarPreferencias(novasColunasTabela: string[]) {
   }
 }
 
+async function salvarPreferenciasPdf(novasColunasPdf: string[]) {
+  try {
+    await fetch("/api/admin/agenda-operacional/preferencias", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        colunasTabela: colunasVisiveis,
+        colunasPdf: novasColunasPdf,
+        colunasExcel: colunasVisiveis,
+      }),
+    });
+  } catch (error) {
+    console.error("Erro ao salvar preferências do PDF:", error);
+  }
+}
+
 function abrirPdfAgenda() {
   const params = new URLSearchParams();
 
@@ -448,6 +467,37 @@ function abrirPdfAgenda() {
       </label>
     ))}
   </div>
+  <div className="mt-6 border-t border-slate-200 pt-5 dark:border-slate-700">
+  <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-blue-600">
+    PDF
+  </h3>
+
+  <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
+    {colunasPdfDisponiveis.map((coluna) => (
+      <label
+        key={coluna.id}
+        className="agenda-operacional-checkbox flex items-center gap-2 rounded-lg px-2 py-1 transition-colors"
+      >
+        <input
+          type="checkbox"
+          checked={colunasPdf.includes(coluna.id)}
+          onChange={() => {
+            setColunasPdf((atuais) => {
+              const novasColunas = atuais.includes(coluna.id)
+                ? atuais.filter((id) => id !== coluna.id)
+                : [...atuais, coluna.id];
+
+              salvarPreferenciasPdf(novasColunas);
+
+              return novasColunas;
+            });
+          }}
+        />
+        {coluna.nome}
+      </label>
+    ))}
+  </div>
+</div>
 </div>
 
       {erro && (
