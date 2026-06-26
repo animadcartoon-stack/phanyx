@@ -105,7 +105,7 @@ export default function ProfessorSubstituicoesPage() {
           {ativas.map((item) => (
             <article
               key={item.id}
-              className="rounded-3xl border border-purple-200 bg-purple-50 p-5 shadow-sm dark:border-purple-900 dark:bg-purple-950/30"
+              className="substituicao-card rounded-3xl border p-5 shadow-sm"
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -129,7 +129,7 @@ export default function ProfessorSubstituicoesPage() {
               </div>
 
               <div className="mt-5 grid gap-3 md:grid-cols-2">
-                <div className="info-box rounded-2xl p-4">
+                <div className="substituicao-info rounded-2xl border p-4">
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
                     Professor titular
                   </p>
@@ -138,7 +138,7 @@ export default function ProfessorSubstituicoesPage() {
                   </p>
                 </div>
 
-                <div className="info-box rounded-2xl p-4">
+                <div className="substituicao-info rounded-2xl border p-4">
                   <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
                     Período
                   </p>
