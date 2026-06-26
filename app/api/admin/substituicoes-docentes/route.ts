@@ -141,6 +141,7 @@ export async function GET() {
                 select: {
                   id: true,
                   nome: true,
+                  professorId: true,
                 },
               },
             },
@@ -154,6 +155,7 @@ export async function GET() {
                 select: {
                   id: true,
                   nome: true,
+                  professorId: true,
                 },
               },
             },
@@ -169,20 +171,39 @@ export async function GET() {
     ]);
 
     const vinculosTitular = turmasDisciplinas
-      .filter((item) => item.professorId)
-      .map((item) => ({
-        id: item.id,
-        professorTitularId: item.professorId,
-        turmaId: item.turmaId,
-        turmaNome: item.turma?.nome || "Turma sem nome",
-        disciplinaId: item.disciplinaId,
-        disciplinaNome: item.disciplina?.nome || "Disciplina sem nome",
-        cursoId: item.turma?.curso?.id || item.disciplina?.curso?.id || null,
-        cursoNome:
-          item.turma?.curso?.nome ||
-          item.disciplina?.curso?.nome ||
-          "Curso não informado",
-      }));
+  .flatMap((item) => {
+    const titulares = new Set<number>();
+
+    if (item.professorId) {
+      titulares.add(item.professorId);
+    }
+
+    if (item.professor?.id) {
+      titulares.add(item.professor.id);
+    }
+
+    if ((item.disciplina as any)?.professorId) {
+      titulares.add(Number((item.disciplina as any).professorId));
+    }
+
+    if ((item.turma as any)?.professorId) {
+      titulares.add(Number((item.turma as any).professorId));
+    }
+
+    return Array.from(titulares).map((professorTitularId) => ({
+      id: Number(`${item.id}${professorTitularId}`),
+      professorTitularId,
+      turmaId: item.turmaId,
+      turmaNome: item.turma?.nome || "Turma sem nome",
+      disciplinaId: item.disciplinaId,
+      disciplinaNome: item.disciplina?.nome || "Disciplina sem nome",
+      cursoId: item.turma?.curso?.id || item.disciplina?.curso?.id || null,
+      cursoNome:
+        item.turma?.curso?.nome ||
+        item.disciplina?.curso?.nome ||
+        "Curso não informado",
+    }));
+  });
 
     const items = registros.map((item) => ({
       id: item.id,
