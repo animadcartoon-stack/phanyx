@@ -307,83 +307,83 @@ function abrirPdfAgenda() {
   ]}
 />
 
-  <select
-    value={turmaId}
-    onChange={(e) => setTurmaId(e.target.value)}
-    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Todas as turmas</option>
-    {turmas.map((turma) => (
-  <option key={turma.id} value={turma.id}>
-    {turma.nome}
-  </option>
-))}
-  </select>
+  <PhanyxSelect
+  value={turmaId}
+  onChange={setTurmaId}
+  placeholder="Todas as turmas"
+  options={[
+    { value: "", label: "Todas as turmas" },
+    ...turmas.map((turma) => ({
+      value: String(turma.id),
+      label: turma.nome,
+    })),
+  ]}
+/>
 
-  <select
-    value={professorId}
-    onChange={(e) => setProfessorId(e.target.value)}
-    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Todos os professores</option>
-    {professores.map((professor) => (
-  <option key={professor.id} value={professor.id}>
-    {professor.nome}
-  </option>
-))}
-  </select>
+ <PhanyxSelect
+  value={professorId}
+  onChange={setProfessorId}
+  placeholder="Todos os professores"
+  options={[
+    { value: "", label: "Todos os professores" },
+    ...professores.map((professor) => ({
+      value: String(professor.id),
+      label: professor.nome,
+    })),
+  ]}
+/>
 
-  <select
-    value={disciplinaId}
-    onChange={(e) => setDisciplinaId(e.target.value)}
-    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Todas as disciplinas</option>
-    {disciplinas.map((disciplina) => (
-  <option key={disciplina.id} value={disciplina.id}>
-    {disciplina.nome}
-  </option>
-))}
-  </select>
+  <PhanyxSelect
+  value={disciplinaId}
+  onChange={setDisciplinaId}
+  placeholder="Todas as disciplinas"
+  options={[
+    { value: "", label: "Todas as disciplinas" },
+    ...disciplinas.map((disciplina) => ({
+      value: String(disciplina.id),
+      label: disciplina.nome,
+    })),
+  ]}
+/>
 
-  <select
-    value={departamentoId}
-    onChange={(e) => setDepartamentoId(e.target.value)}
-    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Todos os departamentos</option>
-    {departamentos.map((departamento) => (
-  <option key={departamento.id} value={departamento.id}>
-    {departamento.nome}
-  </option>
-))}
-  </select>
+  <PhanyxSelect
+  value={departamentoId}
+  onChange={setDepartamentoId}
+  placeholder="Todos os departamentos"
+  options={[
+    { value: "", label: "Todos os departamentos" },
+    ...departamentos.map((departamento) => ({
+      value: String(departamento.id),
+      label: departamento.nome,
+    })),
+  ]}
+/>
 
-  <select
-    value={funcionarioId}
-    onChange={(e) => setFuncionarioId(e.target.value)}
-    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Todos os funcionários</option>
-    {funcionarios.map((funcionario) => (
-  <option key={funcionario.id} value={funcionario.id}>
-    {funcionario.nome}
-  </option>
-))}
-  </select>
+  <PhanyxSelect
+  value={funcionarioId}
+  onChange={setFuncionarioId}
+  placeholder="Todos os funcionários"
+  options={[
+    { value: "", label: "Todos os funcionários" },
+    ...funcionarios.map((funcionario) => ({
+      value: String(funcionario.id),
+      label: funcionario.nome,
+    })),
+  ]}
+/>
 
-  <select
-    value={poloId}
-    onChange={(e) => setPoloId(e.target.value)}
-    className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-  >
-    <option value="">Todos os polos</option>
-    {polos.map((polo) => (
-  <option key={polo.id} value={polo.id}>
-    {polo.nome}
-  </option>
-))}
-  </select>
+  <PhanyxSelect
+  value={poloId}
+  onChange={setPoloId}
+  placeholder="Todos os polos"
+  options={[
+    { value: "", label: "Todos os polos" },
+    ...polos.map((polo) => ({
+      value: String(polo.id),
+      label: polo.nome,
+    })),
+  ]}
+/>
 </div>
         </div>
       </section>
