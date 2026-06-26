@@ -94,20 +94,28 @@ const filtrosSubstituicao = substituicoes.map((s) => ({
 },
       include: {
         disciplinas: {
-          where: {
-            disciplina: {
-              OR: [
-                { professorId: professor.id },
-                {
-                  professoresHabilitados: {
-                    some: {
-                      professorId: professor.id,
-                    },
-                  },
+  where: {
+    OR: [
+      {
+        disciplina: {
+          OR: [
+            { professorId: professor.id },
+            {
+              professoresHabilitados: {
+                some: {
+                  professorId: professor.id,
                 },
-              ],
+              },
             },
-          },
+          ],
+        },
+      },
+      ...substituicoes.map((s) => ({
+        turmaId: s.turmaId,
+        disciplinaId: s.disciplinaId,
+      })),
+    ],
+  },
           include: {
   horarios: {
     where: {
