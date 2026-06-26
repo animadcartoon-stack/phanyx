@@ -58,21 +58,22 @@ export default function ProfessorSubstituicoesPage() {
   );
 
   return (
-    <main className="phanyx-professor-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
-          Portal do Professor
-        </p>
+  <main className="phanyx-professor-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
 
-        <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white sm:text-3xl">
-          Substituições Docentes
-        </h1>
+    <section className="substituicao-header rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-950">
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+        Portal do Professor
+      </p>
 
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-          Veja as turmas e disciplinas em que você está atuando como professor
-          substituto. Use sempre seu próprio login.
-        </p>
-      </section>
+      <h1 className="mt-2 text-4xl font-black">
+        Substituições Docentes
+      </h1>
+
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+        Veja as turmas e disciplinas em que você está atuando como professor
+        substituto. Use sempre seu próprio login.
+      </p>
+    </section>
 
       {loading && (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400">
