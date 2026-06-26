@@ -70,7 +70,7 @@ export async function desenharCabecalhoInstituicao({
   const logoImage = await carregarImagemPdf(pdfDoc, dados.logoUrl);
 
   if (logoImage) {
-    const larguraLogo = 48;
+    const larguraLogo = 60;
     const escala = larguraLogo / logoImage.width;
     const alturaLogo = logoImage.height * escala;
 
@@ -118,6 +118,11 @@ export async function desenharCabecalhoInstituicao({
       color: rgb(0.08, 0.12, 0.2),
     });
   }
-
-  return y - 72;
+pagina.drawLine({
+  start: { x: margem, y: y - 56 },
+  end: { x: pagina.getWidth() - margem, y: y - 56 },
+  thickness: 0.8,
+  color: rgb(0.82, 0.84, 0.88),
+});
+  return y - 82;
 }
