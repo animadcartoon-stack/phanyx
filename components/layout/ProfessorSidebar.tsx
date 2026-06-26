@@ -103,9 +103,11 @@ podeVer.alunos && { label: "Alunos", href: "/professor/alunos" },
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block rounded px-4 py-2 ${
-                  ativo ? "bg-blue-900" : "hover:bg-blue-600"
-                }`}
+                className={`block rounded px-4 py-2 font-semibold transition ${
+  ativo
+    ? "bg-blue-700 text-white dark:bg-blue-700 dark:text-white"
+    : "text-slate-900 hover:bg-blue-100 hover:text-blue-700 dark:text-white dark:hover:bg-blue-600 dark:hover:text-white"
+}`}
               >
                 {item.label}
               </Link>
