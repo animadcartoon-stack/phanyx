@@ -4,6 +4,12 @@ import { getUserFromToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 
+function inicioDoDia(data: Date) {
+  const d = new Date(data);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -29,22 +35,50 @@ export async function GET() {
       );
     }
 
+    const hoje = inicioDoDia(new Date());
+
+    const substituicoes = await prisma.substituicaoDocente.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        professorSubstitutoId: professor.id,
+        status: {
+          notIn: ["CANCELADA", "ENCERRADA", "SUSPENSA"],
+        },
+        dataInicio: {
+          lte: hoje,
+        },
+        OR: [{ dataFim: null }, { dataFim: { gte: hoje } }],
+      },
+      select: {
+        disciplinaId: true,
+      },
+    });
+
+    const disciplinasSubstituicaoIds = Array.from(
+      new Set(substituicoes.map((s) => s.disciplinaId))
+    );
+
     const disciplinas = await prisma.disciplina.findMany({
       where: {
-  instituicaoId: user.instituicaoId,
-  OR: [
-    {
-      professorId: professor.id,
-    },
-    {
-      professoresHabilitados: {
-        some: {
-          professorId: professor.id,
-        },
+        instituicaoId: user.instituicaoId,
+        OR: [
+          {
+            professorId: professor.id,
+          },
+          {
+            professoresHabilitados: {
+              some: {
+                professorId: professor.id,
+              },
+            },
+          },
+          {
+            id: {
+              in: disciplinasSubstituicaoIds,
+            },
+          },
+        ],
       },
-    },
-  ],
-},
       select: {
         id: true,
         nome: true,
