@@ -36,20 +36,32 @@ export async function desenharCabecalhoInstituicao({
 
       if (resLogo.ok) {
         const logoBytes = await resLogo.arrayBuffer();
-        const contentType = resLogo.headers.get("content-type") || "";
+        
+        let logoImage;
 
-        const logoImage = contentType.includes("png")
-          ? await pdfDoc.embedPng(logoBytes)
-          : await pdfDoc.embedJpg(logoBytes);
+try {
+  logoImage = await pdfDoc.embedPng(logoBytes);
+} catch {
+  try {
+    logoImage = await pdfDoc.embedJpg(logoBytes);
+  } catch {
+    logoImage = null;
+  }
+}
+
+if (!logoImage) {
+  console.warn("Logo institucional não pôde ser incorporada ao PDF.");
+  return y - 72;
+}
 
         pagina.drawImage(logoImage, {
-          x: margem,
-          y: y - 42,
-          width: 44,
-          height: 44,
-        });
+  x: margem,
+  y: y - 42,
+  width: 44,
+  height: 44,
+});
 
-        xTexto = margem + 56;
+xTexto = margem + 56;
       }
     } catch (error) {
       console.error("Erro ao carregar logo institucional no PDF:", error);
