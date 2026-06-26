@@ -15,7 +15,15 @@ async function carregarImagemPdf(pdfDoc: PDFDocument, url?: string | null) {
   if (!url) return null;
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    let urlImagem = url;
+
+if (urlImagem?.startsWith("/")) {
+  urlImagem = `${process.env.NEXT_PUBLIC_APP_URL}${urlImagem}`;
+}
+
+const res = await fetch(urlImagem!, {
+  cache: "no-store",
+});
 
     if (!res.ok) {
       console.warn("Não foi possível carregar a imagem institucional:", res.status);
