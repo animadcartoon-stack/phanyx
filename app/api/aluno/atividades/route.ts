@@ -46,17 +46,19 @@ export async function GET(_req: NextRequest) {
         turmaId: { in: turmaIds },
       },
       include: {
-        turma: {
-  include: {
-    disciplinas: {
-      include: {
-        disciplina: true,
+  disciplina: true,
+
+  turma: {
+    include: {
+      disciplinas: {
+        include: {
+          disciplina: true,
+        },
       },
     },
   },
-},
 
-anexos: true,
+  anexos: true,
 
         entregas: {
           where: {
@@ -95,7 +97,9 @@ anexos: true,
         anexos: atividade.anexos || [],
         turmaNome: atividade.turma?.nome || null,
         disciplinaNome:
-  atividade.turma?.disciplinas?.[0]?.disciplina?.nome || null,
+        atividade.disciplina?.nome ||
+        atividade.turma?.disciplinas?.[0]?.disciplina?.nome ||
+      null,
         entrega,
       };
     });
