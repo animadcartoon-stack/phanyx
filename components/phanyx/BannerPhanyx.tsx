@@ -65,7 +65,7 @@ export default function BannerPhanyx({
       cores[aviso.cor] ?? cores.roxo
     }`}
   >
-    <div className="absolute left-0 top-0 h-full w-2 bg-current opacity-80" />
+    <div className="absolute left-0 top-0 h-full w-2 bg-current opacity-100" />
 
     {aviso.onFechar && (
       <button
@@ -93,7 +93,7 @@ export default function BannerPhanyx({
         </h2>
 
         <div className="mt-2 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm dark:bg-white/10 dark:text-slate-200">
-          {aviso.categoria}
+          {aviso.categoria === "Saúde" ? "❤️ Saúde" : aviso.categoria}
         </div>
 
         <div className="mt-2 space-y-2">
@@ -102,9 +102,9 @@ export default function BannerPhanyx({
           </p>
 
           {aviso.frase && (
-            <p className="text-sm font-medium italic text-slate-800 dark:text-slate-100">
-              "{aviso.frase}"
-            </p>
+            <p className="border-l-2 border-current pl-3 text-sm font-medium italic text-slate-800 dark:text-slate-100">
+  "{aviso.frase}"
+</p>
           )}
         </div>
 
