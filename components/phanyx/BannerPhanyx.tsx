@@ -26,6 +26,7 @@ export type BannerPhanyxAviso = {
   onClickBotao?: () => void;
   onFechar?: () => void;
   expiracao?: Date;
+  origem?: string;
 };
 
 type Props = {
@@ -77,15 +78,15 @@ export default function BannerPhanyx({
       </button>
     )}
 
-    <div className="flex items-center gap-4 px-5 py-4 pl-7 pr-10">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-3xl shadow-sm dark:bg-white/10">
+    <div className="flex items-center gap-3 px-5 py-3 pl-6 pr-10">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-2xl shadow-sm dark:bg-white/10">
         {aviso.icone}
       </div>
 
       <div className="min-w-0 flex-1">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
-          PHANYX informa
-        </p>
+  {aviso.origem ?? "PHANYX"}
+</p>
 
         <h2 className="mt-1 text-lg font-bold text-slate-950 dark:text-white">
           {aviso.titulo}

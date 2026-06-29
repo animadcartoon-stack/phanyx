@@ -34,6 +34,7 @@ export default function AvisoInteligenteBanner() {
         frase: aviso.frase,
         icone: aviso.icone,
         categoria: aviso.categoria,
+        origem: "Campanha Nacional",
         cor: aviso.cor,
         textoBotao: aviso.textoBotao,
         onFechar: fecharAviso,

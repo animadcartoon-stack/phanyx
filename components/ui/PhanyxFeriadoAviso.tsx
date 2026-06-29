@@ -167,6 +167,7 @@ export default function PhanyxFeriadoAviso() {
             ? `Amanhã será feriado: ${feriado.nome}`
             : `Feriado chegando: ${feriado.nome}`,
         descricao: feriado.dataTexto,
+        origem: "Calendário Nacional",
         frase:
           feriado.diasRestantes === 0
             ? `Hoje (${feriado.dataTexto}) é ${feriado.nome}. ${feriado.mensagem}`
