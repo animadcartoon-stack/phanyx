@@ -15,23 +15,23 @@ export default function AgendaOperacionalPage() {
   const [periodo, setPeriodo] = useState<PeriodoFiltro>("SEMANA");
 
   const [cursoId, setCursoId] = useState("");
-const [turmaId, setTurmaId] = useState("");
-const [professorId, setProfessorId] = useState("");
-const [funcionarioId, setFuncionarioId] = useState("");
-const [disciplinaId, setDisciplinaId] = useState("");
-const [departamentoId, setDepartamentoId] = useState("");
-const [poloId, setPoloId] = useState("");
-const [pesquisa, setPesquisa] = useState("");
+  const [turmaId, setTurmaId] = useState("");
+  const [professorId, setProfessorId] = useState("");
+  const [funcionarioId, setFuncionarioId] = useState("");
+  const [disciplinaId, setDisciplinaId] = useState("");
+  const [departamentoId, setDepartamentoId] = useState("");
+  const [poloId, setPoloId] = useState("");
+  const [pesquisa, setPesquisa] = useState("");
 
-const [cursos, setCursos] = useState<any[]>([]);
-const [turmas, setTurmas] = useState<any[]>([]);
-const [professores, setProfessores] = useState<any[]>([]);
-const [funcionarios, setFuncionarios] = useState<any[]>([]);
-const [departamentos, setDepartamentos] = useState<any[]>([]);
-const [disciplinas, setDisciplinas] = useState<any[]>([]);
-const [polos, setPolos] = useState<any[]>([]);
+  const [cursos, setCursos] = useState<any[]>([]);
+  const [turmas, setTurmas] = useState<any[]>([]);
+  const [professores, setProfessores] = useState<any[]>([]);
+  const [funcionarios, setFuncionarios] = useState<any[]>([]);
+  const [departamentos, setDepartamentos] = useState<any[]>([]);
+  const [disciplinas, setDisciplinas] = useState<any[]>([]);
+  const [polos, setPolos] = useState<any[]>([]);
 
-const [linhaAberta, setLinhaAberta] = useState<number | null>(null);
+  const [linhaAberta, setLinhaAberta] = useState<number | null>(null);
 
   const [dados, setDados] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -89,6 +89,19 @@ const [colunasPdf, setColunasPdf] = useState<string[]>([
   "hora",
   "tipo",
   "evento",
+  "status",
+]);
+
+const colunasExcelDisponiveis = colunasDisponiveis;
+
+const [colunasExcel, setColunasExcel] = useState<string[]>([
+  "data",
+  "hora",
+  "tipo",
+  "evento",
+  "turma",
+  "professor",
+  "funcionario",
   "status",
 ]);
 
@@ -174,6 +187,11 @@ async function carregarPreferencias() {
     if (Array.isArray(data.colunasPdf)) {
       setColunasPdf(data.colunasPdf);
     }
+
+    if (Array.isArray(data.colunasExcel)) {
+  setColunasExcel(data.colunasExcel);
+}
+
   } catch (error) {
     console.error(error);
   }
@@ -214,6 +232,25 @@ async function salvarPreferenciasPdf(novasColunasPdf: string[]) {
     });
   } catch (error) {
     console.error("Erro ao salvar preferências do PDF:", error);
+  }
+}
+
+async function salvarPreferenciasExcel(novasColunasExcel: string[]) {
+  try {
+    await fetch("/api/admin/agenda-operacional/preferencias", {
+      method: "PUT",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        colunasTabela: colunasVisiveis,
+        colunasPdf,
+        colunasExcel: novasColunasExcel,
+      }),
+    });
+  } catch (error) {
+    console.error("Erro ao salvar preferências do Excel:", error);
   }
 }
 
@@ -518,6 +555,36 @@ function abrirExcelAgenda() {
             });
           }}
         />
+        {coluna.nome}
+      </label>
+    ))}
+  </div>
+</div>
+
+<div className="mt-6">
+  <h4 className="mb-2 text-sm font-semibold uppercase tracking-wide">
+    EXCEL
+  </h4>
+
+  <div className="grid grid-cols-2 gap-2 md:grid-cols-4 lg:grid-cols-5">
+    {colunasExcelDisponiveis.map((coluna) => (
+      <label
+        key={coluna.id}
+        className="flex items-center gap-2 text-sm"
+      >
+        <input
+          type="checkbox"
+          checked={colunasExcel.includes(coluna.id)}
+          onChange={(e) => {
+            const novasColunas = e.target.checked
+              ? [...colunasExcel, coluna.id]
+              : colunasExcel.filter((c) => c !== coluna.id);
+
+            setColunasExcel(novasColunas);
+            salvarPreferenciasExcel(novasColunas);
+          }}
+        />
+
         {coluna.nome}
       </label>
     ))}
