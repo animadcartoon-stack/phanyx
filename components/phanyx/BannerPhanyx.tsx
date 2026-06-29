@@ -59,13 +59,29 @@ export default function BannerPhanyx({
       "border-slate-400 bg-slate-100 text-slate-950 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100",
   };
 
+  const barraCor: Record<BannerPhanyxCor, string> = {
+  rosa: "bg-pink-500",
+  azul: "bg-blue-500",
+  verde: "bg-green-500",
+  amarelo: "bg-yellow-400",
+  vermelho: "bg-red-500",
+  laranja: "bg-orange-500",
+  roxo: "bg-violet-500",
+  cinza: "bg-slate-500",
+  preto: "bg-slate-900 dark:bg-slate-200",
+};
+
   return (
   <div
     className={`relative overflow-hidden rounded-2xl border bg-white text-slate-950 shadow-sm transition-all dark:bg-slate-950 dark:text-slate-100 ${
       cores[aviso.cor] ?? cores.roxo
     }`}
   >
-    <div className="absolute left-0 top-0 h-full w-2 bg-current opacity-100" />
+    <div
+  className={`absolute left-0 top-0 h-full w-2 ${
+    barraCor[aviso.cor] ?? barraCor.roxo
+  }`}
+/>
 
     {aviso.onFechar && (
       <button
@@ -92,7 +108,7 @@ export default function BannerPhanyx({
           {aviso.titulo}
         </h2>
 
-        <div className="mt-2 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 shadow-sm dark:bg-white/10 dark:text-slate-200">
+        <div className="mt-2 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[11px] font-semibold text-slate-700 shadow-sm dark:bg-white/10 dark:text-slate-200">
           {aviso.categoria === "Saúde" ? "❤️ Saúde" : aviso.categoria}
         </div>
 
