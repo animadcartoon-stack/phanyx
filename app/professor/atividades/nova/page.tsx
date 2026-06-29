@@ -29,7 +29,7 @@ export default function NovaAtividadeProfessorPage() {
   
   const [turmaId, setTurmaId] = useState("");
   const [disciplinaId, setDisciplinaId] = useState("");
-
+  const [turmaDisciplinaSelecionada, setTurmaDisciplinaSelecionada] = useState("");
   
   const [turmas, setTurmas] = useState<Turma[]>([]);
 
@@ -167,6 +167,8 @@ setMensagem(
       setPrazo("");
       setNotaMaxima("10");
       setTurmaId("");
+      setDisciplinaId("");
+      setTurmaDisciplinaSelecionada("");
       setArquivo(null);
       setArquivoEnviado(null);
     } catch (e: any) {
@@ -286,26 +288,35 @@ setMensagem(
     Turma
   </label>
   <select
-    value={turmaId && disciplinaId ? `${turmaId}:${disciplinaId}` : ""}
-    onChange={(e) => {
-  const [turma, disciplina] = e.target.value.split(":");
-  setTurmaId(turma || "");
-  setDisciplinaId(disciplina || "");
-}}
-    required
-    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
-  >
-    <option value="">Selecione uma turma</option>
-    {turmas.map((turma) => (
-      <option
-  key={`${turma.id}-${turma.disciplina?.id || turma.disciplinaId}`}
-  value={`${turma.id}:${turma.disciplina?.id || turma.disciplinaId || ""}`}
+  value={turmaDisciplinaSelecionada}
+  onChange={(e) => {
+    const valor = e.target.value;
+    const [turma, disciplina] = valor.split(":");
+
+    setTurmaDisciplinaSelecionada(valor);
+    setTurmaId(turma || "");
+    setDisciplinaId(disciplina || "");
+  }}
+  required
+  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
 >
+  <option value="">Selecione uma turma</option>
+
+  {turmas.map((turma) => {
+    const disciplinaDaTurma =
+      turma.disciplina?.id || turma.disciplinaId || null;
+
+    return (
+      <option
+        key={`${turma.id}-${disciplinaDaTurma}`}
+        value={`${turma.id}:${disciplinaDaTurma || ""}`}
+      >
         {turma.nome || `Turma ${turma.id}`}
         {turma.disciplina?.nome ? ` — ${turma.disciplina.nome}` : ""}
       </option>
-    ))}
-  </select>
+    );
+  })}
+</select>
 </div>
 
             <div className="grid gap-4 md:grid-cols-2">
