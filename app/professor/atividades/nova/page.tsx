@@ -157,9 +157,6 @@ setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
       setAtividadeCriadaId(json.id);
       setModalPublicar(true);
 
-      setAtividadeCriadaId(json.id);
-      setModalPublicar(true);
-
 setMensagem(
   arquivoEnviado
     ? "Atividade criada com sucesso, com anexo vinculado."
@@ -289,7 +286,7 @@ setMensagem(
     Turma
   </label>
   <select
-    value={turmaId}
+    value={turmaId && disciplinaId ? `${turmaId}:${disciplinaId}` : ""}
     onChange={(e) => {
   const [turma, disciplina] = e.target.value.split(":");
   setTurmaId(turma || "");
