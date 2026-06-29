@@ -2647,3 +2647,26 @@ html[data-theme="light"] .phanyx-aviso-inteligente a {
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
+
+/* PROFESSOR - ATIVIDADES / UPLOAD DE ANEXO */
+.phanyx-atividade-upload-file {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.phanyx-atividade-upload-file * {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-atividade-upload-file,
+html[data-theme="system"] .phanyx-atividade-upload-file {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-atividade-upload-file *,
+html[data-theme="system"] .phanyx-atividade-upload-file * {
+  color: #f8fafc !important;
+}

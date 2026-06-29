@@ -166,7 +166,11 @@ const json = {
         throw new Error(json.error || "Erro ao criar atividade");
       }
 
-      setMensagem("Atividade criada com sucesso.");
+      setMensagem(
+  arquivoEnviado
+    ? "Atividade criada com sucesso, com anexo vinculado."
+    : "Atividade criada com sucesso."
+);
       setTitulo("");
       setDescricao("");
       setPrazo("");
@@ -329,10 +333,10 @@ const json = {
 </label>
 
               {arquivo && (
-                <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
-                  Arquivo selecionado: <strong>{arquivo.name}</strong>
-                </div>
-              )}
+  <div className="phanyx-atividade-upload-file rounded-lg p-3 text-sm">
+    Arquivo selecionado: <strong>{arquivo.name}</strong>
+  </div>
+)}
 
               <div className="flex flex-wrap gap-3">
                 <button
