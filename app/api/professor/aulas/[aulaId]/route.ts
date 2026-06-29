@@ -43,22 +43,22 @@ export async function DELETE(
   where: {
     id: aulaId,
     instituicaoId: user.instituicaoId,
-    disciplina: {
-      instituicaoId: user.instituicaoId,
-      OR: [
-        { professorId: professor.id },
-        {
-          professoresHabilitados: {
-            some: {
-              professorId: professor.id,
-            },
-          },
-        },
-      ],
-    },
   },
   select: {
     id: true,
+    turmaId: true,
+    disciplinaId: true,
+    substituicaoDocenteId: true,
+    disciplina: {
+      select: {
+        professorId: true,
+        professoresHabilitados: {
+          select: {
+            professorId: true,
+          },
+        },
+      },
+    },
   },
 });
 
@@ -68,6 +68,36 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    const professorTitular = aula.disciplina?.professorId === professor.id;
+
+const professorHabilitado = aula.disciplina?.professoresHabilitados?.some(
+  (p) => p.professorId === professor.id
+);
+
+const substituicaoAtiva =
+  aula.disciplinaId
+    ? await prisma.substituicaoDocente.findFirst({
+        where: {
+          id: aula.substituicaoDocenteId ?? -1,
+          instituicaoId: user.instituicaoId,
+          professorSubstitutoId: professor.id,
+          turmaId: aula.turmaId,
+          disciplinaId: aula.disciplinaId,
+          status: "ATIVA",
+        },
+        select: {
+          id: true,
+        },
+      })
+    : null;
+
+if (!professorTitular && !professorHabilitado && !substituicaoAtiva) {
+  return NextResponse.json(
+    { error: "Você não tem permissão para excluir esta aula." },
+    { status: 403 }
+  );
+}
 
     await prisma.aula.delete({
       where: {

@@ -22,27 +22,60 @@ async function validarAulaDoProfessor(aulaId: number) {
   }
 
   const aula = await prisma.aula.findFirst({
-    where: {
-      id: aulaId,
-      instituicaoId: user.instituicaoId,
-      disciplina: {
-        OR: [
-          { professorId: professor.id },
-          {
-            professoresHabilitados: {
-              some: { professorId: professor.id },
-            },
+  where: {
+    id: aulaId,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+    instituicaoId: true,
+    turmaId: true,
+    disciplinaId: true,
+    substituicaoDocenteId: true,
+    disciplina: {
+      select: {
+        professorId: true,
+        professoresHabilitados: {
+          select: {
+            professorId: true,
           },
-        ],
+        },
       },
     },
-    select: { id: true, instituicaoId: true },
-  });
+  },
+});
 
-  if (!aula) {
-    return { erro: "Aula não encontrada ou sem acesso", status: 404 as const };
-  }
+if (!aula) {
+  return { erro: "Aula não encontrada ou sem acesso", status: 404 as const };
+}
 
+const professorTitular =
+  aula.disciplina?.professorId === professor.id;
+
+const professorHabilitado =
+  aula.disciplina?.professoresHabilitados?.some(
+    (p) => p.professorId === professor.id
+  );
+
+const substituicaoAtiva =
+  aula.disciplinaId
+    ? await prisma.substituicaoDocente.findFirst({
+        where: {
+          instituicaoId: user.instituicaoId,
+          professorSubstitutoId: professor.id,
+          turmaId: aula.turmaId,
+          disciplinaId: aula.disciplinaId,
+          status: "ATIVA",
+        },
+        select: {
+          id: true,
+        },
+      })
+    : null;
+
+if (!professorTitular && !professorHabilitado && !substituicaoAtiva) {
+  return { erro: "Aula não encontrada ou sem acesso", status: 404 as const };
+}
   return { user, professor, aula };
 }
 
