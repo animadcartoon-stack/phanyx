@@ -141,6 +141,17 @@ export async function GET(req: NextRequest) {
     }
 
     const agenda = dadosAgenda?.agenda || [];
+
+    const resumoAgenda = {
+      aulas: agenda.filter((i: any) => i.tipo === "AULA").length,
+      provas: agenda.filter((i: any) => i.tipo === "PROVA").length,
+      atividades: agenda.filter((i: any) => i.tipo === "ATIVIDADE").length,
+      reunioes: agenda.filter((i: any) => i.tipo === "REUNIAO").length,
+      ferias: agenda.filter((i: any) => i.tipo === "FERIAS_RH").length,
+      escalas: agenda.filter((i: any) => i.tipo === "ESCALA_RH").length,
+      semProfessor: agenda.filter((i: any) => i.tipo === "SEM_PROFESSOR").length,
+};
+
     const periodo = req.nextUrl.searchParams.get("periodo");
 
     const workbook = new ExcelJS.Workbook();
@@ -172,7 +183,22 @@ export async function GET(req: NextRequest) {
       usuario?.nome || usuario?.email || "-"
     }`;
 
-    const linhaCabecalho = 9;
+    worksheet.getCell("A8").value = `Eventos encontrados: ${agenda.length}`;
+    worksheet.getCell("A8").font = { bold: true };
+
+    worksheet.getCell("A10").value = "Resumo da Agenda";
+    worksheet.getCell("A10").font = { bold: true, size: 12 };
+
+    worksheet.getCell("A11").value = `Aulas: ${resumoAgenda.aulas}`;
+    worksheet.getCell("C11").value = `Provas: ${resumoAgenda.provas}`;
+    worksheet.getCell("E11").value = `Atividades: ${resumoAgenda.atividades}`;
+    worksheet.getCell("G11").value = `Reuniões: ${resumoAgenda.reunioes}`;
+
+    worksheet.getCell("A12").value = `Férias RH: ${resumoAgenda.ferias}`;
+    worksheet.getCell("C12").value = `Escalas RH: ${resumoAgenda.escalas}`;
+    worksheet.getCell("E12").value = `Sem professor: ${resumoAgenda.semProfessor}`;
+
+const linhaCabecalho = 14;
 
     colunasExcel.forEach((coluna, index) => {
       const cell = worksheet.getCell(linhaCabecalho, index + 1);

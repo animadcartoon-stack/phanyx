@@ -6,6 +6,12 @@ function isProfessorRole(role: unknown) {
   return String(role || "").trim().toUpperCase() === "PROFESSOR";
 }
 
+function inicioDoDia(data: Date) {
+  const d = new Date(data);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 export async function GET(_req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -199,31 +205,64 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        instituicaoId: user.instituicaoId,
-        OR: [
-          { professorId: professor.id },
-          {
-            disciplinas: {
-              some: {
-                disciplina: {
-                  professorId: professor.id,
-                },
-              },
-            },
-          },
-        ],
-      },
-      include: {
+    const hoje = inicioDoDia(new Date());
+
+const substituicoesAtivas = await prisma.substituicaoDocente.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    professorSubstitutoId: professor.id,
+    status: "ATIVA",
+    dataInicio: {
+      lte: hoje,
+    },
+    OR: [{ dataFim: null }, { dataFim: { gte: hoje } }],
+  },
+  select: {
+    id: true,
+    turmaId: true,
+    disciplinaId: true,
+  },
+});
+
+   const turma = await prisma.turma.findFirst({
+  where: {
+    id: turmaId,
+    instituicaoId: user.instituicaoId,
+    OR: [
+      { professorId: professor.id },
+      {
         disciplinas: {
-          include: {
-            disciplina: true,
+          some: {
+            disciplina: {
+              OR: [
+                { professorId: professor.id },
+                {
+                  professoresHabilitados: {
+                    some: {
+                      professorId: professor.id,
+                    },
+                  },
+                },
+              ],
+            },
           },
         },
       },
-    });
+      {
+        id: {
+          in: substituicoesAtivas.map((s) => s.turmaId),
+        },
+      },
+    ],
+  },
+  include: {
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
+    },
+  },
+});
 
     if (!turma) {
       return NextResponse.json({ error: "Turma inválida" }, { status: 403 });
@@ -250,6 +289,12 @@ export async function POST(req: NextRequest) {
       disciplinaFinalId = turma.disciplinas?.[0]?.disciplina?.id || null;
     }
 
+    const substituicaoAtiva = substituicoesAtivas.find(
+  (s) =>
+    s.turmaId === turma.id &&
+    s.disciplinaId === disciplinaFinalId
+);
+
     const anexo = body?.anexo ?? null;
 
     const atividade = await prisma.atividade.create({
@@ -260,6 +305,7 @@ export async function POST(req: NextRequest) {
         notaMaxima,
         turmaId: turma.id,
         disciplinaId: disciplinaFinalId,
+        substituicaoDocenteId: substituicaoAtiva?.id ?? null,
         instituicaoId: user.instituicaoId,
         status: "RASCUNHO",
         publicadaAt: null,
