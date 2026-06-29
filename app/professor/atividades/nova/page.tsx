@@ -416,8 +416,53 @@ setMensagem(
               </button>
             </div>
           </form>
+          
         )}
       </div>
+      {modalPublicar && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 px-4">
+    <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-950 p-6 text-white shadow-2xl">
+      <div className="flex items-start gap-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600/20 text-2xl">
+          📢
+        </div>
+
+        <div className="flex-1">
+          <h2 className="text-xl font-black">
+            Publicar atividade?
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-300">
+            A atividade foi criada como rascunho. Deseja publicá-la agora para
+            os alunos?
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setModalPublicar(false);
+            setAtividadeCriadaId(null);
+          }}
+          className="rounded-2xl border border-slate-600 px-4 py-2 text-sm font-bold text-slate-100 transition hover:bg-slate-800"
+        >
+          Manter rascunho
+        </button>
+
+        <button
+          type="button"
+          onClick={publicarAtividadeAgora}
+          disabled={publicando}
+          className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:opacity-60"
+        >
+          {publicando ? "Publicando..." : "Publicar agora"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
