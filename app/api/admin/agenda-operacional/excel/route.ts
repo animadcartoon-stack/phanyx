@@ -64,6 +64,29 @@ function nomePeriodo(periodo?: string | null) {
   }
 }
 
+async function carregarImagemBase64(url?: string | null) {
+  if (!url) return null;
+
+  try {
+    let urlImagem = url;
+
+    if (urlImagem.startsWith("/")) {
+      urlImagem = `${process.env.NEXT_PUBLIC_APP_URL}${urlImagem}`;
+    }
+
+    const res = await fetch(urlImagem, { cache: "no-store" });
+
+    if (!res.ok) return null;
+
+    const arrayBuffer = await res.arrayBuffer();
+
+    return Buffer.from(arrayBuffer).toString("base64");
+  } catch (error) {
+    console.error("Erro ao carregar logo no Excel:", error);
+    return null;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -88,6 +111,7 @@ export async function GET(req: NextRequest) {
           email: true,
           cidade: true,
           estado: true,
+          logoUrl: true,
         },
       });
 
@@ -162,9 +186,25 @@ export async function GET(req: NextRequest) {
       views: [{ state: "frozen", ySplit: 8 }],
     });
 
-    worksheet.mergeCells("A1:G1");
-    worksheet.getCell("A1").value = "Agenda Operacional";
-    worksheet.getCell("A1").font = { bold: true, size: 18 };
+    const logoBase64 = await carregarImagemBase64(
+  configuracaoInstituicao?.logoUrl
+);
+
+if (logoBase64) {
+  const logoId = workbook.addImage({
+    base64: logoBase64,
+    extension: "png",
+  });
+
+  worksheet.addImage(logoId, {
+    tl: { col: 0, row: 0 },
+    ext: { width: 90, height: 50 },
+  });
+}
+
+    worksheet.mergeCells("B1:G1");
+    worksheet.getCell("B1").value = "Agenda Operacional";
+    worksheet.getCell("B1").font = { bold: true, size: 18 };
 
     worksheet.getCell("A2").value = `Instituição: ${nomeInstituicao}`;
     worksheet.getCell("A3").value = `CNPJ: ${configuracaoInstituicao?.cnpj || "-"}`;
