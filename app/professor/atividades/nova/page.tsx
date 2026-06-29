@@ -66,66 +66,46 @@ setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
   }, []);
 
   async function handleUploadArquivo() {
-    if (!arquivo) {
-      setErro("Selecione um arquivo para enviar.");
-      return;
-    }
-
-    try {
-      setUploadingArquivo(true);
-      setErro("");
-      setMensagem("");
-
-      const resUploadUrl = await fetch("/api/professor/upload-url", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    nomeOriginal: arquivo.name,
-    mimeType: arquivo.type || "application/octet-stream",
-    tamanho: arquivo.size,
-  }),
-});
-
-const jsonUploadUrl = await resUploadUrl.json();
-
-if (!resUploadUrl.ok) {
-  throw new Error(jsonUploadUrl?.error || "Erro ao gerar upload");
-}
-
-const resUploadDireto = await fetch(jsonUploadUrl.uploadUrl, {
-  method: "PUT",
-  headers: {
-    "Content-Type": arquivo.type || "application/octet-stream",
-  },
-  body: arquivo,
-});
-
-if (!resUploadDireto.ok) {
-  throw new Error("Erro ao enviar arquivo para o storage");
-}
-
-const json = {
-  arquivo: {
-    url: jsonUploadUrl.arquivoUrl,
-  },
-};
-
-      setArquivoEnviado({
-  key: jsonUploadUrl.key,
-  nomeOriginal: arquivo.name,
-  mimeType: arquivo.type || "application/octet-stream",
-  tamanho: arquivo.size,
-  url: jsonUploadUrl.arquivoUrl,
-});
-      setMensagem("Arquivo enviado com sucesso.");
-    } catch (e: any) {
-      setErro(e.message || "Erro ao enviar arquivo");
-    } finally {
-      setUploadingArquivo(false);
-    }
+  if (!arquivo) {
+    setErro("Selecione um arquivo para enviar.");
+    return;
   }
+
+  try {
+    setUploadingArquivo(true);
+    setErro("");
+    setMensagem("");
+
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const res = await fetch("/api/professor/atividades/upload-anexo", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || "Erro ao enviar arquivo.");
+    }
+
+    setArquivoEnviado({
+      key: json.key,
+      nomeOriginal: json.nomeOriginal,
+      mimeType: json.mimeType,
+      tamanho: json.tamanho,
+      url: json.url,
+    });
+
+    setMensagem("Arquivo enviado com sucesso.");
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao enviar arquivo.");
+  } finally {
+    setUploadingArquivo(false);
+  }
+}
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
