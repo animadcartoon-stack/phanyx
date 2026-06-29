@@ -206,10 +206,10 @@ async function salvarPreferencias(novasColunasTabela: string[]) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        colunasTabela: novasColunasTabela,
-        colunasPdf,
-        colunasExcel: novasColunasTabela,
-      }),
+  colunasTabela: novasColunasTabela,
+  colunasPdf,
+  colunasExcel,
+}),
     });
   } catch (error) {
     console.error("Erro ao salvar preferências:", error);
@@ -225,10 +225,10 @@ async function salvarPreferenciasPdf(novasColunasPdf: string[]) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        colunasTabela: colunasVisiveis,
-        colunasPdf: novasColunasPdf,
-        colunasExcel: colunasVisiveis,
-      }),
+  colunasTabela: colunasVisiveis,
+  colunasPdf: novasColunasPdf,
+  colunasExcel,
+}),
     });
   } catch (error) {
     console.error("Erro ao salvar preferências do PDF:", error);
@@ -244,10 +244,10 @@ async function salvarPreferenciasExcel(novasColunasExcel: string[]) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        colunasTabela: colunasVisiveis,
-        colunasPdf,
-        colunasExcel: novasColunasExcel,
-      }),
+  colunasTabela: colunasVisiveis,
+  colunasPdf,
+  colunasExcel: novasColunasExcel,
+}),
     });
   } catch (error) {
     console.error("Erro ao salvar preferências do Excel:", error);
