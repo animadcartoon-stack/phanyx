@@ -43,7 +43,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "cinza",
     texto: "escuro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   2: {
@@ -55,7 +54,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "laranja",
     texto: "escuro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   3: {
@@ -67,7 +65,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "vermelho",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   4: {
@@ -79,7 +76,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "azul",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   5: {
@@ -91,7 +87,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "cinza",
     texto: "escuro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   6: {
@@ -103,7 +98,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "vermelho",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   7: {
@@ -115,7 +109,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "verde",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   8: {
@@ -127,7 +120,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "amarelo",
     texto: "escuro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   9: {
@@ -139,7 +131,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "amarelo",
     texto: "escuro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   10: {
@@ -151,7 +142,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "rosa",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   11: {
@@ -163,7 +153,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "azul",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
   12: {
@@ -175,7 +164,6 @@ const campanhasPorMes: Record<number, AvisoInteligente> = {
     categoria: "Saúde",
     cor: "vermelho",
     texto: "claro",
-    textoBotao: "Saiba mais",
     prioridade: 20,
   },
 };
@@ -186,7 +174,7 @@ export function getAvisoInteligente(dataBase = new Date()): AvisoInteligente {
   return (
     campanhasPorMes[mes] ?? {
       tipo: "PADRAO",
-      titulo: "PHANYX informa",
+      titulo: "Saúde • Campanha Nacional",
       descricao: "Informação, prevenção e cuidado durante todo o ano.",
       frase:
         "Pequenas atitudes de hoje podem fazer uma grande diferença no futuro.",
@@ -194,7 +182,6 @@ export function getAvisoInteligente(dataBase = new Date()): AvisoInteligente {
       categoria: "Informativo",
       cor: "verde",
       texto: "claro",
-      textoBotao: "Saiba mais",
       prioridade: 1,
     }
   );

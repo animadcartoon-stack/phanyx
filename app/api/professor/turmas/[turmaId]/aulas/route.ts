@@ -250,6 +250,19 @@ if (!podeAcessar) {
   );
 }
 
+const substituicaoAtiva = await prisma.substituicaoDocente.findFirst({
+  where: {
+    instituicaoId: user.instituicaoId,
+    professorSubstitutoId: professor.id,
+    turmaId: turma.id,
+    disciplinaId,
+    status: "ATIVA",
+  },
+  select: {
+    id: true,
+  },
+});
+
     const ultimaAula = await prisma.aula.findFirst({
   where: {
     turmaId,
@@ -260,17 +273,18 @@ if (!podeAcessar) {
     });
 
     const novaAula = await prisma.aula.create({
-      data: {
-  titulo,
-  descricao,
-  duracaoMin,
-  videoUrl,
-  instituicaoId: user.instituicaoId,
-  turmaId: turma.id,
-  disciplinaId,
-  ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
-},
-    });
+  data: {
+    titulo,
+    descricao,
+    duracaoMin,
+    videoUrl,
+    instituicaoId: user.instituicaoId,
+    turmaId: turma.id,
+    disciplinaId,
+    substituicaoDocenteId: substituicaoAtiva?.id ?? null,
+    ordem: ultimaAula?.ordem ? Number(ultimaAula.ordem) + 1 : 1,
+  },
+});
 
     return NextResponse.json(novaAula, { status: 201 });
   } catch (e: any) {

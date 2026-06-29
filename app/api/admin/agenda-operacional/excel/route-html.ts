@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import ExcelJS from "exceljs";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -32,16 +31,27 @@ const NOMES_COLUNAS: Record<string, string> = {
   observacoes: "Observações",
 };
 
+function limpar(valor: any) {
+  return String(valor ?? "-")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 function formatarData(valor: any) {
   if (!valor) return "-";
+
   const data = new Date(valor);
+
   if (Number.isNaN(data.getTime())) return "-";
+
   return data.toLocaleDateString("pt-BR");
 }
 
 function textoItem(item: any, coluna: string) {
   if (coluna === "data") return formatarData(item.data);
   if (coluna === "evento") return item.titulo || item.evento || "-";
+
   return item[coluna] || "-";
 }
 
@@ -141,97 +151,106 @@ export async function GET(req: NextRequest) {
     }
 
     const agenda = dadosAgenda?.agenda || [];
+
     const periodo = req.nextUrl.searchParams.get("periodo");
 
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = "PHANYX";
-    workbook.created = new Date();
+    const cabecalhos = colunasExcel
+      .map((coluna) => `<th>${limpar(NOMES_COLUNAS[coluna] || coluna)}</th>`)
+      .join("");
 
-    const worksheet = workbook.addWorksheet("Agenda Operacional", {
-      views: [{ state: "frozen", ySplit: 8 }],
-    });
+    const linhas =
+      agenda.length === 0
+        ? `<tr><td colspan="${colunasExcel.length}">Nenhum evento encontrado.</td></tr>`
+        : agenda
+            .map(
+              (item: any) =>
+                `<tr>${colunasExcel
+                  .map(
+                    (coluna) =>
+                      `<td>${limpar(textoItem(item, coluna))}</td>`
+                  )
+                  .join("")}</tr>`
+            )
+            .join("");
 
-    worksheet.mergeCells("A1:G1");
-    worksheet.getCell("A1").value = "Agenda Operacional";
-    worksheet.getCell("A1").font = { bold: true, size: 18 };
+    const html = `
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              color: #111827;
+            }
 
-    worksheet.getCell("A2").value = `Instituição: ${nomeInstituicao}`;
-    worksheet.getCell("A3").value = `CNPJ: ${configuracaoInstituicao?.cnpj || "-"}`;
-    worksheet.getCell("A4").value = `Contato: ${[
-      configuracaoInstituicao?.telefone,
-      configuracaoInstituicao?.email,
-      [configuracaoInstituicao?.cidade, configuracaoInstituicao?.estado]
-        .filter(Boolean)
-        .join(" - "),
-    ]
-      .filter(Boolean)
-      .join(" • ") || "-"}`;
-    worksheet.getCell("A5").value = `Período: ${nomePeriodo(periodo)}`;
-    worksheet.getCell("A6").value = `Emitido em: ${new Date().toLocaleString("pt-BR")}`;
-    worksheet.getCell("A7").value = `Emitido por: ${
-      usuario?.nome || usuario?.email || "-"
-    }`;
+            h1 {
+              font-size: 20px;
+              margin-bottom: 4px;
+            }
 
-    const linhaCabecalho = 9;
+            p {
+              margin: 3px 0;
+              font-size: 12px;
+            }
 
-    colunasExcel.forEach((coluna, index) => {
-      const cell = worksheet.getCell(linhaCabecalho, index + 1);
-      cell.value = NOMES_COLUNAS[coluna] || coluna;
-      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
-      cell.fill = {
-        type: "pattern",
-        pattern: "solid",
-        fgColor: { argb: "FF1E3A8A" },
-      };
-      cell.alignment = { vertical: "middle", horizontal: "center" };
-      cell.border = {
-        top: { style: "thin", color: { argb: "FFCBD5E1" } },
-        left: { style: "thin", color: { argb: "FFCBD5E1" } },
-        bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
-        right: { style: "thin", color: { argb: "FFCBD5E1" } },
-      };
-    });
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              margin-top: 14px;
+            }
 
-    agenda.forEach((item: any, linhaIndex: number) => {
-      const linha = linhaCabecalho + 1 + linhaIndex;
+            th {
+              background: #1e3a8a;
+              color: #ffffff;
+              font-weight: bold;
+            }
 
-      colunasExcel.forEach((coluna, index) => {
-        const cell = worksheet.getCell(linha, index + 1);
-        cell.value = textoItem(item, coluna);
-        cell.border = {
-          top: { style: "thin", color: { argb: "FFE5E7EB" } },
-          left: { style: "thin", color: { argb: "FFE5E7EB" } },
-          bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
-          right: { style: "thin", color: { argb: "FFE5E7EB" } },
-        };
-      });
-    });
+            th, td {
+              border: 1px solid #9ca3af;
+              padding: 6px;
+              font-size: 12px;
+              vertical-align: top;
+            }
+          </style>
+        </head>
 
-    worksheet.autoFilter = {
-      from: { row: linhaCabecalho, column: 1 },
-      to: { row: linhaCabecalho, column: colunasExcel.length },
-    };
+        <body>
+          <h1>Agenda Operacional</h1>
 
-    worksheet.columns.forEach((column) => {
-      let maxLength = 12;
+          <p><strong>Instituição:</strong> ${limpar(nomeInstituicao)}</p>
+          <p><strong>CNPJ:</strong> ${limpar(configuracaoInstituicao?.cnpj || "-")}</p>
+          <p><strong>Contato:</strong> ${limpar(
+            [
+              configuracaoInstituicao?.telefone,
+              configuracaoInstituicao?.email,
+              [configuracaoInstituicao?.cidade, configuracaoInstituicao?.estado]
+                .filter(Boolean)
+                .join(" - "),
+            ]
+              .filter(Boolean)
+              .join(" • ") || "-"
+          )}</p>
+          <p><strong>Período:</strong> ${limpar(nomePeriodo(periodo))}</p>
+          <p><strong>Emitido em:</strong> ${limpar(new Date().toLocaleString("pt-BR"))}</p>
+          <p><strong>Emitido por:</strong> ${limpar(usuario?.nome || usuario?.email || "-")}</p>
 
-      column.eachCell?.({ includeEmpty: true }, (cell) => {
-        const value = String(cell.value || "");
-        maxLength = Math.max(maxLength, value.length + 2);
-      });
+          <table>
+            <thead>
+              <tr>${cabecalhos}</tr>
+            </thead>
+            <tbody>
+              ${linhas}
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
 
-      column.width = Math.min(maxLength, 38);
-    });
-
-    const buffer = await workbook.xlsx.writeBuffer();
-
-    return new NextResponse(buffer, {
+    return new NextResponse(html, {
       status: 200,
       headers: {
-        "Content-Type":
-          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition":
-          'attachment; filename="agenda-operacional.xlsx"',
+        "Content-Type": "application/vnd.ms-excel; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="agenda-operacional.xls"',
         "Cache-Control": "no-store",
       },
     });

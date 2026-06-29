@@ -272,6 +272,35 @@ export default function SubstituicoesDocentesPage() {
     return "border-yellow-200 bg-yellow-50 text-yellow-700 dark:border-yellow-900 dark:bg-yellow-950/40 dark:text-yellow-300";
   }
 
+  async function alterarStatusSubstituicao(
+  id: number,
+  acao: "ENCERRAR" | "SUSPENDER" | "REATIVAR" | "CANCELAR"
+) {
+  try {
+    setSalvando(true);
+
+    const res = await fetch("/api/admin/substituicoes-docentes", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ id, acao }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || "Erro ao atualizar substituição.");
+    }
+
+    await carregarDados();
+    mostrarFeedback("sucesso", "Substituição atualizada com sucesso.");
+  } catch (e: any) {
+    mostrarFeedback("erro", e?.message || "Erro ao atualizar substituição.");
+  } finally {
+    setSalvando(false);
+  }
+}
+
   return (
     <main className="phanyx-substituicoes-page space-y-6 text-slate-900 dark:text-slate-100">
       {feedback && (
@@ -418,14 +447,73 @@ export default function SubstituicoesDocentesPage() {
                         {formatarData(item.dataFim)}
                       </td>
                       <td className="px-4 py-3">
-                        <button
-  type="button"
-  onClick={() => setSubstituicaoVisualizada(item)}
-  className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
->
-  Visualizar
-</button>
-                      </td>
+  <div className="flex flex-wrap gap-2">
+    <button
+      type="button"
+      onClick={() => setSubstituicaoVisualizada(item)}
+      className="rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+    >
+      Visualizar
+    </button>
+
+    {item.status === "ATIVA" && (
+      <>
+        <button
+          type="button"
+          onClick={() => alterarStatusSubstituicao(item.id, "SUSPENDER")}
+          disabled={salvando}
+          className="rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-bold text-amber-800 transition hover:bg-amber-100 disabled:opacity-60"
+        >
+          Suspender
+        </button>
+
+        <button
+          type="button"
+          onClick={() => alterarStatusSubstituicao(item.id, "ENCERRAR")}
+          disabled={salvando}
+          className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
+        >
+          Encerrar
+        </button>
+      </>
+    )}
+
+    {item.status === "SUSPENSA" && (
+      <>
+        <button
+          type="button"
+          onClick={() => alterarStatusSubstituicao(item.id, "REATIVAR")}
+          disabled={salvando}
+          className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-bold text-blue-800 transition hover:bg-blue-100 disabled:opacity-60"
+        >
+          Reativar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => alterarStatusSubstituicao(item.id, "ENCERRAR")}
+          disabled={salvando}
+          className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-bold text-green-800 transition hover:bg-green-100 disabled:opacity-60"
+        >
+          Encerrar
+        </button>
+      </>
+    )}
+
+    {(item.status === "AGENDADA" ||
+      item.status === "ATIVA" ||
+      item.status === "SUSPENSA") && (
+      <button
+        type="button"
+        onClick={() => alterarStatusSubstituicao(item.id, "CANCELAR")}
+        disabled={salvando}
+        className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-bold text-red-700 transition hover:bg-red-100 disabled:opacity-60"
+      >
+        Cancelar
+      </button>
+    )}
+  </div>
+</td>
                     </tr>
                   ))}
                 </tbody>

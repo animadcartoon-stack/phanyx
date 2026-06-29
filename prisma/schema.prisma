@@ -683,25 +683,27 @@ model Modulo {
 }
 
 model Aula {
-  id            Int      @id @default(autoincrement())
-  titulo        String
-  moduloId      Int?
-  createdAt     DateTime @default(now())
-  descricao     String?
-  duracaoMin    Int?
-  instituicaoId Int
-  ordem         Int
-  publicada     Boolean  @default(true)
-  turmaId       Int
-  disciplinaId  Int?
-  updatedAt     DateTime @updatedAt
-  videoUrl      String?
+  id                        Int      @id @default(autoincrement())
+  titulo                    String
+  moduloId                  Int?
+  createdAt                 DateTime @default(now())
+  descricao                 String?
+  duracaoMin                Int?
+  instituicaoId             Int
+  ordem                     Int
+  publicada                 Boolean  @default(true)
+  turmaId                   Int
+  disciplinaId              Int?
+  substituicaoDocenteId     Int?
+  updatedAt                 DateTime @updatedAt
+  videoUrl                  String?
 
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   modulo      Modulo?     @relation(fields: [moduloId], references: [id])
   turma       Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
   disciplina  Disciplina? @relation(fields: [disciplinaId], references: [id], onDelete: SetNull)
-
+  substituicaoDocente SubstituicaoDocente? @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
+  
   materiais MaterialAula[]
   presencas PresencaAula[]
   progresso ProgressoAula[]
@@ -710,6 +712,7 @@ model Aula {
   @@index([instituicaoId])
   @@index([turmaId])
   @@index([disciplinaId])
+  @@index([substituicaoDocenteId])
   @@index([moduloId])
 }
 
@@ -754,20 +757,21 @@ model ProgressoAula {
 }
 
 model Atividade {
-  id          Int             @id @default(autoincrement())
-  titulo      String
-  descricao   String?
-  prazo       DateTime?
-  notaMaxima  Float           @default(10)
-  status      StatusAtividade @default(RASCUNHO)
-  publicadaAt DateTime?
-  encerradaAt DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id                          Int             @id @default(autoincrement())
+  titulo                      String
+  descricao                   String?
+  prazo                       DateTime?
+  notaMaxima                  Float           @default(10)
+  status                      StatusAtividade @default(RASCUNHO)
+  publicadaAt                 DateTime?
+  encerradaAt                 DateTime?
+  createdAt                   DateTime        @default(now())
+  updatedAt                   DateTime        @updatedAt
 
-  instituicaoId Int
-  turmaId       Int
-  disciplinaId  Int?
+  instituicaoId               Int
+  turmaId                     Int
+  disciplinaId                Int?
+  substituicaoDocenteId       Int?
 
   criadoPorId                 Int?
   professorResponsavelId      Int?
@@ -775,12 +779,13 @@ model Atividade {
   enviadoParaApoioDocenteEm   DateTime?
   publicadoPeloApoioDocenteEm DateTime?
 
-  instituicao          Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  turma                Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  disciplina           Disciplina? @relation(fields: [disciplinaId], references: [id])
-  criadoPor            User?       @relation("AtividadeCriadaPor", fields: [criadoPorId], references: [id])
-  publicadoPor         User?       @relation("AtividadePublicadaPor", fields: [publicadoPorId], references: [id])
-  professorResponsavel Professor?  @relation("AtividadeProfessorResponsavel", fields: [professorResponsavelId], references: [id])
+  instituicao           Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  turma                 Turma                 @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina            Disciplina?           @relation(fields: [disciplinaId], references: [id])
+  criadoPor             User?                 @relation("AtividadeCriadaPor", fields: [criadoPorId], references: [id])
+  publicadoPor          User?                 @relation("AtividadePublicadaPor", fields: [publicadoPorId], references: [id])
+  professorResponsavel  Professor?            @relation("AtividadeProfessorResponsavel", fields: [professorResponsavelId], references: [id])
+  substituicaoDocente   SubstituicaoDocente?  @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
 
   anexos                    AtividadeAnexo[]
   entregas                  EntregaAtividade[]
@@ -792,6 +797,7 @@ model Atividade {
   @@index([disciplinaId])
   @@index([criadoPorId])
   @@index([professorResponsavelId])
+  @@index([substituicaoDocenteId])
   @@index([publicadoPorId])
   @@index([status])
   @@index([instituicaoId, status])
@@ -877,29 +883,32 @@ model EntregaAtividadeHistorico {
 }
 
 model Prova {
-  id                    Int              @id @default(autoincrement())
+  id                    Int                     @id @default(autoincrement())
   titulo                String
-  notaMaxima            Float            @default(10)
-  ativa                 Boolean          @default(true)
-  createdAt             DateTime         @default(now())
+  notaMaxima            Float                   @default(10)
+  ativa                 Boolean                 @default(true)
+  createdAt             DateTime                @default(now())
   descricao             String?
   disponivelEm          DateTime?
   notaDisponivelEm      DateTime?
-  mostrarNotaAoFinal    Boolean          @default(false)
+  mostrarNotaAoFinal    Boolean                 @default(false)
   encerradaAt           DateTime?
   expiraEm              DateTime?
   instituicaoId         Int
   publicadaAt           DateTime?
-  status                StatusProva      @default(RASCUNHO)
+  status                StatusProva             @default(RASCUNHO)
   tempoMin              Int?
-  tentativasMax         Int              @default(1)
+  tentativasMax         Int                     @default(1)
   turmaId               Int
-  updatedAt             DateTime         @updatedAt
+  substituicaoDocenteId Int?
+  updatedAt             DateTime                @updatedAt
   notas                 Nota[]
-  instituicao           Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  turma                 Turma            @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  tipoPublico           String           @default("TURMA")
-  exigirAulasConcluidas Boolean          @default(false)
+  instituicao           Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  
+  turma                 Turma                   @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  substituicaoDocente   SubstituicaoDocente?    @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
+  tipoPublico           String                  @default("TURMA")
+  exigirAulasConcluidas Boolean                 @default(false)
   alunosLiberados       ProvaAluno[]
   questoes              Questao[]
   tentativas            TentativaProva[]
@@ -908,6 +917,7 @@ model Prova {
   @@index([turmaId])
   @@index([status])
   @@index([instituicaoId, turmaId, status, ativa])
+  @@index([substituicaoDocenteId])
   @@index([instituicaoId, tipoPublico])
   @@index([instituicaoId, disponivelEm])
   @@index([instituicaoId, expiraEm])
@@ -1186,20 +1196,23 @@ model AtestadoMedico {
 }
 
 model PresencaAula {
-  id            Int                @id @default(autoincrement())
-  status        StatusPresencaAula @default(PRESENTE)
-  observacao    String?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  instituicaoId Int
-  aulaId        Int
-  alunoId       Int
-  aluno         Aluno              @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  aula          Aula               @relation(fields: [aulaId], references: [id], onDelete: Cascade)
-  instituicao   Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id                        Int                     @id @default(autoincrement())
+  status                    StatusPresencaAula      @default(PRESENTE)
+  observacao                String?
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+  instituicaoId             Int
+  aulaId                    Int
+  alunoId                   Int
+  substituicaoDocenteId     Int?
+  aluno                     Aluno                   @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  aula                      Aula                    @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+  instituicao               Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  substituicaoDocente       SubstituicaoDocente?    @relation(fields: [substituicaoDocenteId], references: [id], onDelete: SetNull)
 
   @@unique([aulaId, alunoId])
   @@index([instituicaoId])
+  @@index([substituicaoDocenteId])
   @@index([aulaId])
   @@index([alunoId])
   @@index([status])
@@ -2691,6 +2704,11 @@ model SubstituicaoDocente {
   professorSubstituto Professor   @relation("ProfessorSubstitutoSubstituicao", fields: [professorSubstitutoId], references: [id])
   turma               Turma       @relation(fields: [turmaId], references: [id], onDelete: Cascade)
   disciplina          Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+
+  aulasCriadas          Aula[]
+  provasCriadas         Prova[]
+  atividadesCriadas     Atividade[]
+  presencasLancadas     PresencaAula[]
 
   @@index([instituicaoId])
   @@index([professorTitularId])

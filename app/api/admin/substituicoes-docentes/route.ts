@@ -429,3 +429,85 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || String(user.role).toUpperCase() !== "ADMIN") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    const id = Number(body.id);
+    const acao = String(body.acao || "").toUpperCase();
+    const motivo = body.motivo ? String(body.motivo).trim() : null;
+
+    if (!id || !acao) {
+      return NextResponse.json(
+        { error: "Informe a substituição e a ação." },
+        { status: 400 }
+      );
+    }
+
+    const registro = await prisma.substituicaoDocente.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+        status: true,
+      },
+    });
+
+    if (!registro) {
+      return NextResponse.json(
+        { error: "Substituição não encontrada." },
+        { status: 404 }
+      );
+    }
+
+    let novoStatus = registro.status;
+    const dadosExtras: any = {};
+
+    if (acao === "ENCERRAR") {
+      novoStatus = "ENCERRADA";
+    } else if (acao === "SUSPENDER") {
+      novoStatus = "SUSPENSA";
+    } else if (acao === "REATIVAR") {
+      novoStatus = "ATIVA";
+    } else if (acao === "CANCELAR") {
+      novoStatus = "CANCELADA";
+      dadosExtras.canceladoEm = new Date();
+      dadosExtras.canceladoPorId = user.id;
+      dadosExtras.motivoCancelamento = motivo || "Cancelada pelo administrador.";
+    } else {
+      return NextResponse.json(
+        { error: "Ação inválida." },
+        { status: 400 }
+      );
+    }
+
+    const atualizado = await prisma.substituicaoDocente.update({
+      where: { id },
+      data: {
+        status: novoStatus,
+        ...dadosExtras,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      item: atualizado,
+    });
+  } catch (error: any) {
+    console.error("Erro ao atualizar substituição docente:", error);
+
+    return NextResponse.json(
+      { error: error?.message || "Erro ao atualizar substituição docente" },
+      { status: 500 }
+    );
+  }
+}
