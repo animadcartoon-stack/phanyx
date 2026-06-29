@@ -183,3 +183,49 @@ export async function DELETE(
     );
   }
 }
+
+export async function PUT(
+  req: NextRequest,
+  ctx: { params: { atividadeId: string } }
+) {
+  try {
+    const auth = getAuth(req);
+    assertProfessor(auth);
+
+    const atividadeId = Number(ctx.params.atividadeId);
+
+    const atividade: any = await atividadePertenceAoProfessor({
+      atividadeId,
+      professorId: auth.professorId!,
+      instituicaoId: auth.instituicaoId,
+    });
+
+    if (atividade.status !== "RASCUNHO") {
+      return NextResponse.json(
+        { error: "Somente atividades em RASCUNHO podem ser publicadas." },
+        { status: 400 }
+      );
+    }
+
+    const publicada = await prisma.atividade.update({
+      where: { id: atividadeId },
+      data: {
+        status: "PUBLICADA",
+        publicadaAt: new Date(),
+        publicadoPorId: auth.userId,
+      },
+      include: {
+        anexos: true,
+        turma: true,
+        disciplina: true,
+      },
+    });
+
+    return NextResponse.json(publicada);
+  } catch (e: any) {
+    return NextResponse.json(
+      { error: e.message || "Erro ao publicar atividade" },
+      { status: 401 }
+    );
+  }
+}

@@ -5,6 +5,8 @@ import { FormEvent, useEffect, useState } from "react";
 type Turma = {
   id: number;
   nome?: string | null;
+  disciplinaId?: number | null;
+  turmaDisciplinaId?: number | null;
   disciplina?: {
     id: number;
     nome?: string | null;
@@ -26,6 +28,7 @@ export default function NovaAtividadeProfessorPage() {
   const [notaMaxima, setNotaMaxima] = useState("10");
   
   const [turmaId, setTurmaId] = useState("");
+  const [disciplinaId, setDisciplinaId] = useState("");
 
   
   const [turmas, setTurmas] = useState<Turma[]>([]);
@@ -38,6 +41,10 @@ export default function NovaAtividadeProfessorPage() {
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
   const [mensagem, setMensagem] = useState("");
+
+  const [atividadeCriadaId, setAtividadeCriadaId] = useState<number | null>(null);
+  const [modalPublicar, setModalPublicar] = useState(false);
+  const [publicando, setPublicando] = useState(false);
 
   async function carregarDados() {
     try {
@@ -127,6 +134,7 @@ setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
     prazo: prazo ? new Date(prazo).toISOString() : "",
     notaMaxima,
     turmaId,
+    disciplinaId,
 
     anexo: arquivoEnviado
       ? {
@@ -146,7 +154,13 @@ setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
         throw new Error(json.error || "Erro ao criar atividade");
       }
 
-      setMensagem(
+      setAtividadeCriadaId(json.id);
+      setModalPublicar(true);
+
+      setAtividadeCriadaId(json.id);
+      setModalPublicar(true);
+
+setMensagem(
   arquivoEnviado
     ? "Atividade criada com sucesso, com anexo vinculado."
     : "Atividade criada com sucesso."
@@ -164,6 +178,36 @@ setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
       setSalvando(false);
     }
   }
+
+  async function publicarAtividadeAgora() {
+  if (!atividadeCriadaId) return;
+
+  try {
+    setPublicando(true);
+
+    const res = await fetch(
+      `/api/professor/atividades/${atividadeCriadaId}`,
+      {
+        method: "PUT",
+        credentials: "include",
+      }
+    );
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json.error || "Erro ao publicar atividade.");
+    }
+
+    setMensagem("Atividade publicada com sucesso.");
+    setModalPublicar(false);
+    setAtividadeCriadaId(null);
+  } catch (e: any) {
+    setErro(e.message || "Erro ao publicar atividade.");
+  } finally {
+    setPublicando(false);
+  }
+}
 
   return (
     <div className="p-6">
@@ -246,13 +290,20 @@ setTurmas(Array.isArray(turmasJson) ? turmasJson : []);
   </label>
   <select
     value={turmaId}
-    onChange={(e) => setTurmaId(e.target.value)}
+    onChange={(e) => {
+  const [turma, disciplina] = e.target.value.split(":");
+  setTurmaId(turma || "");
+  setDisciplinaId(disciplina || "");
+}}
     required
     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
   >
     <option value="">Selecione uma turma</option>
     {turmas.map((turma) => (
-      <option key={turma.id} value={turma.id}>
+      <option
+  key={`${turma.id}-${turma.disciplina?.id || turma.disciplinaId}`}
+  value={`${turma.id}:${turma.disciplina?.id || turma.disciplinaId || ""}`}
+>
         {turma.nome || `Turma ${turma.id}`}
         {turma.disciplina?.nome ? ` — ${turma.disciplina.nome}` : ""}
       </option>
