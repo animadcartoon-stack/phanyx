@@ -2722,15 +2722,27 @@ html[data-theme="light"] .phanyx-professor-correcao-page textarea::placeholder {
   color: #64748b !important;
 }
 
-/* Badge de status - manter texto amarelo no tema claro */
-html[data-theme="light"] .phanyx-professor-correcao-page .bg-amber-900,
-html[data-theme="light"] .phanyx-professor-correcao-page .bg-orange-900 {
-  background: #78350f !important;
+/* Status badge - correção de trabalhos */
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-amber-100 {
+  background: #fef3c7 !important;
 }
 
-html[data-theme="light"] .phanyx-professor-correcao-page .bg-amber-900 *,
-html[data-theme="light"] .phanyx-professor-correcao-page .bg-orange-900 *,
-html[data-theme="light"] .phanyx-professor-correcao-page .text-amber-300,
-html[data-theme="light"] .phanyx-professor-correcao-page .text-orange-300 {
-  color: #fcd34d !important;
+html[data-theme="light"] .phanyx-professor-correcao-page .text-amber-700 {
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .border-amber-300 {
+  border-color: #fcd34d !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-emerald-100 {
+  background: #d1fae5 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .text-emerald-700 {
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .border-emerald-300 {
+  border-color: #6ee7b7 !important;
 }
