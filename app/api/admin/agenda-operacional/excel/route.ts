@@ -242,11 +242,12 @@ const colunasExcel = ORDEM_COLUNAS.filter((coluna) =>
   views: [
     {
       state: "frozen",
-      ySplit: 14,
-      xSplit: 1,
+      ySplit: 14,   // congela tudo acima da tabela
+      xSplit: 1,    // congela a primeira coluna
     },
   ],
 });
+      
 
     const logoBase64 = await carregarImagemBase64(
   configuracaoInstituicao?.logoUrl
@@ -366,26 +367,6 @@ const linhaCabecalho = 14;
 
   worksheet.getRow(linhaCabecalho).height = 24;
 
-worksheet.pageSetup = {
-  paperSize: 9,
-  orientation: "landscape",
-  fitToPage: true,
-  fitToWidth: 1,
-  fitToHeight: 0,
-  horizontalCentered: true,
-  verticalCentered: false,
-  margins: {
-    left: 0.4,
-    right: 0.4,
-    top: 0.5,
-    bottom: 0.5,
-    header: 0.3,
-    footer: 0.3,
-  },
-};
-
-worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
-
     worksheet.pageSetup = {
   paperSize: 9,               // A4
   orientation: "landscape",   // Paisagem
@@ -405,6 +386,14 @@ worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
 };
 
 worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
+
+worksheet.headerFooter.oddFooter =
+  '&L&"Arial"&8Gerado pelo PHANYX&C&"Arial"&8Emitido em ' +
+  new Date().toLocaleString("pt-BR") +
+  '&R&"Arial"&8Página &P de &N';
+
+worksheet.headerFooter.evenFooter =
+  worksheet.headerFooter.oddFooter;
 
     const buffer = await workbook.xlsx.writeBuffer();
 
