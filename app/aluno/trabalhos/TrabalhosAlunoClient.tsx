@@ -314,6 +314,40 @@ async function handleEnviar(e: FormEvent) {
                               {formatarData(atividade.prazo)}
                             </p>
 
+{atividade.prazo && (() => {
+  const hoje = new Date();
+  const prazo = new Date(atividade.prazo);
+
+  hoje.setHours(0, 0, 0, 0);
+  prazo.setHours(0, 0, 0, 0);
+
+  const dias = Math.ceil(
+    (prazo.getTime() - hoje.getTime()) / 86400000
+  );
+
+  if (dias < 0) {
+    return (
+      <p className="text-sm font-semibold text-red-600">
+        ❌ Prazo encerrado
+      </p>
+    );
+  }
+
+  if (dias === 0) {
+    return (
+      <p className="text-sm font-semibold text-amber-600">
+        ⚠️ Vence hoje
+      </p>
+    );
+  }
+
+  return (
+    <p className="text-sm font-semibold text-green-600">
+      ⏳ Restam {dias} dia{dias > 1 ? "s" : ""}
+    </p>
+  );
+})()}
+
                             <p>
                               <strong className="font-medium text-slate-800">
                                 Nota máxima:
@@ -323,13 +357,32 @@ async function handleEnviar(e: FormEvent) {
                           </div>
 
                           {atividade.descricao && (
+                            
                             <p className="mt-3 text-sm text-slate-500">
                               {atividade.descricao}
                             </p>
                           )}
+                          {atividade.entrega ? (
+  <div className="mt-3 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-700">
+    ✔ Atividade entregue
+  </div>
+) : atividade.prazo &&
+  new Date() > new Date(atividade.prazo) ? (
+  <div className="mt-3 rounded-lg bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-700">
+    ❌ Prazo encerrado
+  </div>
+) : (
+  <div className="mt-3 rounded-lg bg-blue-50 border border-blue-200 px-3 py-2 text-sm text-blue-700">
+    📤 Aguardando envio
+  </div>
+)}
                           {atividade.anexos && atividade.anexos.length > 0 && (
   <div className="mt-3 space-y-2">
     <p className="text-sm font-semibold text-slate-800">
+      <p className="text-sm text-slate-600">
+  📎 {atividade.anexos.length} anexo
+  {atividade.anexos.length > 1 ? "s" : ""}
+</p>
       Arquivos da atividade
     </p>
 
@@ -352,7 +405,12 @@ async function handleEnviar(e: FormEvent) {
   href={`/aluno/trabalhos/${atividade.id}`}
   className="inline-flex rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700"
 >
-  Abrir atividade
+  {atividade.entrega
+    ? "Visualizar entrega"
+    : atividade.prazo &&
+      new Date() > new Date(atividade.prazo)
+    ? "Ver atividade"
+    : "Responder atividade"}
 </a>
                       </div>
                     </button>
