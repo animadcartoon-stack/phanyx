@@ -108,6 +108,16 @@ crop?: {
   outX?: number;
   outY?: number;
 }[] | null;
+
+array?: {
+  ativo: boolean;
+  quantidade: number;
+  deslocamentoX: number;
+  deslocamentoY: number;
+  rotacao: number;
+  escala: number;
+  opacidade: number;
+} | null;
 };
 
 const FONTES = [
@@ -397,7 +407,7 @@ const figurasDecorativas = [
   y: number;
   campoId: number;
 } | null>(null);
-  
+
   const [shapeInspectorAberto, setShapeInspectorAberto] = useState(false);
 
   const [shapeInspectorPosicao, setShapeInspectorPosicao] = useState({
@@ -430,7 +440,7 @@ const figurasDecorativas = [
   const [espacamentoPalavrasTexto, setEspacamentoPalavrasTexto] = useState(0);
 
   const [tamanhoSelecaoTexto, setTamanhoSelecaoTexto] = useState(18);
-
+  
   const [menuPontoGradiente, setMenuPontoGradiente] = useState<{
   campoId: number;
   pontoIndex: number;
@@ -610,9 +620,13 @@ function gerarPontosEstrela(
   const [mostrarHandlesForma, setMostrarHandlesForma] = useState(true);
 
   const [modoFormaLivre, setModoFormaLivre] = useState(false);
-  const [arrayQuantidade, setArrayQuantidade] = useState(5);
-  const [arrayDistancia, setArrayDistancia] = useState(32);
-  const [arrayDiagonal, setArrayDiagonal] = useState(32);
+  const [modalArrayAberto, setModalArrayAberto] = useState(false);
+  const [arrayQuantidade, setArrayQuantidade] = useState(10);
+  const [arrayX, setArrayX] = useState(40);
+  const [arrayY, setArrayY] = useState(0);
+  const [arrayRotacao, setArrayRotacao] = useState(0);
+  const [arrayEscala, setArrayEscala] = useState(100);
+  const [arrayOpacidade, setArrayOpacidade] = useState(100);
   const [pontosFormaLivre, setPontosFormaLivre] = useState<any[]>([]);
 
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
@@ -1678,14 +1692,10 @@ async function excluirCampo(id: number) {
     );
   }
 
-  function aplicarArrayForma(opcoes: {
-  quantidade: number;
-  deslocamentoX: number;
-  deslocamentoY: number;
-}) {
+  function aplicarArrayForma() {
   if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
 
-  const quantidade = Math.max(1, Math.min(100, Number(opcoes.quantidade || 1)));
+  const quantidade = Math.max(1, Math.min(100, Number(arrayQuantidade || 1)));
 
   const base = JSON.parse(JSON.stringify(campoSelecionado));
 
@@ -1693,13 +1703,20 @@ async function excluirCampo(id: number) {
     const passo = index + 1;
     const novoId = Date.now() + passo;
 
+    const escala = arrayEscala / 100;
+    const opacidade = arrayOpacidade / 100;
+
     return {
       ...base,
       id: novoId,
       bancoId: undefined,
       tempId: novoId,
-      x: Number(base.x || 0) + opcoes.deslocamentoX * passo,
-      y: Number(base.y || 0) + opcoes.deslocamentoY * passo,
+      x: Number(base.x || 0) + arrayX * passo,
+      y: Number(base.y || 0) + arrayY * passo,
+      largura: Number(base.largura || 100) * Math.pow(escala, passo),
+      altura: Number(base.altura || 100) * Math.pow(escala, passo),
+      rotate: Number(base.rotate || 0) + arrayRotacao * passo,
+      opacity: Math.max(0.05, Number(base.opacity || 1) * Math.pow(opacidade, passo)),
       ordem: Number(base.ordem || 5) + passo,
       nomeCamada: `${base.nomeCamada || base.forma || "Forma"} cópia ${passo}`,
     };
@@ -1708,6 +1725,7 @@ async function excluirCampo(id: number) {
   setCampos((prev) => [...prev, ...copias]);
   setCampoSelecionadoId(copias[copias.length - 1].id);
   setCamposSelecionadosIds(copias.map((c) => c.id));
+  setModalArrayAberto(false);
 
   setMensagemSucesso(`${quantidade} cópia(s) criadas com Array.`);
 }
@@ -6201,132 +6219,6 @@ return;
       )}
     </div>
 
-<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-  <p className="mb-3 text-sm font-bold text-slate-700">
-    Array / Multiplicar forma
-  </p>
-
-  <label className="mb-1 block text-xs font-semibold text-slate-500">
-    Quantidade de cópias
-  </label>
-  <input
-    type="number"
-    min={1}
-    max={100}
-    value={arrayQuantidade}
-    onChange={(e) => setArrayQuantidade(Number(e.target.value))}
-    className="mb-3 w-full rounded-xl border px-3 py-2"
-  />
-
-  <label className="mb-1 block text-xs font-semibold text-slate-500">
-    Distância entre cópias
-  </label>
-  <input
-    type="number"
-    value={arrayDistancia}
-    onChange={(e) => setArrayDistancia(Number(e.target.value))}
-    className="mb-3 w-full rounded-xl border px-3 py-2"
-  />
-
-  <label className="mb-1 block text-xs font-semibold text-slate-500">
-    Descida/subida da diagonal
-  </label>
-  <input
-    type="number"
-    value={arrayDiagonal}
-    onChange={(e) => setArrayDiagonal(Number(e.target.value))}
-    className="mb-3 w-full rounded-xl border px-3 py-2"
-  />
-
-  <div className="grid grid-cols-2 gap-2">
-    <button
-      type="button"
-      onClick={() =>
-        aplicarArrayForma({
-          quantidade: arrayQuantidade,
-          deslocamentoX: arrayDistancia,
-          deslocamentoY: 0,
-        })
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      → Direita
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        aplicarArrayForma({
-          quantidade: arrayQuantidade,
-          deslocamentoX: -arrayDistancia,
-          deslocamentoY: 0,
-        })
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      ← Esquerda
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        aplicarArrayForma({
-          quantidade: arrayQuantidade,
-          deslocamentoX: 0,
-          deslocamentoY: -arrayDistancia,
-        })
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      ↑ Cima
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        aplicarArrayForma({
-          quantidade: arrayQuantidade,
-          deslocamentoX: 0,
-          deslocamentoY: arrayDistancia,
-        })
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      ↓ Baixo
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        aplicarArrayForma({
-          quantidade: arrayQuantidade,
-          deslocamentoX: arrayDistancia,
-          deslocamentoY: arrayDiagonal,
-        })
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      ↘ Diagonal direita
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        aplicarArrayForma({
-          quantidade: arrayQuantidade,
-          deslocamentoX: -arrayDistancia,
-          deslocamentoY: arrayDiagonal,
-        })
-      }
-      className="rounded-lg border bg-white px-3 py-2 text-xs font-semibold hover:bg-slate-100"
-    >
-      ↙ Diagonal esquerda
-    </button>
-  </div>
-</div>
-  </div>
-)}
-
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -6630,7 +6522,7 @@ atualizarCampoLocal("tamanho", tamanho);
                     <option value="right">Direita</option>
                   </select>
                   </div>
-  </>
+    </div>
 )}
 
                 <div className="rounded-2xl border border-slate-200 bg-white">
@@ -6879,11 +6771,14 @@ atualizarCampoLocal("tamanho", tamanho);
           Excluir
         </button>
             </div>
-    </div>
+        </div>
   )}
 </div>
-</div>
-            ) : (
+
+      </>
+    )}
+  </div>
+) : (
               <p className="text-sm text-slate-500">
                 Primeiro clique em um campo da esquerda para adicionar ao editor.
                 Depois clique e arraste o campo sobre o certificado para
@@ -7573,6 +7468,19 @@ iniciarDrag(event as any, c);
 >
   🔓 Desagrupar
 </button>
+
+{campoSelecionado?.tipo === "FORMA" && (
+  <button
+    type="button"
+    onClick={() => {
+      setModalArrayAberto(true);
+      setMenuContexto(null);
+    }}
+    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+  >
+    📐 Array...
+  </button>
+)}
 
 {campoSelecionado?.tipo === "TEXTO_LIVRE" && (
   <>
