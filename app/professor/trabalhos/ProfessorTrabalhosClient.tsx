@@ -495,31 +495,65 @@ className="block text-sm font-bold text-blue-600 hover:underline"
   </div>
 )}
 
-      <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
-  <div className="text-sm text-slate-600">
-    {trabalho.status === "Avaliado" ? (
-      <p>
-        <strong className="text-slate-800">Nota:</strong>{" "}
-        {trabalho.nota ?? "-"} / {trabalho.notaMaxima || 10}
+      <div className="mt-4 flex flex-col gap-4 border-t border-slate-100 pt-4">
+  <div className="grid gap-3 text-sm text-slate-600 md:grid-cols-4">
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="text-xs font-bold uppercase text-slate-400">Correção</p>
+      <p className="mt-1 font-bold text-slate-800">
+        {trabalho.status === "Avaliado"
+          ? formatarData(trabalho.corrigidaEm)
+          : "Pendente"}
       </p>
-    ) : (
-      <p>Correção pendente.</p>
-    )}
+    </div>
 
-    {trabalho.feedback && (
-      <p className="mt-1">
-        <strong className="text-slate-800">Feedback:</strong>{" "}
-        {trabalho.feedback}
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="text-xs font-bold uppercase text-slate-400">Anexo</p>
+      <p className="mt-1 font-bold text-slate-800">
+        {trabalho.arquivoUrl ? "📎 Sim" : "Não"}
       </p>
-    )}
+    </div>
+
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="text-xs font-bold uppercase text-slate-400">Link</p>
+      <p className="mt-1 font-bold text-slate-800">
+        {trabalho.link ? "🌐 Sim" : "Não"}
+      </p>
+    </div>
+
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="text-xs font-bold uppercase text-slate-400">Versões</p>
+      <p className="mt-1 font-bold text-slate-800">
+        {trabalho.historicos?.length || 0}
+      </p>
+    </div>
   </div>
 
-  <Link
-    href={`/professor/trabalhos/${trabalho.entregaId}`}
-    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
-  >
-    Corrigir entrega
-  </Link>
+  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="text-sm text-slate-600">
+      {trabalho.status === "Avaliado" ? (
+        <p>
+          <strong className="text-slate-800">Nota:</strong>{" "}
+          {trabalho.nota ?? "-"} / {trabalho.notaMaxima || 10}
+        </p>
+      ) : (
+        <p>Correção pendente.</p>
+      )}
+
+      {trabalho.feedback && (
+        <p className="mt-1">
+          <strong className="text-slate-800">Feedback:</strong>{" "}
+          {trabalho.feedback}
+        </p>
+      )}
+    </div>
+
+    <Link
+      href={`/professor/trabalhos/${trabalho.entregaId}`}
+      className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+    >
+      Corrigir entrega
+    </Link>
+  </div>
 </div>
     </article>
   );
