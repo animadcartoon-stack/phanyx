@@ -47,6 +47,7 @@ type Props = {
   onMover: (posicao: { x: number; y: number }) => void;
   onAtualizarCampo: (campo: CampoForma) => void;
   setMostrarHandlesForma?: (valor: boolean | ((prev: boolean) => boolean)) => void;
+  onOpenArray?: () => void;
 };
 
 function gerarPathComCantosArredondados(campo: CampoForma) {
@@ -138,6 +139,7 @@ export default function FloatingShapeInspector({
   onMover,
   onAtualizarCampo,
   setMostrarHandlesForma,
+  onOpenArray,
 }: Props) {
   if (!aberto || !campo || campo.tipo !== "FORMA") return null;
 
@@ -404,6 +406,13 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
   className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
 >
   Mostrar / ocultar pontos de edição
+</button>
+<button
+  type="button"
+  onClick={onOpenArray}
+  className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+>
+  🔁 Array / Multiplicar
 </button>
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">

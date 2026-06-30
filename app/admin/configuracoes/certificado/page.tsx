@@ -5669,6 +5669,7 @@ onKeyUp={() => {
   aberto={shapeInspectorAberto}
   campo={campoSelecionado || null}
   posicao={shapeInspectorPosicao}
+  onOpenArray={() => setModalArrayAberto(true)}
   onFechar={() => setShapeInspectorAberto(false)}
   onMover={setShapeInspectorPosicao}
   onAtualizarCampo={(campoAtualizado) => {
