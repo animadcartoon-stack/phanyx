@@ -2812,3 +2812,35 @@ html[data-theme="light"] .phanyx-aluno-trabalho-detalhe a.bg-blue-600 {
   background: #2563eb !important;
   color: #ffffff !important;
 }
+
+/* Cards internos da entrega */
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-white\/70,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-white\/60 {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .dark\:bg-slate-950\/50,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .dark\:bg-slate-950\/40 {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .border-green-300\/70 {
+  border-color: #86efac !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-blue-50 {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .border-blue-200 {
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-blue-700 {
+  color: #1d4ed8 !important;
+}
