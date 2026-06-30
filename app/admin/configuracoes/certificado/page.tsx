@@ -5390,6 +5390,43 @@ onKeyUp={() => {
               <span className="rounded-lg bg-slate-100 px-3 py-1">
                 Zoom {zoom}%
               </span>
+
+{campoSelecionado?.tipo === "FORMA" && (
+  <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs font-semibold text-white shadow-xl">
+    <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
+      + Ponto
+    </button>
+
+    <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
+      - Ponto
+    </button>
+
+    <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
+      Curvar
+    </button>
+
+    <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
+      Pontudo
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setModalArrayAberto(true)}
+      className="rounded-lg border border-blue-500 px-3 py-2 text-blue-300 hover:bg-blue-950"
+    >
+      🔁 Array
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setMostrarHandlesForma((prev) => !prev)}
+      className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800"
+    >
+      Pontos
+    </button>
+  </div>
+)}
+
               <span className="rounded-lg bg-slate-100 px-3 py-1">
                 {canvasWidth} × {canvasHeight}
               </span>
@@ -6858,6 +6895,7 @@ atualizarCampoLocal("tamanho", tamanho);
 )}
 
         </div>
+        
       </section>
 
       <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -7563,19 +7601,6 @@ iniciarDrag(event as any, c);
 >
   🔓 Desagrupar
 </button>
-
-{campoSelecionado?.tipo === "FORMA" && (
-  <button
-    type="button"
-    onClick={() => {
-      setModalArrayAberto(true);
-      setMenuContexto(null);
-    }}
-    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
-  >
-    🔁 Array / Multiplicar
-  </button>
-)}
 
 {campoSelecionado?.tipo === "FORMA" && (
   <button
