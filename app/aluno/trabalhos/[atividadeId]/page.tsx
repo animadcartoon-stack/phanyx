@@ -323,7 +323,11 @@ export default async function DetalheTrabalhoAlunoPage({
   href={`/aluno/trabalhos/${atividade.id}/entrega`}
   className="mt-5 inline-flex rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
 >
-  Enviar ou atualizar entrega
+  {!entrega
+    ? "Enviar entrega"
+    : entrega.nota != null
+      ? "Enviar nova versão"
+      : "Atualizar entrega"}
 </Link>
       </section>
     </div>
