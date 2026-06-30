@@ -371,6 +371,9 @@ function TrabalhoAluno({
 }: {
   trabalho: Trabalho;
 }) {
+  const avaliado = trabalho.status === "Avaliado";
+  const qtdVersoes = trabalho.historicos?.length || 0;
+
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -400,36 +403,14 @@ function TrabalhoAluno({
               <strong className="text-slate-800">Entregue em:</strong>{" "}
               {formatarData(trabalho.entregueEm)}
             </p>
-
-            {trabalho.arquivoUrl && (
-              <a
-                href={trabalho.arquivoUrl}
-                target="_blank"
-rel="noopener noreferrer"
-className="inline-flex text-sm font-bold text-blue-600 hover:underline"
-              >
-                Abrir arquivo enviado
-              </a>
-            )}
-
-            {trabalho.link && (
-              <a
-                href={trabalho.link}
-                target="_blank"
-rel="noopener noreferrer"
-className="block text-sm font-bold text-blue-600 hover:underline"
-              >
-                Abrir link enviado
-              </a>
-            )}
           </div>
         </div>
 
         <span
           className={`w-fit rounded-full border px-3 py-1 text-xs font-bold ${
-            trabalho.status === "Avaliado"
+            avaliado
               ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-blue-200 bg-blue-50 text-blue-700"
+              : "border-amber-200 bg-amber-50 text-amber-700"
           }`}
         >
           {trabalho.status}
@@ -442,119 +423,162 @@ className="block text-sm font-bold text-blue-600 hover:underline"
         </div>
       )}
 
-{trabalho.historicos && trabalho.historicos.length > 0 && (
-  <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
-    <p className="text-sm font-black text-amber-900">
-      Histórico de entregas
-    </p>
+      <div className="mt-4 grid gap-2 border-t border-slate-100 pt-4 text-sm md:grid-cols-4">
+        <ResumoItem
+          titulo="Correção"
+          valor={avaliado ? formatarData(trabalho.corrigidaEm) : "Pendente"}
+        />
 
-    <div className="mt-3 space-y-3">
-      {trabalho.historicos.map((historico) => (
-        <div
-          key={historico.id}
-          className="rounded-xl border border-amber-200 bg-white p-3 text-sm text-slate-700"
-        >
-          <p className="font-bold text-slate-900">
-            Versão {historico.versao}
-          </p>
+        <ResumoItem
+          titulo="Arquivo"
+          valor={trabalho.arquivoUrl ? "📎 Enviado" : "Não enviado"}
+        />
 
-          <p className="mt-1 text-xs text-slate-500">
-            Enviada em: {formatarData(historico.entregueEm)}
-          </p>
+        <ResumoItem
+          titulo="Link"
+          valor={trabalho.link ? "🌐 Enviado" : "Não enviado"}
+        />
 
-          {historico.texto && (
-            <p className="mt-2 whitespace-pre-line">
-              {historico.texto}
+        <ResumoItem
+          titulo="Versões"
+          valor={
+            qtdVersoes > 0
+              ? `${qtdVersoes} anterior(es)`
+              : "Sem versões anteriores"
+          }
+        />
+      </div>
+
+      {avaliado ? (
+        <div className="mt-4 grid gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-4 md:grid-cols-[160px_1fr]">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-700">
+              Nota
             </p>
-          )}
+            <p className="mt-1 text-2xl font-black text-blue-900">
+              ⭐ {trabalho.nota ?? "-"} / {trabalho.notaMaxima || 10}
+            </p>
+          </div>
 
-          {historico.arquivoUrl && (
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.16em] text-slate-500">
+              Feedback
+            </p>
+            <p className="mt-1 whitespace-pre-line text-sm leading-6 text-slate-700">
+              {trabalho.feedback || "Sem feedback registrado."}
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-bold text-amber-800">
+          Correção pendente.
+        </div>
+      )}
+
+      {trabalho.historicos && trabalho.historicos.length > 0 && (
+        <details className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4">
+          <summary className="cursor-pointer text-sm font-black text-amber-900">
+            Ver histórico de entregas
+          </summary>
+
+          <div className="mt-3 space-y-3">
+            {trabalho.historicos.map((historico) => (
+              <div
+                key={historico.id}
+                className="rounded-xl border border-amber-200 bg-white p-3 text-sm text-slate-700"
+              >
+                <p className="font-bold text-slate-900">
+                  Versão {historico.versao}
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Enviada em: {formatarData(historico.entregueEm)}
+                </p>
+
+                {historico.texto && (
+                  <p className="mt-2 whitespace-pre-line">
+                    {historico.texto}
+                  </p>
+                )}
+
+                {historico.arquivoUrl && (
+                  <a
+                    href={historico.arquivoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex text-sm font-bold text-blue-600 hover:underline"
+                  >
+                    Abrir arquivo desta versão
+                  </a>
+                )}
+
+                {historico.link && (
+                  <a
+                    href={historico.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 block text-sm font-bold text-blue-600 hover:underline"
+                  >
+                    Abrir link desta versão
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </details>
+      )}
+
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          {trabalho.arquivoUrl && (
             <a
-              href={historico.arquivoUrl}
+              href={trabalho.arquivoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 inline-flex text-sm font-bold text-blue-600 hover:underline"
+              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50"
             >
-              Abrir arquivo desta versão
+              📎 Abrir arquivo
             </a>
           )}
 
-          {historico.link && (
+          {trabalho.link && (
             <a
-              href={historico.link}
+              href={trabalho.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-2 block text-sm font-bold text-blue-600 hover:underline"
+              className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-blue-600 hover:bg-blue-50"
             >
-              Abrir link desta versão
+              🌐 Abrir link
             </a>
           )}
         </div>
-      ))}
-    </div>
-  </div>
-)}
 
-      <div className="mt-4 flex flex-col gap-4 border-t border-slate-100 pt-4">
-  <div className="grid gap-3 text-sm text-slate-600 md:grid-cols-4">
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <p className="text-xs font-bold uppercase text-slate-400">Correção</p>
-      <p className="mt-1 font-bold text-slate-800">
-        {trabalho.status === "Avaliado"
-          ? formatarData(trabalho.corrigidaEm)
-          : "Pendente"}
-      </p>
-    </div>
-
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <p className="text-xs font-bold uppercase text-slate-400">Anexo</p>
-      <p className="mt-1 font-bold text-slate-800">
-        {trabalho.arquivoUrl ? "📎 Sim" : "Não"}
-      </p>
-    </div>
-
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <p className="text-xs font-bold uppercase text-slate-400">Link</p>
-      <p className="mt-1 font-bold text-slate-800">
-        {trabalho.link ? "🌐 Sim" : "Não"}
-      </p>
-    </div>
-
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <p className="text-xs font-bold uppercase text-slate-400">Versões</p>
-      <p className="mt-1 font-bold text-slate-800">
-        {trabalho.historicos?.length || 0}
-      </p>
-    </div>
-  </div>
-
-  <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-    <div className="text-sm text-slate-600">
-      {trabalho.status === "Avaliado" ? (
-        <p>
-          <strong className="text-slate-800">Nota:</strong>{" "}
-          {trabalho.nota ?? "-"} / {trabalho.notaMaxima || 10}
-        </p>
-      ) : (
-        <p>Correção pendente.</p>
-      )}
-
-      {trabalho.feedback && (
-        <p className="mt-1">
-          <strong className="text-slate-800">Feedback:</strong>{" "}
-          {trabalho.feedback}
-        </p>
-      )}
-    </div>
-
-    <Link
-      href={`/professor/trabalhos/${trabalho.entregaId}`}
-      className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
-    >
-      Corrigir entrega
-    </Link>
-  </div>
-</div>
+        <Link
+          href={`/professor/trabalhos/${trabalho.entregaId}`}
+          className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+        >
+          {avaliado ? "Editar correção" : "Corrigir entrega"}
+        </Link>
+      </div>
     </article>
+  );
+}
+
+function ResumoItem({
+  titulo,
+  valor,
+}: {
+  titulo: string;
+  valor: string;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-slate-400">
+        {titulo}
+      </p>
+      <p className="mt-1 text-sm font-bold text-slate-800">
+        {valor}
+      </p>
+    </div>
   );
 }
