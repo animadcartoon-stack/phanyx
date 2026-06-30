@@ -6918,6 +6918,99 @@ atualizarCampoLocal("tamanho", tamanho);
           </div>
         </div>
       </div>
+
+{modalArrayAberto && (
+  <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/50">
+    <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+      <h2 className="text-lg font-bold text-slate-900">
+        Array / Multiplicar forma
+      </h2>
+
+      <div className="mt-4 space-y-3">
+        <label className="block text-xs font-semibold text-slate-500">
+          Quantidade de cópias
+        </label>
+        <input
+          type="number"
+          min={1}
+          max={100}
+          value={arrayQuantidade}
+          onChange={(e) => setArrayQuantidade(Number(e.target.value))}
+          className="w-full rounded-xl border px-3 py-2"
+        />
+
+        <label className="block text-xs font-semibold text-slate-500">
+          Distância X
+        </label>
+        <input
+          type="number"
+          value={arrayX}
+          onChange={(e) => setArrayX(Number(e.target.value))}
+          className="w-full rounded-xl border px-3 py-2"
+        />
+
+        <label className="block text-xs font-semibold text-slate-500">
+          Distância Y
+        </label>
+        <input
+          type="number"
+          value={arrayY}
+          onChange={(e) => setArrayY(Number(e.target.value))}
+          className="w-full rounded-xl border px-3 py-2"
+        />
+
+        <label className="block text-xs font-semibold text-slate-500">
+          Rotação por cópia
+        </label>
+        <input
+          type="number"
+          value={arrayRotacao}
+          onChange={(e) => setArrayRotacao(Number(e.target.value))}
+          className="w-full rounded-xl border px-3 py-2"
+        />
+
+        <label className="block text-xs font-semibold text-slate-500">
+          Escala por cópia (%)
+        </label>
+        <input
+          type="number"
+          value={arrayEscala}
+          onChange={(e) => setArrayEscala(Number(e.target.value))}
+          className="w-full rounded-xl border px-3 py-2"
+        />
+
+        <label className="block text-xs font-semibold text-slate-500">
+          Opacidade por cópia (%)
+        </label>
+        <input
+          type="number"
+          value={arrayOpacidade}
+          onChange={(e) => setArrayOpacidade(Number(e.target.value))}
+          className="w-full rounded-xl border px-3 py-2"
+        />
+      </div>
+
+      <div className="mt-6 flex justify-end gap-2">
+        <button
+          type="button"
+          onClick={() => setModalArrayAberto(false)}
+          className="rounded-xl border px-4 py-2 text-sm font-semibold"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={aplicarArrayForma}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white hover:bg-blue-700"
+        >
+          Criar Array
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
  {previewAberto && (
   <div className="fixed inset-0 z-[999] bg-black/75 p-6">
     <button
@@ -7241,6 +7334,7 @@ iniciarDrag(event as any, c);
   </div>
 </div>
 )}
+
 {menuContexto && (
   <div
     onClick={(e) => e.stopPropagation()}
@@ -7468,6 +7562,19 @@ iniciarDrag(event as any, c);
 >
   🔓 Desagrupar
 </button>
+
+{campoSelecionado?.tipo === "FORMA" && (
+  <button
+    type="button"
+    onClick={() => {
+      setModalArrayAberto(true);
+      setMenuContexto(null);
+    }}
+    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+  >
+    🔁 Array / Multiplicar
+  </button>
+)}
 
 {campoSelecionado?.tipo === "FORMA" && (
   <button
