@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import ExcelJS from "exceljs";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { obterTemaRelatorio } from "@/lib/relatorios/temaRelatorio";
 
 const COLUNAS_EXCEL_PADRAO = [
   "data",
@@ -12,6 +13,24 @@ const COLUNAS_EXCEL_PADRAO = [
   "professor",
   "funcionario",
   "status",
+];
+
+const ORDEM_COLUNAS = [
+  "data",
+  "hora",
+  "tipo",
+  "curso",
+  "turma",
+  "disciplina",
+  "evento",
+  "professor",
+  "funcionario",
+  "departamento",
+  "polo",
+  "responsavel",
+  "status",
+  "local",
+  "observacoes",
 ];
 
 const NOMES_COLUNAS: Record<string, string> = {
@@ -112,6 +131,7 @@ export async function GET(req: NextRequest) {
           cidade: true,
           estado: true,
           logoUrl: true,
+          corRelatorio: true,
         },
       });
 
@@ -126,6 +146,10 @@ export async function GET(req: NextRequest) {
       instituicao?.nome ||
       "Instituição";
 
+const temaRelatorio = obterTemaRelatorio(
+  configuracaoInstituicao?.corRelatorio
+);
+
     const preferencia = await prisma.preferenciaAgendaOperacional.findUnique({
       where: {
         instituicaoId_userId: {
@@ -135,9 +159,13 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const colunasExcel = Array.isArray(preferencia?.colunasExcel)
-      ? (preferencia.colunasExcel as string[])
-      : COLUNAS_EXCEL_PADRAO;
+   const colunasExcelSelecionadas = Array.isArray(preferencia?.colunasExcel)
+  ? (preferencia.colunasExcel as string[])
+  : COLUNAS_EXCEL_PADRAO;
+
+const colunasExcel = ORDEM_COLUNAS.filter((coluna) =>
+  colunasExcelSelecionadas.includes(coluna)
+);
 
     const agendaUrl = new URL(
       "/api/admin/agenda-operacional",
@@ -243,11 +271,11 @@ const linhaCabecalho = 14;
     colunasExcel.forEach((coluna, index) => {
       const cell = worksheet.getCell(linhaCabecalho, index + 1);
       cell.value = NOMES_COLUNAS[coluna] || coluna;
-      cell.font = { bold: true, color: { argb: "FFFFFFFF" } };
+      cell.font = { bold: true, color: { argb: temaRelatorio.texto } };
       cell.fill = {
         type: "pattern",
         pattern: "solid",
-        fgColor: { argb: "FF1E3A8A" },
+        fgColor: { argb: temaRelatorio.fundo },
       };
       cell.alignment = { vertical: "middle", horizontal: "center" };
       cell.border = {
@@ -264,6 +292,15 @@ const linhaCabecalho = 14;
       colunasExcel.forEach((coluna, index) => {
         const cell = worksheet.getCell(linha, index + 1);
         cell.value = textoItem(item, coluna);
+        cell.fill = {
+  type: "pattern",
+  pattern: "solid",
+  fgColor: {
+    argb: linhaIndex % 2 === 0
+      ? "FFFFFFFF"
+      : "FFF8FAFC",
+  },
+};
         cell.border = {
           top: { style: "thin", color: { argb: "FFE5E7EB" } },
           left: { style: "thin", color: { argb: "FFE5E7EB" } },
@@ -288,6 +325,26 @@ const linhaCabecalho = 14;
 
       column.width = Math.min(maxLength, 38);
     });
+
+    worksheet.pageSetup = {
+  paperSize: 9,               // A4
+  orientation: "landscape",   // Paisagem
+  fitToPage: true,
+  fitToWidth: 1,
+  fitToHeight: 0,
+  horizontalCentered: true,
+  verticalCentered: false,
+  margins: {
+    left: 0.4,
+    right: 0.4,
+    top: 0.5,
+    bottom: 0.5,
+    header: 0.3,
+    footer: 0.3,
+  },
+};
+
+worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
 
     const buffer = await workbook.xlsx.writeBuffer();
 

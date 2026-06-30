@@ -33,6 +33,7 @@ type ConfigInstituicao = {
   papelTimbradoUrl?: string;
   estiloPapelTimbrado?: string;
   certificadoAssinaturaUrl?: string;
+  corRelatorio?: string;
 };
 
 function gerarPreviewBase64(file: File): Promise<string> {
@@ -142,6 +143,7 @@ export default function ConfigInstituicaoPage() {
   usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
   papelTimbradoUrl: form.papelTimbradoUrl || "",
   certificadoAssinaturaUrl: form.certificadoAssinaturaUrl || "",
+  corRelatorio: form.corRelatorio || "AZUL",
 };
 
       const res = await fetch("/api/admin/configuracoes/instituicao", {
@@ -1353,6 +1355,36 @@ async function enviarAssinaturaDiretor(file: File) {
                 </div>
               )}
 
+<div className="mt-5">
+  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+    Cor dos relatórios (PDF e Excel)
+  </label>
+
+  <select
+    value={form.corRelatorio || "AZUL"}
+    onChange={(e) =>
+      setForm((prev) => ({
+        ...prev,
+        corRelatorio: e.target.value,
+      }))
+    }
+    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+  >
+    <option value="AZUL">🔵 Azul</option>
+    <option value="VERDE">🟢 Verde</option>
+    <option value="PRETO">⚫ Preto</option>
+    <option value="CINZA">⚪ Cinza</option>
+    <option value="AMARELO">🟡 Amarelo</option>
+    <option value="ROXO">🟣 Roxo</option>
+    <option value="ROSA">🌸 Rosa</option>
+    <option value="VERMELHO">🔴 Vermelho</option>
+  </select>
+
+  <p className="mt-2 text-xs text-slate-500">
+    Esta cor será utilizada automaticamente no cabeçalho dos PDFs e planilhas Excel da instituição.
+  </p>
+</div>
+
               <div className="mt-5">
                 <div className="mb-2 flex items-center justify-between">
                   <label className="block text-sm font-medium text-slate-700">
@@ -1377,6 +1409,7 @@ async function enviarAssinaturaDiretor(file: File) {
                 <p className="mt-2 text-center text-xs text-slate-500">
                   A prévia muda conforme o modelo selecionado.
                 </p>
+
               </div>
             </div>
           </div>

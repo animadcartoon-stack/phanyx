@@ -1344,6 +1344,7 @@ model ConfiguracaoInstituicao {
   numero                   String?
   estiloDocumento          String?     @default("INSTITUCIONAL")
   papelTimbradoUrl         String?
+  corRelatorio             String?     @default("AZUL")
   certificadoAssinaturaUrl String?
   usarPapelTimbrado        Boolean     @default(false)
   estiloPapelTimbrado      String?     @default("SEM_COR")
