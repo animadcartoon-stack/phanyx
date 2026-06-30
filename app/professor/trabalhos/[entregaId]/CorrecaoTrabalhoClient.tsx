@@ -55,6 +55,7 @@ export default function CorrecaoTrabalhoClient({ entregaId }: Props) {
   const [nota, setNota] = useState("");
   const [feedback, setFeedback] = useState("");
   const [salvando, setSalvando] = useState(false);
+  const [sucesso, setSucesso] = useState("");
 
   useEffect(() => {
     carregarTrabalho();
@@ -95,6 +96,7 @@ setFeedback(json.trabalho?.feedback || "");
   async function salvarCorrecao() {
   try {
     setSalvando(true);
+    setSucesso("");
 
     const resp = await fetch("/api/professor/trabalhos", {
       method: "PATCH",
@@ -114,8 +116,9 @@ setFeedback(json.trabalho?.feedback || "");
       throw new Error(json.error || "Erro ao salvar.");
     }
 
-    // Na próxima etapa vamos substituir por um Toast PHANYX.
-    location.reload();
+    setSucesso("Correção salva com sucesso.");
+
+    await carregarTrabalho();
   } catch (e) {
     console.error(e);
   } finally {
@@ -345,6 +348,13 @@ A nota deve estar entre 0 e {trabalho.notaMaxima}.
               </div>
 
               <div className="flex justify-end">
+
+{sucesso && (
+  <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-bold text-green-700 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300">
+    ✅ {sucesso}
+  </div>
+)}
+
                 <button
   type="button"
   onClick={salvarCorrecao}
