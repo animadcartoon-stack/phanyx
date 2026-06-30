@@ -267,7 +267,13 @@ if (logoBase64) {
 
     worksheet.mergeCells("B1:G1");
     worksheet.getCell("B1").value = "Agenda Operacional";
-    worksheet.getCell("B1").font = { bold: true, size: 18 };
+    worksheet.getCell("B1").font = {
+  bold: true,
+  size: 20,
+  color: {
+    argb: temaRelatorio.fundo,
+  },
+};
 
     worksheet.getCell("A2").value = `Instituição: ${nomeInstituicao}`;
     worksheet.getCell("A3").value = `CNPJ: ${configuracaoInstituicao?.cnpj || "-"}`;
