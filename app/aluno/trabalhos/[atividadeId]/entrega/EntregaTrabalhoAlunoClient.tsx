@@ -1,6 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+type AtividadeDetalhe = {
+  id: number;
+  titulo: string;
+  descricao?: string | null;
+  prazo?: string | null;
+  notaMaxima?: number | null;
+  disciplina?: { nome?: string | null } | null;
+  turma?: { nome?: string | null } | null;
+  anexos?: {
+    id: number;
+    titulo: string;
+    url: string;
+    arquivoNome?: string | null;
+  }[];
+  entregas?: {
+    id: number;
+    texto?: string | null;
+    link?: string | null;
+    arquivoUrl?: string | null;
+    entregueEm?: string | null;
+    nota?: number | null;
+    feedback?: string | null;
+  }[];
+};
 
 export default function EntregaTrabalhoAlunoClient({
   atividadeId,
@@ -13,6 +38,38 @@ export default function EntregaTrabalhoAlunoClient({
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+  const [atividade, setAtividade] = useState<AtividadeDetalhe | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function carregarAtividade() {
+  try {
+    setLoading(true);
+    setErro("");
+
+    const res = await fetch(`/api/aluno/atividades/${atividadeId}`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || "Erro ao carregar atividade.");
+    }
+
+    setAtividade(json);
+    setTexto(json?.entregas?.[0]?.texto || "");
+    setLink(json?.entregas?.[0]?.link || "");
+  } catch (e: any) {
+    setErro(e?.message || "Erro ao carregar atividade.");
+  } finally {
+    setLoading(false);
+  }
+}
+
+useEffect(() => {
+  carregarAtividade();
+}, [atividadeId]);
 
   async function enviarEntrega() {
   try {
@@ -90,11 +147,24 @@ export default function EntregaTrabalhoAlunoClient({
     setTexto("");
     setLink("");
     setArquivo(null);
+    await carregarAtividade();
   } catch (error: any) {
     setErro(error.message || "Erro ao enviar atividade.");
   } finally {
     setSalvando(false);
   }
+}
+
+if (loading) {
+  return (
+    <div className="mx-auto max-w-5xl p-6">
+      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-slate-600 dark:text-slate-300">
+          Carregando atividade...
+        </p>
+      </div>
+    </div>
+  );
 }
 
   return (
@@ -103,6 +173,52 @@ export default function EntregaTrabalhoAlunoClient({
         <h1 className="text-2xl font-bold">
           Enviar atividade
         </h1>
+
+{atividade && (
+  <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
+    <h2 className="text-xl font-black text-slate-900 dark:text-white">
+      {atividade.titulo}
+    </h2>
+
+    <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
+      <p className="text-slate-700 dark:text-slate-300">
+        <strong>Disciplina:</strong>{" "}
+        {atividade.disciplina?.nome || "-"}
+      </p>
+
+      <p className="text-slate-700 dark:text-slate-300">
+        <strong>Turma:</strong>{" "}
+        {atividade.turma?.nome || "-"}
+      </p>
+
+      <p className="text-slate-700 dark:text-slate-300">
+        <strong>Prazo:</strong>{" "}
+        {atividade.prazo
+          ? new Date(atividade.prazo).toLocaleString("pt-BR")
+          : "Sem prazo"}
+      </p>
+
+      <p className="text-slate-700 dark:text-slate-300">
+        <strong>Nota máxima:</strong>{" "}
+        {atividade.notaMaxima}
+      </p>
+    </div>
+
+    {atividade.descricao && (
+      <>
+        <hr className="my-5 border-slate-200 dark:border-slate-800" />
+
+        <h3 className="font-bold text-slate-900 dark:text-white">
+          Orientações
+        </h3>
+
+        <div className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700 dark:text-slate-300">
+          {atividade.descricao}
+        </div>
+      </>
+    )}
+  </div>
+)}
 
         <p className="mt-2 text-sm text-slate-500">
           Envie texto, link ou arquivo para o professor.
@@ -117,6 +233,28 @@ export default function EntregaTrabalhoAlunoClient({
 {erro && (
   <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
     {erro}
+  </div>
+)}
+
+{atividade?.anexos && atividade.anexos.length > 0 && (
+  <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/50 dark:bg-blue-950/40">
+    <h3 className="font-bold text-blue-800 dark:text-blue-200">
+      Arquivos da atividade
+    </h3>
+
+    <div className="mt-4 space-y-2">
+      {atividade.anexos.map((anexo) => (
+        <a
+          key={anexo.id}
+          href={anexo.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block rounded-xl border border-blue-200 bg-white px-4 py-3 font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-slate-900 dark:text-blue-300"
+        >
+          📎 {anexo.arquivoNome || anexo.titulo}
+        </a>
+      ))}
+    </div>
   </div>
 )}
 
