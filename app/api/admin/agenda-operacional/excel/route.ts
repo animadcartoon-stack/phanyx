@@ -313,6 +313,12 @@ const linhaCabecalho = 14;
           bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
           right: { style: "thin", color: { argb: "FFE5E7EB" } },
         };
+        if (coluna === "data" || coluna === "hora") {
+  cell.alignment = {
+    horizontal: "center",
+    vertical: "middle",
+  };
+}
       });
     });
 
@@ -331,6 +337,28 @@ const linhaCabecalho = 14;
 
       column.width = Math.min(maxLength, 38);
     });
+
+  worksheet.getRow(linhaCabecalho).height = 24;
+
+worksheet.pageSetup = {
+  paperSize: 9,
+  orientation: "landscape",
+  fitToPage: true,
+  fitToWidth: 1,
+  fitToHeight: 0,
+  horizontalCentered: true,
+  verticalCentered: false,
+  margins: {
+    left: 0.4,
+    right: 0.4,
+    top: 0.5,
+    bottom: 0.5,
+    header: 0.3,
+    footer: 0.3,
+  },
+};
+
+worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
 
     worksheet.pageSetup = {
   paperSize: 9,               // A4
@@ -364,6 +392,7 @@ worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
         "Cache-Control": "no-store",
       },
     });
+
   } catch (error: any) {
     console.error("Erro ao exportar Excel da agenda operacional:", error);
 
