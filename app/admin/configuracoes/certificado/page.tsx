@@ -636,6 +636,8 @@ function gerarPontosEstrela(
   const [arrayOpacidade, setArrayOpacidade] = useState(100);
   const [pontosFormaLivre, setPontosFormaLivre] = useState<any[]>([]);
 
+  const [copiasPreviewArray, setCopiasPreviewArray] = useState<any[]>([]);
+
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
   if (!modoFormaLivre || !canvasRef.current) return false;
   if (e.button !== 0) return false;
@@ -1699,42 +1701,71 @@ async function excluirCampo(id: number) {
     );
   }
 
-  function aplicarArrayForma() {
-  if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
+  function gerarCopiasArray(preview = false) {
+  if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return [];
 
   const quantidade = Math.max(1, Math.min(100, Number(arrayQuantidade || 1)));
-
   const base = JSON.parse(JSON.stringify(campoSelecionado));
 
-  const copias = Array.from({ length: quantidade }).map((_, index) => {
+  return Array.from({ length: quantidade }).map((_, index) => {
     const passo = index + 1;
-    const novoId = Date.now() + passo;
+    const novoId = preview ? -(Date.now() + passo) : Date.now() + passo;
 
-    const escala = arrayEscala / 100;
-    const opacidade = arrayOpacidade / 100;
+    const escala = Number(arrayEscala || 100) / 100;
+    const opacidade = Number(arrayOpacidade || 100) / 100;
 
     return {
       ...base,
       id: novoId,
       bancoId: undefined,
       tempId: novoId,
-      x: Number(base.x || 0) + arrayX * passo,
-      y: Number(base.y || 0) + arrayY * passo,
+      arrayPreview: preview,
+      x: Number(base.x || 0) + Number(arrayX || 0) * passo,
+      y: Number(base.y || 0) + Number(arrayY || 0) * passo,
       largura: Number(base.largura || 100) * Math.pow(escala, passo),
       altura: Number(base.altura || 100) * Math.pow(escala, passo),
-      rotate: Number(base.rotate || 0) + arrayRotacao * passo,
-      opacity: Math.max(0.05, Number(base.opacity || 1) * Math.pow(opacidade, passo)),
+      rotate: Number(base.rotate || 0) + Number(arrayRotacao || 0) * passo,
+      opacity: Math.max(
+        0.05,
+        Number(base.opacity || 1) * Math.pow(opacidade, passo)
+      ),
       ordem: Number(base.ordem || 5) + passo,
       nomeCamada: `${base.nomeCamada || base.forma || "Forma"} cópia ${passo}`,
     };
   });
+}
+
+useEffect(() => {
+  if (!modalArrayAberto || !campoSelecionado || campoSelecionado.tipo !== "FORMA") {
+    setCopiasPreviewArray([]);
+    return;
+  }
+
+  setCopiasPreviewArray(gerarCopiasArray(true));
+}, [
+  modalArrayAberto,
+  campoSelecionado,
+  arrayQuantidade,
+  arrayX,
+  arrayY,
+  arrayRotacao,
+  arrayEscala,
+  arrayOpacidade,
+]);
+
+  function aplicarArrayForma() {
+  const copias = gerarCopiasArray(false);
+
+  if (copias.length === 0) return;
 
   setCampos((prev) => [...prev, ...copias]);
   setCampoSelecionadoId(copias[copias.length - 1].id);
   setCamposSelecionadosIds(copias.map((c) => c.id));
+
+  setCopiasPreviewArray([]);
   setModalArrayAberto(false);
 
-  setMensagemSucesso(`${quantidade} cópia(s) criadas com Array.`);
+  setMensagemSucesso(`${copias.length} cópia(s) criadas com Array.`);
 }
 
 function idsAlvoDaAcao() {
@@ -4115,7 +4146,7 @@ onMouseLeave={() => {
   />
 )}
 
-  {campos.map((c) => {
+  {[...campos, ...copiasPreviewArray].map((c) => {
  if (c.tipo === "IMAGEM") {
   const selecionadoImagem = camposSelecionadosIds.includes(c.id);
 
@@ -7068,7 +7099,10 @@ atualizarCampoLocal("tamanho", tamanho);
       <div className="mt-6 flex justify-end gap-2">
         <button
           type="button"
-          onClick={() => setModalArrayAberto(false)}
+          onClick={() => {
+  setCopiasPreviewArray([]);
+  setModalArrayAberto(false);
+}}
           className="rounded-xl border px-4 py-2 text-sm font-semibold"
         >
           Cancelar
