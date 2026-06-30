@@ -433,6 +433,13 @@ const figurasDecorativas = [
   const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
+  const [arrayJanelaPos, setArrayJanelaPos] = useState({
+  x: 180,
+  y: 180,
+});
+
+const [arrastandoArray, setArrastandoArray] = useState(false);
+
   const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
 
   const [tipoContornoTexto, setTipoContornoTexto] = useState<"interno" | "externo">("externo");
@@ -6959,11 +6966,40 @@ atualizarCampoLocal("tamanho", tamanho);
       </div>
 
 {modalArrayAberto && (
-  <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/50">
+  <div
+  className="fixed z-[99999]"
+  style={{
+    left: arrayJanelaPos.x,
+    top: arrayJanelaPos.y,
+  }}
+>
     <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
-      <h2 className="text-lg font-bold text-slate-900">
-        Array / Multiplicar forma
-      </h2>
+      <div
+  className="cursor-move rounded-t-3xl -mx-6 -mt-6 mb-4 bg-slate-800 px-4 py-3 text-sm font-bold text-white"
+  onMouseDown={(e) => {
+    e.preventDefault();
+
+    const offsetX = e.clientX - arrayJanelaPos.x;
+    const offsetY = e.clientY - arrayJanelaPos.y;
+
+    const mover = (ev: globalThis.MouseEvent) => {
+      setArrayJanelaPos({
+        x: ev.clientX - offsetX,
+        y: ev.clientY - offsetY,
+      });
+    };
+
+    const parar = () => {
+      window.removeEventListener("mousemove", mover);
+      window.removeEventListener("mouseup", parar);
+    };
+
+    window.addEventListener("mousemove", mover);
+    window.addEventListener("mouseup", parar);
+  }}
+>
+  🔁 Array / Multiplicar forma
+</div>
 
       <div className="mt-4 space-y-3">
         <label className="block text-xs font-semibold text-slate-500">
