@@ -5,6 +5,7 @@ import { getUserFromToken } from "@/lib/server-auth";
 import { desenharCabecalhoInstituicao } from "@/lib/pdf/cabecalhoInstituicao";
 import { desenharRodapeInstituicao } from "@/lib/pdf/rodapeInstituicao";
 import { TIPOS_AGENDA } from "@/lib/agenda/tiposAgenda";
+import { obterTemaRelatorio } from "@/lib/relatorios/temaRelatorio";
 
 const COLUNAS_PDF_PADRAO = ["data", "hora", "tipo", "evento", "turma", "professor", "status"];
 
@@ -109,10 +110,9 @@ const configuracaoInstituicao =
       cidade: true,
       estado: true,
       logoUrl: true,
+      corRelatorio: true,
     },
   });
-
-  console.log("LOGO:", configuracaoInstituicao?.logoUrl);
 
 const instituicao = await prisma.instituicao.findUnique({
   where: {
@@ -128,6 +128,19 @@ const nomeInstituicao =
   configuracaoInstituicao?.razaoSocial ||
   instituicao?.nome ||
   "Instituição";
+
+  const temaRelatorio = obterTemaRelatorio(
+  configuracaoInstituicao?.corRelatorio
+);
+
+function corPdf(argb: string) {
+  const hex = argb.replace("FF", "");
+  const r = parseInt(hex.slice(0, 2), 16) / 255;
+  const g = parseInt(hex.slice(2, 4), 16) / 255;
+  const b = parseInt(hex.slice(4, 6), 16) / 255;
+
+  return rgb(r, g, b);
+}
 
     const preferencia = await prisma.preferenciaAgendaOperacional.findUnique({
       where: {
@@ -233,6 +246,12 @@ const poloFiltro = poloIdParam
   : null;
 
     const pdfDoc = await PDFDocument.create();
+    pdfDoc.setTitle("Agenda Operacional");
+    pdfDoc.setAuthor("PHANYX");
+    pdfDoc.setSubject("Relatório da Agenda Operacional");
+    pdfDoc.setKeywords(["PHANYX", "Agenda Operacional", "Relatório"]);
+    pdfDoc.setProducer("PHANYX");
+    pdfDoc.setCreator("PHANYX");
     const fonteNormal = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const fonteBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
@@ -382,7 +401,7 @@ const largurasColunas = colunasPdf.map((coluna) => {
   y: y - 10,
   width: larguraTabela,
   height: 22,
-  color: rgb(0.12, 0.28, 0.64), // azul PHANYX
+  color: corPdf(temaRelatorio.fundo),// azul PHANYX
 });
 
     colunasPdf.forEach((coluna, index) => {
@@ -396,7 +415,7 @@ largurasColunas
     y,
     7,
     true,
-    rgb(1, 1, 1) // texto branco
+    corPdf(temaRelatorio.texto) // texto branco
   );
 });
 
@@ -411,7 +430,7 @@ y -= 24;
     y: y - 10,
     width: larguraTabela,
     height: 22,
-    color: rgb(0.12, 0.28, 0.64),
+    color: corPdf(temaRelatorio.fundo),
   });
 
   colunasPdf.forEach((coluna, index) => {
@@ -425,7 +444,7 @@ largurasColunas
       y,
       7,
       true,
-      rgb(1, 1, 1)
+      corPdf(temaRelatorio.texto)
     );
   });
 
