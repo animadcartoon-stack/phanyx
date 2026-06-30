@@ -23,6 +23,19 @@ interface Funcionario {
   fotoPerfil?: string | null;
   statusFuncionario?: string;
   motivoStatus?: string;
+  dataAdmissao?: string | null;
+  dataDesligamento?: string | null;
+  salario?: string | number | null;
+  salarioBase?: string | number | null;
+  tipoContrato?: string | null;
+  jornadaTrabalho?: string | null;
+  cargaHorariaMensal?: string | number | null;
+  codigoPonto?: string | null;
+  pisPasep?: string | null;
+  banco?: string | null;
+  agencia?: string | null;
+  conta?: string | null;
+  pix?: string | null;
 
   user: {
     email: string;
@@ -59,6 +72,16 @@ function formatarTelefone(valor: string) {
     .replace(/(\d{5})(\d)/, "$1-$2");
 }
 
+function dataParaInput(valor?: string | Date | null) {
+  if (!valor) return "";
+
+  const data = new Date(valor);
+
+  if (Number.isNaN(data.getTime())) return "";
+
+  return data.toISOString().slice(0, 10);
+}
+
 function traduzirRole(role?: string) {
   switch (String(role || "").toUpperCase()) {
     case "ADMIN":
@@ -91,6 +114,18 @@ function AdminFuncionariosPage() {
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [statusFuncionario, setStatusFuncionario] = useState("ATIVO");
   const [motivoStatus, setMotivoStatus] = useState("");
+
+  const [dataAdmissao, setDataAdmissao] = useState("");
+  const [salarioBase, setSalarioBase] = useState("");
+  const [tipoContrato, setTipoContrato] = useState("");
+  const [jornadaTrabalho, setJornadaTrabalho] = useState("");
+  const [cargaHorariaMensal, setCargaHorariaMensal] = useState("");
+  const [codigoPonto, setCodigoPonto] = useState("");
+  const [pisPasep, setPisPasep] = useState("");
+  const [banco, setBanco] = useState("");
+  const [agencia, setAgencia] = useState("");
+  const [conta, setConta] = useState("");
+  const [pix, setPix] = useState("");
 
   const [documentosFuncionario, setDocumentosFuncionario] = useState<
   { tipo: string; titulo: string; arquivo: File | null }[]
@@ -151,6 +186,21 @@ function AdminFuncionariosPage() {
     setCargo(f.cargo || "");
     setCodigoFuncionario(f.codigoFuncionario || "");
     setDepartamentoId(f.departamento?.id ? String(f.departamento.id) : "");
+    setDataAdmissao(dataParaInput(f.dataAdmissao));
+    setSalarioBase(f.salarioBase ? String(f.salarioBase).replace(".", ",") : "");
+    setTipoContrato(f.tipoContrato || "");
+    setJornadaTrabalho(f.jornadaTrabalho || "");
+    setCargaHorariaMensal(
+    f.cargaHorariaMensal ? String(f.cargaHorariaMensal) : ""
+);
+    setCodigoPonto(f.codigoPonto || "");
+    setPisPasep(f.pisPasep || "");
+    setBanco(f.banco || "");
+    setAgencia(f.agencia || "");
+    setConta(f.conta || "");
+    setPix(f.pix || "");
+    setStatusFuncionario(f.statusFuncionario || "ATIVO");
+    setMotivoStatus(f.motivoStatus || "");
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -165,6 +215,19 @@ function AdminFuncionariosPage() {
     setCargo("");
     setCodigoFuncionario("");
     setDepartamentoId("");
+    setDataAdmissao("");
+    setSalarioBase("");
+    setTipoContrato("");
+    setJornadaTrabalho("");
+    setCargaHorariaMensal("");
+    setCodigoPonto("");
+    setPisPasep("");
+    setBanco("");
+    setAgencia("");
+    setConta("");
+    setPix("");
+    setStatusFuncionario("ATIVO");
+    setMotivoStatus("");
   }
 
   async function salvarEdicaoFuncionario(e: React.FormEvent) {
@@ -208,6 +271,17 @@ function AdminFuncionariosPage() {
           departamentoId: departamentoId || null,
           statusFuncionario,
           motivoStatus,
+          dataAdmissao,
+          salarioBase,
+          tipoContrato,
+          jornadaTrabalho,
+          cargaHorariaMensal,
+          codigoPonto,
+          pisPasep,
+          banco,
+          agencia,
+          conta,
+          pix,
         }),
       });
 
@@ -316,6 +390,17 @@ function AdminFuncionariosPage() {
           departamentoId: departamentoId || null,
           statusFuncionario,
           motivoStatus,
+          dataAdmissao,
+          salarioBase,
+          tipoContrato,
+          jornadaTrabalho,
+          cargaHorariaMensal,
+          codigoPonto,
+          pisPasep,
+          banco,
+          agencia,
+          conta,
+          pix,
         }),
       });
 
@@ -380,6 +465,19 @@ if (funcionarioIdCriado) {
       setCargo("");
       setCodigoFuncionario("");
       setDepartamentoId("");
+      setDataAdmissao("");
+      setSalarioBase("");
+      setTipoContrato("");
+      setJornadaTrabalho("");
+      setCargaHorariaMensal("");
+      setCodigoPonto("");
+      setPisPasep("");
+      setBanco("");
+      setAgencia("");
+      setConta("");
+      setPix("");
+      setStatusFuncionario("ATIVO");
+      setMotivoStatus("");
 
       await carregarFuncionarios();
 
@@ -617,6 +715,165 @@ dark:text-white
             className="w-full border rounded-lg p-2"
           />
         </div>
+
+<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="mb-4">
+    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+      💼 Dados trabalhistas, previdenciários e bancários
+    </h3>
+
+    <p className="mt-2 text-sm font-medium text-slate-600 dark:text-slate-300">
+      Informe os dados necessários para folha, ponto, holerites, banco de horas,
+      rescisões e relatórios contábeis.
+    </p>
+  </div>
+
+  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Data de admissão
+      </label>
+      <input
+        type="date"
+        value={dataAdmissao}
+        onChange={(e) => setDataAdmissao(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Salário base
+      </label>
+      <input
+        placeholder="0,00"
+        value={salarioBase}
+        onChange={(e) => setSalarioBase(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        inputMode="decimal"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Tipo de contrato
+      </label>
+      <select
+        value={tipoContrato}
+        onChange={(e) => setTipoContrato(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      >
+        <option value="">Selecione</option>
+        <option value="CLT">CLT</option>
+        <option value="ESTAGIO">Estágio</option>
+        <option value="APRENDIZ">Aprendiz</option>
+        <option value="TEMPORARIO">Temporário</option>
+        <option value="PJ">PJ</option>
+        <option value="AUTONOMO">Autônomo</option>
+        <option value="OUTRO">Outro</option>
+      </select>
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Jornada de trabalho
+      </label>
+      <input
+        placeholder="Ex.: 44h semanais / 220h mensais"
+        value={jornadaTrabalho}
+        onChange={(e) => setJornadaTrabalho(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Carga horária mensal
+      </label>
+      <input
+        placeholder="Ex.: 220"
+        value={cargaHorariaMensal}
+        onChange={(e) =>
+          setCargaHorariaMensal(e.target.value.replace(/\D/g, ""))
+        }
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        inputMode="numeric"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Código do ponto
+      </label>
+      <input
+        placeholder="Identificador usado no relógio/app"
+        value={codigoPonto}
+        onChange={(e) => setCodigoPonto(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        PIS/PASEP/NIT
+      </label>
+      <input
+        placeholder="PIS/PASEP/NIT"
+        value={pisPasep}
+        onChange={(e) => setPisPasep(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Banco
+      </label>
+      <input
+        placeholder="Nome ou código do banco"
+        value={banco}
+        onChange={(e) => setBanco(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Agência
+      </label>
+      <input
+        placeholder="Agência"
+        value={agencia}
+        onChange={(e) => setAgencia(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Conta
+      </label>
+      <input
+        placeholder="Conta"
+        value={conta}
+        onChange={(e) => setConta(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+
+    <div className="space-y-1 md:col-span-2">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Pix
+      </label>
+      <input
+        placeholder="Chave Pix"
+        value={pix}
+        onChange={(e) => setPix(e.target.value)}
+        className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      />
+    </div>
+  </div>
+</div>
 
 <div className="space-y-1">
   <label className="text-sm font-medium">Status</label>

@@ -552,7 +552,7 @@ p-6
     ) : (
       <div className="mt-5 grid gap-4 md:grid-cols-3">
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">Nome</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Nome</span>
           <input
             value={formGeral.nome}
             onChange={(e) => setFormGeral((p) => ({ ...p, nome: e.target.value }))}
@@ -567,7 +567,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">CPF</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">CPF</span>
           <input
             value={formGeral.cpf}
             onChange={(e) => setFormGeral((p) => ({ ...p, cpf: e.target.value }))}
@@ -582,7 +582,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">RG</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">RG</span>
           <input
             value={formGeral.rg}
             onChange={(e) => setFormGeral((p) => ({ ...p, rg: e.target.value }))}
@@ -597,7 +597,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">Telefone</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Telefone</span>
           <input
             value={formGeral.telefone}
             onChange={(e) => setFormGeral((p) => ({ ...p, telefone: e.target.value }))}
@@ -612,7 +612,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">Cargo</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Cargo</span>
           <input
             value={formGeral.cargo}
             onChange={(e) => setFormGeral((p) => ({ ...p, cargo: e.target.value }))}
@@ -627,7 +627,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">Código</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Código</span>
           <input
             value={formGeral.codigoFuncionario}
             onChange={(e) =>
@@ -644,7 +644,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">Email</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Email</span>
           <input
             type="email"
             value={formGeral.email}
@@ -660,7 +660,7 @@ text-slate-900 dark:text-white
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold text-slate-300">Status</span>
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Status</span>
           <select
             value={formGeral.statusFuncionario}
             onChange={(e) =>
@@ -781,7 +781,7 @@ text-slate-900 dark:text-white
   ["pisPasep", "PIS / PASEP", "text"],
 ].map(([campo, label, tipo]) => (
           <label key={campo} className="space-y-1">
-            <span className="text-xs font-semibold text-slate-300">{label}</span>
+            <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{label}</span>
             <input
   type={tipo}
   value={(formTrabalhista as any)[campo]}
@@ -805,7 +805,7 @@ text-slate-900 dark:text-white
         ))}
 
 <label className="relative space-y-1">
-  <span className="text-xs font-semibold text-slate-300">Banco</span>
+  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300"></span>
 
  <input
   value={buscaBanco || formTrabalhista.banco}
@@ -867,7 +867,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
   ["pix", "PIX", "text"],
 ].map(([campo, label, tipo]) => (
   <label key={campo} className="space-y-1">
-    <span className="text-xs font-semibold text-slate-300">
+    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
       {label}
     </span>
 
@@ -1152,7 +1152,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 
           <form onSubmit={vincularBeneficio} className="mt-5 grid gap-4 md:grid-cols-4">
             <label className="space-y-1 md:col-span-2">
-              <span className="text-xs font-semibold text-slate-300">Benefício</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Benefício</span>
               <select
   value={beneficioId}
   onChange={(e) => setBeneficioId(e.target.value)}
@@ -1175,7 +1175,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
             </label>
 
             <label className="space-y-1">
-              <span className="text-xs font-semibold text-slate-300">Valor (R$)</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Valor (R$)</span>
               <input
                 value={valor}
                 onChange={(e) => setValor(e.target.value)}
@@ -1191,7 +1191,7 @@ hover:bg-blue-100 dark:hover:bg-blue-600
             </label>
 
             <label className="space-y-1">
-              <span className="text-xs font-semibold text-slate-300">Percentual (%)</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Percentual (%)</span>
               <input
                 value={percentual}
                 onChange={(e) => setPercentual(e.target.value)}

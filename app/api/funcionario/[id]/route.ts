@@ -110,7 +110,9 @@ export async function PUT(
   documentoUrl: body.documentoUrl || null,
   codigoFuncionario: body.codigoFuncionario || null,
   departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
-
+  statusFuncionario: body.statusFuncionario || "ATIVO",
+  motivoStatus: body.motivoStatus || null,
+  ativo: (body.statusFuncionario || "ATIVO") === "ATIVO",
   dataAdmissao: body.dataAdmissao ? new Date(body.dataAdmissao) : null,
   dataDesligamento: body.dataDesligamento
     ? new Date(body.dataDesligamento)

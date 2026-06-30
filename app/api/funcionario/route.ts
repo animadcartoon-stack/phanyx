@@ -162,6 +162,24 @@ export async function POST(request: Request) {
         fotoPerfil: body.fotoPerfil || null,
         documentoUrl: body.documentoUrl || null,
         codigoFuncionario,
+        dataAdmissao: body.dataAdmissao ? new Date(body.dataAdmissao) : null,
+        salarioBase: body.salarioBase
+            ? Number(String(body.salarioBase).replace(",", "."))
+            : null,
+        salario: body.salarioBase
+            ? Number(String(body.salarioBase).replace(",", "."))
+            : null,
+        tipoContrato: body.tipoContrato || null,
+        jornadaTrabalho: body.jornadaTrabalho || null,
+        cargaHorariaMensal: body.cargaHorariaMensal
+            ? Number(body.cargaHorariaMensal)
+            : null,
+        codigoPonto: body.codigoPonto || null,
+        pisPasep: body.pisPasep || null,
+        banco: body.banco || null,
+        agencia: body.agencia || null,
+        conta: body.conta || null,
+        pix: body.pix || null,
         departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
         instituicaoId: user.instituicaoId,
         userId: novoUser.id,
@@ -169,7 +187,7 @@ export async function POST(request: Request) {
         motivoStatus: body.motivoStatus || null,
         ativo: (body.statusFuncionario || "ATIVO") === "ATIVO",
       },
-      include: {
+        include: {
         user: true,
         departamento: true,
       },
