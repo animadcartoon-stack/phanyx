@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type AtividadeDetalhe = {
@@ -32,6 +33,7 @@ export default function EntregaTrabalhoAlunoClient({
 }: {
   atividadeId: string;
 }) {
+  const router = useRouter();
   const [texto, setTexto] = useState("");
   const [link, setLink] = useState("");
   const [arquivo, setArquivo] = useState<File | null>(null);
@@ -147,7 +149,8 @@ useEffect(() => {
     setTexto("");
     setLink("");
     setArquivo(null);
-    await carregarAtividade();
+
+router.push(`/aluno/trabalhos/${atividadeId}?entrega=sucesso`);
   } catch (error: any) {
     setErro(error.message || "Erro ao enviar atividade.");
   } finally {
