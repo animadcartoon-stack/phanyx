@@ -2746,3 +2746,69 @@ html[data-theme="light"] .phanyx-professor-correcao-page .text-emerald-700 {
 html[data-theme="light"] .phanyx-professor-correcao-page .border-emerald-300 {
   border-color: #6ee7b7 !important;
 }
+
+/* FIX LOCAL - ALUNO / DETALHE DO TRABALHO */
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe * {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe h1,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe h2,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe h3,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe p,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe span,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe strong,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe label {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-slate-400,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-slate-500,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-slate-600,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-slate-700 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe section,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-white {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-slate-50,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .dark\:bg-slate-950,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .dark\:bg-slate-900 {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-green-50 {
+  background: #ecfdf5 !important;
+  border-color: #86efac !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-green-700,
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-green-800 {
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .bg-yellow-50 {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-yellow-800 {
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe a:not(.bg-blue-600) {
+  color: #2563eb !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-trabalho-detalhe a.bg-blue-600 {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}

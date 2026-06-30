@@ -138,7 +138,7 @@ export default async function DetalheTrabalhoAlunoPage({
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="phanyx-aluno-trabalho-detalhe mx-auto max-w-5xl space-y-6">
       {entregaSucesso && (
   <div className="rounded-3xl border border-green-200 bg-green-50 p-5 text-sm font-bold text-green-700 shadow-sm dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
     ✅ Atividade enviada com sucesso. Ela já está disponível para correção do professor.
