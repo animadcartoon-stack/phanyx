@@ -167,99 +167,147 @@ if (loading) {
   );
 }
 
-  return (
-    <div className="mx-auto max-w-5xl p-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <h1 className="text-2xl font-bold">
+ const entrega = atividade?.entregas?.[0] || null;
+const prazoEncerrado =
+  atividade?.prazo && new Date() > new Date(atividade.prazo);
+
+return (
+  <div className="mx-auto max-w-5xl p-6">
+    <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <div>
+        <a
+          href={`/aluno/trabalhos/${atividadeId}`}
+          className="text-sm font-bold text-blue-600 hover:text-blue-700 dark:text-blue-300"
+        >
+          ← Voltar para detalhes
+        </a>
+
+        <h1 className="mt-4 text-2xl font-black text-slate-900 dark:text-white">
           Enviar atividade
         </h1>
+      </div>
 
-{atividade && (
-  <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
-    <h2 className="text-xl font-black text-slate-900 dark:text-white">
-      {atividade.titulo}
-    </h2>
+      {atividade && (
+        <section className="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950">
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white">
+            {atividade.titulo}
+          </h2>
 
-    <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
-      <p className="text-slate-700 dark:text-slate-300">
-        <strong>Disciplina:</strong>{" "}
-        {atividade.disciplina?.nome || "-"}
-      </p>
+          <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
+            <p className="text-slate-700 dark:text-slate-300">
+              <strong>Disciplina:</strong> {atividade.disciplina?.nome || "-"}
+            </p>
 
-      <p className="text-slate-700 dark:text-slate-300">
-        <strong>Turma:</strong>{" "}
-        {atividade.turma?.nome || "-"}
-      </p>
+            <p className="text-slate-700 dark:text-slate-300">
+              <strong>Turma:</strong> {atividade.turma?.nome || "-"}
+            </p>
 
-      <p className="text-slate-700 dark:text-slate-300">
-        <strong>Prazo:</strong>{" "}
-        {atividade.prazo
-          ? new Date(atividade.prazo).toLocaleString("pt-BR")
-          : "Sem prazo"}
-      </p>
+            <p className="text-slate-700 dark:text-slate-300">
+              <strong>Prazo:</strong>{" "}
+              {atividade.prazo
+                ? new Date(atividade.prazo).toLocaleString("pt-BR")
+                : "Sem prazo"}
+            </p>
 
-      <p className="text-slate-700 dark:text-slate-300">
-        <strong>Nota máxima:</strong>{" "}
-        {atividade.notaMaxima}
-      </p>
-    </div>
+            <p className="text-slate-700 dark:text-slate-300">
+              <strong>Nota máxima:</strong> {atividade.notaMaxima}
+            </p>
+          </div>
+        </section>
+      )}
 
-    {atividade.descricao && (
-      <>
-        <hr className="my-5 border-slate-200 dark:border-slate-800" />
-
-        <h3 className="font-bold text-slate-900 dark:text-white">
-          Orientações
-        </h3>
-
-        <div className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700 dark:text-slate-300">
-          {atividade.descricao}
-        </div>
-      </>
-    )}
-  </div>
-)}
-
-        <p className="mt-2 text-sm text-slate-500">
-          Envie texto, link ou arquivo para o professor.
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
+        <p className="text-xs font-black uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
+          Status da entrega
         </p>
 
-{mensagem && (
-  <div className="mt-4 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-700 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
-    {mensagem}
-  </div>
-)}
+        {entrega ? (
+          <div className="mt-3 rounded-2xl border border-green-200 bg-green-50 p-4 text-sm text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
+            <p className="font-black">✅ Atividade entregue</p>
+            <p className="mt-1">
+              Enviada em:{" "}
+              {entrega.entregueEm
+                ? new Date(entrega.entregueEm).toLocaleString("pt-BR")
+                : "-"}
+            </p>
 
-{erro && (
-  <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
-    {erro}
-  </div>
-)}
+            {entrega.nota != null && (
+              <p className="mt-3 font-black">
+                ⭐ Nota: {entrega.nota} / {atividade?.notaMaxima || 10}
+              </p>
+            )}
 
-{atividade?.anexos && atividade.anexos.length > 0 && (
-  <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/50 dark:bg-blue-950/40">
-    <h3 className="font-bold text-blue-800 dark:text-blue-200">
-      Arquivos da atividade
-    </h3>
+            {entrega.feedback && (
+              <div className="mt-3 rounded-xl border border-green-200 bg-white/70 p-3 dark:border-green-900 dark:bg-slate-950/60">
+                <p className="font-black">💬 Feedback do professor</p>
+                <p className="mt-1 whitespace-pre-line">{entrega.feedback}</p>
+              </div>
+            )}
+          </div>
+        ) : prazoEncerrado ? (
+          <div className="mt-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
+            ❌ Prazo encerrado. Não é possível enviar esta atividade.
+          </div>
+        ) : (
+          <div className="mt-3 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm font-bold text-blue-700 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-200">
+            📤 Ainda não enviada. Você pode enviar texto, link ou arquivo.
+          </div>
+        )}
+      </section>
 
-    <div className="mt-4 space-y-2">
-      {atividade.anexos.map((anexo) => (
-        <a
-          key={anexo.id}
-          href={anexo.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block rounded-xl border border-blue-200 bg-white px-4 py-3 font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-slate-900 dark:text-blue-300"
-        >
-          📎 {anexo.arquivoNome || anexo.titulo}
-        </a>
-      ))}
-    </div>
-  </div>
-)}
+      {atividade?.descricao && (
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
+          <h3 className="text-lg font-black text-slate-900 dark:text-white">
+            Orientações
+          </h3>
 
-        <div className="mt-6">
-          <label className="mb-2 block text-sm font-medium">
+          <div className="mt-3 whitespace-pre-line text-sm leading-7 text-slate-700 dark:text-slate-300">
+            {atividade.descricao}
+          </div>
+        </section>
+      )}
+
+      {atividade?.anexos && atividade.anexos.length > 0 && (
+        <section className="rounded-3xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900/50 dark:bg-blue-950/40">
+          <h3 className="font-black text-blue-800 dark:text-blue-200">
+            📎 Arquivos da atividade ({atividade.anexos.length})
+          </h3>
+
+          <div className="mt-4 space-y-2">
+            {atividade.anexos.map((anexo) => (
+              <a
+                key={anexo.id}
+                href={anexo.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block rounded-xl border border-blue-200 bg-white px-4 py-3 text-sm font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-900 dark:bg-slate-900 dark:text-blue-300"
+              >
+                📄 {anexo.arquivoNome || anexo.titulo}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {mensagem && (
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-700 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200">
+          {mensagem}
+        </div>
+      )}
+
+      {erro && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200">
+          {erro}
+        </div>
+      )}
+
+      <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-950">
+        <h3 className="text-lg font-black text-slate-900 dark:text-white">
+          Sua resposta
+        </h3>
+
+        <div className="mt-5">
+          <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
             Texto da resposta
           </label>
 
@@ -267,12 +315,13 @@ if (loading) {
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
             rows={8}
-            className="w-full rounded-xl border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950"
+            disabled={Boolean(prazoEncerrado)}
+            className="w-full rounded-2xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </div>
 
         <div className="mt-4">
-          <label className="mb-2 block text-sm font-medium">
+          <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
             Link externo
           </label>
 
@@ -280,41 +329,46 @@ if (loading) {
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="https://..."
-            className="w-full rounded-xl border border-slate-300 bg-white p-3 dark:border-slate-700 dark:bg-slate-950"
+            disabled={Boolean(prazoEncerrado)}
+            className="w-full rounded-2xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
           />
         </div>
 
         <div className="mt-4">
-          <label className="mb-2 block text-sm font-medium">
+          <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
             Arquivo
           </label>
 
           <input
             type="file"
-            onChange={(e) =>
-              setArquivo(e.target.files?.[0] || null)
-            }
+            disabled={Boolean(prazoEncerrado)}
+            onChange={(e) => setArquivo(e.target.files?.[0] || null)}
+            className="block w-full rounded-2xl border border-slate-300 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
           />
 
           {arquivo && (
-            <p className="mt-2 text-sm text-slate-500">
-              {arquivo.name}
+            <p className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200">
+              📎 Arquivo selecionado: {arquivo.name}
             </p>
           )}
         </div>
 
+        <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-6 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+          Ao enviar esta atividade, você confirma que o conteúdo apresentado é de sua autoria e está ciente das normas acadêmicas da instituição.
+        </div>
+
         <div className="mt-6">
           <button
+            type="button"
             onClick={enviarEntrega}
-            disabled={salvando}
-            className="rounded-xl bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+            disabled={salvando || Boolean(prazoEncerrado)}
+            className="rounded-2xl bg-blue-600 px-6 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {salvando
-              ? "Enviando..."
-              : "Enviar atividade"}
+            {salvando ? "Enviando..." : "📤 Enviar atividade"}
           </button>
         </div>
-      </div>
+      </section>
     </div>
-  );
+  </div>
+);
 }
