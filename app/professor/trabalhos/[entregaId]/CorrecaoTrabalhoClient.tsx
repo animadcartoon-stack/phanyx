@@ -214,19 +214,17 @@ setFeedback(json.trabalho?.feedback || "");
 
 </section>
 
-          <section className="grid gap-4 lg:grid-cols-3">
-            <InfoCard titulo="Aluno" valor={trabalho.aluno} />
-            <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-  <p className="text-xs font-bold uppercase tracking-[0.16em] text-slate-500 dark:text-slate-400">
-    Status
-  </p>
+          <section className="grid gap-4 lg:grid-cols-2">
+  <InfoCard
+    titulo="Data da entrega"
+    valor={formatarData(trabalho.entregueEm)}
+  />
 
-  <div className="mt-3">
-    <StatusBadge status={trabalho.status} />
-  </div>
+  <InfoCard
+    titulo="Data da correção"
+    valor={formatarData(trabalho.corrigidaEm)}
+  />
 </section>
-            <InfoCard titulo="Data da entrega" valor={formatarData(trabalho.entregueEm)} />
-          </section>
 
           <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
             <Card titulo="Atividade">
