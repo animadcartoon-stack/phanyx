@@ -2670,3 +2670,54 @@ html[data-theme="dark"] .phanyx-atividade-upload-file *,
 html[data-theme="system"] .phanyx-atividade-upload-file * {
   color: #f8fafc !important;
 }
+
+/* FIX LOCAL - PROFESSOR / CORREÇÃO DE TRABALHOS */
+
+html[data-theme="light"] .phanyx-professor-correcao-page,
+html[data-theme="light"] .phanyx-professor-correcao-page * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page p,
+html[data-theme="light"] .phanyx-professor-correcao-page span,
+html[data-theme="light"] .phanyx-professor-correcao-page label,
+html[data-theme="light"] .phanyx-professor-correcao-page strong,
+html[data-theme="light"] .phanyx-professor-correcao-page h1,
+html[data-theme="light"] .phanyx-professor-correcao-page h2 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .text-slate-500,
+html[data-theme="light"] .phanyx-professor-correcao-page .text-slate-600,
+html[data-theme="light"] .phanyx-professor-correcao-page .text-slate-700,
+html[data-theme="light"] .phanyx-professor-correcao-page .text-slate-400 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page section,
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-white {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-slate-50,
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-slate-100,
+html[data-theme="light"] .phanyx-professor-correcao-page .dark\:bg-slate-950,
+html[data-theme="light"] .phanyx-professor-correcao-page .dark\:bg-slate-900 {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page input,
+html[data-theme="light"] .phanyx-professor-correcao-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page input::placeholder,
+html[data-theme="light"] .phanyx-professor-correcao-page textarea::placeholder {
+  color: #64748b !important;
+}

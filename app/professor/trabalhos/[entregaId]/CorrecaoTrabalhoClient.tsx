@@ -124,7 +124,7 @@ setFeedback(json.trabalho?.feedback || "");
 }
 
   return (
-    <main className="space-y-6 p-4 text-slate-900 dark:text-slate-100">
+    <main className="phanyx-professor-correcao-page space-y-6 p-4 text-slate-900 dark:text-slate-100">
       <div>
         <Link
           href="/professor/trabalhos"
