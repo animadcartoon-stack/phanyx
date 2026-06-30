@@ -211,8 +211,14 @@ const colunasExcel = ORDEM_COLUNAS.filter((coluna) =>
     workbook.created = new Date();
 
     const worksheet = workbook.addWorksheet("Agenda Operacional", {
-      views: [{ state: "frozen", ySplit: 8 }],
-    });
+  views: [
+    {
+      state: "frozen",
+      ySplit: 14,
+      xSplit: 1,
+    },
+  ],
+});
 
     const logoBase64 = await carregarImagemBase64(
   configuracaoInstituicao?.logoUrl

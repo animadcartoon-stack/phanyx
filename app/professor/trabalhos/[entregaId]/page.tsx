@@ -2,9 +2,15 @@ import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { redirect } from "next/navigation";
 import { validarPaginaProfessor } from "@/lib/portal-guard";
-import ProfessorTrabalhosClient from "./ProfessorTrabalhosClient";
+import CorrecaoTrabalhoClient from "./CorrecaoTrabalhoClient";
 
-export default async function TrabalhosProfessorPage() {
+export default async function CorrecaoTrabalhoPage({
+  params,
+}: {
+  params: {
+    entregaId: string;
+  };
+}) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
@@ -20,12 +26,7 @@ export default async function TrabalhosProfessorPage() {
   };
 
   try {
-    decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: number;
-      role: string;
-      email: string;
-      instituicaoId: number;
-    };
+    decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
   } catch {
     redirect("/login?portal=professor");
   }
@@ -34,7 +35,14 @@ export default async function TrabalhosProfessorPage() {
     redirect("/login?portal=professor");
   }
 
-  await validarPaginaProfessor(decoded.instituicaoId, "professor.trabalhos");
+  await validarPaginaProfessor(
+    decoded.instituicaoId,
+    "professor.trabalhos"
+  );
 
-  return <ProfessorTrabalhosClient />;
+  return (
+    <CorrecaoTrabalhoClient
+      entregaId={Number(params.entregaId)}
+    />
+  );
 }

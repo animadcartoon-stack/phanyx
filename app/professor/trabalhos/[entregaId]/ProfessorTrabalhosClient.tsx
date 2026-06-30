@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 type Trabalho = {
@@ -199,35 +200,6 @@ export default function ProfessorTrabalhosClient() {
     return mapa;
   }, [trabalhosFiltrados]);
 
-  async function avaliar(entregaId: number, nota: string, feedback: string) {
-    try {
-      setErro("");
-
-      const res = await fetch("/api/professor/trabalhos", {
-        method: "PATCH",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          entregaId,
-          nota: nota === "" ? null : Number(nota),
-          feedback,
-        }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json?.error || "Erro ao avaliar trabalho");
-      }
-
-      await carregarTrabalhos();
-    } catch (e: any) {
-      setErro(e?.message || "Erro ao avaliar trabalho");
-    }
-  }
-
   return (
     <main className="space-y-5 p-4 text-slate-900">
       <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -371,10 +343,9 @@ export default function ProfessorTrabalhosClient() {
                                         .sort((a, b) => a.aluno.localeCompare(b.aluno, "pt-BR"))
                                         .map((trabalho) => (
                                           <TrabalhoAluno
-                                            key={trabalho.entregaId}
-                                            trabalho={trabalho}
-                                            onAvaliar={avaliar}
-                                          />
+  key={trabalho.entregaId}
+  trabalho={trabalho}
+/>
                                         ))}
                                     </div>
                                   )}
@@ -397,14 +368,9 @@ export default function ProfessorTrabalhosClient() {
 
 function TrabalhoAluno({
   trabalho,
-  onAvaliar,
 }: {
   trabalho: Trabalho;
-  onAvaliar: (entregaId: number, nota: string, feedback: string) => void;
 }) {
-  const [nota, setNota] = useState(String(trabalho.nota ?? ""));
-  const [feedback, setFeedback] = useState(trabalho.feedback || "");
-
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -529,32 +495,32 @@ className="block text-sm font-bold text-blue-600 hover:underline"
   </div>
 )}
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-[140px_1fr_160px]">
-        <input
-          type="number"
-          min={0}
-          max={trabalho.notaMaxima || 10}
-          value={nota}
-          onChange={(e) => setNota(e.target.value)}
-          placeholder="Nota"
-          className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none"
-        />
+      <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+  <div className="text-sm text-slate-600">
+    {trabalho.status === "Avaliado" ? (
+      <p>
+        <strong className="text-slate-800">Nota:</strong>{" "}
+        {trabalho.nota ?? "-"} / {trabalho.notaMaxima || 10}
+      </p>
+    ) : (
+      <p>Correção pendente.</p>
+    )}
 
-        <input
-          value={feedback}
-          onChange={(e) => setFeedback(e.target.value)}
-          placeholder="Feedback"
-          className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none"
-        />
+    {trabalho.feedback && (
+      <p className="mt-1">
+        <strong className="text-slate-800">Feedback:</strong>{" "}
+        {trabalho.feedback}
+      </p>
+    )}
+  </div>
 
-        <button
-          type="button"
-          onClick={() => onAvaliar(trabalho.entregaId, nota, feedback)}
-          className="rounded-2xl bg-green-600 px-4 py-3 text-sm font-bold text-white hover:bg-green-700"
-        >
-          Avaliar
-        </button>
-      </div>
+  <Link
+    href={`/professor/trabalhos/${trabalho.entregaId}`}
+    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+  >
+    Corrigir entrega
+  </Link>
+</div>
     </article>
   );
 }
