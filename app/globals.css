@@ -2721,3 +2721,16 @@ html[data-theme="light"] .phanyx-professor-correcao-page input::placeholder,
 html[data-theme="light"] .phanyx-professor-correcao-page textarea::placeholder {
   color: #64748b !important;
 }
+
+/* Badge de status - manter texto amarelo no tema claro */
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-amber-900,
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-orange-900 {
+  background: #78350f !important;
+}
+
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-amber-900 *,
+html[data-theme="light"] .phanyx-professor-correcao-page .bg-orange-900 *,
+html[data-theme="light"] .phanyx-professor-correcao-page .text-amber-300,
+html[data-theme="light"] .phanyx-professor-correcao-page .text-orange-300 {
+  color: #fcd34d !important;
+}
