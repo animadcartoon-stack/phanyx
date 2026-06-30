@@ -64,6 +64,34 @@ function textoItem(item: any, coluna: string) {
   return item[coluna] || "-";
 }
 
+function corLinhaPorTipo(tipo?: string | null, linhaIndex = 0) {
+  switch (tipo) {
+    case "AULA":
+      return "FFEFF6FF"; // azul muito claro
+
+    case "PROVA":
+      return "FFFEF2F2"; // vermelho muito claro
+
+    case "ATIVIDADE":
+      return "FFF0FDF4"; // verde muito claro
+
+    case "REUNIAO":
+      return "FFFAF5FF"; // roxo muito claro
+
+    case "FERIAS_RH":
+      return "FFFEFCE8"; // amarelo claro
+
+    case "ESCALA_RH":
+      return "FFEFFBFF"; // ciano claro
+
+    case "SEM_PROFESSOR":
+      return "FFFFF7ED"; // laranja claro
+
+    default:
+      return linhaIndex % 2 === 0 ? "FFFFFFFF" : "FFF8FAFC";
+  }
+}
+
 function nomePeriodo(periodo?: string | null) {
   switch (periodo) {
     case "DIA":
@@ -302,9 +330,7 @@ const linhaCabecalho = 14;
   type: "pattern",
   pattern: "solid",
   fgColor: {
-    argb: linhaIndex % 2 === 0
-      ? "FFFFFFFF"
-      : "FFF8FAFC",
+    argb: corLinhaPorTipo(item.tipo, linhaIndex),
   },
 };
         cell.border = {
