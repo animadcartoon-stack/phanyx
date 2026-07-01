@@ -558,7 +558,21 @@ useEffect(() => {
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
       e.preventDefault();
+if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && modoFormaLivre) {
+  e.preventDefault();
 
+  setPontosFormaLivre((prev) => {
+    const novos = prev.slice(0, -1);
+
+    setCampos((camposAtuais) => [
+      ...camposAtuais.filter((campo) => campo.id !== -999999),
+    ]);
+
+    return novos;
+  });
+
+  return;
+}
       if (e.shiftKey) {
         refazer();
       } else {
@@ -641,6 +655,12 @@ function gerarPontosEstrela(
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
   if (!modoFormaLivre || !canvasRef.current) return false;
   if (e.button !== 0) return false;
+
+  const alvo = e.target as HTMLElement;
+
+if (alvo.closest("[data-campo-certificado-id]")) {
+  return false;
+}
 
   e.preventDefault();
   e.stopPropagation();
@@ -4535,6 +4555,7 @@ overflow:
 
 {c.tipo === "FORMA" && c.pontosForma && c.pontosForma.length > 0 && (
   <div
+    data-campo-certificado-id={c.id}
     onContextMenu={(event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -7167,6 +7188,7 @@ if (c.tipo === "FORMA") {
   return (
     <div
       key={c.id}
+      data-campo-certificado-id={c.id}
       className="absolute"
       style={{
         left: `${c.x}px`,
