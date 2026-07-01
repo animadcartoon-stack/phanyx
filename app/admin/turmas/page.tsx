@@ -43,6 +43,11 @@ interface Turma {
   codigo?: string | null;
   semestre: string;
   periodoLetivo?: string | null;
+  predio?: string | null;
+  ala?: string | null;
+  andar?: string | null;
+  sala?: string | null;
+
   ativa: boolean;
   statusTurma?: StatusTurma;
   capacidadeMinima?: number | null;
@@ -74,6 +79,10 @@ function AdminTurmasPage() {
   const [codigo, setCodigo] = useState("");
   const [semestre, setSemestre] = useState("");
   const [periodoLetivo, setPeriodoLetivo] = useState("");
+  const [predio, setPredio] = useState("");
+  const [ala, setAla] = useState("");
+  const [andar, setAndar] = useState("");
+  const [sala, setSala] = useState("");
   const [statusTurma, setStatusTurma] = useState<StatusTurma>("AGUARDANDO");
   const [ativa, setAtiva] = useState(true);
   const [capacidadeMinima, setCapacidadeMinima] = useState("");
@@ -96,6 +105,10 @@ function AdminTurmasPage() {
   const [editCodigo, setEditCodigo] = useState("");
   const [editSemestre, setEditSemestre] = useState("");
   const [editPeriodoLetivo, setEditPeriodoLetivo] = useState("");
+  const [editPredio, setEditPredio] = useState("");
+  const [editAla, setEditAla] = useState("");
+  const [editAndar, setEditAndar] = useState("");
+  const [editSala, setEditSala] = useState("");
   const [editStatusTurma, setEditStatusTurma] =
     useState<StatusTurma>("AGUARDANDO");
   const [editAtiva, setEditAtiva] = useState(true);
