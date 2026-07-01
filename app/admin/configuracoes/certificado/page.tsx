@@ -1754,18 +1754,36 @@ useEffect(() => {
 ]);
 
   function aplicarArrayForma() {
-  const copias = gerarCopiasArray(false);
+  if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
+
+  const grupoId = `array-${Date.now()}`;
+  const campoOriginalId = campoSelecionado.id;
+
+  const copias = gerarCopiasArray(false).map((copia) => ({
+    ...copia,
+    grupoId,
+  }));
 
   if (copias.length === 0) return;
 
-  setCampos((prev) => [...prev, ...copias]);
+  setCampos((prev) => [
+    ...prev.map((campo) =>
+      campo.id === campoOriginalId
+        ? { ...campo, grupoId }
+        : campo
+    ),
+    ...copias,
+  ]);
+
+  const idsDoArray = [campoOriginalId, ...copias.map((c) => c.id)];
+
   setCampoSelecionadoId(copias[copias.length - 1].id);
-  setCamposSelecionadosIds(copias.map((c) => c.id));
+  setCamposSelecionadosIds(idsDoArray);
 
   setCopiasPreviewArray([]);
   setModalArrayAberto(false);
 
-  setMensagemSucesso(`${copias.length} cópia(s) criadas com Array.`);
+  setMensagemSucesso(`${copias.length} cópia(s) criadas e agrupadas em Array.`);
 }
 
 function idsAlvoDaAcao() {
@@ -7659,6 +7677,19 @@ iniciarDrag(event as any, c);
 >
   🔓 Desagrupar
 </button>
+
+{campoSelecionado?.grupoId?.startsWith("array-") && (
+  <button
+    type="button"
+    onClick={() => {
+      desagruparCampoSelecionado();
+      setMenuContexto(null);
+    }}
+    className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
+  >
+    ✂️ Separar Array
+  </button>
+)}
 
 {campoSelecionado?.tipo === "FORMA" && (
   <button
