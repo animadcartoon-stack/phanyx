@@ -14,6 +14,11 @@ type ObjetoCracha =
       alinhamento: "left" | "center" | "right";
       largura: number;
       altura: number;
+      sombraAtiva?: boolean;
+      sombraX?: number;
+      sombraY?: number;
+      sombraBlur?: number;
+      sombraCor?: string;
     }
   | {
     id: number;
@@ -40,6 +45,12 @@ type ObjetoCracha =
     altura: number;
     raioBorda: number;
     ajusteImagem: "cover" | "contain";
+    sombraAtiva?: boolean;
+    sombraModo?: "DROP" | "BOX";
+    sombraX?: number;
+    sombraY?: number;
+    sombraBlur?: number;
+    sombraCor?: string;
   };
 
 export default function CrachasClient() {
@@ -100,6 +111,11 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
         alinhamento: "left",
         largura: 120,
         altura: 32,
+        sombraAtiva: false,
+        sombraX: 2,
+        sombraY: 2,
+        sombraBlur: 4,
+        sombraCor: "#000000",
       },
     ]);
   }
@@ -137,6 +153,12 @@ function adicionarFoto() {
       altura: 120,
       raioBorda: 50,
       ajusteImagem: "cover",
+      sombraAtiva: false,
+      sombraModo: "DROP",
+      sombraX: 2,
+      sombraY: 2,
+      sombraBlur: 6,
+      sombraCor: "#000000",
     },
   ]);
 }
@@ -155,6 +177,12 @@ function adicionarLogo() {
       altura: 50,
       raioBorda: 8,
       ajusteImagem: "contain",
+      sombraAtiva: false,
+      sombraModo: "DROP",
+      sombraX: 2,
+      sombraY: 2,
+      sombraBlur: 6,
+      sombraCor: "#000000",
     },
   ]);
 }
@@ -203,6 +231,12 @@ async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
         altura: 80,
         raioBorda: 8,
         ajusteImagem: "cover",
+        sombraAtiva: false,
+        sombraModo: "DROP",
+        sombraX: 2,
+        sombraY: 2,
+        sombraBlur: 6,
+        sombraCor: "#000000",
       },
     ]);
 
@@ -356,6 +390,34 @@ useEffect(() => {
       x: novoX,
     });
   }
+
+  function sombraTextoCss(objeto: Extract<ObjetoCracha, { tipo: "TEXTO" }>) {
+  if (!objeto.sombraAtiva) return "none";
+
+  return `${objeto.sombraX ?? 2}px ${objeto.sombraY ?? 2}px ${
+    objeto.sombraBlur ?? 4
+  }px ${objeto.sombraCor ?? "#000000"}`;
+}
+
+function sombraImagemDropCss(
+  objeto: Extract<ObjetoCracha, { tipo: "IMAGEM" }>
+) {
+  if (!objeto.sombraAtiva || objeto.sombraModo !== "DROP") return "none";
+
+  return `drop-shadow(${objeto.sombraX ?? 2}px ${objeto.sombraY ?? 2}px ${
+    objeto.sombraBlur ?? 6
+  }px ${objeto.sombraCor ?? "#000000"})`;
+}
+
+function sombraImagemBoxCss(
+  objeto: Extract<ObjetoCracha, { tipo: "IMAGEM" }>
+) {
+  if (!objeto.sombraAtiva || objeto.sombraModo !== "BOX") return "none";
+
+  return `${objeto.sombraX ?? 2}px ${objeto.sombraY ?? 2}px ${
+    objeto.sombraBlur ?? 6
+  }px ${objeto.sombraCor ?? "#000000"}`;
+}
 
 function redimensionarTexto(
   e: React.MouseEvent<HTMLSpanElement>,
@@ -666,6 +728,7 @@ function BotaoExcluirObjeto() {
   height: objeto.altura,
   fontSize: objeto.fonte,
   color: objeto.cor,
+  textShadow: sombraTextoCss(objeto),
   cursor: "move",
   padding: "2px 4px",
   textAlign: objeto.alinhamento,
@@ -820,6 +883,7 @@ if (objeto.tipo === "IMAGEM") {
     ? "1px solid transparent"
     : "1px solid #94a3b8",
         background: objeto.url ? "transparent" : "#f8fafc",
+        boxShadow: sombraImagemBoxCss(objeto),
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -836,6 +900,7 @@ if (objeto.tipo === "IMAGEM") {
   style={{
     objectFit: objeto.ajusteImagem || "contain",
     background: "transparent",
+    filter: sombraImagemDropCss(objeto),
   }}
 />
       ) : (
@@ -1018,6 +1083,86 @@ if (objeto.tipo === "IMAGEM") {
                   className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
                 />
               </div>
+
+<div className="rounded-2xl border border-slate-700/40 p-3">
+  <label className="mb-3 flex items-center gap-2 font-semibold">
+    <input
+      type="checkbox"
+      checked={!!objetoAtual.sombraAtiva}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          sombraAtiva: e.target.checked,
+        })
+      }
+    />
+    Sombra do texto
+  </label>
+
+  {objetoAtual.sombraAtiva && (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">X</label>
+          <input
+            type="number"
+            value={objetoAtual.sombraX ?? 2}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraX: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">Y</label>
+          <input
+            type="number"
+            value={objetoAtual.sombraY ?? 2}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraY: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">Blur</label>
+          <input
+            type="number"
+            value={objetoAtual.sombraBlur ?? 4}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraBlur: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Cor da sombra
+        </label>
+        <input
+          type="color"
+          value={objetoAtual.sombraCor ?? "#000000"}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              sombraCor: e.target.value,
+            })
+          }
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+        />
+      </div>
+    </div>
+  )}
+</div>
+
             </div>
           )}
 
@@ -1302,6 +1447,106 @@ if (objeto.tipo === "IMAGEM") {
         className="phanyx-crachas-input"
       />
     </div>
+
+<div className="rounded-2xl border border-slate-700/40 p-3">
+  <label className="mb-3 flex items-center gap-2 font-semibold">
+    <input
+      type="checkbox"
+      checked={!!objetoAtual.sombraAtiva}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          sombraAtiva: e.target.checked,
+        })
+      }
+    />
+    Sombra da imagem
+  </label>
+
+  {objetoAtual.sombraAtiva && (
+    <div className="space-y-3">
+      <div>
+        <label className="mb-2 block text-xs font-semibold">
+          Tipo de sombra
+        </label>
+
+        <select
+          value={objetoAtual.sombraModo ?? "DROP"}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              sombraModo: e.target.value as "DROP" | "BOX",
+            })
+          }
+          className="phanyx-crachas-input"
+        >
+          <option value="DROP">Contorno da imagem</option>
+          <option value="BOX">Caixa retangular</option>
+        </select>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">X</label>
+          <input
+            type="number"
+            value={objetoAtual.sombraX ?? 2}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraX: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">Y</label>
+          <input
+            type="number"
+            value={objetoAtual.sombraY ?? 2}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraY: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">Blur</label>
+          <input
+            type="number"
+            value={objetoAtual.sombraBlur ?? 6}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraBlur: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Cor da sombra
+        </label>
+
+        <input
+          type="color"
+          value={objetoAtual.sombraCor ?? "#000000"}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              sombraCor: e.target.value,
+            })
+          }
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+        />
+      </div>
+    </div>
+  )}
+</div>
+
   </div>
 )}
 
