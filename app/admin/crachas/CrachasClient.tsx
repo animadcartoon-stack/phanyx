@@ -42,6 +42,8 @@ export default function CrachasClient() {
     "PERSONALIZADO"
   >("RETRATO");
 
+  const [corFundoCracha, setCorFundoCracha] = useState("#ffffff");
+
   const [objetos, setObjetos] = useState<ObjetoCracha[]>([]);
 
   const [objetoSelecionado, setObjetoSelecionado] =
@@ -242,6 +244,7 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
   <div
     className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
     style={{
+        backgroundColor: corFundoCracha,
       width:
         formato === "RETRATO"
           ? "240px"
@@ -502,6 +505,19 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
             </select>
 
           </div>
+
+<div className="mt-6">
+  <label className="mb-2 block font-semibold">
+    Cor de fundo
+  </label>
+
+  <input
+    type="color"
+    value={corFundoCracha}
+    onChange={(e) => setCorFundoCracha(e.target.value)}
+    className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+  />
+</div>
 
         </div>
 
