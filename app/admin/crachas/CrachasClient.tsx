@@ -39,15 +39,34 @@ export default function CrachasClient() {
     "RETRATO" | "PAISAGEM" | "QUADRADO" | "REDONDO" | "PERSONALIZADO"
   >("RETRATO");
 
-  const [corFundoCracha, setCorFundoCracha] =
-    useState<string>("#ffffff");
+  const [corFundoFrente, setCorFundoFrente] =
+  useState<string>("#ffffff");
 
-  const [objetos, setObjetos] = useState<ObjetoCracha[]>([]);
+const [corFundoVerso, setCorFundoVerso] =
+  useState<string>("#ffffff");
 
-  const [objetoSelecionado, setObjetoSelecionado] =
-    useState<number | null>(null);
+const [objetosFrente, setObjetosFrente] =
+  useState<ObjetoCracha[]>([]);
 
-  const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
+const [objetosVerso, setObjetosVerso] =
+  useState<ObjetoCracha[]>([]);
+
+const [objetoSelecionado, setObjetoSelecionado] =
+  useState<number | null>(null);
+
+const objetos =
+  lado === "FRENTE" ? objetosFrente : objetosVerso;
+
+const setObjetos =
+  lado === "FRENTE" ? setObjetosFrente : setObjetosVerso;
+
+const corFundoCracha =
+  lado === "FRENTE" ? corFundoFrente : corFundoVerso;
+
+const setCorFundoCracha =
+  lado === "FRENTE" ? setCorFundoFrente : setCorFundoVerso;
+
+const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
   function adicionarTexto() {
     setObjetos((atual) => [
@@ -202,7 +221,10 @@ function redimensionarTexto(
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setLado("FRENTE")}
+            onClick={() => {
+  setLado("FRENTE");
+  setObjetoSelecionado(null);
+}}
             className={`rounded-xl px-4 py-2 font-semibold ${
               lado === "FRENTE"
                 ? "bg-blue-600 text-white"
@@ -214,7 +236,10 @@ function redimensionarTexto(
 
           <button
             type="button"
-            onClick={() => setLado("VERSO")}
+            onClick={() => {
+  setLado("VERSO");
+  setObjetoSelecionado(null);
+}}
             className={`rounded-xl px-4 py-2 font-semibold ${
               lado === "VERSO"
                 ? "bg-blue-600 text-white"
