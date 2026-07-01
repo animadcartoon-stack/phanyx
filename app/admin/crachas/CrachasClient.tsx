@@ -39,6 +39,7 @@ type ObjetoCracha =
     largura: number;
     altura: number;
     raioBorda: number;
+    ajusteImagem: "cover" | "contain";
   };
 
 export default function CrachasClient() {
@@ -135,6 +136,7 @@ function adicionarFoto() {
       largura: 100,
       altura: 120,
       raioBorda: 50,
+      ajusteImagem: "cover",
     },
   ]);
 }
@@ -152,6 +154,7 @@ function adicionarLogo() {
       largura: 100,
       altura: 50,
       raioBorda: 8,
+      ajusteImagem: "contain",
     },
   ]);
 }
@@ -199,6 +202,7 @@ async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
         largura: 120,
         altura: 80,
         raioBorda: 8,
+        ajusteImagem: "cover",
       },
     ]);
 
@@ -810,10 +814,12 @@ if (objeto.tipo === "IMAGEM") {
         cursor: "move",
         overflow: "hidden",
         border:
-          objetoSelecionado === objeto.id
-            ? "1px dashed #2563eb"
-            : "1px solid #94a3b8",
-        background: "#f8fafc",
+  objetoSelecionado === objeto.id
+    ? "1px dashed #2563eb"
+    : objeto.url
+    ? "1px solid transparent"
+    : "1px solid #94a3b8",
+        background: objeto.url ? "transparent" : "#f8fafc",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -823,11 +829,15 @@ if (objeto.tipo === "IMAGEM") {
       }}
     >
       {objeto.url ? (
-        <img
-          src={objeto.url}
-          alt={objeto.rotulo}
-          className="h-full w-full object-cover"
-        />
+       <img
+  src={objeto.url}
+  alt={objeto.rotulo}
+  className="h-full w-full"
+  style={{
+    objectFit: objeto.ajusteImagem || "contain",
+    background: "transparent",
+  }}
+/>
       ) : (
         <span>{objeto.rotulo}</span>
       )}
@@ -1155,7 +1165,24 @@ if (objeto.tipo === "IMAGEM") {
       <label className="mb-2 block font-semibold">
         Tipo de imagem
       </label>
+<div>
+  <label className="mb-2 block font-semibold">
+    Encaixe da imagem
+  </label>
 
+  <select
+    value={objetoAtual.ajusteImagem}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        ajusteImagem: e.target.value as "cover" | "contain",
+      })
+    }
+    className="phanyx-crachas-input"
+  >
+    <option value="cover">Preencher cortando</option>
+    <option value="contain">Mostrar inteira</option>
+  </select>
+</div>
 <div>
   <label className="mb-2 block font-semibold">
     Imagem
