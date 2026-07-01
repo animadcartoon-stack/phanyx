@@ -134,38 +134,59 @@ function adicionarTexto() {
             <button
   type="button"
   onClick={adicionarTexto}
-  className="phanyx-crachas-button-secondary w-full"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
 >
-  Texto
+  📝 Texto
 </button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Campo
-            </button>
+            <button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🏷️ Campo
+</button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Foto
-            </button>
+<button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  👤 Foto
+</button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Logo
-            </button>
+<button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🏫 Logo
+</button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Imagem
-            </button>
+<button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🖼️ Imagem
+</button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Forma
-            </button>
+<button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  ⬛ Forma
+</button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              QR Code
-            </button>
+<button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🔳 QR Code
+</button>
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Código de Barras
-            </button>
+<button
+  type="button"
+  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  ▌ Código de Barras
+</button>
 
           </div>
 
