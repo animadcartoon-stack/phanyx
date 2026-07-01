@@ -4406,7 +4406,9 @@ if (!camposSelecionadosIds.includes(c.id)) {
           campoId: c.id,
         });
       }}
-      className="absolute z-20 select-none overflow-visible"
+      className={`absolute z-20 select-none overflow-visible ${
+  (c as any).arrayPreview ? "pointer-events-none opacity-60" : ""
+}`}
       style={{
         left: `${c.x}px`,
         top: `${c.y}px`,
@@ -4414,7 +4416,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
         height: `${c.altura || 80}px`,
         cursor: "move",
         overflow: "visible",
-        zIndex: c.ordem || 5,
+        zIndex: (c as any).arrayPreview ? 1 : c.ordem || 5,
         transform: `rotate(${(c as any).rotate || 0}deg)`,
         
         boxShadow: (() => {
@@ -4511,21 +4513,6 @@ overflow:
     : "hidden",
     }}
 >
-
-{c.tipo === "FORMA" && (
-  <div
-    style={{
-      position: "absolute",
-      left: 0,
-      top: -30,
-      color: "yellow",
-      fontWeight: "bold",
-      zIndex: 999999,
-    }}
-  >
-    {c.forma} | pontos: {c.pontosForma?.length || 0}
-  </div>
-)}
 
 {c.tipo === "FORMA" && c.pontosForma && c.pontosForma.length > 0 && (
   <div
