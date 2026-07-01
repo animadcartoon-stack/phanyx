@@ -680,7 +680,7 @@ function renderFuroCracha() {
       <div className="grid grid-cols-12 gap-4">
         {/* Ferramentas */}
 
-        <div className="phanyx-crachas-card col-span-2 max-h-[calc(100vh-260px)] overflow-y-auto p-4 pr-3">
+        <div className="phanyx-crachas-card col-span-2 p-4">
           <h2 className="mb-4 font-bold">
             Ferramentas
           </h2>
