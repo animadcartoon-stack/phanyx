@@ -118,6 +118,11 @@ array?: {
   escala: number;
   opacidade: number;
 } | null;
+
+textoModo?: "NORMAL" | "VERTICAL" | "ARCO" | null;
+arcoRaio?: number | null;
+arcoAngulo?: number | null;
+arcoInvertido?: boolean | null;
 };
 
 const FONTES = [
@@ -6582,9 +6587,25 @@ onClick={() =>
   </button>
 </div>
                 <div>
-  <label className="mb-1 block text-xs font-medium text-slate-600">
-    Tamanho
-  </label>
+                  <label className="block text-xs font-semibold text-slate-500">
+  Formato do texto
+</label>
+
+<select
+  value={(campoSelecionado as any)?.textoModo || "NORMAL"}
+  onChange={(e) =>
+    atualizarCampoLocal("textoModo" as any, e.target.value as any)
+  }
+  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+>
+  <option value="NORMAL">Normal</option>
+  <option value="VERTICAL">Vertical</option>
+  <option value="ARCO">Arco / meia lua</option>
+</select>
+
+<label className="mb-1 block text-xs font-medium text-slate-600">
+  Tamanho
+</label>
 
   <div className="flex gap-2">
     <button
@@ -7431,7 +7452,10 @@ iniciarDrag(event as any, c);
           cursor: "text",
           direction: "ltr",
           unicodeBidi: "normal",
-          writingMode: "horizontal-tb",
+          writingMode:
+  (c as any).textoModo === "VERTICAL"
+    ? "vertical-rl"
+    : "horizontal-tb",
           caretColor: corTextoSelecionado || c.cor || "#1e3a8a",
         }}
       dangerouslySetInnerHTML={{
