@@ -43,6 +43,10 @@ export default function AgendaOperacionalPage() {
   { id: "tipo", nome: "Tipo" },
   { id: "curso", nome: "Curso" },
   { id: "turma", nome: "Turma" },
+  { id: "predio", nome: "Prédio" },
+  { id: "ala", nome: "Ala" },
+  { id: "andar", nome: "Andar" },
+  { id: "sala", nome: "Sala" },
   { id: "disciplina", nome: "Disciplina" },
   { id: "evento", nome: "Evento" },
   { id: "professor", nome: "Professor" },
@@ -72,6 +76,10 @@ const colunasPdfDisponiveis = [
   { id: "tipo", nome: "Tipo" },
   { id: "curso", nome: "Curso" },
   { id: "turma", nome: "Turma" },
+  { id: "predio", nome: "Prédio" },
+  { id: "ala", nome: "Ala" },
+  { id: "andar", nome: "Andar" },
+  { id: "sala", nome: "Sala" },
   { id: "disciplina", nome: "Disciplina" },
   { id: "evento", nome: "Evento" },
   { id: "professor", nome: "Professor" },
@@ -628,6 +636,10 @@ function abrirExcelAgenda() {
     {colunasVisiveis.includes("tipo") && <th>Tipo</th>}
     {colunasVisiveis.includes("curso") && <th>Curso</th>}
     {colunasVisiveis.includes("turma") && <th>Turma</th>}
+    {colunasVisiveis.includes("predio") && <th>Prédio</th>}
+    {colunasVisiveis.includes("ala") && <th>Ala</th>}
+    {colunasVisiveis.includes("andar") && <th>Andar</th>}
+    {colunasVisiveis.includes("sala") && <th>Sala</th>}
     {colunasVisiveis.includes("disciplina") && <th>Disciplina</th>}
     {colunasVisiveis.includes("evento") && <th>Evento</th>}
     {colunasVisiveis.includes("professor") && <th>Professor</th>}
@@ -689,6 +701,22 @@ function abrirExcelAgenda() {
 
 {colunasVisiveis.includes("turma") && (
   <td className="px-3 py-3">{item.turma || "-"}</td>
+)}
+
+{colunasVisiveis.includes("predio") && (
+  <td className="px-3 py-3">{item.predio || "-"}</td>
+)}
+
+{colunasVisiveis.includes("ala") && (
+  <td className="px-3 py-3">{item.ala || "-"}</td>
+)}
+
+{colunasVisiveis.includes("andar") && (
+  <td className="px-3 py-3">{item.andar || "-"}</td>
+)}
+
+{colunasVisiveis.includes("sala") && (
+  <td className="px-3 py-3">{item.sala || "-"}</td>
 )}
 
 {colunasVisiveis.includes("disciplina") && (

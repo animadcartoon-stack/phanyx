@@ -263,6 +263,10 @@ async function carregarCursos() {
     setEditCodigo(turma.codigo || "");
     setEditSemestre(turma.semestre || "");
     setEditPeriodoLetivo(turma.periodoLetivo || "");
+    setEditPredio(turma.predio || "");
+    setEditAla(turma.ala || "");
+    setEditAndar(turma.andar || "");
+    setEditSala(turma.sala || "");
     setEditStatusTurma(turma.statusTurma || "AGUARDANDO");
     setEditAtiva(Boolean(turma.ativa));
     setEditCapacidadeMinima(
@@ -299,6 +303,10 @@ setEditProfessorId(
           codigo: editCodigo,
           semestre: editSemestre,
           periodoLetivo: editPeriodoLetivo,
+          predio: editPredio,
+          ala: editAla,
+          andar: editAndar,
+          sala: editSala,
           statusTurma: editStatusTurma,
           ativa: editAtiva,
           capacidadeMinima: editCapacidadeMinima,
@@ -949,7 +957,33 @@ const disciplinasFiltradas = useMemo(() => {
                           className="border p-2 rounded"
                           placeholder="Período letivo"
                         />
+<input
+  value={editPredio}
+  onChange={(e) => setEditPredio(e.target.value)}
+  className="border p-2 rounded"
+  placeholder="Prédio"
+/>
 
+<input
+  value={editAla}
+  onChange={(e) => setEditAla(e.target.value)}
+  className="border p-2 rounded"
+  placeholder="Ala"
+/>
+
+<input
+  value={editAndar}
+  onChange={(e) => setEditAndar(e.target.value)}
+  className="border p-2 rounded"
+  placeholder="Andar"
+/>
+
+<input
+  value={editSala}
+  onChange={(e) => setEditSala(e.target.value)}
+  className="border p-2 rounded"
+  placeholder="Sala"
+/>
                         <input
                           type="number"
                           min="1"
