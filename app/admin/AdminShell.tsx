@@ -73,6 +73,7 @@ setTimeout(() => {
     if (pathname.startsWith("/admin/financeiro")) return "financeiro";
     if (pathname.startsWith("/admin/contratos")) return "documentos";
     if (pathname.startsWith("/admin/documentos")) return "documentos";
+    if (pathname.startsWith("/admin/crachas")) return "documentos";
     if (pathname.startsWith("/admin/validacoes")) return "documentos";
     if (pathname.startsWith("/admin/configuracoes")) return "configuracoes";
     if (pathname.startsWith("/master")) return "master";
@@ -749,6 +750,13 @@ function abrirTourAdmin() {
                     >
                       🔐 Validação
                     </Link>
+
+                    <Link
+  href="/admin/crachas"
+  className={getLinkClass("/admin/crachas")}
+>
+  🪪 Crachás
+</Link>
                   </div>
                 )}
               </div>
@@ -983,6 +991,12 @@ function abrirTourAdmin() {
             <Link href="/admin/validacoes" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🔐 Validação
             </Link>
+            <Link
+  href="/admin/crachas"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  🪪 Crachás
+</Link>
           </div>
         )}
 
