@@ -2797,7 +2797,132 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   </div>
 )}
 
-      <div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
+{!podeUsarEditorCertificados && (
+  <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+    <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-700">
+      Recurso disponível no Plano Profissional
+    </p>
+
+    <h2 className="mt-2 text-2xl font-black text-slate-900">
+      Editor PHANYX de Certificados bloqueado no plano atual
+    </h2>
+
+    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
+      O editor visual de certificados, campos dinâmicos, emissão automática e validação por QR Code estão disponíveis a partir do Plano Profissional.
+    </p>
+
+    <a
+      href="/planos"
+      className="mt-4 inline-flex rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
+    >
+      Ver planos disponíveis
+    </a>
+  </div>
+)}
+
+      <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+            Configurações • Certificados
+          </p>
+          <h1 className="mt-2 text-3xl font-bold text-slate-900">
+            Editor PHANYX de Certificados
+          </h1>
+          <p className="mt-2 text-slate-600">
+            Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
+            exato onde o sistema deverá escrever as informações do aluno.
+          </p>
+        </div>
+<button
+  onClick={() => {
+  if (!podeUsarEditorCertificados) {
+    setMensagemErro(
+      "O Editor PHANYX de Certificados está disponível a partir do Plano Profissional."
+    );
+    return;
+  }
+
+  document.getElementById("editor-certificado")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start",
+  });
+}}
+  className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
+>
+  Ir para editor
+</button>
+        <div className="flex shrink-0 justify-center">
+          <Image
+            src="/images/phanyx-editor-pintando.png"
+            alt="Mascote do Editor PHANYX"
+            width={220}
+            height={220}
+            className="h-auto w-[160px] md:w-[220px]"
+            priority
+          />
+        </div>
+      </div>
+
+      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">
+              Modelo institucional
+            </h2>
+            <p className="mt-1 text-sm text-slate-500">
+              Envie um PDF-base para ser usado como modelo oficial de certificado.
+            </p>
+          </div>
+
+          {certificadoTemplateUrl && (
+            <a
+              href={certificadoTemplateUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Ver modelo atual
+            </a>
+          )}
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
+            Upload do modelo em PDF
+          </label>
+
+          <input
+            type="file"
+            accept="application/pdf"
+            onChange={(e) => setArquivoModelo(e.target.files?.[0] || null)}
+            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
+          />
+
+          <div className="mt-4 flex flex-wrap gap-3">
+            <button
+              type="button"
+              onClick={fazerUploadModelo}
+              disabled={enviandoArquivo}
+              className="rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+            >
+              {enviandoArquivo ? "Enviando PDF..." : "Enviar modelo PDF"}
+            </button>
+          </div>
+
+          <p className="mt-3 text-xs text-slate-500">
+            Depois do upload, o modelo salvo continuará abrindo no editor abaixo,
+            mesmo após atualizar a página.
+          </p>
+        </div>
+      </div>
+
+      <section
+      
+  id="editor-certificado"
+  className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
+>
+
+<div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
             <button
@@ -3003,130 +3128,6 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
         </div>
       </div>
 
-{!podeUsarEditorCertificados && (
-  <div className="mb-6 rounded-3xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
-    <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-700">
-      Recurso disponível no Plano Profissional
-    </p>
-
-    <h2 className="mt-2 text-2xl font-black text-slate-900">
-      Editor PHANYX de Certificados bloqueado no plano atual
-    </h2>
-
-    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-700">
-      O editor visual de certificados, campos dinâmicos, emissão automática e validação por QR Code estão disponíveis a partir do Plano Profissional.
-    </p>
-
-    <a
-      href="/planos"
-      className="mt-4 inline-flex rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white hover:bg-blue-700"
-    >
-      Ver planos disponíveis
-    </a>
-  </div>
-)}
-
-      <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:flex-row md:items-center md:justify-between">
-        <div className="max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
-            Configurações • Certificados
-          </p>
-          <h1 className="mt-2 text-3xl font-bold text-slate-900">
-            Editor PHANYX de Certificados
-          </h1>
-          <p className="mt-2 text-slate-600">
-            Faça upload do modelo, adicione campos dinâmicos e posicione no lugar
-            exato onde o sistema deverá escrever as informações do aluno.
-          </p>
-        </div>
-<button
-  onClick={() => {
-  if (!podeUsarEditorCertificados) {
-    setMensagemErro(
-      "O Editor PHANYX de Certificados está disponível a partir do Plano Profissional."
-    );
-    return;
-  }
-
-  document.getElementById("editor-certificado")?.scrollIntoView({
-    behavior: "smooth",
-    block: "start",
-  });
-}}
-  className="mt-4 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
->
-  Ir para editor
-</button>
-        <div className="flex shrink-0 justify-center">
-          <Image
-            src="/images/phanyx-editor-pintando.png"
-            alt="Mascote do Editor PHANYX"
-            width={220}
-            height={220}
-            className="h-auto w-[160px] md:w-[220px]"
-            priority
-          />
-        </div>
-      </div>
-
-      <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-xl font-bold text-slate-900">
-              Modelo institucional
-            </h2>
-            <p className="mt-1 text-sm text-slate-500">
-              Envie um PDF-base para ser usado como modelo oficial de certificado.
-            </p>
-          </div>
-
-          {certificadoTemplateUrl && (
-            <a
-              href={certificadoTemplateUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-            >
-              Ver modelo atual
-            </a>
-          )}
-        </div>
-
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-          <label className="mb-2 block text-sm font-medium text-slate-700">
-            Upload do modelo em PDF
-          </label>
-
-          <input
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => setArquivoModelo(e.target.files?.[0] || null)}
-            className="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3"
-          />
-
-          <div className="mt-4 flex flex-wrap gap-3">
-            <button
-              type="button"
-              onClick={fazerUploadModelo}
-              disabled={enviandoArquivo}
-              className="rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {enviandoArquivo ? "Enviando PDF..." : "Enviar modelo PDF"}
-            </button>
-          </div>
-
-          <p className="mt-3 text-xs text-slate-500">
-            Depois do upload, o modelo salvo continuará abrindo no editor abaixo,
-            mesmo após atualizar a página.
-          </p>
-        </div>
-      </div>
-
-      <section
-      
-  id="editor-certificado"
-  className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
->
         <div
   className={`grid h-[620px] min-h-[620px] grid-cols-1 ${
     mostrarPainelCampos
