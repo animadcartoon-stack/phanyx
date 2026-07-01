@@ -1165,6 +1165,7 @@ if (objeto.tipo === "IMAGEM") {
       <label className="mb-2 block font-semibold">
         Tipo de imagem
       </label>
+      
 <div>
   <label className="mb-2 block font-semibold">
     Imagem
@@ -1186,6 +1187,7 @@ if (objeto.tipo === "IMAGEM") {
     className="hidden"
   />
 </div>
+
       <select
         value={objetoAtual.origem}
         onChange={(e) =>
