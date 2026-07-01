@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type ObjetoCracha =
   | {
@@ -62,6 +62,13 @@ const [objetosVerso, setObjetosVerso] =
 
 const [objetoSelecionado, setObjetoSelecionado] =
   useState<number | null>(null);
+
+const inputImagemRef = useRef<HTMLInputElement | null>(null);
+
+const [avisoCracha, setAvisoCracha] = useState<{
+  tipo: "sucesso" | "erro";
+  texto: string;
+} | null>(null);  
 
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
@@ -146,6 +153,75 @@ function adicionarLogo() {
       raioBorda: 8,
     },
   ]);
+}
+
+async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
+  const arquivo = e.target.files?.[0];
+
+  if (!arquivo) return;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const resp = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const json = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(json.error || "Erro ao enviar imagem.");
+    }
+
+    const url =
+      json.url ||
+      json.fileUrl ||
+      json.arquivoUrl ||
+      json.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da imagem não retornou.");
+    }
+
+    setObjetos((atual) => [
+      ...atual,
+      {
+        id: Date.now(),
+        tipo: "IMAGEM",
+        origem: "UPLOAD",
+        rotulo: "Imagem",
+        url,
+        x: 60,
+        y: 60,
+        largura: 120,
+        altura: 80,
+        raioBorda: 8,
+      },
+    ]);
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto: "Imagem adicionada ao crachá.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 3000);
+  } catch (error) {
+    console.error(error);
+
+    setAvisoCracha({
+      tipo: "erro",
+      texto:
+        error instanceof Error
+          ? error.message
+          : "Erro ao enviar imagem.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+  } finally {
+    e.target.value = "";
+  }
 }
 
   function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
@@ -313,6 +389,18 @@ function redimensionarTexto(
         </div>
       </div>
 
+{avisoCracha && (
+  <div
+    className={`mb-4 rounded-2xl border px-4 py-3 text-sm font-semibold ${
+      avisoCracha.tipo === "sucesso"
+        ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-200"
+        : "border-red-300 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
+    }`}
+  >
+    {avisoCracha.texto}
+  </div>
+)}
+
       <div className="grid grid-cols-12 gap-4">
         {/* Ferramentas */}
 
@@ -355,11 +443,12 @@ function redimensionarTexto(
 </button>
 
             <button
-              type="button"
-              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-            >
-              🖼️ Imagem
-            </button>
+  type="button"
+  onClick={() => inputImagemRef.current?.click()}
+  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🖼️ Imagem
+</button>
 
             <button
               type="button"
@@ -381,6 +470,13 @@ function redimensionarTexto(
             >
               ▌ Código de Barras
             </button>
+            <input
+  ref={inputImagemRef}
+  type="file"
+  accept="image/*"
+  onChange={handleUploadImagem}
+  className="hidden"
+/>
           </div>
         </div>
 
