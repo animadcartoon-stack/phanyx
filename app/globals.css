@@ -2844,3 +2844,139 @@ html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .border-blue-200 {
 html[data-theme="light"] .phanyx-aluno-trabalho-detalhe .text-blue-700 {
   color: #1d4ed8 !important;
 }
+
+/* =========================================
+   PHANYX CRACHÁS - CLARO / ESCURO / SISTEMA
+========================================= */
+
+.phanyx-crachas-page {
+  min-height: 100vh;
+  color: #0f172a;
+}
+
+.phanyx-crachas-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 1rem;
+}
+
+.phanyx-crachas-card h1,
+.phanyx-crachas-card h2,
+.phanyx-crachas-card h3,
+.phanyx-crachas-card label,
+.phanyx-crachas-card p,
+.phanyx-crachas-card span {
+  color: #0f172a !important;
+}
+
+.phanyx-crachas-muted {
+  color: #475569 !important;
+}
+
+.phanyx-crachas-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.5rem 0.75rem;
+}
+
+.phanyx-crachas-button-primary {
+  border-radius: 0.75rem;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  padding: 0.5rem 1rem;
+  font-weight: 700;
+}
+
+.phanyx-crachas-button-secondary {
+  border-radius: 0.75rem;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.5rem 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+}
+
+.phanyx-crachas-button-secondary:hover {
+  background: #f1f5f9 !important;
+}
+
+/* Escuro */
+html[data-theme="dark"] .phanyx-crachas-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-card h1,
+html[data-theme="dark"] .phanyx-crachas-card h2,
+html[data-theme="dark"] .phanyx-crachas-card h3,
+html[data-theme="dark"] .phanyx-crachas-card label,
+html[data-theme="dark"] .phanyx-crachas-card p,
+html[data-theme="dark"] .phanyx-crachas-card span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-muted {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-input {
+  background: #020617 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-button-secondary {
+  background: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-button-secondary:hover {
+  background: #1e293b !important;
+}
+
+/* Sistema */
+html[data-theme="system"] .phanyx-crachas-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-card h1,
+html[data-theme="system"] .phanyx-crachas-card h2,
+html[data-theme="system"] .phanyx-crachas-card h3,
+html[data-theme="system"] .phanyx-crachas-card label,
+html[data-theme="system"] .phanyx-crachas-card p,
+html[data-theme="system"] .phanyx-crachas-card span {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-muted {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-input {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-button-secondary {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="system"] .phanyx-crachas-button-secondary:hover {
+  background: #3a3a3a !important;
+}
