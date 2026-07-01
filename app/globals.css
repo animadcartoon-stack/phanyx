@@ -3014,3 +3014,33 @@ html[data-theme="light"] .phanyx-cracha-paper {
   border: 1px solid #94a3b8 !important;
   color: #020617 !important;
 }
+
+/* PHANYX CRACHÁS - botões visíveis no tema claro */
+html[data-theme="light"] .phanyx-crachas-page button {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-page .phanyx-crachas-tool-button {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #94a3b8 !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.16) !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-page .phanyx-crachas-tool-button * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-page .phanyx-crachas-tab-off {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border: 1px solid #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-crachas-page .phanyx-crachas-tab-off,
+html[data-theme="system"] .phanyx-crachas-page .phanyx-crachas-tab-off {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #475569 !important;
+}
