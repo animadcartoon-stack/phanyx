@@ -1799,34 +1799,34 @@ useEffect(() => {
   function aplicarArrayForma() {
   if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
 
-  const grupoId = `array-${Date.now()}`;
-  const campoOriginalId = campoSelecionado.id;
+  const arrayConfig = {
+    ativo: true,
+    quantidade: Math.max(1, Math.min(100, Number(arrayQuantidade || 1))),
+    distanciaX: Number(arrayX || 0),
+    distanciaY: Number(arrayY || 0),
+    angulo: Number(arrayAngulo || 0),
+    rotacaoPorCopia: Number(arrayRotacao || 0),
+    escala: Number(arrayEscala || 100),
+    opacidade: Number(arrayOpacidade || 100),
+  };
 
-  const copias = gerarCopiasArray(false).map((copia) => ({
-    ...copia,
-    grupoId,
-  }));
-
-  if (copias.length === 0) return;
-
-  setCampos((prev) => [
-    ...prev.map((campo) =>
-      campo.id === campoOriginalId
-        ? { ...campo, grupoId }
+  setCampos((prev) =>
+    prev.map((campo) =>
+      campo.id === campoSelecionado.id
+        ? {
+            ...campo,
+            arrayAtivo: true,
+            arrayConfig,
+            nomeCamada: campo.nomeCamada || "Array",
+          }
         : campo
-    ),
-    ...copias,
-  ]);
-
-  const idsDoArray = [campoOriginalId, ...copias.map((c) => c.id)];
-
-  setCampoSelecionadoId(copias[copias.length - 1].id);
-  setCamposSelecionadosIds(idsDoArray);
+    )
+  );
 
   setCopiasPreviewArray([]);
   setModalArrayAberto(false);
 
-  setMensagemSucesso(`${copias.length} cópia(s) criadas e agrupadas em Array.`);
+  setMensagemSucesso("Array aplicado à forma.");
 }
 
 function idsAlvoDaAcao() {
@@ -2816,6 +2816,55 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
   } finally {
     setSalvando(false);
   }
+}
+
+function camposComArrayVirtual() {
+  const resultado: any[] = [];
+
+  campos.forEach((campo: any) => {
+    resultado.push(campo);
+
+    if (campo.tipo !== "FORMA" || !campo.arrayConfig?.ativo) return;
+
+    const config = campo.arrayConfig;
+    const quantidade = Number(config.quantidade || 1);
+    const anguloRad = (Number(config.angulo || 0) * Math.PI) / 180;
+    const escala = Number(config.escala || 100) / 100;
+    const opacidade = Number(config.opacidade || 100) / 100;
+
+    for (let index = 0; index < quantidade; index++) {
+      const passo = index + 1;
+
+      const baseX = Number(config.distanciaX || 0) * passo;
+      const baseY = Number(config.distanciaY || 0) * passo;
+
+      const deslocamentoX =
+        baseX * Math.cos(anguloRad) - baseY * Math.sin(anguloRad);
+
+      const deslocamentoY =
+        baseX * Math.sin(anguloRad) + baseY * Math.cos(anguloRad);
+
+      resultado.push({
+        ...campo,
+        id: Number(`${campo.id}${passo}`),
+        idOriginalArray: campo.id,
+        arrayPreview: true,
+        x: Number(campo.x || 0) + deslocamentoX,
+        y: Number(campo.y || 0) + deslocamentoY,
+        largura: Number(campo.largura || 100) * Math.pow(escala, passo),
+        altura: Number(campo.altura || 100) * Math.pow(escala, passo),
+        rotate:
+          Number(campo.rotate || 0) +
+          Number(config.rotacaoPorCopia || 0) * passo,
+        opacity: Math.max(
+          0.05,
+          Number(campo.opacity || 1) * Math.pow(opacidade, passo)
+        ),
+      });
+    }
+  });
+
+  return resultado;
 }
 
   if (carregando) {
@@ -4208,7 +4257,53 @@ onMouseLeave={() => {
   />
 )}
 
-  {[...campos, ...copiasPreviewArray].map((c) => {
+  {[
+  ...campos.flatMap((campo) => {
+    if (campo.tipo !== "FORMA" || !(campo as any).arrayAtivo) {
+      return [campo];
+    }
+
+    const config = (campo as any).arrayConfig;
+    if (!config?.ativo) return [campo];
+
+    const quantidade = Number(config.quantidade || 1);
+    const anguloRad = (Number(config.angulo || 0) * Math.PI) / 180;
+
+    const escala = Number(config.escala || 100) / 100;
+    const opacidade = Number(config.opacidade || 100) / 100;
+
+    const copias = Array.from({ length: quantidade }).map((_, index) => {
+      const passo = index + 1;
+
+      const baseX = Number(config.distanciaX || 0) * passo;
+      const baseY = Number(config.distanciaY || 0) * passo;
+
+      const deslocamentoX =
+        baseX * Math.cos(anguloRad) - baseY * Math.sin(anguloRad);
+
+      const deslocamentoY =
+        baseX * Math.sin(anguloRad) + baseY * Math.cos(anguloRad);
+
+      return {
+        ...campo,
+        id: Number(`${campo.id}${passo}`),
+        arrayPreview: true,
+        x: Number(campo.x || 0) + deslocamentoX,
+        y: Number(campo.y || 0) + deslocamentoY,
+        largura: Number(campo.largura || 100) * Math.pow(escala, passo),
+        altura: Number(campo.altura || 100) * Math.pow(escala, passo),
+        rotate: Number((campo as any).rotate || 0) + Number(config.rotacaoPorCopia || 0) * passo,
+        opacity: Math.max(
+          0.05,
+          Number(campo.opacity || 1) * Math.pow(opacidade, passo)
+        ),
+      };
+    });
+
+    return [campo, ...copias];
+  }),
+  ...copiasPreviewArray,
+].map((c) => {
  if (c.tipo === "IMAGEM") {
   const selecionadoImagem = camposSelecionadosIds.includes(c.id);
 
@@ -7213,7 +7308,7 @@ atualizarCampoLocal("tamanho", tamanho);
         />
       )}
 
-{campos.map((c) => {
+{[...camposComArrayVirtual(), ...copiasPreviewArray].map((c) => {
  
 if (c.tipo === "FORMA") {
   return (
