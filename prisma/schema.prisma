@@ -512,6 +512,10 @@ model Turma {
   codigo                String?
   createdAt             DateTime              @default(now())
   periodoLetivo         String?
+  predio                String?
+  ala                   String?
+  andar                 String?
+  sala                  String?
   updatedAt             DateTime              @updatedAt
   capacidadeMaxima      Int?
   capacidadeMinima      Int?
