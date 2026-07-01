@@ -260,19 +260,31 @@ if (logoBase64) {
   });
 
   worksheet.addImage(logoId, {
-    tl: { col: 0, row: 0 },
-    ext: { width: 90, height: 50 },
-  });
+  tl: { col: 0.15, row: 0.15 },
+  ext: {
+    width: 120,
+    height: 70,
+  },
+});
 }
 
-    worksheet.mergeCells("B1:G1");
-    worksheet.getCell("B1").value = "Agenda Operacional";
-    worksheet.getCell("B1").font = {
+    worksheet.mergeCells("B1:G2");
+
+const titulo = worksheet.getCell("B1");
+
+titulo.value = "Agenda Operacional";
+
+titulo.font = {
   bold: true,
-  size: 20,
+  size: 22,
   color: {
     argb: temaRelatorio.fundo,
   },
+};
+
+titulo.alignment = {
+  vertical: "middle",
+  horizontal: "left",
 };
 
     worksheet.getCell("A2").value = `Instituição: ${nomeInstituicao}`;
@@ -338,7 +350,7 @@ const linhaCabecalho = 14;
 
     agenda.forEach((item: any, linhaIndex: number) => {
       const linha = linhaCabecalho + 1 + linhaIndex;
-
+      worksheet.getRow(linha).height = 24;
       colunasExcel.forEach((coluna, index) => {
         const cell = worksheet.getCell(linha, index + 1);
         cell.value = textoItem(item, coluna);
