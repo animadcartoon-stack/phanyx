@@ -16,12 +16,18 @@ type ObjetoCracha =
       altura: number;
     }
   | {
-      id: number;
-      tipo: "CAMPO";
-      campo: string;
-      x: number;
-      y: number;
-    }
+    id: number;
+    tipo: "CAMPO";
+    campo: string;
+    rotulo: string;
+    x: number;
+    y: number;
+    fonte: number;
+    cor: string;
+    alinhamento: "left" | "center" | "right";
+    largura: number;
+    altura: number;
+  }
   | {
       id: number;
       tipo: "IMAGEM";
@@ -85,6 +91,25 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
       },
     ]);
   }
+
+  function adicionarCampoDinamico() {
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: Date.now(),
+      tipo: "CAMPO",
+      campo: "{{alunoNome}}",
+      rotulo: "Nome do aluno",
+      x: 30,
+      y: 80,
+      fonte: 16,
+      cor: "#000000",
+      alinhamento: "left",
+      largura: 150,
+      altura: 32,
+    },
+  ]);
+}
 
   function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
     setObjetos((atual) =>
@@ -269,11 +294,12 @@ function redimensionarTexto(
             </button>
 
             <button
-              type="button"
-              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-            >
-              🏷️ Campo
-            </button>
+  type="button"
+  onClick={adicionarCampoDinamico}
+  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🏷️ Campo
+</button>
 
             <button
               type="button"
@@ -432,6 +458,64 @@ function redimensionarTexto(
 </div>
                 );
               }
+
+              if (objeto.tipo === "CAMPO") {
+  return (
+    <div
+      key={objeto.id}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setObjetoSelecionado(objeto.id);
+
+        const inicioX = e.clientX;
+        const inicioY = e.clientY;
+        const xOriginal = objeto.x;
+        const yOriginal = objeto.y;
+
+        function mover(ev: MouseEvent) {
+          const novoX = xOriginal + ev.clientX - inicioX;
+          const novoY = yOriginal + ev.clientY - inicioY;
+
+          atualizarObjeto(objeto.id, {
+            x: novoX,
+            y: novoY,
+          });
+        }
+
+        function soltar() {
+          window.removeEventListener("mousemove", mover);
+          window.removeEventListener("mouseup", soltar);
+        }
+
+        window.addEventListener("mousemove", mover);
+        window.addEventListener("mouseup", soltar);
+      }}
+      style={{
+        position: "absolute",
+        left: objeto.x,
+        top: objeto.y,
+        width: objeto.largura,
+        height: objeto.altura,
+        fontSize: objeto.fonte,
+        color: objeto.cor,
+        cursor: "move",
+        padding: "2px 4px",
+        textAlign: objeto.alinhamento,
+        display: "flex",
+        alignItems: "center",
+        overflow: "hidden",
+        border:
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : "1px solid transparent",
+      }}
+    >
+      {objeto.campo}
+    </div>
+  );
+}
 
               return null;
             })}
@@ -607,6 +691,144 @@ function redimensionarTexto(
               </div>
             </div>
           )}
+
+{objetoAtual?.tipo === "CAMPO" && (
+  <div className="space-y-4">
+    <div>
+      <label className="mb-2 block font-semibold">
+        Campo dinâmico
+      </label>
+
+      <select
+        value={objetoAtual.campo}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            campo: e.target.value,
+          })
+        }
+        className="phanyx-crachas-input"
+      >
+        <option value="{{alunoNome}}">Aluno - Nome</option>
+        <option value="{{alunoMatricula}}">Aluno - Matrícula</option>
+        <option value="{{cursoNome}}">Aluno - Curso</option>
+        <option value="{{turmaNome}}">Aluno - Turma</option>
+        <option value="{{funcionarioNome}}">Funcionário - Nome</option>
+        <option value="{{funcionarioCargo}}">Funcionário - Cargo</option>
+        <option value="{{funcionarioDepartamento}}">
+          Funcionário - Departamento
+        </option>
+        <option value="{{professorNome}}">Professor - Nome</option>
+        <option value="{{instituicaoNome}}">Instituição - Nome</option>
+      </select>
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Tamanho
+      </label>
+
+      <input
+        type="number"
+        value={objetoAtual.fonte}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            fonte: Number(e.target.value),
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block font-semibold">
+          X
+        </label>
+
+        <input
+          type="number"
+          value={Math.round(objetoAtual.x)}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              x: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Y
+        </label>
+
+        <input
+          type="number"
+          value={Math.round(objetoAtual.y)}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              y: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block font-semibold">
+          Largura
+        </label>
+
+        <input
+          type="number"
+          value={objetoAtual.largura}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              largura: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Altura
+        </label>
+
+        <input
+          type="number"
+          value={objetoAtual.altura}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              altura: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Cor
+      </label>
+
+      <input
+        type="color"
+        value={objetoAtual.cor}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            cor: e.target.value,
+          })
+        }
+        className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+  </div>
+)}
 
           <div className="mt-6">
             <label className="mb-2 block font-semibold">
