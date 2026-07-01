@@ -347,42 +347,29 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
     Alinhamento
   </label>
 
-  <div className="grid grid-cols-3 gap-2">
-    <button
-      type="button"
-      onClick={() =>
-        atualizarObjeto(objetoAtual.id, {
-          alinhamento: "left",
-        })
-      }
-      className="rounded-xl border px-3 py-2 font-semibold"
-    >
-      Esq.
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        atualizarObjeto(objetoAtual.id, {
-          alinhamento: "center",
-        })
-      }
-      className="rounded-xl border px-3 py-2 font-semibold"
-    >
-      Centro
-    </button>
-
-    <button
-      type="button"
-      onClick={() =>
-        atualizarObjeto(objetoAtual.id, {
-          alinhamento: "right",
-        })
-      }
-      className="rounded-xl border px-3 py-2 font-semibold"
-    >
-      Dir.
-    </button>
+  <div className="flex gap-2">
+    {[
+      { valor: "left", label: "←" },
+      { valor: "center", label: "↔" },
+      { valor: "right", label: "→" },
+    ].map((item) => (
+      <button
+        key={item.valor}
+        type="button"
+        onClick={() =>
+          atualizarObjeto(objetoAtual.id, {
+            alinhamento: item.valor as "left" | "center" | "right",
+          })
+        }
+        className={`h-10 w-10 rounded-xl border text-lg font-bold transition ${
+          objetoAtual.alinhamento === item.valor
+            ? "border-blue-500 bg-blue-600 text-white"
+            : "border-slate-300 bg-white text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+        }`}
+      >
+        {item.label}
+      </button>
+    ))}
   </div>
 </div>
 
