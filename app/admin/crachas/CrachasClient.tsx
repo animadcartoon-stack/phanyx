@@ -53,6 +53,13 @@ type ObjetoCracha =
     sombraCor?: string;
   };
 
+  type TipoFuroCracha =
+  | "SEM_FURO"
+  | "RASGO_HORIZONTAL"
+  | "RASGO_VERTICAL"
+  | "FURO_REDONDO"
+  | "FURO_DUPLO";
+
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
 
@@ -62,6 +69,9 @@ export default function CrachasClient() {
 
   const [corFundoFrente, setCorFundoFrente] =
   useState<string>("#ffffff");
+
+  const [tipoFuroCracha, setTipoFuroCracha] =
+  useState<TipoFuroCracha>("RASGO_HORIZONTAL");
 
 const [corFundoVerso, setCorFundoVerso] =
   useState<string>("#ffffff");
@@ -508,6 +518,93 @@ function BotaoExcluirObjeto() {
   );
 }
 
+function renderFuroCracha() {
+  if (tipoFuroCracha === "SEM_FURO") return null;
+
+  const baseClass =
+    "pointer-events-none absolute z-10 border border-slate-400 bg-slate-200 shadow-inner";
+
+  if (tipoFuroCracha === "RASGO_HORIZONTAL") {
+    return (
+      <div
+        className={baseClass}
+        style={{
+          top: formato === "PAISAGEM" ? 10 : 12,
+          left: "50%",
+          width: formato === "PAISAGEM" ? 56 : 46,
+          height: 12,
+          borderRadius: 999,
+          transform: "translateX(-50%)",
+        }}
+      />
+    );
+  }
+
+  if (tipoFuroCracha === "RASGO_VERTICAL") {
+    return (
+      <div
+        className={baseClass}
+        style={{
+          top: "50%",
+          left: formato === "PAISAGEM" ? 12 : 10,
+          width: 12,
+          height: 44,
+          borderRadius: 999,
+          transform: "translateY(-50%)",
+        }}
+      />
+    );
+  }
+
+  if (tipoFuroCracha === "FURO_REDONDO") {
+    return (
+      <div
+        className={baseClass}
+        style={{
+          top: formato === "REDONDO" ? 16 : 14,
+          left: "50%",
+          width: 18,
+          height: 18,
+          borderRadius: 999,
+          transform: "translateX(-50%)",
+        }}
+      />
+    );
+  }
+
+  if (tipoFuroCracha === "FURO_DUPLO") {
+    return (
+      <>
+        <div
+          className={baseClass}
+          style={{
+            top: 14,
+            left: "42%",
+            width: 14,
+            height: 14,
+            borderRadius: 999,
+            transform: "translateX(-50%)",
+          }}
+        />
+
+        <div
+          className={baseClass}
+          style={{
+            top: 14,
+            left: "58%",
+            width: 14,
+            height: 14,
+            borderRadius: 999,
+            transform: "translateX(-50%)",
+          }}
+        />
+      </>
+    );
+  }
+
+  return null;
+}
+
   return (
     <div className="phanyx-crachas-page p-4">
       {/* Barra Superior */}
@@ -583,7 +680,7 @@ function BotaoExcluirObjeto() {
       <div className="grid grid-cols-12 gap-4">
         {/* Ferramentas */}
 
-        <div className="phanyx-crachas-card col-span-2 p-4">
+        <div className="phanyx-crachas-card col-span-2 max-h-[calc(100vh-260px)] overflow-y-auto p-4 pr-3">
           <h2 className="mb-4 font-bold">
             Ferramentas
           </h2>
@@ -686,6 +783,9 @@ function BotaoExcluirObjeto() {
                   : "16px",
             }}
           >
+
+            {renderFuroCracha()}
+
             {objetos.map((objeto) => {
               if (objeto.tipo === "TEXTO") {
                 return (
@@ -928,7 +1028,7 @@ if (objeto.tipo === "IMAGEM") {
 
         {/* Propriedades */}
 
-        <div className="phanyx-crachas-card col-span-2 p-4">
+        <div className="phanyx-crachas-card col-span-2 max-h-[calc(100vh-260px)] overflow-y-auto p-4 pr-3">
           <h2 className="mb-4 font-bold">
             Propriedades
           </h2>
@@ -1581,6 +1681,30 @@ if (objeto.tipo === "IMAGEM") {
               </option>
             </select>
           </div>
+
+<div className="mt-6">
+  <label className="mb-2 block font-semibold">
+    Furo / encaixe do crachá
+  </label>
+
+  <select
+    value={tipoFuroCracha}
+    onChange={(e) =>
+      setTipoFuroCracha(e.target.value as TipoFuroCracha)
+    }
+    className="phanyx-crachas-input"
+  >
+    <option value="SEM_FURO">Sem furo</option>
+    <option value="RASGO_HORIZONTAL">Rasgo horizontal superior</option>
+    <option value="RASGO_VERTICAL">Rasgo vertical lateral</option>
+    <option value="FURO_REDONDO">Furo redondo superior</option>
+    <option value="FURO_DUPLO">Dois furos superiores</option>
+  </select>
+
+  <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
+    Simulação visual do local do cordão, presilha ou clip do crachá.
+  </p>
+</div>
 
           <div className="mt-6">
             <label className="mb-2 block font-semibold">
