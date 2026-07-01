@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type ObjetoCracha =
   | {
@@ -232,6 +232,48 @@ async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
     );
   }
 
+  function excluirObjetoSelecionado() {
+  if (!objetoSelecionado) return;
+
+  setObjetos((atual) =>
+    atual.filter((obj) => obj.id !== objetoSelecionado)
+  );
+
+  setObjetoSelecionado(null);
+}
+
+useEffect(() => {
+  function aoPressionarTecla(e: KeyboardEvent) {
+    if (!objetoSelecionado) return;
+
+    const alvo = e.target as HTMLElement | null;
+    const tag = alvo?.tagName?.toLowerCase();
+
+    const estaDigitando =
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      alvo?.isContentEditable;
+
+    if (estaDigitando) return;
+
+    if (e.key === "Delete" || e.key === "Backspace") {
+      e.preventDefault();
+      excluirObjetoSelecionado();
+    }
+
+    if (e.key === "Escape") {
+      setObjetoSelecionado(null);
+    }
+  }
+
+  window.addEventListener("keydown", aoPressionarTecla);
+
+  return () => {
+    window.removeEventListener("keydown", aoPressionarTecla);
+  };
+}, [objetoSelecionado, lado]);
+
   function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
     if (!objetoAtual || objetoAtual.tipo !== "TEXTO") return;
 
@@ -327,6 +369,27 @@ function redimensionarTexto(
 
   window.addEventListener("mousemove", mover);
   window.addEventListener("mouseup", soltar);
+}
+
+function BotaoExcluirObjeto() {
+  return (
+    <button
+      type="button"
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        excluirObjetoSelecionado();
+      }}
+      className="absolute -right-3 -top-3 z-30 flex h-6 w-6 items-center justify-center rounded-full border border-red-500 bg-red-600 text-xs font-bold text-white shadow hover:bg-red-700"
+      title="Excluir objeto"
+    >
+      ×
+    </button>
+  );
 }
 
   return (
@@ -562,6 +625,7 @@ function redimensionarTexto(
 }}
                   >
   {objeto.texto}
+  {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
 
   {objetoSelecionado === objeto.id && (
     <>
@@ -648,6 +712,7 @@ function redimensionarTexto(
       }}
     >
       {objeto.campo}
+      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
     </div>
   );
 }
@@ -716,6 +781,7 @@ if (objeto.tipo === "IMAGEM") {
       ) : (
         <span>{objeto.rotulo}</span>
       )}
+      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
     </div>
   );
 }
