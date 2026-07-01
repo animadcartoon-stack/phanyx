@@ -557,28 +557,34 @@ useEffect(() => {
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-      e.preventDefault();
-if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && modoFormaLivre) {
   e.preventDefault();
 
-  setPontosFormaLivre((prev) => {
-    const novos = prev.slice(0, -1);
+  if (pontosFormaLivreRef.current.length > 0) {
+    setPontosFormaLivre((prev) => {
+      const novos = prev.slice(0, -1);
 
-    setCampos((camposAtuais) => [
-      ...camposAtuais.filter((campo) => campo.id !== -999999),
-    ]);
+      setCampos((camposAtuais) => {
+        const semPreview = camposAtuais.filter((campo) => campo.id !== -999999);
 
-    return novos;
-  });
+        if (novos.length === 0) {
+          return semPreview;
+        }
 
-  return;
+        return semPreview;
+      });
+
+      return novos;
+    });
+
+    return;
+  }
+
+  if (e.shiftKey) {
+    refazer();
+  } else {
+    desfazer();
+  }
 }
-      if (e.shiftKey) {
-        refazer();
-      } else {
-        desfazer();
-      }
-    }
   }
 
   window.addEventListener("keydown", handleUndoRedo, true);
@@ -649,6 +655,12 @@ function gerarPontosEstrela(
   const [arrayEscala, setArrayEscala] = useState(100);
   const [arrayOpacidade, setArrayOpacidade] = useState(100);
   const [pontosFormaLivre, setPontosFormaLivre] = useState<any[]>([]);
+
+  const pontosFormaLivreRef = useRef<any[]>([]);
+
+useEffect(() => {
+  pontosFormaLivreRef.current = pontosFormaLivre;
+}, [pontosFormaLivre]);
 
   const [copiasPreviewArray, setCopiasPreviewArray] = useState<any[]>([]);
 
