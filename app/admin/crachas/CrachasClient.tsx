@@ -60,6 +60,16 @@ function adicionarTexto() {
   ]);
 }
 
+const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
+
+function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
+  setObjetos((atual) =>
+    atual.map((obj) =>
+      obj.id === id ? ({ ...obj, ...dados } as ObjetoCracha) : obj
+    )
+  );
+}
+
   return (
     <div className="phanyx-crachas-page p-4">
 
@@ -259,9 +269,65 @@ function adicionarTexto() {
             Propriedades
           </h2>
 
-          <p className="phanyx-crachas-muted">
-            Nenhum objeto selecionado.
-          </p>
+          {!objetoAtual && (
+  <p className="phanyx-crachas-muted">
+    Nenhum objeto selecionado.
+  </p>
+)}
+
+{objetoAtual?.tipo === "TEXTO" && (
+  <div className="space-y-4">
+    <div>
+      <label className="mb-2 block font-semibold">
+        Texto
+      </label>
+
+      <input
+        value={objetoAtual.texto}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            texto: e.target.value,
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Tamanho
+      </label>
+
+      <input
+        type="number"
+        value={objetoAtual.fonte}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            fonte: Number(e.target.value),
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Cor
+      </label>
+
+      <input
+        type="color"
+        value={objetoAtual.cor}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            cor: e.target.value,
+          })
+        }
+        className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+  </div>
+)}
 
           <div className="mt-6">
 
