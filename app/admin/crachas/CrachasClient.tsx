@@ -64,6 +64,7 @@ const [objetoSelecionado, setObjetoSelecionado] =
   useState<number | null>(null);
 
 const inputImagemRef = useRef<HTMLInputElement | null>(null);
+const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
 
 const [avisoCracha, setAvisoCracha] = useState<{
   tipo: "sucesso" | "erro";
@@ -204,6 +205,65 @@ async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
     setAvisoCracha({
       tipo: "sucesso",
       texto: "Imagem adicionada ao crachá.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 3000);
+  } catch (error) {
+    console.error(error);
+
+    setAvisoCracha({
+      tipo: "erro",
+      texto:
+        error instanceof Error
+          ? error.message
+          : "Erro ao enviar imagem.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+  } finally {
+    e.target.value = "";
+  }
+}
+
+async function handleUploadImagemObjeto(
+  e: React.ChangeEvent<HTMLInputElement>
+) {
+  const arquivo = e.target.files?.[0];
+
+  if (!arquivo || !objetoAtual || objetoAtual.tipo !== "IMAGEM") return;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const resp = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const json = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(json.error || "Erro ao enviar imagem.");
+    }
+
+    const url =
+      json.url ||
+      json.fileUrl ||
+      json.arquivoUrl ||
+      json.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da imagem não retornou.");
+    }
+
+    atualizarObjeto(objetoAtual.id, {
+      url,
+    });
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto: "Imagem aplicada ao crachá.",
     });
 
     setTimeout(() => setAvisoCracha(null), 3000);
@@ -1105,7 +1165,27 @@ if (objeto.tipo === "IMAGEM") {
       <label className="mb-2 block font-semibold">
         Tipo de imagem
       </label>
+<div>
+  <label className="mb-2 block font-semibold">
+    Imagem
+  </label>
 
+  <button
+    type="button"
+    onClick={() => inputImagemObjetoRef.current?.click()}
+    className="phanyx-crachas-button-secondary w-full"
+  >
+    Escolher imagem
+  </button>
+
+  <input
+    ref={inputImagemObjetoRef}
+    type="file"
+    accept="image/*"
+    onChange={handleUploadImagemObjeto}
+    className="hidden"
+  />
+</div>
       <select
         value={objetoAtual.origem}
         onChange={(e) =>
