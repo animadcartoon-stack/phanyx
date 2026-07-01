@@ -29,14 +29,17 @@ type ObjetoCracha =
     altura: number;
   }
   | {
-      id: number;
-      tipo: "IMAGEM";
-      url: string;
-      x: number;
-      y: number;
-      largura: number;
-      altura: number;
-    };
+    id: number;
+    tipo: "IMAGEM";
+    origem: "FOTO" | "LOGO" | "UPLOAD";
+    rotulo: string;
+    url?: string;
+    x: number;
+    y: number;
+    largura: number;
+    altura: number;
+    raioBorda: number;
+  };
 
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
@@ -107,6 +110,40 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
       alinhamento: "left",
       largura: 150,
       altura: 32,
+    },
+  ]);
+}
+
+function adicionarFoto() {
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: Date.now(),
+      tipo: "IMAGEM",
+      origem: "FOTO",
+      rotulo: "Foto",
+      x: 70,
+      y: 90,
+      largura: 100,
+      altura: 120,
+      raioBorda: 50,
+    },
+  ]);
+}
+
+function adicionarLogo() {
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: Date.now(),
+      tipo: "IMAGEM",
+      origem: "LOGO",
+      rotulo: "Logo",
+      x: 70,
+      y: 20,
+      largura: 100,
+      altura: 50,
+      raioBorda: 8,
     },
   ]);
 }
@@ -302,18 +339,20 @@ function redimensionarTexto(
 </button>
 
             <button
-              type="button"
-              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-            >
-              👤 Foto
-            </button>
+  type="button"
+  onClick={adicionarFoto}
+  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  👤 Foto
+</button>
 
             <button
-              type="button"
-              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-            >
-              🏫 Logo
-            </button>
+  type="button"
+  onClick={adicionarLogo}
+  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🏫 Logo
+</button>
 
             <button
               type="button"
@@ -513,6 +552,74 @@ function redimensionarTexto(
       }}
     >
       {objeto.campo}
+    </div>
+  );
+}
+
+if (objeto.tipo === "IMAGEM") {
+  return (
+    <div
+      key={objeto.id}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setObjetoSelecionado(objeto.id);
+
+        const inicioX = e.clientX;
+        const inicioY = e.clientY;
+        const xOriginal = objeto.x;
+        const yOriginal = objeto.y;
+
+        function mover(ev: MouseEvent) {
+          const novoX = xOriginal + ev.clientX - inicioX;
+          const novoY = yOriginal + ev.clientY - inicioY;
+
+          atualizarObjeto(objeto.id, {
+            x: novoX,
+            y: novoY,
+          });
+        }
+
+        function soltar() {
+          window.removeEventListener("mousemove", mover);
+          window.removeEventListener("mouseup", soltar);
+        }
+
+        window.addEventListener("mousemove", mover);
+        window.addEventListener("mouseup", soltar);
+      }}
+      style={{
+        position: "absolute",
+        left: objeto.x,
+        top: objeto.y,
+        width: objeto.largura,
+        height: objeto.altura,
+        borderRadius: objeto.raioBorda,
+        cursor: "move",
+        overflow: "hidden",
+        border:
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : "1px solid #94a3b8",
+        background: "#f8fafc",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        color: "#334155",
+        fontSize: 12,
+        fontWeight: 700,
+      }}
+    >
+      {objeto.url ? (
+        <img
+          src={objeto.url}
+          alt={objeto.rotulo}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span>{objeto.rotulo}</span>
+      )}
     </div>
   );
 }
@@ -825,6 +932,113 @@ function redimensionarTexto(
           })
         }
         className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+  </div>
+)}
+
+{objetoAtual?.tipo === "IMAGEM" && (
+  <div className="space-y-4">
+    <div>
+      <label className="mb-2 block font-semibold">
+        Tipo de imagem
+      </label>
+
+      <select
+        value={objetoAtual.origem}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            origem: e.target.value as "FOTO" | "LOGO" | "UPLOAD",
+            rotulo:
+              e.target.value === "FOTO"
+                ? "Foto"
+                : e.target.value === "LOGO"
+                ? "Logo"
+                : "Imagem",
+          })
+        }
+        className="phanyx-crachas-input"
+      >
+        <option value="FOTO">Foto da pessoa</option>
+        <option value="LOGO">Logo da instituição</option>
+        <option value="UPLOAD">Imagem enviada</option>
+      </select>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block font-semibold">X</label>
+        <input
+          type="number"
+          value={Math.round(objetoAtual.x)}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              x: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">Y</label>
+        <input
+          type="number"
+          value={Math.round(objetoAtual.y)}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              y: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block font-semibold">Largura</label>
+        <input
+          type="number"
+          value={objetoAtual.largura}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              largura: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">Altura</label>
+        <input
+          type="number"
+          value={objetoAtual.altura}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              altura: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Arredondamento
+      </label>
+
+      <input
+        type="number"
+        value={objetoAtual.raioBorda}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            raioBorda: Number(e.target.value),
+          })
+        }
+        className="phanyx-crachas-input"
       />
     </div>
   </div>
