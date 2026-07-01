@@ -3057,3 +3057,18 @@ html[data-theme="system"] .phanyx-cracha-paper {
   border: 1px solid #737373 !important;
   color: #020617 !important;
 }
+
+/* PHANYX CRACHÁS - fundo editável do crachá */
+.phanyx-cracha-paper {
+  background: var(--cor-fundo-cracha, #ffffff) !important;
+  background-color: var(--cor-fundo-cracha, #ffffff) !important;
+  color: #020617 !important;
+}
+
+html[data-theme="light"] .phanyx-cracha-paper,
+html[data-theme="dark"] .phanyx-cracha-paper,
+html[data-theme="system"] .phanyx-cracha-paper {
+  background: var(--cor-fundo-cracha, #ffffff) !important;
+  background-color: var(--cor-fundo-cracha, #ffffff) !important;
+  color: #020617 !important;
+}

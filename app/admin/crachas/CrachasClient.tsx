@@ -300,7 +300,7 @@ function redimensionarTexto(
           <div
             className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
             style={{
-              backgroundColor: corFundoCracha,
+              ["--cor-fundo-cracha" as any]: corFundoCracha,
               width:
                 formato === "RETRATO"
                   ? "240px"
