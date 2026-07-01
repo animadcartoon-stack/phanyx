@@ -242,8 +242,8 @@ const colunasExcel = ORDEM_COLUNAS.filter((coluna) =>
   views: [
     {
       state: "frozen",
-      ySplit: 14,   // congela tudo acima da tabela
-      xSplit: 1,    // congela a primeira coluna
+      ySplit: 14,
+      xSplit: 1,
     },
   ],
 });
@@ -294,6 +294,15 @@ if (logoBase64) {
 
     worksheet.getCell("A8").value = `Eventos encontrados: ${agenda.length}`;
     worksheet.getCell("A8").font = { bold: true };
+
+    worksheet.getRow(1).height = 28;
+    worksheet.getRow(2).height = 20;
+    worksheet.getRow(3).height = 20;
+    worksheet.getRow(4).height = 20;
+    worksheet.getRow(5).height = 20;
+    worksheet.getRow(6).height = 20;
+    worksheet.getRow(7).height = 20;
+    worksheet.getRow(8).height = 20;
 
     worksheet.getCell("A10").value = "Resumo da Agenda";
     worksheet.getCell("A10").font = { bold: true, size: 12 };
@@ -346,12 +355,11 @@ const linhaCabecalho = 14;
           bottom: { style: "thin", color: { argb: "FFE5E7EB" } },
           right: { style: "thin", color: { argb: "FFE5E7EB" } },
         };
-        if (coluna === "data" || coluna === "hora") {
-  cell.alignment = {
-    horizontal: "center",
-    vertical: "middle",
-  };
-}
+        cell.alignment = {
+  vertical: "middle",
+  horizontal: coluna === "data" || coluna === "hora" ? "center" : "left",
+  wrapText: true,
+};
       });
     });
 
@@ -359,6 +367,15 @@ const linhaCabecalho = 14;
       from: { row: linhaCabecalho, column: 1 },
       to: { row: linhaCabecalho, column: colunasExcel.length },
     };
+
+    worksheet.views = [
+  {
+    state: "frozen",
+    ySplit: linhaCabecalho,
+    xSplit: 1,
+    showGridLines: true,
+  },
+];
 
     worksheet.columns.forEach((column) => {
       let maxLength = 12;
@@ -392,6 +409,8 @@ const linhaCabecalho = 14;
 };
 
 worksheet.pageSetup.printTitlesRow = `${linhaCabecalho}:${linhaCabecalho}`;
+worksheet.pageSetup.printArea =
+  `A1:${worksheet.getColumn(colunasExcel.length).letter}${agenda.length + linhaCabecalho}`;
 
 worksheet.headerFooter.oddFooter =
   '&L&"Arial"&8Gerado pelo PHANYX&C&"Arial"&8Emitido em ' +
