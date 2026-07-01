@@ -203,6 +203,10 @@ async function carregarCursos() {
   cursoId,
   periodoLetivo,
   statusTurma,
+  predio,
+  ala,
+  andar,
+  sala,
   ativa,
   capacidadeMinima,
   capacidadeMaxima,
@@ -230,6 +234,10 @@ async function carregarCursos() {
       setProfessorId("");
       setPoloId("");
       setPeriodoLetivo("");
+      setPredio("");
+      setAla("");
+      setAndar("");
+      setSala("");
       setStatusTurma("AGUARDANDO");
       setAtiva(true);
       setCapacidadeMinima("");
@@ -583,6 +591,34 @@ const disciplinasFiltradas = useMemo(() => {
   <option>EAD Noturno</option>
   <option>EAD Integral</option>
 </select>
+
+<input
+  placeholder="Prédio"
+  value={predio}
+  onChange={(e) => setPredio(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
+
+<input
+  placeholder="Ala"
+  value={ala}
+  onChange={(e) => setAla(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
+
+<input
+  placeholder="Andar"
+  value={andar}
+  onChange={(e) => setAndar(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
+
+<input
+  placeholder="Sala"
+  value={sala}
+  onChange={(e) => setSala(e.target.value)}
+  className="w-full border rounded-lg p-2"
+/>
 
             <div>
   <label className="text-sm text-gray-600">Capacidade mínima</label>
