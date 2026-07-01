@@ -13,6 +13,7 @@ type ObjetoCracha =
       cor: string;
       alinhamento: "left" | "center" | "right";
       largura: number;
+      altura: number;
     }
   | {
       id: number;
@@ -35,85 +36,80 @@ export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
 
   const [formato, setFormato] = useState<
-    "RETRATO" |
-    "PAISAGEM" |
-    "QUADRADO" |
-    "REDONDO" |
-    "PERSONALIZADO"
+    "RETRATO" | "PAISAGEM" | "QUADRADO" | "REDONDO" | "PERSONALIZADO"
   >("RETRATO");
 
-  const [corFundoCracha, setCorFundoCracha] = useState("#ffffff");
+  const [corFundoCracha, setCorFundoCracha] =
+    useState<string>("#ffffff");
 
   const [objetos, setObjetos] = useState<ObjetoCracha[]>([]);
 
   const [objetoSelecionado, setObjetoSelecionado] =
     useState<number | null>(null);
 
-function adicionarTexto() {
-  setObjetos((atual) => [
-    ...atual,
-    {
-      id: Date.now(),
-      tipo: "TEXTO",
-      texto: "Novo Texto",
-      x: 30,
-      y: 30,
-      fonte: 18,
-      cor: "#000000",
-      alinhamento: "left",
-      largura: 120,
-    },
-  ]);
-}
+  const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
-const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
-
-function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
-  setObjetos((atual) =>
-    atual.map((obj) =>
-      obj.id === id ? ({ ...obj, ...dados } as ObjetoCracha) : obj
-    )
-  );
-}
-
-function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
-  if (!objetoAtual || objetoAtual.tipo !== "TEXTO") return;
-
-  const larguraCracha =
-    formato === "RETRATO"
-      ? 240
-      : formato === "PAISAGEM"
-      ? 380
-      : 260;
-
-  let novoX = objetoAtual.x;
-
-  if (alinhamentoCaixa === "left") {
-    novoX = 10;
+  function adicionarTexto() {
+    setObjetos((atual) => [
+      ...atual,
+      {
+        id: Date.now(),
+        tipo: "TEXTO",
+        texto: "Novo Texto",
+        x: 30,
+        y: 30,
+        fonte: 18,
+        cor: "#000000",
+        alinhamento: "left",
+        largura: 120,
+        altura: 32,
+      },
+    ]);
   }
 
-  if (alinhamentoCaixa === "center") {
-    novoX = (larguraCracha - objetoAtual.largura) / 2;
+  function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
+    setObjetos((atual) =>
+      atual.map((obj) =>
+        obj.id === id ? ({ ...obj, ...dados } as ObjetoCracha) : obj
+      )
+    );
   }
 
-  if (alinhamentoCaixa === "right") {
-    novoX = larguraCracha - objetoAtual.largura - 10;
-  }
+  function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
+    if (!objetoAtual || objetoAtual.tipo !== "TEXTO") return;
 
-  atualizarObjeto(objetoAtual.id, {
-    x: novoX,
-  });
-}
+    const larguraCracha =
+      formato === "RETRATO"
+        ? 240
+        : formato === "PAISAGEM"
+        ? 380
+        : 260;
+
+    let novoX = objetoAtual.x;
+
+    if (alinhamentoCaixa === "left") {
+      novoX = 10;
+    }
+
+    if (alinhamentoCaixa === "center") {
+      novoX = (larguraCracha - objetoAtual.largura) / 2;
+    }
+
+    if (alinhamentoCaixa === "right") {
+      novoX = larguraCracha - objetoAtual.largura - 10;
+    }
+
+    atualizarObjeto(objetoAtual.id, {
+      x: novoX,
+    });
+  }
 
   return (
     <div className="phanyx-crachas-page p-4">
-
       {/* Barra Superior */}
 
       <div className="phanyx-crachas-card mb-4 flex flex-wrap items-center justify-between gap-3 p-4">
-
         <div className="flex flex-wrap gap-2">
-
           <button className="phanyx-crachas-button-primary">
             Novo Modelo
           </button>
@@ -133,14 +129,13 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
           <button className="phanyx-crachas-button-secondary">
             Imprimir
           </button>
-
         </div>
 
         <div className="flex gap-2">
-
           <button
+            type="button"
             onClick={() => setLado("FRENTE")}
-            className={`rounded-xl px-4 py-2 ${
+            className={`rounded-xl px-4 py-2 font-semibold ${
               lado === "FRENTE"
                 ? "bg-blue-600 text-white"
                 : "phanyx-crachas-tab-off"
@@ -150,8 +145,9 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
           </button>
 
           <button
+            type="button"
             onClick={() => setLado("VERSO")}
-            className={`rounded-xl px-4 py-2 ${
+            className={`rounded-xl px-4 py-2 font-semibold ${
               lado === "VERSO"
                 ? "bg-blue-600 text-white"
                 : "phanyx-crachas-tab-off"
@@ -159,326 +155,339 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
           >
             Verso
           </button>
-
         </div>
-
       </div>
 
       <div className="grid grid-cols-12 gap-4">
-
         {/* Ferramentas */}
 
         <div className="phanyx-crachas-card col-span-2 p-4">
-
           <h2 className="mb-4 font-bold">
             Ferramentas
           </h2>
 
           <div className="space-y-2">
+            <button
+              type="button"
+              onClick={adicionarTexto}
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              📝 Texto
+            </button>
 
             <button
-  type="button"
-  onClick={adicionarTexto}
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  📝 Texto
-</button>
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              🏷️ Campo
+            </button>
 
             <button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  🏷️ Campo
-</button>
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              👤 Foto
+            </button>
 
-<button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  👤 Foto
-</button>
+            <button
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              🏫 Logo
+            </button>
 
-<button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  🏫 Logo
-</button>
+            <button
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              🖼️ Imagem
+            </button>
 
-<button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  🖼️ Imagem
-</button>
+            <button
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              ⬛ Forma
+            </button>
 
-<button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  ⬛ Forma
-</button>
+            <button
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              🔳 QR Code
+            </button>
 
-<button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  🔳 QR Code
-</button>
-
-<button
-  type="button"
-  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
->
-  ▌ Código de Barras
-</button>
-
+            <button
+              type="button"
+              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+            >
+              ▌ Código de Barras
+            </button>
           </div>
-
         </div>
 
         {/* Canvas */}
 
         <div className="phanyx-crachas-card phanyx-crachas-canvas-area col-span-8 flex items-center justify-center p-8">
-
-  <div
-    className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
-    style={{
-        backgroundColor: corFundoCracha,
-      width:
-        formato === "RETRATO"
-          ? "240px"
-          : formato === "PAISAGEM"
-          ? "380px"
-          : "260px",
-
-      height:
-        formato === "RETRATO"
-          ? "380px"
-          : formato === "PAISAGEM"
-          ? "240px"
-          : "260px",
-
-      borderRadius:
-        formato === "REDONDO"
-          ? "9999px"
-          : "16px",
-    }}
-  >
-
-    {objetos.map((objeto) => {
-      if (objeto.tipo === "TEXTO") {
-        return (
           <div
-            key={objeto.id}
-            onMouseDown={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-
-  setObjetoSelecionado(objeto.id);
-
-  const inicioX = e.clientX;
-  const inicioY = e.clientY;
-  const xOriginal = objeto.x;
-  const yOriginal = objeto.y;
-
-  function mover(ev: MouseEvent) {
-    const novoX = xOriginal + ev.clientX - inicioX;
-    const novoY = yOriginal + ev.clientY - inicioY;
-
-    atualizarObjeto(objeto.id, {
-      x: novoX,
-      y: novoY,
-    });
-  }
-
-  function soltar() {
-    window.removeEventListener("mousemove", mover);
-    window.removeEventListener("mouseup", soltar);
-  }
-
-  window.addEventListener("mousemove", mover);
-  window.addEventListener("mouseup", soltar);
-}}
+            className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
             style={{
-              position: "absolute",
-              left: objeto.x,
-              top: objeto.y,
-              fontSize: objeto.fonte,
-              color: objeto.cor,
-              cursor: "pointer",
-              padding: "2px 4px",
-              textAlign: objeto.alinhamento,
-              width: objeto.largura,
-              border:
-                objetoSelecionado === objeto.id
-                  ? "1px dashed #2563eb"
-                  : "1px solid transparent",
+              backgroundColor: corFundoCracha,
+              width:
+                formato === "RETRATO"
+                  ? "240px"
+                  : formato === "PAISAGEM"
+                  ? "380px"
+                  : "260px",
+
+              height:
+                formato === "RETRATO"
+                  ? "380px"
+                  : formato === "PAISAGEM"
+                  ? "240px"
+                  : "260px",
+
+              borderRadius:
+                formato === "REDONDO"
+                  ? "9999px"
+                  : "16px",
             }}
           >
-            {objeto.texto}
+            {objetos.map((objeto) => {
+              if (objeto.tipo === "TEXTO") {
+                return (
+                  <div
+                    key={objeto.id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+
+                      setObjetoSelecionado(objeto.id);
+
+                      const inicioX = e.clientX;
+                      const inicioY = e.clientY;
+                      const xOriginal = objeto.x;
+                      const yOriginal = objeto.y;
+
+                      function mover(ev: MouseEvent) {
+                        const novoX = xOriginal + ev.clientX - inicioX;
+                        const novoY = yOriginal + ev.clientY - inicioY;
+
+                        atualizarObjeto(objeto.id, {
+                          x: novoX,
+                          y: novoY,
+                        });
+                      }
+
+                      function soltar() {
+                        window.removeEventListener("mousemove", mover);
+                        window.removeEventListener("mouseup", soltar);
+                      }
+
+                      window.addEventListener("mousemove", mover);
+                      window.addEventListener("mouseup", soltar);
+                    }}
+                    style={{
+                      position: "absolute",
+                      left: objeto.x,
+                      top: objeto.y,
+                      width: objeto.largura,
+                      height: objeto.altura,
+                      fontSize: objeto.fonte,
+                      color: objeto.cor,
+                      cursor: "move",
+                      padding: "2px 4px",
+                      textAlign: objeto.alinhamento,
+                      display: "flex",
+                      alignItems: "center",
+                      overflow: "hidden",
+                      border:
+                        objetoSelecionado === objeto.id
+                          ? "1px dashed #2563eb"
+                          : "1px solid transparent",
+                    }}
+                  >
+                    {objeto.texto}
+                  </div>
+                );
+              }
+
+              return null;
+            })}
           </div>
-        );
-      }
+        </div>
 
-      return null;
-    })}
-
-  </div>
-
-</div>
         {/* Propriedades */}
 
         <div className="phanyx-crachas-card col-span-2 p-4">
-
           <h2 className="mb-4 font-bold">
             Propriedades
           </h2>
 
           {!objetoAtual && (
-  <p className="phanyx-crachas-muted">
-    Nenhum objeto selecionado.
-  </p>
-)}
+            <p className="phanyx-crachas-muted">
+              Nenhum objeto selecionado.
+            </p>
+          )}
 
-{objetoAtual?.tipo === "TEXTO" && (
-  <div className="space-y-4">
-    <div>
-      <label className="mb-2 block font-semibold">
-        Texto
-      </label>
+          {objetoAtual?.tipo === "TEXTO" && (
+            <div className="space-y-4">
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Texto
+                </label>
 
-      <input
-        value={objetoAtual.texto}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            texto: e.target.value,
-          })
-        }
-        className="phanyx-crachas-input"
-      />
-    </div>
+                <input
+                  value={objetoAtual.texto}
+                  onChange={(e) =>
+                    atualizarObjeto(objetoAtual.id, {
+                      texto: e.target.value,
+                    })
+                  }
+                  className="phanyx-crachas-input"
+                />
+              </div>
 
-    <div>
-      <label className="mb-2 block font-semibold">
-        Tamanho
-      </label>
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Tamanho
+                </label>
 
-      <input
-        type="number"
-        value={objetoAtual.fonte}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            fonte: Number(e.target.value),
-          })
-        }
-        className="phanyx-crachas-input"
-      />
-    </div>
-<div>
-  <label className="mb-2 block font-semibold">
-    Largura
-  </label>
+                <input
+                  type="number"
+                  value={objetoAtual.fonte}
+                  onChange={(e) =>
+                    atualizarObjeto(objetoAtual.id, {
+                      fonte: Number(e.target.value),
+                    })
+                  }
+                  className="phanyx-crachas-input"
+                />
+              </div>
 
-  <input
-    type="number"
-    value={objetoAtual.largura}
-    onChange={(e) =>
-      atualizarObjeto(objetoAtual.id, {
-        largura: Number(e.target.value),
-      })
-    }
-    className="phanyx-crachas-input"
-  />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    Largura
+                  </label>
 
-</div>
-<div className="grid grid-cols-2 gap-2">
-  <div>
-    <label className="mb-2 block font-semibold">
-      X
-    </label>
+                  <input
+                    type="number"
+                    value={objetoAtual.largura}
+                    onChange={(e) =>
+                      atualizarObjeto(objetoAtual.id, {
+                        largura: Number(e.target.value),
+                      })
+                    }
+                    className="phanyx-crachas-input"
+                  />
+                </div>
 
-    <input
-      type="number"
-      value={Math.round(objetoAtual.x)}
-      onChange={(e) =>
-        atualizarObjeto(objetoAtual.id, {
-          x: Number(e.target.value),
-        })
-      }
-      className="phanyx-crachas-input"
-    />
-  </div>
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    Altura
+                  </label>
 
-  <div>
-    <label className="mb-2 block font-semibold">
-      Y
-    </label>
+                  <input
+                    type="number"
+                    value={objetoAtual.altura}
+                    onChange={(e) =>
+                      atualizarObjeto(objetoAtual.id, {
+                        altura: Number(e.target.value),
+                      })
+                    }
+                    className="phanyx-crachas-input"
+                  />
+                </div>
+              </div>
 
-    <input
-      type="number"
-      value={Math.round(objetoAtual.y)}
-      onChange={(e) =>
-        atualizarObjeto(objetoAtual.id, {
-          y: Number(e.target.value),
-        })
-      }
-      className="phanyx-crachas-input"
-    />
-  </div>
-</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    X
+                  </label>
 
-<div>
-  <label className="mb-2 block font-semibold">
-    Alinhar caixa
-  </label>
+                  <input
+                    type="number"
+                    value={Math.round(objetoAtual.x)}
+                    onChange={(e) =>
+                      atualizarObjeto(objetoAtual.id, {
+                        x: Number(e.target.value),
+                      })
+                    }
+                    className="phanyx-crachas-input"
+                  />
+                </div>
 
-  <div className="flex gap-2">
-    {[
-      { valor: "left", label: "←" },
-      { valor: "center", label: "↔" },
-      { valor: "right", label: "→" },
-    ].map((item) => (
-      <button
-        key={item.valor}
-        type="button"
-        onClick={() =>
-  alinharCaixaTexto(item.valor as "left" | "center" | "right")
-}
-        
-        className={`h-10 w-10 rounded-xl border text-lg font-bold transition ${
-          objetoAtual.alinhamento === item.valor
-            ? "border-blue-500 bg-blue-600 text-white"
-            : "border-slate-300 bg-white text-slate-800 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-        }`}
-      >
-        {item.label}
-      </button>
-    ))}
-  </div>
-</div>
+                <div>
+                  <label className="mb-2 block font-semibold">
+                    Y
+                  </label>
 
-    <div>
-      <label className="mb-2 block font-semibold">
-        Cor
-      </label>
+                  <input
+                    type="number"
+                    value={Math.round(objetoAtual.y)}
+                    onChange={(e) =>
+                      atualizarObjeto(objetoAtual.id, {
+                        y: Number(e.target.value),
+                      })
+                    }
+                    className="phanyx-crachas-input"
+                  />
+                </div>
+              </div>
 
-      <input
-        type="color"
-        value={objetoAtual.cor}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            cor: e.target.value,
-          })
-        }
-        className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-      />
-    </div>
-  </div>
-)}
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Alinhar caixa
+                </label>
+
+                <div className="flex gap-2">
+                  {[
+                    { valor: "left", label: "←" },
+                    { valor: "center", label: "↔" },
+                    { valor: "right", label: "→" },
+                  ].map((item) => (
+                    <button
+                      key={item.valor}
+                      type="button"
+                      onClick={() =>
+                        alinharCaixaTexto(
+                          item.valor as "left" | "center" | "right"
+                        )
+                      }
+                      className={`h-10 w-10 rounded-xl border text-lg font-bold transition ${
+                        item.valor === "center"
+                          ? "border-slate-400"
+                          : "border-slate-400"
+                      } hover:bg-blue-600 hover:text-white`}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="mb-2 block font-semibold">
+                  Cor
+                </label>
+
+                <input
+                  type="color"
+                  value={objetoAtual.cor}
+                  onChange={(e) =>
+                    atualizarObjeto(objetoAtual.id, {
+                      cor: e.target.value,
+                    })
+                  }
+                  className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="mt-6">
-
             <label className="mb-2 block font-semibold">
               Formato
             </label>
@@ -491,38 +500,29 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
               className="phanyx-crachas-input"
             >
               <option value="RETRATO">Retrato</option>
-
               <option value="PAISAGEM">Paisagem</option>
-
               <option value="QUADRADO">Quadrado</option>
-
               <option value="REDONDO">Redondo</option>
-
               <option value="PERSONALIZADO">
                 Personalizado
               </option>
-
             </select>
-
           </div>
 
-<div className="mt-6">
-  <label className="mb-2 block font-semibold">
-    Cor de fundo
-  </label>
+          <div className="mt-6">
+            <label className="mb-2 block font-semibold">
+              Cor de fundo
+            </label>
 
-  <input
-    type="color"
-    value={corFundoCracha}
-    onChange={(e) => setCorFundoCracha(e.target.value)}
-    className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-  />
-</div>
-
+            <input
+              type="color"
+              value={corFundoCracha}
+              onChange={(e) => setCorFundoCracha(e.target.value)}
+              className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+            />
+          </div>
         </div>
-
       </div>
-
     </div>
   );
 }
