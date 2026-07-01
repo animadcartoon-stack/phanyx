@@ -104,6 +104,74 @@ export default function CrachasClient() {
     });
   }
 
+function redimensionarTexto(
+  e: React.MouseEvent<HTMLSpanElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "TEXTO" }>,
+  canto: "nw" | "ne" | "sw" | "se"
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setObjetoSelecionado(objeto.id);
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+
+  const xOriginal = objeto.x;
+  const yOriginal = objeto.y;
+  const larguraOriginal = objeto.largura;
+  const alturaOriginal = objeto.altura;
+
+  function mover(ev: MouseEvent) {
+    const dx = ev.clientX - inicioX;
+    const dy = ev.clientY - inicioY;
+
+    let novoX = xOriginal;
+    let novoY = yOriginal;
+    let novaLargura = larguraOriginal;
+    let novaAltura = alturaOriginal;
+
+    if (canto === "se") {
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "sw") {
+      novoX = xOriginal + dx;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "ne") {
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    if (canto === "nw") {
+      novoX = xOriginal + dx;
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    atualizarObjeto(objeto.id, {
+      x: novoX,
+      y: novoY,
+      largura: Math.max(30, novaLargura),
+      altura: Math.max(18, novaAltura),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
   return (
     <div className="phanyx-crachas-page p-4">
       {/* Barra Superior */}
@@ -288,27 +356,55 @@ export default function CrachasClient() {
                       window.addEventListener("mouseup", soltar);
                     }}
                     style={{
-                      position: "absolute",
-                      left: objeto.x,
-                      top: objeto.y,
-                      width: objeto.largura,
-                      height: objeto.altura,
-                      fontSize: objeto.fonte,
-                      color: objeto.cor,
-                      cursor: "move",
-                      padding: "2px 4px",
-                      textAlign: objeto.alinhamento,
-                      display: "flex",
-                      alignItems: "center",
-                      overflow: "hidden",
-                      border:
-                        objetoSelecionado === objeto.id
-                          ? "1px dashed #2563eb"
-                          : "1px solid transparent",
-                    }}
+  position: "absolute",
+  left: objeto.x,
+  top: objeto.y,
+  width: objeto.largura,
+  height: objeto.altura,
+  fontSize: objeto.fonte,
+  color: objeto.cor,
+  cursor: "move",
+  padding: "2px 4px",
+  textAlign: objeto.alinhamento,
+  display: "flex",
+  alignItems: "center",
+  overflow: "visible",
+  border:
+    objetoSelecionado === objeto.id
+      ? "1px dashed #2563eb"
+      : "1px solid transparent",
+}}
                   >
-                    {objeto.texto}
-                  </div>
+  {objeto.texto}
+
+  {objetoSelecionado === objeto.id && (
+    <>
+      <span
+        onMouseDown={(e) => redimensionarTexto(e, objeto, "nw")}
+        className="absolute -left-1.5 -top-1.5 h-3 w-3 rounded-full border border-blue-600 bg-white"
+        style={{ cursor: "nwse-resize" }}
+      />
+
+      <span
+        onMouseDown={(e) => redimensionarTexto(e, objeto, "ne")}
+        className="absolute -right-1.5 -top-1.5 h-3 w-3 rounded-full border border-blue-600 bg-white"
+        style={{ cursor: "nesw-resize" }}
+      />
+
+      <span
+        onMouseDown={(e) => redimensionarTexto(e, objeto, "sw")}
+        className="absolute -bottom-1.5 -left-1.5 h-3 w-3 rounded-full border border-blue-600 bg-white"
+        style={{ cursor: "nesw-resize" }}
+      />
+
+      <span
+        onMouseDown={(e) => redimensionarTexto(e, objeto, "se")}
+        className="absolute -bottom-1.5 -right-1.5 h-3 w-3 rounded-full border border-blue-600 bg-white"
+        style={{ cursor: "nwse-resize" }}
+      />
+    </>
+  )}
+</div>
                 );
               }
 
