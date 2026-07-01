@@ -11,6 +11,7 @@ type ObjetoCracha =
       y: number;
       fonte: number;
       cor: string;
+      alinhamento: "left" | "center" | "right";
     }
   | {
       id: number;
@@ -56,6 +57,7 @@ function adicionarTexto() {
       y: 30,
       fonte: 18,
       cor: "#000000",
+      alinhamento: "left",
     },
   ]);
 }
@@ -272,6 +274,8 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
               color: objeto.cor,
               cursor: "pointer",
               padding: "2px 4px",
+              textAlign: objeto.alinhamento,
+              minWidth: "80px",
               border:
                 objetoSelecionado === objeto.id
                   ? "1px dashed #2563eb"
@@ -337,6 +341,50 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
         className="phanyx-crachas-input"
       />
     </div>
+
+<div>
+  <label className="mb-2 block font-semibold">
+    Alinhamento
+  </label>
+
+  <div className="grid grid-cols-3 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarObjeto(objetoAtual.id, {
+          alinhamento: "left",
+        })
+      }
+      className="rounded-xl border px-3 py-2 font-semibold"
+    >
+      Esq.
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarObjeto(objetoAtual.id, {
+          alinhamento: "center",
+        })
+      }
+      className="rounded-xl border px-3 py-2 font-semibold"
+    >
+      Centro
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarObjeto(objetoAtual.id, {
+          alinhamento: "right",
+        })
+      }
+      className="rounded-xl border px-3 py-2 font-semibold"
+    >
+      Dir.
+    </button>
+  </div>
+</div>
 
     <div>
       <label className="mb-2 block font-semibold">
