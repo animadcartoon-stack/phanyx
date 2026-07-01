@@ -12,6 +12,7 @@ type ObjetoCracha =
       fonte: number;
       cor: string;
       alinhamento: "left" | "center" | "right";
+      largura: number;
     }
   | {
       id: number;
@@ -58,6 +59,7 @@ function adicionarTexto() {
       fonte: 18,
       cor: "#000000",
       alinhamento: "left",
+      largura: 120,
     },
   ]);
 }
@@ -275,7 +277,7 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
               cursor: "pointer",
               padding: "2px 4px",
               textAlign: objeto.alinhamento,
-              minWidth: "80px",
+              width: objeto.largura,
               border:
                 objetoSelecionado === objeto.id
                   ? "1px dashed #2563eb"
@@ -341,7 +343,22 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
         className="phanyx-crachas-input"
       />
     </div>
+<div>
+  <label className="mb-2 block font-semibold">
+    Largura
+  </label>
 
+  <input
+    type="number"
+    value={objetoAtual.largura}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        largura: Number(e.target.value),
+      })
+    }
+    className="phanyx-crachas-input"
+  />
+</div>
 <div>
   <label className="mb-2 block font-semibold">
     Alinhamento
