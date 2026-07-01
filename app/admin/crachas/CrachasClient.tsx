@@ -235,7 +235,35 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
         return (
           <div
             key={objeto.id}
-            onClick={() => setObjetoSelecionado(objeto.id)}
+            onMouseDown={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setObjetoSelecionado(objeto.id);
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+  const xOriginal = objeto.x;
+  const yOriginal = objeto.y;
+
+  function mover(ev: MouseEvent) {
+    const novoX = xOriginal + ev.clientX - inicioX;
+    const novoY = yOriginal + ev.clientY - inicioY;
+
+    atualizarObjeto(objeto.id, {
+      x: novoX,
+      y: novoY,
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}}
             style={{
               position: "absolute",
               left: objeto.x,
