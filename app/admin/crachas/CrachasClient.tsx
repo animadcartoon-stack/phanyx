@@ -237,10 +237,10 @@ function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
 
         {/* Canvas */}
 
-        <div className="phanyx-crachas-card col-span-8 flex items-center justify-center p-8">
+        <div className="phanyx-crachas-card phanyx-crachas-canvas-area col-span-8 flex items-center justify-center p-8">
 
   <div
-    className="relative overflow-hidden border bg-white shadow-xl"
+    className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
     style={{
       width:
         formato === "RETRATO"
