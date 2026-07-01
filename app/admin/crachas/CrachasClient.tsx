@@ -2,6 +2,33 @@
 
 import { useState } from "react";
 
+type ObjetoCracha =
+  | {
+      id: number;
+      tipo: "TEXTO";
+      texto: string;
+      x: number;
+      y: number;
+      fonte: number;
+      cor: string;
+    }
+  | {
+      id: number;
+      tipo: "CAMPO";
+      campo: string;
+      x: number;
+      y: number;
+    }
+  | {
+      id: number;
+      tipo: "IMAGEM";
+      url: string;
+      x: number;
+      y: number;
+      largura: number;
+      altura: number;
+    };
+
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
 
@@ -12,6 +39,26 @@ export default function CrachasClient() {
     "REDONDO" |
     "PERSONALIZADO"
   >("RETRATO");
+
+  const [objetos, setObjetos] = useState<ObjetoCracha[]>([]);
+
+  const [objetoSelecionado, setObjetoSelecionado] =
+    useState<number | null>(null);
+
+function adicionarTexto() {
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: Date.now(),
+      tipo: "TEXTO",
+      texto: "Novo Texto",
+      x: 30,
+      y: 30,
+      fonte: 18,
+      cor: "#000000",
+    },
+  ]);
+}
 
   return (
     <div className="phanyx-crachas-page p-4">
@@ -84,9 +131,13 @@ export default function CrachasClient() {
 
           <div className="space-y-2">
 
-            <button className="phanyx-crachas-button-secondary w-full">
-              Texto
-            </button>
+            <button
+  type="button"
+  onClick={adicionarTexto}
+  className="phanyx-crachas-button-secondary w-full"
+>
+  Texto
+</button>
 
             <button className="phanyx-crachas-button-secondary w-full">
               Campo
@@ -124,34 +175,61 @@ export default function CrachasClient() {
 
         <div className="phanyx-crachas-card col-span-8 flex items-center justify-center p-8">
 
+  <div
+    className="relative overflow-hidden border bg-white shadow-xl"
+    style={{
+      width:
+        formato === "RETRATO"
+          ? "240px"
+          : formato === "PAISAGEM"
+          ? "380px"
+          : "260px",
+
+      height:
+        formato === "RETRATO"
+          ? "380px"
+          : formato === "PAISAGEM"
+          ? "240px"
+          : "260px",
+
+      borderRadius:
+        formato === "REDONDO"
+          ? "9999px"
+          : "16px",
+    }}
+  >
+
+    {objetos.map((objeto) => {
+      if (objeto.tipo === "TEXTO") {
+        return (
           <div
-            className="border bg-white shadow-xl"
+            key={objeto.id}
+            onClick={() => setObjetoSelecionado(objeto.id)}
             style={{
-              width:
-                formato === "RETRATO"
-                  ? "240px"
-                  : formato === "PAISAGEM"
-                  ? "380px"
-                  : "260px",
-
-              height:
-                formato === "RETRATO"
-                  ? "380px"
-                  : formato === "PAISAGEM"
-                  ? "240px"
-                  : "260px",
-
-              borderRadius:
-                formato === "REDONDO"
-                  ? "9999px"
-                  : "16px",
+              position: "absolute",
+              left: objeto.x,
+              top: objeto.y,
+              fontSize: objeto.fonte,
+              color: objeto.cor,
+              cursor: "pointer",
+              padding: "2px 4px",
+              border:
+                objetoSelecionado === objeto.id
+                  ? "1px dashed #2563eb"
+                  : "1px solid transparent",
             }}
           >
-
+            {objeto.texto}
           </div>
+        );
+      }
 
-        </div>
+      return null;
+    })}
 
+  </div>
+
+</div>
         {/* Propriedades */}
 
         <div className="phanyx-crachas-card col-span-2 p-4">
