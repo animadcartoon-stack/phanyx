@@ -7492,13 +7492,6 @@ iniciarDrag(event as any, c);
   >
 
 <div
-  data-menu-drag-handle
-  className="mb-2 cursor-move rounded-md bg-slate-100 px-3 py-2 text-xs font-black text-slate-600"
->
-  ⋮⋮ Arrastar painel de edição
-</div>
-
-<div
   data-arrastar-menu-contexto
   className="mb-3 cursor-move rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600"
 >
