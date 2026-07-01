@@ -3044,3 +3044,16 @@ html[data-theme="system"] .phanyx-crachas-page .phanyx-crachas-tab-off {
   color: #f8fafc !important;
   border: 1px solid #475569 !important;
 }
+
+/* PHANYX CRACHÁS - papel/crachá visível no escuro e sistema */
+html[data-theme="dark"] .phanyx-cracha-paper {
+  background: #ffffff !important;
+  border: 1px solid #64748b !important;
+  color: #020617 !important;
+}
+
+html[data-theme="system"] .phanyx-cracha-paper {
+  background: #ffffff !important;
+  border: 1px solid #737373 !important;
+  color: #020617 !important;
+}
