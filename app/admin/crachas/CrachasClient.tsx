@@ -74,6 +74,35 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
   );
 }
 
+function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
+  if (!objetoAtual || objetoAtual.tipo !== "TEXTO") return;
+
+  const larguraCracha =
+    formato === "RETRATO"
+      ? 240
+      : formato === "PAISAGEM"
+      ? 380
+      : 260;
+
+  let novoX = objetoAtual.x;
+
+  if (alinhamentoCaixa === "left") {
+    novoX = 10;
+  }
+
+  if (alinhamentoCaixa === "center") {
+    novoX = (larguraCracha - objetoAtual.largura) / 2;
+  }
+
+  if (alinhamentoCaixa === "right") {
+    novoX = larguraCracha - objetoAtual.largura - 10;
+  }
+
+  atualizarObjeto(objetoAtual.id, {
+    x: novoX,
+  });
+}
+
   return (
     <div className="phanyx-crachas-page p-4">
 
@@ -358,10 +387,47 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
     }
     className="phanyx-crachas-input"
   />
+
 </div>
+<div className="grid grid-cols-2 gap-2">
+  <div>
+    <label className="mb-2 block font-semibold">
+      X
+    </label>
+
+    <input
+      type="number"
+      value={Math.round(objetoAtual.x)}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          x: Number(e.target.value),
+        })
+      }
+      className="phanyx-crachas-input"
+    />
+  </div>
+
+  <div>
+    <label className="mb-2 block font-semibold">
+      Y
+    </label>
+
+    <input
+      type="number"
+      value={Math.round(objetoAtual.y)}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          y: Number(e.target.value),
+        })
+      }
+      className="phanyx-crachas-input"
+    />
+  </div>
+</div>
+
 <div>
   <label className="mb-2 block font-semibold">
-    Alinhamento
+    Alinhar caixa
   </label>
 
   <div className="flex gap-2">
@@ -374,10 +440,9 @@ function atualizarObjeto(id: number, dados: Partial<ObjetoCracha>) {
         key={item.valor}
         type="button"
         onClick={() =>
-          atualizarObjeto(objetoAtual.id, {
-            alinhamento: item.valor as "left" | "center" | "right",
-          })
-        }
+  alinharCaixaTexto(item.valor as "left" | "center" | "right")
+}
+        
         className={`h-10 w-10 rounded-xl border text-lg font-bold transition ${
           objetoAtual.alinhamento === item.valor
             ? "border-blue-500 bg-blue-600 text-white"
