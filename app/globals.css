@@ -2980,3 +2980,37 @@ html[data-theme="system"] .phanyx-crachas-button-secondary {
 html[data-theme="system"] .phanyx-crachas-button-secondary:hover {
   background: #3a3a3a !important;
 }
+
+/* PHANYX CRACHÁS - reforço tema claro */
+html[data-theme="light"] .phanyx-crachas-page {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-button-secondary {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-button-secondary * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-crachas-canvas-area {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-cracha-paper {
+  background: #ffffff !important;
+  border: 1px solid #94a3b8 !important;
+  color: #020617 !important;
+}
