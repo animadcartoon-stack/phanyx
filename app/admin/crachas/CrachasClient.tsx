@@ -873,39 +873,49 @@ if (objeto.tipo === "IMAGEM") {
         top: objeto.y,
         width: objeto.largura,
         height: objeto.altura,
-        borderRadius: objeto.raioBorda,
         cursor: "move",
-        overflow: "hidden",
+        overflow: "visible",
         border:
-  objetoSelecionado === objeto.id
-    ? "1px dashed #2563eb"
-    : objeto.url
-    ? "1px solid transparent"
-    : "1px solid #94a3b8",
-        background: objeto.url ? "transparent" : "#f8fafc",
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : objeto.url
+            ? "1px solid transparent"
+            : "1px solid #94a3b8",
+        borderRadius: objeto.raioBorda,
         boxShadow: sombraImagemBoxCss(objeto),
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "#334155",
-        fontSize: 12,
-        fontWeight: 700,
       }}
     >
-      {objeto.url ? (
-       <img
-  src={objeto.url}
-  alt={objeto.rotulo}
-  className="h-full w-full"
-  style={{
-    objectFit: objeto.ajusteImagem || "contain",
-    background: "transparent",
-    filter: sombraImagemDropCss(objeto),
-  }}
-/>
-      ) : (
-        <span>{objeto.rotulo}</span>
-      )}
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: objeto.raioBorda,
+          overflow: "hidden",
+          background: objeto.url ? "transparent" : "#f8fafc",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#334155",
+          fontSize: 12,
+          fontWeight: 700,
+        }}
+      >
+        {objeto.url ? (
+          <img
+            src={objeto.url}
+            alt={objeto.rotulo}
+            className="h-full w-full"
+            style={{
+              objectFit: objeto.ajusteImagem || "contain",
+              background: "transparent",
+              filter: sombraImagemDropCss(objeto),
+            }}
+          />
+        ) : (
+          <span>{objeto.rotulo}</span>
+        )}
+      </div>
+
       {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
     </div>
   );
