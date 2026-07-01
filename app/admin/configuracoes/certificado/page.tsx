@@ -438,7 +438,8 @@ const figurasDecorativas = [
   y: 180,
 });
 
-const [arrastandoArray, setArrastandoArray] = useState(false);
+  const [arrastandoArray, setArrastandoArray] = useState(false);
+  const [arrayAngulo, setArrayAngulo] = useState(0);
 
   const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
 
@@ -1745,15 +1746,24 @@ async function excluirCampo(id: number) {
 
     const escala = Number(arrayEscala || 100) / 100;
     const opacidade = Number(arrayOpacidade || 100) / 100;
+    const anguloRad = (Number(arrayAngulo || 0) * Math.PI) / 180;
 
+    const baseX = Number(arrayX || 0) * passo;
+    const baseY = Number(arrayY || 0) * passo;
+
+    const deslocamentoRotacionadoX =
+      baseX * Math.cos(anguloRad) - baseY * Math.sin(anguloRad);
+
+    const deslocamentoRotacionadoY =
+  baseX * Math.sin(anguloRad) + baseY * Math.cos(anguloRad);
     return {
       ...base,
       id: novoId,
       bancoId: undefined,
       tempId: novoId,
       arrayPreview: preview,
-      x: Number(base.x || 0) + Number(arrayX || 0) * passo,
-      y: Number(base.y || 0) + Number(arrayY || 0) * passo,
+      x: Number(base.x || 0) + deslocamentoRotacionadoX,
+      y: Number(base.y || 0) + deslocamentoRotacionadoY,
       largura: Number(base.largura || 100) * Math.pow(escala, passo),
       altura: Number(base.altura || 100) * Math.pow(escala, passo),
       rotate: Number(base.rotate || 0) + Number(arrayRotacao || 0) * passo,
@@ -1783,6 +1793,7 @@ useEffect(() => {
   arrayRotacao,
   arrayEscala,
   arrayOpacidade,
+  arrayAngulo,
 ]);
 
   function aplicarArrayForma() {
@@ -7103,7 +7114,15 @@ atualizarCampoLocal("tamanho", tamanho);
           onChange={(e) => setArrayY(Number(e.target.value))}
           className="w-full rounded-xl border px-3 py-2"
         />
-
+<label className="block text-xs font-semibold text-slate-400">
+  Ângulo do Array
+</label>
+<input
+  type="number"
+  value={arrayAngulo}
+  onChange={(e) => setArrayAngulo(Number(e.target.value))}
+  className="w-full rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-white"
+/>
         <label className="block text-xs font-semibold text-slate-500">
           Rotação por cópia
         </label>
