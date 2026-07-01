@@ -232,33 +232,26 @@ async function handleUploadImagemObjeto(
 
   if (!arquivo || !objetoAtual || objetoAtual.tipo !== "IMAGEM") return;
 
-  try {
-    const formData = new FormData();
-    formData.append("file", arquivo);
+  const tiposPermitidos = ["image/png", "image/jpeg", "image/webp"];
 
-    const resp = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
+  if (!tiposPermitidos.includes(arquivo.type)) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Use imagem em PNG, JPG, JPEG ou WEBP. O formato TIFF não é exibido corretamente no navegador.",
     });
 
-    const json = await resp.json();
+    setTimeout(() => setAvisoCracha(null), 5000);
+    e.target.value = "";
+    return;
+  }
 
-    if (!resp.ok) {
-      throw new Error(json.error || "Erro ao enviar imagem.");
-    }
-
-    const url =
-      json.url ||
-      json.fileUrl ||
-      json.arquivoUrl ||
-      json.publicUrl;
-
-    if (!url) {
-      throw new Error("Upload realizado, mas a URL da imagem não retornou.");
-    }
+  try {
+    const previewUrl = URL.createObjectURL(arquivo);
 
     atualizarObjeto(objetoAtual.id, {
-      url,
+      url: previewUrl,
+      origem: "UPLOAD",
+      rotulo: "Imagem",
     });
 
     setAvisoCracha({
@@ -272,10 +265,7 @@ async function handleUploadImagemObjeto(
 
     setAvisoCracha({
       tipo: "erro",
-      texto:
-        error instanceof Error
-          ? error.message
-          : "Erro ao enviar imagem.",
+      texto: "Erro ao aplicar imagem ao crachá.",
     });
 
     setTimeout(() => setAvisoCracha(null), 4000);
@@ -1165,7 +1155,7 @@ if (objeto.tipo === "IMAGEM") {
       <label className="mb-2 block font-semibold">
         Tipo de imagem
       </label>
-      
+
 <div>
   <label className="mb-2 block font-semibold">
     Imagem
@@ -1180,12 +1170,12 @@ if (objeto.tipo === "IMAGEM") {
   </button>
 
   <input
-    ref={inputImagemObjetoRef}
-    type="file"
-    accept="image/*"
-    onChange={handleUploadImagemObjeto}
-    className="hidden"
-  />
+  ref={inputImagemObjetoRef}
+  type="file"
+  accept="image/png,image/jpeg,image/webp"
+  onChange={handleUploadImagemObjeto}
+  className="hidden"
+/>
 </div>
 
       <select
