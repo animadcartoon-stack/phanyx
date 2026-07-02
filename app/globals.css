@@ -3072,3 +3072,127 @@ html[data-theme="system"] .phanyx-cracha-paper {
   background-color: var(--cor-fundo-cracha, #ffffff) !important;
   color: #020617 !important;
 }
+
+/* =========================================
+   PHANYX CERTIFICADOS - OUTLINER / CENA
+   Claro, escuro e sistema
+========================================= */
+
+.phanyx-certificado-outliner {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.phanyx-certificado-outliner-header {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+.phanyx-certificado-outliner-header span {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-certificado-outliner-row {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-certificado-outliner-row span {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.phanyx-certificado-outliner-row:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-certificado-outliner-row.is-selected {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.phanyx-certificado-outliner-row.is-selected span {
+  color: #1d4ed8 !important;
+}
+
+.phanyx-certificado-outliner input {
+  background: transparent !important;
+  color: inherit !important;
+  border: none !important;
+}
+
+/* Escuro */
+html[data-theme="dark"] .phanyx-certificado-outliner {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-certificado-outliner-header {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-certificado-outliner-header span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-certificado-outliner-row {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-certificado-outliner-row:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-certificado-outliner-row.is-selected {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-certificado-outliner-row.is-selected span {
+  color: #ffffff !important;
+}
+
+/* Sistema */
+html[data-theme="system"] .phanyx-certificado-outliner {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-outliner-header {
+  background: #333333 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-outliner-header span {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-outliner-row {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-outliner-row:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-outliner-row.is-selected {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-outliner-row.is-selected span {
+  color: #ffffff !important;
+}

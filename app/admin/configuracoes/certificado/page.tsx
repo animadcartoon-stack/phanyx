@@ -3327,12 +3327,13 @@ function camposComArrayVirtual() {
   )}
 </div>
 
-<div className="mt-3 border border-slate-300 bg-white">
-  <div className="flex items-center justify-between border-b border-slate-300 bg-slate-100 px-2 py-1">
-    <h3 className="text-xs font-bold uppercase text-slate-700">
+<div className="phanyx-certificado-outliner mt-3 overflow-hidden border">
+  <div className="phanyx-certificado-outliner-header flex items-center justify-between border-b px-2 py-1">
+    <h3 className="text-xs font-bold uppercase">
       CENA
     </h3>
-    <span className="text-[10px] text-slate-500">
+
+    <span className="text-[10px]">
       {campos.length}
     </span>
   </div>
