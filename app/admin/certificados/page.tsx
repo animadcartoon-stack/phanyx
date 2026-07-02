@@ -295,22 +295,50 @@ export default function AdminCertificadosPage() {
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-2">
                         <button
+  type="button"
   onClick={async () => {
-    const res = await fetch("/api/admin/certificados/gerar", {
-      method: "POST",
-      body: JSON.stringify({ alunoId: aluno.id }),
-    });
+    try {
+      const res = await fetch("/api/admin/certificados/gerar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ alunoId: aluno.id }),
+      });
 
-    const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-    if (data.sucesso) {
-      setSucesso("Certificado gerado com sucesso.");
-      window.location.reload();
-    } else {
-      setErro(data.error || "Erro ao gerar certificado.");
+      if (!res.ok || !data?.sucesso) {
+        setErro(data?.error || "Erro ao gerar certificado.");
+        return;
+      }
+
+      setSucesso(`Certificado de ${aluno.nome} gerado com sucesso.`);
+
+      setAlunos((prev) =>
+        prev.map((item) =>
+          item.id === aluno.id
+            ? {
+                ...item,
+                statusCertificado: "PRONTO",
+              }
+            : item
+        )
+      );
+
+      setAlunoSelecionado((prev) =>
+        prev?.id === aluno.id
+          ? {
+              ...prev,
+              statusCertificado: "PRONTO",
+            }
+          : prev
+      );
+    } catch {
+      setErro("Erro ao gerar certificado.");
     }
   }}
-  className="bg-blue-600 text-white px-3 py-1 rounded"
+  className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
 >
   Gerar
 </button>
@@ -336,7 +364,7 @@ export default function AdminCertificadosPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ alunoId: aluno.id }),
+        body: JSON.stringify({ alunoId: aluno.id, baixar: true }),
       });
 
       if (!res.ok) {

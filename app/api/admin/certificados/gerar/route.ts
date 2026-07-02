@@ -163,6 +163,24 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const deveBaixar = body.baixar === true;
+
+if (!deveBaixar) {
+  return NextResponse.json({
+    sucesso: true,
+    mensagem: "Certificado gerado com sucesso.",
+    certificado: {
+      id: certificado.id,
+      codigo: certificado.codigo,
+      alunoId: aluno.id,
+      alunoNome: aluno.nome,
+      disciplinaId: disciplina.id,
+      disciplinaNome: disciplina.nome,
+      emitidoEm: certificado.emitidoEm,
+    },
+  });
+}
+
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([842, 595]);
 
