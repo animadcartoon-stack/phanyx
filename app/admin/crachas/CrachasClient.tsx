@@ -58,7 +58,20 @@ type ObjetoCracha =
   | {
       id: number;
       tipo: "FORMA";
-      forma: "RETANGULO" | "CIRCULO";
+      forma:
+  |   "RETANGULO"
+  |   "PILULA"
+  |   "CIRCULO"
+  |   "LINHA"
+  |   "TRIANGULO"
+  |   "LOSANGO"
+  |   "PARALELOGRAMO"
+  |   "SETA_DIREITA"
+  |   "SETA_ESQUERDA"
+  |   "SETA_CIMA"
+  |   "SETA_BAIXO"
+  |   "SETA_DUPLA_HORIZONTAL"
+  |   "SETA_DUPLA_VERTICAL";
       x: number;
       y: number;
       largura: number;
@@ -70,7 +83,7 @@ type ObjetoCracha =
       opacidade: number;
       ordem: number;
     };
-    
+
   type TipoFuroCracha =
   | "SEM_FURO"
   | "RASGO_HORIZONTAL"
@@ -890,6 +903,78 @@ function excluirObjetoPorId(objetoId: number) {
   fecharMenuContexto();
 }
 
+function clipPathForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  if (objeto.forma === "TRIANGULO") {
+    return "polygon(50% 0%, 0% 100%, 100% 100%)";
+  }
+
+  if (objeto.forma === "LOSANGO") {
+    return "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)";
+  }
+
+  if (objeto.forma === "PARALELOGRAMO") {
+    return "polygon(18% 0%, 100% 0%, 82% 100%, 0% 100%)";
+  }
+
+  if (objeto.forma === "SETA_DIREITA") {
+  return "polygon(0% 25%, 70% 25%, 70% 0%, 100% 50%, 70% 100%, 70% 75%, 0% 75%)";
+}
+
+if (objeto.forma === "SETA_ESQUERDA") {
+  return "polygon(100% 25%, 30% 25%, 30% 0%, 0% 50%, 30% 100%, 30% 75%, 100% 75%)";
+}
+
+if (objeto.forma === "SETA_CIMA") {
+  return "polygon(50% 0%, 100% 30%, 75% 30%, 75% 100%, 25% 100%, 25% 30%, 0% 30%)";
+}
+
+if (objeto.forma === "SETA_BAIXO") {
+  return "polygon(25% 0%, 75% 0%, 75% 70%, 100% 70%, 50% 100%, 0% 70%, 25% 70%)";
+}
+
+if (objeto.forma === "SETA_DUPLA_HORIZONTAL") {
+  return "polygon(0% 50%, 25% 0%, 25% 30%, 75% 30%, 75% 0%, 100% 50%, 75% 100%, 75% 70%, 25% 70%, 25% 100%)";
+}
+
+if (objeto.forma === "SETA_DUPLA_VERTICAL") {
+  return "polygon(50% 0%, 100% 25%, 70% 25%, 70% 75%, 100% 75%, 50% 100%, 0% 75%, 30% 75%, 30% 25%, 0% 25%)";
+}
+
+  return "none";
+}
+
+function borderRadiusForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  if (
+    objeto.forma === "CIRCULO" ||
+    objeto.forma === "PILULA" ||
+    objeto.forma === "LINHA"
+  ) {
+    return "9999px";
+  }
+
+  return objeto.raioBorda;
+}
+
+function deveMostrarBordaForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  return ![
+    "TRIANGULO",
+    "LOSANGO",
+    "PARALELOGRAMO",
+    "SETA_DIREITA",
+    "SETA_ESQUERDA",
+    "SETA_CIMA",
+    "SETA_BAIXO",
+    "SETA_DUPLA_HORIZONTAL",
+    "SETA_DUPLA_VERTICAL",
+  ].includes(objeto.forma);
+}
+
   return (
     <div
   className="phanyx-crachas-page p-4"
@@ -1445,9 +1530,11 @@ if (objeto.tipo === "FORMA") {
         cursor: "move",
         overflow: "visible",
         backgroundColor: objeto.corFundo,
-        border: `${objeto.espessuraBorda}px solid ${objeto.corBorda}`,
-        borderRadius:
-          objeto.forma === "CIRCULO" ? "9999px" : objeto.raioBorda,
+border: deveMostrarBordaForma(objeto)
+  ? `${objeto.espessuraBorda}px solid ${objeto.corBorda}`
+  : "none",
+borderRadius: borderRadiusForma(objeto),
+clipPath: clipPathForma(objeto),
         opacity: objeto.opacidade / 100,
         boxSizing: "border-box",
         outline:
@@ -2166,17 +2253,45 @@ if (objeto.tipo === "FORMA") {
       </p>
 
       <select
-        value={objetoAtual.forma}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            forma: e.target.value as "RETANGULO" | "CIRCULO",
-          })
-        }
-        className="phanyx-crachas-input"
-      >
-        <option value="RETANGULO">Retângulo / faixa</option>
-        <option value="CIRCULO">Círculo / oval</option>
-      </select>
+  value={objetoAtual.forma}
+  onChange={(e) => {
+    const novaForma = e.target.value as Extract<
+      ObjetoCracha,
+      { tipo: "FORMA" }
+    >["forma"];
+
+    atualizarObjeto(objetoAtual.id, {
+      forma: novaForma,
+      ...(novaForma === "LINHA"
+        ? {
+            altura: 6,
+            raioBorda: 999,
+            espessuraBorda: 0,
+          }
+        : {}),
+      ...(novaForma === "PILULA"
+        ? {
+            raioBorda: 999,
+          }
+        : {}),
+    });
+  }}
+  className="phanyx-crachas-input"
+>
+  <option value="RETANGULO">Retângulo / faixa</option>
+  <option value="PILULA">Pílula / etiqueta arredondada</option>
+  <option value="CIRCULO">Círculo / oval</option>
+  <option value="LINHA">Linha</option>
+  <option value="TRIANGULO">Triângulo</option>
+  <option value="LOSANGO">Losango</option>
+  <option value="PARALELOGRAMO">Paralelogramo</option>
+  <option value="SETA_DIREITA">Seta para direita</option>
+  <option value="SETA_ESQUERDA">Seta para esquerda</option>
+  <option value="SETA_CIMA">Seta para cima</option>
+  <option value="SETA_BAIXO">Seta para baixo</option>
+  <option value="SETA_DUPLA_HORIZONTAL">Seta dupla horizontal</option>
+  <option value="SETA_DUPLA_VERTICAL">Seta dupla vertical</option>
+  </select>
     </div>
 
     <div className="grid grid-cols-2 gap-2">
