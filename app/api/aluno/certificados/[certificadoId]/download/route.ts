@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { gerarCertificadoPdf } from "@/lib/certificados/gerarCertificado";
+import { getUserFromToken } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,14 +20,44 @@ export async function GET(
       );
     }
 
-    const certificado = await prisma.certificado.findUnique({
-      where: { id },
-      include: {
-        aluno: true,
-        disciplina: true,
-        instituicao: true,
-      },
-    });
+    const user = await getUserFromToken();
+
+if (!user || user.role !== "ALUNO") {
+  return NextResponse.json(
+    { error: "Não autorizado." },
+    { status: 401 }
+  );
+}
+
+const aluno = await prisma.aluno.findFirst({
+  where: {
+    userId: user.id,
+    instituicaoId: user.instituicaoId,
+  },
+  select: {
+    id: true,
+  },
+});
+
+if (!aluno) {
+  return NextResponse.json(
+    { error: "Aluno não encontrado." },
+    { status: 404 }
+  );
+}
+
+const certificado = await prisma.certificado.findFirst({
+  where: {
+    id,
+    alunoId: aluno.id,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    aluno: true,
+    disciplina: true,
+    instituicao: true,
+  },
+});
 
     if (!certificado) {
       return NextResponse.json(
