@@ -23,7 +23,7 @@ export const PERMISSOES_PHANYX = [
   { chave: "documentos.gerar", nome: "Gerar documentos" },
 
   { chave: "certificados.ver", nome: "Ver certificados" },
-  { chave: "certificados.emitir", nome: "Emitir certificados" },
+  { chave: "certificados.emitir", nome: "Gerar / emitir certificados" },
   { chave: "certificados.editar_template", nome: "Editar modelo de certificado" },
 
   { chave: "funcionarios.ver", nome: "Ver funcionários" },

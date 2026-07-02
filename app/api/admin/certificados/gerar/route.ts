@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
+import { getUserFromToken, temPermissao } from "@/lib/server-auth";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
+
 
 function gerarCodigoCertificado(
   instituicaoId: number,
@@ -21,9 +22,16 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
-    }
+if (!user || !user.instituicaoId) {
+  return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+}
+
+if (!temPermissao(user, "certificados.emitir")) {
+  return NextResponse.json(
+    { error: "Você não tem permissão para gerar certificados." },
+    { status: 403 }
+  );
+}
 
     const instituicao = await prisma.instituicao.findUnique({
       where: { id: user.instituicaoId },
