@@ -682,6 +682,32 @@ function renderFuroCracha() {
   return null;
 }
 
+function trazerParaFrente() {
+  if (!objetoAtual) return;
+
+  const maiorOrdem = Math.max(
+    0,
+    ...objetos.map((obj) => obj.ordem || 0)
+  );
+
+  atualizarObjeto(objetoAtual.id, {
+    ordem: maiorOrdem + 1,
+  });
+}
+
+function enviarParaTras() {
+  if (!objetoAtual) return;
+
+  const menorOrdem = Math.min(
+    0,
+    ...objetos.map((obj) => obj.ordem || 0)
+  );
+
+  atualizarObjeto(objetoAtual.id, {
+    ordem: menorOrdem - 1,
+  });
+}
+
   return (
     <div className="phanyx-crachas-page p-4">
       {/* Barra Superior */}
@@ -863,7 +889,9 @@ function renderFuroCracha() {
 
             {renderFuroCracha()}
 
-            {objetos.map((objeto) => {
+            {[...objetos]
+  .sort((a, b) => (a.ordem || 0) - (b.ordem || 0))
+  .map((objeto) => {
               if (objeto.tipo === "TEXTO") {
                 return (
                   <div
@@ -916,6 +944,7 @@ function renderFuroCracha() {
     objetoSelecionado === objeto.id
       ? "1px dashed #2563eb"
       : "1px solid transparent",
+      zIndex: objeto.ordem || 1,
 }}
                   >
   {objeto.texto}
@@ -1003,6 +1032,7 @@ function renderFuroCracha() {
           objetoSelecionado === objeto.id
             ? "1px dashed #2563eb"
             : "1px solid transparent",
+            zIndex: objeto.ordem || 1,
       }}
     >
       {objeto.campo}
@@ -1060,6 +1090,7 @@ if (objeto.tipo === "IMAGEM") {
             : "1px solid #94a3b8",
         borderRadius: objeto.raioBorda,
         boxShadow: sombraImagemBoxCss(objeto),
+        zIndex: objeto.ordem || 1,
       }}
     >
       <div
@@ -1136,6 +1167,32 @@ if (objeto.tipo === "IMAGEM") {
           <h2 className="mb-4 font-bold">
             Propriedades
           </h2>
+
+{objetoAtual && (
+  <div className="mb-4 rounded-2xl border border-slate-700/40 p-3">
+    <p className="mb-2 text-sm font-bold">
+      Camada
+    </p>
+
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={trazerParaFrente}
+        className="phanyx-crachas-button-secondary text-xs"
+      >
+        Trazer para frente
+      </button>
+
+      <button
+        type="button"
+        onClick={enviarParaTras}
+        className="phanyx-crachas-button-secondary text-xs"
+      >
+        Enviar para trás
+      </button>
+    </div>
+  </div>
+)}
 
           {!objetoAtual && (
             <p className="phanyx-crachas-muted">

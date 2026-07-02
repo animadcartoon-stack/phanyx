@@ -1735,17 +1735,49 @@ async function excluirCampo(id: number) {
 }
 
   function atualizarCampoLocal<K extends keyof CampoCertificado>(
-    chave: K,
-    valor: CampoCertificado[K]
-  ) {
-    if (!campoSelecionado) return;
+  chave: K,
+  valor: CampoCertificado[K]
+) {
+  if (!campoSelecionado) return;
 
-    setCampos((prev) =>
-      prev.map((c) =>
-        c.id === campoSelecionado.id ? { ...c, [chave]: valor } : c
-      )
-    );
-  }
+  setCampos((prev) =>
+    prev.map((c) => {
+      if (c.id !== campoSelecionado.id) return c;
+
+      const campoAtualizado: CampoCertificado = {
+        ...c,
+        [chave]: valor,
+      };
+
+      const ehTagDeTexto =
+        campoAtualizado.tipo !== "FORMA" &&
+        campoAtualizado.tipo !== "IMAGEM" &&
+        campoAtualizado.tipo !== "TEXTO_LIVRE" &&
+        campoAtualizado.tipo !== "ASSINATURA" &&
+        campoAtualizado.tipo !== "LOGO_INSTITUICAO" &&
+        campoAtualizado.tipo !== "QR_CODE";
+
+      if (chave === "tamanho" && ehTagDeTexto) {
+        const novoTamanho = Number(valor || campoAtualizado.tamanho || 18);
+
+        return {
+          ...campoAtualizado,
+          altura: Math.max(
+            Number(campoAtualizado.altura || 0),
+            Math.ceil(novoTamanho * 1.65)
+          ),
+          largura: Math.max(
+            Number(campoAtualizado.largura || 0),
+            Math.ceil(novoTamanho * 8)
+          ),
+          lineHeight: campoAtualizado.lineHeight || 1.2,
+        };
+      }
+
+      return campoAtualizado;
+    })
+  );
+}
 
   function gerarCopiasArray(preview = false) {
   if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return [];
@@ -2629,6 +2661,16 @@ function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
       y: campo.y,
       largura: campo.largura,
       altura: campo.altura,
+      fonte: campo.fonte || "Arial",
+      tamanho: campo.tamanho || 18,
+      cor: campo.cor || "#1e3a8a",
+      alinhamento: campo.alinhamento || "left",
+      ordem: campo.ordem || 1,
+      negrito: campo.negrito || false,
+      italico: campo.italico || false,
+      sublinhado: campo.sublinhado || false,
+      lineHeight: campo.lineHeight || 1.2,
+      marcador: campo.marcador || null,
       texto: campo.texto,
       textoHtml: campo.textoHtml,
     });
@@ -2755,12 +2797,9 @@ if (resCamposBanco.ok && Array.isArray(dataCamposBanco?.campos)) {
     for (const campo of campos) {
       const idEhTemporario = Number(campo.id) > 1000000000;
 
-      const dadosJson =
-        campo.tipo === "FORMA" || campo.tipo === "IMAGEM"
-          ? {
-              ...campo,
-            }
-          : null;
+      const dadosJson = {
+  ...campo,
+};
 
       const payload = {
         id: idEhTemporario ? undefined : campo.id,
@@ -7535,20 +7574,31 @@ iniciarDrag(event as any, c);
       key={c.id}
       className="absolute"
       style={{
-        left: `${c.x}px`,
-        top: `${c.y}px`,
-        width: `${c.largura || 120}px`,
-        minHeight: `${c.altura || 18}px`,
-        fontSize: `${c.tamanho || 12}px`,
-        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
-        fontFamily: c.fonte || "Helvetica",
-        color: c.cor || "#1e3a8a",
-        textAlign:
-          (c.alinhamento as "left" | "center" | "right") || "left",
-        lineHeight: c.lineHeight || 1.3,
-        whiteSpace:
-          c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-      }}
+  left: `${c.x}px`,
+  top: `${c.y}px`,
+  width: `${c.largura || 220}px`,
+  height: `${c.altura || Math.ceil((c.tamanho || 18) * 1.65)}px`,
+  fontSize: `${c.tamanho || 18}px`,
+  zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
+  fontFamily: c.fonte || "Arial",
+  color: c.cor || "#1e3a8a",
+  textAlign:
+    (c.alinhamento as "left" | "center" | "right") || "left",
+  lineHeight: c.lineHeight || 1.2,
+  whiteSpace:
+    c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
+  display: "flex",
+  alignItems: "center",
+  justifyContent:
+    c.alinhamento === "center"
+      ? "center"
+      : c.alinhamento === "right"
+      ? "flex-end"
+      : "flex-start",
+  overflow: "visible",
+  boxSizing: "border-box",
+  padding: "0 4px",
+}}
     >
       {c.tipo === "ASSINATURA" ? (
   certificadoAssinaturaUrl ? (
