@@ -19,6 +19,7 @@ type ObjetoCracha =
       sombraY?: number;
       sombraBlur?: number;
       sombraCor?: string;
+      ordem: number;
     }
   | {
     id: number;
@@ -32,6 +33,7 @@ type ObjetoCracha =
     alinhamento: "left" | "center" | "right";
     largura: number;
     altura: number;
+    ordem: number;
   }
   | {
     id: number;
@@ -51,6 +53,7 @@ type ObjetoCracha =
     sombraY?: number;
     sombraBlur?: number;
     sombraCor?: string;
+    ordem: number;
   };
 
   type TipoFuroCracha =
@@ -121,11 +124,13 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
         alinhamento: "left",
         largura: 120,
         altura: 32,
+        ordem: Date.now(),
         sombraAtiva: false,
         sombraX: 2,
         sombraY: 2,
         sombraBlur: 4,
         sombraCor: "#000000",
+
       },
     ]);
   }
@@ -145,6 +150,7 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
       alinhamento: "left",
       largura: 150,
       altura: 32,
+      ordem: Date.now(),
     },
   ]);
 }
@@ -161,6 +167,7 @@ function adicionarFoto() {
       y: 90,
       largura: 100,
       altura: 120,
+      ordem: Date.now(),
       raioBorda: 50,
       ajusteImagem: "cover",
       sombraAtiva: false,
@@ -185,6 +192,7 @@ function adicionarLogo() {
       y: 20,
       largura: 100,
       altura: 50,
+      ordem: Date.now(),
       raioBorda: 8,
       ajusteImagem: "contain",
       sombraAtiva: false,
@@ -239,6 +247,7 @@ async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
         y: 60,
         largura: 120,
         altura: 80,
+        ordem: Date.now(),
         raioBorda: 8,
         ajusteImagem: "cover",
         sombraAtiva: false,
