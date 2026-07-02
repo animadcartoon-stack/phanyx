@@ -20,6 +20,102 @@ function normalizarListaAlunos(data: any): AlunoItem[] {
   return [];
 }
 
+function normalizarBusca(valor: unknown) {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s@._-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function distanciaLevenshtein(a: string, b: string) {
+  const matriz = Array.from({ length: a.length + 1 }, () =>
+    Array(b.length + 1).fill(0)
+  );
+
+  for (let i = 0; i <= a.length; i++) matriz[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matriz[0][j] = j;
+
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const custo = a[i - 1] === b[j - 1] ? 0 : 1;
+
+      matriz[i][j] = Math.min(
+        matriz[i - 1][j] + 1,
+        matriz[i][j - 1] + 1,
+        matriz[i - 1][j - 1] + custo
+      );
+    }
+  }
+
+  return matriz[a.length][b.length];
+}
+
+function alunoCombinaComBusca(aluno: AlunoItem, termoOriginal: string) {
+  const termo = normalizarBusca(termoOriginal);
+
+  if (!termo) {
+    return {
+      combina: true,
+      score: 0,
+    };
+  }
+
+  const campos = [
+    aluno.nome,
+    aluno.email,
+    aluno.matricula,
+    aluno.curso,
+  ]
+    .filter(Boolean)
+    .map((valor) => normalizarBusca(valor));
+
+  const textoCompleto = campos.join(" ");
+
+  if (textoCompleto.includes(termo)) {
+    return {
+      combina: true,
+      score: 0,
+    };
+  }
+
+  const palavrasBusca = termo.split(" ").filter(Boolean);
+  const palavrasAluno = textoCompleto.split(" ").filter(Boolean);
+
+  let melhorScore = 999;
+
+  for (const palavraBusca of palavrasBusca) {
+    for (const palavraAluno of palavrasAluno) {
+      if (
+        palavraAluno.startsWith(palavraBusca) ||
+        palavraBusca.startsWith(palavraAluno)
+      ) {
+        melhorScore = Math.min(melhorScore, 1);
+        continue;
+      }
+
+      const distancia = distanciaLevenshtein(palavraBusca, palavraAluno);
+      const limite =
+        palavraBusca.length <= 4
+          ? 1
+          : palavraBusca.length <= 7
+          ? 2
+          : 3;
+
+      if (distancia <= limite) {
+        melhorScore = Math.min(melhorScore, distancia + 2);
+      }
+    }
+  }
+
+  return {
+    combina: melhorScore < 999,
+    score: melhorScore,
+  };
+}
+
 function corStatus(status?: AlunoItem["statusCertificado"]) {
   if (status === "PRONTO") {
     return "bg-emerald-100 text-emerald-700 border-emerald-200";
@@ -48,45 +144,70 @@ export default function AdminCertificadosPage() {
   const [sucesso, setSucesso] = useState("");
 
   async function carregarAlunos(termo = "") {
-    try {
-      setCarregando(true);
+  try {
+    setCarregando(true);
+    setErro("");
 
-      const url = termo?.trim()
-        ? `/api/aluno?busca=${encodeURIComponent(termo.trim())}`
-        : "/api/aluno";
+    const res = await fetch("/api/aluno", {
+      cache: "no-store",
+    });
 
-      const res = await fetch(url, {
-        cache: "no-store",
-      });
+    const data = await res.json();
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setErro(data?.error || "Erro ao buscar alunos.");
-        return;
-      }
-
-      const lista = normalizarListaAlunos(data).map((item: any) => ({
-        id: Number(item.id),
-        nome: item.nome || "Aluno sem nome",
-        email: item.email ?? item.user?.email ?? null,
-        matricula: item.matricula ?? null,
-        curso:
-          item.curso?.nome ??
-          item.matriculaAtiva?.curso?.nome ??
-          item.matriculas?.[0]?.curso?.nome ??
-          null,
-        statusCertificado: item.statusCertificado ?? "PENDENTE",
-        certificadoUrl: item.certificadoUrl ?? null,
-      }));
-
-      setAlunos(lista);
-    } catch {
-      setErro("Erro ao carregar alunos.");
-    } finally {
-      setCarregando(false);
+    if (!res.ok) {
+      setErro(data?.error || "Erro ao buscar alunos.");
+      return;
     }
+
+    const lista = normalizarListaAlunos(data).map((item: any) => ({
+      id: Number(item.id),
+      nome: item.nome || "Aluno sem nome",
+      email: item.email ?? item.user?.email ?? null,
+      matricula: item.matricula ?? null,
+      curso:
+        item.curso?.nome ??
+        item.matriculaAtiva?.curso?.nome ??
+        item.matriculas?.[0]?.curso?.nome ??
+        null,
+      statusCertificado: item.statusCertificado ?? "PENDENTE",
+      certificadoUrl: item.certificadoUrl ?? null,
+    }));
+
+    const termoLimpo = normalizarBusca(termo);
+
+    const listaFiltrada = termoLimpo
+      ? lista
+          .map((aluno) => {
+            const resultado = alunoCombinaComBusca(aluno, termoLimpo);
+
+            return {
+              aluno,
+              combina: resultado.combina,
+              score: resultado.score,
+            };
+          })
+          .filter((item) => item.combina)
+          .sort((a, b) => {
+            if (a.score !== b.score) return a.score - b.score;
+
+            return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+              sensitivity: "base",
+            });
+          })
+          .map((item) => item.aluno)
+      : lista.sort((a, b) =>
+          a.nome.localeCompare(b.nome, "pt-BR", {
+            sensitivity: "base",
+          })
+        );
+
+    setAlunos(listaFiltrada);
+  } catch {
+    setErro("Erro ao carregar alunos.");
+  } finally {
+    setCarregando(false);
   }
+}
 
   useEffect(() => {
     carregarAlunos();
@@ -252,7 +373,9 @@ export default function AdminCertificadosPage() {
               ) : alunos.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-8 text-sm text-slate-500">
-                    Nenhum aluno encontrado.
+                    {buscaAplicada
+  ? "Nenhum aluno encontrado. Tente parte do nome, email, matrícula ou uma grafia parecida."
+  : "Nenhum aluno encontrado."}
                   </td>
                 </tr>
               ) : (

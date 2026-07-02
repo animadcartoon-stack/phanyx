@@ -139,7 +139,12 @@ function AdminAlunosPage() {
     useState<AlunoComResumo | null>(null);
 
 const [abaPainelAluno, setAbaPainelAluno] = useState<
-  "DADOS" | "DOCUMENTOS" | "MATRICULAS" | "DESEMPENHO" | "HISTORICO"
+  | "DADOS"
+  | "DOCUMENTOS"
+  | "MATRICULAS"
+  | "DESEMPENHO"
+  | "HISTORICO"
+  | "CERTIFICADOS"
 >("DADOS");
 
   const [mostrarFormulario, setMostrarFormulario] = useState(true);
@@ -243,6 +248,8 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [buscaMatricula, setBuscaMatricula] = useState("");
   const [turmasMatriculaAbertas, setTurmasMatriculaAbertas] = useState<Record<number, boolean>>({});
   const [matriculaExpandida, setMatriculaExpandida] = useState(false);
+  const [gerandoCertificado, setGerandoCertificado] = useState(false);
+  const [baixandoCertificado, setBaixandoCertificado] = useState(false);
 
   useEffect(() => {
     if (!feedback) return;
@@ -1215,6 +1222,105 @@ function abrirDetalhesAluno(aluno: AlunoComResumo) {
   );
 }
 
+async function gerarCertificadoAlunoSelecionado() {
+  if (!alunoSelecionado) return;
+
+  try {
+    setGerandoCertificado(true);
+
+    const res = await fetch("/api/admin/certificados/gerar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        alunoId: alunoSelecionado.id,
+      }),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data?.sucesso) {
+      const mensagem =
+        data?.error ||
+        data?.detalhe ||
+        "Não foi possível gerar o certificado.";
+
+      mostrarFeedback("erro", mensagem);
+      abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
+      return;
+    }
+
+    mostrarFeedback("sucesso", "Certificado gerado com sucesso.");
+    abrirModalAviso(
+      "sucesso",
+      "Certificado gerado",
+      "O certificado foi gerado e já deve ficar disponível na área do aluno."
+    );
+  } catch (error: any) {
+    const mensagem = error?.message || "Erro ao gerar certificado.";
+
+    mostrarFeedback("erro", mensagem);
+    abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
+  } finally {
+    setGerandoCertificado(false);
+  }
+}
+
+async function baixarCertificadoAlunoSelecionado() {
+  if (!alunoSelecionado) return;
+
+  try {
+    setBaixandoCertificado(true);
+
+    const res = await fetch("/api/admin/certificados/gerar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        alunoId: alunoSelecionado.id,
+        baixar: true,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      const mensagem =
+        data?.error ||
+        data?.detalhe ||
+        "Não foi possível baixar o certificado.";
+
+      mostrarFeedback("erro", mensagem);
+      abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `certificado-${alunoSelecionado.nome}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    mostrarFeedback("sucesso", "Certificado baixado com sucesso.");
+  } catch (error: any) {
+    const mensagem = error?.message || "Erro ao baixar certificado.";
+
+    mostrarFeedback("erro", mensagem);
+    abrirModalAviso("erro", "Erro ao baixar certificado", mensagem);
+  } finally {
+    setBaixandoCertificado(false);
+  }
+}
+
   const turmaNomeSelecionada = useMemo(() => {
     if (filtroTurmaId === "TODAS") return "Todas as turmas";
     const turma = turmas.find((t) => t.id === Number(filtroTurmaId));
@@ -1976,6 +2082,7 @@ name="busca-alunos-phanyx"
   { id: "MATRICULAS", label: "Matrículas" },
   { id: "DESEMPENHO", label: "Desempenho" },
   { id: "HISTORICO", label: "Histórico" },
+  { id: "CERTIFICADOS", label: "Certificados" },
 ].map((aba) => (
     <button
       key={aba.id}
@@ -2955,6 +3062,97 @@ name="busca-alunos-phanyx"
         ))}
       </div>
     )}
+  </section>
+)}
+
+{abaPainelAluno === "CERTIFICADOS" && (
+  <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      Certificados do aluno
+    </h3>
+
+    <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
+      Gere ou baixe certificados vinculados a este aluno. A emissão manual deve
+      ser usada pela secretaria/diretoria somente quando houver autorização da
+      instituição.
+    </p>
+
+    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900/60 dark:bg-blue-950/40 dark:text-blue-100">
+      <p className="font-semibold">
+        Regra PHANYX
+      </p>
+
+      <p className="mt-1 leading-6">
+        A liberação automática para o aluno deverá respeitar a configuração da
+        instituição: por disciplina concluída, por semestre concluído ou somente
+        após conclusão do curso. Esta área é para emissão manual administrativa.
+      </p>
+    </div>
+
+    <div className="mt-5 grid gap-4 md:grid-cols-2">
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          Aluno
+        </p>
+
+        <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
+          {alunoSelecionado.nome}
+        </p>
+
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          {alunoSelecionado.user?.email || "Sem email"}
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+          Matrícula / curso
+        </p>
+
+        <p className="mt-2 font-bold text-slate-900 dark:text-slate-100">
+          {alunoSelecionado.resumoMatricula?.cursoNome || "Sem matrícula"}
+        </p>
+
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          {alunoSelecionado.resumoMatricula?.numeroMatricula ||
+            alunoSelecionado.matricula ||
+            "Matrícula não informada"}
+        </p>
+      </div>
+    </div>
+
+    <div className="mt-5 flex flex-wrap gap-3">
+      <button
+        type="button"
+        disabled={gerandoCertificado}
+        onClick={gerarCertificadoAlunoSelecionado}
+        className="rounded-2xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {gerandoCertificado ? "Gerando..." : "Gerar certificado"}
+      </button>
+
+      <button
+        type="button"
+        disabled={baixandoCertificado}
+        onClick={baixarCertificadoAlunoSelecionado}
+        className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {baixandoCertificado ? "Baixando..." : "Baixar certificado"}
+      </button>
+    </div>
+
+    <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100">
+      <p className="font-semibold">
+        Próxima etapa obrigatória
+      </p>
+
+      <p className="mt-1 leading-6">
+        Depois vamos ligar esta ação às permissões:
+        certificados.gerar, certificados.gerar_manual e
+        certificados.liberar_sem_conclusao. Assim, nem todo funcionário poderá
+        emitir certificado para aluno não finalizado.
+      </p>
+    </div>
   </section>
 )}
 
