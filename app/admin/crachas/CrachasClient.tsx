@@ -497,6 +497,74 @@ function redimensionarTexto(
   window.addEventListener("mouseup", soltar);
 }
 
+function redimensionarImagem(
+  e: React.MouseEvent<HTMLSpanElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "IMAGEM" }>,
+  canto: "nw" | "ne" | "sw" | "se"
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setObjetoSelecionado(objeto.id);
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+
+  const xOriginal = objeto.x;
+  const yOriginal = objeto.y;
+  const larguraOriginal = objeto.largura;
+  const alturaOriginal = objeto.altura;
+
+  function mover(ev: MouseEvent) {
+    const dx = ev.clientX - inicioX;
+    const dy = ev.clientY - inicioY;
+
+    let novoX = xOriginal;
+    let novoY = yOriginal;
+    let novaLargura = larguraOriginal;
+    let novaAltura = alturaOriginal;
+
+    if (canto === "se") {
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "sw") {
+      novoX = xOriginal + dx;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "ne") {
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    if (canto === "nw") {
+      novoX = xOriginal + dx;
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    atualizarObjeto(objeto.id, {
+      x: novoX,
+      y: novoY,
+      largura: Math.max(20, novaLargura),
+      altura: Math.max(20, novaAltura),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
 function BotaoExcluirObjeto() {
   return (
     <button
@@ -1017,6 +1085,33 @@ if (objeto.tipo === "IMAGEM") {
       </div>
 
       {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+      {objetoSelecionado === objeto.id && (
+  <>
+    <span
+      onMouseDown={(e) => redimensionarImagem(e, objeto, "nw")}
+      className="absolute -left-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+      style={{ cursor: "nwse-resize" }}
+    />
+
+    <span
+      onMouseDown={(e) => redimensionarImagem(e, objeto, "ne")}
+      className="absolute -right-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+      style={{ cursor: "nesw-resize" }}
+    />
+
+    <span
+      onMouseDown={(e) => redimensionarImagem(e, objeto, "sw")}
+      className="absolute -bottom-1.5 -left-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+      style={{ cursor: "nesw-resize" }}
+    />
+
+    <span
+      onMouseDown={(e) => redimensionarImagem(e, objeto, "se")}
+      className="absolute -bottom-1.5 -right-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+      style={{ cursor: "nwse-resize" }}
+    />
+  </>
+)}
     </div>
   );
 }
