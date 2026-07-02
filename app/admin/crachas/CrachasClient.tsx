@@ -949,16 +949,19 @@ if (objeto.forma === "SETA_DUPLA_VERTICAL") {
 function borderRadiusForma(
   objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
 ) {
-  if (
-    objeto.forma === "CIRCULO" ||
-    objeto.forma === "OVAL" ||
-    objeto.forma === "PILULA" ||
-    objeto.forma === "LINHA"
-  ) {
+  if (objeto.forma === "CIRCULO") {
+    return "50%";
+  }
+
+  if (objeto.forma === "OVAL") {
+    return "50% / 50%";
+  }
+
+  if (objeto.forma === "PILULA" || objeto.forma === "LINHA") {
     return "9999px";
   }
 
-  return objeto.raioBorda;
+  return `${objeto.raioBorda}px`;
 }
 
 function deveMostrarBordaForma(
@@ -2288,8 +2291,8 @@ clipPath: clipPathForma(objeto),
     },
 
     OVAL: {
-  largura: 90,
-  altura: 125,
+  largura: 120,
+  altura: 170,
   raioBorda: 0,
   espessuraBorda: 0,
 },
