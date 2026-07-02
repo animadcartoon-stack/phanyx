@@ -55,24 +55,25 @@ type ObjetoCracha =
       sombraCor?: string;
       ordem: number;
     }
-  | {
+    | {
       id: number;
       tipo: "FORMA";
       forma:
-  |   "RETANGULO"
-  |   "PILULA"
-  |   "CIRCULO"
-  |   "OVAL"
-  |   "LINHA"
-  |   "TRIANGULO"
-  |   "LOSANGO"
-  |   "PARALELOGRAMO"
-  |   "SETA_DIREITA"
-  |   "SETA_ESQUERDA"
-  |   "SETA_CIMA"
-  |   "SETA_BAIXO"
-  |   "SETA_DUPLA_HORIZONTAL"
-  |   "SETA_DUPLA_VERTICAL";
+        | "RETANGULO"
+        | "PILULA"
+        | "CIRCULO"
+        | "OVAL"
+        | "LINHA"
+        | "TRIANGULO"
+        | "LOSANGO"
+        | "PARALELOGRAMO"
+        | "SETA_DIREITA"
+        | "SETA_ESQUERDA"
+        | "SETA_CIMA"
+        | "SETA_BAIXO"
+        | "SETA_DUPLA_HORIZONTAL"
+        | "SETA_DUPLA_VERTICAL";
+      estilo?: "PREENCHIMENTO_CONTORNO" | "SOMENTE_PREENCHIMENTO" | "SOMENTE_CONTORNO";
       x: number;
       y: number;
       largura: number;
@@ -253,6 +254,7 @@ function adicionarForma() {
       id: Date.now(),
       tipo: "FORMA",
       forma: "RETANGULO",
+      estilo: "SOMENTE_PREENCHIMENTO",
       x: 30,
       y: 30,
       largura: 120,
@@ -980,6 +982,170 @@ function deveMostrarBordaForma(
   ].includes(objeto.forma);
 }
 
+function estiloAtualForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  return objeto.estilo || "SOMENTE_PREENCHIMENTO";
+}
+
+function preenchimentoForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  const estilo = estiloAtualForma(objeto);
+
+  if (estilo === "SOMENTE_CONTORNO") {
+    return "transparent";
+  }
+
+  return objeto.corFundo;
+}
+
+function contornoForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  const estilo = estiloAtualForma(objeto);
+
+  if (estilo === "SOMENTE_PREENCHIMENTO") {
+    return "transparent";
+  }
+
+  return objeto.corBorda;
+}
+
+function espessuraContornoForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const estilo = estiloAtualForma(objeto);
+
+  if (estilo === "SOMENTE_PREENCHIMENTO") {
+    return 0;
+  }
+
+  return Math.max(1, objeto.espessuraBorda || 3);
+}
+
+function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  const fill = preenchimentoForma(objeto);
+  const stroke = contornoForma(objeto);
+  const strokeWidth = espessuraContornoForma(objeto);
+
+  const comum = {
+    fill,
+    stroke,
+    strokeWidth,
+    vectorEffect: "non-scaling-stroke" as const,
+    strokeLinejoin: "round" as const,
+  };
+
+  if (objeto.forma === "RETANGULO") {
+    return (
+      <rect
+        x="1"
+        y="1"
+        width="98"
+        height="98"
+        rx={objeto.raioBorda}
+        ry={objeto.raioBorda}
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "PILULA") {
+    return (
+      <rect
+        x="1"
+        y="1"
+        width="98"
+        height="98"
+        rx="50"
+        ry="50"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "CIRCULO" || objeto.forma === "OVAL") {
+    return <ellipse cx="50" cy="50" rx="48" ry="48" {...comum} />;
+  }
+
+  if (objeto.forma === "LINHA") {
+    return (
+      <rect
+        x="1"
+        y="40"
+        width="98"
+        height="20"
+        rx="10"
+        ry="10"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "TRIANGULO") {
+    return <polygon points="50,3 97,97 3,97" {...comum} />;
+  }
+
+  if (objeto.forma === "LOSANGO") {
+    return <polygon points="50,3 97,50 50,97 3,50" {...comum} />;
+  }
+
+  if (objeto.forma === "PARALELOGRAMO") {
+    return <polygon points="20,3 97,3 80,97 3,97" {...comum} />;
+  }
+
+  if (objeto.forma === "SETA_DIREITA") {
+    return (
+      <polygon
+        points="3,25 68,25 68,3 97,50 68,97 68,75 3,75"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "SETA_ESQUERDA") {
+    return (
+      <polygon
+        points="97,25 32,25 32,3 3,50 32,97 32,75 97,75"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "SETA_CIMA") {
+    return (
+      <polygon
+        points="50,3 97,32 75,32 75,97 25,97 25,32 3,32"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "SETA_BAIXO") {
+    return (
+      <polygon
+        points="25,3 75,3 75,68 97,68 50,97 3,68 25,68"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "SETA_DUPLA_HORIZONTAL") {
+    return (
+      <polygon
+        points="3,50 25,3 25,30 75,30 75,3 97,50 75,97 75,70 25,70 25,97"
+        {...comum}
+      />
+    );
+  }
+
+  if (objeto.forma === "SETA_DUPLA_VERTICAL") {
+    return (
+      <polygon
+        points="50,3 97,25 70,25 70,75 97,75 50,97 3,75 30,75 30,25 3,25"
+        {...comum}
+      />
+    );
+  }
+
+  return null;
+}
+
   return (
     <div
   className="phanyx-crachas-page p-4"
@@ -1526,28 +1692,39 @@ if (objeto.tipo === "FORMA") {
         window.addEventListener("mouseup", soltar);
       }}
       style={{
-        position: "absolute",
-        left: objeto.x,
-        top: objeto.y,
-        width: objeto.largura,
-        height: objeto.altura,
-        zIndex: Math.max(1, objeto.ordem || 1),
-        cursor: "move",
-        overflow: "visible",
-        backgroundColor: objeto.corFundo,
-border: deveMostrarBordaForma(objeto)
-  ? `${objeto.espessuraBorda}px solid ${objeto.corBorda}`
-  : "none",
-borderRadius: borderRadiusForma(objeto),
-clipPath: clipPathForma(objeto),
-        opacity: objeto.opacidade / 100,
-        boxSizing: "border-box",
-        outline:
-          objetoSelecionado === objeto.id
-            ? "1px dashed #2563eb"
-            : "none",
-      }}
+  position: "absolute",
+  left: objeto.x,
+  top: objeto.y,
+  width: objeto.largura,
+  height: objeto.altura,
+  zIndex: Math.max(1, objeto.ordem || 1),
+  cursor: "move",
+  overflow: "visible",
+  backgroundColor: "transparent",
+  border: "none",
+  opacity: 1,
+  boxSizing: "border-box",
+  outline:
+    objetoSelecionado === objeto.id
+      ? "1px dashed #2563eb"
+      : "none",
+}}
+
     >
+      <svg
+  viewBox="0 0 100 100"
+  preserveAspectRatio="none"
+  className="h-full w-full"
+  style={{
+    display: "block",
+    overflow: "visible",
+    opacity: objeto.opacidade / 100,
+    pointerEvents: "none",
+  }}
+>
+  {renderFormaSvg(objeto)}
+</svg>
+
       {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
 
       {objetoSelecionado === objeto.id && (
@@ -2265,6 +2442,12 @@ clipPath: clipPathForma(objeto),
     { tipo: "FORMA" }
   >["forma"];
 
+  const estiloForma =
+    objetoAtual.estilo || "SOMENTE_PREENCHIMENTO";
+
+  const espessuraPadrao =
+    estiloForma === "SOMENTE_PREENCHIMENTO" ? 0 : 3;
+
   const medidasPorForma: Record<
     Extract<ObjetoCracha, { tipo: "FORMA" }>["forma"],
     Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>>
@@ -2273,98 +2456,98 @@ clipPath: clipPathForma(objeto),
       largura: 120,
       altura: 50,
       raioBorda: 12,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     PILULA: {
       largura: 140,
       altura: 44,
       raioBorda: 999,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     CIRCULO: {
       largura: 100,
       altura: 100,
       raioBorda: 999,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     OVAL: {
   largura: 120,
   altura: 170,
   raioBorda: 0,
-  espessuraBorda: 0,
+  espessuraBorda: espessuraPadrao,
 },
 
     LINHA: {
       largura: 120,
       altura: 6,
       raioBorda: 999,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     TRIANGULO: {
       largura: 120,
       altura: 90,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     LOSANGO: {
       largura: 120,
       altura: 80,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     PARALELOGRAMO: {
       largura: 140,
       altura: 60,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     SETA_DIREITA: {
       largura: 140,
       altura: 60,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     SETA_ESQUERDA: {
       largura: 140,
       altura: 60,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     SETA_CIMA: {
       largura: 70,
       altura: 120,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     SETA_BAIXO: {
       largura: 70,
       altura: 120,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     SETA_DUPLA_HORIZONTAL: {
       largura: 150,
       altura: 60,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
 
     SETA_DUPLA_VERTICAL: {
       largura: 70,
       altura: 150,
       raioBorda: 0,
-      espessuraBorda: 0,
+      espessuraBorda: espessuraPadrao,
     },
   };
 
@@ -2390,6 +2573,42 @@ clipPath: clipPathForma(objeto),
   <option value="SETA_DUPLA_HORIZONTAL">Seta dupla horizontal</option>
   <option value="SETA_DUPLA_VERTICAL">Seta dupla vertical</option>
   </select>
+
+<div>
+  <label className="mb-2 block font-semibold">
+    Aparência
+  </label>
+
+  <select
+    value={objetoAtual.estilo || "SOMENTE_PREENCHIMENTO"}
+    onChange={(e) => {
+      const novoEstilo = e.target.value as
+        | "PREENCHIMENTO_CONTORNO"
+        | "SOMENTE_PREENCHIMENTO"
+        | "SOMENTE_CONTORNO";
+
+      atualizarObjeto(objetoAtual.id, {
+        estilo: novoEstilo,
+        ...(novoEstilo !== "SOMENTE_PREENCHIMENTO" &&
+        objetoAtual.espessuraBorda <= 0
+          ? { espessuraBorda: 3 }
+          : {}),
+      });
+    }}
+    className="phanyx-crachas-input"
+  >
+    <option value="PREENCHIMENTO_CONTORNO">
+      Preenchimento + contorno
+    </option>
+    <option value="SOMENTE_PREENCHIMENTO">
+      Só preenchimento
+    </option>
+    <option value="SOMENTE_CONTORNO">
+      Só contorno
+    </option>
+  </select>
+</div>
+
     </div>
 
     <div className="grid grid-cols-2 gap-2">
