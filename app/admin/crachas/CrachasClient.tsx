@@ -2262,33 +2262,112 @@ clipPath: clipPathForma(objeto),
     { tipo: "FORMA" }
   >["forma"];
 
-  if (novaForma === "CIRCULO") {
-    const tamanho = Math.max(objetoAtual.largura, objetoAtual.altura);
+  const medidasPorForma: Record<
+    Extract<ObjetoCracha, { tipo: "FORMA" }>["forma"],
+    Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>>
+  > = {
+    RETANGULO: {
+      largura: 120,
+      altura: 50,
+      raioBorda: 12,
+      espessuraBorda: 0,
+    },
 
-    atualizarObjeto(objetoAtual.id, {
-      forma: novaForma,
-      largura: tamanho,
-      altura: tamanho,
+    PILULA: {
+      largura: 140,
+      altura: 44,
       raioBorda: 999,
-    });
+      espessuraBorda: 0,
+    },
 
-    return;
-  }
+    CIRCULO: {
+      largura: 100,
+      altura: 100,
+      raioBorda: 999,
+      espessuraBorda: 0,
+    },
+
+    OVAL: {
+      largura: 140,
+      altura: 80,
+      raioBorda: 999,
+      espessuraBorda: 0,
+    },
+
+    LINHA: {
+      largura: 120,
+      altura: 6,
+      raioBorda: 999,
+      espessuraBorda: 0,
+    },
+
+    TRIANGULO: {
+      largura: 120,
+      altura: 90,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    LOSANGO: {
+      largura: 120,
+      altura: 80,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    PARALELOGRAMO: {
+      largura: 140,
+      altura: 60,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    SETA_DIREITA: {
+      largura: 140,
+      altura: 60,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    SETA_ESQUERDA: {
+      largura: 140,
+      altura: 60,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    SETA_CIMA: {
+      largura: 70,
+      altura: 120,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    SETA_BAIXO: {
+      largura: 70,
+      altura: 120,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    SETA_DUPLA_HORIZONTAL: {
+      largura: 150,
+      altura: 60,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+
+    SETA_DUPLA_VERTICAL: {
+      largura: 70,
+      altura: 150,
+      raioBorda: 0,
+      espessuraBorda: 0,
+    },
+  };
 
   atualizarObjeto(objetoAtual.id, {
     forma: novaForma,
-    ...(novaForma === "LINHA"
-      ? {
-          altura: 6,
-          raioBorda: 999,
-          espessuraBorda: 0,
-        }
-      : {}),
-    ...(novaForma === "PILULA" || novaForma === "OVAL"
-      ? {
-          raioBorda: 999,
-        }
-      : {}),
+    ...medidasPorForma[novaForma],
   });
 }}
   className="phanyx-crachas-input"
