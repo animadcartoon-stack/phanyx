@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken, temPermissao } from "@/lib/server-auth";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { getUserFromToken } from "@/lib/server-auth";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
-
+import { gerarCertificadoPdf } from "@/lib/certificados/gerarCertificado";
 
 function gerarCodigoCertificado(
   instituicaoId: number,
@@ -22,31 +21,19 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-if (!user || !user.instituicaoId) {
-  return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
-}
-
-if (!temPermissao(user, "certificados.emitir")) {
-  return NextResponse.json(
-    { error: "Você não tem permissão para gerar certificados." },
-    { status: 403 }
-  );
-}
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
 
     const instituicao = await prisma.instituicao.findUnique({
       where: { id: user.instituicaoId },
-      select: {
-        plano: true,
-        statusAssinatura: true,
-        isentaPagamento: true,
-      },
     });
 
     const podeGerarCertificado =
-      planoTemRecurso(instituicao?.plano, "CERTIFICADOS_AUTOMATICOS") &&
+      planoTemRecurso((instituicao as any)?.plano, "CERTIFICADOS_AUTOMATICOS") &&
       assinaturaPermiteUso(
-        instituicao?.statusAssinatura,
-        instituicao?.isentaPagamento
+        (instituicao as any)?.statusAssinatura,
+        (instituicao as any)?.isentaPagamento
       );
 
     if (!podeGerarCertificado) {
@@ -67,10 +54,7 @@ if (!temPermissao(user, "certificados.emitir")) {
       : null;
 
     if (!Number.isFinite(alunoId) || alunoId <= 0) {
-      return NextResponse.json(
-        { error: "Aluno inválido." },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Aluno inválido." }, { status: 400 });
     }
 
     const aluno = await prisma.aluno.findFirst({
@@ -85,6 +69,7 @@ if (!temPermissao(user, "certificados.emitir")) {
           },
           include: {
             curso: true,
+            polo: true,
             itens: {
               orderBy: {
                 id: "asc",
@@ -144,11 +129,7 @@ if (!temPermissao(user, "certificados.emitir")) {
 
     const codigo =
       existente?.codigo ||
-      gerarCodigoCertificado(
-        user.instituicaoId,
-        aluno.id,
-        disciplina.id
-      );
+      gerarCodigoCertificado(user.instituicaoId, aluno.id, disciplina.id);
 
     const certificado = await prisma.certificado.upsert({
       where: {
@@ -173,69 +154,106 @@ if (!temPermissao(user, "certificados.emitir")) {
 
     const deveBaixar = body.baixar === true;
 
-if (!deveBaixar) {
-  return NextResponse.json({
-    sucesso: true,
-    mensagem: "Certificado gerado com sucesso.",
-    certificado: {
-      id: certificado.id,
-      codigo: certificado.codigo,
-      alunoId: aluno.id,
-      alunoNome: aluno.nome,
-      disciplinaId: disciplina.id,
-      disciplinaNome: disciplina.nome,
-      emitidoEm: certificado.emitidoEm,
-    },
-  });
-}
+    if (!deveBaixar) {
+      return NextResponse.json({
+        sucesso: true,
+        mensagem: "Certificado gerado com sucesso.",
+        certificado: {
+          id: certificado.id,
+          codigo: certificado.codigo,
+          alunoId: aluno.id,
+          alunoNome: aluno.nome,
+          disciplinaId: disciplina.id,
+          disciplinaNome: disciplina.nome,
+          emitidoEm: certificado.emitidoEm,
+        },
+      });
+    }
 
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage([842, 595]);
+    const templateUrl = (instituicao as any)?.certificadoTemplateUrl;
 
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    if (!templateUrl) {
+      return NextResponse.json(
+        { error: "A instituição ainda não configurou o modelo de certificado." },
+        { status: 400 }
+      );
+    }
 
-    page.drawText("Certificado de Conclusão", {
-      x: 250,
-      y: 450,
-      size: 26,
-      font: fontBold,
-      color: rgb(0, 0, 0),
+    const templateResponse = await fetch(templateUrl);
+
+    if (!templateResponse.ok) {
+      return NextResponse.json(
+        { error: "Não foi possível carregar o modelo de certificado." },
+        { status: 500 }
+      );
+    }
+
+    const camposModelo = await prisma.certificadoCampo.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+      },
+      orderBy: {
+        ordem: "asc",
+      },
     });
 
-    page.drawText(`Certificamos que ${aluno.nome}`, {
-      x: 180,
-      y: 360,
-      size: 18,
-      font,
-      color: rgb(0, 0, 0),
-    });
+    const matriculaAtual = aluno.matriculas?.[0] || null;
 
-    page.drawText(`concluiu com aprovação: ${disciplina.nome}`, {
-      x: 180,
-      y: 320,
-      size: 18,
-      font,
-      color: rgb(0, 0, 0),
-    });
+    const disciplinasConcluidas = aluno.matriculas
+      .flatMap((matricula) => matricula.itens)
+      .map((item) => item.disciplina?.nome)
+      .filter(Boolean)
+      .join("\n");
 
-    page.drawText(`Código de validação: ${certificado.codigo}`, {
-      x: 180,
-      y: 260,
-      size: 12,
-      font,
-      color: rgb(0, 0, 0),
-    });
+    const templateArrayBuffer = await templateResponse.arrayBuffer();
 
-    page.drawText(`Emitido em: ${new Date(certificado.emitidoEm).toLocaleDateString("pt-BR")}`, {
-      x: 180,
-      y: 235,
-      size: 12,
-      font,
-      color: rgb(0, 0, 0),
-    });
+    const pdfBytes = await gerarCertificadoPdf(
+      new Uint8Array(templateArrayBuffer),
+      {
+        nomeAluno: aluno.nome || "Aluno",
+        nomeCurso:
+          matriculaAtual?.curso?.nome ||
+          disciplina.nome ||
+          "Curso concluído pelo aluno",
+        nomeInstituicao: (instituicao as any)?.nome || "Instituição",
+        dataConclusao: certificado.emitidoEm,
+        codigoValidacao: certificado.codigo,
 
-    const pdfBytes = await pdfDoc.save();
+        numeroMatricula:
+          (matriculaAtual as any)?.numeroMatricula ||
+          (aluno as any)?.matricula ||
+          null,
+        cpfAluno: (aluno as any)?.cpf || null,
+        rgAluno: (aluno as any)?.rg || null,
+        cidade: (instituicao as any)?.certificadoCidade || null,
+        coordenadorNome: (instituicao as any)?.certificadoCoordenadorNome || null,
+        assinaturaUrl: (instituicao as any)?.certificadoAssinaturaUrl || null,
+        logoUrl:
+          (instituicao as any)?.logoUrl ||
+          (instituicao as any)?.logo ||
+          (instituicao as any)?.imagemUrl ||
+          null,
+
+        disciplinasConcluidas:
+          disciplinasConcluidas || disciplina.nome || "Disciplina concluída",
+        cargaHoraria:
+          (disciplina as any)?.cargaHoraria
+            ? `${(disciplina as any).cargaHoraria} horas`
+            : null,
+        anoConclusao: String(new Date(certificado.emitidoEm).getFullYear()),
+        aproveitamento: "100%",
+        frequenciaTotal: "100%",
+        modalidade: (matriculaAtual as any)?.modalidade || null,
+        turma:
+          matriculaAtual?.itens
+            ?.map((item) => (item as any)?.turma?.nome)
+            ?.filter(Boolean)
+            ?.join(", ") || null,
+        polo: (matriculaAtual as any)?.polo?.nome || null,
+        cnpjInstituicao: (instituicao as any)?.cnpj || null,
+      },
+      camposModelo
+    );
 
     return new NextResponse(Buffer.from(pdfBytes), {
       headers: {

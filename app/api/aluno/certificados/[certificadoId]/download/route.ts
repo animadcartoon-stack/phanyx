@@ -22,42 +22,42 @@ export async function GET(
 
     const user = await getUserFromToken();
 
-if (!user || user.role !== "ALUNO") {
-  return NextResponse.json(
-    { error: "Não autorizado." },
-    { status: 401 }
-  );
-}
+    if (!user || user.role !== "ALUNO") {
+      return NextResponse.json(
+        { error: "Não autorizado." },
+        { status: 401 }
+      );
+    }
 
-const aluno = await prisma.aluno.findFirst({
-  where: {
-    userId: user.id,
-    instituicaoId: user.instituicaoId,
-  },
-  select: {
-    id: true,
-  },
-});
+    const alunoLogado = await prisma.aluno.findFirst({
+      where: {
+        userId: user.id,
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        id: true,
+      },
+    });
 
-if (!aluno) {
-  return NextResponse.json(
-    { error: "Aluno não encontrado." },
-    { status: 404 }
-  );
-}
+    if (!alunoLogado) {
+      return NextResponse.json(
+        { error: "Aluno não encontrado." },
+        { status: 404 }
+      );
+    }
 
-const certificado = await prisma.certificado.findFirst({
-  where: {
-    id,
-    alunoId: aluno.id,
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-    aluno: true,
-    disciplina: true,
-    instituicao: true,
-  },
-});
+    const certificado = await prisma.certificado.findFirst({
+      where: {
+        id,
+        alunoId: alunoLogado.id,
+        instituicaoId: user.instituicaoId,
+      },
+      include: {
+        aluno: true,
+        disciplina: true,
+        instituicao: true,
+      },
+    });
 
     if (!certificado) {
       return NextResponse.json(
@@ -66,14 +66,14 @@ const certificado = await prisma.certificado.findFirst({
       );
     }
 
-    if (!certificado.instituicao?.certificadoTemplateUrl) {
+    const templateUrl = (certificado.instituicao as any)?.certificadoTemplateUrl;
+
+    if (!templateUrl) {
       return NextResponse.json(
         { error: "A instituição ainda não configurou o modelo de certificado." },
         { status: 400 }
       );
     }
-
-    const templateUrl = certificado.instituicao.certificadoTemplateUrl;
 
     const templateResponse = await fetch(templateUrl);
 
@@ -84,21 +84,94 @@ const certificado = await prisma.certificado.findFirst({
       );
     }
 
+    const matriculaAtual = await prisma.matricula.findFirst({
+      where: {
+        alunoId: certificado.alunoId,
+        instituicaoId: user.instituicaoId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      include: {
+        curso: true,
+        polo: true,
+        itens: {
+          orderBy: {
+            id: "asc",
+          },
+          include: {
+            disciplina: true,
+          },
+        },
+      },
+    });
+
+    const camposModelo = await prisma.certificadoCampo.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+      },
+      orderBy: {
+        ordem: "asc",
+      },
+    });
+
+    const disciplinasConcluidas =
+      matriculaAtual?.itens
+        ?.map((item) => item.disciplina?.nome)
+        ?.filter(Boolean)
+        ?.join("\n") || certificado.disciplina?.nome;
+
     const templateArrayBuffer = await templateResponse.arrayBuffer();
 
     const pdfBytes = await gerarCertificadoPdf(
-  new Uint8Array(templateArrayBuffer),
-  {
-    nomeAluno: certificado.aluno?.nome || "Aluno",
-    nomeCurso: certificado.disciplina?.nome || "Disciplina",
-    nomeInstituicao: certificado.instituicao?.nome || "Instituição",
-    dataConclusao: certificado.emitidoEm,
-    codigoValidacao: certificado.codigo,
-    cidade: certificado.instituicao?.certificadoCidade || null,
-    coordenadorNome:
-      certificado.instituicao?.certificadoCoordenadorNome || null,
-  }
-);
+      new Uint8Array(templateArrayBuffer),
+      {
+        nomeAluno: certificado.aluno?.nome || "Aluno",
+        nomeCurso:
+          matriculaAtual?.curso?.nome ||
+          certificado.disciplina?.nome ||
+          "Curso concluído pelo aluno",
+        nomeInstituicao: certificado.instituicao?.nome || "Instituição",
+        dataConclusao: certificado.emitidoEm,
+        codigoValidacao: certificado.codigo,
+
+        numeroMatricula:
+          (matriculaAtual as any)?.numeroMatricula ||
+          (certificado.aluno as any)?.matricula ||
+          null,
+        cpfAluno: (certificado.aluno as any)?.cpf || null,
+        rgAluno: (certificado.aluno as any)?.rg || null,
+        cidade: (certificado.instituicao as any)?.certificadoCidade || null,
+        coordenadorNome:
+          (certificado.instituicao as any)?.certificadoCoordenadorNome || null,
+        assinaturaUrl:
+          (certificado.instituicao as any)?.certificadoAssinaturaUrl || null,
+        logoUrl:
+          (certificado.instituicao as any)?.logoUrl ||
+          (certificado.instituicao as any)?.logo ||
+          (certificado.instituicao as any)?.imagemUrl ||
+          null,
+
+        disciplinasConcluidas:
+          disciplinasConcluidas || certificado.disciplina?.nome || null,
+        cargaHoraria:
+          (certificado.disciplina as any)?.cargaHoraria
+            ? `${(certificado.disciplina as any).cargaHoraria} horas`
+            : null,
+        anoConclusao: String(new Date(certificado.emitidoEm).getFullYear()),
+        aproveitamento: "100%",
+        frequenciaTotal: "100%",
+        modalidade: (matriculaAtual as any)?.modalidade || null,
+        turma:
+          matriculaAtual?.itens
+            ?.map((item) => (item as any)?.turma?.nome)
+            ?.filter(Boolean)
+            ?.join(", ") || null,
+        polo: (matriculaAtual as any)?.polo?.nome || null,
+        cnpjInstituicao: (certificado.instituicao as any)?.cnpj || null,
+      },
+      camposModelo
+    );
 
     return new NextResponse(Buffer.from(pdfBytes), {
       status: 200,
