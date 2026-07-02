@@ -88,6 +88,18 @@ const [objetosVerso, setObjetosVerso] =
 const [objetoSelecionado, setObjetoSelecionado] =
   useState<number | null>(null);
 
+const [menuContexto, setMenuContexto] = useState<{
+  aberto: boolean;
+  x: number;
+  y: number;
+  objetoId: number | null;
+}>({
+  aberto: false,
+  x: 0,
+  y: 0,
+  objetoId: null,
+});  
+
 const inputImagemRef = useRef<HTMLInputElement | null>(null);
 const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
 
@@ -686,8 +698,8 @@ function trazerParaFrente() {
   if (!objetoAtual) return;
 
   const maiorOrdem = Math.max(
-    0,
-    ...objetos.map((obj) => obj.ordem || 0)
+    1,
+    ...objetos.map((obj) => Math.max(1, obj.ordem || 1))
   );
 
   atualizarObjeto(objetoAtual.id, {
@@ -698,18 +710,87 @@ function trazerParaFrente() {
 function enviarParaTras() {
   if (!objetoAtual) return;
 
-  const menorOrdem = Math.min(
-    0,
-    ...objetos.map((obj) => obj.ordem || 0)
-  );
-
   atualizarObjeto(objetoAtual.id, {
-    ordem: menorOrdem - 1,
+    ordem: 1,
   });
 }
 
+function abrirMenuContexto(
+  e: React.MouseEvent<HTMLDivElement>,
+  objetoId: number
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setObjetoSelecionado(objetoId);
+
+  setMenuContexto({
+    aberto: true,
+    x: e.clientX,
+    y: e.clientY,
+    objetoId,
+  });
+}
+
+function fecharMenuContexto() {
+  setMenuContexto({
+    aberto: false,
+    x: 0,
+    y: 0,
+    objetoId: null,
+  });
+}
+
+function trazerObjetoParaFrentePorId(objetoId: number) {
+  const maiorOrdem = Math.max(
+    1,
+    ...objetos.map((obj) => Math.max(1, obj.ordem || 1))
+  );
+
+  atualizarObjeto(objetoId, {
+    ordem: maiorOrdem + 1,
+  });
+
+  fecharMenuContexto();
+}
+
+function enviarObjetoParaTrasPorId(objetoId: number) {
+  atualizarObjeto(objetoId, {
+    ordem: 1,
+  });
+
+  fecharMenuContexto();
+}
+
+function duplicarObjetoPorId(objetoId: number) {
+  const objeto = objetos.find((obj) => obj.id === objetoId);
+
+  if (!objeto) return;
+
+  const novoObjeto = {
+    ...objeto,
+    id: Date.now(),
+    x: objeto.x + 12,
+    y: objeto.y + 12,
+    ordem: Date.now(),
+  } as ObjetoCracha;
+
+  setObjetos((atual) => [...atual, novoObjeto]);
+  setObjetoSelecionado(novoObjeto.id);
+  fecharMenuContexto();
+}
+
+function excluirObjetoPorId(objetoId: number) {
+  setObjetos((atual) => atual.filter((obj) => obj.id !== objetoId));
+  setObjetoSelecionado(null);
+  fecharMenuContexto();
+}
+
   return (
-    <div className="phanyx-crachas-page p-4">
+    <div
+  className="phanyx-crachas-page p-4"
+  onMouseDown={() => fecharMenuContexto()}
+>
       {/* Barra Superior */}
 
       <div className="phanyx-crachas-card mb-4 flex flex-wrap items-center justify-between gap-3 p-4">
@@ -777,6 +858,62 @@ function enviarParaTras() {
     }`}
   >
     {avisoCracha.texto}
+  </div>
+)}
+
+{menuContexto.aberto && menuContexto.objetoId && (
+  <div
+    className="fixed z-[9999] w-56 rounded-2xl border border-slate-300 bg-white p-2 text-sm font-semibold text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+    style={{
+      left: menuContexto.x,
+      top: menuContexto.y,
+    }}
+    onMouseDown={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
+  >
+    <button
+      type="button"
+      onClick={() =>
+        trazerObjetoParaFrentePorId(menuContexto.objetoId!)
+      }
+      className="w-full rounded-xl px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
+    >
+      Trazer para frente
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        enviarObjetoParaTrasPorId(menuContexto.objetoId!)
+      }
+      className="w-full rounded-xl px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
+    >
+      Enviar para trás
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        duplicarObjetoPorId(menuContexto.objetoId!)
+      }
+      className="w-full rounded-xl px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
+    >
+      Duplicar
+    </button>
+
+    <div className="my-1 border-t border-slate-200 dark:border-slate-800" />
+
+    <button
+      type="button"
+      onClick={() =>
+        excluirObjetoPorId(menuContexto.objetoId!)
+      }
+      className="w-full rounded-xl px-3 py-2 text-left text-red-600 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950"
+    >
+      Excluir
+    </button>
   </div>
 )}
 
@@ -896,6 +1033,7 @@ function enviarParaTras() {
                 return (
                   <div
                     key={objeto.id}
+                    onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
                     onMouseDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
@@ -944,7 +1082,7 @@ function enviarParaTras() {
     objetoSelecionado === objeto.id
       ? "1px dashed #2563eb"
       : "1px solid transparent",
-      zIndex: objeto.ordem || 1,
+      zIndex: Math.max(1, objeto.ordem || 1),
 }}
                   >
   {objeto.texto}
@@ -985,6 +1123,7 @@ function enviarParaTras() {
   return (
     <div
       key={objeto.id}
+      onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
       onMouseDown={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1027,12 +1166,12 @@ function enviarParaTras() {
         textAlign: objeto.alinhamento,
         display: "flex",
         alignItems: "center",
-        overflow: "hidden",
+        overflow: "visible",
         border:
           objetoSelecionado === objeto.id
             ? "1px dashed #2563eb"
             : "1px solid transparent",
-            zIndex: objeto.ordem || 1,
+            zIndex: Math.max(1, objeto.ordem || 1),
       }}
     >
       {objeto.campo}
@@ -1045,6 +1184,7 @@ if (objeto.tipo === "IMAGEM") {
   return (
     <div
       key={objeto.id}
+      onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
       onMouseDown={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1090,7 +1230,7 @@ if (objeto.tipo === "IMAGEM") {
             : "1px solid #94a3b8",
         borderRadius: objeto.raioBorda,
         boxShadow: sombraImagemBoxCss(objeto),
-        zIndex: objeto.ordem || 1,
+        zIndex: Math.max(1, objeto.ordem || 1),
       }}
     >
       <div
