@@ -3141,18 +3141,6 @@ name="busca-alunos-phanyx"
       </button>
     </div>
 
-    <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100">
-      <p className="font-semibold">
-        Próxima etapa obrigatória
-      </p>
-
-      <p className="mt-1 leading-6">
-        Depois vamos ligar esta ação às permissões:
-        certificados.gerar, certificados.gerar_manual e
-        certificados.liberar_sem_conclusao. Assim, nem todo funcionário poderá
-        emitir certificado para aluno não finalizado.
-      </p>
-    </div>
   </section>
 )}
 
