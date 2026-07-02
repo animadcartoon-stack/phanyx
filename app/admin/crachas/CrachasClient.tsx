@@ -22,40 +22,55 @@ type ObjetoCracha =
       ordem: number;
     }
   | {
-    id: number;
-    tipo: "CAMPO";
-    campo: string;
-    rotulo: string;
-    x: number;
-    y: number;
-    fonte: number;
-    cor: string;
-    alinhamento: "left" | "center" | "right";
-    largura: number;
-    altura: number;
-    ordem: number;
-  }
+      id: number;
+      tipo: "CAMPO";
+      campo: string;
+      rotulo: string;
+      x: number;
+      y: number;
+      fonte: number;
+      cor: string;
+      alinhamento: "left" | "center" | "right";
+      largura: number;
+      altura: number;
+      ordem: number;
+    }
   | {
-    id: number;
-    tipo: "IMAGEM";
-    origem: "FOTO" | "LOGO" | "UPLOAD";
-    rotulo: string;
-    url?: string;
-    x: number;
-    y: number;
-    largura: number;
-    altura: number;
-    raioBorda: number;
-    ajusteImagem: "cover" | "contain";
-    sombraAtiva?: boolean;
-    sombraModo?: "DROP" | "BOX";
-    sombraX?: number;
-    sombraY?: number;
-    sombraBlur?: number;
-    sombraCor?: string;
-    ordem: number;
-  };
-
+      id: number;
+      tipo: "IMAGEM";
+      origem: "FOTO" | "LOGO" | "UPLOAD";
+      rotulo: string;
+      url?: string;
+      x: number;
+      y: number;
+      largura: number;
+      altura: number;
+      raioBorda: number;
+      ajusteImagem: "cover" | "contain";
+      sombraAtiva?: boolean;
+      sombraModo?: "DROP" | "BOX";
+      sombraX?: number;
+      sombraY?: number;
+      sombraBlur?: number;
+      sombraCor?: string;
+      ordem: number;
+    }
+  | {
+      id: number;
+      tipo: "FORMA";
+      forma: "RETANGULO" | "CIRCULO";
+      x: number;
+      y: number;
+      largura: number;
+      altura: number;
+      corFundo: string;
+      corBorda: string;
+      espessuraBorda: number;
+      raioBorda: number;
+      opacidade: number;
+      ordem: number;
+    };
+    
   type TipoFuroCracha =
   | "SEM_FURO"
   | "RASGO_HORIZONTAL"
@@ -213,6 +228,27 @@ function adicionarLogo() {
       sombraY: 2,
       sombraBlur: 6,
       sombraCor: "#000000",
+    },
+  ]);
+}
+
+function adicionarForma() {
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: Date.now(),
+      tipo: "FORMA",
+      forma: "RETANGULO",
+      x: 30,
+      y: 30,
+      largura: 120,
+      altura: 50,
+      corFundo: "#2563eb",
+      corBorda: "#1e40af",
+      espessuraBorda: 0,
+      raioBorda: 12,
+      opacidade: 100,
+      ordem: Date.now(),
     },
   ]);
 }
@@ -574,6 +610,74 @@ function redimensionarImagem(
       y: novoY,
       largura: Math.max(20, novaLargura),
       altura: Math.max(20, novaAltura),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
+function redimensionarForma(
+  e: React.MouseEvent<HTMLSpanElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>,
+  canto: "nw" | "ne" | "sw" | "se"
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setObjetoSelecionado(objeto.id);
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+
+  const xOriginal = objeto.x;
+  const yOriginal = objeto.y;
+  const larguraOriginal = objeto.largura;
+  const alturaOriginal = objeto.altura;
+
+  function mover(ev: MouseEvent) {
+    const dx = ev.clientX - inicioX;
+    const dy = ev.clientY - inicioY;
+
+    let novoX = xOriginal;
+    let novoY = yOriginal;
+    let novaLargura = larguraOriginal;
+    let novaAltura = alturaOriginal;
+
+    if (canto === "se") {
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "sw") {
+      novoX = xOriginal + dx;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "ne") {
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    if (canto === "nw") {
+      novoX = xOriginal + dx;
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    atualizarObjeto(objeto.id, {
+      x: novoX,
+      y: novoY,
+      largura: Math.max(10, novaLargura),
+      altura: Math.max(10, novaAltura),
     });
   }
 
@@ -967,11 +1071,12 @@ function excluirObjetoPorId(objetoId: number) {
 </button>
 
             <button
-              type="button"
-              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-            >
-              ⬛ Forma
-            </button>
+  type="button"
+  onClick={adicionarForma}
+  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  ⬛ Forma
+</button>
 
             <button
               type="button"
@@ -1292,6 +1397,94 @@ if (objeto.tipo === "IMAGEM") {
     />
   </>
 )}
+    </div>
+  );
+}
+
+if (objeto.tipo === "FORMA") {
+  return (
+    <div
+      key={objeto.id}
+      onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setObjetoSelecionado(objeto.id);
+
+        const inicioX = e.clientX;
+        const inicioY = e.clientY;
+        const xOriginal = objeto.x;
+        const yOriginal = objeto.y;
+
+        function mover(ev: MouseEvent) {
+          const novoX = xOriginal + ev.clientX - inicioX;
+          const novoY = yOriginal + ev.clientY - inicioY;
+
+          atualizarObjeto(objeto.id, {
+            x: novoX,
+            y: novoY,
+          });
+        }
+
+        function soltar() {
+          window.removeEventListener("mousemove", mover);
+          window.removeEventListener("mouseup", soltar);
+        }
+
+        window.addEventListener("mousemove", mover);
+        window.addEventListener("mouseup", soltar);
+      }}
+      style={{
+        position: "absolute",
+        left: objeto.x,
+        top: objeto.y,
+        width: objeto.largura,
+        height: objeto.altura,
+        zIndex: Math.max(1, objeto.ordem || 1),
+        cursor: "move",
+        overflow: "visible",
+        backgroundColor: objeto.corFundo,
+        border: `${objeto.espessuraBorda}px solid ${objeto.corBorda}`,
+        borderRadius:
+          objeto.forma === "CIRCULO" ? "9999px" : objeto.raioBorda,
+        opacity: objeto.opacidade / 100,
+        boxSizing: "border-box",
+        outline:
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : "none",
+      }}
+    >
+      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+
+      {objetoSelecionado === objeto.id && (
+        <>
+          <span
+            onMouseDown={(e) => redimensionarForma(e, objeto, "nw")}
+            className="absolute -left-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nwse-resize" }}
+          />
+
+          <span
+            onMouseDown={(e) => redimensionarForma(e, objeto, "ne")}
+            className="absolute -right-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nesw-resize" }}
+          />
+
+          <span
+            onMouseDown={(e) => redimensionarForma(e, objeto, "sw")}
+            className="absolute -bottom-1.5 -left-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nesw-resize" }}
+          />
+
+          <span
+            onMouseDown={(e) => redimensionarForma(e, objeto, "se")}
+            className="absolute -bottom-1.5 -right-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nwse-resize" }}
+          />
+        </>
+      )}
     </div>
   );
 }
@@ -1964,6 +2157,180 @@ if (objeto.tipo === "IMAGEM") {
 
   </div>
           )}
+
+{objetoAtual?.tipo === "FORMA" && (
+  <div className="space-y-4">
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        Forma
+      </p>
+
+      <select
+        value={objetoAtual.forma}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            forma: e.target.value as "RETANGULO" | "CIRCULO",
+          })
+        }
+        className="phanyx-crachas-input"
+      >
+        <option value="RETANGULO">Retângulo / faixa</option>
+        <option value="CIRCULO">Círculo / oval</option>
+      </select>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block text-xs font-semibold">X</label>
+        <input
+          type="number"
+          value={Math.round(objetoAtual.x)}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              x: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-xs font-semibold">Y</label>
+        <input
+          type="number"
+          value={Math.round(objetoAtual.y)}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              y: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block text-xs font-semibold">Largura</label>
+        <input
+          type="number"
+          value={objetoAtual.largura}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              largura: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-xs font-semibold">Altura</label>
+        <input
+          type="number"
+          value={objetoAtual.altura}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              altura: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Cor de preenchimento
+      </label>
+
+      <input
+        type="color"
+        value={objetoAtual.corFundo}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            corFundo: e.target.value,
+          })
+        }
+        className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Cor da borda
+      </label>
+
+      <input
+        type="color"
+        value={objetoAtual.corBorda}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            corBorda: e.target.value,
+          })
+        }
+        className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Espessura da borda
+      </label>
+
+      <input
+        type="number"
+        value={objetoAtual.espessuraBorda}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            espessuraBorda: Number(e.target.value),
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Arredondamento
+      </label>
+
+      <input
+        type="number"
+        value={objetoAtual.raioBorda}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            raioBorda: Number(e.target.value),
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Opacidade
+      </label>
+
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={objetoAtual.opacidade}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            opacidade: Number(e.target.value),
+          })
+        }
+        className="w-full"
+      />
+
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+        {objetoAtual.opacidade}%
+      </p>
+    </div>
+  </div>
+)}
 
           <div className="mt-6">
             <label className="mb-2 block font-semibold">
