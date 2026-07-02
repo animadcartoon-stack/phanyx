@@ -826,7 +826,7 @@ function renderFuroCracha() {
 
         {/* Canvas */}
 
-        <div className="phanyx-crachas-card phanyx-crachas-canvas-area col-span-8 flex items-center justify-center p-8">
+<div className="phanyx-crachas-card phanyx-crachas-canvas-area col-span-7 flex items-center justify-center p-8">
           <div
             className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
             style={{
@@ -1123,7 +1123,7 @@ if (objeto.tipo === "IMAGEM") {
 
         {/* Propriedades */}
 
-<div className="phanyx-crachas-card col-span-2 h-[calc(100vh-260px)] min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-4 pr-3 pb-28">
+<div className="phanyx-crachas-card col-span-3 h-[calc(100vh-260px)] min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-4 pr-3 pb-28">
           <h2 className="mb-4 font-bold">
             Propriedades
           </h2>
@@ -1371,7 +1371,7 @@ if (objeto.tipo === "IMAGEM") {
             </div>
           )}
 
-{objetoAtual?.tipo === "CAMPO" && (
+          {objetoAtual?.tipo === "CAMPO" && (
   <div className="space-y-4">
     <div>
       <label className="mb-2 block font-semibold">
@@ -1507,9 +1507,9 @@ if (objeto.tipo === "IMAGEM") {
       />
     </div>
   </div>
-)}
+          )}
 
-{objetoAtual?.tipo === "IMAGEM" && (
+          {objetoAtual?.tipo === "IMAGEM" && (
   <div className="space-y-4">
     <div>
       <label className="mb-2 block font-semibold">
@@ -1757,7 +1757,7 @@ if (objeto.tipo === "IMAGEM") {
 </div>
 
   </div>
-)}
+          )}
 
           <div className="mt-6">
             <label className="mb-2 block font-semibold">
