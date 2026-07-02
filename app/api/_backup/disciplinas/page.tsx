@@ -8,6 +8,8 @@ function AdminDisciplinasPage() {
   const [professores, setProfessores] = useState<any[]>([]);
   const [nome, setNome] = useState("");
   const [professorId, setProfessorId] = useState("");
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
   async function carregarDados() {
     const [resDisc, resProf] = await Promise.all([
@@ -36,7 +38,8 @@ function AdminDisciplinasPage() {
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.error);
+      setSucesso("");
+      setErro(data.error || "Não foi possível criar a disciplina.");
       return;
     }
 
@@ -45,12 +48,42 @@ function AdminDisciplinasPage() {
     carregarDados();
   }
 
+  setErro("");
+  setSucesso("Disciplina criada com sucesso.");
+
   useEffect(() => {
     carregarDados();
   }, []);
 
   return (
     <div className="space-y-6">
+
+{(erro || sucesso) && (
+  <div
+    className={`rounded-2xl border px-4 py-3 text-sm font-bold ${
+      erro
+        ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/60 dark:text-red-100"
+        : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/60 dark:text-emerald-100"
+    }`}
+  >
+    <div className="flex items-start justify-between gap-4">
+      <p>{erro || sucesso}</p>
+
+      <button
+        type="button"
+        onClick={() => {
+          setErro("");
+          setSucesso("");
+        }}
+        className="rounded-full px-2 text-lg leading-none opacity-70 transition hover:opacity-100"
+        aria-label="Fechar aviso"
+      >
+        ×
+      </button>
+    </div>
+  </div>
+)}
+
       <h1 className="text-2xl font-bold">📚 Disciplinas</h1>
 
       <div className="bg-white p-4 border rounded-lg space-y-3 max-w-md">

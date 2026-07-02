@@ -34,6 +34,8 @@ export default function OuvidoriaAdminPage() {
   const [novoTitulo, setNovoTitulo] = useState("");
   const [novaMensagem, setNovaMensagem] = useState("");
   const [novaPrioridade, setNovaPrioridade] = useState("NORMAL");
+  const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
 
 useEffect(() => {
   async function carregarOuvidoria() {
@@ -86,9 +88,13 @@ async function marcarComoResolvido(id: number) {
         item.id === id ? { ...item, status: "RESOLVIDO" } : item
       )
     );
+
+    setErro("");
+    setSucesso("Manifestação marcada como resolvida.");
+
   } catch (error) {
     console.error(error);
-    alert("Não foi possível marcar como resolvido.");
+    setErro("Não foi possível marcar como resolvido.");
   } finally {
     setAtualizandoId(null);
   }
@@ -112,7 +118,8 @@ function gerarRespostaSugerida(item: ChamadoOuvidoria) {
 
 async function salvarNovoChamado() {
   if (!novaMensagem.trim()) {
-    alert("Escreva a mensagem da manifestação antes de salvar.");
+    setSucesso("");
+setErro("Escreva a mensagem da manifestação antes de salvar.");
     return;
   }
 
@@ -143,9 +150,11 @@ async function salvarNovoChamado() {
     setNovoTitulo("");
     setNovaMensagem("");
     setNovaPrioridade("NORMAL");
+    setErro("");
+    setSucesso("Manifestação criada com sucesso.");
   } catch (error) {
     console.error(error);
-    alert("Não foi possível criar a manifestação.");
+    setErro("Não foi possível criar a manifestação.");
   }
 }
 
@@ -158,7 +167,8 @@ async function salvarResposta() {
   if (!chamadoSelecionado) return;
 
   if (!respostaTexto.trim()) {
-    alert("Escreva uma resposta antes de salvar.");
+    setSucesso("");
+setErro("Escreva uma resposta antes de salvar.");
     return;
   }
 
@@ -196,9 +206,11 @@ async function salvarResposta() {
 
     setChamadoSelecionado(null);
     setRespostaTexto("");
+    setErro("");
+    setSucesso("Resposta salva com sucesso.");
   } catch (error) {
     console.error(error);
-    alert("Não foi possível salvar a resposta.");
+    setErro("Não foi possível salvar a resposta.");
   } finally {
     setSalvandoResposta(false);
   }
@@ -216,6 +228,35 @@ async function salvarResposta() {
 
   return (
     <div className="space-y-8">
+
+{(erro || sucesso) && (
+  <div className="fixed right-4 top-4 z-[99999] w-[calc(100%-2rem)] max-w-md">
+    <div
+      className={`rounded-2xl border px-5 py-4 text-sm font-bold shadow-2xl backdrop-blur ${
+        erro
+          ? "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/80 dark:text-red-100"
+          : "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/80 dark:text-emerald-100"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <p>{erro || sucesso}</p>
+
+        <button
+          type="button"
+          onClick={() => {
+            setErro("");
+            setSucesso("");
+          }}
+          className="rounded-full px-2 text-lg leading-none opacity-70 transition hover:opacity-100"
+          aria-label="Fechar aviso"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       <div>
         <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
           PHANYX IA
