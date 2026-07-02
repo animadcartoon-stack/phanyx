@@ -6403,7 +6403,8 @@ return;
         </>
       )}
     </div>
-
+    </div>
+)}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-slate-600">
@@ -6723,9 +6724,7 @@ atualizarCampoLocal("tamanho", tamanho);
                     <option value="right">Direita</option>
                   </select>
                   </div>
-    </div>
-)}
-
+    
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
     type="button"
