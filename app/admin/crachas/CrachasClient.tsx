@@ -62,6 +62,7 @@ type ObjetoCracha =
   |   "RETANGULO"
   |   "PILULA"
   |   "CIRCULO"
+  |   "OVAL"
   |   "LINHA"
   |   "TRIANGULO"
   |   "LOSANGO"
@@ -950,6 +951,7 @@ function borderRadiusForma(
 ) {
   if (
     objeto.forma === "CIRCULO" ||
+    objeto.forma === "OVAL" ||
     objeto.forma === "PILULA" ||
     objeto.forma === "LINHA"
   ) {
@@ -2255,32 +2257,46 @@ clipPath: clipPathForma(objeto),
       <select
   value={objetoAtual.forma}
   onChange={(e) => {
-    const novaForma = e.target.value as Extract<
-      ObjetoCracha,
-      { tipo: "FORMA" }
-    >["forma"];
+  const novaForma = e.target.value as Extract<
+    ObjetoCracha,
+    { tipo: "FORMA" }
+  >["forma"];
+
+  if (novaForma === "CIRCULO") {
+    const tamanho = Math.max(objetoAtual.largura, objetoAtual.altura);
 
     atualizarObjeto(objetoAtual.id, {
       forma: novaForma,
-      ...(novaForma === "LINHA"
-        ? {
-            altura: 6,
-            raioBorda: 999,
-            espessuraBorda: 0,
-          }
-        : {}),
-      ...(novaForma === "PILULA"
-        ? {
-            raioBorda: 999,
-          }
-        : {}),
+      largura: tamanho,
+      altura: tamanho,
+      raioBorda: 999,
     });
-  }}
+
+    return;
+  }
+
+  atualizarObjeto(objetoAtual.id, {
+    forma: novaForma,
+    ...(novaForma === "LINHA"
+      ? {
+          altura: 6,
+          raioBorda: 999,
+          espessuraBorda: 0,
+        }
+      : {}),
+    ...(novaForma === "PILULA" || novaForma === "OVAL"
+      ? {
+          raioBorda: 999,
+        }
+      : {}),
+  });
+}}
   className="phanyx-crachas-input"
 >
   <option value="RETANGULO">Retângulo / faixa</option>
   <option value="PILULA">Pílula / etiqueta arredondada</option>
-  <option value="CIRCULO">Círculo / oval</option>
+  <option value="CIRCULO">Círculo</option>
+  <option value="OVAL">Oval</option>
   <option value="LINHA">Linha</option>
   <option value="TRIANGULO">Triângulo</option>
   <option value="LOSANGO">Losango</option>
@@ -2330,11 +2346,22 @@ clipPath: clipPathForma(objeto),
         <input
           type="number"
           value={objetoAtual.largura}
-          onChange={(e) =>
-            atualizarObjeto(objetoAtual.id, {
-              largura: Number(e.target.value),
-            })
-          }
+          onChange={(e) => {
+  const valor = Number(e.target.value);
+
+  if (objetoAtual.forma === "CIRCULO") {
+    atualizarObjeto(objetoAtual.id, {
+      largura: valor,
+      altura: valor,
+    });
+
+    return;
+  }
+
+  atualizarObjeto(objetoAtual.id, {
+    largura: valor,
+  });
+}}
           className="phanyx-crachas-input"
         />
       </div>
@@ -2344,11 +2371,22 @@ clipPath: clipPathForma(objeto),
         <input
           type="number"
           value={objetoAtual.altura}
-          onChange={(e) =>
-            atualizarObjeto(objetoAtual.id, {
-              altura: Number(e.target.value),
-            })
-          }
+          onChange={(e) => {
+  const valor = Number(e.target.value);
+
+  if (objetoAtual.forma === "CIRCULO") {
+    atualizarObjeto(objetoAtual.id, {
+      largura: valor,
+      altura: valor,
+    });
+
+    return;
+  }
+
+  atualizarObjeto(objetoAtual.id, {
+    altura: valor,
+  });
+}}
           className="phanyx-crachas-input"
         />
       </div>
