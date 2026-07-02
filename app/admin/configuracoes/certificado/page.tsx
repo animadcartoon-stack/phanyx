@@ -7558,16 +7558,42 @@ iniciarDrag(event as any, c);
   nomeDiretorInstituicao || "Nome do diretor"
 ) : c.tipo === "NOME_ALUNO" ? (
   "José Exemplo da Silva"
+) : c.tipo === "NUMERO_MATRICULA" ? (
+  "Matrícula 000123"
+) : c.tipo === "CPF_ALUNO" ? (
+  "000.000.000-00"
+) : c.tipo === "RG_ALUNO" ? (
+  "00.000.000-0"
 ) : c.tipo === "NOME_CURSO" ? (
   "Curso concluído pelo aluno"
-) : c.tipo === "DATA_EMISSAO" ? (
+) : c.tipo === "CARGA_HORARIA" ? (
+  "120 horas"
+) : c.tipo === "ANO_CONCLUSAO" ? (
+  "2026"
+) : c.tipo === "DATA_CONCLUSAO" ? (
   "30/04/2026"
-) : c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
-  c.marcador
-    ? `${c.marcador} Disciplina 1\n${c.marcador} Disciplina 2\n${c.marcador} Disciplina 3`
-    : "Disciplina 1\nDisciplina 2\nDisciplina 3"
 ) : c.tipo === "APROVEITAMENTO" ? (
   "100%"
+) : c.tipo === "FREQUENCIA_TOTAL" ? (
+  "100%"
+) : c.tipo === "MODALIDADE" ? (
+  "EAD"
+) : c.tipo === "TURMA" ? (
+  "Turma A"
+) : c.tipo === "POLO" ? (
+  "Polo Sede"
+) : c.tipo === "NOME_INSTITUICAO" ? (
+  "Nome da Instituição"
+) : c.tipo === "CNPJ_INSTITUICAO" ? (
+  "00.000.000/0001-00"
+) : c.tipo === "CIDADE" ? (
+  certificadoCidade || "Cidade"
+) : c.tipo === "DATA_EMISSAO" ? (
+  "30/04/2026"
+) : c.tipo === "NUMERO_CERTIFICADO" ? (
+  "CERT-2026-0001"
+) : c.tipo === "CODIGO_VALIDACAO" ? (
+  "ABC123XYZ"
 ) : (
   c.tipo
 )}
