@@ -1658,8 +1658,16 @@ negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
       }
 
       setCampos((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, ...data } : c))
-      );
+  prev.map((c) =>
+    c.id === id
+      ? {
+          ...c,
+          ...data,
+          ...payload,
+        }
+      : c
+  )
+);
     } catch {
       setMensagemErro("Erro ao atualizar campo.");
     } finally {
