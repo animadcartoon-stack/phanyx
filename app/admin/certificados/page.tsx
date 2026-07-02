@@ -142,6 +142,14 @@ export default function AdminCertificadosPage() {
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoItem | null>(null);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  const [salvandoConfiguracao, setSalvandoConfiguracao] = useState(false);
+const [regraLiberacaoCertificado, setRegraLiberacaoCertificado] =
+  useState("CURSO_COMPLETO");
+const [mediaMinimaCertificado, setMediaMinimaCertificado] = useState("7");
+const [frequenciaMinimaCertificado, setFrequenciaMinimaCertificado] =
+  useState("75");
+const [liberarCertificadoAutomatico, setLiberarCertificadoAutomatico] =
+  useState(true);
 
   async function carregarAlunos(termo = "") {
   try {
@@ -213,6 +221,10 @@ export default function AdminCertificadosPage() {
     carregarAlunos();
   }, []);
 
+  useEffect(() => {
+  carregarConfiguracaoCertificados();
+}, []);
+
   const totalProntos = useMemo(
     () => alunos.filter((a) => a.statusCertificado === "PRONTO").length,
     [alunos]
@@ -245,6 +257,68 @@ export default function AdminCertificadosPage() {
   `${nomeAcao} do certificado de ${aluno.nome} será ligado no próximo passo.`
 );
   }
+
+  async function carregarConfiguracaoCertificados() {
+  try {
+    const res = await fetch("/api/admin/certificados/configuracao", {
+      cache: "no-store",
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      setErro(data?.error || "Erro ao carregar configuração de certificados.");
+      return;
+    }
+
+    setRegraLiberacaoCertificado(
+      data?.regraLiberacaoCertificado || "CURSO_COMPLETO"
+    );
+    setMediaMinimaCertificado(
+      String(data?.mediaMinimaCertificado ?? 7)
+    );
+    setFrequenciaMinimaCertificado(
+      String(data?.frequenciaMinimaCertificado ?? 75)
+    );
+    setLiberarCertificadoAutomatico(
+      data?.liberarCertificadoAutomatico !== false
+    );
+  } catch {
+    setErro("Erro ao carregar configuração de certificados.");
+  }
+}
+
+async function salvarConfiguracaoCertificados() {
+  try {
+    setSalvandoConfiguracao(true);
+
+    const res = await fetch("/api/admin/certificados/configuracao", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        regraLiberacaoCertificado,
+        mediaMinimaCertificado: Number(mediaMinimaCertificado),
+        frequenciaMinimaCertificado: Number(frequenciaMinimaCertificado),
+        liberarCertificadoAutomatico,
+      }),
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok || !data?.sucesso) {
+      setErro(data?.error || "Erro ao salvar configuração.");
+      return;
+    }
+
+    setSucesso("Configuração de certificados salva com sucesso.");
+  } catch {
+    setErro("Erro ao salvar configuração de certificados.");
+  } finally {
+    setSalvandoConfiguracao(false);
+  }
+}
 
   return (
   <div className="space-y-6">
@@ -280,6 +354,141 @@ export default function AdminCertificadosPage() {
           quando existir e prepare o fluxo de baixar ou enviar por email.
         </p>
       </div>
+
+<div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
+        Configuração da instituição
+      </p>
+
+      <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
+        Liberação automática de certificados
+      </h2>
+
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+        Defina quando o certificado ficará disponível automaticamente na área do aluno.
+        A emissão manual continua disponível para secretaria/diretoria quando houver autorização.
+      </p>
+    </div>
+
+    <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+      <input
+        type="checkbox"
+        checked={liberarCertificadoAutomatico}
+        onChange={(e) => setLiberarCertificadoAutomatico(e.target.checked)}
+      />
+      Liberar automaticamente
+    </label>
+  </div>
+
+  <div className="mt-5 grid gap-4 lg:grid-cols-4">
+    <button
+      type="button"
+      onClick={() => setRegraLiberacaoCertificado("DISCIPLINA_CONCLUIDA")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        regraLiberacaoCertificado === "DISCIPLINA_CONCLUIDA"
+          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
+          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+      }`}
+    >
+      <p className="font-bold">Por disciplina</p>
+      <p className="mt-1 text-xs leading-5">
+        O aluno recebe certificado quando concluir uma disciplina.
+      </p>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setRegraLiberacaoCertificado("SEMESTRE_CONCLUIDO")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        regraLiberacaoCertificado === "SEMESTRE_CONCLUIDO"
+          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
+          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+      }`}
+    >
+      <p className="font-bold">Por semestre</p>
+      <p className="mt-1 text-xs leading-5">
+        O aluno recebe certificado quando concluir o semestre.
+      </p>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setRegraLiberacaoCertificado("CURSO_COMPLETO")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        regraLiberacaoCertificado === "CURSO_COMPLETO"
+          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
+          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+      }`}
+    >
+      <p className="font-bold">Curso completo</p>
+      <p className="mt-1 text-xs leading-5">
+        O aluno recebe certificado apenas ao concluir o curso.
+      </p>
+    </button>
+
+    <button
+      type="button"
+      onClick={() => setRegraLiberacaoCertificado("MANUAL")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        regraLiberacaoCertificado === "MANUAL"
+          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
+          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+      }`}
+    >
+      <p className="font-bold">Manual</p>
+      <p className="mt-1 text-xs leading-5">
+        O certificado só aparece quando for emitido pela equipe autorizada.
+      </p>
+    </button>
+  </div>
+
+  <div className="mt-5 grid gap-4 md:grid-cols-3">
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+        Média mínima
+      </span>
+
+      <input
+        type="number"
+        min={0}
+        max={10}
+        step={0.1}
+        value={mediaMinimaCertificado}
+        onChange={(e) => setMediaMinimaCertificado(e.target.value)}
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+      />
+    </label>
+
+    <label className="block">
+      <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+        Frequência mínima (%)
+      </span>
+
+      <input
+        type="number"
+        min={0}
+        max={100}
+        step={1}
+        value={frequenciaMinimaCertificado}
+        onChange={(e) => setFrequenciaMinimaCertificado(e.target.value)}
+        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+      />
+    </label>
+
+    <div className="flex items-end">
+  <button
+    type="button"
+    disabled={salvandoConfiguracao}
+    onClick={salvarConfiguracaoCertificados}
+    className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {salvandoConfiguracao ? "Salvando..." : "Salvar configuração"}
+  </button>
+</div>
+  </div>
+</div>
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">

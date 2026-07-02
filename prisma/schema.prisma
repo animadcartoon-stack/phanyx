@@ -137,6 +137,10 @@ model Instituicao {
   crachaModelos                 CrachaModelo[]
   crachasEmitidos               CrachaEmitido[]
   CrachaLoteEmissao             CrachaLoteEmissao[]
+  regraLiberacaoCertificado      String  @default("CURSO_COMPLETO")
+  mediaMinimaCertificado         Float   @default(7)
+  frequenciaMinimaCertificado    Float   @default(75)
+  liberarCertificadoAutomatico   Boolean @default(true)
 }
 
 model User {
