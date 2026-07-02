@@ -5519,15 +5519,17 @@ onKeyUp={() => {
         });
       }}
       className={`absolute z-20 select-none rounded-md border px-1 py-0 text-[10px] ${
-        camposSelecionadosIds.includes(c.id)
-          ? "border-blue-600 bg-blue-600/90 text-white"
-          : "border-blue-300 bg-transparent text-blue-900"
-      }`}
+  camposSelecionadosIds.includes(c.id)
+    ? c.tipo === "ASSINATURA" || c.tipo === "LOGO_INSTITUICAO"
+      ? "border-blue-600 bg-transparent text-blue-900"
+      : "border-blue-600 bg-blue-600/90 text-white"
+    : "border-blue-300 bg-transparent text-blue-900"
+}`}
       style={{
   left: `${c.x}px`,
   top: `${c.y}px`,
-  width: `${c.largura || 120}px`,
-  height: `${c.altura || Math.ceil((c.tamanho || 18) * 1.65)}px`,
+  width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 120)}px`,
+height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
   zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
   textAlign:
     (c.alinhamento as "left" | "center" | "right") || "left",
@@ -5569,24 +5571,173 @@ onKeyUp={() => {
         ? "Nome do curso"
         : c.tipo === "DATA_EMISSAO"
         ? "00/00/0000"
-        : c.tipo === "ASSINATURA" ? (
+                : c.tipo === "ASSINATURA" ? (
             certificadoAssinaturaUrl ? (
               <img
-  src={certificadoAssinaturaUrl}
-  alt="Assinatura do diretor"
-  draggable={false}
-  style={{
-    width: "100%",
-    height: "100%",
-    objectFit: "contain",
-    display: "block",
-    pointerEvents: "none",
-  }}
-/>
+                src={certificadoAssinaturaUrl}
+                alt="Assinatura do diretor"
+                draggable={false}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  display: "block",
+                  pointerEvents: "none",
+                }}
+              />
             ) : (
               "Assinatura"
             )
           ) : c.tipo}
+
+      {camposSelecionadosIds.includes(c.id) && c.tipo === "ASSINATURA" && (
+  <>
+    {/* Redimensionar largura e altura */}
+    <div
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startW = Number(c.largura || 260);
+        const startH = Number(c.altura || 90);
+
+        let novaLargura = startW;
+        let novaAltura = startH;
+
+        const move = (ev: globalThis.MouseEvent) => {
+          novaLargura = Math.max(
+            40,
+            Math.round(startW + (ev.clientX - startX) / escala)
+          );
+
+          novaAltura = Math.max(
+            18,
+            Math.round(startH + (ev.clientY - startY) / escala)
+          );
+
+          setCampos((prev) =>
+            prev.map((item) =>
+              item.id === c.id
+                ? {
+                    ...item,
+                    largura: novaLargura,
+                    altura: novaAltura,
+                  }
+                : item
+            )
+          );
+        };
+
+        const up = () => {
+          window.removeEventListener("mousemove", move);
+          window.removeEventListener("mouseup", up);
+
+          void atualizarCampo(c.id, {
+            largura: novaLargura,
+            altura: novaAltura,
+          });
+        };
+
+        window.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", up);
+      }}
+      className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
+      title="Redimensionar assinatura"
+    />
+
+    {/* Ajustar só largura */}
+    <div
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const startX = e.clientX;
+        const startW = Number(c.largura || 260);
+
+        let novaLargura = startW;
+
+        const move = (ev: globalThis.MouseEvent) => {
+          novaLargura = Math.max(
+            40,
+            Math.round(startW + (ev.clientX - startX) / escala)
+          );
+
+          setCampos((prev) =>
+            prev.map((item) =>
+              item.id === c.id
+                ? {
+                    ...item,
+                    largura: novaLargura,
+                  }
+                : item
+            )
+          );
+        };
+
+        const up = () => {
+          window.removeEventListener("mousemove", move);
+          window.removeEventListener("mouseup", up);
+
+          void atualizarCampo(c.id, {
+            largura: novaLargura,
+          });
+        };
+
+        window.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", up);
+      }}
+      className="absolute -right-2 top-1/2 z-[999999] h-5 w-5 -translate-y-1/2 cursor-ew-resize rounded-full border-2 border-white bg-blue-600 shadow"
+      title="Ajustar largura"
+    />
+
+    {/* Ajustar só altura */}
+    <div
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        const startY = e.clientY;
+        const startH = Number(c.altura || 90);
+
+        let novaAltura = startH;
+
+        const move = (ev: globalThis.MouseEvent) => {
+          novaAltura = Math.max(
+            18,
+            Math.round(startH + (ev.clientY - startY) / escala)
+          );
+
+          setCampos((prev) =>
+            prev.map((item) =>
+              item.id === c.id
+                ? {
+                    ...item,
+                    altura: novaAltura,
+                  }
+                : item
+            )
+          );
+        };
+
+        const up = () => {
+          window.removeEventListener("mousemove", move);
+          window.removeEventListener("mouseup", up);
+
+          void atualizarCampo(c.id, {
+            altura: novaAltura,
+          });
+        };
+
+        window.addEventListener("mousemove", move);
+        window.addEventListener("mouseup", up);
+      }}
+      className="absolute -bottom-2 left-1/2 z-[999999] h-5 w-5 -translate-x-1/2 cursor-ns-resize rounded-full border-2 border-white bg-blue-600 shadow"
+      title="Ajustar altura"
+    />
+  </>
+)}
     </div>
   );
 })}
@@ -7597,8 +7748,8 @@ iniciarDrag(event as any, c);
       style={{
   left: `${c.x}px`,
   top: `${c.y}px`,
-  width: `${c.largura || 220}px`,
-  height: `${c.altura || Math.ceil((c.tamanho || 18) * 1.65)}px`,
+  width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 220)}px`,
+height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
   fontSize: `${c.tamanho || 18}px`,
   zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
   fontFamily: c.fonte || "Arial",
@@ -7626,11 +7777,17 @@ iniciarDrag(event as any, c);
       {c.tipo === "ASSINATURA" ? (
   certificadoAssinaturaUrl ? (
     <img
-      src={certificadoAssinaturaUrl}
-      alt="Assinatura do diretor"
-      className="h-full w-full object-contain pointer-events-none"
-      draggable={false}
-    />
+  src={certificadoAssinaturaUrl}
+  alt="Assinatura do diretor"
+  draggable={false}
+  style={{
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    display: "block",
+    pointerEvents: "none",
+  }}
+/>
   ) : (
     "Assinatura"
   )
@@ -8358,6 +8515,7 @@ aplicarEstiloTextoSelecionado({
     {mensagemSucesso}
   </div>
 )}
+
     </div>
   );
 }
