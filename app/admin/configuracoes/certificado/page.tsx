@@ -3966,169 +3966,128 @@ contornoEspessura: 2,
             </div>
 
               <div className="space-y-4">
-                
-                <div className="rounded-2xl border border-slate-200 bg-white">
-  <button
-    type="button"
-    onClick={() =>
-      setSecaoAberta(secaoAberta === "curso" ? null : "curso")
-    }
-    className="flex w-full items-center justify-between px-4 py-3 text-left"
-  >
-    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-      Informações do curso
-    </span>
-    <span className="text-slate-500">
-      {secaoAberta === "curso" ? "−" : "+"}
-    </span>
-  </button>
-
-  {secaoAberta === "curso" && (
-    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-      {[
-        { tipo: "NOME_CURSO", label: "Nome do curso" },
-        {
-          tipo: "DISCIPLINAS_CONCLUIDAS",
-          label: "Disciplinas concluídas",
-        },
-      ].map((item) => (
-        <button
-          key={item.tipo}
-          type="button"
-          onClick={() => adicionarCampo(item.tipo)}
-          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  )}
-</div>
-
-                <div className="rounded-2xl border border-slate-200 bg-white">
-  <button
-    type="button"
-    onClick={() =>
-      setSecaoAberta(
-        secaoAberta === "institucional" ? null : "institucional"
-      )
-    }
-    className="flex w-full items-center justify-between px-4 py-3 text-left"
-  >
-    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-      Informações institucionais
-    </span>
-    <span className="text-slate-500">
-      {secaoAberta === "institucional" ? "−" : "+"}
-    </span>
-  </button>
-
-  {secaoAberta === "institucional" && (
-    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-      {[
-        { tipo: "DATA_EMISSAO", label: "Data de emissão" },
-        { tipo: "CIDADE", label: "Cidade" },
-        { tipo: "NOME_DIRETOR", label: "Nome do diretor" },
-        { tipo: "ASSINATURA", label: "Assinatura" },
-      ].map((item) => (
-        <button
-          key={item.tipo}
-          type="button"
-          onClick={() => adicionarCampo(item.tipo)}
-          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>
-  )}
-</div>
-
-<div className="rounded-2xl border border-slate-200 bg-white">
-  <button
-    type="button"
-    onClick={() =>
-      setSecaoAberta(secaoAberta === "textos" ? null : "textos")
-    }
-    className="flex w-full items-center justify-between px-4 py-3 text-left"
-  >
-    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-      Textos livres
-    </span>
-    <span className="text-slate-500">
-      {secaoAberta === "textos" ? "−" : "+"}
-    </span>
-  </button>
-
-  {secaoAberta === "textos" && (
-  <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
-    <button
-      type="button"
-      onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")}
-      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
-    >
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">
-        T
-      </span>
-      <span className="mt-2 text-[11px] font-semibold text-slate-700">
-        Título
-      </span>
+  {/* Informações do aluno */}
+  <div className="rounded-2xl border border-slate-200 bg-white">
+    <button type="button" onClick={() => setSecaoAberta(secaoAberta === "aluno" ? null : "aluno")} className="flex w-full items-center justify-between px-4 py-3 text-left">
+      <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Informações do aluno</span>
+      <span className="text-slate-500">{secaoAberta === "aluno" ? "−" : "+"}</span>
     </button>
 
-    <button
-      type="button"
-      onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")}
-      className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
-    >
-      <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">
-        Tx
-      </span>
-      <span className="mt-2 text-[11px] font-semibold text-slate-700">
-        Texto
-      </span>
-    </button>
+    {secaoAberta === "aluno" && (
+      <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+        {[
+          { tipo: "NOME_ALUNO", label: "Nome do aluno" },
+          { tipo: "NUMERO_MATRICULA", label: "Número da matrícula" },
+          { tipo: "CPF_ALUNO", label: "CPF do aluno" },
+          { tipo: "RG_ALUNO", label: "RG do aluno" },
+        ].map((item) => (
+          <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+            {item.label}
+          </button>
+        ))}
+      </div>
+    )}
   </div>
-)}
-</div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white">
-  <button
-    type="button"
-    onClick={() =>
-      setSecaoAberta(secaoAberta === "validacao" ? null : "validacao")
-    }
-    className="flex w-full items-center justify-between px-4 py-3 text-left"
-  >
-    <span className="text-xs font-bold uppercase tracking-wide text-slate-500">
-      Validação
-    </span>
-    <span className="text-slate-500">
-      {secaoAberta === "validacao" ? "−" : "+"}
-    </span>
-  </button>
+  {/* Informações do curso */}
+  <div className="rounded-2xl border border-slate-200 bg-white">
+    <button type="button" onClick={() => setSecaoAberta(secaoAberta === "curso" ? null : "curso")} className="flex w-full items-center justify-between px-4 py-3 text-left">
+      <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Informações do curso</span>
+      <span className="text-slate-500">{secaoAberta === "curso" ? "−" : "+"}</span>
+    </button>
 
-  {secaoAberta === "validacao" && (
-    <div className="space-y-2 border-t border-slate-100 px-4 py-3">
-      {[
-        { tipo: "QR_CODE", label: "QR Code" },
-        {
-          tipo: "CODIGO_VALIDACAO",
-          label: "Código de validação",
-        },
-      ].map((item) => (
-        <button
-          key={item.tipo}
-          type="button"
-          onClick={() => adicionarCampo(item.tipo)}
-          className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100"
-        >
-          {item.label}
+    {secaoAberta === "curso" && (
+      <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+        {[
+          { tipo: "NOME_CURSO", label: "Nome do curso" },
+          { tipo: "DISCIPLINAS_CONCLUIDAS", label: "Disciplinas concluídas" },
+          { tipo: "CARGA_HORARIA", label: "Carga horária" },
+          { tipo: "ANO_CONCLUSAO", label: "Ano de conclusão" },
+          { tipo: "DATA_CONCLUSAO", label: "Data de conclusão" },
+          { tipo: "APROVEITAMENTO", label: "Aproveitamento" },
+          { tipo: "FREQUENCIA_TOTAL", label: "Frequência total" },
+          { tipo: "MODALIDADE", label: "Modalidade" },
+          { tipo: "TURMA", label: "Turma" },
+          { tipo: "POLO", label: "Polo" },
+        ].map((item) => (
+          <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+            {item.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {/* Informações institucionais */}
+  <div className="rounded-2xl border border-slate-200 bg-white">
+    <button type="button" onClick={() => setSecaoAberta(secaoAberta === "institucional" ? null : "institucional")} className="flex w-full items-center justify-between px-4 py-3 text-left">
+      <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Informações institucionais</span>
+      <span className="text-slate-500">{secaoAberta === "institucional" ? "−" : "+"}</span>
+    </button>
+
+    {secaoAberta === "institucional" && (
+      <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+        {[
+          { tipo: "NOME_INSTITUICAO", label: "Nome da instituição" },
+          { tipo: "CNPJ_INSTITUICAO", label: "CNPJ da instituição" },
+          { tipo: "CIDADE", label: "Cidade" },
+          { tipo: "DATA_EMISSAO", label: "Data de emissão" },
+          { tipo: "NOME_DIRETOR", label: "Nome do diretor" },
+          { tipo: "ASSINATURA", label: "Assinatura do diretor" },
+          { tipo: "LOGO_INSTITUICAO", label: "Logo da instituição" },
+        ].map((item) => (
+          <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+            {item.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+
+  {/* Textos livres */}
+  <div className="rounded-2xl border border-slate-200 bg-white">
+    <button type="button" onClick={() => setSecaoAberta(secaoAberta === "textos" ? null : "textos")} className="flex w-full items-center justify-between px-4 py-3 text-left">
+      <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Textos livres</span>
+      <span className="text-slate-500">{secaoAberta === "textos" ? "−" : "+"}</span>
+    </button>
+
+    {secaoAberta === "textos" && (
+      <div className="grid grid-cols-2 gap-2 border-t border-slate-100 px-4 py-3">
+        <button type="button" onClick={() => adicionarCampo("TEXTO_LIVRE", "TITULO")} className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">T</span>
+          <span className="mt-2 text-[11px] font-semibold text-slate-700">Título</span>
         </button>
-      ))}
-    </div>
-  )}
+
+        <button type="button" onClick={() => adicionarCampo("TEXTO_LIVRE", "TEXTO")} className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg font-black text-blue-700">Tx</span>
+          <span className="mt-2 text-[11px] font-semibold text-slate-700">Texto</span>
+        </button>
+      </div>
+    )}
+  </div>
+
+  {/* Validação */}
+  <div className="rounded-2xl border border-slate-200 bg-white">
+    <button type="button" onClick={() => setSecaoAberta(secaoAberta === "validacao" ? null : "validacao")} className="flex w-full items-center justify-between px-4 py-3 text-left">
+      <span className="text-xs font-bold uppercase tracking-wide text-slate-500">Validação</span>
+      <span className="text-slate-500">{secaoAberta === "validacao" ? "−" : "+"}</span>
+    </button>
+
+    {secaoAberta === "validacao" && (
+      <div className="space-y-2 border-t border-slate-100 px-4 py-3">
+        {[
+          { tipo: "NUMERO_CERTIFICADO", label: "Número do certificado" },
+          { tipo: "QR_CODE", label: "QR Code" },
+          { tipo: "CODIGO_VALIDACAO", label: "Código de validação" },
+        ].map((item) => (
+          <button key={item.tipo} type="button" onClick={() => adicionarCampo(item.tipo)} className="block w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-100">
+            {item.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
 </div>
-              </div>
             </aside>
           )}
 
