@@ -7708,9 +7708,22 @@ iniciarDrag(event as any, c);
 
 <div
   data-arrastar-menu-contexto
-  className="mb-3 cursor-move rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600"
+  className="mb-3 flex cursor-move items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600"
 >
-  ⋮⋮ Arrastar painel
+  <span>⋮⋮ Arrastar painel</span>
+
+  <button
+    type="button"
+    onMouseDown={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+    }}
+    onClick={() => setMenuContexto(null)}
+    className="ml-3 rounded-full bg-red-600 px-2 py-1 text-[11px] font-bold text-white hover:bg-red-700"
+    title="Fechar painel"
+  >
+    ✕
+  </button>
 </div>
 
     <button
@@ -7786,12 +7799,62 @@ iniciarDrag(event as any, c);
   ⏬ Enviar para trás de tudo
 </button>
 
-<div className="px-3 py-2">
-  <p className="mb-2 text-xs font-bold text-slate-500">
-    Texto selecionado
-  </p>
+{campoSelecionado &&
+  campoSelecionado.tipo !== "FORMA" &&
+  campoSelecionado.tipo !== "IMAGEM" && (
+    <div className="border-t border-slate-200 px-3 py-2">
+      <p className="mb-2 text-xs font-bold text-slate-500">
+        Alinhamento da tag
+      </p>
 
-</div>
+      <div className="grid grid-cols-3 gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            atualizarCamposAlvo("alinhamento", "left");
+            setMenuContexto(null);
+          }}
+          className={`rounded-lg border px-2 py-1 text-xs font-bold ${
+            campoSelecionado.alinhamento === "left" || !campoSelecionado.alinhamento
+              ? "border-blue-600 bg-blue-600 text-white"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+          }`}
+        >
+          ⬅ Esquerda
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            atualizarCamposAlvo("alinhamento", "center");
+            setMenuContexto(null);
+          }}
+          className={`rounded-lg border px-2 py-1 text-xs font-bold ${
+            campoSelecionado.alinhamento === "center"
+              ? "border-blue-600 bg-blue-600 text-white"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+          }`}
+        >
+          ↔ Centro
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            atualizarCamposAlvo("alinhamento", "right");
+            setMenuContexto(null);
+          }}
+          className={`rounded-lg border px-2 py-1 text-xs font-bold ${
+            campoSelecionado.alinhamento === "right"
+              ? "border-blue-600 bg-blue-600 text-white"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+          }`}
+        >
+          Direita ➡
+        </button>
+      </div>
+    </div>
+  )}
 
 <div className="border-t border-slate-200 px-3 py-2">
   <p className="mb-2 text-xs font-bold text-slate-500">
