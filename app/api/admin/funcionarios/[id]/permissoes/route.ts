@@ -27,7 +27,7 @@ export async function GET(
 
     if (!temPermissao(user, "funcionarios.permissoes.gerenciar")) {
   return NextResponse.json(
-    { error: "Você não tem permissão para acessar esta área." },
+    { error: "Você não tem permissão para alterar permissões individuais." },
     { status: 403 }
   );
 }
@@ -113,7 +113,7 @@ export async function PUT(
 
     if (!temPermissao(user, "funcionarios.permissoes.gerenciar")) {
   return NextResponse.json(
-    { error: "Você não tem permissão para acessar esta área." },
+    { error: "Você não tem permissão para alterar permissões individuais." },
     { status: 403 }
   );
 }
