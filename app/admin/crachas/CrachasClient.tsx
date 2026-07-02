@@ -2288,11 +2288,11 @@ clipPath: clipPathForma(objeto),
     },
 
     OVAL: {
-      largura: 140,
-      altura: 80,
-      raioBorda: 999,
-      espessuraBorda: 0,
-    },
+  largura: 90,
+  altura: 125,
+  raioBorda: 0,
+  espessuraBorda: 0,
+},
 
     LINHA: {
       largura: 120,
