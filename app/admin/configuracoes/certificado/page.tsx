@@ -1160,7 +1160,10 @@ const podeUsarEditorCertificados =
       );
       setCertificadoCidade(dataConfig?.certificadoCidade || "");
       setCertificadoAssinaturaUrl(
-  dataInstituicao?.certificadoAssinaturaUrl || ""
+  dataInstituicao?.certificadoAssinaturaUrl ||
+    dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ||
+    dataConfig?.certificadoAssinaturaUrl ||
+    ""
 );
 
 setNomeDiretorInstituicao(
@@ -5521,25 +5524,36 @@ onKeyUp={() => {
           : "border-blue-300 bg-transparent text-blue-900"
       }`}
       style={{
-        left: `${c.x}px`,
-        top: `${c.y}px`,
-        width: `${c.largura || 120}px`,
-        minHeight: `${c.altura || 18}px`,
-        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
-        textAlign:
-          (c.alinhamento as "left" | "center" | "right") || "left",
-        fontSize: `${c.tamanho || 12}px`,
-        color:
-          campoSelecionadoId === c.id ? "#ffffff" : c.cor || "#1e3a8a",
-        cursor: "move",
-        fontFamily: c.fonte || "Helvetica",
-        fontWeight: c.negrito ? "bold" : "normal",
-        fontStyle: c.italico ? "italic" : "normal",
-        textDecoration: c.sublinhado ? "underline" : "none",
-        lineHeight: c.lineHeight || 1.3,
-        whiteSpace:
-          c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-      }}
+  left: `${c.x}px`,
+  top: `${c.y}px`,
+  width: `${c.largura || 120}px`,
+  height: `${c.altura || Math.ceil((c.tamanho || 18) * 1.65)}px`,
+  zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
+  textAlign:
+    (c.alinhamento as "left" | "center" | "right") || "left",
+  fontSize: `${c.tamanho || 12}px`,
+  color: c.cor || "#1e3a8a",
+  cursor: "default",
+  fontFamily: c.fonte || "Helvetica",
+  fontWeight: c.negrito ? "bold" : "normal",
+  fontStyle: c.italico ? "italic" : "normal",
+  textDecoration: c.sublinhado ? "underline" : "none",
+  lineHeight: c.lineHeight || 1.3,
+  letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
+  wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
+  whiteSpace:
+    c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
+  display: "flex",
+  alignItems: "center",
+  justifyContent:
+    c.alinhamento === "center"
+      ? "center"
+      : c.alinhamento === "right"
+      ? "flex-end"
+      : "flex-start",
+  overflow: "visible",
+  boxSizing: "border-box",
+}}
     >
       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
         ? c.marcador
@@ -5558,11 +5572,17 @@ onKeyUp={() => {
         : c.tipo === "ASSINATURA" ? (
             certificadoAssinaturaUrl ? (
               <img
-                src={certificadoAssinaturaUrl}
-                alt="Assinatura do diretor"
-                className="h-full w-full object-contain pointer-events-none"
-                draggable={false}
-              />
+  src={certificadoAssinaturaUrl}
+  alt="Assinatura do diretor"
+  draggable={false}
+  style={{
+    width: "100%",
+    height: "100%",
+    objectFit: "contain",
+    display: "block",
+    pointerEvents: "none",
+  }}
+/>
             ) : (
               "Assinatura"
             )
@@ -7586,6 +7606,8 @@ iniciarDrag(event as any, c);
   textAlign:
     (c.alinhamento as "left" | "center" | "right") || "left",
   lineHeight: c.lineHeight || 1.2,
+  letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
+  wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
   whiteSpace:
     c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
   display: "flex",
@@ -8222,30 +8244,65 @@ aplicarEstiloTextoSelecionado({
 
     <div className="py-3">
   <label className="mb-1 block text-xs font-semibold">
+    Espaçamento entre linhas
+  </label>
+
+  <input
+    type="range"
+    min={0.8}
+    max={3}
+    step={0.05}
+    value={campoSelecionado?.lineHeight ?? 1.3}
+    onChange={(e) => {
+      const valor = Number(e.target.value);
+
+      if (
+        campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+        temSelecaoTextoLivreSalva()
+      ) {
+        aplicarEstiloTextoSelecionado({
+          lineHeight: String(valor),
+        });
+        return;
+      }
+
+      atualizarCamposAlvo("lineHeight", valor as any);
+    }}
+    className="w-full"
+  />
+
+  <div className="mt-1 text-[10px] font-semibold text-slate-400">
+    Atual: {(campoSelecionado?.lineHeight ?? 1.3).toFixed(2)}
+  </div>
+
+  <label className="mb-1 mt-3 block text-xs font-semibold">
     Espaçamento entre letras
   </label>
 
   <input
-  type="range"
-  min={-5}
-  max={30}
-  step={1}
-  value={espacamentoLetrasTexto}
-  onChange={(e) => {
-    const valor = Number(e.target.value);
-    setEspacamentoLetrasTexto(valor);
+    type="range"
+    min={-5}
+    max={30}
+    step={1}
+    value={(campoSelecionado as any)?.letterSpacing ?? 0}
+    onChange={(e) => {
+      const valor = Number(e.target.value);
+      setEspacamentoLetrasTexto(valor);
 
-    if (campoSelecionado?.tipo === "TEXTO_LIVRE" && temSelecaoTextoLivreSalva()) {
-      aplicarEstiloTextoSelecionado({
-        letterSpacing: `${valor}px`,
-      });
-      return;
-    }
+      if (
+        campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+        temSelecaoTextoLivreSalva()
+      ) {
+        aplicarEstiloTextoSelecionado({
+          letterSpacing: `${valor}px`,
+        });
+        return;
+      }
 
-    atualizarCampoLocal("letterSpacing" as any, valor);
-  }}
-  className="w-full"
-/>
+      atualizarCamposAlvo("letterSpacing" as any, valor);
+    }}
+    className="w-full"
+  />
 
   <label className="mb-1 mt-3 block text-xs font-semibold">
     Espaçamento entre palavras
@@ -8257,24 +8314,22 @@ aplicarEstiloTextoSelecionado({
     max={60}
     step={1}
     value={(campoSelecionado as any)?.wordSpacing ?? 0}
-    
     onChange={(e) => {
-  const valor = Number(e.target.value);
+      const valor = Number(e.target.value);
+      setEspacamentoPalavrasTexto(valor);
 
-  setEspacamentoPalavrasTexto(valor);
+      if (
+        campoSelecionado?.tipo === "TEXTO_LIVRE" &&
+        temSelecaoTextoLivreSalva()
+      ) {
+        aplicarEstiloTextoSelecionado({
+          wordSpacing: `${valor}px`,
+        });
+        return;
+      }
 
-  if (
-    campoSelecionado?.tipo === "TEXTO_LIVRE" &&
-    temSelecaoTextoLivreSalva()
-  ) {
-    aplicarEstiloTextoSelecionado({
-      wordSpacing: `${valor}px`,
-    });
-    return;
-  }
-
-  atualizarCampoLocal("wordSpacing" as any, valor);
-}}
+      atualizarCamposAlvo("wordSpacing" as any, valor);
+    }}
     className="w-full"
   />
 </div>
