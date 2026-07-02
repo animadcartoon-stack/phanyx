@@ -1028,7 +1028,7 @@ if (objeto.tipo === "IMAGEM") {
 
         {/* Propriedades */}
 
-        <div className="phanyx-crachas-card col-span-2 max-h-[calc(100vh-260px)] overflow-y-auto p-4 pr-3">
+<div className="phanyx-crachas-card col-span-2 h-[calc(100vh-260px)] min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain p-4 pr-3 pb-28">
           <h2 className="mb-4 font-bold">
             Propriedades
           </h2>
@@ -1513,7 +1513,9 @@ if (objeto.tipo === "IMAGEM") {
 
     <div className="grid grid-cols-2 gap-2">
       <div>
-        <label className="mb-2 block font-semibold">Largura</label>
+        <label className="mb-2 block text-xs font-semibold">
+  Largura
+</label>
         <input
           type="number"
           value={objetoAtual.largura}
@@ -1527,7 +1529,9 @@ if (objeto.tipo === "IMAGEM") {
       </div>
 
       <div>
-        <label className="mb-2 block font-semibold">Altura</label>
+        <label className="mb-2 block text-xs font-semibold">
+  Altura
+</label>
         <input
           type="number"
           value={objetoAtual.altura}
