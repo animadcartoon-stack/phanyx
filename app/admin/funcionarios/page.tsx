@@ -103,6 +103,7 @@ function AdminFuncionariosPage() {
   const [funcionarios, setFuncionarios] = useState<Funcionario[]>([]);
   const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
   const [busca, setBusca] = useState("");
+  const [permissoesUsuario, setPermissoesUsuario] = useState<string[]>([]);
 
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -174,6 +175,35 @@ function AdminFuncionariosPage() {
     const data = await res.json();
     setDepartamentos(Array.isArray(data) ? data : []);
   }
+
+  async function carregarPermissoesUsuario() {
+  try {
+    const res = await fetch("/api/admin/permissoes/me", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      setPermissoesUsuario([]);
+      return;
+    }
+
+    const data = await res.json();
+
+    setPermissoesUsuario(
+      Array.isArray(data?.permissoes) ? data.permissoes : []
+    );
+  } catch {
+    setPermissoesUsuario([]);
+  }
+}
+
+function podeGerenciarPermissoesIndividuais() {
+  return (
+    permissoesUsuario.includes("*") ||
+    permissoesUsuario.includes("funcionarios.permissoes.gerenciar")
+  );
+}
 
   function preencherFormularioParaEdicao(f: Funcionario) {
     setEditandoId(f.id);
@@ -493,9 +523,10 @@ if (funcionarioIdCriado) {
   }
 
   useEffect(() => {
-    carregarFuncionarios();
-    carregarDepartamentos();
-  }, []);
+  carregarFuncionarios();
+  carregarDepartamentos();
+  carregarPermissoesUsuario();
+}, []);
 
   const funcionariosFiltrados = useMemo(() => {
     const termoTexto = busca.trim().toLowerCase();
@@ -1196,30 +1227,38 @@ dark:bg-slate-900
 </div>
   
               <div className="flex flex-wrap gap-2">
-                <Link
-  href={`/admin/funcionarios/${f.id}`}
-  className="px-3 py-1.5 rounded-lg border text-sm inline-flex items-center"
->
-  Editar
-</Link>
+  <Link
+    href={`/admin/funcionarios/${f.id}`}
+    className="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+  >
+    Editar
+  </Link>
 
-                <button
-  type="button"
-  onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
-  className="px-3 py-1.5 rounded-lg border border-yellow-500 text-yellow-700 text-sm"
->
-  Bloquear acesso
-</button>
+  {podeGerenciarPermissoesIndividuais() && (
+  <Link
+    href={`/admin/funcionarios/${f.id}/permissoes`}
+    className="inline-flex items-center rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
+  >
+    🔐 Permissões individuais
+  </Link>
+)}
 
-                <button
+  <button
+    type="button"
+    onClick={() => alterarAcessoFuncionario(f.id, "bloquear", f.nome)}
+    className="rounded-lg border border-yellow-500 px-3 py-1.5 text-sm font-medium text-yellow-700 transition hover:bg-yellow-50 dark:border-yellow-700 dark:text-yellow-300 dark:hover:bg-yellow-950"
+  >
+    Bloquear acesso
+  </button>
+
+  <button
     type="button"
     onClick={() => alterarAcessoFuncionario(f.id, "desbloquear", f.nome)}
-    className="px-3 py-1.5 rounded-lg border border-green-600 text-green-700 text-sm"
+    className="rounded-lg border border-green-600 px-3 py-1.5 text-sm font-medium text-green-700 transition hover:bg-green-50 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-950"
   >
     Desbloquear acesso
   </button>
-
-              </div>
+</div>
             </div>
           ))
         )}

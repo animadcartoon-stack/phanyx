@@ -29,6 +29,7 @@ export const PERMISSOES_PHANYX = [
   { chave: "funcionarios.ver", nome: "Ver funcionários" },
   { chave: "funcionarios.criar", nome: "Cadastrar funcionários" },
   { chave: "funcionarios.editar", nome: "Editar funcionários" },
+  { chave: "funcionarios.permissoes.gerenciar", nome: "Gerenciar permissões individuais de funcionários" },
 
   { chave: "departamentos.ver", nome: "Ver departamentos" },
   { chave: "departamentos.editar", nome: "Editar departamentos" },
