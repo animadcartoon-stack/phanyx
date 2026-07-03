@@ -17,6 +17,12 @@ export async function GET() {
   certificadoPreviewUrl: true,
   certificadoCoordenadorNome: true,
   certificadoCidade: true,
+  certificadoModoFundo: true,
+  certificadoCorFundoPagina: true,
+  certificadoTamanhoPapel: true,
+  certificadoOrientacao: true,
+  certificadoLarguraBase: true,
+  certificadoAlturaBase: true,
 },
     });
 
@@ -39,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    const dadosAtualizacao: any = {
+const dadosAtualizacao: any = {
   certificadoTemplateUrl: body.certificadoTemplateUrl || null,
   certificadoCoordenadorNome: body.certificadoCoordenadorNome || null,
   certificadoCidade: body.certificadoCidade || null,
@@ -47,6 +53,36 @@ export async function POST(req: NextRequest) {
 
 if (Object.prototype.hasOwnProperty.call(body, "certificadoPreviewUrl")) {
   dadosAtualizacao.certificadoPreviewUrl = body.certificadoPreviewUrl || null;
+}
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoModoFundo")) {
+  dadosAtualizacao.certificadoModoFundo =
+    body.certificadoModoFundo || "modelo";
+}
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoCorFundoPagina")) {
+  dadosAtualizacao.certificadoCorFundoPagina =
+    body.certificadoCorFundoPagina || "#ffffff";
+}
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoTamanhoPapel")) {
+  dadosAtualizacao.certificadoTamanhoPapel =
+    body.certificadoTamanhoPapel || "A4";
+}
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoOrientacao")) {
+  dadosAtualizacao.certificadoOrientacao =
+    body.certificadoOrientacao || "paisagem";
+}
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoLarguraBase")) {
+  dadosAtualizacao.certificadoLarguraBase =
+    Number(body.certificadoLarguraBase) || 1123;
+}
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoAlturaBase")) {
+  dadosAtualizacao.certificadoAlturaBase =
+    Number(body.certificadoAlturaBase) || 794;
 }
 
 const instituicao = await prisma.instituicao.update({
@@ -57,6 +93,12 @@ const instituicao = await prisma.instituicao.update({
     certificadoPreviewUrl: true,
     certificadoCoordenadorNome: true,
     certificadoCidade: true,
+    certificadoModoFundo: true,
+    certificadoCorFundoPagina: true,
+    certificadoTamanhoPapel: true,
+    certificadoOrientacao: true,
+    certificadoLarguraBase: true,
+    certificadoAlturaBase: true,
   },
 });
 

@@ -165,6 +165,21 @@ export default async function CertificadoRenderPage({
   const aluno = certificado.aluno as any;
   const curso = cursoDoCertificado(certificado);
 
+  const modoFundoSalvo = ["modelo", "phanyx", "cor"].includes(
+  instituicao?.certificadoModoFundo
+)
+  ? instituicao.certificadoModoFundo
+  : "modelo";
+
+const corFundoSalva =
+  instituicao?.certificadoCorFundoPagina || "#ffffff";
+
+const larguraBase =
+  Number(instituicao?.certificadoLarguraBase) || 1123;
+
+const alturaBase =
+  Number(instituicao?.certificadoAlturaBase) || 794;
+
   const configuracaoInstituicao =
     instituicao?.configuracaoInstituicao || null;
 
@@ -264,9 +279,11 @@ export default async function CertificadoRenderPage({
   };
 
   const templateUrl =
-  instituicao?.certificadoPreviewUrl ||
-  instituicao?.certificadoTemplateUrl ||
-  null;
+  modoFundoSalvo === "modelo"
+    ? instituicao?.certificadoPreviewUrl ||
+      instituicao?.certificadoTemplateUrl ||
+      null
+    : null;
 
   return (
     <html lang="pt-BR">
@@ -284,12 +301,17 @@ export default async function CertificadoRenderPage({
 
               html,
 body {
-  width: 1123px;
-  height: 794px;
+  width: ${larguraBase}px;
+  height: ${alturaBase}px;
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: ${modoOverlay ? "transparent" : "white"};
+  background: ${modoOverlay ? "transparent" : corFundoSalva};
+}
+
+@page {
+  size: ${larguraBase}px ${alturaBase}px;
+  margin: 0;
 }
 
               body {
@@ -306,7 +328,7 @@ body {
       </head>
 
       <body>
-        <CertificadoRender
+       <CertificadoRender
   campos={campos as any}
   dados={dados}
   templateUrl={
@@ -318,10 +340,10 @@ body {
         : templateUrl
       : null
   }
-  modoFundo={modoOverlay ? "cor" : templateUrl ? "modelo" : "cor"}
-  corFundoPagina={modoOverlay ? "transparent" : "#ffffff"}
-  larguraBase={1123}
-  alturaBase={794}
+  modoFundo={modoOverlay ? "cor" : modoFundoSalvo}
+  corFundoPagina={modoOverlay ? "transparent" : corFundoSalva}
+  larguraBase={larguraBase}
+  alturaBase={alturaBase}
   escala={1}
   mostrarBordas={false}
   fundoTransparente={modoOverlay}

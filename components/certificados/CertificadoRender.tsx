@@ -500,7 +500,7 @@ export default function CertificadoRender({
   : "#ffffff",
       }}
     >
-      {templateUrl && modoFundo !== "phanyx" && !fundoTransparente && (
+      {templateUrl && modoFundo === "modelo" && !fundoTransparente && (
   templateUrl.toLowerCase().includes(".pdf") ? (
     <iframe
       src={templateUrl}

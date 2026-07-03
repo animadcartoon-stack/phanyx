@@ -98,12 +98,19 @@ model Instituicao {
   periodosMatricula          PeriodoMatricula[]
   disciplinaPreRequisitos    DisciplinaPreRequisito[]
   cursosDisciplinasExtras    CursoDisciplinaExtraPermitida[]
-  certificadoTemplateUrl     String?
-  certificadoPreviewUrl      String?
-  certificadoTextoPadrao     String?
-  certificadoAssinaturaUrl   String?
-  certificadoCoordenadorNome String?
-  certificadoCidade          String?
+  certificadoTemplateUrl      String?
+  certificadoPreviewUrl       String?
+  certificadoTextoPadrao      String?
+  certificadoAssinaturaUrl    String?
+  certificadoCoordenadorNome  String?
+  certificadoCidade           String?
+
+  certificadoModoFundo        String  @default("modelo") // modelo | phanyx | cor
+  certificadoCorFundoPagina   String  @default("#ffffff")
+  certificadoTamanhoPapel     String  @default("A4")     // A5 | A4 | A3
+  certificadoOrientacao       String  @default("paisagem") // paisagem | retrato
+  certificadoLarguraBase      Int     @default(1123)
+  certificadoAlturaBase       Int     @default(794)
 
   cursosPolos             CursoPolo[]
   professoresDisciplinas  ProfessorDisciplina[]

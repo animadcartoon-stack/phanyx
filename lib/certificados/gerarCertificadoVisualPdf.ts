@@ -215,11 +215,17 @@ export async function gerarCertificadoVisualPdf({
     },
     include: {
       instituicao: {
-        select: {
-          certificadoTemplateUrl: true,
-          certificadoPreviewUrl: true,
-        },
-      },
+  select: {
+    certificadoTemplateUrl: true,
+    certificadoPreviewUrl: true,
+    certificadoModoFundo: true,
+    certificadoCorFundoPagina: true,
+    certificadoTamanhoPapel: true,
+    certificadoOrientacao: true,
+    certificadoLarguraBase: true,
+    certificadoAlturaBase: true,
+  },
+},
     },
   });
 
@@ -227,10 +233,22 @@ export async function gerarCertificadoVisualPdf({
     throw new Error("Certificado não encontrado.");
   }
 
-  const templateUrl = certificado.instituicao?.certificadoTemplateUrl || null;
+  const modoFundo = ["modelo", "phanyx", "cor"].includes(
+  certificado.instituicao?.certificadoModoFundo || ""
+)
+  ? certificado.instituicao?.certificadoModoFundo
+  : "modelo";
 
-  const largura = LARGURA_PADRAO;
-  const altura = ALTURA_PADRAO;
+const templateUrl =
+  modoFundo === "modelo"
+    ? certificado.instituicao?.certificadoTemplateUrl || null
+    : null;
+
+const largura =
+  Number(certificado.instituicao?.certificadoLarguraBase) || LARGURA_PADRAO;
+
+const altura =
+  Number(certificado.instituicao?.certificadoAlturaBase) || ALTURA_PADRAO;
 
   if (ehPdf(templateUrl)) {
     return gerarPdfComFundoPdfOriginal({

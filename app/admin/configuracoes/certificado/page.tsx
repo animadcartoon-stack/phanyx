@@ -1075,27 +1075,6 @@ if (alvo.closest("[data-campo-certificado-id]")) {
   const [corFundoPagina, setCorFundoPagina] = useState("#ffffff");
   const [modoFundo, setModoFundo] = useState<"modelo" | "phanyx">("modelo");
 
-  useEffect(() => {
-  const fundoSalvo = localStorage.getItem("phanyx_certificado_fundo");
-  if (!fundoSalvo) return;
-
-  try {
-    const fundo = JSON.parse(fundoSalvo);
-    if (fundo?.modoFundo) setModoFundo(fundo.modoFundo);
-    if (fundo?.corFundoPagina) setCorFundoPagina(fundo.corFundoPagina);
-  } catch {}
-}, []);
-
-useEffect(() => {
-  localStorage.setItem(
-    "phanyx_certificado_fundo",
-    JSON.stringify({
-      modoFundo,
-      corFundoPagina,
-    })
-  );
-}, [modoFundo, corFundoPagina]);
-
   const [formasAbertas, setFormasAbertas] = useState(true);
   const [zoom, setZoom] = useState(0);
   const [modoAmplo, setModoAmplo] = useState(false);
@@ -1431,11 +1410,45 @@ const podeUsarEditorCertificados =
       }
 
       setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-      setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
-      setCertificadoCoordenadorNome(
-        dataConfig?.certificadoCoordenadorNome || ""
-      );
-      setCertificadoCidade(dataConfig?.certificadoCidade || "");
+      setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
+setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
+
+setCertificadoCoordenadorNome(
+  dataConfig?.certificadoCoordenadorNome || ""
+);
+
+setCertificadoCidade(dataConfig?.certificadoCidade || "");
+
+if (
+  dataConfig?.certificadoModoFundo === "modelo" ||
+  dataConfig?.certificadoModoFundo === "phanyx" ||
+  dataConfig?.certificadoModoFundo === "cor"
+) {
+  setModoFundo(
+    dataConfig.certificadoModoFundo === "cor"
+      ? "phanyx"
+      : dataConfig.certificadoModoFundo
+  );
+}
+
+if (dataConfig?.certificadoCorFundoPagina) {
+  setCorFundoPagina(dataConfig.certificadoCorFundoPagina);
+}
+
+if (
+  dataConfig?.certificadoTamanhoPapel === "A5" ||
+  dataConfig?.certificadoTamanhoPapel === "A4" ||
+  dataConfig?.certificadoTamanhoPapel === "A3"
+) {
+  setTamanhoPapel(dataConfig.certificadoTamanhoPapel);
+}
+
+if (
+  dataConfig?.certificadoOrientacao === "paisagem" ||
+  dataConfig?.certificadoOrientacao === "retrato"
+) {
+  setOrientacao(dataConfig.certificadoOrientacao);
+}
       setCertificadoAssinaturaUrl(
   dataInstituicao?.certificadoAssinaturaUrl ||
     dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ||
@@ -1783,7 +1796,13 @@ useEffect(() => {
       }
 
       setCertificadoTemplateUrl(data.url || "");
-setCertificadoPreviewUrl(
+      setCertificadoPreviewUrl(
+  data.previewUrl ||
+    data.certificadoPreviewUrl ||
+    ""
+);
+
+      setCertificadoPreviewUrl(
   data.previewUrl ||
     data.certificadoPreviewUrl ||
     ""
@@ -1917,6 +1936,12 @@ function finalizarArrastoCanvas() {
   certificadoPreviewUrl,
   certificadoCoordenadorNome,
   certificadoCidade,
+  certificadoModoFundo: modoFundo,
+  certificadoCorFundoPagina: corFundoPagina,
+  certificadoTamanhoPapel: tamanhoPapel,
+  certificadoOrientacao: orientacao,
+  certificadoLarguraBase: baseCanvas.largura,
+  certificadoAlturaBase: baseCanvas.altura,
 }),
       });
 
@@ -3209,8 +3234,17 @@ async function salvarModeloCompleto() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        campos: payloadCampos,
-      }),
+  certificadoTemplateUrl,
+  certificadoPreviewUrl,
+  certificadoCoordenadorNome,
+  certificadoCidade,
+  certificadoModoFundo: modoFundo,
+  certificadoCorFundoPagina: corFundoPagina,
+  certificadoTamanhoPapel: tamanhoPapel,
+  certificadoOrientacao: orientacao,
+  certificadoLarguraBase: baseCanvas.largura,
+  certificadoAlturaBase: baseCanvas.altura,
+}),
     });
 
     const dataCampos = await resCampos.json();
@@ -3247,6 +3281,7 @@ async function salvarModeloCompleto() {
     setSalvando(false);
   }
 }
+
 function camposComArrayVirtual() {
   const resultado: any[] = [];
 
