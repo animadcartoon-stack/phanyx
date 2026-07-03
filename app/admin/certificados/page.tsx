@@ -140,6 +140,12 @@ export default function AdminCertificadosPage() {
   const [buscaAplicada, setBuscaAplicada] = useState("");
   const [alunos, setAlunos] = useState<AlunoItem[]>([]);
   const [todosAlunos, setTodosAlunos] = useState<AlunoItem[]>([]);
+
+  const [mostrarSugestoesBusca, setMostrarSugestoesBusca] = useState(false);
+  const [nomeCampoBusca] = useState(
+  () => `phanyx-certificados-busca-${Date.now()}`
+);
+
   const [carregando, setCarregando] = useState(false);
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoItem | null>(null);
   const [erro, setErro] = useState("");
@@ -568,21 +574,53 @@ async function salvarConfiguracaoCertificados() {
               Buscar aluno
             </label>
             <input
-  type="text"
+  type="search"
   value={busca}
+  onFocus={() => setMostrarSugestoesBusca(true)}
   onChange={(e) => {
     const valor = e.target.value;
     setBusca(valor);
+    setMostrarSugestoesBusca(true);
 
-    if (!valor.trim()) {
+    const termo = valor.trim();
+
+    if (!termo) {
       setBuscaAplicada("");
       setAlunos(todosAlunos);
       setAlunoSelecionado(null);
+      return;
     }
+
+    const listaFiltrada = todosAlunos
+      .map((aluno) => {
+        const resultado = alunoCombinaComBusca(aluno, termo);
+
+        return {
+          aluno,
+          combina: resultado.combina,
+          score: resultado.score,
+        };
+      })
+      .filter((item) => item.combina)
+      .sort((a, b) => {
+        if (a.score !== b.score) return a.score - b.score;
+
+        return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+          sensitivity: "base",
+        });
+      })
+      .map((item) => item.aluno);
+
+    setAlunos(listaFiltrada);
   }}
   onKeyDown={(e) => {
     if (e.key === "Enter") {
       aplicarBusca();
+      setMostrarSugestoesBusca(false);
+    }
+
+    if (e.key === "Escape") {
+      setMostrarSugestoesBusca(false);
     }
   }}
   placeholder="Digite nome, matrícula ou email"
@@ -590,12 +628,13 @@ async function salvarConfiguracaoCertificados() {
   autoCorrect="off"
   autoCapitalize="none"
   spellCheck={false}
-  name="phanyx-certificados-busca-aluno-sem-autocomplete"
+  name={nomeCampoBusca}
+  id={nomeCampoBusca}
   className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
 />
 
-{busca.trim() && todosAlunos.length > 0 && (
-  <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
+{mostrarSugestoesBusca && busca.trim() && todosAlunos.length > 0 && (
+  <div className="phanyx-cert-sugestoes mt-2 rounded-2xl p-2">
     {todosAlunos
       .map((aluno) => {
         const resultado = alunoCombinaComBusca(aluno, busca);
@@ -620,16 +659,17 @@ async function salvarConfiguracaoCertificados() {
           key={item.aluno.id}
           type="button"
           onClick={() => {
-            setBusca(item.aluno.nome);
-            setBuscaAplicada(item.aluno.nome);
-            setAlunos([item.aluno]);
-            setAlunoSelecionado(item.aluno);
-          }}
-          className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-slate-800"
+  setBusca(item.aluno.nome);
+  setBuscaAplicada(item.aluno.nome);
+  setAlunos([item.aluno]);
+  setAlunoSelecionado(item.aluno);
+  setMostrarSugestoesBusca(false);
+}}
+          className="phanyx-cert-sugestao block w-full rounded-xl px-3 py-2 text-left text-sm"
         >
           <span className="font-semibold">{item.aluno.nome}</span>
 
-          <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
+          <span className="phanyx-cert-sugestao-email ml-2 text-xs">
             {item.aluno.email || "Sem email"}
           </span>
         </button>
@@ -710,7 +750,7 @@ async function salvarConfiguracaoCertificados() {
                 alunos.map((aluno) => (
                   <tr
                     key={aluno.id}
-                    className="border-t border-slate-100 hover:bg-slate-50"
+                    className="phanyx-cert-tabela-linha border-t"
                   >
                     <td className="px-6 py-4">
                       <button
@@ -718,18 +758,18 @@ async function salvarConfiguracaoCertificados() {
                         onClick={() => setAlunoSelecionado(aluno)}
                         className="text-left"
                       >
-                        <div className="font-semibold text-slate-900">{aluno.nome}</div>
-                        <div className="text-sm text-slate-500">
-                          {aluno.email || "Sem email"}
-                        </div>
+                        <div className="phanyx-cert-nome font-semibold">{aluno.nome}</div>
+                        <div className="phanyx-cert-email text-sm">
+  {aluno.email || "Sem email"}
+</div>
                       </button>
                     </td>
 
-                    <td className="px-6 py-4 text-sm text-slate-700">
+                    <td className="phanyx-cert-texto px-6 py-4 text-sm">
                       {aluno.curso || "Não informado"}
                     </td>
 
-                    <td className="px-6 py-4 text-sm text-slate-700">
+                    <td className="phanyx-cert-texto px-6 py-4 text-sm">
                       {aluno.matricula || "—"}
                     </td>
 
@@ -789,9 +829,9 @@ async function salvarConfiguracaoCertificados() {
       setErro("Erro ao gerar certificado.");
     }
   }}
-  className="rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+  className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
 >
-  Gerar
+  Emitir certificado
 </button>
 
                         <button

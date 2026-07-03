@@ -3196,3 +3196,129 @@ html[data-theme="system"] .phanyx-certificado-outliner-row.is-selected {
 html[data-theme="system"] .phanyx-certificado-outliner-row.is-selected span {
   color: #ffffff !important;
 }
+
+/* PHANYX - Gestão de certificados */
+.phanyx-cert-sugestoes {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.14);
+}
+
+.phanyx-cert-sugestao {
+  color: #0f172a;
+  background: #ffffff;
+}
+
+.phanyx-cert-sugestao:hover {
+  color: #0f172a;
+  background: #eaf2ff;
+}
+
+.phanyx-cert-sugestao-email {
+  color: #475569;
+}
+
+.phanyx-cert-tabela-linha {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+.phanyx-cert-tabela-linha:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.phanyx-cert-nome {
+  color: #0f172a;
+}
+
+.phanyx-cert-email,
+.phanyx-cert-texto {
+  color: #475569;
+}
+
+html[data-theme="dark"] .phanyx-cert-sugestoes {
+  border-color: #334155;
+  background: #0f172a;
+  color: #f8fafc;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme="dark"] .phanyx-cert-sugestao {
+  color: #f8fafc;
+  background: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-cert-sugestao:hover {
+  color: #ffffff;
+  background: #1e293b;
+}
+
+html[data-theme="dark"] .phanyx-cert-sugestao-email {
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .phanyx-cert-tabela-linha {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+html[data-theme="dark"] .phanyx-cert-tabela-linha:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .phanyx-cert-nome {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .phanyx-cert-email,
+html[data-theme="dark"] .phanyx-cert-texto {
+  color: #cbd5e1;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .phanyx-cert-sugestoes {
+    border-color: #334155;
+    background: #0f172a;
+    color: #f8fafc;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  html[data-theme="system"] .phanyx-cert-sugestao {
+    color: #f8fafc;
+    background: #0f172a;
+  }
+
+  html[data-theme="system"] .phanyx-cert-sugestao:hover {
+    color: #ffffff;
+    background: #1e293b;
+  }
+
+  html[data-theme="system"] .phanyx-cert-sugestao-email {
+    color: #cbd5e1;
+  }
+
+  html[data-theme="system"] .phanyx-cert-tabela-linha {
+    background: #0f172a;
+    color: #f8fafc;
+    border-color: #334155;
+  }
+
+  html[data-theme="system"] .phanyx-cert-tabela-linha:hover {
+    background: #1e293b;
+    color: #ffffff;
+  }
+
+  html[data-theme="system"] .phanyx-cert-nome {
+    color: #ffffff;
+  }
+
+  html[data-theme="system"] .phanyx-cert-email,
+  html[data-theme="system"] .phanyx-cert-texto {
+    color: #cbd5e1;
+  }
+}
