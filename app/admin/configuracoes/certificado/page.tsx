@@ -6368,6 +6368,61 @@ return;
                   {campoSelecionado.tipo}
                 </div>
 
+{campoSelecionado && (
+  <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+    <p className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
+      Tamanho da caixa
+    </p>
+
+    <div className="grid grid-cols-2 gap-3">
+      <label className="block">
+        <span className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+          Largura
+        </span>
+
+        <input
+          type="number"
+          min={20}
+          max={2000}
+          value={Math.round(Number(campoSelecionado.largura || 220))}
+          onChange={(e) =>
+            atualizarCampoLocal(
+              "largura" as any,
+              Math.max(20, Number(e.target.value || 20)) as any
+            )
+          }
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        />
+      </label>
+
+      <label className="block">
+        <span className="mb-1 block text-xs font-semibold text-slate-500 dark:text-slate-400">
+          Altura
+        </span>
+
+        <input
+          type="number"
+          min={12}
+          max={2000}
+          value={Math.round(Number(campoSelecionado.altura || 40))}
+          onChange={(e) =>
+            atualizarCampoLocal(
+              "altura" as any,
+              Math.max(12, Number(e.target.value || 12)) as any
+            )
+          }
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+        />
+      </label>
+    </div>
+
+    <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+      Use a largura para fazer tags como nome do curso, nome do aluno e cidade
+      caberem em uma linha.
+    </p>
+  </div>
+)}
+
 {campoSelecionado?.tipo === "FORMA" && (
   <div className="rounded-2xl border border-slate-200 bg-white p-4">
     <p className="mb-3 text-sm font-semibold text-slate-700">

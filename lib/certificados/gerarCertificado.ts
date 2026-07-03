@@ -348,9 +348,52 @@ function desenharTexto(
   const fonte = escolherFonte(campo, fontes);
   const lineHeight = Number(campo.lineHeight || 1.2);
 
-  let linhas =
+  const tiposUmaLinha = [
+  "NOME_ALUNO",
+  "NOME_CURSO",
+  "ANO_CONCLUSAO",
+  "DATA_CONCLUSAO",
+  "DATA_EMISSAO",
+  "APROVEITAMENTO",
+  "FREQUENCIA_TOTAL",
+  "CIDADE",
+  "NOME_DIRETOR",
+  "NUMERO_MATRICULA",
+  "CODIGO_VALIDACAO",
+  "NUMERO_CERTIFICADO",
+];
+
+let linhas =
+  campo.textoModo === "VERTICAL"
+    ? String(texto).split("")
+    : tiposUmaLinha.includes(campo.tipo)
+    ? [String(texto).replace(/\s+/g, " ").trim()]
+    : String(texto)
+        .split("\n")
+        .flatMap((linha) =>
+          quebrarLinhaPorLargura(
+            linha,
+            fonte,
+            tamanho,
+            Math.max(10, box.largura)
+          )
+        );
+
+  while (
+  (
+    linhas.length * tamanho * lineHeight > box.altura ||
+    tiposUmaLinha.includes(campo.tipo) &&
+      fonte.widthOfTextAtSize(linhas[0] || "", tamanho) > box.largura
+  ) &&
+  tamanho > 4
+) {
+  tamanho -= 0.5;
+
+  linhas =
     campo.textoModo === "VERTICAL"
       ? String(texto).split("")
+      : tiposUmaLinha.includes(campo.tipo)
+      ? [String(texto).replace(/\s+/g, " ").trim()]
       : String(texto)
           .split("\n")
           .flatMap((linha) =>
@@ -361,24 +404,7 @@ function desenharTexto(
               Math.max(10, box.largura)
             )
           );
-
-  while (linhas.length * tamanho * lineHeight > box.altura && tamanho > 4) {
-    tamanho -= 0.5;
-
-    linhas =
-      campo.textoModo === "VERTICAL"
-        ? String(texto).split("")
-        : String(texto)
-            .split("\n")
-            .flatMap((linha) =>
-              quebrarLinhaPorLargura(
-                linha,
-                fonte,
-                tamanho,
-                Math.max(10, box.largura)
-              )
-            );
-  }
+}
 
   const alturaLinha = tamanho * lineHeight;
   const maxLinhas = Math.max(1, Math.floor(box.altura / alturaLinha));
