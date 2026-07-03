@@ -1243,9 +1243,9 @@ async function gerarCertificadoAlunoSelecionado() {
 
     if (!res.ok || !data?.sucesso) {
       const mensagem =
-        data?.error ||
-        data?.detalhe ||
-        "Não foi possível gerar o certificado.";
+  data?.detalhe ||
+  data?.error ||
+  "Não foi possível gerar o certificado.";
 
       mostrarFeedback("erro", mensagem);
       abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);
@@ -1259,7 +1259,11 @@ async function gerarCertificadoAlunoSelecionado() {
       "O certificado foi gerado e já deve ficar disponível na área do aluno."
     );
   } catch (error: any) {
-    const mensagem = error?.message || "Erro ao gerar certificado.";
+    console.error("Erro ao gerar certificado do aluno:", error);
+
+const mensagem =
+  error?.message ||
+  "Erro ao gerar certificado. Verifique se o aluno possui matrícula e disciplina vinculadas.";
 
     mostrarFeedback("erro", mensagem);
     abrirModalAviso("erro", "Erro ao gerar certificado", mensagem);

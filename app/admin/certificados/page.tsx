@@ -15,6 +15,7 @@ type AlunoItem = {
 
 function normalizarListaAlunos(data: any): AlunoItem[] {
   if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.data)) return data.data;
   if (Array.isArray(data?.alunos)) return data.alunos;
   if (Array.isArray(data?.items)) return data.items;
   return [];
@@ -138,6 +139,7 @@ export default function AdminCertificadosPage() {
   const [busca, setBusca] = useState("");
   const [buscaAplicada, setBuscaAplicada] = useState("");
   const [alunos, setAlunos] = useState<AlunoItem[]>([]);
+  const [todosAlunos, setTodosAlunos] = useState<AlunoItem[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoItem | null>(null);
   const [erro, setErro] = useState("");
@@ -151,19 +153,22 @@ const [frequenciaMinimaCertificado, setFrequenciaMinimaCertificado] =
 const [liberarCertificadoAutomatico, setLiberarCertificadoAutomatico] =
   useState(true);
 
-  async function carregarAlunos(termo = "") {
+ async function carregarAlunos(termo = "") {
   try {
     setCarregando(true);
     setErro("");
 
-    const res = await fetch("/api/aluno", {
+    const res = await fetch("/api/aluno?page=1&limit=200", {
       cache: "no-store",
+      credentials: "include",
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
 
     if (!res.ok) {
-      setErro(data?.error || "Erro ao buscar alunos.");
+      setErro(data?.detalhe || data?.error || "Erro ao buscar alunos.");
+      setAlunos([]);
+      setTodosAlunos([]);
       return;
     }
 
@@ -171,47 +176,61 @@ const [liberarCertificadoAutomatico, setLiberarCertificadoAutomatico] =
       id: Number(item.id),
       nome: item.nome || "Aluno sem nome",
       email: item.email ?? item.user?.email ?? null,
-      matricula: item.matricula ?? null,
+      matricula:
+        item.matricula ??
+        item.resumoMatricula?.numeroMatricula ??
+        null,
       curso:
         item.curso?.nome ??
         item.matriculaAtiva?.curso?.nome ??
         item.matriculas?.[0]?.curso?.nome ??
+        item.resumoMatricula?.curso?.nome ??
+        item.resumoMatricula?.cursoNome ??
         null,
       statusCertificado: item.statusCertificado ?? "PENDENTE",
       certificadoUrl: item.certificadoUrl ?? null,
     }));
 
+    const listaOrdenada = lista.sort((a, b) =>
+      a.nome.localeCompare(b.nome, "pt-BR", {
+        sensitivity: "base",
+      })
+    );
+
+    setTodosAlunos(listaOrdenada);
+
     const termoLimpo = normalizarBusca(termo);
 
-    const listaFiltrada = termoLimpo
-      ? lista
-          .map((aluno) => {
-            const resultado = alunoCombinaComBusca(aluno, termoLimpo);
+    if (!termoLimpo) {
+      setAlunos(listaOrdenada);
+      return;
+    }
 
-            return {
-              aluno,
-              combina: resultado.combina,
-              score: resultado.score,
-            };
-          })
-          .filter((item) => item.combina)
-          .sort((a, b) => {
-            if (a.score !== b.score) return a.score - b.score;
+    const listaFiltrada = listaOrdenada
+      .map((aluno) => {
+        const resultado = alunoCombinaComBusca(aluno, termoLimpo);
 
-            return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
-              sensitivity: "base",
-            });
-          })
-          .map((item) => item.aluno)
-      : lista.sort((a, b) =>
-          a.nome.localeCompare(b.nome, "pt-BR", {
-            sensitivity: "base",
-          })
-        );
+        return {
+          aluno,
+          combina: resultado.combina,
+          score: resultado.score,
+        };
+      })
+      .filter((item) => item.combina)
+      .sort((a, b) => {
+        if (a.score !== b.score) return a.score - b.score;
+
+        return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+          sensitivity: "base",
+        });
+      })
+      .map((item) => item.aluno);
 
     setAlunos(listaFiltrada);
   } catch {
     setErro("Erro ao carregar alunos.");
+    setAlunos([]);
+    setTodosAlunos([]);
   } finally {
     setCarregando(false);
   }
@@ -241,15 +260,44 @@ const [liberarCertificadoAutomatico, setLiberarCertificadoAutomatico] =
   );
 
   function aplicarBusca() {
-    setBuscaAplicada(busca);
-    carregarAlunos(busca);
+  const termo = busca.trim();
+
+  setBuscaAplicada(termo);
+
+  if (!termo) {
+    setAlunos(todosAlunos);
+    return;
   }
 
+  const listaFiltrada = todosAlunos
+    .map((aluno) => {
+      const resultado = alunoCombinaComBusca(aluno, termo);
+
+      return {
+        aluno,
+        combina: resultado.combina,
+        score: resultado.score,
+      };
+    })
+    .filter((item) => item.combina)
+    .sort((a, b) => {
+      if (a.score !== b.score) return a.score - b.score;
+
+      return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+        sensitivity: "base",
+      });
+    })
+    .map((item) => item.aluno);
+
+  setAlunos(listaFiltrada);
+}
+
   function limparBusca() {
-    setBusca("");
-    setBuscaAplicada("");
-    carregarAlunos("");
-  }
+  setBusca("");
+  setBuscaAplicada("");
+  setAlunoSelecionado(null);
+  setAlunos(todosAlunos);
+}
 
   function acaoAindaNaoLigada(nomeAcao: string, aluno: AlunoItem) {
     setAlunoSelecionado(aluno);
@@ -520,12 +568,83 @@ async function salvarConfiguracaoCertificados() {
               Buscar aluno
             </label>
             <input
-              type="text"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              placeholder="Digite nome, matrícula ou email"
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-400"
-            />
+  type="text"
+  value={busca}
+  onChange={(e) => {
+    const valor = e.target.value;
+    setBusca(valor);
+
+    if (!valor.trim()) {
+      setBuscaAplicada("");
+      setAlunos(todosAlunos);
+      setAlunoSelecionado(null);
+    }
+  }}
+  onKeyDown={(e) => {
+    if (e.key === "Enter") {
+      aplicarBusca();
+    }
+  }}
+  placeholder="Digite nome, matrícula ou email"
+  autoComplete="off"
+  autoCorrect="off"
+  autoCapitalize="none"
+  spellCheck={false}
+  name="phanyx-certificados-busca-aluno-sem-autocomplete"
+  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+/>
+
+{busca.trim() && todosAlunos.length > 0 && (
+  <div className="mt-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-lg dark:border-slate-700 dark:bg-slate-950">
+    {todosAlunos
+      .map((aluno) => {
+        const resultado = alunoCombinaComBusca(aluno, busca);
+
+        return {
+          aluno,
+          combina: resultado.combina,
+          score: resultado.score,
+        };
+      })
+      .filter((item) => item.combina)
+      .sort((a, b) => {
+        if (a.score !== b.score) return a.score - b.score;
+
+        return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+          sensitivity: "base",
+        });
+      })
+      .slice(0, 6)
+      .map((item) => (
+        <button
+          key={item.aluno.id}
+          type="button"
+          onClick={() => {
+            setBusca(item.aluno.nome);
+            setBuscaAplicada(item.aluno.nome);
+            setAlunos([item.aluno]);
+            setAlunoSelecionado(item.aluno);
+          }}
+          className="block w-full rounded-xl px-3 py-2 text-left text-sm text-slate-700 hover:bg-blue-50 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          <span className="font-semibold">{item.aluno.nome}</span>
+
+          <span className="ml-2 text-xs text-slate-500 dark:text-slate-400">
+            {item.aluno.email || "Sem email"}
+          </span>
+        </button>
+      ))}
+
+    {todosAlunos
+      .map((aluno) => alunoCombinaComBusca(aluno, busca))
+      .filter((resultado) => resultado.combina).length === 0 && (
+      <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">
+        Nenhuma sugestão encontrada.
+      </div>
+    )}
+  </div>
+)}
+
           </div>
 
           <button
