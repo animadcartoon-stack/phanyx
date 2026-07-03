@@ -201,9 +201,24 @@ function escolherFonte(
     boldItalic: PDFFont;
   }
 ) {
-  if (campo.negrito && campo.italico) return fontes.boldItalic;
+  const nomeFonte = String(campo.fonte || "").toLowerCase();
+
+  const pareceFonteCursiva =
+    nomeFonte.includes("dancing") ||
+    nomeFonte.includes("script") ||
+    nomeFonte.includes("cursive") ||
+    nomeFonte.includes("pacifico") ||
+    nomeFonte.includes("great vibes");
+
+  if (campo.negrito && (campo.italico || pareceFonteCursiva)) {
+    return fontes.boldItalic;
+  }
+
   if (campo.negrito) return fontes.bold;
-  if (campo.italico) return fontes.italic;
+
+  if (campo.italico || pareceFonteCursiva) {
+    return fontes.italic;
+  }
 
   return fontes.normal;
 }
@@ -277,6 +292,38 @@ function resolverTextoCampo(campo: CampoCertificadoPdf, dados: DadosCertificado)
   }
 }
 
+function quebrarLinhaPorLargura(
+  texto: string,
+  fonte: PDFFont,
+  tamanho: number,
+  larguraMaxima: number
+) {
+  const palavras = texto.split(" ").filter(Boolean);
+
+  if (palavras.length === 0) return [""];
+
+  const linhas: string[] = [];
+  let linhaAtual = "";
+
+  for (const palavra of palavras) {
+    const tentativa = linhaAtual ? `${linhaAtual} ${palavra}` : palavra;
+    const larguraTentativa = fonte.widthOfTextAtSize(tentativa, tamanho);
+
+    if (larguraTentativa <= larguraMaxima || !linhaAtual) {
+      linhaAtual = tentativa;
+    } else {
+      linhas.push(linhaAtual);
+      linhaAtual = palavra;
+    }
+  }
+
+  if (linhaAtual) {
+    linhas.push(linhaAtual);
+  }
+
+  return linhas;
+}
+
 function desenharTexto(
   page: PDFPage,
   campo: CampoCertificadoPdf,
@@ -295,20 +342,57 @@ function desenharTexto(
 
   if (!texto) return;
 
-  const tamanhoEditor = Number(campo.tamanho || 18);
   const base = dimensoesEditorPeloPdf(width, height);
-  const tamanho = Math.max(4, (tamanhoEditor / base.altura) * height);
+  let tamanho = Math.max(4, (Number(campo.tamanho || 18) / base.altura) * height);
 
   const fonte = escolherFonte(campo, fontes);
   const lineHeight = Number(campo.lineHeight || 1.2);
-  const linhas =
+
+  let linhas =
     campo.textoModo === "VERTICAL"
       ? String(texto).split("")
-      : String(texto).split("\n");
+      : String(texto)
+          .split("\n")
+          .flatMap((linha) =>
+            quebrarLinhaPorLargura(
+              linha,
+              fonte,
+              tamanho,
+              Math.max(10, box.largura)
+            )
+          );
 
-  let yAtual = box.y + box.altura - tamanho;
+  while (linhas.length * tamanho * lineHeight > box.altura && tamanho > 4) {
+    tamanho -= 0.5;
 
-  for (const linha of linhas) {
+    linhas =
+      campo.textoModo === "VERTICAL"
+        ? String(texto).split("")
+        : String(texto)
+            .split("\n")
+            .flatMap((linha) =>
+              quebrarLinhaPorLargura(
+                linha,
+                fonte,
+                tamanho,
+                Math.max(10, box.largura)
+              )
+            );
+  }
+
+  const alturaLinha = tamanho * lineHeight;
+  const maxLinhas = Math.max(1, Math.floor(box.altura / alturaLinha));
+  const linhasVisiveis = linhas.slice(0, maxLinhas);
+
+  const alturaTotal = linhasVisiveis.length * alturaLinha;
+
+  let yAtual =
+    box.y +
+    box.altura -
+    (box.altura - alturaTotal) / 2 -
+    tamanho;
+
+  for (const linha of linhasVisiveis) {
     const larguraTexto = fonte.widthOfTextAtSize(linha, tamanho);
 
     let xTexto = box.x;
@@ -341,7 +425,7 @@ function desenharTexto(
       } as any);
     }
 
-    yAtual -= tamanho * lineHeight;
+    yAtual -= alturaLinha;
   }
 }
 
@@ -620,19 +704,20 @@ export async function gerarCertificadoPdf(
     }
 
     if (
-      campo.tipo === "IMAGEM" ||
-      campo.tipo === "ASSINATURA" ||
-      campo.tipo === "LOGO_INSTITUICAO"
-    ) {
-      const url = urlImagemDoCampo(campo, dados);
+  campo.tipo === "IMAGEM" ||
+  campo.tipo === "ASSINATURA" ||
+  campo.tipo === "LOGO_INSTITUICAO"
+) {
+  const url = urlImagemDoCampo(campo, dados);
 
-      if (url) {
-        await desenharImagem(pdfDoc, page, campo, url);
-        continue;
-      }
-    }
+  if (url) {
+    await desenharImagem(pdfDoc, page, campo, url);
+  }
 
-    desenharTexto(page, campo, dados, fontes);
+  continue;
+}
+
+desenharTexto(page, campo, dados, fontes);
   }
 
   return await pdfDoc.save();
