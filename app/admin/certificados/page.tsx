@@ -787,6 +787,7 @@ async function salvarConfiguracaoCertificados() {
                       <div className="flex flex-wrap gap-2">
                         <button
   type="button"
+  disabled={aluno.statusCertificado === "PRONTO"}
   onClick={async () => {
     try {
       const res = await fetch("/api/admin/certificados/gerar", {
@@ -800,13 +801,28 @@ async function salvarConfiguracaoCertificados() {
       const data = await res.json().catch(() => null);
 
       if (!res.ok || !data?.sucesso) {
-        setErro(data?.error || "Erro ao gerar certificado.");
+        setErro(
+          data?.detalhe ||
+            data?.error ||
+            "Erro ao emitir certificado."
+        );
         return;
       }
 
-      setSucesso(`Certificado de ${aluno.nome} gerado com sucesso.`);
+      setSucesso(`Certificado de ${aluno.nome} emitido com sucesso.`);
 
       setAlunos((prev) =>
+        prev.map((item) =>
+          item.id === aluno.id
+            ? {
+                ...item,
+                statusCertificado: "PRONTO",
+              }
+            : item
+        )
+      );
+
+      setTodosAlunos((prev) =>
         prev.map((item) =>
           item.id === aluno.id
             ? {
@@ -825,13 +841,22 @@ async function salvarConfiguracaoCertificados() {
             }
           : prev
       );
-    } catch {
-      setErro("Erro ao gerar certificado.");
+    } catch (error: any) {
+      setErro(
+        error?.message ||
+          "Erro ao emitir certificado. Verifique se o aluno possui matrícula e disciplina vinculada."
+      );
     }
   }}
-  className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white hover:bg-blue-700"
+  className={`rounded-lg px-3 py-2 text-xs font-semibold ${
+    aluno.statusCertificado === "PRONTO"
+      ? "cursor-not-allowed bg-slate-300 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+      : "bg-blue-600 text-white hover:bg-blue-700"
+  }`}
 >
-  Emitir certificado
+  {aluno.statusCertificado === "PRONTO"
+    ? "Certificado emitido"
+    : "Emitir certificado"}
 </button>
 
                         <button
