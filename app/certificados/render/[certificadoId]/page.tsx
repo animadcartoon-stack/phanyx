@@ -51,7 +51,7 @@ function pegarUrlImagemCampo(campo: any) {
   );
 }
 
-function disciplinasDaMatricula(certificado: any) {
+function matriculaDoCertificado(certificado: any) {
   const aluno = certificado?.aluno;
   const disciplinaCertificadoId = Number(certificado?.disciplinaId);
 
@@ -59,7 +59,7 @@ function disciplinasDaMatricula(certificado: any) {
     ? aluno.matriculas
     : [];
 
-  const matriculaRelacionada =
+  return (
     matriculas.find((matricula: any) =>
       Array.isArray(matricula?.itens)
         ? matricula.itens.some(
@@ -68,8 +68,12 @@ function disciplinasDaMatricula(certificado: any) {
               disciplinaCertificadoId
           )
         : false
-    ) || matriculas[0];
+    ) || matriculas[0] || null
+  );
+}
 
+function disciplinasDaMatricula(certificado: any) {
+  const matriculaRelacionada = matriculaDoCertificado(certificado);
   const itens = Array.isArray(matriculaRelacionada?.itens)
     ? matriculaRelacionada.itens
     : [];
@@ -88,25 +92,7 @@ function disciplinasDaMatricula(certificado: any) {
 }
 
 function cursoDoCertificado(certificado: any) {
-  const aluno = certificado?.aluno;
-  const disciplinaCertificadoId = Number(certificado?.disciplinaId);
-
-  const matriculas = Array.isArray(aluno?.matriculas)
-    ? aluno.matriculas
-    : [];
-
-  const matriculaRelacionada =
-    matriculas.find((matricula: any) =>
-      Array.isArray(matricula?.itens)
-        ? matricula.itens.some(
-            (item: any) =>
-              Number(item?.disciplinaId ?? item?.disciplina?.id) ===
-              disciplinaCertificadoId
-          )
-        : false
-    ) || matriculas[0];
-
-  return matriculaRelacionada?.curso || null;
+  return matriculaDoCertificado(certificado)?.curso || null;
 }
 
 export default async function CertificadoRenderPage({
@@ -159,7 +145,11 @@ export default async function CertificadoRenderPage({
         },
       },
       disciplina: true,
-      instituicao: true,
+            instituicao: {
+        include: {
+          configuracaoInstituicao: true,
+        },
+      },
     },
   });
 
@@ -174,6 +164,11 @@ export default async function CertificadoRenderPage({
   const instituicao = certificado.instituicao as any;
   const aluno = certificado.aluno as any;
   const curso = cursoDoCertificado(certificado);
+
+  const configuracaoInstituicao =
+    instituicao?.configuracaoInstituicao || null;
+
+  const matriculaRelacionada = matriculaDoCertificado(certificado);
 
   const camposBanco = await prisma.certificadoCampo.findMany({
     where: {
@@ -207,9 +202,10 @@ export default async function CertificadoRenderPage({
 
   const dados = {
     nomeAluno: aluno?.nome || "",
-    numeroMatricula:
-      aluno?.matriculas?.[0]?.numeroMatricula ||
-      aluno?.numeroMatricula ||
+        numeroMatricula:
+      matriculaRelacionada?.numeroMatricula ||
+      matriculaRelacionada?.numero ||
+      aluno?.matricula ||
       "",
     cpfAluno: aluno?.cpf || "",
     rgAluno: aluno?.rg || "",
@@ -225,34 +221,40 @@ export default async function CertificadoRenderPage({
       certificado?.emitidoEm
         ? new Date(certificado.emitidoEm).getFullYear()
         : new Date().getFullYear(),
-    dataConclusao: formatarData(
-      aluno?.matriculas?.[0]?.dataConclusao ||
-        aluno?.matriculas?.[0]?.dataFim ||
+        dataConclusao: formatarData(
+      matriculaRelacionada?.dataConclusao ||
+        matriculaRelacionada?.dataFim ||
         certificado?.emitidoEm
     ),
     aproveitamento: "100%",
     frequenciaTotal: "100%",
-    modalidade: aluno?.matriculas?.[0]?.modalidade || "",
-    turma: aluno?.matriculas?.[0]?.turma?.nome || "",
-    polo: aluno?.matriculas?.[0]?.polo?.nome || "",
+      modalidade: matriculaRelacionada?.modalidade || "",
+    turma: matriculaRelacionada?.turma?.nome || "",
+    polo: matriculaRelacionada?.polo?.nome || "",
 
     nomeInstituicao: instituicao?.nome || "",
     cnpjInstituicao: instituicao?.cnpj || "",
-    cidade:
+        cidade:
       instituicao?.certificadoCidade ||
-      instituicao?.cidade ||
+      configuracaoInstituicao?.cidade ||
+      configuracaoInstituicao?.cidadeAssinatura ||
+      matriculaRelacionada?.polo?.cidade ||
+      aluno?.cidade ||
       "",
     dataEmissao: formatarData(certificado?.emitidoEm || new Date()),
-    nomeDiretor:
+        nomeDiretor:
       instituicao?.certificadoCoordenadorNome ||
+      configuracaoInstituicao?.responsavelNome ||
       instituicao?.responsavelNome ||
       "",
-    assinaturaUrl:
+        assinaturaUrl:
       instituicao?.certificadoAssinaturaUrl ||
+      configuracaoInstituicao?.certificadoAssinaturaUrl ||
       instituicao?.assinaturaUrl ||
       null,
-    logoUrl:
+        logoUrl:
       instituicao?.logoUrl ||
+      configuracaoInstituicao?.logoUrl ||
       instituicao?.logo ||
       null,
 

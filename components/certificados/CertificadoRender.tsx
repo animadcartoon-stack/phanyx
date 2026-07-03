@@ -46,7 +46,14 @@ export type CampoCertificadoRender = {
 
   quantidadeDisciplinas?: number | null;
   colunasDisciplinas?: number | null;
-  espacoColunasDisciplinas?: number | null;
+   espacoColunasDisciplinas?: number | null;
+
+  imagemUrl?: string | null;
+  url?: string | null;
+  src?: string | null;
+  arquivoUrl?: string | null;
+  previewUrl?: string | null;
+  objectFit?: string | null;
 };
 
 export type DadosCertificadoRender = {
@@ -266,6 +273,33 @@ function resolverTextoCampo(
   }
 }
 
+function normalizarMarcadorDisciplinas(valor: any) {
+  const marcador = String(valor ?? "").trim();
+
+  if (!marcador) return "";
+
+  const normalizado = marcador.toLowerCase();
+
+  if (
+    normalizado === "nenhum" ||
+    normalizado === "sem" ||
+    normalizado === "sem marcador" ||
+    normalizado === "none" ||
+    normalizado === "null" ||
+    normalizado === "undefined"
+  ) {
+    return "";
+  }
+
+  if (normalizado === "bolinha") return "•";
+  if (normalizado === "seta" || normalizado === "setinha") return "➤";
+  if (normalizado === "traco" || normalizado === "traço" || normalizado === "tracinho") {
+    return "-";
+  }
+
+  return marcador;
+}
+
 function disciplinasParaRenderizar(
   campo: CampoCertificadoRender,
   dados: DadosCertificadoRender
@@ -282,7 +316,9 @@ function disciplinasParaRenderizar(
           (_, index) => `Disciplina ${index + 1}`
         );
 
-  const marcador = campo.marcador || "";
+    const marcador = normalizarMarcadorDisciplinas(
+    campo.marcador ?? campo.dadosJson?.marcador
+  );
 
   return base.map((disciplina) =>
     marcador ? `${marcador} ${disciplina}` : disciplina
@@ -334,16 +370,34 @@ function renderDisciplinas(
   );
 }
 
+function pegarUrlImagemCampo(campo: CampoCertificadoRender) {
+  return (
+    campo.imagemUrl ||
+    campo.url ||
+    campo.src ||
+    campo.arquivoUrl ||
+    campo.previewUrl ||
+    campo.dadosJson?.imagemUrl ||
+    campo.dadosJson?.url ||
+    campo.dadosJson?.src ||
+    campo.dadosJson?.arquivoUrl ||
+    campo.dadosJson?.previewUrl ||
+    null
+  );
+}
+
 function renderImagemCampo(
   campo: CampoCertificadoRender,
   dados: DadosCertificadoRender
 ) {
+  const urlDoCampo = pegarUrlImagemCampo(campo);
+
   const url =
     campo.tipo === "ASSINATURA"
-      ? dados.assinaturaUrl
+      ? urlDoCampo || dados.assinaturaUrl
       : campo.tipo === "LOGO_INSTITUICAO"
-      ? dados.logoUrl
-      : campo.dadosJson?.imagemUrl || campo.dadosJson?.src || null;
+      ? urlDoCampo || dados.logoUrl
+      : urlDoCampo;
 
   if (!url) return null;
 
@@ -355,7 +409,7 @@ function renderImagemCampo(
       style={{
         width: "100%",
         height: "100%",
-        objectFit: campo.dadosJson?.objectFit || "contain",
+        objectFit: campo.objectFit || campo.dadosJson?.objectFit || "contain",
         pointerEvents: "none",
         display: "block",
       }}

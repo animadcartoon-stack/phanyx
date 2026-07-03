@@ -220,6 +220,33 @@ function rgbToHex(r: number, g: number, b: number) {
   );
 }
 
+function normalizarMarcadorDisciplinas(valor: any) {
+  const marcador = String(valor ?? "").trim();
+
+  if (!marcador) return "";
+
+  const normalizado = marcador.toLowerCase();
+
+  if (
+    normalizado === "nenhum" ||
+    normalizado === "sem" ||
+    normalizado === "sem marcador" ||
+    normalizado === "none" ||
+    normalizado === "null" ||
+    normalizado === "undefined"
+  ) {
+    return "";
+  }
+
+  if (normalizado === "bolinha") return "•";
+  if (normalizado === "seta" || normalizado === "setinha") return "➤";
+  if (normalizado === "traco" || normalizado === "traço" || normalizado === "tracinho") {
+    return "-";
+  }
+
+  return marcador;
+}
+
 function quantidadeDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
   const quantidade = Number((campo as any)?.quantidadeDisciplinas ?? 3);
 
@@ -230,7 +257,9 @@ function quantidadeDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
 
 function textoDisciplinasExemplo(campo: Partial<CampoCertificado>) {
   const quantidade = quantidadeDisciplinasDoCampo(campo);
-  const marcador = campo.marcador || "";
+    const marcador = normalizarMarcadorDisciplinas(
+    campo.marcador ?? campo.dadosJson?.marcador
+  );
 
   return Array.from({ length: quantidade })
     .map((_, index) =>
@@ -251,7 +280,9 @@ function quantidadeColunasDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
 
 function listaDisciplinasExemplo(campo: Partial<CampoCertificado>) {
   const quantidade = quantidadeDisciplinasDoCampo(campo);
-  const marcador = campo.marcador || "";
+    const marcador = normalizarMarcadorDisciplinas(
+    campo.marcador ?? campo.dadosJson?.marcador
+  );
 
   return Array.from({ length: quantidade }).map((_, index) =>
     marcador
