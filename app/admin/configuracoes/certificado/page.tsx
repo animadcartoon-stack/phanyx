@@ -3179,6 +3179,7 @@ async function salvarModeloCompleto() {
       },
       body: JSON.stringify({
         certificadoTemplateUrl,
+        certificadoPreviewUrl,
         certificadoCoordenadorNome,
         certificadoCidade,
       }),
@@ -3188,97 +3189,54 @@ async function salvarModeloCompleto() {
 
     if (!resConfig.ok) {
       throw new Error(
-        dataConfig?.detalhe || dataConfig?.error || "Erro ao salvar configuração."
+        dataConfig?.detalhe ||
+          dataConfig?.error ||
+          "Erro ao salvar configuração."
       );
     }
 
-const resCamposBanco = await fetch("/api/admin/certificado-campos", {
-  cache: "no-store",
-});
+    const payloadCampos = campos.map((campo: any) => ({
+      ...campo,
+      dadosJson: {
+        ...(campo?.dadosJson || {}),
+        ...campo,
+      },
+    }));
 
-const dataCamposBanco = await resCamposBanco.json();
-
-if (resCamposBanco.ok && Array.isArray(dataCamposBanco?.campos)) {
-  const idsNaTela = campos
-    .map((campo: any) => Number(campo.bancoId || campo.id))
-    .filter((id) => Number.isFinite(id) && id > 0 && id < 1000000000);
-
-  const camposRemovidos = dataCamposBanco.campos.filter(
-  (campoBanco: any) => !idsNaTela.includes(Number(campoBanco.id))
-);
-
-  for (const removido of camposRemovidos) {
-    await fetch(`/api/admin/certificado-campos?id=${removido.id}`, {
-      method: "DELETE",
+    const resCampos = await fetch("/api/admin/certificado-campos", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        campos: payloadCampos,
+      }),
     });
-  }
-}
 
-    for (const campo of campos) {
-      const idEhTemporario = Number(campo.id) > 1000000000;
+    const dataCampos = await resCampos.json();
 
-      const dadosJson = {
-  ...campo,
-};
-
-      const payload = {
-        id: idEhTemporario ? undefined : campo.id,
-        tipo: campo.tipo,
-        x: campo.x,
-        y: campo.y,
-        largura: campo.largura || 220,
-        altura: campo.altura || 40,
-        fonte: campo.fonte || "Helvetica",
-        tamanho: campo.tamanho || 18,
-        cor: campo.cor || "#1e3a8a",
-        alinhamento: campo.alinhamento || "left",
-        negrito: campo.negrito || false,
-        italico: campo.italico || false,
-        sublinhado: campo.sublinhado || false,
-        ordem: campo.ordem || 1,
-        pagina: (campo as any).pagina || 1,
-        lineHeight: (campo as any).lineHeight || 1.3,
-        marcador: (campo as any).marcador || "nenhum",
-        dadosJson,
-      };
-
-      const resCampo = await fetch("/api/admin/certificado-campos", {
-        method: idEhTemporario ? "POST" : "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const dataCampo = await resCampo.json();
-
-      if (!resCampo.ok) {
-        throw new Error(
-          dataCampo?.detalhe || dataCampo?.error || "Erro ao salvar campo."
-        );
-      }
+    if (!resCampos.ok) {
+      throw new Error(
+        dataCampos?.detalhe ||
+          dataCampos?.error ||
+          "Erro ao salvar campos do certificado."
+      );
     }
 
-    const resCamposAtualizados = await fetch("/api/admin/certificado-campos", {
-  cache: "no-store",
-});
+    if (Array.isArray(dataCampos?.campos)) {
+      setCampos(
+        dataCampos.campos.map((campo: any) => {
+          const dados = campo.dadosJson || {};
 
-const dataCamposAtualizados = await resCamposAtualizados.json();
-
-if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
-  setCampos(
-    dataCamposAtualizados.campos.map((campo: any) => {
-      const dados = campo.dadosJson || {};
-
-      return {
-        ...campo,
-        ...dados,
-        bancoId: campo.id,
-        id: campo.id,
-      };
-    })
-  );
-}
+          return {
+            ...campo,
+            ...dados,
+            bancoId: campo.id,
+            id: campo.id,
+          };
+        })
+      );
+    }
 
     setMensagemSucesso("Modelo de certificado salvo com sucesso!");
     setTimeout(() => setMensagemSucesso(""), 3000);
@@ -3289,7 +3247,6 @@ if (resCamposAtualizados.ok && Array.isArray(dataCamposAtualizados?.campos)) {
     setSalvando(false);
   }
 }
-
 function camposComArrayVirtual() {
   const resultado: any[] = [];
 

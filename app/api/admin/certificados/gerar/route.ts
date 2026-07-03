@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
+import { put } from "@vercel/blob";
 
 import { gerarCertificadoVisualPdf } from "@/lib/certificados/gerarCertificadoVisualPdf";
 
@@ -175,12 +176,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const pdfBuffer = await gerarCertificadoVisualPdf({
-  certificadoId: certificado.id,
-  origin: req.nextUrl.origin,
-});
-
-const nomeArquivo = String(aluno.nome || "aluno")
+    const nomeArquivo = String(aluno.nome || "aluno")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "")
   .replace(/[^a-zA-Z0-9-_ ]/g, "")
@@ -188,14 +184,58 @@ const nomeArquivo = String(aluno.nome || "aluno")
   .replace(/\s+/g, "-")
   .toLowerCase();
 
+const nomeFinal = `certificado-${nomeArquivo || aluno.id}.pdf`;
+
+if (certificado.arquivoUrl) {
+  const arquivoExistente = await fetch(certificado.arquivoUrl, {
+    cache: "no-store",
+  });
+
+  if (arquivoExistente.ok) {
+    const arrayBuffer = await arquivoExistente.arrayBuffer();
+
+    return new NextResponse(Buffer.from(arrayBuffer) as any, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${nomeFinal}"`,
+        "Cache-Control": "public, max-age=31536000, immutable",
+      },
+    });
+  }
+}
+
+const pdfBuffer = await gerarCertificadoVisualPdf({
+  certificadoId: certificado.id,
+  origin: req.nextUrl.origin,
+});
+
+const caminhoBlob = `certificados/emitidos/instituicao-${user.instituicaoId}/certificado-${certificado.id}-${Date.now()}.pdf`;
+
+const blob = await put(caminhoBlob, pdfBuffer, {
+  access: "public",
+  contentType: "application/pdf",
+  addRandomSuffix: false,
+});
+
+await prisma.certificado.update({
+  where: {
+    id: certificado.id,
+  },
+  data: {
+    arquivoUrl: blob.url,
+  },
+});
+
 return new NextResponse(pdfBuffer as any, {
   status: 200,
   headers: {
     "Content-Type": "application/pdf",
-    "Content-Disposition": `attachment; filename="certificado-${nomeArquivo || aluno.id}.pdf"`,
+    "Content-Disposition": `attachment; filename="${nomeFinal}"`,
     "Cache-Control": "no-store",
   },
 });
+
   } catch (error: any) {
     console.error("ERRO GERAR CERTIFICADO:", error);
 

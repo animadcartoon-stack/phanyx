@@ -222,3 +222,120 @@ export async function DELETE(req: NextRequest) {
     );
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const camposRecebidos = Array.isArray(body?.campos) ? body.campos : [];
+
+    const idsValidosNaTela = camposRecebidos
+      .map((campo: any) => Number(campo?.bancoId || campo?.id))
+      .filter(
+        (id: number) =>
+          Number.isFinite(id) && id > 0 && id < 1000000000
+      );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.certificadoCampo.deleteMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+          id: {
+            notIn: idsValidosNaTela.length ? idsValidosNaTela : [0],
+          },
+        },
+      });
+
+      for (const campo of camposRecebidos) {
+        const id = Number(campo?.bancoId || campo?.id);
+        const idValido =
+          Number.isFinite(id) && id > 0 && id < 1000000000;
+
+        const dadosJson = {
+          ...campo,
+          id: undefined,
+          bancoId: undefined,
+          tempId: undefined,
+        };
+
+        const data = {
+          instituicaoId: user.instituicaoId,
+          tipo: String(campo?.tipo || ""),
+          x: Number(campo?.x ?? 100),
+          y: Number(campo?.y ?? 100),
+          largura: Number(campo?.largura ?? 220),
+          altura: Number(campo?.altura ?? 40),
+          fonte: String(campo?.fonte || "Helvetica"),
+          tamanho: Number(campo?.tamanho ?? 18),
+          cor: String(campo?.cor || "#1e3a8a"),
+          alinhamento: String(campo?.alinhamento || "left"),
+          pagina: Number(campo?.pagina ?? 1),
+          ordem: Number(campo?.ordem ?? 0),
+          lineHeight:
+            campo?.lineHeight !== undefined && campo?.lineHeight !== null
+              ? Number(campo.lineHeight)
+              : null,
+          marcador:
+            typeof campo?.marcador === "string"
+              ? campo.marcador
+              : null,
+          dadosJson,
+        };
+
+        if (!data.tipo) {
+          continue;
+        }
+
+        if (idValido) {
+          await tx.certificadoCampo.updateMany({
+            where: {
+              id,
+              instituicaoId: user.instituicaoId,
+            },
+            data,
+          });
+        } else {
+          await tx.certificadoCampo.create({
+            data,
+          });
+        }
+      }
+
+      await tx.certificado.updateMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+        },
+        data: {
+          arquivoUrl: null,
+        },
+      });
+    });
+
+    const campos = await prisma.certificadoCampo.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      campos,
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      {
+        error: "Erro ao salvar modelo completo do certificado.",
+        detalhe: error?.message || String(error),
+      },
+      { status: 500 }
+    );
+  }
+}
