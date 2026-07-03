@@ -61,6 +61,6 @@ export async function abrirBrowserPuppeteer() {
       deviceScaleFactor: 1,
     },
     executablePath,
-    headless: "shell" as any,
+    headless: true,
   });
 }

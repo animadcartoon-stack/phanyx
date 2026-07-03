@@ -6,6 +6,10 @@ import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
 
 import { gerarCertificadoVisualPdf } from "@/lib/certificados/gerarCertificadoVisualPdf";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 60;
+
 function gerarCodigoCertificado(
   instituicaoId: number,
   alunoId: number,
