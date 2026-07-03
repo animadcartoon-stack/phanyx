@@ -665,6 +665,7 @@ const figurasDecorativas = [
   const [previewAberto, setPreviewAberto] = useState(false);
   
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
+  const [certificadoPreviewUrl, setCertificadoPreviewUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
     useState("");
   const [certificadoCidade, setCertificadoCidade] = useState("");
@@ -1399,6 +1400,7 @@ const podeUsarEditorCertificados =
       }
 
       setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
+      setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
       setCertificadoCoordenadorNome(
         dataConfig?.certificadoCoordenadorNome || ""
       );
@@ -1750,7 +1752,12 @@ useEffect(() => {
       }
 
       setCertificadoTemplateUrl(data.url || "");
-      setMensagemSucesso("Modelo do certificado enviado com sucesso.");
+setCertificadoPreviewUrl(
+  data.previewUrl ||
+    data.certificadoPreviewUrl ||
+    ""
+);
+setMensagemSucesso("Modelo do certificado enviado com sucesso.");
     } catch {
       setMensagemErro("Erro ao fazer upload do modelo.");
     } finally {
@@ -1875,10 +1882,11 @@ function finalizarArrastoCanvas() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          certificadoTemplateUrl,
-          certificadoCoordenadorNome,
-          certificadoCidade,
-        }),
+  certificadoTemplateUrl,
+  certificadoPreviewUrl,
+  certificadoCoordenadorNome,
+  certificadoCidade,
+}),
       });
 
       const data = await res.json();

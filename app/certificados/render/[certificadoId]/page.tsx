@@ -258,7 +258,10 @@ export default async function CertificadoRenderPage({
     qrCodeUrl: null,
   };
 
-  const templateUrl = instituicao?.certificadoTemplateUrl || null;
+  const templateUrl =
+  instituicao?.certificadoPreviewUrl ||
+  instituicao?.certificadoTemplateUrl ||
+  null;
 
   return (
     <html lang="pt-BR">
@@ -301,11 +304,13 @@ export default async function CertificadoRenderPage({
         <CertificadoRender
           campos={campos as any}
           dados={dados}
-          templateUrl={
-            templateUrl
-              ? `${templateUrl}#toolbar=0&navpanes=0&scrollbar=0`
-              : null
-          }
+         templateUrl={
+  templateUrl
+    ? templateUrl.toLowerCase().includes(".pdf")
+      ? `${templateUrl}#toolbar=0&navpanes=0&scrollbar=0`
+      : templateUrl
+    : null
+}
           modoFundo={templateUrl ? "modelo" : "cor"}
           corFundoPagina="#ffffff"
           larguraBase={1123}

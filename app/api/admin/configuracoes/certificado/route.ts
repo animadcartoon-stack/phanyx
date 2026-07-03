@@ -13,10 +13,11 @@ export async function GET() {
     const instituicao = await prisma.instituicao.findUnique({
       where: { id: user.instituicaoId },
       select: {
-        certificadoTemplateUrl: true,
-        certificadoCoordenadorNome: true,
-        certificadoCidade: true,
-      },
+  certificadoTemplateUrl: true,
+  certificadoPreviewUrl: true,
+  certificadoCoordenadorNome: true,
+  certificadoCidade: true,
+},
     });
 
     return NextResponse.json(instituicao);
@@ -38,20 +39,26 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    const instituicao = await prisma.instituicao.update({
-      where: { id: user.instituicaoId },
-      data: {
-        certificadoTemplateUrl: body.certificadoTemplateUrl || null,
-        certificadoCoordenadorNome:
-          body.certificadoCoordenadorNome || null,
-        certificadoCidade: body.certificadoCidade || null,
-      },
-      select: {
-        certificadoTemplateUrl: true,
-        certificadoCoordenadorNome: true,
-        certificadoCidade: true,
-      },
-    });
+    const dadosAtualizacao: any = {
+  certificadoTemplateUrl: body.certificadoTemplateUrl || null,
+  certificadoCoordenadorNome: body.certificadoCoordenadorNome || null,
+  certificadoCidade: body.certificadoCidade || null,
+};
+
+if (Object.prototype.hasOwnProperty.call(body, "certificadoPreviewUrl")) {
+  dadosAtualizacao.certificadoPreviewUrl = body.certificadoPreviewUrl || null;
+}
+
+const instituicao = await prisma.instituicao.update({
+  where: { id: user.instituicaoId },
+  data: dadosAtualizacao,
+  select: {
+    certificadoTemplateUrl: true,
+    certificadoPreviewUrl: true,
+    certificadoCoordenadorNome: true,
+    certificadoCidade: true,
+  },
+});
 
     return NextResponse.json(instituicao);
   } catch (error: any) {
