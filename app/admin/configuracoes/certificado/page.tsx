@@ -56,6 +56,8 @@ type CampoCertificado = {
   lineHeight?: number | null;
   marcador?: string | null;
   quantidadeDisciplinas?: number | null;
+  colunasDisciplinas?: number | null;
+  dadosJson?: any;
   imagemUrl?: string | null;
   opacity?: number | null;
   objectFit?: string | null;
@@ -235,6 +237,25 @@ function textoDisciplinasExemplo(campo: Partial<CampoCertificado>) {
         : `Disciplina ${index + 1}`
     )
     .join("\n");
+}
+
+function quantidadeColunasDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
+  const colunas = Number((campo as any)?.colunasDisciplinas ?? 1);
+
+  if (!Number.isFinite(colunas)) return 1;
+
+  return Math.max(1, Math.min(4, Math.round(colunas)));
+}
+
+function listaDisciplinasExemplo(campo: Partial<CampoCertificado>) {
+  const quantidade = quantidadeDisciplinasDoCampo(campo);
+  const marcador = campo.marcador || "";
+
+  return Array.from({ length: quantidade }).map((_, index) =>
+    marcador
+      ? `${marcador} Disciplina ${index + 1}`
+      : `Disciplina ${index + 1}`
+  );
 }
 
 function cssColorToHex(cor: string) {
@@ -1474,6 +1495,77 @@ useEffect(() => {
     [campos, campoSelecionadoId]
   );
 
+  function atualizarColunasDisciplinasCampo(valor: number) {
+  if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    return;
+  }
+
+  const colunas = Math.max(1, Math.min(4, Math.round(Number(valor || 1))));
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (campo.id !== campoSelecionado.id) return campo;
+
+      const quantidade = quantidadeDisciplinasDoCampo(campo);
+      const tamanho = Number(campo.tamanho || 14);
+      const lineHeight = Number(campo.lineHeight || 1.35);
+      const linhasVisuais = Math.ceil(quantidade / colunas);
+
+      return {
+        ...campo,
+        colunasDisciplinas: colunas,
+        lineHeight,
+        altura: Math.max(
+          Number(campo.altura || 0),
+          Math.ceil(linhasVisuais * tamanho * lineHeight + 18)
+        ),
+        dadosJson: {
+          ...((campo as any).dadosJson || {}),
+          quantidadeDisciplinas: quantidade,
+          colunasDisciplinas: colunas,
+          lineHeight,
+        },
+      };
+    })
+  );
+}
+
+function atualizarQuantidadeDisciplinasCampo(valor: number) {
+  if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    return;
+  }
+
+  const quantidade = Math.max(1, Math.min(80, Math.round(Number(valor || 1))));
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (campo.id !== campoSelecionado.id) return campo;
+
+      const tamanho = Number(campo.tamanho || 14);
+      const lineHeight = Number(campo.lineHeight || 1.35);
+      const colunas = quantidadeColunasDisciplinasDoCampo(campo);
+      const linhasVisuais = Math.ceil(quantidade / colunas);
+
+      return {
+        ...campo,
+        quantidadeDisciplinas: quantidade,
+        colunasDisciplinas: colunas,
+        lineHeight,
+        altura: Math.max(
+          Number(campo.altura || 0),
+          Math.ceil(linhasVisuais * tamanho * lineHeight + 18)
+        ),
+        dadosJson: {
+          ...((campo as any).dadosJson || {}),
+          quantidadeDisciplinas: quantidade,
+          colunasDisciplinas: colunas,
+          lineHeight,
+        },
+      };
+    })
+  );
+}
+
 useEffect(() => {
   function handleCopiarColar(e: KeyboardEvent) {
     const alvo = e.target as HTMLElement | null;
@@ -1783,10 +1875,12 @@ negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
 
 lineHeight: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1.35 : undefined,
 quantidadeDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 3 : undefined,
+colunasDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1 : undefined,
 dadosJson:
   tipo === "DISCIPLINAS_CONCLUIDAS"
     ? {
         quantidadeDisciplinas: 3,
+        colunasDisciplinas: 1,
         lineHeight: 1.35,
       }
     : undefined,
@@ -1807,13 +1901,17 @@ dadosJson:
     ...(data?.dadosJson || {}),
     ...data,
     quantidadeDisciplinas:
-      tipo === "DISCIPLINAS_CONCLUIDAS"
-        ? data?.dadosJson?.quantidadeDisciplinas ?? 3
-        : data?.quantidadeDisciplinas,
-    lineHeight:
-      tipo === "DISCIPLINAS_CONCLUIDAS"
-        ? data?.dadosJson?.lineHeight ?? 1.35
-        : data?.lineHeight,
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? data?.dadosJson?.quantidadeDisciplinas ?? 3
+    : data?.quantidadeDisciplinas,
+colunasDisciplinas:
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? data?.dadosJson?.colunasDisciplinas ?? 1
+    : data?.colunasDisciplinas,
+lineHeight:
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? data?.dadosJson?.lineHeight ?? 1.35
+    : data?.lineHeight,
   },
 ]);
       setCampoSelecionadoId(data.id);
@@ -3166,33 +3264,6 @@ function atualizarContornoTextoCampoSelecionado(
           }
         : campo
     )
-  );
-}
-
-function atualizarQuantidadeDisciplinasCampo(valor: number) {
-  if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
-    return;
-  }
-
-  const quantidade = Math.max(1, Math.min(80, Math.round(Number(valor || 1))));
-
-  setCampos((prev) =>
-    prev.map((campo) => {
-      if (campo.id !== campoSelecionado.id) return campo;
-
-      const tamanho = Number(campo.tamanho || 14);
-      const lineHeight = Number(campo.lineHeight || 1.35);
-
-      return {
-        ...campo,
-        quantidadeDisciplinas: quantidade,
-        lineHeight,
-        altura: Math.max(
-          Number(campo.altura || 0),
-          Math.ceil(quantidade * tamanho * lineHeight + 18)
-        ),
-      };
-    })
   );
 }
 
@@ -5817,8 +5888,8 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
   whiteSpace:
     c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-  display: "flex",
-  alignItems: "center",
+  display: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "block" : "flex",
+alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
   justifyContent:
     c.alinhamento === "center"
       ? "center"
@@ -5829,8 +5900,42 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   boxSizing: "border-box",
 }}
     >
-      {c.tipo === "DISCIPLINAS_CONCLUIDAS"
-  ? textoDisciplinasExemplo(c)
+      {c.tipo === "DISCIPLINAS_CONCLUIDAS" ? (
+  <div
+    style={{
+      width: "100%",
+      height: "100%",
+      display: "grid",
+      gridTemplateColumns: `repeat(${quantidadeColunasDisciplinasDoCampo(
+        c
+      )}, minmax(0, 1fr))`,
+      columnGap: "12px",
+      rowGap: "2px",
+      alignContent: "center",
+      justifyItems:
+        c.alinhamento === "center"
+          ? "center"
+          : c.alinhamento === "right"
+          ? "end"
+          : "start",
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+    }}
+  >
+    {listaDisciplinasExemplo(c).map((disciplina, index) => (
+      <div
+        key={`${c.id}-disciplina-${index}`}
+        style={{
+          minWidth: 0,
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+        }}
+      >
+        {disciplina}
+      </div>
+    ))}
+  </div>
+)
         : c.tipo === "APROVEITAMENTO"
         ? "100%"
         : c.tipo === "FREQUENCIA_TOTAL"
@@ -6716,6 +6821,53 @@ return;
     )}
   </div>
 )}
+
+<div className="mt-4 border-t border-slate-700 pt-3">
+  <label className="mb-2 block text-xs font-semibold text-slate-300">
+    Quantidade de colunas
+  </label>
+
+  <div className="flex items-center gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        atualizarColunasDisciplinasCampo(
+          quantidadeColunasDisciplinasDoCampo(campoSelecionado) - 1
+        )
+      }
+      className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
+    >
+      −
+    </button>
+
+    <input
+      type="number"
+      min={1}
+      max={4}
+      value={quantidadeColunasDisciplinasDoCampo(campoSelecionado)}
+      onChange={(e) =>
+        atualizarColunasDisciplinasCampo(Number(e.target.value))
+      }
+      className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
+    />
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarColunasDisciplinasCampo(
+          quantidadeColunasDisciplinasDoCampo(campoSelecionado) + 1
+        )
+      }
+      className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
+    >
+      +
+    </button>
+  </div>
+
+  <p className="mt-2 text-[11px] leading-5 text-slate-400">
+    Use 2 ou 3 colunas quando o certificado tiver muitas disciplinas.
+  </p>
+</div>
 
 {campoSelecionado && (
   <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
