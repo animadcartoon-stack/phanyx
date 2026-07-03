@@ -9,8 +9,9 @@ type Props = {
     certificadoId: string;
   };
   searchParams?: {
-    t?: string;
-  };
+  t?: string;
+  overlay?: string;
+};
 };
 
 function formatarData(data: any) {
@@ -126,6 +127,8 @@ export default async function CertificadoRenderPage({
     certificadoId,
     searchParams?.t
   );
+
+  const modoOverlay = searchParams?.overlay === "1";
 
   if (!tokenValido) {
     return (
@@ -278,14 +281,14 @@ export default async function CertificadoRenderPage({
               }
 
               html,
-              body {
-                width: 1123px;
-                height: 794px;
-                margin: 0;
-                padding: 0;
-                overflow: hidden;
-                background: white;
-              }
+body {
+  width: 1123px;
+  height: 794px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: ${modoOverlay ? "transparent" : "white"};
+}
 
               body {
                 -webkit-print-color-adjust: exact;
@@ -302,22 +305,25 @@ export default async function CertificadoRenderPage({
 
       <body>
         <CertificadoRender
-          campos={campos as any}
-          dados={dados}
-         templateUrl={
-  templateUrl
-    ? templateUrl.toLowerCase().includes(".pdf")
-      ? `${templateUrl}#toolbar=0&navpanes=0&scrollbar=0`
+  campos={campos as any}
+  dados={dados}
+  templateUrl={
+    modoOverlay
+      ? null
       : templateUrl
-    : null
-}
-          modoFundo={templateUrl ? "modelo" : "cor"}
-          corFundoPagina="#ffffff"
-          larguraBase={1123}
-          alturaBase={794}
-          escala={1}
-          mostrarBordas={false}
-        />
+      ? templateUrl.toLowerCase().includes(".pdf")
+        ? `${templateUrl}#toolbar=0&navpanes=0&scrollbar=0`
+        : templateUrl
+      : null
+  }
+  modoFundo={modoOverlay ? "cor" : templateUrl ? "modelo" : "cor"}
+  corFundoPagina={modoOverlay ? "transparent" : "#ffffff"}
+  larguraBase={1123}
+  alturaBase={794}
+  escala={1}
+  mostrarBordas={false}
+  fundoTransparente={modoOverlay}
+/>
       </body>
     </html>
   );

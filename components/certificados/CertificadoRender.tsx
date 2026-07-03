@@ -89,6 +89,7 @@ type Props = {
   alturaBase?: number;
   escala?: number;
   mostrarBordas?: boolean;
+  fundoTransparente?: boolean;
 };
 
 function normalizarOpacidade(valor: any, padrao = 1) {
@@ -421,7 +422,9 @@ export default function CertificadoRender({
   alturaBase = 794,
   escala = 1,
   mostrarBordas = false,
+  fundoTransparente = false,
 }: Props) {
+
   const camposOrdenados = [...(campos || [])].sort(
     (a, b) => Number(a.ordem || 0) - Number(b.ordem || 0)
   );
@@ -436,25 +439,46 @@ export default function CertificadoRender({
         transform: `scale(${escala})`,
         transformOrigin: "top left",
         overflow: "hidden",
-        background:
-          modoFundo === "cor" || !templateUrl ? corFundoPagina || "#ffffff" : "#ffffff",
+        background: fundoTransparente
+  ? "transparent"
+  : modoFundo === "cor" || modoFundo === "phanyx" || !templateUrl
+  ? corFundoPagina || "#ffffff"
+  : "#ffffff",
       }}
     >
-      {templateUrl && modoFundo !== "phanyx" && (
-        <iframe
-          src={templateUrl}
-          title="Modelo do certificado"
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            border: 0,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
-        />
-      )}
+      {templateUrl && modoFundo !== "phanyx" && !fundoTransparente && (
+  templateUrl.toLowerCase().includes(".pdf") ? (
+    <iframe
+      src={templateUrl}
+      title="Modelo do certificado"
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        border: 0,
+        pointerEvents: "none",
+        zIndex: 0,
+      }}
+    />
+  ) : (
+    <img
+      src={templateUrl}
+      alt="Modelo do certificado"
+      draggable={false}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit: "fill",
+        pointerEvents: "none",
+        zIndex: 0,
+        display: "block",
+      }}
+    />
+  )
+)}
 
       {camposOrdenados.map((campo) => {
         const largura = Number(campo.largura || 220);
