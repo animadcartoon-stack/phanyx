@@ -4,6 +4,7 @@ import Image from "next/image";
 import FormaVetorial from "./components/FormaVetorial";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
+import CertificadoRender from "@/components/certificados/CertificadoRender";
 import {
   useEffect,
   useMemo,
@@ -662,6 +663,7 @@ const figurasDecorativas = [
 });
 
   const [previewAberto, setPreviewAberto] = useState(false);
+  
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
     useState("");
@@ -3350,6 +3352,51 @@ function atualizarContornoTextoCampoSelecionado(
     )
   );
 }
+
+const camposPreviewCertificado = [
+  ...camposComArrayVirtual(),
+  ...copiasPreviewArray,
+];
+
+const dadosPreviewCertificado = {
+  nomeAluno: "José Exemplo da Silva",
+  numeroMatricula: "Matrícula 000123",
+  cpfAluno: "000.000.000-00",
+  rgAluno: "00.000.000-0",
+
+  nomeCurso: "Curso concluído pelo aluno",
+  disciplinasConcluidas: [
+    "Disciplina 1",
+    "Disciplina 2",
+    "Disciplina 3",
+    "Disciplina 4",
+    "Disciplina 5",
+    "Disciplina 6",
+  ],
+  cargaHoraria: "120 horas",
+  anoConclusao: "2026",
+  dataConclusao: "30/04/2026",
+  aproveitamento: "100%",
+  frequenciaTotal: "100%",
+  modalidade: "EAD",
+  turma: "Turma A",
+  polo: "Polo Sede",
+
+  nomeInstituicao: "Nome da Instituição",
+  cnpjInstituicao: "00.000.000/0001-00",
+  cidade: certificadoCidade || "Cidade",
+  dataEmissao: "30/04/2026",
+  nomeDiretor:
+    nomeDiretorInstituicao ||
+    certificadoCoordenadorNome ||
+    "Nome do Diretor Acadêmico",
+  assinaturaUrl: certificadoAssinaturaUrl || null,
+  logoUrl: null,
+
+  numeroCertificado: "CERT-2026-0001",
+  codigoValidacao: "ABC123XYZ",
+  qrCodeUrl: null,
+};
 
   return (
   <div className="mx-auto max-w-[1600px] p-6">
@@ -8146,372 +8193,40 @@ atualizarCampoLocal("tamanho", tamanho);
     </button>
 
     <div className="flex h-full w-full items-center justify-center overflow-auto rounded-2xl bg-slate-900 p-8">
-  <div
-    style={{
-      width: `${baseCanvas.largura * previewScale}px`,
-      height: `${baseCanvas.altura * previewScale}px`,
-      flexShrink: 0,
-    }}
-  >
-    <div
-      className="relative overflow-hidden rounded-xl border-4 border-white shadow-2xl"
-      style={{
-        width: `${baseCanvas.largura}px`,
-        height: `${baseCanvas.altura}px`,
-        backgroundColor: corFundoPagina,
-        transform: `scale(${previewScale})`,
-        transformOrigin: "top left",
-      }}
-    >
-      {modoFundo === "modelo" && certificadoTemplateUrl && (
-        <iframe
-          src={`${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`}
-          className="pointer-events-none absolute inset-0 h-full w-full"
-        />
-      )}
-
-{[...camposComArrayVirtual(), ...copiasPreviewArray].map((c) => {
- 
-if (c.tipo === "FORMA") {
-  return (
-    <div
-      key={c.id}
-      data-campo-certificado-id={c.id}
-      className="absolute"
-      style={{
-        left: `${c.x}px`,
-        top: `${c.y}px`,
-        width: `${c.largura || 120}px`,
-        height: `${c.altura || 120}px`,
-        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
-        transform: `rotate(${(c as any).rotate || 0}deg)`,
-        transformOrigin: "center center",
-        opacity: c.opacity ?? 1,
-      }}
-    >
-      <FormaVetorial
-        campo={c as any}
-        selecionado={false}
-        modo="preview"
-        onChange={() => {}}
-      />
-    </div>
-  );
-}
-
-if (c.tipo === "TEXTO_LIVRE") {
-  const selecionadoTexto = campoSelecionadoId === c.id;
-
-  return (
-    <div
-      key={c.id}
-      className="absolute"
-      onMouseDown={(event) => {
-  event.stopPropagation();
-
-  if (event.button === 2) return;
-
-  setCampoSelecionadoId(c.id);
-  setCamposSelecionadosIds([c.id]);
-
-  const alvo = event.target as HTMLElement;
-const tag = alvo.tagName.toLowerCase();
-
-if (
-  alvo.isContentEditable ||
-  tag === "textarea" ||
-  tag === "input" ||
-  tag === "select"
-) {
-  return;
-}
-
-iniciarDrag(event as any, c);
-}}
-      style={{
-        left: `${c.x}px`,
-        top: `${c.y}px`,
-        width: `${c.largura || 320}px`,
-        height: `${c.altura || 120}px`,
-        zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
-      }}
-    >
-
-              {selecionadoTexto && (
-          <div
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              iniciarDrag(e as any, c);
-            }}
-            className="absolute -top-7 left-0 z-[999999] cursor-move rounded-t-lg bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow"
-            title="Arrastar caixa de texto"
-          >
-            ↕ Mover texto
-          </div>
-        )}
-
       <div
-  contentEditable
-  suppressContentEditableWarning
-  data-texto-livre-id={c.id}
-  onMouseDown={(e) => {
-    e.stopPropagation();
-    setCampoSelecionadoId(c.id);
-    setCamposSelecionadosIds([c.id]);
-  }}
-  onBlur={(e) => {
-    const texto = e.currentTarget.innerText;
-    const textoHtml = e.currentTarget.innerHTML;
-
-    setCampos((prev) =>
-      prev.map((item) =>
-        item.id === c.id ? { ...item, texto, textoHtml } : item
-      )
-    );
-  }}
-
-        className={`h-full w-full overflow-hidden rounded-md px-2 py-1 outline-none ${
-          selecionadoTexto
-            ? "border-2 border-blue-600 bg-blue-50/10"
-            : "border border-blue-400/50 bg-transparent"
-        }`}
         style={{
-  fontFamily: c.fonte || "Arial",
-  fontSize: c.tamanho || 18,
-  color: c.cor || "#1e3a8a",
-  opacity: (c as any).opacity ?? 1,
-  filter: (c as any).filter || "none",
-  ...efeitosTextoCampoCss(c),
-          fontWeight: c.negrito ? 700 : 400,
-          fontStyle: c.italico ? "italic" : "normal",
-          textDecoration: c.sublinhado ? "underline" : "none",
-          textAlign: (c.alinhamento as any) || "left",
-          lineHeight: c.lineHeight || 1.3,
-          whiteSpace: "pre-wrap",
-          wordBreak: "break-word",
-          cursor: "text",
-          direction: "ltr",
-          unicodeBidi: "normal",
-          writingMode:
-  (c as any).textoModo === "VERTICAL"
-    ? "vertical-rl"
-    : "horizontal-tb",
-          caretColor: corTextoSelecionado || c.cor || "#1e3a8a",
+          width: `${baseCanvas.largura * previewScale}px`,
+          height: `${baseCanvas.altura * previewScale}px`,
+          flexShrink: 0,
         }}
-      dangerouslySetInnerHTML={{
-  __html:
-    (c as any).textoHtml ||
-    c.texto ||
-    (c.textoTipo === "TITULO" ? "Digite seu título" : "Digite seu texto"),
-}}
-/>
-
-      {selecionadoTexto && (
+      >
         <div
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-
-            const startX = e.clientX;
-            const startY = e.clientY;
-            const larguraInicial = c.largura || 320;
-            const alturaInicial = c.altura || 120;
-
-            const move = (ev: globalThis.MouseEvent) => {
-              setCampos((prev) =>
-                prev.map((item) =>
-                  item.id === c.id
-                    ? {
-                        ...item,
-                        largura: Math.max(
-                          80,
-                          Math.round(larguraInicial + (ev.clientX - startX) / escala)
-                        ),
-                        altura: Math.max(
-                          40,
-                          Math.round(alturaInicial + (ev.clientY - startY) / escala)
-                        ),
-                      }
-                    : item
-                )
-              );
-            };
-
-            const up = () => {
-              window.removeEventListener("mousemove", move);
-              window.removeEventListener("mouseup", up);
-            };
-
-            window.addEventListener("mousemove", move);
-            window.addEventListener("mouseup", up);
+          className="rounded-xl border-4 border-white shadow-2xl"
+          style={{
+            width: `${baseCanvas.largura * previewScale}px`,
+            height: `${baseCanvas.altura * previewScale}px`,
+            overflow: "hidden",
           }}
-          className="absolute -bottom-3 -right-3 z-[999999] h-6 w-6 cursor-se-resize rounded-full border-2 border-white bg-blue-600 shadow-lg"
-          title="Redimensionar caixa de texto"
-        />
-      )}
-    </div>
-  );
-}
-
-  if (c.tipo === "IMAGEM") {
-
-    return (
-      <div
-  key={c.id}
-  className="absolute"
-  style={{
-  left: `${c.x}px`,
-  top: `${c.y}px`,
-  width: `${c.largura || 150}px`,
-  height: `${c.altura || 150}px`,
-  zIndex: c.ordem || 10,
-  transform: `rotate(${(c as any).rotate || 0}deg)`,
-  transformOrigin: "center center",
-  opacity: c.opacity ?? 1,
-}}
->
-  <div className="relative h-full w-full overflow-hidden">
-    <img
-      src={
-  (c as any).imagemUrl ||
-  (c as any).url ||
-  (c as any).src ||
-  (c as any).arquivoUrl ||
-  (c as any).previewUrl ||
-  ""
-}
-      alt="Imagem"
-      draggable={false}
-      className="absolute"
-      style={{
-        top: "0px",
-        left: "0px",
-        width: `${(c.largura || 150) + (c.crop?.left || 0) + (c.crop?.right || 0)}px`,
-        height: `${(c.altura || 150) + (c.crop?.top || 0) + (c.crop?.bottom || 0)}px`,
-        objectFit: (c as any).objectFit || "contain",
-        opacity: c.opacity || 1,
-        filter: (c as any).filter || "none",
-        transform: `
-  translate(-${c.crop?.left || 0}px, -${c.crop?.top || 0}px)
-  scaleX(${(c as any).flipX ? -1 : 1})
-  scaleY(${(c as any).flipY ? -1 : 1})
-`,
-        pointerEvents: "none",
-      }}
-    />
-  </div>
-</div>
-    );
-  }
-
-  return (
-    <div
-      key={c.id}
-      className="absolute"
-      style={{
-  left: `${c.x}px`,
-  top: `${c.y}px`,
-  width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 220)}px`,
-height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
-  fontSize: `${c.tamanho || 18}px`,
-  zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
-  fontFamily: c.fonte || "Arial",
-  color: c.cor || "#1e3a8a",
-  textAlign:
-    (c.alinhamento as "left" | "center" | "right") || "left",
-  lineHeight: c.lineHeight || 1.2,
-  ...efeitosTextoCampoCss(c),
-  textShadow: sombraProjetadaCss(c),
-  filter: (c as any).filter || "none",
-  opacity: (c as any).opacity ?? 1,
-  transform: transformacaoCampoCss(c),
-  transformOrigin: "center center",
-  letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
-  wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
-  whiteSpace:
-    c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-  display: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "block" : "flex",
-  alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
-  justifyContent:
-    c.alinhamento === "center"
-      ? "center"
-      : c.alinhamento === "right"
-      ? "flex-end"
-      : "flex-start",
-  overflow: "visible",
-  boxSizing: "border-box",
-  padding: "0 4px",
-}}
-    >
-      {c.tipo === "ASSINATURA" ? (
-  certificadoAssinaturaUrl ? (
-    <img
-  src={certificadoAssinaturaUrl}
-  alt="Assinatura do diretor"
-  draggable={false}
-  style={{
-    width: "100%",
-    height: "100%",
-    objectFit: "contain",
-    display: "block",
-    pointerEvents: "none",
-  }}
-/>
-  ) : (
-    "Assinatura"
-  )
-) : c.tipo === "NOME_DIRETOR" ? (
-  nomeDiretorInstituicao || "Nome do diretor"
-) : c.tipo === "NOME_ALUNO" ? (
-  "José Exemplo da Silva"
-) : c.tipo === "NUMERO_MATRICULA" ? (
-  "Matrícula 000123"
-) : c.tipo === "CPF_ALUNO" ? (
-  "000.000.000-00"
-) : c.tipo === "RG_ALUNO" ? (
-  "00.000.000-0"
-) : c.tipo === "NOME_CURSO" ? (
-  "Curso concluído pelo aluno"
-) : c.tipo === "CARGA_HORARIA" ? (
-  "120 horas"
-) : c.tipo === "ANO_CONCLUSAO" ? (
-  "2026"
-) : c.tipo === "DATA_CONCLUSAO" ? (
-  "30/04/2026"
-) : c.tipo === "APROVEITAMENTO" ? (
-  "100%"
-) : c.tipo === "FREQUENCIA_TOTAL" ? (
-  "100%"
-) : c.tipo === "MODALIDADE" ? (
-  "EAD"
-) : c.tipo === "TURMA" ? (
-  "Turma A"
-) : c.tipo === "POLO" ? (
-  "Polo Sede"
-) : c.tipo === "NOME_INSTITUICAO" ? (
-  "Nome da Instituição"
-) : c.tipo === "CNPJ_INSTITUICAO" ? (
-  "00.000.000/0001-00"
-) : c.tipo === "CIDADE" ? (
-  certificadoCidade || "Cidade"
-) : c.tipo === "DATA_EMISSAO" ? (
-  "30/04/2026"
-) : c.tipo === "NUMERO_CERTIFICADO" ? (
-  "CERT-2026-0001"
-) : c.tipo === "CODIGO_VALIDACAO" ? (
-  "ABC123XYZ"
-) : (
-  c.tipo
-)}
-    </div>
-  );
-})}
-
+        >
+          <CertificadoRender
+            campos={camposPreviewCertificado as any}
+            dados={dadosPreviewCertificado}
+            templateUrl={
+              modoFundo === "modelo" && certificadoTemplateUrl
+                ? `${certificadoTemplateUrl}#toolbar=0&navpanes=0&scrollbar=0`
+                : null
+            }
+            modoFundo={modoFundo as any}
+            corFundoPagina={corFundoPagina}
+            larguraBase={baseCanvas.largura}
+            alturaBase={baseCanvas.altura}
+            escala={previewScale}
+            mostrarBordas={false}
+          />
+        </div>
       </div>
     </div>
   </div>
-</div>
 )}
 
 {menuContexto && (
