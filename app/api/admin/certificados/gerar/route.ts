@@ -3,7 +3,8 @@ import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
-import { gerarCertificadoPdf } from "@/lib/certificados/gerarCertificado";
+
+import { gerarCertificadoVisualPdf } from "@/lib/certificados/gerarCertificadoVisualPdf";
 
 function gerarCodigoCertificado(
   instituicaoId: number,
@@ -170,97 +171,27 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const templateUrl = (instituicao as any)?.certificadoTemplateUrl;
+    const pdfBuffer = await gerarCertificadoVisualPdf({
+  certificadoId: certificado.id,
+  origin: req.nextUrl.origin,
+});
 
-    if (!templateUrl) {
-      return NextResponse.json(
-        { error: "A instituição ainda não configurou o modelo de certificado." },
-        { status: 400 }
-      );
-    }
+const nomeArquivo = String(aluno.nome || "aluno")
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/[^a-zA-Z0-9-_ ]/g, "")
+  .trim()
+  .replace(/\s+/g, "-")
+  .toLowerCase();
 
-    const templateResponse = await fetch(templateUrl);
-
-    if (!templateResponse.ok) {
-      return NextResponse.json(
-        { error: "Não foi possível carregar o modelo de certificado." },
-        { status: 500 }
-      );
-    }
-
-    const camposModelo = await prisma.certificadoCampo.findMany({
-      where: {
-        instituicaoId: user.instituicaoId,
-      },
-      orderBy: {
-        ordem: "asc",
-      },
-    });
-
-    const matriculaAtual = aluno.matriculas?.[0] || null;
-
-    const disciplinasConcluidas = aluno.matriculas
-      .flatMap((matricula) => matricula.itens)
-      .map((item) => item.disciplina?.nome)
-      .filter(Boolean)
-      .join("\n");
-
-    const templateArrayBuffer = await templateResponse.arrayBuffer();
-
-    const pdfBytes = await gerarCertificadoPdf(
-      new Uint8Array(templateArrayBuffer),
-      {
-        nomeAluno: aluno.nome || "Aluno",
-        nomeCurso:
-          matriculaAtual?.curso?.nome ||
-          disciplina.nome ||
-          "Curso concluído pelo aluno",
-        nomeInstituicao: (instituicao as any)?.nome || "Instituição",
-        dataConclusao: certificado.emitidoEm,
-        codigoValidacao: certificado.codigo,
-
-        numeroMatricula:
-          (matriculaAtual as any)?.numeroMatricula ||
-          (aluno as any)?.matricula ||
-          null,
-        cpfAluno: (aluno as any)?.cpf || null,
-        rgAluno: (aluno as any)?.rg || null,
-        cidade: (instituicao as any)?.certificadoCidade || null,
-        coordenadorNome: (instituicao as any)?.certificadoCoordenadorNome || null,
-        assinaturaUrl: (instituicao as any)?.certificadoAssinaturaUrl || null,
-        logoUrl:
-          (instituicao as any)?.logoUrl ||
-          (instituicao as any)?.logo ||
-          (instituicao as any)?.imagemUrl ||
-          null,
-
-        disciplinasConcluidas:
-          disciplinasConcluidas || disciplina.nome || "Disciplina concluída",
-        cargaHoraria:
-          (disciplina as any)?.cargaHoraria
-            ? `${(disciplina as any).cargaHoraria} horas`
-            : null,
-        anoConclusao: String(new Date(certificado.emitidoEm).getFullYear()),
-        aproveitamento: "100%",
-        frequenciaTotal: "100%",
-        modalidade: (matriculaAtual as any)?.modalidade || null,
-        turma:
-          matriculaAtual?.itens
-            ?.map((item) => (item as any)?.turma?.nome)
-            ?.filter(Boolean)
-            ?.join(", ") || null,
-        polo: (matriculaAtual as any)?.polo?.nome || null,
-        cnpjInstituicao: (instituicao as any)?.cnpj || null,
-      },
-      camposModelo
-    );
-
-    return new NextResponse(Buffer.from(pdfBytes), {
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename=certificado-${aluno.nome}.pdf`,
-      },
-    });
+return new NextResponse(pdfBuffer as any, {
+  status: 200,
+  headers: {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="certificado-${nomeArquivo || aluno.id}.pdf"`,
+    "Cache-Control": "no-store",
+  },
+});
   } catch (error: any) {
     console.error("ERRO GERAR CERTIFICADO:", error);
 
