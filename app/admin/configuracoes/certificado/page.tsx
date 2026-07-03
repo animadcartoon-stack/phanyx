@@ -238,6 +238,47 @@ function calcularSombra(angulo: number, distancia: number) {
   };
 }
 
+function sombraProjetadaCss(campo: Partial<CampoCertificado>) {
+  if (!campo?.sombraAtiva) return "none";
+
+  const cor = campo.sombraCor || "#000000";
+
+  const opacidadeBruta =
+    campo.sombraOpacidade === null || campo.sombraOpacidade === undefined
+      ? 0.35
+      : Number(campo.sombraOpacidade);
+
+  const opacidade =
+    opacidadeBruta > 1
+      ? Math.max(0, Math.min(1, opacidadeBruta / 100))
+      : Math.max(0, Math.min(1, opacidadeBruta));
+
+  const x =
+    campo.sombraX !== null && campo.sombraX !== undefined
+      ? Number(campo.sombraX)
+      : 3;
+
+  const y =
+    campo.sombraY !== null && campo.sombraY !== undefined
+      ? Number(campo.sombraY)
+      : 3;
+
+  const blur =
+    campo.sombraBlur !== null && campo.sombraBlur !== undefined
+      ? Number(campo.sombraBlur)
+      : 6;
+
+  return `${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`;
+}
+
+function transformacaoCampoCss(campo: Partial<CampoCertificado>) {
+  const rotate = Number(campo.rotate || 0);
+  const scaleX = campo.flipX ? -1 : 1;
+  const scaleY = campo.flipY ? -1 : 1;
+
+  return `rotate(${rotate}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
+}
+
 function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
   if (forma === "LINHA") {
     return [
@@ -5541,6 +5582,11 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   fontStyle: c.italico ? "italic" : "normal",
   textDecoration: c.sublinhado ? "underline" : "none",
   lineHeight: c.lineHeight || 1.3,
+  textShadow: sombraProjetadaCss(c),
+  filter: (c as any).filter || "none",
+  opacity: (c as any).opacity ?? 1,
+  transform: transformacaoCampoCss(c),
+  transformOrigin: "center center",
   letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
   wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
   whiteSpace:
@@ -7812,6 +7858,11 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   textAlign:
     (c.alinhamento as "left" | "center" | "right") || "left",
   lineHeight: c.lineHeight || 1.2,
+  textShadow: sombraProjetadaCss(c),
+  filter: (c as any).filter || "none",
+  opacity: (c as any).opacity ?? 1,
+  transform: transformacaoCampoCss(c),
+  transformOrigin: "center center",
   letterSpacing: `${(c as any).letterSpacing ?? 0}px`,
   wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
   whiteSpace:
@@ -8304,7 +8355,7 @@ aplicarEstiloTextoSelecionado({
   atualizarCampoLocal("sombraY", campoSelecionado?.sombraY ?? 3);
   atualizarCampoLocal("sombraBlur", campoSelecionado?.sombraBlur ?? 6);
   atualizarCampoLocal("sombraCor", campoSelecionado?.sombraCor || "#000000");
-  atualizarCampoLocal("sombraOpacidade", campoSelecionado?.sombraOpacidade ?? 0.35);
+  atualizarCampoLocal("sombraOpacidade", campoSelecionado?.sombraOpacidade ?? 35);
   setMenuContexto(null);
 }}
       className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
