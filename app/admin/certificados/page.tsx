@@ -150,13 +150,16 @@ export default function AdminCertificadosPage() {
   const [alunoSelecionado, setAlunoSelecionado] = useState<AlunoItem | null>(null);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
+  const [visualizandoCertificado, setVisualizandoCertificado] = useState(false);
+  const [certificadoPreviewUrl, setCertificadoPreviewUrl] = useState("");
+  const [certificadoPreviewNome, setCertificadoPreviewNome] = useState("");
   const [salvandoConfiguracao, setSalvandoConfiguracao] = useState(false);
-const [regraLiberacaoCertificado, setRegraLiberacaoCertificado] =
+  const [regraLiberacaoCertificado, setRegraLiberacaoCertificado] =
   useState("CURSO_COMPLETO");
-const [mediaMinimaCertificado, setMediaMinimaCertificado] = useState("7");
-const [frequenciaMinimaCertificado, setFrequenciaMinimaCertificado] =
+  const [mediaMinimaCertificado, setMediaMinimaCertificado] = useState("7");
+  const [frequenciaMinimaCertificado, setFrequenciaMinimaCertificado] =
   useState("75");
-const [liberarCertificadoAutomatico, setLiberarCertificadoAutomatico] =
+  const [liberarCertificadoAutomatico, setLiberarCertificadoAutomatico] =
   useState(true);
 
  async function carregarAlunos(termo = "") {
@@ -371,6 +374,54 @@ async function salvarConfiguracaoCertificados() {
     setErro("Erro ao salvar configuração de certificados.");
   } finally {
     setSalvandoConfiguracao(false);
+  }
+}
+
+async function visualizarCertificadoAluno(aluno: AlunoItem) {
+  try {
+    setVisualizandoCertificado(true);
+    setErro("");
+
+    const res = await fetch("/api/admin/certificados/gerar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        alunoId: aluno.id,
+        baixar: true,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+
+      setErro(
+        data?.detalhe ||
+          data?.error ||
+          "Não foi possível visualizar o certificado."
+      );
+      return;
+    }
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    if (certificadoPreviewUrl) {
+      window.URL.revokeObjectURL(certificadoPreviewUrl);
+    }
+
+    setCertificadoPreviewUrl(url);
+    setCertificadoPreviewNome(aluno.nome);
+    setAlunoSelecionado(aluno);
+  } catch (error: any) {
+    setErro(
+      error?.message ||
+        "Erro ao visualizar certificado."
+    );
+  } finally {
+    setVisualizandoCertificado(false);
   }
 }
 
@@ -859,17 +910,14 @@ async function salvarConfiguracaoCertificados() {
     : "Emitir certificado"}
 </button>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            aluno.certificadoUrl
-                              ? window.open(aluno.certificadoUrl, "_blank")
-                              : acaoAindaNaoLigada("Visualizar", aluno)
-                          }
-                          className="rounded-lg border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-                        >
-                          Visualizar
-                        </button>
+                       <button
+  type="button"
+  disabled={visualizandoCertificado}
+  onClick={() => visualizarCertificadoAluno(aluno)}
+  className="phanyx-cert-botao-secundario rounded-lg border px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {visualizandoCertificado ? "Abrindo..." : "Visualizar"}
+</button>
 
                         <button
   type="button"
@@ -967,6 +1015,40 @@ async function salvarConfiguracaoCertificados() {
           </p>
         )}
       </div>
+      {certificadoPreviewUrl && (
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/80 p-4">
+    <div className="flex h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 shadow-2xl">
+      <div className="flex items-center justify-between border-b border-slate-800 px-5 py-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-400">
+            Visualização do certificado
+          </p>
+          <h2 className="text-lg font-bold text-white">
+            {certificadoPreviewNome}
+          </h2>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            window.URL.revokeObjectURL(certificadoPreviewUrl);
+            setCertificadoPreviewUrl("");
+            setCertificadoPreviewNome("");
+          }}
+          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700"
+        >
+          Fechar ✕
+        </button>
+      </div>
+
+      <iframe
+        src={certificadoPreviewUrl}
+        className="h-full w-full bg-white"
+        title="Visualização do certificado"
+      />
+    </div>
+  </div>
+)}
     </div>
   );
 }

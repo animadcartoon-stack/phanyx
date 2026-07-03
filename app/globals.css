@@ -3322,3 +3322,111 @@ html[data-theme="dark"] .phanyx-cert-texto {
     color: #cbd5e1;
   }
 }
+
+/* PHANYX - Gestão de certificados: tabela e botões */
+.phanyx-cert-tabela-linha {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+}
+
+.phanyx-cert-tabela-linha:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.phanyx-cert-tabela-linha:hover * {
+  color: inherit;
+}
+
+.phanyx-cert-nome {
+  color: #0f172a;
+}
+
+.phanyx-cert-email,
+.phanyx-cert-texto {
+  color: #475569;
+}
+
+.phanyx-cert-botao-secundario {
+  border-color: #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+}
+
+.phanyx-cert-botao-secundario:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-cert-tabela-linha {
+  background: #0f172a;
+  color: #f8fafc;
+  border-color: #334155;
+}
+
+html[data-theme="dark"] .phanyx-cert-tabela-linha:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .phanyx-cert-tabela-linha:hover * {
+  color: inherit;
+}
+
+html[data-theme="dark"] .phanyx-cert-nome {
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .phanyx-cert-email,
+html[data-theme="dark"] .phanyx-cert-texto {
+  color: #cbd5e1;
+}
+
+html[data-theme="dark"] .phanyx-cert-botao-secundario {
+  border-color: #64748b;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .phanyx-cert-botao-secundario:hover {
+  background: #1e293b;
+  color: #ffffff;
+}
+
+@media (prefers-color-scheme: dark) {
+  html[data-theme="system"] .phanyx-cert-tabela-linha {
+    background: #0f172a;
+    color: #f8fafc;
+    border-color: #334155;
+  }
+
+  html[data-theme="system"] .phanyx-cert-tabela-linha:hover {
+    background: #1e293b;
+    color: #ffffff;
+  }
+
+  html[data-theme="system"] .phanyx-cert-tabela-linha:hover * {
+    color: inherit;
+  }
+
+  html[data-theme="system"] .phanyx-cert-nome {
+    color: #ffffff;
+  }
+
+  html[data-theme="system"] .phanyx-cert-email,
+  html[data-theme="system"] .phanyx-cert-texto {
+    color: #cbd5e1;
+  }
+
+  html[data-theme="system"] .phanyx-cert-botao-secundario {
+    border-color: #64748b;
+    background: #0f172a;
+    color: #f8fafc;
+  }
+
+  html[data-theme="system"] .phanyx-cert-botao-secundario:hover {
+    background: #1e293b;
+    color: #ffffff;
+  }
+}
