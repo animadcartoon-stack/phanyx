@@ -45,10 +45,17 @@ type CampoCertificado = {
   negrito?: boolean;
   italico?: boolean;
   sublinhado?: boolean;
+
+  contornoTextoAtivo?: boolean | null;
+  contornoTextoCor?: string | null;
+  contornoTextoEspessura?: number | null;
+  contornoTextoTipo?: "interno" | "externo" | null;
+
   ordem?: number | null;
   grupoId?: string | null;
   lineHeight?: number | null;
   marcador?: string | null;
+  quantidadeDisciplinas?: number | null;
   imagemUrl?: string | null;
   opacity?: number | null;
   objectFit?: string | null;
@@ -209,6 +216,27 @@ function rgbToHex(r: number, g: number, b: number) {
   );
 }
 
+function quantidadeDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
+  const quantidade = Number((campo as any)?.quantidadeDisciplinas ?? 3);
+
+  if (!Number.isFinite(quantidade)) return 3;
+
+  return Math.max(1, Math.min(80, Math.round(quantidade)));
+}
+
+function textoDisciplinasExemplo(campo: Partial<CampoCertificado>) {
+  const quantidade = quantidadeDisciplinasDoCampo(campo);
+  const marcador = campo.marcador || "";
+
+  return Array.from({ length: quantidade })
+    .map((_, index) =>
+      marcador
+        ? `${marcador} Disciplina ${index + 1}`
+        : `Disciplina ${index + 1}`
+    )
+    .join("\n");
+}
+
 function cssColorToHex(cor: string) {
   if (!cor) return "";
 
@@ -236,6 +264,114 @@ function calcularSombra(angulo: number, distancia: number) {
     x: Math.cos(rad) * distancia,
     y: Math.sin(rad) * distancia,
   };
+}
+
+function normalizarOpacidadeEfeito(valor: any, padrao = 0.35) {
+  if (valor === null || valor === undefined || valor === "") return padrao;
+
+  const numero = Number(valor);
+
+  if (!Number.isFinite(numero)) return padrao;
+
+  if (numero > 1) {
+    return Math.max(0, Math.min(1, numero / 100));
+  }
+
+  return Math.max(0, Math.min(1, numero));
+}
+
+function gerarContornoTextoCss(cor: string, espessura: number) {
+  const e = Math.max(1, Math.round(Number(espessura || 1)));
+  const sombras: string[] = [];
+
+  for (let x = -e; x <= e; x++) {
+    for (let y = -e; y <= e; y++) {
+      if (x === 0 && y === 0) continue;
+
+      sombras.push(`${x}px ${y}px 0 ${cor}`);
+    }
+  }
+
+  return sombras.join(", ");
+}
+
+function efeitosTextoCampoCss(campo: Partial<CampoCertificado>) {
+  const sombras: string[] = [];
+
+  const contornoAtivo = !!campo.contornoTextoAtivo;
+  const contornoCor = campo.contornoTextoCor || "#000000";
+  const contornoEspessura = Number(campo.contornoTextoEspessura || 1);
+  const contornoTipo = campo.contornoTextoTipo || "externo";
+
+  if (contornoAtivo && contornoTipo === "externo") {
+    const contorno = gerarContornoTextoCss(contornoCor, contornoEspessura);
+
+    if (contorno) {
+      sombras.push(contorno);
+    }
+  }
+
+  if (campo.sombraAtiva) {
+    const cor = campo.sombraCor || "#000000";
+    const opacidade = normalizarOpacidadeEfeito(
+      campo.sombraOpacidade,
+      0.35
+    );
+
+    const distancia =
+      campo.sombraDistancia !== null &&
+      campo.sombraDistancia !== undefined
+        ? Number(campo.sombraDistancia)
+        : 4;
+
+    const angulo =
+      campo.sombraAngulo !== null && campo.sombraAngulo !== undefined
+        ? Number(campo.sombraAngulo)
+        : 45;
+
+    const deslocamento = calcularSombra(angulo, distancia);
+
+    const x =
+      campo.sombraX !== null && campo.sombraX !== undefined
+        ? Number(campo.sombraX)
+        : deslocamento.x;
+
+    const y =
+      campo.sombraY !== null && campo.sombraY !== undefined
+        ? Number(campo.sombraY)
+        : deslocamento.y;
+
+    const blur =
+      campo.sombraBlur !== null && campo.sombraBlur !== undefined
+        ? Number(campo.sombraBlur)
+        : 8;
+
+    sombras.push(`${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`);
+  }
+
+  return {
+    textShadow: sombras.length ? sombras.join(", ") : "none",
+
+    WebkitTextStrokeColor:
+      contornoAtivo && contornoTipo === "interno"
+        ? contornoCor
+        : "transparent",
+
+    WebkitTextStrokeWidth:
+      contornoAtivo && contornoTipo === "interno"
+        ? `${contornoEspessura}px`
+        : "0px",
+
+    paintOrder: contornoAtivo ? "stroke fill" : "normal",
+  } as React.CSSProperties;
+}
+
+function transformacaoCampoCss(campo: Partial<CampoCertificado>) {
+  const rotate = Number(campo.rotate || 0);
+  const scaleX = campo.flipX ? -1 : 1;
+  const scaleY = campo.flipY ? -1 : 1;
+
+  return `rotate(${rotate}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
 }
 
 function sombraProjetadaCss(campo: Partial<CampoCertificado>) {
@@ -269,14 +405,6 @@ function sombraProjetadaCss(campo: Partial<CampoCertificado>) {
       : 6;
 
   return `${x}px ${y}px ${blur}px ${hexToRgba(cor, opacidade)}`;
-}
-
-function transformacaoCampoCss(campo: Partial<CampoCertificado>) {
-  const rotate = Number(campo.rotate || 0);
-  const scaleX = campo.flipX ? -1 : 1;
-  const scaleY = campo.flipY ? -1 : 1;
-
-  return `rotate(${rotate}deg) scaleX(${scaleX}) scaleY(${scaleY})`;
 }
 
 function criarPontosIniciaisForma(forma?: CampoCertificado["forma"]) {
@@ -470,7 +598,7 @@ const figurasDecorativas = [
   const [certificadoAssinaturaUrl, setCertificadoAssinaturaUrl] = useState("");
   const [nomeDiretorInstituicao, setNomeDiretorInstituicao] = useState("");
   const [arquivoModelo, setArquivoModelo] = useState<File | null>(null);
-  const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
+  const [popupDisciplinasAberto, setPopupDisciplinasAberto] = useState(false);
   const [painelCampoAberto, setPainelCampoAberto] = useState(true);
   const [opcoesImagemAberto, setOpcoesImagemAberto] = useState(true);
   const [sombraAberta, setSombraAberta] = useState(true);
@@ -490,6 +618,7 @@ const figurasDecorativas = [
   const historicoTextoLivreRef = useRef<Record<number, string[]>>({});
 
   const [tipoContornoTexto, setTipoContornoTexto] = useState<"interno" | "externo">("externo");
+  const [opcoesTextoAberto, setOpcoesTextoAberto] = useState(false);
   const [espacamentoLetrasTexto, setEspacamentoLetrasTexto] = useState(0);
   const [espacamentoPalavrasTexto, setEspacamentoPalavrasTexto] = useState(0);
 
@@ -1652,6 +1781,16 @@ const alturaInicial =
 textoTipo: tipo === "TEXTO_LIVRE" ? textoTipo || "TEXTO" : undefined,
 negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
 
+lineHeight: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1.35 : undefined,
+quantidadeDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 3 : undefined,
+dadosJson:
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? {
+        quantidadeDisciplinas: 3,
+        lineHeight: 1.35,
+      }
+    : undefined,
+
         }),
       });
 
@@ -1662,7 +1801,21 @@ negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
         return;
       }
 
-      setCampos((prev) => [...prev, data]);
+      setCampos((prev) => [
+  ...prev,
+  {
+    ...(data?.dadosJson || {}),
+    ...data,
+    quantidadeDisciplinas:
+      tipo === "DISCIPLINAS_CONCLUIDAS"
+        ? data?.dadosJson?.quantidadeDisciplinas ?? 3
+        : data?.quantidadeDisciplinas,
+    lineHeight:
+      tipo === "DISCIPLINAS_CONCLUIDAS"
+        ? data?.dadosJson?.lineHeight ?? 1.35
+        : data?.lineHeight,
+  },
+]);
       setCampoSelecionadoId(data.id);
     } catch {
       setMensagemErro("Erro ao adicionar campo.");
@@ -2970,6 +3123,78 @@ function camposComArrayVirtual() {
       </div>
     );
   }
+
+function alternarContornoTextoCampoSelecionado() {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) return;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      ids.includes(campo.id)
+        ? {
+            ...campo,
+            contornoTextoAtivo: !campo.contornoTextoAtivo,
+            contornoTextoCor:
+              campo.contornoTextoCor || corContornoTexto || "#000000",
+            contornoTextoEspessura:
+              campo.contornoTextoEspessura ??
+              espessuraContornoTexto ??
+              1,
+            contornoTextoTipo:
+              campo.contornoTextoTipo || tipoContornoTexto || "externo",
+          }
+        : campo
+    )
+  );
+}
+
+function atualizarContornoTextoCampoSelecionado(
+  patch: Partial<CampoCertificado>
+) {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) return;
+
+  setCampos((prev) =>
+    prev.map((campo) =>
+      ids.includes(campo.id)
+        ? {
+            ...campo,
+            ...patch,
+            contornoTextoAtivo: true,
+          }
+        : campo
+    )
+  );
+}
+
+function atualizarQuantidadeDisciplinasCampo(valor: number) {
+  if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    return;
+  }
+
+  const quantidade = Math.max(1, Math.min(80, Math.round(Number(valor || 1))));
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (campo.id !== campoSelecionado.id) return campo;
+
+      const tamanho = Number(campo.tamanho || 14);
+      const lineHeight = Number(campo.lineHeight || 1.35);
+
+      return {
+        ...campo,
+        quantidadeDisciplinas: quantidade,
+        lineHeight,
+        altura: Math.max(
+          Number(campo.altura || 0),
+          Math.ceil(quantidade * tamanho * lineHeight + 18)
+        ),
+      };
+    })
+  );
+}
 
   return (
   <div className="mx-auto max-w-[1600px] p-6">
@@ -5583,6 +5808,7 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   textDecoration: c.sublinhado ? "underline" : "none",
   lineHeight: c.lineHeight || 1.3,
   textShadow: sombraProjetadaCss(c),
+  ...efeitosTextoCampoCss(c),
   filter: (c as any).filter || "none",
   opacity: (c as any).opacity ?? 1,
   transform: transformacaoCampoCss(c),
@@ -5604,9 +5830,7 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
 }}
     >
       {c.tipo === "DISCIPLINAS_CONCLUIDAS"
-        ? c.marcador
-          ? `${c.marcador} Disciplina 1\n${c.marcador} Disciplina 2\n${c.marcador} Disciplina 3`
-          : "Disciplina 1\nDisciplina 2\nDisciplina 3"
+  ? textoDisciplinasExemplo(c)
         : c.tipo === "APROVEITAMENTO"
         ? "100%"
         : c.tipo === "FREQUENCIA_TOTAL"
@@ -6413,6 +6637,85 @@ return;
                   <span className="font-semibold">Tipo:</span>{" "}
                   {campoSelecionado.tipo}
                 </div>
+
+{campoSelecionado?.tipo === "DISCIPLINAS_CONCLUIDAS" && (
+  <div className="relative rounded-2xl border border-slate-700/60 bg-slate-950/60 p-4">
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p className="text-sm font-bold text-slate-100">
+          Linhas de disciplinas
+        </p>
+
+        <p className="mt-1 text-xs leading-5 text-slate-400">
+          Defina quantas disciplinas esta tag deve mostrar no certificado.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setPopupDisciplinasAberto((prev) => !prev)}
+        className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-700"
+      >
+        Configurar
+      </button>
+    </div>
+
+    {popupDisciplinasAberto && (
+      <div className="mt-3 rounded-2xl border border-slate-700 bg-slate-900 p-3 shadow-xl">
+        <label className="mb-2 block text-xs font-semibold text-slate-300">
+          Quantidade de disciplinas
+        </label>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              atualizarQuantidadeDisciplinasCampo(
+                quantidadeDisciplinasDoCampo(campoSelecionado) - 1
+              )
+            }
+            className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
+          >
+            −
+          </button>
+
+          <input
+            type="number"
+            min={1}
+            max={80}
+            value={quantidadeDisciplinasDoCampo(campoSelecionado)}
+            onChange={(e) =>
+              atualizarQuantidadeDisciplinasCampo(Number(e.target.value))
+            }
+            className="h-10 w-full rounded-xl border border-slate-700 bg-slate-950 px-3 text-center text-sm font-bold text-white outline-none focus:border-blue-500"
+          />
+
+          <button
+            type="button"
+            onClick={() =>
+              atualizarQuantidadeDisciplinasCampo(
+                quantidadeDisciplinasDoCampo(campoSelecionado) + 1
+              )
+            }
+            className="h-10 w-10 rounded-xl border border-slate-700 text-lg font-bold text-white hover:bg-slate-800"
+          >
+            +
+          </button>
+        </div>
+
+        <div className="mt-3 flex justify-end">
+          <button
+            type="button"
+            onClick={() => setPopupDisciplinasAberto(false)}
+            className="rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
+          >
+            Aplicar
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
 
 {campoSelecionado && (
   <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
@@ -7714,12 +8017,12 @@ iniciarDrag(event as any, c);
             : "border border-blue-400/50 bg-transparent"
         }`}
         style={{
-          fontFamily: c.fonte || "Arial",
-          fontSize: c.tamanho || 18,
-          color: "#ffffff",
-          opacity: 1,
-          filter: "none",
-          textShadow: "none",
+  fontFamily: c.fonte || "Arial",
+  fontSize: c.tamanho || 18,
+  color: c.cor || "#1e3a8a",
+  opacity: (c as any).opacity ?? 1,
+  filter: (c as any).filter || "none",
+  ...efeitosTextoCampoCss(c),
           fontWeight: c.negrito ? 700 : 400,
           fontStyle: c.italico ? "italic" : "normal",
           textDecoration: c.sublinhado ? "underline" : "none",
@@ -7858,6 +8161,7 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   textAlign:
     (c.alinhamento as "left" | "center" | "right") || "left",
   lineHeight: c.lineHeight || 1.2,
+  ...efeitosTextoCampoCss(c),
   textShadow: sombraProjetadaCss(c),
   filter: (c as any).filter || "none",
   opacity: (c as any).opacity ?? 1,
@@ -8350,13 +8654,27 @@ aplicarEstiloTextoSelecionado({
     return;
   }
 
-  atualizarCampoLocal("sombraAtiva", !campoSelecionado?.sombraAtiva);
-  atualizarCampoLocal("sombraX", campoSelecionado?.sombraX ?? 3);
-  atualizarCampoLocal("sombraY", campoSelecionado?.sombraY ?? 3);
-  atualizarCampoLocal("sombraBlur", campoSelecionado?.sombraBlur ?? 6);
-  atualizarCampoLocal("sombraCor", campoSelecionado?.sombraCor || "#000000");
-  atualizarCampoLocal("sombraOpacidade", campoSelecionado?.sombraOpacidade ?? 35);
-  setMenuContexto(null);
+  const ids = idsAlvoDaAcao();
+
+setCampos((prev) =>
+  prev.map((campo) =>
+    ids.includes(campo.id)
+      ? {
+          ...campo,
+          sombraAtiva: !campo.sombraAtiva,
+          sombraAngulo: campo.sombraAngulo ?? 45,
+          sombraDistancia: campo.sombraDistancia ?? 8,
+          sombraX: campo.sombraX ?? 6,
+          sombraY: campo.sombraY ?? 6,
+          sombraBlur: campo.sombraBlur ?? 10,
+          sombraCor: campo.sombraCor || "#000000",
+          sombraOpacidade: campo.sombraOpacidade ?? 45,
+        }
+      : campo
+  )
+);
+
+setMenuContexto(null);
 }}
       className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"
     >
@@ -8371,25 +8689,10 @@ aplicarEstiloTextoSelecionado({
 <button
   type="button"
   onMouseDown={(e) => e.preventDefault()}
-  onClick={() => {
-    const novoAtivo = !contornoTextoAtivo;
-    setContornoTextoAtivo(novoAtivo);
-
-    if (!novoAtivo) {
-      aplicarEstiloTextoSelecionado({
-        WebkitTextStrokeWidth: "0px",
-        WebkitTextStrokeColor: "transparent",
-        textShadow: "none",
-      } as React.CSSProperties);
-      return;
-    }
-
-    aplicarContornoTextoSelecionado(
-      corContornoTexto,
-      espessuraContornoTexto,
-      tipoContornoTexto
-    );
-  }}
+ onClick={() => {
+  alternarContornoTextoCampoSelecionado();
+  setContornoTextoAtivo((prev) => !prev);
+}}
   className="mb-3 w-full rounded-xl border border-slate-300 px-3 py-2 text-xs font-bold hover:bg-slate-50"
 >
   {contornoTextoAtivo ? "Desativar contorno" : "Ativar contorno"}
@@ -8405,6 +8708,9 @@ aplicarEstiloTextoSelecionado({
     onChange={(e) => {
   const novaCor = e.target.value;
   setCorContornoTexto(novaCor);
+  atualizarContornoTextoCampoSelecionado({
+  contornoTextoCor: novaCor,
+});
 
   if (!temSelecaoTextoLivreSalva()) return;
 
@@ -8445,7 +8751,11 @@ aplicarEstiloTextoSelecionado({
     onMouseDown={(e) => e.stopPropagation()}
     onChange={(e) => {
   const novaEspessura = Number(e.target.value);
-  setEspessuraContornoTexto(novaEspessura);
+setEspessuraContornoTexto(novaEspessura);
+
+atualizarContornoTextoCampoSelecionado({
+  contornoTextoEspessura: novaEspessura,
+});
 
   if (!temSelecaoTextoLivreSalva()) return;
 
@@ -8467,6 +8777,12 @@ aplicarEstiloTextoSelecionado({
     onClick={() => {
       setTipoContornoTexto("externo");
 
+      atualizarContornoTextoCampoSelecionado({
+        contornoTextoTipo: "externo",
+        contornoTextoCor: corContornoTexto,
+        contornoTextoEspessura: espessuraContornoTexto,
+      });
+
       if (temSelecaoTextoLivreAtiva()) {
         aplicarContornoTextoSelecionado(
           corContornoTexto,
@@ -8476,7 +8792,9 @@ aplicarEstiloTextoSelecionado({
       }
     }}
     className={`rounded-lg px-3 py-2 text-xs font-bold ${
-      tipoContornoTexto === "externo" ? "bg-blue-600 text-white" : "border"
+      tipoContornoTexto === "externo"
+        ? "bg-blue-600 text-white"
+        : "border border-slate-600 text-slate-200"
     }`}
   >
     Externo
@@ -8487,6 +8805,12 @@ aplicarEstiloTextoSelecionado({
     onClick={() => {
       setTipoContornoTexto("interno");
 
+      atualizarContornoTextoCampoSelecionado({
+        contornoTextoTipo: "interno",
+        contornoTextoCor: corContornoTexto,
+        contornoTextoEspessura: espessuraContornoTexto,
+      });
+
       if (temSelecaoTextoLivreAtiva()) {
         aplicarContornoTextoSelecionado(
           corContornoTexto,
@@ -8496,7 +8820,9 @@ aplicarEstiloTextoSelecionado({
       }
     }}
     className={`rounded-lg px-3 py-2 text-xs font-bold ${
-      tipoContornoTexto === "interno" ? "bg-blue-600 text-white" : "border"
+      tipoContornoTexto === "interno"
+        ? "bg-blue-600 text-white"
+        : "border border-slate-600 text-slate-200"
     }`}
   >
     Interno
