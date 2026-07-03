@@ -57,6 +57,7 @@ type CampoCertificado = {
   marcador?: string | null;
   quantidadeDisciplinas?: number | null;
   colunasDisciplinas?: number | null;
+  espacoColunasDisciplinas?: number | null;
   dadosJson?: any;
   imagemUrl?: string | null;
   opacity?: number | null;
@@ -255,6 +256,56 @@ function listaDisciplinasExemplo(campo: Partial<CampoCertificado>) {
     marcador
       ? `${marcador} Disciplina ${index + 1}`
       : `Disciplina ${index + 1}`
+  );
+}
+
+function espacoColunasDisciplinasDoCampo(campo: Partial<CampoCertificado>) {
+  const espaco = Number((campo as any)?.espacoColunasDisciplinas ?? 12);
+
+  if (!Number.isFinite(espaco)) return 12;
+
+  return Math.max(0, Math.min(80, Math.round(espaco)));
+}
+
+function renderDisciplinasCampo(campo: CampoCertificado) {
+  const colunas = quantidadeColunasDisciplinasDoCampo(campo);
+  const espacoColunas = espacoColunasDisciplinasDoCampo(campo);
+  const disciplinas = listaDisciplinasExemplo(campo);
+
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "grid",
+        gridTemplateColumns: `repeat(${colunas}, minmax(0, 1fr))`,
+        columnGap: `${espacoColunas}px`,
+        rowGap: "2px",
+        alignContent: "center",
+        justifyItems:
+          campo.alinhamento === "center"
+            ? "center"
+            : campo.alinhamento === "right"
+            ? "end"
+            : "start",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+      }}
+    >
+      {disciplinas.map((disciplina, index) => (
+        <div
+          key={`${campo.id}-disciplina-${index}`}
+          style={{
+            minWidth: 0,
+            width: "100%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {disciplina}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -1530,6 +1581,32 @@ useEffect(() => {
   );
 }
 
+function atualizarEspacoColunasDisciplinasCampo(valor: number) {
+  if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
+    return;
+  }
+
+  const espaco = Math.max(0, Math.min(80, Math.round(Number(valor || 0))));
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (campo.id !== campoSelecionado.id) return campo;
+
+      return {
+        ...campo,
+        espacoColunasDisciplinas: espaco,
+        dadosJson: {
+          ...((campo as any).dadosJson || {}),
+          quantidadeDisciplinas: quantidadeDisciplinasDoCampo(campo),
+          colunasDisciplinas: quantidadeColunasDisciplinasDoCampo(campo),
+          espacoColunasDisciplinas: espaco,
+          lineHeight: campo.lineHeight ?? 1.35,
+        },
+      };
+    })
+  );
+}
+
 function atualizarQuantidadeDisciplinasCampo(valor: number) {
   if (!campoSelecionado || campoSelecionado.tipo !== "DISCIPLINAS_CONCLUIDAS") {
     return;
@@ -1876,11 +1953,14 @@ negrito: tipo === "TEXTO_LIVRE" && textoTipo === "TITULO",
 lineHeight: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1.35 : undefined,
 quantidadeDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 3 : undefined,
 colunasDisciplinas: tipo === "DISCIPLINAS_CONCLUIDAS" ? 1 : undefined,
+espacoColunasDisciplinas:
+  tipo === "DISCIPLINAS_CONCLUIDAS" ? 12 : undefined,
 dadosJson:
   tipo === "DISCIPLINAS_CONCLUIDAS"
     ? {
         quantidadeDisciplinas: 3,
         colunasDisciplinas: 1,
+        espacoColunasDisciplinas: 12,
         lineHeight: 1.35,
       }
     : undefined,
@@ -1908,6 +1988,10 @@ colunasDisciplinas:
   tipo === "DISCIPLINAS_CONCLUIDAS"
     ? data?.dadosJson?.colunasDisciplinas ?? 1
     : data?.colunasDisciplinas,
+    espacoColunasDisciplinas:
+  tipo === "DISCIPLINAS_CONCLUIDAS"
+    ? data?.dadosJson?.espacoColunasDisciplinas ?? 12
+    : data?.espacoColunasDisciplinas,
 lineHeight:
   tipo === "DISCIPLINAS_CONCLUIDAS"
     ? data?.dadosJson?.lineHeight ?? 1.35
@@ -5909,7 +5993,7 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
       gridTemplateColumns: `repeat(${quantidadeColunasDisciplinasDoCampo(
         c
       )}, minmax(0, 1fr))`,
-      columnGap: "12px",
+      columnGap: `${espacoColunasDisciplinasDoCampo(c)}px`,
       rowGap: "2px",
       alignContent: "center",
       justifyItems:
@@ -6867,6 +6951,30 @@ return;
   <p className="mt-2 text-[11px] leading-5 text-slate-400">
     Use 2 ou 3 colunas quando o certificado tiver muitas disciplinas.
   </p>
+</div>
+
+<div className="mt-4 border-t border-slate-700 pt-3">
+  <label className="mb-2 block text-xs font-semibold text-slate-300">
+    Espaçamento entre colunas
+  </label>
+
+  <input
+    type="range"
+    min={0}
+    max={80}
+    step={1}
+    value={espacoColunasDisciplinasDoCampo(campoSelecionado)}
+    onChange={(e) =>
+      atualizarEspacoColunasDisciplinasCampo(Number(e.target.value))
+    }
+    className="w-full"
+  />
+
+  <div className="mt-1 flex justify-between text-[11px] text-slate-400">
+    <span>Mais juntas</span>
+    <strong>{espacoColunasDisciplinasDoCampo(campoSelecionado)}px</strong>
+    <span>Mais afastadas</span>
+  </div>
 </div>
 
 {campoSelecionado && (
@@ -8323,8 +8431,8 @@ height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 1
   wordSpacing: `${(c as any).wordSpacing ?? 0}px`,
   whiteSpace:
     c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "pre-wrap" : "nowrap",
-  display: "flex",
-  alignItems: "center",
+  display: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? "block" : "flex",
+  alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
   justifyContent:
     c.alinhamento === "center"
       ? "center"
