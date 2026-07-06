@@ -283,7 +283,7 @@ function adicionarForma() {
       id: agora,
       tipo: "FORMA",
       forma: "RETANGULO",
-      estilo: "SOMENTE_PREENCHIMENTO",
+      estilo: "PREENCHIMENTO_CONTORNO",
 
       preenchimentoTipo: "COR",
       gradienteDirecao: "DIREITA",
@@ -309,7 +309,7 @@ function adicionarForma() {
       altura: 50,
       corFundo: "#2563eb",
       corBorda: "#1e40af",
-      espessuraBorda: 0,
+      espessuraBorda: 2,
       raioBorda: 12,
       opacidade: 100,
       ordem: agora,
@@ -3027,15 +3027,23 @@ if (objeto.tipo === "FORMA") {
       </label>
 
       <input
-        type="color"
-        value={objetoAtual.corBorda}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            corBorda: e.target.value,
-          })
-        }
-        className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-      />
+  type="color"
+  value={objetoAtual.corBorda}
+  onChange={(e) =>
+    atualizarObjeto(objetoAtual.id, {
+      corBorda: e.target.value,
+      estilo:
+        objetoAtual.estilo === "SOMENTE_CONTORNO"
+          ? "SOMENTE_CONTORNO"
+          : "PREENCHIMENTO_CONTORNO",
+      espessuraBorda:
+        objetoAtual.espessuraBorda > 0
+          ? objetoAtual.espessuraBorda
+          : 3,
+    })
+  }
+  className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+/>
     </div>
 
     <div>
@@ -3088,15 +3096,24 @@ if (objeto.tipo === "FORMA") {
 )}
 
       <input
-        type="number"
-        value={objetoAtual.espessuraBorda}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            espessuraBorda: Number(e.target.value),
-          })
-        }
-        className="phanyx-crachas-input"
-      />
+  type="number"
+  min={0}
+  value={objetoAtual.espessuraBorda}
+  onChange={(e) => {
+    const valor = Number(e.target.value);
+
+    atualizarObjeto(objetoAtual.id, {
+      espessuraBorda: valor,
+      estilo:
+        valor <= 0
+          ? "SOMENTE_PREENCHIMENTO"
+          : objetoAtual.estilo === "SOMENTE_CONTORNO"
+          ? "SOMENTE_CONTORNO"
+          : "PREENCHIMENTO_CONTORNO",
+    });
+  }}
+  className="phanyx-crachas-input"
+/>
     </div>
 
     <div>
