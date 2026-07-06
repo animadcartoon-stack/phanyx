@@ -341,19 +341,19 @@ export async function criarCheckoutAssinaturaAsaas(
       billingTypes: ["CREDIT_CARD"],
       chargeTypes: ["RECURRENT"],
 
-      name: "PHANYX",
-      description: `Plano ${data.plano}`,
-      value: data.value,
-      externalReference: data.externalReference,
+      name: "PHANYX - mensalidade base",
+description: `Plano ${data.plano}. Valor base mensal. A cobrança final poderá ser recalculada pelo PHANYX conforme alunos ativos e polos cadastrados antes da primeira cobrança.`,
+value: data.value,
+externalReference: data.externalReference,
 
       items: [
-        {
-          name: "PHANYX",
-          description: `Plano ${data.plano}`,
-          quantity: 1,
-          value: data.value,
-        },
-      ],
+  {
+    name: "PHANYX - mensalidade base",
+    description: `Plano ${data.plano}. Valor base mensal. Alunos ativos e polos adicionais poderão compor o valor final da cobrança.`,
+    quantity: 1,
+    value: data.value,
+  },
+],
 
       subscription: {
   cycle: "MONTHLY",

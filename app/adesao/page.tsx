@@ -330,7 +330,9 @@ if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
           </p>
           <p className="mt-1 text-sm leading-6">
             Você será direcionado ao ambiente seguro do Asaas para cadastrar
-            o cartão. Nenhuma cobrança será feita hoje.
+o cartão. Nenhuma cobrança será feita hoje. O valor exibido no Asaas
+corresponde à mensalidade base do plano; antes da primeira cobrança,
+o PHANYX recalculará o valor conforme alunos ativos e polos cadastrados.
           </p>
         </div>
         <span className="text-xl">
@@ -353,7 +355,8 @@ if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
           <p className="font-black">Pix mensal</p>
           <p className="mt-1 text-sm leading-6">
             Após o período gratuito, o Asaas gerará uma cobrança Pix mensal
-            para pagamento manual pela instituição.
+para pagamento manual. O valor será calculado conforme o plano,
+alunos ativos e polos cadastrados.
           </p>
         </div>
         <span className="text-xl">
@@ -376,7 +379,8 @@ if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
           <p className="font-black">Boleto mensal</p>
           <p className="mt-1 text-sm leading-6">
             Após o período gratuito, o Asaas gerará um boleto mensal. Essa
-            opção depende de pagamento manual pela instituição.
+opção depende de pagamento manual, e o valor será calculado conforme
+o plano, alunos ativos e polos cadastrados.
           </p>
         </div>
         <span className="text-xl">
@@ -399,12 +403,12 @@ if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
               disabled={loading}
               className="mt-8 w-full rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
             >
-              {loading
+             {loading
   ? formaPagamento === "CREDIT_CARD"
     ? "⏳ Preparando checkout seguro..."
     : "⏳ Liberando ambiente..."
   : formaPagamento === "CREDIT_CARD"
-    ? `Informar cartão e iniciar ${trialMeses} meses grátis`
+    ? "Informar cartão para cobrança futura"
     : `Começar ${trialMeses} meses grátis`}
             </button>
           </div>
