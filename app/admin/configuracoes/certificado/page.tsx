@@ -7441,19 +7441,21 @@ return;
                     Fonte
                   </label>
                   <select
-                    value={campoSelecionado?.fonte || "Helvetica"}
-                    onMouseDown={(e) => {
-                      if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
-                        e.preventDefault();
-                      }
-                    }}
-                    onChange={(e) =>
-                      aplicarEstiloTextoOuCampoInteiro("fonte", e.target.value, {
-                        fontFamily: e.target.value,
-                      })
-                    }
-                    className="w-full rounded-xl border border-slate-300 px-3 py-2"
-                  >
+  value={campoSelecionado?.fonte || "Helvetica"}
+  onChange={(e) => {
+    const novaFonte = e.target.value;
+
+    if (campoSelecionado?.tipo === "TEXTO_LIVRE") {
+      atualizarCampoLocal("fonte", novaFonte as any);
+      return;
+    }
+
+    aplicarEstiloTextoOuCampoInteiro("fonte", novaFonte, {
+      fontFamily: novaFonte,
+    });
+  }}
+  className="w-full rounded-xl border border-slate-300 px-3 py-2"
+>
                     {FONTES.map((fonte) => (
   <option
     key={fonte}
