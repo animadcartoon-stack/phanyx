@@ -3546,14 +3546,6 @@ html[data-theme="dark"] .phanyx-cert-botao-secundario:hover {
     @apply border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-200;
   }
 
-  .phanyx-chip-priority-medium {
-    @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200;
-  }
-
-  .phanyx-chip-priority-low {
-  @apply border-slate-400 bg-slate-200 text-slate-950 shadow-sm dark:border-slate-500/60 dark:bg-slate-700 dark:text-slate-100;
-}
-
   .phanyx-chip-type-institution {
     @apply border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-200;
   }
@@ -3572,5 +3564,39 @@ html[data-theme="dark"] .phanyx-cert-botao-secundario:hover {
 
   .phanyx-chip-follow-ok {
     @apply border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-200;
+  }
+}
+
+@layer components {
+  .phanyx-chip-priority-medium {
+    @apply border-amber-500 bg-amber-200 text-amber-950 shadow-sm dark:border-amber-400 dark:bg-amber-500/25 dark:text-amber-100;
+  }
+
+  .phanyx-chip-type-phanyx {
+    @apply border-emerald-500 bg-emerald-200 text-emerald-950 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/25 dark:text-emerald-100;
+  }
+
+  .phanyx-chip-type-institution {
+    @apply border-blue-500 bg-blue-200 text-blue-950 shadow-sm dark:border-blue-400 dark:bg-blue-500/25 dark:text-blue-100;
+  }
+
+  .phanyx-chip-follow-danger {
+    @apply border-red-500 bg-red-200 text-red-950 shadow-sm dark:border-red-400 dark:bg-red-500/25 dark:text-red-100;
+  }
+
+  .phanyx-chip-follow-warning {
+    @apply border-amber-500 bg-amber-200 text-amber-950 shadow-sm dark:border-amber-400 dark:bg-amber-500/25 dark:text-amber-100;
+  }
+
+  .phanyx-chip-follow-ok {
+    @apply border-emerald-500 bg-emerald-200 text-emerald-950 shadow-sm dark:border-emerald-400 dark:bg-emerald-500/25 dark:text-emerald-100;
+  }
+
+  .phanyx-chip-score-cold {
+    @apply border-slate-500 bg-slate-800 text-white shadow-sm dark:border-slate-500 dark:bg-slate-700 dark:text-white;
+  }
+
+  .phanyx-chip-priority-low {
+    @apply border-slate-500 bg-slate-800 text-white shadow-sm dark:border-slate-500 dark:bg-slate-700 dark:text-white;
   }
 }
