@@ -211,32 +211,32 @@ function MasterPage() {
       {
         titulo: "Instituições",
         valor: data.resumo.totalInstituicoes,
-        descricao: "Total geral de instituições já criadas no PHANYX.",
+        descricao: "Instituições reais em operação no PHANYX.",
       },
       {
         titulo: "Adesões",
         valor: data.resumo.totalAdesoes,
-        descricao: "Entradas comerciais registradas na base.",
+        descricao: "Adesões reais vinculadas às instituições operacionais.",
       },
       {
         titulo: "Pagas",
         valor: data.resumo.totalPagas,
-        descricao: "Adesões confirmadas e prontas para operação.",
+        descricao: "Adesões reais pagas, sem registros de teste.",
       },
       {
         titulo: "Pendentes",
         valor: data.resumo.totalPendentes,
-        descricao: "Adesões que ainda aguardam confirmação de pagamento.",
+        descricao: "Adesões reais que ainda aguardam confirmação.",
       },
       {
         titulo: "Com instituição criada",
         valor: data.resumo.totalComInstituicaoCriada,
-        descricao: "Adesões já convertidas em ambiente institucional.",
+        descricao: "Instituições reais já criadas no ambiente PHANYX.",
       },
       {
         titulo: "Faturamento pago",
         valor: formatarValor(data.resumo.faturamentoPago),
-        descricao: "Total já confirmado nas adesões pagas.",
+        descricao: "Receita real confirmada, sem testes e sem instituições isentas.",
       },
     ];
   }, [data]);

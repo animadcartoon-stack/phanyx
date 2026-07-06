@@ -6,6 +6,53 @@ function normalizarTexto(valor: string | null | undefined) {
   return String(valor || "").trim().toUpperCase();
 }
 
+function normalizarChave(valor: string | null | undefined) {
+  return String(valor || "")
+    .trim()
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function ehInstituicaoRealPHANYX(instituicao: {
+  nome?: string | null;
+  slug?: string | null;
+}) {
+  const nome = normalizarChave(instituicao.nome);
+  const slug = normalizarChave(instituicao.slug);
+
+  return (
+    slug === "IBE" ||
+    slug === "CREIA-KIDS" ||
+    nome === "IBE" ||
+    nome.includes("INSTITUTO BATISTA DE EDUCACAO") ||
+    nome.includes("CREIA KIDS")
+  );
+}
+
+function ehAdesaoRealPHANYX(
+  adesao: {
+    nomeInstituicao?: string | null;
+    instituicaoId?: number | null;
+  },
+  idsInstituicoesReais: Set<number>
+) {
+  const instituicaoId = adesao.instituicaoId
+    ? Number(adesao.instituicaoId)
+    : null;
+
+  if (instituicaoId && idsInstituicoesReais.has(instituicaoId)) {
+    return true;
+  }
+  const nomeInstituicao = normalizarChave(adesao.nomeInstituicao);
+
+  return (
+    nomeInstituicao === "IBE" ||
+    nomeInstituicao.includes("INSTITUTO BATISTA DE EDUCACAO") ||
+    nomeInstituicao.includes("CREIA KIDS")
+  );
+}
+
 export async function GET(req: Request) {
   try {
     const user = await getUserFromToken();
@@ -65,6 +112,9 @@ export async function GET(req: Request) {
           nome: true,
           slug: true,
           plano: true,
+          ativo: true,
+          statusAssinatura: true,
+          isentaPagamento: true,
           createdAt: true,
           _count: {
             select: {
@@ -76,9 +126,27 @@ export async function GET(req: Request) {
       }),
     ]);
 
+    const instituicoesReais = todasInstituicoes.filter((instituicao) =>
+      ehInstituicaoRealPHANYX(instituicao)
+    );
+
+    const idsInstituicoesReais = new Set<number>(
+  instituicoesReais.map((instituicao) => Number(instituicao.id))
+);
+
+    const idsInstituicoesIsentas = new Set<number>(
+  instituicoesReais
+    .filter((instituicao) => Boolean(instituicao.isentaPagamento))
+    .map((instituicao) => Number(instituicao.id))
+);
+
+    const adesoesReais = todasAdesoes.filter((adesao) =>
+      ehAdesaoRealPHANYX(adesao, idsInstituicoesReais)
+    );
+
     const buscaNormalizada = busca.toLowerCase();
 
-    const adesoesFiltradas = todasAdesoes.filter((adesao) => {
+    const adesoesFiltradas = adesoesReais.filter((adesao) => {
       const bateBusca =
         !buscaNormalizada ||
         String(adesao.nomeInstituicao || "")
@@ -95,15 +163,19 @@ export async function GET(req: Request) {
         String(adesao.status || "").toLowerCase().includes(buscaNormalizada);
 
       const bateStatus =
-        !status || status === "TODOS" || normalizarTexto(adesao.status) === status;
+        !status ||
+        status === "TODOS" ||
+        normalizarTexto(adesao.status) === status;
 
       const batePlano =
-        !plano || plano === "TODOS" || normalizarTexto(adesao.plano) === plano;
+        !plano ||
+        plano === "TODOS" ||
+        normalizarTexto(adesao.plano) === plano;
 
       return bateBusca && bateStatus && batePlano;
     });
 
-    const instituicoesFiltradas = todasInstituicoes.filter((instituicao) => {
+    const instituicoesFiltradas = instituicoesReais.filter((instituicao) => {
       const bateBusca =
         !buscaNormalizada ||
         String(instituicao.nome || "")
@@ -124,38 +196,62 @@ export async function GET(req: Request) {
       return bateBusca && batePlano;
     });
 
-    const totalInstituicoes = todasInstituicoes.length;
-    const totalAdesoes = todasAdesoes.length;
-    const totalPagas = todasAdesoes.filter(
+    const totalInstituicoes = instituicoesReais.length;
+    const totalAdesoes = adesoesReais.length;
+
+    const totalPagas = adesoesReais.filter(
       (item) => normalizarTexto(item.status) === "PAGO"
     ).length;
-    const totalPendentes = todasAdesoes.filter(
-      (item) => normalizarTexto(item.status) === "PENDING"
-    ).length;
-    const totalComInstituicaoCriada = todasAdesoes.filter(
-      (item) => item.instituicaoId !== null
-    ).length;
 
-    const faturamentoPago = todasAdesoes
-      .filter((item) => normalizarTexto(item.status) === "PAGO")
+    const totalPendentes = adesoesReais.filter((item) => {
+      const statusAtual = normalizarTexto(item.status);
+      return statusAtual === "PENDING" || statusAtual === "PENDENTE";
+    }).length;
+
+    const totalComInstituicaoCriada = instituicoesReais.length;
+
+    const faturamentoPago = adesoesReais
+      .filter((item) => {
+        const pago = normalizarTexto(item.status) === "PAGO";
+
+        if (!pago) return false;
+
+        if (
+          item.instituicaoId &&
+          idsInstituicoesIsentas.has(item.instituicaoId)
+        ) {
+          return false;
+        }
+
+        return true;
+      })
       .reduce((acc, item) => acc + Number(item.valor || 0), 0);
 
-    const faturamentoPrevisto = todasAdesoes.reduce(
-      (acc, item) => acc + Number(item.valor || 0),
-      0
-    );
+    const faturamentoPrevisto = adesoesReais
+      .filter((item) => {
+        if (
+          item.instituicaoId &&
+          idsInstituicoesIsentas.has(item.instituicaoId)
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .reduce((acc, item) => acc + Number(item.valor || 0), 0);
 
     const planosDisponiveis = Array.from(
       new Set(
-        todasAdesoes
-          .map((item) => String(item.plano || "").trim())
-          .filter(Boolean)
+        [
+          ...adesoesReais.map((item) => String(item.plano || "").trim()),
+          ...instituicoesReais.map((item) => String(item.plano || "").trim()),
+        ].filter(Boolean)
       )
     ).sort();
 
     const statusDisponiveis = Array.from(
       new Set(
-        todasAdesoes
+        adesoesReais
           .map((item) => String(item.status || "").trim())
           .filter(Boolean)
       )
@@ -178,6 +274,21 @@ export async function GET(req: Request) {
         faturamentoPrevisto,
         totalInstituicoesFiltradas: instituicoesFiltradas.length,
         totalAdesoesFiltradas: adesoesFiltradas.length,
+      },
+      diagnostico: {
+        leitura: "OPERACIONAL_REAL",
+        instituicoesConsideradasReais: instituicoesReais.map((item) => ({
+          id: item.id,
+          nome: item.nome,
+          slug: item.slug,
+          plano: item.plano,
+          isentaPagamento: item.isentaPagamento,
+        })),
+        totalInstituicoesNoBanco: todasInstituicoes.length,
+        totalAdesoesNoBanco: todasAdesoes.length,
+        instituicoesIgnoradasComoTeste:
+          todasInstituicoes.length - instituicoesReais.length,
+        adesoesIgnoradasComoTeste: todasAdesoes.length - adesoesReais.length,
       },
       opcoes: {
         planos: planosDisponiveis,
