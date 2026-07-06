@@ -1410,10 +1410,9 @@ const podeUsarEditorCertificados =
       }
 
       setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-      setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
+      setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
 
-setCertificadoCoordenadorNome(
+      setCertificadoCoordenadorNome(
   dataConfig?.certificadoCoordenadorNome || ""
 );
 
@@ -1796,17 +1795,13 @@ useEffect(() => {
       }
 
       setCertificadoTemplateUrl(data.url || "");
+      
       setCertificadoPreviewUrl(
   data.previewUrl ||
     data.certificadoPreviewUrl ||
     ""
 );
 
-      setCertificadoPreviewUrl(
-  data.previewUrl ||
-    data.certificadoPreviewUrl ||
-    ""
-);
 setMensagemSucesso("Modelo do certificado enviado com sucesso.");
     } catch {
       setMensagemErro("Erro ao fazer upload do modelo.");
@@ -3207,6 +3202,12 @@ async function salvarModeloCompleto() {
         certificadoPreviewUrl,
         certificadoCoordenadorNome,
         certificadoCidade,
+        certificadoModoFundo: modoFundo,
+        certificadoCorFundoPagina: corFundoPagina,
+        certificadoTamanhoPapel: tamanhoPapel,
+        certificadoOrientacao: orientacao,
+        certificadoLarguraBase: baseCanvas.largura,
+        certificadoAlturaBase: baseCanvas.altura,
       }),
     });
 
@@ -3220,13 +3221,23 @@ async function salvarModeloCompleto() {
       );
     }
 
-    const payloadCampos = campos.map((campo: any) => ({
-      ...campo,
-      dadosJson: {
-        ...(campo?.dadosJson || {}),
-        ...campo,
-      },
-    }));
+    const payloadCampos = campos.map((campo: any) => {
+      const {
+        dadosJson,
+        tempId,
+        arrayPreview,
+        idOriginalArray,
+        ...campoSemControle
+      } = campo;
+
+      return {
+        ...campoSemControle,
+        dadosJson: {
+          ...(dadosJson || {}),
+          ...campoSemControle,
+        },
+      };
+    });
 
     const resCampos = await fetch("/api/admin/certificado-campos", {
       method: "PUT",
@@ -3234,17 +3245,9 @@ async function salvarModeloCompleto() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  certificadoTemplateUrl,
-  certificadoPreviewUrl,
-  certificadoCoordenadorNome,
-  certificadoCidade,
-  certificadoModoFundo: modoFundo,
-  certificadoCorFundoPagina: corFundoPagina,
-  certificadoTamanhoPapel: tamanhoPapel,
-  certificadoOrientacao: orientacao,
-  certificadoLarguraBase: baseCanvas.largura,
-  certificadoAlturaBase: baseCanvas.altura,
-}),
+        removerAusentes: false,
+        campos: payloadCampos,
+      }),
     });
 
     const dataCampos = await resCampos.json();
@@ -3256,21 +3259,6 @@ async function salvarModeloCompleto() {
           "Erro ao salvar campos do certificado."
       );
     }
-
-    if (Array.isArray(dataCampos?.campos) && dataCampos.campos.length > 0) {
-  setCampos(
-    dataCampos.campos.map((campo: any) => {
-      const dados = campo.dadosJson || {};
-
-      return {
-        ...campo,
-        ...dados,
-        bancoId: campo.id,
-        id: campo.id,
-      };
-    })
-  );
-}
 
     setMensagemSucesso("Modelo de certificado salvo com sucesso!");
     setTimeout(() => setMensagemSucesso(""), 3000);
@@ -5675,6 +5663,7 @@ altura: ev.shiftKey
           width: `${c.largura || 320}px`,
           height: `${c.altura || 120}px`,
           zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 20,
+          pointerEvents: c.bloqueado ? "none" : "auto",
         }}
       >
                <div
@@ -5683,6 +5672,20 @@ altura: ev.shiftKey
   data-texto-livre-id={c.id}
   data-texto-conteudo="true"
   dir="ltr"
+  ref={(el) => {
+  if (!el) return;
+
+  const valor =
+    (c as any).textoHtml ||
+    (c as any).texto ||
+    "Digite seu texto";
+
+  if (document.activeElement === el) return;
+
+  if (el.innerHTML !== valor) {
+    el.innerHTML = valor;
+  }
+}}
   onMouseDown={(e) => {
   e.stopPropagation();
 
@@ -5903,7 +5906,6 @@ onKeyUp={() => {
     caretColor: c.cor || "#1e3a8a",
   }}
 >
-{!((c as any).textoHtml || (c as any).texto) && "Digite seu texto"}
 
 </div>
 
@@ -6040,6 +6042,7 @@ onKeyUp={() => {
   width: `${c.largura || (c.tipo === "ASSINATURA" ? 260 : 120)}px`,
 height: `${c.altura || (c.tipo === "ASSINATURA" ? 90 : Math.ceil((c.tamanho || 18) * 1.65))}px`,
   zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 1,
+pointerEvents: c.bloqueado ? "none" : "auto",
   textAlign:
     (c.alinhamento as "left" | "center" | "right") || "left",
   fontSize: `${c.tamanho || 12}px`,
