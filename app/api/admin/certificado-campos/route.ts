@@ -262,9 +262,17 @@ export async function PUT(req: NextRequest) {
   id: _id,
   bancoId: _bancoId,
   tempId: _tempId,
+  arrayPreview: _arrayPreview,
+  idOriginalArray: _idOriginalArray,
   dadosJson: dadosJsonRecebido,
   ...campoSemIds
 } = campo;
+
+const tipo = String(campoSemIds?.tipo || "").trim();
+
+if (!tipo) {
+  continue;
+}
 
 const dadosJson = {
   ...(dadosJsonRecebido || {}),
@@ -272,8 +280,8 @@ const dadosJson = {
 };
 
         const data = {
-          instituicaoId: user.instituicaoId,
-          tipo: String(campo?.tipo || ""),
+  instituicaoId: user.instituicaoId,
+  tipo,
           x: Number(campo?.x ?? 100),
           y: Number(campo?.y ?? 100),
           largura: Number(campo?.largura ?? 220),
@@ -294,10 +302,6 @@ const dadosJson = {
               : null,
           dadosJson,
         };
-
-        if (!data.tipo) {
-          continue;
-        }
 
         if (idValido) {
           await tx.certificadoCampo.updateMany({

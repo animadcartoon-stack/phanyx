@@ -125,14 +125,32 @@ function paraDatetimeLocal(valor?: string | null) {
 }
 
 function classePrioridade(prioridade: string) {
-  if (prioridade === "ALTA") return "phanyx-chip-priority-high";
-  if (prioridade === "MEDIA") return "phanyx-chip-priority-medium";
-  return "phanyx-chip-priority-low";
+  if (prioridade === "ALTA") {
+    return "border-red-700 bg-red-600 text-white shadow-sm dark:border-red-400 dark:bg-red-500 dark:text-white";
+  }
+
+  if (prioridade === "MEDIA") {
+    return "border-amber-600 bg-amber-400 text-slate-950 shadow-sm dark:border-amber-400 dark:bg-amber-500 dark:text-slate-950";
+  }
+
+  return "border-slate-700 bg-slate-800 text-white shadow-sm dark:border-slate-500 dark:bg-slate-700 dark:text-white";
 }
 
 function classeTipo(tipo: string) {
-  if (tipo === "INSTITUICAO") return "phanyx-chip-type-institution";
-  return "phanyx-chip-type-phanyx";
+  if (tipo === "INSTITUICAO") {
+    return "border-blue-700 bg-blue-600 text-white shadow-sm dark:border-blue-400 dark:bg-blue-500 dark:text-white";
+  }
+
+  return "border-emerald-700 bg-emerald-600 text-white shadow-sm dark:border-emerald-400 dark:bg-emerald-500 dark:text-white";
+}
+
+function rotuloTipoLead(tipo: string) {
+  const valor = String(tipo || "").trim().toUpperCase();
+
+  if (valor === "INSTITUICAO") return "INSTITUIÇÃO";
+
+  // FORMAX é legado/teste antigo. Visualmente mostramos como PHANYX.
+  return "PHANYX";
 }
 
 function diasSemContato(lead: Lead) {
@@ -184,14 +202,14 @@ function classeFollowUp(lead: Lead) {
   const situacao = classificarFollowUp(lead);
 
   if (situacao === "atrasado" || situacao === "sem_followup_critico") {
-    return "phanyx-chip-follow-danger";
+    return "border-red-700 bg-red-600 text-white shadow-sm dark:border-red-400 dark:bg-red-500 dark:text-white";
   }
 
   if (situacao === "hoje" || situacao === "sem_followup_alerta") {
-    return "phanyx-chip-follow-warning";
+    return "border-amber-600 bg-amber-400 text-slate-950 shadow-sm dark:border-amber-400 dark:bg-amber-500 dark:text-slate-950";
   }
 
-  return "phanyx-chip-follow-ok";
+  return "border-emerald-700 bg-emerald-600 text-white shadow-sm dark:border-emerald-400 dark:bg-emerald-500 dark:text-white";
 }
 
 function calcularScore(lead: Lead) {
@@ -225,9 +243,15 @@ function rotuloScore(score: number) {
 }
 
 function classeScore(score: number) {
-  if (score >= 75) return "phanyx-chip-score-hot";
-  if (score >= 45) return "phanyx-chip-score-warm";
-  return "phanyx-chip-score-cold";
+  if (score >= 75) {
+    return "border-red-700 bg-red-600 text-white shadow-sm dark:border-red-400 dark:bg-red-500 dark:text-white";
+  }
+
+  if (score >= 45) {
+    return "border-amber-600 bg-amber-400 text-slate-950 shadow-sm dark:border-amber-400 dark:bg-amber-500 dark:text-slate-950";
+  }
+
+  return "border-slate-700 bg-slate-800 text-white shadow-sm dark:border-slate-500 dark:bg-slate-700 dark:text-white";
 }
 
 function ordenarLeads(leads: Lead[]) {
@@ -819,7 +843,7 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                                   lead.tipo
                                 )}`}
                               >
-                                {lead.tipo}
+                                {rotuloTipoLead(lead.tipo)}
                               </span>
                             </div>
                           </div>

@@ -590,9 +590,23 @@ export default function CertificadoRender({
           );
         }
 
-        if (campo.tipo === "FORMA") {
+       if (campo.tipo === "FORMA") {
+  const estiloForma: React.CSSProperties = {
+    ...estiloBase,
+    display: "block",
+    alignItems: "initial",
+    justifyContent: "initial",
+    overflow: "visible",
+    padding: 0,
+    lineHeight: 1,
+    textShadow: "none",
+    WebkitTextStrokeWidth: "0px",
+    WebkitTextStrokeColor: "transparent",
+    paintOrder: "normal",
+  };
+
   return (
-    <div key={campo.id} style={estiloBase}>
+    <div key={campo.id} style={estiloForma}>
       <FormaVetorial
         campo={campo as any}
         selecionado={false}
@@ -602,7 +616,6 @@ export default function CertificadoRender({
     </div>
   );
 }
-
         if (campo.tipo === "DISCIPLINAS_CONCLUIDAS") {
           return (
             <div key={campo.id} style={estiloBase}>
