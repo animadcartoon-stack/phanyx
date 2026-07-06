@@ -124,7 +124,12 @@ function AdesaoContent() {
       setStatusPagamento(data?.adesao?.status || "PENDING");
       setPagamentoConfirmado(data?.adesao?.status === "PAGO");
 
-      if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
+      if (data?.checkoutUrl) {
+  window.location.href = data.checkoutUrl;
+  return;
+}
+
+if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
   setPagamentoConfirmado(true);
   setStatusPagamento("TESTE_GRATIS");
 
@@ -134,12 +139,6 @@ function AdesaoContent() {
 
   return;
 }
-
-if (data?.checkoutUrl) {
-  window.location.href = data.checkoutUrl;
-  return;
-}
-
   
       window.scrollTo({
         top: document.body.scrollHeight,
