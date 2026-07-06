@@ -3524,3 +3524,53 @@ html[data-theme="dark"] .phanyx-cert-botao-secundario:hover {
     @apply mt-1 text-sm leading-6 text-blue-900 dark:text-sky-100;
   }
 }
+
+@layer components {
+  .phanyx-pill-count {
+    @apply inline-flex min-w-8 items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-black text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100;
+  }
+
+  .phanyx-chip-score-hot {
+    @apply border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-200;
+  }
+
+  .phanyx-chip-score-warm {
+    @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200;
+  }
+
+  .phanyx-chip-score-cold {
+    @apply border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-500/60 dark:bg-slate-700 dark:text-slate-100;
+  }
+
+  .phanyx-chip-priority-high {
+    @apply border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-200;
+  }
+
+  .phanyx-chip-priority-medium {
+    @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200;
+  }
+
+  .phanyx-chip-priority-low {
+    @apply border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-500/60 dark:bg-slate-700 dark:text-slate-100;
+  }
+
+  .phanyx-chip-type-institution {
+    @apply border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/40 dark:bg-blue-500/15 dark:text-blue-200;
+  }
+
+  .phanyx-chip-type-phanyx {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-200;
+  }
+
+  .phanyx-chip-follow-danger {
+    @apply border-red-200 bg-red-50 text-red-700 dark:border-red-500/40 dark:bg-red-500/15 dark:text-red-200;
+  }
+
+  .phanyx-chip-follow-warning {
+    @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/40 dark:bg-amber-500/15 dark:text-amber-200;
+  }
+
+  .phanyx-chip-follow-ok {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/40 dark:bg-emerald-500/15 dark:text-emerald-200;
+  }
+}

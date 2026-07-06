@@ -125,14 +125,14 @@ function paraDatetimeLocal(valor?: string | null) {
 }
 
 function classePrioridade(prioridade: string) {
-  if (prioridade === "ALTA") return "border-red-200 bg-red-50 text-red-700";
-  if (prioridade === "MEDIA") return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  if (prioridade === "ALTA") return "phanyx-chip-priority-high";
+  if (prioridade === "MEDIA") return "phanyx-chip-priority-medium";
+  return "phanyx-chip-priority-low";
 }
 
 function classeTipo(tipo: string) {
-  if (tipo === "INSTITUICAO") return "border-blue-200 bg-blue-50 text-blue-700";
-  return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  if (tipo === "INSTITUICAO") return "phanyx-chip-type-institution";
+  return "phanyx-chip-type-phanyx";
 }
 
 function diasSemContato(lead: Lead) {
@@ -184,14 +184,14 @@ function classeFollowUp(lead: Lead) {
   const situacao = classificarFollowUp(lead);
 
   if (situacao === "atrasado" || situacao === "sem_followup_critico") {
-    return "border-red-200 bg-red-50 text-red-700";
+    return "phanyx-chip-follow-danger";
   }
 
   if (situacao === "hoje" || situacao === "sem_followup_alerta") {
-    return "border-amber-200 bg-amber-50 text-amber-700";
+    return "phanyx-chip-follow-warning";
   }
 
-  return "border-emerald-200 bg-emerald-50 text-emerald-700";
+  return "phanyx-chip-follow-ok";
 }
 
 function calcularScore(lead: Lead) {
@@ -225,9 +225,9 @@ function rotuloScore(score: number) {
 }
 
 function classeScore(score: number) {
-  if (score >= 75) return "border-red-200 bg-red-50 text-red-700";
-  if (score >= 45) return "border-amber-200 bg-amber-50 text-amber-700";
-  return "border-slate-200 bg-slate-100 text-slate-700";
+  if (score >= 75) return "phanyx-chip-score-hot";
+  if (score >= 45) return "phanyx-chip-score-warm";
+  return "phanyx-chip-score-cold";
 }
 
 function ordenarLeads(leads: Lead[]) {
@@ -758,9 +758,9 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                     <h2 className="text-2xl font-bold text-slate-900">
                       {coluna.titulo}
                     </h2>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                      {leadsDaColuna.length}
-                    </span>
+                    <span className="phanyx-pill-count">
+  {leadsDaColuna.length}
+</span>
                   </div>
 
                   <div className="space-y-4">
@@ -790,7 +790,7 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                               </h3>
 
                               <span
-                                className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classeScore(
+                                className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeScore(
                                   score
                                 )}`}
                               >
@@ -807,7 +807,7 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
 
                             <div className="flex flex-col items-end gap-2">
                               <span
-                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classePrioridade(
+                                className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${classePrioridade(
                                   lead.prioridade
                                 )}`}
                               >
@@ -815,7 +815,7 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                               </span>
 
                               <span
-                                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classeTipo(
+                                className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeTipo(
                                   lead.tipo
                                 )}`}
                               >
@@ -826,7 +826,7 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
 
                           <div className="mt-4 flex flex-wrap gap-2">
                             <span
-                              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classeScore(
+                              className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeScore(
                                 score
                               )}`}
                             >
@@ -834,7 +834,7 @@ className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-ba
                             </span>
 
                             <span
-                              className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classeFollowUp(
+                              className={`rounded-full border px-2.5 py-1 text-[11px] font-bold ${classeFollowUp(
                                 lead
                               )}`}
                             >
