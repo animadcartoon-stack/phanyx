@@ -242,26 +242,34 @@ export async function PUT(req: NextRequest) {
       );
 
     await prisma.$transaction(async (tx) => {
-      await tx.certificadoCampo.deleteMany({
-        where: {
-          instituicaoId: user.instituicaoId,
-          id: {
-            notIn: idsValidosNaTela.length ? idsValidosNaTela : [0],
-          },
-        },
-      });
+      if (body?.removerAusentes === true) {
+  await tx.certificadoCampo.deleteMany({
+    where: {
+      instituicaoId: user.instituicaoId,
+      id: {
+        notIn: idsValidosNaTela.length ? idsValidosNaTela : [0],
+      },
+    },
+  });
+}
 
       for (const campo of camposRecebidos) {
         const id = Number(campo?.bancoId || campo?.id);
         const idValido =
           Number.isFinite(id) && id > 0 && id < 1000000000;
 
-        const dadosJson = {
-          ...campo,
-          id: undefined,
-          bancoId: undefined,
-          tempId: undefined,
-        };
+        const {
+  id: _id,
+  bancoId: _bancoId,
+  tempId: _tempId,
+  dadosJson: dadosJsonRecebido,
+  ...campoSemIds
+} = campo;
+
+const dadosJson = {
+  ...(dadosJsonRecebido || {}),
+  ...campoSemIds,
+};
 
         const data = {
           instituicaoId: user.instituicaoId,
@@ -326,9 +334,18 @@ export async function PUT(req: NextRequest) {
     });
 
     return NextResponse.json({
-      ok: true,
-      campos,
-    });
+  ok: true,
+  campos: campos.map((campo: any) => {
+    const dados = campo.dadosJson || {};
+
+    return {
+      ...campo,
+      ...dados,
+      bancoId: campo.id,
+      id: campo.id,
+    };
+  }),
+});
   } catch (error: any) {
     return NextResponse.json(
       {

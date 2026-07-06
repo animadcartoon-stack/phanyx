@@ -3257,20 +3257,20 @@ async function salvarModeloCompleto() {
       );
     }
 
-    if (Array.isArray(dataCampos?.campos)) {
-      setCampos(
-        dataCampos.campos.map((campo: any) => {
-          const dados = campo.dadosJson || {};
+    if (Array.isArray(dataCampos?.campos) && dataCampos.campos.length > 0) {
+  setCampos(
+    dataCampos.campos.map((campo: any) => {
+      const dados = campo.dadosJson || {};
 
-          return {
-            ...campo,
-            ...dados,
-            bancoId: campo.id,
-            id: campo.id,
-          };
-        })
-      );
-    }
+      return {
+        ...campo,
+        ...dados,
+        bancoId: campo.id,
+        id: campo.id,
+      };
+    })
+  );
+}
 
     setMensagemSucesso("Modelo de certificado salvo com sucesso!");
     setTimeout(() => setMensagemSucesso(""), 3000);
@@ -3387,7 +3387,10 @@ function atualizarContornoTextoCampoSelecionado(
 const camposPreviewCertificado = [
   ...camposComArrayVirtual(),
   ...copiasPreviewArray,
-];
+].sort(
+  (a: any, b: any) =>
+    Number(a.ordem || 0) - Number(b.ordem || 0)
+);
 
 const dadosPreviewCertificado = {
   nomeAluno: "José Exemplo da Silva",
@@ -4816,8 +4819,13 @@ onMouseLeave={() => {
 
     return [campo, ...copias];
   }),
-  ...copiasPreviewArray,
-].map((c) => {
+    ...copiasPreviewArray,
+]
+  .sort(
+    (a: any, b: any) =>
+      Number(a.ordem || 0) - Number(b.ordem || 0)
+  )
+  .map((c) => {
  if (c.tipo === "IMAGEM") {
   const selecionadoImagem = camposSelecionadosIds.includes(c.id);
 
@@ -4865,7 +4873,8 @@ if (!camposSelecionadosIds.includes(c.id)) {
         height: `${c.altura || 150}px`,
         cursor: "move",
         zIndex: campoSelecionadoId === c.id ? 99999 : c.ordem || 10,
-        transform: `rotate(${(c as any).rotate || 0}deg)`,
+pointerEvents: c.bloqueado ? "none" : "auto",
+transform: `rotate(${(c as any).rotate || 0}deg)`,
         border: selecionadoImagem ? "2px solid #2563eb" : "1px dashed #93c5fd",
 
         borderRadius: "10px",
@@ -5088,6 +5097,7 @@ if (!camposSelecionadosIds.includes(c.id)) {
         cursor: "move",
         overflow: "visible",
         zIndex: (c as any).arrayPreview ? 1 : c.ordem || 5,
+        pointerEvents: c.bloqueado ? "none" : "auto",
         transform: `rotate(${(c as any).rotate || 0}deg)`,
         
         boxShadow: (() => {
