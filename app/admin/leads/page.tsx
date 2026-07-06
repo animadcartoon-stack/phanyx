@@ -251,9 +251,10 @@ export default function AdminLeadsPage() {
   const [erro, setErro] = useState("");
   const [busca, setBusca] = useState("");
   const [filtroOrigem, setFiltroOrigem] = useState("");
-  const [filtroTipo, setFiltroTipo] = useState("PHANYX");
+  const [filtroTipo, setFiltroTipo] = useState("");
   const [filtroFollowUp, setFiltroFollowUp] = useState("");
   const [leadSelecionado, setLeadSelecionado] = useState<Lead | null>(null);
+  const [leadParaExcluir, setLeadParaExcluir] = useState<Lead | null>(null);
 
   const [form, setForm] = useState<LeadForm>(FORM_INICIAL);
   const [salvando, setSalvando] = useState(false);
@@ -429,43 +430,44 @@ export default function AdminLeadsPage() {
     }
   }
 
-  async function excluirLead() {
-    if (!leadSelecionado) return;
+  function excluirLead() {
+  if (!leadSelecionado) return;
+  setLeadParaExcluir(leadSelecionado);
+}
 
-    const confirmar = window.confirm(
-      `Deseja excluir o lead "${leadSelecionado.nome}"?`
-    );
-    if (!confirmar) return;
+async function confirmarExclusaoLead() {
+  if (!leadParaExcluir) return;
 
-    try {
-      setSalvando(true);
-      setErro("");
+  try {
+    setSalvando(true);
+    setErro("");
 
-      const res = await fetch(`/api/admin/leads/${leadSelecionado.id}`, {
-        method: "DELETE",
-      });
+    const res = await fetch(`/api/admin/leads/${leadParaExcluir.id}`, {
+      method: "DELETE",
+    });
 
-      const contentType = res.headers.get("content-type") || "";
-      if (!contentType.includes("application/json")) {
-        const texto = await res.text();
-        console.error("Resposta não-JSON ao excluir lead:", texto);
-        throw new Error("A API não retornou JSON ao excluir o lead.");
-      }
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        throw new Error(json?.error || "Não foi possível excluir o lead.");
-      }
-
-      await carregarLeads();
-      fecharPainel();
-    } catch (err: any) {
-      setErro(err?.message || "Não foi possível excluir o lead.");
-    } finally {
-      setSalvando(false);
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      const texto = await res.text();
+      console.error("Resposta não-JSON ao excluir lead:", texto);
+      throw new Error("A API não retornou JSON ao excluir o lead.");
     }
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      throw new Error(json?.error || "Não foi possível excluir o lead.");
+    }
+
+    await carregarLeads();
+    setLeadParaExcluir(null);
+    fecharPainel();
+  } catch (err: any) {
+    setErro(err?.message || "Não foi possível excluir o lead.");
+  } finally {
+    setSalvando(false);
   }
+}
 
   async function moverStatus(id: number, status: string) {
     try {
@@ -611,13 +613,13 @@ export default function AdminLeadsPage() {
           <button
             type="button"
             onClick={abrirNovoLead}
-            className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-base font-semibold text-white shadow-[0_15px_35px_rgba(37,99,235,0.22)] transition hover:-translate-y-0.5 hover:bg-blue-500"
+            className="inline-flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-2xl bg-blue-600 px-6 py-4 text-base font-semibold text-white shadow-[0_15px_35px_rgba(37,99,235,0.22)] transition hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto"
           >
             Novo lead manual
           </button>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-9">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-9">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <p className="text-sm text-slate-500">Total</p>
             <p className="mt-3 text-4xl font-bold text-slate-900">{metricas.total}</p>
@@ -667,14 +669,14 @@ export default function AdminLeadsPage() {
         </div>
 
         <div className="mt-6 rounded-3xl border border-blue-200 bg-blue-50 px-5 py-4 shadow-sm">
-          <p className="text-sm font-semibold text-blue-800">
-            Recurso SaaS em evolução
-          </p>
-          <p className="mt-1 text-sm leading-6 text-blue-700">
-            Leads do tipo <strong>PHANYX</strong> representam oportunidades comerciais da
-            plataforma. Leads do tipo <strong>INSTITUICAO</strong> preparam o CRM interno
-            das instituições e podem ser liberados futuramente como funcionalidade de plano premium.
-          </p>
+          <p className="font-bold text-sky-300">
+  Leitura do CRM
+</p>
+          <p className="mt-1 text-sm leading-6 text-slate-300">
+  Este painel acompanha oportunidades comerciais e follow-ups de leads.
+  Pagamentos reais via Asaas, matrículas do Bacharel Livre em Teologia e
+  compras de recursos como IA aparecem no Painel Master, não no CRM de leads.
+</p>
         </div>
 
         <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -1267,6 +1269,45 @@ export default function AdminLeadsPage() {
           </div>
         )}
       </div>
+      {leadParaExcluir && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 backdrop-blur-sm">
+    <div className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900 p-6 shadow-2xl">
+      <p className="text-sm font-bold uppercase tracking-[0.22em] text-red-300">
+        Confirmar exclusão
+      </p>
+
+      <h2 className="mt-2 text-2xl font-black text-white">
+        Excluir lead?
+      </h2>
+
+      <p className="mt-3 text-sm leading-6 text-slate-300">
+        Você está prestes a excluir o lead{" "}
+        <strong className="text-white">{leadParaExcluir.nome}</strong>.
+        Essa ação remove o registro do CRM comercial.
+      </p>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          onClick={() => setLeadParaExcluir(null)}
+          disabled={salvando}
+          className="rounded-2xl border border-slate-700 bg-slate-950 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={confirmarExclusaoLead}
+          disabled={salvando}
+          className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {salvando ? "Excluindo..." : "Sim, excluir"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
