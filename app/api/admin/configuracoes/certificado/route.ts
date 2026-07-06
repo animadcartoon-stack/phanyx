@@ -102,6 +102,15 @@ const instituicao = await prisma.instituicao.update({
   },
 });
 
+await prisma.certificado.updateMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+  },
+  data: {
+    arquivoUrl: null,
+  },
+});
+
     return NextResponse.json(instituicao);
   } catch (error: any) {
     return NextResponse.json(
