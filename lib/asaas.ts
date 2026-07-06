@@ -383,18 +383,26 @@ export async function criarCheckoutAssinaturaAsaas(
     }),
   });
 
-  const { baseUrl } = getAsaasConfig();
-
-  const baseCheckoutUrl = baseUrl.includes("sandbox")
-    ? "https://sandbox.asaas.com"
-    : "https://www.asaas.com";
-
   console.log("🟣 RESPOSTA CHECKOUT ASAAS:", JSON.stringify(response, null, 2));
 
-  return {
-    id: response.id,
-    url: `${baseCheckoutUrl}/checkoutSession/show?id=${response.id}`,
-  };
+const checkoutUrl =
+  response.url ||
+  response.link ||
+  response.checkoutUrl ||
+  response.paymentUrl ||
+  response.invoiceUrl ||
+  "";
+
+if (!checkoutUrl) {
+  throw new Error(
+    "Asaas criou o checkout, mas não retornou uma URL válida para redirecionamento."
+  );
+}
+
+return {
+  id: response.id,
+  url: checkoutUrl,
+};
 }
 export async function atualizarClienteAsaas(
   customerId: string,
