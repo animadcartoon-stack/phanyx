@@ -3430,3 +3430,97 @@ html[data-theme="dark"] .phanyx-cert-botao-secundario:hover {
     color: #ffffff;
   }
 }
+
+@layer components {
+  .phanyx-page {
+    @apply min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100;
+  }
+
+  .phanyx-surface {
+    @apply rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100;
+  }
+
+  .phanyx-surface-soft {
+    @apply rounded-3xl border border-slate-200 bg-slate-50 text-slate-900 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100;
+  }
+
+  .phanyx-panel {
+    @apply rounded-2xl border border-slate-200 bg-white text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100;
+  }
+
+  .phanyx-muted {
+    @apply text-slate-600 dark:text-slate-300;
+  }
+
+  .phanyx-label {
+    @apply text-sm font-semibold text-slate-700 dark:text-slate-200;
+  }
+
+  .phanyx-title {
+    @apply font-black text-slate-900 dark:text-white;
+  }
+
+  .phanyx-subtitle {
+    @apply text-slate-600 dark:text-slate-300;
+  }
+
+  .phanyx-input {
+    @apply w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder:text-slate-400 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500;
+  }
+
+  .phanyx-select {
+    @apply w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-white;
+  }
+
+  .phanyx-select option {
+    @apply bg-white text-slate-900 dark:bg-slate-950 dark:text-white;
+  }
+
+  .phanyx-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .phanyx-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 shadow-sm transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:hover:bg-slate-800;
+  }
+
+  .phanyx-btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl border border-blue-300 bg-blue-50 px-5 py-3 text-sm font-bold text-blue-700 shadow-sm transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-blue-500/40 dark:bg-blue-500/10 dark:text-blue-200 dark:hover:bg-blue-500/20;
+  }
+
+  .phanyx-btn-cyan {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-500 px-5 py-3 text-sm font-bold text-slate-950 shadow-sm transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .phanyx-btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .phanyx-chip {
+    @apply inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100;
+  }
+
+  .phanyx-chip-success {
+    @apply inline-flex items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-200;
+  }
+
+  .phanyx-chip-warning {
+    @apply inline-flex items-center justify-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/15 dark:text-amber-200;
+  }
+
+  .phanyx-chip-danger {
+    @apply inline-flex items-center justify-center rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold text-red-700 dark:border-red-500/30 dark:bg-red-500/15 dark:text-red-200;
+  }
+
+  .phanyx-alert-info {
+    @apply rounded-3xl border border-blue-200 bg-blue-50 p-5 text-blue-900 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-100;
+  }
+
+  .phanyx-alert-info-title {
+    @apply text-sm font-black text-blue-800 dark:text-sky-200;
+  }
+
+  .phanyx-alert-info-text {
+    @apply mt-1 text-sm leading-6 text-blue-900 dark:text-sky-100;
+  }
+}
