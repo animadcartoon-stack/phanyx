@@ -613,8 +613,7 @@ async function confirmarExclusaoLead() {
           <button
             type="button"
             onClick={abrirNovoLead}
-            className="inline-flex w-full shrink-0 items-center justify-center whitespace-nowrap rounded-2xl bg-blue-600 px-6 py-4 text-base font-semibold text-white shadow-[0_15px_35px_rgba(37,99,235,0.22)] transition hover:-translate-y-0.5 hover:bg-blue-500 sm:w-auto"
-          >
+className="phanyx-btn-primary min-h-[56px] w-full whitespace-nowrap px-8 text-base sm:w-auto"          >
             Novo lead manual
           </button>
         </div>
