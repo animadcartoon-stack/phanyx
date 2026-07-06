@@ -73,12 +73,13 @@ export async function POST(req: Request) {
     const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
 
     const instituicao = await prisma.instituicao.create({
-      data: {
-        nome: adesao.nomeInstituicao,
-        slug: slugFinal,
-        plano: adesao.plano,
-      },
-    });
+  data: {
+    nome: adesao.nomeInstituicao,
+    slug: slugFinal,
+    plano: adesao.plano,
+    updatedAt: new Date(),
+  },
+});
 
     const admin = await prisma.user.create({
       data: {

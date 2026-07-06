@@ -4,13 +4,25 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-type StatusAdesao = "PAGO" | "PENDENTE" | "PROCESSANDO" | "CANCELADO" | "ERRO";
+type StatusAdesao =
+  | "PAGO"
+  | "PENDENTE"
+  | "PROCESSANDO"
+  | "TESTE_GRATIS"
+  | "CANCELADO"
+  | "ERRO";
 
 function SucessoContent() {
   const searchParams = useSearchParams();
   const adesaoId = searchParams.get("adesao") || searchParams.get("ref");
 
-  const [status, setStatus] = useState<StatusAdesao>("PROCESSANDO");
+  const trialAtivo =
+  searchParams.get("trial") === "1" ||
+  searchParams.get("trial") === "true";
+
+  const [status, setStatus] = useState<StatusAdesao>(
+  trialAtivo ? "TESTE_GRATIS" : "PROCESSANDO"
+);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
 
@@ -20,6 +32,13 @@ function SucessoContent() {
       setErro("ID da adesão não informado na URL.");
       return;
     }
+
+    if (trialAtivo) {
+  setStatus("TESTE_GRATIS");
+  setLoading(false);
+  setErro("");
+  return;
+}
 
     let ativo = true;
 
@@ -83,13 +102,58 @@ function SucessoContent() {
       ativo = false;
       clearInterval(interval);
     };
-  }, [adesaoId]);
+  }, [adesaoId, trialAtivo]);
 
   return (
     <div className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-3xl">
         <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-          {status === "PAGO" ? (
+          {status === "TESTE_GRATIS" || trialAtivo ? (
+  <>
+    <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/10 text-4xl">
+      ✅
+    </div>
+
+    <div className="mt-6 text-center">
+      <p className="text-sm uppercase tracking-[0.2em] text-emerald-300">
+        Teste gratuito iniciado
+      </p>
+
+      <h1 className="mt-3 text-4xl font-bold">
+        Sua instituição já pode começar a usar o PHANYX
+      </h1>
+
+      <p className="mx-auto mt-4 max-w-2xl text-slate-300">
+        O ambiente institucional foi criado com teste gratuito de 6 meses.
+        O acesso administrativo será enviado para o email informado na adesão.
+      </p>
+    </div>
+
+    <div className="mt-8 rounded-2xl border border-slate-800 bg-slate-950 p-5">
+      <h2 className="text-lg font-semibold text-white">
+        O que acontece agora
+      </h2>
+
+      <div className="mt-4 space-y-3 text-sm leading-6 text-slate-300">
+        <p>1. Sua instituição foi criada no PHANYX.</p>
+        <p>2. O administrador principal foi preparado com senha temporária.</p>
+        <p>3. O email de acesso será enviado automaticamente.</p>
+        <p>4. A instituição poderá usar o PHANYX por 6 meses sem cobrança inicial.</p>
+        <p>5. Após o período gratuito, se não houver cancelamento, a cobrança mensal será iniciada conforme o plano e o uso real.</p>
+      </div>
+    </div>
+
+    <div className="mt-6 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-5 text-sm leading-6 text-blue-100">
+      <p className="font-semibold text-white">
+        Cobrança após o teste gratuito
+      </p>
+      <p className="mt-2">
+        Nenhum pagamento foi exigido agora. A primeira cobrança está programada
+        para depois do período gratuito, conforme a assinatura configurada no Asaas.
+      </p>
+    </div>
+  </>
+) : status === "PAGO" ? (
             <>
               <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-500/10 text-4xl">
                 ✅

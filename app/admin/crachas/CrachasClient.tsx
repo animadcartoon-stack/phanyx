@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 
+type GradientePonto = {
+  id: number;
+  cor: string;
+  posicao: number;
+};
+
 type ObjetoCracha =
   | {
       id: number;
@@ -55,7 +61,7 @@ type ObjetoCracha =
       sombraCor?: string;
       ordem: number;
     }
-    | {
+  | {
       id: number;
       tipo: "FORMA";
       forma:
@@ -73,7 +79,28 @@ type ObjetoCracha =
         | "SETA_BAIXO"
         | "SETA_DUPLA_HORIZONTAL"
         | "SETA_DUPLA_VERTICAL";
-      estilo?: "PREENCHIMENTO_CONTORNO" | "SOMENTE_PREENCHIMENTO" | "SOMENTE_CONTORNO";
+
+      estilo?:
+        | "PREENCHIMENTO_CONTORNO"
+        | "SOMENTE_PREENCHIMENTO"
+        | "SOMENTE_CONTORNO";
+
+      preenchimentoTipo?: "COR" | "GRADIENTE";
+
+      gradienteDirecao?:
+        | "DIREITA"
+        | "ESQUERDA"
+        | "TOPO"
+        | "BASE"
+        | "DIAGONAL_DESC"
+        | "DIAGONAL_ASC"
+        | "ESFERA";
+
+      gradientePontos?: GradientePonto[];
+
+      bordaAcabamento?: "DURA" | "FOSCA";
+      bordaBlur?: number;
+
       x: number;
       y: number;
       largura: number;
@@ -248,13 +275,34 @@ function adicionarLogo() {
 }
 
 function adicionarForma() {
+  const agora = Date.now();
+
   setObjetos((atual) => [
     ...atual,
     {
-      id: Date.now(),
+      id: agora,
       tipo: "FORMA",
       forma: "RETANGULO",
       estilo: "SOMENTE_PREENCHIMENTO",
+
+      preenchimentoTipo: "COR",
+      gradienteDirecao: "DIREITA",
+      gradientePontos: [
+        {
+          id: agora + 1,
+          cor: "#2563eb",
+          posicao: 0,
+        },
+        {
+          id: agora + 2,
+          cor: "#9333ea",
+          posicao: 100,
+        },
+      ],
+
+      bordaAcabamento: "DURA",
+      bordaBlur: 3,
+
       x: 30,
       y: 30,
       largura: 120,
@@ -264,9 +312,148 @@ function adicionarForma() {
       espessuraBorda: 0,
       raioBorda: 12,
       opacidade: 100,
-      ordem: Date.now(),
+      ordem: agora,
     },
   ]);
+}
+
+function pontosGradienteForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+): GradientePonto[] {
+  const pontos = objeto.gradientePontos?.length
+    ? objeto.gradientePontos
+    : [
+        { id: 1, cor: objeto.corFundo || "#2563eb", posicao: 0 },
+        { id: 2, cor: "#ffffff", posicao: 100 },
+      ];
+
+  return [...pontos].sort((a, b) => a.posicao - b.posicao);
+}
+
+function idGradienteForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  return `gradiente-forma-${objeto.id}`;
+}
+
+function estiloAtualForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  return objeto.estilo || "SOMENTE_PREENCHIMENTO";
+}
+
+function preenchimentoForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  const estilo = estiloAtualForma(objeto);
+
+  if (estilo === "SOMENTE_CONTORNO") {
+    return "transparent";
+  }
+
+  if ((objeto.preenchimentoTipo || "COR") === "GRADIENTE") {
+    return `url(#${idGradienteForma(objeto)})`;
+  }
+
+  return objeto.corFundo;
+}
+
+function contornoForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
+  const estilo = estiloAtualForma(objeto);
+
+  if (estilo === "SOMENTE_PREENCHIMENTO") {
+    return "transparent";
+  }
+
+  return objeto.corBorda;
+}
+
+function espessuraContornoForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const estilo = estiloAtualForma(objeto);
+
+  if (estilo === "SOMENTE_PREENCHIMENTO") {
+    return 0;
+  }
+
+  return Math.max(1, objeto.espessuraBorda || 3);
+}
+
+function direcaoGradienteForma(
+  direcao: Extract<ObjetoCracha, { tipo: "FORMA" }>["gradienteDirecao"]
+) {
+  if (direcao === "ESQUERDA") {
+    return { x1: "100%", y1: "0%", x2: "0%", y2: "0%" };
+  }
+
+  if (direcao === "TOPO") {
+    return { x1: "0%", y1: "100%", x2: "0%", y2: "0%" };
+  }
+
+  if (direcao === "BASE") {
+    return { x1: "0%", y1: "0%", x2: "0%", y2: "100%" };
+  }
+
+  if (direcao === "DIAGONAL_DESC") {
+    return { x1: "0%", y1: "0%", x2: "100%", y2: "100%" };
+  }
+
+  if (direcao === "DIAGONAL_ASC") {
+    return { x1: "0%", y1: "100%", x2: "100%", y2: "0%" };
+  }
+
+  return { x1: "0%", y1: "0%", x2: "100%", y2: "0%" };
+}
+
+function renderGradienteForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  if ((objeto.preenchimentoTipo || "COR") !== "GRADIENTE") {
+    return null;
+  }
+
+  const pontos = pontosGradienteForma(objeto);
+
+  if (objeto.gradienteDirecao === "ESFERA") {
+    return (
+      <radialGradient
+        id={idGradienteForma(objeto)}
+        cx="45%"
+        cy="35%"
+        r="75%"
+      >
+        {pontos.map((ponto) => (
+          <stop
+            key={ponto.id}
+            offset={`${ponto.posicao}%`}
+            stopColor={ponto.cor}
+          />
+        ))}
+      </radialGradient>
+    );
+  }
+
+  const direcao = direcaoGradienteForma(objeto.gradienteDirecao || "DIREITA");
+
+  return (
+    <linearGradient id={idGradienteForma(objeto)} {...direcao}>
+      {pontos.map((ponto) => (
+        <stop
+          key={ponto.id}
+          offset={`${ponto.posicao}%`}
+          stopColor={ponto.cor}
+        />
+      ))}
+    </linearGradient>
+  );
+}
+
+function filtroAcabamentoForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  if ((objeto.bordaAcabamento || "DURA") !== "FOSCA") {
+    return "none";
+  }
+
+  const blur = objeto.bordaBlur ?? 3;
+  const cor = objeto.corBorda || "#000000";
+
+  return `drop-shadow(0 0 ${blur}px ${cor})`;
 }
 
 async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
@@ -982,42 +1169,6 @@ function deveMostrarBordaForma(
   ].includes(objeto.forma);
 }
 
-function estiloAtualForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
-  return objeto.estilo || "SOMENTE_PREENCHIMENTO";
-}
-
-function preenchimentoForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
-  const estilo = estiloAtualForma(objeto);
-
-  if (estilo === "SOMENTE_CONTORNO") {
-    return "transparent";
-  }
-
-  return objeto.corFundo;
-}
-
-function contornoForma(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
-  const estilo = estiloAtualForma(objeto);
-
-  if (estilo === "SOMENTE_PREENCHIMENTO") {
-    return "transparent";
-  }
-
-  return objeto.corBorda;
-}
-
-function espessuraContornoForma(
-  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
-) {
-  const estilo = estiloAtualForma(objeto);
-
-  if (estilo === "SOMENTE_PREENCHIMENTO") {
-    return 0;
-  }
-
-  return Math.max(1, objeto.espessuraBorda || 3);
-}
-
 function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
   const fill = preenchimentoForma(objeto);
   const stroke = contornoForma(objeto);
@@ -1147,11 +1298,17 @@ function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
 }
 
   return (
-    <div
-  className="phanyx-crachas-page p-4"
-  onMouseDown={() => fecharMenuContexto()}
->
-      {/* Barra Superior */}
+  <div
+    className="phanyx-crachas-page relative p-4"
+    onMouseDown={() => fecharMenuContexto()}
+  >
+   <img
+  src="/images/phanyx-cracha.png"
+  alt="Mascote PHANYX Crachás"
+  className="pointer-events-none absolute -top-20 left-6 z-10 hidden h-24 w-auto select-none opacity-95 drop-shadow-xl lg:block"
+/>
+
+    {/* Barra Superior */}
 
       <div className="phanyx-crachas-card mb-4 flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex flex-wrap gap-2">
@@ -1720,8 +1877,10 @@ if (objeto.tipo === "FORMA") {
     overflow: "visible",
     opacity: objeto.opacidade / 100,
     pointerEvents: "none",
+    filter: filtroAcabamentoForma(objeto),
   }}
 >
+  <defs>{renderGradienteForma(objeto)}</defs>
   {renderFormaSvg(objeto)}
 </svg>
 
@@ -2552,9 +2711,9 @@ if (objeto.tipo === "FORMA") {
   };
 
   atualizarObjeto(objetoAtual.id, {
-    forma: novaForma,
-    ...medidasPorForma[novaForma],
-  });
+  forma: novaForma,
+  ...medidasPorForma[novaForma],
+});
 }}
   className="phanyx-crachas-input"
 >
@@ -2588,12 +2747,12 @@ if (objeto.tipo === "FORMA") {
         | "SOMENTE_CONTORNO";
 
       atualizarObjeto(objetoAtual.id, {
-        estilo: novoEstilo,
-        ...(novoEstilo !== "SOMENTE_PREENCHIMENTO" &&
-        objetoAtual.espessuraBorda <= 0
-          ? { espessuraBorda: 3 }
-          : {}),
-      });
+  estilo: novoEstilo,
+  ...(novoEstilo !== "SOMENTE_PREENCHIMENTO" &&
+  objetoAtual.espessuraBorda <= 0
+    ? { espessuraBorda: 3 }
+    : {}),
+});
     }}
     className="phanyx-crachas-input"
   >
@@ -2608,9 +2767,161 @@ if (objeto.tipo === "FORMA") {
     </option>
   </select>
 </div>
+<div>
+  <label className="mb-2 block font-semibold">
+    Tipo de preenchimento
+  </label>
 
+  <select
+    value={objetoAtual.preenchimentoTipo || "COR"}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        preenchimentoTipo: e.target.value as "COR" | "GRADIENTE",
+      })
+    }
+    className="phanyx-crachas-input"
+  >
+    <option value="COR">Cor sólida</option>
+    <option value="GRADIENTE">Gradiente</option>
+  </select>
+</div>
+    </div>
+{(objetoAtual.preenchimentoTipo || "COR") === "GRADIENTE" && (
+  <div className="rounded-2xl border border-slate-700/40 p-3">
+    <p className="mb-3 text-sm font-bold">
+      Gradiente
+    </p>
+
+    <div>
+      <label className="mb-2 block font-semibold">
+        Direção do gradiente
+      </label>
+
+      <select
+        value={objetoAtual.gradienteDirecao || "DIREITA"}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            gradienteDirecao: e.target.value as
+              | "DIREITA"
+              | "ESQUERDA"
+              | "TOPO"
+              | "BASE"
+              | "DIAGONAL_DESC"
+              | "DIAGONAL_ASC"
+              | "ESFERA",
+          })
+        }
+        className="phanyx-crachas-input"
+      >
+        <option value="DIREITA">Direita</option>
+        <option value="ESQUERDA">Esquerda</option>
+        <option value="TOPO">Topo</option>
+        <option value="BASE">Base</option>
+        <option value="DIAGONAL_DESC">Diagonal descendo</option>
+        <option value="DIAGONAL_ASC">Diagonal subindo</option>
+        <option value="ESFERA">Esfera / radial</option>
+      </select>
     </div>
 
+    <div className="mt-4 space-y-3">
+      {pontosGradienteForma(objetoAtual).map((ponto) => (
+        <div
+          key={ponto.id}
+          className="rounded-xl border border-slate-700/40 p-3"
+        >
+          <div>
+            <label className="mb-2 block text-xs font-semibold">
+              Cor do ponto
+            </label>
+
+            <input
+              type="color"
+              value={ponto.cor}
+              onChange={(e) => {
+                const novosPontos = pontosGradienteForma(objetoAtual).map(
+                  (item) =>
+                    item.id === ponto.id
+                      ? { ...item, cor: e.target.value }
+                      : item
+                );
+
+                atualizarObjeto(objetoAtual.id, {
+                  gradientePontos: novosPontos,
+                });
+              }}
+              className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+            />
+          </div>
+
+          <div className="mt-3">
+            <label className="mb-2 block text-xs font-semibold">
+              Posição: {ponto.posicao}%
+            </label>
+
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={ponto.posicao}
+              onChange={(e) => {
+                const novosPontos = pontosGradienteForma(objetoAtual).map(
+                  (item) =>
+                    item.id === ponto.id
+                      ? { ...item, posicao: Number(e.target.value) }
+                      : item
+                );
+
+                atualizarObjeto(objetoAtual.id, {
+                  gradientePontos: novosPontos,
+                });
+              }}
+              className="w-full"
+            />
+          </div>
+
+          {pontosGradienteForma(objetoAtual).length > 2 && (
+            <button
+              type="button"
+              onClick={() => {
+                const novosPontos = pontosGradienteForma(objetoAtual).filter(
+                  (item) => item.id !== ponto.id
+                );
+
+                atualizarObjeto(objetoAtual.id, {
+                  gradientePontos: novosPontos,
+                });
+              }}
+              className="mt-3 rounded-xl border border-red-500/50 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/10"
+            >
+              Remover ponto
+            </button>
+          )}
+        </div>
+      ))}
+    </div>
+
+    <button
+      type="button"
+      onClick={() => {
+        const pontosAtuais = pontosGradienteForma(objetoAtual);
+
+        atualizarObjeto(objetoAtual.id, {
+          gradientePontos: [
+            ...pontosAtuais,
+            {
+              id: Date.now(),
+              cor: "#ffffff",
+              posicao: 50,
+            },
+          ],
+        });
+      }}
+      className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
+    >
+      Adicionar ponto de cor
+    </button>
+  </div>
+)}
     <div className="grid grid-cols-2 gap-2">
       <div>
         <label className="mb-2 block text-xs font-semibold">X</label>
@@ -2731,6 +3042,50 @@ if (objeto.tipo === "FORMA") {
       <label className="mb-2 block font-semibold">
         Espessura da borda
       </label>
+
+<div>
+  <label className="mb-2 block font-semibold">
+    Acabamento da borda
+  </label>
+
+  <select
+    value={objetoAtual.bordaAcabamento || "DURA"}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        bordaAcabamento: e.target.value as "DURA" | "FOSCA",
+      })
+    }
+    className="phanyx-crachas-input"
+  >
+    <option value="DURA">Borda dura / nítida</option>
+    <option value="FOSCA">Borda fosca / suave</option>
+  </select>
+</div>
+
+{(objetoAtual.bordaAcabamento || "DURA") === "FOSCA" && (
+  <div>
+    <label className="mb-2 block font-semibold">
+      Suavidade da borda
+    </label>
+
+    <input
+      type="range"
+      min={0}
+      max={12}
+      value={objetoAtual.bordaBlur ?? 3}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          bordaBlur: Number(e.target.value),
+        })
+      }
+      className="w-full"
+    />
+
+    <p className="mt-1 text-xs text-slate-500 dark:text-slate-300">
+      {objetoAtual.bordaBlur ?? 3}px
+    </p>
+  </div>
+)}
 
       <input
         type="number"

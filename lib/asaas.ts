@@ -322,6 +322,7 @@ type CriarCheckoutAssinaturaInput = {
   province: string;
   city: string;
   externalReference: string;
+  nextDueDate: string;
 };
 
 type CriarCheckoutAssinaturaResponse = {
@@ -356,7 +357,7 @@ export async function criarCheckoutAssinaturaAsaas(
 
       subscription: {
   cycle: "MONTHLY",
-  nextDueDate: new Date().toISOString().split("T")[0],
+  nextDueDate: data.nextDueDate,
 },
       customerData: {
         name: data.nomeResponsavel,
@@ -371,10 +372,14 @@ export async function criarCheckoutAssinaturaAsaas(
       },
 
       callback: {
-        successUrl: `https://phanyx.com.br/sucesso?checkout=recorrente&ref=${data.externalReference}`,
-        cancelUrl: `https://phanyx.com.br/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
-        autoRedirect: true,
-      },
+  successUrl: `${
+    process.env.NEXT_PUBLIC_BASE_URL || "https://www.phanyx.com.br"
+  }/sucesso?checkout=recorrente&ref=${data.externalReference}`,
+  cancelUrl: `${
+    process.env.NEXT_PUBLIC_BASE_URL || "https://www.phanyx.com.br"
+  }/cancelado?motivo=checkout-cancelado&ref=${data.externalReference}`,
+  autoRedirect: true,
+},
     }),
   });
 

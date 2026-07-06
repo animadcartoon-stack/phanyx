@@ -138,20 +138,40 @@ type EnviarEmailCobrancaParams = {
   linkCobranca?: string | null;
 };
 
-function getBaseUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3001";
+function getAppUrl() {
+  return (
+    process.env.NEXT_PUBLIC_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    process.env.APP_URL?.trim() ||
+    "http://localhost:3000"
+  );
+}
+
+function getEmailAssetsUrl() {
+  return (
+    process.env.NEXT_PUBLIC_EMAIL_ASSETS_URL?.trim() ||
+    "https://www.phanyx.com.br"
+  );
 }
 
 function getLogoUrl() {
-  return `${getBaseUrl()}/icon.png`;
+  return `${getEmailAssetsUrl()}/icon.png`;
+}
+
+function getMascotePhanyxUrl() {
+  return `${getEmailAssetsUrl()}/images/formix-bemvindo.png`;
 }
 
 function getImagemFormixUrl() {
-  return `${getBaseUrl()}/images/formix-bemvindo.png`;
+  return getMascotePhanyxUrl();
+}
+
+function getBaseUrl() {
+  return getAppUrl();
 }
 
 function getLoginUrl() {
-  return `${getBaseUrl()}/login?portal=admin`;
+  return `${getAppUrl()}/login?portal=admin`;
 }
 
 function formatarValorBRL(valor: number | string) {
@@ -269,7 +289,7 @@ export async function enviarEmailCobranca({
                         <td align="right" style="vertical-align:middle;">
                           <img
                             src="${imagemFormixUrl}"
-                            alt="Formix"
+                            alt="PHANYX"
                             style="height:110px;max-width:110px;display:block;"
                           />
                         </td>
@@ -395,11 +415,11 @@ export async function enviarEmailAcesso({
   const logoUrl = getLogoUrl();
   const imagemFormixUrl = getImagemFormixUrl();
 
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: email,
-    subject: "🚀 Seu acesso ao PHANYX foi liberado",
-    html: `
+  const info = await transporter.sendMail({
+  from: process.env.EMAIL_FROM,
+  to: email,
+  subject: "🚀 Seu acesso ao PHANYX foi liberado",
+  html: `
       <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b1120;padding:32px 16px;">
           <tr>
@@ -420,7 +440,7 @@ export async function enviarEmailAcesso({
                   <td style="padding:34px 32px 24px 32px;background:linear-gradient(135deg,#2563eb 0%,#0f172a 100%);text-align:center;">
                     <img
                       src="${imagemFormixUrl}"
-                      alt="Formix dando boas-vindas"
+                      alt="PHANYX dando boas-vindas"
                       style="height:130px;max-width:130px;display:block;margin:0 auto 16px auto;"
                     />
 
@@ -506,8 +526,19 @@ export async function enviarEmailAcesso({
         </table>
       </div>
     `,
+    });
+
+  console.log("✅ EMAIL DE ACESSO PHANYX ENVIADO:", {
+    to: email,
+    accepted: info.accepted,
+    rejected: info.rejected,
+    messageId: info.messageId,
+    response: info.response,
   });
+
+  return info;
 }
+
 type PortalAcesso = "admin" | "professor" | "aluno";
 
 type EnviarEmailPrimeiroAcessoParams = {
@@ -567,7 +598,7 @@ export async function enviarEmailPrimeiroAcesso({
                   <td style="padding:34px 32px 24px 32px;background:linear-gradient(135deg,#2563eb 0%,#0f172a 100%);text-align:center;">
                     <img
                       src="${imagemFormixUrl}"
-                      alt="Formix dando boas-vindas"
+                      alt="PHANYX dando boas-vindas"
                       style="height:130px;max-width:130px;display:block;margin:0 auto 16px auto;"
                     />
 

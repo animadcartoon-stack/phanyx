@@ -6,7 +6,9 @@ import { useSearchParams } from "next/navigation";
 export const dynamic = "force-dynamic";
 
 type Plano = "ESSENCIAL" | "PROFISSIONAL" | "ENTERPRISE";
-type FormaPagamento = "PIX" | "BOLETO" | "CREDIT_CARD" | "RECORRENTE";
+type FormaPagamento = "CREDIT_CARD" | "PIX" | "BOLETO";
+
+const TRIAL_PADRAO_MESES = 6;
 
 function getValorPlano(plano: string) {
   const p = plano.toUpperCase();
@@ -23,6 +25,12 @@ function AdesaoContent() {
   const searchParams = useSearchParams();
   const planoQuery = searchParams.get("plano") || "PROFISSIONAL";
 
+  const trialQuery = Number(searchParams.get("trial") || TRIAL_PADRAO_MESES);
+  const trialMeses =
+  Number.isFinite(trialQuery) && trialQuery > 0
+    ? trialQuery
+    : TRIAL_PADRAO_MESES;
+
   const plano = useMemo<Plano>(() => {
     const p = planoQuery.toUpperCase();
 
@@ -37,7 +45,7 @@ function AdesaoContent() {
   const [telefone, setTelefone] = useState("");
   const [cpfCnpj, setCpfCnpj] = useState("");
   const [formaPagamento, setFormaPagamento] =
-    useState<FormaPagamento>("PIX");
+  useState<FormaPagamento>("CREDIT_CARD");
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState("");
   const [adesaoId, setAdesaoId] = useState<string | null>(null);
@@ -91,14 +99,15 @@ function AdesaoContent() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nomeResponsavel,
-          nomeInstituicao,
-          email,
-          telefone,
-          cpfCnpj,
-          plano,
-          formaPagamento,
-        }),
+  nomeResponsavel,
+  nomeInstituicao,
+  email,
+  telefone,
+  cpfCnpj,
+  plano,
+  formaPagamento,
+  trialMeses,
+}),
       });
 
       const data = await res.json();
@@ -115,15 +124,23 @@ function AdesaoContent() {
       setStatusPagamento(data?.adesao?.status || "PENDING");
       setPagamentoConfirmado(data?.adesao?.status === "PAGO");
 
-if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
-  window.open(data.checkoutUrl, "_blank", "noopener,noreferrer");
+      if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
+  setPagamentoConfirmado(true);
+  setStatusPagamento("TESTE_GRATIS");
+
+  setTimeout(() => {
+    window.location.href = `/sucesso?adesao=${data?.adesao?.id}&trial=1`;
+  }, 1000);
+
   return;
 }
 
-      if (formaPagamento === "RECORRENTE") {
-        setStatusPagamento(data?.adesao?.status || "PROCESSANDO");
-      }
+if (data?.checkoutUrl) {
+  window.location.href = data.checkoutUrl;
+  return;
+}
 
+  
       window.scrollTo({
         top: document.body.scrollHeight,
         behavior: "smooth",
@@ -156,7 +173,7 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
 
         setStatusPagamento(status);
 
-        if (status === "PAGO") {
+        if (status === "PAGO" || status === "TESTE_GRATIS") {
           setPagamentoConfirmado(true);
           setStatusPagamento("PAGO");
           clearInterval(interval);
@@ -167,8 +184,11 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
           });
 
           setTimeout(() => {
-            window.location.href = `/sucesso?adesao=${adesaoId}`;
-          }, 1200);
+  window.location.href =
+    status === "TESTE_GRATIS"
+      ? `/sucesso?adesao=${adesaoId}&trial=1`
+      : `/sucesso?adesao=${adesaoId}`;
+}, 1200);
         }
 
         if (
@@ -202,11 +222,7 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
     return () => clearInterval(interval);
   }, [adesaoId, pagamentoConfirmado]);
 
-  const ehPix = formaPagamento === "PIX";
-  const ehBoletoOuCartao =
-    formaPagamento === "BOLETO" || formaPagamento === "CREDIT_CARD";
-  const ehRecorrente = formaPagamento === "RECORRENTE";
-
+ 
   return (
     <div className="min-h-screen bg-slate-950 px-6 py-10 text-white">
       <div className="mx-auto max-w-5xl">
@@ -215,12 +231,14 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
             Adesão institucional PHANYX
           </p>
           <h1 className="mt-3 text-4xl font-bold">
-            Contrate o PHANYX para sua instituição
-          </h1>
+  Comece o PHANYX com {trialMeses} meses grátis
+</h1>
           <p className="mx-auto mt-4 max-w-2xl text-slate-300">
-            Preencha os dados da instituição, escolha a forma de pagamento e
-            receba o acesso administrativo principal após a confirmação.
-          </p>
+  Preencha os dados da instituição para liberar o ambiente PHANYX em teste gratuito.
+  Sua instituição poderá usar a plataforma por {trialMeses} meses sem cobrança inicial.
+  Se não houver cancelamento antes do fim do período, a cobrança mensal será iniciada
+  conforme o plano escolhido, alunos ativos e polos cadastrados.
+</p>
         </div>
 
         {pagamentoConfirmado ? (
@@ -237,9 +255,9 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
           <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
             <h2 className="text-2xl font-bold">Dados da adesão</h2>
             <p className="mt-2 text-sm text-slate-400">
-              Plano selecionado: <strong className="text-white">{plano}</strong>{" "}
-              • {getValorPlano(plano)} / mês + cobrança por aluno ativo
-            </p>
+  Plano selecionado: <strong className="text-white">{plano}</strong>{" "}
+  • {trialMeses} meses grátis. Depois: {getValorPlano(plano)} / mês + cobrança por aluno ativo.
+</p>
 
             <div className="mt-8 grid gap-4">
               <input
@@ -278,81 +296,97 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
                 className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
               />
 
-              <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4">
-                <label className="mb-3 block text-sm font-semibold text-slate-200">
-                  Forma de pagamento
-                </label>
+              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 p-5">
+  <p className="text-sm font-black uppercase tracking-[0.18em] text-blue-200">
+    Forma de cobrança após os {trialMeses} meses grátis
+  </p>
 
-                <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-                  <button
-                    type="button"
-                    onClick={() => setFormaPagamento("PIX")}
-                    className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                      formaPagamento === "PIX"
-                        ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.35)]"
-                        : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
-                    }`}
-                  >
-                    Pix
-                  </button>
+  <h3 className="mt-2 text-xl font-black text-white">
+    Escolha como a instituição será cobrada depois do período gratuito
+  </h3>
 
-                  <button
-                    type="button"
-                    onClick={() => setFormaPagamento("BOLETO")}
-                    className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                      formaPagamento === "BOLETO"
-                        ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.35)]"
-                        : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
-                    }`}
-                  >
-                    Boleto
-                  </button>
+  <p className="mt-3 text-sm leading-7 text-blue-100">
+    Nenhuma cobrança será feita agora. A forma escolhida será usada somente
+    após os {trialMeses} meses gratuitos, caso a instituição não cancele antes
+    da primeira cobrança.
+  </p>
 
-                  <button
-                    type="button"
-                    onClick={() => setFormaPagamento("CREDIT_CARD")}
-                    className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
-                      formaPagamento === "CREDIT_CARD"
-                        ? "border-blue-500 bg-blue-600 text-white shadow-[0_10px_30px_rgba(37,99,235,0.35)]"
-                        : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
-                    }`}
-                  >
-                    Cartão
-                  </button>
+  <div className="mt-5 grid gap-3">
+    <button
+      type="button"
+      onClick={() => setFormaPagamento("CREDIT_CARD")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        formaPagamento === "CREDIT_CARD"
+          ? "border-emerald-400 bg-emerald-500/20 text-white shadow-[0_10px_30px_rgba(16,185,129,0.25)]"
+          : "border-slate-700 bg-slate-950/70 text-slate-300 hover:border-slate-500"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-black">
+            Cartão de crédito
+            <span className="ml-2 rounded-full bg-emerald-400 px-2 py-1 text-[10px] font-black uppercase text-slate-950">
+              Recomendado
+            </span>
+          </p>
+          <p className="mt-1 text-sm leading-6">
+            Você será direcionado ao ambiente seguro do Asaas para cadastrar
+            o cartão. Nenhuma cobrança será feita hoje.
+          </p>
+        </div>
+        <span className="text-xl">
+          {formaPagamento === "CREDIT_CARD" ? "●" : "○"}
+        </span>
+      </div>
+    </button>
 
-                  <button
-  type="button"
-  onClick={() => setFormaPagamento("RECORRENTE")}
-  className={`hidden group relative overflow-hidden rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
-    formaPagamento === "RECORRENTE"
-      ? "border-blue-400 bg-gradient-to-br from-blue-600 to-blue-500 text-white shadow-[0_14px_45px_rgba(37,99,235,0.45)]"
-      : "border-blue-500/20 bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100 hover:border-blue-400/40 hover:shadow-[0_14px_45px_rgba(37,99,235,0.18)]"
-  }`}
->
-                
-                    <span className="flex flex-col items-center justify-center">
-                      <span className="text-sm font-semibold leading-tight">
-                        Assinatura
-                      </span>
-                      <span className="text-[10px] text-blue-100/80">
-                        mensal automática
-                      </span>
-                    </span>
-                  </button>
-                </div>
+    <button
+      type="button"
+      onClick={() => setFormaPagamento("PIX")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        formaPagamento === "PIX"
+          ? "border-blue-400 bg-blue-500/20 text-white shadow-[0_10px_30px_rgba(59,130,246,0.25)]"
+          : "border-slate-700 bg-slate-950/70 text-slate-300 hover:border-slate-500"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-black">Pix mensal</p>
+          <p className="mt-1 text-sm leading-6">
+            Após o período gratuito, o Asaas gerará uma cobrança Pix mensal
+            para pagamento manual pela instituição.
+          </p>
+        </div>
+        <span className="text-xl">
+          {formaPagamento === "PIX" ? "●" : "○"}
+        </span>
+      </div>
+    </button>
 
-                {false ? (
-                  <div className="mt-4 rounded-2xl border border-blue-500/20 bg-blue-500/10 p-4 text-sm text-blue-100">
-                    <p className="font-semibold text-white">
-                      Cobrança automática mensal no cartão
-                    </p>
-                    <p className="mt-1 leading-6 text-blue-100/90">
-                      Ideal para operação SaaS: a cobrança é renovada
-                      automaticamente a cada ciclo mensal.
-                    </p>
-                  </div>
-                ) : null}
-              </div>
+    <button
+      type="button"
+      onClick={() => setFormaPagamento("BOLETO")}
+      className={`rounded-2xl border p-4 text-left transition ${
+        formaPagamento === "BOLETO"
+          ? "border-amber-400 bg-amber-500/20 text-white shadow-[0_10px_30px_rgba(245,158,11,0.25)]"
+          : "border-slate-700 bg-slate-950/70 text-slate-300 hover:border-slate-500"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-black">Boleto mensal</p>
+          <p className="mt-1 text-sm leading-6">
+            Após o período gratuito, o Asaas gerará um boleto mensal. Essa
+            opção depende de pagamento manual pela instituição.
+          </p>
+        </div>
+        <span className="text-xl">
+          {formaPagamento === "BOLETO" ? "●" : "○"}
+        </span>
+      </div>
+    </button>
+  </div>
+</div>
             </div>
 
             {erro && (
@@ -367,139 +401,36 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
               className="mt-8 w-full rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white transition hover:bg-blue-500 disabled:opacity-60"
             >
               {loading
-                ? "⏳ Gerando cobrança..."
-                : ehRecorrente
-                ? "Gerar assinatura mensal"
-                : "Gerar cobrança da adesão"}
+  ? formaPagamento === "CREDIT_CARD"
+    ? "⏳ Preparando checkout seguro..."
+    : "⏳ Liberando ambiente..."
+  : formaPagamento === "CREDIT_CARD"
+    ? `Informar cartão e iniciar ${trialMeses} meses grátis`
+    : `Começar ${trialMeses} meses grátis`}
             </button>
           </div>
 
           <div className="space-y-6">
             <div className="rounded-3xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-              <h2 className="text-2xl font-bold">Pagamento</h2>
-              <p className="mt-2 text-sm text-slate-400">
-                Após gerar a adesão, o retorno da cobrança aparecerá aqui.
-              </p>
+              <h2 className="text-2xl font-bold">Resumo do teste gratuito</h2>
+<p className="mt-2 text-sm leading-6 text-slate-400">
+  Nenhuma cobrança será gerada agora. O PHANYX liberará o ambiente institucional
+  para uso por {trialMeses} meses.
+</p>
 
-              {ehPix ? (
-                <>
-                  <div className="mt-6 flex justify-center rounded-2xl bg-white p-4">
-                    <div className="flex h-48 w-48 items-center justify-center bg-slate-200 text-sm text-slate-900">
-                      {pixCode ? "QR CODE GERADO" : "Aguardando geração"}
-                    </div>
-                  </div>
+              <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-950 p-5">
+  <p className="text-sm font-bold text-white">
+    O que será liberado?
+  </p>
 
-                  <div className="mt-6 break-all rounded-xl border border-slate-700 bg-slate-950 p-4 text-sm text-slate-300">
-                    {pixCode || "O código Pix aparecerá aqui."}
-                  </div>
-
-                  <button
-                    onClick={copiarPix}
-                    disabled={!pixCode}
-                    className="mt-4 w-full rounded-2xl border border-blue-500/30 bg-blue-500/10 px-6 py-3 text-sm font-semibold text-blue-100 transition hover:bg-blue-500/20 disabled:opacity-50"
-                  >
-                    {copiado ? "Código Pix copiado!" : "Copiar código Pix"}
-                  </button>
-                </>
-              ) : null}
-
-              {ehBoletoOuCartao ? (
-                <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-950 p-5">
-                  <p className="text-sm leading-6 text-slate-300">
-                    {formaPagamento === "BOLETO"
-                      ? "A cobrança por boleto será aberta no link abaixo."
-                      : "O checkout do cartão será aberto no link abaixo."}
-                  </p>
-
-                  <a
-                    href={invoiceUrl || "#"}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={`mt-4 inline-flex w-full items-center justify-center rounded-2xl px-6 py-3 text-sm font-semibold transition ${
-                      invoiceUrl
-                        ? "bg-emerald-600 text-white hover:bg-emerald-500"
-                        : "cursor-not-allowed bg-slate-800 text-slate-500"
-                    }`}
-                  >
-                    {formaPagamento === "BOLETO"
-                      ? "Abrir cobrança em boleto"
-                      : "Abrir checkout do cartão"}
-                  </a>
-                </div>
-              ) : null}
-
-              {false ? (
-                <div className="mt-6 rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 to-slate-950 p-5">
-                  <p className="text-sm leading-6 text-slate-200">
-                    A assinatura mensal será criada automaticamente após a validação dos dados do cartão.
-                  </p>
-
-                  <div className="mt-4 rounded-xl border border-slate-700 bg-slate-950/70 p-4 text-sm text-slate-300">
-                    {adesaoId
-                      ? "Assinatura enviada ao Asaas. Estamos aguardando a confirmação automática."
-                      : "Aguardando criação da assinatura recorrente."}
-                  </div>
-
-                  <div className="mt-4 grid gap-3 md:grid-cols-2">
-                    <input
-                      value={cartao.numero}
-                      onChange={(e) =>
-                        setCartao({ ...cartao, numero: e.target.value })
-                      }
-                      placeholder="Número do cartão"
-                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                    />
-
-                    <input
-                      value={cartao.nomeTitular}
-                      onChange={(e) =>
-                        setCartao({ ...cartao, nomeTitular: e.target.value })
-                      }
-                      placeholder="Nome impresso no cartão"
-                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                    />
-
-                    <input
-                      value={cartao.mesExpiracao}
-                      onChange={(e) =>
-                        setCartao({ ...cartao, mesExpiracao: e.target.value })
-                      }
-                      placeholder="Mês (MM)"
-                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                    />
-
-                    <input
-                      value={cartao.anoExpiracao}
-                      onChange={(e) =>
-                        setCartao({ ...cartao, anoExpiracao: e.target.value })
-                      }
-                      placeholder="Ano (AAAA)"
-                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                    />
-
-                    <input
-                      value={cartao.cvv}
-                      onChange={(e) =>
-                        setCartao({ ...cartao, cvv: e.target.value })
-                      }
-                      placeholder="CVV"
-                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                    />
-
-                    <input
-                      value={cartao.cpfCnpjTitular}
-                      onChange={(e) =>
-                        setCartao({
-                          ...cartao,
-                          cpfCnpjTitular: e.target.value,
-                        })
-                      }
-                      placeholder="CPF/CNPJ do titular"
-                      className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              ) : null}
+  <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-300">
+    <li>✓ Ambiente administrativo da instituição</li>
+    <li>✓ Usuário administrador principal</li>
+    <li>✓ Área do professor e área do aluno</li>
+    <li>✓ Recursos do plano {plano}</li>
+    <li>✓ Período gratuito de {trialMeses} meses</li>
+  </ul>
+</div>
 
               {pagamentoConfirmado ? (
                 <div className="mt-4 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-4 text-sm text-emerald-300">
@@ -522,10 +453,10 @@ if (formaPagamento === "RECORRENTE" && data?.checkoutUrl) {
               <h2 className="text-2xl font-bold">Acesso institucional</h2>
 
               <p className="mt-3 text-sm leading-7 text-slate-400">
-                Depois da confirmação, o sistema criará automaticamente:
-                instituição, admin principal, senha inicial temporária e envio
-                de email de acesso.
-              </p>
+  Ao iniciar o teste gratuito, o sistema criará automaticamente a instituição,
+  o administrador principal, uma senha temporária e enviará os dados de acesso
+  para o email informado.
+</p>
             </div>
           </div>
         </div>

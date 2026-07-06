@@ -93,6 +93,7 @@ model Instituicao {
   usuarios                   User[]
   polos                      Polo[]
   adesoes                    AdesaoInstituicao[]
+  assinaturaPhanyx           AssinaturaPhanyx?
   TurmaDisciplina            TurmaDisciplina[]
   certificadoCampos          CertificadoCampo[]
   periodosMatricula          PeriodoMatricula[]
@@ -1607,6 +1608,7 @@ model AdesaoInstituicao {
   updatedAt       DateTime @updatedAt
 
   instituicao Instituicao? @relation(fields: [instituicaoId], references: [id])
+  assinaturaPhanyx AssinaturaPhanyx?
 }
 
 model CertificadoCampo {
@@ -2834,6 +2836,52 @@ model CrachaEmitido {
   @@index([instituicaoId])
   @@index([modeloId])
   @@index([tipoPessoa, pessoaId])
+}
+
+model AssinaturaPhanyx {
+  id                         Int       @id @default(autoincrement())
+  instituicaoId              Int       @unique
+  adesaoInstituicaoId        String?   @unique
+
+  plano                      String
+  status                     String    @default("TESTE_GRATIS")
+
+  testeGratisInicioEm        DateTime  @default(now())
+  testeGratisFimEm           DateTime
+  primeiraCobrancaEm         DateTime?
+  proximaCobrancaEm          DateTime?
+
+  asaasCustomerId            String?
+  asaasSubscriptionId        String?   @unique
+  asaasBillingType           String?
+  asaasCycle                 String    @default("MONTHLY")
+
+  valorBase                  Decimal   @default(0) @db.Decimal(10, 2)
+  valorPorAluno              Decimal   @default(0) @db.Decimal(10, 2)
+  valorPorPoloExtra          Decimal   @default(0) @db.Decimal(10, 2)
+  valorMensalAtual           Decimal   @default(0) @db.Decimal(10, 2)
+
+  alunosAtivosReferencia     Int       @default(0)
+  polosReferencia            Int       @default(1)
+
+  canceladaEm                DateTime?
+  canceladaPorId             Int?
+  motivoCancelamento         String?
+
+  ultimoEventoAsaas          String?
+  ultimoWebhookAsaasEm       DateTime?
+
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
+
+  instituicao                Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  adesaoInstituicao          AdesaoInstituicao? @relation(fields: [adesaoInstituicaoId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([plano])
+  @@index([testeGratisFimEm])
+  @@index([primeiraCobrancaEm])
+  @@index([asaasCustomerId])
 }
 
 enum TipoDocumentoAluno {

@@ -15,6 +15,15 @@ function normalizarStatus(status?: string | null) {
     .trim()
     .toUpperCase();
 
+      if (
+    valor === "TESTE_GRATIS" ||
+    valor === "PROCESSANDO_TESTE" ||
+    valor === "TRIAL" ||
+    valor === "TRIALING"
+  ) {
+    return "TESTE_GRATIS";
+  }
+
   if (
     valor === "PAYMENT_CONFIRMED" ||
     valor === "PAYMENT_RECEIVED" ||
@@ -122,6 +131,7 @@ export async function GET(_req: Request, { params }: Params) {
       },
       fluxo: {
   pago: statusNormalizado === "PAGO",
+  testeGratis: statusNormalizado === "TESTE_GRATIS",
   pendente: statusNormalizado === "PENDENTE",
   processando: statusNormalizado === "PROCESSANDO",
   cancelado: statusNormalizado === "CANCELADO",

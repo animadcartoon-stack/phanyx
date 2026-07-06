@@ -27,7 +27,7 @@ const planos = [
 ],
   idealPara:
     "Escolas técnicas, cursos livres, seminários menores e instituições em início de implantação",
-  cta: "Contratar Essencial",
+  cta: "Começar 6 meses grátis",
   descricaoCta: "Falar com especialista",
   corCard: "border-slate-200 bg-white text-slate-900",
   corBotao: "bg-slate-900 text-white hover:bg-slate-800",
@@ -71,7 +71,7 @@ const planos = [
 ],
   idealPara:
     "Faculdades, EADs, institutos, seminários e operações acadêmicas em crescimento",
-  cta: "Contratar Profissional",
+  cta: "Começar 6 meses grátis",
   descricaoCta: "Falar com especialista",
   corCard: "border-blue-600 bg-slate-950 text-white shadow-2xl ring-1 ring-blue-500/30",
   corBotao: "bg-blue-600 text-white hover:bg-blue-500",
@@ -112,7 +112,7 @@ const planos = [
 ],
   idealPara:
     "Universidades, grupos educacionais, operações com mais alunos e instituições com maior exigência",
-  cta: "Contratar Enterprise",
+  cta: "Começar 6 meses grátis",
   descricaoCta: "Solicitar proposta",
   corCard: "border-slate-200 bg-white text-slate-900",
   corBotao: "bg-slate-900 text-white hover:bg-slate-800",
@@ -253,6 +253,7 @@ const depoimentos = [
 ];
 
 const whatsappBase = "https://wa.me/5548988101240?text=";
+const PROMO_MESES_GRATIS = 6;
 
 function montarLinkComercial(plano: string) {
   const mensagem = encodeURIComponent(
@@ -313,42 +314,41 @@ if (alvo) {
           <div className="relative mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12 lg:py-24">
             <div className="mx-auto max-w-5xl text-center">
               <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-4 py-2 text-sm font-medium backdrop-blur">
-                Planos PHANYX • Plataforma acadêmica SaaS nível profissional
+                6 meses grátis • Plataforma acadêmica SaaS para instituições reais
               </div>
 
               <h1 className="mt-6 text-4xl font-bold leading-tight md:text-5xl xl:text-6xl">
-                Planos para instituições que buscam
-                <span className="block bg-gradient-to-r from-blue-200 via-sky-300 to-blue-400 bg-clip-text text-transparent">
-                  operação acadêmica forte, moderna e escalável
-                </span>
-              </h1>
+  Teste o PHANYX por {PROMO_MESES_GRATIS} meses grátis
+  <span className="block bg-gradient-to-r from-blue-200 via-sky-300 to-blue-400 bg-clip-text text-transparent">
+    e leve sua instituição para uma gestão mais moderna
+  </span>
+</h1>
 
               <p className="mx-auto mt-6 max-w-3xl text-lg leading-8 text-blue-100">
-                O PHANYX foi pensado para entregar a solidez de uma plataforma
-                acadêmica robusta, com experiência moderna, estrutura
-                multi-instituição, recursos EAD, financeiro, documentos validados
-                e base para evolução contínua.
-              </p>
+  Instituições reais podem iniciar agora com {PROMO_MESES_GRATIS} meses de uso gratuito.
+  Durante esse período, sua equipe testa gestão acadêmica, LMS, financeiro,
+  documentos, certificados, áreas do aluno e professor, sem cobrança inicial.
+  Após o período gratuito, a cobrança mensal passa a seguir o plano escolhido,
+  a quantidade de alunos ativos e os polos cadastrados.
+</p>
 
               <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <a
-                  href={montarLinkComercial("Profissional")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-500"
-                >
-                  Agendar demonstração
-                </a>
+  <a
+    href="#planos"
+    className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500"
+  >
+    Começar {PROMO_MESES_GRATIS} meses grátis
+  </a>
 
-                <a
-                  href={montarLinkComercial("PHANYX")}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/15"
-                >
-                  Falar com especialista
-                </a>
-              </div>
+  <a
+    href={montarLinkComercial("PHANYX - 6 meses grátis")}
+    target="_blank"
+    rel="noreferrer"
+    className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-bold text-white transition hover:bg-white/15"
+  >
+    Falar com especialista
+  </a>
+</div>
 
               <div className="mt-12 grid gap-4 text-left sm:grid-cols-2 xl:grid-cols-4">
                 {indicadores.map((item) => (
@@ -473,14 +473,49 @@ if (alvo) {
                 crescem.
               </p>
 
-              <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 text-left shadow-sm">
-  <p className="text-sm font-bold text-blue-900">
-    Cobrança automática por uso real
+              <div className="mt-5 rounded-3xl border border-blue-300 bg-blue-50 px-6 py-5 text-left shadow-sm">
+  <p className="text-sm font-black uppercase tracking-[0.18em] text-blue-700">
+    Promoção de implantação
   </p>
 
-  <p className="mt-2 text-sm leading-6 text-blue-800">
-    A cobrança por alunos é calculada automaticamente pelo PHANYX com base na quantidade real de alunos ativos da instituição. Cada plano possui uma franquia inicial de polos/unidades, e polos adicionais podem gerar taxa mensal por unidade.
+  <h3 className="mt-2 text-2xl font-black text-blue-950">
+    Comece com {PROMO_MESES_GRATIS} meses grátis para testar com sua instituição real
+  </h3>
+
+  <p className="mt-3 text-sm leading-7 text-blue-900">
+    O PHANYX libera o ambiente da instituição para uso real durante o período gratuito.
+    Sua equipe poderá cadastrar alunos, professores, cursos, turmas, documentos,
+    certificados, aulas, financeiro e acompanhar a operação na prática.
   </p>
+
+  <div className="mt-4 grid gap-3 md:grid-cols-3">
+    <div className="rounded-2xl border border-blue-200 bg-white p-4">
+      <p className="text-sm font-bold text-blue-950">
+        Sem cobrança inicial
+      </p>
+      <p className="mt-1 text-xs leading-5 text-blue-800">
+        A instituição usa o PHANYX por {PROMO_MESES_GRATIS} meses antes da primeira cobrança.
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-blue-200 bg-white p-4">
+      <p className="text-sm font-bold text-blue-950">
+        Cobrança por uso real
+      </p>
+      <p className="mt-1 text-xs leading-5 text-blue-800">
+        Após o teste, o valor acompanha o plano escolhido, alunos ativos e polos cadastrados.
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-blue-200 bg-white p-4">
+      <p className="text-sm font-bold text-blue-950">
+        Cancelamento antes da cobrança
+      </p>
+      <p className="mt-1 text-xs leading-5 text-blue-800">
+        A instituição pode cancelar antes do fim do período gratuito para não iniciar a cobrança.
+      </p>
+    </div>
+  </div>
 </div>
 
 <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -489,13 +524,13 @@ if (alvo) {
   className="scroll-mt-12 mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
 >
     <h3 className="text-xl font-bold text-slate-900">
-      Simule o investimento da sua instituição
-    </h3>
+  Simule o valor após os {PROMO_MESES_GRATIS} meses gratuitos
+</h3>
 
-    <p className="mt-2 text-sm text-slate-600">
-      Informe a quantidade de alunos ativos e veja o valor estimado
-      em cada plano.
-    </p>
+<p className="mt-2 text-sm text-slate-600">
+  Informe a quantidade de alunos ativos e polos/unidades para visualizar
+  a mensalidade estimada que poderá ser cobrada após o período gratuito.
+</p>
   </section>
 
   <div className="mt-6">
@@ -620,18 +655,22 @@ if (alvo) {
     </div>
   </div>
 
-  <p className="mt-5 text-xs text-slate-500">
-    * A cobrança é calculada automaticamente com base na quantidade
-    real de alunos ativos cadastrados na plataforma.
-  </p>
+  <p className="mt-5 text-xs leading-6 text-slate-500">
+  * Durante os primeiros {PROMO_MESES_GRATIS} meses, a instituição usa o PHANYX sem cobrança.
+  Após esse período, se não houver cancelamento, a cobrança mensal será iniciada
+  conforme o plano escolhido, a quantidade real de alunos ativos e os polos cadastrados.
+</p>
+
   <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center">
   <h4 className="text-lg font-bold text-blue-950">
-    Vamos mostrar a PHANYX funcionando?
-  </h4>
+  Quer testar o PHANYX com sua instituição por {PROMO_MESES_GRATIS} meses?
+</h4>
 
-  <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-blue-800">
-    Receba uma apresentação personalizada e veja como a plataforma pode organizar sua operação acadêmica, financeira e documental.
-  </p>
+<p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-blue-800">
+  Comece com um ambiente real para sua instituição, valide a operação com sua equipe
+  e veja na prática como o PHANYX centraliza gestão acadêmica, LMS, financeiro,
+  documentos e certificados.
+</p>
 
   <div className="mt-5 flex flex-col justify-center gap-3 sm:flex-row">
     <a
@@ -640,7 +679,7 @@ if (alvo) {
       rel="noreferrer"
       className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
     >
-      Solicitar demonstração
+      Começar teste gratuito
     </a>
 
     <a
@@ -708,11 +747,11 @@ if (alvo) {
 
                   <div className="mt-8 space-y-3">
   <a
-    href={`/adesao?plano=${plano.nome.toUpperCase()}`}
-    className={`inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-sm font-semibold transition ${plano.corBotao}`}
-  >
-    {plano.cta}
-  </a>
+  href={`/adesao?plano=${plano.nome.toUpperCase()}&trial=${PROMO_MESES_GRATIS}`}
+  className={`inline-flex w-full items-center justify-center rounded-2xl px-6 py-4 text-sm font-black transition ${plano.corBotao}`}
+>
+  {plano.cta}
+</a>
 
   <a
     href={montarLinkComercial(plano.nome)}
@@ -733,7 +772,7 @@ if (alvo) {
     plano.destaque ? "text-slate-300" : "text-slate-400"
   }`}
 >
-  Contratação direta ou conversa comercial com mensagem pronta no WhatsApp.
+  6 meses grátis para implantação. Depois, cobrança mensal conforme uso real, se a instituição não cancelar.
 </div>
 
                   <div
@@ -948,10 +987,10 @@ if (alvo) {
                 </Link>
 
                 <a
-  href="/adesao?plano=PROFISSIONAL"
-  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-semibold text-white"
+  href={`/adesao?plano=PROFISSIONAL&trial=${PROMO_MESES_GRATIS}`}
+  className="inline-flex items-center justify-center rounded-2xl bg-blue-600 px-6 py-4 text-sm font-black text-white transition hover:bg-blue-500"
 >
-  Contratar plano
+  Começar {PROMO_MESES_GRATIS} meses grátis
 </a>
               </div>
             </div>
