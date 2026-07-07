@@ -1321,6 +1321,109 @@ function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
   return null;
 }
 
+function atualizarPontoGradiente(
+  objetoId: number,
+  pontoId: number,
+  dados: Partial<GradientePonto>
+) {
+  setObjetos((atual) =>
+    atual.map((obj) => {
+      if (obj.id !== objetoId || obj.tipo !== "FORMA") {
+        return obj;
+      }
+
+      const pontosAtualizados = pontosGradienteForma(obj).map((ponto) =>
+        ponto.id === pontoId ? { ...ponto, ...dados } : ponto
+      );
+
+      return {
+        ...obj,
+        gradientePontos: pontosAtualizados,
+      } as ObjetoCracha;
+    })
+  );
+}
+
+function iniciarArrastoPontoGradiente(
+  e: React.MouseEvent<HTMLButtonElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>,
+  ponto: GradientePonto
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const barra = e.currentTarget.parentElement as HTMLElement | null;
+
+  if (!barra) return;
+
+  function calcularPosicao(clientX: number) {
+    const rect = barra.getBoundingClientRect();
+
+    const percentual = Math.round(
+      ((clientX - rect.left) / rect.width) * 100
+    );
+
+    return Math.min(100, Math.max(0, percentual));
+  }
+
+  function mover(ev: MouseEvent) {
+    atualizarPontoGradiente(objeto.id, ponto.id, {
+      posicao: calcularPosicao(ev.clientX),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  atualizarPontoGradiente(objeto.id, ponto.id, {
+    posicao: calcularPosicao(e.clientX),
+  });
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
+function cssPreviewGradienteForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const pontos = pontosGradienteForma(objeto)
+    .map((ponto) => `${ponto.cor} ${ponto.posicao}%`)
+    .join(", ");
+
+  const tipo = objeto.gradienteTipo || "LINEAR";
+  const direcao = objeto.gradienteDirecao || "DIREITA";
+
+  if (tipo === "RADIAL" || tipo === "ESFERICO") {
+    return `radial-gradient(circle at ${objeto.gradienteFocoX ?? 45}% ${
+      objeto.gradienteFocoY ?? 35
+    }%, ${pontos})`;
+  }
+
+  if (tipo === "DIAGONAL") {
+    if (direcao === "DIAGONAL_ASC") {
+      return `linear-gradient(to top right, ${pontos})`;
+    }
+
+    return `linear-gradient(to bottom right, ${pontos})`;
+  }
+
+  if (direcao === "ESQUERDA") {
+    return `linear-gradient(to left, ${pontos})`;
+  }
+
+  if (direcao === "TOPO") {
+    return `linear-gradient(to top, ${pontos})`;
+  }
+
+  if (direcao === "BASE") {
+    return `linear-gradient(to bottom, ${pontos})`;
+  }
+
+  return `linear-gradient(to right, ${pontos})`;
+}
+
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -2955,6 +3058,42 @@ if (objeto.tipo === "FORMA") {
   </div>
 )}
 
+<div className="mt-4 rounded-xl border border-slate-700/40 p-3">
+  <p className="mb-3 text-xs font-bold">
+    Mover pontos do gradiente
+  </p>
+
+  <div
+    className="relative h-10 rounded-full border border-slate-500"
+    style={{
+      background: cssPreviewGradienteForma(objetoAtual),
+    }}
+  >
+    {pontosGradienteForma(objetoAtual).map((ponto) => (
+      <button
+        key={ponto.id}
+        type="button"
+        onMouseDown={(e) =>
+          iniciarArrastoPontoGradiente(e, objetoAtual, ponto)
+        }
+        title={`Ponto ${ponto.posicao}%`}
+        className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-lg ring-2 ring-slate-900"
+        style={{
+          left: `${ponto.posicao}%`,
+          backgroundColor: ponto.cor,
+          cursor: "grab",
+        }}
+      />
+    ))}
+  </div>
+
+  <div className="mt-2 flex justify-between text-[10px] font-semibold text-slate-400">
+    <span>0%</span>
+    <span>50%</span>
+    <span>100%</span>
+  </div>
+</div>
+
     <div className="mt-4 space-y-3">
       {pontosGradienteForma(objetoAtual).map((ponto) => (
         <div
@@ -3033,25 +3172,41 @@ if (objeto.tipo === "FORMA") {
     </div>
 
     <button
-      type="button"
-      onClick={() => {
-        const pontosAtuais = pontosGradienteForma(objetoAtual);
+  type="button"
+  onClick={() => {
+    const pontosAtuais = pontosGradienteForma(objetoAtual);
 
-        atualizarObjeto(objetoAtual.id, {
-          gradientePontos: [
-            ...pontosAtuais,
-            {
-              id: Date.now(),
-              cor: "#ffffff",
-              posicao: 50,
-            },
-          ],
-        });
-      }}
-      className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
-    >
-      Adicionar ponto de cor
-    </button>
+    let maiorEspaco = 0;
+    let novaPosicao = 50;
+
+    for (let i = 0; i < pontosAtuais.length - 1; i++) {
+      const atual = pontosAtuais[i];
+      const proximo = pontosAtuais[i + 1];
+
+      const espaco = proximo.posicao - atual.posicao;
+
+      if (espaco > maiorEspaco) {
+        maiorEspaco = espaco;
+        novaPosicao = Math.round(atual.posicao + espaco / 2);
+      }
+    }
+
+    atualizarObjeto(objetoAtual.id, {
+      gradientePontos: [
+        ...pontosAtuais,
+        {
+          id: Date.now(),
+          cor: "#ffffff",
+          posicao: novaPosicao,
+        },
+      ],
+    });
+  }}
+  className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
+>
+  + Adicionar ponto de cor
+</button>
+
   </div>
 )}
 
