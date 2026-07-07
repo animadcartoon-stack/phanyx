@@ -76,60 +76,66 @@ type ObjetoCracha =
       ordem: number;
     }
   | {
-      id: number;
-      tipo: "FORMA";
-      forma:
-        | "RETANGULO"
-        | "PILULA"
-        | "CIRCULO"
-        | "OVAL"
-        | "LINHA"
-        | "TRIANGULO"
-        | "LOSANGO"
-        | "PARALELOGRAMO"
-        | "SETA_DIREITA"
-        | "SETA_ESQUERDA"
-        | "SETA_CIMA"
-        | "SETA_BAIXO"
-        | "SETA_DUPLA_HORIZONTAL"
-        | "SETA_DUPLA_VERTICAL";
+    id: number;
+    tipo: "FORMA";
 
-      estilo?:
-        | "PREENCHIMENTO_CONTORNO"
-        | "SOMENTE_PREENCHIMENTO"
-        | "SOMENTE_CONTORNO";
+    forma:
+      | "RETANGULO"
+      | "PILULA"
+      | "CIRCULO"
+      | "OVAL"
+      | "LINHA"
+      | "TRIANGULO"
+      | "LOSANGO"
+      | "PARALELOGRAMO"
+      | "SETA_DIREITA"
+      | "SETA_ESQUERDA"
+      | "SETA_CIMA"
+      | "SETA_BAIXO"
+      | "SETA_DUPLA_HORIZONTAL"
+      | "SETA_DUPLA_VERTICAL"
+      | "ESTRELA";
 
-      preenchimentoTipo?: "COR" | "GRADIENTE";
+    estilo?:
+      | "PREENCHIMENTO_CONTORNO"
+      | "SOMENTE_PREENCHIMENTO"
+      | "SOMENTE_CONTORNO";
 
-      gradienteTipo?: GradienteTipoForma;
-      gradienteDirecao?: GradienteDirecaoForma;
-      gradientePontos?: GradientePonto[];
-      gradienteFocoX?: number;
-      gradienteFocoY?: number;
-      gradienteRaio?: number;
+    preenchimentoTipo?: "COR" | "GRADIENTE";
 
-      bordaAcabamento?: "DURA" | "FOSCA";
-      bordaBlur?: number;
+    gradienteTipo?: GradienteTipoForma;
+    gradienteDirecao?: GradienteDirecaoForma;
+    gradientePontos?: GradientePonto[];
+    gradienteFocoX?: number;
+    gradienteFocoY?: number;
+    gradienteRaio?: number;
 
-      sombraAtiva?: boolean;
-      sombraX?: number;
-      sombraY?: number;
-      sombraBlur?: number;
-      sombraCor?: string;
+    bordaAcabamento?: "DURA" | "FOSCA";
+    bordaBlur?: number;
 
-      rotacao?: number;
+    sombraAtiva?: boolean;
+    sombraX?: number;
+    sombraY?: number;
+    sombraBlur?: number;
+    sombraCor?: string;
 
-      x: number;
-      y: number;
-      largura: number;
-      altura: number;
-      corFundo: string;
-      corBorda: string;
-      espessuraBorda: number;
-      raioBorda: number;
-      opacidade: number;
-      ordem: number;
-    };
+    rotacao?: number;
+
+    pontas?: number;
+    raioInterno?: number;
+    raioExterno?: number;
+
+    x: number;
+    y: number;
+    largura: number;
+    altura: number;
+    corFundo: string;
+    corBorda: string;
+    espessuraBorda: number;
+    raioBorda: number;
+    opacidade: number;
+    ordem: number;
+  };
 
   type TipoFuroCracha =
   | "SEM_FURO"
@@ -1226,6 +1232,30 @@ function deveMostrarBordaForma(
   ].includes(objeto.forma);
 }
 
+function gerarPontosEstrelaSvg(
+  pontas: number,
+  raioExterno: number,
+  raioInterno: number
+) {
+  const cx = 50;
+  const cy = 50;
+  const pontos: string[] = [];
+
+  const totalPontas = Math.max(3, Math.min(20, pontas));
+
+  for (let i = 0; i < totalPontas * 2; i++) {
+    const angulo = -Math.PI / 2 + (i * Math.PI) / totalPontas;
+    const raio = i % 2 === 0 ? raioExterno : raioInterno;
+
+    const x = cx + Math.cos(angulo) * raio;
+    const y = cy + Math.sin(angulo) * raio;
+
+    pontos.push(`${x},${y}`);
+  }
+
+  return pontos.join(" ");
+}
+
 function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
   const fill = preenchimentoForma(objeto);
   const stroke = contornoForma(objeto);
@@ -1350,6 +1380,19 @@ function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
       />
     );
   }
+
+  if (objeto.forma === "ESTRELA") {
+  return (
+    <polygon
+      points={gerarPontosEstrelaSvg(
+        objeto.pontas ?? 5,
+        objeto.raioExterno ?? 46,
+        objeto.raioInterno ?? 22
+      )}
+      {...comum}
+    />
+  );
+}
 
   return null;
 }
@@ -1575,6 +1618,30 @@ function colarEstiloForma() {
   });
 
   setTimeout(() => setAvisoCracha(null), 2500);
+}
+
+function gerarPontosEstrela(
+  pontas: number,
+  raioExterno: number,
+  raioInterno: number,
+  largura: number,
+  altura: number
+) {
+  const cx = largura / 2;
+  const cy = altura / 2;
+  const pontos: string[] = [];
+
+  for (let i = 0; i < pontas * 2; i++) {
+    const angulo = -Math.PI / 2 + (i * Math.PI) / pontas;
+    const raio = i % 2 === 0 ? raioExterno : raioInterno;
+
+    const x = cx + Math.cos(angulo) * raio;
+    const y = cy + Math.sin(angulo) * raio;
+
+    pontos.push(`${(x / largura) * 100}% ${(y / altura) * 100}%`);
+  }
+
+  return pontos.join(", ");
 }
 
   return (
@@ -2990,6 +3057,15 @@ if (objeto.tipo === "FORMA") {
       raioBorda: 0,
       espessuraBorda: espessuraPadrao,
     },
+    ESTRELA: {
+  largura: 140,
+  altura: 140,
+  raioBorda: 0,
+  espessuraBorda: 0,
+  pontas: 5,
+  raioExterno: 60,
+  raioInterno: 28,
+},
   };
 
   atualizarObjeto(objetoAtual.id, {
@@ -3013,6 +3089,7 @@ if (objeto.tipo === "FORMA") {
   <option value="SETA_BAIXO">Seta para baixo</option>
   <option value="SETA_DUPLA_HORIZONTAL">Seta dupla horizontal</option>
   <option value="SETA_DUPLA_VERTICAL">Seta dupla vertical</option>
+  <option value="ESTRELA">Estrela</option>
   </select>
 
 <div>
@@ -3488,6 +3565,68 @@ setPontoGradienteSelecionado(novoPonto.id);
   + Adicionar ponto de cor
 </button>
 
+  </div>
+)}
+
+{objetoAtual.forma === "ESTRELA" && (
+  <div className="space-y-3 rounded-2xl border border-slate-700/40 p-3">
+    <p className="text-sm font-bold">Configuração da estrela</p>
+
+    <div className="grid grid-cols-2 gap-2">
+      <div>
+        <label className="mb-2 block text-xs font-semibold">Pontas</label>
+        <input
+          type="number"
+          min={3}
+          max={20}
+          value={objetoAtual.pontas ?? 5}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              pontas: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block text-xs font-semibold">
+          Raio externo
+        </label>
+        <input
+          type="number"
+          min={10}
+          value={objetoAtual.raioExterno ?? 60}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              raioExterno: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <div>
+      <label className="mb-2 block text-xs font-semibold">
+        Diâmetro do centro
+      </label>
+      <input
+        type="number"
+        min={10}
+        value={(objetoAtual.raioInterno ?? 28) * 2}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            raioInterno: Number(e.target.value) / 2,
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <p className="text-xs text-slate-400">
+      Dica: centro menor = pontas mais altas. Centro maior = pontas mais baixas.
+    </p>
   </div>
 )}
 
