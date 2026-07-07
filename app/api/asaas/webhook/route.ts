@@ -48,6 +48,357 @@ async function gerarSlugUnico(nomeInstituicao: string, adesaoId: string) {
     .toLowerCase()}`;
 }
 
+function gerarSenhaTemporariaPhanyx() {
+  const sufixo = Math.floor(1000 + Math.random() * 9000);
+  return `Phanyx@${sufixo}`;
+}
+
+function dataDaquiDias(dias: number) {
+  const data = new Date();
+  data.setDate(data.getDate() + dias);
+  return data;
+}
+
+function getPoliticaPlano(plano: string) {
+  const planoNormalizado = String(plano || "").trim().toUpperCase();
+
+  if (planoNormalizado === "ESSENCIAL") {
+    return {
+      valorBase: 49,
+      valorPorAluno: 3,
+      valorPorPoloExtra: 49,
+      polosInclusos: 1,
+    };
+  }
+
+  if (planoNormalizado === "ENTERPRISE") {
+    return {
+      valorBase: 199,
+      valorPorAluno: 7,
+      valorPorPoloExtra: 99,
+      polosInclusos: 10,
+    };
+  }
+
+  return {
+    valorBase: 99,
+    valorPorAluno: 5,
+    valorPorPoloExtra: 79,
+    polosInclusos: 3,
+  };
+}
+
+function normalizarStatusAssinaturaPhanyx(status?: string | null) {
+  const valor = String(status || "").trim().toUpperCase();
+
+  if (
+    valor === "INACTIVE" ||
+    valor === "INATIVA" ||
+    valor === "DELETED" ||
+    valor === "REMOVED" ||
+    valor === "CANCELLED" ||
+    valor === "CANCELED"
+  ) {
+    return "CANCELADA";
+  }
+
+  return "TESTE_GRATIS";
+}
+
+async function processarAssinaturaPhanyxCriada(body: any, adesaoId: string) {
+  const subscription = body?.subscription;
+
+  if (!subscription?.id || !adesaoId) {
+    return false;
+  }
+
+  const adesao = await prisma.adesaoInstituicao.findUnique({
+    where: { id: adesaoId },
+  });
+
+  if (!adesao) {
+    return false;
+  }
+
+  if (adesao.instituicaoId) {
+    await prisma.assinaturaPhanyx.updateMany({
+      where: {
+        OR: [
+          { adesaoInstituicaoId: adesao.id },
+          { asaasSubscriptionId: subscription.id },
+        ],
+      },
+      data: {
+        asaasSubscriptionId: subscription.id,
+        asaasCustomerId: subscription.customer || undefined,
+        asaasBillingType: subscription.billingType || undefined,
+        asaasCycle: subscription.cycle || undefined,
+        ultimoEventoAsaas: body?.event || "SUBSCRIPTION_CREATED",
+        ultimoWebhookAsaasEm: new Date(),
+      },
+    });
+
+    return true;
+  }
+
+  const emailExistente = await prisma.user.findUnique({
+    where: { email: adesao.email },
+  });
+
+  if (emailExistente) {
+    await prisma.adesaoInstituicao.update({
+      where: { id: adesao.id },
+      data: {
+        status: "ERRO",
+      },
+    });
+
+    console.log("Não foi possível criar admin PHANYX. Email já existe:", adesao.email);
+    return true;
+  }
+
+  const politicaPlano = getPoliticaPlano(adesao.plano);
+  const slug = await gerarSlugUnico(adesao.nomeInstituicao, adesao.id);
+
+  const senhaTemporaria = gerarSenhaTemporariaPhanyx();
+  const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
+
+  const testeGratisInicioEm = new Date();
+
+  const testeGratisFimEm = subscription.nextDueDate
+    ? new Date(subscription.nextDueDate)
+    : dataDaquiDias(60);
+
+  const instituicao = await prisma.instituicao.create({
+    data: {
+      nome: adesao.nomeInstituicao,
+      plano: adesao.plano,
+      slug,
+      statusAssinatura: "TESTE_GRATIS",
+      isentaPagamento: false,
+      updatedAt: new Date(),
+    },
+  });
+
+  const admin = await prisma.user.create({
+    data: {
+      nome: adesao.nomeResponsavel,
+      email: adesao.email,
+      senha: senhaHash,
+      role: "ADMIN",
+      instituicaoId: instituicao.id,
+      precisaTrocarSenha: true,
+    },
+  });
+
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      status: "TESTE_GRATIS",
+      asaasId: subscription.id,
+      instituicaoId: instituicao.id,
+    },
+  });
+
+  await prisma.assinaturaPhanyx.create({
+    data: {
+      instituicaoId: instituicao.id,
+      adesaoInstituicaoId: adesao.id,
+
+      plano: adesao.plano,
+      status: normalizarStatusAssinaturaPhanyx(subscription.status),
+
+      testeGratisInicioEm,
+      testeGratisFimEm,
+      primeiraCobrancaEm: testeGratisFimEm,
+      proximaCobrancaEm: testeGratisFimEm,
+
+      asaasCustomerId: subscription.customer || null,
+      asaasSubscriptionId: subscription.id,
+      asaasBillingType: subscription.billingType || "CREDIT_CARD",
+      asaasCycle: subscription.cycle || "MONTHLY",
+
+      valorBase: politicaPlano.valorBase,
+      valorPorAluno: politicaPlano.valorPorAluno,
+      valorPorPoloExtra: politicaPlano.valorPorPoloExtra,
+      valorMensalAtual: Number(
+        subscription.value || adesao.valor || politicaPlano.valorBase
+      ),
+
+      alunosAtivosReferencia: 0,
+      polosReferencia: 1,
+
+      ultimoEventoAsaas: body?.event || "SUBSCRIPTION_CREATED",
+      ultimoWebhookAsaasEm: new Date(),
+    },
+  });
+
+  try {
+    await enviarEmailAcesso({
+      email: admin.email,
+      nome: admin.nome,
+      senha: senhaTemporaria,
+      instituicao: instituicao.nome,
+    });
+
+    console.log("✅ EMAIL DE ACESSO PHANYX ENVIADO PELO WEBHOOK:", {
+      email: admin.email,
+      instituicao: instituicao.nome,
+    });
+  } catch (emailError) {
+    console.error("❌ ERRO AO ENVIAR EMAIL PHANYX PELO WEBHOOK:", emailError);
+  }
+
+  return true;
+}
+
+async function processarAssinaturaPhanyxAtualizadaOuCancelada(
+  body: any,
+  asaasSubscriptionId: string
+) {
+  const event = String(body?.event || "").trim().toUpperCase();
+  const subscription = body?.subscription;
+
+  const subscriptionId = asaasSubscriptionId || subscription?.id;
+
+  if (!subscriptionId) {
+    return false;
+  }
+
+  const assinatura = await prisma.assinaturaPhanyx.findFirst({
+    where: { asaasSubscriptionId: subscriptionId },
+    select: {
+      id: true,
+      instituicaoId: true,
+    },
+  });
+
+  if (!assinatura) {
+    return false;
+  }
+
+  if (event === "SUBSCRIPTION_UPDATED") {
+    await prisma.assinaturaPhanyx.update({
+      where: { id: assinatura.id },
+      data: {
+        asaasBillingType: subscription?.billingType || undefined,
+        asaasCycle: subscription?.cycle || undefined,
+        valorMensalAtual: subscription?.value
+          ? Number(subscription.value)
+          : undefined,
+        proximaCobrancaEm: subscription?.nextDueDate
+          ? new Date(subscription.nextDueDate)
+          : undefined,
+        ultimoEventoAsaas: event,
+        ultimoWebhookAsaasEm: new Date(),
+      },
+    });
+
+    return true;
+  }
+
+  if (
+    event === "SUBSCRIPTION_INACTIVATED" ||
+    event === "SUBSCRIPTION_DELETED"
+  ) {
+    await prisma.assinaturaPhanyx.update({
+      where: { id: assinatura.id },
+      data: {
+        status: "CANCELADA",
+        canceladaEm: new Date(),
+        motivoCancelamento: `Evento Asaas: ${event}`,
+        ultimoEventoAsaas: event,
+        ultimoWebhookAsaasEm: new Date(),
+      },
+    });
+
+    await prisma.instituicao.update({
+      where: { id: assinatura.instituicaoId },
+      data: {
+        statusAssinatura: "CANCELADA",
+        updatedAt: new Date(),
+      },
+    });
+
+    return true;
+  }
+
+  return false;
+}
+
+async function processarPagamentoAssinaturaPhanyx(
+  event: string,
+  asaasSubscriptionId: string
+) {
+  if (!asaasSubscriptionId) {
+    return false;
+  }
+
+  const assinatura = await prisma.assinaturaPhanyx.findFirst({
+    where: { asaasSubscriptionId },
+    select: {
+      id: true,
+      instituicaoId: true,
+    },
+  });
+
+  if (!assinatura) {
+    return false;
+  }
+
+  if (event === "PAYMENT_CONFIRMED" || event === "PAYMENT_RECEIVED") {
+    await prisma.assinaturaPhanyx.update({
+      where: { id: assinatura.id },
+      data: {
+        status: "ATIVA",
+        ultimoEventoAsaas: event,
+        ultimoWebhookAsaasEm: new Date(),
+      },
+    });
+
+    await prisma.instituicao.update({
+      where: { id: assinatura.instituicaoId },
+      data: {
+        statusAssinatura: "ATIVA",
+        updatedAt: new Date(),
+      },
+    });
+
+    return true;
+  }
+
+  if (event === "PAYMENT_OVERDUE") {
+    await prisma.assinaturaPhanyx.update({
+      where: { id: assinatura.id },
+      data: {
+        status: "EM_ATRASO",
+        ultimoEventoAsaas: event,
+        ultimoWebhookAsaasEm: new Date(),
+      },
+    });
+
+    await prisma.instituicao.update({
+      where: { id: assinatura.instituicaoId },
+      data: {
+        statusAssinatura: "EM_ATRASO",
+        updatedAt: new Date(),
+      },
+    });
+
+    return true;
+  }
+
+  await prisma.assinaturaPhanyx.update({
+    where: { id: assinatura.id },
+    data: {
+      ultimoEventoAsaas: event,
+      ultimoWebhookAsaasEm: new Date(),
+    },
+  });
+
+  return true;
+}
+
 function obterReferencia(body: any) {
   const payment = body?.payment;
   const subscription = body?.subscription;
@@ -452,6 +803,61 @@ if (externalReference?.startsWith("IBE_MATRICULA_")) {
         { status: 400 }
       );
     }
+
+    // 🚀 PHANYX SaaS — assinatura criada pelo checkout com cartão
+if (event === "SUBSCRIPTION_CREATED") {
+  const tratado = await processarAssinaturaPhanyxCriada(
+    body,
+    externalReference
+  );
+
+  if (tratado) {
+    return NextResponse.json({
+      ok: true,
+      assinaturaPhanyxCriada: true,
+      adesaoId: externalReference,
+      asaasSubscriptionId,
+    });
+  }
+}
+
+// 🚀 PHANYX SaaS — assinatura atualizada ou cancelada
+if (
+  event === "SUBSCRIPTION_UPDATED" ||
+  event === "SUBSCRIPTION_INACTIVATED" ||
+  event === "SUBSCRIPTION_DELETED"
+) {
+  const tratado = await processarAssinaturaPhanyxAtualizadaOuCancelada(
+    body,
+    asaasSubscriptionId
+  );
+
+  if (tratado) {
+    return NextResponse.json({
+      ok: true,
+      assinaturaPhanyxAtualizada: true,
+      asaasSubscriptionId,
+      event,
+    });
+  }
+}
+
+// 🚀 PHANYX SaaS — pagamento de assinatura recorrente
+if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
+  const tratado = await processarPagamentoAssinaturaPhanyx(
+    event,
+    asaasSubscriptionId
+  );
+
+  if (tratado) {
+    return NextResponse.json({
+      ok: true,
+      pagamentoAssinaturaPhanyx: true,
+      asaasSubscriptionId,
+      event,
+    });
+  }
+}
 
     const eventoPagamento =
       event === "PAYMENT_CREATED" ||
