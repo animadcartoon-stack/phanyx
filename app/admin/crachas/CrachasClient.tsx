@@ -140,6 +140,7 @@ type ObjetoCracha =
 }[];
 
 pontoLivreSelecionadoId?: number | null;
+pontosLivresSelecionadosIds?: number[];
 
     x: number;
     y: number;
@@ -1763,8 +1764,8 @@ function iniciarArrastoPontoLivre(
   if (!area || !pontoOriginal) return;
 
   function limitar(valor: number) {
-    return Math.max(0, Math.min(100, valor));
-  }
+  return Math.max(-80, Math.min(180, valor));
+}
 
   function calcularPosicao(clientX: number, clientY: number) {
     const rect = area.getBoundingClientRect();
@@ -1872,8 +1873,8 @@ function iniciarArrastoAlcaFormaLivre(
   if (!area) return;
 
   function limitar(valor: number) {
-    return Math.max(0, Math.min(100, valor));
-  }
+  return Math.max(-80, Math.min(180, valor));
+}
 
   function calcularPosicao(clientX: number, clientY: number) {
     const rect = area.getBoundingClientRect();
@@ -1909,6 +1910,159 @@ function iniciarArrastoAlcaFormaLivre(
 
   window.addEventListener("mousemove", mover);
   window.addEventListener("mouseup", soltar);
+}
+
+function selecionarPontoLivre(
+  objetoId: number,
+  pontoId: number,
+  multiplo: boolean
+) {
+  setObjetos((atual) =>
+    atual.map((obj) => {
+      if (obj.id !== objetoId || obj.tipo !== "FORMA") {
+        return obj;
+      }
+
+      const selecionados = obj.pontosLivresSelecionadosIds || [];
+
+      const novosSelecionados = multiplo
+        ? selecionados.includes(pontoId)
+          ? selecionados.filter((id) => id !== pontoId)
+          : [...selecionados, pontoId]
+        : [pontoId];
+
+      return {
+        ...obj,
+        pontoLivreSelecionadoId: pontoId,
+        pontosLivresSelecionadosIds: novosSelecionados,
+      } as ObjetoCracha;
+    })
+  );
+}
+
+function adicionarPontoLivreForma() {
+  if (!objetoAtual || objetoAtual.tipo !== "FORMA") return;
+  if (objetoAtual.forma !== "FORMA_LIVRE") return;
+
+  const pontos = pontosLivresForma(objetoAtual);
+  const selecionadoId = objetoAtual.pontoLivreSelecionadoId;
+  const indiceSelecionado = pontos.findIndex(
+    (ponto) => ponto.id === selecionadoId
+  );
+
+  const indiceBase = indiceSelecionado >= 0 ? indiceSelecionado : pontos.length - 1;
+  const pontoA = pontos[indiceBase];
+  const pontoB = pontos[(indiceBase + 1) % pontos.length];
+
+  const novoPonto = {
+    id: Date.now(),
+    x: Math.round((pontoA.x + pontoB.x) / 2),
+    y: Math.round((pontoA.y + pontoB.y) / 2),
+    tipo: "CANTO" as const,
+  };
+
+  const novosPontos = [
+    ...pontos.slice(0, indiceBase + 1),
+    novoPonto,
+    ...pontos.slice(indiceBase + 1),
+  ];
+
+  atualizarObjeto(objetoAtual.id, {
+    pontosLivres: novosPontos,
+    pontoLivreSelecionadoId: novoPonto.id,
+    pontosLivresSelecionadosIds: [novoPonto.id],
+  });
+}
+
+function removerPontosLivresSelecionados() {
+  if (!objetoAtual || objetoAtual.tipo !== "FORMA") return;
+  if (objetoAtual.forma !== "FORMA_LIVRE") return;
+
+  const selecionados = objetoAtual.pontosLivresSelecionadosIds || [];
+
+  if (!selecionados.length) return;
+
+  const pontos = pontosLivresForma(objetoAtual);
+
+  if (pontos.length - selecionados.length < 3) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "A forma livre precisa ter pelo menos 3 pontos.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 3000);
+    return;
+  }
+
+  atualizarObjeto(objetoAtual.id, {
+    pontosLivres: pontos.filter(
+      (ponto) => !selecionados.includes(ponto.id)
+    ),
+    pontoLivreSelecionadoId: null,
+    pontosLivresSelecionadosIds: [],
+  });
+}
+
+function subdividirPontosLivresSelecionados() {
+  if (!objetoAtual || objetoAtual.tipo !== "FORMA") return;
+  if (objetoAtual.forma !== "FORMA_LIVRE") return;
+
+  const selecionados = objetoAtual.pontosLivresSelecionadosIds || [];
+
+  if (selecionados.length < 2) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Selecione pelo menos 2 pontos vizinhos para subdividir.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 3000);
+    return;
+  }
+
+  const pontos = pontosLivresForma(objetoAtual);
+  const novosPontos: typeof pontos = [];
+  const novosSelecionados: number[] = [];
+
+  for (let i = 0; i < pontos.length; i++) {
+    const pontoAtual = pontos[i];
+    const proximoPonto = pontos[(i + 1) % pontos.length];
+
+    novosPontos.push(pontoAtual);
+
+    const deveSubdividir =
+      selecionados.includes(pontoAtual.id) &&
+      selecionados.includes(proximoPonto.id);
+
+    if (deveSubdividir) {
+      const novoId = Date.now() + i;
+
+      const novoPonto = {
+        id: novoId,
+        x: Math.round((pontoAtual.x + proximoPonto.x) / 2),
+        y: Math.round((pontoAtual.y + proximoPonto.y) / 2),
+        tipo: "CANTO" as const,
+      };
+
+      novosPontos.push(novoPonto);
+      novosSelecionados.push(novoId);
+    }
+  }
+
+  if (!novosSelecionados.length) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Para subdividir, selecione pontos vizinhos da forma.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 3000);
+    return;
+  }
+
+  atualizarObjeto(objetoAtual.id, {
+    pontosLivres: novosPontos,
+    pontoLivreSelecionadoId: novosSelecionados[0],
+    pontosLivresSelecionadosIds: novosSelecionados,
+  });
 }
 
   return (
@@ -2547,9 +2701,17 @@ if (objeto.tipo === "FORMA") {
     <button
   key={ponto.id}
   type="button"
-  onMouseDown={(e) =>
-    iniciarArrastoPontoLivre(e, objeto, ponto.id)
-  }
+  onMouseDown={(e) => {
+    if (e.shiftKey || e.ctrlKey) {
+      e.preventDefault();
+      e.stopPropagation();
+      selecionarPontoLivre(objeto.id, ponto.id, true);
+      return;
+    }
+
+    selecionarPontoLivre(objeto.id, ponto.id, false);
+    iniciarArrastoPontoLivre(e, objeto, ponto.id);
+  }}
   onDoubleClick={(e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -2557,7 +2719,7 @@ if (objeto.tipo === "FORMA") {
   }}
   title={`Ponto ${ponto.id}`}
   className={`absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow ${
-    objeto.pontoLivreSelecionadoId === ponto.id
+    objeto.pontosLivresSelecionadosIds?.includes(ponto.id)
       ? "border-yellow-300 bg-yellow-300"
       : "border-white bg-blue-600"
   }`}
@@ -4032,6 +4194,45 @@ setPontoGradienteSelecionado(novoPonto.id);
 
     <p className="text-xs text-slate-400">
       Dica: centro menor = pontas mais altas. Centro maior = pontas mais baixas.
+    </p>
+  </div>
+)}
+
+{objetoAtual.forma === "FORMA_LIVRE" && (
+  <div className="space-y-3 rounded-2xl border border-slate-700/40 p-3">
+    <p className="text-sm font-bold">
+      Forma livre / recorte livre
+    </p>
+
+    <div className="grid grid-cols-2 gap-2">
+      <button
+        type="button"
+        onClick={adicionarPontoLivreForma}
+        className="phanyx-crachas-button-secondary text-xs"
+      >
+        + Adicionar ponto
+      </button>
+
+      <button
+        type="button"
+        onClick={removerPontosLivresSelecionados}
+        className="phanyx-crachas-button-secondary text-xs"
+      >
+        Remover ponto
+      </button>
+    </div>
+
+    <button
+      type="button"
+      onClick={subdividirPontosLivresSelecionados}
+      className="phanyx-crachas-button-secondary w-full text-xs"
+    >
+      Subdividir pontos selecionados
+    </button>
+
+    <p className="text-xs text-slate-400">
+      Clique em um ponto para mover. Use Shift ou Ctrl para selecionar vários.
+      Dê dois cliques em um ponto para transformar em curva com alças.
     </p>
   </div>
 )}
