@@ -1620,30 +1620,6 @@ function colarEstiloForma() {
   setTimeout(() => setAvisoCracha(null), 2500);
 }
 
-function gerarPontosEstrela(
-  pontas: number,
-  raioExterno: number,
-  raioInterno: number,
-  largura: number,
-  altura: number
-) {
-  const cx = largura / 2;
-  const cy = altura / 2;
-  const pontos: string[] = [];
-
-  for (let i = 0; i < pontas * 2; i++) {
-    const angulo = -Math.PI / 2 + (i * Math.PI) / pontas;
-    const raio = i % 2 === 0 ? raioExterno : raioInterno;
-
-    const x = cx + Math.cos(angulo) * raio;
-    const y = cy + Math.sin(angulo) * raio;
-
-    pontos.push(`${(x / largura) * 100}% ${(y / altura) * 100}%`);
-  }
-
-  return pontos.join(", ");
-}
-
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -3061,10 +3037,10 @@ if (objeto.tipo === "FORMA") {
   largura: 140,
   altura: 140,
   raioBorda: 0,
-  espessuraBorda: 0,
+  espessuraBorda: espessuraPadrao,
   pontas: 5,
-  raioExterno: 60,
-  raioInterno: 28,
+  raioExterno: 46,
+  raioInterno: 22,
 },
   };
 
