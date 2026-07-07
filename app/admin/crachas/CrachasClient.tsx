@@ -111,6 +111,14 @@ type ObjetoCracha =
       bordaAcabamento?: "DURA" | "FOSCA";
       bordaBlur?: number;
 
+      sombraAtiva?: boolean;
+      sombraX?: number;
+      sombraY?: number;
+      sombraBlur?: number;
+      sombraCor?: string;
+
+      rotacao?: number;
+
       x: number;
       y: number;
       largura: number;
@@ -169,6 +177,10 @@ const [menuContexto, setMenuContexto] = useState<{
 
 const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
   useState<number | null>(null);
+
+  const [estiloFormaCopiado, setEstiloFormaCopiado] = useState<
+  Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>> | null
+>(null);
 
 const inputImagemRef = useRef<HTMLInputElement | null>(null);
 const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
@@ -319,6 +331,14 @@ function adicionarForma() {
 
       bordaAcabamento: "DURA",
       bordaBlur: 3,
+
+      sombraAtiva: false,
+      sombraX: 4,
+      sombraY: 4,
+      sombraBlur: 10,
+      sombraCor: "#000000",
+
+rotacao: 0,
 
       x: 30,
       y: 30,
@@ -473,14 +493,24 @@ function renderGradienteForma(
 function filtroAcabamentoForma(
   objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
 ) {
-  if ((objeto.bordaAcabamento || "DURA") !== "FOSCA") {
-    return "none";
+  const filtros: string[] = [];
+
+  if ((objeto.bordaAcabamento || "DURA") === "FOSCA") {
+    const blurBorda = objeto.bordaBlur ?? 3;
+    const corBorda = objeto.corBorda || "#000000";
+
+    filtros.push(`drop-shadow(0 0 ${blurBorda}px ${corBorda})`);
   }
 
-  const blur = objeto.bordaBlur ?? 3;
-  const cor = objeto.corBorda || "#000000";
+  if (objeto.sombraAtiva) {
+    filtros.push(
+      `drop-shadow(${objeto.sombraX ?? 4}px ${objeto.sombraY ?? 4}px ${
+        objeto.sombraBlur ?? 10
+      }px ${objeto.sombraCor ?? "#000000"})`
+    );
+  }
 
-  return `drop-shadow(0 0 ${blur}px ${cor})`;
+  return filtros.length ? filtros.join(" ") : "none";
 }
 
 async function handleUploadImagem(e: React.ChangeEvent<HTMLInputElement>) {
@@ -1480,6 +1510,73 @@ function atualizarCorPontoGradiente(
   });
 }
 
+function copiarEstiloForma() {
+  if (!objetoAtual || objetoAtual.tipo !== "FORMA") return;
+
+  setEstiloFormaCopiado({
+    estilo: objetoAtual.estilo,
+    preenchimentoTipo: objetoAtual.preenchimentoTipo,
+
+    gradienteTipo: objetoAtual.gradienteTipo,
+    gradienteDirecao: objetoAtual.gradienteDirecao,
+    gradienteFocoX: objetoAtual.gradienteFocoX,
+    gradienteFocoY: objetoAtual.gradienteFocoY,
+    gradienteRaio: objetoAtual.gradienteRaio,
+    gradientePontos: objetoAtual.gradientePontos?.map((ponto) => ({
+      ...ponto,
+    })),
+
+    bordaAcabamento: objetoAtual.bordaAcabamento,
+    bordaBlur: objetoAtual.bordaBlur,
+
+    corFundo: objetoAtual.corFundo,
+    corBorda: objetoAtual.corBorda,
+    espessuraBorda: objetoAtual.espessuraBorda,
+    raioBorda: objetoAtual.raioBorda,
+    opacidade: objetoAtual.opacidade,
+
+    sombraAtiva: objetoAtual.sombraAtiva,
+    sombraX: objetoAtual.sombraX,
+    sombraY: objetoAtual.sombraY,
+    sombraBlur: objetoAtual.sombraBlur,
+    sombraCor: objetoAtual.sombraCor,
+
+    rotacao: objetoAtual.rotacao,
+  });
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Estilo da forma copiado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2500);
+}
+
+function colarEstiloForma() {
+  if (!objetoAtual || objetoAtual.tipo !== "FORMA" || !estiloFormaCopiado) {
+    return;
+  }
+
+  const agora = Date.now();
+
+  atualizarObjeto(objetoAtual.id, {
+    ...estiloFormaCopiado,
+    gradientePontos: estiloFormaCopiado.gradientePontos?.map(
+      (ponto, index) => ({
+        ...ponto,
+        id: agora + index,
+      })
+    ),
+  });
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Estilo aplicado à forma selecionada.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2500);
+}
+
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -2061,6 +2158,8 @@ if (objeto.tipo === "FORMA") {
     opacity: objeto.opacidade / 100,
     pointerEvents: "none",
     filter: filtroAcabamentoForma(objeto),
+    transform: `rotate(${objeto.rotacao ?? 0}deg)`,
+    transformOrigin: "center center",
   }}
 >
   <defs>{renderGradienteForma(objeto)}</defs>
@@ -2967,6 +3066,38 @@ if (objeto.tipo === "FORMA") {
     <option value="COR">Cor sólida</option>
     <option value="GRADIENTE">Gradiente</option>
   </select>
+
+<div className="rounded-2xl border border-slate-700/40 p-3">
+  <p className="mb-3 text-sm font-bold">
+    Estilo da forma
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={copiarEstiloForma}
+      className="phanyx-crachas-button-secondary text-xs"
+    >
+      Copiar estilo
+    </button>
+
+    <button
+      type="button"
+      onClick={colarEstiloForma}
+      disabled={!estiloFormaCopiado}
+      className={`phanyx-crachas-button-secondary text-xs ${
+        !estiloFormaCopiado ? "cursor-not-allowed opacity-50" : ""
+      }`}
+    >
+      Aplicar estilo
+    </button>
+  </div>
+
+  <p className="mt-2 text-[11px] text-slate-400">
+    Copia cores, gradiente, borda, sombra, opacidade, arredondamento e rotação.
+  </p>
+</div>
+
 </div>
     </div>
 
@@ -3447,6 +3578,52 @@ setPontoGradienteSelecionado(novoPonto.id);
         Cor de preenchimento
       </label>
 
+<div className="rounded-2xl border border-slate-700/40 p-3">
+  <label className="mb-2 block font-semibold">
+    Rotação: {objetoAtual.rotacao ?? 0}°
+  </label>
+
+  <input
+    type="range"
+    min={-180}
+    max={180}
+    value={objetoAtual.rotacao ?? 0}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        rotacao: Number(e.target.value),
+      })
+    }
+    className="w-full"
+  />
+
+  <div className="mt-3 grid grid-cols-2 gap-2">
+    <input
+      type="number"
+      min={-360}
+      max={360}
+      value={objetoAtual.rotacao ?? 0}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          rotacao: Number(e.target.value),
+        })
+      }
+      className="phanyx-crachas-input"
+    />
+
+    <button
+      type="button"
+      onClick={() =>
+        atualizarObjeto(objetoAtual.id, {
+          rotacao: 0,
+        })
+      }
+      className="phanyx-crachas-button-secondary text-xs"
+    >
+      Zerar rotação
+    </button>
+  </div>
+</div>
+
       <input
         type="color"
         value={objetoAtual.corFundo}
@@ -3593,8 +3770,99 @@ setPontoGradienteSelecionado(novoPonto.id);
         {objetoAtual.opacidade}%
       </p>
     </div>
+
+<div className="rounded-2xl border border-slate-700/40 p-3">
+  <label className="mb-3 flex items-center gap-2 font-semibold">
+    <input
+      type="checkbox"
+      checked={!!objetoAtual.sombraAtiva}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          sombraAtiva: e.target.checked,
+        })
+      }
+    />
+    Sombra da forma
+  </label>
+
+  {objetoAtual.sombraAtiva && (
+    <div className="space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            X
+          </label>
+
+          <input
+            type="number"
+            value={objetoAtual.sombraX ?? 4}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraX: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Y
+          </label>
+
+          <input
+            type="number"
+            value={objetoAtual.sombraY ?? 4}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraY: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Blur
+          </label>
+
+          <input
+            type="number"
+            value={objetoAtual.sombraBlur ?? 10}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraBlur: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Cor da sombra
+        </label>
+
+        <input
+          type="color"
+          value={objetoAtual.sombraCor ?? "#000000"}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              sombraCor: e.target.value,
+            })
+          }
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+        />
+      </div>
+    </div>
+  )}
+</div>
+
   </div>
 )}
+
 
           <div className="mt-6">
             <label className="mb-2 block font-semibold">
