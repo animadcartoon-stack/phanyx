@@ -1272,12 +1272,60 @@ function gerarPontosEstrelaSvg(
   return pontos.join(" ");
 }
 
-function pontosFormaLivreSvg(
+function caminhoFormaLivreSvg(
   objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
 ) {
-  return pontosLivresForma(objeto)
-    .map((ponto) => `${ponto.x},${ponto.y}`)
-    .join(" ");
+  const pontos = pontosLivresForma(objeto);
+
+  if (pontos.length < 3) {
+    return "";
+  }
+
+  let d = `M ${pontos[0].x} ${pontos[0].y}`;
+
+  for (let i = 1; i < pontos.length; i++) {
+    const anterior = pontos[i - 1];
+    const atual = pontos[i];
+
+    const usaCurva =
+      anterior.tipo === "CURVA" ||
+      atual.tipo === "CURVA" ||
+      anterior.alcaSaidaX !== undefined ||
+      atual.alcaEntradaX !== undefined;
+
+    if (usaCurva) {
+      const c1x = anterior.alcaSaidaX ?? anterior.x;
+      const c1y = anterior.alcaSaidaY ?? anterior.y;
+      const c2x = atual.alcaEntradaX ?? atual.x;
+      const c2y = atual.alcaEntradaY ?? atual.y;
+
+      d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${atual.x} ${atual.y}`;
+    } else {
+      d += ` L ${atual.x} ${atual.y}`;
+    }
+  }
+
+  const ultimo = pontos[pontos.length - 1];
+  const primeiro = pontos[0];
+
+  const fechaComCurva =
+    ultimo.tipo === "CURVA" ||
+    primeiro.tipo === "CURVA" ||
+    ultimo.alcaSaidaX !== undefined ||
+    primeiro.alcaEntradaX !== undefined;
+
+  if (fechaComCurva) {
+    const c1x = ultimo.alcaSaidaX ?? ultimo.x;
+    const c1y = ultimo.alcaSaidaY ?? ultimo.y;
+    const c2x = primeiro.alcaEntradaX ?? primeiro.x;
+    const c2y = primeiro.alcaEntradaY ?? primeiro.y;
+
+    d += ` C ${c1x} ${c1y}, ${c2x} ${c2y}, ${primeiro.x} ${primeiro.y}`;
+  }
+
+  d += " Z";
+
+  return d;
 }
 
 function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
@@ -1420,8 +1468,8 @@ function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
 
 if (objeto.forma === "FORMA_LIVRE") {
   return (
-    <polygon
-      points={pontosFormaLivreSvg(objeto)}
+    <path
+      d={caminhoFormaLivreSvg(objeto)}
       {...comum}
     />
   );
@@ -1670,11 +1718,15 @@ function pontosLivresForma(
 function atualizarPontoLivreForma(
   objetoId: number,
   pontoId: number,
-  dados: {
-    x?: number;
-    y?: number;
-    tipo?: "CANTO" | "CURVA";
-  }
+  dados: Partial<{
+    x: number;
+    y: number;
+    tipo: "CANTO" | "CURVA";
+    alcaEntradaX: number;
+    alcaEntradaY: number;
+    alcaSaidaX: number;
+    alcaSaidaY: number;
+  }>
 ) {
   setObjetos((atual) =>
     atual.map((obj) => {
@@ -1704,6 +1756,118 @@ function iniciarArrastoPontoLivre(
   e.stopPropagation();
 
   const area = e.currentTarget.parentElement as HTMLElement | null;
+  const pontoOriginal = pontosLivresForma(objeto).find(
+    (ponto) => ponto.id === pontoId
+  );
+
+  if (!area || !pontoOriginal) return;
+
+  function limitar(valor: number) {
+    return Math.max(0, Math.min(100, valor));
+  }
+
+  function calcularPosicao(clientX: number, clientY: number) {
+    const rect = area.getBoundingClientRect();
+
+    return {
+      x: Math.round(limitar(((clientX - rect.left) / rect.width) * 100)),
+      y: Math.round(limitar(((clientY - rect.top) / rect.height) * 100)),
+    };
+  }
+
+  function mover(ev: MouseEvent) {
+    const posicao = calcularPosicao(ev.clientX, ev.clientY);
+
+    const dx = posicao.x - pontoOriginal.x;
+    const dy = posicao.y - pontoOriginal.y;
+
+    atualizarPontoLivreForma(objeto.id, pontoId, {
+      x: posicao.x,
+      y: posicao.y,
+
+      alcaEntradaX:
+        pontoOriginal.alcaEntradaX !== undefined
+          ? limitar(pontoOriginal.alcaEntradaX + dx)
+          : undefined,
+      alcaEntradaY:
+        pontoOriginal.alcaEntradaY !== undefined
+          ? limitar(pontoOriginal.alcaEntradaY + dy)
+          : undefined,
+      alcaSaidaX:
+        pontoOriginal.alcaSaidaX !== undefined
+          ? limitar(pontoOriginal.alcaSaidaX + dx)
+          : undefined,
+      alcaSaidaY:
+        pontoOriginal.alcaSaidaY !== undefined
+          ? limitar(pontoOriginal.alcaSaidaY + dy)
+          : undefined,
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
+function alternarCurvaPontoLivre(
+  objetoId: number,
+  pontoId: number
+) {
+  setObjetos((atual) =>
+    atual.map((obj) => {
+      if (obj.id !== objetoId || obj.tipo !== "FORMA") {
+        return obj;
+      }
+
+      const pontosAtualizados = pontosLivresForma(obj).map((ponto) => {
+        if (ponto.id !== pontoId) {
+          return ponto;
+        }
+
+        if (ponto.tipo === "CURVA") {
+          return {
+            ...ponto,
+            tipo: "CANTO" as const,
+            alcaEntradaX: undefined,
+            alcaEntradaY: undefined,
+            alcaSaidaX: undefined,
+            alcaSaidaY: undefined,
+          };
+        }
+
+        return {
+          ...ponto,
+          tipo: "CURVA" as const,
+          alcaEntradaX: Math.max(0, ponto.x - 18),
+          alcaEntradaY: ponto.y,
+          alcaSaidaX: Math.min(100, ponto.x + 18),
+          alcaSaidaY: ponto.y,
+        };
+      });
+
+      return {
+        ...obj,
+        pontosLivres: pontosAtualizados,
+        pontoLivreSelecionadoId: pontoId,
+      } as ObjetoCracha;
+    })
+  );
+}
+
+function iniciarArrastoAlcaFormaLivre(
+  e: React.MouseEvent<HTMLButtonElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>,
+  pontoId: number,
+  alca: "ENTRADA" | "SAIDA"
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const area = e.currentTarget.parentElement as HTMLElement | null;
 
   if (!area) return;
 
@@ -1715,31 +1879,33 @@ function iniciarArrastoPontoLivre(
     const rect = area.getBoundingClientRect();
 
     return {
-      x: limitar(((clientX - rect.left) / rect.width) * 100),
-      y: limitar(((clientY - rect.top) / rect.height) * 100),
+      x: Math.round(limitar(((clientX - rect.left) / rect.width) * 100)),
+      y: Math.round(limitar(((clientY - rect.top) / rect.height) * 100)),
     };
   }
 
   function mover(ev: MouseEvent) {
     const posicao = calcularPosicao(ev.clientX, ev.clientY);
 
-    atualizarPontoLivreForma(objeto.id, pontoId, {
-      x: Math.round(posicao.x),
-      y: Math.round(posicao.y),
-    });
+    if (alca === "ENTRADA") {
+      atualizarPontoLivreForma(objeto.id, pontoId, {
+        tipo: "CURVA",
+        alcaEntradaX: posicao.x,
+        alcaEntradaY: posicao.y,
+      });
+    } else {
+      atualizarPontoLivreForma(objeto.id, pontoId, {
+        tipo: "CURVA",
+        alcaSaidaX: posicao.x,
+        alcaSaidaY: posicao.y,
+      });
+    }
   }
 
   function soltar() {
     window.removeEventListener("mousemove", mover);
     window.removeEventListener("mouseup", soltar);
   }
-
-  const posicaoInicial = calcularPosicao(e.clientX, e.clientY);
-
-  atualizarPontoLivreForma(objeto.id, pontoId, {
-    x: Math.round(posicaoInicial.x),
-    y: Math.round(posicaoInicial.y),
-  });
 
   window.addEventListener("mousemove", mover);
   window.addEventListener("mouseup", soltar);
@@ -2335,26 +2501,124 @@ if (objeto.tipo === "FORMA") {
 </svg>
 
 {objetoSelecionado === objeto.id &&
+  objeto.forma === "FORMA_LIVRE" && (
+    <svg
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      className="pointer-events-none absolute inset-0 z-20 h-full w-full overflow-visible"
+    >
+      {pontosLivresForma(objeto).map((ponto) => (
+        <g key={`alcas-${ponto.id}`}>
+          {ponto.tipo === "CURVA" &&
+            ponto.alcaEntradaX !== undefined &&
+            ponto.alcaEntradaY !== undefined && (
+              <line
+                x1={ponto.x}
+                y1={ponto.y}
+                x2={ponto.alcaEntradaX}
+                y2={ponto.alcaEntradaY}
+                stroke="#facc15"
+                strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
+
+          {ponto.tipo === "CURVA" &&
+            ponto.alcaSaidaX !== undefined &&
+            ponto.alcaSaidaY !== undefined && (
+              <line
+                x1={ponto.x}
+                y1={ponto.y}
+                x2={ponto.alcaSaidaX}
+                y2={ponto.alcaSaidaY}
+                stroke="#facc15"
+                strokeWidth="1"
+                vectorEffect="non-scaling-stroke"
+              />
+            )}
+        </g>
+      ))}
+    </svg>
+  )}
+
+{objetoSelecionado === objeto.id &&
   objeto.forma === "FORMA_LIVRE" &&
   pontosLivresForma(objeto).map((ponto) => (
     <button
-      key={ponto.id}
-      type="button"
-      onMouseDown={(e) =>
-        iniciarArrastoPontoLivre(e, objeto, ponto.id)
-      }
-      title={`Ponto ${ponto.id}`}
-      className={`absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow ${
-        objeto.pontoLivreSelecionadoId === ponto.id
-          ? "border-yellow-300 bg-yellow-300"
-          : "border-white bg-blue-600"
-      }`}
-      style={{
-        left: `${ponto.x}%`,
-        top: `${ponto.y}%`,
-        cursor: "grab",
-      }}
-    />
+  key={ponto.id}
+  type="button"
+  onMouseDown={(e) =>
+    iniciarArrastoPontoLivre(e, objeto, ponto.id)
+  }
+  onDoubleClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    alternarCurvaPontoLivre(objeto.id, ponto.id);
+  }}
+  title={`Ponto ${ponto.id}`}
+  className={`absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow ${
+    objeto.pontoLivreSelecionadoId === ponto.id
+      ? "border-yellow-300 bg-yellow-300"
+      : "border-white bg-blue-600"
+  }`}
+  style={{
+    left: `${ponto.x}%`,
+    top: `${ponto.y}%`,
+    cursor: "grab",
+  }}
+/>
+  ))}
+
+{objetoSelecionado === objeto.id &&
+  objeto.forma === "FORMA_LIVRE" &&
+  pontosLivresForma(objeto).map((ponto) => (
+    <div key={`alca-botoes-${ponto.id}`}>
+      {ponto.tipo === "CURVA" &&
+        ponto.alcaEntradaX !== undefined &&
+        ponto.alcaEntradaY !== undefined && (
+          <button
+            type="button"
+            onMouseDown={(e) =>
+              iniciarArrastoAlcaFormaLivre(
+                e,
+                objeto,
+                ponto.id,
+                "ENTRADA"
+              )
+            }
+            title="Alça de entrada"
+            className="absolute z-30 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-yellow-400 shadow"
+            style={{
+              left: `${ponto.alcaEntradaX}%`,
+              top: `${ponto.alcaEntradaY}%`,
+              cursor: "grab",
+            }}
+          />
+        )}
+
+      {ponto.tipo === "CURVA" &&
+        ponto.alcaSaidaX !== undefined &&
+        ponto.alcaSaidaY !== undefined && (
+          <button
+            type="button"
+            onMouseDown={(e) =>
+              iniciarArrastoAlcaFormaLivre(
+                e,
+                objeto,
+                ponto.id,
+                "SAIDA"
+              )
+            }
+            title="Alça de saída"
+            className="absolute z-30 h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-yellow-400 shadow"
+            style={{
+              left: `${ponto.alcaSaidaX}%`,
+              top: `${ponto.alcaSaidaY}%`,
+              cursor: "grab",
+            }}
+          />
+        )}
+    </div>
   ))}
 
       {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
