@@ -284,6 +284,16 @@ const setCorFundoCracha =
 
 const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
+function zIndexObjetoCracha(objeto: ObjetoCracha) {
+  const objetosOrdenados = [...objetos].sort(
+    (a, b) => (a.ordem || 0) - (b.ordem || 0)
+  );
+
+  const indice = objetosOrdenados.findIndex((item) => item.id === objeto.id);
+
+  return indice >= 0 ? 10 + indice : 10;
+}
+
 type CampoCrachaDisponivel = {
   campo: string;
   rotulo: string;
@@ -2942,7 +2952,7 @@ function gerarPontosPoligono(
 
       {modalEmissaoAberto && (
   <div
-    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 px-4"
+  className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 px-4"
     onMouseDown={(e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -3290,7 +3300,7 @@ if (objeto.tipo === "TEXTO") {
     objetoSelecionado === objeto.id
       ? "1px dashed #2563eb"
       : "1px solid transparent",
-      zIndex: Math.max(1, objeto.ordem || 1),
+      zIndex: zIndexObjetoCracha(objeto),
 }}
                   >
   {objeto.texto}
@@ -3379,7 +3389,7 @@ if (objeto.tipo === "CAMPO") {
           objetoSelecionado === objeto.id
             ? "1px dashed #2563eb"
             : "1px solid transparent",
-            zIndex: Math.max(1, objeto.ordem || 1),
+            zIndex: zIndexObjetoCracha(objeto),
       }}
     >
       {objeto.campo}
@@ -3438,7 +3448,7 @@ if (objeto.tipo === "IMAGEM") {
             : "1px solid #94a3b8",
         borderRadius: objeto.raioBorda,
         boxShadow: sombraImagemBoxCss(objeto),
-        zIndex: Math.max(1, objeto.ordem || 1),
+        zIndex: zIndexObjetoCracha(objeto),
       }}
     >
       <div
@@ -3552,7 +3562,7 @@ if (objeto.tipo === "QRCODE") {
             : "1px solid transparent",
         borderRadius: objeto.raioBorda,
         boxShadow: sombraQrCodeCss(objeto),
-        zIndex: Math.max(1, objeto.ordem || 1),
+        zIndex: zIndexObjetoCracha(objeto),
       }}
     >
       <div
@@ -3652,7 +3662,7 @@ if (objeto.tipo === "FORMA") {
   top: objeto.y,
   width: objeto.largura,
   height: objeto.altura,
-  zIndex: Math.max(1, objeto.ordem || 1),
+  zIndex: zIndexObjetoCracha(objeto),
   cursor: "move",
   overflow: "visible",
   backgroundColor: "transparent",
