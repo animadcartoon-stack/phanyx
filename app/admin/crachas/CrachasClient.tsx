@@ -1134,10 +1134,28 @@ function abrirMenuContexto(
 
   setObjetoSelecionado(objetoId);
 
+  const rect = e.currentTarget.getBoundingClientRect();
+
+  const larguraMenu = 224;
+  const alturaMenu = 190;
+  const margem = 12;
+
+  const cabeNaDireita =
+    rect.right + larguraMenu + margem < window.innerWidth;
+
+  const x = cabeNaDireita
+    ? rect.right + margem
+    : Math.max(margem, rect.left - larguraMenu - margem);
+
+  const y = Math.min(
+    Math.max(margem, rect.top),
+    window.innerHeight - alturaMenu - margem
+  );
+
   setMenuContexto({
     aberto: true,
-    x: e.clientX,
-    y: e.clientY,
+    x,
+    y,
     objetoId,
   });
 }
@@ -2192,6 +2210,72 @@ function colarObjetoCopiado() {
   setTimeout(() => setAvisoCracha(null), 2000);
 }
 
+function pontoLivreSelecionadoAtual(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const pontos = pontosLivresForma(objeto);
+
+  return (
+    pontos.find(
+      (ponto) => ponto.id === objeto.pontoLivreSelecionadoId
+    ) || null
+  );
+}
+
+function definirModoPontoLivre(
+  modo: "CANTO" | "SUAVE" | "LIVRE"
+) {
+  if (!objetoAtual || objetoAtual.tipo !== "FORMA") return;
+  if (objetoAtual.forma !== "FORMA_LIVRE") return;
+
+  const ponto = pontoLivreSelecionadoAtual(objetoAtual);
+
+  if (!ponto) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Selecione um ponto da forma livre primeiro.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 3000);
+    return;
+  }
+
+  if (modo === "CANTO") {
+    atualizarPontoLivreForma(objetoAtual.id, ponto.id, {
+      tipo: "CANTO",
+      modoTangente: undefined,
+      alcaEntradaX: undefined,
+      alcaEntradaY: undefined,
+      alcaSaidaX: undefined,
+      alcaSaidaY: undefined,
+    });
+
+    return;
+  }
+
+  if (modo === "SUAVE") {
+    atualizarPontoLivreForma(objetoAtual.id, ponto.id, {
+      tipo: "CURVA",
+      modoTangente: "SUAVE",
+      alcaEntradaX: ponto.alcaEntradaX ?? Math.max(-80, ponto.x - 18),
+      alcaEntradaY: ponto.alcaEntradaY ?? ponto.y,
+      alcaSaidaX: ponto.alcaSaidaX ?? Math.min(180, ponto.x + 18),
+      alcaSaidaY: ponto.alcaSaidaY ?? ponto.y,
+    });
+
+    return;
+  }
+
+  atualizarPontoLivreForma(objetoAtual.id, ponto.id, {
+    tipo: "CURVA",
+    modoTangente: "LIVRE",
+    alcaEntradaX: ponto.alcaEntradaX ?? Math.max(-80, ponto.x - 18),
+    alcaEntradaY: ponto.alcaEntradaY ?? ponto.y,
+    alcaSaidaX: ponto.alcaSaidaX ?? Math.min(180, ponto.x + 18),
+    alcaSaidaY: ponto.alcaSaidaY ?? ponto.y,
+  });
+}
+
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -2275,10 +2359,11 @@ function colarObjetoCopiado() {
 
 {menuContexto.aberto && menuContexto.objetoId && (
   <div
-    className="fixed z-[9999] w-56 rounded-2xl border border-slate-300 bg-white p-2 text-sm font-semibold text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+    className="fixed w-56 rounded-2xl border border-slate-300 bg-white p-2 text-sm font-semibold text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
     style={{
       left: menuContexto.x,
       top: menuContexto.y,
+      zIndex: 2147483647,
     }}
     onMouseDown={(e) => {
       e.preventDefault();
@@ -4332,6 +4417,42 @@ setPontoGradienteSelecionado(novoPonto.id);
     <p className="text-sm font-bold">
       Forma livre / recorte livre
     </p>
+
+<div className="rounded-xl border border-slate-700/40 p-3">
+  <p className="mb-2 text-xs font-bold">
+    Tipo do ponto selecionado
+  </p>
+
+  <div className="grid grid-cols-3 gap-2">
+    <button
+      type="button"
+      onClick={() => definirModoPontoLivre("CANTO")}
+      className="phanyx-crachas-button-secondary text-[11px]"
+    >
+      Canto / reta
+    </button>
+
+    <button
+      type="button"
+      onClick={() => definirModoPontoLivre("SUAVE")}
+      className="phanyx-crachas-button-secondary text-[11px]"
+    >
+      Curva suave
+    </button>
+
+    <button
+      type="button"
+      onClick={() => definirModoPontoLivre("LIVRE")}
+      className="phanyx-crachas-button-secondary text-[11px]"
+    >
+      Curva livre
+    </button>
+  </div>
+
+  <p className="mt-2 text-[11px] text-slate-400">
+    Curva suave espelha as alças. Curva livre quebra a tangente e permite mover cada alça separadamente.
+  </p>
+</div>
 
     <div className="grid grid-cols-2 gap-2">
       <button
