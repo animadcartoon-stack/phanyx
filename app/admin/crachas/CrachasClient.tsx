@@ -201,6 +201,13 @@ pontosLivresSelecionadosIds?: number[];
   | "MEMBRO"
   | "PERSONALIZADO";
 
+  type ModoEmissaoCracha = "INDIVIDUAL" | "LOTE";
+
+type OpcaoLoteCracha = {
+  valor: string;
+  rotulo: string;
+};
+
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
 
@@ -262,6 +269,12 @@ const [avisoCracha, setAvisoCracha] = useState<{
 
 const [modalEmissaoAberto, setModalEmissaoAberto] = useState(false);
 const [buscaPessoaEmissao, setBuscaPessoaEmissao] = useState("");
+
+const [modoEmissaoCracha, setModoEmissaoCracha] =
+  useState<ModoEmissaoCracha>("INDIVIDUAL");
+
+const [filtroLoteEmissao, setFiltroLoteEmissao] = useState("");
+
 const [erroEmissaoCracha, setErroEmissaoCracha] = useState("");
 
 const [pessoaSelecionadaEmissao, setPessoaSelecionadaEmissao] =
@@ -432,10 +445,60 @@ function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
   return "Digite o nome ou identificação";
 }
 
+function opcoesLotePorTipo(tipo: TipoModeloCracha): OpcaoLoteCracha[] {
+  if (tipo === "ALUNO") {
+    return [
+      { valor: "TODOS_ALUNOS_ATIVOS", rotulo: "Todos os alunos ativos" },
+      { valor: "POR_CURSO", rotulo: "Por curso" },
+      { valor: "POR_TURMA", rotulo: "Por turma" },
+      { valor: "POR_SEMESTRE", rotulo: "Por semestre" },
+      { valor: "POR_POLO", rotulo: "Por polo" },
+    ];
+  }
+
+  if (tipo === "PROFESSOR") {
+    return [
+      { valor: "TODOS_PROFESSORES_ATIVOS", rotulo: "Todos os professores ativos" },
+      { valor: "POR_DEPARTAMENTO", rotulo: "Por departamento" },
+      { valor: "POR_DISCIPLINA", rotulo: "Por disciplina" },
+    ];
+  }
+
+  if (tipo === "FUNCIONARIO") {
+    return [
+      { valor: "TODOS_FUNCIONARIOS_ATIVOS", rotulo: "Todos os funcionários ativos" },
+      { valor: "POR_SETOR", rotulo: "Por setor" },
+      { valor: "POR_CARGO", rotulo: "Por cargo" },
+    ];
+  }
+
+  if (tipo === "MEMBRO") {
+    return [
+      { valor: "TODOS_MEMBROS_ATIVOS", rotulo: "Todos os membros ativos" },
+      { valor: "POR_MINISTERIO", rotulo: "Por ministério" },
+      { valor: "POR_ALA_GRUPO", rotulo: "Por ala / grupo" },
+    ];
+  }
+
+  if (tipo === "VISITANTE") {
+    return [
+      { valor: "POR_EVENTO", rotulo: "Por evento" },
+      { valor: "VISITANTES_DO_DIA", rotulo: "Visitantes do dia" },
+    ];
+  }
+
+  return [
+    { valor: "TODOS", rotulo: "Todos" },
+    { valor: "POR_CATEGORIA", rotulo: "Por categoria" },
+  ];
+}
+
 function abrirModalEmissaoCracha() {
   setBuscaPessoaEmissao("");
   setErroEmissaoCracha("");
   setAvisoCracha(null);
+  setModoEmissaoCracha("INDIVIDUAL");
+  setFiltroLoteEmissao("");
   setPessoaSelecionadaEmissao(null);
   setModalEmissaoAberto(true);
 }
@@ -444,13 +507,21 @@ function fecharModalEmissaoCracha() {
   setModalEmissaoAberto(false);
   setBuscaPessoaEmissao("");
   setErroEmissaoCracha("");
+  setFiltroLoteEmissao("");
   setPessoaSelecionadaEmissao(null);
 }
 
 function continuarEmissaoCracha() {
-  if (!pessoaSelecionadaEmissao) {
+  if (modoEmissaoCracha === "INDIVIDUAL" && !pessoaSelecionadaEmissao) {
     setErroEmissaoCracha(
       "Selecione uma pessoa antes de continuar a emissão do crachá."
+    );
+    return;
+  }
+
+  if (modoEmissaoCracha === "LOTE" && !filtroLoteEmissao) {
+    setErroEmissaoCracha(
+      "Selecione um filtro para emissão em lote antes de continuar."
     );
     return;
   }
@@ -460,7 +531,9 @@ function continuarEmissaoCracha() {
   setAvisoCracha({
     tipo: "sucesso",
     texto:
-      "Pessoa selecionada. Na próxima etapa vamos gerar o código único do crachá.",
+      modoEmissaoCracha === "LOTE"
+        ? "Lote selecionado. Na próxima etapa vamos buscar as pessoas e gerar os códigos únicos dos crachás."
+        : "Pessoa selecionada. Na próxima etapa vamos gerar o código único do crachá.",
   });
 
   setModalEmissaoAberto(false);
@@ -2999,49 +3072,134 @@ function gerarPontosPoligono(
       </div>
 
       <div className="mt-4">
-        <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
-          Buscar pessoa
-        </label>
+  <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+    Modo de emissão
+  </label>
 
-        <input
-          value={buscaPessoaEmissao}
-          onChange={(e) => setBuscaPessoaEmissao(e.target.value)}
-          placeholder={placeholderBuscaEmissao(tipoModeloCracha)}
-          className="phanyx-crachas-input w-full"
-        />
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() => {
+        setModoEmissaoCracha("INDIVIDUAL");
+        setErroEmissaoCracha("");
+        setFiltroLoteEmissao("");
+      }}
+      className={
+        modoEmissaoCracha === "INDIVIDUAL"
+          ? "phanyx-crachas-button-primary"
+          : "phanyx-crachas-button-secondary"
+      }
+    >
+      Individual
+    </button>
 
-        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-          A busca real será conectada ao cadastro de alunos, professores,
-          funcionários, visitantes ou membros conforme o tipo do modelo.
-        </p>
-      </div>
-
-{erroEmissaoCracha && (
-  <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-    {erroEmissaoCracha}
+    <button
+      type="button"
+      onClick={() => {
+        setModoEmissaoCracha("LOTE");
+        setErroEmissaoCracha("");
+        setPessoaSelecionadaEmissao(null);
+      }}
+      className={
+        modoEmissaoCracha === "LOTE"
+          ? "phanyx-crachas-button-primary"
+          : "phanyx-crachas-button-secondary"
+      }
+    >
+      Em lote
+    </button>
   </div>
-)}
+</div>
 
-      <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-  {pessoaSelecionadaEmissao ? (
-    <div>
-      <p className="font-bold text-slate-900 dark:text-slate-100">
-        {pessoaSelecionadaEmissao.nome}
+{modoEmissaoCracha === "INDIVIDUAL" ? (
+  <>
+    <div className="mt-4">
+      <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+        Buscar pessoa
+      </label>
+
+      <input
+        value={buscaPessoaEmissao}
+        onChange={(e) => setBuscaPessoaEmissao(e.target.value)}
+        placeholder={placeholderBuscaEmissao(tipoModeloCracha)}
+        className="phanyx-crachas-input w-full"
+      />
+
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+        A busca real será conectada ao cadastro conforme o tipo do modelo.
       </p>
+    </div>
 
-      {pessoaSelecionadaEmissao.descricao && (
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-          {pessoaSelecionadaEmissao.descricao}
+    {erroEmissaoCracha && (
+      <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+        {erroEmissaoCracha}
+      </div>
+    )}
+
+    <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+      {pessoaSelecionadaEmissao ? (
+        <div>
+          <p className="font-bold text-slate-900 dark:text-slate-100">
+            {pessoaSelecionadaEmissao.nome}
+          </p>
+
+          {pessoaSelecionadaEmissao.descricao && (
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              {pessoaSelecionadaEmissao.descricao}
+            </p>
+          )}
+        </div>
+      ) : (
+        <p>
+          Nenhuma pessoa selecionada ainda. Depois da conexão com o backend,
+          aqui aparecerão os resultados para escolha.
         </p>
       )}
     </div>
-  ) : (
-    <p>
-      Nenhuma pessoa selecionada ainda.
-      Depois da conexão com o backend, aqui aparecerão os resultados para escolha.
-    </p>
-  )}
-</div>
+  </>
+) : (
+  <>
+    <div className="mt-4">
+      <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+        Filtro do lote
+      </label>
+
+      <select
+        value={filtroLoteEmissao}
+        onChange={(e) => {
+          setFiltroLoteEmissao(e.target.value);
+          setErroEmissaoCracha("");
+        }}
+        className="phanyx-crachas-input w-full"
+      >
+        <option value="">Selecione o filtro do lote</option>
+
+        {opcoesLotePorTipo(tipoModeloCracha).map((opcao) => (
+          <option key={opcao.valor} value={opcao.valor}>
+            {opcao.rotulo}
+          </option>
+        ))}
+      </select>
+
+      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+        A emissão em lote gerará um crachá e um QR Code único para cada pessoa encontrada.
+      </p>
+    </div>
+
+    {erroEmissaoCracha && (
+      <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+        {erroEmissaoCracha}
+      </div>
+    )}
+
+    <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+      <p>
+        Nenhum lote processado ainda. Depois da conexão com o backend, aqui
+        aparecerá a prévia das pessoas que receberão o crachá.
+      </p>
+    </div>
+  </>
+)}
 
       <div className="mt-5 flex flex-wrap justify-end gap-2">
         <button

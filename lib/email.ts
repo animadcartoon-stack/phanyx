@@ -49,7 +49,7 @@ export async function enviarEmailAcessoExistente({
                   <td style="padding:34px 32px 24px 32px;background:linear-gradient(135deg,#2563eb 0%,#0f172a 100%);text-align:center;">
                     <img
                       src="${imagemFormixUrl}"
-                      alt="Formix"
+                      alt="PHANYX"
                       style="height:120px;max-width:120px;display:block;margin:0 auto 16px auto;"
                     />
 
@@ -465,7 +465,7 @@ export async function enviarEmailAcesso({
                     </p>
 
                     <p style="margin:0 0 24px 0;color:#cbd5e1;font-size:15px;line-height:1.7;">
-                      Seu ambiente administrativo já está pronto. Abaixo estão os dados de acesso inicial da sua conta:
+                      Seu ambiente administrativo já está pronto. A instituição foi liberada para 60 dias de uso gratuito. Abaixo estão os dados de acesso inicial da sua conta:
                     </p>
 
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:0 12px;">

@@ -124,8 +124,8 @@ function SucessoContent() {
       </h1>
 
       <p className="mx-auto mt-4 max-w-2xl text-slate-300">
-        O ambiente institucional foi criado com teste gratuito de 6 meses.
-        O acesso administrativo será enviado para o email informado na adesão.
+        O ambiente institucional foi criado com teste gratuito de 60 dias.
+O acesso administrativo será enviado para o email informado na adesão.
       </p>
     </div>
 
@@ -138,7 +138,7 @@ function SucessoContent() {
         <p>1. Sua instituição foi criada no PHANYX.</p>
         <p>2. O administrador principal foi preparado com senha temporária.</p>
         <p>3. O email de acesso será enviado automaticamente.</p>
-        <p>4. A instituição poderá usar o PHANYX por 6 meses sem cobrança inicial.</p>
+        <p>4. A instituição poderá usar o PHANYX por 60 dias sem cobrança inicial.</p>
         <p>5. Após o período gratuito, se não houver cancelamento, a cobrança mensal será iniciada conforme o plano e o uso real.</p>
       </div>
     </div>
@@ -149,7 +149,8 @@ function SucessoContent() {
       </p>
       <p className="mt-2">
         Nenhum pagamento foi exigido agora. A primeira cobrança está programada
-        para depois do período gratuito, conforme a assinatura configurada no Asaas.
+para depois dos 60 dias gratuitos, conforme a assinatura configurada no Asaas.
+O valor poderá incluir mensalidade base, alunos ativos e polos cadastrados.
       </p>
     </div>
   </>
