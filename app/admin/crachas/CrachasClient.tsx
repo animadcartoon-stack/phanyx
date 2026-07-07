@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { QRCodeSVG } from "qrcode.react";
 
 type GradientePonto = {
   id: number;
@@ -69,6 +70,26 @@ type ObjetoCracha =
       ajusteImagem: "cover" | "contain";
       sombraAtiva?: boolean;
       sombraModo?: "DROP" | "BOX";
+      sombraX?: number;
+      sombraY?: number;
+      sombraBlur?: number;
+      sombraCor?: string;
+      ordem: number;
+    }
+      | {
+      id: number;
+      tipo: "QRCODE";
+      valor: string;
+      x: number;
+      y: number;
+      largura: number;
+      altura: number;
+      cor: string;
+      corFundo: string;
+      mostrarFundo: boolean;
+      margem: number;
+      raioBorda: number;
+      sombraAtiva?: boolean;
       sombraX?: number;
       sombraY?: number;
       sombraBlur?: number;
@@ -333,6 +354,34 @@ function adicionarLogo() {
       sombraY: 2,
       sombraBlur: 6,
       sombraCor: "#000000",
+    },
+  ]);
+}
+
+function adicionarQrCode() {
+  const agora = Date.now();
+
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: agora,
+      tipo: "QRCODE",
+      valor: "https://www.phanyx.com.br/verificar/cracha/{{codigoCracha}}",
+      x: 70,
+      y: 230,
+      largura: 90,
+      altura: 90,
+      cor: "#000000",
+      corFundo: "#ffffff",
+      mostrarFundo: true,
+      margem: 8,
+      raioBorda: 8,
+      sombraAtiva: false,
+      sombraX: 2,
+      sombraY: 2,
+      sombraBlur: 6,
+      sombraCor: "#000000",
+      ordem: agora,
     },
   ]);
 }
@@ -800,6 +849,86 @@ function sombraImagemBoxCss(
   return `${objeto.sombraX ?? 2}px ${objeto.sombraY ?? 2}px ${
     objeto.sombraBlur ?? 6
   }px ${objeto.sombraCor ?? "#000000"}`;
+}
+
+function sombraQrCodeCss(
+  objeto: Extract<ObjetoCracha, { tipo: "QRCODE" }>
+) {
+  if (!objeto.sombraAtiva) return "none";
+
+  return `${objeto.sombraX ?? 2}px ${objeto.sombraY ?? 2}px ${
+    objeto.sombraBlur ?? 6
+  }px ${objeto.sombraCor ?? "#000000"}`;
+}
+
+function redimensionarQrCode(
+  e: React.MouseEvent<HTMLSpanElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "QRCODE" }>,
+  canto: "nw" | "ne" | "sw" | "se"
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setObjetoSelecionado(objeto.id);
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+
+  const xOriginal = objeto.x;
+  const yOriginal = objeto.y;
+  const larguraOriginal = objeto.largura;
+  const alturaOriginal = objeto.altura;
+
+  function mover(ev: MouseEvent) {
+    const dx = ev.clientX - inicioX;
+    const dy = ev.clientY - inicioY;
+
+    let novoX = xOriginal;
+    let novoY = yOriginal;
+    let novaLargura = larguraOriginal;
+    let novaAltura = alturaOriginal;
+
+    if (canto === "se") {
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "sw") {
+      novoX = xOriginal + dx;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal + dy;
+    }
+
+    if (canto === "ne") {
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal + dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    if (canto === "nw") {
+      novoX = xOriginal + dx;
+      novoY = yOriginal + dy;
+      novaLargura = larguraOriginal - dx;
+      novaAltura = alturaOriginal - dy;
+    }
+
+    const novoTamanho = Math.max(40, Math.max(novaLargura, novaAltura));
+
+    atualizarObjeto(objeto.id, {
+      x: novoX,
+      y: novoY,
+      largura: novoTamanho,
+      altura: novoTamanho,
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
 }
 
 function redimensionarTexto(
@@ -2518,8 +2647,6 @@ function gerarPontosPoligono(
   return pontos.join(", ");
 }
 
-
-
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -2724,11 +2851,12 @@ function gerarPontosPoligono(
 </button>
 
             <button
-              type="button"
-              className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-            >
-              🔳 QR Code
-            </button>
+  type="button"
+  onClick={adicionarQrCode}
+  className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+>
+  🔳 QR Code
+</button>
 
             <button
               type="button"
@@ -3042,6 +3170,113 @@ if (objeto.tipo === "IMAGEM") {
     />
   </>
 )}
+    </div>
+  );
+}
+
+if (objeto.tipo === "QRCODE") {
+  return (
+    <div
+      key={objeto.id}
+      onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setObjetoSelecionado(objeto.id);
+
+        const inicioX = e.clientX;
+        const inicioY = e.clientY;
+        const xOriginal = objeto.x;
+        const yOriginal = objeto.y;
+
+        function mover(ev: MouseEvent) {
+          const novoX = xOriginal + ev.clientX - inicioX;
+          const novoY = yOriginal + ev.clientY - inicioY;
+
+          atualizarObjeto(objeto.id, {
+            x: novoX,
+            y: novoY,
+          });
+        }
+
+        function soltar() {
+          window.removeEventListener("mousemove", mover);
+          window.removeEventListener("mouseup", soltar);
+        }
+
+        window.addEventListener("mousemove", mover);
+        window.addEventListener("mouseup", soltar);
+      }}
+      style={{
+        position: "absolute",
+        left: objeto.x,
+        top: objeto.y,
+        width: objeto.largura,
+        height: objeto.altura,
+        cursor: "move",
+        overflow: "visible",
+        border:
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : "1px solid transparent",
+        borderRadius: objeto.raioBorda,
+        boxShadow: sombraQrCodeCss(objeto),
+        zIndex: Math.max(1, objeto.ordem || 1),
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          padding: objeto.margem,
+          borderRadius: objeto.raioBorda,
+          background: objeto.mostrarFundo ? objeto.corFundo : "transparent",
+        }}
+      >
+        <QRCodeSVG
+          value={objeto.valor || "https://www.phanyx.com.br"}
+          bgColor={objeto.mostrarFundo ? objeto.corFundo : "transparent"}
+          fgColor={objeto.cor || "#000000"}
+          level="M"
+          includeMargin={false}
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "block",
+          }}
+        />
+      </div>
+
+      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+
+      {objetoSelecionado === objeto.id && (
+        <>
+          <span
+            onMouseDown={(e) => redimensionarQrCode(e, objeto, "nw")}
+            className="absolute -left-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nwse-resize" }}
+          />
+
+          <span
+            onMouseDown={(e) => redimensionarQrCode(e, objeto, "ne")}
+            className="absolute -right-1.5 -top-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nesw-resize" }}
+          />
+
+          <span
+            onMouseDown={(e) => redimensionarQrCode(e, objeto, "sw")}
+            className="absolute -bottom-1.5 -left-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nesw-resize" }}
+          />
+
+          <span
+            onMouseDown={(e) => redimensionarQrCode(e, objeto, "se")}
+            className="absolute -bottom-1.5 -right-1.5 z-20 h-3 w-3 rounded-full border border-blue-600 bg-white shadow"
+            style={{ cursor: "nwse-resize" }}
+          />
+        </>
+      )}
     </div>
   );
 }
