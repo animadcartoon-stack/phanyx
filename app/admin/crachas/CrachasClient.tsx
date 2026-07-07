@@ -351,6 +351,42 @@ function camposDisponiveisPorTipo(
   ];
 }
 
+function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
+  const camposDoNovoTipo = camposDisponiveisPorTipo(novoTipo);
+  const campoPadrao = camposDoNovoTipo[0];
+
+  setTipoModeloCracha(novoTipo);
+
+  setObjetos((atual) =>
+    atual.map((obj) => {
+      if (obj.tipo !== "CAMPO") {
+        return obj;
+      }
+
+      const campoAindaExiste = camposDoNovoTipo.some(
+        (campo) => campo.campo === obj.campo
+      );
+
+      if (campoAindaExiste) {
+        return obj;
+      }
+
+      return {
+        ...obj,
+        campo: campoPadrao.campo,
+        rotulo: campoPadrao.rotulo,
+      };
+    })
+  );
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Tipo do modelo atualizado. Campos incompatíveis foram ajustados.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 3000);
+}
+
   function adicionarTexto() {
     setObjetos((atual) => [
       ...atual,
@@ -2780,12 +2816,12 @@ function gerarPontosPoligono(
   </label>
 
   <select
-    value={tipoModeloCracha}
-    onChange={(e) =>
-      setTipoModeloCracha(e.target.value as TipoModeloCracha)
-    }
-    className="phanyx-crachas-input w-full"
-  >
+  value={tipoModeloCracha}
+  onChange={(e) =>
+    alterarTipoModeloCracha(e.target.value as TipoModeloCracha)
+  }
+  className="phanyx-crachas-input w-full"
+>
     <option value="ALUNO">Aluno</option>
     <option value="PROFESSOR">Professor</option>
     <option value="FUNCIONARIO">Funcionário</option>
