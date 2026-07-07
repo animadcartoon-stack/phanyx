@@ -205,6 +205,10 @@ const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
   Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>> | null
 >(null);
 
+const [objetoCopiado, setObjetoCopiado] = useState<ObjetoCracha | null>(
+  null
+);
+
 const inputImagemRef = useRef<HTMLInputElement | null>(null);
 const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
 
@@ -682,8 +686,6 @@ async function handleUploadImagemObjeto(
 
 useEffect(() => {
   function aoPressionarTecla(e: KeyboardEvent) {
-    if (!objetoSelecionado) return;
-
     const alvo = e.target as HTMLElement | null;
     const tag = alvo?.tagName?.toLowerCase();
 
@@ -694,6 +696,26 @@ useEffect(() => {
       alvo?.isContentEditable;
 
     if (estaDigitando) return;
+
+    const tecla = e.key.toLowerCase();
+
+    if ((e.ctrlKey || e.metaKey) && tecla === "c") {
+      if (!objetoAtual) return;
+
+      e.preventDefault();
+      copiarObjetoSelecionado();
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && tecla === "v") {
+      if (!objetoCopiado) return;
+
+      e.preventDefault();
+      colarObjetoCopiado();
+      return;
+    }
+
+    if (!objetoSelecionado) return;
 
     if (e.key === "Delete" || e.key === "Backspace") {
       e.preventDefault();
@@ -710,7 +732,7 @@ useEffect(() => {
   return () => {
     window.removeEventListener("keydown", aoPressionarTecla);
   };
-}, [objetoSelecionado, lado]);
+}, [objetoSelecionado, objetoAtual, objetoCopiado, lado]);
 
   function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
     if (!objetoAtual || objetoAtual.tipo !== "TEXTO") return;
@@ -1154,13 +1176,7 @@ function duplicarObjetoPorId(objetoId: number) {
 
   if (!objeto) return;
 
-  const novoObjeto = {
-    ...objeto,
-    id: Date.now(),
-    x: objeto.x + 12,
-    y: objeto.y + 12,
-    ordem: Date.now(),
-  } as ObjetoCracha;
+  const novoObjeto = clonarObjetoCracha(objeto, 12);
 
   setObjetos((atual) => [...atual, novoObjeto]);
   setObjetoSelecionado(novoObjeto.id);
@@ -1756,7 +1772,9 @@ function iniciarArrastoPontoLivre(
   e.preventDefault();
   e.stopPropagation();
 
-  const area = e.currentTarget.parentElement as HTMLElement | null;
+  const area = document.querySelector(
+  `[data-forma-livre-area="${objeto.id}"]`
+) as HTMLElement | null;
   const pontoOriginal = pontosLivresForma(objeto).find(
     (ponto) => ponto.id === pontoId
   );
@@ -1868,13 +1886,19 @@ function iniciarArrastoAlcaFormaLivre(
   e.preventDefault();
   e.stopPropagation();
 
-  const area = e.currentTarget.parentElement as HTMLElement | null;
+  const area = document.querySelector(
+    `[data-forma-livre-area="${objeto.id}"]`
+  ) as HTMLElement | null;
 
-  if (!area) return;
+  const pontoBase = pontosLivresForma(objeto).find(
+    (ponto) => ponto.id === pontoId
+  );
+
+  if (!area || !pontoBase) return;
 
   function limitar(valor: number) {
-  return Math.max(-80, Math.min(180, valor));
-}
+    return Math.max(-80, Math.min(180, valor));
+  }
 
   function calcularPosicao(clientX: number, clientY: number) {
     const rect = area.getBoundingClientRect();
@@ -1889,18 +1913,30 @@ function iniciarArrastoAlcaFormaLivre(
     const posicao = calcularPosicao(ev.clientX, ev.clientY);
 
     if (alca === "ENTRADA") {
+      const alcaSaidaX = limitar(pontoBase.x - (posicao.x - pontoBase.x));
+      const alcaSaidaY = limitar(pontoBase.y - (posicao.y - pontoBase.y));
+
       atualizarPontoLivreForma(objeto.id, pontoId, {
         tipo: "CURVA",
         alcaEntradaX: posicao.x,
         alcaEntradaY: posicao.y,
+        alcaSaidaX,
+        alcaSaidaY,
       });
-    } else {
-      atualizarPontoLivreForma(objeto.id, pontoId, {
-        tipo: "CURVA",
-        alcaSaidaX: posicao.x,
-        alcaSaidaY: posicao.y,
-      });
+
+      return;
     }
+
+    const alcaEntradaX = limitar(pontoBase.x - (posicao.x - pontoBase.x));
+    const alcaEntradaY = limitar(pontoBase.y - (posicao.y - pontoBase.y));
+
+    atualizarPontoLivreForma(objeto.id, pontoId, {
+      tipo: "CURVA",
+      alcaSaidaX: posicao.x,
+      alcaSaidaY: posicao.y,
+      alcaEntradaX,
+      alcaEntradaY,
+    });
   }
 
   function soltar() {
@@ -2063,6 +2099,68 @@ function subdividirPontosLivresSelecionados() {
     pontoLivreSelecionadoId: novosSelecionados[0],
     pontosLivresSelecionadosIds: novosSelecionados,
   });
+}
+
+function clonarObjetoCracha(
+  objeto: ObjetoCracha,
+  deslocamento = 12
+): ObjetoCracha {
+  const agora = Date.now();
+
+  const novoObjeto = {
+    ...objeto,
+    id: agora,
+    x: objeto.x + deslocamento,
+    y: objeto.y + deslocamento,
+    ordem: agora,
+  } as ObjetoCracha;
+
+  if (objeto.tipo === "FORMA") {
+    return {
+      ...novoObjeto,
+      gradientePontos: objeto.gradientePontos?.map((ponto, index) => ({
+        ...ponto,
+        id: agora + 1000 + index,
+      })),
+      pontosLivres: objeto.pontosLivres?.map((ponto, index) => ({
+        ...ponto,
+        id: agora + 2000 + index,
+      })),
+      pontoLivreSelecionadoId: null,
+      pontosLivresSelecionadosIds: [],
+    } as ObjetoCracha;
+  }
+
+  return novoObjeto;
+}
+
+function copiarObjetoSelecionado() {
+  if (!objetoAtual) return;
+
+  setObjetoCopiado(objetoAtual);
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Objeto copiado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2000);
+}
+
+function colarObjetoCopiado() {
+  if (!objetoCopiado) return;
+
+  const novoObjeto = clonarObjetoCracha(objetoCopiado, 12);
+
+  setObjetos((atual) => [...atual, novoObjeto]);
+  setObjetoSelecionado(novoObjeto.id);
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Objeto colado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2000);
 }
 
   return (
@@ -2586,6 +2684,7 @@ if (objeto.tipo === "FORMA") {
   return (
     <div
       key={objeto.id}
+      data-forma-livre-area={objeto.id}
       onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
       onMouseDown={(e) => {
         e.preventDefault();
