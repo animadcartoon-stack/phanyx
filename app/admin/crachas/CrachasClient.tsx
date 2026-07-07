@@ -129,6 +129,12 @@ type ObjetoCracha =
     raioInterno?: number;
     raioExterno?: number;
     lados?: number;
+    cruzCentroX?: number;
+    cruzCentroY?: number;
+    cruzEspessuraVertical?: number;
+    cruzEspessuraHorizontal?: number;
+    cruzComprimentoHorizontal?: number;
+    cruzComprimentoVertical?: number;
 
     pontosLivres?: {
   id: number;
@@ -1339,6 +1345,104 @@ function gerarPontosPoligonoSvg(lados: number) {
   return pontos.join(" ");
 }
 
+function limitarFormaSvg(valor: number, minimo: number, maximo: number) {
+  return Math.max(minimo, Math.min(maximo, valor));
+}
+
+function gerarPontosCruzSvg(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const centroX = limitarFormaSvg(objeto.cruzCentroX ?? 50, 15, 85);
+  const centroY = limitarFormaSvg(objeto.cruzCentroY ?? 50, 15, 85);
+
+  const espessuraVertical = limitarFormaSvg(
+    objeto.cruzEspessuraVertical ?? 24,
+    6,
+    70
+  );
+
+  const espessuraHorizontal = limitarFormaSvg(
+    objeto.cruzEspessuraHorizontal ?? 24,
+    6,
+    70
+  );
+
+  const comprimentoHorizontal = limitarFormaSvg(
+    objeto.cruzComprimentoHorizontal ?? 94,
+    20,
+    100
+  );
+
+  const comprimentoVertical = limitarFormaSvg(
+    objeto.cruzComprimentoVertical ?? 94,
+    20,
+    100
+  );
+
+  const esquerdaH = limitarFormaSvg(
+    centroX - comprimentoHorizontal / 2,
+    1,
+    99
+  );
+
+  const direitaH = limitarFormaSvg(
+    centroX + comprimentoHorizontal / 2,
+    1,
+    99
+  );
+
+  const topoH = limitarFormaSvg(
+    centroY - espessuraHorizontal / 2,
+    1,
+    99
+  );
+
+  const baseH = limitarFormaSvg(
+    centroY + espessuraHorizontal / 2,
+    1,
+    99
+  );
+
+  const esquerdaV = limitarFormaSvg(
+    centroX - espessuraVertical / 2,
+    1,
+    99
+  );
+
+  const direitaV = limitarFormaSvg(
+    centroX + espessuraVertical / 2,
+    1,
+    99
+  );
+
+  const topoV = limitarFormaSvg(
+    centroY - comprimentoVertical / 2,
+    1,
+    99
+  );
+
+  const baseV = limitarFormaSvg(
+    centroY + comprimentoVertical / 2,
+    1,
+    99
+  );
+
+  return [
+    `${esquerdaV},${topoV}`,
+    `${direitaV},${topoV}`,
+    `${direitaV},${topoH}`,
+    `${direitaH},${topoH}`,
+    `${direitaH},${baseH}`,
+    `${direitaV},${baseH}`,
+    `${direitaV},${baseV}`,
+    `${esquerdaV},${baseV}`,
+    `${esquerdaV},${baseH}`,
+    `${esquerdaH},${baseH}`,
+    `${esquerdaH},${topoH}`,
+    `${esquerdaV},${topoH}`,
+  ].join(" ");
+}
+
 function caminhoFormaLivreSvg(
   objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
 ) {
@@ -1554,7 +1658,7 @@ if (objeto.forma === "POLIGONO") {
 if (objeto.forma === "CRUZ") {
   return (
     <polygon
-      points="38,3 62,3 62,38 97,38 97,62 62,62 62,97 38,97 38,62 3,62 3,38 38,38"
+      points={gerarPontosCruzSvg(objeto)}
       {...comum}
     />
   );
@@ -4007,6 +4111,13 @@ CRUZ: {
   altura: 130,
   raioBorda: 0,
   espessuraBorda: espessuraPadrao,
+
+  cruzCentroX: 50,
+  cruzCentroY: 50,
+  cruzEspessuraVertical: 24,
+  cruzEspessuraHorizontal: 24,
+  cruzComprimentoHorizontal: 94,
+  cruzComprimentoVertical: 94,
 },
 
 CORACAO: {
@@ -4686,6 +4797,134 @@ setPontoGradienteSelecionado(novoPonto.id);
 
     <p className="text-[11px] text-slate-400">
       5 lados = pentágono. 6 lados = hexágono. 8 lados = octógono.
+    </p>
+  </div>
+)}
+
+{objetoAtual.forma === "CRUZ" && (
+  <div className="space-y-3 rounded-2xl border border-slate-700/40 p-3">
+    <p className="text-sm font-bold">
+      Configuração da cruz
+    </p>
+
+    <div className="grid grid-cols-2 gap-3">
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Vertical para esquerda/direita
+        </label>
+
+        <input
+          type="number"
+          min={15}
+          max={85}
+          value={objetoAtual.cruzCentroX ?? 50}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              cruzCentroX: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Horizontal para cima/baixo
+        </label>
+
+        <input
+          type="number"
+          min={15}
+          max={85}
+          value={objetoAtual.cruzCentroY ?? 50}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              cruzCentroY: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Grossura da parte vertical
+        </label>
+
+        <input
+          type="number"
+          min={6}
+          max={70}
+          value={objetoAtual.cruzEspessuraVertical ?? 24}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              cruzEspessuraVertical: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Grossura da parte horizontal
+        </label>
+
+        <input
+          type="number"
+          min={6}
+          max={70}
+          value={objetoAtual.cruzEspessuraHorizontal ?? 24}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              cruzEspessuraHorizontal: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Comprimento dos braços
+        </label>
+
+        <input
+          type="number"
+          min={20}
+          max={100}
+          value={objetoAtual.cruzComprimentoHorizontal ?? 94}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              cruzComprimentoHorizontal: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Comprimento vertical
+        </label>
+
+        <input
+          type="number"
+          min={20}
+          max={100}
+          value={objetoAtual.cruzComprimentoVertical ?? 94}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              cruzComprimentoVertical: Number(e.target.value),
+            })
+          }
+          className="phanyx-crachas-input"
+        />
+      </div>
+    </div>
+
+    <p className="text-[11px] text-slate-500 dark:text-slate-400">
+      Use os valores de 0 a 100 como proporção da área da cruz. 50 deixa centralizado.
     </p>
   </div>
 )}
