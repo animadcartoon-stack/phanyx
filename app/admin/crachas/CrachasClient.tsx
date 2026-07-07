@@ -274,6 +274,83 @@ const setCorFundoCracha =
 
 const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
+type CampoCrachaDisponivel = {
+  campo: string;
+  rotulo: string;
+};
+
+function camposDisponiveisPorTipo(
+  tipo: TipoModeloCracha
+): CampoCrachaDisponivel[] {
+  if (tipo === "ALUNO") {
+    return [
+      { campo: "{{alunoNome}}", rotulo: "Aluno - Nome" },
+      { campo: "{{numeroMatricula}}", rotulo: "Aluno - Matrícula" },
+      { campo: "{{cursoNome}}", rotulo: "Aluno - Curso" },
+      { campo: "{{turmaNome}}", rotulo: "Aluno - Turma" },
+      { campo: "{{semestre}}", rotulo: "Aluno - Semestre" },
+      { campo: "{{modalidade}}", rotulo: "Aluno - Modalidade" },
+      { campo: "{{poloNome}}", rotulo: "Aluno - Polo" },
+      { campo: "{{statusAluno}}", rotulo: "Aluno - Status" },
+      { campo: "{{validadeCracha}}", rotulo: "Crachá - Validade" },
+      { campo: "{{codigoCracha}}", rotulo: "Crachá - Código" },
+    ];
+  }
+
+  if (tipo === "PROFESSOR") {
+    return [
+      { campo: "{{professorNome}}", rotulo: "Professor - Nome" },
+      { campo: "{{departamentoNome}}", rotulo: "Professor - Departamento" },
+      { campo: "{{disciplinasProfessor}}", rotulo: "Professor - Disciplinas" },
+      { campo: "{{statusProfessor}}", rotulo: "Professor - Status" },
+      { campo: "{{validadeCracha}}", rotulo: "Crachá - Validade" },
+      { campo: "{{codigoCracha}}", rotulo: "Crachá - Código" },
+    ];
+  }
+
+  if (tipo === "FUNCIONARIO") {
+    return [
+      { campo: "{{funcionarioNome}}", rotulo: "Funcionário - Nome" },
+      { campo: "{{setor}}", rotulo: "Funcionário - Setor" },
+      { campo: "{{cargo}}", rotulo: "Funcionário - Cargo" },
+      { campo: "{{codigoFuncionario}}", rotulo: "Funcionário - Código funcional" },
+      { campo: "{{statusFuncionario}}", rotulo: "Funcionário - Status" },
+      { campo: "{{validadeCracha}}", rotulo: "Crachá - Validade" },
+      { campo: "{{codigoCracha}}", rotulo: "Crachá - Código" },
+    ];
+  }
+
+  if (tipo === "VISITANTE") {
+    return [
+      { campo: "{{visitanteNome}}", rotulo: "Visitante - Nome" },
+      { campo: "{{visitanteEmpresa}}", rotulo: "Visitante - Empresa" },
+      { campo: "{{visitanteDestino}}", rotulo: "Visitante - Destino" },
+      { campo: "{{validadeCracha}}", rotulo: "Crachá - Validade" },
+      { campo: "{{codigoCracha}}", rotulo: "Crachá - Código" },
+    ];
+  }
+
+  if (tipo === "MEMBRO") {
+    return [
+      { campo: "{{membroNome}}", rotulo: "Membro - Nome" },
+      { campo: "{{alaGrupo}}", rotulo: "Membro - Ala / Grupo" },
+      { campo: "{{ministerio}}", rotulo: "Membro - Ministério" },
+      { campo: "{{funcaoMinisterio}}", rotulo: "Membro - Função" },
+      { campo: "{{statusMembro}}", rotulo: "Membro - Status" },
+      { campo: "{{validadeCracha}}", rotulo: "Crachá - Validade" },
+      { campo: "{{codigoCracha}}", rotulo: "Crachá - Código" },
+    ];
+  }
+
+  return [
+    { campo: "{{nome}}", rotulo: "Personalizado - Nome" },
+    { campo: "{{identificacao}}", rotulo: "Personalizado - Identificação" },
+    { campo: "{{categoria}}", rotulo: "Personalizado - Categoria" },
+    { campo: "{{validadeCracha}}", rotulo: "Crachá - Validade" },
+    { campo: "{{codigoCracha}}", rotulo: "Crachá - Código" },
+  ];
+}
+
   function adicionarTexto() {
     setObjetos((atual) => [
       ...atual,
@@ -300,13 +377,16 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
   }
 
   function adicionarCampoDinamico() {
+  const agora = Date.now();
+  const campoPadrao = camposDisponiveisPorTipo(tipoModeloCracha)[0];
+
   setObjetos((atual) => [
     ...atual,
     {
-      id: Date.now(),
+      id: agora,
       tipo: "CAMPO",
-      campo: "{{alunoNome}}",
-      rotulo: "Nome do aluno",
+      campo: campoPadrao.campo,
+      rotulo: campoPadrao.rotulo,
       x: 30,
       y: 80,
       fonte: 16,
@@ -314,7 +394,7 @@ const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
       alinhamento: "left",
       largura: 150,
       altura: 32,
-      ordem: Date.now(),
+      ordem: agora,
     },
   ]);
 }
@@ -3843,26 +3923,29 @@ if (objeto.tipo === "FORMA") {
       </label>
 
       <select
-        value={objetoAtual.campo}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            campo: e.target.value,
-          })
-        }
-        className="phanyx-crachas-input"
-      >
-        <option value="{{alunoNome}}">Aluno - Nome</option>
-        <option value="{{alunoMatricula}}">Aluno - Matrícula</option>
-        <option value="{{cursoNome}}">Aluno - Curso</option>
-        <option value="{{turmaNome}}">Aluno - Turma</option>
-        <option value="{{funcionarioNome}}">Funcionário - Nome</option>
-        <option value="{{funcionarioCargo}}">Funcionário - Cargo</option>
-        <option value="{{funcionarioDepartamento}}">
-          Funcionário - Departamento
-        </option>
-        <option value="{{professorNome}}">Professor - Nome</option>
-        <option value="{{instituicaoNome}}">Instituição - Nome</option>
-      </select>
+  value={objetoAtual.campo}
+  onChange={(e) => {
+    const campoSelecionado = camposDisponiveisPorTipo(
+      tipoModeloCracha
+    ).find((item) => item.campo === e.target.value);
+
+    atualizarObjeto(objetoAtual.id, {
+      campo: e.target.value,
+      rotulo: campoSelecionado?.rotulo || objetoAtual.rotulo,
+    });
+  }}
+  className="phanyx-crachas-input"
+>
+  {camposDisponiveisPorTipo(tipoModeloCracha).map((campo) => (
+    <option key={campo.campo} value={campo.campo}>
+      {campo.rotulo}
+    </option>
+  ))}
+</select>
+<p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+  Os campos exibidos seguem o tipo do modelo selecionado:
+  aluno, professor, funcionário, visitante, membro ou personalizado.
+</p>
     </div>
 
     <div>
