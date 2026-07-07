@@ -95,7 +95,10 @@ type ObjetoCracha =
       | "SETA_DUPLA_HORIZONTAL"
       | "SETA_DUPLA_VERTICAL"
       | "ESTRELA"
-      | "FORMA_LIVRE";
+      | "FORMA_LIVRE"
+      | "POLIGONO"
+      | "CRUZ"
+      | "CORACAO";
 
     estilo?:
       | "PREENCHIMENTO_CONTORNO"
@@ -125,6 +128,7 @@ type ObjetoCracha =
     pontas?: number;
     raioInterno?: number;
     raioExterno?: number;
+    lados?: number;
 
     pontosLivres?: {
   id: number;
@@ -1247,6 +1251,14 @@ if (objeto.forma === "SETA_DUPLA_VERTICAL") {
   return "polygon(50% 0%, 100% 25%, 70% 25%, 70% 75%, 100% 75%, 50% 100%, 0% 75%, 30% 75%, 30% 25%, 0% 25%)";
 }
 
+if (objeto.forma === "POLIGONO") {
+  return `polygon(${gerarPontosPoligono(
+    objeto.lados ?? 6,
+    objeto.largura,
+    objeto.altura
+  )})`;
+}
+
   return "none";
 }
 
@@ -1298,6 +1310,25 @@ function gerarPontosEstrelaSvg(
   for (let i = 0; i < totalPontas * 2; i++) {
     const angulo = -Math.PI / 2 + (i * Math.PI) / totalPontas;
     const raio = i % 2 === 0 ? raioExterno : raioInterno;
+
+    const x = cx + Math.cos(angulo) * raio;
+    const y = cy + Math.sin(angulo) * raio;
+
+    pontos.push(`${x},${y}`);
+  }
+
+  return pontos.join(" ");
+}
+
+function gerarPontosPoligonoSvg(lados: number) {
+  const totalLados = Math.max(3, Math.min(20, lados || 6));
+  const cx = 50;
+  const cy = 50;
+  const raio = 46;
+  const pontos: string[] = [];
+
+  for (let i = 0; i < totalLados; i++) {
+    const angulo = -Math.PI / 2 + (i * 2 * Math.PI) / totalLados;
 
     const x = cx + Math.cos(angulo) * raio;
     const y = cy + Math.sin(angulo) * raio;
@@ -1511,6 +1542,39 @@ if (objeto.forma === "FORMA_LIVRE") {
   );
 }
 
+if (objeto.forma === "POLIGONO") {
+  return (
+    <polygon
+      points={gerarPontosPoligonoSvg(objeto.lados ?? 6)}
+      {...comum}
+    />
+  );
+}
+
+if (objeto.forma === "CRUZ") {
+  return (
+    <polygon
+      points="38,3 62,3 62,38 97,38 97,62 62,62 62,97 38,97 38,62 3,62 3,38 38,38"
+      {...comum}
+    />
+  );
+}
+
+if (objeto.forma === "CORACAO") {
+  return (
+    <path
+      d="
+        M 50 88
+        C 20 62, 5 45, 12 25
+        C 18 8, 40 8, 50 25
+        C 60 8, 82 8, 88 25
+        C 95 45, 80 62, 50 88
+        Z
+      "
+      {...comum}
+    />
+  );
+}
   return null;
 }
 
@@ -2301,8 +2365,8 @@ function iniciarArrastoMenuContexto(
     const novoY = menuYInicial + ev.clientY - inicioY;
 
     setMenuContexto((atual) => ({
-      ...atual,
-      x: limitar(
+  ...atual,
+  x: limitar(
         novoX,
         margem,
         window.innerWidth - larguraMenu - margem
@@ -2323,6 +2387,34 @@ function iniciarArrastoMenuContexto(
   window.addEventListener("mousemove", mover);
   window.addEventListener("mouseup", soltar);
 }
+
+function gerarPontosPoligono(
+  lados: number,
+  largura: number,
+  altura: number
+) {
+  const totalLados = Math.max(3, lados || 6);
+  const centroX = largura / 2;
+  const centroY = altura / 2;
+  const raio = Math.min(largura, altura) / 2;
+
+  const pontos: string[] = [];
+
+  for (let i = 0; i < totalLados; i++) {
+    const angulo = (-Math.PI / 2) + (i * 2 * Math.PI) / totalLados;
+    const x = centroX + Math.cos(angulo) * raio;
+    const y = centroY + Math.sin(angulo) * raio;
+
+    const xPercent = (x / largura) * 100;
+    const yPercent = (y / altura) * 100;
+
+    pontos.push(`${xPercent}% ${yPercent}%`);
+  }
+
+  return pontos.join(", ");
+}
+
+
 
   return (
   <div
@@ -3902,6 +3994,28 @@ FORMA_LIVRE: {
   pontoLivreSelecionadoId: null,
 },
 
+POLIGONO: {
+  largura: 140,
+  altura: 140,
+  raioBorda: 0,
+  espessuraBorda: espessuraPadrao,
+  lados: 6,
+},
+
+CRUZ: {
+  largura: 130,
+  altura: 130,
+  raioBorda: 0,
+  espessuraBorda: espessuraPadrao,
+},
+
+CORACAO: {
+  largura: 130,
+  altura: 120,
+  raioBorda: 0,
+  espessuraBorda: espessuraPadrao,
+},
+
   };
 
   atualizarObjeto(objetoAtual.id, {
@@ -3927,6 +4041,9 @@ FORMA_LIVRE: {
   <option value="SETA_DUPLA_VERTICAL">Seta dupla vertical</option>
   <option value="ESTRELA">Estrela</option>
   <option value="FORMA_LIVRE">Forma livre / recorte livre</option>
+  <option value="POLIGONO">Polígono regular</option>
+  <option value="CRUZ">Cruz</option>
+  <option value="CORACAO">Coração</option>
   </select>
 
 <div>
@@ -4538,6 +4655,37 @@ setPontoGradienteSelecionado(novoPonto.id);
     <p className="text-xs text-slate-400">
       Clique em um ponto para mover. Use Shift ou Ctrl para selecionar vários.
       Dê dois cliques em um ponto para transformar em curva com alças.
+    </p>
+  </div>
+)}
+
+{objetoAtual.forma === "POLIGONO" && (
+  <div className="space-y-3 rounded-2xl border border-slate-700/40 p-3">
+    <p className="text-sm font-bold">
+      Configuração do polígono
+    </p>
+
+    <div>
+      <label className="mb-2 block text-xs font-semibold">
+        Lados
+      </label>
+
+      <input
+        type="number"
+        min={3}
+        max={20}
+        value={objetoAtual.lados ?? 6}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            lados: Number(e.target.value),
+          })
+        }
+        className="phanyx-crachas-input"
+      />
+    </div>
+
+    <p className="text-[11px] text-slate-400">
+      5 lados = pentágono. 6 lados = hexágono. 8 lados = octógono.
     </p>
   </div>
 )}
