@@ -435,6 +435,7 @@ function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
 function abrirModalEmissaoCracha() {
   setBuscaPessoaEmissao("");
   setErroEmissaoCracha("");
+  setAvisoCracha(null);
   setPessoaSelecionadaEmissao(null);
   setModalEmissaoAberto(true);
 }
