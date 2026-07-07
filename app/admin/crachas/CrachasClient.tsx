@@ -260,6 +260,9 @@ const [avisoCracha, setAvisoCracha] = useState<{
   texto: string;
 } | null>(null);  
 
+const [modalEmissaoAberto, setModalEmissaoAberto] = useState(false);
+const [buscaPessoaEmissao, setBuscaPessoaEmissao] = useState("");
+
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
 
@@ -391,6 +394,45 @@ function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
 
     setTimeout(() => setAvisoCracha(null), 3000);
   }
+}
+
+function nomeTipoModeloCracha(tipo: TipoModeloCracha) {
+  if (tipo === "ALUNO") return "Aluno";
+  if (tipo === "PROFESSOR") return "Professor";
+  if (tipo === "FUNCIONARIO") return "Funcionário";
+  if (tipo === "VISITANTE") return "Visitante";
+  if (tipo === "MEMBRO") return "Membro / Ministério";
+  return "Personalizado";
+}
+
+function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
+  if (tipo === "ALUNO") return "Digite o nome, matrícula ou curso do aluno";
+  if (tipo === "PROFESSOR") return "Digite o nome ou departamento do professor";
+  if (tipo === "FUNCIONARIO") return "Digite o nome, cargo ou setor do funcionário";
+  if (tipo === "VISITANTE") return "Digite o nome do visitante";
+  if (tipo === "MEMBRO") return "Digite o nome, ministério, ala ou grupo";
+  return "Digite o nome ou identificação";
+}
+
+function abrirModalEmissaoCracha() {
+  setBuscaPessoaEmissao("");
+  setModalEmissaoAberto(true);
+}
+
+function fecharModalEmissaoCracha() {
+  setModalEmissaoAberto(false);
+  setBuscaPessoaEmissao("");
+}
+
+function continuarEmissaoCracha() {
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto:
+      "Fluxo de emissão preparado. Na próxima etapa vamos conectar a busca real de pessoas e gerar o código único do crachá.",
+  });
+
+  setModalEmissaoAberto(false);
+  setTimeout(() => setAvisoCracha(null), 4000);
 }
 
   function adicionarTexto() {
@@ -2807,9 +2849,13 @@ function gerarPontosPoligono(
             Duplicar
           </button>
 
-          <button className="phanyx-crachas-button-secondary">
-            Emitir
-          </button>
+          <button
+  type="button"
+  onClick={abrirModalEmissaoCracha}
+  className="phanyx-crachas-button-secondary"
+>
+  Emitir
+</button>
 
           <button className="phanyx-crachas-button-secondary">
             Imprimir
@@ -2874,6 +2920,95 @@ function gerarPontosPoligono(
           </button>
         </div>
       </div>
+
+      {modalEmissaoAberto && (
+  <div
+    className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 px-4"
+    onMouseDown={(e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      fecharModalEmissaoCracha();
+    }}
+  >
+    <div
+      className="w-full max-w-2xl rounded-3xl border border-slate-300 bg-white p-5 text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+      }}
+    >
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-lg font-black">
+            Emitir crachá
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            Este modelo será emitido para:
+            <strong className="ml-1">
+              {nomeTipoModeloCracha(tipoModeloCracha)}
+            </strong>
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={fecharModalEmissaoCracha}
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-lg font-black text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          aria-label="Fechar emissão"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+        O QR Code continuará usando apenas
+        <strong className="mx-1">{"{{codigoCracha}}"}</strong>.
+        Na emissão real, o PHANYX vai gerar um código único para a pessoa escolhida.
+      </div>
+
+      <div className="mt-4">
+        <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+          Buscar pessoa
+        </label>
+
+        <input
+          value={buscaPessoaEmissao}
+          onChange={(e) => setBuscaPessoaEmissao(e.target.value)}
+          placeholder={placeholderBuscaEmissao(tipoModeloCracha)}
+          className="phanyx-crachas-input w-full"
+        />
+
+        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+          A busca real será conectada ao cadastro de alunos, professores,
+          funcionários, visitantes ou membros conforme o tipo do modelo.
+        </p>
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+        Nenhuma pessoa selecionada ainda.
+        Depois da conexão com o backend, aqui aparecerão os resultados para escolha.
+      </div>
+
+      <div className="mt-5 flex flex-wrap justify-end gap-2">
+        <button
+          type="button"
+          onClick={fecharModalEmissaoCracha}
+          className="phanyx-crachas-button-secondary"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={continuarEmissaoCracha}
+          className="phanyx-crachas-button-primary"
+        >
+          Continuar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
 {avisoCracha && (
   <div
