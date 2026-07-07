@@ -342,14 +342,14 @@ export async function criarCheckoutAssinaturaAsaas(
       chargeTypes: ["RECURRENT"],
 
       name: "PHANYX - mensalidade base",
-description: `Plano ${data.plano}. Valor base mensal. A cobrança final poderá ser recalculada pelo PHANYX conforme alunos ativos e polos cadastrados antes da primeira cobrança.`,
+description: `Plano ${data.plano}. Valor base mensal. Cadastro para cobrança futura após 60 dias grátis. A cobrança final poderá ser recalculada pelo PHANYX conforme alunos ativos e polos cadastrados antes da primeira cobrança.`,
 value: data.value,
 externalReference: data.externalReference,
 
       items: [
   {
     name: "PHANYX - mensalidade base",
-    description: `Plano ${data.plano}. Valor base mensal. Alunos ativos e polos adicionais poderão compor o valor final da cobrança.`,
+    description: `Plano ${data.plano}. Valor base mensal. Os primeiros 60 dias são gratuitos. Alunos ativos e polos adicionais poderão compor o valor final da cobrança.`,
     quantity: 1,
     value: data.value,
   },

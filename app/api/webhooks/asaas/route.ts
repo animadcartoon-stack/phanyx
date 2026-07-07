@@ -22,6 +22,12 @@ function gerarSenhaTemporaria() {
   return `Phanyx@${sufixo}`;
 }
 
+function dataDaquiDias(dias: number) {
+  const data = new Date();
+  data.setDate(data.getDate() + dias);
+  return data;
+}
+
 function getPoliticaPlano(plano: string) {
   const planoNormalizado = String(plano || "").trim().toUpperCase();
 
@@ -155,8 +161,8 @@ async function processarAssinaturaCriada(body: any) {
 
   const testeGratisInicioEm = new Date();
   const testeGratisFimEm = subscription.nextDueDate
-    ? new Date(subscription.nextDueDate)
-    : new Date();
+  ? new Date(subscription.nextDueDate)
+  : dataDaquiDias(60);
 
   const instituicao = await prisma.instituicao.create({
     data: {
