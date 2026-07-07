@@ -2694,7 +2694,7 @@ function gerarPontosPoligono(
           </button>
         </div>
 
-<div className="min-w-[220px]">
+<div className="w-full max-w-[280px] shrink-0">
   <label className="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">
     Tipo do modelo
   </label>
@@ -2704,7 +2704,7 @@ function gerarPontosPoligono(
     onChange={(e) =>
       setTipoModeloCracha(e.target.value as TipoModeloCracha)
     }
-    className="phanyx-crachas-input"
+    className="phanyx-crachas-input w-full"
   >
     <option value="ALUNO">Aluno</option>
     <option value="PROFESSOR">Professor</option>
