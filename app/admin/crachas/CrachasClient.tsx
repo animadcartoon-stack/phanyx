@@ -1370,13 +1370,13 @@ function gerarPontosCruzSvg(
   const comprimentoHorizontal = limitarFormaSvg(
   objeto.cruzComprimentoHorizontal ?? 94,
   20,
-  200
+  400
 );
 
 const comprimentoVertical = limitarFormaSvg(
   objeto.cruzComprimentoVertical ?? 94,
   20,
-  200
+  400
 );
 
   const esquerdaH = limitarFormaSvg(
@@ -4892,7 +4892,7 @@ setPontoGradienteSelecionado(novoPonto.id);
         <input
           type="number"
           min={20}
-          max={200}
+          max={400}
           value={objetoAtual.cruzComprimentoHorizontal ?? 94}
           onChange={(e) =>
             atualizarObjeto(objetoAtual.id, {
@@ -4911,7 +4911,7 @@ setPontoGradienteSelecionado(novoPonto.id);
         <input
           type="number"
           min={20}
-          max={200}
+          max={400}
           value={objetoAtual.cruzComprimentoVertical ?? 94}
           onChange={(e) =>
             atualizarObjeto(objetoAtual.id, {
