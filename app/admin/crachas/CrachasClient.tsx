@@ -5549,19 +5549,16 @@ setPontoGradienteSelecionado(novoPonto.id);
       </label>
 
       <textarea
-        value={objetoAtual.valor}
-        onChange={(e) =>
-          atualizarObjeto(objetoAtual.id, {
-            valor: e.target.value,
-          })
-        }
-        rows={4}
-        className="phanyx-crachas-input min-h-[90px]"
-      />
+  value={objetoAtual.valor}
+  readOnly
+  rows={4}
+  className="phanyx-crachas-input min-h-[90px] cursor-not-allowed opacity-80"
+/>
 
       <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-        Recomendado: https://www.phanyx.com.br/verificar/cracha/{"{{codigoCracha}}"}
-      </p>
+  Este QR Code valida o crachá no PHANYX. Na emissão real,
+  {"{{codigoCracha}}"} será substituído pelo código único do crachá.
+</p>
     </div>
 
     <div className="rounded-2xl border border-slate-700/40 p-3">
