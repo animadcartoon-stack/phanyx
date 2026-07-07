@@ -1381,14 +1381,14 @@ const comprimentoVertical = limitarFormaSvg(
 
   const esquerdaH = limitarFormaSvg(
   centroX - comprimentoHorizontal / 2,
-  -80,
-  180
+  -200,
+  300
 );
 
 const direitaH = limitarFormaSvg(
   centroX + comprimentoHorizontal / 2,
-  -80,
-  180
+  -200,
+  300
 );
 
   const topoH = limitarFormaSvg(
@@ -1417,14 +1417,14 @@ const direitaH = limitarFormaSvg(
 
   const topoV = limitarFormaSvg(
   centroY - comprimentoVertical / 2,
-  -80,
-  180
+  -200,
+  300
 );
 
 const baseV = limitarFormaSvg(
   centroY + comprimentoVertical / 2,
-  -80,
-  180
+  -200,
+  300
 );
 
   return [
