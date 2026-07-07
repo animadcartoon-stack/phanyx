@@ -262,6 +262,7 @@ const [avisoCracha, setAvisoCracha] = useState<{
 
 const [modalEmissaoAberto, setModalEmissaoAberto] = useState(false);
 const [buscaPessoaEmissao, setBuscaPessoaEmissao] = useState("");
+const [erroEmissaoCracha, setErroEmissaoCracha] = useState("");
 
 const [pessoaSelecionadaEmissao, setPessoaSelecionadaEmissao] =
   useState<{
@@ -433,6 +434,7 @@ function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
 
 function abrirModalEmissaoCracha() {
   setBuscaPessoaEmissao("");
+  setErroEmissaoCracha("");
   setPessoaSelecionadaEmissao(null);
   setModalEmissaoAberto(true);
 }
@@ -440,19 +442,19 @@ function abrirModalEmissaoCracha() {
 function fecharModalEmissaoCracha() {
   setModalEmissaoAberto(false);
   setBuscaPessoaEmissao("");
+  setErroEmissaoCracha("");
   setPessoaSelecionadaEmissao(null);
 }
 
 function continuarEmissaoCracha() {
   if (!pessoaSelecionadaEmissao) {
-    setAvisoCracha({
-      tipo: "erro",
-      texto: "Selecione uma pessoa antes de continuar a emissão do crachá.",
-    });
-
-    setTimeout(() => setAvisoCracha(null), 4000);
+    setErroEmissaoCracha(
+      "Selecione uma pessoa antes de continuar a emissão do crachá."
+    );
     return;
   }
+
+  setErroEmissaoCracha("");
 
   setAvisoCracha({
     tipo: "sucesso",
@@ -3012,6 +3014,12 @@ function gerarPontosPoligono(
           funcionários, visitantes ou membros conforme o tipo do modelo.
         </p>
       </div>
+
+{erroEmissaoCracha && (
+  <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-3 text-sm font-semibold text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+    {erroEmissaoCracha}
+  </div>
+)}
 
       <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
   {pessoaSelecionadaEmissao ? (
