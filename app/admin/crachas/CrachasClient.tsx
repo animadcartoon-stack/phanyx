@@ -263,6 +263,13 @@ const [avisoCracha, setAvisoCracha] = useState<{
 const [modalEmissaoAberto, setModalEmissaoAberto] = useState(false);
 const [buscaPessoaEmissao, setBuscaPessoaEmissao] = useState("");
 
+const [pessoaSelecionadaEmissao, setPessoaSelecionadaEmissao] =
+  useState<{
+    id: number;
+    nome: string;
+    descricao?: string;
+  } | null>(null);
+
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
 
@@ -416,19 +423,31 @@ function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
 
 function abrirModalEmissaoCracha() {
   setBuscaPessoaEmissao("");
+  setPessoaSelecionadaEmissao(null);
   setModalEmissaoAberto(true);
 }
 
 function fecharModalEmissaoCracha() {
   setModalEmissaoAberto(false);
   setBuscaPessoaEmissao("");
+  setPessoaSelecionadaEmissao(null);
 }
 
 function continuarEmissaoCracha() {
+  if (!pessoaSelecionadaEmissao) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Selecione uma pessoa antes de continuar a emissão do crachá.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+    return;
+  }
+
   setAvisoCracha({
     tipo: "sucesso",
     texto:
-      "Fluxo de emissão preparado. Na próxima etapa vamos conectar a busca real de pessoas e gerar o código único do crachá.",
+      "Pessoa selecionada. Na próxima etapa vamos gerar o código único do crachá.",
   });
 
   setModalEmissaoAberto(false);
@@ -2985,9 +3004,25 @@ function gerarPontosPoligono(
       </div>
 
       <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-        Nenhuma pessoa selecionada ainda.
-        Depois da conexão com o backend, aqui aparecerão os resultados para escolha.
-      </div>
+  {pessoaSelecionadaEmissao ? (
+    <div>
+      <p className="font-bold text-slate-900 dark:text-slate-100">
+        {pessoaSelecionadaEmissao.nome}
+      </p>
+
+      {pessoaSelecionadaEmissao.descricao && (
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          {pessoaSelecionadaEmissao.descricao}
+        </p>
+      )}
+    </div>
+  ) : (
+    <p>
+      Nenhuma pessoa selecionada ainda.
+      Depois da conexão com o backend, aqui aparecerão os resultados para escolha.
+    </p>
+  )}
+</div>
 
       <div className="mt-5 flex flex-wrap justify-end gap-2">
         <button
