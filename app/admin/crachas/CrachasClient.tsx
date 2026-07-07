@@ -4509,6 +4509,42 @@ setPontoGradienteSelecionado(novoPonto.id);
   </p>
 </div>
 
+<div className="rounded-xl border border-slate-700/40 p-3">
+  <p className="mb-2 text-xs font-bold">
+    Tipo do ponto selecionado
+  </p>
+
+  <div className="grid grid-cols-3 gap-2">
+    <button
+      type="button"
+      onClick={() => definirModoPontoLivre("CANTO")}
+      className="phanyx-crachas-button-secondary text-[11px]"
+    >
+      Canto / reta
+    </button>
+
+    <button
+      type="button"
+      onClick={() => definirModoPontoLivre("SUAVE")}
+      className="phanyx-crachas-button-secondary text-[11px]"
+    >
+      Curva suave
+    </button>
+
+    <button
+      type="button"
+      onClick={() => definirModoPontoLivre("LIVRE")}
+      className="phanyx-crachas-button-secondary text-[11px]"
+    >
+      Curva livre
+    </button>
+  </div>
+
+  <p className="mt-2 text-[11px] text-slate-400">
+    Curva suave espelha as alças. Curva livre quebra a tangente e permite mover cada alça separadamente.
+  </p>
+</div>
+
     <div className="grid grid-cols-2 gap-2">
       <button
         type="button"
