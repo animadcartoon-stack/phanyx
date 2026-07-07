@@ -94,7 +94,8 @@ type ObjetoCracha =
       | "SETA_BAIXO"
       | "SETA_DUPLA_HORIZONTAL"
       | "SETA_DUPLA_VERTICAL"
-      | "ESTRELA";
+      | "ESTRELA"
+      | "FORMA_LIVRE";
 
     estilo?:
       | "PREENCHIMENTO_CONTORNO"
@@ -124,6 +125,14 @@ type ObjetoCracha =
     pontas?: number;
     raioInterno?: number;
     raioExterno?: number;
+
+    pontosLivres?: {
+      id: number;
+      x: number;
+      y: number;
+    }[];
+
+    pontoLivreSelecionadoId?: number | null;
 
     x: number;
     y: number;
@@ -1256,6 +1265,25 @@ function gerarPontosEstrelaSvg(
   return pontos.join(" ");
 }
 
+function pontosFormaLivreSvg(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const pontos =
+    objeto.pontosLivres && objeto.pontosLivres.length >= 3
+      ? objeto.pontosLivres
+      : [
+          { id: 1, x: 15, y: 15 },
+          { id: 2, x: 85, y: 20 },
+          { id: 3, x: 90, y: 80 },
+          { id: 4, x: 50, y: 95 },
+          { id: 5, x: 10, y: 75 },
+        ];
+
+  return pontos
+    .map((ponto) => `${ponto.x},${ponto.y}`)
+    .join(" ");
+}
+
 function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
   const fill = preenchimentoForma(objeto);
   const stroke = contornoForma(objeto);
@@ -1389,6 +1417,15 @@ function renderFormaSvg(objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>) {
         objeto.raioExterno ?? 46,
         objeto.raioInterno ?? 22
       )}
+      {...comum}
+    />
+  );
+}
+
+if (objeto.forma === "FORMA_LIVRE") {
+  return (
+    <polygon
+      points={pontosFormaLivreSvg(objeto)}
       {...comum}
     />
   );
@@ -3033,6 +3070,7 @@ if (objeto.tipo === "FORMA") {
       raioBorda: 0,
       espessuraBorda: espessuraPadrao,
     },
+
     ESTRELA: {
   largura: 140,
   altura: 140,
@@ -3042,6 +3080,21 @@ if (objeto.tipo === "FORMA") {
   raioExterno: 46,
   raioInterno: 22,
 },
+
+FORMA_LIVRE: {
+  largura: 140,
+  altura: 120,
+  raioBorda: 0,
+  espessuraBorda: espessuraPadrao,
+  pontosLivres: [
+    { id: 1, x: 15, y: 15 },
+    { id: 2, x: 85, y: 20 },
+    { id: 3, x: 90, y: 80 },
+    { id: 4, x: 50, y: 95 },
+    { id: 5, x: 10, y: 75 },
+  ],
+},
+
   };
 
   atualizarObjeto(objetoAtual.id, {
@@ -3066,6 +3119,7 @@ if (objeto.tipo === "FORMA") {
   <option value="SETA_DUPLA_HORIZONTAL">Seta dupla horizontal</option>
   <option value="SETA_DUPLA_VERTICAL">Seta dupla vertical</option>
   <option value="ESTRELA">Estrela</option>
+  <option value="FORMA_LIVRE">Forma livre / recorte livre</option>
   </select>
 
 <div>
