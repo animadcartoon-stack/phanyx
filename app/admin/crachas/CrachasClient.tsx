@@ -167,6 +167,9 @@ const [menuContexto, setMenuContexto] = useState<{
   objetoId: null,
 });  
 
+const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
+  useState<number | null>(null);
+
 const inputImagemRef = useRef<HTMLInputElement | null>(null);
 const inputImagemObjetoRef = useRef<HTMLInputElement | null>(null);
 
@@ -1352,6 +1355,8 @@ function iniciarArrastoPontoGradiente(
   e.preventDefault();
   e.stopPropagation();
 
+  setPontoGradienteSelecionado(ponto.id);
+
   const barra = e.currentTarget.parentElement as HTMLElement | null;
 
   if (!barra) return;
@@ -1422,6 +1427,57 @@ function cssPreviewGradienteForma(
   }
 
   return `linear-gradient(to right, ${pontos})`;
+}
+
+function hexParaRgb(hex: string) {
+  const limpo = hex.replace("#", "");
+
+  if (limpo.length !== 6) {
+    return { r: 0, g: 0, b: 0 };
+  }
+
+  return {
+    r: parseInt(limpo.slice(0, 2), 16),
+    g: parseInt(limpo.slice(2, 4), 16),
+    b: parseInt(limpo.slice(4, 6), 16),
+  };
+}
+
+function rgbParaHex(r: number, g: number, b: number) {
+  const limitar = (valor: number) =>
+    Math.max(0, Math.min(255, Number.isNaN(valor) ? 0 : valor));
+
+  return (
+    "#" +
+    [limitar(r), limitar(g), limitar(b)]
+      .map((valor) => valor.toString(16).padStart(2, "0"))
+      .join("")
+  );
+}
+
+function pontoGradienteAtual(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  const pontos = pontosGradienteForma(objeto);
+
+  return (
+    pontos.find((ponto) => ponto.id === pontoGradienteSelecionado) ||
+    pontos[0]
+  );
+}
+
+function atualizarCorPontoGradiente(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>,
+  pontoId: number,
+  novaCor: string
+) {
+  const novosPontos = pontosGradienteForma(objeto).map((ponto) =>
+    ponto.id === pontoId ? { ...ponto, cor: novaCor } : ponto
+  );
+
+  atualizarObjeto(objeto.id, {
+    gradientePontos: novosPontos,
+  });
 }
 
   return (
@@ -3077,7 +3133,11 @@ if (objeto.tipo === "FORMA") {
           iniciarArrastoPontoGradiente(e, objetoAtual, ponto)
         }
         title={`Ponto ${ponto.posicao}%`}
-        className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-lg ring-2 ring-slate-900"
+        className={`absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-lg ${
+  pontoGradienteSelecionado === ponto.id
+    ? "border-yellow-300 ring-4 ring-yellow-300/50"
+    : "border-white ring-2 ring-slate-900"
+}`}
         style={{
           left: `${ponto.posicao}%`,
           backgroundColor: ponto.cor,
@@ -3131,82 +3191,134 @@ if (objeto.tipo === "FORMA") {
 
 </div>
 
-    <div className="mt-4 space-y-3">
-      {pontosGradienteForma(objetoAtual).map((ponto) => (
-        <div
-          key={ponto.id}
-          className="rounded-xl border border-slate-700/40 p-3"
-        >
-          <div>
-            <label className="mb-2 block text-xs font-semibold">
-              Cor do ponto
-            </label>
+    {pontoGradienteAtual(objetoAtual) && (
+  <div className="mt-4 rounded-xl border border-slate-700/40 p-3">
+    <p className="mb-3 text-sm font-bold">
+      Ponto selecionado
+    </p>
 
-            <input
-              type="color"
-              value={ponto.cor}
-              onChange={(e) => {
-                const novosPontos = pontosGradienteForma(objetoAtual).map(
-                  (item) =>
-                    item.id === ponto.id
-                      ? { ...item, cor: e.target.value }
-                      : item
-                );
+    <div>
+      <label className="mb-2 block text-xs font-semibold">
+        Cor do ponto
+      </label>
 
-                atualizarObjeto(objetoAtual.id, {
-                  gradientePontos: novosPontos,
-                });
-              }}
-              className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-            />
-          </div>
-
-          <div className="mt-3">
-            <label className="mb-2 block text-xs font-semibold">
-              Posição: {ponto.posicao}%
-            </label>
-
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={ponto.posicao}
-              onChange={(e) => {
-                const novosPontos = pontosGradienteForma(objetoAtual).map(
-                  (item) =>
-                    item.id === ponto.id
-                      ? { ...item, posicao: Number(e.target.value) }
-                      : item
-                );
-
-                atualizarObjeto(objetoAtual.id, {
-                  gradientePontos: novosPontos,
-                });
-              }}
-              className="w-full"
-            />
-          </div>
-
-          {pontosGradienteForma(objetoAtual).length > 2 && (
-            <button
-              type="button"
-              onClick={() => {
-                const novosPontos = pontosGradienteForma(objetoAtual).filter(
-                  (item) => item.id !== ponto.id
-                );
-
-                atualizarObjeto(objetoAtual.id, {
-                  gradientePontos: novosPontos,
-                });
-              }}
-              className="mt-3 rounded-xl border border-red-500/50 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/10"
-            >
-              Remover ponto
-            </button>
-          )}
-        </div>
-      ))}
+      <input
+        type="color"
+        value={pontoGradienteAtual(objetoAtual).cor}
+        onChange={(e) =>
+          atualizarCorPontoGradiente(
+            objetoAtual,
+            pontoGradienteAtual(objetoAtual).id,
+            e.target.value
+          )
+        }
+        className="h-12 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+      />
     </div>
+
+    <div className="mt-3">
+      <label className="mb-2 block text-xs font-semibold">
+        HEX
+      </label>
+
+      <input
+        value={pontoGradienteAtual(objetoAtual).cor}
+        onChange={(e) => {
+          const valor = e.target.value;
+
+          if (/^#[0-9A-Fa-f]{6}$/.test(valor)) {
+            atualizarCorPontoGradiente(
+              objetoAtual,
+              pontoGradienteAtual(objetoAtual).id,
+              valor
+            );
+          }
+        }}
+        className="phanyx-crachas-input"
+        placeholder="#2563eb"
+      />
+    </div>
+
+    <div className="mt-3 grid grid-cols-3 gap-2">
+      {(["r", "g", "b"] as const).map((canal) => {
+        const rgb = hexParaRgb(pontoGradienteAtual(objetoAtual).cor);
+
+        return (
+          <div key={canal}>
+            <label className="mb-1 block text-xs font-semibold uppercase">
+              {canal}
+            </label>
+
+            <input
+              type="number"
+              min={0}
+              max={255}
+              value={rgb[canal]}
+              onChange={(e) => {
+                const novoRgb = {
+                  ...rgb,
+                  [canal]: Number(e.target.value),
+                };
+
+                atualizarCorPontoGradiente(
+                  objetoAtual,
+                  pontoGradienteAtual(objetoAtual).id,
+                  rgbParaHex(novoRgb.r, novoRgb.g, novoRgb.b)
+                );
+              }}
+              className="phanyx-crachas-input"
+            />
+          </div>
+        );
+      })}
+    </div>
+
+    <div className="mt-3">
+      <label className="mb-2 block text-xs font-semibold">
+        Posição do ponto: {pontoGradienteAtual(objetoAtual).posicao}%
+      </label>
+
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={pontoGradienteAtual(objetoAtual).posicao}
+        onChange={(e) =>
+          atualizarPontoGradiente(
+            objetoAtual.id,
+            pontoGradienteAtual(objetoAtual).id,
+            {
+              posicao: Number(e.target.value),
+            }
+          )
+        }
+        className="w-full"
+      />
+    </div>
+
+    {pontosGradienteForma(objetoAtual).length > 2 && (
+      <button
+        type="button"
+        onClick={() => {
+          const pontoAtual = pontoGradienteAtual(objetoAtual);
+
+          const novosPontos = pontosGradienteForma(objetoAtual).filter(
+            (item) => item.id !== pontoAtual.id
+          );
+
+          atualizarObjeto(objetoAtual.id, {
+            gradientePontos: novosPontos,
+          });
+
+          setPontoGradienteSelecionado(novosPontos[0]?.id ?? null);
+        }}
+        className="mt-3 w-full rounded-xl border border-red-500/50 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/10"
+      >
+        Remover ponto selecionado
+      </button>
+    )}
+  </div>
+)}
 
     <button
   type="button"
@@ -3228,16 +3340,17 @@ if (objeto.tipo === "FORMA") {
       }
     }
 
-    atualizarObjeto(objetoAtual.id, {
-      gradientePontos: [
-        ...pontosAtuais,
-        {
-          id: Date.now(),
-          cor: "#ffffff",
-          posicao: novaPosicao,
-        },
-      ],
-    });
+    const novoPonto = {
+  id: Date.now(),
+  cor: "#ffffff",
+  posicao: novaPosicao,
+};
+
+atualizarObjeto(objetoAtual.id, {
+  gradientePontos: [...pontosAtuais, novoPonto],
+});
+
+setPontoGradienteSelecionado(novoPonto.id);
   }}
   className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
 >
