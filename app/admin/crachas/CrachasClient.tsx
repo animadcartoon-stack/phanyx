@@ -193,6 +193,14 @@ pontosLivresSelecionadosIds?: number[];
   | "FURO_REDONDO"
   | "FURO_DUPLO";
 
+  type TipoModeloCracha =
+  | "ALUNO"
+  | "PROFESSOR"
+  | "FUNCIONARIO"
+  | "VISITANTE"
+  | "MEMBRO"
+  | "PERSONALIZADO";
+
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
 
@@ -205,6 +213,9 @@ export default function CrachasClient() {
 
   const [tipoFuroCracha, setTipoFuroCracha] =
   useState<TipoFuroCracha>("RASGO_HORIZONTAL");
+
+  const [tipoModeloCracha, setTipoModeloCracha] =
+  useState<TipoModeloCracha>("ALUNO");
 
 const [corFundoVerso, setCorFundoVerso] =
   useState<string>("#ffffff");
@@ -2682,6 +2693,32 @@ function gerarPontosPoligono(
             Imprimir
           </button>
         </div>
+
+<div className="min-w-[220px]">
+  <label className="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">
+    Tipo do modelo
+  </label>
+
+  <select
+    value={tipoModeloCracha}
+    onChange={(e) =>
+      setTipoModeloCracha(e.target.value as TipoModeloCracha)
+    }
+    className="phanyx-crachas-input"
+  >
+    <option value="ALUNO">Aluno</option>
+    <option value="PROFESSOR">Professor</option>
+    <option value="FUNCIONARIO">Funcionário</option>
+    <option value="VISITANTE">Visitante</option>
+    <option value="MEMBRO">Membro / Ministério</option>
+    <option value="PERSONALIZADO">Personalizado</option>
+  </select>
+
+  <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+  Define quais dados o PHANYX usará quando este modelo for emitido.
+  O QR Code continua usando apenas {"{{codigoCracha}}"}.
+</p>
+</div>
 
         <div className="flex gap-2">
           <button
