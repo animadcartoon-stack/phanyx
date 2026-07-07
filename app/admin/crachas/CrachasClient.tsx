@@ -8,6 +8,20 @@ type GradientePonto = {
   posicao: number;
 };
 
+type GradienteTipoForma =
+  | "LINEAR"
+  | "DIAGONAL"
+  | "RADIAL"
+  | "ESFERICO";
+
+type GradienteDirecaoForma =
+  | "DIREITA"
+  | "ESQUERDA"
+  | "TOPO"
+  | "BASE"
+  | "DIAGONAL_DESC"
+  | "DIAGONAL_ASC";
+
 type ObjetoCracha =
   | {
       id: number;
@@ -87,16 +101,12 @@ type ObjetoCracha =
 
       preenchimentoTipo?: "COR" | "GRADIENTE";
 
-      gradienteDirecao?:
-        | "DIREITA"
-        | "ESQUERDA"
-        | "TOPO"
-        | "BASE"
-        | "DIAGONAL_DESC"
-        | "DIAGONAL_ASC"
-        | "ESFERA";
-
+      gradienteTipo?: GradienteTipoForma;
+      gradienteDirecao?: GradienteDirecaoForma;
       gradientePontos?: GradientePonto[];
+      gradienteFocoX?: number;
+      gradienteFocoY?: number;
+      gradienteRaio?: number;
 
       bordaAcabamento?: "DURA" | "FOSCA";
       bordaBlur?: number;
@@ -286,7 +296,11 @@ function adicionarForma() {
       estilo: "PREENCHIMENTO_CONTORNO",
 
       preenchimentoTipo: "COR",
+      gradienteTipo: "LINEAR",
       gradienteDirecao: "DIREITA",
+      gradienteFocoX: 45,
+      gradienteFocoY: 35,
+      gradienteRaio: 75,
       gradientePontos: [
         {
           id: agora + 1,
@@ -375,7 +389,7 @@ function espessuraContornoForma(
 }
 
 function direcaoGradienteForma(
-  direcao: Extract<ObjetoCracha, { tipo: "FORMA" }>["gradienteDirecao"]
+  direcao: GradienteDirecaoForma | undefined
 ) {
   if (direcao === "ESQUERDA") {
     return { x1: "100%", y1: "0%", x2: "0%", y2: "0%" };
@@ -408,14 +422,21 @@ function renderGradienteForma(
   }
 
   const pontos = pontosGradienteForma(objeto);
+  const tipo = objeto.gradienteTipo || "LINEAR";
 
-  if (objeto.gradienteDirecao === "ESFERA") {
+  if (tipo === "RADIAL" || tipo === "ESFERICO") {
+    const focoX = objeto.gradienteFocoX ?? 45;
+    const focoY = objeto.gradienteFocoY ?? 35;
+    const raio = objeto.gradienteRaio ?? 75;
+
     return (
       <radialGradient
         id={idGradienteForma(objeto)}
-        cx="45%"
-        cy="35%"
-        r="75%"
+        cx={`${focoX}%`}
+        cy={`${focoY}%`}
+        r={`${raio}%`}
+        fx={`${focoX}%`}
+        fy={`${focoY}%`}
       >
         {pontos.map((ponto) => (
           <stop
@@ -428,7 +449,10 @@ function renderGradienteForma(
     );
   }
 
-  const direcao = direcaoGradienteForma(objeto.gradienteDirecao || "DIREITA");
+  const direcao =
+    tipo === "DIAGONAL"
+      ? direcaoGradienteForma(objeto.gradienteDirecao || "DIAGONAL_DESC")
+      : direcaoGradienteForma(objeto.gradienteDirecao || "DIREITA");
 
   return (
     <linearGradient id={idGradienteForma(objeto)} {...direcao}>
@@ -2786,42 +2810,150 @@ if (objeto.tipo === "FORMA") {
   </select>
 </div>
     </div>
+
 {(objetoAtual.preenchimentoTipo || "COR") === "GRADIENTE" && (
   <div className="rounded-2xl border border-slate-700/40 p-3">
     <p className="mb-3 text-sm font-bold">
       Gradiente
     </p>
 
+<div>
+  <label className="mb-2 block font-semibold">
+    Tipo do gradiente
+  </label>
+
+  <select
+    value={objetoAtual.gradienteTipo || "LINEAR"}
+    onChange={(e) => {
+      const novoTipo = e.target.value as GradienteTipoForma;
+
+      atualizarObjeto(objetoAtual.id, {
+        gradienteTipo: novoTipo,
+        gradienteDirecao:
+          novoTipo === "DIAGONAL"
+            ? "DIAGONAL_DESC"
+            : novoTipo === "LINEAR"
+            ? "DIREITA"
+            : objetoAtual.gradienteDirecao || "DIREITA",
+      });
+    }}
+    className="phanyx-crachas-input"
+  >
+    <option value="LINEAR">Linear</option>
+    <option value="DIAGONAL">Diagonal</option>
+    <option value="RADIAL">Radial</option>
+    <option value="ESFERICO">Esfera / brilho</option>
+  </select>
+</div>
+
+    {(objetoAtual.gradienteTipo || "LINEAR") === "LINEAR" && (
+  <div className="mt-3">
+    <label className="mb-2 block font-semibold">
+      Direção do gradiente
+    </label>
+
+    <select
+      value={objetoAtual.gradienteDirecao || "DIREITA"}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          gradienteDirecao: e.target.value as GradienteDirecaoForma,
+        })
+      }
+      className="phanyx-crachas-input"
+    >
+      <option value="DIREITA">Esquerda para direita</option>
+      <option value="ESQUERDA">Direita para esquerda</option>
+      <option value="BASE">Topo para base</option>
+      <option value="TOPO">Base para topo</option>
+    </select>
+  </div>
+)}
+
+{(objetoAtual.gradienteTipo || "LINEAR") === "DIAGONAL" && (
+  <div className="mt-3">
+    <label className="mb-2 block font-semibold">
+      Direção diagonal
+    </label>
+
+    <select
+      value={objetoAtual.gradienteDirecao || "DIAGONAL_DESC"}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          gradienteDirecao: e.target.value as GradienteDirecaoForma,
+        })
+      }
+      className="phanyx-crachas-input"
+    >
+      <option value="DIAGONAL_DESC">Diagonal descendo</option>
+      <option value="DIAGONAL_ASC">Diagonal subindo</option>
+    </select>
+  </div>
+)}
+
+{["RADIAL", "ESFERICO"].includes(objetoAtual.gradienteTipo || "LINEAR") && (
+  <div className="mt-3 space-y-3 rounded-xl border border-slate-700/40 p-3">
+    <p className="text-sm font-bold">
+      Controle do foco
+    </p>
+
     <div>
-      <label className="mb-2 block font-semibold">
-        Direção do gradiente
+      <label className="mb-2 block text-xs font-semibold">
+        Foco horizontal: {objetoAtual.gradienteFocoX ?? 45}%
       </label>
 
-      <select
-        value={objetoAtual.gradienteDirecao || "DIREITA"}
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={objetoAtual.gradienteFocoX ?? 45}
         onChange={(e) =>
           atualizarObjeto(objetoAtual.id, {
-            gradienteDirecao: e.target.value as
-              | "DIREITA"
-              | "ESQUERDA"
-              | "TOPO"
-              | "BASE"
-              | "DIAGONAL_DESC"
-              | "DIAGONAL_ASC"
-              | "ESFERA",
+            gradienteFocoX: Number(e.target.value),
           })
         }
-        className="phanyx-crachas-input"
-      >
-        <option value="DIREITA">Direita</option>
-        <option value="ESQUERDA">Esquerda</option>
-        <option value="TOPO">Topo</option>
-        <option value="BASE">Base</option>
-        <option value="DIAGONAL_DESC">Diagonal descendo</option>
-        <option value="DIAGONAL_ASC">Diagonal subindo</option>
-        <option value="ESFERA">Esfera / radial</option>
-      </select>
+        className="w-full"
+      />
     </div>
+
+    <div>
+      <label className="mb-2 block text-xs font-semibold">
+        Foco vertical: {objetoAtual.gradienteFocoY ?? 35}%
+      </label>
+
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={objetoAtual.gradienteFocoY ?? 35}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            gradienteFocoY: Number(e.target.value),
+          })
+        }
+        className="w-full"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block text-xs font-semibold">
+        Raio / abertura: {objetoAtual.gradienteRaio ?? 75}%
+      </label>
+
+      <input
+        type="range"
+        min={10}
+        max={150}
+        value={objetoAtual.gradienteRaio ?? 75}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            gradienteRaio: Number(e.target.value),
+          })
+        }
+        className="w-full"
+      />
+    </div>
+  </div>
+)}
 
     <div className="mt-4 space-y-3">
       {pontosGradienteForma(objetoAtual).map((ponto) => (
@@ -2922,6 +3054,7 @@ if (objeto.tipo === "FORMA") {
     </button>
   </div>
 )}
+
     <div className="grid grid-cols-2 gap-2">
       <div>
         <label className="mb-2 block text-xs font-semibold">X</label>
