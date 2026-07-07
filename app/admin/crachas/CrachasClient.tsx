@@ -132,11 +132,12 @@ type ObjetoCracha =
   y: number;
 
   tipo?: "CANTO" | "CURVA";
+modoTangente?: "SUAVE" | "LIVRE";
 
-  alcaEntradaX?: number;
-  alcaEntradaY?: number;
-  alcaSaidaX?: number;
-  alcaSaidaY?: number;
+alcaEntradaX?: number;
+alcaEntradaY?: number;
+alcaSaidaX?: number;
+alcaSaidaY?: number;
 }[];
 
 pontoLivreSelecionadoId?: number | null;
@@ -1739,6 +1740,7 @@ function atualizarPontoLivreForma(
     x: number;
     y: number;
     tipo: "CANTO" | "CURVA";
+    modoTangente: "SUAVE" | "LIVRE";
     alcaEntradaX: number;
     alcaEntradaY: number;
     alcaSaidaX: number;
@@ -1849,23 +1851,25 @@ function alternarCurvaPontoLivre(
 
         if (ponto.tipo === "CURVA") {
           return {
-            ...ponto,
-            tipo: "CANTO" as const,
-            alcaEntradaX: undefined,
-            alcaEntradaY: undefined,
-            alcaSaidaX: undefined,
-            alcaSaidaY: undefined,
-          };
+  ...ponto,
+  tipo: "CANTO" as const,
+  modoTangente: undefined,
+  alcaEntradaX: undefined,
+  alcaEntradaY: undefined,
+  alcaSaidaX: undefined,
+  alcaSaidaY: undefined,
+};
         }
 
         return {
-          ...ponto,
-          tipo: "CURVA" as const,
-          alcaEntradaX: Math.max(0, ponto.x - 18),
-          alcaEntradaY: ponto.y,
-          alcaSaidaX: Math.min(100, ponto.x + 18),
-          alcaSaidaY: ponto.y,
-        };
+  ...ponto,
+  tipo: "CURVA" as const,
+  modoTangente: "SUAVE" as const,
+  alcaEntradaX: Math.max(-80, ponto.x - 18),
+  alcaEntradaY: ponto.y,
+  alcaSaidaX: Math.min(180, ponto.x + 18),
+  alcaSaidaY: ponto.y,
+};
       });
 
       return {
@@ -1911,17 +1915,41 @@ function iniciarArrastoAlcaFormaLivre(
 
   function mover(ev: MouseEvent) {
     const posicao = calcularPosicao(ev.clientX, ev.clientY);
+    const modoTangente = pontoBase.modoTangente || "SUAVE";
 
     if (alca === "ENTRADA") {
+      if (modoTangente === "LIVRE") {
+        atualizarPontoLivreForma(objeto.id, pontoId, {
+          tipo: "CURVA",
+          modoTangente: "LIVRE",
+          alcaEntradaX: posicao.x,
+          alcaEntradaY: posicao.y,
+        });
+
+        return;
+      }
+
       const alcaSaidaX = limitar(pontoBase.x - (posicao.x - pontoBase.x));
       const alcaSaidaY = limitar(pontoBase.y - (posicao.y - pontoBase.y));
 
       atualizarPontoLivreForma(objeto.id, pontoId, {
         tipo: "CURVA",
+        modoTangente: "SUAVE",
         alcaEntradaX: posicao.x,
         alcaEntradaY: posicao.y,
         alcaSaidaX,
         alcaSaidaY,
+      });
+
+      return;
+    }
+
+    if (modoTangente === "LIVRE") {
+      atualizarPontoLivreForma(objeto.id, pontoId, {
+        tipo: "CURVA",
+        modoTangente: "LIVRE",
+        alcaSaidaX: posicao.x,
+        alcaSaidaY: posicao.y,
       });
 
       return;
@@ -1932,6 +1960,7 @@ function iniciarArrastoAlcaFormaLivre(
 
     atualizarPontoLivreForma(objeto.id, pontoId, {
       tipo: "CURVA",
+      modoTangente: "SUAVE",
       alcaSaidaX: posicao.x,
       alcaSaidaY: posicao.y,
       alcaEntradaX,
@@ -2301,6 +2330,7 @@ function colarObjetoCopiado() {
 )}
 
       <div className="grid grid-cols-12 gap-4">
+
         {/* Ferramentas */}
 
         <div className="phanyx-crachas-card col-span-2 p-4">
