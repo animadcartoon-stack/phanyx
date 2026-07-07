@@ -2276,6 +2276,54 @@ function definirModoPontoLivre(
   });
 }
 
+function iniciarArrastoMenuContexto(
+  e: React.MouseEvent<HTMLDivElement>
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const inicioX = e.clientX;
+  const inicioY = e.clientY;
+
+  const menuXInicial = menuContexto.x;
+  const menuYInicial = menuContexto.y;
+
+  const larguraMenu = 224;
+  const alturaMenu = 190;
+  const margem = 8;
+
+  function limitar(valor: number, minimo: number, maximo: number) {
+    return Math.max(minimo, Math.min(maximo, valor));
+  }
+
+  function mover(ev: MouseEvent) {
+    const novoX = menuXInicial + ev.clientX - inicioX;
+    const novoY = menuYInicial + ev.clientY - inicioY;
+
+    setMenuContexto((atual) => ({
+      ...atual,
+      x: limitar(
+        novoX,
+        margem,
+        window.innerWidth - larguraMenu - margem
+      ),
+      y: limitar(
+        novoY,
+        margem,
+        window.innerHeight - alturaMenu - margem
+      ),
+    }));
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -2370,6 +2418,13 @@ function definirModoPontoLivre(
       e.stopPropagation();
     }}
   >
+<div
+  onMouseDown={iniciarArrastoMenuContexto}
+  className="mb-2 cursor-move rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs font-bold text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+>
+  ⠿ Arrastar menu
+</div>
+
     <button
       type="button"
       onClick={() =>
