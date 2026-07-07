@@ -127,12 +127,19 @@ type ObjetoCracha =
     raioExterno?: number;
 
     pontosLivres?: {
-      id: number;
-      x: number;
-      y: number;
-    }[];
+  id: number;
+  x: number;
+  y: number;
 
-    pontoLivreSelecionadoId?: number | null;
+  tipo?: "CANTO" | "CURVA";
+
+  alcaEntradaX?: number;
+  alcaEntradaY?: number;
+  alcaSaidaX?: number;
+  alcaSaidaY?: number;
+}[];
+
+pontoLivreSelecionadoId?: number | null;
 
     x: number;
     y: number;
@@ -1268,18 +1275,7 @@ function gerarPontosEstrelaSvg(
 function pontosFormaLivreSvg(
   objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
 ) {
-  const pontos =
-    objeto.pontosLivres && objeto.pontosLivres.length >= 3
-      ? objeto.pontosLivres
-      : [
-          { id: 1, x: 15, y: 15 },
-          { id: 2, x: 85, y: 20 },
-          { id: 3, x: 90, y: 80 },
-          { id: 4, x: 50, y: 95 },
-          { id: 5, x: 10, y: 75 },
-        ];
-
-  return pontos
+  return pontosLivresForma(objeto)
     .map((ponto) => `${ponto.x},${ponto.y}`)
     .join(" ");
 }
@@ -1655,6 +1651,98 @@ function colarEstiloForma() {
   });
 
   setTimeout(() => setAvisoCracha(null), 2500);
+}
+
+function pontosLivresForma(
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>
+) {
+  return objeto.pontosLivres && objeto.pontosLivres.length >= 3
+    ? objeto.pontosLivres
+    : [
+        { id: 1, x: 15, y: 15, tipo: "CANTO" as const },
+        { id: 2, x: 85, y: 20, tipo: "CANTO" as const },
+        { id: 3, x: 90, y: 80, tipo: "CANTO" as const },
+        { id: 4, x: 50, y: 95, tipo: "CANTO" as const },
+        { id: 5, x: 10, y: 75, tipo: "CANTO" as const },
+      ];
+}
+
+function atualizarPontoLivreForma(
+  objetoId: number,
+  pontoId: number,
+  dados: {
+    x?: number;
+    y?: number;
+    tipo?: "CANTO" | "CURVA";
+  }
+) {
+  setObjetos((atual) =>
+    atual.map((obj) => {
+      if (obj.id !== objetoId || obj.tipo !== "FORMA") {
+        return obj;
+      }
+
+      const pontosAtualizados = pontosLivresForma(obj).map((ponto) =>
+        ponto.id === pontoId ? { ...ponto, ...dados } : ponto
+      );
+
+      return {
+        ...obj,
+        pontosLivres: pontosAtualizados,
+        pontoLivreSelecionadoId: pontoId,
+      } as ObjetoCracha;
+    })
+  );
+}
+
+function iniciarArrastoPontoLivre(
+  e: React.MouseEvent<HTMLButtonElement>,
+  objeto: Extract<ObjetoCracha, { tipo: "FORMA" }>,
+  pontoId: number
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const area = e.currentTarget.parentElement as HTMLElement | null;
+
+  if (!area) return;
+
+  function limitar(valor: number) {
+    return Math.max(0, Math.min(100, valor));
+  }
+
+  function calcularPosicao(clientX: number, clientY: number) {
+    const rect = area.getBoundingClientRect();
+
+    return {
+      x: limitar(((clientX - rect.left) / rect.width) * 100),
+      y: limitar(((clientY - rect.top) / rect.height) * 100),
+    };
+  }
+
+  function mover(ev: MouseEvent) {
+    const posicao = calcularPosicao(ev.clientX, ev.clientY);
+
+    atualizarPontoLivreForma(objeto.id, pontoId, {
+      x: Math.round(posicao.x),
+      y: Math.round(posicao.y),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  const posicaoInicial = calcularPosicao(e.clientX, e.clientY);
+
+  atualizarPontoLivreForma(objeto.id, pontoId, {
+    x: Math.round(posicaoInicial.x),
+    y: Math.round(posicaoInicial.y),
+  });
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
 }
 
   return (
@@ -2245,6 +2333,29 @@ if (objeto.tipo === "FORMA") {
   <defs>{renderGradienteForma(objeto)}</defs>
   {renderFormaSvg(objeto)}
 </svg>
+
+{objetoSelecionado === objeto.id &&
+  objeto.forma === "FORMA_LIVRE" &&
+  pontosLivresForma(objeto).map((ponto) => (
+    <button
+      key={ponto.id}
+      type="button"
+      onMouseDown={(e) =>
+        iniciarArrastoPontoLivre(e, objeto, ponto.id)
+      }
+      title={`Ponto ${ponto.id}`}
+      className={`absolute z-30 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow ${
+        objeto.pontoLivreSelecionadoId === ponto.id
+          ? "border-yellow-300 bg-yellow-300"
+          : "border-white bg-blue-600"
+      }`}
+      style={{
+        left: `${ponto.x}%`,
+        top: `${ponto.y}%`,
+        cursor: "grab",
+      }}
+    />
+  ))}
 
       {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
 
@@ -3087,12 +3198,13 @@ FORMA_LIVRE: {
   raioBorda: 0,
   espessuraBorda: espessuraPadrao,
   pontosLivres: [
-    { id: 1, x: 15, y: 15 },
-    { id: 2, x: 85, y: 20 },
-    { id: 3, x: 90, y: 80 },
-    { id: 4, x: 50, y: 95 },
-    { id: 5, x: 10, y: 75 },
+    { id: 1, x: 15, y: 15, tipo: "CANTO" },
+    { id: 2, x: 85, y: 20, tipo: "CANTO" },
+    { id: 3, x: 90, y: 80, tipo: "CANTO" },
+    { id: 4, x: 50, y: 95, tipo: "CANTO" },
+    { id: 5, x: 10, y: 75, tipo: "CANTO" },
   ],
+  pontoLivreSelecionadoId: null,
 },
 
   };
