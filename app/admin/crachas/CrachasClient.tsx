@@ -3555,6 +3555,193 @@ if (objeto.tipo === "FORMA") {
   </div>
 )}
 
+{objetoAtual?.tipo === "QRCODE" && (
+  <div className="mb-4 space-y-4">
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        QR Code
+      </p>
+
+      <label className="mb-2 block text-xs font-semibold">
+        Conteúdo do QR Code
+      </label>
+
+      <textarea
+        value={objetoAtual.valor}
+        onChange={(e) =>
+          atualizarObjeto(objetoAtual.id, {
+            valor: e.target.value,
+          })
+        }
+        rows={4}
+        className="phanyx-crachas-input min-h-[90px]"
+      />
+
+      <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+        Recomendado: https://www.phanyx.com.br/verificar/cracha/{"{{codigoCracha}}"}
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        Aparência do QR Code
+      </p>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Cor do QR
+          </label>
+
+          <input
+            type="color"
+            value={objetoAtual.cor}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                cor: e.target.value,
+              })
+            }
+            className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Cor do fundo
+          </label>
+
+          <input
+            type="color"
+            value={objetoAtual.corFundo}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                corFundo: e.target.value,
+              })
+            }
+            className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+          />
+        </div>
+      </div>
+
+      <label className="mt-3 flex items-center gap-2 text-xs font-semibold">
+        <input
+          type="checkbox"
+          checked={objetoAtual.mostrarFundo}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              mostrarFundo: e.target.checked,
+            })
+          }
+        />
+        Mostrar fundo
+      </label>
+
+      <div className="mt-3 grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Margem interna
+          </label>
+
+          <input
+            type="number"
+            min={0}
+            max={40}
+            value={objetoAtual.margem}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                margem: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Arredondamento
+          </label>
+
+          <input
+            type="number"
+            min={0}
+            max={40}
+            value={objetoAtual.raioBorda}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                raioBorda: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        Posição e tamanho
+      </p>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            X
+          </label>
+
+          <input
+            type="number"
+            value={Math.round(objetoAtual.x)}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                x: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Y
+          </label>
+
+          <input
+            type="number"
+            value={Math.round(objetoAtual.y)}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                y: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Tamanho
+          </label>
+
+          <input
+            type="number"
+            min={40}
+            value={Math.round(objetoAtual.largura)}
+            onChange={(e) => {
+              const tamanho = Number(e.target.value);
+
+              atualizarObjeto(objetoAtual.id, {
+                largura: tamanho,
+                altura: tamanho,
+              });
+            }}
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
           {!objetoAtual && (
             <p className="phanyx-crachas-muted">
               Nenhum objeto selecionado.
