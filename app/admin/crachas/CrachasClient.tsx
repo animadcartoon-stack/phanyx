@@ -3092,6 +3092,43 @@ if (objeto.tipo === "FORMA") {
     <span>50%</span>
     <span>100%</span>
   </div>
+
+<button
+  type="button"
+  onClick={() => {
+    const pontosAtuais = pontosGradienteForma(objetoAtual);
+
+    let maiorEspaco = 0;
+    let novaPosicao = 50;
+
+    for (let i = 0; i < pontosAtuais.length - 1; i++) {
+      const atual = pontosAtuais[i];
+      const proximo = pontosAtuais[i + 1];
+
+      const espaco = proximo.posicao - atual.posicao;
+
+      if (espaco > maiorEspaco) {
+        maiorEspaco = espaco;
+        novaPosicao = Math.round(atual.posicao + espaco / 2);
+      }
+    }
+
+    atualizarObjeto(objetoAtual.id, {
+      gradientePontos: [
+        ...pontosAtuais,
+        {
+          id: Date.now(),
+          cor: "#ffffff",
+          posicao: novaPosicao,
+        },
+      ],
+    });
+  }}
+  className="mt-3 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-xs font-semibold text-blue-300 hover:bg-blue-500/10"
+>
+  + Adicionar ponto de cor
+</button>
+
 </div>
 
     <div className="mt-4 space-y-3">
