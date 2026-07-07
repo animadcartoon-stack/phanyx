@@ -355,6 +355,8 @@ function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
   const camposDoNovoTipo = camposDisponiveisPorTipo(novoTipo);
   const campoPadrao = camposDoNovoTipo[0];
 
+  let houveAjuste = false;
+
   setTipoModeloCracha(novoTipo);
 
   setObjetos((atual) =>
@@ -371,6 +373,8 @@ function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
         return obj;
       }
 
+      houveAjuste = true;
+
       return {
         ...obj,
         campo: campoPadrao.campo,
@@ -379,12 +383,14 @@ function alterarTipoModeloCracha(novoTipo: TipoModeloCracha) {
     })
   );
 
-  setAvisoCracha({
-    tipo: "sucesso",
-    texto: "Tipo do modelo atualizado. Campos incompatíveis foram ajustados.",
-  });
+  if (houveAjuste) {
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto: "Tipo do modelo atualizado. Campos incompatíveis foram ajustados.",
+    });
 
-  setTimeout(() => setAvisoCracha(null), 3000);
+    setTimeout(() => setAvisoCracha(null), 3000);
+  }
 }
 
   function adicionarTexto() {
