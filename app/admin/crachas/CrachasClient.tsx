@@ -1368,28 +1368,28 @@ function gerarPontosCruzSvg(
   );
 
   const comprimentoHorizontal = limitarFormaSvg(
-    objeto.cruzComprimentoHorizontal ?? 94,
-    20,
-    100
-  );
+  objeto.cruzComprimentoHorizontal ?? 94,
+  20,
+  200
+);
 
-  const comprimentoVertical = limitarFormaSvg(
-    objeto.cruzComprimentoVertical ?? 94,
-    20,
-    100
-  );
+const comprimentoVertical = limitarFormaSvg(
+  objeto.cruzComprimentoVertical ?? 94,
+  20,
+  200
+);
 
   const esquerdaH = limitarFormaSvg(
-    centroX - comprimentoHorizontal / 2,
-    1,
-    99
-  );
+  centroX - comprimentoHorizontal / 2,
+  -80,
+  180
+);
 
-  const direitaH = limitarFormaSvg(
-    centroX + comprimentoHorizontal / 2,
-    1,
-    99
-  );
+const direitaH = limitarFormaSvg(
+  centroX + comprimentoHorizontal / 2,
+  -80,
+  180
+);
 
   const topoH = limitarFormaSvg(
     centroY - espessuraHorizontal / 2,
@@ -1416,16 +1416,16 @@ function gerarPontosCruzSvg(
   );
 
   const topoV = limitarFormaSvg(
-    centroY - comprimentoVertical / 2,
-    1,
-    99
-  );
+  centroY - comprimentoVertical / 2,
+  -80,
+  180
+);
 
-  const baseV = limitarFormaSvg(
-    centroY + comprimentoVertical / 2,
-    1,
-    99
-  );
+const baseV = limitarFormaSvg(
+  centroY + comprimentoVertical / 2,
+  -80,
+  180
+);
 
   return [
     `${esquerdaV},${topoV}`,
@@ -4892,7 +4892,7 @@ setPontoGradienteSelecionado(novoPonto.id);
         <input
           type="number"
           min={20}
-          max={100}
+          max={200}
           value={objetoAtual.cruzComprimentoHorizontal ?? 94}
           onChange={(e) =>
             atualizarObjeto(objetoAtual.id, {
@@ -4911,7 +4911,7 @@ setPontoGradienteSelecionado(novoPonto.id);
         <input
           type="number"
           min={20}
-          max={100}
+          max={200}
           value={objetoAtual.cruzComprimentoVertical ?? 94}
           onChange={(e) =>
             atualizarObjeto(objetoAtual.id, {
