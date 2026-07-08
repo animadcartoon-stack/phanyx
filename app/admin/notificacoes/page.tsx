@@ -111,25 +111,31 @@ export default function NotificacoesPage() {
     );
 
     const categoria = String(item.categoria || item.tipo || "")
-      .trim()
-      .toUpperCase();
+  .trim()
+  .toUpperCase();
 
-    let destino = item.link?.trim() || "";
+if (categoria === "CHAT") {
+  window.dispatchEvent(
+    new CustomEvent("phanyx:abrir-chat", {
+      detail: {},
+    })
+  );
 
-    if (!destino && categoria === "CHAT") {
-      destino = "/admin/comunicacao";
-    }
+  return;
+}
 
-    if (!destino && categoria === "RH") {
-      destino = "/admin/rh/ferias";
-    }
+let destino = item.link?.trim() || "";
 
-    if (destino) {
-      window.location.assign(destino);
-      return;
-    }
+if (!destino && categoria === "RH") {
+  destino = "/admin/rh/ferias";
+}
 
-    setErro("Esta notificação não possui link de destino.");
+if (destino) {
+  window.location.assign(destino);
+  return;
+}
+
+setErro("Esta notificação não possui link de destino.");
   } catch (error: any) {
     setErro(error?.message || "Erro ao abrir notificação.");
   }
