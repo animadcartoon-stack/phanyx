@@ -6165,3 +6165,196 @@ html[data-theme="dark"] .phanyx-doc-value,
 html[data-theme="system"] .phanyx-doc-value {
   color: #ffffff !important;
 }
+
+/* PHANYX - Correção visual Admin Reuniões */
+.phanyx-admin-reunioes-page {
+  color: #0f172a !important;
+}
+
+.phanyx-admin-reunioes-page h1,
+.phanyx-admin-reunioes-page h2,
+.phanyx-admin-reunioes-page h3,
+.phanyx-admin-reunioes-page strong {
+  color: #020617 !important;
+}
+
+.phanyx-admin-reunioes-page p,
+.phanyx-admin-reunioes-page span,
+.phanyx-admin-reunioes-page div {
+  color: inherit;
+}
+
+.phanyx-admin-reunioes-page p {
+  color: #334155 !important;
+}
+
+.phanyx-admin-reunioes-page label {
+  color: #1e293b !important;
+}
+
+.phanyx-admin-reunioes-page input,
+.phanyx-admin-reunioes-page select,
+.phanyx-admin-reunioes-page textarea {
+  background: #ffffff !important;
+  color: #020617 !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-admin-reunioes-page input::placeholder,
+.phanyx-admin-reunioes-page textarea::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.phanyx-admin-reunioes-page .rounded-3xl {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-admin-reunioes-page [class*="bg-blue-600"],
+.phanyx-admin-reunioes-page [class*="bg-slate-900"] {
+  color: #ffffff !important;
+}
+
+html.dark .phanyx-admin-reunioes-page,
+html[data-theme="dark"] .phanyx-admin-reunioes-page,
+html[data-theme="system"] .phanyx-admin-reunioes-page,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page {
+  color: #f8fafc !important;
+}
+
+html.dark .phanyx-admin-reunioes-page h1,
+html.dark .phanyx-admin-reunioes-page h2,
+html.dark .phanyx-admin-reunioes-page h3,
+html.dark .phanyx-admin-reunioes-page strong,
+html[data-theme="dark"] .phanyx-admin-reunioes-page h1,
+html[data-theme="dark"] .phanyx-admin-reunioes-page h2,
+html[data-theme="dark"] .phanyx-admin-reunioes-page h3,
+html[data-theme="dark"] .phanyx-admin-reunioes-page strong,
+html[data-theme="system"] .phanyx-admin-reunioes-page h1,
+html[data-theme="system"] .phanyx-admin-reunioes-page h2,
+html[data-theme="system"] .phanyx-admin-reunioes-page h3,
+html[data-theme="system"] .phanyx-admin-reunioes-page strong,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page h1,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page h2,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page h3,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page strong {
+  color: #f8fafc !important;
+}
+
+html.dark .phanyx-admin-reunioes-page p,
+html.dark .phanyx-admin-reunioes-page label,
+html[data-theme="dark"] .phanyx-admin-reunioes-page p,
+html[data-theme="dark"] .phanyx-admin-reunioes-page label,
+html[data-theme="system"] .phanyx-admin-reunioes-page p,
+html[data-theme="system"] .phanyx-admin-reunioes-page label,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page p,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page label {
+  color: #cbd5e1 !important;
+}
+
+html.dark .phanyx-admin-reunioes-page input,
+html.dark .phanyx-admin-reunioes-page select,
+html.dark .phanyx-admin-reunioes-page textarea,
+html[data-theme="dark"] .phanyx-admin-reunioes-page input,
+html[data-theme="dark"] .phanyx-admin-reunioes-page select,
+html[data-theme="dark"] .phanyx-admin-reunioes-page textarea,
+html[data-theme="system"] .phanyx-admin-reunioes-page input,
+html[data-theme="system"] .phanyx-admin-reunioes-page select,
+html[data-theme="system"] .phanyx-admin-reunioes-page textarea,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page input,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page select,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page textarea {
+  background: #020617 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+html.dark .phanyx-admin-reunioes-page input::placeholder,
+html.dark .phanyx-admin-reunioes-page textarea::placeholder,
+html[data-theme="dark"] .phanyx-admin-reunioes-page input::placeholder,
+html[data-theme="dark"] .phanyx-admin-reunioes-page textarea::placeholder,
+html[data-theme="system"] .phanyx-admin-reunioes-page input::placeholder,
+html[data-theme="system"] .phanyx-admin-reunioes-page textarea::placeholder,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page input::placeholder,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html.dark .phanyx-admin-reunioes-page .rounded-3xl,
+html[data-theme="dark"] .phanyx-admin-reunioes-page .rounded-3xl,
+html[data-theme="system"] .phanyx-admin-reunioes-page .rounded-3xl,
+html[data-theme="sistema"] .phanyx-admin-reunioes-page .rounded-3xl {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* PHANYX - Botão Ver detalhes da Ouvidoria */
+.phanyx-ouvidoria-detalhes-btn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-ouvidoria-detalhes-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #020617 !important;
+}
+
+html.dark .phanyx-ouvidoria-detalhes-btn,
+html[data-theme="dark"] .phanyx-ouvidoria-detalhes-btn,
+html[data-theme="system"] .phanyx-ouvidoria-detalhes-btn,
+html[data-theme="sistema"] .phanyx-ouvidoria-detalhes-btn {
+  background: transparent !important;
+  border-color: #64748b !important;
+  color: #f8fafc !important;
+}
+
+html.dark .phanyx-ouvidoria-detalhes-btn:hover,
+html[data-theme="dark"] .phanyx-ouvidoria-detalhes-btn:hover,
+html[data-theme="system"] .phanyx-ouvidoria-detalhes-btn:hover,
+html[data-theme="sistema"] .phanyx-ouvidoria-detalhes-btn:hover {
+  background: #1e293b !important;
+  border-color: #93c5fd !important;
+  color: #ffffff !important;
+}
+
+/* PHANYX - Badge de tipo/status em Documentos Gerados */
+.phanyx-doc-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  border: 1px solid #bfdbfe !important;
+  padding: 0.25rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.phanyx-doc-badge,
+.phanyx-doc-badge * {
+  color: #1d4ed8 !important;
+}
+
+html.dark .phanyx-doc-badge,
+html[data-theme="dark"] .phanyx-doc-badge,
+html[data-theme="system"] .phanyx-doc-badge,
+html[data-theme="sistema"] .phanyx-doc-badge {
+  border-color: #93c5fd !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html.dark .phanyx-doc-badge,
+html.dark .phanyx-doc-badge *,
+html[data-theme="dark"] .phanyx-doc-badge,
+html[data-theme="dark"] .phanyx-doc-badge *,
+html[data-theme="system"] .phanyx-doc-badge,
+html[data-theme="system"] .phanyx-doc-badge *,
+html[data-theme="sistema"] .phanyx-doc-badge,
+html[data-theme="sistema"] .phanyx-doc-badge * {
+  color: #ffffff !important;
+}

@@ -450,9 +450,9 @@ setErro("Escreva uma resposta antes de salvar.");
             </div>
 
             <div className="mt-5 flex flex-wrap justify-end gap-3">
-              <button className="rounded-xl border px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">
-                Ver detalhes
-              </button>
+              <button className="phanyx-ouvidoria-detalhes-btn rounded-xl border px-4 py-2 text-sm font-bold transition">
+  Ver detalhes
+</button>
 
               <button
   type="button"

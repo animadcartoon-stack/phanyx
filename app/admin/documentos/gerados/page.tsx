@@ -486,9 +486,9 @@ function AdminDocumentosGeradosPage() {
                   </h3>
 
                   <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
-                      {labelTipo(documentoSelecionado.tipo)}
-                    </span>
+                    <span className="phanyx-doc-badge">
+  {labelTipo(documentoSelecionado.tipo)}
+</span>
 
                     <span
                       className={`rounded-full px-3 py-1 text-xs ${statusClass(documentoSelecionado.status)}`}
