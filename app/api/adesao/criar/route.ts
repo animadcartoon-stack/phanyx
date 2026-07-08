@@ -6,8 +6,8 @@ import {
   criarClienteAsaas,
   criarCobrancaAsaas,
   obterQrCodePixAsaas,
-  criarCheckoutAssinaturaAsaas,
   criarAssinaturaAsaas,
+  criarAssinaturaCartaoAsaas,
 } from "@/lib/asaas";
 
 export const dynamic = "force-dynamic";
@@ -122,6 +122,118 @@ function normalizarFormaPagamento(
   return "CREDIT_CARD";
 }
 
+function getRemoteIp(req: Request) {
+  const forwardedFor = req.headers.get("x-forwarded-for");
+
+  if (forwardedFor) {
+    return forwardedFor.split(",")[0].trim();
+  }
+
+  const realIp = req.headers.get("x-real-ip");
+
+  if (realIp) {
+    return realIp.trim();
+  }
+
+  return "127.0.0.1";
+}
+
+function somenteDigitos(valor: any) {
+  return String(valor || "").replace(/\D/g, "");
+}
+
+function normalizarMesCartao(valor: any) {
+  const mes = somenteDigitos(valor).padStart(2, "0");
+  return mes.length > 2 ? mes.slice(-2) : mes;
+}
+
+function normalizarAnoCartao(valor: any) {
+  const ano = somenteDigitos(valor);
+
+  if (ano.length === 2) {
+    return `20${ano}`;
+  }
+
+  return ano;
+}
+
+type DadosCartaoAdesao = {
+  numero: string;
+  nomeTitular: string;
+  mesExpiracao: string;
+  anoExpiracao: string;
+  cvv: string;
+  cpfCnpjTitular: string;
+  cepTitular: string;
+  numeroEnderecoTitular: string;
+};
+
+function prepararCartaoAdesao(cartao: any):
+  | { ok: true; dados: DadosCartaoAdesao }
+  | { ok: false; error: string } {
+  const numero = somenteDigitos(cartao?.numero);
+  const nomeTitular = String(cartao?.nomeTitular || "").trim();
+  const mesExpiracao = normalizarMesCartao(cartao?.mesExpiracao);
+  const anoExpiracao = normalizarAnoCartao(cartao?.anoExpiracao);
+  const cvv = somenteDigitos(cartao?.cvv);
+  const cpfCnpjTitular = somenteDigitos(cartao?.cpfCnpjTitular);
+  const cepTitular = somenteDigitos(cartao?.cepTitular);
+  const numeroEnderecoTitular = String(
+    cartao?.numeroEnderecoTitular || ""
+  ).trim();
+
+  if (numero.length < 13) {
+    return { ok: false, error: "Número do cartão inválido." };
+  }
+
+  if (!nomeTitular) {
+    return { ok: false, error: "Nome impresso no cartão é obrigatório." };
+  }
+
+  const mesNumero = Number(mesExpiracao);
+
+  if (!mesExpiracao || mesNumero < 1 || mesNumero > 12) {
+    return { ok: false, error: "Mês de validade do cartão inválido." };
+  }
+
+  if (anoExpiracao.length !== 4) {
+    return { ok: false, error: "Ano de validade do cartão inválido." };
+  }
+
+  if (cvv.length < 3 || cvv.length > 4) {
+    return { ok: false, error: "CVV do cartão inválido." };
+  }
+
+  if (cpfCnpjTitular.length !== 11 && cpfCnpjTitular.length !== 14) {
+    return { ok: false, error: "CPF/CNPJ do titular do cartão inválido." };
+  }
+
+  if (cepTitular.length !== 8) {
+    return { ok: false, error: "CEP do titular do cartão inválido." };
+  }
+
+  if (!numeroEnderecoTitular) {
+    return {
+      ok: false,
+      error: "Número do endereço do titular do cartão é obrigatório.",
+    };
+  }
+
+  return {
+    ok: true,
+    dados: {
+      numero,
+      nomeTitular,
+      mesExpiracao,
+      anoExpiracao,
+      cvv,
+      cpfCnpjTitular,
+      cepTitular,
+      numeroEnderecoTitular,
+    },
+  };
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -133,9 +245,10 @@ export async function POST(req: Request) {
     const cpfCnpj = normalizarCpfCnpj(body?.cpfCnpj || "");
     const plano = String(body?.plano || "").trim().toUpperCase();
     const formaPagamento = normalizarFormaPagamento(
-      body?.formaPagamento || "CREDIT_CARD"
-    );
-    const trialDias = normalizarTrialDias();
+  body?.formaPagamento || "CREDIT_CARD"
+);
+const cartao = body?.cartao || null;
+const trialDias = normalizarTrialDias();
 
     if (!nomeResponsavel) {
       return NextResponse.json(
@@ -166,13 +279,30 @@ export async function POST(req: Request) {
     }
 
     if (!plano) {
-      return NextResponse.json(
-        { error: "Plano é obrigatório." },
-        { status: 400 }
-      );
-    }
+  return NextResponse.json(
+    { error: "Plano é obrigatório." },
+    { status: 400 }
+  );
+}
 
-    const valor = getValorPlano(plano);
+let dadosCartao: DadosCartaoAdesao | null = null;
+
+if (formaPagamento === "CREDIT_CARD") {
+  const cartaoPreparado = prepararCartaoAdesao(cartao);
+
+  if (cartaoPreparado.ok === false) {
+  return NextResponse.json(
+    { error: cartaoPreparado.error },
+    { status: 400 }
+  );
+}
+
+dadosCartao = cartaoPreparado.dados;
+
+  dadosCartao = cartaoPreparado.dados;
+}
+
+const valor = getValorPlano(plano);
 
     const emailExistente = await prisma.user.findUnique({
       where: { email },
@@ -256,54 +386,48 @@ export async function POST(req: Request) {
         const primeiraCobrancaEm = testeGratisFimEm;
         const primeiraCobrancaEmISO = dataParaISO(primeiraCobrancaEm);
 
-        if (formaPagamento === "CREDIT_CARD") {
-          const checkout = await criarCheckoutAssinaturaAsaas({
-            value: valor,
-            plano,
-            email,
-            nomeResponsavel,
-            cpfCnpj,
-            telefone: telefone || "48999999999",
-            postalCode: "88701-000",
-            address: "Rua Lauro Müller",
-            addressNumber: "123",
-            province: "Centro",
-            city: "Tubarão",
-            externalReference: String(adesao.id),
-            nextDueDate: primeiraCobrancaEmISO,
-          });
+       let assinatura: any;
 
-          await prisma.adesaoInstituicao.update({
-            where: { id: adesao.id },
-            data: {
-              status: "AGUARDANDO_CHECKOUT",
-              asaasId: checkout.id,
-            },
-          });
+if (formaPagamento === "CREDIT_CARD") {
+  if (!dadosCartao) {
+    throw new Error("Dados do cartão não foram informados.");
+  }
 
-          return NextResponse.json({
-            ok: true,
-            trial: true,
-            checkout: true,
-            trialDias,
-            primeiraCobrancaEm,
-            adesao: {
-              id: adesao.id,
-              status: "AGUARDANDO_CHECKOUT",
-            },
-            checkoutUrl: checkout.url,
-          });
-        }
-
-        const assinatura = await criarAssinaturaAsaas({
-          customer: cliente.id,
-          billingType: formaPagamento,
-          value: valor,
-          nextDueDate: primeiraCobrancaEmISO,
-          cycle: "MONTHLY",
-          description: `Assinatura PHANYX - Plano ${plano} - ${trialDias} dias grátis`,
-          externalReference: String(adesao.id),
-        });
+  assinatura = await criarAssinaturaCartaoAsaas({
+    customer: cliente.id,
+    value: valor,
+    nextDueDate: primeiraCobrancaEmISO,
+    cycle: "MONTHLY",
+    description: `Assinatura PHANYX - Plano ${plano} - ${trialDias} dias grátis`,
+    externalReference: String(adesao.id),
+    creditCard: {
+      holderName: dadosCartao.nomeTitular,
+      number: dadosCartao.numero,
+      expiryMonth: dadosCartao.mesExpiracao,
+      expiryYear: dadosCartao.anoExpiracao,
+      ccv: dadosCartao.cvv,
+    },
+    creditCardHolderInfo: {
+      name: dadosCartao.nomeTitular,
+      email,
+      cpfCnpj: dadosCartao.cpfCnpjTitular,
+      postalCode: dadosCartao.cepTitular,
+      addressNumber: dadosCartao.numeroEnderecoTitular,
+      phone: telefone || "48999999999",
+    },
+    remoteIp: getRemoteIp(req),
+  });
+} else {
+  assinatura = await criarAssinaturaAsaas({
+    customer: cliente.id,
+    billingType: formaPagamento,
+    value: valor,
+    nextDueDate: primeiraCobrancaEmISO,
+    cycle: "MONTHLY",
+    description: `Assinatura PHANYX - Plano ${plano} - ${trialDias} dias grátis`,
+    externalReference: String(adesao.id),
+  });
+}
 
         const slugBase = gerarSlugInstituicao(nomeInstituicao);
         const slugFinal = `${slugBase}-${Date.now()}`;
