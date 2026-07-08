@@ -4172,3 +4172,578 @@ html[data-theme="light"] .phanyx-publicacao-academica-form-page a.bg-blue-600 {
   background: #2563eb !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX - TEMAS / ACADÊMICO ETAPA 1
+   Notificações, Alunos, Funcionários, Departamentos,
+   Disciplinas e Publicações Acadêmicas
+========================================================= */
+
+.phanyx-notificacoes-page,
+.phanyx-admin-alunos-page,
+.phanyx-admin-funcionarios-page,
+.phanyx-ficha-funcionario-page,
+.phanyx-departamento-permissoes-page,
+.phanyx-disciplina-editar-page,
+.phanyx-publicacoes-academicas-page,
+.phanyx-publicacao-academica-form-page {
+  opacity: 1 !important;
+}
+
+/* =========================
+   TEMA CLARO
+========================= */
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(h1, h2, h3, h4, p, span, label, th, td, strong, div) {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(h1, h2, h3, h4, th, strong) {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(p, span, label, td) {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .text-white,
+  .text-slate-100,
+  .text-slate-200,
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600,
+  .text-gray-400,
+  .text-gray-500,
+  .text-gray-600,
+  .text-gray-700
+) {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .text-slate-800,
+  .text-slate-900,
+  .text-gray-800,
+  .text-gray-900,
+  .text-black
+) {
+  color: #0f172a !important;
+}
+
+/* Azul claro demais vira azul legível no claro */
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .text-blue-100,
+  .text-blue-200,
+  .text-blue-300,
+  .text-blue-400,
+  .text-blue-500,
+  .text-blue-600,
+  .text-blue-700,
+  .text-blue-800,
+  .text-blue-900
+) {
+  color: #2563eb !important;
+}
+
+/* Cards escuros/dark fixos viram claros no tema claro */
+html[data-theme="light"] :is(
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-slate-950,
+  .bg-slate-900,
+  .bg-slate-800,
+  .dark\:bg-slate-950,
+  .dark\:bg-slate-900,
+  .dark\:bg-slate-800
+) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Cards claros e áreas internas */
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-white,
+  .bg-white\/80,
+  .bg-white\/90,
+  .bg-white\/95
+) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-slate-50,
+  .bg-slate-100,
+  .bg-blue-50
+) {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Inputs, selects, textarea e file */
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(input, select, textarea) {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(input::placeholder, textarea::placeholder) {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-publicacao-academica-form-page
+) input[type="file"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-publicacao-academica-form-page
+) input[type="file"]::file-selector-button {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1px solid #94a3b8 !important;
+  border-radius: 10px !important;
+  padding: 6px 10px !important;
+  font-weight: 700 !important;
+}
+
+/* Botões principais mantêm texto branco */
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-blue-600,
+  .bg-blue-700,
+  .bg-green-600,
+  .bg-emerald-600,
+  .bg-red-600
+) {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-blue-600 *,
+  .bg-blue-700 *,
+  .bg-green-600 *,
+  .bg-emerald-600 *,
+  .bg-red-600 *
+) {
+  color: #ffffff !important;
+}
+
+/* Botões contornados no claro */
+html[data-theme="light"] :is(
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) button:not(.bg-blue-600):not(.bg-blue-700):not(.bg-green-600):not(.bg-emerald-600):not(.bg-red-600),
+html[data-theme="light"] :is(
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) a:not(.bg-blue-600):not(.bg-blue-700):not(.bg-green-600):not(.bg-emerald-600):not(.bg-red-600) {
+  opacity: 1 !important;
+}
+
+/* Botão desabilitado visível */
+html[data-theme="light"] :is(
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page
+) button:disabled {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Alunos - painel lateral de detalhes sempre legível */
+html[data-theme="light"] .phanyx-admin-alunos-page .fixed .bg-white,
+html[data-theme="light"] .phanyx-admin-alunos-page .fixed .sticky {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .phanyx-admin-alunos-page .fixed :is(h2, h3, strong) {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-admin-alunos-page .fixed :is(p, span, div) {
+  opacity: 1 !important;
+}
+
+/* Alunos - documentos */
+html[data-theme="light"] .phanyx-admin-alunos-page :is(
+  [class*="Documentos"],
+  .rounded-2xl,
+  .rounded-xl
+) {
+  opacity: 1 !important;
+}
+
+/* Departamento permissões - card marcado e não marcado */
+html[data-theme="light"] .phanyx-departamento-permissoes-page .bg-blue-50 {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+}
+
+html[data-theme="light"] .phanyx-departamento-permissoes-page .bg-blue-50 * {
+  color: #1e3a8a !important;
+}
+
+html[data-theme="light"] .phanyx-departamento-permissoes-page button {
+  border-color: #cbd5e1 !important;
+}
+
+/* Publicações - alertas/status mantêm suas cores */
+html[data-theme="light"] .phanyx-publicacoes-academicas-page .bg-amber-50 {
+  background: #fffbeb !important;
+  color: #92400e !important;
+  border-color: #fde68a !important;
+}
+
+html[data-theme="light"] .phanyx-publicacoes-academicas-page .text-amber-700 {
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .phanyx-publicacao-academica-form-page .bg-green-50,
+html[data-theme="light"] .phanyx-publicacoes-academicas-page .bg-green-50 {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+/* =========================
+   TEMA ESCURO
+========================= */
+
+html[data-theme="dark"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(h1, h2, h3, h4, th, strong) {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(p, span, label, td, div) {
+  opacity: 1 !important;
+}
+
+/* =========================
+   TEMA SISTEMA - cinza premium
+========================= */
+
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(h1, h2, h3, h4, th, strong) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(p, span, label, td, div) {
+  color: #e5e5e5 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-white,
+  .bg-white\/80,
+  .bg-white\/90,
+  .bg-white\/95,
+  .bg-slate-50,
+  .bg-slate-100,
+  .bg-slate-900,
+  .bg-slate-950,
+  .dark\:bg-slate-900,
+  .dark\:bg-slate-950
+) {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(input, select, textarea) {
+  background: #1f1f1f !important;
+  background-color: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) option {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+}
+
+/* Disciplina - caixas de professores, pré-requisitos e turmas no sistema */
+html[data-theme="system"] .phanyx-disciplina-editar-page .overflow-y-auto {
+  background: #2f2f2f !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] .phanyx-disciplina-editar-page .overflow-y-auto label {
+  background: #303030 !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-disciplina-editar-page .overflow-y-auto label:hover {
+  background: #3a3a3a !important;
+}
+
+html[data-theme="system"] .phanyx-disciplina-editar-page .overflow-y-auto :is(span, div, p) {
+  color: #ffffff !important;
+}
+
+/* Sistema - botões principais continuam legíveis */
+html[data-theme="system"] :is(
+  .phanyx-notificacoes-page,
+  .phanyx-admin-alunos-page,
+  .phanyx-admin-funcionarios-page,
+  .phanyx-ficha-funcionario-page,
+  .phanyx-departamento-permissoes-page,
+  .phanyx-disciplina-editar-page,
+  .phanyx-publicacoes-academicas-page,
+  .phanyx-publicacao-academica-form-page
+) :is(
+  .bg-blue-600,
+  .bg-blue-700,
+  .bg-green-600,
+  .bg-emerald-600,
+  .bg-red-600
+) {
+  color: #ffffff !important;
+}

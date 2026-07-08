@@ -1332,7 +1332,7 @@ async function baixarCertificadoAlunoSelecionado() {
   }, [filtroTurmaId, turmas]);
 
   return (
-    <>
+  <div className="phanyx-admin-alunos-page">
       <div className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
         {feedback && (
           <div
@@ -3194,7 +3194,7 @@ name="busca-alunos-phanyx"
           </div>
         </div>
       )}
-    </>
+        </div>
   );
 }
 

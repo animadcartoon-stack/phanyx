@@ -576,7 +576,7 @@ if (funcionarioIdCriado) {
   }, [funcionarios, busca]);
 
   return (
-    <div className="space-y-6 max-w-5xl">
+  <div className="phanyx-admin-funcionarios-page space-y-6 max-w-5xl">
       <h1 className="text-2xl font-bold">🧑‍💼 Funcionários</h1>
 
 {erro && (

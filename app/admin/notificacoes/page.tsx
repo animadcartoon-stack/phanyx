@@ -147,7 +147,7 @@ export default function NotificacoesPage() {
 }, [notificacoes, filtro]);
 
   return (
-    <div className="space-y-6">
+  <div className="phanyx-notificacoes-page space-y-6">
       <div>
         <p className="text-sm font-semibold uppercase text-blue-600 dark:text-blue-400">
           PHANYX

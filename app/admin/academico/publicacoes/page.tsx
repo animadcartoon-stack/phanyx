@@ -117,7 +117,7 @@ async function devolverAtividade(atividadeId: number) {
 }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <main className="phanyx-publicacoes-academicas-page min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">

@@ -86,7 +86,7 @@ export default function DepartamentoPermissoesPage({
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6">
+  <div className="phanyx-departamento-permissoes-page mx-auto max-w-6xl space-y-6 p-6">
       <div>
         
         <Link

@@ -264,7 +264,7 @@ try {
   }
 
   return (
-  <div className="space-y-6">
+  <div className="phanyx-disciplina-editar-page space-y-6">
 
     {erro && (
       <PhanyxToast
