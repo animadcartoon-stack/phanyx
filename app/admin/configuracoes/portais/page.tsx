@@ -97,7 +97,7 @@ export default function ConfiguracaoPortaisPage() {
   );
 
   return (
-    <main className="phanyx-config-page min-h-screen p-6">
+    <main className="phanyx-config-page phanyx-portais-page min-h-screen p-6">
       <div className="mx-auto max-w-6xl space-y-6">
         <section className="phanyx-config-card p-6 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">

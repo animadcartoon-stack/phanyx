@@ -68,7 +68,7 @@ export default function GoogleBusinessPage() {
   }
 
   return (
-    <div className="phanyx-config-page max-w-3xl space-y-6">
+    <div className="phanyx-google-config-page max-w-3xl space-y-6">
       <div>
         <h1 className="phanyx-config-title text-3xl font-black">
           📍 Google Business

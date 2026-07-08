@@ -6892,3 +6892,389 @@ html[data-theme="system"] .phanyx-cert-editor-info-bar {
   background: #020617 !important;
   color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   PHANYX - Correção final de contraste V2
+   Templates, Integrações, Reputação, Portais e Certificados
+   ========================================================= */
+
+/* =========================
+   TEMPLATES DE DOCUMENTOS
+   ========================= */
+
+/* Tema claro: botões da barra de edição não podem ficar brancos sem texto */
+html[data-theme="light"] .phanyx-doc-templates-page button[class*="bg-white"],
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-doc-templates-page button[class*="bg-white"] {
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Tema claro: inputs pequenos de cor/botões vazios continuam visíveis */
+html[data-theme="light"] .phanyx-doc-templates-page .bg-white,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-doc-templates-page .bg-white {
+  color: #0f172a !important;
+}
+
+/* Variáveis no escuro/sistema: títulos e descrições legíveis */
+html[data-theme="dark"] .phanyx-doc-variable-card,
+html[data-theme="system"] .phanyx-doc-variable-card {
+  background: #111827 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variable-card p,
+html[data-theme="system"] .phanyx-doc-variable-card p,
+html[data-theme="dark"] .phanyx-doc-variable-card span,
+html[data-theme="system"] .phanyx-doc-variable-card span,
+html[data-theme="dark"] .phanyx-doc-variable-card strong,
+html[data-theme="system"] .phanyx-doc-variable-card strong {
+  color: #f9fafb !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variable-card .rounded-full,
+html[data-theme="system"] .phanyx-doc-variable-card .rounded-full {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+/* Tema sistema: painel de variáveis não deve ficar azul */
+html[data-theme="system"] .phanyx-doc-variables-panel {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .bg-slate-900,
+html[data-theme="system"] .phanyx-doc-templates-page .bg-slate-950 {
+  background: #171717 !important;
+}
+
+
+/* =========================
+   GOOGLE INTEGRAÇÕES
+   ========================= */
+
+.phanyx-google-config-page {
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-google-config-page,
+html[data-theme="system"] .phanyx-google-config-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-google-config-page h1,
+html[data-theme="system"] .phanyx-google-config-page h1,
+html[data-theme="dark"] .phanyx-google-config-page h2,
+html[data-theme="system"] .phanyx-google-config-page h2,
+html[data-theme="dark"] .phanyx-google-config-page label,
+html[data-theme="system"] .phanyx-google-config-page label,
+html[data-theme="dark"] .phanyx-google-config-page span,
+html[data-theme="system"] .phanyx-google-config-page span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-google-config-page p,
+html[data-theme="system"] .phanyx-google-config-page p {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-google-config-page .bg-white {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page .bg-white {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .phanyx-google-config-page input,
+html[data-theme="system"] .phanyx-google-config-page input {
+  background: #171717 !important;
+  color: #f8fafc !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page label.flex {
+  background: #171717 !important;
+  border-color: #525252 !important;
+}
+
+
+/* =========================
+   REPUTAÇÃO IA
+   ========================= */
+
+.phanyx-reputacao-page {
+  color: #0f172a;
+}
+
+/* Cards escuros da reputação precisam sempre ter texto claro */
+.phanyx-reputacao-page .bg-slate-900,
+.phanyx-reputacao-page .bg-slate-950,
+.phanyx-reputacao-page [class*="from-slate-900"],
+.phanyx-reputacao-page [class*="from-slate-950"],
+.phanyx-reputacao-page [class*="to-slate-950"],
+.phanyx-reputacao-page [class*="to-blue-950"] {
+  color: #f8fafc !important;
+}
+
+.phanyx-reputacao-page .bg-slate-900 h1,
+.phanyx-reputacao-page .bg-slate-900 h2,
+.phanyx-reputacao-page .bg-slate-900 h3,
+.phanyx-reputacao-page .bg-slate-950 h1,
+.phanyx-reputacao-page .bg-slate-950 h2,
+.phanyx-reputacao-page .bg-slate-950 h3,
+.phanyx-reputacao-page [class*="from-slate-900"] h1,
+.phanyx-reputacao-page [class*="from-slate-900"] h2,
+.phanyx-reputacao-page [class*="from-slate-900"] h3,
+.phanyx-reputacao-page [class*="from-slate-950"] h1,
+.phanyx-reputacao-page [class*="from-slate-950"] h2,
+.phanyx-reputacao-page [class*="from-slate-950"] h3 {
+  color: #ffffff !important;
+}
+
+.phanyx-reputacao-page .bg-slate-900 p,
+.phanyx-reputacao-page .bg-slate-950 p,
+.phanyx-reputacao-page [class*="from-slate-900"] p,
+.phanyx-reputacao-page [class*="from-slate-950"] p {
+  color: #cbd5e1 !important;
+}
+
+/* Tema escuro: cards comuns ficam grafite, não azul forte */
+html[data-theme="dark"] .phanyx-reputacao-page .bg-white {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-700,
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-600,
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+/* Tema sistema: cards devem ser cinza/grafite, não azul */
+html[data-theme="system"] .phanyx-reputacao-page .bg-white {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .bg-slate-900,
+html[data-theme="system"] .phanyx-reputacao-page .bg-slate-950,
+html[data-theme="system"] .phanyx-reputacao-page [class*="from-slate-900"],
+html[data-theme="system"] .phanyx-reputacao-page [class*="from-slate-950"],
+html[data-theme="system"] .phanyx-reputacao-page [class*="to-blue-950"] {
+  background: #171717 !important;
+  background-image: none !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-900,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-800,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-600,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-500,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-400 {
+  color: #d4d4d4 !important;
+}
+
+/* Timeline reputacional IA não deve ficar preta demais */
+html[data-theme="dark"] .phanyx-reputacao-page .phanyx-theme-card,
+html[data-theme="system"] .phanyx-reputacao-page .phanyx-theme-card {
+  background: #1f2937 !important;
+  border-color: #4b5563 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .phanyx-theme-card {
+  background: #262626 !important;
+}
+
+/* Cards coloridos claros não devem ser apagados */
+.phanyx-reputacao-page .bg-emerald-50 h1,
+.phanyx-reputacao-page .bg-emerald-50 h2,
+.phanyx-reputacao-page .bg-emerald-50 h3,
+.phanyx-reputacao-page .bg-emerald-50 p {
+  color: #065f46 !important;
+}
+
+.phanyx-reputacao-page .bg-red-50 h1,
+.phanyx-reputacao-page .bg-red-50 h2,
+.phanyx-reputacao-page .bg-red-50 h3,
+.phanyx-reputacao-page .bg-red-50 p {
+  color: #991b1b !important;
+}
+
+.phanyx-reputacao-page .bg-amber-50 h1,
+.phanyx-reputacao-page .bg-amber-50 h2,
+.phanyx-reputacao-page .bg-amber-50 h3,
+.phanyx-reputacao-page .bg-amber-50 p {
+  color: #92400e !important;
+}
+
+.phanyx-reputacao-page .bg-blue-50 h1,
+.phanyx-reputacao-page .bg-blue-50 h2,
+.phanyx-reputacao-page .bg-blue-50 h3,
+.phanyx-reputacao-page .bg-blue-50 p {
+  color: #1e3a8a !important;
+}
+
+
+/* =========================
+   VISIBILIDADE DOS PORTAIS
+   ========================= */
+
+.phanyx-portais-page {
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-portais-page,
+html[data-theme="system"] .phanyx-portais-page {
+  color: #f8fafc !important;
+}
+
+/* Card principal e blocos */
+html[data-theme="system"] .phanyx-portais-page .phanyx-config-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-portais-page .phanyx-config-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Linhas de páginas: não azul no tema sistema */
+html[data-theme="system"] .phanyx-portais-page .phanyx-portal-row {
+  background: #171717 !important;
+  border: 1px solid #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-portais-page .phanyx-portal-row {
+  background: #020617 !important;
+  border: 1px solid #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Textos */
+html[data-theme="system"] .phanyx-portais-page .phanyx-config-title,
+html[data-theme="system"] .phanyx-portais-page .phanyx-portal-row p,
+html[data-theme="dark"] .phanyx-portais-page .phanyx-config-title,
+html[data-theme="dark"] .phanyx-portais-page .phanyx-portal-row p {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-portais-page .phanyx-config-muted,
+html[data-theme="system"] .phanyx-portais-page .phanyx-portal-key,
+html[data-theme="dark"] .phanyx-portais-page .phanyx-config-muted,
+html[data-theme="dark"] .phanyx-portais-page .phanyx-portal-key {
+  color: #cbd5e1 !important;
+}
+
+/* Tema claro: mantém card branco e texto forte */
+html[data-theme="light"] .phanyx-portais-page .phanyx-config-card,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-portais-page .phanyx-config-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-portais-page .phanyx-portal-row,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-portais-page .phanyx-portal-row {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-portais-page .phanyx-config-title,
+html[data-theme="light"] .phanyx-portais-page .phanyx-portal-row p,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-portais-page .phanyx-config-title,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-portais-page .phanyx-portal-row p {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-portais-page .phanyx-config-muted,
+html[data-theme="light"] .phanyx-portais-page .phanyx-portal-key,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-portais-page .phanyx-config-muted,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-portais-page .phanyx-portal-key {
+  color: #475569 !important;
+}
+
+
+/* =========================
+   GESTÃO DE CERTIFICADOS
+   ========================= */
+
+html[data-theme="light"] .phanyx-certificados-page .text-slate-100,
+html[data-theme="light"] .phanyx-certificados-page .text-slate-200,
+html[data-theme="light"] .phanyx-certificados-page .text-slate-300,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page .text-slate-100,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page .text-slate-200,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page .text-slate-300 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page .bg-blue-900,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page .bg-blue-900 {
+  background: #1e3a8a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page .bg-blue-900 *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page .bg-blue-900 * {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page .bg-white,
+html[data-theme="system"] .phanyx-certificados-page .bg-slate-50 {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page .bg-blue-900,
+html[data-theme="system"] .phanyx-certificados-page .bg-slate-900,
+html[data-theme="system"] .phanyx-certificados-page .bg-slate-950 {
+  background: #171717 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page .text-slate-900,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-800,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page .text-slate-600,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-500,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-400 {
+  color: #d4d4d4 !important;
+}
+
+/* Badges Pendente/Pronto não podem sumir no hover */
+.phanyx-certificados-page .phanyx-cert-status-badge,
+.phanyx-certificados-page .phanyx-cert-status-badge:hover {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .phanyx-cert-status-badge,
+html[data-theme="dark"] .phanyx-certificados-page .phanyx-cert-status-badge:hover,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-status-badge,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-status-badge:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
