@@ -7278,3 +7278,330 @@ html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-status-badge:ho
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   PHANYX - AJUSTE FINAL TEMA SISTEMA / ESCURO / CLARO
+   Templates, Google, Marketing, Reputação e Certificados
+   ========================================================= */
+
+
+/* =========================
+   TEMPLATES DE DOCUMENTOS
+   ========================= */
+
+html[data-theme="system"] .phanyx-doc-templates-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page [class*="bg-slate-9"],
+html[data-theme="system"] .phanyx-doc-templates-page [class*="bg-blue-9"],
+html[data-theme="system"] .phanyx-doc-templates-page [class*="bg-slate-8"],
+html[data-theme="system"] .phanyx-doc-templates-page [class*="bg-blue-8"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page input,
+html[data-theme="system"] .phanyx-doc-templates-page select,
+html[data-theme="system"] .phanyx-doc-templates-page textarea {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page input::placeholder,
+html[data-theme="system"] .phanyx-doc-templates-page textarea::placeholder {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-templates-page [class*="bg-slate-9"],
+html[data-theme="dark"] .phanyx-doc-templates-page [class*="bg-blue-9"],
+html[data-theme="dark"] .phanyx-doc-templates-page [class*="bg-slate-8"],
+html[data-theme="dark"] .phanyx-doc-templates-page [class*="bg-blue-8"] {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-templates-page h1,
+html[data-theme="dark"] .phanyx-doc-templates-page h2,
+html[data-theme="dark"] .phanyx-doc-templates-page h3,
+html[data-theme="dark"] .phanyx-doc-templates-page p,
+html[data-theme="dark"] .phanyx-doc-templates-page label,
+html[data-theme="system"] .phanyx-doc-templates-page h1,
+html[data-theme="system"] .phanyx-doc-templates-page h2,
+html[data-theme="system"] .phanyx-doc-templates-page h3,
+html[data-theme="system"] .phanyx-doc-templates-page p,
+html[data-theme="system"] .phanyx-doc-templates-page label {
+  color: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-doc-templates-page [class*="bg-slate-9"],
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-doc-templates-page [class*="bg-slate-9"] {
+  color: #f8fafc !important;
+}
+
+
+/* =========================
+   GOOGLE CONFIG PAGES
+   ========================= */
+
+html[data-theme="system"] .phanyx-google-config-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page > div,
+html[data-theme="system"] .phanyx-google-config-page .rounded-2xl {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page input,
+html[data-theme="system"] .phanyx-google-config-page select,
+html[data-theme="system"] .phanyx-google-config-page textarea {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page input::placeholder {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page h1,
+html[data-theme="system"] .phanyx-google-config-page h2,
+html[data-theme="system"] .phanyx-google-config-page p,
+html[data-theme="system"] .phanyx-google-config-page label,
+html[data-theme="system"] .phanyx-google-config-page span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page button {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-google-config-page .bg-blue-50,
+html[data-theme="system"] .phanyx-google-config-page .bg-amber-50 {
+  background: #171717 !important;
+  border-color: #525252 !important;
+}
+
+
+/* =========================
+   CENTRAL DE MARKETING
+   ========================= */
+
+html[data-theme="system"] .phanyx-marketing-page [class*="bg-slate-9"],
+html[data-theme="system"] .phanyx-marketing-page [class*="bg-blue-9"],
+html[data-theme="system"] .phanyx-marketing-page [class*="bg-slate-8"],
+html[data-theme="system"] .phanyx-marketing-page [class*="bg-blue-8"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-marketing-page h1,
+html[data-theme="system"] .phanyx-marketing-page h2,
+html[data-theme="system"] .phanyx-marketing-page h3,
+html[data-theme="system"] .phanyx-marketing-page p,
+html[data-theme="system"] .phanyx-marketing-page span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-marketing-page a {
+  color: #60a5fa !important;
+}
+
+
+/* =========================
+   REPUTAÇÃO IA
+   ========================= */
+
+.phanyx-reputacao-page [class*="bg-slate-950"],
+.phanyx-reputacao-page [class*="bg-slate-900"],
+.phanyx-reputacao-page [class*="bg-blue-950"],
+.phanyx-reputacao-page [class*="bg-blue-900"],
+.phanyx-reputacao-page [class*="bg-slate-800"],
+.phanyx-reputacao-page [class*="bg-blue-800"] {
+  color: #f8fafc !important;
+}
+
+.phanyx-reputacao-page [class*="bg-slate-950"] h1,
+.phanyx-reputacao-page [class*="bg-slate-950"] h2,
+.phanyx-reputacao-page [class*="bg-slate-950"] h3,
+.phanyx-reputacao-page [class*="bg-slate-950"] p,
+.phanyx-reputacao-page [class*="bg-slate-950"] span,
+.phanyx-reputacao-page [class*="bg-slate-900"] h1,
+.phanyx-reputacao-page [class*="bg-slate-900"] h2,
+.phanyx-reputacao-page [class*="bg-slate-900"] h3,
+.phanyx-reputacao-page [class*="bg-slate-900"] p,
+.phanyx-reputacao-page [class*="bg-slate-900"] span,
+.phanyx-reputacao-page [class*="bg-blue-950"] h1,
+.phanyx-reputacao-page [class*="bg-blue-950"] h2,
+.phanyx-reputacao-page [class*="bg-blue-950"] h3,
+.phanyx-reputacao-page [class*="bg-blue-950"] p,
+.phanyx-reputacao-page [class*="bg-blue-950"] span,
+.phanyx-reputacao-page [class*="bg-blue-900"] h1,
+.phanyx-reputacao-page [class*="bg-blue-900"] h2,
+.phanyx-reputacao-page [class*="bg-blue-900"] h3,
+.phanyx-reputacao-page [class*="bg-blue-900"] p,
+.phanyx-reputacao-page [class*="bg-blue-900"] span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page [class*="bg-slate-9"],
+html[data-theme="system"] .phanyx-reputacao-page [class*="bg-blue-9"],
+html[data-theme="system"] .phanyx-reputacao-page [class*="bg-slate-8"],
+html[data-theme="system"] .phanyx-reputacao-page [class*="bg-blue-8"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page h1,
+html[data-theme="system"] .phanyx-reputacao-page h2,
+html[data-theme="system"] .phanyx-reputacao-page h3,
+html[data-theme="system"] .phanyx-reputacao-page p,
+html[data-theme="system"] .phanyx-reputacao-page span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-reputacao-page [class*="bg-slate-950"] *,
+html[data-theme="light"] .phanyx-reputacao-page [class*="bg-slate-900"] *,
+html[data-theme="light"] .phanyx-reputacao-page [class*="bg-blue-950"] *,
+html[data-theme="light"] .phanyx-reputacao-page [class*="bg-blue-900"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-reputacao-page [class*="bg-slate-950"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-reputacao-page [class*="bg-slate-900"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-reputacao-page [class*="bg-blue-950"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-reputacao-page [class*="bg-blue-900"] * {
+  color: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-reputacao-page .bg-white,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-reputacao-page .bg-white {
+  color: #0f172a !important;
+}
+
+
+/* =========================
+   GESTÃO DE CERTIFICADOS
+   ========================= */
+
+.phanyx-certificados-page {
+  color: #0f172a;
+}
+
+html[data-theme="light"] .phanyx-certificados-page,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page h1,
+html[data-theme="light"] .phanyx-certificados-page h2,
+html[data-theme="light"] .phanyx-certificados-page h3,
+html[data-theme="light"] .phanyx-certificados-page p,
+html[data-theme="light"] .phanyx-certificados-page label,
+html[data-theme="light"] .phanyx-certificados-page span,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page h1,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page h2,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page h3,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page p,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page label,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page span {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page [class*="bg-blue-900"] *,
+html[data-theme="light"] .phanyx-certificados-page [class*="bg-blue-800"] *,
+html[data-theme="light"] .phanyx-certificados-page [class*="bg-slate-950"] *,
+html[data-theme="light"] .phanyx-certificados-page [class*="bg-slate-900"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page [class*="bg-blue-900"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page [class*="bg-blue-800"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page [class*="bg-slate-950"] *,
+html:not([data-theme="dark"]):not([data-theme="system"]) .phanyx-certificados-page [class*="bg-slate-900"] * {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page [class*="bg-slate-9"],
+html[data-theme="system"] .phanyx-certificados-page [class*="bg-blue-9"],
+html[data-theme="system"] .phanyx-certificados-page [class*="bg-slate-8"],
+html[data-theme="system"] .phanyx-certificados-page [class*="bg-blue-8"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page h1,
+html[data-theme="system"] .phanyx-certificados-page h2,
+html[data-theme="system"] .phanyx-certificados-page h3,
+html[data-theme="system"] .phanyx-certificados-page p,
+html[data-theme="system"] .phanyx-certificados-page label,
+html[data-theme="system"] .phanyx-certificados-page span,
+html[data-theme="dark"] .phanyx-certificados-page h1,
+html[data-theme="dark"] .phanyx-certificados-page h2,
+html[data-theme="dark"] .phanyx-certificados-page h3,
+html[data-theme="dark"] .phanyx-certificados-page p,
+html[data-theme="dark"] .phanyx-certificados-page label,
+html[data-theme="dark"] .phanyx-certificados-page span {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page input,
+html[data-theme="system"] .phanyx-certificados-page select,
+html[data-theme="system"] .phanyx-certificados-page textarea {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+/* Badges Pendente / Pronto / Assinado não podem apagar no hover */
+.phanyx-certificados-page .rounded-full[class*="bg-amber"],
+.phanyx-certificados-page .rounded-full[class*="bg-yellow"],
+.phanyx-certificados-page .rounded-full[class*="bg-green"],
+.phanyx-certificados-page .rounded-full[class*="bg-emerald"],
+.phanyx-certificados-page .rounded-full[class*="bg-slate-100"],
+.phanyx-certificados-page .rounded-full[class*="bg-blue-100"] {
+  color: #0f172a !important;
+}
+
+.phanyx-certificados-page .rounded-full[class*="bg-amber"]:hover,
+.phanyx-certificados-page .rounded-full[class*="bg-yellow"]:hover,
+.phanyx-certificados-page .rounded-full[class*="bg-green"]:hover,
+.phanyx-certificados-page .rounded-full[class*="bg-emerald"]:hover,
+.phanyx-certificados-page .rounded-full[class*="bg-slate-100"]:hover,
+.phanyx-certificados-page .rounded-full[class*="bg-blue-100"]:hover {
+  color: #0f172a !important;
+}
+
+
+/* =========================
+   CONFIGURAÇÕES DO CERTIFICADO
+   ========================= */
+
+html[data-theme="system"] .phanyx-certificado-editor-page [class*="bg-slate-9"],
+html[data-theme="system"] .phanyx-certificado-editor-page [class*="bg-blue-9"],
+html[data-theme="system"] .phanyx-certificado-editor-page [class*="bg-slate-8"],
+html[data-theme="system"] .phanyx-certificado-editor-page [class*="bg-blue-8"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificado-editor-page h1,
+html[data-theme="system"] .phanyx-certificado-editor-page h2,
+html[data-theme="system"] .phanyx-certificado-editor-page h3,
+html[data-theme="system"] .phanyx-certificado-editor-page p,
+html[data-theme="system"] .phanyx-certificado-editor-page label,
+html[data-theme="system"] .phanyx-certificado-editor-page span,
+html[data-theme="dark"] .phanyx-certificado-editor-page h1,
+html[data-theme="dark"] .phanyx-certificado-editor-page h2,
+html[data-theme="dark"] .phanyx-certificado-editor-page h3,
+html[data-theme="dark"] .phanyx-certificado-editor-page p,
+html[data-theme="dark"] .phanyx-certificado-editor-page label,
+html[data-theme="dark"] .phanyx-certificado-editor-page span {
+  color: #f8fafc !important;
+}
