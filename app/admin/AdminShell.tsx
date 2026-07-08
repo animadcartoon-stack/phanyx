@@ -253,6 +253,9 @@ const usuarioAdmin =
 const podeVerPublicacoesAcademicas =
   usuarioAdmin || temPermissao("academico.publicacoes.ver");
 
+  const podeVerAssinaturaPhanyx =
+  usuarioAdmin || temPermissao("assinatura.ver");
+
   function isActive(path: string) {
     if (path === "/admin") return pathname === "/admin";
     return pathname === path || pathname.startsWith(path + "/");
@@ -364,12 +367,14 @@ function abrirTourAdmin() {
 >
   👤 Meu Perfil
 </Link>
-<Link
-  href="/admin/assinatura"
-  className={getLinkClass("/admin/assinatura")}
->
-  💳 Assinatura PHANYX
-</Link>
+{podeVerAssinaturaPhanyx && (
+  <Link
+    href="/admin/assinatura"
+    className={getLinkClass("/admin/assinatura")}
+  >
+    💳 Assinatura PHANYX
+  </Link>
+)}
               {podeVerPainelMaster && (
                 <div className="border-t pt-2 mt-2">
                   <button

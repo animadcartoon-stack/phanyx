@@ -3600,3 +3600,132 @@ html[data-theme="dark"] .phanyx-cert-botao-secundario:hover {
     @apply border-slate-500 bg-slate-800 text-white shadow-sm dark:border-slate-500 dark:bg-slate-700 dark:text-white;
   }
 }
+
+/* =========================================
+   PHANYX - ASSINATURA / PLANO E COBRANÇA
+   Compatível com claro, escuro e sistema
+========================================= */
+
+.phanyx-assinatura-page {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.phanyx-assinatura-page h1,
+.phanyx-assinatura-page h2,
+.phanyx-assinatura-page h3,
+.phanyx-assinatura-page p,
+.phanyx-assinatura-page span,
+.phanyx-assinatura-page strong {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .bg-white,
+html[data-theme="light"] .phanyx-assinatura-page .bg-slate-50,
+html[data-theme="light"] .phanyx-assinatura-page .bg-slate-900,
+html[data-theme="light"] .phanyx-assinatura-page .bg-slate-950 {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .bg-blue-500\/10 {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .bg-red-500\/10 {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .bg-emerald-500\/10 {
+  background: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .text-white,
+html[data-theme="light"] .phanyx-assinatura-page .text-slate-100,
+html[data-theme="light"] .phanyx-assinatura-page .text-slate-200,
+html[data-theme="light"] .phanyx-assinatura-page .text-slate-300,
+html[data-theme="light"] .phanyx-assinatura-page .text-slate-400 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .text-slate-500,
+html[data-theme="light"] .phanyx-assinatura-page .text-slate-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .text-blue-100,
+html[data-theme="light"] .phanyx-assinatura-page .text-blue-200,
+html[data-theme="light"] .phanyx-assinatura-page .text-blue-300,
+html[data-theme="light"] .phanyx-assinatura-page .text-blue-700,
+html[data-theme="light"] .phanyx-assinatura-page .text-blue-800,
+html[data-theme="light"] .phanyx-assinatura-page .text-blue-900 {
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .text-red-200,
+html[data-theme="light"] .phanyx-assinatura-page .text-red-300,
+html[data-theme="light"] .phanyx-assinatura-page .text-red-600,
+html[data-theme="light"] .phanyx-assinatura-page .text-red-700 {
+  color: #b91c1c !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page .text-emerald-200,
+html[data-theme="light"] .phanyx-assinatura-page .text-emerald-300,
+html[data-theme="light"] .phanyx-assinatura-page .text-emerald-700 {
+  color: #047857 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page input,
+html[data-theme="light"] .phanyx-assinatura-page textarea,
+html[data-theme="light"] .phanyx-assinatura-page select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page input::placeholder,
+html[data-theme="light"] .phanyx-assinatura-page textarea::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-assinatura-page button.bg-red-600,
+html[data-theme="light"] .phanyx-assinatura-page button.bg-blue-600 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-assinatura-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-assinatura-page {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-assinatura-page .bg-white,
+html[data-theme="system"] .phanyx-assinatura-page .bg-slate-50,
+html[data-theme="system"] .phanyx-assinatura-page .bg-slate-900,
+html[data-theme="system"] .phanyx-assinatura-page .bg-slate-950 {
+  background: #2f2f2f !important;
+  color: #ffffff !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-assinatura-page .bg-blue-500\/10 {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
