@@ -860,13 +860,16 @@ if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
 }
 
     const eventoPagamento =
-      event === "PAYMENT_CREATED" ||
-      event === "PAYMENT_RECEIVED" ||
-      event === "PAYMENT_CONFIRMED" ||
-      event === "PAYMENT_AUTHORIZED" ||
-      event === "PAYMENT_UPDATED" ||
-      event === "PAYMENT_OVERDUE" ||
-      event === "PAYMENT_DELETED";
+  event === "PAYMENT_CREATED" ||
+  event === "PAYMENT_RECEIVED" ||
+  event === "PAYMENT_CONFIRMED" ||
+  event === "PAYMENT_AUTHORIZED" ||
+  event === "PAYMENT_UPDATED" ||
+  event === "PAYMENT_OVERDUE" ||
+  event === "PAYMENT_DELETED" ||
+  event === "PAYMENT_AWAITING_RISK_ANALYSIS" ||
+  event === "PAYMENT_APPROVED_BY_RISK_ANALYSIS" ||
+  event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS";
 
     const eventoAssinatura =
       event === "SUBSCRIPTION_CREATED" ||
@@ -1036,6 +1039,38 @@ if (event.startsWith("PAYMENT_") && asaasSubscriptionId) {
       event === "PAYMENT_RECEIVED" ||
       event === "PAYMENT_CONFIRMED" ||
       event === "PAYMENT_AUTHORIZED";
+
+      if (event === "PAYMENT_AWAITING_RISK_ANALYSIS") {
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      status: "PROCESSANDO",
+      asaasId: asaasPaymentId || adesao.asaasId,
+    },
+  });
+
+  return NextResponse.json({
+    ok: true,
+    aguardandoAnaliseRisco: true,
+    adesaoId: adesao.id,
+  });
+}
+
+if (event === "PAYMENT_REPROVED_BY_RISK_ANALYSIS") {
+  await prisma.adesaoInstituicao.update({
+    where: { id: adesao.id },
+    data: {
+      status: "ERRO",
+      asaasId: asaasPaymentId || adesao.asaasId,
+    },
+  });
+
+  return NextResponse.json({
+    ok: true,
+    reprovadoAnaliseRisco: true,
+    adesaoId: adesao.id,
+  });
+}
 
     if (!statusPago) {
       console.log("ℹ️ Evento recebido, mas ainda sem pagamento confirmado:", {
