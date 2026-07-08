@@ -91,16 +91,24 @@ export default function ChatGlobalWidget() {
   function abrirChatPelaNotificacao(event: any) {
     const conversaId = Number(event.detail?.conversaId);
 
-    if (!conversaId) return;
-
     setAberto(true);
+    setChatMaximizado(false);
     setModoNovaConversa(false);
+    setModoTurmas(false);
+    setMostrarEmojis(false);
+    setMostrarGifs(false);
+
+    if (!Number.isFinite(conversaId) || conversaId <= 0) {
+      setConversaAberta(null);
+      setMensagens([]);
+      return;
+    }
 
     setConversaAberta({
-  id: conversaId,
-  nome: event.detail?.remetenteNome || "Conversa",
-  role: event.detail?.remetenteRole || "",
-});
+      id: conversaId,
+      nome: event.detail?.remetenteNome || "Conversa",
+      role: event.detail?.remetenteRole || "",
+    });
 
     carregarMensagens(conversaId);
   }
