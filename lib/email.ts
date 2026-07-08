@@ -27,7 +27,7 @@ export async function enviarEmailAcessoExistente({
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: "✅ Seu acesso ao PHANYX já está disponível",
+    subject: "Seu acesso ao PHANYX já está disponível",
     html: `
       <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b1120;padding:32px 16px;">
@@ -148,14 +148,16 @@ function getAppUrl() {
 }
 
 function getEmailAssetsUrl() {
-  return (
+  const url =
     process.env.NEXT_PUBLIC_EMAIL_ASSETS_URL?.trim() ||
-    "https://www.phanyx.com.br"
-  );
+    process.env.NEXT_PUBLIC_BASE_URL?.trim() ||
+    "https://www.phanyx.com.br";
+
+  return url.replace(/\/+$/, "");
 }
 
 function getLogoUrl() {
-  return `${getEmailAssetsUrl()}/icon.png`;
+  return `${getEmailAssetsUrl()}/images/logo-formax.png`;
 }
 
 function getMascotePhanyxUrl() {
@@ -418,7 +420,7 @@ export async function enviarEmailAcesso({
   const info = await transporter.sendMail({
   from: process.env.EMAIL_FROM,
   to: email,
-  subject: "🚀 Seu acesso ao PHANYX foi liberado",
+  subject: "Seu acesso ao PHANYX foi liberado",
   html: `
       <div style="margin:0;padding:0;background:#0b1120;font-family:Arial,Helvetica,sans-serif;">
         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#0b1120;padding:32px 16px;">
