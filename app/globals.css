@@ -5513,3 +5513,104 @@ html[data-theme="system"] :is(
   background: #2f2f2f !important;
   background-color: #2f2f2f !important;
 }
+
+/* =========================================================
+   PHANYX - FINANCEIRO / CABEÇALHO DE TABELAS DEFINITIVO
+========================================================= */
+
+.phanyx-financeiro-table-head {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.phanyx-financeiro-table-head tr,
+.phanyx-financeiro-table-head th {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-financeiro-table-th {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-table-head,
+html[data-theme="dark"] .phanyx-financeiro-table-head tr,
+html[data-theme="dark"] .phanyx-financeiro-table-head th {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-table-th {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-financeiro-table-head,
+html[data-theme="system"] .phanyx-financeiro-table-head tr,
+html[data-theme="system"] .phanyx-financeiro-table-head th {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-financeiro-table-th {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   PHANYX - FINANCEIRO / GRID HEAD DEFINITIVO
+   Para telas que usam div grid em vez de table
+========================================================= */
+
+.phanyx-financeiro-grid-head {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-financeiro-grid-head > div {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-grid-head {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-grid-head > div {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-financeiro-grid-head {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-financeiro-grid-head > div {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}

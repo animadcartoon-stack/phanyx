@@ -546,7 +546,7 @@ useEffect(() => {
 
   return (
   <>
-    <div className="phanyx-financeiro-inadimplentes-page space-y-6 ...">
+    <div className="phanyx-financeiro-inadimplentes-page space-y-6 max-w-7xl">
       <div className="flex items-start justify-between gap-4">
   <div>
     <h1 className="text-2xl font-bold">🚨 Inadimplentes</h1>
@@ -616,15 +616,15 @@ useEffect(() => {
   data-tour="inad-lista"
   className="bg-white border rounded-xl overflow-hidden"
 >
-        <div className="grid grid-cols-7 gap-3 border-b bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">
-          <div>Aluno</div>
-          <div>Matrícula</div>
-          <div>Email</div>
-          <div>Cobranças vencidas</div>
-          <div>Total em atraso</div>
-          <div>Cobrança</div>
-          <div>Ações</div>
-        </div>
+        <div className="phanyx-financeiro-grid-head grid grid-cols-7 gap-3 border-b px-4 py-3 text-sm font-black">
+  <div>Aluno</div>
+  <div>Matrícula</div>
+  <div>Email</div>
+  <div>Cobranças vencidas</div>
+  <div>Total em atraso</div>
+  <div>Cobrança</div>
+  <div>Ações</div>
+</div>
 
         {loading ? (
           <div className="p-4 text-sm text-gray-600">Carregando...</div>

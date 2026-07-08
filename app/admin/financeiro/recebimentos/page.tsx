@@ -974,7 +974,7 @@ useEffect(() => {
       )}
 
       <div data-tour="recebimentos-tabela" className="bg-white border rounded-xl overflow-hidden">
-        <div className="grid grid-cols-10 gap-3 border-b bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700">
+        <div className="phanyx-financeiro-grid-head grid grid-cols-10 gap-3 border-b px-4 py-3 text-sm font-black">
           <div></div>
           <div>Aluno</div>
           <div>Tipo</div>
