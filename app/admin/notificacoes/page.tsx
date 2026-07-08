@@ -110,14 +110,22 @@ export default function NotificacoesPage() {
       )
     );
 
-    const categoria = String(item.categoria || item.tipo || "").toUpperCase();
+    const categoria = String(item.categoria || item.tipo || "")
+      .trim()
+      .toUpperCase();
 
-    const destino =
-      item.link ||
-      (categoria === "CHAT" ? "/admin/chat" : "");
+    let destino = item.link?.trim() || "";
+
+    if (!destino && categoria === "CHAT") {
+      destino = "/admin/comunicacao";
+    }
+
+    if (!destino && categoria === "RH") {
+      destino = "/admin/rh/ferias";
+    }
 
     if (destino) {
-      window.location.href = destino;
+      window.location.assign(destino);
       return;
     }
 
