@@ -745,7 +745,7 @@ useEffect(() => {
 }, []);
 
   return (
-    <div className="space-y-6 max-w-7xl">
+  <div className="phanyx-financeiro-recebimentos-page space-y-6 max-w-7xl">
       <div>
         <h1 className="text-2xl font-bold">💵 Recebimentos</h1>
         <p className="text-gray-600 mt-1">

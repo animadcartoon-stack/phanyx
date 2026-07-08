@@ -106,7 +106,7 @@ export default function ChatGlobalWidget() {
 
     setConversaAberta({
       id: conversaId,
-      nome: event.detail?.remetenteNome || "Conversa",
+      nome: event.detail?.remetenteNome || `Conversa #${conversaId}`,
       role: event.detail?.remetenteRole || "",
     });
 

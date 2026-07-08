@@ -539,7 +539,7 @@ setErro("");
   }
 
   return (
-    <div className="max-w-7xl space-y-6 p-6">
+  <div className="phanyx-financeiro-page max-w-7xl space-y-6 p-6">
       <div className="rounded-2xl border bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>

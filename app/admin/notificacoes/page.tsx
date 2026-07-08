@@ -84,7 +84,7 @@ export default function NotificacoesPage() {
     }
   }
 
-  async function abrirNotificacao(item: Notificacao) {
+ async function abrirNotificacao(item: Notificacao) {
   try {
     const res = await fetch("/api/admin/notificacoes", {
       method: "PATCH",
@@ -133,9 +133,33 @@ export default function NotificacoesPage() {
         }
       }
 
+      const remetenteExtraido =
+        item.descricao?.includes(":")
+          ? item.descricao.split(":")[0].trim()
+          : "";
+
+      const remetenteNome =
+        remetenteExtraido &&
+        remetenteExtraido.toLowerCase() !== "null" &&
+        remetenteExtraido.toLowerCase() !== "usuário" &&
+        remetenteExtraido.toLowerCase() !== "usuario"
+          ? remetenteExtraido
+          : conversaId
+          ? `Conversa #${conversaId}`
+          : "Chat PHANYX";
+
       window.dispatchEvent(
         new CustomEvent("phanyx:abrir-chat", {
-          detail: conversaId ? { conversaId } : {},
+          detail: conversaId
+            ? {
+                conversaId,
+                remetenteNome,
+                remetenteRole: "",
+              }
+            : {
+                remetenteNome,
+                remetenteRole: "",
+              },
         })
       );
 

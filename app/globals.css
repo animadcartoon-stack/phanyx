@@ -4799,3 +4799,499 @@ html[data-theme="system"] .phanyx-funcionario-editar-btn:hover {
   background: #3a3a3a !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX - FINANCEIRO / TEMA ESCURO E SISTEMA
+   Visão Geral, Taxas, Histórico, Recebimentos e Inadimplentes
+========================================================= */
+
+.phanyx-financeiro-page,
+.phanyx-financeiro-taxas-page,
+.phanyx-financeiro-historico-page,
+.phanyx-financeiro-recebimentos-page,
+.phanyx-financeiro-inadimplentes-page {
+  opacity: 1 !important;
+}
+
+/* Botões principais que estavam parecendo texto comum */
+.phanyx-financeiro-primary-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28) !important;
+}
+
+.phanyx-financeiro-primary-action:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-financeiro-primary-action:disabled {
+  background: #475569 !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+  cursor: not-allowed !important;
+}
+
+/* =========================
+   ESCURO
+========================= */
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(h1, h2, h3, h4, th, strong) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(p, span, label, td, div) {
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600,
+  .text-gray-400,
+  .text-gray-500,
+  .text-gray-600,
+  .text-blue-900,
+  .text-blue-800,
+  .text-blue-700
+) {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .bg-white,
+  .bg-white\/80,
+  .bg-white\/90,
+  .bg-slate-50,
+  .bg-slate-100,
+  .bg-slate-200
+) {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Hover dos cards no escuro: não deixar virar branco */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .hover\:bg-white:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-blue-50:hover,
+  .hover\:bg-gray-100:hover
+) {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #60a5fa !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .hover\:bg-white:hover *,
+  .hover\:bg-slate-50:hover *,
+  .hover\:bg-slate-100:hover *,
+  .hover\:bg-blue-50:hover *,
+  .hover\:bg-gray-100:hover *
+) {
+  color: #ffffff !important;
+}
+
+/* Campos */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(input, select, textarea) {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(input::placeholder, textarea::placeholder) {
+  color: #94a3b8 !important;
+}
+
+/* Tabelas e cabeçalhos */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page,
+  .phanyx-financeiro-historico-page
+) :is(table, thead, thead tr) {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page,
+  .phanyx-financeiro-historico-page
+) th {
+  background: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page,
+  .phanyx-financeiro-historico-page
+) td {
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* Linhas de atraso/pagamento que estavam rosa claro no escuro */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .bg-red-50,
+  .bg-red-100,
+  .bg-rose-50,
+  .bg-rose-100
+) {
+  background: rgba(127, 29, 29, 0.35) !important;
+  background-color: rgba(127, 29, 29, 0.35) !important;
+  color: #fecaca !important;
+  border-color: #ef4444 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .bg-red-50 *,
+  .bg-red-100 *,
+  .bg-rose-50 *,
+  .bg-rose-100 *
+) {
+  color: #fee2e2 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .text-red-600,
+  .text-red-700,
+  .text-red-800
+) {
+  color: #fca5a5 !important;
+}
+
+/* Badges verdes/vermelhas */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) .bg-green-100 {
+  background: rgba(22, 163, 74, 0.22) !important;
+  color: #bbf7d0 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) .bg-red-100 {
+  background: rgba(220, 38, 38, 0.22) !important;
+  color: #fecaca !important;
+}
+
+/* =========================
+   SISTEMA
+========================= */
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(h1, h2, h3, h4, th, strong) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(p, span, label, td, div) {
+  color: #e5e5e5 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .text-blue-900,
+  .text-blue-800,
+  .text-blue-700,
+  .text-slate-900,
+  .text-slate-800,
+  .text-gray-900,
+  .text-gray-800
+) {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600,
+  .text-gray-400,
+  .text-gray-500,
+  .text-gray-600
+) {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .bg-white,
+  .bg-white\/80,
+  .bg-white\/90,
+  .bg-slate-50,
+  .bg-slate-100,
+  .bg-slate-200,
+  .bg-slate-900,
+  .bg-slate-950,
+  .dark\:bg-slate-900,
+  .dark\:bg-slate-950
+) {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+/* Hover dos cards no sistema: cinza, não branco */
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .hover\:bg-white:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-blue-50:hover,
+  .hover\:bg-gray-100:hover
+) {
+  background: #3a3a3a !important;
+  background-color: #3a3a3a !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-page,
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .hover\:bg-white:hover *,
+  .hover\:bg-slate-50:hover *,
+  .hover\:bg-slate-100:hover *,
+  .hover\:bg-blue-50:hover *,
+  .hover\:bg-gray-100:hover *
+) {
+  color: #ffffff !important;
+}
+
+/* Campos no sistema */
+html[data-theme="system"] :is(
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(input, select, textarea) {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) option {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-taxas-page,
+  .phanyx-financeiro-historico-page,
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(input::placeholder, textarea::placeholder) {
+  color: #a3a3a3 !important;
+}
+
+/* Tabelas no sistema */
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page,
+  .phanyx-financeiro-historico-page
+) :is(table, thead, thead tr) {
+  background: #2f2f2f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page,
+  .phanyx-financeiro-historico-page
+) th {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page,
+  .phanyx-financeiro-historico-page
+) td {
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+/* Linhas de atraso no sistema */
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .bg-red-50,
+  .bg-red-100,
+  .bg-rose-50,
+  .bg-rose-100
+) {
+  background: rgba(127, 29, 29, 0.36) !important;
+  background-color: rgba(127, 29, 29, 0.36) !important;
+  color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .bg-red-50 *,
+  .bg-red-100 *,
+  .bg-rose-50 *,
+  .bg-rose-100 *
+) {
+  color: #fee2e2 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(
+  .text-red-600,
+  .text-red-700,
+  .text-red-800
+) {
+  color: #fca5a5 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) .bg-green-100 {
+  background: rgba(22, 163, 74, 0.24) !important;
+  color: #bbf7d0 !important;
+}

@@ -283,7 +283,7 @@ async function confirmarExclusao() {
   }
 }
   return (
-    <div className="space-y-6 p-6">
+  <div className="phanyx-financeiro-taxas-page space-y-6 p-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Taxas Avulsas</h1>
         <p className="text-sm text-slate-500">
@@ -414,10 +414,10 @@ async function confirmarExclusao() {
 
         <div className="flex flex-wrap gap-3">
           <button
-            type="submit"
-            disabled={saving}
-            className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white disabled:opacity-60"
-          >
+  type="submit"
+  disabled={saving}
+  className="phanyx-financeiro-primary-action rounded-xl px-5 py-3 text-sm font-bold disabled:opacity-60"
+>
             {saving
               ? "Salvando..."
               : editingId === null
