@@ -7605,3 +7605,346 @@ html[data-theme="dark"] .phanyx-certificado-editor-page label,
 html[data-theme="dark"] .phanyx-certificado-editor-page span {
   color: #f8fafc !important;
 }
+
+/* =========================================================
+   PHANYX - CORREÇÃO FINAL 2
+   Sistema / Marketing / Reputação / Certificados / Templates
+   ========================================================= */
+
+
+/* =========================
+   TEMPLATES - VARIÁVEIS
+   ========================= */
+
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-blue"],
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-blue"],
+html[data-theme="system"] .phanyx-doc-templates-page article[class*="bg-blue"],
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-950"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-doc-templates-page article[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-doc-templates-page div[class*="bg-slate-950"] *,
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-doc-templates-page section[class*="bg-slate-950"] * {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page input,
+html[data-theme="system"] .phanyx-doc-templates-page select,
+html[data-theme="system"] .phanyx-doc-templates-page textarea {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+
+/* =========================
+   MARKETING - TEMA SISTEMA
+   Cards não podem ficar azuis
+   ========================= */
+
+html[data-theme="system"] .phanyx-marketing-page div[class*="bg-blue"],
+html[data-theme="system"] .phanyx-marketing-page section[class*="bg-blue"],
+html[data-theme="system"] .phanyx-marketing-page article[class*="bg-blue"],
+html[data-theme="system"] .phanyx-marketing-page div[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-marketing-page div[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-marketing-page section[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-marketing-page section[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-marketing-page article[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-marketing-page article[class*="bg-slate-950"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-marketing-page div[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-marketing-page section[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-marketing-page article[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-marketing-page div[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-marketing-page div[class*="bg-slate-950"] *,
+html[data-theme="system"] .phanyx-marketing-page section[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-marketing-page section[class*="bg-slate-950"] *,
+html[data-theme="system"] .phanyx-marketing-page article[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-marketing-page article[class*="bg-slate-950"] * {
+  color: #f8fafc !important;
+}
+
+/* Botõezinhos/status do Marketing */
+.phanyx-marketing-page span[class*="rounded-full"],
+.phanyx-marketing-page div[class*="rounded-full"] {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-page span[class*="rounded-full"],
+html[data-theme="system"] .phanyx-marketing-page span[class*="rounded-full"],
+html[data-theme="dark"] .phanyx-marketing-page div[class*="rounded-full"],
+html[data-theme="system"] .phanyx-marketing-page div[class*="rounded-full"] {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+}
+
+
+/* =========================
+   REPUTAÇÃO - CARD ESCURO
+   Texto sempre branco
+   ========================= */
+
+.phanyx-reputacao-page div[class*="bg-slate-900"] *,
+.phanyx-reputacao-page div[class*="bg-slate-950"] *,
+.phanyx-reputacao-page section[class*="bg-slate-900"] *,
+.phanyx-reputacao-page section[class*="bg-slate-950"] *,
+.phanyx-reputacao-page article[class*="bg-slate-900"] *,
+.phanyx-reputacao-page article[class*="bg-slate-950"] *,
+.phanyx-reputacao-page div[class*="bg-blue-900"] *,
+.phanyx-reputacao-page div[class*="bg-blue-950"] *,
+.phanyx-reputacao-page section[class*="bg-blue-900"] *,
+.phanyx-reputacao-page section[class*="bg-blue-950"] *,
+.phanyx-reputacao-page article[class*="bg-blue-900"] *,
+.phanyx-reputacao-page article[class*="bg-blue-950"] * {
+  color: #f8fafc !important;
+}
+
+/* Reputação no tema sistema: card escuro vira cinza, não azul */
+html[data-theme="system"] .phanyx-reputacao-page div[class*="bg-blue"],
+html[data-theme="system"] .phanyx-reputacao-page section[class*="bg-blue"],
+html[data-theme="system"] .phanyx-reputacao-page article[class*="bg-blue"],
+html[data-theme="system"] .phanyx-reputacao-page div[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-reputacao-page div[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-reputacao-page section[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-reputacao-page section[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-reputacao-page article[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-reputacao-page article[class*="bg-slate-950"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+/* Reputação: cards claros NÃO podem receber texto branco */
+.phanyx-reputacao-page div[class*="bg-green-50"],
+.phanyx-reputacao-page div[class*="bg-emerald-50"],
+.phanyx-reputacao-page section[class*="bg-green-50"],
+.phanyx-reputacao-page section[class*="bg-emerald-50"] {
+  background: #ecfdf5 !important;
+  border-color: #86efac !important;
+  color: #064e3b !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-green-50"] *,
+.phanyx-reputacao-page div[class*="bg-emerald-50"] *,
+.phanyx-reputacao-page section[class*="bg-green-50"] *,
+.phanyx-reputacao-page section[class*="bg-emerald-50"] * {
+  color: #064e3b !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-red-50"],
+.phanyx-reputacao-page div[class*="bg-rose-50"],
+.phanyx-reputacao-page section[class*="bg-red-50"],
+.phanyx-reputacao-page section[class*="bg-rose-50"] {
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #991b1b !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-red-50"] *,
+.phanyx-reputacao-page div[class*="bg-rose-50"] *,
+.phanyx-reputacao-page section[class*="bg-red-50"] *,
+.phanyx-reputacao-page section[class*="bg-rose-50"] * {
+  color: #991b1b !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-yellow-50"],
+.phanyx-reputacao-page div[class*="bg-amber-50"],
+.phanyx-reputacao-page section[class*="bg-yellow-50"],
+.phanyx-reputacao-page section[class*="bg-amber-50"] {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-yellow-50"] *,
+.phanyx-reputacao-page div[class*="bg-amber-50"] *,
+.phanyx-reputacao-page section[class*="bg-yellow-50"] *,
+.phanyx-reputacao-page section[class*="bg-amber-50"] * {
+  color: #92400e !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-sky-50"],
+.phanyx-reputacao-page div[class*="bg-blue-50"],
+.phanyx-reputacao-page section[class*="bg-sky-50"],
+.phanyx-reputacao-page section[class*="bg-blue-50"] {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e3a8a !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-sky-50"] *,
+.phanyx-reputacao-page div[class*="bg-blue-50"] *,
+.phanyx-reputacao-page section[class*="bg-sky-50"] *,
+.phanyx-reputacao-page section[class*="bg-blue-50"] * {
+  color: #1e3a8a !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-purple-50"],
+.phanyx-reputacao-page div[class*="bg-violet-50"],
+.phanyx-reputacao-page section[class*="bg-purple-50"],
+.phanyx-reputacao-page section[class*="bg-violet-50"] {
+  background: #f5f3ff !important;
+  border-color: #ddd6fe !important;
+  color: #4c1d95 !important;
+}
+
+.phanyx-reputacao-page div[class*="bg-purple-50"] *,
+.phanyx-reputacao-page div[class*="bg-violet-50"] *,
+.phanyx-reputacao-page section[class*="bg-purple-50"] *,
+.phanyx-reputacao-page section[class*="bg-violet-50"] * {
+  color: #4c1d95 !important;
+}
+
+/* Reputação: status/badges visíveis em todos os temas */
+.phanyx-reputacao-page span[class*="rounded-full"],
+.phanyx-reputacao-page div[class*="rounded-full"] {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="dark"] .phanyx-reputacao-page span[class*="rounded-full"],
+html[data-theme="system"] .phanyx-reputacao-page span[class*="rounded-full"],
+html[data-theme="dark"] .phanyx-reputacao-page div[class*="rounded-full"],
+html[data-theme="system"] .phanyx-reputacao-page div[class*="rounded-full"] {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+}
+
+
+/* =========================
+   GESTÃO DE CERTIFICADOS
+   Corrige tema claro e sistema
+   ========================= */
+
+.phanyx-certificados-page {
+  color: #0f172a !important;
+}
+
+/* Tema claro: textos apagados ficam escuros */
+html[data-theme="light"] .phanyx-certificados-page h1,
+html[data-theme="light"] .phanyx-certificados-page h2,
+html[data-theme="light"] .phanyx-certificados-page h3,
+html[data-theme="light"] .phanyx-certificados-page p,
+html[data-theme="light"] .phanyx-certificados-page label,
+html[data-theme="light"] .phanyx-certificados-page span {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page section,
+html[data-theme="light"] .phanyx-certificados-page div {
+  opacity: 1 !important;
+}
+
+/* Tema claro: cards brancos */
+html[data-theme="light"] .phanyx-certificados-page section[class*="bg-white"],
+html[data-theme="light"] .phanyx-certificados-page div[class*="bg-white"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Tema claro: card selecionado continua azul com texto branco */
+html[data-theme="light"] .phanyx-certificados-page div[class*="bg-blue-900"] *,
+html[data-theme="light"] .phanyx-certificados-page div[class*="bg-blue-800"] *,
+html[data-theme="light"] .phanyx-certificados-page section[class*="bg-blue-900"] *,
+html[data-theme="light"] .phanyx-certificados-page section[class*="bg-blue-800"] * {
+  color: #ffffff !important;
+}
+
+/* Tema sistema: azul vira cinza, exceto botões */
+html[data-theme="system"] .phanyx-certificados-page div[class*="bg-blue"],
+html[data-theme="system"] .phanyx-certificados-page section[class*="bg-blue"],
+html[data-theme="system"] .phanyx-certificados-page article[class*="bg-blue"],
+html[data-theme="system"] .phanyx-certificados-page div[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-certificados-page div[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-certificados-page section[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-certificados-page section[class*="bg-slate-950"],
+html[data-theme="system"] .phanyx-certificados-page article[class*="bg-slate-900"],
+html[data-theme="system"] .phanyx-certificados-page article[class*="bg-slate-950"] {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page div[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-certificados-page section[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-certificados-page article[class*="bg-blue"] *,
+html[data-theme="system"] .phanyx-certificados-page div[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-certificados-page div[class*="bg-slate-950"] *,
+html[data-theme="system"] .phanyx-certificados-page section[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-certificados-page section[class*="bg-slate-950"] *,
+html[data-theme="system"] .phanyx-certificados-page article[class*="bg-slate-900"] *,
+html[data-theme="system"] .phanyx-certificados-page article[class*="bg-slate-950"] * {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page input,
+html[data-theme="system"] .phanyx-certificados-page select,
+html[data-theme="system"] .phanyx-certificados-page textarea {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+/* Botões continuam com cara de botão */
+.phanyx-certificados-page button[class*="bg-blue"],
+.phanyx-marketing-page button[class*="bg-blue"],
+.phanyx-reputacao-page button[class*="bg-blue"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.phanyx-certificados-page button[class*="bg-green"],
+.phanyx-marketing-page button[class*="bg-green"],
+.phanyx-reputacao-page button[class*="bg-green"] {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.phanyx-certificados-page button[class*="bg-slate"],
+.phanyx-marketing-page button[class*="bg-slate"],
+.phanyx-reputacao-page button[class*="bg-slate"] {
+  color: #ffffff !important;
+}
+
+/* Badges Pendente / Pronto / Assinado */
+.phanyx-certificados-page span[class*="rounded-full"],
+.phanyx-certificados-page div[class*="rounded-full"] {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page span[class*="rounded-full"],
+html[data-theme="system"] .phanyx-certificados-page span[class*="rounded-full"],
+html[data-theme="dark"] .phanyx-certificados-page div[class*="rounded-full"],
+html[data-theme="system"] .phanyx-certificados-page div[class*="rounded-full"] {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+}
+
+
+/* =========================
+   GARANTIA FINAL: botões pequenos/status
+   ========================= */
+
+html[data-theme="dark"] .phanyx-reputacao-page .text-white,
+html[data-theme="system"] .phanyx-reputacao-page .text-white,
+html[data-theme="dark"] .phanyx-marketing-page .text-white,
+html[data-theme="system"] .phanyx-marketing-page .text-white,
+html[data-theme="dark"] .phanyx-certificados-page .text-white,
+html[data-theme="system"] .phanyx-certificados-page .text-white {
+  color: #ffffff !important;
+}
