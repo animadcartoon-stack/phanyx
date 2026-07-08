@@ -1228,11 +1228,11 @@ dark:bg-slate-900
   
               <div className="flex flex-wrap gap-2">
   <Link
-    href={`/admin/funcionarios/${f.id}`}
-    className="inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-  >
-    Editar
-  </Link>
+  href={`/admin/funcionarios/${f.id}`}
+  className="phanyx-funcionario-editar-btn inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-bold transition"
+>
+  Editar
+</Link>
 
   {podeGerenciarPermissoesIndividuais() && (
   <Link

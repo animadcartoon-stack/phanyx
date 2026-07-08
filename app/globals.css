@@ -4747,3 +4747,55 @@ html[data-theme="system"] :is(
 ) {
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX - REFORÇO ETAPA 1
+   Notificações e botão Editar em Funcionários
+========================================================= */
+
+/* Central de Notificações - labels dos cards no tema claro */
+html[data-theme="light"] .phanyx-notificacoes-page .phanyx-notificacoes-card-label {
+  color: #334155 !important;
+  font-weight: 700 !important;
+  opacity: 1 !important;
+}
+
+/* Central de Notificações - números dos cards no claro */
+html[data-theme="light"] .phanyx-notificacoes-page .rounded-2xl .text-3xl {
+  opacity: 1 !important;
+}
+
+/* Funcionários - botão Editar visível nos 3 temas */
+.phanyx-funcionario-editar-btn {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #64748b !important;
+}
+
+.phanyx-funcionario-editar-btn:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-funcionario-editar-btn {
+  background: #111827 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-funcionario-editar-btn:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-funcionario-editar-btn {
+  background: #303030 !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] .phanyx-funcionario-editar-btn:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+}

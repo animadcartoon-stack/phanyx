@@ -86,7 +86,7 @@ export default function NotificacoesPage() {
 
   async function abrirNotificacao(item: Notificacao) {
   try {
-    await fetch("/api/admin/notificacoes", {
+    const res = await fetch("/api/admin/notificacoes", {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -98,15 +98,30 @@ export default function NotificacoesPage() {
       }),
     });
 
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao atualizar notificação.");
+    }
+
     setNotificacoes((atual) =>
       atual.map((n) =>
         n.id === item.id ? { ...n, lida: true } : n
       )
     );
 
-    if (item.link) {
-      window.location.href = item.link;
+    const categoria = String(item.categoria || item.tipo || "").toUpperCase();
+
+    const destino =
+      item.link ||
+      (categoria === "CHAT" ? "/admin/chat" : "");
+
+    if (destino) {
+      window.location.href = destino;
+      return;
     }
+
+    setErro("Esta notificação não possui link de destino.");
   } catch (error: any) {
     setErro(error?.message || "Erro ao abrir notificação.");
   }
@@ -170,9 +185,9 @@ export default function NotificacoesPage() {
 
       <div className="grid gap-4 md:grid-cols-3">
         <div className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="text-sm text-slate-700 dark:text-slate-300">
-            Total
-          </div>
+          <div className="phanyx-notificacoes-card-label text-sm font-semibold text-slate-800 dark:text-slate-300">
+  Total
+</div>
 
           <div className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
             {notificacoes.length}
@@ -180,7 +195,7 @@ export default function NotificacoesPage() {
         </div>
 
         <div className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="text-sm text-slate-700 dark:text-slate-300">
+          <div className="phanyx-notificacoes-card-label text-sm font-semibold text-slate-800 dark:text-slate-300">
             Não lidas
           </div>
 
@@ -190,7 +205,7 @@ export default function NotificacoesPage() {
         </div>
 
         <div className="rounded-2xl border border-slate-300 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-          <div className="text-sm text-slate-700 dark:text-slate-300">
+          <div className="phanyx-notificacoes-card-label text-sm font-semibold text-slate-800 dark:text-slate-300">
             Categorias
           </div>
 
