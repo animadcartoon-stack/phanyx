@@ -364,6 +364,12 @@ function abrirTourAdmin() {
 >
   👤 Meu Perfil
 </Link>
+<Link
+  href="/admin/assinatura"
+  className={getLinkClass("/admin/assinatura")}
+>
+  💳 Assinatura PHANYX
+</Link>
               {podeVerPainelMaster && (
                 <div className="border-t pt-2 mt-2">
                   <button
@@ -1005,6 +1011,12 @@ function abrirTourAdmin() {
             <Link href="/admin/configuracoes/instituicao" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               ⚙️ Instituição
             </Link>
+            <Link
+  href="/admin/assinatura"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  💳 Assinatura PHANYX
+</Link>
             <Link href="/admin/configuracoes/documentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               📄 Documentos institucionais
             </Link>
