@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import {
+  assinaturaPermiteUso,
+  mensagemBloqueioAssinatura,
+} from "@/lib/assinatura-acesso";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -50,10 +54,52 @@ if (user.instituicaoId) {
     },
     select: {
       plano: true,
+      statusAssinatura: true,
+      isentaPagamento: true,
     },
   });
 
   plano = instituicao?.plano ?? null;
+
+  if (!user.isMasterAdmin) {
+    const assinatura = await prisma.assinaturaPhanyx.findUnique({
+      where: {
+        instituicaoId: user.instituicaoId,
+      },
+      select: {
+        status: true,
+        testeGratisFimEm: true,
+      },
+    });
+
+    const statusParaValidar =
+      assinatura?.status || instituicao?.statusAssinatura;
+
+    const podeUsarPhanyx = assinaturaPermiteUso(
+      statusParaValidar,
+      instituicao?.isentaPagamento,
+      assinatura?.testeGratisFimEm
+    );
+
+    if (!podeUsarPhanyx) {
+      const response = NextResponse.json(
+        {
+          error:
+            mensagemBloqueioAssinatura(
+              statusParaValidar,
+              instituicao?.isentaPagamento,
+              assinatura?.testeGratisFimEm
+            ) ||
+            "O acesso da instituição ao PHANYX está bloqueado. Reative a assinatura para continuar.",
+        },
+        { status: 403 }
+      );
+
+      response.cookies.delete("token");
+
+      return response;
+    }
+  }
 }
 
     if (String(user.role).toUpperCase() === "ALUNO") {

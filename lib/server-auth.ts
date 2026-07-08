@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
+import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 
@@ -65,10 +66,12 @@ export async function getUserFromToken(): Promise<UsuarioLogado | null> {
         isMasterAdmin: true,
         precisaTrocarSenha: true,
         instituicao: {
-          select: {
-            plano: true,
-          },
-        },
+  select: {
+    plano: true,
+    statusAssinatura: true,
+    isentaPagamento: true,
+  },
+},
         funcionario: {
           select: {
             id: true,
@@ -102,7 +105,29 @@ export async function getUserFromToken(): Promise<UsuarioLogado | null> {
 
     if (!usuario) return null;
 
-    const roleNormalizada = normalizarRole(usuario.role);
+if (usuario.instituicaoId && !usuario.isMasterAdmin) {
+  const assinatura = await prisma.assinaturaPhanyx.findUnique({
+    where: {
+      instituicaoId: usuario.instituicaoId,
+    },
+    select: {
+      status: true,
+      testeGratisFimEm: true,
+    },
+  });
+
+  const podeUsarPhanyx = assinaturaPermiteUso(
+    assinatura?.status || usuario.instituicao?.statusAssinatura,
+    usuario.instituicao?.isentaPagamento,
+    assinatura?.testeGratisFimEm
+  );
+
+  if (!podeUsarPhanyx) {
+    return null;
+  }
+}
+
+const roleNormalizada = normalizarRole(usuario.role);
 
     const permissoesDepartamento = normalizarPermissoes(
       usuario.funcionario?.departamento?.permissoes?.map((p) => p.chave) || []

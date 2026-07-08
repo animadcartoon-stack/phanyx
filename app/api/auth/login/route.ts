@@ -2,6 +2,10 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import {
+  assinaturaPermiteUso,
+  mensagemBloqueioAssinatura,
+} from "@/lib/assinatura-acesso";
 
 type Portal = "admin" | "professor" | "aluno";
 
@@ -92,13 +96,59 @@ if (user.ativo === false) {
     }
 
     if (!user.instituicaoId) {
-      return NextResponse.json(
-        { error: "Usuário sem instituição vinculada" },
-        { status: 403 }
-      );
-    }
+  return NextResponse.json(
+    { error: "Usuário sem instituição vinculada" },
+    { status: 403 }
+  );
+}
 
-    if (!process.env.JWT_SECRET) {
+if (!user.isMasterAdmin) {
+  const instituicao = await prisma.instituicao.findUnique({
+    where: {
+      id: user.instituicaoId,
+    },
+    select: {
+      statusAssinatura: true,
+      isentaPagamento: true,
+    },
+  });
+
+  const assinatura = await prisma.assinaturaPhanyx.findUnique({
+    where: {
+      instituicaoId: user.instituicaoId,
+    },
+    select: {
+      status: true,
+      testeGratisFimEm: true,
+    },
+  });
+
+  const statusParaValidar =
+    assinatura?.status || instituicao?.statusAssinatura;
+
+  const podeUsarPhanyx = assinaturaPermiteUso(
+    statusParaValidar,
+    instituicao?.isentaPagamento,
+    assinatura?.testeGratisFimEm
+  );
+
+  if (!podeUsarPhanyx) {
+    return NextResponse.json(
+      {
+        error:
+          mensagemBloqueioAssinatura(
+            statusParaValidar,
+            instituicao?.isentaPagamento,
+            assinatura?.testeGratisFimEm
+          ) ||
+          "O acesso da instituição ao PHANYX está bloqueado. Reative a assinatura para continuar.",
+      },
+      { status: 403 }
+    );
+  }
+}
+
+if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET não definido");
     }
 
