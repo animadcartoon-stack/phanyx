@@ -110,32 +110,46 @@ export default function NotificacoesPage() {
       )
     );
 
-    const categoria = String(item.categoria || item.tipo || "")
-  .trim()
-  .toUpperCase();
+    const tipo = String(item.tipo || "").trim().toUpperCase();
+    const categoria = String(item.categoria || "").trim().toUpperCase();
 
-if (categoria === "CHAT") {
-  window.dispatchEvent(
-    new CustomEvent("phanyx:abrir-chat", {
-      detail: {},
-    })
-  );
+    if (tipo === "CHAT" || categoria === "CHAT") {
+      let conversaId: number | null = null;
 
-  return;
-}
+      if (item.link) {
+        try {
+          const url = new URL(item.link, window.location.origin);
+          const conversaIdParam = url.searchParams.get("conversaId");
 
-let destino = item.link?.trim() || "";
+          if (conversaIdParam) {
+            const idConvertido = Number(conversaIdParam);
 
-if (!destino && categoria === "RH") {
-  destino = "/admin/rh/ferias";
-}
+            if (Number.isFinite(idConvertido) && idConvertido > 0) {
+              conversaId = idConvertido;
+            }
+          }
+        } catch {
+          conversaId = null;
+        }
+      }
 
-if (destino) {
-  window.location.assign(destino);
-  return;
-}
+      window.dispatchEvent(
+        new CustomEvent("phanyx:abrir-chat", {
+          detail: conversaId ? { conversaId } : {},
+        })
+      );
 
-setErro("Esta notificação não possui link de destino.");
+      return;
+    }
+
+    const destino = item.link?.trim() || "";
+
+    if (destino) {
+      window.location.assign(destino);
+      return;
+    }
+
+    setErro("Esta notificação não possui link de destino.");
   } catch (error: any) {
     setErro(error?.message || "Erro ao abrir notificação.");
   }
