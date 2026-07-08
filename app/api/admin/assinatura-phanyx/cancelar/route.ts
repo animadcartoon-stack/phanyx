@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
+import { getUserFromToken, temPermissao } from "@/lib/server-auth";
 import { cancelarAssinaturaAsaas } from "@/lib/asaas";
 
 export const dynamic = "force-dynamic";
@@ -10,12 +10,27 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Não autorizado." },
-        { status: 401 }
-      );
-    }
+    if (!user) {
+  return NextResponse.json(
+    { error: "Não autorizado." },
+    { status: 401 }
+  );
+}
+
+const roleUsuario = String(user.role || "").toUpperCase();
+
+const podeCancelarAssinatura =
+  user.isMasterAdmin === true ||
+  roleUsuario === "SUPER_ADMIN" ||
+  temPermissao(user, "assinatura.cancelar") ||
+  temPermissao(user, "*");
+
+if (!podeCancelarAssinatura) {
+  return NextResponse.json(
+    { error: "Você não tem permissão para cancelar a assinatura PHANYX." },
+    { status: 403 }
+  );
+}
 
     if (!user.instituicaoId) {
       return NextResponse.json(
@@ -97,15 +112,19 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await prisma.instituicao.update({
-      where: {
-        id: user.instituicaoId,
-      },
-      data: {
-        statusAssinatura: "CANCELADA",
-        updatedAt: agora,
-      },
-    });
+    const aindaDentroDoTeste =
+  assinatura.testeGratisFimEm &&
+  new Date(assinatura.testeGratisFimEm) >= agora;
+
+await prisma.instituicao.update({
+  where: {
+    id: user.instituicaoId,
+  },
+  data: {
+    statusAssinatura: aindaDentroDoTeste ? "TESTE_GRATIS" : "CANCELADA",
+    updatedAt: agora,
+  },
+});
 
     return NextResponse.json({
       ok: true,

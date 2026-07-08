@@ -147,4 +147,12 @@ export const PERMISSOES_PHANYX = [
   { chave: "academico.disciplinas.selecionar", nome: "Acadêmico - Selecionar disciplinas" },
   { chave: "academico.professores.selecionar", nome: "Acadêmico - Selecionar professor responsável" },
   { chave: "academico.alunos.selecionar", nome: "Acadêmico - Selecionar alunos específicos" },
+  {
+  chave: "assinatura.ver",
+  nome: "Ver assinatura PHANYX",
+},
+{
+  chave: "assinatura.cancelar",
+  nome: "Cancelar assinatura PHANYX",
+},
 ] as const;

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
+import { getUserFromToken, temPermissao } from "@/lib/server-auth";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -9,12 +9,27 @@ export async function GET() {
   try {
     const user = await getUserFromToken();
 
-    if (!user || user.role !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Não autorizado." },
-        { status: 401 }
-      );
-    }
+    if (!user) {
+  return NextResponse.json(
+    { error: "Não autorizado." },
+    { status: 401 }
+  );
+}
+
+const roleUsuario = String(user.role || "").toUpperCase();
+
+const podeVerAssinatura =
+  user.isMasterAdmin === true ||
+  roleUsuario === "SUPER_ADMIN" ||
+  temPermissao(user, "assinatura.ver") ||
+  temPermissao(user, "*");
+
+if (!podeVerAssinatura) {
+  return NextResponse.json(
+    { error: "Você não tem permissão para ver a assinatura PHANYX." },
+    { status: 403 }
+  );
+}
 
     if (!user.instituicaoId) {
       return NextResponse.json(
