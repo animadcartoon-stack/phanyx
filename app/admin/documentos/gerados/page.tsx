@@ -274,7 +274,7 @@ function AdminDocumentosGeradosPage() {
   }, [documentos, busca]);
 
   return (
-    <div className="space-y-6">
+    <div className="phanyx-docs-page space-y-6">
       {erro && (
   <PhanyxToast
     tipo="erro"
@@ -284,26 +284,26 @@ function AdminDocumentosGeradosPage() {
   />
 )}
       <div>
-        <h1 className="text-2xl font-bold">📚 Documentos gerados</h1>
-        <p className="mt-1 text-gray-600 dark:text-gray-300">
+        <h1 className="phanyx-doc-title text-2xl font-bold">📚 Documentos gerados</h1>
+        <p className="phanyx-doc-muted mt-1">
           Visualize o histórico de documentos gerados pela instituição.
         </p>
       </div>
 
       {mensagem ? (
-        <div className="rounded-2xl border bg-white p-4 text-sm text-gray-700 shadow-sm">
+        <div className="phanyx-doc-card p-4 text-sm">
           {mensagem}
         </div>
       ) : null}
 
       <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[minmax(0,1fr)_360px] xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
-          <div className="rounded-2xl border bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
+          <div className="phanyx-doc-card overflow-hidden">
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-4">
                 <div>
-                  <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Histórico documental</h2>
-                  <p className="mt-1 text-sm text-gray-600">
+                  <h2 className="phanyx-doc-section-title text-lg font-semibold">Histórico documental</h2>
+                  <p className="phanyx-doc-muted mt-1 text-sm">
                     Contratos, declarações, recibos, comprovantes e outros documentos.
                   </p>
                 </div>
@@ -312,14 +312,14 @@ function AdminDocumentosGeradosPage() {
                   <input
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
-                    className="min-w-0 rounded-xl border px-3 py-2"
+                    className="phanyx-doc-input min-w-0"
                     placeholder="Buscar por título, aluno, contexto..."
                   />
 
                   <select
                     value={filtroTipo}
                     onChange={(e) => setFiltroTipo(e.target.value)}
-                    className="rounded-xl border px-3 py-2 bg-white"
+                    className="phanyx-doc-input"
                   >
                     <option value="">Todos os tipos</option>
                     <option value="CONTRATO">Contrato</option>
@@ -334,7 +334,7 @@ function AdminDocumentosGeradosPage() {
 
                   <button
                     onClick={carregarDocumentos}
-                    className="rounded-xl border px-3 py-2 hover:border-blue-400"
+                    className="phanyx-doc-secondary-action"
                   >
                     Recarregar
                   </button>
@@ -351,15 +351,15 @@ function AdminDocumentosGeradosPage() {
             ) : (
               <div className="divide-y">
                 {documentosFiltrados.map((doc) => (
-                  <div key={doc.id} className="p-5">
+                  <div key={doc.id} className="phanyx-doc-list-row p-5">
                     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                       <div className="min-w-0 space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-base font-semibold text-gray-900 dark:text-white">
+                          <h3 className="phanyx-doc-section-title text-base font-semibold">
                             {doc.titulo}
                           </h3>
 
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-700">
+                          <span className="phanyx-doc-badge">
                             {labelTipo(doc.tipo)}
                           </span>
 
@@ -369,14 +369,7 @@ function AdminDocumentosGeradosPage() {
                             {labelStatus(doc.status)}
                           </span>
 
-                          <span
-                            className={[
-                              "rounded-full px-3 py-1 text-xs",
-                              doc.exigeAssinatura
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-gray-100 text-gray-700",
-                            ].join(" ")}
-                          >
+                          <span className="phanyx-doc-badge">
                             {doc.exigeAssinatura
                               ? "Exige assinatura"
                               : "Sem assinatura"}
@@ -385,36 +378,36 @@ function AdminDocumentosGeradosPage() {
 
                         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 text-sm">
                           <div>
-                            <p className="text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Aluno</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-100">
+                            <p className="phanyx-doc-label">Aluno</p>
+                            <p className="phanyx-doc-value">
                               {doc.aluno?.nome || "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Matrícula</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-100">
+                            <p className="phanyx-doc-label">Matrícula</p>
+                            <p className="phanyx-doc-value">
                               {doc.matricula?.id ? `#${doc.matricula.id}` : "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Contexto</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-100">
+                            <p className="phanyx-doc-label">Contexto</p>
+                            <p className="phanyx-doc-value">
                               {doc.contexto || "-"}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Gerado em</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-100">
+                            <p className="phanyx-doc-label">Gerado em</p>
+                            <p className="phanyx-doc-value">
                               {formatarData(doc.criadoEm)}
                             </p>
                           </div>
 
                           <div>
-                            <p className="text-slate-600 dark:text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Template</p>
-                            <p className="font-medium text-gray-800 dark:text-gray-100">
+                            <p className="phanyx-doc-label">Template</p>
+                            <p className="phanyx-doc-value">
                               {doc.template?.nome || "-"}
                             </p>
                           </div>
@@ -424,35 +417,35 @@ function AdminDocumentosGeradosPage() {
                       <div className="grid grid-cols-2 gap-2 self-start lg:w-[240px]">
   <button
     onClick={() => abrirDocumento(doc.id)}
-    className="rounded-xl border px-3 py-2 text-sm hover:border-blue-400 hover:text-blue-700"
+    className="phanyx-doc-secondary-action"
   >
     Abrir
   </button>
 
 <button
   onClick={() => window.open(`/api/admin/documentos/pdf/${doc.id}`, "_blank")}
-  className="rounded-xl border px-3 py-2 text-sm hover:border-rose-400 hover:text-rose-700"
+  className="phanyx-doc-secondary-action"
 >
   PDF
 </button>
 
   <button
     onClick={() => imprimirDocumento(doc)}
-    className="rounded-xl border px-3 py-2 text-sm hover:border-slate-400 hover:text-slate-700"
+    className="phanyx-doc-secondary-action"
   >
     Imprimir
   </button>
 
   <button
     onClick={() => enviarPorEmail(doc)}
-    className="rounded-xl border px-3 py-2 text-sm hover:border-indigo-400 hover:text-indigo-700"
+    className="phanyx-doc-secondary-action"
   >
     Email
   </button>
 
   <button
     onClick={() => enviarPorWhatsApp(doc)}
-    className="rounded-xl border px-3 py-2 text-sm hover:border-green-400 hover:text-green-700"
+    className="phanyx-doc-secondary-action"
   >
     WhatsApp
   </button>
@@ -467,10 +460,10 @@ function AdminDocumentosGeradosPage() {
         </div>
 
         <div className="min-w-0">
-          <div className="rounded-2xl border bg-white dark:bg-slate-900 p-4 shadow-sm min-h-[240px] max-h-[520px] overflow-auto">
+          <div className="phanyx-doc-card min-h-[240px] max-h-[520px] overflow-auto p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Visualização</h2>
+                <h2 className="phanyx-doc-section-title text-lg font-semibold">Visualização</h2>
                 <p className="mt-1 text-sm text-gray-600">
                   Abra um documento gerado para ver os detalhes.
                 </p>
@@ -488,7 +481,7 @@ function AdminDocumentosGeradosPage() {
             ) : (
               <div className="mt-5 space-y-4">
                 <div className="space-y-2">
-                  <h3 className="font-semibold text-gray-900">
+                  <h3 className="phanyx-doc-section-title font-semibold">
                     {documentoSelecionado.titulo}
                   </h3>
 
@@ -508,14 +501,14 @@ function AdminDocumentosGeradosPage() {
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => imprimirDocumento(documentoSelecionado)}
-                    className="rounded-xl border px-3 py-2 text-sm hover:border-slate-400 hover:text-slate-700"
+                    className="phanyx-doc-secondary-action"
                   >
                     Imprimir
                   </button>
 
                   <button
                     onClick={() => enviarPorEmail(documentoSelecionado)}
-                    className="rounded-xl border px-3 py-2 text-sm hover:border-indigo-400 hover:text-indigo-700"
+                    className="phanyx-doc-secondary-action"
                   >
                     Email
                   </button>
@@ -529,7 +522,7 @@ function AdminDocumentosGeradosPage() {
 
                   <button
                     onClick={() => enviarPorWhatsApp(documentoSelecionado)}
-                    className="rounded-xl border px-3 py-2 text-sm hover:border-green-400 hover:text-green-700"
+                    className="phanyx-doc-secondary-action"
                   >
                     WhatsApp
                   </button>
@@ -537,29 +530,29 @@ function AdminDocumentosGeradosPage() {
 
                 <div className="grid grid-cols-1 gap-3 text-sm">
                   <div>
-                    <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Aluno</p>
-                    <p className="font-medium text-gray-800 dark:text-gray-100">
+                    <p className="phanyx-doc-label">Aluno</p>
+                    <p className="phanyx-doc-value">
                       {documentoSelecionado.aluno?.nome || "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">CPF</p>
-                    <p className="font-medium text-gray-800 dark:text-gray-100">
+                    <p className="phanyx-doc-label">CPF</p>
+                    <p className="phanyx-doc-value">
                       {documentoSelecionado.aluno?.cpf || "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Matrícula</p>
-                    <p className="font-medium text-gray-800 dark:text-gray-100">
+                    <p className="phanyx-doc-label">Matrícula</p>
+                    <p className="phanyx-doc-value">
                       {documentoSelecionado.aluno?.matricula || "-"}
                     </p>
                   </div>
 
                   <div>
-                    <p className="text-slate-600 dark:text-slate-600 dark:text-slate-400 dark:text-slate-700 dark:text-slate-300">Contexto</p>
-                    <p className="font-medium text-gray-800 dark:text-gray-100">
+                    <p className="phanyx-doc-label">Contexto</p>
+                    <p className="phanyx-doc-value">
                       {documentoSelecionado.contexto || "-"}
                     </p>
                   </div>
@@ -567,11 +560,11 @@ function AdminDocumentosGeradosPage() {
 
 
 
-                <div className="rounded-2xl border bg-slate-50 p-4">
-                  <p className="mb-2 text-sm font-medium text-slate-700">
+                <div className="phanyx-doc-preview p-4">
+                  <p className="phanyx-doc-label mb-2 text-sm">
                     Conteúdo do documento
                   </p>
-                  <div className="max-h-[300px] overflow-auto whitespace-pre-wrap text-sm leading-7 text-slate-800">
+                  <div className="phanyx-doc-value max-h-[300px] overflow-auto whitespace-pre-wrap text-sm leading-7">
                     {documentoSelecionado.conteudo || "-"}
                   </div>
                 </div>

@@ -201,12 +201,12 @@ const alunosFiltrados = [...alunos]
   }, [busca]);
 
   return (
-    <div className="max-w-6xl space-y-6 p-6">
+    <div className="phanyx-docs-page max-w-6xl space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="phanyx-doc-title text-2xl font-bold">
           📄 Contratos
         </h1>
-        <p className="mt-1 text-sm text-slate-600">
+        <p className="phanyx-doc-muted mt-1 text-sm">
           Gere contratos automaticamente com dados da instituição, aluno, curso e disciplinas.
         </p>
       </div>
@@ -217,14 +217,14 @@ const alunosFiltrados = [...alunos]
         </div>
       )}
 
-      <div className="phanyx-contratos-selecionar-aluno rounded-2xl border p-6 shadow-sm">
-  <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-white">
+      <div className="phanyx-doc-card p-6">
+  <h2 className="phanyx-doc-section-title mb-4 text-lg font-semibold">
     Selecionar aluno
   </h2>
 
   <div className="grid gap-4 md:grid-cols-2">
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+      <label className="phanyx-doc-label mb-1 block text-sm">
         Buscar aluno
       </label>
 
@@ -235,32 +235,12 @@ const alunosFiltrados = [...alunos]
           name="buscarAlunoContrato"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          className="
-  w-full
-  rounded-xl
-  border-2
-  border-slate-300
-  bg-white
-  px-3
-  py-2
-  text-slate-900
-  shadow-sm
-  outline-none
-  placeholder:text-slate-500
-  focus:border-blue-500
-  focus:ring-2
-  focus:ring-blue-500/20
-
-  dark:border-slate-600
-  dark:bg-slate-950
-  dark:text-white
-  dark:placeholder:text-slate-400
-"
+          className="phanyx-doc-input"
           placeholder="Digite nome, matrícula ou email"
         />
 
         {busca.trim() && alunosFiltrados.length > 0 && (
-          <div className="absolute z-50 mt-2 max-h-64 w-full overflow-auto rounded-xl border border-slate-300 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-950">
+          <div className="phanyx-doc-autocomplete max-h-64 overflow-auto">
             {alunosFiltrados.map((aluno) => (
               <button
                 key={aluno.id}
@@ -274,14 +254,14 @@ const alunosFiltrados = [...alunos]
                   );
                   carregarContrato(String(aluno.id));
                 }}
-                className="block w-full px-4 py-2 text-left text-sm text-slate-900 hover:bg-blue-50 dark:text-white dark:hover:bg-blue-600"
+                className="phanyx-doc-autocomplete-option"
               >
                 <div className="flex flex-col">
-                  <span className="font-medium text-slate-900 dark:text-white">
+                  <span className="font-bold">
                     {aluno.nome}
                   </span>
 
-                  <span className="text-xs text-blue-700 dark:text-blue-300">
+                  <span className="text-xs opacity-90">
                     {aluno.matricula || ""}
                     {aluno.email ? ` • ${aluno.email}` : ""}
                   </span>
@@ -300,7 +280,7 @@ const alunosFiltrados = [...alunos]
     </div>
 
     <div>
-      <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-200">
+      <label className="phanyx-doc-label mb-1 block text-sm">
         Selecionar aluno
       </label>
 
@@ -310,25 +290,7 @@ const alunosFiltrados = [...alunos]
           setAlunoId(e.target.value);
           carregarContrato(e.target.value);
         }}
-        className="
-  w-full
-  rounded-xl
-  border-2
-  border-slate-300
-  bg-white
-  px-4
-  py-3
-  text-slate-900
-  shadow-sm
-  outline-none
-  focus:border-blue-500
-  focus:ring-2
-  focus:ring-blue-500/20
-
-  dark:border-slate-600
-  dark:bg-slate-950
-  dark:text-white
-"
+        className="phanyx-doc-input"
       >
         <option value="">Selecione um aluno</option>
 
@@ -351,13 +313,13 @@ const alunosFiltrados = [...alunos]
       ) : contrato ? (
         <>
           <div className="grid gap-6 lg:grid-cols-3">
-            <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-slate-800">
+            <div className="phanyx-doc-card lg:col-span-2 p-6">
+              <h2 className="phanyx-doc-section-title mb-4 text-lg font-semibold">
                 Pré-visualização do contrato
               </h2>
 
               <div
-  className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-800 [&_p]:mb-4 [&_h1]:mb-6 [&_h1]:text-center [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mb-4 [&_h2]:mt-6 [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
+  className="phanyx-doc-preview p-4 text-sm leading-7 [&_p]:mb-4 [&_h1]:mb-6 [&_h1]:text-center [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mb-4 [&_h2]:mt-6 [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
   dangerouslySetInnerHTML={{
     __html: contrato.contratoFinal,
   }}
@@ -373,50 +335,50 @@ const alunosFiltrados = [...alunos]
               )}
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-slate-800">
+            <div className="phanyx-doc-card p-6">
+              <h2 className="phanyx-doc-section-title mb-4 text-lg font-semibold">
                 Resumo do contrato
               </h2>
 
               <div className="space-y-3 text-sm text-slate-700">
                 <div>
-                  <p className="text-slate-500">Instituição</p>
-                  <p className="font-medium">{contrato.instituicao.nomeFantasia}</p>
+                  <p className="phanyx-doc-muted">Instituição</p>
+                  <p className="phanyx-doc-value">{contrato.instituicao.nomeFantasia}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">Aluno</p>
-                  <p className="font-medium">{contrato.aluno.nome}</p>
+                  <p className="phanyx-doc-muted">Aluno</p>
+                  <p className="phanyx-doc-value">{contrato.aluno.nome}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">CPF</p>
-                  <p className="font-medium">{contrato.aluno.cpf || "-"}</p>
+                  <p className="phanyx-doc-muted">CPF</p>
+                  <p className="phanyx-doc-value">{contrato.aluno.cpf || "-"}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">Matrícula</p>
-                  <p className="font-medium">{contrato.aluno.matricula || "-"}</p>
+                  <p className="phanyx-doc-muted">Matrícula</p>
+                  <p className="phanyx-doc-value">{contrato.aluno.matricula || "-"}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">Curso</p>
-                  <p className="font-medium">{contrato.curso}</p>
+                  <p className="phanyx-doc-muted">Curso</p>
+                  <p className="phanyx-doc-value">{contrato.curso}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">Valor do contrato</p>
-                  <p className="font-medium">{formatarMoeda(contrato.valorContrato)}</p>
+                  <p className="phanyx-doc-muted">Valor do contrato</p>
+                  <p className="phanyx-doc-value">{formatarMoeda(contrato.valorContrato)}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">Cidade de assinatura</p>
-                  <p className="font-medium">{contrato.instituicao.cidadeAssinatura}</p>
+                  <p className="phanyx-doc-muted">Cidade de assinatura</p>
+                  <p className="phanyx-doc-value">{contrato.instituicao.cidadeAssinatura}</p>
                 </div>
 
                 <div>
-                  <p className="text-slate-500">Responsável legal</p>
-                  <p className="font-medium">
+                  <p className="phanyx-doc-muted">Responsável legal</p>
+                  <p className="phanyx-doc-value">
                     {contrato.instituicao.responsavelNome} - {contrato.instituicao.responsavelCargo}
                   </p>
                 </div>
@@ -424,7 +386,7 @@ const alunosFiltrados = [...alunos]
 
               <div className="mt-6">
                 <button
-                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white"
+                  className="phanyx-doc-primary-action w-full"
                   onClick={() => {
   if (!alunoId) return;
   window.open(`/api/admin/contratos/pdf?alunoId=${alunoId}`, "_blank");
@@ -451,7 +413,7 @@ const alunosFiltrados = [...alunos]
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="mb-4 text-lg font-semibold text-slate-800">
+            <h2 className="phanyx-doc-section-title mb-4 text-lg font-semibold">
               Disciplinas contratadas
             </h2>
 

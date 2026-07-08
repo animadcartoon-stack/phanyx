@@ -127,30 +127,30 @@ export default function AdminValidacoesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
+    <div className="phanyx-docs-page space-y-6">
+      <div className="phanyx-doc-card p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="phanyx-doc-muted text-sm font-semibold uppercase tracking-[0.2em]">
               Validação administrativa
             </p>
-            <h1 className="mt-3 text-3xl font-bold text-slate-900">
+            <h1 className="phanyx-doc-title mt-3 text-3xl font-bold">
               Validar documento
             </h1>
-            <p className="mt-4 max-w-2xl text-slate-600">
+            <p className="phanyx-doc-muted mt-4 max-w-2xl">
               Consulte a autenticidade de contratos e documentos emitidos pelo
               sistema digitando o código de validação.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          <div className="phanyx-doc-preview px-4 py-3 text-sm">
             Uso interno do administrativo
           </div>
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-[1fr_auto]">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="phanyx-doc-label mb-2 block text-sm">
               Código de validação
             </label>
             <input
@@ -160,7 +160,7 @@ export default function AdminValidacoesPage() {
                 if (e.key === "Enter") validarCodigo();
               }}
               placeholder="Ex.: PHANYX-1774450530482"
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500"
+              className="phanyx-doc-input"
             />
           </div>
 
@@ -168,7 +168,7 @@ export default function AdminValidacoesPage() {
             <button
               onClick={validarCodigo}
               disabled={loading}
-              className="rounded-2xl bg-slate-900 px-6 py-3 font-medium text-white transition hover:bg-black disabled:cursor-not-allowed disabled:opacity-60"
+              className="phanyx-doc-primary-action disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? "Validando..." : "Validar documento"}
             </button>
@@ -187,15 +187,15 @@ export default function AdminValidacoesPage() {
           <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                <p className="phanyx-doc-muted text-sm font-semibold uppercase tracking-[0.2em]">
                   Resultado da consulta
                 </p>
-                <h2 className="mt-3 text-2xl font-bold text-slate-900">
+                <h2 className="phanyx-doc-title mt-3 text-2xl font-bold">
                   {resultado.valido
                     ? "Documento localizado"
                     : "Documento inválido ou não encontrado"}
                 </h2>
-                <p className="mt-3 text-slate-600">
+                <p className="phanyx-doc-muted mt-3">
                   {resultado.mensagem ||
                     "Consulte os detalhes abaixo para conferência."}
                 </p>
@@ -212,11 +212,11 @@ export default function AdminValidacoesPage() {
               </div>
             </div>
 
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-5">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+            <div className="phanyx-doc-preview mt-6 p-5">
+              <p className="phanyx-doc-muted text-xs font-semibold uppercase tracking-wide">
                 Código consultado
               </p>
-              <p className="mt-2 text-lg font-bold text-slate-900">
+              <p className="phanyx-doc-value mt-2 text-lg font-bold">
                 {resultado.codigo || codigo}
               </p>
             </div>
@@ -225,11 +225,11 @@ export default function AdminValidacoesPage() {
           {resultado.valido && resultado.documento ? (
             <div className="grid gap-6 md:grid-cols-2">
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-900">
+                <h3 className="phanyx-doc-section-title text-lg font-semibold">
                   Dados do documento
                 </h3>
 
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                <div className="phanyx-doc-value mt-4 space-y-3 text-sm">
                   <p>
                     <strong>Título:</strong> {resultado.documento.titulo}
                   </p>
@@ -260,11 +260,11 @@ export default function AdminValidacoesPage() {
               </div>
 
               <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-900">
+                <h3 className="phanyx-doc-section-title text-lg font-semibold">
                   Dados vinculados
                 </h3>
 
-                <div className="mt-4 space-y-3 text-sm text-slate-700">
+                <div className="phanyx-doc-value mt-4 space-y-3 text-sm">
                   <p>
                     <strong>Aluno:</strong> {nomeExibicao}
                   </p>
@@ -300,7 +300,7 @@ export default function AdminValidacoesPage() {
             </div>
           ) : (
             <div className="rounded-3xl border border-red-200 bg-white p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="phanyx-doc-section-title text-lg font-semibold">
                 Nenhum documento válido encontrado
               </h3>
               <p className="mt-3 text-sm text-slate-600">

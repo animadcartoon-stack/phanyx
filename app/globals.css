@@ -5907,3 +5907,257 @@ html[data-theme="system"] .phanyx-rh-back-action:hover {
   background: #3a3a3a !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX DOCUMENTOS / CONTRATOS / VALIDAÇÕES - TEMAS
+========================================================= */
+
+.phanyx-docs-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-docs-page,
+html[data-theme="system"] .phanyx-docs-page {
+  color: #ffffff !important;
+}
+
+.phanyx-doc-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 1.5rem !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-card {
+  border-color: #334155 !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-doc-card {
+  border-color: #525252 !important;
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-title,
+.phanyx-doc-section-title {
+  color: #020617 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-title,
+html[data-theme="dark"] .phanyx-doc-section-title,
+html[data-theme="system"] .phanyx-doc-title,
+html[data-theme="system"] .phanyx-doc-section-title {
+  color: #ffffff !important;
+}
+
+.phanyx-doc-muted {
+  color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-muted {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-muted {
+  color: #e5e5e5 !important;
+}
+
+.phanyx-doc-label {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-label,
+html[data-theme="system"] .phanyx-doc-label {
+  color: #ffffff !important;
+}
+
+.phanyx-doc-input {
+  width: 100% !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 1rem !important;
+  padding: 0.75rem 1rem !important;
+  outline: none !important;
+}
+
+.phanyx-doc-input::placeholder {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-input {
+  border-color: #334155 !important;
+  background: #020617 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-doc-input {
+  border-color: #737373 !important;
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-autocomplete {
+  position: absolute !important;
+  z-index: 50 !important;
+  margin-top: 0.5rem !important;
+  width: 100% !important;
+  overflow: hidden !important;
+  border-radius: 1rem !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.18) !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-autocomplete,
+html[data-theme="system"] .phanyx-doc-autocomplete {
+  border-color: #475569 !important;
+  background: #0f172a !important;
+}
+
+.phanyx-doc-autocomplete-option {
+  display: block !important;
+  width: 100% !important;
+  padding: 0.85rem 1rem !important;
+  text-align: left !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.phanyx-doc-autocomplete-option:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-autocomplete-option,
+html[data-theme="system"] .phanyx-doc-autocomplete-option {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-autocomplete-option:hover,
+html[data-theme="system"] .phanyx-doc-autocomplete-option:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-preview {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 1rem !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-preview {
+  border-color: #334155 !important;
+  background: #020617 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-doc-preview {
+  border-color: #737373 !important;
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-primary-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 1rem !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  padding: 0.75rem 1.25rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 800 !important;
+  border: 1px solid #2563eb !important;
+}
+
+.phanyx-doc-primary-action:hover {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-secondary-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 1rem !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.65rem 1.1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 800 !important;
+  border: 1px solid #0f172a !important;
+}
+
+.phanyx-doc-secondary-action:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-secondary-action,
+html[data-theme="system"] .phanyx-doc-secondary-action {
+  background: transparent !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-secondary-action:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-doc-secondary-action:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  padding: 0.25rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-badge,
+html[data-theme="system"] .phanyx-doc-badge {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+.phanyx-doc-list-row {
+  border-bottom: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-list-row {
+  border-color: #334155 !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-doc-list-row {
+  border-color: #737373 !important;
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-doc-value {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-value,
+html[data-theme="system"] .phanyx-doc-value {
+  color: #ffffff !important;
+}
