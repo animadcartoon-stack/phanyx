@@ -5825,3 +5825,85 @@ html[data-theme="light"] .phanyx-rh-page button.phanyx-rh-archive-action *,
 html[data-theme="light"] [class*="rh"] button.phanyx-rh-archive-action * {
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX RH - BOTÕES FINAIS COM TEXTO SEMPRE LEGÍVEL
+========================================================= */
+
+html[data-theme] button.phanyx-rh-archive-action,
+html[data-theme] .phanyx-rh-page button.phanyx-rh-archive-action,
+html[data-theme] [class*="rh"] button.phanyx-rh-archive-action,
+button.phanyx-rh-archive-action {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme] button.phanyx-rh-archive-action:hover,
+html[data-theme] .phanyx-rh-page button.phanyx-rh-archive-action:hover,
+html[data-theme] [class*="rh"] button.phanyx-rh-archive-action:hover,
+button.phanyx-rh-archive-action:hover {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme] button.phanyx-rh-archive-action:disabled,
+html[data-theme] .phanyx-rh-page button.phanyx-rh-archive-action:disabled,
+html[data-theme] [class*="rh"] button.phanyx-rh-archive-action:disabled,
+button.phanyx-rh-archive-action:disabled {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* Botão voltar RH */
+.phanyx-rh-back-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 1rem !important;
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+  transition: all 0.2s ease !important;
+}
+
+.phanyx-rh-back-action:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-back-action {
+  background: #020617 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-back-action:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-rh-back-action {
+  background: #262626 !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-rh-back-action:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+}
