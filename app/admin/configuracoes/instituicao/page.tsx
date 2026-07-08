@@ -1068,12 +1068,10 @@ async function enviarAssinaturaDiretor(file: File) {
     Modelos de contrato
   </h3>
 
-  <p className="mt-2 text-sm leading-relaxed text-blue-800">
-    Os contratos agora são gerenciados em <strong>Documentos &gt; Templates</strong>.
-    Isso evita duplicidade, conflitos entre contratos e garante que cada instituição
-    possa manter seus próprios modelos, variáveis dinâmicas e assinatura visual
-    corretamente.
-  </p>
+  <p className="text-sm text-slate-700 dark:text-slate-300">
+  Gerencie os modelos institucionais em Configurações → Documentos Institucionais → Templates de Documentos.
+  Esses templates serão usados para contratos, declarações, comprovantes, recibos e demais documentos gerados pelo PHANYX.
+</p>
 
   <Link
     href="/admin/documentos/templates"
@@ -1428,11 +1426,11 @@ async function enviarAssinaturaDiretor(file: File) {
             </div>
 
             <Link
-              href="/admin/polos"
-              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
-            >
-              Gerenciar polos
-            </Link>
+  href="/admin/polos"
+  className="phanyx-primary-action"
+>
+  Gerenciar polos
+</Link>
           </div>
         </div>
       </div>

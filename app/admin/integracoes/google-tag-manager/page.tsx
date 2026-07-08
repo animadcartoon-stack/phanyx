@@ -56,19 +56,20 @@ export default function GoogleTagManagerPage() {
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
+    <div className="phanyx-config-page max-w-3xl space-y-6">
       <div>
-        <h1 className="text-3xl font-black text-slate-900">
+        <h1 className="phanyx-config-title text-3xl font-black">
           🏷️ Google Tag Manager
         </h1>
-        <p className="mt-2 text-slate-600">
+
+        <p className="phanyx-config-muted mt-2">
           Configure o Container ID da sua instituição.
         </p>
       </div>
 
-      <div className="rounded-2xl border bg-white p-6 shadow-sm space-y-5">
+      <div className="phanyx-config-card space-y-5 p-6 shadow-sm">
         <div>
-          <label className="block text-sm font-semibold text-slate-700 mb-2">
+          <label className="phanyx-config-label mb-2 block text-sm">
             Container ID
           </label>
 
@@ -76,35 +77,37 @@ export default function GoogleTagManagerPage() {
             value={containerId}
             onChange={(e) => setContainerId(e.target.value)}
             placeholder="GTM-XXXXXXX"
-            className="w-full rounded-xl border px-4 py-3 text-lg"
+            className="phanyx-config-input text-lg"
           />
 
-          <p className="mt-2 text-sm text-slate-500">
+          <p className="phanyx-config-muted mt-2 text-sm">
             Cada instituição deve usar seu próprio container GTM.
           </p>
         </div>
 
-        <label className="flex items-center gap-3 rounded-xl border p-4 cursor-pointer">
+        <label className="phanyx-config-check-row flex cursor-pointer items-center gap-3 rounded-xl p-4">
           <input
             type="checkbox"
             checked={ativo}
             onChange={(e) => setAtivo(e.target.checked)}
           />
-          <span className="font-semibold text-slate-800">
+
+          <span className="phanyx-config-check-label font-semibold">
             Ativar Google Tag Manager nesta instituição
           </span>
         </label>
 
         {mensagem && (
-          <div className="rounded-xl bg-blue-50 border border-blue-200 p-4 text-blue-700">
+          <div className="phanyx-config-info rounded-xl p-4">
             {mensagem}
           </div>
         )}
 
         <button
+          type="button"
           onClick={salvar}
           disabled={salvando}
-          className="rounded-xl bg-blue-600 px-6 py-3 font-bold text-white hover:bg-blue-700 disabled:opacity-60"
+          className="phanyx-primary-action disabled:opacity-60"
         >
           {salvando ? "Salvando..." : "Salvar configuração"}
         </button>

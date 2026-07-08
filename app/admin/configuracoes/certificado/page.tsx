@@ -3421,7 +3421,7 @@ const dadosPreviewCertificado = {
 };
 
   return (
-  <div className="mx-auto max-w-[1600px] p-6">
+  <div className="phanyx-config-certificado-page mx-auto max-w-[1600px] p-6">
     {mensagemErro && (
   <div className="mb-4">
     <PhanyxToast
@@ -3593,19 +3593,6 @@ const dadosPreviewCertificado = {
   Editor PHANYX
 </h2>
 
-          <button
-            type="button"
-            className="rounded-lg bg-white/20 px-3 py-1 text-sm text-white hover:bg-white/30"
-          >
-            Editar página
-          </button>
-
-          <button
-            type="button"
-            className="rounded-lg bg-white/20 px-3 py-1 text-sm text-white hover:bg-white/30"
-          >
-            Redimensionar
-          </button>
         </div>
 <button
   type="button"
@@ -6296,14 +6283,14 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 border-t border-slate-200 bg-white px-5 py-3 text-sm text-slate-600">
-              <span className="rounded-lg bg-slate-100 px-3 py-1">
+            <div className="phanyx-cert-editor-info-bar flex flex-wrap items-center gap-3 px-5 py-3 text-sm">
+              <span className="phanyx-cert-editor-status-pill">
                 Página 1 de 1
               </span>
-              <span className="rounded-lg bg-slate-100 px-3 py-1">
+              <span className="phanyx-cert-editor-status-pill">
                 {baseCanvas.label}
               </span>
-              <span className="rounded-lg bg-slate-100 px-3 py-1">
+              <span className="phanyx-cert-editor-status-pill">
                 Zoom {zoom}%
               </span>
 
@@ -6343,7 +6330,7 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
   </div>
 )}
 
-              <span className="rounded-lg bg-slate-100 px-3 py-1">
+              <span className="phanyx-cert-editor-status-pill">
                 {canvasWidth} × {canvasHeight}
               </span>
               {salvandoCampo && (

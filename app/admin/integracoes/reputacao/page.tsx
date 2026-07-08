@@ -471,7 +471,7 @@ const temRespostaLenta =
   (resumoReputacao?.tempoMedioHoras || 0) > 24;
 
   return (
-    <div className="space-y-8">
+    <div className="phanyx-reputacao-page space-y-8">
       <div>
         <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
           PHANYX GROWTH

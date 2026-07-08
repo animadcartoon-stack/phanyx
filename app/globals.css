@@ -6358,3 +6358,537 @@ html[data-theme="sistema"] .phanyx-doc-badge,
 html[data-theme="sistema"] .phanyx-doc-badge * {
   color: #ffffff !important;
 }
+
+/* PHANYX - Ajustes gerais de Configurações / Integrações / Portais */
+
+.phanyx-config-page {
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-config-page,
+html[data-theme="system"] .phanyx-config-page {
+  color: #f8fafc;
+}
+
+.phanyx-config-card {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+html[data-theme="dark"] .phanyx-config-card,
+html[data-theme="system"] .phanyx-config-card {
+  border-color: #334155;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+.phanyx-config-title {
+  color: #020617 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-title,
+html[data-theme="system"] .phanyx-config-title {
+  color: #ffffff !important;
+}
+
+.phanyx-config-muted {
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-muted,
+html[data-theme="system"] .phanyx-config-muted {
+  color: #cbd5e1 !important;
+}
+
+.phanyx-config-label {
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+html[data-theme="dark"] .phanyx-config-label,
+html[data-theme="system"] .phanyx-config-label {
+  color: #f8fafc !important;
+}
+
+.phanyx-config-input {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  padding: 0.75rem 1rem;
+  outline: none;
+}
+
+.phanyx-config-input::placeholder {
+  color: #64748b;
+}
+
+.phanyx-config-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+html[data-theme="dark"] .phanyx-config-input,
+html[data-theme="system"] .phanyx-config-input {
+  border-color: #334155;
+  background: #020617;
+  color: #ffffff;
+}
+
+html[data-theme="dark"] .phanyx-config-input::placeholder,
+html[data-theme="system"] .phanyx-config-input::placeholder {
+  color: #94a3b8;
+}
+
+.phanyx-config-soft-card {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-config-soft-card,
+html[data-theme="system"] .phanyx-config-soft-card {
+  border-color: #475569;
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+.phanyx-config-check-row {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-config-check-row,
+html[data-theme="system"] .phanyx-config-check-row {
+  border-color: #475569;
+  background: #020617;
+  color: #f8fafc;
+}
+
+.phanyx-config-check-label {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-config-check-label,
+html[data-theme="system"] .phanyx-config-check-label {
+  color: #f8fafc !important;
+}
+
+.phanyx-config-warning {
+  border: 1px solid #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+html[data-theme="dark"] .phanyx-config-warning,
+html[data-theme="system"] .phanyx-config-warning {
+  border-color: #f59e0b;
+  background: #451a03;
+  color: #fde68a;
+}
+
+.phanyx-config-info {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+html[data-theme="dark"] .phanyx-config-info,
+html[data-theme="system"] .phanyx-config-info {
+  border-color: #1d4ed8;
+  background: #172554;
+  color: #bfdbfe;
+}
+
+.phanyx-primary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  background: #2563eb;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
+  transition: 0.15s ease;
+}
+
+.phanyx-primary-action:hover {
+  background: #1d4ed8;
+  color: #ffffff !important;
+}
+
+.phanyx-secondary-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  border: 1px solid #334155;
+  background: #ffffff;
+  padding: 0.65rem 1.1rem;
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: #0f172a !important;
+  transition: 0.15s ease;
+}
+
+.phanyx-secondary-action:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="dark"] .phanyx-secondary-action,
+html[data-theme="system"] .phanyx-secondary-action {
+  border-color: #cbd5e1;
+  background: #0f172a;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-secondary-action:hover,
+html[data-theme="system"] .phanyx-secondary-action:hover {
+  border-color: #60a5fa;
+  background: #1e293b;
+  color: #ffffff !important;
+}
+
+.phanyx-portal-row {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.phanyx-portal-row:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+html[data-theme="dark"] .phanyx-portal-row,
+html[data-theme="system"] .phanyx-portal-row {
+  border-color: #334155;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .phanyx-portal-row:hover,
+html[data-theme="system"] .phanyx-portal-row:hover {
+  border-color: #60a5fa;
+  background: #1e293b;
+}
+
+.phanyx-portal-key {
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-portal-key,
+html[data-theme="system"] .phanyx-portal-key {
+  color: #cbd5e1 !important;
+}
+
+.phanyx-soon-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #e2e8f0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-soon-badge,
+html[data-theme="system"] .phanyx-soon-badge {
+  background: #e2e8f0;
+  color: #334155 !important;
+}
+
+/* =========================================================
+   PHANYX - Ajustes de tema: documentos, marketing e certificados
+   ========================================================= */
+
+.phanyx-doc-templates-page,
+.phanyx-marketing-page,
+.phanyx-reputacao-page,
+.phanyx-certificados-page,
+.phanyx-config-certificado-page {
+  color: #020617;
+}
+
+/* ---------- Templates de documentos ---------- */
+
+.phanyx-doc-variables-panel {
+  border: 1px solid #cbd5e1 !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.phanyx-doc-variable-card,
+.phanyx-doc-template-list,
+.phanyx-doc-preview-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.phanyx-doc-templates-page input,
+.phanyx-doc-templates-page select,
+.phanyx-doc-templates-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-templates-page,
+html[data-theme="system"] .phanyx-doc-templates-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variables-panel,
+html[data-theme="system"] .phanyx-doc-variables-panel {
+  border-color: #334155 !important;
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variable-card,
+html[data-theme="system"] .phanyx-doc-variable-card,
+html[data-theme="dark"] .phanyx-doc-template-list,
+html[data-theme="system"] .phanyx-doc-template-list,
+html[data-theme="dark"] .phanyx-doc-preview-card,
+html[data-theme="system"] .phanyx-doc-preview-card {
+  border-color: #334155 !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-templates-page .text-gray-900,
+html[data-theme="system"] .phanyx-doc-templates-page .text-gray-900,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-gray-800,
+html[data-theme="system"] .phanyx-doc-templates-page .text-gray-800,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-gray-700,
+html[data-theme="system"] .phanyx-doc-templates-page .text-gray-700,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-slate-900,
+html[data-theme="system"] .phanyx-doc-templates-page .text-slate-900,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-slate-800,
+html[data-theme="system"] .phanyx-doc-templates-page .text-slate-800,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-slate-700,
+html[data-theme="system"] .phanyx-doc-templates-page .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-templates-page .text-gray-600,
+html[data-theme="system"] .phanyx-doc-templates-page .text-gray-600,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-gray-500,
+html[data-theme="system"] .phanyx-doc-templates-page .text-gray-500,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-slate-600,
+html[data-theme="system"] .phanyx-doc-templates-page .text-slate-600,
+html[data-theme="dark"] .phanyx-doc-templates-page .text-slate-500,
+html[data-theme="system"] .phanyx-doc-templates-page .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-templates-page input,
+html[data-theme="system"] .phanyx-doc-templates-page input,
+html[data-theme="dark"] .phanyx-doc-templates-page select,
+html[data-theme="system"] .phanyx-doc-templates-page select,
+html[data-theme="dark"] .phanyx-doc-templates-page textarea,
+html[data-theme="system"] .phanyx-doc-templates-page textarea {
+  background: #020617 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* ---------- Marketing / Growth ---------- */
+
+.phanyx-marketing-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-page,
+html[data-theme="system"] .phanyx-marketing-page,
+html[data-theme="dark"] .phanyx-reputacao-page,
+html[data-theme="system"] .phanyx-reputacao-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-card,
+html[data-theme="system"] .phanyx-marketing-card {
+  border-color: #334155 !important;
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-page .text-slate-900,
+html[data-theme="system"] .phanyx-marketing-page .text-slate-900,
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-900,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-page .text-slate-600,
+html[data-theme="system"] .phanyx-marketing-page .text-slate-600,
+html[data-theme="dark"] .phanyx-marketing-page .text-slate-500,
+html[data-theme="system"] .phanyx-marketing-page .text-slate-500,
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-600,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-600,
+html[data-theme="dark"] .phanyx-reputacao-page .text-slate-500,
+html[data-theme="system"] .phanyx-reputacao-page .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-reputacao-page .bg-white,
+html[data-theme="system"] .phanyx-reputacao-page .bg-white {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* Mantém badges pequenos legíveis */
+html[data-theme="dark"] .phanyx-marketing-page .bg-slate-100,
+html[data-theme="system"] .phanyx-marketing-page .bg-slate-100,
+html[data-theme="dark"] .phanyx-reputacao-page .bg-slate-100,
+html[data-theme="system"] .phanyx-reputacao-page .bg-slate-100 {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* ---------- Gestão de Certificados ---------- */
+
+.phanyx-certificados-page {
+  color: #0f172a;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page,
+html[data-theme="system"] .phanyx-certificados-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .bg-white,
+html[data-theme="system"] .phanyx-certificados-page .bg-white {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .bg-slate-50,
+html[data-theme="system"] .phanyx-certificados-page .bg-slate-50 {
+  background: #111827 !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .text-slate-900,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-900,
+html[data-theme="dark"] .phanyx-certificados-page .text-slate-700,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .text-slate-600,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-600,
+html[data-theme="dark"] .phanyx-certificados-page .text-slate-500,
+html[data-theme="system"] .phanyx-certificados-page .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+.phanyx-cert-sugestoes {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14) !important;
+}
+
+.phanyx-cert-sugestao {
+  color: #0f172a !important;
+}
+
+.phanyx-cert-sugestao:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.phanyx-cert-sugestao:hover .phanyx-cert-sugestao-email {
+  color: #dbeafe !important;
+}
+
+html[data-theme="dark"] .phanyx-cert-sugestoes,
+html[data-theme="system"] .phanyx-cert-sugestoes {
+  border-color: #334155 !important;
+  background: #020617 !important;
+}
+
+html[data-theme="dark"] .phanyx-cert-sugestao,
+html[data-theme="system"] .phanyx-cert-sugestao {
+  color: #f8fafc !important;
+}
+
+.phanyx-cert-status-badge {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-cert-status-badge,
+html[data-theme="system"] .phanyx-cert-status-badge {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* ---------- Editor de Certificados ---------- */
+
+html[data-theme="dark"] .phanyx-config-certificado-page,
+html[data-theme="system"] .phanyx-config-certificado-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-config-certificado-page .text-slate-900,
+html[data-theme="system"] .phanyx-config-certificado-page .text-slate-900,
+html[data-theme="dark"] .phanyx-config-certificado-page .text-slate-700,
+html[data-theme="system"] .phanyx-config-certificado-page .text-slate-700 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-config-certificado-page .text-slate-600,
+html[data-theme="system"] .phanyx-config-certificado-page .text-slate-600,
+html[data-theme="dark"] .phanyx-config-certificado-page .text-slate-500,
+html[data-theme="system"] .phanyx-config-certificado-page .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-certificado-page .bg-white,
+html[data-theme="system"] .phanyx-config-certificado-page .bg-white {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-config-certificado-page .bg-slate-50,
+html[data-theme="system"] .phanyx-config-certificado-page .bg-slate-50 {
+  background: #111827 !important;
+}
+
+.phanyx-cert-editor-info-bar {
+  border-top: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #475569 !important;
+}
+
+.phanyx-cert-editor-status-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  border-radius: 0.5rem !important;
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  padding: 0.25rem 0.75rem !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="dark"] .phanyx-cert-editor-info-bar,
+html[data-theme="system"] .phanyx-cert-editor-info-bar {
+  border-color: #334155 !important;
+  background: #020617 !important;
+  color: #cbd5e1 !important;
+}

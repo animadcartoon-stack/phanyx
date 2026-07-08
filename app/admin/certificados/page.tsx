@@ -426,7 +426,7 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
 }
 
   return (
-  <div className="space-y-6">
+  <div className="phanyx-certificados-page space-y-6">
 
     {erro && (
       <PhanyxToast
@@ -826,9 +826,9 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
 
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${corStatus(
-                          aluno.statusCertificado
-                        )}`}
+                        className={`phanyx-cert-status-badge inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${corStatus(
+  aluno.statusCertificado
+)}`}
                       >
                         {labelStatus(aluno.statusCertificado)}
                       </span>

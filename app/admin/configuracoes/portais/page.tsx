@@ -97,18 +97,18 @@ export default function ConfiguracaoPortaisPage() {
   );
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-white">
+    <main className="phanyx-config-page min-h-screen p-6">
       <div className="mx-auto max-w-6xl space-y-6">
-        <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="phanyx-config-card p-6 shadow-sm">
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-700 dark:text-blue-300">
             Configurações
           </p>
 
-          <h1 className="mt-2 text-2xl font-black text-slate-900 dark:text-white">
+          <h1 className="phanyx-config-title mt-2 text-2xl font-black">
             Visibilidade dos Portais
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+          <p className="phanyx-config-muted mt-2 text-sm leading-6">
             Defina quais páginas aparecem para alunos e professores desta
             instituição.
           </p>
@@ -127,7 +127,7 @@ export default function ConfiguracaoPortaisPage() {
         )}
 
         {loading ? (
-          <div className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-slate-500 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+          <div className="phanyx-config-card p-6 text-sm shadow-sm">
             Carregando configurações...
           </div>
         ) : (
@@ -175,12 +175,13 @@ function BlocoPortal({
   onAlternar: (chavePagina: string) => void;
 }) {
   return (
-    <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section className="phanyx-config-card p-6 shadow-sm">
       <div>
-        <h2 className="text-xl font-black text-slate-900 dark:text-white">
+        <h2 className="phanyx-config-title text-xl font-black">
           {titulo}
         </h2>
-        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+
+        <p className="phanyx-config-muted mt-1 text-sm">
           {descricao}
         </p>
       </div>
@@ -191,13 +192,14 @@ function BlocoPortal({
             key={pagina.chavePagina}
             type="button"
             onClick={() => onAlternar(pagina.chavePagina)}
-            className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-left transition hover:border-blue-300 dark:border-slate-800 dark:bg-slate-950"
+            className="phanyx-portal-row flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition"
           >
             <div>
-              <p className="font-bold text-slate-900 dark:text-white">
+              <p className="font-bold">
                 {pagina.nome}
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+
+              <p className="phanyx-portal-key mt-1 text-xs">
                 {pagina.chavePagina}
               </p>
             </div>

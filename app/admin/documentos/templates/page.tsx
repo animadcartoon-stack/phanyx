@@ -2884,7 +2884,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
 }
 
   return (
-  <div className="space-y-6">
+  <div className="phanyx-doc-templates-page space-y-6">
 
     {erro && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
@@ -3072,7 +3072,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
   </p>
 </div>
 
-              <div className="rounded-2xl border bg-slate-50 p-4">
+              <div className="phanyx-doc-variables-panel rounded-2xl p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h3 className="font-medium text-slate-800">
@@ -3170,7 +3170,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     onClick={() => {
   inserirVariavelNoEditor(variavel.tag);
 }}
-    className="rounded-2xl border bg-white p-3 text-left text-xs hover:border-blue-400 hover:bg-blue-50"
+    className="phanyx-doc-variable-card rounded-2xl p-3 text-left text-xs transition hover:border-blue-400 hover:bg-blue-50"
   >
           <div className="mb-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
   {variavel.categoria}
@@ -3554,7 +3554,7 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
         </div>
 
         <div>
-          <div className="rounded-2xl border bg-white shadow-sm overflow-hidden">
+          <div className="phanyx-doc-template-list rounded-2xl shadow-sm overflow-hidden">
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -3664,7 +3664,7 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                           </div>
                         </div>
 
-                        <div className="rounded-2xl border bg-slate-50 p-4">
+                        <div className="phanyx-doc-preview-card rounded-2xl p-4">
                           <p className="mb-2 text-sm font-medium text-slate-700">
                             Prévia do conteúdo
                           </p>

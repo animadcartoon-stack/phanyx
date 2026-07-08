@@ -312,7 +312,7 @@ async function carregarGoogleAds() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="phanyx-marketing-page space-y-8">
       <div>
         <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
           PHANYX GROWTH
@@ -332,7 +332,7 @@ async function carregarGoogleAds() {
         {dashboardCards.map((item) => (
           <div
             key={item.titulo}
-            className="rounded-2xl border bg-white p-5 shadow-sm"
+            className="phanyx-marketing-card rounded-2xl p-5 shadow-sm"
           >
             <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
               {item.titulo}
@@ -384,11 +384,13 @@ async function carregarGoogleAds() {
             const bloqueado = cardAtual.href === "#";
 
             const conteudo = (
-              <div className={`rounded-2xl border bg-white p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md ${
-  cardAtual.titulo === "Reputação IA"
-    ? "border-cyan-200 bg-gradient-to-br from-cyan-50 to-blue-50 shadow-cyan-100/50"
-    : ""
-}`}>
+              <div
+  className={`phanyx-marketing-card rounded-2xl p-4 shadow-sm transition hover:border-blue-500 hover:shadow-md ${
+    cardAtual.titulo === "Reputação IA"
+      ? "border-cyan-200 shadow-cyan-100/50"
+      : ""
+  }`}
+>
                 <div className="flex items-center justify-between">
                   <div className="text-2xl">{cardAtual.emoji}</div>
 
