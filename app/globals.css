@@ -5295,3 +5295,221 @@ html[data-theme="system"] :is(
   background: rgba(22, 163, 74, 0.24) !important;
   color: #bbf7d0 !important;
 }
+
+/* =========================================================
+   PHANYX - FINANCEIRO / REFORÇO FINAL TABELAS E CARD
+   Corrige cabeçalhos brancos no escuro/sistema
+   e card "Atualizar atrasos e inadimplência"
+========================================================= */
+
+/* VISÃO GERAL - card rosa/alerta no escuro */
+html[data-theme="dark"] .phanyx-financeiro-page :is(
+  .bg-red-50,
+  .bg-red-100,
+  .bg-rose-50,
+  .bg-rose-100
+) {
+  background: rgba(127, 29, 29, 0.38) !important;
+  background-color: rgba(127, 29, 29, 0.38) !important;
+  border-color: #ef4444 !important;
+  color: #fee2e2 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-page :is(
+  .bg-red-50,
+  .bg-red-100,
+  .bg-rose-50,
+  .bg-rose-100
+) :is(h1, h2, h3, h4, p, span, strong, div) {
+  color: #fee2e2 !important;
+  opacity: 1 !important;
+}
+
+/* VISÃO GERAL - card rosa/alerta no sistema */
+html[data-theme="system"] .phanyx-financeiro-page :is(
+  .bg-red-50,
+  .bg-red-100,
+  .bg-rose-50,
+  .bg-rose-100
+) {
+  background: rgba(127, 29, 29, 0.42) !important;
+  background-color: rgba(127, 29, 29, 0.42) !important;
+  border-color: #ef4444 !important;
+  color: #fee2e2 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-financeiro-page :is(
+  .bg-red-50,
+  .bg-red-100,
+  .bg-rose-50,
+  .bg-rose-100
+) :is(h1, h2, h3, h4, p, span, strong, div) {
+  color: #fee2e2 !important;
+  opacity: 1 !important;
+}
+
+/* VISÃO GERAL - hover dos cards nunca deve virar branco no escuro */
+html[data-theme="dark"] .phanyx-financeiro-page :is(
+  .hover\:bg-white:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-blue-50:hover,
+  .hover\:bg-gray-100:hover
+) {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-financeiro-page :is(
+  .hover\:bg-white:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-blue-50:hover,
+  .hover\:bg-gray-100:hover
+) * {
+  color: #ffffff !important;
+}
+
+/* VISÃO GERAL - hover dos cards nunca deve virar branco no sistema */
+html[data-theme="system"] .phanyx-financeiro-page :is(
+  .hover\:bg-white:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-blue-50:hover,
+  .hover\:bg-gray-100:hover
+) {
+  background: #3a3a3a !important;
+  background-color: #3a3a3a !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-financeiro-page :is(
+  .hover\:bg-white:hover,
+  .hover\:bg-slate-50:hover,
+  .hover\:bg-slate-100:hover,
+  .hover\:bg-blue-50:hover,
+  .hover\:bg-gray-100:hover
+) * {
+  color: #ffffff !important;
+}
+
+/* RECEBIMENTOS E INADIMPLENTES - cabeçalho da tabela no escuro */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(table, thead, thead tr) {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) th {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) th * {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* RECEBIMENTOS E INADIMPLENTES - cabeçalho da tabela no sistema */
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(table, thead, thead tr) {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) th {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) th * {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Garante que classes claras dentro do cabeçalho não apaguem os títulos */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) thead :is(
+  .text-white,
+  .text-slate-100,
+  .text-slate-200,
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600,
+  .text-gray-100,
+  .text-gray-200,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500
+),
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) thead :is(
+  .text-white,
+  .text-slate-100,
+  .text-slate-200,
+  .text-slate-300,
+  .text-slate-400,
+  .text-slate-500,
+  .text-slate-600,
+  .text-gray-100,
+  .text-gray-200,
+  .text-gray-300,
+  .text-gray-400,
+  .text-gray-500
+) {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Evita bloco branco envolvendo a tabela no escuro/sistema */
+html[data-theme="dark"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(.overflow-x-auto, .rounded-2xl, .rounded-3xl) > table {
+  background: #111827 !important;
+  background-color: #111827 !important;
+}
+
+html[data-theme="system"] :is(
+  .phanyx-financeiro-recebimentos-page,
+  .phanyx-financeiro-inadimplentes-page
+) :is(.overflow-x-auto, .rounded-2xl, .rounded-3xl) > table {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+}
