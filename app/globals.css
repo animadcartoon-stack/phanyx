@@ -5614,3 +5614,172 @@ html[data-theme="system"] .phanyx-financeiro-grid-head > div {
   font-weight: 900 !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX - RH / HOLERITES, FÉRIAS, EXAMES, RESCISÕES E DOCUMENTOS
+   Correções de botões e legibilidade no tema claro
+========================================================= */
+
+/* Botão principal RH: Gerar holerite / ações principais */
+.phanyx-rh-primary-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  border-radius: 1rem !important;
+  border: 1px solid #2563eb !important;
+  background: #2563eb !important;
+  color: #ffffff !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 900 !important;
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.24) !important;
+  transition: all 0.2s ease !important;
+}
+
+.phanyx-rh-primary-action:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-rh-primary-action:disabled {
+  background: #94a3b8 !important;
+  border-color: #94a3b8 !important;
+  color: #ffffff !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* Botão Arquivar RH: não apagar texto no hover */
+.phanyx-rh-archive-action {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 0.75rem !important;
+  border: 1px solid #1e293b !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 800 !important;
+  transition: all 0.2s ease !important;
+}
+
+.phanyx-rh-archive-action:hover {
+  background: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-rh-archive-action:disabled {
+  background: #cbd5e1 !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+/* Escuro / Sistema para botão Arquivar */
+html[data-theme="dark"] .phanyx-rh-archive-action,
+html[data-theme="system"] .phanyx-rh-archive-action {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-archive-action:hover,
+html[data-theme="system"] .phanyx-rh-archive-action:hover {
+  background: #334155 !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+}
+
+/* Documentos RH - Gerar documento: tema claro sem card azul/cinza */
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page h1,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page h2,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page h3,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page label,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page strong {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page p,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-page span {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card label,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card h2,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card h3 {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card input,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card select,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card input::placeholder,
+html[data-theme="light"] .phanyx-rh-documentos-gerar-card textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Documentos RH - escuro */
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card label,
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card h2,
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card input,
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card select,
+html[data-theme="dark"] .phanyx-rh-documentos-gerar-card textarea {
+  background: #020617 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+/* Documentos RH - sistema */
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card {
+  background: #2f2f2f !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card label,
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card h2,
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card h3 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card input,
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card select,
+html[data-theme="system"] .phanyx-rh-documentos-gerar-card textarea {
+  background: #1f1f1f !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}

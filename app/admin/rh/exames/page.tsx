@@ -617,12 +617,12 @@ async function cancelarExame(id: number) {
                       <td className="p-3">
   <div className="flex flex-wrap gap-2">
     <button
-      type="button"
-      onClick={() => arquivarExame(item.id)}
-      className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-    >
-      Arquivar
-    </button>
+  type="button"
+  onClick={() => arquivarExame(item.id)}
+  className="phanyx-rh-archive-action"
+>
+  Arquivar
+</button>
 
     {item.resultado !== "CANCELADO" && (
       <button

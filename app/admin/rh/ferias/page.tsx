@@ -573,13 +573,13 @@ if (!periodoGozoInicio || !periodoGozoFim) {
   </a>
 
   <button
-    type="button"
-    onClick={() => arquivarFerias(item.id)}
-    disabled={acaoId === item.id}
-    className="rounded-lg border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-  >
-    {acaoId === item.id ? "Aguarde..." : "Arquivar"}
-  </button>
+  type="button"
+  onClick={() => arquivarFerias(item.id)}
+  disabled={acaoId === item.id}
+  className="phanyx-rh-archive-action"
+>
+  {acaoId === item.id ? "Aguarde..." : "Arquivar"}
+</button>
 
   {item.status !== "CANCELADA" && (
     <button

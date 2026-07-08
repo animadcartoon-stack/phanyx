@@ -563,13 +563,13 @@ async function arquivarHolerite() {
 
         <div className="mt-6 flex justify-end">
           <button
-            type="button"
-            onClick={gerarHolerite}
-            disabled={salvando}
-            className="rounded-2xl bg-slate-900 px-6 py-3 text-sm font-bold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900"
-          >
-            {salvando ? "Gerando..." : "Gerar holerite"}
-          </button>
+  type="button"
+  onClick={gerarHolerite}
+  disabled={salvando}
+  className="phanyx-rh-primary-action"
+>
+  {salvando ? "Gerando..." : "Gerar holerite"}
+</button>
         </div>
       </div>
 
