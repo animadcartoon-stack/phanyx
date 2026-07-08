@@ -5783,3 +5783,45 @@ html[data-theme="system"] .phanyx-rh-documentos-gerar-card textarea {
   color: #ffffff !important;
   border-color: #737373 !important;
 }
+
+/* =========================================================
+   PHANYX RH - ARQUIVAR SEMPRE LEGÍVEL
+   Corrige texto escuro no botão Arquivar em tema claro
+========================================================= */
+
+html[data-theme="light"] button.phanyx-rh-archive-action,
+html[data-theme="light"] .phanyx-rh-page button.phanyx-rh-archive-action,
+html[data-theme="light"] [class*="rh"] button.phanyx-rh-archive-action {
+  background: #1e293b !important;
+  background-color: #1e293b !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] button.phanyx-rh-archive-action:hover,
+html[data-theme="light"] .phanyx-rh-page button.phanyx-rh-archive-action:hover,
+html[data-theme="light"] [class*="rh"] button.phanyx-rh-archive-action:hover {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] button.phanyx-rh-archive-action:disabled,
+html[data-theme="light"] .phanyx-rh-page button.phanyx-rh-archive-action:disabled,
+html[data-theme="light"] [class*="rh"] button.phanyx-rh-archive-action:disabled {
+  background: #334155 !important;
+  background-color: #334155 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+html[data-theme="light"] button.phanyx-rh-archive-action *,
+html[data-theme="light"] .phanyx-rh-page button.phanyx-rh-archive-action *,
+html[data-theme="light"] [class*="rh"] button.phanyx-rh-archive-action * {
+  color: #ffffff !important;
+}
