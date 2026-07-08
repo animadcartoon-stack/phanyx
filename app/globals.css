@@ -6121,6 +6121,7 @@ html[data-theme="system"] .phanyx-doc-secondary-action:hover {
   display: inline-flex !important;
   align-items: center !important;
   border-radius: 999px !important;
+  border: 1px solid #bfdbfe !important;
   padding: 0.25rem 0.75rem !important;
   font-size: 0.75rem !important;
   font-weight: 800 !important;
@@ -6128,10 +6129,13 @@ html[data-theme="system"] .phanyx-doc-secondary-action:hover {
   color: #1d4ed8 !important;
 }
 
+html.dark .phanyx-doc-badge,
 html[data-theme="dark"] .phanyx-doc-badge,
-html[data-theme="system"] .phanyx-doc-badge {
-  background: #dbeafe !important;
-  color: #1d4ed8 !important;
+html[data-theme="system"] .phanyx-doc-badge,
+html[data-theme="sistema"] .phanyx-doc-badge {
+  border-color: #60a5fa !important;
+  background: #1e3a8a !important;
+  color: #ffffff !important;
 }
 
 .phanyx-doc-list-row {
