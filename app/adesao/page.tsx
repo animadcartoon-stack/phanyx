@@ -61,12 +61,30 @@ function AdesaoContent() {
   const [statusPagamento, setStatusPagamento] = useState("PENDING");
   const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
 
+  const [cartao, setCartao] = useState({
+  numero: "",
+  nomeTitular: "",
+  mesExpiracao: "",
+  anoExpiracao: "",
+  cvv: "",
+  cpfCnpjTitular: "",
+  cepTitular: "",
+  numeroEnderecoTitular: "",
+});
+
   useEffect(() => {
     setAdesaoId(null);
     setErro("");
     setStatusPagamento("PENDING");
     setPagamentoConfirmado(false);
   }, [plano, formaPagamento]);
+
+  function atualizarCartao(campo: keyof typeof cartao, valor: string) {
+  setCartao((atual) => ({
+    ...atual,
+    [campo]: valor,
+  }));
+}
 
   async function criarAdesao() {
     try {
@@ -78,21 +96,41 @@ function AdesaoContent() {
         return;
       }
 
+      if (formaPagamento === "CREDIT_CARD") {
+  if (
+    !cartao.numero ||
+    !cartao.nomeTitular ||
+    !cartao.mesExpiracao ||
+    !cartao.anoExpiracao ||
+    !cartao.cvv ||
+    !cartao.cpfCnpjTitular ||
+    !cartao.cepTitular ||
+    !cartao.numeroEnderecoTitular
+  ) {
+    setErro("Preencha todos os dados do cartão para continuar.");
+    return;
+  }
+}
+
       const res = await fetch("/api/adesao/criar", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nomeResponsavel,
-          nomeInstituicao,
-          email,
-          telefone,
-          cpfCnpj,
-          plano,
-          formaPagamento,
-          trialDias,
-        }),
+  nomeResponsavel,
+  nomeInstituicao,
+  email,
+  telefone,
+  cpfCnpj,
+  plano,
+  formaPagamento,
+  trialDias,
+  cartao:
+    formaPagamento === "CREDIT_CARD"
+      ? cartao
+      : null,
+}),
       });
 
       const data = await res.json();
@@ -106,11 +144,6 @@ function AdesaoContent() {
       setAdesaoId(data?.adesao?.id ? String(data.adesao.id) : null);
       setStatusPagamento(data?.adesao?.status || "PENDING");
       setPagamentoConfirmado(data?.adesao?.status === "PAGO");
-
-      if (data?.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-        return;
-      }
 
       if (data?.trial === true || data?.adesao?.status === "TESTE_GRATIS") {
         setPagamentoConfirmado(true);
@@ -293,8 +326,7 @@ function AdesaoContent() {
                 </p>
 
                 <div className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
-                  <strong>Atenção:</strong> o valor exibido no checkout do
-                  Asaas corresponde à mensalidade base do plano. Antes da
+                  <strong>Atenção:</strong> o valor exibido no ambiente seguro de pagamento corresponde à mensalidade base do plano. Antes da
                   primeira cobrança, o PHANYX deverá recalcular o valor conforme
                   alunos ativos e polos cadastrados.
                 </div>
@@ -319,12 +351,10 @@ function AdesaoContent() {
                         </p>
 
                         <p className="mt-1 text-sm leading-6">
-                          Você será direcionado ao ambiente seguro do Asaas para
-                          cadastrar o cartão. Nenhuma cobrança será feita hoje.
-                          O valor exibido no Asaas corresponde à mensalidade
-                          base do plano; antes da primeira cobrança, o PHANYX
-                          recalculará o valor conforme alunos ativos e polos
-                          cadastrados.
+                          Informe os dados do cartão para cadastrar a cobrança futura.
+Nenhuma cobrança será feita hoje. O cartão será enviado com segurança
+ao intermediador de pagamento apenas para criar a assinatura recorrente.
+A primeira cobrança só ocorrerá após os 60 dias gratuitos.
                         </p>
                       </div>
 
@@ -348,7 +378,7 @@ function AdesaoContent() {
                         <p className="font-black">Pix mensal</p>
 
                         <p className="mt-1 text-sm leading-6">
-                          Após o período gratuito, o Asaas gerará uma cobrança
+                          Após o período gratuito, será gerada uma cobrança
                           Pix mensal para pagamento manual. O valor será
                           calculado conforme o plano, alunos ativos e polos
                           cadastrados.
@@ -375,7 +405,7 @@ function AdesaoContent() {
                         <p className="font-black">Boleto mensal</p>
 
                         <p className="mt-1 text-sm leading-6">
-                          Após o período gratuito, o Asaas gerará um boleto
+                          Após o período gratuito, será gerado um boleto
                           mensal. Essa opção depende de pagamento manual, e o
                           valor será calculado conforme o plano, alunos ativos e
                           polos cadastrados.
@@ -389,6 +419,99 @@ function AdesaoContent() {
                   </button>
                 </div>
               </div>
+              {formaPagamento === "CREDIT_CARD" ? (
+  <div className="mt-5 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-5">
+    <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
+      Dados do cartão
+    </p>
+
+    <p className="mt-2 text-sm leading-6 text-emerald-100">
+      Nenhuma cobrança será feita hoje. O cartão será usado somente para
+      criar a assinatura futura, com primeira cobrança após os {trialDias} dias
+      gratuitos.
+    </p>
+
+    <div className="mt-5 grid gap-4">
+      <input
+        value={cartao.numero}
+        onChange={(e) => atualizarCartao("numero", e.target.value)}
+        placeholder="Número do cartão"
+        inputMode="numeric"
+        autoComplete="cc-number"
+        className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+      />
+
+      <input
+        value={cartao.nomeTitular}
+        onChange={(e) => atualizarCartao("nomeTitular", e.target.value)}
+        placeholder="Nome impresso no cartão"
+        autoComplete="cc-name"
+        className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <input
+          value={cartao.mesExpiracao}
+          onChange={(e) => atualizarCartao("mesExpiracao", e.target.value)}
+          placeholder="Mês"
+          inputMode="numeric"
+          autoComplete="cc-exp-month"
+          className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+        />
+
+        <input
+          value={cartao.anoExpiracao}
+          onChange={(e) => atualizarCartao("anoExpiracao", e.target.value)}
+          placeholder="Ano"
+          inputMode="numeric"
+          autoComplete="cc-exp-year"
+          className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+        />
+
+        <input
+          value={cartao.cvv}
+          onChange={(e) => atualizarCartao("cvv", e.target.value)}
+          placeholder="CVV"
+          inputMode="numeric"
+          autoComplete="cc-csc"
+          className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+        />
+      </div>
+
+      <input
+        value={cartao.cpfCnpjTitular}
+        onChange={(e) => atualizarCartao("cpfCnpjTitular", e.target.value)}
+        placeholder="CPF/CNPJ do titular do cartão"
+        inputMode="numeric"
+        className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+      />
+
+      <div className="grid gap-4 sm:grid-cols-[1fr_0.6fr]">
+        <input
+          value={cartao.cepTitular}
+          onChange={(e) => atualizarCartao("cepTitular", e.target.value)}
+          placeholder="CEP do titular"
+          inputMode="numeric"
+          className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+        />
+
+        <input
+          value={cartao.numeroEnderecoTitular}
+          onChange={(e) =>
+            atualizarCartao("numeroEnderecoTitular", e.target.value)
+          }
+          placeholder="Número"
+          className="rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none focus:border-emerald-500"
+        />
+      </div>
+    </div>
+
+    <div className="mt-4 rounded-2xl border border-slate-700 bg-slate-950/70 p-4 text-xs leading-6 text-slate-300">
+      Os dados do cartão não serão salvos no PHANYX. Eles serão enviados apenas
+      para o intermediador de pagamento no momento da criação da assinatura.
+    </div>
+  </div>
+) : null}
             </div>
 
             {erro ? (
@@ -405,10 +528,10 @@ function AdesaoContent() {
             >
               {loading
                 ? formaPagamento === "CREDIT_CARD"
-                  ? "⏳ Preparando checkout seguro..."
+                  ? "⏳ Criando assinatura segura..."
                   : "⏳ Liberando ambiente..."
                 : formaPagamento === "CREDIT_CARD"
-                  ? "Informar cartão para cobrança futura"
+                  ? "Iniciar 60 dias grátis com cartão"
                   : `Começar ${trialDias} dias grátis`}
             </button>
           </div>
