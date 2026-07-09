@@ -1070,7 +1070,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
 </h4>
     </div>
 
-    <div className="rounded-full bg-cyan-100 px-3 py-1 text-xs font-black !text-cyan-950 dark:bg-cyan-200 dark:!text-cyan-950">
+    <div className="rounded-full border border-cyan-400/40 bg-cyan-950 px-3 py-1 text-xs font-black !text-cyan-100 dark:bg-cyan-950 dark:!text-cyan-100">
   Tempo real
 </div>
   </div>
