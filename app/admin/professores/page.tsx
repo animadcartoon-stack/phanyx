@@ -705,9 +705,9 @@ carregarDisciplinas();
               className="w-full rounded-lg border p-2"
             />
 
-            <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+            <div className="phanyx-foto-oficial-card md:col-span-2">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <div className="phanyx-foto-oficial-preview">
       {fotoPerfil ? (
         <img
           src={fotoPerfil}
@@ -722,21 +722,21 @@ carregarDisciplinas();
     </div>
 
     <div className="flex-1">
-      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+      <h3 className="phanyx-foto-oficial-titulo">
         Foto oficial do professor
       </h3>
 
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      <p className="phanyx-foto-oficial-texto">
         Esta é a foto institucional usada em crachás, identificação, documentos e portal acadêmico.
       </p>
 
-      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+      <p className="phanyx-foto-oficial-ajuda">
         Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
         Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+        <label className="phanyx-foto-oficial-botao">
           {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
           <input
             type="file"
@@ -753,7 +753,7 @@ carregarDisciplinas();
           <button
             type="button"
             onClick={() => setFotoPerfil("")}
-            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="phanyx-foto-oficial-remover"
           >
             Remover foto
           </button>
@@ -1086,9 +1086,9 @@ carregarDisciplinas();
                         className="rounded border p-2"
                         placeholder="Slug público"
                       />
-                      <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                      <div className="phanyx-foto-oficial-card md:col-span-2">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <div className="phanyx-foto-oficial-preview">
       {editFotoPerfil ? (
         <img
           src={editFotoPerfil}
@@ -1103,21 +1103,21 @@ carregarDisciplinas();
     </div>
 
     <div className="flex-1">
-      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+      <h3 className="phanyx-foto-oficial-titulo">
         Foto oficial do professor
       </h3>
 
-      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      <p className="phanyx-foto-oficial-texto">
         Foto controlada pela instituição e usada em crachás, identificação e documentos oficiais.
       </p>
 
-      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+      <p className="phanyx-foto-oficial-ajuda">
         Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
         Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+        <label className="phanyx-foto-oficial-botao">
           {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
           <input
             type="file"
@@ -1134,7 +1134,7 @@ carregarDisciplinas();
           <button
             type="button"
             onClick={() => setEditFotoPerfil("")}
-            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+            className="phanyx-foto-oficial-remover"
           >
             Remover foto
           </button>

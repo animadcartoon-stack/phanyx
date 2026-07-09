@@ -8585,3 +8585,239 @@ html[data-theme="system"] .phanyx-doc-variable-card .phanyx-doc-variable-categor
   background: #e2e8f0 !important;
   color: #334155 !important;
 }
+/* FOTO OFICIAL PHANYX - Aluno / Professor / Funcionário */
+.phanyx-foto-oficial-card {
+  border: 1px solid rgb(226 232 240);
+  background: rgb(248 250 252);
+  color: rgb(15 23 42);
+  border-radius: 1rem;
+  padding: 1rem;
+}
+
+.dark .phanyx-foto-oficial-card,
+[data-theme="dark"] .phanyx-foto-oficial-card {
+  border-color: rgb(51 65 85);
+  background: rgb(2 6 23);
+  color: rgb(241 245 249);
+}
+
+.phanyx-foto-oficial-preview {
+  display: flex;
+  height: 7rem;
+  width: 6rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 1rem;
+  border: 1px solid rgb(203 213 225);
+  background: white;
+}
+
+.dark .phanyx-foto-oficial-preview,
+[data-theme="dark"] .phanyx-foto-oficial-preview {
+  border-color: rgb(51 65 85);
+  background: rgb(15 23 42);
+}
+
+.phanyx-foto-oficial-titulo {
+  font-weight: 700;
+  color: rgb(15 23 42);
+}
+
+.dark .phanyx-foto-oficial-titulo,
+[data-theme="dark"] .phanyx-foto-oficial-titulo {
+  color: rgb(241 245 249);
+}
+
+.phanyx-foto-oficial-texto {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: rgb(71 85 105);
+}
+
+.dark .phanyx-foto-oficial-texto,
+[data-theme="dark"] .phanyx-foto-oficial-texto {
+  color: rgb(203 213 225);
+}
+
+.phanyx-foto-oficial-ajuda {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+  color: rgb(100 116 139);
+}
+
+.dark .phanyx-foto-oficial-ajuda,
+[data-theme="dark"] .phanyx-foto-oficial-ajuda {
+  color: rgb(148 163 184);
+}
+
+.phanyx-foto-oficial-botao {
+  cursor: pointer;
+  border-radius: 1rem;
+  border: 1px solid rgb(191 219 254);
+  background: rgb(239 246 255);
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgb(29 78 216);
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.phanyx-foto-oficial-botao:hover {
+  background: rgb(219 234 254);
+}
+
+.dark .phanyx-foto-oficial-botao,
+[data-theme="dark"] .phanyx-foto-oficial-botao {
+  border-color: rgb(30 64 175);
+  background: rgba(30, 58, 138, 0.35);
+  color: rgb(219 234 254);
+}
+
+.dark .phanyx-foto-oficial-botao:hover,
+[data-theme="dark"] .phanyx-foto-oficial-botao:hover {
+  background: rgba(30, 64, 175, 0.55);
+}
+
+.phanyx-foto-oficial-remover {
+  border-radius: 1rem;
+  border: 1px solid rgb(203 213 225);
+  background: white;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgb(51 65 85);
+  transition: background-color 0.2s ease;
+}
+
+.phanyx-foto-oficial-remover:hover {
+  background: rgb(248 250 252);
+}
+
+.dark .phanyx-foto-oficial-remover,
+[data-theme="dark"] .phanyx-foto-oficial-remover {
+  border-color: rgb(51 65 85);
+  background: rgb(15 23 42);
+  color: rgb(226 232 240);
+}
+
+.dark .phanyx-foto-oficial-remover:hover,
+[data-theme="dark"] .phanyx-foto-oficial-remover:hover {
+  background: rgb(30 41 59);
+}
+
+/* FOTO OFICIAL PHANYX - força compatibilidade nos temas */
+.phanyx-foto-oficial-card {
+  border: 1px solid rgb(226 232 240) !important;
+  background: rgb(248 250 252) !important;
+  color: rgb(15 23 42) !important;
+  border-radius: 1rem !important;
+  padding: 1rem !important;
+}
+
+html.dark .phanyx-foto-oficial-card,
+.dark .phanyx-foto-oficial-card,
+[data-theme="dark"] .phanyx-foto-oficial-card {
+  border-color: rgb(51 65 85) !important;
+  background: rgb(2 6 23) !important;
+  color: rgb(241 245 249) !important;
+}
+
+.phanyx-foto-oficial-preview {
+  display: flex !important;
+  height: 7rem !important;
+  width: 6rem !important;
+  flex-shrink: 0 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgb(203 213 225) !important;
+  background: #ffffff !important;
+}
+
+html.dark .phanyx-foto-oficial-preview,
+.dark .phanyx-foto-oficial-preview,
+[data-theme="dark"] .phanyx-foto-oficial-preview {
+  border-color: rgb(51 65 85) !important;
+  background: rgb(15 23 42) !important;
+}
+
+.phanyx-foto-oficial-titulo {
+  font-weight: 700 !important;
+  color: rgb(15 23 42) !important;
+}
+
+html.dark .phanyx-foto-oficial-titulo,
+.dark .phanyx-foto-oficial-titulo,
+[data-theme="dark"] .phanyx-foto-oficial-titulo {
+  color: rgb(241 245 249) !important;
+}
+
+.phanyx-foto-oficial-texto {
+  margin-top: 0.25rem !important;
+  font-size: 0.875rem !important;
+  color: rgb(71 85 105) !important;
+}
+
+html.dark .phanyx-foto-oficial-texto,
+.dark .phanyx-foto-oficial-texto,
+[data-theme="dark"] .phanyx-foto-oficial-texto {
+  color: rgb(203 213 225) !important;
+}
+
+.phanyx-foto-oficial-ajuda {
+  margin-top: 0.5rem !important;
+  font-size: 0.75rem !important;
+  line-height: 1.25rem !important;
+  color: rgb(100 116 139) !important;
+}
+
+html.dark .phanyx-foto-oficial-ajuda,
+.dark .phanyx-foto-oficial-ajuda,
+[data-theme="dark"] .phanyx-foto-oficial-ajuda {
+  color: rgb(148 163 184) !important;
+}
+
+.phanyx-foto-oficial-botao {
+  cursor: pointer !important;
+  border-radius: 1rem !important;
+  border: 1px solid rgb(191 219 254) !important;
+  background: rgb(239 246 255) !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: rgb(29 78 216) !important;
+}
+
+.phanyx-foto-oficial-botao:hover {
+  background: rgb(219 234 254) !important;
+}
+
+html.dark .phanyx-foto-oficial-botao,
+.dark .phanyx-foto-oficial-botao,
+[data-theme="dark"] .phanyx-foto-oficial-botao {
+  border-color: rgb(30 64 175) !important;
+  background: rgba(30, 58, 138, 0.35) !important;
+  color: rgb(219 234 254) !important;
+}
+
+.phanyx-foto-oficial-remover {
+  border-radius: 1rem !important;
+  border: 1px solid rgb(203 213 225) !important;
+  background: #ffffff !important;
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: rgb(51 65 85) !important;
+}
+
+html.dark .phanyx-foto-oficial-remover,
+.dark .phanyx-foto-oficial-remover,
+[data-theme="dark"] .phanyx-foto-oficial-remover {
+  border-color: rgb(51 65 85) !important;
+  background: rgb(15 23 42) !important;
+  color: rgb(226 232 240) !important;
+}
