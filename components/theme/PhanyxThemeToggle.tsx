@@ -30,7 +30,7 @@ function aplicarTema(tema: Tema) {
   root.dataset.theme = tema === "system" ? "system" : usarEscuro ? "dark" : "light";
   root.dataset.themeChoice = tema;
 
-  root.classList.toggle("dark", tema === "system" || usarEscuro);
+  root.classList.toggle("dark", usarEscuro);
 }
 
 export default function PhanyxThemeToggle() {
