@@ -7948,3 +7948,339 @@ html[data-theme="dark"] .phanyx-certificados-page .text-white,
 html[data-theme="system"] .phanyx-certificados-page .text-white {
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX - CORREÇÃO CIRÚRGICA FINAL
+   Templates / Marketing / Reputação / Gestão de Certificados
+   ========================================================= */
+
+
+/* =========================
+   TEMPLATES DE DOCUMENTOS
+   ========================= */
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variables-panel,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-template-list,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-preview-card {
+  background: #262626 !important;
+  border: 1px solid #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card *,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variables-panel *,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-template-list *,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-preview-card * {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page input,
+html[data-theme="system"] .phanyx-doc-templates-page select,
+html[data-theme="system"] .phanyx-doc-templates-page textarea,
+html[data-theme="system"] .phanyx-doc-templates-page option {
+  background: #171717 !important;
+  color: #f8fafc !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page button {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page button[class*="bg-blue"],
+html[data-theme="system"] .phanyx-doc-templates-page button[class*="bg-slate"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+
+/* =========================
+   CENTRAL DE MARKETING
+   ========================= */
+
+.phanyx-marketing-page .phanyx-marketing-card {
+  border: 1px solid #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.phanyx-marketing-page .phanyx-marketing-card p {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-page .phanyx-marketing-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-marketing-page .phanyx-marketing-card p {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-marketing-page .phanyx-marketing-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-marketing-page .phanyx-marketing-card p {
+  color: #f8fafc !important;
+}
+
+.phanyx-marketing-page span[class*="rounded-full"] {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+  font-weight: 900 !important;
+}
+
+
+/* =========================
+   REPUTAÇÃO IA
+   ========================= */
+
+.phanyx-reputacao-page [class*="from-slate-"],
+.phanyx-reputacao-page [class*="to-slate-"],
+.phanyx-reputacao-page [class*="via-slate-"] {
+  color: #ffffff !important;
+}
+
+.phanyx-reputacao-page [class*="from-slate-"] *,
+.phanyx-reputacao-page [class*="to-slate-"] *,
+.phanyx-reputacao-page [class*="via-slate-"] * {
+  color: #ffffff !important;
+}
+
+.phanyx-reputacao-page .phanyx-theme-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-reputacao-page .phanyx-theme-card * {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-reputacao-page .phanyx-theme-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-reputacao-page .phanyx-theme-card * {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .phanyx-theme-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .phanyx-theme-card * {
+  color: #f8fafc !important;
+}
+
+/* Cards claros da Reputação nunca podem ficar com texto branco */
+.phanyx-reputacao-page [class*="bg-emerald-50"],
+.phanyx-reputacao-page [class*="bg-green-50"] {
+  background: #ecfdf5 !important;
+  border-color: #86efac !important;
+  color: #064e3b !important;
+}
+
+.phanyx-reputacao-page [class*="bg-emerald-50"] *,
+.phanyx-reputacao-page [class*="bg-green-50"] * {
+  color: #064e3b !important;
+}
+
+.phanyx-reputacao-page [class*="bg-red-50"],
+.phanyx-reputacao-page [class*="bg-rose-50"] {
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #991b1b !important;
+}
+
+.phanyx-reputacao-page [class*="bg-red-50"] *,
+.phanyx-reputacao-page [class*="bg-rose-50"] * {
+  color: #991b1b !important;
+}
+
+.phanyx-reputacao-page [class*="bg-amber-50"],
+.phanyx-reputacao-page [class*="bg-yellow-50"] {
+  background: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+
+.phanyx-reputacao-page [class*="bg-amber-50"] *,
+.phanyx-reputacao-page [class*="bg-yellow-50"] * {
+  color: #92400e !important;
+}
+
+.phanyx-reputacao-page [class*="bg-blue-50"],
+.phanyx-reputacao-page [class*="bg-sky-50"] {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e3a8a !important;
+}
+
+.phanyx-reputacao-page [class*="bg-blue-50"] *,
+.phanyx-reputacao-page [class*="bg-sky-50"] * {
+  color: #1e3a8a !important;
+}
+
+/* Botõezinhos/status da Reputação */
+.phanyx-reputacao-page span[class*="rounded-full"] {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+  font-weight: 900 !important;
+}
+
+.phanyx-reputacao-page button[class*="rounded-full"] {
+  color: #ffffff !important;
+}
+
+.phanyx-reputacao-page button[class*="bg-blue"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+
+/* =========================
+   GESTÃO DE CERTIFICADOS
+   ========================= */
+
+.phanyx-certificados-page {
+  color: #0f172a !important;
+}
+
+.phanyx-certificados-page .rounded-3xl,
+.phanyx-certificados-page .rounded-2xl {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page h1,
+html[data-theme="light"] .phanyx-certificados-page h2,
+html[data-theme="light"] .phanyx-certificados-page h3,
+html[data-theme="light"] .phanyx-certificados-page p,
+html[data-theme="light"] .phanyx-certificados-page label,
+html[data-theme="light"] .phanyx-certificados-page th,
+html[data-theme="light"] .phanyx-certificados-page td {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page .bg-white,
+html[data-theme="light"] .phanyx-certificados-page [class*="bg-white"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-certificados-page [class*="bg-blue"] *,
+html[data-theme="light"] .phanyx-certificados-page button[class*="bg-blue"] {
+  color: #ffffff !important;
+}
+
+/* Tema sistema: lista/tabela não pode ficar azul */
+html[data-theme="system"] .phanyx-certificados-page .rounded-3xl,
+html[data-theme="system"] .phanyx-certificados-page .rounded-2xl,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-tabela-linha {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-tabela-linha *,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-nome,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-email,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-texto {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page thead {
+  background: #171717 !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page th {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-certificados-page input,
+html[data-theme="system"] .phanyx-certificados-page select,
+html[data-theme="system"] .phanyx-certificados-page textarea {
+  background: #171717 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+/* Sugestão de busca */
+.phanyx-certificados-page .phanyx-cert-sugestoes {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18) !important;
+}
+
+.phanyx-certificados-page .phanyx-cert-sugestao {
+  color: #0f172a !important;
+}
+
+.phanyx-certificados-page .phanyx-cert-sugestao:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.phanyx-certificados-page .phanyx-cert-sugestao:hover * {
+  color: #ffffff !important;
+}
+
+.phanyx-certificados-page .phanyx-cert-sugestao-email {
+  color: #64748b !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .phanyx-cert-sugestoes,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-sugestoes {
+  background: #171717 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .phanyx-cert-sugestao,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-sugestao {
+  color: #f8fafc !important;
+}
+
+/* Status Pendente / Pronto */
+.phanyx-certificados-page .phanyx-cert-status-badge {
+  background: #e0f2fe !important;
+  border-color: #bae6fd !important;
+  color: #075985 !important;
+  font-weight: 900 !important;
+}
+
+.phanyx-certificados-page .phanyx-cert-status-badge:hover {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+}
+
+/* Botões da Gestão de Certificados */
+.phanyx-certificados-page button[class*="bg-blue"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.phanyx-certificados-page button[class*="bg-green"] {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+.phanyx-certificados-page .phanyx-cert-botao-secundario {
+  background: transparent !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-certificados-page .phanyx-cert-botao-secundario,
+html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-botao-secundario {
+  color: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
