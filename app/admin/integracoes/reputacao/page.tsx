@@ -530,20 +530,20 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
   color: #f8fafc !important;
 }
 
-  .phanyx-reputacao-page .rep-ai-score {
-    background: #ecfdf5 !important;
-    border-color: #6ee7b7 !important;
-    color: #064e3b !important;
-  }
+ .phanyx-reputacao-page .rep-ai-score {
+  background: #064e3b !important;
+  border-color: #10b981 !important;
+  color: #f0fdf4 !important;
+}
 
-  .phanyx-reputacao-page .rep-ai-score,
+.phanyx-reputacao-page .rep-ai-score,
 .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span,div) {
-  color: #064e3b !important;
+  color: #f0fdf4 !important;
   opacity: 1 !important;
 }
 
 .phanyx-reputacao-page .rep-ai-score h3 {
-  color: #0f172a !important;
+  color: #ffffff !important;
 }
 
   .phanyx-reputacao-page .rep-timeline-item {
