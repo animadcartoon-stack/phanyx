@@ -451,7 +451,7 @@ function AdminVisitantesPage() {
             )}
           </div>
 
-          <div className="mb-5 rounded-3xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+          <div className="phanyx-visitantes-foto-card mb-5 rounded-3xl border p-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
                 {form.fotoPerfil ? (
@@ -771,12 +771,12 @@ function AdminVisitantesPage() {
               />
 
               <button
-                type="button"
-                onClick={carregarVisitantes}
-                className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-bold text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100"
-              >
-                Filtrar
-              </button>
+  type="button"
+  onClick={carregarVisitantes}
+  className="phanyx-visitantes-filtrar-btn rounded-xl border px-4 py-2 text-sm font-bold"
+>
+  Filtrar
+</button>
             </div>
           </div>
 

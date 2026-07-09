@@ -8894,3 +8894,58 @@ body[data-theme="system"] .phanyx-foto-oficial-card,
   background-color: #020617 !important;
   border-color: #334155 !important;
 }
+
+/* PHANYX - Visitantes: card de foto e botão no tema claro */
+.phanyx-visitantes-page .phanyx-visitantes-foto-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-visitantes-page .phanyx-visitantes-foto-card h3,
+.phanyx-visitantes-page .phanyx-visitantes-foto-card p {
+  color: #0f172a !important;
+}
+
+.phanyx-visitantes-page .phanyx-visitantes-foto-card p {
+  color: #475569 !important;
+}
+
+.phanyx-visitantes-page .phanyx-visitantes-foto-card label {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+.phanyx-visitantes-page .phanyx-visitantes-filtrar-btn {
+  background: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+}
+
+.phanyx-visitantes-page .phanyx-visitantes-filtrar-btn:hover {
+  background: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+/* PHANYX - Visitantes: mantém card correto no tema escuro */
+.dark .phanyx-visitantes-page .phanyx-visitantes-foto-card {
+  background: #020617 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+.dark .phanyx-visitantes-page .phanyx-visitantes-foto-card h3 {
+  color: #ffffff !important;
+}
+
+.dark .phanyx-visitantes-page .phanyx-visitantes-foto-card p {
+  color: #cbd5e1 !important;
+}
+
+.dark .phanyx-visitantes-page .phanyx-visitantes-foto-card label {
+  background: rgba(30, 64, 175, 0.35) !important;
+  border-color: #1d4ed8 !important;
+  color: #dbeafe !important;
+}
