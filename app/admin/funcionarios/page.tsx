@@ -113,6 +113,8 @@ function AdminFuncionariosPage() {
   const [telefone, setTelefone] = useState("");
   const [cargo, setCargo] = useState("");
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
+  const [fotoPerfil, setFotoPerfil] = useState("");
+  const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
   const [statusFuncionario, setStatusFuncionario] = useState("ATIVO");
   const [motivoStatus, setMotivoStatus] = useState("");
 
@@ -205,6 +207,75 @@ function podeGerenciarPermissoesIndividuais() {
   );
 }
 
+const FORMATOS_FOTO_FUNCIONARIO_ACEITOS = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+];
+
+const TAMANHO_MAXIMO_FOTO_FUNCIONARIO_MB = 2;
+const TAMANHO_MAXIMO_FOTO_FUNCIONARIO_BYTES =
+  TAMANHO_MAXIMO_FOTO_FUNCIONARIO_MB * 1024 * 1024;
+
+function validarFotoOficialFuncionario(arquivo: File) {
+  if (!FORMATOS_FOTO_FUNCIONARIO_ACEITOS.includes(arquivo.type)) {
+    throw new Error(
+      "Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP."
+    );
+  }
+
+  if (arquivo.size > TAMANHO_MAXIMO_FOTO_FUNCIONARIO_BYTES) {
+    throw new Error(
+      `Foto muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_FUNCIONARIO_MB} MB.`
+    );
+  }
+}
+
+async function enviarFotoOficialFuncionario(arquivo: File | null) {
+  if (!arquivo) return;
+
+  try {
+    validarFotoOficialFuncionario(arquivo);
+    setEnviandoFotoPerfil(true);
+
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar foto.");
+    }
+
+    const url =
+      data?.url ||
+      data?.fileUrl ||
+      data?.arquivoUrl ||
+      data?.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da foto não retornou.");
+    }
+
+    setFotoPerfil(url);
+    setSucesso("Foto oficial do funcionário enviada com sucesso.");
+  } catch (error: any) {
+    setErro(
+      error?.message ||
+        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
+    );
+  } finally {
+    setEnviandoFotoPerfil(false);
+  }
+}
+
   function preencherFormularioParaEdicao(f: Funcionario) {
     setEditandoId(f.id);
     setNome(f.nome || "");
@@ -215,6 +286,7 @@ function podeGerenciarPermissoesIndividuais() {
     setTelefone(f.telefone || "");
     setCargo(f.cargo || "");
     setCodigoFuncionario(f.codigoFuncionario || "");
+    setFotoPerfil(f.fotoPerfil || "");
     setDepartamentoId(f.departamento?.id ? String(f.departamento.id) : "");
     setDataAdmissao(dataParaInput(f.dataAdmissao));
     setSalarioBase(f.salarioBase ? String(f.salarioBase).replace(".", ",") : "");
@@ -244,6 +316,7 @@ function podeGerenciarPermissoesIndividuais() {
     setTelefone("");
     setCargo("");
     setCodigoFuncionario("");
+    setFotoPerfil("");
     setDepartamentoId("");
     setDataAdmissao("");
     setSalarioBase("");
@@ -298,6 +371,7 @@ function podeGerenciarPermissoesIndividuais() {
           telefone,
           cargo,
           codigoFuncionario,
+          fotoPerfil,
           departamentoId: departamentoId || null,
           statusFuncionario,
           motivoStatus,
@@ -417,6 +491,7 @@ function podeGerenciarPermissoesIndividuais() {
           telefone,
           cargo,
           codigoFuncionario,
+          fotoPerfil,
           departamentoId: departamentoId || null,
           statusFuncionario,
           motivoStatus,
@@ -494,6 +569,7 @@ if (funcionarioIdCriado) {
       setTelefone("");
       setCargo("");
       setCodigoFuncionario("");
+      setFotoPerfil("");
       setDepartamentoId("");
       setDataAdmissao("");
       setSalarioBase("");
@@ -745,6 +821,64 @@ dark:text-white
             onChange={(e) => setCodigoFuncionario(e.target.value)}
             className="w-full border rounded-lg p-2"
           />
+          <div className="phanyx-foto-oficial-card md:col-span-2">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      {fotoPerfil ? (
+        <img
+          src={fotoPerfil}
+          alt={nome || "Foto oficial do funcionário"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl font-black text-slate-400">
+          {nome?.charAt(0)?.toUpperCase() || "F"}
+        </span>
+      )}
+    </div>
+
+    <div className="flex-1">
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        Foto oficial do funcionário
+      </h3>
+
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Esta é a foto institucional usada em crachás, identificação, documentos
+        e registros internos.
+      </p>
+
+      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+        Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
+        Recomendado: foto quadrada, com rosto centralizado.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+          {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            disabled={enviandoFotoPerfil}
+            onChange={(e) =>
+              enviarFotoOficialFuncionario(e.target.files?.[0] || null)
+            }
+            className="hidden"
+          />
+        </label>
+
+        {fotoPerfil && (
+          <button
+            type="button"
+            onClick={() => setFotoPerfil("")}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          >
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
         </div>
 
 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
