@@ -202,11 +202,11 @@ model User {
   holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
   holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
 
-  documentosProfessorCriados     DocumentoProfessor[]           @relation("DocumentoProfessorCriadoPor")
-  documentosProfessorArquivados  DocumentoProfessor[]           @relation("DocumentoProfessorArquivadoPor")
-  documentosProfessorRestaurados DocumentoProfessor[]           @relation("DocumentoProfessorRestauradoPor")
-  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
-
+  documentosProfessorCriados      DocumentoProfessor[]            @relation("DocumentoProfessorCriadoPor")
+  documentosProfessorArquivados   DocumentoProfessor[]            @relation("DocumentoProfessorArquivadoPor")
+  documentosProfessorRestaurados  DocumentoProfessor[]            @relation("DocumentoProfessorRestauradoPor")
+  preferenciasAgendaOperacional   PreferenciaAgendaOperacional[]
+  visitantesCriados               Visitante[]                     @relation("VisitanteCriadoPor")
   @@index([instituicaoId])
   @@index([role])
 }
@@ -2890,6 +2890,7 @@ model Visitante {
 
   instituicaoId  Int
   criadoPorId    Int?
+  criadoPor      User? @relation("VisitanteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
 
   nome           String
   documentoTipo  String?
@@ -2935,6 +2936,7 @@ model Visitante {
 
   @@unique([instituicaoId, codigoVisitante])
   @@index([instituicaoId])
+  @@index([criadoPorId])
   @@index([instituicaoId, status])
   @@index([instituicaoId, evento])
   @@index([instituicaoId, entradaPrevistaEm])
