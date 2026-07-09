@@ -764,14 +764,71 @@ window.scrollTo({ top: 0, behavior: "smooth" });
         throw new Error(data.error || "Erro ao atualizar");
       }
 
-      setEditandoId(null);
-      await carregarTudo();
-      mostrarFeedback("sucesso", "Aluno atualizado com sucesso.");
-      abrirModalAviso(
-        "sucesso",
-        "Aluno atualizado",
-        "As informações do aluno foram atualizadas com sucesso."
-      );
+      const alunoAtualizado: AlunoComResumo = {
+  ...(alunoSelecionado || ({} as AlunoComResumo)),
+  ...data,
+  id,
+  nome: data?.nome ?? editNome,
+  nomeSocial: data?.nomeSocial ?? editNomeSocial,
+  genero: data?.genero ?? editGenero,
+  cpf: data?.cpf ?? editCpf,
+  rg: data?.rg ?? editRg,
+  telefone: data?.telefone ?? editTelefone,
+  dataNascimento: data?.dataNascimento ?? editDataNascimento,
+  cep: data?.cep ?? editCep,
+  endereco: data?.endereco ?? editEndereco,
+  numero: data?.numero ?? editNumero,
+  complemento: data?.complemento ?? editComplemento,
+  bairro: data?.bairro ?? editBairro,
+  cidade: data?.cidade ?? editCidade,
+  estado: data?.estado ?? editEstado,
+  documentoUrl: data?.documentoUrl ?? editDocumentoUrl,
+  fotoPerfil: data?.fotoPerfil ?? editFotoPerfil,
+  nomeResponsavel: data?.nomeResponsavel ?? editNomeResponsavel,
+  cpfResponsavel: data?.cpfResponsavel ?? editCpfResponsavel,
+  telefoneResponsavel: data?.telefoneResponsavel ?? editTelefoneResponsavel,
+  emailResponsavel: data?.emailResponsavel ?? editEmailResponsavel,
+  parentescoResponsavel: data?.parentescoResponsavel ?? editParentescoResponsavel,
+  statusAluno: data?.statusAluno ?? editStatusAluno,
+  poloId: data?.poloId ?? (editPoloId ? Number(editPoloId) : null),
+  possuiNecessidadeEspecial:
+    data?.possuiNecessidadeEspecial ?? editPossuiNecessidadeEspecial,
+  descricaoNecessidadeEspecial:
+    data?.descricaoNecessidadeEspecial ?? editDescricaoNecessidadeEspecial,
+  observacoesAcessibilidade:
+    data?.observacoesAcessibilidade ?? editObservacoesAcessibilidade,
+  user: {
+    ...(alunoSelecionado?.user || { email: "" }),
+    ...(data?.user || {}),
+    email: data?.user?.email ?? editEmail,
+  },
+};
+
+setAlunoSelecionado(alunoAtualizado);
+
+setAlunos((atuais) =>
+  atuais.map((aluno) =>
+    aluno.id === id
+      ? {
+          ...aluno,
+          ...alunoAtualizado,
+        }
+      : aluno
+  )
+);
+
+setPainelAlunoAberto(true);
+setAbaPainelAluno("DADOS");
+setEditandoId(null);
+
+await carregarTudo();
+
+mostrarFeedback("sucesso", "Aluno atualizado com sucesso.");
+abrirModalAviso(
+  "sucesso",
+  "Aluno atualizado",
+  "As informações do aluno foram atualizadas com sucesso."
+);
     } catch (error: any) {
       const mensagem = error?.message || "Erro ao atualizar";
       mostrarFeedback("erro", mensagem);
@@ -2582,9 +2639,8 @@ name="busca-alunos-phanyx"
   onClick={() => {
     if (!alunoSelecionado) return;
     iniciarEdicao(alunoSelecionado);
-    setPainelAlunoAberto(false);
-    setMostrarFormulario(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setAbaPainelAluno("DADOS");
+    setPainelAlunoAberto(true);
   }}
   className="rounded-xl border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950 dark:text-blue-200 dark:hover:bg-blue-900"
 >
