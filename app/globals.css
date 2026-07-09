@@ -8540,3 +8540,48 @@ html[data-theme="system"] .phanyx-growth-card * {
 .phanyx-marketing-status * {
   color: #075985 !important;
 }
+
+/* PHANYX - Cards de variáveis dos templates de documentos */
+.phanyx-doc-variable-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-doc-variable-card:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variable-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variable-card:hover {
+  background: #1e293b !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="system"] .phanyx-doc-variable-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"] .phanyx-doc-variable-card:hover {
+  background: #303030 !important;
+  border-color: #737373 !important;
+}
+
+.phanyx-doc-variable-card .phanyx-doc-variable-category {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-doc-variable-card .phanyx-doc-variable-category,
+html[data-theme="system"] .phanyx-doc-variable-card .phanyx-doc-variable-category {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}

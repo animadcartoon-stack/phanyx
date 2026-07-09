@@ -3120,7 +3120,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     placeholder="Buscar variável por nome ou finalidade. Ex.: nome da escola, assinatura diretor, curso..."
   />
 
-  <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
+  <div className="phanyx-template-vars-grid mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
   {variaveisInteligentes
   .map((v) => {
     const termo = normalizarTextoBusca(buscaVariavel);
@@ -3170,9 +3170,9 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     onClick={() => {
   inserirVariavelNoEditor(variavel.tag);
 }}
-    className="phanyx-doc-variable-card rounded-2xl p-3 text-left text-xs transition hover:border-blue-400 hover:bg-blue-50"
+    className="phanyx-doc-variable-card rounded-2xl border p-3 text-left text-xs transition"
   >
-          <div className="mb-2 inline-flex rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-600">
+          <div className="phanyx-doc-variable-category mb-2 inline-flex rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide">
   {variavel.categoria}
 </div>
           <div className="flex items-center justify-between gap-2">

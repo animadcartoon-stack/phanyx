@@ -277,19 +277,19 @@ useEffect(() => {
       <div className="flex flex-wrap gap-2">
         <select
   value={fonteAtual}
-          onChange={(e) => {
-  const fonte = e.target.value;
-  if (!fonte) return;
+  onChange={(e) => {
+    const fonte = e.target.value;
+    if (!fonte) return;
 
-  editor.chain().focus().setFontFamily(fonte).run();
-  setFonteAtual(fonte);
-  onChange(editor.getHTML());
-}}
-          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-        >
-          <option value="" disabled>
-            Fonte
-          </option>
+    editor.chain().focus().setFontFamily(fonte).run();
+    setFonteAtual(fonte);
+    onChange(editor.getHTML());
+  }}
+  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+>
+  <option value="">
+    Fonte
+  </option>
           {FONTES_WINDOWS.map((fonte) => (
             <option key={fonte} value={fonte}>
               {fonte}
@@ -299,26 +299,26 @@ useEffect(() => {
 
         <select
   value={tamanhoAtual}
-          onChange={(e) => {
-  const tamanho = e.target.value;
-  if (!tamanho) return;
+  onChange={(e) => {
+    const tamanho = e.target.value;
+    if (!tamanho) return;
 
-  editor
-    .chain()
-    .focus()
-    .setMark("textStyle", {
-      fontSize: `${tamanho}pt`,
-    })
-    .run();
+    editor
+      .chain()
+      .focus()
+      .setMark("textStyle", {
+        fontSize: `${tamanho}pt`,
+      })
+      .run();
 
-  setTamanhoAtual(tamanho);
-  onChange(editor.getHTML());
-}}
-          className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
-        >
-          <option value="" disabled>
-            Tamanho
-          </option>
+    setTamanhoAtual(tamanho);
+    onChange(editor.getHTML());
+  }}
+  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
+>
+  <option value="">
+    Tamanho
+  </option>
           {TAMANHOS_FONTE.map((tamanho) => (
             <option key={tamanho} value={tamanho}>
               {tamanho} pt
@@ -341,9 +341,9 @@ useEffect(() => {
 
     onChange(editor.getHTML());
   }}
-  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800"
+  className="rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-950 outline-none hover:bg-slate-100 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:hover:bg-slate-800 [&>option]:bg-white [&>option]:text-slate-950 dark:[&>option]:bg-slate-950 dark:[&>option]:text-white"
 >
-  <option value="" disabled>
+  <option value="">
     Espaçamento
   </option>
   {ESPACAMENTOS_LINHA.map((item) => (

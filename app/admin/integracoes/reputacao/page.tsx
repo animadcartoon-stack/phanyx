@@ -472,6 +472,260 @@ const temRespostaLenta =
 
   return (
     <div className="phanyx-reputacao-page space-y-8">
+
+      <style jsx global>{`
+        .phanyx-reputacao-page {
+          --rep-card-bg: #ffffff;
+          --rep-soft-card-bg: #f8fafc;
+          --rep-card-border: #cbd5e1;
+          --rep-text: #0f172a;
+          --rep-muted: #475569;
+          --rep-muted-2: #64748b;
+          --rep-dark-panel: #111827;
+          --rep-dark-panel-2: #0f172a;
+          color: var(--rep-text);
+        }
+
+        :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page {
+          --rep-card-bg: #262626;
+          --rep-soft-card-bg: #303030;
+          --rep-card-border: #525252;
+          --rep-text: #f8fafc;
+          --rep-muted: #d4d4d4;
+          --rep-muted-2: #cbd5e1;
+          --rep-dark-panel: #262626;
+          --rep-dark-panel-2: #171717;
+          color: var(--rep-text);
+        }
+
+        @media (prefers-color-scheme: dark) {
+          :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page {
+            --rep-card-bg: #262626;
+            --rep-soft-card-bg: #303030;
+            --rep-card-border: #525252;
+            --rep-text: #f8fafc;
+            --rep-muted: #d4d4d4;
+            --rep-muted-2: #cbd5e1;
+            --rep-dark-panel: #262626;
+            --rep-dark-panel-2: #171717;
+            color: var(--rep-text);
+          }
+        }
+
+        .phanyx-reputacao-page .bg-white,
+        .phanyx-reputacao-page .bg-slate-50,
+        .phanyx-reputacao-page .bg-slate-900 {
+          background-color: var(--rep-card-bg) !important;
+          color: var(--rep-text) !important;
+        }
+
+        .phanyx-reputacao-page .border,
+        .phanyx-reputacao-page [class*="border-"] {
+          border-color: var(--rep-card-border) !important;
+        }
+
+        .phanyx-reputacao-page .text-slate-900,
+        .phanyx-reputacao-page .text-slate-800,
+        .phanyx-reputacao-page .text-slate-700 {
+          color: var(--rep-text) !important;
+        }
+
+        .phanyx-reputacao-page .text-slate-600,
+        .phanyx-reputacao-page .text-slate-500,
+        .phanyx-reputacao-page .text-slate-400,
+        .phanyx-reputacao-page .text-slate-300 {
+          color: var(--rep-muted) !important;
+        }
+
+        .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] {
+          background-image: linear-gradient(135deg, var(--rep-dark-panel), var(--rep-dark-panel-2)) !important;
+          color: #ffffff !important;
+        }
+
+        .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] :is(h1,h2,h3,h4,p,span,li) {
+          color: #ffffff !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-white/5"] {
+          background-color: rgba(15, 23, 42, 0.06) !important;
+          color: var(--rep-text) !important;
+        }
+
+        :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page [class~="bg-white/5"] {
+          background-color: #333333 !important;
+          color: #ffffff !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-white/5"] :is(h1,h2,h3,h4,p,span) {
+          color: inherit !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] [class~="bg-white/5"],
+        .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] [class~="bg-white/5"] :is(h1,h2,h3,h4,p,span) {
+          color: #ffffff !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-white/10"] {
+          background-color: rgba(226, 232, 240, 0.22) !important;
+          color: #f8fafc !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-cyan-400/5"] {
+          background-color: rgba(14, 116, 144, 0.18) !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-cyan-400/10"] {
+          background-color: #cffafe !important;
+          color: #155e75 !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-cyan-400/10"] * {
+          color: #155e75 !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-emerald-500/10"] {
+          background-color: #dcfce7 !important;
+          border-color: #34d399 !important;
+          color: #064e3b !important;
+        }
+
+        .phanyx-reputacao-page [class~="bg-emerald-500/10"] :is(p,h3,span) {
+          color: #064e3b !important;
+          opacity: 1 !important;
+        }
+
+        :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page [class~="bg-emerald-500/10"] {
+          background-color: #064e3b !important;
+          border-color: #10b981 !important;
+          color: #ecfdf5 !important;
+        }
+
+        :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page [class~="bg-emerald-500/10"] :is(p,h3,span) {
+          color: #ecfdf5 !important;
+        }
+
+        .phanyx-reputacao-page .bg-emerald-50 {
+          background-color: #ecfdf5 !important;
+          border-color: #6ee7b7 !important;
+          color: #064e3b !important;
+        }
+
+        .phanyx-reputacao-page .bg-emerald-50 :is(h1,h2,h3,h4,p,span,li) {
+          color: #064e3b !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-red-50 {
+          background-color: #fef2f2 !important;
+          border-color: #fca5a5 !important;
+          color: #991b1b !important;
+        }
+
+        .phanyx-reputacao-page .bg-red-50 :is(h1,h2,h3,h4,p,span,li) {
+          color: #991b1b !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-amber-50 {
+          background-color: #fffbeb !important;
+          border-color: #fcd34d !important;
+          color: #92400e !important;
+        }
+
+        .phanyx-reputacao-page .bg-amber-50 :is(h1,h2,h3,h4,p,span,li) {
+          color: #92400e !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-blue-50 {
+          background-color: #eff6ff !important;
+          border-color: #93c5fd !important;
+          color: #1e3a8a !important;
+        }
+
+        .phanyx-reputacao-page .bg-blue-50 :is(h1,h2,h3,h4,p,span,li) {
+          color: #1e3a8a !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-sky-50 {
+          background-color: #f0f9ff !important;
+          border-color: #7dd3fc !important;
+          color: #075985 !important;
+        }
+
+        .phanyx-reputacao-page .bg-sky-50 :is(h1,h2,h3,h4,p,span,li) {
+          color: #075985 !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-violet-50 {
+          background-color: #f5f3ff !important;
+          border-color: #c4b5fd !important;
+          color: #4c1d95 !important;
+        }
+
+        .phanyx-reputacao-page .bg-violet-50 :is(h1,h2,h3,h4,p,span,li) {
+          color: #4c1d95 !important;
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-blue-100,
+        .phanyx-reputacao-page .bg-cyan-100 {
+          background-color: #dbeafe !important;
+          color: #1d4ed8 !important;
+        }
+
+        .phanyx-reputacao-page .bg-slate-100 {
+          background-color: #e2e8f0 !important;
+          color: #334155 !important;
+        }
+
+        .phanyx-reputacao-page .bg-emerald-100 {
+          background-color: #d1fae5 !important;
+          color: #047857 !important;
+        }
+
+        .phanyx-reputacao-page .bg-red-100 {
+          background-color: #fee2e2 !important;
+          color: #b91c1c !important;
+        }
+
+        .phanyx-reputacao-page .bg-amber-100 {
+          background-color: #fef3c7 !important;
+          color: #92400e !important;
+        }
+
+        .phanyx-reputacao-page .rounded-full:is(.bg-blue-100,.bg-cyan-100,.bg-slate-100,.bg-emerald-100,.bg-red-100,.bg-amber-100),
+        .phanyx-reputacao-page .rounded-full:is(.bg-blue-100,.bg-cyan-100,.bg-slate-100,.bg-emerald-100,.bg-red-100,.bg-amber-100) * {
+          opacity: 1 !important;
+        }
+
+        .phanyx-reputacao-page .bg-blue-600,
+        .phanyx-reputacao-page .bg-emerald-600,
+        .phanyx-reputacao-page .bg-red-600,
+        .phanyx-reputacao-page .bg-cyan-600 {
+          color: #ffffff !important;
+        }
+
+        .phanyx-reputacao-page .bg-blue-600 :is(span,p,h1,h2,h3,h4,button),
+        .phanyx-reputacao-page .bg-emerald-600 :is(span,p,h1,h2,h3,h4,button),
+        .phanyx-reputacao-page .bg-red-600 :is(span,p,h1,h2,h3,h4,button),
+        .phanyx-reputacao-page .bg-cyan-600 :is(span,p,h1,h2,h3,h4,button) {
+          color: #ffffff !important;
+        }
+
+        .phanyx-reputacao-page button,
+        .phanyx-reputacao-page input,
+        .phanyx-reputacao-page select,
+        .phanyx-reputacao-page textarea {
+          color-scheme: light;
+        }
+      `}</style>
       <div>
         <p className="text-sm font-bold tracking-[0.25em] text-blue-700">
           PHANYX GROWTH
