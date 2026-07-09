@@ -497,6 +497,39 @@ const temRespostaLenta =
   color: #ffffff !important;
 }
 
+.phanyx-reputacao-page .rep-inner-dark-card {
+  background: rgba(30, 41, 59, 0.72) !important;
+  border-color: rgba(148, 163, 184, 0.24) !important;
+  color: #f8fafc !important;
+}
+
+.phanyx-reputacao-page .rep-inner-dark-card :is(h1,h2,h3,h4,p,span,div) {
+  color: #f8fafc !important;
+  opacity: 1 !important;
+}
+
+.phanyx-reputacao-page .rep-inner-dark-card p {
+  color: #e2e8f0 !important;
+}
+
+.phanyx-reputacao-page .rep-inner-dark-card .text-cyan-300 {
+  color: #67e8f9 !important;
+}
+
+.phanyx-reputacao-page .rep-inner-dark-card .text-amber-300 {
+  color: #fcd34d !important;
+}
+
+.phanyx-reputacao-page .rep-inner-dark-card .text-emerald-300 {
+  color: #86efac !important;
+}
+
+html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
+  background: #303030 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
   .phanyx-reputacao-page .rep-ai-score {
     background: #ecfdf5 !important;
     border-color: #6ee7b7 !important;
@@ -1025,7 +1058,7 @@ const temRespostaLenta =
   </div>
 </div>
 
-<div className="mt-8 overflow-hidden rounded-2xl border border-cyan-400/10 bg-cyan-400/5 p-4">
+<div className="rep-inner-dark-card mt-8 overflow-hidden rounded-2xl border p-4">
   <div className="mb-3 flex items-center justify-between">
     <div>
       <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-300">
@@ -1089,7 +1122,7 @@ const temRespostaLenta =
 </div>
 
     <div className="mt-8 grid gap-4 md:grid-cols-3">
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="rep-inner-dark-card rounded-2xl border p-4">
         <p className="text-xs font-black uppercase tracking-wide text-cyan-300">
           Tendência
         </p>
@@ -1103,7 +1136,7 @@ const temRespostaLenta =
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="rep-inner-dark-card rounded-2xl border p-4">
         <p className="text-xs font-black uppercase tracking-wide text-amber-300">
           Tempo médio
         </p>
@@ -1117,7 +1150,7 @@ const temRespostaLenta =
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+      <div className="rep-inner-dark-card rounded-2xl border p-4">
         <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
           Status IA
         </p>
