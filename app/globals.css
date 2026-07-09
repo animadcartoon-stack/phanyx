@@ -8284,3 +8284,137 @@ html[data-theme="system"] .phanyx-certificados-page .phanyx-cert-botao-secundari
   color: #f8fafc !important;
   border-color: #94a3b8 !important;
 }
+
+/* =========================================================
+   PHANYX - AJUSTE FINAL DOCUMENTOS/TEMPLATES
+   Tema sistema: cinza, não azul
+   Tema claro: toolbar com selects visíveis
+   ========================================================= */
+
+
+/* ---------- TEMA CLARO: barra de ferramentas do editor ---------- */
+
+html[data-theme="light"] .phanyx-doc-templates-page #editor-template-phanyx select,
+html[data-theme="light"] .phanyx-doc-templates-page #editor-template-phanyx option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-doc-templates-page #editor-template-phanyx select:disabled,
+html[data-theme="light"] .phanyx-doc-templates-page #editor-template-phanyx button:disabled {
+  background: #f8fafc !important;
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-doc-templates-page #editor-template-phanyx button {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-doc-templates-page #editor-template-phanyx button:not([class*="bg-blue"]) {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+
+/* ---------- TEMA SISTEMA: página de templates em cinza ---------- */
+
+html[data-theme="system"] .phanyx-doc-templates-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .rounded-2xl,
+html[data-theme="system"] .phanyx-doc-templates-page .rounded-3xl {
+  background-color: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page label,
+html[data-theme="system"] .phanyx-doc-templates-page h1,
+html[data-theme="system"] .phanyx-doc-templates-page h2,
+html[data-theme="system"] .phanyx-doc-templates-page h3,
+html[data-theme="system"] .phanyx-doc-templates-page p {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page input,
+html[data-theme="system"] .phanyx-doc-templates-page textarea,
+html[data-theme="system"] .phanyx-doc-templates-page select {
+  background: #171717 !important;
+  color: #f8fafc !important;
+  border-color: #525252 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page input::placeholder,
+html[data-theme="system"] .phanyx-doc-templates-page textarea::placeholder {
+  color: #a3a3a3 !important;
+}
+
+
+/* ---------- TEMA SISTEMA: lista aberta do select ---------- */
+
+html[data-theme="system"] .phanyx-doc-templates-page option {
+  background: #171717 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page option:checked,
+html[data-theme="system"] .phanyx-doc-templates-page option:hover {
+  background: #404040 !important;
+  color: #ffffff !important;
+}
+
+
+/* ---------- TEMA SISTEMA: cards de variáveis dinâmicas ---------- */
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card {
+  background: #262626 !important;
+  border: 1px solid #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card:hover {
+  background: #303030 !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card .font-mono {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card .font-semibold,
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card p {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card [class*="bg-slate-100"] {
+  background: #e5e7eb !important;
+  color: #334155 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page .phanyx-doc-variable-card button[class*="bg-blue"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+
+/* ---------- TEMA SISTEMA: toolbar do editor também em cinza ---------- */
+
+html[data-theme="system"] .phanyx-doc-templates-page #editor-template-phanyx select,
+html[data-theme="system"] .phanyx-doc-templates-page #editor-template-phanyx option,
+html[data-theme="system"] .phanyx-doc-templates-page #editor-template-phanyx input {
+  background: #171717 !important;
+  color: #f8fafc !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="system"] .phanyx-doc-templates-page #editor-template-phanyx button:not([class*="bg-blue"]) {
+  background: #171717 !important;
+  color: #f8fafc !important;
+  border-color: #525252 !important;
+}
