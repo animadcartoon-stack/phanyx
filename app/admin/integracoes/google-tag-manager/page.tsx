@@ -74,11 +74,11 @@ export default function GoogleTagManagerPage() {
           </label>
 
           <input
-            value={containerId}
-            onChange={(e) => setContainerId(e.target.value)}
-            placeholder="GTM-XXXXXXX"
-            className="phanyx-config-input text-lg"
-          />
+  value={containerId}
+  onChange={(e) => setContainerId(e.target.value)}
+  placeholder="GTM-XXXXXXX"
+  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400"
+/>
 
           <p className="phanyx-config-muted mt-2 text-sm">
             Cada instituição deve usar seu próprio container GTM.

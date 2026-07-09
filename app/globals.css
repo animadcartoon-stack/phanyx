@@ -8418,3 +8418,28 @@ html[data-theme="system"] .phanyx-doc-templates-page #editor-template-phanyx but
   color: #f8fafc !important;
   border-color: #525252 !important;
 }
+
+/* =========================================================
+   PHANYX - INPUTS DAS INTEGRAÇÕES GOOGLE
+   Tema escuro/sistema: campo azul escuro, não cinza
+   ========================================================= */
+
+html[data-theme="dark"] input[placeholder="GTM-XXXXXXX"],
+html[data-theme="system"] input[placeholder="GTM-XXXXXXX"],
+html[data-theme="dark"] input[placeholder="AW-123456789"],
+html[data-theme="system"] input[placeholder="AW-123456789"],
+html[data-theme="dark"] input[placeholder='Ex: <meta name="google-site-verification" content="..." />'],
+html[data-theme="system"] input[placeholder='Ex: <meta name="google-site-verification" content="..." />'] {
+  background: #020617 !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] input[placeholder="GTM-XXXXXXX"]::placeholder,
+html[data-theme="system"] input[placeholder="GTM-XXXXXXX"]::placeholder,
+html[data-theme="dark"] input[placeholder="AW-123456789"]::placeholder,
+html[data-theme="system"] input[placeholder="AW-123456789"]::placeholder,
+html[data-theme="dark"] input[placeholder='Ex: <meta name="google-site-verification" content="..." />']::placeholder,
+html[data-theme="system"] input[placeholder='Ex: <meta name="google-site-verification" content="..." />']::placeholder {
+  color: #94a3b8 !important;
+}

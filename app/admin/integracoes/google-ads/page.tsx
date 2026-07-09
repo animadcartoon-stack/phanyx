@@ -74,11 +74,11 @@ export default function GoogleAdsPage() {
           </label>
 
           <input
-            value={adsId}
-            onChange={(e) => setAdsId(e.target.value)}
-            placeholder="AW-123456789"
-            className="phanyx-config-input text-lg"
-          />
+  value={adsId}
+  onChange={(e) => setAdsId(e.target.value)}
+  placeholder="AW-123456789"
+  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-lg text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-400"
+/>
 
           <p className="phanyx-config-muted mt-2 text-sm">
             Cada instituição deve usar seu próprio ID do Google Ads.
