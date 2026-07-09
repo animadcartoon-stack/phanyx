@@ -62,6 +62,7 @@ function AdminProfessoresPage() {
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [documentoUrl, setDocumentoUrl] = useState("");
+  const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
   const [slug, setSlug] = useState("");
   const [poloId, setPoloId] = useState("");
 
@@ -95,6 +96,7 @@ const [linksPortfolioProfessor, setLinksPortfolioProfessor] = useState([
   const [editCodigoFuncionario, setEditCodigoFuncionario] = useState("");
   const [editFotoPerfil, setEditFotoPerfil] = useState("");
   const [editDocumentoUrl, setEditDocumentoUrl] = useState("");
+  const [editEnviandoFotoPerfil, setEditEnviandoFotoPerfil] = useState(false);
   const [editSlug, setEditSlug] = useState("");
   const [editPoloId, setEditPoloId] = useState("");
 
@@ -121,6 +123,90 @@ const [linksPortfolioProfessor, setLinksPortfolioProfessor] = useState([
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
   }
+
+  const FORMATOS_FOTO_PROFESSOR_ACEITOS = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+];
+
+const TAMANHO_MAXIMO_FOTO_PROFESSOR_MB = 2;
+const TAMANHO_MAXIMO_FOTO_PROFESSOR_BYTES =
+  TAMANHO_MAXIMO_FOTO_PROFESSOR_MB * 1024 * 1024;
+
+function validarFotoOficialProfessor(arquivo: File) {
+  if (!FORMATOS_FOTO_PROFESSOR_ACEITOS.includes(arquivo.type)) {
+    throw new Error(
+      "Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP."
+    );
+  }
+
+  if (arquivo.size > TAMANHO_MAXIMO_FOTO_PROFESSOR_BYTES) {
+    throw new Error(
+      `Foto muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_PROFESSOR_MB} MB. Recomendado: imagem quadrada, no mínimo 600x600 px, com rosto centralizado.`
+    );
+  }
+}
+
+async function enviarFotoOficialProfessor(
+  arquivo: File | null,
+  modo: "CRIACAO" | "EDICAO"
+) {
+  if (!arquivo) return;
+
+  try {
+    validarFotoOficialProfessor(arquivo);
+
+    if (modo === "CRIACAO") {
+      setEnviandoFotoPerfil(true);
+    } else {
+      setEditEnviandoFotoPerfil(true);
+    }
+
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar foto.");
+    }
+
+    const url =
+      data?.url ||
+      data?.fileUrl ||
+      data?.arquivoUrl ||
+      data?.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da foto não retornou.");
+    }
+
+    if (modo === "CRIACAO") {
+      setFotoPerfil(url);
+    } else {
+      setEditFotoPerfil(url);
+    }
+
+    mostrarFeedback("sucesso", "Foto oficial do professor enviada com sucesso.");
+  } catch (error: any) {
+    mostrarFeedback(
+      "erro",
+      error?.message ||
+        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
+    );
+  } finally {
+    setEnviandoFotoPerfil(false);
+    setEditEnviandoFotoPerfil(false);
+  }
+}
 
   async function carregarProfessores() {
     const res = await fetch("/api/professor", {
@@ -619,12 +705,63 @@ carregarDisciplinas();
               className="w-full rounded-lg border p-2"
             />
 
-            <input
-              placeholder="URL da foto"
-              value={fotoPerfil}
-              onChange={(e) => setFotoPerfil(e.target.value)}
-              className="w-full rounded-lg border p-2"
-            />
+            <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      {fotoPerfil ? (
+        <img
+          src={fotoPerfil}
+          alt={nome || "Foto oficial do professor"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl font-black text-slate-400">
+          {nome?.charAt(0)?.toUpperCase() || "P"}
+        </span>
+      )}
+    </div>
+
+    <div className="flex-1">
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        Foto oficial do professor
+      </h3>
+
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Esta é a foto institucional usada em crachás, identificação, documentos e portal acadêmico.
+      </p>
+
+      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+        Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
+        Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+          {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            disabled={enviandoFotoPerfil}
+            onChange={(e) =>
+              enviarFotoOficialProfessor(e.target.files?.[0] || null, "CRIACAO")
+            }
+            className="hidden"
+          />
+        </label>
+
+        {fotoPerfil && (
+          <button
+            type="button"
+            onClick={() => setFotoPerfil("")}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          >
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
 
             <input
               placeholder="URL do documento"
@@ -789,7 +926,7 @@ carregarDisciplinas();
 
           <button
             disabled={criando}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-slate-900 dark:text-white disabled:opacity-50"
+            className="rounded-lg bg-blue-600 px-4 py-2 font-semibold text-white hover:bg-blue-700 disabled:opacity-50"
           >
             {criando ? "Criando..." : "Criar professor"}
           </button>
@@ -949,12 +1086,63 @@ carregarDisciplinas();
                         className="rounded border p-2"
                         placeholder="Slug público"
                       />
-                      <input
-                        value={editFotoPerfil}
-                        onChange={(e) => setEditFotoPerfil(e.target.value)}
-                        className="rounded border p-2"
-                        placeholder="URL da foto"
-                      />
+                      <div className="md:col-span-2 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      {editFotoPerfil ? (
+        <img
+          src={editFotoPerfil}
+          alt={editNome || "Foto oficial do professor"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl font-black text-slate-400">
+          {editNome?.charAt(0)?.toUpperCase() || "P"}
+        </span>
+      )}
+    </div>
+
+    <div className="flex-1">
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        Foto oficial do professor
+      </h3>
+
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Foto controlada pela instituição e usada em crachás, identificação e documentos oficiais.
+      </p>
+
+      <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+        Formatos aceitos: JPG, JPEG, PNG ou WEBP. Tamanho máximo: 2 MB.
+        Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+          {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            disabled={editEnviandoFotoPerfil}
+            onChange={(e) =>
+              enviarFotoOficialProfessor(e.target.files?.[0] || null, "EDICAO")
+            }
+            className="hidden"
+          />
+        </label>
+
+        {editFotoPerfil && (
+          <button
+            type="button"
+            onClick={() => setEditFotoPerfil("")}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          >
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
                       <input
                         value={editDocumentoUrl}
                         onChange={(e) => setEditDocumentoUrl(e.target.value)}
