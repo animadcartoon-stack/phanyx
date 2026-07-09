@@ -1061,7 +1061,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
 <div className="rep-inner-dark-card mt-8 overflow-hidden rounded-2xl border p-4">
   <div className="mb-3 flex items-center justify-between">
     <div>
-      <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-300">
+      <p className="text-xs font-black uppercase tracking-[0.25em] !text-cyan-300">
         Monitoramento IA
       </p>
 
@@ -1070,7 +1070,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
 </h4>
     </div>
 
-    <div className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-300">
+    <div className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-bold !text-cyan-300">
       Tempo real
     </div>
   </div>
@@ -1127,11 +1127,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
           Tendência
         </p>
 
-        <h3 className="mt-2 text-2xl font-black text-white">
+        <h3 className="mt-2 text-2xl font-black !text-white">
           {crescimentoReal >= 0 ? `+${crescimentoReal}` : crescimentoReal}
         </h3>
 
-        <p className="mt-2 text-xs leading-5 text-slate-300">
+        <p className="mt-2 text-xs leading-5 !text-slate-200">
           Crescimento reputacional identificado pela IA.
         </p>
       </div>
@@ -1141,11 +1141,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
           Tempo médio
         </p>
 
-        <h3 className="mt-2 text-2xl font-black text-white">
+        <h3 className="mt-2 text-2xl font-black !text-white">
   {tempoMedioReal}
 </h3>
 
-        <p className="mt-2 text-xs leading-5 text-slate-300">
+        <p className="mt-2 text-xs leading-5 !text-slate-200">
           Tempo médio estimado para resposta administrativa.
         </p>
       </div>
@@ -1155,11 +1155,11 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
           Status IA
         </p>
 
-        <h3 className="mt-2 text-2xl font-black text-white">
+        <h3 className="mt-2 text-2xl font-black !text-white">
           Ativo
         </h3>
 
-        <p className="mt-2 text-xs leading-5 text-slate-300">
+        <p className="mt-2 text-xs leading-5 !text-slate-200">
           Monitoramento reputacional funcionando normalmente.
         </p>
       </div>
