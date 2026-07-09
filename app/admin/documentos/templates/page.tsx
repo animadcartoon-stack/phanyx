@@ -3048,7 +3048,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
 <div>
-  <label className="mb-2 block text-sm font-bold !text-slate-950 dark:!text-slate-100">
+  <label className="text-sm font-bold !text-slate-900 dark:!text-slate-100">
     Formato de impressão
   </label>
 
@@ -3061,13 +3061,13 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
           : "A4_INTEIRA"
       )
     }
-    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold !text-slate-950 outline-none transition focus:border-blue-500 disabled:opacity-100 disabled:!text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:!text-slate-100 dark:disabled:!text-slate-100"
+    className="mt-1 w-full rounded-xl border !border-slate-300 !bg-white px-3 py-2 text-sm font-semibold !text-slate-900 outline-none focus:border-blue-500 dark:!border-slate-700 dark:!bg-slate-950 dark:!text-slate-100"
   >
     <option value="A4_INTEIRA">Folha inteira A4</option>
     <option value="DUAS_VIAS_A4">2 vias na mesma folha A4</option>
   </select>
 
-  <p className="mt-2 text-xs font-medium !text-slate-700 dark:!text-slate-300">
+  <p className="mt-1 text-xs font-medium !text-slate-600 dark:!text-slate-300">
     Use 2 vias para recibos, comprovantes, trancamentos e declarações simples.
   </p>
 </div>
@@ -3116,7 +3116,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
   <input
     value={buscaVariavel}
     onChange={(e) => setBuscaVariavel(e.target.value)}
-    className="w-full rounded-xl border bg-white px-3 py-2 text-sm"
+    className="w-full rounded-xl border !border-slate-300 !bg-white px-3 py-2 text-sm !text-slate-900 !placeholder-slate-500 outline-none focus:border-blue-500 dark:!border-slate-700 dark:!bg-slate-950 dark:!text-slate-100 dark:!placeholder-slate-400"
     placeholder="Buscar variável por nome ou finalidade. Ex.: nome da escola, assinatura diretor, curso..."
   />
 
@@ -3211,9 +3211,9 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
               <div>
-  <label className="text-sm font-medium text-slate-900 dark:text-white">
-    Conteúdo do template
-  </label>
+  <label className="mb-2 block text-sm font-bold !text-slate-900 dark:!text-slate-100">
+  Conteúdo do template
+</label>
 
   {tipo === "HISTORICO" && (
     <div className="mt-3 rounded-2xl border border-slate-300 bg-white p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
