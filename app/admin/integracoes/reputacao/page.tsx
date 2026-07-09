@@ -530,19 +530,38 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
   color: #f8fafc !important;
 }
 
- .phanyx-reputacao-page .rep-ai-score {
+ /* TEMA CLARO */
+html:not(.dark) .phanyx-reputacao-page .rep-ai-score,
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+  color: #064e3b !important;
+}
+
+html:not(.dark) .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span,div),
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span,div) {
+  color: #064e3b !important;
+  opacity: 1 !important;
+}
+
+html:not(.dark) .phanyx-reputacao-page .rep-ai-score h3,
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score h3 {
+  color: #064e3b !important;
+}
+
+/* TEMA ESCURO / SISTEMA ESCURO */
+html.dark .phanyx-reputacao-page .rep-ai-score {
   background: #064e3b !important;
   border-color: #10b981 !important;
   color: #f0fdf4 !important;
 }
 
-.phanyx-reputacao-page .rep-ai-score,
-.phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span,div) {
+html.dark .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span,div) {
   color: #f0fdf4 !important;
   opacity: 1 !important;
 }
 
-.phanyx-reputacao-page .rep-ai-score h3 {
+html.dark .phanyx-reputacao-page .rep-ai-score h3 {
   color: #ffffff !important;
 }
 
