@@ -8949,3 +8949,46 @@ body[data-theme="system"] .phanyx-foto-oficial-card,
   border-color: #1d4ed8 !important;
   color: #dbeafe !important;
 }
+
+/* PHANYX - Visitantes: campos em tom de cinza no tema Sistema */
+html[data-theme="system"] .phanyx-visitantes-page input,
+html[data-theme="system"] .phanyx-visitantes-page select,
+html[data-theme="system"] .phanyx-visitantes-page textarea,
+body[data-theme="system"] .phanyx-visitantes-page input,
+body[data-theme="system"] .phanyx-visitantes-page select,
+body[data-theme="system"] .phanyx-visitantes-page textarea,
+[data-theme="system"] .phanyx-visitantes-page input,
+[data-theme="system"] .phanyx-visitantes-page select,
+[data-theme="system"] .phanyx-visitantes-page textarea,
+.phanyx-theme-system .phanyx-visitantes-page input,
+.phanyx-theme-system .phanyx-visitantes-page select,
+.phanyx-theme-system .phanyx-visitantes-page textarea,
+.theme-system .phanyx-visitantes-page input,
+.theme-system .phanyx-visitantes-page select,
+.theme-system .phanyx-visitantes-page textarea {
+  background-color: #27272a !important;
+  border-color: #52525b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-page input::placeholder,
+html[data-theme="system"] .phanyx-visitantes-page textarea::placeholder,
+body[data-theme="system"] .phanyx-visitantes-page input::placeholder,
+body[data-theme="system"] .phanyx-visitantes-page textarea::placeholder,
+[data-theme="system"] .phanyx-visitantes-page input::placeholder,
+[data-theme="system"] .phanyx-visitantes-page textarea::placeholder,
+.phanyx-theme-system .phanyx-visitantes-page input::placeholder,
+.phanyx-theme-system .phanyx-visitantes-page textarea::placeholder,
+.theme-system .phanyx-visitantes-page input::placeholder,
+.theme-system .phanyx-visitantes-page textarea::placeholder {
+  color: #a1a1aa !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-page select option,
+body[data-theme="system"] .phanyx-visitantes-page select option,
+[data-theme="system"] .phanyx-visitantes-page select option,
+.phanyx-theme-system .phanyx-visitantes-page select option,
+.theme-system .phanyx-visitantes-page select option {
+  background-color: #27272a !important;
+  color: #f8fafc !important;
+}
