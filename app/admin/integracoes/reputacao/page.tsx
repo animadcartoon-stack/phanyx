@@ -703,6 +703,26 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
     border-color: #525252 !important;
     color: #f8fafc !important;
   }
+
+  .phanyx-reputacao-page .rep-tempo-real-badge {
+  background: #67e8f9 !important;
+  border: 1px solid #22d3ee !important;
+  color: #083344 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-reputacao-page .rep-tempo-real-badge * {
+  color: #083344 !important;
+  opacity: 1 !important;
+}
+
+html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-tempo-real-badge,
+html[data-theme="system"] .phanyx-reputacao-page .rep-tempo-real-badge {
+  background: #22d3ee !important;
+  border-color: #67e8f9 !important;
+  color: #083344 !important;
+}
+
 `}</style>
 
       <div>
@@ -1070,7 +1090,7 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
 </h4>
     </div>
 
-    <div className="rounded-full border border-cyan-400/40 bg-cyan-950 px-3 py-1 text-xs font-black !text-cyan-100 dark:bg-cyan-950 dark:!text-cyan-100">
+    <div className="rep-tempo-real-badge rounded-full px-3 py-1 text-xs font-black">
   Tempo real
 </div>
   </div>

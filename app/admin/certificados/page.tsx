@@ -428,6 +428,134 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   return (
   <div className="phanyx-certificados-page space-y-6">
 
+<style jsx global>{`
+  .phanyx-certificados-page .cert-card {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,span,label,div) {
+    color: #0f172a !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-certificados-page .cert-muted {
+    color: #475569 !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-certificados-page .cert-option {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  .phanyx-certificados-page .cert-option :is(h1,h2,h3,h4,p,span,div) {
+    color: #0f172a !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-certificados-page .cert-option-active {
+    background: #2563eb !important;
+    border-color: #2563eb !important;
+    color: #ffffff !important;
+  }
+
+  .phanyx-certificados-page .cert-option-active :is(h1,h2,h3,h4,p,span,div) {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-certificados-page .cert-input {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  .phanyx-certificados-page .cert-input::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-certificados-page .cert-clear-button {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  .phanyx-certificados-page .cert-clear-button:hover {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-card,
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-option {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,span,label,div),
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-option :is(h1,h2,h3,h4,p,span,div) {
+    color: #f8fafc !important;
+    opacity: 1 !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-muted {
+    color: #cbd5e1 !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-input {
+    background: #0f172a !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-input::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  html.dark:not([data-theme="system"]) .phanyx-certificados-page .cert-clear-button {
+    background: #020617 !important;
+    border-color: #334155 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-card,
+  html[data-theme="system"] .phanyx-certificados-page .cert-option {
+    background: #262626 !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-card :is(h1,h2,h3,h4,p,span,label,div),
+  html[data-theme="system"] .phanyx-certificados-page .cert-option :is(h1,h2,h3,h4,p,span,div) {
+    color: #f8fafc !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-muted {
+    color: #d4d4d4 !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-input {
+    background: #303030 !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-input::placeholder {
+    color: #d4d4d4 !important;
+  }
+
+  html[data-theme="system"] .phanyx-certificados-page .cert-clear-button {
+    background: #303030 !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
+`}</style>
+
     {erro && (
       <PhanyxToast
         tipo="erro"
@@ -460,24 +588,24 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         </p>
       </div>
 
-<div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+<div className="cert-card rounded-3xl border p-6 shadow-sm">
   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
     <div>
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-700 dark:text-blue-400">
         Configuração da instituição
       </p>
 
-      <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
+      <h2 className="mt-2 text-2xl font-bold">
         Liberação automática de certificados
       </h2>
 
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
+      <p className="cert-muted mt-2 max-w-3xl text-sm leading-6">
         Defina quando o certificado ficará disponível automaticamente na área do aluno.
         A emissão manual continua disponível para secretaria/diretoria quando houver autorização.
       </p>
     </div>
 
-    <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+    <label className="cert-option flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold">
       <input
         type="checkbox"
         checked={liberarCertificadoAutomatico}
@@ -488,111 +616,111 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
   </div>
 
   <div className="mt-5 grid gap-4 lg:grid-cols-4">
-    <button
-      type="button"
-      onClick={() => setRegraLiberacaoCertificado("DISCIPLINA_CONCLUIDA")}
-      className={`rounded-2xl border p-4 text-left transition ${
-        regraLiberacaoCertificado === "DISCIPLINA_CONCLUIDA"
-          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-      }`}
-    >
-      <p className="font-bold">Por disciplina</p>
-      <p className="mt-1 text-xs leading-5">
-        O aluno recebe certificado quando concluir uma disciplina.
-      </p>
-    </button>
-
-    <button
-      type="button"
-      onClick={() => setRegraLiberacaoCertificado("SEMESTRE_CONCLUIDO")}
-      className={`rounded-2xl border p-4 text-left transition ${
-        regraLiberacaoCertificado === "SEMESTRE_CONCLUIDO"
-          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-      }`}
-    >
-      <p className="font-bold">Por semestre</p>
-      <p className="mt-1 text-xs leading-5">
-        O aluno recebe certificado quando concluir o semestre.
-      </p>
-    </button>
-
-    <button
-      type="button"
-      onClick={() => setRegraLiberacaoCertificado("CURSO_COMPLETO")}
-      className={`rounded-2xl border p-4 text-left transition ${
-        regraLiberacaoCertificado === "CURSO_COMPLETO"
-          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-      }`}
-    >
-      <p className="font-bold">Curso completo</p>
-      <p className="mt-1 text-xs leading-5">
-        O aluno recebe certificado apenas ao concluir o curso.
-      </p>
-    </button>
-
-    <button
-      type="button"
-      onClick={() => setRegraLiberacaoCertificado("MANUAL")}
-      className={`rounded-2xl border p-4 text-left transition ${
-        regraLiberacaoCertificado === "MANUAL"
-          ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950 dark:text-blue-100"
-          : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
-      }`}
-    >
-      <p className="font-bold">Manual</p>
-      <p className="mt-1 text-xs leading-5">
-        O certificado só aparece quando for emitido pela equipe autorizada.
-      </p>
-    </button>
-  </div>
-
-  <div className="mt-5 grid gap-4 md:grid-cols-3">
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-        Média mínima
-      </span>
-
-      <input
-        type="number"
-        min={0}
-        max={10}
-        step={0.1}
-        value={mediaMinimaCertificado}
-        onChange={(e) => setMediaMinimaCertificado(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-      />
-    </label>
-
-    <label className="block">
-      <span className="mb-2 block text-sm font-semibold text-slate-700 dark:text-slate-200">
-        Frequência mínima (%)
-      </span>
-
-      <input
-        type="number"
-        min={0}
-        max={100}
-        step={1}
-        value={frequenciaMinimaCertificado}
-        onChange={(e) => setFrequenciaMinimaCertificado(e.target.value)}
-        className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-      />
-    </label>
-
-    <div className="flex items-end">
   <button
     type="button"
-    disabled={salvandoConfiguracao}
-    onClick={salvarConfiguracaoCertificados}
-    className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+    onClick={() => setRegraLiberacaoCertificado("DISCIPLINA_CONCLUIDA")}
+    className={`rounded-2xl border p-4 text-left transition ${
+      regraLiberacaoCertificado === "DISCIPLINA_CONCLUIDA"
+        ? "cert-option-active"
+        : "cert-option"
+    }`}
   >
-    {salvandoConfiguracao ? "Salvando..." : "Salvar configuração"}
+    <p className="font-bold">Por disciplina</p>
+    <p className="mt-1 text-xs leading-5">
+      O aluno recebe certificado quando concluir uma disciplina.
+    </p>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setRegraLiberacaoCertificado("SEMESTRE_CONCLUIDO")}
+    className={`rounded-2xl border p-4 text-left transition ${
+      regraLiberacaoCertificado === "SEMESTRE_CONCLUIDO"
+        ? "cert-option-active"
+        : "cert-option"
+    }`}
+  >
+    <p className="font-bold">Por semestre</p>
+    <p className="mt-1 text-xs leading-5">
+      O aluno recebe certificado quando concluir o semestre.
+    </p>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setRegraLiberacaoCertificado("CURSO_COMPLETO")}
+    className={`rounded-2xl border p-4 text-left transition ${
+      regraLiberacaoCertificado === "CURSO_COMPLETO"
+        ? "cert-option-active"
+        : "cert-option"
+    }`}
+  >
+    <p className="font-bold">Curso completo</p>
+    <p className="mt-1 text-xs leading-5">
+      O aluno recebe certificado apenas ao concluir o curso.
+    </p>
+  </button>
+
+  <button
+    type="button"
+    onClick={() => setRegraLiberacaoCertificado("MANUAL")}
+    className={`rounded-2xl border p-4 text-left transition ${
+      regraLiberacaoCertificado === "MANUAL"
+        ? "cert-option-active"
+        : "cert-option"
+    }`}
+  >
+    <p className="font-bold">Manual</p>
+    <p className="mt-1 text-xs leading-5">
+      O certificado só aparece quando for emitido pela equipe autorizada.
+    </p>
   </button>
 </div>
+
+  <div className="mt-5 grid gap-4 md:grid-cols-3">
+  <label className="block">
+    <span className="mb-2 block text-sm font-semibold">
+      Média mínima
+    </span>
+
+    <input
+      type="number"
+      min={0}
+      max={10}
+      step={0.1}
+      value={mediaMinimaCertificado}
+      onChange={(e) => setMediaMinimaCertificado(e.target.value)}
+      className="cert-input w-full rounded-xl border px-4 py-3 outline-none focus:border-blue-500"
+    />
+  </label>
+
+  <label className="block">
+    <span className="mb-2 block text-sm font-semibold">
+      Frequência mínima (%)
+    </span>
+
+    <input
+      type="number"
+      min={0}
+      max={100}
+      step={1}
+      value={frequenciaMinimaCertificado}
+      onChange={(e) => setFrequenciaMinimaCertificado(e.target.value)}
+      className="cert-input w-full rounded-xl border px-4 py-3 outline-none focus:border-blue-500"
+    />
+  </label>
+
+  <div className="flex items-end">
+    <button
+      type="button"
+      disabled={salvandoConfiguracao}
+      onClick={salvarConfiguracaoCertificados}
+      className="w-full rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {salvandoConfiguracao ? "Salvando..." : "Salvar configuração"}
+    </button>
   </div>
+</div>
 </div>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -618,149 +746,150 @@ async function visualizarCertificadoAluno(aluno: AlunoItem) {
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-          <div className="flex-1">
-            <label className="mb-2 block text-sm font-medium text-slate-700">
-              Buscar aluno
-            </label>
-            <input
-  type="search"
-  value={busca}
-  onFocus={() => setMostrarSugestoesBusca(true)}
-  onChange={(e) => {
-    const valor = e.target.value;
-    setBusca(valor);
-    setMostrarSugestoesBusca(true);
+      <div className="cert-card rounded-3xl border p-6 shadow-sm">
+  <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+    <div className="flex-1">
+      <label className="mb-2 block text-sm font-medium">
+        Buscar aluno
+      </label>
 
-    const termo = valor.trim();
+      <input
+        type="search"
+        value={busca}
+        onFocus={() => setMostrarSugestoesBusca(true)}
+        onChange={(e) => {
+          const valor = e.target.value;
+          setBusca(valor);
+          setMostrarSugestoesBusca(true);
 
-    if (!termo) {
-      setBuscaAplicada("");
-      setAlunos(todosAlunos);
-      setAlunoSelecionado(null);
-      return;
-    }
+          const termo = valor.trim();
 
-    const listaFiltrada = todosAlunos
-      .map((aluno) => {
-        const resultado = alunoCombinaComBusca(aluno, termo);
+          if (!termo) {
+            setBuscaAplicada("");
+            setAlunos(todosAlunos);
+            setAlunoSelecionado(null);
+            return;
+          }
 
-        return {
-          aluno,
-          combina: resultado.combina,
-          score: resultado.score,
-        };
-      })
-      .filter((item) => item.combina)
-      .sort((a, b) => {
-        if (a.score !== b.score) return a.score - b.score;
+          const listaFiltrada = todosAlunos
+            .map((aluno) => {
+              const resultado = alunoCombinaComBusca(aluno, termo);
 
-        return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
-          sensitivity: "base",
-        });
-      })
-      .map((item) => item.aluno);
+              return {
+                aluno,
+                combina: resultado.combina,
+                score: resultado.score,
+              };
+            })
+            .filter((item) => item.combina)
+            .sort((a, b) => {
+              if (a.score !== b.score) return a.score - b.score;
 
-    setAlunos(listaFiltrada);
-  }}
-  onKeyDown={(e) => {
-    if (e.key === "Enter") {
-      aplicarBusca();
-      setMostrarSugestoesBusca(false);
-    }
+              return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+                sensitivity: "base",
+              });
+            })
+            .map((item) => item.aluno);
 
-    if (e.key === "Escape") {
-      setMostrarSugestoesBusca(false);
-    }
-  }}
-  placeholder="Digite nome, matrícula ou email"
-  autoComplete="off"
-  autoCorrect="off"
-  autoCapitalize="none"
-  spellCheck={false}
-  name={nomeCampoBusca}
-  id={nomeCampoBusca}
-  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:border-blue-400 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-/>
+          setAlunos(listaFiltrada);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            aplicarBusca();
+            setMostrarSugestoesBusca(false);
+          }
 
-{mostrarSugestoesBusca && busca.trim() && todosAlunos.length > 0 && (
-  <div className="phanyx-cert-sugestoes mt-2 rounded-2xl p-2">
-    {todosAlunos
-      .map((aluno) => {
-        const resultado = alunoCombinaComBusca(aluno, busca);
+          if (e.key === "Escape") {
+            setMostrarSugestoesBusca(false);
+          }
+        }}
+        placeholder="Digite nome, matrícula ou email"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="none"
+        spellCheck={false}
+        name={nomeCampoBusca}
+        id={nomeCampoBusca}
+        className="cert-input w-full rounded-xl border px-4 py-3 outline-none focus:border-blue-400"
+      />
 
-        return {
-          aluno,
-          combina: resultado.combina,
-          score: resultado.score,
-        };
-      })
-      .filter((item) => item.combina)
-      .sort((a, b) => {
-        if (a.score !== b.score) return a.score - b.score;
+      {mostrarSugestoesBusca && busca.trim() && todosAlunos.length > 0 && (
+        <div className="phanyx-cert-sugestoes mt-2 rounded-2xl p-2">
+          {todosAlunos
+            .map((aluno) => {
+              const resultado = alunoCombinaComBusca(aluno, busca);
 
-        return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
-          sensitivity: "base",
-        });
-      })
-      .slice(0, 6)
-      .map((item) => (
-        <button
-          key={item.aluno.id}
-          type="button"
-          onClick={() => {
-  setBusca(item.aluno.nome);
-  setBuscaAplicada(item.aluno.nome);
-  setAlunos([item.aluno]);
-  setAlunoSelecionado(item.aluno);
-  setMostrarSugestoesBusca(false);
-}}
-          className="phanyx-cert-sugestao block w-full rounded-xl px-3 py-2 text-left text-sm"
-        >
-          <span className="font-semibold">{item.aluno.nome}</span>
+              return {
+                aluno,
+                combina: resultado.combina,
+                score: resultado.score,
+              };
+            })
+            .filter((item) => item.combina)
+            .sort((a, b) => {
+              if (a.score !== b.score) return a.score - b.score;
 
-          <span className="phanyx-cert-sugestao-email ml-2 text-xs">
-            {item.aluno.email || "Sem email"}
-          </span>
-        </button>
-      ))}
+              return a.aluno.nome.localeCompare(b.aluno.nome, "pt-BR", {
+                sensitivity: "base",
+              });
+            })
+            .slice(0, 6)
+            .map((item) => (
+              <button
+                key={item.aluno.id}
+                type="button"
+                onClick={() => {
+                  setBusca(item.aluno.nome);
+                  setBuscaAplicada(item.aluno.nome);
+                  setAlunos([item.aluno]);
+                  setAlunoSelecionado(item.aluno);
+                  setMostrarSugestoesBusca(false);
+                }}
+                className="phanyx-cert-sugestao block w-full rounded-xl px-3 py-2 text-left text-sm"
+              >
+                <span className="font-semibold">{item.aluno.nome}</span>
 
-    {todosAlunos
-      .map((aluno) => alunoCombinaComBusca(aluno, busca))
-      .filter((resultado) => resultado.combina).length === 0 && (
-      <div className="px-3 py-2 text-sm text-slate-500 dark:text-slate-400">
-        Nenhuma sugestão encontrada.
-      </div>
-    )}
-  </div>
-)}
+                <span className="phanyx-cert-sugestao-email ml-2 text-xs">
+                  {item.aluno.email || "Sem email"}
+                </span>
+              </button>
+            ))}
 
-          </div>
-
-          <button
-            type="button"
-            onClick={aplicarBusca}
-            className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
-          >
-            Buscar
-          </button>
-
-          <button
-            type="button"
-            onClick={limparBusca}
-            className="rounded-xl border border-slate-300 px-5 py-3 font-semibold text-slate-700 hover:bg-slate-50"
-          >
-            Limpar
-          </button>
+          {todosAlunos
+            .map((aluno) => alunoCombinaComBusca(aluno, busca))
+            .filter((resultado) => resultado.combina).length === 0 && (
+            <div className="cert-muted px-3 py-2 text-sm">
+              Nenhuma sugestão encontrada.
+            </div>
+          )}
         </div>
+      )}
+    </div>
 
-        {buscaAplicada && (
-          <p className="mt-3 text-sm text-slate-500">
-            Resultado da busca por: <span className="font-semibold">{buscaAplicada}</span>
-          </p>
-        )}
-      </div>
+    <button
+      type="button"
+      onClick={aplicarBusca}
+      className="rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
+    >
+      Buscar
+    </button>
+
+    <button
+      type="button"
+      onClick={limparBusca}
+      className="cert-clear-button rounded-xl border px-5 py-3 font-semibold"
+    >
+      Limpar
+    </button>
+  </div>
+
+  {buscaAplicada && (
+    <p className="cert-muted mt-3 text-sm">
+      Resultado da busca por:{" "}
+      <span className="font-semibold">{buscaAplicada}</span>
+    </p>
+  )}
+</div>
 
       <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
         <div className="border-b border-slate-200 px-6 py-4">
