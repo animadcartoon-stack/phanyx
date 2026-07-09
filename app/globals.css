@@ -8992,3 +8992,37 @@ body[data-theme="system"] .phanyx-visitantes-page select option,
   background-color: #27272a !important;
   color: #f8fafc !important;
 }
+
+/* PHANYX - Visitantes: card da foto em cinza no tema Sistema */
+html[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card,
+body[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card,
+[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card,
+.phanyx-theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card,
+.theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card {
+  background: #27272a !important;
+  border-color: #52525b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card h3,
+html[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card p,
+body[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card h3,
+body[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card p,
+[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card h3,
+[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card p,
+.phanyx-theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card h3,
+.phanyx-theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card p,
+.theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card h3,
+.theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card p {
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card label,
+body[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card label,
+[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card label,
+.phanyx-theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card label,
+.theme-system .phanyx-visitantes-page .phanyx-visitantes-foto-card label {
+  background: #3f3f46 !important;
+  border-color: #71717a !important;
+  color: #ffffff !important;
+}
