@@ -145,6 +145,7 @@ model Instituicao {
   crachaModelos                 CrachaModelo[]
   crachasEmitidos               CrachaEmitido[]
   CrachaLoteEmissao             CrachaLoteEmissao[]
+  visitantes                    Visitante[]
   regraLiberacaoCertificado      String  @default("CURSO_COMPLETO")
   mediaMinimaCertificado         Float   @default(7)
   frequenciaMinimaCertificado    Float   @default(75)
@@ -2929,6 +2930,8 @@ model Visitante {
 
   criadoEm        DateTime         @default(now())
   atualizadoEm    DateTime         @updatedAt
+
+  instituicao    Instituicao @relation(fields: [instituicaoId], references: [id])
 
   @@unique([instituicaoId, codigoVisitante])
   @@index([instituicaoId])
