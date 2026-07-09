@@ -75,6 +75,7 @@ setTimeout(() => {
     if (pathname.startsWith("/admin/documentos")) return "documentos";
     if (pathname.startsWith("/admin/crachas")) return "documentos";
     if (pathname.startsWith("/admin/validacoes")) return "documentos";
+    if (pathname.startsWith("/admin/visitantes")) return "acesso";
     if (pathname.startsWith("/admin/configuracoes")) return "configuracoes";
     if (pathname.startsWith("/master")) return "master";
     return "academico";
@@ -375,33 +376,54 @@ function abrirTourAdmin() {
     💳 Assinatura PHANYX
   </Link>
 )}
-              {podeVerPainelMaster && (
-                <div className="border-t pt-2 mt-2">
-                  <button
-                    type="button"
-                    onClick={() => toggleMenu("master")}
-                    className={buttonClass}
-                  >
-                    <span className={sectionTitleClass}>🔥 Master PHANYX</span>
-                    <span>{menuAberto === "master" ? "▾" : "▸"}</span>
-                  </button>
+     {podeVerPainelMaster && (
+  <div className="border-t pt-2 mt-2">
+    <button
+      type="button"
+      onClick={() => toggleMenu("master")}
+      className={buttonClass}
+    >
+      <span className={sectionTitleClass}>🔥 Master PHANYX</span>
+      <span>{menuAberto === "master" ? "▾" : "▸"}</span>
+    </button>
 
-                  {menuAberto === "master" && (
-                    <div className="ml-3 mt-2 flex flex-col space-y-1">
-                      <Link href="/master" className={getLinkClass("/master")}>
-                        🚀 Painel Master
-                      </Link>
-                      <Link
-  href="/master/plataforma"
-  className={getLinkClass("/master/plataforma")}
->
-  🧠 Plataforma PHANYX
-</Link>
-                    </div>
-                  )}
-                </div>
-              )}
+    {menuAberto === "master" && (
+      <div className="ml-3 mt-2 flex flex-col space-y-1">
+        <Link href="/master" className={getLinkClass("/master")}>
+          🚀 Painel Master
+        </Link>
 
+        <Link
+          href="/master/plataforma"
+          className={getLinkClass("/master/plataforma")}
+        >
+          🧠 Plataforma PHANYX
+        </Link>
+      </div>
+    )}
+  </div>
+)}
+<div className="border-t pt-2 mt-2">
+  <button
+    type="button"
+    onClick={() => toggleMenu("acesso")}
+    className={buttonClass}
+  >
+    <span className={sectionTitleClass}>🚪 Controle de Acesso</span>
+    <span>{menuAberto === "acesso" ? "▾" : "▸"}</span>
+  </button>
+
+  {menuAberto === "acesso" && (
+    <div className="ml-3 mt-2 flex flex-col space-y-1">
+      <Link
+        href="/admin/visitantes"
+        className={getLinkClass("/admin/visitantes")}
+      >
+        🪪 Visitantes
+      </Link>
+    </div>
+  )}
+</div>
               {podeVerComercialPhanyx && (
                 <div className="border-t pt-2 mt-2">
                   <button
@@ -912,6 +934,12 @@ function abrirTourAdmin() {
             <Link href="/admin/funcionarios" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🧑‍💼 Funcionários
             </Link>
+            <Link
+  href="/admin/visitantes"
+  className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+>
+  🪪 Visitantes
+</Link>
             <Link href="/admin/departamentos" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🏢 Departamentos
             </Link>

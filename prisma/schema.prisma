@@ -2884,6 +2884,60 @@ model AssinaturaPhanyx {
   @@index([asaasCustomerId])
 }
 
+model Visitante {
+  id             Int              @id @default(autoincrement())
+
+  instituicaoId  Int
+  criadoPorId    Int?
+
+  nome           String
+  documentoTipo  String?
+  documentoNumero String?
+  telefone       String?
+  email          String?
+
+  empresa        String?
+  destino        String?
+  pessoaVisitada String?
+  setorVisitado  String?
+  motivo         String?
+  evento         String?
+
+  fotoPerfil     String?
+
+  codigoVisitante String
+  codigoCracha    String?          @unique
+
+  status         StatusVisitante   @default(AGUARDANDO)
+
+  entradaPrevistaEm DateTime?
+  entradaEm         DateTime?
+  saidaPrevistaEm   DateTime?
+  saidaEm           DateTime?
+
+  crachaEmitidoEm   DateTime?
+  crachaValidoAte   DateTime?
+
+  observacoes    String?
+
+  ativo           Boolean          @default(true)
+
+  arquivado       Boolean          @default(false)
+  arquivadoEm     DateTime?
+  arquivadoPorId  Int?
+  motivoArquivo   String?
+
+  criadoEm        DateTime         @default(now())
+  atualizadoEm    DateTime         @updatedAt
+
+  @@unique([instituicaoId, codigoVisitante])
+  @@index([instituicaoId])
+  @@index([instituicaoId, status])
+  @@index([instituicaoId, evento])
+  @@index([instituicaoId, entradaPrevistaEm])
+  @@index([instituicaoId, documentoNumero])
+}
+
 enum TipoDocumentoAluno {
   CONTRATO
   DECLARACAO
@@ -3131,4 +3185,12 @@ enum TipoItemMatricula {
 enum TipoPeriodoMatricula {
   MATRICULA_INICIAL
   REMATRICULA
+}
+
+enum StatusVisitante {
+  AGUARDANDO
+  DENTRO
+  SAIU
+  CANCELADO
+  BLOQUEADO
 }
