@@ -8443,3 +8443,100 @@ html[data-theme="dark"] input[placeholder='Ex: <meta name="google-site-verificat
 html[data-theme="system"] input[placeholder='Ex: <meta name="google-site-verification" content="..." />']::placeholder {
   color: #94a3b8 !important;
 }
+
+/* =========================================================
+   CORREÇÃO PHANYX - TEMA SYSTEM NÃO PODE FICAR AZUL
+   Templates / Marketing / Reputação
+========================================================= */
+
+/* Variáveis dos templates: no tema system usar cinza, não azul */
+html[data-theme="system"] .phanyx-template-variable-card,
+html[data-theme="system"] .phanyx-variable-card,
+html[data-theme="system"] .phanyx-doc-variable-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-template-variable-card *,
+html[data-theme="system"] .phanyx-variable-card *,
+html[data-theme="system"] .phanyx-doc-variable-card * {
+  color: #f8fafc !important;
+}
+
+/* Barra de ferramentas dos templates no tema claro */
+html[data-theme="light"] .phanyx-editor-toolbar select,
+html[data-theme="light"] .phanyx-editor-toolbar button,
+html[data-theme="light"] .phanyx-editor-toolbar input {
+  background: #ffffff !important;
+  color: #020617 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Reputação - textos/números apagados nos cards claros */
+.phanyx-reputation-soft-card,
+.phanyx-reputation-soft-card * {
+  color: #020617 !important;
+}
+
+.phanyx-reputation-soft-card .phanyx-muted,
+.phanyx-reputation-soft-card small,
+.phanyx-reputation-soft-card span {
+  color: #334155 !important;
+}
+
+/* Score IA dentro do card claro */
+.phanyx-reputation-score-card,
+.phanyx-reputation-score-card * {
+  color: #020617 !important;
+}
+
+/* Cards internos escuros da reputação */
+.phanyx-reputation-dark-card,
+.phanyx-reputation-dark-card * {
+  color: #f8fafc !important;
+}
+
+.phanyx-reputation-dark-card .phanyx-reputation-number,
+.phanyx-reputation-dark-card strong,
+.phanyx-reputation-dark-card h3 {
+  color: #ffffff !important;
+}
+
+/* Labels/badges pequenos */
+.phanyx-reputation-badge,
+.phanyx-reputation-badge * {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+}
+
+/* Tema system: cards de marketing/reputação em cinza */
+html[data-theme="system"] .phanyx-marketing-card,
+html[data-theme="system"] .phanyx-reputation-card,
+html[data-theme="system"] .phanyx-growth-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"] .phanyx-marketing-card *,
+html[data-theme="system"] .phanyx-reputation-card *,
+html[data-theme="system"] .phanyx-growth-card * {
+  color: #f8fafc !important;
+}
+
+/* Cards coloridos claros dentro da reputação precisam manter texto escuro */
+.phanyx-reputation-alert-card,
+.phanyx-reputation-alert-card *,
+.phanyx-reputation-insight-card,
+.phanyx-reputation-insight-card * {
+  color: #020617 !important;
+}
+
+/* Botões/filtros pequenos */
+.phanyx-reputation-filter,
+.phanyx-reputation-filter *,
+.phanyx-marketing-status,
+.phanyx-marketing-status * {
+  color: #075985 !important;
+}
