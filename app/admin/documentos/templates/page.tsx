@@ -2884,7 +2884,105 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
 }
 
   return (
-  <div className="phanyx-doc-templates-page space-y-6">
+  <div className="phanyx-doc-templates-page space-y-6 text-slate-900 dark:text-slate-100">
+
+<style jsx global>{`
+  .phanyx-doc-templates-page {
+    --doc-card-bg: #ffffff;
+    --doc-soft-bg: #f8fafc;
+    --doc-input-bg: #ffffff;
+    --doc-border: #cbd5e1;
+    --doc-text: #0f172a;
+    --doc-muted: #475569;
+  }
+
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-doc-templates-page {
+    --doc-card-bg: #0f172a;
+    --doc-soft-bg: #172554;
+    --doc-input-bg: #172554;
+    --doc-border: #2563eb;
+    --doc-text: #f8fafc;
+    --doc-muted: #cbd5e1;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-doc-templates-page {
+    --doc-card-bg: #262626;
+    --doc-soft-bg: #303030;
+    --doc-input-bg: #303030;
+    --doc-border: #525252;
+    --doc-text: #f8fafc;
+    --doc-muted: #d4d4d4;
+  }
+
+  .phanyx-doc-templates-page :is(h1, h2, h3, h4, label) {
+    color: var(--doc-text) !important;
+  }
+
+  .phanyx-doc-templates-page :is(p, span, li, div) {
+    color: inherit;
+  }
+
+  .phanyx-doc-templates-page input,
+  .phanyx-doc-templates-page select,
+  .phanyx-doc-templates-page textarea {
+    background-color: var(--doc-input-bg) !important;
+    border-color: var(--doc-border) !important;
+    color: var(--doc-text) !important;
+  }
+
+  .phanyx-doc-templates-page input::placeholder,
+  .phanyx-doc-templates-page textarea::placeholder {
+    color: var(--doc-muted) !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-doc-templates-page .phanyx-doc-variables-panel,
+  .phanyx-doc-templates-page .phanyx-doc-template-list,
+  .phanyx-doc-templates-page .phanyx-doc-preview-card,
+  .phanyx-doc-templates-page .phanyx-doc-variable-card {
+    background-color: var(--doc-card-bg) !important;
+    border-color: var(--doc-border) !important;
+    color: var(--doc-text) !important;
+  }
+
+  .phanyx-doc-templates-page .phanyx-doc-variable-card p,
+  .phanyx-doc-templates-page .phanyx-doc-preview-card p {
+    color: var(--doc-muted) !important;
+  }
+
+  .phanyx-doc-templates-page .phanyx-doc-variable-category {
+    background-color: var(--doc-soft-bg) !important;
+    color: var(--doc-text) !important;
+  }
+
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-doc-templates-page
+    :is(.bg-white, .bg-slate-50) {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+  }
+
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-doc-templates-page
+    :is(.rounded-2xl, .rounded-3xl) {
+    border-color: #2563eb !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-doc-templates-page
+    :is(.bg-white, .bg-slate-50) {
+    background-color: #262626 !important;
+    color: #f8fafc !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-doc-templates-page
+    :is(.rounded-2xl, .rounded-3xl) {
+    border-color: #525252 !important;
+  }
+`}</style>
 
     {erro && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
