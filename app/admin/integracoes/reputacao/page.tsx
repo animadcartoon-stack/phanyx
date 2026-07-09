@@ -795,6 +795,203 @@ const temRespostaLenta =
   .phanyx-reputacao-page textarea {
     color-scheme: light;
   }
+
+    /* CORREÇÃO FINAL — REPUTAÇÃO / CONTRASTE 3 TEMAS */
+
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] {
+    background-image: linear-gradient(135deg, #0f172a, #020617) !important;
+    color: #ffffff !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    .bg-gradient-to-br[class*="from-slate-"] {
+    background-image: linear-gradient(135deg, #171717, #262626) !important;
+    color: #ffffff !important;
+  }
+
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] h1,
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] h2,
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] h3,
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] h4,
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] p,
+  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] span {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] {
+    background-color: #065f46 !important;
+    border-color: #10b981 !important;
+    color: #ffffff !important;
+  }
+
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] h1,
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] h2,
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] h3,
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] h4,
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] p,
+  .phanyx-reputacao-page [class~="bg-emerald-500/10"] span {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page [class~="bg-white/5"] {
+    background-color: #f8fafc !important;
+    color: #0f172a !important;
+  }
+
+  .phanyx-reputacao-page [class~="bg-white/5"] h1,
+  .phanyx-reputacao-page [class~="bg-white/5"] h2,
+  .phanyx-reputacao-page [class~="bg-white/5"] h3,
+  .phanyx-reputacao-page [class~="bg-white/5"] h4,
+  .phanyx-reputacao-page [class~="bg-white/5"] p,
+  .phanyx-reputacao-page [class~="bg-white/5"] span {
+    color: #0f172a !important;
+    opacity: 1 !important;
+  }
+
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] {
+    background-color: #172554 !important;
+    color: #ffffff !important;
+  }
+
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h1,
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h2,
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h3,
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h4,
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] p,
+  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] span {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] {
+    background-color: #303030 !important;
+    color: #ffffff !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h1,
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h2,
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h3,
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] h4,
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] p,
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    [class~="bg-white/5"] span {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .bg-emerald-50 h1,
+  .phanyx-reputacao-page .bg-emerald-50 h2,
+  .phanyx-reputacao-page .bg-emerald-50 h3,
+  .phanyx-reputacao-page .bg-emerald-50 h4,
+  .phanyx-reputacao-page .bg-emerald-50 p,
+  .phanyx-reputacao-page .bg-emerald-50 span {
+    color: #064e3b !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .bg-red-50 h1,
+  .phanyx-reputacao-page .bg-red-50 h2,
+  .phanyx-reputacao-page .bg-red-50 h3,
+  .phanyx-reputacao-page .bg-red-50 h4,
+  .phanyx-reputacao-page .bg-red-50 p,
+  .phanyx-reputacao-page .bg-red-50 span {
+    color: #991b1b !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .bg-amber-50 h1,
+  .phanyx-reputacao-page .bg-amber-50 h2,
+  .phanyx-reputacao-page .bg-amber-50 h3,
+  .phanyx-reputacao-page .bg-amber-50 h4,
+  .phanyx-reputacao-page .bg-amber-50 p,
+  .phanyx-reputacao-page .bg-amber-50 span {
+    color: #92400e !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .bg-blue-50 h1,
+  .phanyx-reputacao-page .bg-blue-50 h2,
+  .phanyx-reputacao-page .bg-blue-50 h3,
+  .phanyx-reputacao-page .bg-blue-50 h4,
+  .phanyx-reputacao-page .bg-blue-50 p,
+  .phanyx-reputacao-page .bg-blue-50 span {
+    color: #1e3a8a !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .bg-sky-50 h1,
+  .phanyx-reputacao-page .bg-sky-50 h2,
+  .phanyx-reputacao-page .bg-sky-50 h3,
+  .phanyx-reputacao-page .bg-sky-50 h4,
+  .phanyx-reputacao-page .bg-sky-50 p,
+  .phanyx-reputacao-page .bg-sky-50 span {
+    color: #075985 !important;
+    opacity: 1 !important;
+  }
+
+  .phanyx-reputacao-page .bg-violet-50 h1,
+  .phanyx-reputacao-page .bg-violet-50 h2,
+  .phanyx-reputacao-page .bg-violet-50 h3,
+  .phanyx-reputacao-page .bg-violet-50 h4,
+  .phanyx-reputacao-page .bg-violet-50 p,
+  .phanyx-reputacao-page .bg-violet-50 span {
+    color: #4c1d95 !important;
+    opacity: 1 !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    :is(.bg-emerald-50, .bg-red-50, .bg-amber-50, .bg-blue-50, .bg-sky-50, .bg-violet-50) {
+    background-color: #303030 !important;
+    border-color: #525252 !important;
+    color: #ffffff !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    :is(.bg-emerald-50, .bg-red-50, .bg-amber-50, .bg-blue-50, .bg-sky-50, .bg-violet-50)
+    :is(h1, h2, h3, h4, p, span) {
+    color: #ffffff !important;
+    opacity: 1 !important;
+  }
+
+  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
+    .phanyx-reputacao-page
+    .bg-slate-900 {
+    background-color: #262626 !important;
+    color: #ffffff !important;
+  }
+
 `}</style>
 
       <div>
