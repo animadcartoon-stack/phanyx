@@ -1065,9 +1065,9 @@ html[data-theme="system"] .phanyx-reputacao-page .rep-inner-dark-card {
         Monitoramento IA
       </p>
 
-      <h4 className="mt-1 text-lg font-black text-white">
-        Tendência reputacional
-      </h4>
+      <h4 className="mt-1 text-lg font-black !text-white">
+  Tendência reputacional
+</h4>
     </div>
 
     <div className="rounded-full bg-cyan-400/10 px-3 py-1 text-xs font-bold text-cyan-300">
