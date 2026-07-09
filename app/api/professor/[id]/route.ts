@@ -109,27 +109,31 @@ export async function PUT(
       }
     }
 
-    await prisma.professor.update({
-      where: { id: Number(id) },
-      data: {
-        nome: body.nome,
-        cpf: body.cpf || null,
-        rg: body.rg || null,
-        telefone: body.telefone || null,
-        dataNascimento: body.dataNascimento
-          ? new Date(body.dataNascimento)
-          : null,
-        titulacao: body.titulacao || null,
-        especialidade: body.especialidade || null,
-        formacao: body.formacao || null,
-        miniBio: body.miniBio || null,
-        codigoFuncionario: body.codigoFuncionario || null,
-        fotoPerfil: body.fotoPerfil || null,
-        documentoUrl: body.documentoUrl || null,
-        slug: body.slug || null,
-        poloId,
-      },
-    });
+    const professorAtualizado = await prisma.professor.update({
+  where: { id: Number(id) },
+  data: {
+    nome: body.nome,
+    cpf: body.cpf || null,
+    rg: body.rg || null,
+    telefone: body.telefone || null,
+    dataNascimento: body.dataNascimento
+      ? new Date(body.dataNascimento)
+      : null,
+    titulacao: body.titulacao || null,
+    especialidade: body.especialidade || null,
+    formacao: body.formacao || null,
+    miniBio: body.miniBio || null,
+    codigoFuncionario: body.codigoFuncionario || null,
+    fotoPerfil: body.fotoPerfil || null,
+    documentoUrl: body.documentoUrl || null,
+    slug: body.slug || null,
+    poloId,
+  },
+  include: {
+    user: true,
+    polo: true,
+  },
+});
 
     await prisma.user.update({
       where: { id: professorExistente.userId },
@@ -140,8 +144,9 @@ export async function PUT(
     });
 
     return NextResponse.json({
-      message: "Professor atualizado com sucesso",
-    });
+  message: "Professor atualizado com sucesso",
+  professor: professorAtualizado,
+});
   } catch (error) {
     console.error(error);
     return NextResponse.json(
