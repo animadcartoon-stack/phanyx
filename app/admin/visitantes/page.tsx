@@ -360,7 +360,7 @@ function AdminVisitantesPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <main className="phanyx-visitantes-page min-h-screen bg-slate-50 p-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {erro && (
         <PhanyxToast
           tipo="erro"

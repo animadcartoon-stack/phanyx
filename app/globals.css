@@ -8832,3 +8832,65 @@ body[data-theme="system"] .phanyx-foto-oficial-card,
   background: rgb(39 39 42) !important;
   color: rgb(244 244 245) !important;
 }
+
+/* PHANYX - Visitantes: correção tema claro */
+.phanyx-visitantes-page {
+  color: #0f172a !important;
+}
+
+.phanyx-visitantes-page h1,
+.phanyx-visitantes-page h2,
+.phanyx-visitantes-page h3 {
+  color: #020617 !important;
+}
+
+.phanyx-visitantes-page p,
+.phanyx-visitantes-page span,
+.phanyx-visitantes-page label,
+.phanyx-visitantes-page strong {
+  color: inherit;
+}
+
+.phanyx-visitantes-page label span {
+  color: #334155 !important;
+}
+
+.phanyx-visitantes-page input,
+.phanyx-visitantes-page select,
+.phanyx-visitantes-page textarea {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+.phanyx-visitantes-page input::placeholder,
+.phanyx-visitantes-page textarea::placeholder {
+  color: #64748b !important;
+}
+
+.phanyx-visitantes-page .phanyx-visitantes-muted {
+  color: #475569 !important;
+}
+
+/* Mantém tema escuro legível */
+.dark .phanyx-visitantes-page {
+  color: #f8fafc !important;
+}
+
+.dark .phanyx-visitantes-page h1,
+.dark .phanyx-visitantes-page h2,
+.dark .phanyx-visitantes-page h3 {
+  color: #ffffff !important;
+}
+
+.dark .phanyx-visitantes-page label span {
+  color: #cbd5e1 !important;
+}
+
+.dark .phanyx-visitantes-page input,
+.dark .phanyx-visitantes-page select,
+.dark .phanyx-visitantes-page textarea {
+  color: #ffffff !important;
+  background-color: #020617 !important;
+  border-color: #334155 !important;
+}
