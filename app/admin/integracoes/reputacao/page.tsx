@@ -723,6 +723,26 @@ html.dark .phanyx-reputacao-page .rep-ai-score h3 {
     color: #f8fafc !important;
   }
 
+  /* AJUSTE FINAL — SCORE IA NO TEMA CLARO */
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score,
+html:not(.dark):not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+  color: #064e3b !important;
+}
+
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score p,
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score h3,
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score span,
+html[data-theme="light"] .phanyx-reputacao-page .rep-ai-score div,
+html:not(.dark):not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score p,
+html:not(.dark):not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score h3,
+html:not(.dark):not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score span,
+html:not(.dark):not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score div {
+  color: #064e3b !important;
+  opacity: 1 !important;
+}
+
   .phanyx-reputacao-page .rep-tempo-real-badge {
   background: #67e8f9 !important;
   border: 1px solid #22d3ee !important;
