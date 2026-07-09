@@ -8821,3 +8821,14 @@ html.dark .phanyx-foto-oficial-remover,
   background: rgb(15 23 42) !important;
   color: rgb(226 232 240) !important;
 }
+
+/* Correção: card da foto oficial no tema Sistema */
+html[data-theme="system"] .phanyx-foto-oficial-card,
+body[data-theme="system"] .phanyx-foto-oficial-card,
+[data-theme="system"] .phanyx-foto-oficial-card,
+.phanyx-theme-system .phanyx-foto-oficial-card,
+.theme-system .phanyx-foto-oficial-card {
+  border-color: rgb(82 82 91) !important;
+  background: rgb(39 39 42) !important;
+  color: rgb(244 244 245) !important;
+}
