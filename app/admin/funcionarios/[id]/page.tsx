@@ -81,6 +81,7 @@ const [linksPortfolio, setLinksPortfolio] = useState([
   codigoFuncionario: "",
   email: "",
   statusFuncionario: "",
+  fotoPerfil: "",
 });
 
   const [formTrabalhista, setFormTrabalhista] = useState({
@@ -111,6 +112,7 @@ const [linksPortfolio, setLinksPortfolio] = useState([
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
   const [buscaBanco, setBuscaBanco] = useState("");
@@ -178,6 +180,7 @@ const [linksPortfolio, setLinksPortfolio] = useState([
   codigoFuncionario: data.funcionario.codigoFuncionario || "",
   email: data.funcionario.user?.email || "",
   statusFuncionario: data.funcionario.statusFuncionario || "ATIVO",
+  fotoPerfil: data.funcionario.fotoPerfil || "",
 });
     preencherFormTrabalhista(data.funcionario);
   } catch (e: any) {
@@ -253,6 +256,69 @@ function preencherFormTrabalhista(f: any) {
     setPontosFuncionario(filtrados);
   } catch {
     setPontosFuncionario([]);
+  }
+}
+
+async function enviarFotoOficialFuncionario(arquivo: File | null) {
+  if (!arquivo) return;
+
+  const formatosPermitidos = [
+    "image/png",
+    "image/jpeg",
+    "image/jpg",
+    "image/webp",
+  ];
+
+  if (!formatosPermitidos.includes(arquivo.type)) {
+    setErro("Formato inválido. Envie uma foto em JPG, JPEG, PNG ou WEBP.");
+    return;
+  }
+
+  if (arquivo.size > 2 * 1024 * 1024) {
+    setErro("Foto muito grande. Envie uma foto com no máximo 2 MB.");
+    return;
+  }
+
+  try {
+    setEnviandoFotoPerfil(true);
+    setErro("");
+    setSucesso("");
+
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar foto.");
+    }
+
+    const url =
+      data?.url ||
+      data?.fileUrl ||
+      data?.arquivoUrl ||
+      data?.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da foto não retornou.");
+    }
+
+    setFormGeral((p) => ({
+      ...p,
+      fotoPerfil: url,
+    }));
+
+    setSucesso("Foto oficial do funcionário enviada. Clique em Salvar para gravar.");
+  } catch (e: any) {
+    setErro(e.message || "Erro ao enviar foto oficial do funcionário.");
+  } finally {
+    setEnviandoFotoPerfil(false);
   }
 }
 
@@ -519,15 +585,16 @@ p-6
             type="button"
             onClick={() => {
               setFormGeral({
-                nome: funcionario.nome || "",
-                cpf: funcionario.cpf || "",
-                rg: funcionario.rg || "",
-                telefone: funcionario.telefone || "",
-                cargo: funcionario.cargo || "",
-                codigoFuncionario: funcionario.codigoFuncionario || "",
-                email: funcionario.user?.email || "",
-                statusFuncionario: funcionario.statusFuncionario || "ATIVO",
-              });
+  nome: funcionario.nome || "",
+  cpf: funcionario.cpf || "",
+  rg: funcionario.rg || "",
+  telefone: funcionario.telefone || "",
+  cargo: funcionario.cargo || "",
+  codigoFuncionario: funcionario.codigoFuncionario || "",
+  email: funcionario.user?.email || "",
+  statusFuncionario: funcionario.statusFuncionario || "ATIVO",
+  fotoPerfil: funcionario.fotoPerfil || "",
+});
               setEditandoGeral(false);
             }}
             className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-bold text-slate-200 hover:bg-slate-800"
@@ -540,6 +607,30 @@ p-6
 
     {!editandoGeral ? (
       <div className="mt-4 grid gap-4 text-sm md:grid-cols-3">
+        <div className="md:col-span-3 flex items-center gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <div className="flex h-24 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+    {funcionario.fotoPerfil ? (
+      <img
+        src={funcionario.fotoPerfil}
+        alt={funcionario.nome || "Foto oficial do funcionário"}
+        className="h-full w-full object-cover"
+      />
+    ) : (
+      <span className="text-3xl font-black text-slate-400">
+        {funcionario.nome?.charAt(0)?.toUpperCase() || "F"}
+      </span>
+    )}
+  </div>
+
+  <div>
+    <p className="font-bold text-slate-900 dark:text-white">
+      Foto oficial do funcionário
+    </p>
+    <p className="text-sm text-slate-600 dark:text-slate-400">
+      Foto usada em crachás, identificação e documentos oficiais.
+    </p>
+  </div>
+</div>
         <div><p className="text-slate-400">Nome</p><p>{funcionario.nome || "-"}</p></div>
         <div><p className="text-slate-400">CPF</p><p>{funcionario.cpf || "-"}</p></div>
         <div><p className="text-slate-400">RG</p><p>{funcionario.rg || "-"}</p></div>
@@ -552,6 +643,64 @@ p-6
       </div>
     ) : (
       <div className="mt-5 grid gap-4 md:grid-cols-3">
+        <div className="phanyx-foto-oficial-card md:col-span-3">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      {formGeral.fotoPerfil ? (
+        <img
+          src={formGeral.fotoPerfil}
+          alt={formGeral.nome || "Foto oficial do funcionário"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl font-black text-slate-400">
+          {formGeral.nome?.charAt(0)?.toUpperCase() || "F"}
+        </span>
+      )}
+    </div>
+
+    <div className="flex-1">
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        Foto oficial do funcionário
+      </h3>
+
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Esta é a foto institucional usada em crachás, identificação, documentos
+        e registros internos.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+          {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
+            disabled={enviandoFotoPerfil}
+            onChange={(e) =>
+              enviarFotoOficialFuncionario(e.target.files?.[0] || null)
+            }
+            className="hidden"
+          />
+        </label>
+
+        {formGeral.fotoPerfil && (
+          <button
+            type="button"
+            onClick={() =>
+              setFormGeral((p) => ({
+                ...p,
+                fotoPerfil: "",
+              }))
+            }
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          >
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
         <label className="space-y-1">
           <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">Nome</span>
           <input
