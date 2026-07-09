@@ -3048,7 +3048,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
 <div>
-  <label className="text-sm font-medium text-slate-900 dark:text-white">
+  <label className="mb-2 block text-sm font-bold !text-slate-950 dark:!text-slate-100">
     Formato de impressão
   </label>
 
@@ -3061,13 +3061,13 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
           : "A4_INTEIRA"
       )
     }
-    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm font-semibold !text-slate-950 outline-none transition focus:border-blue-500 disabled:opacity-100 disabled:!text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:!text-slate-100 dark:disabled:!text-slate-100"
   >
     <option value="A4_INTEIRA">Folha inteira A4</option>
     <option value="DUAS_VIAS_A4">2 vias na mesma folha A4</option>
   </select>
 
-  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+  <p className="mt-2 text-xs font-medium !text-slate-700 dark:!text-slate-300">
     Use 2 vias para recibos, comprovantes, trancamentos e declarações simples.
   </p>
 </div>
