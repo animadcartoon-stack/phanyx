@@ -256,6 +256,25 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [gerandoCertificado, setGerandoCertificado] = useState(false);
   const [baixandoCertificado, setBaixandoCertificado] = useState(false);
 
+  const FORMATOS_FOTO_ALUNO_ACEITOS = ["image/jpeg", "image/jpg", "image/png"];
+const TAMANHO_MAXIMO_FOTO_ALUNO_MB = 2;
+const TAMANHO_MAXIMO_FOTO_ALUNO_BYTES =
+  TAMANHO_MAXIMO_FOTO_ALUNO_MB * 1024 * 1024;
+
+function validarFotoOficialAluno(file: File) {
+  if (!FORMATOS_FOTO_ALUNO_ACEITOS.includes(file.type)) {
+    throw new Error(
+      "Formato inválido. Envie uma foto em JPG, JPEG ou PNG."
+    );
+  }
+
+  if (file.size > TAMANHO_MAXIMO_FOTO_ALUNO_BYTES) {
+    throw new Error(
+      `Arquivo muito grande. Envie uma foto com no máximo ${TAMANHO_MAXIMO_FOTO_ALUNO_MB} MB.`
+    );
+  }
+}
+
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => {
@@ -302,13 +321,23 @@ useEffect(() => {
 ) {
   if (!arquivo) return;
 
-  const tiposPermitidos = ["image/png", "image/jpeg", "image/webp"];
+  const tiposPermitidos = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
+  const tamanhoMaximoBytes = 2 * 1024 * 1024;
 
   if (!tiposPermitidos.includes(arquivo.type)) {
     abrirModalAviso(
       "erro",
       "Formato inválido",
-      "Use uma imagem em PNG, JPG, JPEG ou WEBP para a foto oficial do aluno."
+      "Use uma imagem em JPG, JPEG, PNG ou WEBP para a foto oficial do aluno."
+    );
+    return;
+  }
+
+  if (arquivo.size > tamanhoMaximoBytes) {
+    abrirModalAviso(
+      "erro",
+      "Foto muito grande",
+      "Envie uma foto com no máximo 2 MB. Recomendado: imagem quadrada, no mínimo 600x600 px, com rosto centralizado."
     );
     return;
   }
@@ -349,6 +378,15 @@ useEffect(() => {
       setFotoPerfil(url);
     } else {
       setEditFotoPerfil(url);
+
+      setAlunoSelecionado((atual) =>
+        atual
+          ? {
+              ...atual,
+              fotoPerfil: url,
+            }
+          : atual
+      );
     }
 
     mostrarFeedback("sucesso", "Foto oficial do aluno enviada com sucesso.");
@@ -356,7 +394,8 @@ useEffect(() => {
     abrirModalAviso(
       "erro",
       "Erro ao enviar foto",
-      error?.message || "Não foi possível enviar a foto oficial do aluno."
+      error?.message ||
+        "Não foi possível enviar a foto. Verifique o formato e o tamanho do arquivo."
     );
   } finally {
     setEnviandoFotoPerfil(false);
@@ -1613,7 +1652,7 @@ async function baixarCertificadoAlunoSelecionado() {
           {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
           <input
             type="file"
-            accept="image/png,image/jpeg,image/webp"
+            accept="image/png,image/jpeg,image/jpg,image/webp"
             disabled={enviandoFotoPerfil}
             onChange={(e) =>
               enviarFotoOficialAluno(e.target.files?.[0] || null, "CRIACAO")
@@ -2324,7 +2363,10 @@ name="busca-alunos-phanyx"
       <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         Foto controlada pela instituição e usada no crachá oficial.
       </p>
-
+<p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-300">
+  Formatos aceitos: JPG, JPEG ou PNG. Tamanho máximo: 2 MB.
+  Recomendado: foto quadrada, no mínimo 600x600 px, com rosto centralizado.
+</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
           {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
