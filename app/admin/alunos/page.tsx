@@ -38,6 +38,7 @@ interface Aluno {
   cidade?: string | null;
   estado?: string | null;
   documentoUrl?: string | null;
+  fotoPerfil?: string | null;
   nomeResponsavel?: string | null;
   cpfResponsavel?: string | null;
   telefoneResponsavel?: string | null;
@@ -173,6 +174,8 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
   const [documentoUrl, setDocumentoUrl] = useState("");
+  const [fotoPerfil, setFotoPerfil] = useState("");
+  const [enviandoFotoPerfil, setEnviandoFotoPerfil] = useState(false);
 
   const [novoAlunoDocumentos, setNovoAlunoDocumentos] = useState<{
   proprietario: "ALUNO" | "RESPONSAVEL";
@@ -212,6 +215,8 @@ const [abaPainelAluno, setAbaPainelAluno] = useState<
   const [editCidade, setEditCidade] = useState("");
   const [editEstado, setEditEstado] = useState("");
   const [editDocumentoUrl, setEditDocumentoUrl] = useState("");
+  const [editFotoPerfil, setEditFotoPerfil] = useState("");
+  const [editEnviandoFotoPerfil, setEditEnviandoFotoPerfil] = useState(false);
   const [editNomeResponsavel, setEditNomeResponsavel] = useState("");
   const [editCpfResponsavel, setEditCpfResponsavel] = useState("");
   const [editTelefoneResponsavel, setEditTelefoneResponsavel] = useState("");
@@ -290,6 +295,74 @@ useEffect(() => {
     setModalAvisoMensagem(mensagem);
     setModalAvisoAberto(true);
   }
+
+  async function enviarFotoOficialAluno(
+  arquivo: File | null,
+  modo: "CRIACAO" | "EDICAO"
+) {
+  if (!arquivo) return;
+
+  const tiposPermitidos = ["image/png", "image/jpeg", "image/webp"];
+
+  if (!tiposPermitidos.includes(arquivo.type)) {
+    abrirModalAviso(
+      "erro",
+      "Formato inválido",
+      "Use uma imagem em PNG, JPG, JPEG ou WEBP para a foto oficial do aluno."
+    );
+    return;
+  }
+
+  try {
+    if (modo === "CRIACAO") {
+      setEnviandoFotoPerfil(true);
+    } else {
+      setEditEnviandoFotoPerfil(true);
+    }
+
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao enviar foto.");
+    }
+
+    const url =
+      data?.url ||
+      data?.fileUrl ||
+      data?.arquivoUrl ||
+      data?.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da foto não retornou.");
+    }
+
+    if (modo === "CRIACAO") {
+      setFotoPerfil(url);
+    } else {
+      setEditFotoPerfil(url);
+    }
+
+    mostrarFeedback("sucesso", "Foto oficial do aluno enviada com sucesso.");
+  } catch (error: any) {
+    abrirModalAviso(
+      "erro",
+      "Erro ao enviar foto",
+      error?.message || "Não foi possível enviar a foto oficial do aluno."
+    );
+  } finally {
+    setEnviandoFotoPerfil(false);
+    setEditEnviandoFotoPerfil(false);
+  }
+}
 
  async function carregarTudo() {
   await Promise.all([
@@ -468,6 +541,7 @@ async function carregarPolos() {
     setCidade("");
     setEstado("");
     setDocumentoUrl("");
+    setFotoPerfil("");
     setNomeResponsavel("");
     setCpfResponsavel("");
     setTelefoneResponsavel("");
@@ -545,6 +619,7 @@ async function enviarDocumentosDepoisCriacao(alunoId: number) {
           cidade,
           estado,
           documentoUrl,
+          fotoPerfil: fotoPerfil || null,
           nomeResponsavel,
           cpfResponsavel,
           telefoneResponsavel,
@@ -623,6 +698,7 @@ window.scrollTo({ top: 0, behavior: "smooth" });
     setEditCidade(aluno.cidade || "");
     setEditEstado(aluno.estado || "");
     setEditDocumentoUrl(aluno.documentoUrl || "");
+    setEditFotoPerfil(aluno.fotoPerfil || "");
     setEditNomeResponsavel(aluno.nomeResponsavel || "");
     setEditCpfResponsavel(aluno.cpfResponsavel || "");
     setEditTelefoneResponsavel(aluno.telefoneResponsavel || "");
@@ -668,6 +744,7 @@ window.scrollTo({ top: 0, behavior: "smooth" });
           cidade: editCidade,
           estado: editEstado,
           documentoUrl: editDocumentoUrl,
+          fotoPerfil: editFotoPerfil || null,
           nomeResponsavel: editNomeResponsavel,
           cpfResponsavel: editCpfResponsavel,
           telefoneResponsavel: editTelefoneResponsavel,
@@ -1447,6 +1524,61 @@ async function baixarCertificadoAlunoSelecionado() {
             </div>
 
             <form onSubmit={handleCriarAluno} className="space-y-4">
+
+<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      {fotoPerfil ? (
+        <img
+          src={fotoPerfil}
+          alt={nome || "Foto oficial do aluno"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl font-black text-slate-400">
+          {nome?.charAt(0)?.toUpperCase() || "A"}
+        </span>
+      )}
+    </div>
+
+    <div className="flex-1">
+      <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+        Foto oficial do aluno
+      </h3>
+
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Esta é a foto institucional usada em crachás, identificação e documentos
+        oficiais. Não é a foto pessoal que o aluno altera no próprio perfil.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+          {enviandoFotoPerfil ? "Enviando..." : "Enviar foto"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={enviandoFotoPerfil}
+            onChange={(e) =>
+              enviarFotoOficialAluno(e.target.files?.[0] || null, "CRIACAO")
+            }
+            className="hidden"
+          />
+        </label>
+
+        {fotoPerfil && (
+          <button
+            type="button"
+            onClick={() => setFotoPerfil("")}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          >
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
+
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <input
                   placeholder="Nome do aluno"
@@ -2110,6 +2242,59 @@ name="busca-alunos-phanyx"
                   <h3 className="mb-4 text-lg font-semibold text-slate-900">
                     Editar aluno
                   </h3>
+
+<div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+    <div className="flex h-28 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-900">
+      {editFotoPerfil ? (
+        <img
+          src={editFotoPerfil}
+          alt={editNome || "Foto oficial do aluno"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl font-black text-slate-400">
+          {editNome?.charAt(0)?.toUpperCase() || "A"}
+        </span>
+      )}
+    </div>
+
+    <div className="flex-1">
+      <h4 className="font-semibold text-slate-900 dark:text-slate-100">
+        Foto oficial do aluno
+      </h4>
+
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+        Foto controlada pela instituição e usada no crachá oficial.
+      </p>
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="cursor-pointer rounded-2xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-100">
+          {editEnviandoFotoPerfil ? "Enviando..." : "Trocar foto"}
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            disabled={editEnviandoFotoPerfil}
+            onChange={(e) =>
+              enviarFotoOficialAluno(e.target.files?.[0] || null, "EDICAO")
+            }
+            className="hidden"
+          />
+        </label>
+
+        {editFotoPerfil && (
+          <button
+            type="button"
+            onClick={() => setEditFotoPerfil("")}
+            className="rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          >
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  </div>
+</div>
 
                   <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                     <input
