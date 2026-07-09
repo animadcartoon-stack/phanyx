@@ -474,328 +474,185 @@ const temRespostaLenta =
     <div className="phanyx-reputacao-page space-y-8">
 
       <style jsx global>{`
-  .phanyx-reputacao-page {
-    --rep-surface: #ffffff;
-    --rep-soft: #f8fafc;
-    --rep-border: #cbd5e1;
-    --rep-text: #0f172a;
-    --rep-muted: #475569;
-    --rep-muted-2: #64748b;
-    --rep-deep: #0f172a;
-    --rep-deep-2: #020617;
-    --rep-input: #ffffff;
-    color: var(--rep-text);
-  }
-
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"]) .phanyx-reputacao-page {
-    --rep-surface: #0f172a;
-    --rep-soft: #111827;
-    --rep-border: #334155;
-    --rep-text: #f8fafc;
-    --rep-muted: #cbd5e1;
-    --rep-muted-2: #94a3b8;
-    --rep-deep: #0f172a;
-    --rep-deep-2: #020617;
-    --rep-input: #020617;
-    color: var(--rep-text);
-  }
-
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page {
-    --rep-surface: #262626;
-    --rep-soft: #303030;
-    --rep-border: #525252;
-    --rep-text: #f8fafc;
-    --rep-muted: #d4d4d4;
-    --rep-muted-2: #cbd5e1;
-    --rep-deep: #262626;
-    --rep-deep-2: #171717;
-    --rep-input: #171717;
-    color: var(--rep-text);
-  }
-
-  .phanyx-reputacao-page .bg-white {
-    background-color: var(--rep-surface) !important;
-    color: var(--rep-text) !important;
-  }
-
-  .phanyx-reputacao-page .bg-slate-50 {
-    background-color: var(--rep-soft) !important;
-    color: var(--rep-text) !important;
-  }
-
-  .phanyx-reputacao-page .bg-slate-900 {
-    background-color: var(--rep-deep) !important;
+  .phanyx-reputacao-page .rep-dark-card {
+    background: linear-gradient(135deg, #0f172a, #020617) !important;
+    border-color: rgba(59, 130, 246, 0.35) !important;
     color: #f8fafc !important;
   }
 
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"]) .phanyx-reputacao-page .bg-slate-900 {
-    background-color: #0f172a !important;
+  .phanyx-reputacao-page .rep-dark-card :is(h1,h2,h3,h4,p,span) {
+    color: inherit;
+    opacity: 1 !important;
   }
 
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page .bg-slate-900 {
-    background-color: #262626 !important;
-  }
-
-  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] {
-    background-image: linear-gradient(135deg, var(--rep-deep), var(--rep-deep-2)) !important;
-    color: #f8fafc !important;
-  }
-
-  .phanyx-reputacao-page .text-slate-900,
-  .phanyx-reputacao-page .text-slate-800,
-  .phanyx-reputacao-page .text-slate-700 {
-    color: var(--rep-text) !important;
-  }
-
-  .phanyx-reputacao-page .text-slate-600,
-  .phanyx-reputacao-page .text-slate-500,
-  .phanyx-reputacao-page .text-slate-400,
-  .phanyx-reputacao-page .text-slate-300 {
-    color: var(--rep-muted) !important;
-  }
-
-  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] .text-white {
-    color: #ffffff !important;
-  }
-
-  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] .text-slate-300,
-  .phanyx-reputacao-page .bg-gradient-to-br[class*="from-slate-"] .text-slate-400 {
-    color: #cbd5e1 !important;
-  }
-
-  .phanyx-reputacao-page .text-yellow-900 {
-    color: #92400e !important;
-  }
-
-  .phanyx-reputacao-page .text-blue-900 {
-    color: #1e3a8a !important;
-  }
-
-  .phanyx-reputacao-page .text-red-900 {
-    color: #991b1b !important;
-  }
-
-  .phanyx-reputacao-page .text-purple-900 {
-    color: #581c87 !important;
-  }
-
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page .text-yellow-900 {
-    color: #fde68a !important;
-  }
-
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page .text-blue-900 {
-    color: #93c5fd !important;
-  }
-
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page .text-red-900 {
-    color: #fca5a5 !important;
-  }
-
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"], [data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page .text-purple-900 {
-    color: #d8b4fe !important;
-  }
-
-  .phanyx-reputacao-page .border,
-  .phanyx-reputacao-page [class*="border-"] {
-    border-color: var(--rep-border) !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-white/5"] {
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    color: #f8fafc !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-white/5"] .text-white,
-  .phanyx-reputacao-page [class~="bg-white/5"] h1,
-  .phanyx-reputacao-page [class~="bg-white/5"] h2,
-  .phanyx-reputacao-page [class~="bg-white/5"] h3,
-  .phanyx-reputacao-page [class~="bg-white/5"] h4 {
-    color: #ffffff !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-white/5"] .text-slate-300,
-  .phanyx-reputacao-page [class~="bg-white/5"] .text-slate-400,
-  .phanyx-reputacao-page [class~="bg-white/5"] p {
-    color: #cbd5e1 !important;
-  }
-
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page [class~="bg-white/5"] {
-    background-color: #303030 !important;
-    color: #f8fafc !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-white/10"] {
-    background-color: rgba(226, 232, 240, 0.25) !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-emerald-500/10"] {
-    background-color: #065f46 !important;
-    border-color: #10b981 !important;
-    color: #f8fafc !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-emerald-500/10"] h3,
-  .phanyx-reputacao-page [class~="bg-emerald-500/10"] .text-white {
-    color: #ffffff !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-emerald-500/10"] .text-emerald-300,
-  .phanyx-reputacao-page [class~="bg-emerald-500/10"] p {
-    color: #bbf7d0 !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-cyan-400/5"] {
-    background-color: rgba(8, 47, 73, 0.9) !important;
-    color: #f8fafc !important;
-  }
-
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema) .phanyx-reputacao-page [class~="bg-cyan-400/5"] {
-    background-color: #303030 !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-cyan-400/10"] {
-    background-color: #e0f2fe !important;
-    color: #075985 !important;
-  }
-
-  .phanyx-reputacao-page [class~="bg-cyan-400/10"] * {
-    color: #075985 !important;
-  }
-
-  .phanyx-reputacao-page .bg-emerald-50 {
-    background-color: #ecfdf5 !important;
+  .phanyx-reputacao-page .rep-ai-score {
+    background: #ecfdf5 !important;
     border-color: #6ee7b7 !important;
     color: #064e3b !important;
   }
 
-  .phanyx-reputacao-page .bg-emerald-50 h1,
-  .phanyx-reputacao-page .bg-emerald-50 h2,
-  .phanyx-reputacao-page .bg-emerald-50 h3,
-  .phanyx-reputacao-page .bg-emerald-50 h4,
-  .phanyx-reputacao-page .bg-emerald-50 p,
-  .phanyx-reputacao-page .bg-emerald-50 span {
+  .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span) {
     color: #064e3b !important;
     opacity: 1 !important;
   }
 
-  .phanyx-reputacao-page .bg-red-50 {
-    background-color: #fef2f2 !important;
-    border-color: #fca5a5 !important;
-    color: #991b1b !important;
+  .phanyx-reputacao-page .rep-timeline-item {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
   }
 
-  .phanyx-reputacao-page .bg-red-50 h1,
-  .phanyx-reputacao-page .bg-red-50 h2,
-  .phanyx-reputacao-page .bg-red-50 h3,
-  .phanyx-reputacao-page .bg-red-50 h4,
-  .phanyx-reputacao-page .bg-red-50 p,
-  .phanyx-reputacao-page .bg-red-50 span {
-    color: #991b1b !important;
+  .phanyx-reputacao-page .rep-timeline-item :is(h1,h2,h3,h4) {
+    color: #0f172a !important;
+  }
+
+  .phanyx-reputacao-page .rep-timeline-item p {
+    color: #475569 !important;
     opacity: 1 !important;
   }
 
-  .phanyx-reputacao-page .bg-amber-50 {
-    background-color: #fffbeb !important;
+  .phanyx-reputacao-page .rep-timeline-pill {
+    background: #e2e8f0 !important;
+    color: #334155 !important;
+  }
+
+  .phanyx-reputacao-page .rep-pastel-amber {
+    background: #fffbeb !important;
     border-color: #fcd34d !important;
     color: #92400e !important;
   }
 
-  .phanyx-reputacao-page .bg-amber-50 h1,
-  .phanyx-reputacao-page .bg-amber-50 h2,
-  .phanyx-reputacao-page .bg-amber-50 h3,
-  .phanyx-reputacao-page .bg-amber-50 h4,
-  .phanyx-reputacao-page .bg-amber-50 p,
-  .phanyx-reputacao-page .bg-amber-50 span {
-    color: #92400e !important;
-    opacity: 1 !important;
-  }
-
-  .phanyx-reputacao-page .bg-blue-50 {
-    background-color: #eff6ff !important;
+  .phanyx-reputacao-page .rep-pastel-blue {
+    background: #eff6ff !important;
     border-color: #93c5fd !important;
     color: #1e3a8a !important;
   }
 
-  .phanyx-reputacao-page .bg-blue-50 h1,
-  .phanyx-reputacao-page .bg-blue-50 h2,
-  .phanyx-reputacao-page .bg-blue-50 h3,
-  .phanyx-reputacao-page .bg-blue-50 h4,
-  .phanyx-reputacao-page .bg-blue-50 p,
-  .phanyx-reputacao-page .bg-blue-50 span {
-    color: #1e3a8a !important;
-    opacity: 1 !important;
+  .phanyx-reputacao-page .rep-pastel-emerald {
+    background: #ecfdf5 !important;
+    border-color: #6ee7b7 !important;
+    color: #064e3b !important;
   }
 
-  .phanyx-reputacao-page .bg-sky-50 {
-    background-color: #f0f9ff !important;
+  .phanyx-reputacao-page .rep-pastel-red {
+    background: #fef2f2 !important;
+    border-color: #fca5a5 !important;
+    color: #991b1b !important;
+  }
+
+  .phanyx-reputacao-page .rep-pastel-sky {
+    background: #f0f9ff !important;
     border-color: #7dd3fc !important;
     color: #075985 !important;
   }
 
-  .phanyx-reputacao-page .bg-sky-50 h1,
-  .phanyx-reputacao-page .bg-sky-50 h2,
-  .phanyx-reputacao-page .bg-sky-50 h3,
-  .phanyx-reputacao-page .bg-sky-50 h4,
-  .phanyx-reputacao-page .bg-sky-50 p,
-  .phanyx-reputacao-page .bg-sky-50 span {
-    color: #075985 !important;
-    opacity: 1 !important;
-  }
-
-  .phanyx-reputacao-page .bg-violet-50 {
-    background-color: #f5f3ff !important;
+  .phanyx-reputacao-page .rep-pastel-violet {
+    background: #f5f3ff !important;
     border-color: #c4b5fd !important;
     color: #4c1d95 !important;
   }
 
-  .phanyx-reputacao-page .bg-violet-50 h1,
-  .phanyx-reputacao-page .bg-violet-50 h2,
-  .phanyx-reputacao-page .bg-violet-50 h3,
-  .phanyx-reputacao-page .bg-violet-50 h4,
-  .phanyx-reputacao-page .bg-violet-50 p,
-  .phanyx-reputacao-page .bg-violet-50 span {
-    color: #4c1d95 !important;
+  .phanyx-reputacao-page :is(
+    .rep-pastel-amber,
+    .rep-pastel-blue,
+    .rep-pastel-emerald,
+    .rep-pastel-red,
+    .rep-pastel-sky,
+    .rep-pastel-violet
+  ) :is(h1,h2,h3,h4,p,span) {
+    color: inherit !important;
     opacity: 1 !important;
   }
 
-  .phanyx-reputacao-page .bg-blue-100,
-  .phanyx-reputacao-page .bg-cyan-100 {
-    background-color: #dbeafe !important;
-    color: #075985 !important;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score {
+    background: #064e3b !important;
+    border-color: #10b981 !important;
+    color: #f0fdf4 !important;
   }
 
-  .phanyx-reputacao-page .bg-slate-100 {
-    background-color: #e2e8f0 !important;
-    color: #334155 !important;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span) {
+    color: #f0fdf4 !important;
   }
 
-  .phanyx-reputacao-page .bg-emerald-100 {
-    background-color: #d1fae5 !important;
-    color: #047857 !important;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-timeline-item {
+    background: #172554 !important;
+    border-color: #2563eb !important;
+    color: #f8fafc !important;
   }
 
-  .phanyx-reputacao-page .bg-red-100 {
-    background-color: #fee2e2 !important;
-    color: #b91c1c !important;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-timeline-item :is(h1,h2,h3,h4) {
+    color: #ffffff !important;
   }
 
-  .phanyx-reputacao-page .bg-amber-100 {
-    background-color: #fef3c7 !important;
-    color: #92400e !important;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-timeline-item p {
+    color: #cbd5e1 !important;
   }
 
-  .phanyx-reputacao-page .rounded-full,
-  .phanyx-reputacao-page .rounded-full * {
-    opacity: 1 !important;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page .rep-timeline-pill {
+    background: #1e3a8a !important;
+    color: #bfdbfe !important;
   }
 
-  .phanyx-reputacao-page button,
-  .phanyx-reputacao-page input,
-  .phanyx-reputacao-page select,
-  .phanyx-reputacao-page textarea {
-    color-scheme: light;
+  html.dark:not([data-theme="system"]) .phanyx-reputacao-page :is(
+    .rep-pastel-amber,
+    .rep-pastel-blue,
+    .rep-pastel-emerald,
+    .rep-pastel-red,
+    .rep-pastel-sky,
+    .rep-pastel-violet
+  ) {
+    background: #172554 !important;
+    border-color: #2563eb !important;
+    color: #f8fafc !important;
   }
 
+  html[data-theme="system"] .phanyx-reputacao-page .rep-dark-card {
+    background: linear-gradient(135deg, #262626, #171717) !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page .rep-ai-score {
+    background: #303030 !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page .rep-ai-score :is(h1,h2,h3,h4,p,span) {
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page .rep-timeline-item {
+    background: #303030 !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page .rep-timeline-item :is(h1,h2,h3,h4) {
+    color: #ffffff !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page .rep-timeline-item p {
+    color: #d4d4d4 !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page .rep-timeline-pill {
+    background: #404040 !important;
+    color: #f5f5f5 !important;
+  }
+
+  html[data-theme="system"] .phanyx-reputacao-page :is(
+    .rep-pastel-amber,
+    .rep-pastel-blue,
+    .rep-pastel-emerald,
+    .rep-pastel-red,
+    .rep-pastel-sky,
+    .rep-pastel-violet
+  ) {
+    background: #303030 !important;
+    border-color: #525252 !important;
+    color: #f8fafc !important;
+  }
 `}</style>
 
       <div>
@@ -918,7 +775,7 @@ const temRespostaLenta =
         ))}
       </div>
 
-      <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
+      <div className="rep-pastel-amber rounded-2xl border p-6">
         <h2 className="text-lg font-black text-amber-900">
           Google Business em preparação
         </h2>
@@ -1038,7 +895,7 @@ const temRespostaLenta =
         Avaliações recentes monitoradas pela IA PHANYX.
         </p>
         <div className="mt-6 grid gap-4 md:grid-cols-4">
-  <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4">
+  <div className="rep-pastel-blue rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-blue-700">
       Total
     </p>
@@ -1048,7 +905,7 @@ const temRespostaLenta =
 </h3>
   </div>
 
-  <div className="rounded-2xl border border-amber-100 bg-amber-50 p-4">
+  <div className="rep-pastel-amber rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-amber-700">
       Pendentes
     </p>
@@ -1058,7 +915,7 @@ const temRespostaLenta =
     </h3>
   </div>
 
-  <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+  <div className="rep-pastel-emerald rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
       Respondidas
     </p>
@@ -1068,7 +925,7 @@ const temRespostaLenta =
     </h3>
   </div>
 
-  <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+  <div className="rep-pastel-red rounded-2xl border p-4">
     <p className="text-xs font-black uppercase tracking-wide text-red-700">
       Índice PHANYX
     </p>
@@ -1122,7 +979,7 @@ const temRespostaLenta =
         </p>
       </div>
 
-      <div className="rounded-3xl border border-emerald-400/30 bg-emerald-500/10 px-6 py-5 text-center backdrop-blur">
+      <div className="rep-ai-score rounded-3xl border px-6 py-5 text-center backdrop-blur">
         <p className="text-xs font-black uppercase tracking-wide text-emerald-300">
           Score IA
         </p>
@@ -1260,7 +1117,7 @@ const temRespostaLenta =
   </div>
 
   <div className="grid gap-5">
-    <div className="rounded-[2rem] border border-emerald-200 bg-emerald-50 p-6">
+    <div className="rep-pastel-emerald rounded-[2rem] border p-6">
       <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
         Avaliações positivas
       </p>
@@ -1281,7 +1138,7 @@ const temRespostaLenta =
 </p>
     </div>
 
-    <div className="rounded-[2rem] border border-red-200 bg-red-50 p-6">
+    <div className="rep-pastel-red rounded-[2rem] border p-6">
       <p className="text-xs font-black uppercase tracking-wide text-red-700">
         Atenção necessária
       </p>
@@ -1400,7 +1257,7 @@ const temRespostaLenta =
       </p>
     </div>
 
-    <div className="rounded-2xl bg-emerald-100 px-4 py-3">
+    <div className="rep-pastel-emerald rounded-2xl border px-4 py-3">
       <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
         Tendência IA
       </p>
@@ -1435,7 +1292,7 @@ const temRespostaLenta =
 </div>
 
 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-  <div className="rounded-3xl border border-red-500/20 bg-slate-900 p-5 shadow-sm">
+  <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-red-600">
@@ -1466,7 +1323,7 @@ const temRespostaLenta =
     </div>
   </div>
 
-  <div className="rounded-3xl border border-emerald-500/20 bg-slate-900 p-5 shadow-sm">
+  <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">
@@ -1501,7 +1358,7 @@ const temRespostaLenta =
     </div>
   </div>
 
-  <div className="rounded-3xl border border-amber-500/20 bg-slate-900 p-5 shadow-sm">
+  <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">
@@ -1530,7 +1387,7 @@ const temRespostaLenta =
     </div>
   </div>
 
-  <div className="rounded-3xl border border-cyan-500/20 bg-slate-900 p-5 shadow-sm">
+  <div className="rep-dark-card rounded-3xl border p-5 shadow-sm">
     <div className="flex items-start justify-between">
       <div>
         <p className="text-xs font-black uppercase tracking-[0.25em] text-cyan-700">
@@ -1592,18 +1449,18 @@ const temRespostaLenta =
           )}
         </div>
 
-        <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4">
+        <div className="rep-timeline-item flex-1 rounded-2xl border p-4">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-black">
               {item.titulo}
             </h3>
 
-            <span className="rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold opacity-80">
+            <span className="rep-timeline-pill rounded-full px-3 py-1 text-[11px] font-bold">
               {item.tempo}
             </span>
           </div>
 
-          <p className="mt-2 text-sm leading-6 opacity-70">
+          <p className="mt-2 text-sm leading-6">
             {item.descricao}
           </p>
         </div>
@@ -1630,7 +1487,7 @@ const temRespostaLenta =
   </div>
 
   <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-    <div className="rounded-3xl border border-emerald-200 bg-emerald-50 p-5">
+    <div className="rep-pastel-emerald rounded-3xl border p-5">
       <p className="text-xs font-black uppercase tracking-wide text-emerald-700">
         Crescimento positivo
       </p>
@@ -1644,7 +1501,7 @@ const temRespostaLenta =
       </p>
     </div>
 
-    <div className="rounded-3xl border border-amber-200 bg-amber-50 p-5">
+    <div className="rep-pastel-amber rounded-3xl border p-5">
       <p className="text-xs font-black uppercase tracking-wide text-amber-700">
         Respostas pendentes
       </p>
@@ -1660,7 +1517,7 @@ const temRespostaLenta =
       </p>
     </div>
 
-    <div className="rounded-3xl border border-sky-200 bg-sky-50 p-5">
+    <div className="rep-pastel-sky rounded-3xl border p-5">
       <p className="text-xs font-black uppercase tracking-wide text-sky-700">
         Melhor desempenho
       </p>
@@ -1674,7 +1531,7 @@ const temRespostaLenta =
       </p>
     </div>
 
-    <div className="rounded-3xl border border-violet-200 bg-violet-50 p-5">
+    <div className="rep-pastel-violet rounded-3xl border p-5">
       <p className="text-xs font-black uppercase tracking-wide text-violet-700">
         Tempo médio
       </p>

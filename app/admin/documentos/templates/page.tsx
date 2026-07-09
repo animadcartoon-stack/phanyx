@@ -2883,106 +2883,149 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
   return texto.slice(0, 1200);
 }
 
-  return (
+  
+return (
   <div className="phanyx-doc-templates-page space-y-6 text-slate-900 dark:text-slate-100">
+    <style jsx global>{`
+      .phanyx-doc-templates-page .pdoc-card {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        color: #0f172a !important;
+      }
 
-<style jsx global>{`
-  .phanyx-doc-templates-page {
-    --doc-card-bg: #ffffff;
-    --doc-soft-bg: #f8fafc;
-    --doc-input-bg: #ffffff;
-    --doc-border: #cbd5e1;
-    --doc-text: #0f172a;
-    --doc-muted: #475569;
-  }
+      .phanyx-doc-templates-page .pdoc-soft {
+        background: #f8fafc !important;
+        border-color: #cbd5e1 !important;
+        color: #0f172a !important;
+      }
 
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
-    .phanyx-doc-templates-page {
-    --doc-card-bg: #0f172a;
-    --doc-soft-bg: #172554;
-    --doc-input-bg: #172554;
-    --doc-border: #2563eb;
-    --doc-text: #f8fafc;
-    --doc-muted: #cbd5e1;
-  }
+      .phanyx-doc-templates-page .pdoc-label {
+        color: #0f172a !important;
+        opacity: 1 !important;
+      }
 
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
-    .phanyx-doc-templates-page {
-    --doc-card-bg: #262626;
-    --doc-soft-bg: #303030;
-    --doc-input-bg: #303030;
-    --doc-border: #525252;
-    --doc-text: #f8fafc;
-    --doc-muted: #d4d4d4;
-  }
+      .phanyx-doc-templates-page .pdoc-muted {
+        color: #475569 !important;
+        opacity: 1 !important;
+      }
 
-  .phanyx-doc-templates-page :is(h1, h2, h3, h4, label) {
-    color: var(--doc-text) !important;
-  }
+      .phanyx-doc-templates-page .pdoc-input {
+        background: #ffffff !important;
+        border-color: #cbd5e1 !important;
+        color: #0f172a !important;
+        opacity: 1 !important;
+      }
 
-  .phanyx-doc-templates-page :is(p, span, li, div) {
-    color: inherit;
-  }
+      .phanyx-doc-templates-page .pdoc-input::placeholder {
+        color: #64748b !important;
+        opacity: 1 !important;
+      }
 
-  .phanyx-doc-templates-page input,
-  .phanyx-doc-templates-page select,
-  .phanyx-doc-templates-page textarea {
-    background-color: var(--doc-input-bg) !important;
-    border-color: var(--doc-border) !important;
-    color: var(--doc-text) !important;
-  }
+      .phanyx-doc-templates-page .pdoc-badge-green {
+        background: #dcfce7 !important;
+        color: #166534 !important;
+      }
 
-  .phanyx-doc-templates-page input::placeholder,
-  .phanyx-doc-templates-page textarea::placeholder {
-    color: var(--doc-muted) !important;
-    opacity: 1 !important;
-  }
+      .phanyx-doc-templates-page .pdoc-badge-red {
+        background: #fee2e2 !important;
+        color: #991b1b !important;
+      }
 
-  .phanyx-doc-templates-page .phanyx-doc-variables-panel,
-  .phanyx-doc-templates-page .phanyx-doc-template-list,
-  .phanyx-doc-templates-page .phanyx-doc-preview-card,
-  .phanyx-doc-templates-page .phanyx-doc-variable-card {
-    background-color: var(--doc-card-bg) !important;
-    border-color: var(--doc-border) !important;
-    color: var(--doc-text) !important;
-  }
+      .phanyx-doc-templates-page .pdoc-badge-blue {
+        background: #dbeafe !important;
+        color: #1e40af !important;
+      }
 
-  .phanyx-doc-templates-page .phanyx-doc-variable-card p,
-  .phanyx-doc-templates-page .phanyx-doc-preview-card p {
-    color: var(--doc-muted) !important;
-  }
+      .phanyx-doc-templates-page .pdoc-badge-slate {
+        background: #e2e8f0 !important;
+        color: #334155 !important;
+      }
 
-  .phanyx-doc-templates-page .phanyx-doc-variable-category {
-    background-color: var(--doc-soft-bg) !important;
-    color: var(--doc-text) !important;
-  }
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-card {
+        background: #0f172a !important;
+        border-color: #2563eb !important;
+        color: #f8fafc !important;
+      }
 
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
-    .phanyx-doc-templates-page
-    :is(.bg-white, .bg-slate-50) {
-    background-color: #0f172a !important;
-    color: #f8fafc !important;
-  }
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-soft {
+        background: #172554 !important;
+        border-color: #2563eb !important;
+        color: #f8fafc !important;
+      }
 
-  :is(html.dark, body.dark, .dark, [data-theme="dark"], [data-tema="escuro"])
-    .phanyx-doc-templates-page
-    :is(.rounded-2xl, .rounded-3xl) {
-    border-color: #2563eb !important;
-  }
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-label {
+        color: #f8fafc !important;
+      }
 
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
-    .phanyx-doc-templates-page
-    :is(.bg-white, .bg-slate-50) {
-    background-color: #262626 !important;
-    color: #f8fafc !important;
-  }
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-muted {
+        color: #cbd5e1 !important;
+      }
 
-  :is([data-theme="system"], [data-tema="sistema"], .theme-system, .tema-sistema)
-    .phanyx-doc-templates-page
-    :is(.rounded-2xl, .rounded-3xl) {
-    border-color: #525252 !important;
-  }
-`}</style>
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-input {
+        background: #172554 !important;
+        border-color: #2563eb !important;
+        color: #f8fafc !important;
+      }
+
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-input::placeholder {
+        color: #bfdbfe !important;
+      }
+
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-card {
+        background: #262626 !important;
+        border-color: #525252 !important;
+        color: #f8fafc !important;
+      }
+
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-soft {
+        background: #303030 !important;
+        border-color: #525252 !important;
+        color: #f8fafc !important;
+      }
+
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-label {
+        color: #f8fafc !important;
+      }
+
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-muted {
+        color: #d4d4d4 !important;
+      }
+
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-input {
+        background: #303030 !important;
+        border-color: #525252 !important;
+        color: #f8fafc !important;
+      }
+
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-input::placeholder {
+        color: #d4d4d4 !important;
+      }
+
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-badge-green,
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-badge-green {
+        background: #064e3b !important;
+        color: #bbf7d0 !important;
+      }
+
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-badge-red,
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-badge-red {
+        background: #7f1d1d !important;
+        color: #fecaca !important;
+      }
+
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-badge-blue,
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-badge-blue {
+        background: #1e3a8a !important;
+        color: #bfdbfe !important;
+      }
+
+      html.dark:not([data-theme="system"]) .phanyx-doc-templates-page .pdoc-badge-slate,
+      html[data-theme="system"] .phanyx-doc-templates-page .pdoc-badge-slate {
+        background: #334155 !important;
+        color: #e2e8f0 !important;
+      }
+    `}</style>
+
 
     {erro && (
   <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4">
@@ -3036,7 +3079,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
 
       <div className="grid grid-cols-1 gap-6">
         <div>
-          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+          <div className="pdoc-card rounded-2xl border p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold">
@@ -3146,7 +3189,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
 <div>
-  <label className="text-sm font-bold !text-slate-900 dark:!text-slate-100">
+  <label className="pdoc-label text-sm font-bold">
     Formato de impressão
   </label>
 
@@ -3159,18 +3202,18 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
           : "A4_INTEIRA"
       )
     }
-    className="mt-1 w-full rounded-xl border !border-slate-300 !bg-white px-3 py-2 text-sm font-semibold !text-slate-900 outline-none focus:border-blue-500 dark:!border-slate-700 dark:!bg-slate-950 dark:!text-slate-100"
+    className="pdoc-input mt-1 w-full rounded-xl border px-3 py-2 text-sm font-semibold outline-none focus:border-blue-500"
   >
     <option value="A4_INTEIRA">Folha inteira A4</option>
     <option value="DUAS_VIAS_A4">2 vias na mesma folha A4</option>
   </select>
 
-  <p className="mt-1 text-xs font-medium !text-slate-600 dark:!text-slate-300">
+  <p className="pdoc-muted mt-1 text-xs font-medium">
     Use 2 vias para recibos, comprovantes, trancamentos e declarações simples.
   </p>
 </div>
 
-              <div className="phanyx-doc-variables-panel rounded-2xl p-4">
+              <div className="pdoc-soft phanyx-doc-variables-panel rounded-2xl border p-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h3 className="font-medium text-slate-800">
@@ -3214,7 +3257,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
   <input
     value={buscaVariavel}
     onChange={(e) => setBuscaVariavel(e.target.value)}
-    className="w-full rounded-xl border !border-slate-300 !bg-white px-3 py-2 text-sm !text-slate-900 !placeholder-slate-500 outline-none focus:border-blue-500 dark:!border-slate-700 dark:!bg-slate-950 dark:!text-slate-100 dark:!placeholder-slate-400"
+    className="pdoc-input w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-blue-500"
     placeholder="Buscar variável por nome ou finalidade. Ex.: nome da escola, assinatura diretor, curso..."
   />
 
@@ -3268,7 +3311,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
     onClick={() => {
   inserirVariavelNoEditor(variavel.tag);
 }}
-    className="phanyx-doc-variable-card rounded-2xl border p-3 text-left text-xs transition"
+    className="pdoc-card phanyx-doc-variable-card rounded-2xl border p-3 text-left text-xs transition"
   >
           <div className="phanyx-doc-variable-category mb-2 inline-flex rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-wide">
   {variavel.categoria}
@@ -3309,7 +3352,7 @@ function gerarPreviaAmigavelTemplate(conteudo: string) {
               </div>
 
               <div>
-  <label className="mb-2 block text-sm font-bold !text-slate-900 dark:!text-slate-100">
+  <label className="pdoc-label mb-2 block text-sm font-bold">
   Conteúdo do template
 </label>
 
@@ -3652,7 +3695,7 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
         </div>
 
         <div>
-          <div className="phanyx-doc-template-list rounded-2xl shadow-sm overflow-hidden">
+          <div className="pdoc-card phanyx-doc-template-list rounded-2xl border shadow-sm overflow-hidden">
             <div className="border-b px-5 py-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
@@ -3666,14 +3709,14 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                   <input
                     value={filtroBusca}
                     onChange={(e) => setFiltroBusca(e.target.value)}
-                    className="rounded-xl border px-3 py-2"
+                    className="pdoc-input rounded-xl border px-3 py-2"
                     placeholder="Buscar por nome, contexto ou tipo"
                   />
 
                   <select
                     value={filtroTipo}
                     onChange={(e) => setFiltroTipo(e.target.value)}
-                    className="rounded-xl border px-3 py-2 bg-white"
+                    className="pdoc-input rounded-xl border px-3 py-2"
                   >
                     <option value="">Todos os tipos</option>
                     {TIPOS_DOCUMENTO.map((item) => (
@@ -3718,9 +3761,9 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                           <span
                             className={[
                               "rounded-full px-3 py-1 text-xs",
-                              template.ativo
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700",
+                             template.ativo
+  ? "pdoc-badge-green"
+  : "pdoc-badge-red"
                             ].join(" ")}
                           >
                             {template.ativo ? "Ativo" : "Inativo"}
@@ -3730,8 +3773,8 @@ Documento emitido em {{dataAtual}} por {{nomeInstituicao}}.
                             className={[
                               "rounded-full px-3 py-1 text-xs",
                               template.exigeAssinatura
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-gray-100 text-gray-700",
+  ? "pdoc-badge-blue"
+  : "pdoc-badge-slate"
                             ].join(" ")}
                           >
                             {template.exigeAssinatura
