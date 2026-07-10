@@ -69,17 +69,25 @@ setTimeout(() => {
 }, []);
 
   const descobrirMenuInicial = () => {
-    if (pathname.startsWith("/admin/leads")) return "comercial";
-    if (pathname.startsWith("/admin/financeiro")) return "financeiro";
-    if (pathname.startsWith("/admin/contratos")) return "documentos";
-    if (pathname.startsWith("/admin/documentos")) return "documentos";
-    if (pathname.startsWith("/admin/crachas")) return "documentos";
-    if (pathname.startsWith("/admin/validacoes")) return "documentos";
-    if (pathname.startsWith("/admin/visitantes")) return "acesso";
-    if (pathname.startsWith("/admin/configuracoes")) return "configuracoes";
-    if (pathname.startsWith("/master")) return "master";
-    return "academico";
-  };
+  if (pathname.startsWith("/admin/leads")) return "comercial";
+  if (pathname.startsWith("/admin/financeiro")) return "financeiro";
+
+  if (pathname.startsWith("/admin/contratos")) return "documentos";
+  if (pathname.startsWith("/admin/documentos")) return "documentos";
+  if (pathname.startsWith("/admin/crachas")) return "documentos";
+  if (pathname.startsWith("/admin/validacoes")) return "documentos";
+
+  if (pathname.startsWith("/admin/visitantes")) return "acesso";
+
+  if (pathname.startsWith("/admin/reunioes")) return "comunicacao";
+  if (pathname.startsWith("/admin/ouvidoria")) return "comunicacao";
+  if (pathname.startsWith("/admin/aniversariantes")) return "comunicacao";
+
+  if (pathname.startsWith("/admin/configuracoes")) return "configuracoes";
+  if (pathname.startsWith("/master")) return "master";
+
+  return "academico";
+};
 
   const [notificacoesAberto, setNotificacoesAberto] = useState(false);
 
@@ -100,7 +108,7 @@ setTimeout(() => {
   const [menuMobileAberto, setMenuMobileAberto] = useState<string | null>(null);
 
   useEffect(() => {
-  setMenuAberto(null);
+  setMenuAberto(descobrirMenuInicial());
   setMenuMobileAberto(null);
 }, [pathname]);
 
@@ -806,18 +814,25 @@ function abrirTourAdmin() {
   {menuAberto === "comunicacao" && (
   <div className="ml-3 mt-2 flex flex-col space-y-1">
     <Link
-      href="/admin/reunioes"
-      className={getLinkClass("/admin/reunioes")}
-    >
-      📅 Reuniões
-    </Link>
+  href="/admin/reunioes"
+  className={getLinkClass("/admin/reunioes")}
+>
+  📅 Reuniões
+</Link>
 
-    <Link
-      href="/admin/ouvidoria"
-      className={getLinkClass("/admin/ouvidoria")}
-    >
-      🧠 Ouvidoria
-    </Link>
+<Link
+  href="/admin/aniversariantes"
+  className={getLinkClass("/admin/aniversariantes")}
+>
+  🎂 Aniversariantes
+</Link>
+
+<Link
+  href="/admin/ouvidoria"
+  className={getLinkClass("/admin/ouvidoria")}
+>
+  🧠 Ouvidoria
+</Link>
   </div>
 )}
 </div>
@@ -1005,6 +1020,13 @@ function abrirTourAdmin() {
       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
     >
       📅 Reuniões
+    </Link>
+
+    <Link
+      href="/admin/aniversariantes"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      🎂 Aniversariantes
     </Link>
 
     <Link
