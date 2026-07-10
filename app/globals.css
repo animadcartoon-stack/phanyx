@@ -9026,3 +9026,259 @@ body[data-theme="system"] .phanyx-visitantes-page .phanyx-visitantes-foto-card l
   border-color: #71717a !important;
   color: #ffffff !important;
 }
+
+/* =========================================
+   PHANYX - ANIVERSARIANTES
+   Compatível com tema claro, escuro e sistema
+========================================= */
+
+.phanyx-aniversariantes-page {
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-aniversariantes-page h1,
+.phanyx-aniversariantes-page h2,
+.phanyx-aniversariantes-page h3,
+.phanyx-aniversariantes-page p,
+.phanyx-aniversariantes-page label,
+.phanyx-aniversariantes-page span,
+.phanyx-aniversariantes-page td,
+.phanyx-aniversariantes-page th {
+  opacity: 1 !important;
+}
+
+.phanyx-aniversariantes-card {
+  background: #ffffff !important;
+  border-color: #dbe3ef !important;
+  color: #0f172a !important;
+}
+
+.phanyx-aniversariantes-page h1,
+.phanyx-aniversariantes-page h2 {
+  color: #0f172a !important;
+}
+
+.phanyx-aniversariantes-page p,
+.phanyx-aniversariantes-page label,
+.phanyx-aniversariantes-page .text-slate-600,
+.phanyx-aniversariantes-page .text-slate-500,
+.phanyx-aniversariantes-page .text-slate-400,
+.phanyx-aniversariantes-page .text-slate-300 {
+  color: #475569 !important;
+}
+
+.phanyx-aniversariantes-page .text-blue-700,
+.phanyx-aniversariantes-page .dark\:text-blue-300 {
+  color: #2563eb !important;
+}
+
+.phanyx-aniversariantes-page .bg-blue-50 {
+  background: #eff6ff !important;
+  border-color: #bfdbfe !important;
+}
+
+.phanyx-aniversariantes-page .text-blue-900 {
+  color: #1e3a8a !important;
+}
+
+.phanyx-aniversariantes-campo {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+.phanyx-aniversariantes-campo::placeholder {
+  color: #64748b !important;
+}
+
+.phanyx-aniversariantes-campo:focus {
+  border-color: #64748b !important;
+  box-shadow: 0 0 0 2px rgba(100, 116, 139, 0.18) !important;
+}
+
+.phanyx-aniversariantes-page table thead,
+.phanyx-aniversariantes-page thead tr {
+  background: #f1f5f9 !important;
+}
+
+.phanyx-aniversariantes-page thead th {
+  color: #334155 !important;
+}
+
+.phanyx-aniversariantes-page tbody tr {
+  background: #ffffff !important;
+}
+
+.phanyx-aniversariantes-page tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+.phanyx-aniversariantes-page tbody td {
+  color: #0f172a !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-aniversariantes-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page h1,
+html[data-theme="dark"] .phanyx-aniversariantes-page h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page p,
+html[data-theme="dark"] .phanyx-aniversariantes-page label,
+html[data-theme="dark"] .phanyx-aniversariantes-page .text-slate-600,
+html[data-theme="dark"] .phanyx-aniversariantes-page .text-slate-500,
+html[data-theme="dark"] .phanyx-aniversariantes-page .text-slate-400,
+html[data-theme="dark"] .phanyx-aniversariantes-page .text-slate-300 {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-campo {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page table thead,
+html[data-theme="dark"] .phanyx-aniversariantes-page thead tr {
+  background: #1e293b !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page thead th {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page tbody tr {
+  background: #111827 !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page tbody tr:hover {
+  background: #1e293b !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-page tbody td {
+  color: #f8fafc !important;
+}
+
+/* Tema sistema - cinza, sem azul */
+html[data-theme="system"] .phanyx-aniversariantes-page {
+  background: #3f3f3f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-card {
+  background: #242424 !important;
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page h1,
+html[data-theme="system"] .phanyx-aniversariantes-page h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page p,
+html[data-theme="system"] .phanyx-aniversariantes-page label,
+html[data-theme="system"] .phanyx-aniversariantes-page .text-slate-600,
+html[data-theme="system"] .phanyx-aniversariantes-page .text-slate-500,
+html[data-theme="system"] .phanyx-aniversariantes-page .text-slate-400,
+html[data-theme="system"] .phanyx-aniversariantes-page .text-slate-300 {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page .text-blue-700,
+html[data-theme="system"] .phanyx-aniversariantes-page .dark\:text-blue-300 {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page .bg-blue-50 {
+  background: #3a3a3a !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page .text-blue-900 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-campo {
+  background: #2f2f2f !important;
+  background-color: #2f2f2f !important;
+  background-image: none !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-campo:focus {
+  border-color: #a3a3a3 !important;
+  box-shadow: 0 0 0 2px rgba(163, 163, 163, 0.22) !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-campo option {
+  background: #2f2f2f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-campo option:checked {
+  background: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-campo option:hover {
+  background: #404040 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page table thead,
+html[data-theme="system"] .phanyx-aniversariantes-page thead tr {
+  background: #3a3a3a !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page thead th {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page tbody tr {
+  background: #242424 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page tbody tr:hover {
+  background: #303030 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page tbody td {
+  color: #ffffff !important;
+}
+
+/* Botões desabilitados da página */
+.phanyx-aniversariantes-page button:disabled {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-aniversariantes-page button:disabled {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-page button:disabled {
+  background: #303030 !important;
+  color: #d4d4d4 !important;
+}

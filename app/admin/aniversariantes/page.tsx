@@ -190,9 +190,9 @@ export default function AdminAniversariantesPage() {
     selecionados.length === aniversariantes.length;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 text-slate-900 dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
+    <main className="phanyx-aniversariantes-page min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="phanyx-aniversariantes-card phanyx-aniversariantes-hero rounded-3xl border p-5 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-blue-700 dark:text-blue-300">
@@ -217,7 +217,7 @@ export default function AdminAniversariantesPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="phanyx-aniversariantes-card rounded-3xl border p-5 shadow-sm">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
             <label className="space-y-1">
               <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
@@ -226,7 +226,7 @@ export default function AdminAniversariantesPage() {
               <select
                 value={mes}
                 onChange={(e) => setMes(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-900"
+                className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
                 {meses.map((item) => (
                   <option key={item.valor} value={item.valor}>
@@ -243,7 +243,7 @@ export default function AdminAniversariantesPage() {
               <select
                 value={tipo}
                 onChange={(e) => setTipo(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-900"
+                className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
                 <option value="TODOS">Todos</option>
                 <option value="ALUNO">Alunos</option>
@@ -259,7 +259,7 @@ export default function AdminAniversariantesPage() {
               <select
                 value={status}
                 onChange={(e) => setStatus(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-900"
+                className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
                 <option value="TODOS">Todos</option>
                 <option value="ATIVO">Ativo</option>
@@ -278,7 +278,7 @@ export default function AdminAniversariantesPage() {
               <select
                 value={whatsapp}
                 onChange={(e) => setWhatsapp(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-900"
+                className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
                 <option value="TODOS">Todos</option>
                 <option value="COM">Com WhatsApp</option>
@@ -293,7 +293,7 @@ export default function AdminAniversariantesPage() {
               <select
                 value={departamentoId}
                 onChange={(e) => setDepartamentoId(e.target.value)}
-                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-blue-900"
+                className="phanyx-aniversariantes-campo w-full rounded-xl px-3 py-2 text-sm outline-none"
               >
                 <option value="TODOS">Todos</option>
                 {departamentos.map((departamento) => (
@@ -324,7 +324,7 @@ export default function AdminAniversariantesPage() {
           </section>
         )}
 
-        <section className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <section className="phanyx-aniversariantes-card overflow-hidden rounded-3xl border shadow-sm">
           <div className="flex flex-col gap-3 border-b border-slate-200 p-5 dark:border-slate-800 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-bold text-slate-950 dark:text-white">
