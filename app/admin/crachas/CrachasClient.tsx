@@ -327,6 +327,8 @@ const setCorFundoCracha =
 
 const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
+const crachaAreaRef = useRef<HTMLDivElement | null>(null);
+
 function zIndexObjetoCracha(objeto: ObjetoCracha) {
   const objetosOrdenados = [...objetos].sort(
     (a, b) => (a.ordem || 0) - (b.ordem || 0)
@@ -3729,29 +3731,30 @@ useEffect(() => {
 
 <div className="phanyx-crachas-card phanyx-crachas-canvas-area col-span-7 flex items-center justify-center p-8">
           <div
-            className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
-            style={{
-              ["--cor-fundo-cracha" as any]: corFundoCracha,
-              width:
-                formato === "RETRATO"
-                  ? "240px"
-                  : formato === "PAISAGEM"
-                  ? "380px"
-                  : "260px",
+  ref={crachaAreaRef}
+  className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
+  style={{
+    ["--cor-fundo-cracha" as any]: corFundoCracha,
+    width:
+      formato === "RETRATO"
+        ? "240px"
+        : formato === "PAISAGEM"
+        ? "380px"
+        : "260px",
 
-              height:
-                formato === "RETRATO"
-                  ? "380px"
-                  : formato === "PAISAGEM"
-                  ? "240px"
-                  : "260px",
+    height:
+      formato === "RETRATO"
+        ? "380px"
+        : formato === "PAISAGEM"
+        ? "240px"
+        : "260px",
 
-              borderRadius:
-                formato === "REDONDO"
-                  ? "9999px"
-                  : "16px",
-            }}
-          >
+    borderRadius:
+      formato === "REDONDO"
+        ? "9999px"
+        : "16px",
+  }}
+>
 
             {renderFuroCracha()}
 
