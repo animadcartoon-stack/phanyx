@@ -61,7 +61,9 @@ export async function GET(
       );
     }
 
-    const alunoIds = turma.matriculas.map((m: any) => m.alunoId);
+    const vinculosAlunos = (turma as any).alunos || [];
+
+const alunoIds = vinculosAlunos.map((m: any) => m.alunoId);
 
    const tentativas = await prisma.tentativaProva.findMany({
   where: {
@@ -84,7 +86,7 @@ export async function GET(
     const linhas: string[] = [];
     linhas.push("Aluno,Email,Nota,Status");
 
-    turma.matriculas.forEach((mat: any) => {
+    vinculosAlunos.forEach((mat: any) => {
       const aluno = mat.aluno;
 
       const tentativasDoAluno = tentativas.filter(

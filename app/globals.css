@@ -10091,3 +10091,118 @@ html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução
   color: #0369a1 !important;
   opacity: 1 !important;
 }
+
+/* =========================================
+   HOTFIX FINAL PROFESSOR - SEM :has
+   Materiais/Aulas + Nova Prova
+========================================= */
+
+/* Corrige textos escuros que aparecem em páginas do professor nos temas escuro/sistema */
+html[data-theme="dark"] main .text-slate-950,
+html[data-theme="dark"] main .text-slate-900,
+html[data-theme="dark"] main .text-slate-800,
+html[data-theme="dark"] main .text-gray-950,
+html[data-theme="dark"] main .text-gray-900,
+html[data-theme="dark"] main .text-gray-800,
+html[data-theme="system"] main .text-slate-950,
+html[data-theme="system"] main .text-slate-900,
+html[data-theme="system"] main .text-slate-800,
+html[data-theme="system"] main .text-gray-950,
+html[data-theme="system"] main .text-gray-900,
+html[data-theme="system"] main .text-gray-800 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Corrige títulos como "Materiais salvos" e "INTRODUÇÃO..." */
+html[data-theme="dark"] main h1,
+html[data-theme="dark"] main h2,
+html[data-theme="dark"] main h3,
+html[data-theme="dark"] main h4,
+html[data-theme="system"] main h1,
+html[data-theme="system"] main h2,
+html[data-theme="system"] main h3,
+html[data-theme="system"] main h4 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Corrige textos secundários muito apagados */
+html[data-theme="dark"] main .text-slate-700,
+html[data-theme="dark"] main .text-slate-600,
+html[data-theme="dark"] main .text-slate-500,
+html[data-theme="dark"] main .text-gray-700,
+html[data-theme="dark"] main .text-gray-600,
+html[data-theme="dark"] main .text-gray-500,
+html[data-theme="system"] main .text-slate-700,
+html[data-theme="system"] main .text-slate-600,
+html[data-theme="system"] main .text-slate-500,
+html[data-theme="system"] main .text-gray-700,
+html[data-theme="system"] main .text-gray-600,
+html[data-theme="system"] main .text-gray-500 {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Corrige barra/campo "Nenhum arquivo selecionado." nos temas escuro/sistema */
+html[data-theme="dark"] main input:disabled,
+html[data-theme="dark"] main input[readonly],
+html[data-theme="dark"] main input[class*="bg-white"],
+html[data-theme="system"] main input:disabled,
+html[data-theme="system"] main input[readonly],
+html[data-theme="system"] main input[class*="bg-white"] {
+  background: #111827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] main input:disabled,
+html[data-theme="system"] main input[readonly],
+html[data-theme="system"] main input[class*="bg-white"] {
+  background: #262626 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #71717a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] main input::placeholder,
+html[data-theme="system"] main input::placeholder {
+  color: #e5e7eb !important;
+  opacity: 1 !important;
+}
+
+/* Nova Prova - tema claro: textos dentro das caixinhas brancas do bloco escuro */
+html[data-theme="light"] .bg-slate-950 [class*="bg-white"],
+html[data-theme="light"] .bg-slate-900 [class*="bg-white"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .bg-slate-950 [class*="bg-white"] *,
+html[data-theme="light"] .bg-slate-900 [class*="bg-white"] * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Nova Prova - texto claro demais dentro do bloco de liberação */
+html[data-theme="light"] .bg-blue-50 .text-sky-100,
+html[data-theme="light"] .bg-blue-50 .text-sky-200,
+html[data-theme="light"] .bg-blue-50 .text-sky-300,
+html[data-theme="light"] .bg-blue-50 .text-blue-100,
+html[data-theme="light"] .bg-blue-50 .text-blue-200,
+html[data-theme="light"] .bg-blue-50 .text-blue-300,
+html[data-theme="light"] .bg-sky-50 .text-sky-100,
+html[data-theme="light"] .bg-sky-50 .text-sky-200,
+html[data-theme="light"] .bg-sky-50 .text-sky-300,
+html[data-theme="light"] .bg-sky-50 .text-blue-100,
+html[data-theme="light"] .bg-sky-50 .text-blue-200,
+html[data-theme="light"] .bg-sky-50 .text-blue-300 {
+  color: #0369a1 !important;
+  opacity: 1 !important;
+}
