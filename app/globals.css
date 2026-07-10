@@ -9731,3 +9731,219 @@ html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
   border-color: #cbd5e1 !important;
   opacity: 1 !important;
 }
+
+/* =========================================
+   HOTFIX PORTAL DO PROFESSOR - CONTRASTE
+   Somente globals.css
+   Corrige Materiais/Aulas, Atividades, Provas, Nova Prova e Trabalhos
+========================================= */
+
+/* Escopo: somente Portal do Professor, usando links existentes no menu lateral */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) main,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) main {
+  color: #f8fafc !important;
+}
+
+/* Textos escuros que ficam ilegíveis no escuro/sistema */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-slate-900,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-slate-800,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-slate-700,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-gray-900,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-gray-800,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-gray-700,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-slate-900,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-slate-800,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-slate-700,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-gray-900,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-gray-800,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-gray-700 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-slate-600,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-slate-500,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-gray-600,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-gray-500,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-slate-600,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-slate-500,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-gray-600,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-gray-500 {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Textos azuis muito escuros: Disciplina, Turma, Trabalho, Entregue em etc. */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-blue-900,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-blue-800,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-blue-700,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-indigo-900,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-indigo-800,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .text-indigo-700,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-blue-900,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-blue-800,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-blue-700,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-indigo-900,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-indigo-800,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-indigo-700 {
+  color: #93c5fd !important;
+  opacity: 1 !important;
+}
+
+/* Cards, blocos e caixas brancas no escuro/sistema */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-white,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-slate-50,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-blue-50,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-blue-50\/40,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-white,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-slate-50,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-blue-50,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-blue-50\/40 {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-white,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-slate-50,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-blue-50,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-blue-50\/40 {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+/* Pills/botões pequenos: 1 material(is), arquivo, badges cinza */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-slate-100,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-gray-100,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-slate-200,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) .bg-gray-200,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-slate-100,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-gray-100,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-slate-200,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-gray-200 {
+  background: #374151 !important;
+  color: #ffffff !important;
+  border-color: #4b5563 !important;
+}
+
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-slate-100,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-gray-100,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-slate-200,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-gray-200 {
+  background: #3f3f46 !important;
+  color: #ffffff !important;
+  border-color: #5f5f5f !important;
+}
+
+/* Inputs, selects, textareas e barra "Nenhum arquivo selecionado" */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) input,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) select,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) textarea,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) input,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) select,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) textarea {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="system"] body:has(a[href="/professor/provas"]) input,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) select,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) textarea {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #6b7280 !important;
+}
+
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) input::placeholder,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) textarea::placeholder,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) input::placeholder,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) textarea::placeholder {
+  color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Nova Prova: manter bloco escuro legível no tema claro */
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .bg-slate-950,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .bg-slate-900 {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .bg-slate-950 *,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .bg-slate-900 * {
+  color: #ffffff !important;
+}
+
+/* Nova Prova: bloco azul claro com texto ciano invisível */
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .bg-blue-50,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .bg-sky-50 {
+  background: #eff6ff !important;
+  color: #0f172a !important;
+  border-color: #bfdbfe !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .text-sky-200,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .text-sky-300,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .text-cyan-200,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .text-cyan-300,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .text-blue-200,
+html[data-theme="light"] body:has(a[href="/professor/provas"]) .text-blue-300 {
+  color: #0369a1 !important;
+  opacity: 1 !important;
+}
+
+/* Nova Prova em sistema: blocos cinza, não azul claro apagado */
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-blue-50,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .bg-sky-50 {
+  background: #3f3f46 !important;
+  color: #ffffff !important;
+  border-color: #71717a !important;
+}
+
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-sky-200,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-sky-300,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-cyan-200,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-cyan-300,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-blue-200,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) .text-blue-300 {
+  color: #bfdbfe !important;
+  opacity: 1 !important;
+}
+
+/* Hover de botões outline: Editar, Tentativas, Cancelar etc. */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) button:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600):not(.bg-yellow-500):not(.bg-orange-500):hover,
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) a:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600):not(.bg-yellow-500):not(.bg-orange-500):hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="system"] body:has(a[href="/professor/provas"]) button:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600):not(.bg-yellow-500):not(.bg-orange-500):hover,
+html[data-theme="system"] body:has(a[href="/professor/provas"]) a:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600):not(.bg-yellow-500):not(.bg-orange-500):hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}
+
+/* Botão Cancelar na Nova Prova quando fica apagado */
+html[data-theme="dark"] body:has(a[href="/professor/provas"]) button:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600):not(.bg-yellow-500):not(.bg-orange-500),
+html[data-theme="system"] body:has(a[href="/professor/provas"]) button:not(.bg-blue-600):not(.bg-green-600):not(.bg-red-600):not(.bg-yellow-500):not(.bg-orange-500) {
+  opacity: 1 !important;
+}
+
+/* Atividades: arquivo anexado no tema claro não pode ficar ilegível no hover */
+html[data-theme="light"] body:has(a[href="/professor/atividades"]) a[href*="blob.vercel-storage.com"],
+html[data-theme="light"] body:has(a[href="/professor/atividades"]) a[href*="public.blob.vercel-storage.com"] {
+  background: #eff6ff !important;
+  color: #1e3a8a !important;
+  border-color: #93c5fd !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/atividades"]) a[href*="blob.vercel-storage.com"]:hover,
+html[data-theme="light"] body:has(a[href="/professor/atividades"]) a[href*="public.blob.vercel-storage.com"]:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #2563eb !important;
+}
