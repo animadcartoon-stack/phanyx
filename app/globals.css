@@ -9689,3 +9689,45 @@ html[data-theme="dark"] .phanyx-professor-turmas-page input::placeholder,
 html[data-theme="system"] .phanyx-professor-turmas-page input::placeholder {
   color: #cbd5e1 !important;
 }
+
+/* =========================================
+   HOTFIX MÍNIMO - PAINEL DOCENTE / TEMA CLARO
+   Corrige somente "PROFESSOR" e "Alterar foto"
+========================================= */
+
+/* Texto pequeno "PROFESSOR" acima do nome */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  .phanyx-theme-card
+  p.text-xs.uppercase {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+/* Botão Alterar foto */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  .phanyx-theme-card
+  button[type="button"]:not([class*="bg-blue"]) {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Hover do botão Alterar foto */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  .phanyx-theme-card
+  button[type="button"]:not([class*="bg-blue"]):hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Se o botão estiver desabilitado enquanto envia, ainda fica legível */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  .phanyx-theme-card
+  button[type="button"]:disabled {
+  background: #f8fafc !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
