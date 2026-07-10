@@ -841,18 +841,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
     oficial de WhatsApp da própria instituição.
   </p>
 </div>
-          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
-  <p>
-    Número institucional cadastrado:{" "}
-    {instituicao?.telefone || "não informado"}
-  </p>
-
-  <p className="mt-2 font-medium">
-    Atenção: nesta etapa, o PHANYX apenas abre o WhatsApp com a mensagem
-    preenchida. O envio sairá pelo WhatsApp que estiver conectado neste
-    computador ou celular.
-  </p>
-</div>
+          
         </div>
 
         <button
