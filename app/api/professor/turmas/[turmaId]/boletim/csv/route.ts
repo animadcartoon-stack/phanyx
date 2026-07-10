@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
+function limparCampoCsv(valor: any) {
+  const texto = String(valor ?? "")
+    .replace(/\r?\n|\r/g, " ")
+    .replace(/;/g, ",")
+    .trim();
+
+  return `"${texto.replace(/"/g, '""')}"`;
+}
+
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ turmaId: string }> }
@@ -11,6 +20,10 @@ export async function GET(
 
     if (!user) {
       return NextResponse.json({ error: "NAO_AUTORIZADO" }, { status: 401 });
+    }
+
+    if (user.role !== "PROFESSOR") {
+      return NextResponse.json({ error: "SEM_PERMISSAO" }, { status: 403 });
     }
 
     const { turmaId: turmaIdParam } = await params;
@@ -36,23 +49,32 @@ export async function GET(
     }
 
     const turma = await prisma.turma.findFirst({
-  where: {
-    id: turmaId,
-    instituicaoId: user.instituicaoId,
-    professorId: professor.id,
-  },
-  include: {
-    matriculas: {
+      where: {
+        id: turmaId,
+        instituicaoId: user.instituicaoId,
+        professorId: professor.id,
+      },
       include: {
-        aluno: {
+        disciplinas: {
           include: {
-            user: true,
+            disciplina: true,
+          },
+        },
+        itensMatricula: {
+          include: {
+            matricula: {
+              include: {
+                aluno: {
+                  include: {
+                    user: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
-    },
-  },
-});
+    });
 
     if (!turma) {
       return NextResponse.json(
@@ -61,61 +83,105 @@ export async function GET(
       );
     }
 
-    const vinculosAlunos = (turma as any).alunos || [];
+    const alunosDaTurma = turma.itensMatricula
+      .map((item: any) => item.matricula?.aluno)
+      .filter(Boolean);
 
-const alunoIds = vinculosAlunos.map((m: any) => m.alunoId);
+    const alunosUnicos = Array.from(
+      new Map(alunosDaTurma.map((aluno: any) => [aluno.id, aluno])).values()
+    ) as any[];
 
-   const tentativas = await prisma.tentativaProva.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-    alunoId: { in: alunoIds },
-    prova: {
-      turmaId: turma.id,
-      instituicaoId: user.instituicaoId,
-    },
-    finalizada: true,
-  },
-  include: {
-    prova: true,
-  },
-  orderBy: {
-    finishedAt: "desc",
-  },
-});
+    const alunoIds = alunosUnicos.map((aluno: any) => aluno.id);
+
+    const tentativas = await prisma.tentativaProva.findMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        alunoId: { in: alunoIds },
+        prova: {
+          turmaId: turma.id,
+          instituicaoId: user.instituicaoId,
+        },
+        finalizada: true,
+      },
+      include: {
+        prova: {
+          select: {
+            id: true,
+            titulo: true,
+            notaMaxima: true,
+          },
+        },
+      },
+      orderBy: {
+        finishedAt: "desc",
+      },
+    });
+
+    const disciplinasTexto =
+      turma.disciplinas
+        ?.map((v: any) => v.disciplina?.nome)
+        .filter(Boolean)
+        .join(", ") || "Disciplinas não informadas";
 
     const linhas: string[] = [];
-    linhas.push("Aluno,Email,Nota,Status");
 
-    vinculosAlunos.forEach((mat: any) => {
-      const aluno = mat.aluno;
+    linhas.push(
+      [
+        "Turma",
+        "Disciplinas",
+        "Aluno",
+        "E-mail",
+        "Nota",
+        "Status",
+        "Prova",
+        "Última tentativa",
+      ]
+        .map(limparCampoCsv)
+        .join(";")
+    );
 
+    alunosUnicos.forEach((aluno: any) => {
       const tentativasDoAluno = tentativas.filter(
-        (t) => t.alunoId === aluno.id
+        (t: any) => t.alunoId === aluno.id
       );
 
-      const notas = tentativasDoAluno
-        .map((t) => Number(t.notaFinal ?? 0))
-        .filter((n) => !Number.isNaN(n));
+      const melhorTentativa =
+        tentativasDoAluno.length > 0
+          ? tentativasDoAluno.reduce((melhor: any, atual: any) => {
+              const notaMelhor = melhor.notaFinal ?? -1;
+              const notaAtual = atual.notaFinal ?? -1;
+              return notaAtual > notaMelhor ? atual : melhor;
+            })
+          : null;
 
-      const nota =
-        notas.length > 0
-          ? (notas.reduce((a, b) => a + b, 0) / notas.length).toFixed(2)
-          : "";
-
+      const nota = melhorTentativa?.notaFinal ?? "";
       const status =
-        nota === ""
-          ? "Sem prova"
-          : Number(nota) >= 7
-          ? "Aprovado"
-          : "Reprovado";
+        nota === "" ? "SEM PROVA" : Number(nota) >= 7 ? "APROVADO" : "REPROVADO";
 
       const nome = aluno.user?.nome || aluno.nome || "Aluno";
       const email = aluno.user?.email || "";
+      const provaTitulo = melhorTentativa?.prova?.titulo || "";
+      const ultimaTentativa = melhorTentativa?.finishedAt
+        ? new Date(melhorTentativa.finishedAt).toLocaleString("pt-BR")
+        : "";
 
-      linhas.push(`${nome},${email},${nota},${status}`);
+      linhas.push(
+        [
+          turma.nome,
+          disciplinasTexto,
+          nome,
+          email,
+          nota,
+          status,
+          provaTitulo,
+          ultimaTentativa,
+        ]
+          .map(limparCampoCsv)
+          .join(";")
+      );
     });
 
-    const csv = linhas.join("\n");
+    const csv = "\uFEFF" + linhas.join("\n");
 
     return new Response(csv, {
       headers: {
@@ -125,6 +191,7 @@ const alunoIds = vinculosAlunos.map((m: any) => m.alunoId);
     });
   } catch (e: any) {
     console.error("ERRO CSV BOLETIM:", e);
+
     return NextResponse.json(
       { error: e?.message || "Erro ao exportar CSV" },
       { status: 500 }
