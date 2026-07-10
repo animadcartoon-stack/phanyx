@@ -10431,3 +10431,115 @@ html[data-theme="system"] .nova-prova-nota-opcao * {
   color: #020617 !important;
   -webkit-text-fill-color: #020617 !important;
 }
+
+/* =========================================
+   FIX LOCAL - BOLETIM PROFESSOR / TEMA CLARO
+   Apenas /professor/turmas/[id]/boletim
+========================================= */
+
+html[data-theme="light"] .phanyx-professor-boletim-page {
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page section,
+html[data-theme="light"] .phanyx-professor-boletim-page .rounded-3xl,
+html[data-theme="light"] .phanyx-professor-boletim-page .rounded-2xl {
+  background-color: #ffffff !important;
+  border-color: #dbe3ef !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page h1,
+html[data-theme="light"] .phanyx-professor-boletim-page h2,
+html[data-theme="light"] .phanyx-professor-boletim-page h3,
+html[data-theme="light"] .phanyx-professor-boletim-page p,
+html[data-theme="light"] .phanyx-professor-boletim-page span,
+html[data-theme="light"] .phanyx-professor-boletim-page label,
+html[data-theme="light"] .phanyx-professor-boletim-page th,
+html[data-theme="light"] .phanyx-professor-boletim-page td {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .text-slate-500,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-slate-600,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-slate-700,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-gray-500,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-gray-600 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .text-blue-700,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-sky-300 {
+  color: #2563eb !important;
+  -webkit-text-fill-color: #2563eb !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .text-green-600,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-green-300 {
+  color: #16a34a !important;
+  -webkit-text-fill-color: #16a34a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .text-red-600,
+html[data-theme="light"] .phanyx-professor-boletim-page .text-red-300 {
+  color: #dc2626 !important;
+  -webkit-text-fill-color: #dc2626 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page input::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page table thead,
+html[data-theme="light"] .phanyx-professor-boletim-page thead tr {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+/* Botões ativos continuam com cor institucional */
+html[data-theme="light"] .phanyx-professor-boletim-page .bg-blue-600 {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .bg-green-600 {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Badges de status */
+html[data-theme="light"] .phanyx-professor-boletim-page .bg-green-100 {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  -webkit-text-fill-color: #166534 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .bg-red-100 {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  -webkit-text-fill-color: #991b1b !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .bg-slate-100 {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
