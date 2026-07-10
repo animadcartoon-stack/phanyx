@@ -38,6 +38,7 @@ async function gerarPdfAniversariantes({
   nomeInstituicao,
   nomePolo,
   logoUrl,
+  baseUrl,
 }: {
   mes: number;
   total: number;
@@ -45,6 +46,7 @@ async function gerarPdfAniversariantes({
   nomeInstituicao: string;
   nomePolo?: string | null;
   logoUrl?: string | null;
+  baseUrl: string;
 }) {
   const pdf = await PDFDocument.create();
 
@@ -53,9 +55,27 @@ async function gerarPdfAniversariantes({
 
   let logoImagem: any = null;
 
-if (logoUrl) {
+function resolverLogoUrl(url: string | null | undefined) {
+  if (!url) return null;
+
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+
+  if (url.startsWith("/")) {
+    return `${baseUrl}${url}`;
+  }
+
+  return `${baseUrl}/${url}`;
+}
+
+const logoUrlFinal = resolverLogoUrl(logoUrl);
+
+if (logoUrlFinal) {
   try {
-    const respostaLogo = await fetch(logoUrl);
+    const respostaLogo = await fetch(logoUrlFinal, {
+      cache: "no-store",
+    });
 
     if (respostaLogo.ok) {
       const logoBytes = new Uint8Array(await respostaLogo.arrayBuffer());
@@ -63,11 +83,24 @@ if (logoUrl) {
 
       if (contentType.includes("png")) {
         logoImagem = await pdf.embedPng(logoBytes);
-      }
-
-      if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+      } else if (
+        contentType.includes("jpeg") ||
+        contentType.includes("jpg")
+      ) {
         logoImagem = await pdf.embedJpg(logoBytes);
+      } else {
+        console.warn(
+          "Logo não incorporada no PDF. Formato não suportado pelo pdf-lib:",
+          contentType,
+          logoUrlFinal
+        );
       }
+    } else {
+      console.warn(
+        "Não foi possível baixar a logo da instituição:",
+        respostaLogo.status,
+        logoUrlFinal
+      );
     }
   } catch (error) {
     console.warn(
@@ -271,6 +304,7 @@ const pdfBytes = await gerarPdfAniversariantes({
   nomeInstituicao: resultado.instituicao.nome,
   nomePolo: resultado.poloSelecionado?.nome || null,
   logoUrl: resultado.instituicao.logoUrl || null,
+  baseUrl: req.nextUrl.origin,
 });
 
     const nomeArquivo = `aniversariantes-mes-${resultado.mes}.pdf`;

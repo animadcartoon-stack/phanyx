@@ -151,6 +151,7 @@ function aplicarTags(texto: string, item: Aniversariante) {
   return String(texto || "")
     .replaceAll("{{nome}}", item.nome || "")
     .replaceAll("{{primeiroNome}}", primeiroNome(item.nome))
+    .replaceAll("{{instituicao}}", instituicao?.nome || "instituição")
     .replaceAll("{{dataAniversario}}", item.dataAniversario || "")
     .replaceAll("{{dia}}", String(item.dia || ""))
     .replaceAll("{{mes}}", String(item.mes || ""))
@@ -761,7 +762,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
 
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
           <strong>Tags disponíveis:</strong>{" "}
-          {"{{nome}}, {{primeiroNome}}, {{dataAniversario}}, {{dia}}, {{mes}}, {{tipoPessoa}}, {{departamento}}, {{contexto}}, {{status}}"}
+          {"{{nome}}, {{primeiroNome}}, {{instituicao}}, {{dataAniversario}}, {{dia}}, {{mes}}, {{tipoPessoa}}, {{departamento}}, {{contexto}}, {{status}}"}
         </div>
 
 <button

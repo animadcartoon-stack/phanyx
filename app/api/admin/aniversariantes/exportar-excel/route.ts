@@ -42,6 +42,56 @@ function nomeMes(numeroMes: number) {
   return meses[numeroMes] || String(numeroMes);
 }
 
+function resolverUrlArquivo(url: string | null | undefined, baseUrl: string) {
+  if (!url) return null;
+
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
+  }
+
+  if (url.startsWith("/")) {
+    return `${baseUrl}${url}`;
+  }
+
+  return `${baseUrl}/${url}`;
+}
+
+async function imagemParaBase64(
+  url: string | null | undefined,
+  baseUrl: string
+) {
+  const urlFinal = resolverUrlArquivo(url, baseUrl);
+
+  if (!urlFinal) return "";
+
+  try {
+    const resposta = await fetch(urlFinal, {
+      cache: "no-store",
+    });
+
+    if (!resposta.ok) return "";
+
+    const contentType = resposta.headers.get("content-type") || "";
+
+    if (
+      !contentType.includes("png") &&
+      !contentType.includes("jpeg") &&
+      !contentType.includes("jpg") &&
+      !contentType.includes("webp")
+    ) {
+      return "";
+    }
+
+    const arrayBuffer = await resposta.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+    return `data:${contentType};base64,${base64}`;
+  } catch (error) {
+    console.warn("Não foi possível carregar a logo no Excel:", error);
+    return "";
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -63,7 +113,10 @@ export async function GET(req: NextRequest) {
     const nomeInstituicao =
       resultado.instituicao?.nome || "Instituição";
 
-      const logoUrl = resultado.instituicao?.logoUrl || "";
+      const logoBase64 = await imagemParaBase64(
+  resultado.instituicao?.logoUrl || "",
+  req.nextUrl.origin
+);
 
     const nomePolo =
       resultado.poloSelecionado?.nome || "Todos";
@@ -137,12 +190,12 @@ export async function GET(req: NextRequest) {
 
         <body>
   ${
-    logoUrl
-      ? `<div style="margin-bottom: 8px;">
-          <img src="${escapeHtml(logoUrl)}" style="max-height: 70px; max-width: 220px;" />
-        </div>`
-      : ""
-  }
+  logoBase64
+    ? `<div style="margin-bottom: 8px;">
+        <img src="${logoBase64}" style="max-height: 70px; max-width: 220px;" />
+      </div>`
+    : ""
+}
 
   <h1>${escapeHtml(nomeInstituicao)}</h1>
           <h2>Relatório de aniversariantes</h2>
