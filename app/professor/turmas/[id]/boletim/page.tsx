@@ -211,13 +211,19 @@ export default function BoletimTurmaPage() {
             ← Voltar
           </button>
 
-          <a
-            href={`/api/professor/turmas/${id}/boletim/csv`}
-            download
-            className="w-fit rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-green-700"
-          >
-            ⬇ Exportar CSV
-          </a>
+          <div className="flex flex-col items-start gap-1 sm:items-end">
+  <a
+    href={`/api/professor/turmas/${id}/boletim/csv`}
+    download
+    className="w-fit rounded-xl bg-green-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-green-700"
+  >
+    ⬇ Exportar para Excel
+  </a>
+
+  <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+    Arquivo CSV. Use o Excel para visualizar corretamente.
+  </span>
+</div>
         </div>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
