@@ -9,6 +9,7 @@ export type FiltrosAniversariantes = {
   status: string;
   whatsapp: string;
   departamentoId: number | null;
+  poloId: number | null;
 };
 
 export type AniversarianteItem = {
@@ -29,6 +30,8 @@ export type AniversarianteItem = {
   contexto: string;
   departamentoId: number | null;
   departamento: string | null;
+  poloId: number | null;
+  polo: string | null;
 };
 
 function textoLimpo(valor: unknown) {
@@ -62,7 +65,10 @@ function statusAluno(item: { ativo: boolean; statusAluno: unknown }) {
   return String(item.statusAluno || "ATIVO");
 }
 
-function statusProfessor(item: { ativo: boolean; statusProfessor?: string | null }) {
+function statusProfessor(item: {
+  ativo: boolean;
+  statusProfessor?: string | null;
+}) {
   if (!item.ativo) return "INATIVO";
   return String(item.statusProfessor || "ATIVO");
 }
@@ -84,7 +90,9 @@ function statusCombina(statusAtual: string, filtro: string) {
   return atual.includes(procurado);
 }
 
-export function obterFiltrosAniversariantes(req: Request): FiltrosAniversariantes {
+export function obterFiltrosAniversariantes(
+  req: Request
+): FiltrosAniversariantes {
   const { searchParams } = new URL(req.url);
 
   const mesParam = Number(searchParams.get("mes"));
@@ -97,13 +105,19 @@ export function obterFiltrosAniversariantes(req: Request): FiltrosAniversariante
   const tipo = String(searchParams.get("tipo") || "TODOS").toUpperCase();
   const busca = textoLimpo(searchParams.get("busca") || "");
   const status = String(searchParams.get("status") || "TODOS").toUpperCase();
-  const whatsapp = String(searchParams.get("whatsapp") || "TODOS").toUpperCase();
+  const whatsapp = String(
+    searchParams.get("whatsapp") || "TODOS"
+  ).toUpperCase();
 
   const departamentoIdParam = searchParams.get("departamentoId");
   const departamentoId =
     departamentoIdParam && departamentoIdParam !== "TODOS"
       ? Number(departamentoIdParam)
       : null;
+
+  const poloIdParam = searchParams.get("poloId");
+  const poloId =
+    poloIdParam && poloIdParam !== "TODOS" ? Number(poloIdParam) : null;
 
   return {
     mes,
@@ -112,7 +126,10 @@ export function obterFiltrosAniversariantes(req: Request): FiltrosAniversariante
     status,
     whatsapp,
     departamentoId:
-      departamentoId && Number.isFinite(departamentoId) ? departamentoId : null,
+      departamentoId && Number.isFinite(departamentoId)
+        ? departamentoId
+        : null,
+    poloId: poloId && Number.isFinite(poloId) ? poloId : null,
   };
 }
 
@@ -125,114 +142,168 @@ export async function listarAniversariantes({
 }) {
   const podeBuscarAlunos =
     filtros.tipo === "TODOS" || filtros.tipo === "ALUNO";
+
   const podeBuscarProfessores =
     filtros.tipo === "TODOS" || filtros.tipo === "PROFESSOR";
+
   const podeBuscarFuncionarios =
     filtros.tipo === "TODOS" || filtros.tipo === "FUNCIONARIO";
 
-  const [departamentos, alunos, professores, funcionarios] =
-    await Promise.all([
-      prisma.departamento.findMany({
-        where: {
-          instituicaoId,
-          ativo: true,
-        },
-        select: {
-          id: true,
-          nome: true,
-        },
-        orderBy: {
-          nome: "asc",
-        },
-      }),
+  const [
+    instituicao,
+    departamentos,
+    polos,
+    alunos,
+    professores,
+    funcionarios,
+  ] = await Promise.all([
+    prisma.instituicao.findUnique({
+      where: {
+        id: instituicaoId,
+      },
+      select: {
+        nome: true,
+      },
+    }),
 
-      podeBuscarAlunos && !filtros.departamentoId
-        ? prisma.aluno.findMany({
-            where: {
-              instituicaoId,
-              dataNascimento: {
-                not: null,
-              },
-            },
-            select: {
-              id: true,
-              nome: true,
-              dataNascimento: true,
-              telefone: true,
-              ativo: true,
-              statusAluno: true,
-              userId: true,
-              fotoPerfil: true,
-            },
-            orderBy: {
-              nome: "asc",
-            },
-          })
-        : Promise.resolve([]),
+    prisma.departamento.findMany({
+      where: {
+        instituicaoId,
+        ativo: true,
+      },
+      select: {
+        id: true,
+        nome: true,
+      },
+      orderBy: {
+        nome: "asc",
+      },
+    }),
 
-      podeBuscarProfessores && !filtros.departamentoId
-        ? prisma.professor.findMany({
-            where: {
-              instituicaoId,
-              dataNascimento: {
-                not: null,
-              },
-            },
-            select: {
-              id: true,
-              nome: true,
-              dataNascimento: true,
-              telefone: true,
-              ativo: true,
-              userId: true,
-              fotoPerfil: true,
-              especialidade: true,
-              titulacao: true,
-            },
-            orderBy: {
-              nome: "asc",
-            },
-          })
-        : Promise.resolve([]),
+    prisma.polo.findMany({
+      where: {
+        instituicaoId,
+      },
+      select: {
+        id: true,
+        nome: true,
+      },
+      orderBy: {
+        nome: "asc",
+      },
+    }),
 
-      podeBuscarFuncionarios
-        ? prisma.funcionario.findMany({
-            where: {
-              instituicaoId,
-              dataNascimento: {
-                not: null,
-              },
-              ...(filtros.departamentoId
-                ? {
-                    departamentoId: filtros.departamentoId,
-                  }
-                : {}),
+    podeBuscarAlunos && !filtros.departamentoId
+      ? prisma.aluno.findMany({
+          where: {
+            instituicaoId,
+            dataNascimento: {
+              not: null,
             },
-            select: {
-              id: true,
-              nome: true,
-              dataNascimento: true,
-              telefone: true,
-              ativo: true,
-              statusFuncionario: true,
-              userId: true,
-              fotoPerfil: true,
-              cargo: true,
-              setor: true,
-              departamentoId: true,
-              departamento: {
-                select: {
-                  id: true,
-                  nome: true,
-                },
+            ...(filtros.poloId
+              ? {
+                  poloId: filtros.poloId,
+                }
+              : {}),
+          },
+          select: {
+            id: true,
+            nome: true,
+            dataNascimento: true,
+            telefone: true,
+            ativo: true,
+            statusAluno: true,
+            userId: true,
+            fotoPerfil: true,
+            poloId: true,
+            polo: {
+              select: {
+                id: true,
+                nome: true,
               },
             },
-            orderBy: {
-              nome: "asc",
+          },
+          orderBy: {
+            nome: "asc",
+          },
+        })
+      : Promise.resolve([]),
+
+    podeBuscarProfessores && !filtros.departamentoId
+      ? prisma.professor.findMany({
+          where: {
+            instituicaoId,
+            dataNascimento: {
+              not: null,
             },
-          })
-        : Promise.resolve([]),
-    ]);
+            ...(filtros.poloId
+              ? {
+                  poloId: filtros.poloId,
+                }
+              : {}),
+          },
+          select: {
+            id: true,
+            nome: true,
+            dataNascimento: true,
+            telefone: true,
+            ativo: true,
+            userId: true,
+            fotoPerfil: true,
+            especialidade: true,
+            titulacao: true,
+            poloId: true,
+            polo: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+          orderBy: {
+            nome: "asc",
+          },
+        })
+      : Promise.resolve([]),
+
+    podeBuscarFuncionarios && !filtros.poloId
+      ? prisma.funcionario.findMany({
+          where: {
+            instituicaoId,
+            dataNascimento: {
+              not: null,
+            },
+            ...(filtros.departamentoId
+              ? {
+                  departamentoId: filtros.departamentoId,
+                }
+              : {}),
+          },
+          select: {
+            id: true,
+            nome: true,
+            dataNascimento: true,
+            telefone: true,
+            ativo: true,
+            statusFuncionario: true,
+            userId: true,
+            fotoPerfil: true,
+            cargo: true,
+            setor: true,
+            departamentoId: true,
+            departamento: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+          },
+          orderBy: {
+            nome: "asc",
+          },
+        })
+      : Promise.resolve([]),
+  ]);
 
   const listaAlunos: AniversarianteItem[] = alunos.map((aluno) => {
     const dataNascimento = aluno.dataNascimento as Date;
@@ -256,33 +327,40 @@ export async function listarAniversariantes({
       contexto: "Aluno",
       departamentoId: null,
       departamento: null,
+      poloId: aluno.poloId,
+      polo: aluno.polo?.nome || null,
     };
   });
 
-  const listaProfessores: AniversarianteItem[] = professores.map((professor) => {
-    const dataNascimento = professor.dataNascimento as Date;
-    const status = statusProfessor(professor);
+  const listaProfessores: AniversarianteItem[] = professores.map(
+    (professor) => {
+      const dataNascimento = professor.dataNascimento as Date;
+      const status = statusProfessor(professor);
 
-    return {
-      chave: `PROFESSOR-${professor.id}`,
-      id: professor.id,
-      tipo: "PROFESSOR",
-      nome: professor.nome,
-      dataNascimento: dataNascimento.toISOString(),
-      dataAniversario: dataDiaMes(dataNascimento),
-      dia: diaNascimento(dataNascimento),
-      mes: mesNascimento(dataNascimento),
-      telefone: professor.telefone,
-      whatsapp: somenteNumeros(professor.telefone),
-      temWhatsapp: somenteNumeros(professor.telefone).length >= 10,
-      userId: professor.userId,
-      fotoPerfil: professor.fotoPerfil,
-      status,
-      contexto: professor.especialidade || professor.titulacao || "Professor",
-      departamentoId: null,
-      departamento: null,
-    };
-  });
+      return {
+        chave: `PROFESSOR-${professor.id}`,
+        id: professor.id,
+        tipo: "PROFESSOR",
+        nome: professor.nome,
+        dataNascimento: dataNascimento.toISOString(),
+        dataAniversario: dataDiaMes(dataNascimento),
+        dia: diaNascimento(dataNascimento),
+        mes: mesNascimento(dataNascimento),
+        telefone: professor.telefone,
+        whatsapp: somenteNumeros(professor.telefone),
+        temWhatsapp: somenteNumeros(professor.telefone).length >= 10,
+        userId: professor.userId,
+        fotoPerfil: professor.fotoPerfil,
+        status,
+        contexto:
+          professor.especialidade || professor.titulacao || "Professor",
+        departamentoId: null,
+        departamento: null,
+        poloId: professor.poloId,
+        polo: professor.polo?.nome || null,
+      };
+    }
+  );
 
   const listaFuncionarios: AniversarianteItem[] = funcionarios.map(
     (funcionario) => {
@@ -311,6 +389,8 @@ export async function listarAniversariantes({
           "Funcionário",
         departamentoId: funcionario.departamentoId,
         departamento: funcionario.departamento?.nome || null,
+        poloId: null,
+        polo: null,
       };
     }
   );
@@ -348,10 +428,19 @@ export async function listarAniversariantes({
     return a.nome.localeCompare(b.nome, "pt-BR");
   });
 
+  const poloSelecionado = filtros.poloId
+    ? polos.find((polo) => polo.id === filtros.poloId) || null
+    : null;
+
   return {
     mes: filtros.mes,
     total: aniversariantes.length,
     aniversariantes,
     departamentos,
+    polos,
+    instituicao: {
+      nome: instituicao?.nome || "Instituição",
+    },
+    poloSelecionado,
   };
 }

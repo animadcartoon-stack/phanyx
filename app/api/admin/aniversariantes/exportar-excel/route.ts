@@ -22,6 +22,26 @@ function nomeTipo(tipo: string) {
   return "Funcionário";
 }
 
+function nomeMes(numeroMes: number) {
+  const meses = [
+    "",
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+
+  return meses[numeroMes] || String(numeroMes);
+}
+
 export async function GET(req: NextRequest) {
   try {
     const user = await getUserFromToken();
@@ -40,6 +60,12 @@ export async function GET(req: NextRequest) {
       filtros,
     });
 
+    const nomeInstituicao =
+      resultado.instituicao?.nome || "Instituição";
+
+    const nomePolo =
+      resultado.poloSelecionado?.nome || "Todos";
+
     const linhas = resultado.aniversariantes
       .map(
         (item) => `
@@ -47,7 +73,8 @@ export async function GET(req: NextRequest) {
             <td>${escapeHtml(item.nome)}</td>
             <td>${escapeHtml(nomeTipo(item.tipo))}</td>
             <td>${escapeHtml(item.dataAniversario)}</td>
-            <td>${escapeHtml(item.contexto || item.departamento || "")}</td>
+            <td>${escapeHtml(item.polo || "")}</td>
+            <td>${escapeHtml(item.departamento || item.contexto || "")}</td>
             <td>${escapeHtml(item.telefone || "")}</td>
             <td>${escapeHtml(item.status)}</td>
           </tr>
@@ -61,6 +88,27 @@ export async function GET(req: NextRequest) {
         <head>
           <meta charset="utf-8" />
           <style>
+            body {
+              font-family: Arial, sans-serif;
+              color: #0f172a;
+            }
+
+            h1 {
+              font-size: 18px;
+              margin: 0 0 4px 0;
+            }
+
+            h2 {
+              font-size: 14px;
+              margin: 0 0 12px 0;
+              font-weight: normal;
+            }
+
+            p {
+              font-size: 12px;
+              margin: 0 0 12px 0;
+            }
+
             table {
               border-collapse: collapse;
               width: 100%;
@@ -82,24 +130,20 @@ export async function GET(req: NextRequest) {
               padding: 8px;
               mso-number-format: "\\@";
             }
-
-            h1 {
-              font-family: Arial, sans-serif;
-              font-size: 18px;
-            }
-
-            p {
-              font-family: Arial, sans-serif;
-              font-size: 12px;
-            }
           </style>
         </head>
 
         <body>
-          <h1>Aniversariantes PHANYX</h1>
-          <p>Mês: ${escapeHtml(resultado.mes)} | Total: ${escapeHtml(
-      resultado.total
-    )}</p>
+          <h1>${escapeHtml(nomeInstituicao)}</h1>
+          <h2>Relatório de aniversariantes</h2>
+
+          <p>
+            Mês: ${escapeHtml(nomeMes(resultado.mes))}
+            |
+            Polo: ${escapeHtml(nomePolo)}
+            |
+            Total: ${escapeHtml(resultado.total)}
+          </p>
 
           <table>
             <thead>
@@ -107,6 +151,7 @@ export async function GET(req: NextRequest) {
                 <th>Nome</th>
                 <th>Tipo</th>
                 <th>Aniversário</th>
+                <th>Polo</th>
                 <th>Departamento / Contexto</th>
                 <th>WhatsApp / Telefone</th>
                 <th>Status</th>
@@ -121,7 +166,11 @@ export async function GET(req: NextRequest) {
       </html>
     `;
 
-    const nomeArquivo = `aniversariantes-mes-${resultado.mes}.xls`;
+    const nomeArquivo = `aniversariantes-${nomeMes(resultado.mes)
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, "-")}.xls`;
 
     return new NextResponse("\ufeff" + html, {
       status: 200,

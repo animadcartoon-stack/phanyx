@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import { getUserFromToken } from "@/lib/server-auth";
+import { prisma } from "@/lib/prisma";
 import {
   AniversarianteItem,
   listarAniversariantes,
@@ -34,10 +35,14 @@ async function gerarPdfAniversariantes({
   mes,
   total,
   aniversariantes,
+  nomeInstituicao,
+  nomePolo,
 }: {
   mes: number;
   total: number;
   aniversariantes: AniversarianteItem[];
+  nomeInstituicao: string;
+  nomePolo?: string | null;
 }) {
   const pdf = await PDFDocument.create();
 
@@ -75,12 +80,22 @@ async function gerarPdfAniversariantes({
   }
 
   function desenharCabecalho() {
-    texto("PHANYX", margem, y, 16, true);
-    texto("Relatório de aniversariantes", margem, y - 20, 12, true);
-    texto(`Mês: ${mes} | Total: ${total}`, margem, y - 38, 9, false);
+  texto(nomeInstituicao || "Instituição", margem, y, 16, true);
 
-    y -= 62;
+  if (nomePolo) {
+    texto(`Polo: ${nomePolo}`, margem, y - 18, 9, false);
+    texto("Relatório de aniversariantes", margem, y - 34, 12, true);
+    texto(`Mês: ${mes} | Total: ${total}`, margem, y - 52, 9, false);
+
+    y -= 76;
+    return;
   }
+
+  texto("Relatório de aniversariantes", margem, y - 20, 12, true);
+  texto(`Mês: ${mes} | Total: ${total}`, margem, y - 38, 9, false);
+
+  y -= 62;
+}
 
   function desenharCabecalhoTabela() {
     pagina.drawRectangle({
@@ -190,16 +205,29 @@ export async function GET(req: NextRequest) {
 
     const filtros = obterFiltrosAniversariantes(req);
 
-    const resultado = await listarAniversariantes({
-      instituicaoId: user.instituicaoId,
-      filtros,
-    });
+const [resultado, instituicao] = await Promise.all([
+  listarAniversariantes({
+    instituicaoId: user.instituicaoId,
+    filtros,
+  }),
 
-    const pdfBytes = await gerarPdfAniversariantes({
-      mes: resultado.mes,
-      total: resultado.total,
-      aniversariantes: resultado.aniversariantes,
-    });
+  prisma.instituicao.findUnique({
+    where: {
+      id: user.instituicaoId,
+    },
+    select: {
+      nome: true,
+    },
+  }),
+]);
+
+const pdfBytes = await gerarPdfAniversariantes({
+  mes: resultado.mes,
+  total: resultado.total,
+  aniversariantes: resultado.aniversariantes,
+  nomeInstituicao: instituicao?.nome || "Instituição",
+  nomePolo: null,
+});
 
     const nomeArquivo = `aniversariantes-mes-${resultado.mes}.pdf`;
 
