@@ -36,26 +36,23 @@ export async function GET(
     }
 
     const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        disciplina: {
-          professorId: professor.id,
-          instituicaoId: user.instituicaoId,
-        },
-      },
+  where: {
+    id: turmaId,
+    instituicaoId: user.instituicaoId,
+    professorId: professor.id,
+  },
+  include: {
+    matriculas: {
       include: {
-        disciplina: true,
-        matriculas: {
+        aluno: {
           include: {
-            aluno: {
-              include: {
-                user: true,
-              },
-            },
+            user: true,
           },
         },
       },
-    });
+    },
+  },
+});
 
     if (!turma) {
       return NextResponse.json(
@@ -66,21 +63,23 @@ export async function GET(
 
     const alunoIds = turma.matriculas.map((m: any) => m.alunoId);
 
-    const tentativas = await prisma.tentativaProva.findMany({
-      where: {
-        alunoId: { in: alunoIds },
-        prova: {
-          disciplinaId: turma.disciplinaId,
-        },
-        finalizada: true,
-      },
-      include: {
-        prova: true,
-      },
-      orderBy: {
-        finishedAt: "desc",
-      },
-    });
+   const tentativas = await prisma.tentativaProva.findMany({
+  where: {
+    instituicaoId: user.instituicaoId,
+    alunoId: { in: alunoIds },
+    prova: {
+      turmaId: turma.id,
+      instituicaoId: user.instituicaoId,
+    },
+    finalizada: true,
+  },
+  include: {
+    prova: true,
+  },
+  orderBy: {
+    finishedAt: "desc",
+  },
+});
 
     const linhas: string[] = [];
     linhas.push("Aluno,Email,Nota,Status");

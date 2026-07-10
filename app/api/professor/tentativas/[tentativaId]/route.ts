@@ -38,33 +38,62 @@ export async function GET(
     }
 
     const tentativa: any = await prisma.tentativaProva.findFirst({
-      where: {
-        id: tentativaId,
-        prova: {
-          disciplina: {
-            professorId: professor.id,
-            instituicaoId: user.instituicaoId,
-          },
-        },
-      },
+  where: {
+    id: tentativaId,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    aluno: {
       include: {
-        aluno: {
-          include: {
-            user: true,
-          },
-        },
-        prova: true,
-        respostas: {
-          include: {
-            questao: true,
-            alternativa: true,
-          },
-          orderBy: {
-            questaoId: "asc",
-          } as any,
-        },
+        user: true,
       },
-    });
+    },
+    prova: true,
+    respostas: {
+      include: {
+        questao: true,
+        alternativa: true,
+      },
+      orderBy: {
+        questaoId: "asc",
+      } as any,
+    },
+  },
+});
+
+if (!tentativa) {
+  return NextResponse.json(
+    { error: "Tentativa não encontrada ou sem permissão" },
+    { status: 404 }
+  );
+}
+
+const turmaIdDaProva = Number(tentativa.prova?.turmaId);
+
+if (!Number.isFinite(turmaIdDaProva) || turmaIdDaProva <= 0) {
+  return NextResponse.json(
+    { error: "Turma da prova não encontrada" },
+    { status: 404 }
+  );
+}
+
+const turmaPermitida = await prisma.turma.findFirst({
+  where: {
+    id: turmaIdDaProva,
+    instituicaoId: user.instituicaoId,
+    professorId: professor.id,
+  },
+  select: {
+    id: true,
+  },
+});
+
+if (!turmaPermitida) {
+  return NextResponse.json(
+    { error: "Tentativa não encontrada ou sem permissão" },
+    { status: 404 }
+  );
+}
 
     if (!tentativa) {
       return NextResponse.json(

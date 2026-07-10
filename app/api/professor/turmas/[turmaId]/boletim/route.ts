@@ -40,24 +40,28 @@ export async function GET(
     }
 
     const turma = await prisma.turma.findFirst({
-      where: {
-        id: turmaId,
-        instituicaoId: user.instituicaoId,
-        professorId: professor.id,
-      },
+  where: {
+    id: turmaId,
+    instituicaoId: user.instituicaoId,
+    professorId: professor.id,
+  },
+  include: {
+    disciplinas: {
       include: {
         disciplina: true,
-        matriculas: {
+      },
+    },
+    matriculas: {
+      include: {
+        aluno: {
           include: {
-            aluno: {
-              include: {
-                user: true,
-              },
-            },
+            user: true,
           },
         },
       },
-    });
+    },
+  },
+});
 
     if (!turma) {
       return NextResponse.json(
@@ -144,15 +148,24 @@ export async function GET(
     const melhorNota = notasValidas.length > 0 ? Math.max(...notasValidas) : 0;
     const piorNota = notasValidas.length > 0 ? Math.min(...notasValidas) : 0;
 
+    const disciplinasDaTurma = turma.disciplinas
+  .map((vinculo) => vinculo.disciplina)
+  .filter(Boolean);
+
+const disciplinaPrincipal = disciplinasDaTurma[0] || null;
+
     return NextResponse.json({
       turma: {
         id: turma.id,
         nome: turma.nome,
       },
       disciplina: {
-        id: turma.disciplinaId,
-        nome: turma.disciplina?.nome ?? "Disciplina",
-      },
+  id: disciplinaPrincipal?.id ?? null,
+  nome:
+    disciplinasDaTurma.length > 0
+      ? disciplinasDaTurma.map((d) => d.nome).join(", ")
+      : "Disciplina",
+},
       provas,
       resumo: {
         totalAlunos: boletim.length,
