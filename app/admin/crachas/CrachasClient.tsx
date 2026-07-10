@@ -282,6 +282,15 @@ const [avisoCracha, setAvisoCracha] = useState<{
   texto: string;
 } | null>(null);  
 
+const [modeloCrachaAtualId, setModeloCrachaAtualId] =
+  useState<number | null>(null);
+
+const [salvandoModeloCracha, setSalvandoModeloCracha] =
+  useState(false);
+
+const [carregandoModeloCracha, setCarregandoModeloCracha] =
+  useState(false);
+
 const [modalEmissaoAberto, setModalEmissaoAberto] = useState(false);
 const [buscaPessoaEmissao, setBuscaPessoaEmissao] = useState("");
 
@@ -454,6 +463,138 @@ function nomeTipoModeloCracha(tipo: TipoModeloCracha) {
   if (tipo === "VISITANTE") return "Visitante";
   if (tipo === "MEMBRO") return "Membro / Ministério";
   return "Personalizado";
+}
+
+function medidasPadraoCracha(formatoAtual: string) {
+  if (formatoAtual === "PAISAGEM") {
+    return { larguraMm: 86, alturaMm: 54 };
+  }
+
+  if (formatoAtual === "QUADRADO") {
+    return { larguraMm: 70, alturaMm: 70 };
+  }
+
+  if (formatoAtual === "REDONDO") {
+    return { larguraMm: 60, alturaMm: 60 };
+  }
+
+  return { larguraMm: 54, alturaMm: 86 };
+}
+
+async function carregarModeloPadraoCracha(tipo: TipoModeloCracha) {
+  try {
+    setCarregandoModeloCracha(true);
+
+    const res = await fetch(
+      `/api/admin/crachas/modelos?tipoPessoa=${tipo}&padrao=true`,
+      {
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao carregar modelo de crachá.");
+    }
+
+    const modelo = Array.isArray(data.modelos) ? data.modelos[0] : null;
+
+    if (!modelo) {
+      setModeloCrachaAtualId(null);
+      return;
+    }
+
+    setModeloCrachaAtualId(modelo.id);
+
+    setFormato(modelo.formato || "RETRATO");
+    setTipoFuroCracha(modelo.tipoFuro || "RASGO_HORIZONTAL");
+    setCorFundoFrente(modelo.corFundoFrente || "#ffffff");
+    setCorFundoVerso(modelo.corFundoVerso || "#ffffff");
+
+    setObjetosFrente(
+      Array.isArray(modelo.frenteJson)
+        ? (modelo.frenteJson as ObjetoCracha[])
+        : []
+    );
+
+    setObjetosVerso(
+      Array.isArray(modelo.versoJson)
+        ? (modelo.versoJson as ObjetoCracha[])
+        : []
+    );
+
+    setObjetoSelecionado(null);
+  } catch (error) {
+    console.error(error);
+
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Erro ao carregar modelo de crachá.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+  } finally {
+    setCarregandoModeloCracha(false);
+  }
+}
+
+async function salvarModeloCracha() {
+  try {
+    setSalvandoModeloCracha(true);
+    setAvisoCracha(null);
+
+    const medidas = medidasPadraoCracha(formato);
+
+    const res = await fetch("/api/admin/crachas/modelos", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        id: modeloCrachaAtualId,
+        nome: `Modelo padrão - ${nomeTipoModeloCracha(tipoModeloCracha)}`,
+        tipoPessoa: tipoModeloCracha,
+        formato,
+        larguraMm: medidas.larguraMm,
+        alturaMm: medidas.alturaMm,
+        tipoFuro: tipoFuroCracha,
+        corFundoFrente,
+        corFundoVerso,
+        frenteJson: objetosFrente,
+        versoJson: objetosVerso,
+        padrao: true,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao salvar modelo de crachá.");
+    }
+
+    setModeloCrachaAtualId(data.modelo?.id || null);
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto: "Modelo de crachá salvo como padrão.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+  } catch (error: any) {
+    console.error(error);
+
+    setAvisoCracha({
+      tipo: "erro",
+      texto: error?.message || "Erro ao salvar modelo de crachá.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 5000);
+  } finally {
+    setSalvandoModeloCracha(false);
+  }
 }
 
 function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
@@ -3033,6 +3174,10 @@ function gerarPontosPoligono(
   return pontos.join(", ");
 }
 
+useEffect(() => {
+  carregarModeloPadraoCracha(tipoModeloCracha);
+}, [tipoModeloCracha]);
+
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -3052,9 +3197,14 @@ function gerarPontosPoligono(
             Novo Modelo
           </button>
 
-          <button className="phanyx-crachas-button-secondary">
-            Salvar
-          </button>
+          <button
+  type="button"
+  onClick={salvarModeloCracha}
+  disabled={salvandoModeloCracha || carregandoModeloCracha}
+  className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {salvandoModeloCracha ? "Salvando..." : "Salvar"}
+</button>
 
           <button className="phanyx-crachas-button-secondary">
             Duplicar
