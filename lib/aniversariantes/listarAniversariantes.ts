@@ -163,7 +163,14 @@ export async function listarAniversariantes({
   },
   select: {
     nome: true,
-    telefone: true,
+    configuracaoInstituicao: {
+      select: {
+        nomeFantasia: true,
+        razaoSocial: true,
+        telefone: true,
+        logoUrl: true,
+      },
+    },
   },
 }),
 
@@ -440,9 +447,19 @@ export async function listarAniversariantes({
     departamentos,
     polos,
     instituicao: {
-  nome: instituicao?.nome || "Instituição",
-  telefone: instituicao?.telefone || null,
-  whatsapp: somenteNumeros(instituicao?.telefone || null),
+  nome:
+    instituicao?.configuracaoInstituicao?.nomeFantasia ||
+    instituicao?.configuracaoInstituicao?.razaoSocial ||
+    instituicao?.nome ||
+    "Instituição",
+
+  telefone: instituicao?.configuracaoInstituicao?.telefone || null,
+
+  whatsapp: somenteNumeros(
+    instituicao?.configuracaoInstituicao?.telefone || null
+  ),
+
+  logoUrl: instituicao?.configuracaoInstituicao?.logoUrl || null,
 },
     poloSelecionado,
   };

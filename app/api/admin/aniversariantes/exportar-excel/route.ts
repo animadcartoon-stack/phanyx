@@ -63,6 +63,8 @@ export async function GET(req: NextRequest) {
     const nomeInstituicao =
       resultado.instituicao?.nome || "Instituição";
 
+      const logoUrl = resultado.instituicao?.logoUrl || "";
+
     const nomePolo =
       resultado.poloSelecionado?.nome || "Todos";
 
@@ -134,7 +136,15 @@ export async function GET(req: NextRequest) {
         </head>
 
         <body>
-          <h1>${escapeHtml(nomeInstituicao)}</h1>
+  ${
+    logoUrl
+      ? `<div style="margin-bottom: 8px;">
+          <img src="${escapeHtml(logoUrl)}" style="max-height: 70px; max-width: 220px;" />
+        </div>`
+      : ""
+  }
+
+  <h1>${escapeHtml(nomeInstituicao)}</h1>
           <h2>Relatório de aniversariantes</h2>
 
           <p>

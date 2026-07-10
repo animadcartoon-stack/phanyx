@@ -37,17 +37,45 @@ async function gerarPdfAniversariantes({
   aniversariantes,
   nomeInstituicao,
   nomePolo,
+  logoUrl,
 }: {
   mes: number;
   total: number;
   aniversariantes: AniversarianteItem[];
   nomeInstituicao: string;
   nomePolo?: string | null;
+  logoUrl?: string | null;
 }) {
   const pdf = await PDFDocument.create();
 
   const fonte = await pdf.embedFont(StandardFonts.Helvetica);
   const fonteBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  let logoImagem: any = null;
+
+if (logoUrl) {
+  try {
+    const respostaLogo = await fetch(logoUrl);
+
+    if (respostaLogo.ok) {
+      const logoBytes = new Uint8Array(await respostaLogo.arrayBuffer());
+      const contentType = respostaLogo.headers.get("content-type") || "";
+
+      if (contentType.includes("png")) {
+        logoImagem = await pdf.embedPng(logoBytes);
+      }
+
+      if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+        logoImagem = await pdf.embedJpg(logoBytes);
+      }
+    }
+  } catch (error) {
+    console.warn(
+      "Não foi possível carregar a logo da instituição no PDF:",
+      error
+    );
+  }
+}
 
   const largura = 841.89;
   const altura = 595.28;
@@ -80,21 +108,36 @@ async function gerarPdfAniversariantes({
   }
 
   function desenharCabecalho() {
-  texto(nomeInstituicao || "Instituição", margem, y, 16, true);
+  const xTextoCabecalho = logoImagem ? margem + 86 : margem;
+
+  if (logoImagem) {
+    const larguraLogo = 70;
+    const proporcao = logoImagem.height / logoImagem.width;
+    const alturaLogo = larguraLogo * proporcao;
+
+    pagina.drawImage(logoImagem, {
+      x: margem,
+      y: y - alturaLogo + 8,
+      width: larguraLogo,
+      height: alturaLogo,
+    });
+  }
+
+  texto(nomeInstituicao || "Instituição", xTextoCabecalho, y, 16, true);
 
   if (nomePolo) {
-    texto(`Polo: ${nomePolo}`, margem, y - 18, 9, false);
-    texto("Relatório de aniversariantes", margem, y - 34, 12, true);
-    texto(`Mês: ${mes} | Total: ${total}`, margem, y - 52, 9, false);
+    texto(`Polo: ${nomePolo}`, xTextoCabecalho, y - 18, 9, false);
+    texto("Relatório de aniversariantes", xTextoCabecalho, y - 34, 12, true);
+    texto(`Mês: ${mes} | Total: ${total}`, xTextoCabecalho, y - 52, 9, false);
 
-    y -= 76;
+    y -= 82;
     return;
   }
 
-  texto("Relatório de aniversariantes", margem, y - 20, 12, true);
-  texto(`Mês: ${mes} | Total: ${total}`, margem, y - 38, 9, false);
+  texto("Relatório de aniversariantes", xTextoCabecalho, y - 20, 12, true);
+  texto(`Mês: ${mes} | Total: ${total}`, xTextoCabecalho, y - 38, 9, false);
 
-  y -= 62;
+  y -= 72;
 }
 
   function desenharCabecalhoTabela() {
@@ -225,8 +268,9 @@ const pdfBytes = await gerarPdfAniversariantes({
   mes: resultado.mes,
   total: resultado.total,
   aniversariantes: resultado.aniversariantes,
-  nomeInstituicao: instituicao?.nome || "Instituição",
-  nomePolo: null,
+  nomeInstituicao: resultado.instituicao.nome,
+  nomePolo: resultado.poloSelecionado?.nome || null,
+  logoUrl: resultado.instituicao.logoUrl || null,
 });
 
     const nomeArquivo = `aniversariantes-mes-${resultado.mes}.pdf`;
