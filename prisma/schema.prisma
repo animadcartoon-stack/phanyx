@@ -2832,15 +2832,17 @@ model CrachaModelo {
 
   tipoFuro String? @default("RASGO_HORIZONTAL")
 
-  tipoFundoFrente          String  @default("SOLIDO")
-  corFundoFrente           String? @default("#ffffff")
-  corFundoFrenteSecundaria String?
-  direcaoGradienteFrente   String? @default("VERTICAL")
+  tipoFundoFrente            String  @default("SOLIDO")
+  corFundoFrente             String? @default("#ffffff")
+  corFundoFrenteSecundaria   String?
+  direcaoGradienteFrente     String? @default("VERTICAL")
+  gradientePontosFundoFrente Json?
 
-  tipoFundoVerso          String  @default("SOLIDO")
-  corFundoVerso           String? @default("#ffffff")
-  corFundoVersoSecundaria String?
-  direcaoGradienteVerso   String? @default("VERTICAL")
+  tipoFundoVerso            String  @default("SOLIDO")
+  corFundoVerso             String? @default("#ffffff")
+  corFundoVersoSecundaria   String?
+  direcaoGradienteVerso     String? @default("VERTICAL")
+  gradientePontosFundoVerso Json?
 
   frenteJson Json?
   versoJson  Json?

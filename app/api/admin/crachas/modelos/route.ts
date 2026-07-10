@@ -177,6 +177,16 @@ export async function POST(req: NextRequest) {
   direcaoGradienteFrente:
     limparTexto(body.direcaoGradienteFrente) || "VERTICAL",
 
+    gradientePontosFundoFrente: jsonSeguro(
+  body.gradientePontosFundoFrente,
+  null
+) as any,
+
+gradientePontosFundoVerso: jsonSeguro(
+  body.gradientePontosFundoVerso,
+  null
+) as any,
+
   tipoFundoVerso: limparTexto(body.tipoFundoVerso) || "SOLIDO",
   corFundoVerso: limparTexto(body.corFundoVerso) || "#ffffff",
   corFundoVersoSecundaria:
