@@ -9969,3 +9969,125 @@ html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
   color: #ffffff !important;
   border-color: #1d4ed8 !important;
 }
+
+/* =========================================
+   HOTFIX FINAL - PORTAL PROFESSOR
+   Materiais/Aulas e Nova Prova
+   Somente globals.css
+========================================= */
+
+/* MATERIAIS/AULAS - página com botões para adicionar material */
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) .text-slate-900,
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) .text-slate-800,
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) .text-gray-900,
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) .text-gray-800,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) .text-slate-900,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) .text-slate-800,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) .text-gray-900,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) .text-gray-800 {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) h1,
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) h2,
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) h3,
+html[data-theme="dark"] body:has(a[href*="/materiais/novo"]) strong,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) h1,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) h2,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) h3,
+html[data-theme="system"] body:has(a[href*="/materiais/novo"]) strong {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* ADICIONAR MATERIAL - campo/barra "Nenhum arquivo selecionado." */
+html[data-theme="dark"] body:has(input[placeholder="Nenhum arquivo selecionado."]) input,
+html[data-theme="dark"] body:has(input[placeholder="Nenhum arquivo selecionado."]) select,
+html[data-theme="dark"] body:has(input[placeholder="Nenhum arquivo selecionado."]) textarea,
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) input,
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) select,
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) textarea {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) input,
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) select,
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) textarea {
+  background: #262626 !important;
+  color: #ffffff !important;
+  border-color: #71717a !important;
+}
+
+html[data-theme="dark"] body:has(input[placeholder="Nenhum arquivo selecionado."]) input::placeholder,
+html[data-theme="system"] body:has(input[placeholder="Nenhum arquivo selecionado."]) input::placeholder {
+  color: #e5e7eb !important;
+  opacity: 1 !important;
+}
+
+/* NOVA PROVA - tema claro */
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-950,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-900 {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-950 > p,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-950 > h3,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-950 > label,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-900 > p,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-900 > h3,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-900 > label {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Caixinhas brancas dentro do bloco escuro da disponibilização */
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-950 .bg-white,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-900 .bg-white {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-950 .bg-white *,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-slate-900 .bg-white * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Bloco "Liberação da nota para o aluno" no tema claro */
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-blue-50,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-sky-50 {
+  background: #eff6ff !important;
+  color: #0f172a !important;
+  border-color: #93c5fd !important;
+}
+
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-blue-50 *,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-sky-50 * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-blue-50 h3,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-blue-50 label,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-sky-50 h3,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .bg-sky-50 label {
+  color: #0369a1 !important;
+}
+
+/* Texto claro demais em Nova Prova */
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .text-sky-100,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .text-sky-200,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .text-sky-300,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .text-blue-100,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .text-blue-200,
+html[data-theme="light"] body:has(input[placeholder="Ex.: Prova 1 - Introdução ao Direito"]) .text-blue-300 {
+  color: #0369a1 !important;
+  opacity: 1 !important;
+}
