@@ -348,6 +348,7 @@ function camposDisponiveisPorTipo(
   if (tipo === "ALUNO") {
     return [
       { campo: "{{alunoNome}}", rotulo: "Aluno - Nome" },
+      { campo: "{{alunoNomeSocial}}", rotulo: "Aluno - Nome social" },
       { campo: "{{numeroMatricula}}", rotulo: "Aluno - Matrícula" },
       { campo: "{{cursoNome}}", rotulo: "Aluno - Curso" },
       { campo: "{{turmaNome}}", rotulo: "Aluno - Turma" },
@@ -1322,7 +1323,12 @@ useEffect(() => {
 }, [objetoSelecionado, objetoAtual, objetoCopiado, lado]);
 
   function alinharCaixaTexto(alinhamentoCaixa: "left" | "center" | "right") {
-    if (!objetoAtual || objetoAtual.tipo !== "TEXTO") return;
+  if (
+    !objetoAtual ||
+    (objetoAtual.tipo !== "TEXTO" && objetoAtual.tipo !== "CAMPO")
+  ) {
+    return;
+  }
 
     const larguraCracha =
       formato === "RETRATO"
@@ -3888,8 +3894,14 @@ if (objeto.tipo === "CAMPO") {
         cursor: "move",
         padding: "2px 4px",
         textAlign: objeto.alinhamento,
-        display: "flex",
-        alignItems: "center",
+display: "flex",
+alignItems: "center",
+justifyContent:
+  objeto.alinhamento === "center"
+    ? "center"
+    : objeto.alinhamento === "right"
+    ? "flex-end"
+    : "flex-start",
         overflow: "visible",
         border:
           objetoSelecionado === objeto.id
@@ -4672,6 +4684,38 @@ if (objeto.tipo === "FORMA") {
     </option>
   ))}
 </select>
+
+<div className="mt-4 rounded-2xl border border-slate-700/40 p-3">
+  <p className="mb-3 text-sm font-bold">
+    Alinhamento do texto
+  </p>
+
+  <div className="grid grid-cols-3 gap-2">
+    {(["left", "center", "right"] as const).map((alinhamento) => (
+      <button
+        key={alinhamento}
+        type="button"
+        onClick={() =>
+          atualizarObjeto(objetoAtual.id, {
+            alinhamento,
+          })
+        }
+        className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+          objetoAtual.alinhamento === alinhamento
+            ? "border-blue-500 bg-blue-600 text-white"
+            : "border-slate-600 bg-slate-900 text-slate-200"
+        }`}
+      >
+        {alinhamento === "left"
+          ? "Esquerda"
+          : alinhamento === "center"
+          ? "Centro"
+          : "Direita"}
+      </button>
+    ))}
+  </div>
+</div>
+
 <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
   Os campos exibidos seguem o tipo do modelo selecionado:
   aluno, professor, funcionário, visitante, membro ou personalizado.
