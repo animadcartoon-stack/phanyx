@@ -10676,3 +10676,64 @@ html[data-theme="light"] .nova-prova-nota-card input[type="datetime-local"] {
   -webkit-text-fill-color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================
+   ÚLTIMA REGRA - NOVA PROVA / TEMA CLARO
+   Força os dois cards a não ficarem azuis
+========================================= */
+
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card,
+html[data-theme="light"] body form .nova-prova-nota-card.nova-prova-nota-card,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Títulos e textos dos dois cards */
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card h3,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card > p,
+html[data-theme="light"] body form .nova-prova-nota-card.nova-prova-nota-card h3,
+html[data-theme="light"] body form .nova-prova-nota-card.nova-prova-nota-card p,
+html[data-theme="light"] body form .nova-prova-nota-card.nova-prova-nota-card label,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div h3,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div p,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div label {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Opções brancas dentro dos cards */
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card > div > label,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card > label,
+html[data-theme="light"] body form .nova-prova-nota-opcao.nova-prova-nota-opcao,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div .nova-prova-nota-opcao {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+/* Textos dentro das opções */
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card > div > label *,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card > label *,
+html[data-theme="light"] body form .nova-prova-nota-opcao.nova-prova-nota-opcao *,
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div .nova-prova-nota-opcao * {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+/* Campo de data do card da nota */
+html[data-theme="light"] body form .nova-prova-nota-card.nova-prova-nota-card input[type="datetime-local"],
+html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-card + div input[type="datetime-local"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
