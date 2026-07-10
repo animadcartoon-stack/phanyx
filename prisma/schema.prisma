@@ -49,7 +49,16 @@ model Instituicao {
   responsavelRH              String?
   emailRH                    String?
   telefoneRH                 String?
-  googleSearchConsoleAtivo   Boolean @default(false)
+  
+  googleSearchConsoleAtivo        Boolean @default(false)
+
+  aniversariantesAtivo            Boolean @default(true)
+
+  aniversarioTituloPadrao         String?
+  aniversarioMensagemPadrao       String? @db.Text
+
+  aniversarioEnviarChatPadrao     Boolean @default(true)
+  aniversarioEnviarWhatsappPadrao Boolean @default(false)
 
   alternativas               Alternativa[]
   ouvidoriasPhanyx           OuvidoriaPhanyx[]
@@ -245,30 +254,32 @@ model Aluno {
   possuiNecessidadeEspecial    Boolean                     @default(false)
   genero                       String?
   nomeSocial                   String?
-  poloId                       Int?
-  instituicao                  Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                         Polo?                       @relation(fields: [poloId], references: [id])
-  user                         User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  atestadosMedicos             AtestadoMedico[]
-  certificados                 Certificado[]
-  cobrancas                    Cobranca[]
-  contratos                    Contrato[]
-  documentos                   DocumentoAluno[]
-  DocumentoGerado              DocumentoGerado[]
-  entregas                     EntregaAtividade[]
-  lancamentosFinanceiros       LancamentoFinanceiro[]
-  matriculas                   Matricula[]
-  movimentosCaixa              MovimentoCaixa[]
-  notas                        Nota[]
-  pagamentos                   Pagamento[]
-  presencasAula                PresencaAula[]
-  progresso                    ProgressoAula[]
-  respostas                    RespostaProva[]
-  resultadosFinais             ResultadoFinal[]
-  tentativas                   TentativaProva[]
-  reunioesParticipante         ReuniaoParticipante[]
-  provasLiberadas              ProvaAluno[]
-  EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
+  poloId                        Int?
+  recebeMensagemAniversario     Boolean @default(true)
+  recebeWhatsappAniversario     Boolean @default(true)
+  instituicao                   Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                          Polo?                       @relation(fields: [poloId], references: [id])
+  user                          User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atestadosMedicos              AtestadoMedico[]
+  certificados                  Certificado[]
+  cobrancas                     Cobranca[]
+  contratos                     Contrato[]
+  documentos                    DocumentoAluno[]
+  DocumentoGerado               DocumentoGerado[]
+  entregas                      EntregaAtividade[]
+  lancamentosFinanceiros        LancamentoFinanceiro[]
+  matriculas                    Matricula[]
+  movimentosCaixa               MovimentoCaixa[]
+  notas                         Nota[]
+  pagamentos                    Pagamento[]
+  presencasAula                 PresencaAula[]
+  progresso                     ProgressoAula[]
+  respostas                     RespostaProva[]
+  resultadosFinais              ResultadoFinal[]
+  tentativas                    TentativaProva[]
+  reunioesParticipante          ReuniaoParticipante[]
+  provasLiberadas               ProvaAluno[]
+  EntregaAtividadeHistorico     EntregaAtividadeHistorico[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -301,6 +312,15 @@ model Professor {
   titulacao         String?
   instituicao       Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  statusProfessor   String @default("ATIVO")
+  motivoStatus      String?
+
+  recebeMensagemAniversario Boolean @default(true)
+  recebeWhatsappAniversario Boolean @default(true)
+
+  departamentoId    Int?
+  departamento      Departamento? @relation(fields: [departamentoId], references: [id])
 
   turmas                      Turma[]
   turmaDisciplinas            TurmaDisciplina[]
@@ -319,6 +339,7 @@ model Professor {
   @@index([nome])
   @@index([cpf])
   @@index([poloId])
+  @@index([departamentoId])
 }
 
 model Curso {
@@ -1141,7 +1162,7 @@ model Funcionario {
   codigoFuncionario  String?
   dataAdmissao       DateTime?
   dataDesligamento   DateTime?
-  salario            Decimal?      @db.Decimal(10, 2)
+  salario            Decimal?       @db.Decimal(10, 2)
   tipoContrato       String?
   jornadaTrabalho    String?
   banco              String?
@@ -1150,14 +1171,16 @@ model Funcionario {
   pix                String?
   codigoPonto        String?
   pisPasep           String?
-  salarioBase        Decimal?      @db.Decimal(10, 2)
+  salarioBase        Decimal?       @db.Decimal(10, 2)
   cargaHorariaMensal Int?
   instituicaoId      Int
-  userId             Int           @unique
+  userId             Int            @unique
   departamentoId     Int?
-  departamento       Departamento? @relation(fields: [departamentoId], references: [id])
-  instituicao        Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  user               User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  departamento       Departamento?  @relation(fields: [departamentoId], references: [id])
+  instituicao        Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recebeMensagemAniversario Boolean @default(true)
+  recebeWhatsappAniversario Boolean @default(true)
 
   permissoes    FuncionarioPermissao[]
   historicosRH  HistoricoRH[]
@@ -1189,6 +1212,7 @@ model Departamento {
   instituicao   Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   funcionarios  Funcionario[]
   permissoes    DepartamentoPermissao[]
+  professores   Professor[]
 
   @@unique([instituicaoId, nome])
   @@index([instituicaoId])
