@@ -9947,3 +9947,25 @@ html[data-theme="light"] body:has(a[href="/professor/atividades"]) a[href*="publ
   color: #0f172a !important;
   border-color: #2563eb !important;
 }
+
+/* HOTFIX MÍNIMO - Botão Nova prova no Painel Docente / tema claro */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  a[href="/professor/provas/nova"] {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  border-color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  a[href="/professor/provas/nova"] * {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"])
+  a[href="/professor/provas/nova"]:hover {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+}
