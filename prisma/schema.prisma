@@ -49,13 +49,13 @@ model Instituicao {
   responsavelRH              String?
   emailRH                    String?
   telefoneRH                 String?
-  
-  googleSearchConsoleAtivo        Boolean @default(false)
 
-  aniversariantesAtivo            Boolean @default(true)
+  googleSearchConsoleAtivo Boolean @default(false)
 
-  aniversarioTituloPadrao         String?
-  aniversarioMensagemPadrao       String? @db.Text
+  aniversariantesAtivo Boolean @default(true)
+
+  aniversarioTituloPadrao   String?
+  aniversarioMensagemPadrao String? @db.Text
 
   aniversarioEnviarChatPadrao     Boolean @default(true)
   aniversarioEnviarWhatsappPadrao Boolean @default(false)
@@ -108,19 +108,19 @@ model Instituicao {
   periodosMatricula          PeriodoMatricula[]
   disciplinaPreRequisitos    DisciplinaPreRequisito[]
   cursosDisciplinasExtras    CursoDisciplinaExtraPermitida[]
-  certificadoTemplateUrl      String?
-  certificadoPreviewUrl       String?
-  certificadoTextoPadrao      String?
-  certificadoAssinaturaUrl    String?
-  certificadoCoordenadorNome  String?
-  certificadoCidade           String?
+  certificadoTemplateUrl     String?
+  certificadoPreviewUrl      String?
+  certificadoTextoPadrao     String?
+  certificadoAssinaturaUrl   String?
+  certificadoCoordenadorNome String?
+  certificadoCidade          String?
 
-  certificadoModoFundo        String  @default("modelo") // modelo | phanyx | cor
-  certificadoCorFundoPagina   String  @default("#ffffff")
-  certificadoTamanhoPapel     String  @default("A4")     // A5 | A4 | A3
-  certificadoOrientacao       String  @default("paisagem") // paisagem | retrato
-  certificadoLarguraBase      Int     @default(1123)
-  certificadoAlturaBase       Int     @default(794)
+  certificadoModoFundo      String @default("modelo") // modelo | phanyx | cor
+  certificadoCorFundoPagina String @default("#ffffff")
+  certificadoTamanhoPapel   String @default("A4") // A5 | A4 | A3
+  certificadoOrientacao     String @default("paisagem") // paisagem | retrato
+  certificadoLarguraBase    Int    @default(1123)
+  certificadoAlturaBase     Int    @default(794)
 
   cursosPolos             CursoPolo[]
   professoresDisciplinas  ProfessorDisciplina[]
@@ -155,10 +155,11 @@ model Instituicao {
   crachasEmitidos               CrachaEmitido[]
   CrachaLoteEmissao             CrachaLoteEmissao[]
   visitantes                    Visitante[]
-  regraLiberacaoCertificado      String  @default("CURSO_COMPLETO")
-  mediaMinimaCertificado         Float   @default(7)
-  frequenciaMinimaCertificado    Float   @default(75)
-  liberarCertificadoAutomatico   Boolean @default(true)
+
+  regraLiberacaoCertificado    String  @default("CURSO_COMPLETO")
+  mediaMinimaCertificado       Float   @default(7)
+  frequenciaMinimaCertificado  Float   @default(75)
+  liberarCertificadoAutomatico Boolean @default(true)
 }
 
 model User {
@@ -195,6 +196,7 @@ model User {
   atividadesCriadas       Atividade[]           @relation("AtividadeCriadaPor")
   atividadesPublicadas    Atividade[]           @relation("AtividadePublicadaPor")
   anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
+  crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
 
   feriasRHCriadas     FeriasRH[] @relation("FeriasRHCriadoPor")
   feriasRHArquivadas  FeriasRH[] @relation("FeriasRHArquivadaPor")
@@ -211,11 +213,12 @@ model User {
   holeritesRHCriados    HoleriteRH[] @relation("HoleriteRHCriadoPor")
   holeritesRHArquivados HoleriteRH[] @relation("HoleriteRHArquivadoPor")
 
-  documentosProfessorCriados      DocumentoProfessor[]            @relation("DocumentoProfessorCriadoPor")
-  documentosProfessorArquivados   DocumentoProfessor[]            @relation("DocumentoProfessorArquivadoPor")
-  documentosProfessorRestaurados  DocumentoProfessor[]            @relation("DocumentoProfessorRestauradoPor")
-  preferenciasAgendaOperacional   PreferenciaAgendaOperacional[]
-  visitantesCriados               Visitante[]                     @relation("VisitanteCriadoPor")
+  documentosProfessorCriados     DocumentoProfessor[]           @relation("DocumentoProfessorCriadoPor")
+  documentosProfessorArquivados  DocumentoProfessor[]           @relation("DocumentoProfessorArquivadoPor")
+  documentosProfessorRestaurados DocumentoProfessor[]           @relation("DocumentoProfessorRestauradoPor")
+  preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
+  visitantesCriados              Visitante[]                    @relation("VisitanteCriadoPor")
+
   @@index([instituicaoId])
   @@index([role])
 }
@@ -254,32 +257,32 @@ model Aluno {
   possuiNecessidadeEspecial    Boolean                     @default(false)
   genero                       String?
   nomeSocial                   String?
-  poloId                        Int?
-  recebeMensagemAniversario     Boolean @default(true)
-  recebeWhatsappAniversario     Boolean @default(true)
-  instituicao                   Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                          Polo?                       @relation(fields: [poloId], references: [id])
-  user                          User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  atestadosMedicos              AtestadoMedico[]
-  certificados                  Certificado[]
-  cobrancas                     Cobranca[]
-  contratos                     Contrato[]
-  documentos                    DocumentoAluno[]
-  DocumentoGerado               DocumentoGerado[]
-  entregas                      EntregaAtividade[]
-  lancamentosFinanceiros        LancamentoFinanceiro[]
-  matriculas                    Matricula[]
-  movimentosCaixa               MovimentoCaixa[]
-  notas                         Nota[]
-  pagamentos                    Pagamento[]
-  presencasAula                 PresencaAula[]
-  progresso                     ProgressoAula[]
-  respostas                     RespostaProva[]
-  resultadosFinais              ResultadoFinal[]
-  tentativas                    TentativaProva[]
-  reunioesParticipante          ReuniaoParticipante[]
-  provasLiberadas               ProvaAluno[]
-  EntregaAtividadeHistorico     EntregaAtividadeHistorico[]
+  poloId                       Int?
+  recebeMensagemAniversario    Boolean                     @default(true)
+  recebeWhatsappAniversario    Boolean                     @default(true)
+  instituicao                  Instituicao                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                         Polo?                       @relation(fields: [poloId], references: [id])
+  user                         User                        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  atestadosMedicos             AtestadoMedico[]
+  certificados                 Certificado[]
+  cobrancas                    Cobranca[]
+  contratos                    Contrato[]
+  documentos                   DocumentoAluno[]
+  DocumentoGerado              DocumentoGerado[]
+  entregas                     EntregaAtividade[]
+  lancamentosFinanceiros       LancamentoFinanceiro[]
+  matriculas                   Matricula[]
+  movimentosCaixa              MovimentoCaixa[]
+  notas                        Nota[]
+  pagamentos                   Pagamento[]
+  presencasAula                PresencaAula[]
+  progresso                    ProgressoAula[]
+  respostas                    RespostaProva[]
+  resultadosFinais             ResultadoFinal[]
+  tentativas                   TentativaProva[]
+  reunioesParticipante         ReuniaoParticipante[]
+  provasLiberadas              ProvaAluno[]
+  EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -312,15 +315,15 @@ model Professor {
   titulacao         String?
   instituicao       Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  statusProfessor   String @default("ATIVO")
-  motivoStatus      String?
+
+  statusProfessor String  @default("ATIVO")
+  motivoStatus    String?
 
   recebeMensagemAniversario Boolean @default(true)
   recebeWhatsappAniversario Boolean @default(true)
 
-  departamentoId    Int?
-  departamento      Departamento? @relation(fields: [departamentoId], references: [id])
+  departamentoId Int?
+  departamento   Departamento? @relation(fields: [departamentoId], references: [id])
 
   turmas                      Turma[]
   turmaDisciplinas            TurmaDisciplina[]
@@ -1137,50 +1140,50 @@ model Certificado {
 }
 
 model Funcionario {
-  id                 Int           @id @default(autoincrement())
-  nome               String
-  ativo              Boolean       @default(true)
-  statusFuncionario  String        @default("ATIVO")
-  motivoStatus       String?
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
-  cpf                String?
-  rg                 String?
-  telefone           String?
-  dataNascimento     DateTime?
-  endereco           String?
-  numero             String?
-  complemento        String?
-  bairro             String?
-  cidade             String?
-  estado             String?
-  cep                String?
-  cargo              String?
-  setor              String?
-  fotoPerfil         String?
-  documentoUrl       String?
-  codigoFuncionario  String?
-  dataAdmissao       DateTime?
-  dataDesligamento   DateTime?
-  salario            Decimal?       @db.Decimal(10, 2)
-  tipoContrato       String?
-  jornadaTrabalho    String?
-  banco              String?
-  agencia            String?
-  conta              String?
-  pix                String?
-  codigoPonto        String?
-  pisPasep           String?
-  salarioBase        Decimal?       @db.Decimal(10, 2)
-  cargaHorariaMensal Int?
-  instituicaoId      Int
-  userId             Int            @unique
-  departamentoId     Int?
-  departamento       Departamento?  @relation(fields: [departamentoId], references: [id])
-  instituicao        Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recebeMensagemAniversario Boolean @default(true)
-  recebeWhatsappAniversario Boolean @default(true)
+  id                        Int           @id @default(autoincrement())
+  nome                      String
+  ativo                     Boolean       @default(true)
+  statusFuncionario         String        @default("ATIVO")
+  motivoStatus              String?
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
+  cpf                       String?
+  rg                        String?
+  telefone                  String?
+  dataNascimento            DateTime?
+  endereco                  String?
+  numero                    String?
+  complemento               String?
+  bairro                    String?
+  cidade                    String?
+  estado                    String?
+  cep                       String?
+  cargo                     String?
+  setor                     String?
+  fotoPerfil                String?
+  documentoUrl              String?
+  codigoFuncionario         String?
+  dataAdmissao              DateTime?
+  dataDesligamento          DateTime?
+  salario                   Decimal?      @db.Decimal(10, 2)
+  tipoContrato              String?
+  jornadaTrabalho           String?
+  banco                     String?
+  agencia                   String?
+  conta                     String?
+  pix                       String?
+  codigoPonto               String?
+  pisPasep                  String?
+  salarioBase               Decimal?      @db.Decimal(10, 2)
+  cargaHorariaMensal        Int?
+  instituicaoId             Int
+  userId                    Int           @unique
+  departamentoId            Int?
+  departamento              Departamento? @relation(fields: [departamentoId], references: [id])
+  instituicao               Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  user                      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recebeMensagemAniversario Boolean       @default(true)
+  recebeWhatsappAniversario Boolean       @default(true)
 
   permissoes    FuncionarioPermissao[]
   historicosRH  HistoricoRH[]
@@ -1632,7 +1635,7 @@ model AdesaoInstituicao {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  instituicao Instituicao? @relation(fields: [instituicaoId], references: [id])
+  instituicao      Instituicao?      @relation(fields: [instituicaoId], references: [id])
   assinaturaPhanyx AssinaturaPhanyx?
 }
 
@@ -2816,27 +2819,42 @@ model CrachaLoteEmissao {
 }
 
 model CrachaModelo {
-  id            Int @id @default(autoincrement())
+  id            Int  @id @default(autoincrement())
   instituicaoId Int
+  criadoPorId   Int?
 
   nome       String
   tipoPessoa String // ALUNO | FUNCIONARIO | PROFESSOR | VISITANTE | PERSONALIZADO
   formato    String // RETRATO | PAISAGEM | QUADRADO | REDONDO | PERSONALIZADO
 
-  larguraMm  Float
-  alturaMm   Float
+  larguraMm Float
+  alturaMm  Float
+
+  tipoFuro       String? @default("RASGO_HORIZONTAL")
+  corFundoFrente String? @default("#ffffff")
+  corFundoVerso  String? @default("#ffffff")
+
   frenteJson Json?
   versoJson  Json?
 
-  ativo        Boolean  @default(true)
+  padrao      Boolean @default(false)
+  ativo       Boolean @default(true)
+  observacoes String?
+
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  instituicao       Instituicao         @relation(fields: [instituicaoId], references: [id])
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id])
+  criadoPor   User?       @relation("CrachaModeloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
   CrachaEmitido     CrachaEmitido[]
   CrachaLoteEmissao CrachaLoteEmissao[]
 
   @@index([instituicaoId])
+  @@index([criadoPorId])
+  @@index([instituicaoId, tipoPessoa])
+  @@index([instituicaoId, tipoPessoa, padrao])
+  @@index([instituicaoId, ativo])
 }
 
 model CrachaEmitido {
@@ -2864,43 +2882,43 @@ model CrachaEmitido {
 }
 
 model AssinaturaPhanyx {
-  id                         Int       @id @default(autoincrement())
-  instituicaoId              Int       @unique
-  adesaoInstituicaoId        String?   @unique
+  id                  Int     @id @default(autoincrement())
+  instituicaoId       Int     @unique
+  adesaoInstituicaoId String? @unique
 
-  plano                      String
-  status                     String    @default("TESTE_GRATIS")
+  plano  String
+  status String @default("TESTE_GRATIS")
 
-  testeGratisInicioEm        DateTime  @default(now())
-  testeGratisFimEm           DateTime
-  primeiraCobrancaEm         DateTime?
-  proximaCobrancaEm          DateTime?
+  testeGratisInicioEm DateTime  @default(now())
+  testeGratisFimEm    DateTime
+  primeiraCobrancaEm  DateTime?
+  proximaCobrancaEm   DateTime?
 
-  asaasCustomerId            String?
-  asaasSubscriptionId        String?   @unique
-  asaasBillingType           String?
-  asaasCycle                 String    @default("MONTHLY")
+  asaasCustomerId     String?
+  asaasSubscriptionId String? @unique
+  asaasBillingType    String?
+  asaasCycle          String  @default("MONTHLY")
 
-  valorBase                  Decimal   @default(0) @db.Decimal(10, 2)
-  valorPorAluno              Decimal   @default(0) @db.Decimal(10, 2)
-  valorPorPoloExtra          Decimal   @default(0) @db.Decimal(10, 2)
-  valorMensalAtual           Decimal   @default(0) @db.Decimal(10, 2)
+  valorBase         Decimal @default(0) @db.Decimal(10, 2)
+  valorPorAluno     Decimal @default(0) @db.Decimal(10, 2)
+  valorPorPoloExtra Decimal @default(0) @db.Decimal(10, 2)
+  valorMensalAtual  Decimal @default(0) @db.Decimal(10, 2)
 
-  alunosAtivosReferencia     Int       @default(0)
-  polosReferencia            Int       @default(1)
+  alunosAtivosReferencia Int @default(0)
+  polosReferencia        Int @default(1)
 
-  canceladaEm                DateTime?
-  canceladaPorId             Int?
-  motivoCancelamento         String?
+  canceladaEm        DateTime?
+  canceladaPorId     Int?
+  motivoCancelamento String?
 
-  ultimoEventoAsaas          String?
-  ultimoWebhookAsaasEm       DateTime?
+  ultimoEventoAsaas    String?
+  ultimoWebhookAsaasEm DateTime?
 
-  createdAt                  DateTime  @default(now())
-  updatedAt                  DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  instituicao                Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  adesaoInstituicao          AdesaoInstituicao? @relation(fields: [adesaoInstituicaoId], references: [id], onDelete: SetNull)
+  instituicao       Instituicao        @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  adesaoInstituicao AdesaoInstituicao? @relation(fields: [adesaoInstituicaoId], references: [id], onDelete: SetNull)
 
   @@index([status])
   @@index([plano])
@@ -2910,17 +2928,17 @@ model AssinaturaPhanyx {
 }
 
 model Visitante {
-  id             Int              @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  instituicaoId  Int
-  criadoPorId    Int?
-  criadoPor      User? @relation("VisitanteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  instituicaoId Int
+  criadoPorId   Int?
+  criadoPor     User? @relation("VisitanteCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
 
-  nome           String
-  documentoTipo  String?
+  nome            String
+  documentoTipo   String?
   documentoNumero String?
-  telefone       String?
-  email          String?
+  telefone        String?
+  email           String?
 
   empresa        String?
   destino        String?
@@ -2929,34 +2947,34 @@ model Visitante {
   motivo         String?
   evento         String?
 
-  fotoPerfil     String?
+  fotoPerfil String?
 
   codigoVisitante String
-  codigoCracha    String?          @unique
+  codigoCracha    String? @unique
 
-  status         StatusVisitante   @default(AGUARDANDO)
+  status StatusVisitante @default(AGUARDANDO)
 
   entradaPrevistaEm DateTime?
   entradaEm         DateTime?
   saidaPrevistaEm   DateTime?
   saidaEm           DateTime?
 
-  crachaEmitidoEm   DateTime?
-  crachaValidoAte   DateTime?
+  crachaEmitidoEm DateTime?
+  crachaValidoAte DateTime?
 
-  observacoes    String?
+  observacoes String?
 
-  ativo           Boolean          @default(true)
+  ativo Boolean @default(true)
 
-  arquivado       Boolean          @default(false)
-  arquivadoEm     DateTime?
-  arquivadoPorId  Int?
-  motivoArquivo   String?
+  arquivado      Boolean   @default(false)
+  arquivadoEm    DateTime?
+  arquivadoPorId Int?
+  motivoArquivo  String?
 
-  criadoEm        DateTime         @default(now())
-  atualizadoEm    DateTime         @updatedAt
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
-  instituicao    Instituicao @relation(fields: [instituicaoId], references: [id])
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id])
 
   @@unique([instituicaoId, codigoVisitante])
   @@index([instituicaoId])
@@ -3222,4 +3240,13 @@ enum StatusVisitante {
   SAIU
   CANCELADO
   BLOQUEADO
+}
+
+enum TipoModeloCracha {
+  ALUNO
+  PROFESSOR
+  FUNCIONARIO
+  VISITANTE
+  MEMBRO
+  PERSONALIZADO
 }
