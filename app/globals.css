@@ -10584,3 +10584,42 @@ html[data-theme="light"] .nova-prova-publico-card input[type="checkbox"] {
   opacity: 1 !important;
   accent-color: #2563eb !important;
 }
+
+/* =========================================
+   FIX LOCAL - BARRA VER DISCIPLINAS / BOLETIM PROFESSOR
+========================================= */
+
+html[data-theme="light"] .phanyx-professor-boletim-page .boletim-disciplinas-box {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .boletim-disciplinas-summary {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-professor-boletim-page .boletim-disciplinas-summary::marker {
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-boletim-page .boletim-disciplinas-box {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-professor-boletim-page .boletim-disciplinas-box {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-boletim-page .boletim-disciplinas-summary,
+html[data-theme="system"] .phanyx-professor-boletim-page .boletim-disciplinas-summary {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}

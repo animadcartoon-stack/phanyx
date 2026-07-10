@@ -247,10 +247,10 @@ export default function BoletimTurmaPage() {
             </div>
           </div>
 
-          <details className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-            <summary className="cursor-pointer text-sm font-bold text-slate-800 dark:text-white">
-              Ver disciplinas da turma
-            </summary>
+          <details className="boletim-disciplinas-box mt-5 rounded-2xl border p-4">
+  <summary className="boletim-disciplinas-summary cursor-pointer text-sm font-bold">
+    Ver disciplinas da turma
+  </summary>
 
             {disciplinas.length === 0 ? (
               <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
