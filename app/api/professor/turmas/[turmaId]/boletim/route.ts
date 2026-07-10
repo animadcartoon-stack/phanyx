@@ -46,21 +46,25 @@ export async function GET(
     professorId: professor.id,
   },
   include: {
-  disciplinas: {
-    include: {
-      disciplina: true,
+    disciplinas: {
+      include: {
+        disciplina: true,
+      },
     },
-  },
-  alunos: {
-    include: {
-      aluno: {
-        include: {
-          user: true,
+    itensMatricula: {
+      include: {
+        matricula: {
+          include: {
+            aluno: {
+              include: {
+                user: true,
+              },
+            },
+          },
         },
       },
     },
   },
-},
 });
 
     if (!turma) {
@@ -72,7 +76,15 @@ export async function GET(
 
     const vinculosAlunos = (turma as any).alunos || [];
 
-const alunoIds = vinculosAlunos.map((m: any) => m.alunoId);
+const alunosDaTurma = (turma as any).itensMatricula
+  .map((item: any) => item.matricula?.aluno)
+  .filter(Boolean);
+
+const alunosUnicos = Array.from(
+  new Map(alunosDaTurma.map((aluno: any) => [aluno.id, aluno])).values()
+);
+
+const alunoIds = alunosUnicos.map((aluno: any) => aluno.id);
 
     const tentativas = await prisma.tentativaProva.findMany({
       where: {
@@ -103,9 +115,8 @@ const alunoIds = vinculosAlunos.map((m: any) => m.alunoId);
       },
     });
 
-    const boletim = vinculosAlunos.map((mat: any) => {
-      const aluno = mat.aluno;
-
+    const boletim = alunosUnicos.map((aluno: any) => {
+      
       const tentativasDoAluno = tentativas.filter((t) => t.alunoId === aluno.id);
 
       const melhorTentativa =
