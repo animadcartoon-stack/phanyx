@@ -828,7 +828,7 @@ function continuarEmissaoCracha() {
       y: 80,
       fonte: 16,
       cor: "#000000",
-      alinhamento: "left",
+      alinhamento: "center",
       largura: 150,
       altura: 32,
       ordem: agora,
@@ -3883,36 +3883,49 @@ if (objeto.tipo === "CAMPO") {
         window.addEventListener("mousemove", mover);
         window.addEventListener("mouseup", soltar);
       }}
-      style={{
-        position: "absolute",
-        left: objeto.x,
-        top: objeto.y,
-        width: objeto.largura,
-        height: objeto.altura,
-        fontSize: objeto.fonte,
-        color: objeto.cor,
-        cursor: "move",
-        padding: "2px 4px",
-        textAlign: objeto.alinhamento,
-display: "flex",
-alignItems: "center",
-justifyContent:
-  objeto.alinhamento === "center"
-    ? "center"
-    : objeto.alinhamento === "right"
-    ? "flex-end"
-    : "flex-start",
-        overflow: "visible",
-        border:
-          objetoSelecionado === objeto.id
-            ? "1px dashed #2563eb"
-            : "1px solid transparent",
-            zIndex: zIndexObjetoCracha(objeto),
-      }}
+     style={{
+  position: "absolute",
+  left: objeto.x,
+  top: objeto.y,
+  width: objeto.largura,
+  height: objeto.altura,
+  fontSize: objeto.fonte,
+  color: objeto.cor,
+  cursor: "move",
+  padding: "2px 4px",
+  textAlign: objeto.alinhamento || "center",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  whiteSpace: "normal",
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
+  lineHeight: "1.15",
+  overflow: "hidden",
+  boxSizing: "border-box",
+  border:
+    objetoSelecionado === objeto.id
+      ? "1px dashed #2563eb"
+      : "1px solid transparent",
+  zIndex: zIndexObjetoCracha(objeto),
+}}
     >
-      {objeto.campo}
-      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
-    </div>
+  <span
+    style={{
+      display: "block",
+      width: "100%",
+      textAlign: objeto.alinhamento || "center",
+      whiteSpace: "normal",
+      overflowWrap: "break-word",
+      wordBreak: "break-word",
+      lineHeight: "1.15",
+    }}
+  >
+    {objeto.campo}
+  </span>
+
+  {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+</div>
   );
 }
 
