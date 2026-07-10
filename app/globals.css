@@ -10274,3 +10274,90 @@ html[data-theme="system"] main input:disabled {
   -webkit-text-fill-color: #ffffff !important;
   border-color: #71717a !important;
 }
+
+/* =========================================
+   HOTFIX CIRÚRGICO - NOVA PROVA + UPLOAD MATERIAL
+========================================= */
+
+/* NOVA PROVA / TEMA CLARO
+   Corrige textos das opções:
+   - Para toda a turma
+   - Somente alunos selecionados
+   - Exigir conclusão das aulas...
+*/
+html[data-theme="light"] main .bg-slate-950 label,
+html[data-theme="light"] main .bg-slate-950 label *,
+html[data-theme="light"] main .bg-slate-900 label,
+html[data-theme="light"] main .bg-slate-900 label *,
+html[data-theme="light"] main .bg-slate-950 .rounded-xl,
+html[data-theme="light"] main .bg-slate-950 .rounded-xl *,
+html[data-theme="light"] main .bg-slate-900 .rounded-xl,
+html[data-theme="light"] main .bg-slate-900 .rounded-xl * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Mantém o fundo branco das opções dentro do bloco escuro */
+html[data-theme="light"] main .bg-slate-950 label,
+html[data-theme="light"] main .bg-slate-900 label,
+html[data-theme="light"] main .bg-slate-950 .rounded-xl,
+html[data-theme="light"] main .bg-slate-900 .rounded-xl {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Mantém título e descrição do bloco "Disponibilização da prova" brancos */
+html[data-theme="light"] main .bg-slate-950 > h3,
+html[data-theme="light"] main .bg-slate-950 > p,
+html[data-theme="light"] main .bg-slate-900 > h3,
+html[data-theme="light"] main .bg-slate-900 > p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Checkbox/radio dentro das opções */
+html[data-theme="light"] main .bg-slate-950 input,
+html[data-theme="light"] main .bg-slate-900 input {
+  color: #2563eb !important;
+  -webkit-text-fill-color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+
+/* MATERIAIS DA AULA / ESCURO E SISTEMA
+   Corrige texto "Nenhum arquivo selecionado." na barra */
+html[data-theme="dark"] main input,
+html[data-theme="system"] main input {
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] main input.bg-white,
+html[data-theme="dark"] main input.bg-slate-50,
+html[data-theme="dark"] main input.bg-gray-50,
+html[data-theme="system"] main input.bg-white,
+html[data-theme="system"] main input.bg-slate-50,
+html[data-theme="system"] main input.bg-gray-50 {
+  background: #111827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="system"] main input.bg-white,
+html[data-theme="system"] main input.bg-slate-50,
+html[data-theme="system"] main input.bg-gray-50 {
+  background: #262626 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #71717a !important;
+}
+
+/* Placeholder da barra do arquivo */
+html[data-theme="dark"] main input::placeholder,
+html[data-theme="system"] main input::placeholder {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
