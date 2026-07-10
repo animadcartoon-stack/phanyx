@@ -799,7 +799,7 @@ function continuarEmissaoCracha() {
         y: 30,
         fonte: 18,
         cor: "#000000",
-        alinhamento: "left",
+        alinhamento: "center",
         largura: 120,
         altura: 32,
         ordem: Date.now(),
@@ -3815,8 +3815,21 @@ if (objeto.tipo === "TEXTO") {
       zIndex: zIndexObjetoCracha(objeto),
 }}
                   >
+  <span
+  style={{
+    display: "block",
+    width: "100%",
+    textAlign: objeto.alinhamento || "center",
+    whiteSpace: "normal",
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+    lineHeight: "1.15",
+  }}
+>
   {objeto.texto}
-  {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+</span>
+
+{objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
 
   {objetoSelecionado === objeto.id && (
     <>
@@ -3901,7 +3914,7 @@ if (objeto.tipo === "CAMPO") {
   overflowWrap: "break-word",
   wordBreak: "break-word",
   lineHeight: "1.15",
-  overflow: "hidden",
+  overflow: "visible",
   boxSizing: "border-box",
   border:
     objetoSelecionado === objeto.id
@@ -3911,18 +3924,20 @@ if (objeto.tipo === "CAMPO") {
 }}
     >
   <span
-    style={{
-      display: "block",
-      width: "100%",
-      textAlign: objeto.alinhamento || "center",
-      whiteSpace: "normal",
-      overflowWrap: "break-word",
-      wordBreak: "break-word",
-      lineHeight: "1.15",
-    }}
-  >
-    {objeto.campo}
-  </span>
+  style={{
+    display: "block",
+    width: "100%",
+    height: "100%",
+    textAlign: objeto.alinhamento || "center",
+    whiteSpace: "normal",
+    overflowWrap: "break-word",
+    wordBreak: "break-word",
+    lineHeight: "1.15",
+    overflow: "hidden",
+  }}
+>
+  {objeto.campo}
+</span>
 
   {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
 </div>
@@ -4455,7 +4470,36 @@ if (objeto.tipo === "FORMA") {
                 <label className="mb-2 block font-semibold">
                   Tamanho
                 </label>
+<div className="rounded-2xl border border-slate-700/40 p-3">
+  <p className="mb-3 text-sm font-bold">
+    Alinhamento do texto
+  </p>
 
+  <div className="grid grid-cols-3 gap-2">
+    {(["left", "center", "right"] as const).map((alinhamento) => (
+      <button
+        key={alinhamento}
+        type="button"
+        onClick={() =>
+          atualizarObjeto(objetoAtual.id, {
+            alinhamento,
+          })
+        }
+        className={`rounded-xl border px-3 py-2 text-xs font-bold ${
+          objetoAtual.alinhamento === alinhamento
+            ? "border-blue-500 bg-blue-600 text-white"
+            : "border-slate-600 bg-slate-900 text-slate-200"
+        }`}
+      >
+        {alinhamento === "left"
+          ? "Esquerda"
+          : alinhamento === "center"
+          ? "Centro"
+          : "Direita"}
+      </button>
+    ))}
+  </div>
+</div>
                 <input
                   type="number"
                   value={objetoAtual.fonte}
