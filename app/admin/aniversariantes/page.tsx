@@ -29,6 +29,12 @@ type Departamento = {
   nome: string;
 };
 
+type InstituicaoAniversariantes = {
+  nome: string;
+  telefone: string | null;
+  whatsapp: string;
+};
+
 const meses = [
   { valor: "1", nome: "Janeiro" },
   { valor: "2", nome: "Fevereiro" },
@@ -98,6 +104,9 @@ export default function AdminAniversariantesPage() {
   const [departamentoId, setDepartamentoId] = useState("TODOS");
   const [busca, setBusca] = useState("");
 
+  const [instituicao, setInstituicao] =
+  useState<InstituicaoAniversariantes | null>(null);
+
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
   const [aniversariantes, setAniversariantes] = useState<Aniversariante[]>(
@@ -111,12 +120,18 @@ export default function AdminAniversariantesPage() {
     const [enviandoMensagem, setEnviandoMensagem] = useState(false);
     const [sucesso, setSucesso] = useState("");
 
-    const [tituloMensagem, setTituloMensagem] = useState(
-  "Feliz aniversário, {{primeiroNome}}!"
+    const TITULO_ANIVERSARIO_PADRAO =
+  "Feliz aniversário, {{primeiroNome}}!";
+
+const MENSAGEM_ANIVERSARIO_PADRAO =
+  "Olá, {{primeiroNome}}! Hoje é uma data especial: {{dataAniversario}}.\n\nA equipe da instituição deseja a você um feliz aniversário, com muita saúde, alegria e bênçãos.\n\nReceba nosso carinho neste dia tão importante!";
+
+const [tituloMensagem, setTituloMensagem] = useState(
+  TITULO_ANIVERSARIO_PADRAO
 );
 
 const [textoMensagem, setTextoMensagem] = useState(
-  "Olá, {{primeiroNome}}! Desejamos a você um feliz aniversário neste dia {{dataAniversario}}. Que Deus abençoe sua vida!"
+  MENSAGEM_ANIVERSARIO_PADRAO
 );
 
   const selecionadosSet = useMemo(
@@ -241,6 +256,7 @@ async function enviarMensagemChat() {
 
       setAniversariantes(json.aniversariantes || []);
       setDepartamentos(json.departamentos || []);
+      setInstituicao(json.instituicao || null);
       setSelecionados([]);
     } catch (error: any) {
       console.error(error);
@@ -542,7 +558,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
   onClick={() => setModalWhatsappAberto(true)}
   className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-whatsapp"
 >
-  Gerar WhatsApp
+  Gerar links WhatsApp
 </button>
             </div>
           </div>
@@ -748,6 +764,17 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
           {"{{nome}}, {{primeiroNome}}, {{dataAniversario}}, {{dia}}, {{mes}}, {{tipoPessoa}}, {{departamento}}, {{contexto}}, {{status}}"}
         </div>
 
+<button
+  type="button"
+  onClick={() => {
+    setTituloMensagem(TITULO_ANIVERSARIO_PADRAO);
+    setTextoMensagem(MENSAGEM_ANIVERSARIO_PADRAO);
+  }}
+  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-secundario"
+>
+  Restaurar mensagem padrão
+</button>
+
         <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-950">
           <p className="text-sm font-bold">
             Selecionados: {aniversariantesSelecionados.length}
@@ -791,11 +818,41 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
     <div className="phanyx-aniversariantes-modal w-full max-w-3xl rounded-3xl border p-6 shadow-2xl">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2>Gerar WhatsApp</h2>
+          <h2>Gerar links WhatsApp</h2>
           <p>
-            O PHANYX gera links personalizados. O envio automático em massa
-            depende de integração oficial de WhatsApp.
-          </p>
+  O PHANYX gera links personalizados de WhatsApp com a mensagem já preenchida.
+  Nesta etapa, o envio ainda precisa ser confirmado manualmente no WhatsApp.
+</p>
+
+<div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
+  <p>
+    Número institucional cadastrado:{" "}
+    {instituicao?.telefone || "não informado"}
+  </p>
+
+  <p className="mt-2 font-medium">
+    Atenção: estes links serão enviados pelo WhatsApp que estiver conectado
+    neste computador ou celular. Para sair pelo número institucional, o
+    WhatsApp Web precisa estar conectado ao número da instituição.
+  </p>
+
+  <p className="mt-2 font-medium">
+    O envio automático em massa será liberado futuramente por integração
+    oficial de WhatsApp da própria instituição.
+  </p>
+</div>
+          <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-100">
+  <p>
+    Número institucional cadastrado:{" "}
+    {instituicao?.telefone || "não informado"}
+  </p>
+
+  <p className="mt-2 font-medium">
+    Atenção: nesta etapa, o PHANYX apenas abre o WhatsApp com a mensagem
+    preenchida. O envio sairá pelo WhatsApp que estiver conectado neste
+    computador ou celular.
+  </p>
+</div>
         </div>
 
         <button

@@ -158,13 +158,14 @@ export async function listarAniversariantes({
     funcionarios,
   ] = await Promise.all([
     prisma.instituicao.findUnique({
-      where: {
-        id: instituicaoId,
-      },
-      select: {
-        nome: true,
-      },
-    }),
+  where: {
+    id: instituicaoId,
+  },
+  select: {
+    nome: true,
+    telefone: true,
+  },
+}),
 
     prisma.departamento.findMany({
       where: {
@@ -439,8 +440,10 @@ export async function listarAniversariantes({
     departamentos,
     polos,
     instituicao: {
-      nome: instituicao?.nome || "Instituição",
-    },
+  nome: instituicao?.nome || "Instituição",
+  telefone: instituicao?.telefone || null,
+  whatsapp: somenteNumeros(instituicao?.telefone || null),
+},
     poloSelecionado,
   };
 }
