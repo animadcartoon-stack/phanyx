@@ -3013,6 +3013,78 @@ function clonarObjetoCracha(
   return novoObjeto;
 }
 
+function tamanhoObjetoCracha(objeto: ObjetoCracha) {
+  return {
+    largura: Number((objeto as any).largura || 80),
+    altura: Number((objeto as any).altura || 32),
+  };
+}
+
+function alinharObjetoNoCracha(
+  alinhamento:
+    | "esquerda"
+    | "centro-horizontal"
+    | "direita"
+    | "topo"
+    | "centro-vertical"
+    | "base"
+    | "centro-total"
+) {
+  if (!objetoAtual) return;
+
+  const area = crachaAreaRef.current;
+
+  const larguraCracha =
+    area?.clientWidth ||
+    (formato === "PAISAGEM" ? 380 : formato === "RETRATO" ? 240 : 260);
+
+  const alturaCracha =
+    area?.clientHeight ||
+    (formato === "PAISAGEM" ? 240 : formato === "RETRATO" ? 380 : 260);
+
+  const { largura, altura } = tamanhoObjetoCracha(objetoAtual);
+
+  const atualizacao: any = {};
+
+  if (alinhamento === "esquerda") {
+    atualizacao.x = 0;
+  }
+
+  if (alinhamento === "centro-horizontal" || alinhamento === "centro-total") {
+    atualizacao.x = Math.max(
+      0,
+      Math.round((larguraCracha - largura) / 2)
+    );
+  }
+
+  if (alinhamento === "direita") {
+    atualizacao.x = Math.max(
+      0,
+      Math.round(larguraCracha - largura)
+    );
+  }
+
+  if (alinhamento === "topo") {
+    atualizacao.y = 0;
+  }
+
+  if (alinhamento === "centro-vertical" || alinhamento === "centro-total") {
+    atualizacao.y = Math.max(
+      0,
+      Math.round((alturaCracha - altura) / 2)
+    );
+  }
+
+  if (alinhamento === "base") {
+    atualizacao.y = Math.max(
+      0,
+      Math.round(alturaCracha - altura)
+    );
+  }
+
+  atualizarObjeto(objetoAtual.id, atualizacao);
+}
+
 function copiarObjetoSelecionado() {
   if (!objetoAtual) return;
 
@@ -4889,6 +4961,72 @@ if (objeto.tipo === "FORMA") {
     </div>
   </div>
           )}
+
+{objetoAtual && (
+  <div className="rounded-2xl border border-slate-700/40 p-3">
+    <p className="mb-3 text-sm font-bold">
+      Alinhar no crachá
+    </p>
+
+    <div className="grid grid-cols-3 gap-2">
+      <button
+        type="button"
+        onClick={() => alinharObjetoNoCracha("esquerda")}
+        className="rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200"
+      >
+        Esquerda
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharObjetoNoCracha("centro-horizontal")}
+        className="rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-xs font-bold text-white"
+      >
+        Centro
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharObjetoNoCracha("direita")}
+        className="rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200"
+      >
+        Direita
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharObjetoNoCracha("topo")}
+        className="rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200"
+      >
+        Topo
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharObjetoNoCracha("centro-vertical")}
+        className="rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-xs font-bold text-white"
+      >
+        Meio
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharObjetoNoCracha("base")}
+        className="rounded-xl border border-slate-600 bg-slate-900 px-3 py-2 text-xs font-bold text-slate-200"
+      >
+        Base
+      </button>
+    </div>
+
+    <button
+      type="button"
+      onClick={() => alinharObjetoNoCracha("centro-total")}
+      className="mt-3 w-full rounded-xl border border-emerald-500 bg-emerald-600 px-3 py-2 text-xs font-bold text-white"
+    >
+      Centralizar no crachá
+    </button>
+  </div>
+)}
 
           {objetoAtual?.tipo === "IMAGEM" && (
   <div className="space-y-4">
