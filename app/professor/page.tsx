@@ -129,16 +129,16 @@ async function alterarFotoPerfil(file: File | null) {
   }
 
   function getStatusClasses(status: string) {
-    if (status === "PUBLICADA") {
-      return "bg-green-100 text-green-700";
-    }
-
-    if (status === "ENCERRADA") {
-      return "bg-gray-100 text-gray-700";
-    }
-
-    return "bg-yellow-100 text-yellow-700";
+  if (status === "PUBLICADA") {
+    return "bg-green-100 text-green-800 dark:bg-green-900/35 dark:text-green-200";
   }
+
+  if (status === "ENCERRADA") {
+    return "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200";
+  }
+
+  return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/35 dark:text-yellow-200";
+}
 
   return (
     <div className="px-2 py-3 sm:p-6">
@@ -154,8 +154,8 @@ async function alterarFotoPerfil(file: File | null) {
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
-        <div className="rounded-2xl border bg-white phanyx-theme-card p-4 shadow-sm sm:p-6">
-          <h1 className="text-xl font-bold text-gray-900 sm:text-2xl">
+        <div className="professor-dashboard-fix rounded-2xl border bg-white phanyx-theme-card p-4 shadow-sm sm:p-6">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
             Dashboard do Professor
           </h1>
 
@@ -175,28 +175,28 @@ async function alterarFotoPerfil(file: File | null) {
   </div>
 
   <div>
-    <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+    <p className="text-xs uppercase tracking-[0.18em] text-slate-600 dark:text-slate-300">
       Professor
     </p>
 
-    <h2 className="text-2xl font-bold text-slate-900">
+    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
       {data?.professor?.nome || "Professor"}
     </h2>
     <button
   type="button"
   onClick={() => inputFotoRef.current?.click()}
   disabled={enviandoFoto}
-  className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60"
+  className="mt-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-800 transition hover:bg-slate-100 hover:text-slate-950 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white"
 >
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
 <details className="mt-3 w-fit">
-  <summary className="cursor-pointer list-none rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 phanyx-theme-card dark:text-slate-100 dark:hover:bg-[#222222]">
+  <summary className="cursor-pointer list-none rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white">
     ℹ️ Dicas da foto
   </summary>
 
-  <div className="mt-3 rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 dark:border-slate-700 phanyx-theme-card">
-    <p className="text-sm leading-6 text-slate-600">
+  <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-700 dark:bg-slate-900">
+    <p className="text-sm leading-6 text-slate-700 dark:text-slate-200">
       Para que sua foto fique bem centralizada no perfil, utilize uma imagem
       quadrada (1:1), preferencialmente em 500x500px ou maior.
       <br />
@@ -231,7 +231,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Total de provas
                 </p>
-                <p className="mt-2 text-2xl font-bold text-gray-900">
+                <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
                   {data.resumo.totalProvas}
                 </p>
               </div>
@@ -240,7 +240,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Rascunho
                 </p>
-                <p className="mt-2 text-2xl font-bold text-yellow-700">
+                <p className="mt-2 text-2xl font-bold text-yellow-700 dark:text-yellow-300">
                   {data.resumo.provasRascunho}
                 </p>
               </div>
@@ -249,7 +249,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Publicadas
                 </p>
-                <p className="mt-2 text-2xl font-bold text-green-700">
+                <p className="mt-2 text-2xl font-bold text-green-700 dark:text-green-300">
                   {data.resumo.provasPublicadas}
                 </p>
               </div>
@@ -258,7 +258,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Encerradas
                 </p>
-                <p className="mt-2 text-2xl font-bold text-gray-700">
+                <p className="mt-2 text-2xl font-bold text-slate-700 dark:text-slate-200">
                   {data.resumo.provasEncerradas}
                 </p>
               </div>
@@ -267,7 +267,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Tentativas finalizadas
                 </p>
-                <p className="mt-2 text-2xl font-bold text-blue-700">
+                <p className="mt-2 text-2xl font-bold text-slate-700 dark:text-slate-200">
                   {data.resumo.totalTentativasFinalizadas}
                 </p>
               </div>
@@ -285,7 +285,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Reprovados
                 </p>
-                <p className="mt-2 text-2xl font-bold text-red-700">
+                <p className="mt-2 text-2xl font-bold text-red-700 dark:text-red-300">
                   {data.resumo.reprovados}
                 </p>
               </div>
@@ -294,7 +294,7 @@ async function alterarFotoPerfil(file: File | null) {
                 <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-400">
                   Média geral
                 </p>
-                <p className="mt-2 text-2xl font-bold text-indigo-700">
+                <p className="mt-2 text-2xl font-bold text-slate-700 dark:text-slate-200">
                   {data.resumo.mediaGeral}
                 </p>
               </div>
@@ -323,7 +323,7 @@ async function alterarFotoPerfil(file: File | null) {
 
                   <a
                     href="/professor/provas"
-                    className="rounded-lg border px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
+                    className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-800 transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white"
                   >
                     Ver todas
                   </a>
@@ -343,7 +343,7 @@ async function alterarFotoPerfil(file: File | null) {
                         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <div className="space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
-                              <h3 className="text-base font-semibold text-gray-900">
+                              <h3 className="text-base font-semibold text-slate-900 dark:text-white">
                                 {prova.titulo}
                               </h3>
 
@@ -358,21 +358,21 @@ async function alterarFotoPerfil(file: File | null) {
 
                             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 dark:text-slate-400">
                               <span>
-                                <strong className="font-medium text-gray-700">
+                                <strong className="font-medium text-slate-800 dark:text-slate-200">
                                   Disciplina:
                                 </strong>{" "}
                                 {prova.disciplinaNome}
                               </span>
 
                               <span>
-                                <strong className="font-medium text-gray-700">
+                                <strong className="font-medium text-slate-800 dark:text-slate-200">
                                   Tentativas:
                                 </strong>{" "}
                                 {prova.totalTentativas}
                               </span>
 
                               <span>
-                                <strong className="font-medium text-gray-700">
+                                <strong className="font-medium text-slate-800 dark:text-slate-200">
                                   Média:
                                 </strong>{" "}
                                 {prova.media}
@@ -383,14 +383,14 @@ async function alterarFotoPerfil(file: File | null) {
                           <div className="flex flex-col gap-2 sm:flex-row">
                             <a
                               href={`/professor/provas/${prova.id}`}
-                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
+                              className="rounded-lg border border-slate-300 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white"
                             >
                               Abrir
                             </a>
 
                             <a
                               href={`/professor/provas/${prova.id}/boletim`}
-                              className="rounded-lg border px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:text-slate-200 dark:hover:bg-[#222222]"
+                              className="rounded-lg border border-slate-300 px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white"
                             >
                               Boletim
                             </a>
@@ -416,7 +416,7 @@ async function alterarFotoPerfil(file: File | null) {
                   <div className="mt-4 space-y-3">
                     <a
                       href="/professor/provas/nova"
-                      className="block rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white hover:bg-blue-700"
+                      className="block rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-950 dark:hover:bg-white"
                     >
                       Nova prova
                     </a>
@@ -427,15 +427,20 @@ className="
 block
 rounded-lg
 border
+border-slate-300
 px-4
 py-3
 text-sm
 font-medium
-text-slate-700
-hover:bg-slate-50
-dark:text-slate-200
-dark:hover:bg-[#222222]
-"                    >
+text-slate-800
+transition
+hover:bg-slate-100
+hover:text-slate-950
+dark:border-slate-700
+dark:text-slate-100
+dark:hover:bg-slate-800
+dark:hover:text-white
+"                 >
                       Gerenciar provas
                     </a>
                   </div>
@@ -451,7 +456,7 @@ dark:hover:bg-[#222222]
                     Resumo acadêmico
                   </h2>
 
-                  <div className="mt-4 space-y-3 text-sm text-gray-600">
+                  <div className="mt-4 space-y-3 text-sm text-slate-700 dark:text-slate-200">
                     <p>
                       Você possui <strong>{data.resumo.totalProvas}</strong>{" "}
                       prova(s) cadastrada(s).

@@ -1837,6 +1837,11 @@ html[data-theme="system"] .professor-reunioes-fix p {
 }
 
 /* FIX LOCAL - DASHBOARD PROFESSOR */
+html[data-theme="light"] .professor-dashboard-fix {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
 html[data-theme="light"] .professor-dashboard-fix h2,
 html[data-theme="light"] .professor-dashboard-fix h3,
 html[data-theme="light"] .professor-dashboard-fix strong {
@@ -1851,6 +1856,34 @@ html[data-theme="light"] .professor-dashboard-fix span {
 html[data-theme="light"] .professor-dashboard-fix a:not(.bg-blue-600) {
   color: #334155 !important;
   border-color: #cbd5e1 !important;
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .professor-dashboard-fix a:not(.bg-blue-600):hover {
+  color: #0f172a !important;
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .professor-dashboard-fix .bg-blue-600 {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .professor-dashboard-fix .bg-blue-600:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix,
+html[data-theme="system"] .professor-dashboard-fix {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="system"] .professor-dashboard-fix {
+  background: #242424 !important;
+  border-color: #505050 !important;
 }
 
 html[data-theme="dark"] .professor-dashboard-fix h2,
@@ -1867,6 +1900,44 @@ html[data-theme="dark"] .professor-dashboard-fix span,
 html[data-theme="system"] .professor-dashboard-fix p,
 html[data-theme="system"] .professor-dashboard-fix span {
   color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix a,
+html[data-theme="system"] .professor-dashboard-fix a {
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix a:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="system"] .professor-dashboard-fix a:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix .bg-blue-600 {
+  background: #f8fafc !important;
+  color: #020617 !important;
+}
+
+html[data-theme="dark"] .professor-dashboard-fix .bg-blue-600:hover {
+  background: #ffffff !important;
+  color: #020617 !important;
+}
+
+html[data-theme="system"] .professor-dashboard-fix .bg-blue-600 {
+  background: #e5e5e5 !important;
+  color: #171717 !important;
+}
+
+html[data-theme="system"] .professor-dashboard-fix .bg-blue-600:hover {
+  background: #ffffff !important;
+  color: #171717 !important;
 }
 
 /* FIX LOCAL - TÍTULOS PROFESSOR REUNIÕES */
@@ -9500,3 +9571,4 @@ html[data-theme="system"] .phanyx-aniversariantes-modal-fechar {
   background: #303030 !important;
   color: #ffffff !important;
 }
+
