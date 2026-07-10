@@ -426,7 +426,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
                   />
                 </div>
 
-<div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+<div className="nova-prova-publico-card rounded-2xl border p-4">  
   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
     Disponibilização da prova
   </h3>
@@ -582,7 +582,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   )}
 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+                <div className="nova-prova-nota-card rounded-2xl border p-4">
   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
     Liberação da nota para o aluno
   </h3>
@@ -591,7 +591,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
     Defina se o aluno verá a nota ao finalizar a prova ou somente em uma data futura.
   </p>
 
-  <label className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+  <label className="nova-prova-nota-opcao mt-4 flex items-center gap-3 rounded-xl border p-3 text-sm font-semibold">
     <input
       type="checkbox"
       checked={mostrarNotaAoFinal}

@@ -10293,3 +10293,141 @@ html[data-theme="system"] .phanyx-upload-arquivo-status * {
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* =========================================
+   FIX ISOLADO - NOVA PROVA
+   Apenas os 2 cards de disponibilização/nota
+   Não afeta outras páginas
+========================================= */
+
+/* Card esquerdo - manter como antes: escuro no tema claro */
+html[data-theme="light"] .nova-prova-publico-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card h3,
+html[data-theme="light"] .nova-prova-publico-card p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Opções dentro do card esquerdo - branco com texto preto */
+html[data-theme="light"] .nova-prova-publico-card .nova-prova-opcao {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card .nova-prova-opcao * {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+/* Card direito - tirar o azul no tema claro */
+html[data-theme="light"] .nova-prova-nota-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .nova-prova-nota-card h3 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-nota-card p,
+html[data-theme="light"] .nova-prova-nota-card label {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-nota-opcao {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"] .nova-prova-nota-opcao * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-nota-card input[type="datetime-local"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Escuro */
+html[data-theme="dark"] .nova-prova-publico-card,
+html[data-theme="dark"] .nova-prova-nota-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .nova-prova-publico-card h3,
+html[data-theme="dark"] .nova-prova-publico-card p,
+html[data-theme="dark"] .nova-prova-nota-card h3,
+html[data-theme="dark"] .nova-prova-nota-card p,
+html[data-theme="dark"] .nova-prova-nota-card label {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .nova-prova-opcao,
+html[data-theme="dark"] .nova-prova-nota-opcao {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+html[data-theme="dark"] .nova-prova-opcao *,
+html[data-theme="dark"] .nova-prova-nota-opcao * {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+/* Sistema */
+html[data-theme="system"] .nova-prova-publico-card,
+html[data-theme="system"] .nova-prova-nota-card {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .nova-prova-publico-card h3,
+html[data-theme="system"] .nova-prova-publico-card p,
+html[data-theme="system"] .nova-prova-nota-card h3,
+html[data-theme="system"] .nova-prova-nota-card p,
+html[data-theme="system"] .nova-prova-nota-card label {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .nova-prova-opcao,
+html[data-theme="system"] .nova-prova-nota-opcao {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
+
+html[data-theme="system"] .nova-prova-opcao *,
+html[data-theme="system"] .nova-prova-nota-opcao * {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}
