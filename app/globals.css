@@ -10737,3 +10737,72 @@ html[data-theme="light"] body form .nova-prova-publico-card.nova-prova-publico-c
   -webkit-text-fill-color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================
+   FIX FINAL - NOVA PROVA / CARD NOTA
+   Corrige apenas tema escuro e sistema
+========================================= */
+
+html[data-theme="dark"] .nova-prova-nota-card,
+html[data-theme="system"] .nova-prova-nota-card {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .nova-prova-nota-card {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .nova-prova-nota-card h3,
+html[data-theme="dark"] .nova-prova-nota-card p,
+html[data-theme="dark"] .nova-prova-nota-card label,
+html[data-theme="system"] .nova-prova-nota-card h3,
+html[data-theme="system"] .nova-prova-nota-card p,
+html[data-theme="system"] .nova-prova-nota-card label {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .nova-prova-nota-opcao,
+html[data-theme="system"] .nova-prova-nota-opcao {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .nova-prova-nota-opcao {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  border-color: #666666 !important;
+}
+
+html[data-theme="dark"] .nova-prova-nota-opcao *,
+html[data-theme="system"] .nova-prova-nota-opcao * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .nova-prova-nota-card input[type="datetime-local"] {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #64748b !important;
+}
+
+html[data-theme="system"] .nova-prova-nota-card input[type="datetime-local"] {
+  background: #333333 !important;
+  background-color: #333333 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #666666 !important;
+}
