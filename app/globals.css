@@ -10361,3 +10361,82 @@ html[data-theme="system"] main input::placeholder {
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* =========================================
+   HOTFIX CIRÚRGICO - PROFESSOR
+   Upload Material + Opções Nova Prova
+========================================= */
+
+/* Barra "Nenhum arquivo selecionado." */
+.phanyx-upload-arquivo-status {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-upload-arquivo-status * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-upload-arquivo-status,
+html[data-theme="system"] .phanyx-upload-arquivo-status {
+  background: #111827 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-upload-arquivo-status {
+  background: #262626 !important;
+  border-color: #71717a !important;
+}
+
+html[data-theme="dark"] .phanyx-upload-arquivo-status *,
+html[data-theme="system"] .phanyx-upload-arquivo-status * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Opções da Nova Prova no tema claro */
+html[data-theme="light"] .phanyx-prova-publico-opcao,
+html[data-theme="light"] .phanyx-prova-publico-opcao * {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Mantém radio/checkbox visíveis */
+html[data-theme="light"] .phanyx-prova-publico-opcao input {
+  accent-color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+/* Escuro e sistema continuam legíveis */
+html[data-theme="dark"] .phanyx-prova-publico-opcao,
+html[data-theme="system"] .phanyx-prova-publico-opcao {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-prova-publico-opcao {
+  background-color: #262626 !important;
+  border-color: #71717a !important;
+}
+
+html[data-theme="dark"] .phanyx-prova-publico-opcao *,
+html[data-theme="system"] .phanyx-prova-publico-opcao * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}

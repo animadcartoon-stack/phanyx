@@ -519,15 +519,15 @@ export default function NovoMaterialAulaPage() {
                 </button>
               </div>
 
-              <div className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">
-                {arquivo ? (
-                  <>
-                    Arquivo selecionado: <strong>{arquivo.name}</strong>
-                  </>
-                ) : (
-                  "Nenhum arquivo selecionado."
-                )}
-              </div>
+              <div className="phanyx-upload-arquivo-status rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm font-semibold text-slate-800">
+  {arquivo ? (
+    <>
+      Arquivo selecionado: <strong>{arquivo.name}</strong>
+    </>
+  ) : (
+    "Nenhum arquivo selecionado."
+  )}
+</div>
 
               {uploadingArquivo && (
                 <div className="space-y-2">

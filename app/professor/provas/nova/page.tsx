@@ -436,7 +436,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   </p>
 
   <div className="mt-4 grid gap-3 md:grid-cols-2">
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+    <label className="phanyx-prova-publico-opcao flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
       <input
         type="radio"
         name="tipoPublico"
@@ -449,7 +449,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
       Para toda a turma
     </label>
 
-    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+    <label className="phanyx-prova-publico-opcao flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
       <input
         type="radio"
         name="tipoPublico"
@@ -460,7 +460,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
     </label>
   </div>
 
-  <label className="mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+  <label className="phanyx-prova-publico-opcao mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
     <input
       type="checkbox"
       checked={exigirAulasConcluidas}
