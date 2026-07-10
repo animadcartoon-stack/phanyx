@@ -201,6 +201,14 @@ pontosLivresSelecionadosIds?: number[];
   | "MEMBRO"
   | "PERSONALIZADO";
 
+  type TipoFundoCracha = "SOLIDO" | "GRADIENTE";
+
+type DirecaoGradienteCracha =
+  | "VERTICAL"
+  | "HORIZONTAL"
+  | "DIAGONAL_DESC"
+  | "DIAGONAL_ASC";
+
   type ModoEmissaoCracha = "INDIVIDUAL" | "LOTE";
 
 type OpcaoLoteCracha = {
@@ -233,6 +241,15 @@ export default function CrachasClient() {
   const [corFundoFrente, setCorFundoFrente] =
   useState<string>("#ffffff");
 
+  const [tipoFundoFrente, setTipoFundoFrente] =
+  useState<TipoFundoCracha>("SOLIDO");
+
+const [corFundoFrenteSecundaria, setCorFundoFrenteSecundaria] =
+  useState<string>("#0f172a");
+
+const [direcaoGradienteFrente, setDirecaoGradienteFrente] =
+  useState<DirecaoGradienteCracha>("VERTICAL");
+
   const [tipoFuroCracha, setTipoFuroCracha] =
   useState<TipoFuroCracha>("RASGO_HORIZONTAL");
 
@@ -241,6 +258,15 @@ export default function CrachasClient() {
 
 const [corFundoVerso, setCorFundoVerso] =
   useState<string>("#ffffff");
+
+  const [tipoFundoVerso, setTipoFundoVerso] =
+  useState<TipoFundoCracha>("SOLIDO");
+
+const [corFundoVersoSecundaria, setCorFundoVersoSecundaria] =
+  useState<string>("#0f172a");
+
+const [direcaoGradienteVerso, setDirecaoGradienteVerso] =
+  useState<DirecaoGradienteCracha>("VERTICAL");
 
 const [objetosFrente, setObjetosFrente] =
   useState<ObjetoCracha[]>([]);
@@ -324,6 +350,32 @@ const corFundoCracha =
 
 const setCorFundoCracha =
   lado === "FRENTE" ? setCorFundoFrente : setCorFundoVerso;
+
+  const tipoFundoCracha =
+  lado === "FRENTE" ? tipoFundoFrente : tipoFundoVerso;
+
+const setTipoFundoCracha =
+  lado === "FRENTE" ? setTipoFundoFrente : setTipoFundoVerso;
+
+const corFundoCrachaSecundaria =
+  lado === "FRENTE"
+    ? corFundoFrenteSecundaria
+    : corFundoVersoSecundaria;
+
+const setCorFundoCrachaSecundaria =
+  lado === "FRENTE"
+    ? setCorFundoFrenteSecundaria
+    : setCorFundoVersoSecundaria;
+
+const direcaoGradienteCracha =
+  lado === "FRENTE"
+    ? direcaoGradienteFrente
+    : direcaoGradienteVerso;
+
+const setDirecaoGradienteCracha =
+  lado === "FRENTE"
+    ? setDirecaoGradienteFrente
+    : setDirecaoGradienteVerso;
 
 const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
@@ -527,7 +579,19 @@ async function carregarModeloPadraoCracha(tipo: TipoModeloCracha) {
         ? (modelo.versoJson as ObjetoCracha[])
         : []
     );
+setTipoFundoFrente((modelo.tipoFundoFrente || "SOLIDO") as TipoFundoCracha);
+setCorFundoFrente(modelo.corFundoFrente || "#ffffff");
+setCorFundoFrenteSecundaria(modelo.corFundoFrenteSecundaria || "#0f172a");
+setDirecaoGradienteFrente(
+  (modelo.direcaoGradienteFrente || "VERTICAL") as DirecaoGradienteCracha
+);
 
+setTipoFundoVerso((modelo.tipoFundoVerso || "SOLIDO") as TipoFundoCracha);
+setCorFundoVerso(modelo.corFundoVerso || "#ffffff");
+setCorFundoVersoSecundaria(modelo.corFundoVersoSecundaria || "#0f172a");
+setDirecaoGradienteVerso(
+  (modelo.direcaoGradienteVerso || "VERTICAL") as DirecaoGradienteCracha
+);
     setObjetoSelecionado(null);
   } catch (error) {
     console.error(error);
@@ -557,19 +621,28 @@ async function salvarModeloCracha() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: modeloCrachaAtualId,
-        nome: `Modelo padrão - ${nomeTipoModeloCracha(tipoModeloCracha)}`,
-        tipoPessoa: tipoModeloCracha,
-        formato,
-        larguraMm: medidas.larguraMm,
-        alturaMm: medidas.alturaMm,
-        tipoFuro: tipoFuroCracha,
-        corFundoFrente,
-        corFundoVerso,
-        frenteJson: objetosFrente,
-        versoJson: objetosVerso,
-        padrao: true,
-      }),
+  id: modeloCrachaAtualId,
+  nome: `Modelo padrão - ${nomeTipoModeloCracha(tipoModeloCracha)}`,
+  tipoPessoa: tipoModeloCracha,
+  formato,
+  larguraMm: medidas.larguraMm,
+  alturaMm: medidas.alturaMm,
+  tipoFuro: tipoFuroCracha,
+
+  tipoFundoFrente,
+  corFundoFrente,
+  corFundoFrenteSecundaria,
+  direcaoGradienteFrente,
+
+  tipoFundoVerso,
+  corFundoVerso,
+  corFundoVersoSecundaria,
+  direcaoGradienteVerso,
+
+  frenteJson: objetosFrente,
+  versoJson: objetosVerso,
+  padrao: true,
+}),
     });
 
     const data = await res.json();
@@ -3258,6 +3331,26 @@ useEffect(() => {
   carregarModeloPadraoCracha(tipoModeloCracha);
 }, [tipoModeloCracha]);
 
+function anguloGradienteCracha(direcao: DirecaoGradienteCracha) {
+  if (direcao === "HORIZONTAL") return "90deg";
+  if (direcao === "DIAGONAL_DESC") return "135deg";
+  if (direcao === "DIAGONAL_ASC") return "45deg";
+
+  return "180deg";
+}
+
+function fundoCrachaCss() {
+  if (tipoFundoCracha === "GRADIENTE") {
+    return `linear-gradient(${anguloGradienteCracha(
+      direcaoGradienteCracha
+    )}, ${corFundoCracha || "#ffffff"}, ${
+      corFundoCrachaSecundaria || corFundoCracha || "#ffffff"
+    })`;
+  }
+
+  return corFundoCracha || "#ffffff";
+}
+
   return (
   <div
     className="phanyx-crachas-page relative p-4"
@@ -3806,26 +3899,28 @@ useEffect(() => {
   ref={crachaAreaRef}
   className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
   style={{
-    ["--cor-fundo-cracha" as any]: corFundoCracha,
-    width:
-      formato === "RETRATO"
-        ? "240px"
-        : formato === "PAISAGEM"
-        ? "380px"
-        : "260px",
+  ["--cor-fundo-cracha" as any]: corFundoCracha,
+  background: fundoCrachaCss(),
 
-    height:
-      formato === "RETRATO"
-        ? "380px"
-        : formato === "PAISAGEM"
-        ? "240px"
-        : "260px",
+  width:
+    formato === "RETRATO"
+      ? "240px"
+      : formato === "PAISAGEM"
+      ? "380px"
+      : "260px",
 
-    borderRadius:
-      formato === "REDONDO"
-        ? "9999px"
-        : "16px",
-  }}
+  height:
+    formato === "RETRATO"
+      ? "380px"
+      : formato === "PAISAGEM"
+      ? "240px"
+      : "260px",
+
+  borderRadius:
+    formato === "REDONDO"
+      ? "9999px"
+      : "16px",
+}}
 >
 
             {renderFuroCracha()}
@@ -6949,18 +7044,80 @@ setPontoGradienteSelecionado(novoPonto.id);
   </p>
 </div>
 
-          <div className="mt-6">
-            <label className="mb-2 block font-semibold">
-              Cor de fundo
-            </label>
+          <div className="space-y-3">
+  <label className="block font-semibold">
+    Tipo de fundo
+  </label>
 
-            <input
-              type="color"
-              value={corFundoCracha}
-              onChange={(e) => setCorFundoCracha(e.target.value)}
-              className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-            />
-          </div>
+  <select
+    value={tipoFundoCracha}
+    onChange={(e) =>
+      setTipoFundoCracha(e.target.value as TipoFundoCracha)
+    }
+    className="phanyx-crachas-input"
+  >
+    <option value="SOLIDO">Sólido</option>
+    <option value="GRADIENTE">Gradiente</option>
+  </select>
+
+  <div>
+    <label className="mb-2 block font-semibold">
+      {tipoFundoCracha === "GRADIENTE" ? "Cor 1" : "Cor de fundo"}
+    </label>
+
+    <input
+      type="color"
+      value={corFundoCracha || "#ffffff"}
+      onChange={(e) => setCorFundoCracha(e.target.value)}
+      className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+    />
+  </div>
+
+  {tipoFundoCracha === "GRADIENTE" && (
+    <>
+      <div>
+        <label className="mb-2 block font-semibold">
+          Cor 2
+        </label>
+
+        <input
+          type="color"
+          value={corFundoCrachaSecundaria || "#0f172a"}
+          onChange={(e) => setCorFundoCrachaSecundaria(e.target.value)}
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+        />
+      </div>
+
+      <div>
+        <label className="mb-2 block font-semibold">
+          Direção do gradiente
+        </label>
+
+        <select
+          value={direcaoGradienteCracha}
+          onChange={(e) =>
+            setDirecaoGradienteCracha(
+              e.target.value as DirecaoGradienteCracha
+            )
+          }
+          className="phanyx-crachas-input"
+        >
+          <option value="VERTICAL">Vertical</option>
+          <option value="HORIZONTAL">Horizontal</option>
+          <option value="DIAGONAL_DESC">Diagonal descendo</option>
+          <option value="DIAGONAL_ASC">Diagonal subindo</option>
+        </select>
+      </div>
+
+      <div
+        className="h-12 rounded-2xl border border-slate-600"
+        style={{
+          background: fundoCrachaCss(),
+        }}
+      />
+    </>
+  )}
+</div>
         </div>
       </div>
     </div>

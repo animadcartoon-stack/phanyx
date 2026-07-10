@@ -161,31 +161,43 @@ export async function POST(req: NextRequest) {
     const padrao = body.padrao !== false;
 
     const dadosModelo = {
-      nome,
-      tipoPessoa,
-      formato,
+  nome,
+  tipoPessoa,
+  formato,
 
-      larguraMm,
-      alturaMm,
+  larguraMm,
+  alturaMm,
 
-      tipoFuro: limparTexto(body.tipoFuro) || "RASGO_HORIZONTAL",
-      corFundoFrente: limparTexto(body.corFundoFrente) || "#ffffff",
-      corFundoVerso: limparTexto(body.corFundoVerso) || "#ffffff",
+  tipoFuro: limparTexto(body.tipoFuro) || "RASGO_HORIZONTAL",
 
-      frenteJson: jsonSeguro(
-        body.frenteJson ?? body.objetosFrente,
-        []
-      ) as any,
+  tipoFundoFrente: limparTexto(body.tipoFundoFrente) || "SOLIDO",
+  corFundoFrente: limparTexto(body.corFundoFrente) || "#ffffff",
+  corFundoFrenteSecundaria:
+    limparTexto(body.corFundoFrenteSecundaria) || null,
+  direcaoGradienteFrente:
+    limparTexto(body.direcaoGradienteFrente) || "VERTICAL",
 
-      versoJson: jsonSeguro(
-        body.versoJson ?? body.objetosVerso,
-        []
-      ) as any,
+  tipoFundoVerso: limparTexto(body.tipoFundoVerso) || "SOLIDO",
+  corFundoVerso: limparTexto(body.corFundoVerso) || "#ffffff",
+  corFundoVersoSecundaria:
+    limparTexto(body.corFundoVersoSecundaria) || null,
+  direcaoGradienteVerso:
+    limparTexto(body.direcaoGradienteVerso) || "VERTICAL",
 
-      padrao,
-      ativo: body.ativo !== false,
-      observacoes: limparTexto(body.observacoes) || null,
-    };
+  frenteJson: jsonSeguro(
+    body.frenteJson ?? body.objetosFrente,
+    []
+  ) as any,
+
+  versoJson: jsonSeguro(
+    body.versoJson ?? body.objetosVerso,
+    []
+  ) as any,
+
+  padrao,
+  ativo: body.ativo !== false,
+  observacoes: limparTexto(body.observacoes) || null,
+};
 
     const modelo = await prisma.$transaction(async (tx) => {
   if (id) {
