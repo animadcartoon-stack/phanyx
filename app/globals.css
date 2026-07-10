@@ -9385,3 +9385,118 @@ html[data-theme="system"] .phanyx-aniversariantes-btn-desabilitado {
   color: #d4d4d4 !important;
   border-color: #555555 !important;
 }
+.phanyx-aniversariantes-btn-mensagem {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+  box-shadow: 0 8px 18px rgba(29, 78, 216, 0.18) !important;
+}
+
+.phanyx-aniversariantes-btn-mensagem:hover {
+  background: #1e40af !important;
+}
+
+.phanyx-aniversariantes-btn-whatsapp {
+  background: #15803d !important;
+  color: #ffffff !important;
+  border-color: #15803d !important;
+  box-shadow: 0 8px 18px rgba(21, 128, 61, 0.18) !important;
+  text-decoration: none !important;
+}
+
+.phanyx-aniversariantes-btn-whatsapp:hover {
+  background: #166534 !important;
+}
+
+.phanyx-aniversariantes-btn-secundario {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: none !important;
+}
+
+.phanyx-aniversariantes-modal {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-aniversariantes-modal h2 {
+  color: #0f172a !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+}
+
+.phanyx-aniversariantes-modal p,
+.phanyx-aniversariantes-modal span,
+.phanyx-aniversariantes-modal label {
+  color: #334155 !important;
+}
+
+.phanyx-aniversariantes-modal-fechar {
+  display: flex !important;
+  height: 36px !important;
+  width: 36px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  font-size: 24px !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-modal {
+  background: #111827 !important;
+  border-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-modal h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-modal p,
+html[data-theme="dark"] .phanyx-aniversariantes-modal span,
+html[data-theme="dark"] .phanyx-aniversariantes-modal label {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-modal-fechar {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-btn-mensagem,
+html[data-theme="system"] .phanyx-aniversariantes-btn-whatsapp {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-btn-mensagem:hover,
+html[data-theme="system"] .phanyx-aniversariantes-btn-whatsapp:hover {
+  background: #4a4a4a !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-modal {
+  background: #242424 !important;
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-modal h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-modal p,
+html[data-theme="system"] .phanyx-aniversariantes-modal span,
+html[data-theme="system"] .phanyx-aniversariantes-modal label {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-modal-fechar {
+  background: #303030 !important;
+  color: #ffffff !important;
+}
