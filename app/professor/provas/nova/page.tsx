@@ -436,7 +436,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   </p>
 
   <div className="mt-4 grid gap-3 md:grid-cols-2">
-    <label className="phanyx-prova-publico-opcao flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
       <input
         type="radio"
         name="tipoPublico"
@@ -449,7 +449,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
       Para toda a turma
     </label>
 
-    <label className="phanyx-prova-publico-opcao flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+    <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
       <input
         type="radio"
         name="tipoPublico"
@@ -460,7 +460,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
     </label>
   </div>
 
-  <label className="phanyx-prova-publico-opcao mt-4 flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+  <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
     <input
       type="checkbox"
       checked={exigirAulasConcluidas}
@@ -582,16 +582,16 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   )}
 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
     Liberação da nota para o aluno
   </h3>
 
-  <p className="mt-1 text-xs font-medium text-slate-700 dark:text-slate-200">
+  <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
     Defina se o aluno verá a nota ao finalizar a prova ou somente em uma data futura.
   </p>
 
-  <label className="mt-4 flex items-center gap-3 rounded-xl border border-slate-300 bg-white p-3 text-sm font-semibold text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
+  <label className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white">
     <input
       type="checkbox"
       checked={mostrarNotaAoFinal}
@@ -602,7 +602,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
 
   {!mostrarNotaAoFinal && (
     <div className="mt-4 space-y-2">
-      <label className="block text-sm font-semibold text-slate-900 dark:text-white">
+      <label className="block text-sm font-medium text-slate-800 dark:text-slate-100">
         Data e hora para liberar a nota
       </label>
       <input
@@ -611,7 +611,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
         onChange={(e) => setNotaDisponivelEm(e.target.value)}
         className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
       />
-      <p className="text-xs font-medium text-slate-700 dark:text-slate-200">
+      <p className="text-xs text-slate-600 dark:text-slate-300">
         Enquanto essa data não chegar, o aluno verá apenas “Nota ainda não liberada”.
       </p>
     </div>
