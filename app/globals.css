@@ -10543,3 +10543,44 @@ html[data-theme="light"] .phanyx-professor-boletim-page .bg-slate-100 {
   color: #334155 !important;
   -webkit-text-fill-color: #334155 !important;
 }
+
+/* =========================================
+   FIX LOCAL - DISPONIBILIZAÇÃO DA PROVA
+   Corrige apenas o card esquerdo da Nova Prova
+========================================= */
+
+html[data-theme="light"] .nova-prova-publico-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card h3,
+html[data-theme="light"] .nova-prova-publico-card > p {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Apenas as 3 opções principais do card */
+html[data-theme="light"] .nova-prova-publico-card > div > label,
+html[data-theme="light"] .nova-prova-publico-card > label {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card > div > label *,
+html[data-theme="light"] .nova-prova-publico-card > label * {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card input[type="radio"],
+html[data-theme="light"] .nova-prova-publico-card input[type="checkbox"] {
+  opacity: 1 !important;
+  accent-color: #2563eb !important;
+}
