@@ -154,7 +154,7 @@ async function alterarFotoPerfil(file: File | null) {
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
-        <div className="professor-dashboard-fix rounded-2xl border bg-white phanyx-theme-card p-4 shadow-sm sm:p-6">
+        <div className="rounded-2xl border bg-white phanyx-theme-card p-4 shadow-sm sm:p-6">
           <h1 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
             Dashboard do Professor
           </h1>
@@ -191,7 +191,7 @@ async function alterarFotoPerfil(file: File | null) {
   {enviandoFoto ? "Enviando..." : "Alterar foto"}
 </button>
 <details className="mt-3 w-fit">
-  <summary className="cursor-pointer list-none rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white">
+  <summary className="cursor-pointer list-none rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-900 shadow-sm transition hover:bg-slate-100 hover:text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800">
     ℹ️ Dicas da foto
   </summary>
 

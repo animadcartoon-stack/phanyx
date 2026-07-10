@@ -1837,11 +1837,6 @@ html[data-theme="system"] .professor-reunioes-fix p {
 }
 
 /* FIX LOCAL - DASHBOARD PROFESSOR */
-html[data-theme="light"] .professor-dashboard-fix {
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-}
-
 html[data-theme="light"] .professor-dashboard-fix h2,
 html[data-theme="light"] .professor-dashboard-fix h3,
 html[data-theme="light"] .professor-dashboard-fix strong {
@@ -1856,34 +1851,6 @@ html[data-theme="light"] .professor-dashboard-fix span {
 html[data-theme="light"] .professor-dashboard-fix a:not(.bg-blue-600) {
   color: #334155 !important;
   border-color: #cbd5e1 !important;
-  background: #ffffff !important;
-}
-
-html[data-theme="light"] .professor-dashboard-fix a:not(.bg-blue-600):hover {
-  color: #0f172a !important;
-  background: #f1f5f9 !important;
-  border-color: #94a3b8 !important;
-}
-
-html[data-theme="light"] .professor-dashboard-fix .bg-blue-600 {
-  background: #0f172a !important;
-  color: #ffffff !important;
-}
-
-html[data-theme="light"] .professor-dashboard-fix .bg-blue-600:hover {
-  background: #1e293b !important;
-  color: #ffffff !important;
-}
-
-html[data-theme="dark"] .professor-dashboard-fix,
-html[data-theme="system"] .professor-dashboard-fix {
-  background: #111827 !important;
-  border-color: #334155 !important;
-}
-
-html[data-theme="system"] .professor-dashboard-fix {
-  background: #242424 !important;
-  border-color: #505050 !important;
 }
 
 html[data-theme="dark"] .professor-dashboard-fix h2,
@@ -1900,44 +1867,6 @@ html[data-theme="dark"] .professor-dashboard-fix span,
 html[data-theme="system"] .professor-dashboard-fix p,
 html[data-theme="system"] .professor-dashboard-fix span {
   color: #cbd5e1 !important;
-}
-
-html[data-theme="dark"] .professor-dashboard-fix a,
-html[data-theme="system"] .professor-dashboard-fix a {
-  color: #f8fafc !important;
-  border-color: #475569 !important;
-}
-
-html[data-theme="dark"] .professor-dashboard-fix a:hover {
-  background: #1e293b !important;
-  color: #ffffff !important;
-  border-color: #64748b !important;
-}
-
-html[data-theme="system"] .professor-dashboard-fix a:hover {
-  background: #3a3a3a !important;
-  color: #ffffff !important;
-  border-color: #737373 !important;
-}
-
-html[data-theme="dark"] .professor-dashboard-fix .bg-blue-600 {
-  background: #f8fafc !important;
-  color: #020617 !important;
-}
-
-html[data-theme="dark"] .professor-dashboard-fix .bg-blue-600:hover {
-  background: #ffffff !important;
-  color: #020617 !important;
-}
-
-html[data-theme="system"] .professor-dashboard-fix .bg-blue-600 {
-  background: #e5e5e5 !important;
-  color: #171717 !important;
-}
-
-html[data-theme="system"] .professor-dashboard-fix .bg-blue-600:hover {
-  background: #ffffff !important;
-  color: #171717 !important;
 }
 
 /* FIX LOCAL - TÍTULOS PROFESSOR REUNIÕES */
@@ -9572,3 +9501,191 @@ html[data-theme="system"] .phanyx-aniversariantes-modal-fechar {
   color: #ffffff !important;
 }
 
+/* =========================================
+   HOTFIX PORTAL PROFESSOR
+   NÃO mexer nos TSX — correção mínima via globals
+========================================= */
+
+/* PAINEL DOCENTE / DASHBOARD PROFESSOR
+   Escopo: página que possui o atalho Nova prova */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .phanyx-theme-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) h1,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) h2,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) h3,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) strong {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) p,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) span {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-gray-500,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-slate-500 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-gray-700,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-slate-700 {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-gray-900,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-slate-900 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-yellow-700 {
+  color: #ca8a04 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-green-700 {
+  color: #047857 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-red-700 {
+  color: #dc2626 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-blue-700,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) .text-indigo-700 {
+  color: #334155 !important;
+}
+
+/* Botão Alterar foto e Dicas da foto */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) button,
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) summary {
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) summary {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) summary:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Botões outline do Dashboard */
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) a:not(.bg-blue-600) {
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] body:has(a[href="/professor/provas/nova"]) a:not(.bg-blue-600):hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+
+
+/* TURMAS DO PROFESSOR
+   Escopo seguro: app/professor/turmas/page.tsx já usa phanyx-professor-turmas-page */
+html[data-theme="dark"] .phanyx-professor-turmas-page,
+html[data-theme="system"] .phanyx-professor-turmas-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page section,
+html[data-theme="dark"] .phanyx-professor-turmas-page article,
+html[data-theme="system"] .phanyx-professor-turmas-page section,
+html[data-theme="system"] .phanyx-professor-turmas-page article {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="system"] .phanyx-professor-turmas-page section,
+html[data-theme="system"] .phanyx-professor-turmas-page article {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page h1,
+html[data-theme="dark"] .phanyx-professor-turmas-page h2,
+html[data-theme="dark"] .phanyx-professor-turmas-page h3,
+html[data-theme="dark"] .phanyx-professor-turmas-page h4,
+html[data-theme="dark"] .phanyx-professor-turmas-page strong,
+html[data-theme="system"] .phanyx-professor-turmas-page h1,
+html[data-theme="system"] .phanyx-professor-turmas-page h2,
+html[data-theme="system"] .phanyx-professor-turmas-page h3,
+html[data-theme="system"] .phanyx-professor-turmas-page h4,
+html[data-theme="system"] .phanyx-professor-turmas-page strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page p,
+html[data-theme="dark"] .phanyx-professor-turmas-page span,
+html[data-theme="system"] .phanyx-professor-turmas-page p,
+html[data-theme="system"] .phanyx-professor-turmas-page span {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page .bg-slate-50,
+html[data-theme="dark"] .phanyx-professor-turmas-page .bg-blue-50\/40,
+html[data-theme="system"] .phanyx-professor-turmas-page .bg-slate-50,
+html[data-theme="system"] .phanyx-professor-turmas-page .bg-blue-50\/40 {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="system"] .phanyx-professor-turmas-page .bg-slate-50,
+html[data-theme="system"] .phanyx-professor-turmas-page .bg-blue-50\/40 {
+  background: #333333 !important;
+  border-color: #555555 !important;
+}
+
+/* Chips/status em Turmas */
+html[data-theme="dark"] .phanyx-professor-turmas-page .bg-slate-100,
+html[data-theme="system"] .phanyx-professor-turmas-page .bg-slate-100 {
+  background: #374151 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page .bg-green-100,
+html[data-theme="system"] .phanyx-professor-turmas-page .bg-green-100 {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #86efac !important;
+}
+
+/* Botões/links de abrir-fechar e ações da Turmas */
+html[data-theme="dark"] .phanyx-professor-turmas-page button,
+html[data-theme="system"] .phanyx-professor-turmas-page button {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page button:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-professor-turmas-page button:hover {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+}
+
+/* Campo de busca e sugestões */
+html[data-theme="dark"] .phanyx-professor-turmas-page input,
+html[data-theme="system"] .phanyx-professor-turmas-page input {
+  background: #111827 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="system"] .phanyx-professor-turmas-page input {
+  background: #262626 !important;
+  border-color: #525252 !important;
+}
+
+html[data-theme="dark"] .phanyx-professor-turmas-page input::placeholder,
+html[data-theme="system"] .phanyx-professor-turmas-page input::placeholder {
+  color: #cbd5e1 !important;
+}
