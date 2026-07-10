@@ -188,46 +188,80 @@ export async function POST(req: NextRequest) {
     };
 
     const modelo = await prisma.$transaction(async (tx) => {
-      if (padrao) {
-        await tx.crachaModelo.updateMany({
-          where: {
-            instituicaoId: user.instituicaoId!,
-            tipoPessoa,
-            padrao: true,
-            ...(id ? { id: { not: id } } : {}),
-          },
-          data: {
-            padrao: false,
-          },
-        });
-      }
+  if (id) {
+    const modeloExistente = await tx.crachaModelo.findFirst({
+      where: {
+        id,
+        instituicaoId: user.instituicaoId!,
+      },
+    });
 
-      if (id) {
-        const modeloExistente = await tx.crachaModelo.findFirst({
-          where: {
-            id,
-            instituicaoId: user.instituicaoId!,
-          },
-        });
+    if (!modeloExistente) {
+      throw new Error("Modelo de crachá não encontrado.");
+    }
 
-        if (!modeloExistente) {
-          throw new Error("Modelo de crachá não encontrado.");
-        }
-
-        return tx.crachaModelo.update({
-          where: { id },
-          data: dadosModelo,
-        });
-      }
-
-      return tx.crachaModelo.create({
-        data: {
+    if (padrao) {
+      await tx.crachaModelo.updateMany({
+        where: {
           instituicaoId: user.instituicaoId!,
-          criadoPorId: user.id,
-          ...dadosModelo,
+          tipoPessoa,
+          padrao: true,
+          id: { not: id },
+        },
+        data: {
+          padrao: false,
         },
       });
+    }
+
+    return tx.crachaModelo.update({
+      where: { id },
+      data: dadosModelo,
     });
+  }
+
+  const modeloPadraoExistente = padrao
+    ? await tx.crachaModelo.findFirst({
+        where: {
+          instituicaoId: user.instituicaoId!,
+          tipoPessoa,
+          padrao: true,
+          ativo: true,
+        },
+        orderBy: {
+          atualizadoEm: "desc",
+        },
+      })
+    : null;
+
+  if (modeloPadraoExistente) {
+    return tx.crachaModelo.update({
+      where: { id: modeloPadraoExistente.id },
+      data: dadosModelo,
+    });
+  }
+
+  if (padrao) {
+    await tx.crachaModelo.updateMany({
+      where: {
+        instituicaoId: user.instituicaoId!,
+        tipoPessoa,
+        padrao: true,
+      },
+      data: {
+        padrao: false,
+      },
+    });
+  }
+
+  return tx.crachaModelo.create({
+    data: {
+      instituicaoId: user.instituicaoId!,
+      criadoPorId: user.id,
+      ...dadosModelo,
+    },
+  });
+});
 
     return NextResponse.json({ modelo });
   } catch (error: any) {
