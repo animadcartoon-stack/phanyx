@@ -411,7 +411,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
   type="button"
   onClick={() => baixarRelatorio("pdf")}
   disabled={carregando}
-  className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-slate-700 dark:hover:bg-slate-600"
+  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-pdf"
 >
   📄 Baixar PDF
 </button>
@@ -420,7 +420,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
   type="button"
   onClick={() => baixarRelatorio("excel")}
   disabled={carregando}
-  className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-slate-700 dark:hover:bg-slate-600"
+  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-excel"
 >
   📊 Baixar Excel
 </button>
@@ -428,7 +428,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
 <button
   type="button"
   disabled
-  className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-desabilitado"
   title="Será implementado na próxima etapa com modal padrão PHANYX."
 >
   Enviar mensagem
@@ -437,7 +437,7 @@ async function baixarRelatorio(formato: "pdf" | "excel") {
 <button
   type="button"
   disabled
-  className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+  className="phanyx-aniversariantes-btn phanyx-aniversariantes-btn-desabilitado"
   title="Será implementado na próxima etapa."
 >
   Gerar WhatsApp

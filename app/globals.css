@@ -9282,3 +9282,106 @@ html[data-theme="system"] .phanyx-aniversariantes-page button:disabled {
   background: #303030 !important;
   color: #d4d4d4 !important;
 }
+
+/* =========================================
+   PHANYX - ANIVERSARIANTES / BOTÕES
+========================================= */
+
+.phanyx-aniversariantes-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  border: 1px solid transparent !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  opacity: 1 !important;
+  white-space: nowrap !important;
+}
+
+.phanyx-aniversariantes-btn-pdf {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18) !important;
+}
+
+.phanyx-aniversariantes-btn-pdf:hover {
+  background: #1e293b !important;
+  border-color: #1e293b !important;
+}
+
+.phanyx-aniversariantes-btn-excel {
+  background: #047857 !important;
+  color: #ffffff !important;
+  border-color: #047857 !important;
+  box-shadow: 0 8px 18px rgba(4, 120, 87, 0.18) !important;
+}
+
+.phanyx-aniversariantes-btn-excel:hover {
+  background: #065f46 !important;
+  border-color: #065f46 !important;
+}
+
+.phanyx-aniversariantes-btn-desabilitado {
+  background: #e2e8f0 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+}
+
+/* Escuro */
+html[data-theme="dark"] .phanyx-aniversariantes-btn-pdf {
+  background: #334155 !important;
+  color: #ffffff !important;
+  border-color: #475569 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-btn-pdf:hover {
+  background: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-btn-excel {
+  background: #065f46 !important;
+  color: #ffffff !important;
+  border-color: #10b981 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-btn-excel:hover {
+  background: #047857 !important;
+}
+
+html[data-theme="dark"] .phanyx-aniversariantes-btn-desabilitado {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+/* Sistema: cinza premium, sem azul */
+html[data-theme="system"] .phanyx-aniversariantes-btn-pdf,
+html[data-theme="system"] .phanyx-aniversariantes-btn-excel {
+  background: #3a3a3a !important;
+  color: #ffffff !important;
+  border-color: #666666 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-btn-pdf:hover,
+html[data-theme="system"] .phanyx-aniversariantes-btn-excel:hover {
+  background: #4a4a4a !important;
+  border-color: #777777 !important;
+}
+
+html[data-theme="system"] .phanyx-aniversariantes-btn-desabilitado {
+  background: #303030 !important;
+  color: #d4d4d4 !important;
+  border-color: #555555 !important;
+}
