@@ -10623,3 +10623,56 @@ html[data-theme="system"] .phanyx-professor-boletim-page .boletim-disciplinas-su
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* =========================================
+   FIX FINAL - NOVA PROVA / TEMA CLARO
+   Deixa os dois cards claros, sem fundo azul/escuro
+========================================= */
+
+html[data-theme="light"] .nova-prova-publico-card,
+html[data-theme="light"] .nova-prova-nota-card {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card h3,
+html[data-theme="light"] .nova-prova-publico-card p,
+html[data-theme="light"] .nova-prova-nota-card h3,
+html[data-theme="light"] .nova-prova-nota-card p,
+html[data-theme="light"] .nova-prova-nota-card label {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card > div > label,
+html[data-theme="light"] .nova-prova-publico-card > label,
+html[data-theme="light"] .nova-prova-nota-card .nova-prova-nota-opcao {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card > div > label *,
+html[data-theme="light"] .nova-prova-publico-card > label *,
+html[data-theme="light"] .nova-prova-nota-card .nova-prova-nota-opcao * {
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .nova-prova-publico-card input,
+html[data-theme="light"] .nova-prova-nota-card input {
+  opacity: 1 !important;
+  accent-color: #2563eb !important;
+}
+
+html[data-theme="light"] .nova-prova-nota-card input[type="datetime-local"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}

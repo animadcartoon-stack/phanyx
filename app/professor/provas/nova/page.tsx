@@ -582,7 +582,7 @@ if (tipoPublico === "ALUNOS_SELECIONADOS" && alunosSelecionadosIds.length === 0)
   )}
 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900">
+                <div className="nova-prova-nota-card rounded-2xl border p-4">
   <h3 className="text-sm font-bold text-slate-900 dark:text-white">
   Liberação da nota para o aluno
 </h3>
