@@ -152,6 +152,75 @@ export default function AdminAniversariantesPage() {
     }
   }
 
+  function montarParamsRelatorio() {
+  const params = new URLSearchParams();
+
+  params.set("mes", mes);
+  params.set("tipo", tipo);
+  params.set("status", status);
+  params.set("whatsapp", whatsapp);
+
+  if (departamentoId !== "TODOS") {
+    params.set("departamentoId", departamentoId);
+  }
+
+  if (busca.trim()) {
+    params.set("busca", busca.trim());
+  }
+
+  return params;
+}
+
+async function baixarRelatorio(formato: "pdf" | "excel") {
+  try {
+    setErro("");
+
+    const params = montarParamsRelatorio();
+
+    const endpoint =
+      formato === "pdf"
+        ? `/api/admin/aniversariantes/exportar-pdf?${params}`
+        : `/api/admin/aniversariantes/exportar-excel?${params}`;
+
+    const resposta = await fetch(endpoint, {
+      credentials: "include",
+    });
+
+    if (!resposta.ok) {
+      let mensagem =
+        formato === "pdf"
+          ? "Erro ao gerar PDF."
+          : "Erro ao gerar Excel.";
+
+      try {
+        const json = await resposta.json();
+        mensagem = json.error || mensagem;
+      } catch {}
+
+      throw new Error(mensagem);
+    }
+
+    const blob = await resposta.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download =
+      formato === "pdf"
+        ? `aniversariantes-mes-${mes}.pdf`
+        : `aniversariantes-mes-${mes}.xls`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (error: any) {
+    console.error(error);
+    setErro(error.message || "Erro ao baixar relatório.");
+  }
+}
+
   useEffect(() => {
     carregarAniversariantes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -339,22 +408,40 @@ export default function AdminAniversariantesPage() {
 
             <div className="flex flex-wrap gap-2">
               <button
-                type="button"
-                disabled
-                className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                title="Será implementado na próxima etapa com modal padrão PHANYX."
-              >
-                Enviar mensagem
-              </button>
+  type="button"
+  onClick={() => baixarRelatorio("pdf")}
+  disabled={carregando}
+  className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-slate-700 dark:hover:bg-slate-600"
+>
+  📄 Baixar PDF
+</button>
 
-              <button
-                type="button"
-                disabled
-                className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                title="Será implementado na próxima etapa."
-              >
-                Gerar WhatsApp
-              </button>
+<button
+  type="button"
+  onClick={() => baixarRelatorio("excel")}
+  disabled={carregando}
+  className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70 dark:bg-slate-700 dark:hover:bg-slate-600"
+>
+  📊 Baixar Excel
+</button>
+
+<button
+  type="button"
+  disabled
+  className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+  title="Será implementado na próxima etapa com modal padrão PHANYX."
+>
+  Enviar mensagem
+</button>
+
+<button
+  type="button"
+  disabled
+  className="rounded-xl bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+  title="Será implementado na próxima etapa."
+>
+  Gerar WhatsApp
+</button>
             </div>
           </div>
 
