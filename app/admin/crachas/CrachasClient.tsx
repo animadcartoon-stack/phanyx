@@ -208,6 +208,21 @@ type OpcaoLoteCracha = {
   rotulo: string;
 };
 
+type PessoaEmissaoCracha = {
+  id: number;
+  tipo: string;
+  nome: string;
+  descricao?: string;
+  fotoPerfil?: string | null;
+  aptoParaCracha?: boolean;
+};
+
+type ResumoEmissaoCracha = {
+  total: number;
+  aptos: number;
+  pendentesFoto: number;
+};
+
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
 
@@ -278,11 +293,16 @@ const [filtroLoteEmissao, setFiltroLoteEmissao] = useState("");
 const [erroEmissaoCracha, setErroEmissaoCracha] = useState("");
 
 const [pessoaSelecionadaEmissao, setPessoaSelecionadaEmissao] =
-  useState<{
-    id: number;
-    nome: string;
-    descricao?: string;
-  } | null>(null);
+  useState<PessoaEmissaoCracha | null>(null);
+
+const [pessoasEmissaoCracha, setPessoasEmissaoCracha] =
+  useState<PessoaEmissaoCracha[]>([]);
+
+const [resumoEmissaoCracha, setResumoEmissaoCracha] =
+  useState<ResumoEmissaoCracha | null>(null);
+
+const [carregandoPessoasEmissao, setCarregandoPessoasEmissao] =
+  useState(false);
 
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
@@ -500,6 +520,8 @@ function abrirModalEmissaoCracha() {
   setModoEmissaoCracha("INDIVIDUAL");
   setFiltroLoteEmissao("");
   setPessoaSelecionadaEmissao(null);
+  setPessoasEmissaoCracha([]);
+  setResumoEmissaoCracha(null);
   setModalEmissaoAberto(true);
 }
 
@@ -509,21 +531,105 @@ function fecharModalEmissaoCracha() {
   setErroEmissaoCracha("");
   setFiltroLoteEmissao("");
   setPessoaSelecionadaEmissao(null);
+  setPessoasEmissaoCracha([]);
+  setResumoEmissaoCracha(null);
+}
+
+async function buscarPessoasParaEmissaoCracha() {
+  try {
+    setCarregandoPessoasEmissao(true);
+    setErroEmissaoCracha("");
+    setPessoaSelecionadaEmissao(null);
+    setPessoasEmissaoCracha([]);
+    setResumoEmissaoCracha(null);
+
+    if (modoEmissaoCracha === "INDIVIDUAL" && !buscaPessoaEmissao.trim()) {
+      setErroEmissaoCracha("Digite uma busca antes de procurar a pessoa.");
+      return;
+    }
+
+    if (modoEmissaoCracha === "LOTE" && !filtroLoteEmissao) {
+      setErroEmissaoCracha("Selecione um filtro para pré-visualizar o lote.");
+      return;
+    }
+
+    const params = new URLSearchParams();
+
+    params.set("tipo", tipoModeloCracha);
+    params.set("modo", modoEmissaoCracha);
+
+    if (buscaPessoaEmissao.trim()) {
+      params.set("busca", buscaPessoaEmissao.trim());
+    }
+
+    if (filtroLoteEmissao) {
+      params.set("filtro", filtroLoteEmissao);
+    }
+
+    const res = await fetch(`/api/admin/crachas/pessoas?${params.toString()}`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao buscar pessoas para emissão.");
+    }
+
+    setPessoasEmissaoCracha(Array.isArray(data.pessoas) ? data.pessoas : []);
+    setResumoEmissaoCracha(data.resumo || null);
+
+    if (!Array.isArray(data.pessoas) || data.pessoas.length === 0) {
+      setErroEmissaoCracha("Nenhuma pessoa encontrada para este critério.");
+    }
+  } catch (error: any) {
+    setErroEmissaoCracha(
+      error?.message || "Erro ao buscar pessoas para emissão."
+    );
+  } finally {
+    setCarregandoPessoasEmissao(false);
+  }
 }
 
 function continuarEmissaoCracha() {
-  if (modoEmissaoCracha === "INDIVIDUAL" && !pessoaSelecionadaEmissao) {
-    setErroEmissaoCracha(
-      "Selecione uma pessoa antes de continuar a emissão do crachá."
-    );
-    return;
+  if (modoEmissaoCracha === "INDIVIDUAL") {
+    if (!pessoaSelecionadaEmissao) {
+      setErroEmissaoCracha(
+        "Selecione uma pessoa antes de continuar a emissão do crachá."
+      );
+      return;
+    }
+
+    if (!pessoaSelecionadaEmissao.aptoParaCracha) {
+      setErroEmissaoCracha(
+        "Esta pessoa está sem foto oficial. Cadastre a foto antes de emitir o crachá."
+      );
+      return;
+    }
   }
 
-  if (modoEmissaoCracha === "LOTE" && !filtroLoteEmissao) {
-    setErroEmissaoCracha(
-      "Selecione um filtro para emissão em lote antes de continuar."
-    );
-    return;
+  if (modoEmissaoCracha === "LOTE") {
+    if (!filtroLoteEmissao) {
+      setErroEmissaoCracha(
+        "Selecione um filtro para emissão em lote antes de continuar."
+      );
+      return;
+    }
+
+    if (!resumoEmissaoCracha) {
+      setErroEmissaoCracha(
+        "Pré-visualize o lote antes de continuar a emissão."
+      );
+      return;
+    }
+
+    if (resumoEmissaoCracha.aptos <= 0) {
+      setErroEmissaoCracha(
+        "Nenhuma pessoa apta para emissão. Todos os cadastros encontrados estão sem foto oficial."
+      );
+      return;
+    }
   }
 
   setErroEmissaoCracha("");
@@ -532,8 +638,8 @@ function continuarEmissaoCracha() {
     tipo: "sucesso",
     texto:
       modoEmissaoCracha === "LOTE"
-        ? "Lote selecionado. Na próxima etapa vamos buscar as pessoas e gerar os códigos únicos dos crachás."
-        : "Pessoa selecionada. Na próxima etapa vamos gerar o código único do crachá.",
+        ? `Lote validado: ${resumoEmissaoCracha?.aptos || 0} crachá(s) apto(s) para emissão.`
+        : "Pessoa validada para emissão do crachá.",
   });
 
   setModalEmissaoAberto(false);
@@ -3125,9 +3231,16 @@ function gerarPontosPoligono(
         className="phanyx-crachas-input w-full"
       />
 
-      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-        A busca real será conectada ao cadastro conforme o tipo do modelo.
-      </p>
+      <div className="mt-3 flex justify-end">
+  <button
+    type="button"
+    onClick={buscarPessoasParaEmissaoCracha}
+    disabled={carregandoPessoasEmissao}
+    className="phanyx-crachas-button-secondary"
+  >
+    {carregandoPessoasEmissao ? "Buscando..." : "Buscar pessoa"}
+  </button>
+</div>
     </div>
 
     {erroEmissaoCracha && (
@@ -3137,25 +3250,51 @@ function gerarPontosPoligono(
     )}
 
     <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-      {pessoaSelecionadaEmissao ? (
-        <div>
-          <p className="font-bold text-slate-900 dark:text-slate-100">
-            {pessoaSelecionadaEmissao.nome}
-          </p>
-
-          {pessoaSelecionadaEmissao.descricao && (
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
-              {pessoaSelecionadaEmissao.descricao}
+  {pessoasEmissaoCracha.length > 0 ? (
+    <div className="space-y-2">
+      {pessoasEmissaoCracha.map((pessoa) => (
+        <button
+          key={`${pessoa.tipo}-${pessoa.id}`}
+          type="button"
+          onClick={() => {
+            setPessoaSelecionadaEmissao(pessoa);
+            setErroEmissaoCracha("");
+          }}
+          className={`flex w-full items-center justify-between gap-3 rounded-2xl border p-3 text-left transition ${
+            pessoaSelecionadaEmissao?.id === pessoa.id &&
+            pessoaSelecionadaEmissao?.tipo === pessoa.tipo
+              ? "border-blue-500 bg-blue-50 dark:bg-blue-950/40"
+              : "border-slate-200 bg-white hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
+          }`}
+        >
+          <div>
+            <p className="font-bold text-slate-900 dark:text-slate-100">
+              {pessoa.nome}
             </p>
-          )}
-        </div>
-      ) : (
-        <p>
-          Nenhuma pessoa selecionada ainda. Depois da conexão com o backend,
-          aqui aparecerão os resultados para escolha.
-        </p>
-      )}
+
+            {pessoa.descricao && (
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                {pessoa.descricao}
+              </p>
+            )}
+          </div>
+
+          <span
+            className={`rounded-full border px-3 py-1 text-xs font-bold ${
+              pessoa.aptoParaCracha
+                ? "border-green-300 bg-green-50 text-green-700 dark:border-green-800 dark:bg-green-950/40 dark:text-green-300"
+                : "border-red-300 bg-red-50 text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300"
+            }`}
+          >
+            {pessoa.aptoParaCracha ? "Com foto" : "Sem foto"}
+          </span>
+        </button>
+      ))}
     </div>
+  ) : (
+    <p>Busque uma pessoa para selecionar e emitir o crachá.</p>
+  )}
+</div>
   </>
 ) : (
   <>
@@ -3183,6 +3322,16 @@ function gerarPontosPoligono(
 
       <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
         A emissão em lote gerará um crachá e um QR Code único para cada pessoa encontrada.
+        <div className="mt-3 flex justify-end">
+  <button
+    type="button"
+    onClick={buscarPessoasParaEmissaoCracha}
+    disabled={carregandoPessoasEmissao}
+    className="phanyx-crachas-button-secondary"
+  >
+    {carregandoPessoasEmissao ? "Processando..." : "Pré-visualizar lote"}
+  </button>
+</div>
       </p>
     </div>
 
@@ -3193,11 +3342,51 @@ function gerarPontosPoligono(
     )}
 
     <div className="mt-4 rounded-2xl border border-dashed border-slate-300 p-4 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-      <p>
-        Nenhum lote processado ainda. Depois da conexão com o backend, aqui
-        aparecerá a prévia das pessoas que receberão o crachá.
-      </p>
+  {resumoEmissaoCracha ? (
+    <div className="space-y-3">
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
+            Total encontrado
+          </p>
+
+          <strong className="text-2xl text-slate-900 dark:text-white">
+            {resumoEmissaoCracha.total}
+          </strong>
+        </div>
+
+        <div className="rounded-2xl border border-green-300 bg-green-50 p-3 dark:border-green-800 dark:bg-green-950/40">
+          <p className="text-xs font-bold text-green-700 dark:text-green-300">
+            Aptos com foto
+          </p>
+
+          <strong className="text-2xl text-green-700 dark:text-green-300">
+            {resumoEmissaoCracha.aptos}
+          </strong>
+        </div>
+
+        <div className="rounded-2xl border border-red-300 bg-red-50 p-3 dark:border-red-800 dark:bg-red-950/40">
+          <p className="text-xs font-bold text-red-700 dark:text-red-300">
+            Pendentes sem foto
+          </p>
+
+          <strong className="text-2xl text-red-700 dark:text-red-300">
+            {resumoEmissaoCracha.pendentesFoto}
+          </strong>
+        </div>
+      </div>
+
+      {resumoEmissaoCracha.pendentesFoto > 0 && (
+        <p className="rounded-2xl border border-yellow-300 bg-yellow-50 p-3 text-xs font-semibold text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/40 dark:text-yellow-200">
+          Cadastros sem foto oficial não serão emitidos agora. O PHANYX poderá
+          gerar somente os aptos.
+        </p>
+      )}
     </div>
+  ) : (
+    <p>Pré-visualize o lote para ver aptos e pendentes sem foto.</p>
+  )}
+</div>
   </>
 )}
 
