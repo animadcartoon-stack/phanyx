@@ -1,158 +1,231 @@
 export const PERMISSOES_PHANYX = [
-  { chave: "dashboard.ver", nome: "Ver dashboard" },
+  // =====================================================
+  // GERAL / DASHBOARD
+  // =====================================================
+  { chave: "dashboard.ver", nome: "Geral - Ver dashboard" },
 
-  { chave: "alunos.ver", nome: "Ver alunos" },
-  { chave: "alunos.criar", nome: "Cadastrar alunos" },
-  { chave: "alunos.editar", nome: "Editar alunos" },
+  // =====================================================
+  // ASSINATURA PHANYX
+  // =====================================================
+  { chave: "assinatura.ver", nome: "Assinatura PHANYX - Ver" },
+  { chave: "assinatura.cancelar", nome: "Assinatura PHANYX - Cancelar" },
 
-  { chave: "matriculas.ver", nome: "Ver matrículas" },
-  { chave: "matriculas.criar", nome: "Criar matrículas" },
+  // =====================================================
+  // ACADÊMICO
+  // =====================================================
+  { chave: "alunos.ver", nome: "Acadêmico - Ver alunos" },
+  { chave: "alunos.criar", nome: "Acadêmico - Cadastrar alunos" },
+  { chave: "alunos.editar", nome: "Acadêmico - Editar alunos" },
 
-  { chave: "financeiro.ver", nome: "Ver financeiro" },
-  { chave: "financeiro.recebimentos", nome: "Recebimentos" },
-  { chave: "financeiro.inadimplentes", nome: "Inadimplentes" },
-  { chave: "financeiro.relatorios", nome: "Relatórios financeiros" },
-  { chave: "financeiro.fechamento", nome: "Fechamento geral" },
+  { chave: "matriculas.ver", nome: "Acadêmico - Ver matrículas" },
+  { chave: "matriculas.criar", nome: "Acadêmico - Criar matrículas" },
 
-  { chave: "caixa.ver", nome: "Ver caixa" },
-  { chave: "caixa.abrir", nome: "Abrir caixa" },
-  { chave: "caixa.fechar", nome: "Fechar caixa" },
-  { chave: "caixa.receber", nome: "Receber no caixa" },
-
-  { chave: "documentos.ver", nome: "Ver documentos" },
-  { chave: "documentos.gerar", nome: "Gerar documentos" },
-
-  { chave: "certificados.ver", nome: "Ver certificados" },
-  { chave: "certificados.emitir", nome: "Gerar / emitir certificados" },
-  { chave: "certificados.editar_template", nome: "Editar modelo de certificado" },
-
-  { chave: "funcionarios.ver", nome: "Ver funcionários" },
-  { chave: "funcionarios.criar", nome: "Cadastrar funcionários" },
-  { chave: "funcionarios.editar", nome: "Editar funcionários" },
-  { chave: "funcionarios.permissoes.gerenciar", nome: "Gerenciar permissões individuais de funcionários" },
-
-  { chave: "departamentos.ver", nome: "Ver departamentos" },
-  { chave: "departamentos.editar", nome: "Editar departamentos" },
-  { chave: "departamentos.permissoes", nome: "Gerenciar permissões dos departamentos" },
-
-  { chave: "rh.ver", nome: "Ver RH" },
-
-{ chave: "rh.funcionarios", nome: "RH - Funcionários" },
-{ chave: "rh.professores", nome: "RH - Professores" },
-{ chave: "rh.departamentos", nome: "RH - Departamentos" },
-{ chave: "rh.permissoes", nome: "RH - Permissões por setor" },
-
-{ chave: "rh.admissoes", nome: "RH - Admissões" },
-{ chave: "rh.desligamentos", nome: "RH - Desligamentos" },
-
-{ chave: "rh.ocorrencias", nome: "RH - Ocorrências funcionais" },
-{ chave: "rh.historico", nome: "RH - Histórico funcional" },
-
-{ chave: "rh.arquivados", nome: "RH - Arquivados" },
-
-{ chave: "rh.arquivar_ocorrencias", nome: "RH - Arquivar ocorrências" },
-{ chave: "rh.arquivar_holerites", nome: "RH - Arquivar holerites" },
-{ chave: "rh.arquivar_ferias", nome: "RH - Arquivar férias" },
-{ chave: "rh.arquivar_exames", nome: "RH - Arquivar exames" },
-{ chave: "rh.arquivar_rescisoes", nome: "RH - Arquivar rescisões" },
-{ chave: "rh.arquivar_documentos", nome: "RH - Arquivar documentos RH" },
-
-{ chave: "rh.restaurar_arquivados", nome: "RH - Restaurar registros arquivados" },
-
-{ chave: "rh.documentos", nome: "RH - Documentos" },
-{ chave: "rh.documentos_modelos", nome: "RH - Modelos de documentos" },
-{ chave: "rh.documentos_gerar", nome: "RH - Gerar documentos" },
-
-{ chave: "rh.ponto", nome: "RH - Controle de ponto" },
-{ chave: "rh.ponto_editar", nome: "RH - Ajustar registros de ponto" },
-{ chave: "rh.ponto_integracoes", nome: "RH - Integrações de relógio ponto" },
-
-{ chave: "rh.holerites", nome: "RH - Holerites" },
-{ chave: "rh.holerites_gerar", nome: "RH - Gerar holerites" },
-{ chave: "rh.holerites_excluir", nome: "RH - Excluir holerites" },
-
-{ chave: "rh.ferias", nome: "RH - Férias" },
-{ chave: "rh.ferias_aprovar", nome: "RH - Aprovar férias" },
-
-{ chave: "rh.exames", nome: "RH - Exames ocupacionais" },
-
-{ chave: "rh.rescisoes", nome: "RH - Rescisões" },
-
-{ chave: "rh.cargos", nome: "RH - Cargos" },
-{ chave: "rh.salarios", nome: "RH - Faixas salariais" },
-
-{ chave: "rh.relatorios", nome: "RH - Relatórios" },
-{ chave: "rh.indicadores", nome: "RH - Indicadores e métricas" },
-
-  { chave: "reunioes.ver", nome: "Ver reuniões" },
-  { chave: "reunioes.criar", nome: "Criar reuniões" },
-  { chave: "reunioes.gerenciar", nome: "Gerenciar reuniões" },
-
-  { chave: "ouvidoria.ver", nome: "Ver ouvidoria" },
-  { chave: "ouvidoria.responder", nome: "Responder ouvidoria" },
+  // =====================================================
+  // APOIO DOCENTE
+  // Página própria no Admin
+  // =====================================================
+  {
+    chave: "academico.publicacoes.ver",
+    nome: "Apoio Docente - Ver publicações pendentes",
+  },
+  {
+    chave: "academico.publicacoes.gerenciar",
+    nome: "Apoio Docente - Gerenciar publicações acadêmicas",
+  },
 
   {
-  chave: "academico.publicacoes.ver",
-  nome: "Apoio Docente - Ver publicações pendentes",
-},
-{
-  chave: "academico.publicacoes.gerenciar",
-  nome: "Apoio Docente - Gerenciar publicações acadêmicas",
-},
-
-{
-  chave: "academico.materiais.anexar",
-  nome: "Apoio Docente - Anexar materiais",
-},
-{
-  chave: "academico.materiais.publicar",
-  nome: "Apoio Docente - Publicar materiais para alunos",
-},
-
-{
-  chave: "academico.trabalhos.anexar",
-  nome: "Apoio Docente - Anexar arquivos em trabalhos",
-},
-{
-  chave: "academico.trabalhos.publicar",
-  nome: "Apoio Docente - Publicar trabalhos para alunos",
-},
-
-{
-  chave: "academico.turmas.selecionar",
-  nome: "Apoio Docente - Selecionar turmas acadêmicas",
-},
-{
-  chave: "academico.disciplinas.selecionar",
-  nome: "Apoio Docente - Selecionar disciplinas",
-},
-{
-  chave: "academico.professores.selecionar",
-  nome: "Apoio Docente - Selecionar professor responsável",
-},
-{
-  chave: "academico.alunos.selecionar",
-  nome: "Apoio Docente - Selecionar alunos específicos",
-},
-  { chave: "academico.publicacoes.ver", nome: "Acadêmico - Ver publicações pendentes" },
-  { chave: "academico.publicacoes.gerenciar", nome: "Acadêmico - Gerenciar publicações acadêmicas" },
-
-  { chave: "academico.materiais.anexar", nome: "Acadêmico - Anexar materiais" },
-  { chave: "academico.materiais.publicar", nome: "Acadêmico - Publicar materiais para alunos" },
-
-  { chave: "academico.trabalhos.anexar", nome: "Acadêmico - Anexar arquivos em trabalhos" },
-  { chave: "academico.trabalhos.publicar", nome: "Acadêmico - Publicar trabalhos para alunos" },
-
-  { chave: "academico.turmas.selecionar", nome: "Acadêmico - Selecionar turmas" },
-  { chave: "academico.disciplinas.selecionar", nome: "Acadêmico - Selecionar disciplinas" },
-  { chave: "academico.professores.selecionar", nome: "Acadêmico - Selecionar professor responsável" },
-  { chave: "academico.alunos.selecionar", nome: "Acadêmico - Selecionar alunos específicos" },
+    chave: "academico.materiais.anexar",
+    nome: "Apoio Docente - Anexar materiais",
+  },
   {
-  chave: "assinatura.ver",
-  nome: "Ver assinatura PHANYX",
-},
-{
-  chave: "assinatura.cancelar",
-  nome: "Cancelar assinatura PHANYX",
-},
+    chave: "academico.materiais.publicar",
+    nome: "Apoio Docente - Publicar materiais para alunos",
+  },
+
+  {
+    chave: "academico.trabalhos.anexar",
+    nome: "Apoio Docente - Anexar arquivos em trabalhos",
+  },
+  {
+    chave: "academico.trabalhos.publicar",
+    nome: "Apoio Docente - Publicar trabalhos para alunos",
+  },
+
+  {
+    chave: "academico.turmas.selecionar",
+    nome: "Apoio Docente - Selecionar turmas acadêmicas",
+  },
+  {
+    chave: "academico.disciplinas.selecionar",
+    nome: "Apoio Docente - Selecionar disciplinas",
+  },
+  {
+    chave: "academico.professores.selecionar",
+    nome: "Apoio Docente - Selecionar professor responsável",
+  },
+  {
+    chave: "academico.alunos.selecionar",
+    nome: "Apoio Docente - Selecionar alunos específicos",
+  },
+
+  // =====================================================
+  // FINANCEIRO
+  // =====================================================
+  { chave: "financeiro.ver", nome: "Financeiro - Ver financeiro" },
+  { chave: "financeiro.recebimentos", nome: "Financeiro - Recebimentos" },
+  { chave: "financeiro.inadimplentes", nome: "Financeiro - Inadimplentes" },
+  { chave: "financeiro.relatorios", nome: "Financeiro - Relatórios financeiros" },
+  { chave: "financeiro.fechamento", nome: "Financeiro - Fechamento geral" },
+
+  { chave: "caixa.ver", nome: "Financeiro - Ver caixa" },
+  { chave: "caixa.abrir", nome: "Financeiro - Abrir caixa" },
+  { chave: "caixa.fechar", nome: "Financeiro - Fechar caixa" },
+  { chave: "caixa.receber", nome: "Financeiro - Receber no caixa" },
+
+  // =====================================================
+  // DOCUMENTOS / CERTIFICADOS
+  // =====================================================
+  { chave: "documentos.ver", nome: "Documentos - Ver documentos" },
+  { chave: "documentos.gerar", nome: "Documentos - Gerar documentos" },
+
+  { chave: "certificados.ver", nome: "Documentos - Ver certificados" },
+  {
+    chave: "certificados.emitir",
+    nome: "Documentos - Gerar / emitir certificados",
+  },
+  {
+    chave: "certificados.editar_template",
+    nome: "Documentos - Editar modelo de certificado",
+  },
+
+  // =====================================================
+  // PESSOAL / RH
+  // =====================================================
+  { chave: "funcionarios.ver", nome: "RH - Ver funcionários" },
+  { chave: "funcionarios.criar", nome: "RH - Cadastrar funcionários" },
+  { chave: "funcionarios.editar", nome: "RH - Editar funcionários" },
+  {
+    chave: "funcionarios.permissoes.gerenciar",
+    nome: "RH - Gerenciar permissões individuais de funcionários",
+  },
+
+  { chave: "departamentos.ver", nome: "RH - Ver departamentos" },
+  { chave: "departamentos.editar", nome: "RH - Editar departamentos" },
+  {
+    chave: "departamentos.permissoes",
+    nome: "RH - Gerenciar permissões dos departamentos",
+  },
+
+  { chave: "rh.ver", nome: "RH - Ver RH" },
+
+  { chave: "rh.funcionarios", nome: "RH - Funcionários" },
+  { chave: "rh.professores", nome: "RH - Professores" },
+  { chave: "rh.departamentos", nome: "RH - Departamentos" },
+  { chave: "rh.permissoes", nome: "RH - Permissões por setor" },
+
+  { chave: "rh.admissoes", nome: "RH - Admissões" },
+  { chave: "rh.desligamentos", nome: "RH - Desligamentos" },
+
+  { chave: "rh.ocorrencias", nome: "RH - Ocorrências funcionais" },
+  { chave: "rh.historico", nome: "RH - Histórico funcional" },
+
+  { chave: "rh.arquivados", nome: "RH - Arquivados" },
+
+  { chave: "rh.arquivar_ocorrencias", nome: "RH - Arquivar ocorrências" },
+  { chave: "rh.arquivar_holerites", nome: "RH - Arquivar holerites" },
+  { chave: "rh.arquivar_ferias", nome: "RH - Arquivar férias" },
+  { chave: "rh.arquivar_exames", nome: "RH - Arquivar exames" },
+  { chave: "rh.arquivar_rescisoes", nome: "RH - Arquivar rescisões" },
+  { chave: "rh.arquivar_documentos", nome: "RH - Arquivar documentos RH" },
+
+  {
+    chave: "rh.restaurar_arquivados",
+    nome: "RH - Restaurar registros arquivados",
+  },
+
+  { chave: "rh.documentos", nome: "RH - Documentos" },
+  { chave: "rh.documentos_modelos", nome: "RH - Modelos de documentos" },
+  { chave: "rh.documentos_gerar", nome: "RH - Gerar documentos" },
+
+  { chave: "rh.ponto", nome: "RH - Controle de ponto" },
+  { chave: "rh.ponto_editar", nome: "RH - Ajustar registros de ponto" },
+  {
+    chave: "rh.ponto_integracoes",
+    nome: "RH - Integrações de relógio ponto",
+  },
+
+  { chave: "rh.holerites", nome: "RH - Holerites" },
+  { chave: "rh.holerites_gerar", nome: "RH - Gerar holerites" },
+  { chave: "rh.holerites_excluir", nome: "RH - Excluir holerites" },
+
+  { chave: "rh.ferias", nome: "RH - Férias" },
+  { chave: "rh.ferias_aprovar", nome: "RH - Aprovar férias" },
+
+  { chave: "rh.exames", nome: "RH - Exames ocupacionais" },
+
+  { chave: "rh.rescisoes", nome: "RH - Rescisões" },
+
+  { chave: "rh.cargos", nome: "RH - Cargos" },
+  { chave: "rh.salarios", nome: "RH - Faixas salariais" },
+
+  { chave: "rh.relatorios", nome: "RH - Relatórios" },
+  { chave: "rh.indicadores", nome: "RH - Indicadores e métricas" },
+
+  // =====================================================
+  // CONTROLE DE ACESSO / CRACHÁS / VISITANTES
+  // =====================================================
+  { chave: "crachas.ver", nome: "Crachás - Ver" },
+  { chave: "crachas.criar", nome: "Crachás - Criar" },
+  { chave: "crachas.editar", nome: "Crachás - Editar" },
+  { chave: "crachas.excluir", nome: "Crachás - Excluir" },
+  { chave: "crachas.emitir", nome: "Crachás - Emitir" },
+  { chave: "crachas.imprimir", nome: "Crachás - Imprimir" },
+
+  { chave: "crachas.modelos.ver", nome: "Crachás - Ver modelos" },
+  { chave: "crachas.modelos.criar", nome: "Crachás - Criar modelos" },
+  { chave: "crachas.modelos.editar", nome: "Crachás - Editar modelos" },
+  { chave: "crachas.modelos.excluir", nome: "Crachás - Excluir modelos" },
+
+  { chave: "visitantes.ver", nome: "Visitantes - Ver" },
+  { chave: "visitantes.criar", nome: "Visitantes - Cadastrar" },
+  { chave: "visitantes.editar", nome: "Visitantes - Editar" },
+  { chave: "visitantes.excluir", nome: "Visitantes - Excluir" },
+  {
+    chave: "visitantes.registrar_entrada",
+    nome: "Visitantes - Registrar entrada",
+  },
+  {
+    chave: "visitantes.registrar_saida",
+    nome: "Visitantes - Registrar saída",
+  },
+  { chave: "visitantes.bloquear", nome: "Visitantes - Bloquear" },
+  { chave: "visitantes.arquivar", nome: "Visitantes - Arquivar" },
+
+  // =====================================================
+  // COMUNICAÇÃO
+  // =====================================================
+  { chave: "reunioes.ver", nome: "Comunicação - Ver reuniões" },
+  { chave: "reunioes.criar", nome: "Comunicação - Criar reuniões" },
+  { chave: "reunioes.gerenciar", nome: "Comunicação - Gerenciar reuniões" },
+
+  { chave: "ouvidoria.ver", nome: "Comunicação - Ver ouvidoria" },
+  { chave: "ouvidoria.responder", nome: "Comunicação - Responder ouvidoria" },
+
+  { chave: "aniversariantes.ver", nome: "Aniversariantes - Ver" },
+  {
+    chave: "aniversariantes.enviar_mensagem",
+    nome: "Aniversariantes - Enviar mensagem",
+  },
+  {
+    chave: "aniversariantes.gerar_links_whatsapp",
+    nome: "Aniversariantes - Gerar links WhatsApp",
+  },
+  {
+    chave: "aniversariantes.exportar_pdf",
+    nome: "Aniversariantes - Baixar PDF",
+  },
+  {
+    chave: "aniversariantes.exportar_excel",
+    nome: "Aniversariantes - Baixar Excel",
+  },
 ] as const;
