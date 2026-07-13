@@ -567,7 +567,7 @@ setTotalDisciplinasMatriculadas(total);
                       </p>
                     </div>
 
-                    <span className="aluno-pill-disciplinas-dashboard inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+                    <span className="aluno-pill-legivel inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
   {disciplinas.length} disciplina(s)
 </span>
                   </div>
@@ -763,7 +763,7 @@ setTotalDisciplinasMatriculadas(total);
 
                     <a
                       href="/aluno/boletim"
-                      className="block rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                      className="aluno-botao-secundario block rounded-xl border border-slate-300 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
                     >
                       Abrir boletim
                     </a>

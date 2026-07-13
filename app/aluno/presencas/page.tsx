@@ -194,7 +194,7 @@ export default function PresencasAlunoPage() {
             Histórico de presença
           </h2>
 
-          <span className="aluno-pill-contraste inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+          <span className="aluno-pill-legivel inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
   {dados.items.length} registro(s)
 </span>
         </div>

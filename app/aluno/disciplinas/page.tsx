@@ -130,7 +130,7 @@ const sugestoesDisciplinas = busca.trim()
             </p>
           </div>
 
-          <span className="aluno-pill-contraste inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+          <span className="aluno-pill-legivel inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
   {loading ? "Carregando..." : `${disciplinasMatriculadas.length} disciplina(s)`}
 </span>
         </div>
@@ -190,7 +190,7 @@ className={[
                   {disciplina.nome}
                 </h2>
 
-                <span className="aluno-pill-contraste rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                <span className="aluno-pill-legivel rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600">
   {disciplina.totalAulas ?? 0} aula(s)
 </span>
               </div>

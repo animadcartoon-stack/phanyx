@@ -10809,28 +10809,36 @@ html[data-theme="system"] .nova-prova-nota-card input[type="datetime-local"] {
 
 /* =========================================
    FIX LOCAL - PORTAL DO ALUNO
-   Botões, pills e contadores em escuro/sistema
+   Contraste de botões, pills, contadores e anexos
 ========================================= */
 
-html[data-theme="dark"] .aluno-botao-secundario,
-html[data-theme="system"] .aluno-botao-secundario {
+/* Botões secundários: Ver/Abrir boletim */
+html[data-theme="dark"] body .aluno-botao-secundario.aluno-botao-secundario,
+html[data-theme="system"] body .aluno-botao-secundario.aluno-botao-secundario {
   background: transparent !important;
+  background-color: transparent !important;
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   border-color: #cbd5e1 !important;
+  opacity: 1 !important;
 }
 
-html[data-theme="dark"] .aluno-botao-secundario:hover,
-html[data-theme="system"] .aluno-botao-secundario:hover {
+html[data-theme="dark"] body .aluno-botao-secundario.aluno-botao-secundario:hover,
+html[data-theme="system"] body .aluno-botao-secundario.aluno-botao-secundario:hover {
   background: #ffffff !important;
+  background-color: #ffffff !important;
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
   border-color: #ffffff !important;
+  opacity: 1 !important;
 }
 
-html[data-theme="dark"] .aluno-pill-contraste,
-html[data-theme="system"] .aluno-pill-contraste {
-  background: #f8fafc !important;
+/* Pills/contadores: disciplina(s), aula(s), atividade(s), registro(s), Em andamento */
+html[data-theme="light"] body .aluno-pill-legivel.aluno-pill-legivel,
+html[data-theme="light"] body .aluno-pill-contraste.aluno-pill-contraste,
+html[data-theme="light"] body .aluno-status-progresso-pill.aluno-status-progresso-pill {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
   border-color: #cbd5e1 !important;
@@ -10838,8 +10846,50 @@ html[data-theme="system"] .aluno-pill-contraste {
   opacity: 1 !important;
 }
 
-html[data-theme="dark"] .aluno-pill-contraste *,
-html[data-theme="system"] .aluno-pill-contraste * {
+html[data-theme="dark"] body .aluno-pill-legivel.aluno-pill-legivel,
+html[data-theme="dark"] body .aluno-pill-contraste.aluno-pill-contraste,
+html[data-theme="dark"] body .aluno-status-progresso-pill.aluno-status-progresso-pill,
+html[data-theme="system"] body .aluno-pill-legivel.aluno-pill-legivel,
+html[data-theme="system"] body .aluno-pill-contraste.aluno-pill-contraste,
+html[data-theme="system"] body .aluno-status-progresso-pill.aluno-status-progresso-pill {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] body .aluno-pill-legivel.aluno-pill-legivel *,
+html[data-theme="dark"] body .aluno-pill-contraste.aluno-pill-contraste *,
+html[data-theme="dark"] body .aluno-status-progresso-pill.aluno-status-progresso-pill *,
+html[data-theme="system"] body .aluno-pill-legivel.aluno-pill-legivel *,
+html[data-theme="system"] body .aluno-pill-contraste.aluno-pill-contraste *,
+html[data-theme="system"] body .aluno-status-progresso-pill.aluno-status-progresso-pill * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Links de anexos em Trabalhos */
+html[data-theme="dark"] body .aluno-anexo-legivel.aluno-anexo-legivel,
+html[data-theme="dark"] body .aluno-link-anexo-contraste.aluno-link-anexo-contraste,
+html[data-theme="system"] body .aluno-anexo-legivel.aluno-anexo-legivel,
+html[data-theme="system"] body .aluno-link-anexo-contraste.aluno-link-anexo-contraste {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] body .aluno-anexo-legivel.aluno-anexo-legivel *,
+html[data-theme="dark"] body .aluno-link-anexo-contraste.aluno-link-anexo-contraste *,
+html[data-theme="system"] body .aluno-anexo-legivel.aluno-anexo-legivel *,
+html[data-theme="system"] body .aluno-link-anexo-contraste.aluno-link-anexo-contraste * {
   color: #0f172a !important;
   -webkit-text-fill-color: #0f172a !important;
   opacity: 1 !important;

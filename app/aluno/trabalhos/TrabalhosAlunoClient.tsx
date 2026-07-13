@@ -260,7 +260,7 @@ async function handleEnviar(e: FormEvent) {
                 Atividades publicadas
               </h2>
 
-              <span className="aluno-pill-contraste inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              <span className="aluno-pill-legivel inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
   {atividades.length} atividade(s)
 </span>
             </div>
