@@ -32,6 +32,7 @@ type ObjetoCracha =
       x: number;
       y: number;
       fonte: number;
+      fonteFamilia?: string;
       cor: string;
       alinhamento: "left" | "center" | "right";
       largura: number;
@@ -51,6 +52,7 @@ type ObjetoCracha =
       x: number;
       y: number;
       fonte: number;
+      fonteFamilia?: string;
       cor: string;
       alinhamento: "left" | "center" | "right";
       largura: number;
@@ -258,6 +260,80 @@ type ResumoEmissaoCracha = {
   aptos: number;
   pendentesFoto: number;
 };
+
+const FONTES_WINDOWS = [
+  "Arial",
+  "Arial Black",
+  "Aptos",
+  "Aptos Display",
+  "Aptos Mono",
+  "Aptos Serif",
+  "Bahnschrift",
+  "Calibri",
+  "Calibri Light",
+  "Cambria",
+  "Cambria Math",
+  "Candara",
+  "Comic Sans MS",
+  "Consolas",
+  "Constantia",
+  "Corbel",
+  "Courier New",
+  "Ebrima",
+  "Franklin Gothic Medium",
+  "Gabriola",
+  "Gadugi",
+  "Georgia",
+  "Impact",
+  "Ink Free",
+  "Javanese Text",
+  "Leelawadee UI",
+  "Lucida Console",
+  "Lucida Sans Unicode",
+  "Malgun Gothic",
+  "Microsoft Himalaya",
+  "Microsoft JhengHei",
+  "Microsoft New Tai Lue",
+  "Microsoft PhagsPa",
+  "Microsoft Sans Serif",
+  "Microsoft Tai Le",
+  "Microsoft YaHei",
+  "Microsoft Yi Baiti",
+  "MingLiU-ExtB",
+  "Mongolian Baiti",
+  "MS Gothic",
+  "MS PGothic",
+  "MS UI Gothic",
+  "MV Boli",
+  "Myanmar Text",
+  "Nirmala UI",
+  "Palatino Linotype",
+  "Segoe MDL2 Assets",
+  "Segoe Print",
+  "Segoe Script",
+  "Segoe UI",
+  "Segoe UI Black",
+  "Segoe UI Emoji",
+  "Segoe UI Historic",
+  "Segoe UI Light",
+  "Segoe UI Semibold",
+  "Segoe UI Symbol",
+  "SimSun",
+  "Sitka Text",
+  "Sylfaen",
+  "Symbol",
+  "Tahoma",
+  "Times New Roman",
+  "Trebuchet MS",
+  "Verdana",
+  "Webdings",
+  "Wingdings",
+  "Yu Gothic",
+] as const;
+
+function fonteCssCracha(fonteFamilia?: string) {
+  return `"${fonteFamilia || "Arial"}", Arial, sans-serif`;
+}
 
 function CodigoBarrasPreview({
   valor,
@@ -1062,6 +1138,7 @@ function continuarEmissaoCracha() {
         x: 30,
         y: 30,
         fonte: 18,
+        fonteFamilia: "Arial",
         cor: "#000000",
         alinhamento: "center",
         largura: 120,
@@ -1091,6 +1168,7 @@ function continuarEmissaoCracha() {
       x: 30,
       y: 80,
       fonte: 16,
+      fonteFamilia: "Arial",
       cor: "#000000",
       alinhamento: "center",
       largura: 150,
@@ -4386,6 +4464,7 @@ if (objeto.tipo === "TEXTO") {
   width: objeto.largura,
   height: objeto.altura,
   fontSize: objeto.fonte,
+  fontFamily: fonteCssCracha(objeto.fonteFamilia),
   color: objeto.cor || "#000000",
   WebkitTextFillColor: objeto.cor || "#000000",
   textShadow: sombraTextoCss(objeto),
@@ -4420,6 +4499,7 @@ if (objeto.tipo === "TEXTO") {
     height: "100%",
     color: objeto.cor || "#000000",
     WebkitTextFillColor: objeto.cor || "#000000",
+    fontFamily: fonteCssCracha(objeto.fonteFamilia),
     textAlign: objeto.alinhamento || "center",
     whiteSpace: "normal",
     overflowWrap: "break-word",
@@ -4498,52 +4578,61 @@ if (objeto.tipo === "CAMPO") {
         window.addEventListener("mousemove", mover);
         window.addEventListener("mouseup", soltar);
       }}
-     style={{
-  position: "absolute",
-  left: objeto.x,
-  top: objeto.y,
-  width: objeto.largura,
-  height: objeto.altura,
-  fontSize: objeto.fonte,
-  color: objeto.cor || "#000000",
-  cursor: "move",
-  padding: "2px 4px",
-  textAlign: objeto.alinhamento || "center",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  whiteSpace: "normal",
-  overflowWrap: "break-word",
-  wordBreak: "break-word",
-  lineHeight: "1.15",
-  overflow: "visible",
-  boxSizing: "border-box",
-  border:
-    objetoSelecionado === objeto.id
-      ? "1px dashed #2563eb"
-      : "1px solid transparent",
-  zIndex: zIndexObjetoCracha(objeto),
-}}
+      style={{
+        position: "absolute",
+        left: objeto.x,
+        top: objeto.y,
+        width: objeto.largura,
+        height: objeto.altura,
+        fontSize: objeto.fonte,
+        fontFamily: fonteCssCracha(objeto.fonteFamilia),
+        color: objeto.cor || "#000000",
+        WebkitTextFillColor: objeto.cor || "#000000",
+        cursor: "move",
+        padding: "2px 4px",
+        textAlign: objeto.alinhamento || "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent:
+          objeto.alinhamento === "left"
+            ? "flex-start"
+            : objeto.alinhamento === "right"
+            ? "flex-end"
+            : "center",
+        whiteSpace: "normal",
+        overflowWrap: "break-word",
+        wordBreak: "break-word",
+        lineHeight: "1.15",
+        overflow: "visible",
+        boxSizing: "border-box",
+        border:
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : "1px solid transparent",
+        zIndex: zIndexObjetoCracha(objeto),
+      }}
     >
-  <span
-  style={{
-    display: "block",
-    width: "100%",
-    height: "100%",
-    color: objeto.cor || "#000000",
-    textAlign: objeto.alinhamento || "center",
-    whiteSpace: "normal",
-    overflowWrap: "break-word",
-    wordBreak: "break-word",
-    lineHeight: "1.15",
-    overflow: "hidden",
-  }}
->
-  {objeto.campo}
-</span>
+      <span
+        style={{
+          display: "block",
+          width: "100%",
+          height: "100%",
+          color: objeto.cor || "#000000",
+          WebkitTextFillColor: objeto.cor || "#000000",
+          fontFamily: fonteCssCracha(objeto.fonteFamilia),
+          textAlign: objeto.alinhamento || "center",
+          whiteSpace: "normal",
+          overflowWrap: "break-word",
+          wordBreak: "break-word",
+          lineHeight: "1.15",
+          overflow: "hidden",
+        }}
+      >
+        {objeto.campo}
+      </span>
 
-  {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
-</div>
+      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+    </div>
   );
 }
 
@@ -5151,6 +5240,35 @@ if (objeto.tipo === "FORMA") {
                 />
               </div>
 
+<div>
+  <label className="mb-2 block font-semibold">
+    Fonte
+  </label>
+
+  <select
+    value={objetoAtual.fonteFamilia || "Arial"}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        fonteFamilia: e.target.value,
+      })
+    }
+    className="phanyx-crachas-input"
+    style={{
+      fontFamily: fonteCssCracha(objetoAtual.fonteFamilia || "Arial"),
+    }}
+  >
+    {FONTES_WINDOWS.map((fonte) => (
+      <option
+        key={fonte}
+        value={fonte}
+        style={{ fontFamily: fonteCssCracha(fonte) }}
+      >
+        {fonte}
+      </option>
+    ))}
+  </select>
+</div>
+
               <div>
                 <label className="mb-2 block font-semibold">
                   Tamanho
@@ -5463,6 +5581,35 @@ if (objeto.tipo === "FORMA") {
   aluno, professor, funcionário, visitante, membro ou personalizado.
 </p>
     </div>
+    
+<div>
+  <label className="mb-2 block font-semibold">
+    Fonte
+  </label>
+
+  <select
+    value={objetoAtual.fonteFamilia || "Arial"}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        fonteFamilia: e.target.value,
+      })
+    }
+    className="phanyx-crachas-input"
+    style={{
+      fontFamily: fonteCssCracha(objetoAtual.fonteFamilia || "Arial"),
+    }}
+  >
+    {FONTES_WINDOWS.map((fonte) => (
+      <option
+        key={fonte}
+        value={fonte}
+        style={{ fontFamily: fonteCssCracha(fonte) }}
+      >
+        {fonte}
+      </option>
+    ))}
+  </select>
+</div>
 
     <div>
       <label className="mb-2 block font-semibold">
