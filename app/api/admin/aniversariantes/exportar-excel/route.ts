@@ -177,49 +177,91 @@ export async function GET(req: NextRequest) {
     tl: { col: 0, row: 0 },
     ext: { width: 150, height: 70 },
   });
+}worksheet.getRow(1).height = 26;
+worksheet.getRow(2).height = 22;
+worksheet.getRow(3).height = 22;
+worksheet.getRow(4).height = 10;
+
+if (logo) {
+  const imageId = workbook.addImage({
+    base64: logo.base64,
+    extension: logo.extension,
+  });
+
+  worksheet.addImage(imageId, {
+    tl: { col: 0, row: 0 },
+    ext: { width: 130, height: 58 },
+  });
+
+  worksheet.mergeCells("C1:G1");
+  worksheet.mergeCells("C2:G2");
+  worksheet.mergeCells("C3:G3");
+
+  worksheet.getCell("C1").value = nomeInstituicao;
+  worksheet.getCell("C2").value = "Relatório de aniversariantes";
+  worksheet.getCell("C3").value = `Mês: ${nomeMes(
+    resultado.mes
+  )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
+
+  worksheet.getCell("C1").font = {
+    bold: true,
+    size: 16,
+    color: { argb: "FF0F172A" },
+  };
+
+  worksheet.getCell("C2").font = {
+    bold: true,
+    size: 12,
+    color: { argb: "FF0F172A" },
+  };
+
+  worksheet.getCell("C3").font = {
+    size: 10,
+    color: { argb: "FF334155" },
+  };
+
+  worksheet.getCell("C1").alignment = {
+    vertical: "middle",
+    horizontal: "left",
+  };
+
+  worksheet.getCell("C2").alignment = {
+    vertical: "middle",
+    horizontal: "left",
+  };
+
+  worksheet.getCell("C3").alignment = {
+    vertical: "middle",
+    horizontal: "left",
+  };
+} else {
+  worksheet.mergeCells("A1:G1");
+  worksheet.mergeCells("A2:G2");
+  worksheet.mergeCells("A3:G3");
+
+  worksheet.getCell("A1").value = nomeInstituicao;
+  worksheet.getCell("A2").value = "Relatório de aniversariantes";
+  worksheet.getCell("A3").value = `Mês: ${nomeMes(
+    resultado.mes
+  )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
+
+  worksheet.getCell("A1").font = {
+    bold: true,
+    size: 16,
+    color: { argb: "FF0F172A" },
+  };
+
+  worksheet.getCell("A2").font = {
+    bold: true,
+    size: 12,
+    color: { argb: "FF0F172A" },
+  };
+
+  worksheet.getCell("A3").font = {
+    size: 10,
+    color: { argb: "FF334155" },
+  };
 }
-
-    worksheet.mergeCells("A1:G1");
-    worksheet.mergeCells("A2:G2");
-    worksheet.mergeCells("A3:G3");
-
-    worksheet.getCell("A1").value = logo ? "" : nomeInstituicao;
-    worksheet.getCell("A2").value = "Relatório de aniversariantes";
-    worksheet.getCell("A3").value = `Mês: ${nomeMes(
-      resultado.mes
-    )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
-
-    if (logo) {
-      worksheet.getCell("C1").value = nomeInstituicao;
-      worksheet.getCell("C1").font = {
-        bold: true,
-        size: 16,
-        color: { argb: "FF0F172A" },
-      };
-
-      worksheet.getCell("C2").value = "Relatório de aniversariantes";
-      worksheet.getCell("C3").value = `Mês: ${nomeMes(
-        resultado.mes
-      )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
-    }
-
-    worksheet.getCell("A1").font = {
-      bold: true,
-      size: 16,
-      color: { argb: "FF0F172A" },
-    };
-
-    worksheet.getCell("A2").font = {
-      bold: true,
-      size: 12,
-      color: { argb: "FF0F172A" },
-    };
-
-    worksheet.getCell("A3").font = {
-      size: 10,
-      color: { argb: "FF334155" },
-    };
-
     const headerRowNumber = 5;
 
     worksheet.getRow(headerRowNumber).values = [
