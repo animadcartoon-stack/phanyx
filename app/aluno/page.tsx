@@ -292,7 +292,7 @@ setTotalDisciplinasMatriculadas(total);
         titulo: "Continuar estudos",
         descricao:
           "Retome sua rotina acadêmica acessando sua disciplina disponível no momento.",
-        href: `/aluno/disciplina/${disciplinaPrincipal.id}`,
+        href: `/aluno/disciplinas/${disciplinaPrincipal.id}`,
         label: "Abrir disciplina",
       };
     }
@@ -393,7 +393,7 @@ setTotalDisciplinasMatriculadas(total);
                 <a
                   href={
                     disciplinaPrincipal
-                      ? `/aluno/disciplina/${disciplinaPrincipal.id}`
+                      ? `/aluno/disciplinas/${disciplinaPrincipal.id}`
                       : "/aluno/boletim"
                   }
                   className="inline-flex items-center justify-center rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-100"
@@ -567,9 +567,9 @@ setTotalDisciplinasMatriculadas(total);
                       </p>
                     </div>
 
-                    <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                      {disciplinas.length} disciplina(s)
-                    </span>
+                    <span className="aluno-pill-contraste inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+  {disciplinas.length} disciplina(s)
+</span>
                   </div>
 
                   <div className="mt-6 grid gap-4 md:grid-cols-2">
@@ -604,7 +604,7 @@ setTotalDisciplinasMatriculadas(total);
   </div>
 ) : (
   <a
-    href={`/aluno/disciplina/${disc.id}`}
+    href={`/aluno/disciplinas/${disc.id}`}
     className="mt-4 inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700"
   >
     Acessar disciplina →
@@ -628,11 +628,11 @@ setTotalDisciplinasMatriculadas(total);
                     </div>
 
                     <a
-                      href="/aluno/boletim"
-                      className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-                    >
-                      Ver boletim
-                    </a>
+  href="/aluno/boletim"
+  className="aluno-botao-secundario inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+>
+  Ver boletim
+</a>
                   </div>
 
                   {!loadingPlano && plano === "ESSENCIAL" ? (
@@ -751,7 +751,7 @@ setTotalDisciplinasMatriculadas(total);
                     <a
                       href={
                         disciplinaPrincipal
-                          ? `/aluno/disciplina/${disciplinaPrincipal.id}`
+                          ? `/aluno/disciplinas/${disciplinaPrincipal.id}`
                           : "/aluno"
                       }
                       className="block rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-slate-900 dark:text-white transition hover:bg-blue-700"

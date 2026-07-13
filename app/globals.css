@@ -10806,3 +10806,163 @@ html[data-theme="system"] .nova-prova-nota-card input[type="datetime-local"] {
   -webkit-text-fill-color: #ffffff !important;
   border-color: #666666 !important;
 }
+
+/* =========================================
+   FIX LOCAL - PORTAL DO ALUNO
+   Botões, pills e contadores em escuro/sistema
+========================================= */
+
+html[data-theme="dark"] .aluno-botao-secundario,
+html[data-theme="system"] .aluno-botao-secundario {
+  background: transparent !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .aluno-botao-secundario:hover,
+html[data-theme="system"] .aluno-botao-secundario:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #ffffff !important;
+}
+
+html[data-theme="dark"] .aluno-pill-contraste,
+html[data-theme="system"] .aluno-pill-contraste {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-pill-contraste *,
+html[data-theme="system"] .aluno-pill-contraste * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* =========================================
+   FIX LOCAL - PORTAL DO ALUNO
+   Botões, pills, contadores e links em escuro/sistema
+========================================= */
+
+html[data-theme="dark"] .aluno-botao-secundario,
+html[data-theme="system"] .aluno-botao-secundario {
+  background: transparent !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .aluno-botao-secundario:hover,
+html[data-theme="system"] .aluno-botao-secundario:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #ffffff !important;
+}
+
+html[data-theme="light"] .aluno-pill-contraste {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .aluno-pill-contraste,
+html[data-theme="system"] .aluno-pill-contraste {
+  background: #e5e7eb !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-pill-contraste *,
+html[data-theme="system"] .aluno-pill-contraste * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-link-anexo-contraste,
+html[data-theme="system"] .aluno-link-anexo-contraste {
+  background: #e5e7eb !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-link-anexo-contraste:hover,
+html[data-theme="system"] .aluno-link-anexo-contraste:hover {
+  background: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}/* =========================================
+   FIX LOCAL - PORTAL DO ALUNO
+   Botões, pills, contadores e links em escuro/sistema
+========================================= */
+
+html[data-theme="dark"] .aluno-botao-secundario,
+html[data-theme="system"] .aluno-botao-secundario {
+  background: transparent !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .aluno-botao-secundario:hover,
+html[data-theme="system"] .aluno-botao-secundario:hover {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #ffffff !important;
+}
+
+html[data-theme="light"] .aluno-pill-contraste {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .aluno-pill-contraste,
+html[data-theme="system"] .aluno-pill-contraste {
+  background: #e5e7eb !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-pill-contraste *,
+html[data-theme="system"] .aluno-pill-contraste * {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-link-anexo-contraste,
+html[data-theme="system"] .aluno-link-anexo-contraste {
+  background: #e5e7eb !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .aluno-link-anexo-contraste:hover,
+html[data-theme="system"] .aluno-link-anexo-contraste:hover {
+  background: #ffffff !important;
+  color: #020617 !important;
+  -webkit-text-fill-color: #020617 !important;
+}

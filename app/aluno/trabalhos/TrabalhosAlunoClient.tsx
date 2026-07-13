@@ -260,9 +260,9 @@ async function handleEnviar(e: FormEvent) {
                 Atividades publicadas
               </h2>
 
-              <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
-                {atividades.length} atividade(s)
-              </span>
+              <span className="aluno-pill-contraste inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+  {atividades.length} atividade(s)
+</span>
             </div>
 
             <div className="mt-5 space-y-4">
@@ -392,7 +392,7 @@ async function handleEnviar(e: FormEvent) {
         href={anexo.url}
         target="_blank"
         rel="noreferrer"
-        className="block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
+        className="aluno-link-anexo-contraste block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100"
       >
         📎 {anexo.arquivoNome || anexo.titulo}
       </a>
@@ -488,7 +488,7 @@ async function handleEnviar(e: FormEvent) {
             href={anexo.url}
             target="_blank"
             rel="noreferrer"
-            className="block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100"
+            className="aluno-link-anexo-contraste block rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-blue-700 hover:bg-blue-100"
           >
             📎 {anexo.arquivoNome || anexo.titulo}
           </a>

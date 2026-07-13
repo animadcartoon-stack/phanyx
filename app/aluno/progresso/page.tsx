@@ -127,7 +127,7 @@ export default function ProgressoAluno() {
                   </div>
 
                   <div
-                    className={`inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
+  className={`aluno-pill-contraste inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
                       concluido
                         ? "bg-emerald-50 text-emerald-700"
                         : "bg-blue-50 text-blue-700"
