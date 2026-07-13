@@ -556,6 +556,9 @@ const [carregandoPessoasEmissao, setCarregandoPessoasEmissao] =
 
 const [emitindoCracha, setEmitindoCracha] = useState(false);
 
+const [ultimoCrachaEmitidoId, setUltimoCrachaEmitidoId] =
+  useState<number | null>(null);
+
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
 
@@ -1457,6 +1460,8 @@ async function continuarEmissaoCracha() {
       return;
     }
 
+    const abaPdf = window.open("", "_blank");
+
     try {
       setEmitindoCracha(true);
 
@@ -1483,6 +1488,26 @@ async function continuarEmissaoCracha() {
         ? String(data.cracha.codigoCracha)
         : "";
 
+        const crachaEmitidoId = Number(data?.cracha?.id || 0);
+
+if (!crachaEmitidoId) {
+  abaPdf?.close();
+
+  throw new Error(
+    "O crachá foi emitido, mas o identificador necessário para gerar o PDF não retornou."
+  );
+}
+
+setUltimoCrachaEmitidoId(crachaEmitidoId);
+
+const urlPdf = `/api/admin/crachas/emitidos/${crachaEmitidoId}/pdf`;
+
+if (abaPdf) {
+  abaPdf.location.href = urlPdf;
+} else {
+  window.location.href = urlPdf;
+}
+
       const nomePessoa =
         data?.pessoa?.nome ||
         pessoaSelecionadaEmissao.nome ||
@@ -1499,6 +1524,7 @@ async function continuarEmissaoCracha() {
 
       setTimeout(() => setAvisoCracha(null), 6000);
     } catch (error: any) {
+      abaPdf?.close();
       console.error("ERRO AO EMITIR CRACHÁ:", error);
 
       setErroEmissaoCracha(
@@ -1537,6 +1563,24 @@ async function continuarEmissaoCracha() {
       "A emissão real em lote será implementada na próxima etapa. Nenhum crachá foi emitido agora."
     );
   }
+}
+
+function abrirPdfUltimoCrachaEmitido() {
+  if (!ultimoCrachaEmitidoId) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto:
+        "Nenhum crachá foi emitido nesta tela ainda. Emita um crachá antes de abrir o PDF.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+    return;
+  }
+
+  window.open(
+    `/api/admin/crachas/emitidos/${ultimoCrachaEmitidoId}/pdf`,
+    "_blank"
+  );
 }
 
   function adicionarTexto() {
