@@ -4387,18 +4387,30 @@ if (objeto.tipo === "TEXTO") {
   height: objeto.altura,
   fontSize: objeto.fonte,
   color: objeto.cor || "#000000",
+  WebkitTextFillColor: objeto.cor || "#000000",
   textShadow: sombraTextoCss(objeto),
   cursor: "move",
   padding: "2px 4px",
-  textAlign: objeto.alinhamento,
+  textAlign: objeto.alinhamento || "center",
   display: "flex",
   alignItems: "center",
+  justifyContent:
+    objeto.alinhamento === "left"
+      ? "flex-start"
+      : objeto.alinhamento === "right"
+      ? "flex-end"
+      : "center",
+  whiteSpace: "normal",
+  overflowWrap: "break-word",
+  wordBreak: "break-word",
+  lineHeight: "1.15",
   overflow: "visible",
+  boxSizing: "border-box",
   border:
     objetoSelecionado === objeto.id
       ? "1px dashed #2563eb"
       : "1px solid transparent",
-      zIndex: zIndexObjetoCracha(objeto),
+  zIndex: zIndexObjetoCracha(objeto),
 }}
                   >
   <span
@@ -4407,6 +4419,7 @@ if (objeto.tipo === "TEXTO") {
     width: "100%",
     height: "100%",
     color: objeto.cor || "#000000",
+    WebkitTextFillColor: objeto.cor || "#000000",
     textAlign: objeto.alinhamento || "center",
     whiteSpace: "normal",
     overflowWrap: "break-word",
