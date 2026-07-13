@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
+import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 
 type DashboardResponse = {
     professor: {
@@ -154,6 +155,7 @@ async function alterarFotoPerfil(file: File | null) {
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
+        <CentralAvisosPhanyx />
         <div className="rounded-2xl border bg-white phanyx-theme-card p-4 shadow-sm sm:p-6">
           <h1 className="text-xl font-bold text-slate-900 dark:text-white sm:text-2xl">
             Dashboard do Professor

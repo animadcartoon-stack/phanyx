@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
+import CentralAvisosPhanyx from "@/components/phanyx/CentralAvisosPhanyx";
 
 type DashboardAlunoResponse = {
   aluno: {
@@ -330,6 +331,7 @@ setTotalDisciplinasMatriculadas(total);
   }}
 />
       <div className="mx-auto max-w-7xl space-y-4 px-2 py-3 sm:space-y-6 sm:p-6">
+        <CentralAvisosPhanyx />
         <section className="aluno-dashboard-hero overflow-hidden rounded-[30px] border border-slate-800 bg-gradient-to-r from-slate-950 via-blue-950 to-slate-900 text-white shadow-sm">
           <div className="grid gap-6 px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:grid-cols-[1.45fr_0.95fr] lg:items-center">
             <div>
