@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import JsBarcode from "jsbarcode";
 
@@ -172,12 +172,115 @@ function dropShadowCss(objeto: any) {
   return filtros.length ? filtros.join(" ") : "none";
 }
 
+function abreviarNomeParaCracha(nomeCompleto: string) {
+  const partes = nomeCompleto
+    .trim()
+    .replace(/\s+/g, " ")
+    .split(" ")
+    .filter(Boolean);
+
+  if (partes.length <= 2) {
+    return nomeCompleto.trim();
+  }
+
+  return `${partes[0]} ${partes[partes.length - 1]}`;
+}
+
+function TextoAutomaticoCracha({
+  texto,
+  tamanhoFonte,
+  fonteFamilia,
+  cor,
+  alinhamento,
+  sombra,
+}: {
+  texto: string;
+  tamanhoFonte: number;
+  fonteFamilia?: string;
+  cor: string;
+  alinhamento: "left" | "center" | "right";
+  sombra: string;
+}) {
+  const referencia = useRef<HTMLDivElement | null>(null);
+
+  const [textoExibido, setTextoExibido] = useState(texto);
+  const [fonteExibida, setFonteExibida] = useState(tamanhoFonte);
+
+  useEffect(() => {
+    setTextoExibido(texto);
+    setFonteExibida(tamanhoFonte);
+  }, [texto, tamanhoFonte]);
+
+  useEffect(() => {
+    const elemento = referencia.current;
+
+    if (!elemento) return;
+
+    let tamanhoAtual = tamanhoFonte;
+    let nomeAtual = texto;
+
+    function aindaNaoCabe() {
+      return (
+        elemento.scrollWidth > elemento.clientWidth + 1 ||
+        elemento.scrollHeight > elemento.clientHeight + 1
+      );
+    }
+
+    elemento.style.fontSize = `${tamanhoAtual}px`;
+
+    while (aindaNaoCabe() && tamanhoAtual > 9) {
+      tamanhoAtual -= 1;
+      elemento.style.fontSize = `${tamanhoAtual}px`;
+    }
+
+    if (aindaNaoCabe()) {
+      nomeAtual = abreviarNomeParaCracha(texto);
+      setTextoExibido(nomeAtual);
+      setFonteExibida(Math.max(9, tamanhoAtual));
+      return;
+    }
+
+    setFonteExibida(tamanhoAtual);
+  }, [texto, tamanhoFonte]);
+
+  return (
+    <div
+      ref={referencia}
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent:
+          alinhamento === "left"
+            ? "flex-start"
+            : alinhamento === "right"
+            ? "flex-end"
+            : "center",
+        color: cor,
+        fontFamily: fonteCss(fonteFamilia),
+        fontSize: fonteExibida,
+        textAlign: alinhamento,
+        lineHeight: 1.1,
+        whiteSpace: "normal",
+        overflow: "hidden",
+        overflowWrap: "normal",
+        wordBreak: "normal",
+        textShadow: sombra,
+      }}
+    >
+      {textoExibido}
+    </div>
+  );
+}
+
 function CodigoBarrasCracha({
   valor,
   cor,
   corFundo,
   mostrarFundo,
   mostrarTexto,
+  largura,
   altura,
 }: {
   valor: string;
@@ -185,6 +288,7 @@ function CodigoBarrasCracha({
   corFundo: string;
   mostrarFundo: boolean;
   mostrarTexto: boolean;
+  largura: number;
   altura: number;
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -198,13 +302,22 @@ function CodigoBarrasCracha({
         Number(altura || 48) - (mostrarTexto ? 16 : 4)
       );
 
+      const larguraModulo = Math.max(
+  0.8,
+  Math.min(
+    1.8,
+    Number(largura || 160) /
+      Math.max(90, String(valor || "PHANYX").length * 14)
+  )
+);
+
       JsBarcode(svgRef.current, valor || "PHANYX", {
         format: "CODE128",
         lineColor: cor || "#000000",
         background: mostrarFundo
           ? corFundo || "#ffffff"
           : "transparent",
-        width: 2,
+        width: larguraModulo,
         height: alturaBarras,
         displayValue: mostrarTexto,
         margin: 0,
@@ -222,6 +335,7 @@ function CodigoBarrasCracha({
     corFundo,
     mostrarFundo,
     mostrarTexto,
+    largura,
     altura,
   ]);
 
@@ -723,6 +837,7 @@ export default function CrachaRenderer({
         width: `${larguraMm}mm`,
         height: `${alturaMm}mm`,
         overflow: "hidden",
+        borderRadius: formato === "REDONDO" ? "50%" : 0,
         background: fundo,
         printColorAdjust: "exact",
         WebkitPrintColorAdjust: "exact",
@@ -795,33 +910,23 @@ export default function CrachaRenderer({
             );
 
             return (
-              <div
-                key={objeto.id}
-                style={{
-                  ...estiloBase,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent:
-                    objeto.alinhamento === "left"
-                      ? "flex-start"
-                      : objeto.alinhamento === "right"
-                      ? "flex-end"
-                      : "center",
-                  color: objeto.cor || "#000000",
-                  fontFamily: fonteCss(
-                    objeto.fonteFamilia
-                  ),
-                  fontSize: Number(objeto.fonte || 16),
-                  textAlign: objeto.alinhamento || "center",
-                  lineHeight: 1.15,
-                  whiteSpace: "pre-wrap",
-                  overflow: "hidden",
-                  textShadow: sombraCss(objeto),
-                }}
-              >
-                {texto}
-              </div>
-            );
+  <div
+    key={objeto.id}
+    style={{
+      ...estiloBase,
+      overflow: "hidden",
+    }}
+  >
+    <TextoAutomaticoCracha
+      texto={texto}
+      tamanhoFonte={Number(objeto.fonte || 16)}
+      fonteFamilia={objeto.fonteFamilia}
+      cor={objeto.cor || "#000000"}
+      alinhamento={objeto.alinhamento || "center"}
+      sombra={sombraCss(objeto)}
+    />
+  </div>
+);
           }
 
           if (objeto.tipo === "IMAGEM") {
@@ -966,6 +1071,7 @@ export default function CrachaRenderer({
                   mostrarTexto={Boolean(
                     objeto.mostrarTexto
                   )}
+                  largura={Number(objeto.largura || 160)}
                   altura={Number(objeto.altura || 48)}
                 />
               </div>
