@@ -153,14 +153,14 @@ export async function GET(req: NextRequest) {
     ];
 
     worksheet.columns = [
-      { header: "Nome", key: "nome", width: 34 },
-      { header: "Tipo", key: "tipo", width: 18 },
-      { header: "Aniversário", key: "aniversario", width: 16 },
-      { header: "Polo", key: "polo", width: 24 },
-      { header: "Departamento / Contexto", key: "contexto", width: 44 },
-      { header: "WhatsApp / Telefone", key: "telefone", width: 22 },
-      { header: "Status", key: "status", width: 18 },
-    ];
+  { key: "nome", width: 34 },
+  { key: "tipo", width: 18 },
+  { key: "aniversario", width: 16 },
+  { key: "polo", width: 24 },
+  { key: "contexto", width: 44 },
+  { key: "telefone", width: 22 },
+  { key: "status", width: 18 },
+];
 
     const logo = await baixarLogoExcel(
       resultado.instituicao?.logoUrl || null,
@@ -197,28 +197,28 @@ if (logo) {
   worksheet.mergeCells("C2:G2");
   worksheet.mergeCells("C3:G3");
 
-  worksheet.getCell("C1").value = nomeInstituicao;
-  worksheet.getCell("C2").value = "Relatório de aniversariantes";
-  worksheet.getCell("C3").value = `Mês: ${nomeMes(
-    resultado.mes
-  )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
+  worksheet.getCell("C1").value = "Relatório de aniversariantes";
+worksheet.getCell("C2").value = `Instituição: ${nomeInstituicao}`;
+worksheet.getCell("C3").value = `Mês: ${nomeMes(
+  resultado.mes
+)} | Polo: ${nomePolo} | Total: ${resultado.total}`;
 
   worksheet.getCell("C1").font = {
-    bold: true,
-    size: 16,
-    color: { argb: "FF0F172A" },
-  };
+  bold: true,
+  size: 16,
+  color: { argb: "FF0F172A" },
+};
 
-  worksheet.getCell("C2").font = {
-    bold: true,
-    size: 12,
-    color: { argb: "FF0F172A" },
-  };
+worksheet.getCell("C2").font = {
+  bold: true,
+  size: 11,
+  color: { argb: "FF334155" },
+};
 
-  worksheet.getCell("C3").font = {
-    size: 10,
-    color: { argb: "FF334155" },
-  };
+worksheet.getCell("C3").font = {
+  size: 10,
+  color: { argb: "FF334155" },
+};
 
   worksheet.getCell("C1").alignment = {
     vertical: "middle",
