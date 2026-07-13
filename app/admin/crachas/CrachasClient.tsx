@@ -4165,9 +4165,10 @@ function removerPontoGradienteFundo(id: number) {
           <div
   ref={crachaAreaRef}
   className="phanyx-cracha-paper relative overflow-hidden shadow-xl"
-  style={{
-  ["--cor-fundo-cracha" as any]: corFundoCracha,
+ style={{
+  ["--cor-fundo-cracha" as any]: fundoCrachaCss(),
   background: fundoCrachaCss(),
+  backgroundImage: fundoCrachaCss(),
 
   width:
     formato === "RETRATO"
@@ -7327,9 +7328,10 @@ setPontoGradienteSelecionado(novoPonto.id);
     <option value="GRADIENTE">Gradiente</option>
   </select>
 
+ {tipoFundoCracha === "SOLIDO" && (
   <div>
     <label className="mb-2 block font-semibold">
-      {tipoFundoCracha === "GRADIENTE" ? "Cor 1" : "Cor de fundo"}
+      Cor de fundo
     </label>
 
     <input
@@ -7339,6 +7341,7 @@ setPontoGradienteSelecionado(novoPonto.id);
       className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
     />
   </div>
+)}
 
   {tipoFundoCracha === "GRADIENTE" && (
   <>
