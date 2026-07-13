@@ -2868,17 +2868,17 @@ model CrachaModelo {
 }
 
 model CrachaEmitido {
-  id            Int @id @default(autoincrement())
+  id            Int       @id @default(autoincrement())
   instituicaoId Int
   modeloId      Int
-
-  tipoPessoa String
-  pessoaId   Int
-  status     String @default("ATIVO") // ATIVO | CANCELADO | VENCIDO | SEGUNDA_VIA
-
-  frenteUrl String?
-  versoUrl  String?
-  pdfUrl    String?
+  codigoCracha  String?   @unique
+  tipoPessoa    String
+  pessoaId      Int
+  status        String    @default("ATIVO") // ATIVO | CANCELADO | VENCIDO | SEGUNDA_VIA
+  validadeEm    DateTime?
+  frenteUrl     String?
+  versoUrl      String?
+  pdfUrl        String?
 
   emitidoEm    DateTime @default(now())
   emitidoPorId Int?
