@@ -268,18 +268,18 @@ export default async function AlunoLayout({
 </nav>
 
         <form
-          action="/api/auth/logout-aluno"
-          method="post"
-          className="hidden lg:fixed lg:right-6 lg:top-20 lg:z-[60] lg:block"
-        >
-          <button
-            type="submit"
-            className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
-          >
-            Sair
-          </button>
-        </form>
-
+  action="/api/auth/logout-aluno"
+  method="post"
+  className="hidden lg:fixed lg:right-6 lg:top-36 lg:z-[40] lg:block"
+>
+  <button
+    type="submit"
+    className="rounded-xl border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600 shadow-sm transition hover:bg-red-50"
+  >
+    Sair
+  </button>
+</form>
+        
         <main className="flex-1 w-full px-3 py-4 pb-24 lg:ml-64 lg:p-8">
   <PhanyxFeriadoAviso />
 
