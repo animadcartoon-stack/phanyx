@@ -748,6 +748,45 @@ async function salvarModeloCracha() {
   }
 }
 
+function novoModeloCracha() {
+  setModeloCrachaAtualId(null);
+
+  setLado("FRENTE");
+  setObjetoSelecionado(null);
+
+  setFormato("RETRATO");
+  setTipoFuroCracha("RASGO_HORIZONTAL");
+
+  setObjetosFrente([]);
+  setObjetosVerso([]);
+
+  setTipoFundoFrente("SOLIDO");
+  setCorFundoFrente("#ffffff");
+  setCorFundoFrenteSecundaria("#0f172a");
+  setDirecaoGradienteFrente("VERTICAL");
+  setGradientePontosFundoFrente([
+    { id: 1, cor: "#ffffff", posicao: 0 },
+    { id: 2, cor: "#0f172a", posicao: 100 },
+  ]);
+
+  setTipoFundoVerso("SOLIDO");
+  setCorFundoVerso("#ffffff");
+  setCorFundoVersoSecundaria("#0f172a");
+  setDirecaoGradienteVerso("VERTICAL");
+  setGradientePontosFundoVerso([
+    { id: 1, cor: "#ffffff", posicao: 0 },
+    { id: 2, cor: "#0f172a", posicao: 100 },
+  ]);
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto:
+      "Novo modelo em branco criado na tela. O modelo salvo anteriormente não foi apagado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 4000);
+}
+
 function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
   if (tipo === "ALUNO") return "Digite o nome, matrícula ou curso do aluno";
   if (tipo === "PROFESSOR") return "Digite o nome ou departamento do professor";
@@ -3633,9 +3672,13 @@ function removerPontoGradienteFundo(id: number) {
 
       <div className="phanyx-crachas-card mb-4 flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex flex-wrap gap-2">
-          <button className="phanyx-crachas-button-primary">
-            Novo Modelo
-          </button>
+          <button
+  type="button"
+  onClick={novoModeloCracha}
+  className="phanyx-crachas-button-primary"
+>
+  Novo Modelo
+</button>
 
           <button
   type="button"
