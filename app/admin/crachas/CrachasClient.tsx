@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+import JsBarcode from "jsbarcode";
 
 type GradientePonto = {
   id: number;
@@ -96,6 +97,26 @@ type ObjetoCracha =
       sombraCor?: string;
       ordem: number;
     }
+    | {
+    id: number;
+    tipo: "CODIGO_BARRAS";
+    valor: string;
+    rotulo: string;
+    x: number;
+    y: number;
+    largura: number;
+    altura: number;
+    cor: string;
+    corFundo: string;
+    mostrarTexto: boolean;
+    raioBorda: number;
+    ordem: number;
+    sombraAtiva?: boolean;
+    sombraX?: number;
+    sombraY?: number;
+    sombraBlur?: number;
+    sombraCor?: string;
+  }
   | {
     id: number;
     tipo: "FORMA";
@@ -236,6 +257,40 @@ type ResumoEmissaoCracha = {
   aptos: number;
   pendentesFoto: number;
 };
+
+function CodigoBarrasPreview({
+  valor,
+  cor,
+  corFundo,
+  mostrarTexto,
+}: {
+  valor: string;
+  cor: string;
+  corFundo: string;
+  mostrarTexto: boolean;
+}) {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    try {
+      JsBarcode(svgRef.current, valor || "PHANYX", {
+        format: "CODE128",
+        lineColor: cor || "#000000",
+        background: corFundo || "#ffffff",
+        width: 2,
+        height: 50,
+        displayValue: mostrarTexto,
+        margin: 0,
+      });
+    } catch (error) {
+      console.error("Erro ao gerar código de barras:", error);
+    }
+  }, [valor, cor, corFundo, mostrarTexto]);
+
+  return <svg ref={svgRef} className="h-full w-full" />;
+}
 
 export default function CrachasClient() {
   const [lado, setLado] = useState<"FRENTE" | "VERSO">("FRENTE");
@@ -1099,6 +1154,34 @@ function adicionarQrCode() {
       sombraBlur: 6,
       sombraCor: "#000000",
       ordem: agora,
+    },
+  ]);
+}
+
+function adicionarCodigoBarras() {
+  const agora = Date.now();
+
+  setObjetos((atual) => [
+    ...atual,
+    {
+      id: agora,
+      tipo: "CODIGO_BARRAS",
+      valor: "{{codigoCracha}}",
+      rotulo: "Código de barras",
+      x: 40,
+      y: 310,
+      largura: 160,
+      altura: 48,
+      cor: "#000000",
+      corFundo: "#ffffff",
+      mostrarTexto: false,
+      raioBorda: 4,
+      ordem: agora,
+      sombraAtiva: false,
+      sombraX: 2,
+      sombraY: 2,
+      sombraBlur: 4,
+      sombraCor: "#000000",
     },
   ]);
 }
@@ -4188,6 +4271,7 @@ function removerPontoGradienteFundo(id: number) {
 
             <button
               type="button"
+              onClick={adicionarCodigoBarras}
               className="phanyx-crachas-tool-button w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
             >
               ▌ Código de Barras
@@ -4647,6 +4731,80 @@ if (objeto.tipo === "QRCODE") {
           />
         </>
       )}
+    </div>
+  );
+}
+
+if (objeto.tipo === "CODIGO_BARRAS") {
+  return (
+    <div
+      key={objeto.id}
+      onContextMenu={(e) => abrirMenuContexto(e, objeto.id)}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        setObjetoSelecionado(objeto.id);
+
+        const inicioX = e.clientX;
+        const inicioY = e.clientY;
+        const xOriginal = objeto.x;
+        const yOriginal = objeto.y;
+
+        function mover(ev: MouseEvent) {
+          const novoX = xOriginal + ev.clientX - inicioX;
+          const novoY = yOriginal + ev.clientY - inicioY;
+
+          atualizarObjeto(objeto.id, {
+            x: novoX,
+            y: novoY,
+          });
+        }
+
+        function soltar() {
+          window.removeEventListener("mousemove", mover);
+          window.removeEventListener("mouseup", soltar);
+        }
+
+        window.addEventListener("mousemove", mover);
+        window.addEventListener("mouseup", soltar);
+      }}
+      style={{
+        position: "absolute",
+        left: objeto.x,
+        top: objeto.y,
+        width: objeto.largura,
+        height: objeto.altura,
+        cursor: "move",
+        overflow: "visible",
+        border:
+          objetoSelecionado === objeto.id
+            ? "1px dashed #2563eb"
+            : "1px solid transparent",
+        borderRadius: objeto.raioBorda,
+        background: objeto.corFundo || "#ffffff",
+        zIndex: zIndexObjetoCracha(objeto),
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: objeto.raioBorda,
+          overflow: "hidden",
+          background: objeto.corFundo || "#ffffff",
+          padding: 4,
+        }}
+      >
+        <CodigoBarrasPreview
+          valor={objeto.valor || "{{codigoCracha}}"}
+          cor={objeto.cor || "#000000"}
+          corFundo={objeto.corFundo || "#ffffff"}
+          mostrarTexto={!!objeto.mostrarTexto}
+        />
+      </div>
+
+      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
     </div>
   );
 }
@@ -7305,6 +7463,163 @@ setPontoGradienteSelecionado(novoPonto.id);
           </div>
         </div>
       )}
+    </div>
+  </div>
+)}
+
+{objetoAtual?.tipo === "CODIGO_BARRAS" && (
+  <div className="mb-4 space-y-4">
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        Código de barras
+      </p>
+
+      <label className="mb-2 block text-xs font-semibold">
+        Conteúdo
+      </label>
+
+      <input
+        value={objetoAtual.valor}
+        readOnly
+        className="phanyx-crachas-input cursor-not-allowed opacity-80"
+      />
+
+      <p className="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
+        Na emissão real, {"{{codigoCracha}}"} será substituído pelo código único do crachá.
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        Aparência
+      </p>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Cor das barras
+          </label>
+
+          <input
+            type="color"
+            value={objetoAtual.cor || "#000000"}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                cor: e.target.value,
+              })
+            }
+            className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Cor do fundo
+          </label>
+
+          <input
+            type="color"
+            value={objetoAtual.corFundo || "#ffffff"}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                corFundo: e.target.value,
+              })
+            }
+            className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+          />
+        </div>
+      </div>
+
+      <label className="mt-3 flex items-center gap-2 text-xs font-semibold">
+        <input
+          type="checkbox"
+          checked={!!objetoAtual.mostrarTexto}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              mostrarTexto: e.target.checked,
+            })
+          }
+        />
+        Mostrar código abaixo das barras
+      </label>
+    </div>
+
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-sm font-bold">
+        Posição e tamanho
+      </p>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            X
+          </label>
+
+          <input
+            type="number"
+            value={Math.round(objetoAtual.x)}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                x: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Y
+          </label>
+
+          <input
+            type="number"
+            value={Math.round(objetoAtual.y)}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                y: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Largura
+          </label>
+
+          <input
+            type="number"
+            min={40}
+            value={Math.round(objetoAtual.largura)}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                largura: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Altura
+          </label>
+
+          <input
+            type="number"
+            min={20}
+            value={Math.round(objetoAtual.altura)}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                altura: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
     </div>
   </div>
 )}
