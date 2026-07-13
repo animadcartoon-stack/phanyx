@@ -270,7 +270,7 @@ export default async function AlunoLayout({
         <form
   action="/api/auth/logout-aluno"
   method="post"
-  className="hidden lg:fixed lg:right-6 lg:top-36 lg:z-[40] lg:block"
+  className="hidden lg:fixed lg:right-20 lg:top-4 lg:z-[80] lg:block"
 >
   <button
     type="submit"

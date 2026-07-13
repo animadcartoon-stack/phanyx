@@ -127,14 +127,14 @@ export default function ProgressoAluno() {
                   </div>
 
                   <div
-  className={`aluno-pill-contraste inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
-                      concluido
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-blue-50 text-blue-700"
-                    }`}
-                  >
-                    {concluido ? "Concluído" : "Em andamento"}
-                  </div>
+  className={`aluno-status-progresso-pill inline-flex rounded-full px-3 py-1 text-sm font-semibold ${
+    concluido
+      ? "bg-emerald-50 text-emerald-700"
+      : "bg-blue-50 text-blue-700"
+  }`}
+>
+  {concluido ? "Concluído" : "Em andamento"}
+</div>
                 </div>
 
                 <div className="mt-6">
