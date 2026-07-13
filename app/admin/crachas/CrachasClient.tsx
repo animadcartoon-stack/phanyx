@@ -1292,7 +1292,8 @@ async function handleUploadImagemObjeto(
   if (!tiposPermitidos.includes(arquivo.type)) {
     setAvisoCracha({
       tipo: "erro",
-      texto: "Use imagem em PNG, JPG, JPEG ou WEBP. O formato TIFF não é exibido corretamente no navegador.",
+      texto:
+        "Use imagem em PNG, JPG, JPEG ou WEBP. O formato TIFF não é exibido corretamente no navegador.",
     });
 
     setTimeout(() => setAvisoCracha(null), 5000);
@@ -1301,12 +1302,38 @@ async function handleUploadImagemObjeto(
   }
 
   try {
-    const previewUrl = URL.createObjectURL(arquivo);
+    const formData = new FormData();
+    formData.append("file", arquivo);
+
+    const resp = await fetch("/api/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const json = await resp.json();
+
+    if (!resp.ok) {
+      throw new Error(json.error || "Erro ao enviar imagem.");
+    }
+
+    const url =
+      json.url ||
+      json.fileUrl ||
+      json.arquivoUrl ||
+      json.publicUrl;
+
+    if (!url) {
+      throw new Error("Upload realizado, mas a URL da imagem não retornou.");
+    }
 
     atualizarObjeto(objetoAtual.id, {
-      url: previewUrl,
+      url,
       origem: "UPLOAD",
-      rotulo: "Imagem",
+      rotulo:
+        objetoAtual.rotulo === "Logo" || objetoAtual.origem === "LOGO"
+          ? "Logo"
+          : "Imagem",
     });
 
     setAvisoCracha({
@@ -1320,7 +1347,10 @@ async function handleUploadImagemObjeto(
 
     setAvisoCracha({
       tipo: "erro",
-      texto: "Erro ao aplicar imagem ao crachá.",
+      texto:
+        error instanceof Error
+          ? error.message
+          : "Erro ao aplicar imagem ao crachá.",
     });
 
     setTimeout(() => setAvisoCracha(null), 4000);
