@@ -474,6 +474,10 @@ const [objetosVerso, setObjetosVerso] =
 const [objetoSelecionado, setObjetoSelecionado] =
   useState<number | null>(null);
 
+  const [objetosSelecionadosIds, setObjetosSelecionadosIds] = useState<number[]>(
+  []
+);
+
 const [menuContexto, setMenuContexto] = useState<{
   aberto: boolean;
   x: number;
@@ -608,6 +612,88 @@ const setDirecaoGradienteCracha =
 const objetoAtual = objetos.find((obj) => obj.id === objetoSelecionado);
 
 const crachaAreaRef = useRef<HTMLDivElement | null>(null);
+
+function selecionarObjetoCracha(
+  e: React.MouseEvent<HTMLElement>,
+  objetoId: number
+) {
+  if (e.shiftKey) {
+    setObjetosSelecionadosIds((atuais) => {
+      const jaSelecionado = atuais.includes(objetoId);
+
+      const novosSelecionados = jaSelecionado
+        ? atuais.filter((id) => id !== objetoId)
+        : [...atuais, objetoId];
+
+      setObjetoSelecionado(objetoId);
+
+      return novosSelecionados;
+    });
+
+    return;
+  }
+
+  setObjetoSelecionado(objetoId);
+  setObjetosSelecionadosIds([objetoId]);
+}
+
+function objetoEstaSelecionado(objetoId: number) {
+  return (
+    objetoSelecionado === objetoId || objetosSelecionadosIds.includes(objetoId)
+  );
+}
+
+function limparSelecaoCracha() {
+  setObjetoSelecionado(null);
+  setObjetosSelecionadosIds([]);
+}
+
+function alinharObjetoSelecionadoComReferencia(
+  modo: "centro-horizontal" | "centro-vertical" | "centro-total"
+) {
+  if (objetosSelecionadosIds.length < 2) {
+    setAvisoCracha({
+      tipo: "erro",
+      texto:
+        "Selecione primeiro o objeto de referência e depois segure Shift para selecionar o objeto que será alinhado.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+    return;
+  }
+
+  const referenciaId = objetosSelecionadosIds[0];
+  const alvoId = objetosSelecionadosIds[objetosSelecionadosIds.length - 1];
+
+  if (referenciaId === alvoId) return;
+
+  const referencia = objetos.find((obj) => obj.id === referenciaId);
+  const alvo = objetos.find((obj) => obj.id === alvoId);
+
+  if (!referencia || !alvo) return;
+
+  const centroReferenciaX = referencia.x + referencia.largura / 2;
+  const centroReferenciaY = referencia.y + referencia.altura / 2;
+
+  const novosDados: Partial<ObjetoCracha> = {};
+
+  if (modo === "centro-horizontal" || modo === "centro-total") {
+    novosDados.x = Math.round(centroReferenciaX - alvo.largura / 2);
+  }
+
+  if (modo === "centro-vertical" || modo === "centro-total") {
+    novosDados.y = Math.round(centroReferenciaY - alvo.altura / 2);
+  }
+
+  atualizarObjeto(alvo.id, novosDados);
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Objeto alinhado em relação ao primeiro selecionado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2500);
+}
 
 function zIndexObjetoCracha(objeto: ObjetoCracha) {
   const objetosOrdenados = [...objetos].sort(
@@ -4330,7 +4416,7 @@ function removerPontoGradienteFundo(id: number) {
           type="button"
           onClick={() => {
             setLado("FRENTE");
-            setObjetoSelecionado(null);
+            limparSelecaoCracha();
           }}
           className={`rounded-xl px-4 py-2 font-semibold ${
             lado === "FRENTE"
@@ -4345,7 +4431,7 @@ function removerPontoGradienteFundo(id: number) {
           type="button"
           onClick={() => {
             setLado("VERSO");
-            setObjetoSelecionado(null);
+            limparSelecaoCracha();
           }}
           className={`rounded-xl px-4 py-2 font-semibold ${
             lado === "VERSO"
@@ -4845,7 +4931,7 @@ if (objeto.tipo === "TEXTO") {
                       e.preventDefault();
                       e.stopPropagation();
 
-                      setObjetoSelecionado(objeto.id);
+                      selecionarObjetoCracha(e, objeto.id);
 
                       const inicioX = e.clientX;
                       const inicioY = e.clientY;
@@ -4899,7 +4985,7 @@ if (objeto.tipo === "TEXTO") {
   overflow: "visible",
   boxSizing: "border-box",
   border:
-    objetoSelecionado === objeto.id
+    objetoEstaSelecionado(objeto.id)
       ? "1px dashed #2563eb"
       : "1px solid transparent",
   zIndex: zIndexObjetoCracha(objeto),
@@ -4966,7 +5052,7 @@ if (objeto.tipo === "CAMPO") {
         e.preventDefault();
         e.stopPropagation();
 
-        setObjetoSelecionado(objeto.id);
+        selecionarObjetoCracha(e, objeto.id);
 
         const inicioX = e.clientX;
         const inicioY = e.clientY;
@@ -5019,7 +5105,7 @@ if (objeto.tipo === "CAMPO") {
         overflow: "visible",
         boxSizing: "border-box",
         border:
-          objetoSelecionado === objeto.id
+          objetoEstaSelecionado(objeto.id)
             ? "1px dashed #2563eb"
             : "1px solid transparent",
         zIndex: zIndexObjetoCracha(objeto),
@@ -5058,7 +5144,7 @@ if (objeto.tipo === "IMAGEM") {
         e.preventDefault();
         e.stopPropagation();
 
-        setObjetoSelecionado(objeto.id);
+        selecionarObjetoCracha(e, objeto.id);
 
         const inicioX = e.clientX;
         const inicioY = e.clientY;
@@ -5092,7 +5178,7 @@ if (objeto.tipo === "IMAGEM") {
         cursor: "move",
         overflow: "visible",
         border:
-          objetoSelecionado === objeto.id
+        objetoEstaSelecionado(objeto.id)
             ? "1px dashed #2563eb"
             : objeto.url
             ? "1px solid transparent"
@@ -5176,7 +5262,7 @@ if (objeto.tipo === "QRCODE") {
         e.preventDefault();
         e.stopPropagation();
 
-        setObjetoSelecionado(objeto.id);
+        selecionarObjetoCracha(e, objeto.id);
 
         const inicioX = e.clientX;
         const inicioY = e.clientY;
@@ -5210,7 +5296,7 @@ if (objeto.tipo === "QRCODE") {
         cursor: "move",
         overflow: "visible",
         border:
-          objetoSelecionado === objeto.id
+          objetoEstaSelecionado(objeto.id)
             ? "1px dashed #2563eb"
             : "1px solid transparent",
         borderRadius: objeto.raioBorda,
@@ -5283,7 +5369,7 @@ if (objeto.tipo === "CODIGO_BARRAS") {
         e.preventDefault();
         e.stopPropagation();
 
-        setObjetoSelecionado(objeto.id);
+        selecionarObjetoCracha(e, objeto.id);
 
         const inicioX = e.clientX;
         const inicioY = e.clientY;
@@ -5317,7 +5403,7 @@ if (objeto.tipo === "CODIGO_BARRAS") {
         cursor: "move",
         overflow: "visible",
         border:
-          objetoSelecionado === objeto.id
+          objetoEstaSelecionado(objeto.id)
             ? "1px dashed #2563eb"
             : "1px solid transparent",
         borderRadius: objeto.raioBorda,
@@ -5366,7 +5452,7 @@ if (objeto.tipo === "FORMA") {
         e.preventDefault();
         e.stopPropagation();
 
-        setObjetoSelecionado(objeto.id);
+        selecionarObjetoCracha(e, objeto.id);
 
         const inicioX = e.clientX;
         const inicioY = e.clientY;
@@ -5405,7 +5491,7 @@ if (objeto.tipo === "FORMA") {
   opacity: 1,
   boxSizing: "border-box",
   outline:
-    objetoSelecionado === objeto.id
+    objetoEstaSelecionado(objeto.id)
       ? "1px dashed #2563eb"
       : "none",
 }}
@@ -6131,6 +6217,51 @@ if (objeto.tipo === "FORMA") {
     </div>
   </div>
           )}
+
+{objetosSelecionadosIds.length >= 2 && (
+  <div className="mb-4 rounded-2xl border border-slate-700/40 p-3">
+    <p className="mb-2 text-sm font-bold">
+      Alinhar entre selecionados
+    </p>
+
+    <p className="mb-3 text-[11px] text-slate-500 dark:text-slate-400">
+      O primeiro objeto selecionado é a referência. O último objeto selecionado
+      será movido.
+    </p>
+
+    <div className="grid grid-cols-3 gap-2">
+      <button
+        type="button"
+        onClick={() =>
+          alinharObjetoSelecionadoComReferencia("centro-horizontal")
+        }
+        className="rounded-xl border border-slate-600 bg-slate-900 px-2 py-2 text-xs font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10"
+      >
+        Centro X
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          alinharObjetoSelecionadoComReferencia("centro-vertical")
+        }
+        className="rounded-xl border border-slate-600 bg-slate-900 px-2 py-2 text-xs font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10"
+      >
+        Centro Y
+      </button>
+
+      <button
+        type="button"
+        onClick={() =>
+          alinharObjetoSelecionadoComReferencia("centro-total")
+        }
+        className="rounded-xl border border-emerald-600 bg-emerald-700 px-2 py-2 text-xs font-bold text-white hover:bg-emerald-600"
+      >
+        Centro total
+      </button>
+    </div>
+  </div>
+)}
 
 {objetoAtual && (
   <div className="rounded-2xl border border-slate-700/40 p-3">
