@@ -173,10 +173,6 @@ export async function GET(req: NextRequest) {
     extension: logo.extension,
   });
 
-  worksheet.addImage(imageId, {
-    tl: { col: 0, row: 0 },
-    ext: { width: 150, height: 70 },
-  });
 }worksheet.getRow(1).height = 26;
 worksheet.getRow(2).height = 22;
 worksheet.getRow(3).height = 22;

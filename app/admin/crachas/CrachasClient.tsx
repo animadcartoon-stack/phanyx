@@ -310,6 +310,11 @@ const [menuContexto, setMenuContexto] = useState<{
 const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
   useState<number | null>(null);
 
+  const [
+  pontoGradienteFundoSelecionado,
+  setPontoGradienteFundoSelecionado,
+] = useState<number | null>(null);
+
   const [estiloFormaCopiado, setEstiloFormaCopiado] = useState<
   Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>> | null
 >(null);
@@ -3467,30 +3472,23 @@ function pontosGradienteFundoValidos() {
   ];
 }
 
-function fundoCrachaCss() {
-  if (tipoFundoCracha === "GRADIENTE") {
-    const pontos = pontosGradienteFundoValidos();
+function pontoGradienteFundoAtual() {
+  const pontos = pontosGradienteFundoValidos();
 
-    const cores = pontos
-      .map((ponto) => `${ponto.cor} ${ponto.posicao}%`)
-      .join(", ");
-
-    return `linear-gradient(${anguloGradienteCracha(
-      direcaoGradienteCracha
-    )}, ${cores})`;
-  }
-
-  return corFundoCracha || "#ffffff";
+  return (
+    pontos.find((ponto) => ponto.id === pontoGradienteFundoSelecionado) ||
+    pontos[0]
+  );
 }
 
 function atualizarPontoGradienteFundo(
-  id: number,
+  pontoId: number,
   dados: Partial<PontoGradienteCracha>
 ) {
   setPontosGradienteFundoCracha((pontos) =>
     pontos
       .map((ponto) =>
-        ponto.id === id
+        ponto.id === pontoId
           ? {
               ...ponto,
               ...dados,
@@ -3505,15 +3503,111 @@ function atualizarPontoGradienteFundo(
   );
 }
 
+function atualizarCorPontoGradienteFundo(novaCor: string) {
+  const pontoAtual = pontoGradienteFundoAtual();
+
+  if (!pontoAtual) return;
+
+  atualizarPontoGradienteFundo(pontoAtual.id, {
+    cor: novaCor,
+  });
+}
+
+function iniciarArrastoPontoGradienteFundo(
+  e: React.MouseEvent<HTMLButtonElement>,
+  ponto: PontoGradienteCracha
+) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  setPontoGradienteFundoSelecionado(ponto.id);
+
+  const barra = e.currentTarget.parentElement;
+
+  if (!barra) return;
+
+  const rect = barra.getBoundingClientRect();
+
+  function mover(ev: MouseEvent) {
+    const posicao = Math.round(
+      ((ev.clientX - rect.left) / rect.width) * 100
+    );
+
+    atualizarPontoGradienteFundo(ponto.id, {
+      posicao: Math.max(0, Math.min(100, posicao)),
+    });
+  }
+
+  function soltar() {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  }
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
 function adicionarPontoGradienteFundo() {
-  setPontosGradienteFundoCracha((pontos) => [
-    ...pontos,
-    {
-      id: Date.now(),
-      cor: "#ffffff",
-      posicao: 50,
-    },
-  ]);
+  const pontosAtuais = pontosGradienteFundoValidos();
+
+  let maiorEspaco = 0;
+  let novaPosicao = 50;
+
+  for (let i = 0; i < pontosAtuais.length - 1; i++) {
+    const atual = pontosAtuais[i];
+    const proximo = pontosAtuais[i + 1];
+
+    const espaco = proximo.posicao - atual.posicao;
+
+    if (espaco > maiorEspaco) {
+      maiorEspaco = espaco;
+      novaPosicao = Math.round(atual.posicao + espaco / 2);
+    }
+  }
+
+  const novoPonto = {
+    id: Date.now(),
+    cor: "#ffffff",
+    posicao: novaPosicao,
+  };
+
+  setPontosGradienteFundoCracha((pontos) =>
+    [...pontos, novoPonto].sort((a, b) => a.posicao - b.posicao)
+  );
+
+  setPontoGradienteFundoSelecionado(novoPonto.id);
+}
+
+function removerPontoGradienteFundoSelecionado() {
+  const pontoAtual = pontoGradienteFundoAtual();
+
+  if (!pontoAtual) return;
+
+  setPontosGradienteFundoCracha((pontos) => {
+    if (pontos.length <= 2) return pontos;
+
+    const novosPontos = pontos.filter((ponto) => ponto.id !== pontoAtual.id);
+
+    setPontoGradienteFundoSelecionado(novosPontos[0]?.id ?? null);
+
+    return novosPontos;
+  });
+}
+
+function fundoCrachaCss() {
+  if (tipoFundoCracha === "GRADIENTE") {
+    const pontos = pontosGradienteFundoValidos();
+
+    const cores = pontos
+      .map((ponto) => `${ponto.cor} ${ponto.posicao}%`)
+      .join(", ");
+
+    return `linear-gradient(${anguloGradienteCracha(
+      direcaoGradienteCracha
+    )}, ${cores})`;
+  }
+
+  return corFundoCracha || "#ffffff";
 }
 
 function removerPontoGradienteFundo(id: number) {
@@ -7269,94 +7363,110 @@ setPontoGradienteSelecionado(novoPonto.id);
       </select>
     </div>
 
-    <div className="rounded-2xl border border-slate-700/40 p-3">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <p className="text-sm font-bold">
-          Pontos do gradiente
-        </p>
+    <div className="mt-4 rounded-xl border border-slate-700/40 p-3">
+      <p className="mb-3 text-xs font-bold">
+        Mover pontos do gradiente
+      </p>
 
-        <button
-          type="button"
-          onClick={adicionarPontoGradienteFundo}
-          className="rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-xs font-bold text-white"
-        >
-          + Ponto
-        </button>
-      </div>
-
-      <div className="space-y-3">
-        {pontosGradienteFundoValidos().map((ponto, indice) => (
-          <div
+      <div
+        className="relative h-10 rounded-full border border-slate-500"
+        style={{
+          background: fundoCrachaCss(),
+        }}
+      >
+        {pontosGradienteFundoValidos().map((ponto) => (
+          <button
             key={ponto.id}
-            className="rounded-xl border border-slate-700/40 p-3"
-          >
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <span className="text-xs font-bold">
-                Ponto {indice + 1}
-              </span>
-
-              {gradientePontosFundoCracha.length > 2 && (
-                <button
-                  type="button"
-                  onClick={() => removerPontoGradienteFundo(ponto.id)}
-                  className="rounded-lg border border-red-500 px-2 py-1 text-[10px] font-bold text-red-300"
-                >
-                  Remover
-                </button>
-              )}
-            </div>
-
-            <label className="mb-1 block text-xs font-semibold">
-              Cor
-            </label>
-
-            <input
-              type="color"
-              value={ponto.cor}
-              onChange={(e) =>
-                atualizarPontoGradienteFundo(ponto.id, {
-                  cor: e.target.value,
-                })
-              }
-              className="mb-3 h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-            />
-
-            <label className="mb-1 block text-xs font-semibold">
-              Posição: {ponto.posicao}%
-            </label>
-
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={ponto.posicao}
-              onChange={(e) =>
-                atualizarPontoGradienteFundo(ponto.id, {
-                  posicao: Number(e.target.value),
-                })
-              }
-              className="w-full"
-            />
-
-            <input
-              type="number"
-              min={0}
-              max={100}
-              value={ponto.posicao}
-              onChange={(e) =>
-                atualizarPontoGradienteFundo(ponto.id, {
-                  posicao: Number(e.target.value),
-                })
-              }
-              className="phanyx-crachas-input mt-2"
-            />
-          </div>
+            type="button"
+            onMouseDown={(e) =>
+              iniciarArrastoPontoGradienteFundo(e, ponto)
+            }
+            onClick={() => setPontoGradienteFundoSelecionado(ponto.id)}
+            title={`Ponto ${ponto.posicao}%`}
+            className={`absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 shadow-lg ${
+              pontoGradienteFundoSelecionado === ponto.id
+                ? "border-yellow-300 ring-4 ring-yellow-300/50"
+                : "border-white ring-2 ring-slate-900"
+            }`}
+            style={{
+              left: `${ponto.posicao}%`,
+              backgroundColor: ponto.cor,
+              cursor: "grab",
+            }}
+          />
         ))}
       </div>
+
+      <div className="mt-2 flex justify-between text-[10px] font-semibold text-slate-400">
+        <span>0%</span>
+        <span>50%</span>
+        <span>100%</span>
+      </div>
+
+      <button
+        type="button"
+        onClick={adicionarPontoGradienteFundo}
+        className="mt-4 w-full rounded-xl border border-blue-500/60 px-3 py-2 text-sm font-semibold text-blue-300 hover:bg-blue-500/10"
+      >
+        + Adicionar ponto de cor
+      </button>
     </div>
 
+    {pontoGradienteFundoAtual() && (
+      <div className="mt-4 rounded-xl border border-slate-700/40 p-3">
+        <p className="mb-3 text-sm font-bold">
+          Ponto selecionado
+        </p>
+
+        <label className="mb-2 block text-xs font-semibold">
+          Cor do ponto
+        </label>
+
+        <input
+          type="color"
+          value={pontoGradienteFundoAtual().cor}
+          onChange={(e) =>
+            atualizarCorPontoGradienteFundo(e.target.value)
+          }
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+        />
+
+        <div className="mt-3">
+          <label className="mb-2 block text-xs font-semibold">
+            Posição do ponto: {pontoGradienteFundoAtual().posicao}%
+          </label>
+
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={pontoGradienteFundoAtual().posicao}
+            onChange={(e) =>
+              atualizarPontoGradienteFundo(
+                pontoGradienteFundoAtual().id,
+                {
+                  posicao: Number(e.target.value),
+                }
+              )
+            }
+            className="w-full"
+          />
+        </div>
+
+        {pontosGradienteFundoValidos().length > 2 && (
+          <button
+            type="button"
+            onClick={removerPontoGradienteFundoSelecionado}
+            className="mt-3 w-full rounded-xl border border-red-500/50 px-3 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/10"
+          >
+            Remover ponto selecionado
+          </button>
+        )}
+      </div>
+    )}
+
     <div
-      className="h-12 rounded-2xl border border-slate-600"
+      className="mt-4 h-12 rounded-2xl border border-slate-600"
       style={{
         background: fundoCrachaCss(),
       }}
