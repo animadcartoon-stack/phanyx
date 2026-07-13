@@ -4087,8 +4087,8 @@ function adicionarPontoGradienteFundo() {
   };
 
   setPontosGradienteFundoCracha((pontos) =>
-    [...pontos, novoPonto].sort((a, b) => a.posicao - b.posicao)
-  );
+  [...pontos, novoPonto].sort((a, b) => a.posicao - b.posicao)
+);
 
   setPontoGradienteFundoSelecionado(novoPonto.id);
 }
@@ -4207,149 +4207,158 @@ function removerPontoGradienteFundo(id: number) {
 />
 
     {/* Barra Superior */}
-
-      <div className="phanyx-crachas-card mb-4 flex flex-wrap items-center justify-between gap-3 p-4">
-        <div className="flex flex-wrap gap-2">
-          <button
-  type="button"
-  onClick={novoModeloCracha}
-  className="phanyx-crachas-button-primary"
->
-  Novo Modelo
-</button>
-
-          <button
-  type="button"
-  onClick={salvarModeloCracha}
-  disabled={salvandoModeloCracha || carregandoModeloCracha}
-  className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
->
-  {salvandoModeloCracha ? "Salvando..." : "Salvar"}
-</button>
-
-          <button
-  type="button"
-  onClick={duplicarModeloCracha}
-  disabled={salvandoModeloCracha}
-  className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
->
-  Duplicar
-</button>
-
-          <button
-  type="button"
-  onClick={abrirModalEmissaoCracha}
-  className="phanyx-crachas-button-secondary"
->
-  Emitir
-</button>
-
-          <button className="phanyx-crachas-button-secondary">
-            Imprimir
-          </button>
-          <div className="flex max-w-[360px] items-center gap-2 overflow-x-auto rounded-2xl border border-slate-700/40 bg-slate-950/30 px-2 py-2">
-  {carregandoModelosSalvos ? (
-    <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
-      Carregando...
-    </span>
-  ) : modelosSalvosCracha.length === 0 ? (
-    <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
-      Sem modelos
-    </span>
-  ) : (
-    modelosSalvosCracha.map((modelo, index) => {
-      const ativo = modelo.id === modeloCrachaAtualId;
-
-      return (
+<div className="phanyx-crachas-card mb-4 p-4">
+  <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap gap-2">
         <button
-          key={modelo.id}
           type="button"
-          onClick={() => aplicarModeloCrachaNaTela(modelo)}
-          className={`h-10 min-w-[76px] rounded-xl border px-2 text-center text-[11px] font-bold transition ${
-            ativo
-              ? "border-blue-500 bg-blue-600 text-white shadow-lg shadow-blue-900/30"
-              : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400 hover:bg-slate-800"
-          }`}
-          title={modelo.nome}
+          onClick={novoModeloCracha}
+          className="phanyx-crachas-button-primary"
         >
-          <span className="block leading-tight">
-            Mod. {String(index + 1).padStart(2, "0")}
-          </span>
-
-          {modelo.padrao && (
-            <span
-              className={`block text-[9px] leading-tight ${
-                ativo ? "text-blue-100" : "text-yellow-300"
-              }`}
-            >
-              padrão
-            </span>
-          )}
+          Novo Modelo
         </button>
-      );
-    })
-  )}
-</div>
-        </div>
 
-<div className="w-full max-w-[280px] shrink-0">
-  <label className="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">
-    Tipo do modelo
-  </label>
+        <button
+          type="button"
+          onClick={salvarModeloCracha}
+          disabled={salvandoModeloCracha || carregandoModeloCracha}
+          className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {salvandoModeloCracha ? "Salvando..." : "Salvar"}
+        </button>
 
-  <select
-  value={tipoModeloCracha}
-  onChange={(e) =>
-    alterarTipoModeloCracha(e.target.value as TipoModeloCracha)
-  }
-  className="phanyx-crachas-input w-full"
->
-    <option value="ALUNO">Aluno</option>
-    <option value="PROFESSOR">Professor</option>
-    <option value="FUNCIONARIO">Funcionário</option>
-    <option value="VISITANTE">Visitante</option>
-    <option value="MEMBRO">Membro / Ministério</option>
-    <option value="PERSONALIZADO">Personalizado</option>
-  </select>
+        <button
+          type="button"
+          onClick={duplicarModeloCracha}
+          disabled={salvandoModeloCracha}
+          className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          Duplicar
+        </button>
 
-  <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-  Define quais dados o PHANYX usará quando este modelo for emitido.
-  O QR Code continua usando apenas {"{{codigoCracha}}"}.
-</p>
-</div>
+        <button
+          type="button"
+          onClick={abrirModalEmissaoCracha}
+          className="phanyx-crachas-button-secondary"
+        >
+          Emitir
+        </button>
 
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-  setLado("FRENTE");
-  setObjetoSelecionado(null);
-}}
-            className={`rounded-xl px-4 py-2 font-semibold ${
-              lado === "FRENTE"
-                ? "bg-blue-600 text-white"
-                : "phanyx-crachas-tab-off"
-            }`}
-          >
-            Frente
-          </button>
-
-          <button
-            type="button"
-            onClick={() => {
-  setLado("VERSO");
-  setObjetoSelecionado(null);
-}}
-            className={`rounded-xl px-4 py-2 font-semibold ${
-              lado === "VERSO"
-                ? "bg-blue-600 text-white"
-                : "phanyx-crachas-tab-off"
-            }`}
-          >
-            Verso
-          </button>
-        </div>
+        <button
+          type="button"
+          className="phanyx-crachas-button-secondary"
+        >
+          Imprimir
+        </button>
       </div>
+
+      <div className="flex max-w-[520px] items-center gap-2 overflow-x-auto rounded-2xl border border-slate-700/40 bg-slate-950/30 px-2 py-2">
+        {carregandoModelosSalvos ? (
+          <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
+            Carregando...
+          </span>
+        ) : modelosSalvosCracha.length === 0 ? (
+          <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
+            Sem modelos
+          </span>
+        ) : (
+          modelosSalvosCracha.map((modelo, index) => {
+            const ativo = modelo.id === modeloCrachaAtualId;
+
+            return (
+              <button
+                key={modelo.id}
+                type="button"
+                onClick={() => aplicarModeloCrachaNaTela(modelo)}
+                className={`h-10 min-w-[76px] rounded-xl border px-2 text-center text-[11px] font-bold transition ${
+                  ativo
+                    ? "border-blue-500 bg-blue-600 text-white shadow-lg shadow-blue-900/30"
+                    : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400 hover:bg-slate-800"
+                }`}
+                title={modelo.nome}
+              >
+                <span className="block leading-tight">
+                  Mod. {String(index + 1).padStart(2, "0")}
+                </span>
+
+                {modelo.padrao && (
+                  <span
+                    className={`block text-[9px] leading-tight ${
+                      ativo ? "text-blue-100" : "text-yellow-300"
+                    }`}
+                  >
+                    padrão
+                  </span>
+                )}
+              </button>
+            );
+          })
+        )}
+      </div>
+    </div>
+
+    <div className="flex flex-wrap items-start gap-4">
+      <div className="w-full max-w-[280px] shrink-0">
+        <label className="mb-1 block text-xs font-bold text-slate-600 dark:text-slate-300">
+          Tipo do modelo
+        </label>
+
+        <select
+          value={tipoModeloCracha}
+          onChange={(e) =>
+            alterarTipoModeloCracha(e.target.value as TipoModeloCracha)
+          }
+          className="phanyx-crachas-input w-full"
+        >
+          <option value="ALUNO">Aluno</option>
+          <option value="PROFESSOR">Professor</option>
+          <option value="FUNCIONARIO">Funcionário</option>
+          <option value="VISITANTE">Visitante</option>
+          <option value="MEMBRO">Membro / Ministério</option>
+          <option value="PERSONALIZADO">Personalizado</option>
+        </select>
+
+        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
+          Define quais dados o PHANYX usará quando este modelo for emitido.
+          O QR Code continua usando apenas {"{{codigoCracha}}"}.
+        </p>
+      </div>
+
+      <div className="flex gap-2 pt-7">
+        <button
+          type="button"
+          onClick={() => {
+            setLado("FRENTE");
+            setObjetoSelecionado(null);
+          }}
+          className={`rounded-xl px-4 py-2 font-semibold ${
+            lado === "FRENTE"
+              ? "bg-blue-600 text-white"
+              : "phanyx-crachas-tab-off"
+          }`}
+        >
+          Frente
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setLado("VERSO");
+            setObjetoSelecionado(null);
+          }}
+          className={`rounded-xl px-4 py-2 font-semibold ${
+            lado === "VERSO"
+              ? "bg-blue-600 text-white"
+              : "phanyx-crachas-tab-off"
+          }`}
+        >
+          Verso
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
       {modalEmissaoAberto && (
   <div
@@ -6915,6 +6924,40 @@ CORACAO: {
     <span>100%</span>
   </div>
 
+<div className="mt-3 grid grid-cols-2 gap-2">
+  {pontosGradienteFundoValidos().map((ponto, index) => {
+    const selecionado = pontoGradienteFundoSelecionado === ponto.id;
+
+    return (
+      <button
+        key={ponto.id}
+        type="button"
+        onClick={() => setPontoGradienteFundoSelecionado(ponto.id)}
+        className={`flex items-center gap-2 rounded-xl border px-2 py-2 text-left text-[11px] font-bold ${
+          selecionado
+            ? "border-yellow-300 bg-yellow-400/10 text-yellow-200"
+            : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400"
+        }`}
+      >
+        <span
+          className="h-4 w-4 rounded-full border border-white/70"
+          style={{
+            backgroundColor: ponto.cor,
+          }}
+        />
+
+        <span>
+          Ponto {index + 1}
+          <br />
+          <span className="text-[10px] opacity-70">
+            {ponto.posicao}%
+          </span>
+        </span>
+      </button>
+    );
+  })}
+</div>
+
 <button
   type="button"
   onClick={() => {
@@ -8404,29 +8447,47 @@ setPontoGradienteSelecionado(novoPonto.id);
 <div className="mt-3 grid grid-cols-3 gap-2">
   <button
     type="button"
+    onMouseDown={(e) => e.stopPropagation()}
     onClick={copiarCorPontoGradienteFundo}
     className="rounded-xl border border-slate-600 px-2 py-2 text-[11px] font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10"
   >
-    Copiar cor
+    Copiar
   </button>
 
   <button
     type="button"
+    onMouseDown={(e) => e.stopPropagation()}
     onClick={colarCorPontoGradienteFundo}
     disabled={!corGradienteFundoCopiada}
     className="rounded-xl border border-slate-600 px-2 py-2 text-[11px] font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-40"
   >
-    Colar cor
+    Colar
   </button>
 
   <button
     type="button"
+    onMouseDown={(e) => e.stopPropagation()}
     onClick={duplicarPontoGradienteFundoSelecionado}
     className="rounded-xl border border-slate-600 px-2 py-2 text-[11px] font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10"
   >
     Duplicar
   </button>
 </div>
+
+{corGradienteFundoCopiada && (
+  <div className="mt-2 flex items-center gap-2 rounded-xl border border-slate-700/40 p-2 text-[11px] font-semibold text-slate-300">
+    <span>Cor copiada:</span>
+
+    <span
+      className="h-4 w-8 rounded border border-white/60"
+      style={{
+        backgroundColor: corGradienteFundoCopiada,
+      }}
+    />
+
+    <span>{corGradienteFundoCopiada}</span>
+  </div>
+)}
 
         <div className="mt-3">
           <label className="mb-2 block text-xs font-semibold">
