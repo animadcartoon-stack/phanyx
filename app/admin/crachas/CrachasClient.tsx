@@ -554,6 +554,8 @@ const [resumoEmissaoCracha, setResumoEmissaoCracha] =
 const [carregandoPessoasEmissao, setCarregandoPessoasEmissao] =
   useState(false);
 
+const [emitindoCracha, setEmitindoCracha] = useState(false);
+
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
 
@@ -1354,7 +1356,11 @@ function abrirModalEmissaoCracha() {
   setModalEmissaoAberto(true);
 }
 
-function fecharModalEmissaoCracha() {
+function fecharModalEmissaoCracha(forcarFechamento = false) {
+  if (emitindoCracha && !forcarFechamento) {
+    return;
+  }
+
   setModalEmissaoAberto(false);
   setBuscaPessoaEmissao("");
   setErroEmissaoCracha("");
@@ -1421,7 +1427,21 @@ async function buscarPessoasParaEmissaoCracha() {
   }
 }
 
-function continuarEmissaoCracha() {
+async function continuarEmissaoCracha() {
+  if (emitindoCracha) return;
+
+  setErroEmissaoCracha("");
+
+  if (
+    tipoModeloCracha === "MEMBRO" ||
+    tipoModeloCracha === "PERSONALIZADO"
+  ) {
+    setErroEmissaoCracha(
+      "A emissão real para este tipo de modelo ainda não está disponível."
+    );
+    return;
+  }
+
   if (modoEmissaoCracha === "INDIVIDUAL") {
     if (!pessoaSelecionadaEmissao) {
       setErroEmissaoCracha(
@@ -1436,6 +1456,59 @@ function continuarEmissaoCracha() {
       );
       return;
     }
+
+    try {
+      setEmitindoCracha(true);
+
+      const res = await fetch("/api/admin/crachas/emitir", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tipoPessoa: tipoModeloCracha,
+          pessoaId: pessoaSelecionadaEmissao.id,
+          modeloId: modeloCrachaAtualId || undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Erro ao emitir o crachá.");
+      }
+
+      const codigoCracha = data?.cracha?.codigoCracha
+        ? String(data.cracha.codigoCracha)
+        : "";
+
+      const nomePessoa =
+        data?.pessoa?.nome ||
+        pessoaSelecionadaEmissao.nome ||
+        "Pessoa selecionada";
+
+      fecharModalEmissaoCracha(true);
+
+      setAvisoCracha({
+        tipo: "sucesso",
+        texto: codigoCracha
+          ? `Crachá de ${nomePessoa} emitido com sucesso. Código: ${codigoCracha}`
+          : `Crachá de ${nomePessoa} emitido com sucesso.`,
+      });
+
+      setTimeout(() => setAvisoCracha(null), 6000);
+    } catch (error: any) {
+      console.error("ERRO AO EMITIR CRACHÁ:", error);
+
+      setErroEmissaoCracha(
+        error?.message || "Não foi possível emitir o crachá."
+      );
+    } finally {
+      setEmitindoCracha(false);
+    }
+
+    return;
   }
 
   if (modoEmissaoCracha === "LOTE") {
@@ -1459,20 +1532,11 @@ function continuarEmissaoCracha() {
       );
       return;
     }
+
+    setErroEmissaoCracha(
+      "A emissão real em lote será implementada na próxima etapa. Nenhum crachá foi emitido agora."
+    );
   }
-
-  setErroEmissaoCracha("");
-
-  setAvisoCracha({
-    tipo: "sucesso",
-    texto:
-      modoEmissaoCracha === "LOTE"
-        ? `Lote validado: ${resumoEmissaoCracha?.aptos || 0} crachá(s) apto(s) para emissão.`
-        : "Pessoa validada para emissão do crachá.",
-  });
-
-  setModalEmissaoAberto(false);
-  setTimeout(() => setAvisoCracha(null), 4000);
 }
 
   function adicionarTexto() {
@@ -4477,7 +4541,7 @@ function removerPontoGradienteFundo(id: number) {
 
         <button
           type="button"
-          onClick={fecharModalEmissaoCracha}
+         onClick={() => fecharModalEmissaoCracha()}
           className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-300 text-lg font-black text-slate-700 hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
           aria-label="Fechar emissão"
         >
@@ -4704,23 +4768,29 @@ function removerPontoGradienteFundo(id: number) {
   </>
 )}
 
-      <div className="mt-5 flex flex-wrap justify-end gap-2">
-        <button
-          type="button"
-          onClick={fecharModalEmissaoCracha}
-          className="phanyx-crachas-button-secondary"
-        >
-          Cancelar
-        </button>
+     <div className="mt-5 flex flex-wrap justify-end gap-2">
+  <button
+    type="button"
+    onClick={() => fecharModalEmissaoCracha()}
+    disabled={emitindoCracha}
+    className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    Cancelar
+  </button>
 
-        <button
-          type="button"
-          onClick={continuarEmissaoCracha}
-          className="phanyx-crachas-button-primary"
-        >
-          Continuar
-        </button>
-      </div>
+  <button
+    type="button"
+    onClick={continuarEmissaoCracha}
+    disabled={emitindoCracha || carregandoPessoasEmissao}
+    className="phanyx-crachas-button-primary disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {emitindoCracha
+      ? "Emitindo..."
+      : modoEmissaoCracha === "INDIVIDUAL"
+      ? "Emitir crachá"
+      : "Continuar"}
+  </button>
+</div>
     </div>
   </div>
 )}
