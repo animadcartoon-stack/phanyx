@@ -203,6 +203,12 @@ pontosLivresSelecionadosIds?: number[];
 
   type TipoFundoCracha = "SOLIDO" | "GRADIENTE";
 
+type PontoGradienteCracha = {
+  id: number;
+  cor: string;
+  posicao: number;
+};
+
 type DirecaoGradienteCracha =
   | "VERTICAL"
   | "HORIZONTAL"
@@ -250,6 +256,12 @@ const [corFundoFrenteSecundaria, setCorFundoFrenteSecundaria] =
 const [direcaoGradienteFrente, setDirecaoGradienteFrente] =
   useState<DirecaoGradienteCracha>("VERTICAL");
 
+  const [gradientePontosFundoFrente, setGradientePontosFundoFrente] =
+  useState<PontoGradienteCracha[]>([
+    { id: 1, cor: "#012a32", posicao: 0 },
+    { id: 2, cor: "#0f172a", posicao: 100 },
+  ]);
+
   const [tipoFuroCracha, setTipoFuroCracha] =
   useState<TipoFuroCracha>("RASGO_HORIZONTAL");
 
@@ -267,6 +279,12 @@ const [corFundoVersoSecundaria, setCorFundoVersoSecundaria] =
 
 const [direcaoGradienteVerso, setDirecaoGradienteVerso] =
   useState<DirecaoGradienteCracha>("VERTICAL");
+
+  const [gradientePontosFundoVerso, setGradientePontosFundoVerso] =
+  useState<PontoGradienteCracha[]>([
+    { id: 1, cor: "#ffffff", posicao: 0 },
+    { id: 2, cor: "#0f172a", posicao: 100 },
+  ]);
 
 const [objetosFrente, setObjetosFrente] =
   useState<ObjetoCracha[]>([]);
@@ -371,6 +389,23 @@ const direcaoGradienteCracha =
   lado === "FRENTE"
     ? direcaoGradienteFrente
     : direcaoGradienteVerso;
+
+    const gradientePontosFundoCracha =
+  lado === "FRENTE"
+    ? gradientePontosFundoFrente
+    : gradientePontosFundoVerso;
+
+function setPontosGradienteFundoCracha(
+  atualizador:
+    | PontoGradienteCracha[]
+    | ((pontos: PontoGradienteCracha[]) => PontoGradienteCracha[])
+) {
+  if (lado === "FRENTE") {
+    setGradientePontosFundoFrente(atualizador);
+  } else {
+    setGradientePontosFundoVerso(atualizador);
+  }
+}
 
 const setDirecaoGradienteCracha =
   lado === "FRENTE"
@@ -592,6 +627,39 @@ setCorFundoVersoSecundaria(modelo.corFundoVersoSecundaria || "#0f172a");
 setDirecaoGradienteVerso(
   (modelo.direcaoGradienteVerso || "VERTICAL") as DirecaoGradienteCracha
 );
+
+setGradientePontosFundoFrente(
+  Array.isArray(modelo.gradientePontosFundoFrente)
+    ? modelo.gradientePontosFundoFrente
+    : [
+        { id: 1, cor: modelo.corFundoFrente || "#ffffff", posicao: 0 },
+        {
+          id: 2,
+          cor:
+            modelo.corFundoFrenteSecundaria ||
+            modelo.corFundoFrente ||
+            "#0f172a",
+          posicao: 100,
+        },
+      ]
+);
+
+setGradientePontosFundoVerso(
+  Array.isArray(modelo.gradientePontosFundoVerso)
+    ? modelo.gradientePontosFundoVerso
+    : [
+        { id: 1, cor: modelo.corFundoVerso || "#ffffff", posicao: 0 },
+        {
+          id: 2,
+          cor:
+            modelo.corFundoVersoSecundaria ||
+            modelo.corFundoVerso ||
+            "#0f172a",
+          posicao: 100,
+        },
+      ]
+);
+
     setObjetoSelecionado(null);
   } catch (error) {
     console.error(error);
@@ -633,11 +701,13 @@ async function salvarModeloCracha() {
   corFundoFrente,
   corFundoFrenteSecundaria,
   direcaoGradienteFrente,
+  gradientePontosFundoFrente,
 
   tipoFundoVerso,
   corFundoVerso,
   corFundoVersoSecundaria,
   direcaoGradienteVerso,
+  gradientePontosFundoVerso,
 
   frenteJson: objetosFrente,
   versoJson: objetosVerso,
@@ -3369,16 +3439,89 @@ function anguloGradienteCracha(direcao: DirecaoGradienteCracha) {
   return "180deg";
 }
 
+function pontosGradienteFundoValidos() {
+  const pontos = Array.isArray(gradientePontosFundoCracha)
+    ? gradientePontosFundoCracha
+    : [];
+
+  const pontosValidos = pontos
+    .filter((ponto) => ponto?.cor)
+    .map((ponto) => ({
+      id: Number(ponto.id || Date.now()),
+      cor: ponto.cor || "#ffffff",
+      posicao: Math.max(0, Math.min(100, Number(ponto.posicao || 0))),
+    }))
+    .sort((a, b) => a.posicao - b.posicao);
+
+  if (pontosValidos.length >= 2) {
+    return pontosValidos;
+  }
+
+  return [
+    { id: 1, cor: corFundoCracha || "#ffffff", posicao: 0 },
+    {
+      id: 2,
+      cor: corFundoCrachaSecundaria || corFundoCracha || "#0f172a",
+      posicao: 100,
+    },
+  ];
+}
+
 function fundoCrachaCss() {
   if (tipoFundoCracha === "GRADIENTE") {
+    const pontos = pontosGradienteFundoValidos();
+
+    const cores = pontos
+      .map((ponto) => `${ponto.cor} ${ponto.posicao}%`)
+      .join(", ");
+
     return `linear-gradient(${anguloGradienteCracha(
       direcaoGradienteCracha
-    )}, ${corFundoCracha || "#ffffff"}, ${
-      corFundoCrachaSecundaria || corFundoCracha || "#ffffff"
-    })`;
+    )}, ${cores})`;
   }
 
   return corFundoCracha || "#ffffff";
+}
+
+function atualizarPontoGradienteFundo(
+  id: number,
+  dados: Partial<PontoGradienteCracha>
+) {
+  setPontosGradienteFundoCracha((pontos) =>
+    pontos
+      .map((ponto) =>
+        ponto.id === id
+          ? {
+              ...ponto,
+              ...dados,
+              posicao:
+                dados.posicao !== undefined
+                  ? Math.max(0, Math.min(100, Number(dados.posicao)))
+                  : ponto.posicao,
+            }
+          : ponto
+      )
+      .sort((a, b) => a.posicao - b.posicao)
+  );
+}
+
+function adicionarPontoGradienteFundo() {
+  setPontosGradienteFundoCracha((pontos) => [
+    ...pontos,
+    {
+      id: Date.now(),
+      cor: "#ffffff",
+      posicao: 50,
+    },
+  ]);
+}
+
+function removerPontoGradienteFundo(id: number) {
+  setPontosGradienteFundoCracha((pontos) => {
+    if (pontos.length <= 2) return pontos;
+
+    return pontos.filter((ponto) => ponto.id !== id);
+  });
 }
 
   return (
@@ -7104,49 +7247,122 @@ setPontoGradienteSelecionado(novoPonto.id);
   </div>
 
   {tipoFundoCracha === "GRADIENTE" && (
-    <>
-      <div>
-        <label className="mb-2 block font-semibold">
-          Cor 2
-        </label>
+  <>
+    <div>
+      <label className="mb-2 block font-semibold">
+        Direção do gradiente
+      </label>
 
-        <input
-          type="color"
-          value={corFundoCrachaSecundaria || "#0f172a"}
-          onChange={(e) => setCorFundoCrachaSecundaria(e.target.value)}
-          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-        />
-      </div>
+      <select
+        value={direcaoGradienteCracha}
+        onChange={(e) =>
+          setDirecaoGradienteCracha(
+            e.target.value as DirecaoGradienteCracha
+          )
+        }
+        className="phanyx-crachas-input"
+      >
+        <option value="VERTICAL">Vertical</option>
+        <option value="HORIZONTAL">Horizontal</option>
+        <option value="DIAGONAL_DESC">Diagonal descendo</option>
+        <option value="DIAGONAL_ASC">Diagonal subindo</option>
+      </select>
+    </div>
 
-      <div>
-        <label className="mb-2 block font-semibold">
-          Direção do gradiente
-        </label>
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <p className="text-sm font-bold">
+          Pontos do gradiente
+        </p>
 
-        <select
-          value={direcaoGradienteCracha}
-          onChange={(e) =>
-            setDirecaoGradienteCracha(
-              e.target.value as DirecaoGradienteCracha
-            )
-          }
-          className="phanyx-crachas-input"
+        <button
+          type="button"
+          onClick={adicionarPontoGradienteFundo}
+          className="rounded-xl border border-blue-500 bg-blue-600 px-3 py-2 text-xs font-bold text-white"
         >
-          <option value="VERTICAL">Vertical</option>
-          <option value="HORIZONTAL">Horizontal</option>
-          <option value="DIAGONAL_DESC">Diagonal descendo</option>
-          <option value="DIAGONAL_ASC">Diagonal subindo</option>
-        </select>
+          + Ponto
+        </button>
       </div>
 
-      <div
-        className="h-12 rounded-2xl border border-slate-600"
-        style={{
-          background: fundoCrachaCss(),
-        }}
-      />
-    </>
-  )}
+      <div className="space-y-3">
+        {pontosGradienteFundoValidos().map((ponto, indice) => (
+          <div
+            key={ponto.id}
+            className="rounded-xl border border-slate-700/40 p-3"
+          >
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="text-xs font-bold">
+                Ponto {indice + 1}
+              </span>
+
+              {gradientePontosFundoCracha.length > 2 && (
+                <button
+                  type="button"
+                  onClick={() => removerPontoGradienteFundo(ponto.id)}
+                  className="rounded-lg border border-red-500 px-2 py-1 text-[10px] font-bold text-red-300"
+                >
+                  Remover
+                </button>
+              )}
+            </div>
+
+            <label className="mb-1 block text-xs font-semibold">
+              Cor
+            </label>
+
+            <input
+              type="color"
+              value={ponto.cor}
+              onChange={(e) =>
+                atualizarPontoGradienteFundo(ponto.id, {
+                  cor: e.target.value,
+                })
+              }
+              className="mb-3 h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+            />
+
+            <label className="mb-1 block text-xs font-semibold">
+              Posição: {ponto.posicao}%
+            </label>
+
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={ponto.posicao}
+              onChange={(e) =>
+                atualizarPontoGradienteFundo(ponto.id, {
+                  posicao: Number(e.target.value),
+                })
+              }
+              className="w-full"
+            />
+
+            <input
+              type="number"
+              min={0}
+              max={100}
+              value={ponto.posicao}
+              onChange={(e) =>
+                atualizarPontoGradienteFundo(ponto.id, {
+                  posicao: Number(e.target.value),
+                })
+              }
+              className="phanyx-crachas-input mt-2"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div
+      className="h-12 rounded-2xl border border-slate-600"
+      style={{
+        background: fundoCrachaCss(),
+      }}
+    />
+  </>
+)}
 </div>
         </div>
       </div>
