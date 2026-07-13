@@ -5010,9 +5010,9 @@ if (objeto.tipo === "TEXTO") {
   {objeto.texto}
 </span>
 
-{objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+{objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
 
-  {objetoSelecionado === objeto.id && (
+  {objetoEstaSelecionado(objeto.id) && (
     <>
       <span
         onMouseDown={(e) => redimensionarTexto(e, objeto, "nw")}
@@ -5130,7 +5130,7 @@ if (objeto.tipo === "CAMPO") {
         {objeto.campo}
       </span>
 
-      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
     </div>
   );
 }
@@ -5221,8 +5221,8 @@ if (objeto.tipo === "IMAGEM") {
 )}
       </div>
 
-      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
-      {objetoSelecionado === objeto.id && (
+      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
+      {objetoEstaSelecionado(objeto.id) && (
   <>
     <span
       onMouseDown={(e) => redimensionarImagem(e, objeto, "nw")}
@@ -5327,9 +5327,9 @@ if (objeto.tipo === "QRCODE") {
         />
       </div>
 
-      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
 
-      {objetoSelecionado === objeto.id && (
+      {objetoEstaSelecionado(objeto.id) && (
         <>
           <span
             onMouseDown={(e) => redimensionarQrCode(e, objeto, "nw")}
@@ -5437,7 +5437,7 @@ if (objeto.tipo === "CODIGO_BARRAS") {
 />
       </div>
 
-      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
     </div>
   );
 }
@@ -5644,9 +5644,9 @@ if (objeto.tipo === "FORMA") {
     </div>
   ))}
 
-      {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
+      {objetoEstaSelecionado(objeto.id) && <BotaoExcluirObjeto />}
 
-      {objetoSelecionado === objeto.id && (
+      {objetoEstaSelecionado(objeto.id) && (
         <>
           <span
             onMouseDown={(e) => redimensionarForma(e, objeto, "nw")}
