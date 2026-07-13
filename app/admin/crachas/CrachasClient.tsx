@@ -108,6 +108,7 @@ type ObjetoCracha =
     altura: number;
     cor: string;
     corFundo: string;
+    mostrarFundo: boolean;
     mostrarTexto: boolean;
     raioBorda: number;
     ordem: number;
@@ -262,12 +263,16 @@ function CodigoBarrasPreview({
   valor,
   cor,
   corFundo,
+  mostrarFundo,
   mostrarTexto,
+  altura,
 }: {
   valor: string;
   cor: string;
   corFundo: string;
+  mostrarFundo: boolean;
   mostrarTexto: boolean;
+  altura: number;
 }) {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
@@ -275,21 +280,36 @@ function CodigoBarrasPreview({
     if (!svgRef.current) return;
 
     try {
+      const alturaBarras = Math.max(
+        18,
+        Number(altura || 48) - (mostrarTexto ? 16 : 4)
+      );
+
       JsBarcode(svgRef.current, valor || "PHANYX", {
         format: "CODE128",
         lineColor: cor || "#000000",
-        background: corFundo || "#ffffff",
+        background: mostrarFundo ? corFundo || "#ffffff" : "transparent",
         width: 2,
-        height: 50,
+        height: alturaBarras,
         displayValue: mostrarTexto,
         margin: 0,
+        fontSize: 12,
       });
     } catch (error) {
       console.error("Erro ao gerar código de barras:", error);
     }
-  }, [valor, cor, corFundo, mostrarTexto]);
+  }, [valor, cor, corFundo, mostrarFundo, mostrarTexto, altura]);
 
-  return <svg ref={svgRef} className="h-full w-full" />;
+  return (
+    <svg
+      ref={svgRef}
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "block",
+      }}
+    />
+  );
 }
 
 export default function CrachasClient() {
@@ -1175,6 +1195,7 @@ function adicionarCodigoBarras() {
       cor: "#000000",
       corFundo: "#ffffff",
       mostrarTexto: false,
+      mostrarFundo: true,
       raioBorda: 4,
       ordem: agora,
       sombraAtiva: false,
@@ -4782,7 +4803,10 @@ if (objeto.tipo === "CODIGO_BARRAS") {
             ? "1px dashed #2563eb"
             : "1px solid transparent",
         borderRadius: objeto.raioBorda,
-        background: objeto.corFundo || "#ffffff",
+        background:
+  objeto.mostrarFundo !== false
+    ? objeto.corFundo || "#ffffff"
+    : "transparent",
         zIndex: zIndexObjetoCracha(objeto),
       }}
     >
@@ -4792,16 +4816,21 @@ if (objeto.tipo === "CODIGO_BARRAS") {
           height: "100%",
           borderRadius: objeto.raioBorda,
           overflow: "hidden",
-          background: objeto.corFundo || "#ffffff",
+          background:
+  objeto.mostrarFundo !== false
+    ? objeto.corFundo || "#ffffff"
+    : "transparent",
           padding: 4,
         }}
       >
         <CodigoBarrasPreview
-          valor={objeto.valor || "{{codigoCracha}}"}
-          cor={objeto.cor || "#000000"}
-          corFundo={objeto.corFundo || "#ffffff"}
-          mostrarTexto={!!objeto.mostrarTexto}
-        />
+  valor={objeto.valor || "{{codigoCracha}}"}
+  cor={objeto.cor || "#000000"}
+  corFundo={objeto.corFundo || "#ffffff"}
+  mostrarFundo={objeto.mostrarFundo !== false}
+  mostrarTexto={!!objeto.mostrarTexto}
+  altura={objeto.altura}
+/>
       </div>
 
       {objetoSelecionado === objeto.id && <BotaoExcluirObjeto />}
@@ -7529,6 +7558,19 @@ setPontoGradienteSelecionado(novoPonto.id);
           />
         </div>
       </div>
+
+      <label className="mt-3 flex items-center gap-2 text-xs font-semibold">
+  <input
+    type="checkbox"
+    checked={objetoAtual.mostrarFundo !== false}
+    onChange={(e) =>
+      atualizarObjeto(objetoAtual.id, {
+        mostrarFundo: e.target.checked,
+      })
+    }
+  />
+  Mostrar fundo
+</label>
 
       <label className="mt-3 flex items-center gap-2 text-xs font-semibold">
         <input
