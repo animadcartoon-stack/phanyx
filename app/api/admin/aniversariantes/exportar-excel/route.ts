@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import ExcelJS from "exceljs";
 import { getUserFromToken } from "@/lib/server-auth";
 import {
   listarAniversariantes,
@@ -6,15 +7,6 @@ import {
 } from "@/lib/aniversariantes/listarAniversariantes";
 
 export const runtime = "nodejs";
-
-function escapeHtml(valor: unknown) {
-  return String(valor ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
 
 function nomeTipo(tipo: string) {
   if (tipo === "ALUNO") return "Aluno";
@@ -42,6 +34,15 @@ function nomeMes(numeroMes: number) {
   return meses[numeroMes] || String(numeroMes);
 }
 
+function limparNomeArquivo(valor: string) {
+  return String(valor || "arquivo")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .toLowerCase();
+}
+
 function resolverUrlArquivo(url: string | null | undefined, baseUrl: string) {
   if (!url) return null;
 
@@ -56,39 +57,53 @@ function resolverUrlArquivo(url: string | null | undefined, baseUrl: string) {
   return `${baseUrl}/${url}`;
 }
 
-async function imagemParaBase64(
+async function baixarLogoExcel(
   url: string | null | undefined,
   baseUrl: string
-) {
+): Promise<{ base64: string; extension: "png" | "jpeg" } | null> {
   const urlFinal = resolverUrlArquivo(url, baseUrl);
 
-  if (!urlFinal) return "";
+  if (!urlFinal) return null;
 
   try {
     const resposta = await fetch(urlFinal, {
       cache: "no-store",
     });
 
-    if (!resposta.ok) return "";
+    if (!resposta.ok) return null;
 
     const contentType = resposta.headers.get("content-type") || "";
 
-    if (
-      !contentType.includes("png") &&
-      !contentType.includes("jpeg") &&
-      !contentType.includes("jpg") &&
-      !contentType.includes("webp")
-    ) {
-      return "";
+    if (contentType.includes("png")) {
+      const arrayBuffer = await resposta.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString("base64");
+
+      return {
+        base64,
+        extension: "png",
+      };
     }
 
-    const arrayBuffer = await resposta.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
+    if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+      const arrayBuffer = await resposta.arrayBuffer();
+      const base64 = Buffer.from(arrayBuffer).toString("base64");
 
-    return `data:${contentType};base64,${base64}`;
+      return {
+        base64,
+        extension: "jpeg",
+      };
+    }
+
+    console.warn(
+      "Logo não incorporada no Excel. Formato não suportado:",
+      contentType,
+      urlFinal
+    );
+
+    return null;
   } catch (error) {
     console.warn("Não foi possível carregar a logo no Excel:", error);
-    return "";
+    return null;
   }
 }
 
@@ -113,132 +128,199 @@ export async function GET(req: NextRequest) {
     const nomeInstituicao =
       resultado.instituicao?.nome || "Instituição";
 
-      const logoBase64 = await imagemParaBase64(
-  resultado.instituicao?.logoUrl || "",
-  req.nextUrl.origin
-);
-
     const nomePolo =
       resultado.poloSelecionado?.nome || "Todos";
 
-    const linhas = resultado.aniversariantes
-      .map(
-        (item) => `
-          <tr>
-            <td>${escapeHtml(item.nome)}</td>
-            <td>${escapeHtml(nomeTipo(item.tipo))}</td>
-            <td>${escapeHtml(item.dataAniversario)}</td>
-            <td>${escapeHtml(item.polo || "")}</td>
-            <td>${escapeHtml(item.departamento || item.contexto || "")}</td>
-            <td>${escapeHtml(item.telefone || "")}</td>
-            <td>${escapeHtml(item.status)}</td>
-          </tr>
-        `
-      )
-      .join("");
+    const workbook = new ExcelJS.Workbook();
 
-    const html = `
-      <!doctype html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              color: #0f172a;
-            }
+    workbook.creator = "PHANYX";
+    workbook.created = new Date();
 
-            h1 {
-              font-size: 18px;
-              margin: 0 0 4px 0;
-            }
+    const worksheet = workbook.addWorksheet("Aniversariantes", {
+      pageSetup: {
+        orientation: "landscape",
+        fitToPage: true,
+        fitToWidth: 1,
+        fitToHeight: 0,
+      },
+    });
 
-            h2 {
-              font-size: 14px;
-              margin: 0 0 12px 0;
-              font-weight: normal;
-            }
+    worksheet.views = [
+      {
+        state: "frozen",
+        ySplit: 6,
+      },
+    ];
 
-            p {
-              font-size: 12px;
-              margin: 0 0 12px 0;
-            }
+    worksheet.columns = [
+      { header: "Nome", key: "nome", width: 34 },
+      { header: "Tipo", key: "tipo", width: 18 },
+      { header: "Aniversário", key: "aniversario", width: 16 },
+      { header: "Polo", key: "polo", width: 24 },
+      { header: "Departamento / Contexto", key: "contexto", width: 44 },
+      { header: "WhatsApp / Telefone", key: "telefone", width: 22 },
+      { header: "Status", key: "status", width: 18 },
+    ];
 
-            table {
-              border-collapse: collapse;
-              width: 100%;
-              font-family: Arial, sans-serif;
-              font-size: 12px;
-            }
+    const logo = await baixarLogoExcel(
+      resultado.instituicao?.logoUrl || null,
+      req.nextUrl.origin
+    );
 
-            th {
-              background: #0f172a;
-              color: #ffffff;
-              font-weight: bold;
-              border: 1px solid #cbd5e1;
-              padding: 8px;
-              text-align: left;
-            }
+    if (logo) {
+  const imageId = workbook.addImage({
+    base64: logo.base64,
+    extension: logo.extension,
+  });
 
-            td {
-              border: 1px solid #cbd5e1;
-              padding: 8px;
-              mso-number-format: "\\@";
-            }
-          </style>
-        </head>
-
-        <body>
-  ${
-  logoBase64
-    ? `<div style="margin-bottom: 8px;">
-        <img src="${logoBase64}" style="max-height: 70px; max-width: 220px;" />
-      </div>`
-    : ""
+  worksheet.addImage(imageId, {
+    tl: { col: 0, row: 0 },
+    ext: { width: 150, height: 70 },
+  });
 }
 
-  <h1>${escapeHtml(nomeInstituicao)}</h1>
-          <h2>Relatório de aniversariantes</h2>
+    worksheet.mergeCells("A1:G1");
+    worksheet.mergeCells("A2:G2");
+    worksheet.mergeCells("A3:G3");
 
-          <p>
-            Mês: ${escapeHtml(nomeMes(resultado.mes))}
-            |
-            Polo: ${escapeHtml(nomePolo)}
-            |
-            Total: ${escapeHtml(resultado.total)}
-          </p>
+    worksheet.getCell("A1").value = logo ? "" : nomeInstituicao;
+    worksheet.getCell("A2").value = "Relatório de aniversariantes";
+    worksheet.getCell("A3").value = `Mês: ${nomeMes(
+      resultado.mes
+    )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
 
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Tipo</th>
-                <th>Aniversário</th>
-                <th>Polo</th>
-                <th>Departamento / Contexto</th>
-                <th>WhatsApp / Telefone</th>
-                <th>Status</th>
-              </tr>
-            </thead>
+    if (logo) {
+      worksheet.getCell("C1").value = nomeInstituicao;
+      worksheet.getCell("C1").font = {
+        bold: true,
+        size: 16,
+        color: { argb: "FF0F172A" },
+      };
 
-            <tbody>
-              ${linhas}
-            </tbody>
-          </table>
-        </body>
-      </html>
-    `;
+      worksheet.getCell("C2").value = "Relatório de aniversariantes";
+      worksheet.getCell("C3").value = `Mês: ${nomeMes(
+        resultado.mes
+      )} | Polo: ${nomePolo} | Total: ${resultado.total}`;
+    }
 
-    const nomeArquivo = `aniversariantes-${nomeMes(resultado.mes)
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\s+/g, "-")}.xls`;
+    worksheet.getCell("A1").font = {
+      bold: true,
+      size: 16,
+      color: { argb: "FF0F172A" },
+    };
 
-    return new NextResponse("\ufeff" + html, {
+    worksheet.getCell("A2").font = {
+      bold: true,
+      size: 12,
+      color: { argb: "FF0F172A" },
+    };
+
+    worksheet.getCell("A3").font = {
+      size: 10,
+      color: { argb: "FF334155" },
+    };
+
+    const headerRowNumber = 5;
+
+    worksheet.getRow(headerRowNumber).values = [
+      "Nome",
+      "Tipo",
+      "Aniversário",
+      "Polo",
+      "Departamento / Contexto",
+      "WhatsApp / Telefone",
+      "Status",
+    ];
+
+    const headerRow = worksheet.getRow(headerRowNumber);
+
+    headerRow.height = 24;
+
+    headerRow.eachCell((cell) => {
+      cell.font = {
+        bold: true,
+        color: { argb: "FFFFFFFF" },
+      };
+
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "FF0F172A" },
+      };
+
+      cell.alignment = {
+        vertical: "middle",
+        horizontal: "center",
+      };
+
+      cell.border = {
+        top: { style: "thin", color: { argb: "FFCBD5E1" } },
+        left: { style: "thin", color: { argb: "FFCBD5E1" } },
+        bottom: { style: "thin", color: { argb: "FFCBD5E1" } },
+        right: { style: "thin", color: { argb: "FFCBD5E1" } },
+      };
+    });
+
+    resultado.aniversariantes.forEach((item, index) => {
+      const row = worksheet.addRow({
+        nome: item.nome,
+        tipo: nomeTipo(item.tipo),
+        aniversario: item.dataAniversario,
+        polo: item.polo || "",
+        contexto: item.departamento || item.contexto || "",
+        telefone: item.telefone || "",
+        status: item.status,
+      });
+
+      row.height = 22;
+
+      row.eachCell((cell) => {
+        cell.alignment = {
+          vertical: "middle",
+          wrapText: true,
+        };
+
+        cell.border = {
+          top: { style: "thin", color: { argb: "FFE2E8F0" } },
+          left: { style: "thin", color: { argb: "FFE2E8F0" } },
+          bottom: { style: "thin", color: { argb: "FFE2E8F0" } },
+          right: { style: "thin", color: { argb: "FFE2E8F0" } },
+        };
+
+        if (index % 2 === 0) {
+          cell.fill = {
+            type: "pattern",
+            pattern: "solid",
+            fgColor: { argb: "FFF8FAFC" },
+          };
+        }
+      });
+    });
+
+    if (resultado.aniversariantes.length === 0) {
+      const row = worksheet.addRow([
+        "Nenhum aniversariante encontrado para os filtros selecionados.",
+      ]);
+
+      worksheet.mergeCells(`A${row.number}:G${row.number}`);
+      row.getCell(1).alignment = {
+        horizontal: "center",
+      };
+    }
+
+    worksheet.getColumn("F").numFmt = "@";
+
+    const buffer = await workbook.xlsx.writeBuffer();
+
+    const nomeArquivo = `aniversariantes-${limparNomeArquivo(
+      nomeMes(resultado.mes)
+    )}.xlsx`;
+
+    return new NextResponse(Buffer.from(buffer), {
       status: 200,
       headers: {
-        "Content-Type": "application/vnd.ms-excel; charset=utf-8",
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="${nomeArquivo}"`,
       },
     });
