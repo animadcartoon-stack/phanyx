@@ -4386,7 +4386,7 @@ if (objeto.tipo === "TEXTO") {
   width: objeto.largura,
   height: objeto.altura,
   fontSize: objeto.fonte,
-  color: objeto.cor,
+  color: objeto.cor || "#000000",
   textShadow: sombraTextoCss(objeto),
   cursor: "move",
   padding: "2px 4px",
@@ -4405,11 +4405,14 @@ if (objeto.tipo === "TEXTO") {
   style={{
     display: "block",
     width: "100%",
+    height: "100%",
+    color: objeto.cor || "#000000",
     textAlign: objeto.alinhamento || "center",
     whiteSpace: "normal",
     overflowWrap: "break-word",
     wordBreak: "break-word",
     lineHeight: "1.15",
+    overflow: "hidden",
   }}
 >
   {objeto.texto}
@@ -5290,15 +5293,15 @@ if (objeto.tipo === "FORMA") {
                 </label>
 
                 <input
-                  type="color"
-                  value={objetoAtual.cor}
-                  onChange={(e) =>
-                    atualizarObjeto(objetoAtual.id, {
-                      cor: e.target.value,
-                    })
-                  }
-                  className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
-                />
+  type="color"
+  value={objetoAtual.cor || "#000000"}
+  onChange={(e) =>
+    atualizarObjeto(objetoAtual.id, {
+      cor: e.target.value,
+    })
+  }
+  className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+/>
               </div>
 
 <div className="rounded-2xl border border-slate-700/40 p-3">
