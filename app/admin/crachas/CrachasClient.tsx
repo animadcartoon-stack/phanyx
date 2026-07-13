@@ -261,6 +261,34 @@ type ResumoEmissaoCracha = {
   pendentesFoto: number;
 };
 
+type ModeloCrachaSalvo = {
+  id: number;
+  nome: string;
+  tipoPessoa: TipoModeloCracha;
+  formato?: string;
+  tipoFuro?: TipoFuroCracha;
+  padrao?: boolean;
+  ativo?: boolean;
+
+  tipoFundoFrente?: TipoFundoCracha;
+  corFundoFrente?: string;
+  corFundoFrenteSecundaria?: string | null;
+  direcaoGradienteFrente?: DirecaoGradienteCracha;
+  gradientePontosFundoFrente?: PontoGradienteCracha[];
+
+  tipoFundoVerso?: TipoFundoCracha;
+  corFundoVerso?: string;
+  corFundoVersoSecundaria?: string | null;
+  direcaoGradienteVerso?: DirecaoGradienteCracha;
+  gradientePontosFundoVerso?: PontoGradienteCracha[];
+
+  frenteJson?: ObjetoCracha[];
+  versoJson?: ObjetoCracha[];
+
+  criadoEm?: string;
+  atualizadoEm?: string;
+};
+
 const FONTES_WINDOWS = [
   "Arial",
   "Arial Black",
@@ -489,6 +517,12 @@ const [salvandoModeloCracha, setSalvandoModeloCracha] =
   useState(false);
 
 const [carregandoModeloCracha, setCarregandoModeloCracha] =
+  useState(false);
+
+  const [modelosSalvosCracha, setModelosSalvosCracha] =
+  useState<ModeloCrachaSalvo[]>([]);
+
+const [carregandoModelosSalvos, setCarregandoModelosSalvos] =
   useState(false);
 
 const [modalEmissaoAberto, setModalEmissaoAberto] = useState(false);
@@ -727,6 +761,74 @@ function medidasPadraoCracha(formatoAtual: string) {
   return { larguraMm: 54, alturaMm: 86 };
 }
 
+function aplicarModeloCrachaNaTela(modelo: ModeloCrachaSalvo) {
+  setModeloCrachaAtualId(modelo.id);
+
+  setFormato((modelo.formato || "RETRATO") as any);
+  setTipoFuroCracha((modelo.tipoFuro || "RASGO_HORIZONTAL") as TipoFuroCracha);
+
+  setObjetosFrente(
+    Array.isArray(modelo.frenteJson)
+      ? (modelo.frenteJson as ObjetoCracha[])
+      : []
+  );
+
+  setObjetosVerso(
+    Array.isArray(modelo.versoJson)
+      ? (modelo.versoJson as ObjetoCracha[])
+      : []
+  );
+
+  setTipoFundoFrente((modelo.tipoFundoFrente || "SOLIDO") as TipoFundoCracha);
+  setCorFundoFrente(modelo.corFundoFrente || "#ffffff");
+  setCorFundoFrenteSecundaria(modelo.corFundoFrenteSecundaria || "#0f172a");
+  setDirecaoGradienteFrente(
+    (modelo.direcaoGradienteFrente || "VERTICAL") as DirecaoGradienteCracha
+  );
+
+  setTipoFundoVerso((modelo.tipoFundoVerso || "SOLIDO") as TipoFundoCracha);
+  setCorFundoVerso(modelo.corFundoVerso || "#ffffff");
+  setCorFundoVersoSecundaria(modelo.corFundoVersoSecundaria || "#0f172a");
+  setDirecaoGradienteVerso(
+    (modelo.direcaoGradienteVerso || "VERTICAL") as DirecaoGradienteCracha
+  );
+
+  setGradientePontosFundoFrente(
+    Array.isArray(modelo.gradientePontosFundoFrente)
+      ? modelo.gradientePontosFundoFrente
+      : [
+          { id: 1, cor: modelo.corFundoFrente || "#ffffff", posicao: 0 },
+          {
+            id: 2,
+            cor:
+              modelo.corFundoFrenteSecundaria ||
+              modelo.corFundoFrente ||
+              "#0f172a",
+            posicao: 100,
+          },
+        ]
+  );
+
+  setGradientePontosFundoVerso(
+    Array.isArray(modelo.gradientePontosFundoVerso)
+      ? modelo.gradientePontosFundoVerso
+      : [
+          { id: 1, cor: modelo.corFundoVerso || "#ffffff", posicao: 0 },
+          {
+            id: 2,
+            cor:
+              modelo.corFundoVersoSecundaria ||
+              modelo.corFundoVerso ||
+              "#0f172a",
+            posicao: 100,
+          },
+        ]
+  );
+
+  setObjetoSelecionado(null);
+  setLado("FRENTE");
+}
+
 async function carregarModeloPadraoCracha(tipo: TipoModeloCracha) {
   try {
     setCarregandoModeloCracha(true);
@@ -831,6 +933,54 @@ setGradientePontosFundoVerso(
   }
 }
 
+async function carregarModelosSalvosCracha(tipo: TipoModeloCracha) {
+  try {
+    setCarregandoModelosSalvos(true);
+
+    const res = await fetch(`/api/admin/crachas/modelos?tipoPessoa=${tipo}`, {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao carregar modelos salvos.");
+    }
+
+    const modelos = Array.isArray(data.modelos)
+      ? (data.modelos as ModeloCrachaSalvo[])
+      : [];
+
+    setModelosSalvosCracha(modelos);
+
+    const modeloAtual =
+      modelos.find((modelo) => modelo.id === modeloCrachaAtualId) ||
+      modelos.find((modelo) => modelo.padrao) ||
+      modelos[0];
+
+    if (modeloAtual) {
+      aplicarModeloCrachaNaTela(modeloAtual);
+    } else {
+      setModeloCrachaAtualId(null);
+      setObjetosFrente([]);
+      setObjetosVerso([]);
+      setObjetoSelecionado(null);
+    }
+  } catch (error) {
+    console.error(error);
+
+    setAvisoCracha({
+      tipo: "erro",
+      texto: "Erro ao carregar modelos salvos.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+  } finally {
+    setCarregandoModelosSalvos(false);
+  }
+}
+
 async function salvarModeloCracha() {
   try {
     setSalvandoModeloCracha(true);
@@ -878,6 +1028,8 @@ async function salvarModeloCracha() {
     }
 
     setModeloCrachaAtualId(data.modelo?.id || null);
+
+    await carregarModelosSalvosCracha(tipoModeloCracha);
 
     setAvisoCracha({
       tipo: "sucesso",
@@ -3654,7 +3806,7 @@ function gerarPontosPoligono(
 }
 
 useEffect(() => {
-  carregarModeloPadraoCracha(tipoModeloCracha);
+  carregarModelosSalvosCracha(tipoModeloCracha);
 }, [tipoModeloCracha]);
 
 function anguloGradienteCracha(direcao: DirecaoGradienteCracha) {
@@ -3886,6 +4038,49 @@ function removerPontoGradienteFundo(id: number) {
           <button className="phanyx-crachas-button-secondary">
             Imprimir
           </button>
+          <div className="flex max-w-[360px] items-center gap-2 overflow-x-auto rounded-2xl border border-slate-700/40 bg-slate-950/30 px-2 py-2">
+  {carregandoModelosSalvos ? (
+    <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
+      Carregando...
+    </span>
+  ) : modelosSalvosCracha.length === 0 ? (
+    <span className="whitespace-nowrap text-xs font-semibold text-slate-400">
+      Sem modelos
+    </span>
+  ) : (
+    modelosSalvosCracha.map((modelo, index) => {
+      const ativo = modelo.id === modeloCrachaAtualId;
+
+      return (
+        <button
+          key={modelo.id}
+          type="button"
+          onClick={() => aplicarModeloCrachaNaTela(modelo)}
+          className={`h-10 min-w-[76px] rounded-xl border px-2 text-center text-[11px] font-bold transition ${
+            ativo
+              ? "border-blue-500 bg-blue-600 text-white shadow-lg shadow-blue-900/30"
+              : "border-slate-600 bg-slate-900 text-slate-200 hover:border-blue-400 hover:bg-slate-800"
+          }`}
+          title={modelo.nome}
+        >
+          <span className="block leading-tight">
+            Mod. {String(index + 1).padStart(2, "0")}
+          </span>
+
+          {modelo.padrao && (
+            <span
+              className={`block text-[9px] leading-tight ${
+                ativo ? "text-blue-100" : "text-yellow-300"
+              }`}
+            >
+              padrão
+            </span>
+          )}
+        </button>
+      );
+    })
+  )}
+</div>
         </div>
 
 <div className="w-full max-w-[280px] shrink-0">
@@ -5581,7 +5776,7 @@ if (objeto.tipo === "FORMA") {
   aluno, professor, funcionário, visitante, membro ou personalizado.
 </p>
     </div>
-    
+
 <div>
   <label className="mb-2 block font-semibold">
     Fonte
