@@ -108,8 +108,11 @@ async function buscarDadosPessoa({
       throw new Error("Aluno não encontrado para renderização do crachá.");
     }
 
-    const nomePreferencial =
-      texto(aluno.nomeSocial) || texto(aluno.nome);
+    const nomePreferencialCompleto =
+  texto(aluno.nomeSocial) || texto(aluno.nome);
+
+const nomePreferencial =
+  nomeAutomaticoParaCracha(nomePreferencialCompleto);
 
     return {
       fotoUrl: aluno.fotoPerfil,
@@ -174,8 +177,8 @@ async function buscarDadosPessoa({
       dados: {
         ...dadosBase,
 
-        professorNome: professor.nome,
-        nome: professor.nome,
+        professorNome: nomeAutomaticoParaCracha(professor.nome),
+        nome: nomeAutomaticoParaCracha(professor.nome),
 
         departamentoNome: professor.departamento?.nome || "",
         disciplinasProfessor: professor.especialidade || "",
@@ -226,8 +229,8 @@ async function buscarDadosPessoa({
       dados: {
         ...dadosBase,
 
-        funcionarioNome: funcionario.nome,
-        nome: funcionario.nome,
+        funcionarioNome: nomeAutomaticoParaCracha(funcionario.nome),
+        nome: nomeAutomaticoParaCracha(funcionario.nome),
 
         cargo: funcionario.cargo || "",
         setor: funcionario.setor || "",
@@ -279,8 +282,8 @@ async function buscarDadosPessoa({
       dados: {
         ...dadosBase,
 
-        visitanteNome: visitante.nome,
-        nome: visitante.nome,
+        visitanteNome: nomeAutomaticoParaCracha(visitante.nome),
+        nome: nomeAutomaticoParaCracha(visitante.nome),
 
         visitanteEmpresa: visitante.empresa || "",
         visitanteDestino: visitante.destino || "",
@@ -361,6 +364,31 @@ function ScriptRenderPronto() {
       }}
     />
   );
+}
+
+function nomeAutomaticoParaCracha(valor: unknown) {
+  const nomeCompleto = String(valor ?? "")
+    .trim()
+    .replace(/\s+/g, " ");
+
+  if (!nomeCompleto) {
+    return "";
+  }
+
+  const partes = nomeCompleto.split(" ").filter(Boolean);
+
+  if (partes.length <= 2) {
+    return nomeCompleto;
+  }
+
+  if (nomeCompleto.length <= 24) {
+    return nomeCompleto;
+  }
+
+  const primeiroNome = partes[0];
+  const ultimoNome = partes[partes.length - 1];
+
+  return `${primeiroNome} ${ultimoNome}`;
 }
 
 export default async function CrachaRenderPage({
