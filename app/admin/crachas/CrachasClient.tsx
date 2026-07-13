@@ -494,6 +494,9 @@ const [pontoGradienteSelecionado, setPontoGradienteSelecionado] =
   setPontoGradienteFundoSelecionado,
 ] = useState<number | null>(null);
 
+const [corGradienteFundoCopiada, setCorGradienteFundoCopiada] =
+  useState<string | null>(null);
+
   const [estiloFormaCopiado, setEstiloFormaCopiado] = useState<
   Partial<Extract<ObjetoCracha, { tipo: "FORMA" }>> | null
 >(null);
@@ -1383,58 +1386,91 @@ function adicionarLogo() {
 function adicionarQrCode() {
   const agora = Date.now();
 
-  setObjetos((atual) => [
-    ...atual,
-    {
-      id: agora,
-      tipo: "QRCODE",
-      valor: "https://www.phanyx.com.br/verificar/cracha/{{codigoCracha}}",
-      x: 70,
-      y: 230,
-      largura: 90,
-      altura: 90,
-      cor: "#000000",
-      corFundo: "#ffffff",
-      mostrarFundo: true,
-      margem: 8,
-      raioBorda: 8,
-      sombraAtiva: false,
-      sombraX: 2,
-      sombraY: 2,
-      sombraBlur: 6,
-      sombraCor: "#000000",
-      ordem: agora,
-    },
-  ]);
+  const larguraCracha =
+    formato === "RETRATO"
+      ? 240
+      : formato === "PAISAGEM"
+      ? 380
+      : 260;
+
+  const alturaCracha =
+    formato === "RETRATO"
+      ? 380
+      : formato === "PAISAGEM"
+      ? 240
+      : 260;
+
+  const tamanho = formato === "PAISAGEM" ? 72 : 90;
+
+  const novoObjeto: ObjetoCracha = {
+    id: agora,
+    tipo: "QRCODE",
+    valor: "https://www.phanyx.com.br/verificar/cracha/{{codigoCracha}}",
+    x: Math.round((larguraCracha - tamanho) / 2),
+    y: Math.round((alturaCracha - tamanho) / 2),
+    largura: tamanho,
+    altura: tamanho,
+    cor: "#000000",
+    corFundo: "#ffffff",
+    mostrarFundo: true,
+    margem: 8,
+    raioBorda: 8,
+    sombraAtiva: false,
+    sombraX: 2,
+    sombraY: 2,
+    sombraBlur: 6,
+    sombraCor: "#000000",
+    ordem: agora,
+  };
+
+  setObjetos((atual) => [...atual, novoObjeto]);
+  setObjetoSelecionado(agora);
 }
 
 function adicionarCodigoBarras() {
   const agora = Date.now();
 
-  setObjetos((atual) => [
-    ...atual,
-    {
-      id: agora,
-      tipo: "CODIGO_BARRAS",
-      valor: "{{codigoCracha}}",
-      rotulo: "Código de barras",
-      x: 40,
-      y: 310,
-      largura: 160,
-      altura: 48,
-      cor: "#000000",
-      corFundo: "#ffffff",
-      mostrarTexto: false,
-      mostrarFundo: true,
-      raioBorda: 4,
-      ordem: agora,
-      sombraAtiva: false,
-      sombraX: 2,
-      sombraY: 2,
-      sombraBlur: 4,
-      sombraCor: "#000000",
-    },
-  ]);
+  const larguraCracha =
+    formato === "RETRATO"
+      ? 240
+      : formato === "PAISAGEM"
+      ? 380
+      : 260;
+
+  const alturaCracha =
+    formato === "RETRATO"
+      ? 380
+      : formato === "PAISAGEM"
+      ? 240
+      : 260;
+
+  const larguraCodigo = formato === "PAISAGEM" ? 180 : 160;
+  const alturaCodigo = 48;
+
+  const novoObjeto: ObjetoCracha = {
+    id: agora,
+    tipo: "CODIGO_BARRAS",
+    valor: "{{codigoCracha}}",
+    rotulo: "Código de barras",
+    x: Math.round((larguraCracha - larguraCodigo) / 2),
+    y: Math.round(alturaCracha - alturaCodigo - 24),
+    largura: larguraCodigo,
+    altura: alturaCodigo,
+    cor: "#000000",
+    corFundo: "#ffffff",
+    mostrarTexto: false,
+    mostrarFundo: true,
+    raioBorda: 4,
+    ordem: agora,
+    sombraAtiva: false,
+    sombraX: 2,
+    sombraY: 2,
+    sombraBlur: 4,
+    sombraCor: "#000000",
+  };
+
+  setObjetos((atual) => [...atual, novoObjeto]);
+  setObjetoSelecionado(agora);
 }
 
 function adicionarForma() {
@@ -3965,6 +4001,68 @@ function removerPontoGradienteFundoSelecionado() {
 
     return novosPontos;
   });
+}
+
+function copiarCorPontoGradienteFundo() {
+  const pontoAtual = pontoGradienteFundoAtual();
+
+  if (!pontoAtual) return;
+
+  setCorGradienteFundoCopiada(pontoAtual.cor);
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Cor do ponto copiada.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2500);
+}
+
+function colarCorPontoGradienteFundo() {
+  const pontoAtual = pontoGradienteFundoAtual();
+
+  if (!pontoAtual || !corGradienteFundoCopiada) return;
+
+  atualizarPontoGradienteFundo(pontoAtual.id, {
+    cor: corGradienteFundoCopiada,
+  });
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Cor colada no ponto selecionado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2500);
+}
+
+function duplicarPontoGradienteFundoSelecionado() {
+  const pontoAtual = pontoGradienteFundoAtual();
+
+  if (!pontoAtual) return;
+
+  const novaPosicao =
+    pontoAtual.posicao >= 95
+      ? Math.max(0, pontoAtual.posicao - 5)
+      : Math.min(100, pontoAtual.posicao + 5);
+
+  const novoPonto: PontoGradienteCracha = {
+    id: Date.now(),
+    cor: pontoAtual.cor,
+    posicao: novaPosicao,
+  };
+
+  setPontosGradienteFundoCracha((pontos) =>
+    [...pontos, novoPonto].sort((a, b) => a.posicao - b.posicao)
+  );
+
+  setPontoGradienteFundoSelecionado(novoPonto.id);
+
+  setAvisoCracha({
+    tipo: "sucesso",
+    texto: "Ponto do gradiente duplicado.",
+  });
+
+  setTimeout(() => setAvisoCracha(null), 2500);
 }
 
 function fundoCrachaCss() {
@@ -8191,6 +8289,33 @@ setPontoGradienteSelecionado(novoPonto.id);
           }
           className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
         />
+
+<div className="mt-3 grid grid-cols-3 gap-2">
+  <button
+    type="button"
+    onClick={copiarCorPontoGradienteFundo}
+    className="rounded-xl border border-slate-600 px-2 py-2 text-[11px] font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10"
+  >
+    Copiar cor
+  </button>
+
+  <button
+    type="button"
+    onClick={colarCorPontoGradienteFundo}
+    disabled={!corGradienteFundoCopiada}
+    className="rounded-xl border border-slate-600 px-2 py-2 text-[11px] font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10 disabled:cursor-not-allowed disabled:opacity-40"
+  >
+    Colar cor
+  </button>
+
+  <button
+    type="button"
+    onClick={duplicarPontoGradienteFundoSelecionado}
+    className="rounded-xl border border-slate-600 px-2 py-2 text-[11px] font-bold text-slate-200 hover:border-blue-400 hover:bg-blue-500/10"
+  >
+    Duplicar
+  </button>
+</div>
 
         <div className="mt-3">
           <label className="mb-2 block text-xs font-semibold">
