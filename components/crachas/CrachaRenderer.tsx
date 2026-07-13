@@ -291,43 +291,61 @@ function CodigoBarrasCracha({
   largura: number;
   altura: number;
 }) {
-  const svgRef = useRef<SVGSVGElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [imagemCodigoBarras, setImagemCodigoBarras] = useState("");
 
   useEffect(() => {
-    if (!svgRef.current) return;
+    const canvas = canvasRef.current;
+
+    if (!canvas) return;
 
     try {
+      const valorSeguro = String(valor || "PHANYX").trim() || "PHANYX";
+
+      const larguraFinal = Math.max(80, Math.round(Number(largura || 160)));
+      const alturaFinal = Math.max(24, Math.round(Number(altura || 48)));
+
+      const escalaQualidade = 3;
+
+      canvas.width = larguraFinal * escalaQualidade;
+      canvas.height = alturaFinal * escalaQualidade;
+
       const alturaBarras = Math.max(
         18,
-        Number(altura || 48) - (mostrarTexto ? 16 : 4)
+        alturaFinal - (mostrarTexto ? 18 : 4)
       );
 
-      const larguraModulo = Math.max(
-  0.8,
-  Math.min(
-    1.8,
-    Number(largura || 160) /
-      Math.max(90, String(valor || "PHANYX").length * 14)
-  )
-);
+      const larguraModulo =
+        valorSeguro.length >= 28
+          ? 0.75
+          : valorSeguro.length >= 20
+          ? 0.9
+          : valorSeguro.length >= 14
+          ? 1.15
+          : 1.4;
 
-      JsBarcode(svgRef.current, valor || "PHANYX", {
+      JsBarcode(canvas, valorSeguro, {
         format: "CODE128",
         lineColor: cor || "#000000",
         background: mostrarFundo
           ? corFundo || "#ffffff"
-          : "transparent",
-        width: larguraModulo,
-        height: alturaBarras,
+          : "rgba(255,255,255,0)",
+        width: larguraModulo * escalaQualidade,
+        height: alturaBarras * escalaQualidade,
         displayValue: mostrarTexto,
         margin: 0,
-        fontSize: 12,
+        fontSize: 11 * escalaQualidade,
+        textMargin: 2 * escalaQualidade,
       });
+
+      setImagemCodigoBarras(canvas.toDataURL("image/png"));
     } catch (error) {
       console.error(
         "Erro ao renderizar código de barras do crachá:",
         error
       );
+
+      setImagemCodigoBarras("");
     }
   }, [
     valor,
@@ -340,14 +358,28 @@ function CodigoBarrasCracha({
   ]);
 
   return (
-    <svg
-      ref={svgRef}
-      style={{
-        display: "block",
-        width: "100%",
-        height: "100%",
-      }}
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        aria-hidden="true"
+        style={{
+          display: "none",
+        }}
+      />
+
+      {imagemCodigoBarras ? (
+        <img
+          src={imagemCodigoBarras}
+          alt=""
+          style={{
+            display: "block",
+            width: "100%",
+            height: "100%",
+            objectFit: "fill",
+          }}
+        />
+      ) : null}
+    </>
   );
 }
 
@@ -798,6 +830,9 @@ export default function CrachaRenderer({
 }: CrachaRendererProps) {
   const medidasVisuais = medidasVisuaisPorFormato(formato);
 
+  const formatoRedondo = formato === "REDONDO";
+const margemSegurancaRedondo = formatoRedondo ? 8 : 0;
+
   const larguraFisicaPx =
     Math.max(1, Number(larguraMm || 54)) * (96 / 25.4);
 
@@ -833,28 +868,34 @@ export default function CrachaRenderer({
       data-cracha-pagina
       data-cracha-lado={lado}
       style={{
-        position: "relative",
-        width: `${larguraMm}mm`,
-        height: `${alturaMm}mm`,
-        overflow: "hidden",
-        borderRadius: formato === "REDONDO" ? "50%" : 0,
-        background: fundo,
-        printColorAdjust: "exact",
-        WebkitPrintColorAdjust: "exact",
-        breakAfter: "page",
-        pageBreakAfter: "always",
-      }}
+  position: "relative",
+  width: `${larguraMm}mm`,
+  height: `${alturaMm}mm`,
+  overflow: "hidden",
+  background: formatoRedondo ? "transparent" : fundo,
+  printColorAdjust: "exact",
+  WebkitPrintColorAdjust: "exact",
+  breakAfter: "page",
+  pageBreakAfter: "always",
+}}
     >
       <div
         style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          width: medidasVisuais.largura,
-          height: medidasVisuais.altura,
-          transform: `scale(${escalaX}, ${escalaY})`,
-          transformOrigin: "top left",
-        }}
+  position: "absolute",
+  left: margemSegurancaRedondo,
+  top: margemSegurancaRedondo,
+  width:
+    medidasVisuais.largura -
+    margemSegurancaRedondo * 2,
+  height:
+    medidasVisuais.altura -
+    margemSegurancaRedondo * 2,
+  transform: `scale(${escalaX}, ${escalaY})`,
+  transformOrigin: "top left",
+  overflow: "hidden",
+  borderRadius: formatoRedondo ? "50%" : 0,
+  background: fundo,
+}}
       >
         {objetosOrdenados.map((objeto, indice) => {
           const estiloBase: React.CSSProperties = {
@@ -1047,7 +1088,7 @@ export default function CrachaRenderer({
                 key={objeto.id}
                 style={{
                   ...estiloBase,
-                  padding: 4,
+                  padding: 0,
                   borderRadius: Number(
                     objeto.raioBorda || 0
                   ),
@@ -1060,20 +1101,14 @@ export default function CrachaRenderer({
                 }}
               >
                 <CodigoBarrasCracha
-                  valor={valor || "PHANYX"}
-                  cor={objeto.cor || "#000000"}
-                  corFundo={
-                    objeto.corFundo || "#ffffff"
-                  }
-                  mostrarFundo={
-                    objeto.mostrarFundo !== false
-                  }
-                  mostrarTexto={Boolean(
-                    objeto.mostrarTexto
-                  )}
-                  largura={Number(objeto.largura || 160)}
-                  altura={Number(objeto.altura || 48)}
-                />
+  valor={valor || "PHANYX"}
+  cor={objeto.cor || "#000000"}
+  corFundo={objeto.corFundo || "#ffffff"}
+  mostrarFundo={objeto.mostrarFundo !== false}
+  mostrarTexto={Boolean(objeto.mostrarTexto)}
+  largura={Number(objeto.largura || 160)}
+  altura={Number(objeto.altura || 48)}
+/>
               </div>
             );
           }
