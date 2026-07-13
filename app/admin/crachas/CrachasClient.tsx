@@ -991,6 +991,24 @@ async function salvarModeloCracha() {
 
     const medidas = medidasPadraoCracha(formato);
 
+    const modeloSelecionado = modelosSalvosCracha.find(
+  (modelo) => modelo.id === modeloCrachaAtualId
+);
+
+const salvandoNovoModelo = !modeloCrachaAtualId;
+
+const nomeModelo =
+  modeloSelecionado?.nome ||
+  `Modelo ${String(modelosSalvosCracha.length + 1).padStart(
+    2,
+    "0"
+  )} - ${nomeTipoModeloCracha(tipoModeloCracha)}`;
+
+const deveSerPadrao =
+  modelosSalvosCracha.length === 0
+    ? true
+    : modeloSelecionado?.padrao === true;
+
     const res = await fetch("/api/admin/crachas/modelos", {
       method: "POST",
       credentials: "include",
@@ -998,8 +1016,8 @@ async function salvarModeloCracha() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  id: modeloCrachaAtualId,
-  nome: `Modelo padrão - ${nomeTipoModeloCracha(tipoModeloCracha)}`,
+  id: salvandoNovoModelo ? undefined : modeloCrachaAtualId,
+nome: nomeModelo,
   tipoPessoa: tipoModeloCracha,
   formato,
   larguraMm: medidas.larguraMm,
@@ -1020,7 +1038,7 @@ async function salvarModeloCracha() {
 
   frenteJson: objetosFrente,
   versoJson: objetosVerso,
-  padrao: true,
+  padrao: deveSerPadrao,
 }),
     });
 
@@ -1030,9 +1048,15 @@ async function salvarModeloCracha() {
       throw new Error(data.error || "Erro ao salvar modelo de crachá.");
     }
 
-    setModeloCrachaAtualId(data.modelo?.id || null);
+    const modeloSalvo = data.modelo as ModeloCrachaSalvo;
 
-    await carregarModelosSalvosCracha(tipoModeloCracha);
+setModeloCrachaAtualId(modeloSalvo?.id || null);
+
+await carregarModelosSalvosCracha(tipoModeloCracha);
+
+if (modeloSalvo) {
+  aplicarModeloCrachaNaTela(modeloSalvo);
+}
 
     setAvisoCracha({
       tipo: "sucesso",
@@ -1091,6 +1115,88 @@ function novoModeloCracha() {
   });
 
   setTimeout(() => setAvisoCracha(null), 4000);
+}
+
+async function duplicarModeloCracha() {
+  try {
+    setSalvandoModeloCracha(true);
+    setAvisoCracha(null);
+
+    const medidas = medidasPadraoCracha(formato);
+
+    const modeloSelecionado = modelosSalvosCracha.find(
+      (modelo) => modelo.id === modeloCrachaAtualId
+    );
+
+    const nomeBase =
+      modeloSelecionado?.nome ||
+      `Modelo - ${nomeTipoModeloCracha(tipoModeloCracha)}`;
+
+    const res = await fetch("/api/admin/crachas/modelos", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nome: `${nomeBase} - cópia`,
+        tipoPessoa: tipoModeloCracha,
+        formato,
+        larguraMm: medidas.larguraMm,
+        alturaMm: medidas.alturaMm,
+        tipoFuro: tipoFuroCracha,
+
+        tipoFundoFrente,
+        corFundoFrente,
+        corFundoFrenteSecundaria,
+        direcaoGradienteFrente,
+        gradientePontosFundoFrente,
+
+        tipoFundoVerso,
+        corFundoVerso,
+        corFundoVersoSecundaria,
+        direcaoGradienteVerso,
+        gradientePontosFundoVerso,
+
+        frenteJson: objetosFrente,
+        versoJson: objetosVerso,
+
+        padrao: false,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.error || "Erro ao duplicar modelo de crachá.");
+    }
+
+    const modeloDuplicado = data.modelo as ModeloCrachaSalvo;
+
+    setModeloCrachaAtualId(modeloDuplicado.id);
+
+    await carregarModelosSalvosCracha(tipoModeloCracha);
+
+    aplicarModeloCrachaNaTela(modeloDuplicado);
+
+    setAvisoCracha({
+      tipo: "sucesso",
+      texto: "Modelo de crachá duplicado com sucesso.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 4000);
+  } catch (error: any) {
+    console.error(error);
+
+    setAvisoCracha({
+      tipo: "erro",
+      texto: error?.message || "Erro ao duplicar modelo de crachá.",
+    });
+
+    setTimeout(() => setAvisoCracha(null), 5000);
+  } finally {
+    setSalvandoModeloCracha(false);
+  }
 }
 
 function placeholderBuscaEmissao(tipo: TipoModeloCracha) {
@@ -1453,7 +1559,7 @@ function adicionarCodigoBarras() {
     valor: "{{codigoCracha}}",
     rotulo: "Código de barras",
     x: Math.round((larguraCracha - larguraCodigo) / 2),
-    y: Math.round(alturaCracha - alturaCodigo - 24),
+    y: Math.round(alturaCracha - alturaCodigo - 20),
     largura: larguraCodigo,
     altura: alturaCodigo,
     cor: "#000000",
@@ -4121,9 +4227,14 @@ function removerPontoGradienteFundo(id: number) {
   {salvandoModeloCracha ? "Salvando..." : "Salvar"}
 </button>
 
-          <button className="phanyx-crachas-button-secondary">
-            Duplicar
-          </button>
+          <button
+  type="button"
+  onClick={duplicarModeloCracha}
+  disabled={salvandoModeloCracha}
+  className="phanyx-crachas-button-secondary disabled:cursor-not-allowed disabled:opacity-60"
+>
+  Duplicar
+</button>
 
           <button
   type="button"
