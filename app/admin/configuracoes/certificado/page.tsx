@@ -2482,10 +2482,15 @@ async function excluirCampo(id: number) {
 }
 
 useEffect(() => {
-  if (!modalArrayAberto || !campoSelecionado || campoSelecionado.tipo !== "FORMA") {
-    setCopiasPreviewArray([]);
-    return;
-  }
+  if (
+  !modalArrayAberto ||
+  !campoSelecionado ||
+  campoSelecionado.tipo !== "FORMA" ||
+  (campoSelecionado as any)?.grupoId
+) {
+  setCopiasPreviewArray([]);
+  return;
+}
 
   setCopiasPreviewArray(gerarCopiasArray(true));
 }, [
@@ -2501,7 +2506,13 @@ useEffect(() => {
 ]);
 
   function aplicarArrayForma() {
-  if (!campoSelecionado || campoSelecionado.tipo !== "FORMA") return;
+  if (
+  !campoSelecionado ||
+  campoSelecionado.tipo !== "FORMA" ||
+  (campoSelecionado as any)?.grupoId
+) {
+  return;
+}
 
   const arrayConfig = {
     ativo: true,
@@ -5890,7 +5901,7 @@ className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-re
 
  if (c.tipo === "FORMA") {
   const selecionado = camposSelecionadosIds.includes(c.id);
-
+  const formaEstaAgrupada = Boolean((c as any).grupoId);
   return (
   <div
     key={c.id}
@@ -6034,9 +6045,9 @@ overflow:
   <div data-campo-certificado-id={c.id}>
     <FormaVetorial
   campo={c as any}
-  selecionado={selecionado}
+  selecionado={selecionado && !formaEstaAgrupada}
   modo="editor"
-  mostrarHandles={mostrarHandlesForma}
+  mostrarHandles={mostrarHandlesForma && !formaEstaAgrupada}
   pontoSelecionadoId={
     pontoFormaSelecionado?.campoId === c.id
       ? pontoFormaSelecionado.pontoId
@@ -6045,6 +6056,11 @@ overflow:
   onSelecionarPonto={(pontoId) => {
   setCampoSelecionadoId(c.id);
   setCamposSelecionadosIds(idsDoCampoOuGrupo(c));
+
+  if (formaEstaAgrupada) {
+    setPontoFormaSelecionado(null);
+    return;
+  }
 
   setPontoFormaSelecionado(
     pontoId
@@ -6056,17 +6072,19 @@ overflow:
   );
 }}
   onChange={(campoAtualizado) => {
-        setCampos((prev) =>
-          prev.map((item) => {
-            if (item.id !== c.id) return item;
+  if (formaEstaAgrupada) return;
 
-            return {
-              ...item,
-              ...(campoAtualizado as any),
-            };
-          })
-        );
-      }}
+  setCampos((prev) =>
+    prev.map((item) => {
+      if (item.id !== c.id) return item;
+
+      return {
+        ...item,
+        ...(campoAtualizado as any),
+      };
+    })
+  );
+}}
     />
   </div>
 )}
@@ -6186,9 +6204,9 @@ setEditorCorGradiente({
 
 </div>
 
-      {selecionado && !caixaDoGrupoSelecionado && (
-        <>
-          {/* girar */}
+      {selecionado && !caixaDoGrupoSelecionado && !formaEstaAgrupada && (
+  <>
+    {/* girar */}
           <button
   type="button"
   onMouseDown={(e) => iniciarRotacao(e, c)}
@@ -6334,7 +6352,7 @@ altura: ev.shiftKey
   ✕
 </button>
 
-{selecionado && !caixaDoGrupoSelecionado && (
+{selecionado && !caixaDoGrupoSelecionado && !formaEstaAgrupada && (
   <button
     type="button"
     onMouseDown={(e) => {
@@ -7159,7 +7177,7 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
                 Zoom {zoom}%
               </span>
 
-{campoSelecionado?.tipo === "FORMA" && (
+{campoSelecionado?.tipo === "FORMA" && !(campoSelecionado as any)?.grupoId && (
   <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-xs font-semibold text-white shadow-xl">
     <button type="button" className="rounded-lg border border-slate-600 px-3 py-2 hover:bg-slate-800">
       + Ponto
@@ -7975,7 +7993,7 @@ return;
   </div>
 )}
 
-{campoSelecionado?.tipo === "FORMA" && (
+{campoSelecionado?.tipo === "FORMA" && !(campoSelecionado as any)?.grupoId && (
   <div className="rounded-2xl border border-slate-200 bg-white p-4">
     <p className="mb-3 text-sm font-semibold text-slate-700">
       Aparência da forma
@@ -9426,7 +9444,7 @@ atualizarCampoLocal("tamanho", tamanho);
   </button>
 )}
 
-{campoSelecionado?.tipo === "FORMA" && (
+{campoSelecionado?.tipo === "FORMA" && !(campoSelecionado as any)?.grupoId && (
   <button
     type="button"
     onClick={() => {
