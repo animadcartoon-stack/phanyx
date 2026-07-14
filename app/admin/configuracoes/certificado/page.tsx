@@ -876,6 +876,41 @@ useEffect(() => {
   };
 }, [campos, historico, futuro]);
 
+useEffect(() => {
+  function fecharMenusAoClicarFora(e: globalThis.MouseEvent) {
+    const alvo = e.target as HTMLElement | null;
+
+    if (
+      alvo?.closest("[data-menu-contexto-certificado]") ||
+      alvo?.closest("[data-menu-camada-certificado]") ||
+      alvo?.closest("[data-menu-gradiente-certificado]")
+    ) {
+      return;
+    }
+
+    setMenuContexto(null);
+    setMenuCamada(null);
+    setMenuPontoGradiente(null);
+  }
+
+  function fecharMenusComEsc(e: KeyboardEvent) {
+    if (e.key !== "Escape") return;
+
+    setMenuContexto(null);
+    setMenuCamada(null);
+    setMenuPontoGradiente(null);
+    setShapeInspectorAberto(false);
+  }
+
+  window.addEventListener("mousedown", fecharMenusAoClicarFora);
+  window.addEventListener("keydown", fecharMenusComEsc);
+
+  return () => {
+    window.removeEventListener("mousedown", fecharMenusAoClicarFora);
+    window.removeEventListener("keydown", fecharMenusComEsc);
+  };
+}, []);
+
   function atualizarCamposComHistorico(
   atualizador:
     | CampoCertificado[]
@@ -2444,6 +2479,47 @@ function idsAlvoDaAcao() {
     : campoSelecionadoId
     ? [campoSelecionadoId]
     : [];
+}
+
+function idsDoCampoOuGrupo(campo: CampoCertificado) {
+  if (campo?.grupoId) {
+    return campos
+      .filter((item) => item.grupoId === campo.grupoId)
+      .map((item) => item.id);
+  }
+
+  return [campo.id];
+}
+
+function selecionarCampoNoCanvas(
+  event: React.MouseEvent<HTMLDivElement>,
+  campo: CampoCertificado
+) {
+  event.stopPropagation();
+
+  if (event.button === 2) return;
+
+  const idsDoCampo = idsDoCampoOuGrupo(campo);
+
+  setCampoSelecionadoId(campo.id);
+  setPontoFormaSelecionado(null);
+
+  if (event.shiftKey || event.ctrlKey || event.metaKey) {
+    setCamposSelecionadosIds((prev) => {
+      const todosJaSelecionados = idsDoCampo.every((id) => prev.includes(id));
+
+      if (todosJaSelecionados) {
+        return prev.filter((id) => !idsDoCampo.includes(id));
+      }
+
+      return Array.from(new Set([...prev, ...idsDoCampo]));
+    });
+
+    return;
+  }
+
+  setCamposSelecionadosIds(idsDoCampo);
+  iniciarDrag(event as any, campo);
 }
 
 function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
@@ -5162,6 +5238,22 @@ contornoEspessura: 2,
 
 <button
   type="button"
+  onClick={() => virarSelecionados("HORIZONTAL")}
+  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+>
+  ↔ Virar H
+</button>
+
+<button
+  type="button"
+  onClick={() => virarSelecionados("VERTICAL")}
+  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+>
+  ↕ Virar V
+</button>
+
+<button
+  type="button"
   onClick={() => agruparCamposSelecionados()}
   disabled={camposSelecionadosIds.length < 2}
   className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
@@ -5626,39 +5718,28 @@ className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-re
   <div
     key={c.id}
     data-campo-certificado-id={c.id}
-    onMouseDown={(event) => {
-  event.stopPropagation();
- 
-  if (event.button === 2) return;
+    onMouseDown={(event) => selecionarCampoNoCanvas(event, c)}
+      onContextMenu={(e) => {
+  e.preventDefault();
+  e.stopPropagation();
 
-  if (event.shiftKey || event.ctrlKey || event.metaKey) {
-    setCamposSelecionadosIds((prev) =>
-      prev.includes(c.id)
-        ? prev.filter((id) => id !== c.id)
-        : [...prev, c.id]
-    );
-
-    setCampoSelecionadoId(c.id);
-    return;
-  }
+  const idsDoAlvo = idsDoCampoOuGrupo(c);
+  const clicouEmItemJaSelecionado = camposSelecionadosIds.includes(c.id);
 
   setCampoSelecionadoId(c.id);
-  setCamposSelecionadosIds([c.id]);
-  iniciarDrag(event as any, c);
-}}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        setCampoSelecionadoId(c.id);
+  setPontoFormaSelecionado(null);
+  setShapeInspectorAberto(false);
 
-if (!camposSelecionadosIds.includes(c.id)) {
-  setCamposSelecionadosIds([c.id]);
-}
-        setMenuContexto({
-          x: e.clientX,
-          y: e.clientY,
-          campoId: c.id,
-        });
-      }}
+  if (!clicouEmItemJaSelecionado) {
+    setCamposSelecionadosIds(idsDoAlvo);
+  }
+
+  setMenuContexto({
+    x: e.clientX,
+    y: e.clientY,
+    campoId: c.id,
+  });
+}}
       className={`absolute z-20 select-none overflow-visible ${
   (c as any).arrayPreview ? "pointer-events-none opacity-60" : ""
 }`}
@@ -5785,18 +5866,18 @@ overflow:
       : null
   }
   onSelecionarPonto={(pontoId) => {
-    setCampoSelecionadoId(c.id);
-    setCamposSelecionadosIds([c.id]);
+  setCampoSelecionadoId(c.id);
+  setCamposSelecionadosIds(idsDoCampoOuGrupo(c));
 
-    setPontoFormaSelecionado(
-      pontoId
-        ? {
-            campoId: c.id,
-            pontoId,
-          }
-        : null
-    );
-  }}
+  setPontoFormaSelecionado(
+    pontoId
+      ? {
+          campoId: c.id,
+          pontoId,
+        }
+      : null
+  );
+}}
   onChange={(campoAtualizado) => {
         setCampos((prev) =>
           prev.map((item) => {
@@ -8562,6 +8643,7 @@ atualizarCampoLocal("tamanho", tamanho);
 
 {menuCamada && (
   <div
+  data-menu-camada-certificado="true"
     className="fixed z-[9999] w-44 rounded-xl border border-slate-200 bg-white p-2 text-xs shadow-xl"
     style={{ left: menuCamada.x, top: menuCamada.y }}
     onClick={(e) => e.stopPropagation()}
@@ -8871,6 +8953,7 @@ atualizarCampoLocal("tamanho", tamanho);
 
 {menuContexto && (
   <div
+  data-menu-contexto-certificado="true"
     onClick={(e) => e.stopPropagation()}
     onMouseDown={(e) => {
       const alvo = e.target as HTMLElement;
