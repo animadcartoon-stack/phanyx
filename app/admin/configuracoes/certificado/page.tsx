@@ -2689,6 +2689,84 @@ function alinharSelecionados(
   setTimeout(() => setMensagemSucesso(""), 1800);
 }
 
+function virarSelecionados(direcao: "HORIZONTAL" | "VERTICAL") {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) {
+    setMensagemErro("Selecione uma forma para virar.");
+    setTimeout(() => setMensagemErro(""), 2000);
+    return;
+  }
+
+  registrarHistoricoAntesDaAcao();
+
+  const itens = campos.filter((campo) => ids.includes(campo.id));
+
+  const minX = Math.min(...itens.map((campo) => Number(campo.x || 0)));
+  const minY = Math.min(...itens.map((campo) => Number(campo.y || 0)));
+
+  const maxX = Math.max(
+    ...itens.map(
+      (campo) => Number(campo.x || 0) + Number(campo.largura || 120)
+    )
+  );
+
+  const maxY = Math.max(
+    ...itens.map(
+      (campo) => Number(campo.y || 0) + Number(campo.altura || 40)
+    )
+  );
+
+  const larguraGrupo = maxX - minX;
+  const alturaGrupo = maxY - minY;
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (!ids.includes(campo.id)) return campo;
+      if ((campo as any).bloqueado) return campo;
+
+      const x = Number(campo.x || 0);
+      const y = Number(campo.y || 0);
+      const largura = Number(campo.largura || 120);
+      const altura = Number(campo.altura || 40);
+
+      const novosDados =
+        direcao === "HORIZONTAL"
+          ? {
+              x:
+                ids.length > 1
+                  ? minX + larguraGrupo - (x - minX) - largura
+                  : x,
+              flipX: !(campo as any).flipX,
+            }
+          : {
+              y:
+                ids.length > 1
+                  ? minY + alturaGrupo - (y - minY) - altura
+                  : y,
+              flipY: !(campo as any).flipY,
+            };
+
+      return {
+        ...campo,
+        ...novosDados,
+        dadosJson: {
+          ...((campo as any).dadosJson || {}),
+          ...novosDados,
+        },
+      };
+    })
+  );
+
+  setMensagemSucesso(
+    direcao === "HORIZONTAL"
+      ? "Virado horizontalmente."
+      : "Virado verticalmente."
+  );
+
+  setTimeout(() => setMensagemSucesso(""), 1500);
+}
+
 function impedirPerdaSelecaoTexto(e: React.MouseEvent) {
   if (temSelecaoTextoLivreSalva()) {
     e.preventDefault();
@@ -5065,6 +5143,22 @@ contornoEspessura: 2,
       >
         Mesmo tamanho
       </button>
+
+<button
+  type="button"
+  onClick={() => virarSelecionados("HORIZONTAL")}
+  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+>
+  ↔ Virar H
+</button>
+
+<button
+  type="button"
+  onClick={() => virarSelecionados("VERTICAL")}
+  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
+>
+  ↕ Virar V
+</button>
 
 <button
   type="button"
