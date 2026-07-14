@@ -45,20 +45,27 @@ type ObjetoCracha =
       ordem: number;
     }
   | {
-      id: number;
-      tipo: "CAMPO";
-      campo: string;
-      rotulo: string;
-      x: number;
-      y: number;
-      fonte: number;
-      fonteFamilia?: string;
-      cor: string;
-      alinhamento: "left" | "center" | "right";
-      largura: number;
-      altura: number;
-      ordem: number;
-    }
+    id: number;
+    tipo: "CAMPO";
+    campo: string;
+    rotulo: string;
+    x: number;
+    y: number;
+    fonte: number;
+    fonteFamilia?: string;
+    cor: string;
+    alinhamento: "left" | "center" | "right";
+    largura: number;
+    altura: number;
+
+    sombraAtiva?: boolean;
+    sombraX?: number;
+    sombraY?: number;
+    sombraBlur?: number;
+    sombraCor?: string;
+
+    ordem: number;
+  }
   | {
       id: number;
       tipo: "IMAGEM";
@@ -1628,6 +1635,13 @@ function abrirPdfUltimoCrachaEmitido() {
       alinhamento: "center",
       largura: 150,
       altura: 32,
+
+      sombraAtiva: false,
+      sombraX: 2,
+      sombraY: 2,
+      sombraBlur: 4,
+      sombraCor: "#000000",
+
       ordem: agora,
     },
   ]);
@@ -2245,7 +2259,9 @@ useEffect(() => {
     });
   }
 
-  function sombraTextoCss(objeto: Extract<ObjetoCracha, { tipo: "TEXTO" }>) {
+  function sombraTextoCss(
+  objeto: Extract<ObjetoCracha, { tipo: "TEXTO" | "CAMPO" }>
+) {
   if (!objeto.sombraAtiva) return "none";
 
   return `${objeto.sombraX ?? 2}px ${objeto.sombraY ?? 2}px ${
@@ -5201,6 +5217,7 @@ if (objeto.tipo === "CAMPO") {
         fontFamily: fonteCssCracha(objeto.fonteFamilia),
         color: objeto.cor || "#000000",
         WebkitTextFillColor: objeto.cor || "#000000",
+        textShadow: sombraTextoCss(objeto),
         cursor: "move",
         padding: "2px 4px",
         textAlign: objeto.alinhamento || "center",
@@ -5234,6 +5251,7 @@ if (objeto.tipo === "CAMPO") {
           WebkitTextFillColor: objeto.cor || "#000000",
           fontFamily: fonteCssCracha(objeto.fonteFamilia),
           textAlign: objeto.alinhamento || "center",
+          textShadow: sombraTextoCss(objeto),
           whiteSpace: "normal",
           overflowWrap: "break-word",
           wordBreak: "break-word",
@@ -6332,6 +6350,100 @@ if (objeto.tipo === "FORMA") {
         className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
       />
     </div>
+
+    <div className="rounded-2xl border border-slate-700/40 p-3">
+  <label className="flex items-center gap-2 text-sm font-bold">
+    <input
+      type="checkbox"
+      checked={Boolean(objetoAtual.sombraAtiva)}
+      onChange={(e) =>
+        atualizarObjeto(objetoAtual.id, {
+          sombraAtiva: e.target.checked,
+        })
+      }
+    />
+
+    Sombra projetada
+  </label>
+
+  {objetoAtual.sombraAtiva && (
+    <div className="mt-4 space-y-3">
+      <div className="grid grid-cols-3 gap-2">
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            X
+          </label>
+
+          <input
+            type="number"
+            value={objetoAtual.sombraX ?? 2}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraX: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Y
+          </label>
+
+          <input
+            type="number"
+            value={objetoAtual.sombraY ?? 2}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraY: Number(e.target.value),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-xs font-semibold">
+            Blur
+          </label>
+
+          <input
+            type="number"
+            min={0}
+            value={objetoAtual.sombraBlur ?? 4}
+            onChange={(e) =>
+              atualizarObjeto(objetoAtual.id, {
+                sombraBlur: Math.max(
+                  0,
+                  Number(e.target.value)
+                ),
+              })
+            }
+            className="phanyx-crachas-input"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs font-semibold">
+          Cor da sombra
+        </label>
+
+        <input
+          type="color"
+          value={objetoAtual.sombraCor ?? "#000000"}
+          onChange={(e) =>
+            atualizarObjeto(objetoAtual.id, {
+              sombraCor: e.target.value,
+            })
+          }
+          className="h-10 w-full rounded-xl border border-slate-300 bg-white dark:border-slate-700 dark:bg-slate-950"
+        />
+      </div>
+    </div>
+  )}
+</div>
   </div>
           )}
 
