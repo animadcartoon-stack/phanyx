@@ -2560,6 +2560,32 @@ function idsAlvoDaAcao() {
     : [];
 }
 
+function abrirMenuFerramentasSelecao() {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) {
+    setMensagemErro("Selecione um elemento para abrir as ferramentas.");
+    setTimeout(() => setMensagemErro(""), 2000);
+    return;
+  }
+
+  const campoIdMenu =
+    campoSelecionadoId && ids.includes(campoSelecionadoId)
+      ? campoSelecionadoId
+      : ids[ids.length - 1];
+
+  setCampoSelecionadoId(campoIdMenu);
+  setCamposSelecionadosIds(ids);
+  setPontoFormaSelecionado(null);
+  setShapeInspectorAberto(false);
+
+  setMenuContexto({
+    x: Math.max(24, Math.min(window.innerWidth - 460, window.innerWidth / 2 - 220)),
+    y: 170,
+    campoId: campoIdMenu,
+  });
+}
+
 function idsDoCampoOuGrupo(campo: CampoCertificado) {
   if (campo?.grupoId) {
     return campos
@@ -5448,6 +5474,14 @@ contornoEspessura: 2,
   className="rounded-xl bg-orange-600 px-3 py-2 text-xs font-bold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
 >
   🔓 Desagrupar
+</button>
+
+<button
+  type="button"
+  onClick={abrirMenuFerramentasSelecao}
+  className="rounded-xl bg-slate-700 px-3 py-2 text-xs font-bold text-white hover:bg-slate-600"
+>
+  ☰ Ferramentas
 </button>
 
       <button
