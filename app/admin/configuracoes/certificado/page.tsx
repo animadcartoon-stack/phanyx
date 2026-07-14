@@ -1087,47 +1087,6 @@ if (alvo.closest("[data-campo-certificado-id]")) {
     primeiro &&
     Math.hypot(x - primeiro.x, y - primeiro.y) <= 18;
 
-  function criarCampoPreview(pontos: any[]) {
-    const xs = pontos.map((p) => p.x);
-    const ys = pontos.map((p) => p.y);
-
-    const minX = Math.min(...xs);
-    const minY = Math.min(...ys);
-    const maxX = Math.max(...xs);
-    const maxY = Math.max(...ys);
-
-    const largura = Math.max(20, maxX - minX);
-    const altura = Math.max(20, maxY - minY);
-
-    const pontosNormalizados = pontos.map((p, index) => ({
-      id: `preview-livre-${index}`,
-      x: Number((((p.x - minX) / largura) * 100).toFixed(2)),
-      y: Number((((p.y - minY) / altura) * 100).toFixed(2)),
-      tipo: "reto" as const,
-    }));
-
-    return {
-      id: -999999,
-      tempId: -999999,
-      tipo: "FORMA",
-      forma: "LIVRE",
-      pontosForma: pontosNormalizados,
-      mostrarPreenchimento: true,
-      mostrarContorno: true,
-      preenchimentoCor: "#1d4ed8",
-      contornoCor: "#00ff88",
-      contornoEspessura: 5,
-      x: minX,
-      y: minY,
-      largura,
-      altura,
-      cor: "#00ff88",
-      opacity: 1,
-      ordem: 999999,
-      nomeCamada: "Forma livre em criação",
-    } as any;
-  }
-
   if (clicouNoPrimeiro) {
     const campoFinal = criarCampoPreviewFormaLivre(pontosFormaLivre);
 
@@ -1960,25 +1919,51 @@ useEffect(() => {
 ]);
 
   const caixaDoGrupoSelecionado = useMemo(() => {
-  const ids =
-    campoSelecionado?.grupoId
-      ? campos
-          .filter((campo) => campo.grupoId === campoSelecionado.grupoId)
-          .map((campo) => campo.id)
-      : camposSelecionadosIds;
+  const idsBase =
+    camposSelecionadosIds.length > 0
+      ? camposSelecionadosIds
+      : campoSelecionadoId
+      ? [campoSelecionadoId]
+      : [];
+
+  const idsExpandidos = idsBase.flatMap((id) => {
+    const campo = campos.find((item) => item.id === id);
+
+    if (!campo) return [];
+    if ((campo as any).arrayPreview) return [];
+
+    if (campo.grupoId) {
+      return campos
+        .filter(
+          (item) =>
+            item.grupoId === campo.grupoId && !(item as any).arrayPreview
+        )
+        .map((item) => item.id);
+    }
+
+    return [campo.id];
+  });
+
+  const ids = Array.from(new Set(idsExpandidos));
 
   if (ids.length < 2) return null;
 
   const itens = campos.filter((campo) => ids.includes(campo.id));
   if (itens.length < 2) return null;
 
-  const minX = Math.min(...itens.map((campo) => campo.x));
-  const minY = Math.min(...itens.map((campo) => campo.y));
+  const minX = Math.min(...itens.map((campo) => Number(campo.x || 0)));
+  const minY = Math.min(...itens.map((campo) => Number(campo.y || 0)));
+
   const maxX = Math.max(
-    ...itens.map((campo) => campo.x + (campo.largura || 120))
+    ...itens.map(
+      (campo) => Number(campo.x || 0) + Number(campo.largura || 120)
+    )
   );
+
   const maxY = Math.max(
-    ...itens.map((campo) => campo.y + (campo.altura || 40))
+    ...itens.map(
+      (campo) => Number(campo.y || 0) + Number(campo.altura || 40)
+    )
   );
 
   return {
@@ -1987,7 +1972,7 @@ useEffect(() => {
     largura: maxX - minX,
     altura: maxY - minY,
   };
-}, [campos, camposSelecionadosIds, campoSelecionado]);
+}, [campos, camposSelecionadosIds, campoSelecionadoId]);
 
   async function fazerUploadModelo() {
     if (!arquivoModelo) {
@@ -2545,26 +2530,39 @@ useEffect(() => {
 }
 
 function idsAlvoDaAcao() {
-  const campo = campos.find((item) => item.id === campoSelecionadoId);
+  const idsBase =
+    camposSelecionadosIds.length > 0
+      ? camposSelecionadosIds
+      : campoSelecionadoId
+      ? [campoSelecionadoId]
+      : [];
 
-  if (campo?.grupoId) {
-    return campos
-      .filter((item) => item.grupoId === campo.grupoId)
-      .map((item) => item.id);
-  }
+  const idsExpandidos = idsBase.flatMap((id) => {
+    const campo = campos.find((item) => item.id === id);
 
-  return camposSelecionadosIds.length > 1
-    ? camposSelecionadosIds
-    : campoSelecionadoId
-    ? [campoSelecionadoId]
-    : [];
+    if (!campo) return [];
+    if ((campo as any).arrayPreview) return [];
+
+    if (campo.grupoId) {
+      return campos
+        .filter(
+          (item) =>
+            item.grupoId === campo.grupoId && !(item as any).arrayPreview
+        )
+        .map((item) => item.id);
+    }
+
+    return [campo.id];
+  });
+
+  return Array.from(new Set(idsExpandidos));
 }
 
 function abrirMenuFerramentasSelecao() {
   const ids = idsAlvoDaAcao();
 
   if (ids.length === 0) {
-    setMensagemErro("Selecione um elemento para abrir as ferramentas.");
+    setMensagemErro("Selecione uma forma para abrir as ferramentas.");
     setTimeout(() => setMensagemErro(""), 2000);
     return;
   }
@@ -2574,15 +2572,27 @@ function abrirMenuFerramentasSelecao() {
       ? campoSelecionadoId
       : ids[ids.length - 1];
 
-  setCampoSelecionadoId(campoIdMenu);
-  setCamposSelecionadosIds(ids);
-  setPontoFormaSelecionado(null);
-  setShapeInspectorAberto(false);
+  const campo = campos.find((item) => item.id === campoIdMenu);
 
-  setMenuContexto({
-    x: Math.max(24, Math.min(window.innerWidth - 460, window.innerWidth / 2 - 220)),
-    y: 170,
-    campoId: campoIdMenu,
+  if (!campo || campo.tipo !== "FORMA") {
+    setMensagemErro("As ferramentas avançadas estão disponíveis para formas.");
+    setTimeout(() => setMensagemErro(""), 2200);
+    return;
+  }
+
+  setCampoSelecionadoId(campoIdMenu);
+  setPontoFormaSelecionado(null);
+
+  // fecha o menu do botão direito, se estiver aberto
+  setMenuContexto(null);
+  setMenuCamada(null);
+  setMenuPontoGradiente(null);
+
+  // abre o painel correto: Opções da forma / Array / Multiplicar
+  setShapeInspectorAberto(true);
+  setShapeInspectorPosicao({
+    x: Math.max(24, Math.min(window.innerWidth - 340, window.innerWidth - 390)),
+    y: 160,
   });
 }
 
@@ -2649,6 +2659,8 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
     altura: Math.max(1, caixaDoGrupoSelecionado.altura),
   };
 
+  const proporcaoGrupo = caixaInicial.largura / caixaInicial.altura;
+
   const itensIniciais = campos
     .filter((campo) => ids.includes(campo.id))
     .map((campo) => ({
@@ -2664,48 +2676,52 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
     const deltaX = (ev.clientX - startX) / escala;
     const deltaY = (ev.clientY - startY) / escala;
 
-    let novaLarguraGrupo = Math.max(20, caixaInicial.largura + deltaX);
-    let novaAlturaGrupo = Math.max(20, caixaInicial.altura + deltaY);
+    const deltaDominante =
+      Math.abs(deltaX) >= Math.abs(deltaY)
+        ? deltaX
+        : deltaY * proporcaoGrupo;
 
-    if (ev.shiftKey) {
-      const proporcao = caixaInicial.largura / caixaInicial.altura;
-      novaAlturaGrupo = novaLarguraGrupo / proporcao;
-    }
+    const novaLarguraGrupo = Math.max(
+      20,
+      caixaInicial.largura + deltaDominante
+    );
 
-    const escalaX = novaLarguraGrupo / caixaInicial.largura;
-    const escalaY = novaAlturaGrupo / caixaInicial.altura;
+    const fator = Math.max(0.05, novaLarguraGrupo / caixaInicial.largura);
 
     setCampos((prev) =>
       prev.map((campo) => {
-        const itemInicial = itensIniciais.find((item) => item.id === campo.id);
+        const itemInicial = itensIniciais.find(
+          (item) => item.id === campo.id
+        );
 
         if (!itemInicial) return campo;
         if ((campo as any).bloqueado) return campo;
 
         const novoX =
-          caixaInicial.x + (itemInicial.x - caixaInicial.x) * escalaX;
+          caixaInicial.x + (itemInicial.x - caixaInicial.x) * fator;
 
         const novoY =
-          caixaInicial.y + (itemInicial.y - caixaInicial.y) * escalaY;
+          caixaInicial.y + (itemInicial.y - caixaInicial.y) * fator;
 
-        const novaLargura = Math.max(4, itemInicial.largura * escalaX);
-        const novaAltura = Math.max(4, itemInicial.altura * escalaY);
-
-        const fatorTexto = Math.min(escalaX, escalaY);
-
-        const novosDados = {
+        const novosDados: Partial<CampoCertificado> = {
           x: Math.round(novoX),
           y: Math.round(novoY),
-          largura: Math.round(novaLargura),
-          altura: Math.round(novaAltura),
-          tamanho:
-            campo.tipo === "TEXTO_LIVRE" ||
-            campo.tipo === "NOME_ALUNO" ||
-            campo.tipo === "NOME_CURSO" ||
-            campo.tipo === "DISCIPLINAS_CONCLUIDAS"
-              ? Math.max(6, Math.round(itemInicial.tamanho * fatorTexto))
-              : campo.tamanho,
+          largura: Math.round(Math.max(4, itemInicial.largura * fator)),
+          altura: Math.round(Math.max(4, itemInicial.altura * fator)),
         };
+
+        if (
+          campo.tipo === "TEXTO" ||
+          campo.tipo === "TEXTO_LIVRE" ||
+          campo.tipo === "NOME_ALUNO" ||
+          campo.tipo === "NOME_CURSO" ||
+          campo.tipo === "DISCIPLINAS_CONCLUIDAS"
+        ) {
+          novosDados.tamanho = Math.max(
+            4,
+            Math.round(itemInicial.tamanho * fator)
+          );
+        }
 
         return {
           ...campo,
@@ -5936,6 +5952,7 @@ className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-re
  if (c.tipo === "FORMA") {
   const selecionado = camposSelecionadosIds.includes(c.id);
   const formaEstaAgrupada = Boolean((c as any).grupoId);
+  const podeEditarFormaIndividual = selecionado && !formaEstaAgrupada;
   return (
   <div
     key={c.id}
@@ -6109,14 +6126,9 @@ overflow:
   if (formaEstaAgrupada) return;
 
   setCampos((prev) =>
-    prev.map((item) => {
-      if (item.id !== c.id) return item;
-
-      return {
-        ...item,
-        ...(campoAtualizado as any),
-      };
-    })
+    prev.map((item) =>
+      item.id === c.id ? ({ ...item, ...campoAtualizado } as any) : item
+    )
   );
 }}
     />
