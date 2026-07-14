@@ -140,6 +140,9 @@ model Instituicao {
   escalasRH                     EscalaTrabalhoRH[]
   bancoHorasRH                  BancoHorasRH[]
   integracoesPontoRH            IntegracaoPontoRH[]
+  configuracaoPontoMobile       ConfiguracaoPontoMobileRH?
+  locaisPontoMobile             LocalPontoMobileRH[]
+  marcacoesPontoMobile          MarcacaoPontoMobileRH[]
   eventosFolhaRH                EventoFolhaRH[]
   beneficiosRH                  BeneficioRH[]
   funcionariosBeneficiosRH      FuncionarioBeneficioRH[]
@@ -1140,42 +1143,48 @@ model Certificado {
 }
 
 model Funcionario {
-  id                        Int           @id @default(autoincrement())
-  nome                      String
-  ativo                     Boolean       @default(true)
-  statusFuncionario         String        @default("ATIVO")
-  motivoStatus              String?
-  createdAt                 DateTime      @default(now())
-  updatedAt                 DateTime      @updatedAt
-  cpf                       String?
-  rg                        String?
-  telefone                  String?
-  dataNascimento            DateTime?
-  endereco                  String?
-  numero                    String?
-  complemento               String?
-  bairro                    String?
-  cidade                    String?
-  estado                    String?
-  cep                       String?
-  cargo                     String?
-  setor                     String?
-  fotoPerfil                String?
-  documentoUrl              String?
-  codigoFuncionario         String?
-  dataAdmissao              DateTime?
-  dataDesligamento          DateTime?
-  salario                   Decimal?      @db.Decimal(10, 2)
-  tipoContrato              String?
-  jornadaTrabalho           String?
-  banco                     String?
-  agencia                   String?
-  conta                     String?
-  pix                       String?
-  codigoPonto               String?
-  pisPasep                  String?
-  salarioBase               Decimal?      @db.Decimal(10, 2)
-  cargaHorariaMensal        Int?
+  id                 Int       @id @default(autoincrement())
+  nome               String
+  ativo              Boolean   @default(true)
+  statusFuncionario  String    @default("ATIVO")
+  motivoStatus       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  cpf                String?
+  rg                 String?
+  telefone           String?
+  dataNascimento     DateTime?
+  endereco           String?
+  numero             String?
+  complemento        String?
+  bairro             String?
+  cidade             String?
+  estado             String?
+  cep                String?
+  cargo              String?
+  setor              String?
+  fotoPerfil         String?
+  documentoUrl       String?
+  codigoFuncionario  String?
+  dataAdmissao       DateTime?
+  dataDesligamento   DateTime?
+  salario            Decimal?  @db.Decimal(10, 2)
+  tipoContrato       String?
+  jornadaTrabalho    String?
+  banco              String?
+  agencia            String?
+  conta              String?
+  pix                String?
+  codigoPonto        String?
+  pisPasep           String?
+  salarioBase        Decimal?  @db.Decimal(10, 2)
+  cargaHorariaMensal Int?
+
+  pontoMobileLiberado      Boolean   @default(false)
+  pontoMobileLiberadoEm    DateTime?
+  pontoMobileLiberadoPorId Int?
+  pontoMobileValidoAte     DateTime?
+
   instituicaoId             Int
   userId                    Int           @unique
   departamentoId            Int?
@@ -1185,18 +1194,19 @@ model Funcionario {
   recebeMensagemAniversario Boolean       @default(true)
   recebeWhatsappAniversario Boolean       @default(true)
 
-  permissoes    FuncionarioPermissao[]
-  historicosRH  HistoricoRH[]
-  ocorrenciasRH OcorrenciaRH[]
-  documentosRH  DocumentoRH[]
-  feriasRH      FeriasRH[]
-  examesRH      ExameMedicoRH[]
-  rescisoesRH   RescisaoRH[]
-  holeritesRH   HoleriteRH[]
-  pontosRH      PontoFuncionarioRH[]
-  escalasRH     EscalaTrabalhoRH[]
-  bancoHorasRH  BancoHorasRH[]
-  beneficiosRH  FuncionarioBeneficioRH[]
+  permissoes           FuncionarioPermissao[]
+  historicosRH         HistoricoRH[]
+  ocorrenciasRH        OcorrenciaRH[]
+  documentosRH         DocumentoRH[]
+  feriasRH             FeriasRH[]
+  examesRH             ExameMedicoRH[]
+  rescisoesRH          RescisaoRH[]
+  holeritesRH          HoleriteRH[]
+  pontosRH             PontoFuncionarioRH[]
+  escalasRH            EscalaTrabalhoRH[]
+  bancoHorasRH         BancoHorasRH[]
+  beneficiosRH         FuncionarioBeneficioRH[]
+  marcacoesPontoMobile MarcacaoPontoMobileRH[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -2482,7 +2492,8 @@ model PontoFuncionarioRH {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  bancoHoras BancoHorasRH[]
+  bancoHoras      BancoHorasRH[]
+  marcacoesMobile MarcacaoPontoMobileRH[]
 
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -2993,6 +3004,101 @@ model Visitante {
   @@index([instituicaoId, evento])
   @@index([instituicaoId, entradaPrevistaEm])
   @@index([instituicaoId, documentoNumero])
+}
+
+model ConfiguracaoPontoMobileRH {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int @unique
+
+  ativo                     Boolean @default(false)
+  exigirFoto                Boolean @default(true)
+  exigirLocalizacao         Boolean @default(true)
+  reconhecimentoFacialAtivo Boolean @default(false)
+  exigirProvaVida           Boolean @default(false)
+  permitirForaDoRaio        Boolean @default(true)
+  exigirFuncionarioLiberado Boolean @default(true)
+  raioPadraoMetros          Int     @default(150)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  @@index([ativo])
+}
+
+model LocalPontoMobileRH {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+
+  nome      String
+  endereco  String?
+  latitude  Float
+  longitude Float
+
+  raioMetros Int     @default(150)
+  ativo      Boolean @default(true)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  instituicao Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  marcacoes   MarcacaoPontoMobileRH[]
+
+  @@index([instituicaoId])
+  @@index([ativo])
+}
+
+model MarcacaoPontoMobileRH {
+  id            Int @id @default(autoincrement())
+  instituicaoId Int
+  funcionarioId Int
+
+  pontoFuncionarioRHId Int?
+  localId              Int?
+
+  dataHora DateTime @default(now())
+  tipo     String
+
+  fotoUrl  String?
+  fotoHash String?
+
+  latitude        Float?
+  longitude       Float?
+  precisaoMetros  Float?
+  distanciaMetros Float?
+
+  statusLocalizacao String @default("NAO_VERIFICADA")
+
+  reconhecimentoStatus String   @default("NAO_PROCESSADO")
+  similaridadeFacial   Float?
+  provaVidaConfirmada  Boolean?
+
+  origem        String  @default("PWA")
+  dispositivoId String?
+  ip            String?
+  userAgent     String? @db.Text
+
+  comprovanteCodigo String @unique
+
+  criadoEm DateTime @default(now())
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+
+  pontoFuncionarioRH PontoFuncionarioRH? @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
+
+  local LocalPontoMobileRH? @relation(fields: [localId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([pontoFuncionarioRHId])
+  @@index([localId])
+  @@index([dataHora])
+  @@index([tipo])
+  @@index([statusLocalizacao])
+  @@index([reconhecimentoStatus])
 }
 
 enum TipoDocumentoAluno {
