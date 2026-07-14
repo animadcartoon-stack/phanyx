@@ -11058,3 +11058,177 @@ html[data-theme="system"] .aluno-status-progresso-pill * {
   -webkit-text-fill-color: #0f172a !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX RH - PONTO MOBILE
+   Correção isolada para claro, escuro e sistema
+========================================================= */
+
+.phanyx-ponto-mobile-page {
+  color: #0f172a !important;
+}
+
+/* TEMA CLARO */
+html[data-theme="light"] .phanyx-ponto-mobile-page {
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page h1,
+html[data-theme="light"] .phanyx-ponto-mobile-page h2,
+html[data-theme="light"] .phanyx-ponto-mobile-page h3,
+html[data-theme="light"] .phanyx-ponto-mobile-page label {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page p {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page .text-slate-300,
+html[data-theme="light"] .phanyx-ponto-mobile-page .text-slate-400,
+html[data-theme="light"] .phanyx-ponto-mobile-page .text-slate-500,
+html[data-theme="light"] .phanyx-ponto-mobile-page .text-slate-600 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Card Funcionários autorizados deve ser branco no claro */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios h2 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios p {
+  color: #475569 !important;
+}
+
+/* Botões azuis continuam institucionais */
+html[data-theme="light"] .phanyx-ponto-mobile-page a.bg-blue-700,
+html[data-theme="light"] .phanyx-ponto-mobile-page button.bg-blue-700 {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+  border-color: #1d4ed8 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page a.bg-blue-700 *,
+html[data-theme="light"] .phanyx-ponto-mobile-page button.bg-blue-700 * {
+  color: #ffffff !important;
+}
+
+/* TEMA ESCURO */
+html[data-theme="dark"] .phanyx-ponto-mobile-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-ponto-mobile-funcionarios {
+  background: #111827 !important;
+  border-color: #2563eb !important;
+}
+
+html[data-theme="dark"] .phanyx-ponto-mobile-funcionarios h2 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-ponto-mobile-funcionarios p {
+  color: #bfdbfe !important;
+}
+
+/* TEMA SISTEMA */
+html[data-theme="system"] .phanyx-ponto-mobile-page {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-ponto-mobile-funcionarios {
+  background: #2f2f2f !important;
+  border-color: #5f5f5f !important;
+}
+
+html[data-theme="system"] .phanyx-ponto-mobile-funcionarios h2 {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-ponto-mobile-funcionarios p {
+  color: #d4d4d4 !important;
+}
+
+/* =========================================================
+   PHANYX RH - PONTO MOBILE
+   Visual neutro no tema claro, sem cards azuis
+========================================================= */
+
+html[data-theme="light"] .phanyx-ponto-mobile-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page h1,
+html[data-theme="light"] .phanyx-ponto-mobile-page h2,
+html[data-theme="light"] .phanyx-ponto-mobile-page h3,
+html[data-theme="light"] .phanyx-ponto-mobile-page label {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page p,
+html[data-theme="light"] .phanyx-ponto-mobile-page span {
+  color: #475569 !important;
+}
+
+/* Cards laterais e de conteúdo: neutros */
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-neutral-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-note-card,
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-subcard {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Opções do formulário */
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-option-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-option-card.is-disabled {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* Caixa do link */
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-link-box {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Botão copiar link */
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-copy-button {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-copy-button:hover {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-copy-button:disabled {
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
