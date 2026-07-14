@@ -5303,20 +5303,24 @@ if (objeto.tipo === "IMAGEM") {
       }}
     >
       <div
-        style={{
-          width: "100%",
-          height: "100%",
-          borderRadius: objeto.raioBorda,
-          overflow: "hidden",
-          background: objeto.url ? "transparent" : "#f8fafc",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: "#334155",
-          fontSize: 12,
-          fontWeight: 700,
-        }}
-      >
+  style={{
+    width: "100%",
+    height: "100%",
+    borderRadius: objeto.raioBorda,
+    overflow: "hidden",
+    background: objeto.url ? "transparent" : "#f8fafc",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#334155",
+    fontSize: 12,
+    fontWeight: 700,
+
+    // A sombra DROP precisa ficar no contêiner,
+    // pois a Foto da pessoa pode ser apenas um placeholder no editor.
+    filter: sombraImagemDropCss(objeto),
+  }}
+>
         {objeto.url ? (
           <img
             src={objeto.url}
@@ -5325,7 +5329,6 @@ if (objeto.tipo === "IMAGEM") {
             style={{
               objectFit: objeto.ajusteImagem || "contain",
               background: "transparent",
-              filter: sombraImagemDropCss(objeto),
             }}
           />
         ) : (
