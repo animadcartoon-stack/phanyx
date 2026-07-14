@@ -1768,10 +1768,27 @@ useEffect(() => {
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
-      if (!campoSelecionado) return;
+      const ids = idsAlvoDaAcao();
+
+      if (ids.length === 0) return;
 
       e.preventDefault();
-      setCampoCopiado(JSON.parse(JSON.stringify(campoSelecionado)));
+
+      const itensCopiados = campos
+        .filter((campo) => ids.includes(campo.id))
+        .map((campo) => JSON.parse(JSON.stringify(campo)));
+
+      setCampoCopiado({
+        tipo: itensCopiados.length > 1 ? "GRUPO" : "CAMPO",
+        itens: itensCopiados,
+      });
+
+      setMensagemSucesso(
+        itensCopiados.length > 1
+          ? "Grupo copiado."
+          : "Campo copiado."
+      );
+      setTimeout(() => setMensagemSucesso(""), 1200);
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
@@ -1779,20 +1796,50 @@ useEffect(() => {
 
       e.preventDefault();
 
-      const novoId = Date.now();
+      registrarHistoricoAntesDaAcao();
 
-      const novoCampo = {
-        ...JSON.parse(JSON.stringify(campoCopiado)),
-        id: novoId,
-        bancoId: undefined,
-        tempId: novoId,
-        x: Number(campoCopiado.x || 0) + 24,
-        y: Number(campoCopiado.y || 0) + 24,
-      };
+      const itensOriginais = Array.isArray(campoCopiado?.itens)
+        ? campoCopiado.itens
+        : [campoCopiado];
 
-      setCampos((prev) => [...prev, novoCampo as any]);
-      setCampoSelecionadoId(novoId);
-      setCamposSelecionadosIds([novoId]);
+      const novoGrupoId =
+        itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
+
+      const novosCampos = itensOriginais.map((item: CampoCertificado, index: number) => {
+        const novoId = Date.now() + index + 1;
+
+        return {
+          ...JSON.parse(JSON.stringify(item)),
+          id: novoId,
+          bancoId: undefined,
+          tempId: novoId,
+          grupoId: novoGrupoId,
+          x: Number(item.x || 0) + 24,
+          y: Number(item.y || 0) + 24,
+          dadosJson: {
+            ...((item as any).dadosJson || {}),
+            id: undefined,
+            bancoId: undefined,
+            tempId: novoId,
+            grupoId: novoGrupoId,
+            x: Number(item.x || 0) + 24,
+            y: Number(item.y || 0) + 24,
+          },
+        } as CampoCertificado;
+      });
+
+      const novosIds = novosCampos.map((campo) => campo.id);
+
+      setCampos((prev) => [...prev, ...novosCampos]);
+      setCamposSelecionadosIds(novosIds);
+      setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
+
+      setMensagemSucesso(
+        novosCampos.length > 1
+          ? "Grupo colado."
+          : "Campo colado."
+      );
+      setTimeout(() => setMensagemSucesso(""), 1200);
     }
   }
 
@@ -1801,7 +1848,13 @@ useEffect(() => {
   return () => {
     window.removeEventListener("keydown", handleCopiarColar);
   };
-}, [campoSelecionado, campoCopiado]);
+}, [
+  campoCopiado,
+  campoSelecionado,
+  campoSelecionadoId,
+  campos,
+  camposSelecionadosIds,
+]);
 
   const caixaDoGrupoSelecionado = useMemo(() => {
   const ids =
@@ -5013,6 +5066,24 @@ contornoEspessura: 2,
         Mesmo tamanho
       </button>
 
+<button
+  type="button"
+  onClick={() => agruparCamposSelecionados()}
+  disabled={camposSelecionadosIds.length < 2}
+  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-40"
+>
+  🔗 Agrupar
+</button>
+
+<button
+  type="button"
+  onClick={() => desagruparCampoSelecionado()}
+  disabled={!campoSelecionado?.grupoId}
+  className="rounded-xl bg-orange-600 px-3 py-2 text-xs font-bold text-white hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-40"
+>
+  🔓 Desagrupar
+</button>
+
       <button
         type="button"
         onClick={() => {
@@ -5608,20 +5679,7 @@ overflow:
 >
 
 {c.tipo === "FORMA" && c.pontosForma && c.pontosForma.length > 0 && (
-  <div
-    data-campo-certificado-id={c.id}
-    onContextMenu={(event) => {
-      event.preventDefault();
-      event.stopPropagation();
-
-      setCampoSelecionadoId(c.id);
-      setShapeInspectorAberto(true);
-      setShapeInspectorPosicao({
-        x: event.clientX + 12,
-        y: event.clientY + 12,
-      });
-    }}
-  >
+  <div data-campo-certificado-id={c.id}>
     <FormaVetorial
   campo={c as any}
   selecionado={selecionado}
