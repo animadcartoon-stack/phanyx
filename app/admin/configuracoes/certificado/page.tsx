@@ -826,57 +826,6 @@ function desagruparCampoSelecionado() {
 }
 
 useEffect(() => {
-  function handleUndoRedo(e: KeyboardEvent) {
-    const alvo = e.target as HTMLElement | null;
-    const tag = alvo?.tagName?.toLowerCase();
-
-    if (
-      tag === "input" ||
-      tag === "textarea" ||
-      alvo?.isContentEditable
-    ) {
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
-  e.preventDefault();
-
-  if (pontosFormaLivreRef.current.length > 0) {
-    setPontosFormaLivre((prev) => {
-      const novos = prev.slice(0, -1);
-
-      setCampos((camposAtuais) => {
-        const semPreview = camposAtuais.filter((campo) => campo.id !== -999999);
-
-        if (novos.length === 0) {
-          return semPreview;
-        }
-
-        return semPreview;
-      });
-
-      return novos;
-    });
-
-    return;
-  }
-
-  if (e.shiftKey) {
-    refazer();
-  } else {
-    desfazer();
-  }
-}
-  }
-
-  window.addEventListener("keydown", handleUndoRedo, true);
-
-  return () => {
-    window.removeEventListener("keydown", handleUndoRedo, true);
-  };
-}, [campos, historico, futuro]);
-
-useEffect(() => {
   function fecharMenusAoClicarFora(e: globalThis.MouseEvent) {
     const alvo = e.target as HTMLElement | null;
 
@@ -984,7 +933,126 @@ useEffect(() => {
   pontosFormaLivreRef.current = pontosFormaLivre;
 }, [pontosFormaLivre]);
 
+useEffect(() => {
+  function handleUndoRedo(e: KeyboardEvent) {
+    const alvo = e.target as HTMLElement | null;
+    const tag = alvo?.tagName?.toLowerCase();
+
+    if (
+      tag === "input" ||
+      tag === "textarea" ||
+      alvo?.isContentEditable
+    ) {
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+  e.preventDefault();
+
+  if (modoFormaLivre || pontosFormaLivreRef.current.length > 0) {
+  e.preventDefault();
+
+  setPontosFormaLivre((prev) => {
+    const novos = prev.slice(0, -1);
+
+    if (novos.length === 0) {
+      setModoFormaLivre(false);
+      pontosFormaLivreRef.current = [];
+
+      setCampos((camposAtuais) =>
+        camposAtuais.filter((campo) => campo.id !== -999999)
+      );
+
+      setMensagemSucesso("Criação da forma livre cancelada.");
+      setTimeout(() => setMensagemSucesso(""), 1500);
+
+      return [];
+    }
+
+    pontosFormaLivreRef.current = novos;
+
+    setCampos((camposAtuais) => [
+      ...camposAtuais.filter((campo) => campo.id !== -999999),
+      criarCampoPreviewFormaLivre(novos),
+    ]);
+
+    return novos;
+  });
+
+  return;
+}
+
+  if (e.shiftKey) {
+    refazer();
+  } else {
+    desfazer();
+  }
+}
+  }
+
+  window.addEventListener("keydown", handleUndoRedo, true);
+
+  return () => {
+    window.removeEventListener("keydown", handleUndoRedo, true);
+  };
+}, [campos, historico, futuro, modoFormaLivre]);
+
+function cancelarFormaLivreEmCriacao() {
+  setModoFormaLivre(false);
+  setPontosFormaLivre([]);
+  pontosFormaLivreRef.current = [];
+
+  setCampos((prev) =>
+    prev.filter((campo) => campo.id !== -999999)
+  );
+
+  setCampoSelecionadoId(null);
+  setCamposSelecionadosIds([]);
+  setPontoFormaSelecionado(null);
+}
+
   const [copiasPreviewArray, setCopiasPreviewArray] = useState<any[]>([]);
+
+  function criarCampoPreviewFormaLivre(pontos: any[]) {
+  const xs = pontos.map((p) => p.x);
+  const ys = pontos.map((p) => p.y);
+
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  const maxX = Math.max(...xs);
+  const maxY = Math.max(...ys);
+
+  const largura = Math.max(20, maxX - minX);
+  const altura = Math.max(20, maxY - minY);
+
+  const pontosNormalizados = pontos.map((p, index) => ({
+    id: `preview-livre-${index}`,
+    x: Number((((p.x - minX) / largura) * 100).toFixed(2)),
+    y: Number((((p.y - minY) / altura) * 100).toFixed(2)),
+    tipo: "reto" as const,
+  }));
+
+  return {
+    id: -999999,
+    tempId: -999999,
+    tipo: "FORMA",
+    forma: "LIVRE",
+    pontosForma: pontosNormalizados,
+    mostrarPreenchimento: true,
+    mostrarContorno: true,
+    preenchimentoCor: "#1d4ed8",
+    contornoCor: "#00ff88",
+    contornoEspessura: 5,
+    x: minX,
+    y: minY,
+    largura,
+    altura,
+    cor: "#00ff88",
+    opacity: 1,
+    ordem: 999999,
+    nomeCamada: "Forma livre em criação",
+  } as any;
+}
 
   function clicarFormaLivreNoCanvas(e: React.MouseEvent<HTMLDivElement>) {
   if (!modoFormaLivre || !canvasRef.current) return false;
@@ -1061,7 +1129,7 @@ if (alvo.closest("[data-campo-certificado-id]")) {
   }
 
   if (clicouNoPrimeiro) {
-    const campoFinal = criarCampoPreview(pontosFormaLivre);
+    const campoFinal = criarCampoPreviewFormaLivre(pontosFormaLivre);
 
     const novoId = Date.now();
 
@@ -1095,7 +1163,7 @@ if (alvo.closest("[data-campo-certificado-id]")) {
 
   setCampos((prev) => [
     ...prev.filter((campo) => campo.id !== -999999),
-    criarCampoPreview(proximosPontos),
+    criarCampoPreviewFormaLivre(proximosPontos),
   ]);
 
   setMensagemSucesso(`Ponto ${proximosPontos.length} criado.`);
@@ -2903,6 +2971,7 @@ function virarSelecionados(direcao: "HORIZONTAL" | "VERTICAL") {
 
   const larguraGrupo = maxX - minX;
   const alturaGrupo = maxY - minY;
+  const temGrupo = ids.length > 1;
 
   setCampos((prev) =>
     prev.map((campo) => {
@@ -2917,17 +2986,15 @@ function virarSelecionados(direcao: "HORIZONTAL" | "VERTICAL") {
       const novosDados =
         direcao === "HORIZONTAL"
           ? {
-              x:
-                ids.length > 1
-                  ? minX + larguraGrupo - (x - minX) - largura
-                  : x,
+              x: temGrupo
+                ? Math.round(minX + larguraGrupo - (x - minX) - largura)
+                : x,
               flipX: !(campo as any).flipX,
             }
           : {
-              y:
-                ids.length > 1
-                  ? minY + alturaGrupo - (y - minY) - altura
-                  : y,
+              y: temGrupo
+                ? Math.round(minY + alturaGrupo - (y - minY) - altura)
+                : y,
               flipY: !(campo as any).flipY,
             };
 
@@ -3842,7 +3909,9 @@ async function salvarModeloCompleto() {
       );
     }
 
-    const payloadCampos = campos.map((campo: any) => {
+    const payloadCampos = campos
+  .filter((campo: any) => campo.id !== -999999)
+  .map((campo: any) => {
       const {
         dadosJson,
         tempId,
@@ -5042,9 +5111,17 @@ contornoEspessura: 2,
 <button
   type="button"
   onClick={() => {
+  setCampos((prev) => prev.filter((campo) => campo.id !== -999999));
   setModoFormaLivre(true);
   setPontosFormaLivre([]);
-  setMensagemSucesso("Forma livre ativada. Clique no papel para criar pontos. Clique perto do primeiro ponto para fechar.");
+  pontosFormaLivreRef.current = [];
+  setCampoSelecionadoId(null);
+  setCamposSelecionadosIds([]);
+  setPontoFormaSelecionado(null);
+
+  setMensagemSucesso(
+    "Forma livre ativada. Clique no papel para criar pontos. Clique perto do primeiro ponto para fechar."
+  );
 }}
   className="group flex flex-col items-center justify-center rounded-2xl border border-blue-100 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-300 hover:bg-blue-50"
 >
@@ -5327,22 +5404,6 @@ contornoEspessura: 2,
       >
         Mesmo tamanho
       </button>
-
-<button
-  type="button"
-  onClick={() => virarSelecionados("HORIZONTAL")}
-  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
->
-  ↔ Virar H
-</button>
-
-<button
-  type="button"
-  onClick={() => virarSelecionados("VERTICAL")}
-  className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white hover:bg-blue-500"
->
-  ↕ Virar V
-</button>
 
 <button
   type="button"
