@@ -926,6 +926,11 @@ function gerarPontosEstrela(
     null
   );
   
+  const [pontoFormaSelecionado, setPontoFormaSelecionado] = useState<{
+  campoId: number;
+  pontoId: string;
+} | null>(null);
+
   const [mostrarHandlesForma, setMostrarHandlesForma] = useState(true);
 
   const [modoFormaLivre, setModoFormaLivre] = useState(false);
@@ -1511,15 +1516,73 @@ useEffect(() => {
       window.getSelection()?.toString().trim();
 
     if (estaDigitandoTextoLivre && temTextoSelecionado) {
+  return;
+}
+
+if (
+  pontoFormaSelecionado &&
+  campoSelecionadoId === pontoFormaSelecionado.campoId
+) {
+  const campoForma = campos.find(
+    (campo) => campo.id === pontoFormaSelecionado.campoId
+  );
+
+  const pontos = Array.isArray((campoForma as any)?.pontosForma)
+    ? ((campoForma as any).pontosForma as any[])
+    : [];
+
+  const pontoExiste = pontos.some(
+    (ponto) => ponto.id === pontoFormaSelecionado.pontoId
+  );
+
+  if (campoForma?.tipo === "FORMA" && pontoExiste) {
+    e.preventDefault();
+
+    const minimo = campoForma.forma === "LINHA" ? 2 : 3;
+
+    if (pontos.length <= minimo) {
+      setMensagemErro(
+        campoForma.forma === "LINHA"
+          ? "A linha precisa ter pelo menos 2 pontos."
+          : "A forma precisa ter pelo menos 3 pontos."
+      );
+
+      setTimeout(() => setMensagemErro(""), 2500);
       return;
     }
 
-    const idsParaExcluir =
-      camposSelecionadosIds.length > 0
-        ? camposSelecionadosIds
-        : campoSelecionadoId
-        ? [campoSelecionadoId]
-        : [];
+    const novosPontos = pontos.filter(
+      (ponto) => ponto.id !== pontoFormaSelecionado.pontoId
+    );
+
+    setCampos((prev) =>
+      prev.map((campo) =>
+        campo.id === pontoFormaSelecionado.campoId
+          ? {
+              ...campo,
+              pontosForma: novosPontos,
+              dadosJson: {
+                ...((campo as any).dadosJson || {}),
+                pontosForma: novosPontos,
+              },
+            }
+          : campo
+      )
+    );
+
+    setPontoFormaSelecionado(null);
+    setMensagemSucesso("Ponto removido.");
+    setTimeout(() => setMensagemSucesso(""), 1800);
+    return;
+  }
+}
+
+const idsParaExcluir =
+  camposSelecionadosIds.length > 0
+    ? camposSelecionadosIds
+    : campoSelecionadoId
+    ? [campoSelecionadoId]
+    : [];
 
     if (idsParaExcluir.length === 0) return;
 
@@ -1547,7 +1610,7 @@ useEffect(() => {
     window.removeEventListener("keydown", handleKeyDown);
     window.removeEventListener("keyup", handleKeyUp);
   };
-}, [campoSelecionadoId, camposSelecionadosIds]);
+}, [campoSelecionadoId, camposSelecionadosIds, campos, pontoFormaSelecionado]);
 
   const baseCanvas = TAMANHOS_PAPEL[tamanhoPapel][orientacao];
 
@@ -5190,7 +5253,25 @@ overflow:
   selecionado={selecionado}
   modo="editor"
   mostrarHandles={mostrarHandlesForma}
-      onChange={(campoAtualizado) => {
+  pontoSelecionadoId={
+    pontoFormaSelecionado?.campoId === c.id
+      ? pontoFormaSelecionado.pontoId
+      : null
+  }
+  onSelecionarPonto={(pontoId) => {
+    setCampoSelecionadoId(c.id);
+    setCamposSelecionadosIds([c.id]);
+
+    setPontoFormaSelecionado(
+      pontoId
+        ? {
+            campoId: c.id,
+            pontoId,
+          }
+        : null
+    );
+  }}
+  onChange={(campoAtualizado) => {
         setCampos((prev) =>
           prev.map((item) => {
             if (item.id !== c.id) return item;

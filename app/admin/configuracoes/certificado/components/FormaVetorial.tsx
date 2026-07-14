@@ -37,6 +37,8 @@ type Props = {
   selecionado: boolean;
   modo?: "editor" | "preview";
   mostrarHandles?: boolean;
+  pontoSelecionadoId?: string | null;
+  onSelecionarPonto?: (pontoId: string | null) => void;
   onChange: (campoAtualizado: CampoForma) => void;
 };
 
@@ -312,6 +314,8 @@ export default function FormaVetorial({
   selecionado,
   modo = "editor",
   mostrarHandles = true,
+  pontoSelecionadoId = null,
+  onSelecionarPonto,
   onChange,
 }: Props) {
   const pontos = campo.pontosForma || [];
@@ -746,9 +750,10 @@ function subdividirForma() {
   modo === "editor" &&
   mostrarHandles &&
   pontos.map((ponto) => {
-            const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
+  const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
+  const pontoEstaSelecionado = pontoSelecionadoId === ponto.id;
 
-            return (
+  return (
               <g key={`controle-${ponto.id}`}>
                 {ponto.tipo === "curvo" && (
                   <>
@@ -814,23 +819,26 @@ function subdividirForma() {
                   rx={rxPonto}
                   ry={ryPonto}
                   fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
-                  stroke="#ffffff"
-                  strokeWidth={1.4}
-                  className="pointer-events-auto cursor-grab"
-                  onMouseDown={(e) =>
-                    iniciarArrastePercentual(e, (x, y) =>
-                      moverPonto(ponto.id, x, y)
-                    )
-                  }
+stroke={pontoEstaSelecionado ? "#facc15" : "#ffffff"}
+strokeWidth={pontoEstaSelecionado ? 2.4 : 1.4}
+className="pointer-events-auto cursor-grab"
+onMouseDown={(e) => {
+  onSelecionarPonto?.(ponto.id);
+
+  iniciarArrastePercentual(e, (x, y) =>
+    moverPonto(ponto.id, x, y)
+  );
+}}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
                     alternarTipoPonto(ponto.id);
                   }}
                   onContextMenu={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    deletarPonto(ponto.id);
-                  }}
+  e.preventDefault();
+  e.stopPropagation();
+  deletarPonto(ponto.id);
+  onSelecionarPonto?.(null);
+}}
                 />
               </g>
             );
