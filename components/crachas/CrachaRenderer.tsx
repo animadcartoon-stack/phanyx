@@ -844,18 +844,6 @@ export default function CrachaRenderer({
   const escalaY =
     alturaFisicaPx / medidasVisuais.altura;
 
-    const larguraRenderizada =
-  medidasVisuais.largura * escalaX;
-
-const alturaRenderizada =
-  medidasVisuais.altura * escalaY;
-
-const deslocamentoX =
-  (larguraFisicaPx - larguraRenderizada) / 2;
-
-const deslocamentoY =
-  (alturaFisicaPx - alturaRenderizada) / 2;
-
   const objetosOrdenados = useMemo(() => {
     return Array.isArray(objetos)
       ? [...objetos].sort(
@@ -892,16 +880,17 @@ const deslocamentoY =
 }}
     >
       <div
-        style={{
-  position: "absolute",
-  left: "50%",
-  top: "50%",
-  width: medidasVisuais.largura,
-  height: medidasVisuais.altura,
-  transform: `translate(-50%, -50%) scale(${escalaX}, ${escalaY})`,
-  transformOrigin: "center center",
-}}
-      >
+  style={{
+    position: "absolute",
+    left: 0,
+    top: 0,
+    width: medidasVisuais.largura,
+    height: medidasVisuais.altura,
+    transform: `scale(${escalaX}, ${escalaY})`,
+    transformOrigin: "top left",
+  }}
+>
+      
         {objetosOrdenados.map((objeto, indice) => {
           const estiloBase: React.CSSProperties = {
             position: "absolute",
