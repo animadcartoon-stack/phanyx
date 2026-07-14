@@ -2623,6 +2623,114 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
   window.addEventListener("mouseup", up);
 }
 
+function iniciarRotacaoGrupo(e: React.MouseEvent<HTMLDivElement>) {
+  if (!caixaDoGrupoSelecionado || !canvasRef.current) return;
+
+  e.stopPropagation();
+  e.preventDefault();
+
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length < 2) {
+    setMensagemErro("Selecione pelo menos dois elementos para rotacionar.");
+    setTimeout(() => setMensagemErro(""), 2200);
+    return;
+  }
+
+  registrarHistoricoAntesDaAcao();
+
+  const caixaInicial = {
+    x: caixaDoGrupoSelecionado.x,
+    y: caixaDoGrupoSelecionado.y,
+    largura: Math.max(1, caixaDoGrupoSelecionado.largura),
+    altura: Math.max(1, caixaDoGrupoSelecionado.altura),
+  };
+
+  const centroCanvasX = caixaInicial.x + caixaInicial.largura / 2;
+  const centroCanvasY = caixaInicial.y + caixaInicial.altura / 2;
+
+  const canvasRect = canvasRef.current.getBoundingClientRect();
+
+  const centroTelaX = canvasRect.left + centroCanvasX * escala;
+  const centroTelaY = canvasRect.top + centroCanvasY * escala;
+
+  const anguloInicialMouse = Math.atan2(
+    e.clientY - centroTelaY,
+    e.clientX - centroTelaX
+  );
+
+  const itensIniciais = campos
+    .filter((campo) => ids.includes(campo.id))
+    .map((campo) => {
+      const largura = Number(campo.largura || 120);
+      const altura = Number(campo.altura || 40);
+      const centroItemX = Number(campo.x || 0) + largura / 2;
+      const centroItemY = Number(campo.y || 0) + altura / 2;
+
+      return {
+        id: campo.id,
+        x: Number(campo.x || 0),
+        y: Number(campo.y || 0),
+        largura,
+        altura,
+        rotate: Number((campo as any).rotate || 0),
+        relX: centroItemX - centroCanvasX,
+        relY: centroItemY - centroCanvasY,
+      };
+    });
+
+  const mover = (ev: globalThis.MouseEvent) => {
+    const anguloAtualMouse = Math.atan2(
+      ev.clientY - centroTelaY,
+      ev.clientX - centroTelaX
+    );
+
+    const deltaRad = anguloAtualMouse - anguloInicialMouse;
+    const deltaDeg = (deltaRad * 180) / Math.PI;
+
+    const cos = Math.cos(deltaRad);
+    const sin = Math.sin(deltaRad);
+
+    setCampos((prev) =>
+      prev.map((campo) => {
+        const inicial = itensIniciais.find((item) => item.id === campo.id);
+
+        if (!inicial) return campo;
+        if ((campo as any).bloqueado) return campo;
+
+        const novoRelX = inicial.relX * cos - inicial.relY * sin;
+        const novoRelY = inicial.relX * sin + inicial.relY * cos;
+
+        const novoCentroX = centroCanvasX + novoRelX;
+        const novoCentroY = centroCanvasY + novoRelY;
+
+        const novosDados = {
+          x: Math.round(novoCentroX - inicial.largura / 2),
+          y: Math.round(novoCentroY - inicial.altura / 2),
+          rotate: Math.round(inicial.rotate + deltaDeg),
+        };
+
+        return {
+          ...campo,
+          ...novosDados,
+          dadosJson: {
+            ...((campo as any).dadosJson || {}),
+            ...novosDados,
+          },
+        };
+      })
+    );
+  };
+
+  const soltar = () => {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  };
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
 function camposSelecionadosParaAlinhamento() {
   const ids =
     camposSelecionadosIds.length > 1
@@ -5414,6 +5522,14 @@ onMouseLeave={() => {
     <div className="absolute -left-2 -top-6 rounded bg-emerald-500 px-2 py-1 text-[10px] font-bold text-white shadow">
       Grupo
     </div>
+
+<div
+  onMouseDown={iniciarRotacaoGrupo}
+  className="pointer-events-auto absolute left-1/2 -top-10 flex h-8 w-8 -translate-x-1/2 cursor-grab items-center justify-center rounded-full border-2 border-white bg-emerald-500 text-sm font-bold text-white shadow-lg active:cursor-grabbing"
+  title="Rotacionar grupo inteiro"
+>
+  ↻
+</div>
 
     <div
       onMouseDown={iniciarRedimensionamentoGrupo}
