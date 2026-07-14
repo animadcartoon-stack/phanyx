@@ -458,9 +458,9 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 </div>
 
 <div className="mt-4">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-300">
-    Virar forma
-  </p>
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+  Virar forma
+</p>
 
   <div className="grid grid-cols-2 gap-2">
     <button
@@ -474,7 +474,7 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
       className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
         campo.flipX
           ? "border-blue-300 bg-blue-600 text-white"
-          : "border-slate-500 bg-slate-900/40 text-slate-100 hover:bg-slate-800"
+          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
       }`}
       title="Virar horizontalmente"
     >
@@ -492,7 +492,7 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
       className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
         campo.flipY
           ? "border-blue-300 bg-blue-600 text-white"
-          : "border-slate-500 bg-slate-900/40 text-slate-100 hover:bg-slate-800"
+          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
       }`}
       title="Virar verticalmente"
     >
