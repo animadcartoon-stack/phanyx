@@ -6558,7 +6558,7 @@ if (objeto.tipo === "FORMA") {
   </div>
 )}
 
-          {objetoAtual?.tipo === "IMAGEM" && (
+{objetoAtual?.tipo === "IMAGEM" && (
   <div className="space-y-4">
     <div>
       <label className="mb-2 block font-semibold">
@@ -6806,7 +6806,7 @@ if (objeto.tipo === "FORMA") {
 </div>
 
   </div>
-          )}
+)}
 
 {objetoAtual?.tipo === "FORMA" && (
   <div className="space-y-4">
@@ -8658,7 +8658,7 @@ setPontoGradienteSelecionado(novoPonto.id);
             </select>
           </div>
 
-<div className="mt-6">
+          <div className="mt-6">
   <label className="mb-2 block font-semibold">
     Furo / encaixe do crachá
   </label>
@@ -8680,7 +8680,7 @@ setPontoGradienteSelecionado(novoPonto.id);
   <p className="mt-2 text-xs text-slate-500 dark:text-slate-300">
     Simulação visual do local do cordão, presilha ou clip do crachá.
   </p>
-</div>
+          </div>
 
           <div className="space-y-3">
   <label className="block font-semibold">
@@ -8891,7 +8891,7 @@ setPontoGradienteSelecionado(novoPonto.id);
     />
   </>
 )}
-</div>
+          </div>
         </div>
       </div>
     </div>

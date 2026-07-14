@@ -831,7 +831,6 @@ export default function CrachaRenderer({
   const medidasVisuais = medidasVisuaisPorFormato(formato);
 
   const formatoRedondo = formato === "REDONDO";
-const margemSegurancaRedondo = formatoRedondo ? 8 : 0;
 
   const larguraFisicaPx =
     Math.max(1, Number(larguraMm || 54)) * (96 / 25.4);
@@ -844,6 +843,18 @@ const margemSegurancaRedondo = formatoRedondo ? 8 : 0;
 
   const escalaY =
     alturaFisicaPx / medidasVisuais.altura;
+
+    const larguraRenderizada =
+  medidasVisuais.largura * escalaX;
+
+const alturaRenderizada =
+  medidasVisuais.altura * escalaY;
+
+const deslocamentoX =
+  (larguraFisicaPx - larguraRenderizada) / 2;
+
+const deslocamentoY =
+  (alturaFisicaPx - alturaRenderizada) / 2;
 
   const objetosOrdenados = useMemo(() => {
     return Array.isArray(objetos)
@@ -872,7 +883,8 @@ const margemSegurancaRedondo = formatoRedondo ? 8 : 0;
   width: `${larguraMm}mm`,
   height: `${alturaMm}mm`,
   overflow: "hidden",
-  background: formatoRedondo ? "transparent" : fundo,
+  borderRadius: formatoRedondo ? "50%" : 0,
+  background: fundo,
   printColorAdjust: "exact",
   WebkitPrintColorAdjust: "exact",
   breakAfter: "page",
@@ -882,19 +894,12 @@ const margemSegurancaRedondo = formatoRedondo ? 8 : 0;
       <div
         style={{
   position: "absolute",
-  left: margemSegurancaRedondo,
-  top: margemSegurancaRedondo,
-  width:
-    medidasVisuais.largura -
-    margemSegurancaRedondo * 2,
-  height:
-    medidasVisuais.altura -
-    margemSegurancaRedondo * 2,
-  transform: `scale(${escalaX}, ${escalaY})`,
-  transformOrigin: "top left",
-  overflow: "hidden",
-  borderRadius: formatoRedondo ? "50%" : 0,
-  background: fundo,
+  left: "50%",
+  top: "50%",
+  width: medidasVisuais.largura,
+  height: medidasVisuais.altura,
+  transform: `translate(-50%, -50%) scale(${escalaX}, ${escalaY})`,
+  transformOrigin: "center center",
 }}
       >
         {objetosOrdenados.map((objeto, indice) => {
