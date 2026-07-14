@@ -2393,6 +2393,249 @@ function idsAlvoDaAcao() {
     : [];
 }
 
+function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
+  if (!caixaDoGrupoSelecionado) return;
+
+  e.stopPropagation();
+  e.preventDefault();
+
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length < 2) return;
+
+  registrarHistoricoAntesDaAcao();
+
+  const startX = e.clientX;
+  const startY = e.clientY;
+
+  const caixaInicial = {
+    x: caixaDoGrupoSelecionado.x,
+    y: caixaDoGrupoSelecionado.y,
+    largura: Math.max(1, caixaDoGrupoSelecionado.largura),
+    altura: Math.max(1, caixaDoGrupoSelecionado.altura),
+  };
+
+  const itensIniciais = campos
+    .filter((campo) => ids.includes(campo.id))
+    .map((campo) => ({
+      id: campo.id,
+      x: Number(campo.x || 0),
+      y: Number(campo.y || 0),
+      largura: Number(campo.largura || 120),
+      altura: Number(campo.altura || 40),
+      tamanho: Number(campo.tamanho || 18),
+    }));
+
+  const move = (ev: globalThis.MouseEvent) => {
+    const deltaX = (ev.clientX - startX) / escala;
+    const deltaY = (ev.clientY - startY) / escala;
+
+    let novaLarguraGrupo = Math.max(20, caixaInicial.largura + deltaX);
+    let novaAlturaGrupo = Math.max(20, caixaInicial.altura + deltaY);
+
+    if (ev.shiftKey) {
+      const proporcao = caixaInicial.largura / caixaInicial.altura;
+      novaAlturaGrupo = novaLarguraGrupo / proporcao;
+    }
+
+    const escalaX = novaLarguraGrupo / caixaInicial.largura;
+    const escalaY = novaAlturaGrupo / caixaInicial.altura;
+
+    setCampos((prev) =>
+      prev.map((campo) => {
+        const itemInicial = itensIniciais.find((item) => item.id === campo.id);
+
+        if (!itemInicial) return campo;
+        if ((campo as any).bloqueado) return campo;
+
+        const novoX =
+          caixaInicial.x + (itemInicial.x - caixaInicial.x) * escalaX;
+
+        const novoY =
+          caixaInicial.y + (itemInicial.y - caixaInicial.y) * escalaY;
+
+        const novaLargura = Math.max(4, itemInicial.largura * escalaX);
+        const novaAltura = Math.max(4, itemInicial.altura * escalaY);
+
+        const fatorTexto = Math.min(escalaX, escalaY);
+
+        const novosDados = {
+          x: Math.round(novoX),
+          y: Math.round(novoY),
+          largura: Math.round(novaLargura),
+          altura: Math.round(novaAltura),
+          tamanho:
+            campo.tipo === "TEXTO_LIVRE" ||
+            campo.tipo === "NOME_ALUNO" ||
+            campo.tipo === "NOME_CURSO" ||
+            campo.tipo === "DISCIPLINAS_CONCLUIDAS"
+              ? Math.max(6, Math.round(itemInicial.tamanho * fatorTexto))
+              : campo.tamanho,
+        };
+
+        return {
+          ...campo,
+          ...novosDados,
+          dadosJson: {
+            ...((campo as any).dadosJson || {}),
+            ...novosDados,
+          },
+        };
+      })
+    );
+  };
+
+  const up = () => {
+    window.removeEventListener("mousemove", move);
+    window.removeEventListener("mouseup", up);
+  };
+
+  window.addEventListener("mousemove", move);
+  window.addEventListener("mouseup", up);
+}
+
+function camposSelecionadosParaAlinhamento() {
+  const ids =
+    camposSelecionadosIds.length > 1
+      ? camposSelecionadosIds
+      : campoSelecionadoId
+      ? [campoSelecionadoId]
+      : [];
+
+  return campos.filter((campo) => ids.includes(campo.id));
+}
+
+function campoReferenciaAlinhamento() {
+  const selecionados = camposSelecionadosParaAlinhamento();
+
+  if (selecionados.length < 2) return null;
+
+  const referencia =
+    selecionados.find((campo) => campo.id === campoSelecionadoId) ||
+    selecionados[0];
+
+  return referencia;
+}
+
+function atualizarGeometriaCampo(
+  campo: CampoCertificado,
+  valores: Partial<CampoCertificado>
+) {
+  return {
+    ...campo,
+    ...valores,
+    dadosJson: {
+      ...((campo as any).dadosJson || {}),
+      ...valores,
+    },
+  };
+}
+
+function alinharSelecionados(
+  tipo:
+    | "ESQUERDA"
+    | "CENTRO_HORIZONTAL"
+    | "DIREITA"
+    | "TOPO"
+    | "CENTRO_VERTICAL"
+    | "BAIXO"
+    | "MESMA_LARGURA"
+    | "MESMA_ALTURA"
+    | "MESMO_TAMANHO"
+) {
+  const referencia = campoReferenciaAlinhamento();
+
+  if (!referencia) {
+    setMensagemErro("Selecione pelo menos dois elementos para alinhar.");
+    setTimeout(() => setMensagemErro(""), 2500);
+    return;
+  }
+
+  const ids = camposSelecionadosIds.filter((id) => id !== referencia.id);
+
+  if (ids.length === 0) {
+    setMensagemErro("Selecione outro elemento além da referência.");
+    setTimeout(() => setMensagemErro(""), 2500);
+    return;
+  }
+
+  const refX = Number(referencia.x || 0);
+  const refY = Number(referencia.y || 0);
+  const refLargura = Number(referencia.largura || 120);
+  const refAltura = Number(referencia.altura || 40);
+  const refCentroX = refX + refLargura / 2;
+  const refCentroY = refY + refAltura / 2;
+  const refDireita = refX + refLargura;
+  const refBaixo = refY + refAltura;
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (!ids.includes(campo.id)) return campo;
+
+      if ((campo as any).bloqueado) return campo;
+
+      const largura = Number(campo.largura || 120);
+      const altura = Number(campo.altura || 40);
+
+      if (tipo === "ESQUERDA") {
+        return atualizarGeometriaCampo(campo, { x: refX } as any);
+      }
+
+      if (tipo === "CENTRO_HORIZONTAL") {
+        return atualizarGeometriaCampo(campo, {
+          x: refCentroX - largura / 2,
+        } as any);
+      }
+
+      if (tipo === "DIREITA") {
+        return atualizarGeometriaCampo(campo, {
+          x: refDireita - largura,
+        } as any);
+      }
+
+      if (tipo === "TOPO") {
+        return atualizarGeometriaCampo(campo, { y: refY } as any);
+      }
+
+      if (tipo === "CENTRO_VERTICAL") {
+        return atualizarGeometriaCampo(campo, {
+          y: refCentroY - altura / 2,
+        } as any);
+      }
+
+      if (tipo === "BAIXO") {
+        return atualizarGeometriaCampo(campo, {
+          y: refBaixo - altura,
+        } as any);
+      }
+
+      if (tipo === "MESMA_LARGURA") {
+        return atualizarGeometriaCampo(campo, {
+          largura: refLargura,
+        } as any);
+      }
+
+      if (tipo === "MESMA_ALTURA") {
+        return atualizarGeometriaCampo(campo, {
+          altura: refAltura,
+        } as any);
+      }
+
+      if (tipo === "MESMO_TAMANHO") {
+        return atualizarGeometriaCampo(campo, {
+          largura: refLargura,
+          altura: refAltura,
+        } as any);
+      }
+
+      return campo;
+    })
+  );
+
+  setMensagemSucesso("Elementos alinhados.");
+  setTimeout(() => setMensagemSucesso(""), 1800);
+}
+
 function impedirPerdaSelecaoTexto(e: React.MouseEvent) {
   if (temSelecaoTextoLivreSalva()) {
     e.preventDefault();
@@ -4682,6 +4925,97 @@ contornoEspessura: 2,
             </aside>
           )}
 
+{camposSelecionadosIds.length >= 2 && (
+  <div className="mb-3 rounded-2xl border border-blue-500/30 bg-slate-950/70 p-3 text-white">
+    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <p className="text-sm font-bold">Alinhar elementos selecionados</p>
+        <p className="text-xs text-slate-300">
+          Referência: elemento ativo selecionado.
+        </p>
+      </div>
+
+      <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold">
+        {camposSelecionadosIds.length} selecionados
+      </span>
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("ESQUERDA")}
+        className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+      >
+        Esquerda
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("CENTRO_HORIZONTAL")}
+        className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+      >
+        Centro X
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("DIREITA")}
+        className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+      >
+        Direita
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("TOPO")}
+        className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+      >
+        Mesmo topo
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("CENTRO_VERTICAL")}
+        className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+      >
+        Centro Y
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("BAIXO")}
+        className="rounded-xl bg-white/10 px-3 py-2 text-xs font-bold hover:bg-white/20"
+      >
+        Mesmo baixo
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("MESMA_LARGURA")}
+        className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+      >
+        Mesma largura
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("MESMA_ALTURA")}
+        className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+      >
+        Mesma altura
+      </button>
+
+      <button
+        type="button"
+        onClick={() => alinharSelecionados("MESMO_TAMANHO")}
+        className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
+      >
+        Mesmo tamanho
+      </button>
+    </div>
+  </div>
+)}
+
           <main className="flex h-full min-h-0 flex-col bg-white">
             <div className="border-b border-slate-200 bg-white px-5 py-3 text-sm text-slate-500">
               Área de edição do modelo da instituição
@@ -4798,6 +5132,28 @@ onMouseLeave={() => {
   />
 )}
 
+{caixaDoGrupoSelecionado && (
+  <div
+    className="pointer-events-none absolute z-[999998] border-2 border-emerald-400"
+    style={{
+      left: `${caixaDoGrupoSelecionado.x}px`,
+      top: `${caixaDoGrupoSelecionado.y}px`,
+      width: `${caixaDoGrupoSelecionado.largura}px`,
+      height: `${caixaDoGrupoSelecionado.altura}px`,
+    }}
+  >
+    <div className="absolute -left-2 -top-6 rounded bg-emerald-500 px-2 py-1 text-[10px] font-bold text-white shadow">
+      Grupo
+    </div>
+
+    <div
+      onMouseDown={iniciarRedimensionamentoGrupo}
+      className="pointer-events-auto absolute -bottom-3 -right-3 h-7 w-7 cursor-se-resize rounded-full border-2 border-white bg-emerald-500 shadow-lg"
+      title="Redimensionar grupo inteiro"
+    />
+  </div>
+)}
+
 {/* CAIXA DE SELEÇÃO COM MOUSE */}
 {caixaSelecao && (
   <div
@@ -4864,6 +5220,8 @@ onMouseLeave={() => {
       Number(a.ordem || 0) - Number(b.ordem || 0)
   )
   .map((c) => {
+    
+
  if (c.tipo === "IMAGEM") {
   const selecionadoImagem = camposSelecionadosIds.includes(c.id);
 
@@ -5406,7 +5764,7 @@ setEditorCorGradiente({
 
 </div>
 
-      {selecionado && (
+      {selecionado && !caixaDoGrupoSelecionado && (
         <>
           {/* girar */}
           <button
@@ -5554,7 +5912,7 @@ altura: ev.shiftKey
   ✕
 </button>
 
-{selecionado && (
+{selecionado && !caixaDoGrupoSelecionado && (
   <button
     type="button"
     onMouseDown={(e) => {
