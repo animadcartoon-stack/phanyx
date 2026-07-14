@@ -5136,7 +5136,11 @@ if (!camposSelecionadosIds.includes(c.id)) {
         overflow: "visible",
         zIndex: (c as any).arrayPreview ? 1 : c.ordem || 5,
         pointerEvents: c.bloqueado ? "none" : "auto",
-        transform: `rotate(${(c as any).rotate || 0}deg)`,
+        transform: `
+  rotate(${(c as any).rotate || 0}deg)
+  scaleX(${(c as any).flipX ? -1 : 1})
+  scaleY(${(c as any).flipY ? -1 : 1})
+`,
         
         boxShadow: (() => {
   if (!c.sombraAtiva) return "none";

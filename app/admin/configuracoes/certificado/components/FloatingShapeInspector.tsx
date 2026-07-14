@@ -37,6 +37,8 @@ type CampoForma = {
   mostrarPreenchimento?: boolean | null;
   mostrarContorno?: boolean | null;
   opacity?: number | null;
+  flipX?: boolean | null;
+  flipY?: boolean | null;
 };
 
 type Props = {
@@ -454,6 +456,51 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
     />
   </div>
 </div>
+
+<div className="mt-4">
+  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-300">
+    Virar forma
+  </p>
+
+  <div className="grid grid-cols-2 gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        onAtualizarCampo({
+          ...campo,
+          flipX: !campo.flipX,
+        } as any)
+      }
+      className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
+        campo.flipX
+          ? "border-blue-300 bg-blue-600 text-white"
+          : "border-slate-500 bg-slate-900/40 text-slate-100 hover:bg-slate-800"
+      }`}
+      title="Virar horizontalmente"
+    >
+      ↔ Horizontal
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        onAtualizarCampo({
+          ...campo,
+          flipY: !campo.flipY,
+        } as any)
+      }
+      className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
+        campo.flipY
+          ? "border-blue-300 bg-blue-600 text-white"
+          : "border-slate-500 bg-slate-900/40 text-slate-100 hover:bg-slate-800"
+      }`}
+      title="Virar verticalmente"
+    >
+      ↕ Vertical
+    </button>
+  </div>
+</div>
+
 {(ehRetanguloOuQuadrado || ehTriangulo) && (
   <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3">
     <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
