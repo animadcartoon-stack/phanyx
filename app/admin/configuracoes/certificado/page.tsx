@@ -4926,12 +4926,12 @@ contornoEspessura: 2,
           )}
 
 {camposSelecionadosIds.length >= 2 && (
-  <div className="mb-3 rounded-2xl border border-blue-500/30 bg-slate-950/70 p-3 text-white">
+  <div className="fixed left-1/2 top-[92px] z-[9999998] w-[min(920px,calc(100vw-32px))] -translate-x-1/2 rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur">
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
       <div>
         <p className="text-sm font-bold">Alinhar elementos selecionados</p>
         <p className="text-xs text-slate-300">
-          Referência: elemento ativo selecionado.
+          Referência: último elemento ativo selecionado.
         </p>
       </div>
 
@@ -5011,6 +5011,18 @@ contornoEspessura: 2,
         className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-bold hover:bg-emerald-500"
       >
         Mesmo tamanho
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setCamposSelecionadosIds(
+            campoSelecionadoId ? [campoSelecionadoId] : []
+          );
+        }}
+        className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
+      >
+        Fechar seleção
       </button>
     </div>
   </div>
