@@ -108,30 +108,48 @@ export default function RhAppInstituicaoPage() {
       <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center">
         <section className="w-full overflow-hidden rounded-[32px] border border-slate-700 bg-slate-900 shadow-2xl">
           <div className="bg-gradient-to-br from-blue-700 to-indigo-800 px-6 py-8 text-center">
-            <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-white p-2 shadow-xl">
-              <img
-                src={dados.logoUrl || "/icon.png"}
-                alt={dados.nome}
-                className="h-full w-full object-contain"
-              />
-            </div>
+  <img
+    src="/logo-phanyx.png"
+    alt="PHANYX"
+    className="mx-auto h-auto w-full max-w-[190px] object-contain"
+  />
 
-            <p className="mt-5 text-xs font-black uppercase tracking-[0.2em] text-blue-100">
-              PHANYX RH
-            </p>
+  <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-blue-100">
+    Aplicativo do funcionário
+  </p>
 
-            <h1 className="mt-2 text-2xl font-black">
-              {dados.nome}
-            </h1>
+  <h1 className="mt-2 text-3xl font-black">
+    PHANYX RH
+  </h1>
 
-            {(dados.cidade || dados.estado) && (
-              <p className="mt-2 text-sm text-blue-100">
-                {[dados.cidade, dados.estado]
-                  .filter(Boolean)
-                  .join(" - ")}
-              </p>
-            )}
-          </div>
+  <div className="mt-5 rounded-3xl border border-white/20 bg-white/10 p-4 backdrop-blur">
+    {dados.logoUrl && (
+      <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-lg">
+        <img
+          src={dados.logoUrl}
+          alt={`Logo de ${dados.nome}`}
+          className="h-full w-full object-contain"
+        />
+      </div>
+    )}
+
+    <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-100">
+      Instituição
+    </p>
+
+    <h2 className="mt-1 text-xl font-black text-white">
+      {dados.nome}
+    </h2>
+
+    {(dados.cidade || dados.estado) && (
+      <p className="mt-2 text-sm text-blue-100">
+        {[dados.cidade, dados.estado]
+          .filter(Boolean)
+          .join(" - ")}
+      </p>
+    )}
+  </div>
+</div>
 
           <div className="space-y-5 p-6">
             <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
