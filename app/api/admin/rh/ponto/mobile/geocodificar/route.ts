@@ -792,133 +792,138 @@ export async function POST(
      * Isso serializa consultas externas entre todas as
      * instâncias da Vercel.
      */
-    const resultadoTransacao =
-      await prisma.$transaction(
-        async (tx) => {
-          await tx.$queryRaw`
-  SELECT pg_advisory_xact_lock(
-    CAST(${CHAVE_BLOQUEIO_1} AS integer),
-    CAST(${CHAVE_BLOQUEIO_2} AS integer)
-  )
-`;
+   const resultadoTransacao =
+  await prisma.$transaction(
+    async (tx) => {
+      /*
+       * O PostgreSQL exige que as duas chaves
+       * sejam enviadas como integer.
+       *
+       * A subconsulta executa o bloqueio,
+       * enquanto o Prisma recebe apenas
+       * um número inteiro comum.
+       */
+      await tx.$queryRaw<
+        Array<{ bloqueio: number }>
+      >`
+        SELECT
+          1::integer AS "bloqueio"
+        FROM (
+          SELECT pg_advisory_xact_lock(
+            CAST(${CHAVE_BLOQUEIO_1} AS integer),
+            CAST(${CHAVE_BLOQUEIO_2} AS integer)
+          )
+        ) AS "bloqueio_executado"
+      `;
 
-          /*
-           * Outra instância pode ter preenchido o cache
-           * enquanto esta requisição aguardava o bloqueio.
-           */
-          const cacheDepoisDoBloqueio =
-            await tx.cacheGeocodificacaoEndereco.findUnique({
-              where: {
-                chave,
-              },
-            });
+      /*
+       * Outra instância pode ter preenchido
+       * o cache enquanto esta requisição
+       * aguardava o bloqueio.
+       */
+      const cacheDepoisDoBloqueio =
+        await tx.cacheGeocodificacaoEndereco.findUnique({
+          where: {
+            chave,
+          },
+        });
 
-          if (cacheDepoisDoBloqueio) {
-            await tx.cacheGeocodificacaoEndereco.update({
-              where: {
-                id:
-                  cacheDepoisDoBloqueio.id,
-              },
+      if (cacheDepoisDoBloqueio) {
+        await tx.cacheGeocodificacaoEndereco.update({
+          where: {
+            id: cacheDepoisDoBloqueio.id,
+          },
 
-              data: {
-                ultimoUsoEm:
-                  new Date(),
-              },
-            });
+          data: {
+            ultimoUsoEm: new Date(),
+          },
+        });
 
-            if (
-              cacheDepoisDoBloqueio.provedor ===
-              PROVEDOR_NAO_ENCONTRADO
-            ) {
-              return {
-                encontrado: false as const,
-                origem:
-                  "CACHE" as const,
-              };
-            }
-
-            return respostaCachePositivo(
-              cacheDepoisDoBloqueio,
-              endereco
-            );
-          }
-
-          /*
-           * O bloqueio permanece ativo durante a espera.
-           * Assim, duas consultas externas não começam
-           * com intervalo inferior a aproximadamente
-           * um segundo.
-           */
-          await tx.$queryRaw`
-            SELECT pg_sleep(1.1)
-          `;
-
-          const localizacao =
-            await consultarNominatim(
-              endereco
-            );
-
-          if (!localizacao) {
-            await tx.cacheGeocodificacaoEndereco.create({
-              data: {
-                chave,
-                consulta,
-
-                latitude: 0,
-                longitude: 0,
-
-                nomeExibicao: null,
-
-                provedor:
-                  PROVEDOR_NAO_ENCONTRADO,
-
-                ultimoUsoEm:
-                  new Date(),
-              },
-            });
-
-            return {
-              encontrado: false as const,
-              origem:
-                "NOMINATIM" as const,
-            };
-          }
-
-          await tx.cacheGeocodificacaoEndereco.create({
-            data: {
-              chave,
-              consulta,
-
-              latitude:
-                localizacao.latitude,
-
-              longitude:
-                localizacao.longitude,
-
-              nomeExibicao:
-                localizacao.nomeExibicao,
-
-              provedor:
-                PROVEDOR_SUCESSO,
-
-              ultimoUsoEm:
-                new Date(),
-            },
-          });
-
+        if (
+          cacheDepoisDoBloqueio.provedor ===
+          PROVEDOR_NAO_ENCONTRADO
+        ) {
           return {
-            encontrado: true as const,
-            resultado: localizacao,
-            origem:
-              "NOMINATIM" as const,
+            encontrado: false as const,
+            origem: "CACHE" as const,
           };
-        },
-        {
-          maxWait: 15_000,
-          timeout: 30_000,
         }
-      );
 
+        return respostaCachePositivo(
+          cacheDepoisDoBloqueio,
+          endereco
+        );
+      }
+
+      /*
+       * Mantém intervalo mínimo entre
+       * consultas externas ao Nominatim.
+       */
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 1100);
+      });
+
+      const localizacao =
+        await consultarNominatim(
+          endereco
+        );
+
+      if (!localizacao) {
+        await tx.cacheGeocodificacaoEndereco.create({
+          data: {
+            chave,
+            consulta,
+
+            latitude: 0,
+            longitude: 0,
+
+            nomeExibicao: null,
+
+            provedor:
+              PROVEDOR_NAO_ENCONTRADO,
+
+            ultimoUsoEm: new Date(),
+          },
+        });
+
+        return {
+          encontrado: false as const,
+          origem: "NOMINATIM" as const,
+        };
+      }
+
+      await tx.cacheGeocodificacaoEndereco.create({
+        data: {
+          chave,
+          consulta,
+
+          latitude:
+            localizacao.latitude,
+
+          longitude:
+            localizacao.longitude,
+
+          nomeExibicao:
+            localizacao.nomeExibicao,
+
+          provedor:
+            PROVEDOR_SUCESSO,
+
+          ultimoUsoEm: new Date(),
+        },
+      });
+
+      return {
+        encontrado: true as const,
+        resultado: localizacao,
+        origem: "NOMINATIM" as const,
+      };
+    },
+    {
+      maxWait: 15_000,
+      timeout: 30_000,
+    }
+  );
     if (
       !resultadoTransacao.encontrado
     ) {
