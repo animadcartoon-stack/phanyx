@@ -93,7 +93,7 @@ export async function GET(
 )}`;
 
 const manifesto = {
-  id: caminhoApp,
+  id: `${caminhoApp}/`,
 
   name: `RH - ${nomeInstituicao}`,
 
@@ -103,7 +103,7 @@ const manifesto = {
 
   start_url: caminhoApp,
 
-  scope: caminhoApp,
+  scope: `${caminhoApp}/`,
 
   display: "standalone",
 

@@ -121,8 +121,6 @@ const nomeInstituicaoExibicao =
     .map((parte) => parte.trim())
     .find(Boolean) || nomeInstituicao;
 
-  const destino = `/rh-app/${dados.slug}/ponto`;
-
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-8 pb-28 text-white">
 
@@ -171,15 +169,13 @@ const nomeInstituicaoExibicao =
           <div className="space-y-5 p-6">
   {dados.pontoMobileAtivo ? (
     <Link
-      href={`/login?portal=rh&destino=${encodeURIComponent(
-        destino
-      )}&instituicao=${encodeURIComponent(
-        dados.slug
-      )}`}
-      className="flex min-h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 py-4 text-center font-black text-white transition hover:bg-blue-700"
-    >
-      Entrar no PHANYX RH
-    </Link>
+  href={`/rh-app/${encodeURIComponent(
+    dados.slug
+  )}/login`}
+  className="flex min-h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 py-4 text-center font-black text-white transition hover:bg-blue-700"
+>
+  Entrar no RH Ponto
+</Link>
   ) : (
     <div className="rounded-2xl border border-amber-800 bg-amber-950/40 p-4">
       <p className="font-black text-amber-200">
