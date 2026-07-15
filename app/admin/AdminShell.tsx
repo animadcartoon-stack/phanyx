@@ -260,6 +260,24 @@ const usuarioAdmin =
   roleUsuario === "SUPER_ADMIN" ||
   usuario?.isMasterAdmin === true;
 
+  function podeAcessar(...chaves: string[]) {
+  if (usuarioAdmin) return true;
+  if (permissoes.includes("*")) return true;
+
+  return chaves.some((chave) =>
+    permissoes.includes(chave)
+  );
+}
+
+const podeVerPontoMobile = podeAcessar(
+  "rh.ponto.mobile.ver",
+  "rh.ponto.mobile.configurar",
+  "rh.ponto.mobile.funcionarios.gerenciar",
+  "rh.ponto.mobile.locais.gerenciar",
+  "rh.ponto.mobile.marcacoes.ver",
+  "rh.ponto.mobile.ocorrencias.gerenciar"
+);
+
 const podeVerPublicacoesAcademicas =
   usuarioAdmin || temPermissao("academico.publicacoes.ver");
 
@@ -267,9 +285,20 @@ const podeVerPublicacoesAcademicas =
   usuarioAdmin || temPermissao("assinatura.ver");
 
   function isActive(path: string) {
-    if (path === "/admin") return pathname === "/admin";
-    return pathname === path || pathname.startsWith(path + "/");
+  if (path === "/admin") {
+    return pathname === "/admin";
   }
+
+  if (path === "/admin/rh") {
+    return pathname === "/admin/rh";
+  }
+
+  if (path === "/admin/rh/ponto") {
+    return pathname === "/admin/rh/ponto";
+  }
+
+  return pathname === path || pathname.startsWith(path + "/");
+}
 
   function getLinkClass(path: string) {
     return `flex items-center gap-2 p-2 rounded text-sm transition ${
@@ -656,12 +685,14 @@ function abrirTourAdmin() {
   ⚙️ Configurações de Ponto
 </Link>
 
-<Link
-  href="/admin/rh/ponto/mobile"
-  className={getLinkClass("/admin/rh/ponto/mobile")}
->
-  📱 Ponto Mobile
-</Link>
+{podeVerPontoMobile && (
+  <Link
+    href="/admin/rh/ponto/mobile"
+    className={getLinkClass("/admin/rh/ponto/mobile")}
+  >
+    📱 Ponto Mobile
+  </Link>
+)}
 
 <Link
   href="/admin/rh/ponto/importacao-afd"
@@ -1051,12 +1082,14 @@ function abrirTourAdmin() {
       ⚙️ Configurações de Ponto
     </Link>
 
-    <Link
-      href="/admin/rh/ponto/mobile"
-      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
-    >
-      📱 Ponto Mobile
-    </Link>
+    {podeVerPontoMobile && (
+  <Link
+    href="/admin/rh/ponto/mobile"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    📱 Ponto Mobile
+  </Link>
+)}
 
     <Link
       href="/admin/rh/ponto/importacao-afd"

@@ -1,13 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { usuarioPossuiPermissao } from "@/lib/server-permissions";
 
 export const runtime = "nodejs";
 
 function obterInstituicaoId(user: any) {
   const instituicaoId = Number(user?.instituicaoId);
 
-  if (!Number.isInteger(instituicaoId) || instituicaoId <= 0) {
+  if (
+    !Number.isInteger(instituicaoId) ||
+    instituicaoId <= 0
+  ) {
     return null;
   }
 
@@ -21,7 +25,10 @@ function limitarRaio(valor: unknown) {
     return 150;
   }
 
-  return Math.min(5000, Math.max(10, Math.round(raio)));
+  return Math.min(
+    5000,
+    Math.max(10, Math.round(raio))
+  );
 }
 
 export async function GET() {
@@ -35,9 +42,19 @@ export async function GET() {
       );
     }
 
-    if (user.role !== "ADMIN") {
+    const podeVisualizar =
+      await usuarioPossuiPermissao(
+        user,
+        "rh.ponto.mobile.ver",
+        "rh.ponto.mobile.configurar"
+      );
+
+    if (!podeVisualizar) {
       return NextResponse.json(
-        { error: "Você não possui permissão para configurar o Ponto Mobile." },
+        {
+          error:
+            "Você não possui permissão para visualizar a configuração do Ponto Mobile.",
+        },
         { status: 403 }
       );
     }
@@ -70,7 +87,19 @@ export async function GET() {
         },
       });
 
-    return NextResponse.json(configuracao);
+    const podeConfigurar =
+      await usuarioPossuiPermissao(
+        user,
+        "rh.ponto.mobile.configurar"
+      );
+
+    return NextResponse.json({
+      ...configuracao,
+      permissoes: {
+        podeVisualizar: true,
+        podeConfigurar,
+      },
+    });
   } catch (error) {
     console.error(
       "Erro ao carregar configuração do Ponto Mobile:",
@@ -78,7 +107,10 @@ export async function GET() {
     );
 
     return NextResponse.json(
-      { error: "Não foi possível carregar a configuração do Ponto Mobile." },
+      {
+        error:
+          "Não foi possível carregar a configuração do Ponto Mobile.",
+      },
       { status: 500 }
     );
   }
@@ -95,9 +127,18 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    if (user.role !== "ADMIN") {
+    const podeConfigurar =
+      await usuarioPossuiPermissao(
+        user,
+        "rh.ponto.mobile.configurar"
+      );
+
+    if (!podeConfigurar) {
       return NextResponse.json(
-        { error: "Você não possui permissão para configurar o Ponto Mobile." },
+        {
+          error:
+            "Você não possui permissão para configurar o Ponto Mobile.",
+        },
         { status: 403 }
       );
     }
@@ -115,14 +156,26 @@ export async function PUT(req: NextRequest) {
 
     const dados = {
       ativo: body.ativo === true,
-      exigirFoto: body.exigirFoto !== false,
-      exigirLocalizacao: body.exigirLocalizacao !== false,
+
+      exigirFoto:
+        body.exigirFoto !== false,
+
+      exigirLocalizacao:
+        body.exigirLocalizacao !== false,
+
       reconhecimentoFacialAtivo:
         body.reconhecimentoFacialAtivo === true,
-      exigirProvaVida: body.exigirProvaVida === true,
-      permitirForaDoRaio: body.permitirForaDoRaio !== false,
+
+      exigirProvaVida:
+        body.exigirProvaVida === true,
+
+      permitirForaDoRaio:
+        body.permitirForaDoRaio !== false,
+
       exigirFuncionarioLiberado: true,
-      raioPadraoMetros: limitarRaio(body.raioPadraoMetros),
+
+      raioPadraoMetros:
+        limitarRaio(body.raioPadraoMetros),
     };
 
     const configuracao =
@@ -139,7 +192,8 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json({
       sucesso: true,
-      mensagem: "Configuração do Ponto Mobile salva com sucesso.",
+      mensagem:
+        "Configuração do Ponto Mobile salva com sucesso.",
       configuracao,
     });
   } catch (error) {
@@ -149,7 +203,10 @@ export async function PUT(req: NextRequest) {
     );
 
     return NextResponse.json(
-      { error: "Não foi possível salvar a configuração do Ponto Mobile." },
+      {
+        error:
+          "Não foi possível salvar a configuração do Ponto Mobile.",
+      },
       { status: 500 }
     );
   }

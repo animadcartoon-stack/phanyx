@@ -37,19 +37,14 @@ export default function PontoMobileConfiguracaoPage() {
   const [configuracao, setConfiguracao] =
     useState<ConfiguracaoPontoMobile>(configuracaoPadrao);
 
-  const [linkAplicativo, setLinkAplicativo] = useState(
-    "https://www.phanyx.com.br/rh-app"
-  );
+  const linkAplicativo =
+  "https://www.phanyx.com.br/rh-app";
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setLinkAplicativo(`${window.location.origin}/rh-app`);
-    }
-
     carregarConfiguracao();
   }, []);
 

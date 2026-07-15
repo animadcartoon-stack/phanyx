@@ -171,6 +171,43 @@ export const PERMISSOES_PHANYX = [
   { chave: "rh.relatorios", nome: "RH - Relatórios" },
   { chave: "rh.indicadores", nome: "RH - Indicadores e métricas" },
 
+  {
+  chave: "rh.ponto.mobile.ver",
+  nome: "Ponto Mobile - Visualizar",
+  descricao:
+    "Permite visualizar o módulo e as informações gerais do Ponto Mobile.",
+},
+{
+  chave: "rh.ponto.mobile.configurar",
+  nome: "Ponto Mobile - Configurar",
+  descricao:
+    "Permite ativar o Ponto Mobile e alterar foto, localização, reconhecimento facial e raio permitido.",
+},
+{
+  chave: "rh.ponto.mobile.funcionarios.gerenciar",
+  nome: "Ponto Mobile - Gerenciar funcionários",
+  descricao:
+    "Permite liberar ou bloquear funcionários para registrar ponto pelo celular.",
+},
+{
+  chave: "rh.ponto.mobile.locais.gerenciar",
+  nome: "Ponto Mobile - Gerenciar locais",
+  descricao:
+    "Permite cadastrar e alterar unidades, endereços, coordenadas e áreas autorizadas.",
+},
+{
+  chave: "rh.ponto.mobile.marcacoes.ver",
+  nome: "Ponto Mobile - Ver marcações",
+  descricao:
+    "Permite consultar fotos, horários, localização e comprovantes das marcações mobile.",
+},
+{
+  chave: "rh.ponto.mobile.ocorrencias.gerenciar",
+  nome: "Ponto Mobile - Gerenciar ocorrências",
+  descricao:
+    "Permite analisar registros fora da área, falhas de localização e divergências de reconhecimento.",
+},
+
   // =====================================================
   // CONTROLE DE ACESSO / CRACHÁS / VISITANTES
   // =====================================================
