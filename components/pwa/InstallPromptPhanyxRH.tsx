@@ -237,16 +237,20 @@ export default function InstallPromptPhanyxRH({
           </button>
 
           <button
-            type="button"
-            onClick={instalar}
-            className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white"
-          >
-            {mostrarInstrucoes
-  ? "Entendi"
-  : eventoInstalacao
-    ? "Instalar aplicativo"
-    : "Como instalar"}
-          </button>
+  type="button"
+  onClick={
+    mostrarInstrucoes
+      ? fechar
+      : instalar
+  }
+  className="rounded-2xl bg-blue-600 px-4 py-3 text-sm font-black text-white"
+>
+  {mostrarInstrucoes
+    ? "Entendi"
+    : eventoInstalacao
+      ? "Instalar aplicativo"
+      : "Como instalar"}
+</button>
         </div>
       </div>
     </div>
