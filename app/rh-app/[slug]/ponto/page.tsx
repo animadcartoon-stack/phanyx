@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import RegistroPontoMobile from "@/components/rh-ponto/RegistroPontoMobile";
 
 type PontoRhPageProps = {
   params: {
@@ -241,29 +242,20 @@ if (
           </section>
         )}
 
-        <section className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
-            Registro de ponto
-          </p>
+        {acessoPermitido ? (
+  <RegistroPontoMobile slug={slug} />
+) : (
+  <section className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
+    <p className="font-black text-slate-200">
+      Registro indisponível
+    </p>
 
-          <h2 className="mt-2 text-xl font-black">
-            Área do funcionário
-          </h2>
-
-          <p className="mt-3 text-sm leading-6 text-slate-300">
-            O acesso está funcionando. Na próxima etapa
-            entraremos com localização, foto ao vivo e o
-            botão de registro de ponto.
-          </p>
-
-          <button
-            type="button"
-            disabled
-            className="mt-5 min-h-14 w-full cursor-not-allowed rounded-2xl bg-slate-700 px-5 py-4 font-black text-slate-400"
-          >
-            Registrar ponto — em preparação
-          </button>
-        </section>
+    <p className="mt-2 text-sm leading-6 text-slate-400">
+      Entre em contato com o RH para verificar sua
+      autorização.
+    </p>
+  </section>
+)}
 
         <Link
           href={`/rh-app/${encodeURIComponent(slug)}`}

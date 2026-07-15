@@ -3068,11 +3068,13 @@ model MarcacaoPontoMobileRH {
   pontoFuncionarioRHId Int?
   localId              Int?
 
-  dataHora DateTime @default(now())
-  tipo     String
+  dataHora  DateTime @default(now())
+  dataLocal DateTime
+  tipo      String
 
-  fotoUrl  String?
-  fotoHash String?
+  fotoUrl      String?
+  fotoPathname String? @unique
+  fotoHash     String?
 
   latitude        Float?
   longitude       Float?
@@ -3104,6 +3106,7 @@ model MarcacaoPontoMobileRH {
   local LocalPontoMobileRH? @relation(fields: [localId], references: [id], onDelete: SetNull)
 
   @@unique([instituicaoId, idempotenciaChave])
+  @@unique([instituicaoId, funcionarioId, dataLocal, tipo])
   @@index([instituicaoId])
   @@index([funcionarioId])
   @@index([pontoFuncionarioRHId])
@@ -3114,6 +3117,7 @@ model MarcacaoPontoMobileRH {
   @@index([reconhecimentoStatus])
   @@index([instituicaoId, funcionarioId, dataHora])
   @@index([instituicaoId, dataHora])
+  @@index([instituicaoId, funcionarioId, dataLocal])
 }
 
 enum TipoDocumentoAluno {
