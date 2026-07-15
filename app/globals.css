@@ -11232,3 +11232,140 @@ html[data-theme="light"] .phanyx-ponto-mobile-page .phanyx-ponto-mobile-copy-but
   color: #94a3b8 !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX RH - FUNCIONÁRIOS DO PONTO MOBILE
+   Correção isolada do tema claro
+========================================================= */
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page {
+  background: #f4f6f8 !important;
+  color: #0f172a !important;
+}
+
+/* Títulos e textos principais */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page h1,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page h2,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page h3,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page label,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page strong {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+/* Corrigir textos que estavam quase invisíveis */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .text-slate-300,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .text-slate-400,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .text-slate-500,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .text-slate-600,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .text-slate-700 {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Identificação RH PHANYX */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .text-blue-300 {
+  color: #2563eb !important;
+  opacity: 1 !important;
+}
+
+/* Cards comuns */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page section.bg-white,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page .phanyx-ponto-mobile-resumo-card {
+  background: #ffffff !important;
+  border-color: #d6dde6 !important;
+  color: #0f172a !important;
+}
+
+/* Cards de resumo */
+html[data-theme="light"] .phanyx-ponto-mobile-resumo-card {
+  background: #ffffff !important;
+  border-color: #d6dde6 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-resumo-card p {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-resumo-card p.text-3xl {
+  color: #0f172a !important;
+}
+
+/* Aviso de recurso desativado */
+html[data-theme="light"] .phanyx-ponto-mobile-inativo-card {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-inativo-card p {
+  color: #78350f !important;
+  opacity: 1 !important;
+}
+
+/* Card Regra de segurança: neutro, sem azul pesado */
+html[data-theme="light"] .phanyx-ponto-mobile-seguranca-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-seguranca-card p {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-seguranca-card p:first-child {
+  color: #0f172a !important;
+}
+
+/* Inputs e selects */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page input,
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Cabeçalho e linhas da tabela */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page thead {
+  background: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page th {
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page tbody {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page tbody tr:hover {
+  background: #f8fafc !important;
+}
+
+/* Botão voltar */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page a[href="/admin/rh/ponto/mobile"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page a[href="/admin/rh/ponto/mobile"]:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Botões desativados precisam continuar legíveis */
+html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page button:disabled {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+  opacity: 1 !important;
+}

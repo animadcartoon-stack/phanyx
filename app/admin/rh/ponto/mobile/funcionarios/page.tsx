@@ -292,7 +292,7 @@ export default function FuncionariosPontoMobilePage() {
 
   if (carregando) {
     return (
-      <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+      <main className="phanyx-ponto-mobile-funcionarios-page min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
         <div className="mx-auto max-w-7xl">
           <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
@@ -305,7 +305,7 @@ export default function FuncionariosPontoMobilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <main className="phanyx-ponto-mobile-funcionarios-page min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {toast && (
         <div
           className={`fixed right-4 top-4 z-[100] max-w-md rounded-2xl border px-5 py-4 shadow-xl ${
@@ -346,7 +346,7 @@ export default function FuncionariosPontoMobilePage() {
         </header>
 
         {!pontoMobileAtivo && (
-          <section className="rounded-3xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-800 dark:bg-amber-950/40">
+          <section className="phanyx-ponto-mobile-inativo-card rounded-3xl border p-5">
             <p className="font-black text-amber-950 dark:text-amber-100">
               O Ponto Mobile está desativado
             </p>
@@ -645,7 +645,7 @@ export default function FuncionariosPontoMobilePage() {
           )}
         </section>
 
-        <section className="rounded-3xl border border-blue-200 bg-blue-50 p-5 dark:border-blue-900 dark:bg-blue-950/30">
+        <section className="phanyx-ponto-mobile-seguranca-card rounded-3xl border p-5">
           <p className="font-black text-blue-950 dark:text-blue-100">
             Regra de segurança
           </p>
@@ -674,7 +674,7 @@ function ResumoCard({
   descricao,
 }: ResumoCardProps) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <div className="phanyx-ponto-mobile-resumo-card rounded-3xl border p-5 shadow-sm">
       <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
         {titulo}
       </p>
