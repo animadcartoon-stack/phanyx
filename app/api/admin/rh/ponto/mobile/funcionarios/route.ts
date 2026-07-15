@@ -62,13 +62,16 @@ export async function GET(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Usuário não autenticado." },
-        { status: 401 }
+        {
+          error: "Usuário não autenticado.",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    const podeGerenciar =
-      await validarPermissao(user);
+    const podeGerenciar = await validarPermissao(user);
 
     if (!podeGerenciar) {
       return NextResponse.json(
@@ -76,7 +79,9 @@ export async function GET(req: NextRequest) {
           error:
             "Você não possui permissão para gerenciar os funcionários do Ponto Mobile.",
         },
-        { status: 403 }
+        {
+          status: 403,
+        }
       );
     }
 
@@ -84,15 +89,17 @@ export async function GET(req: NextRequest) {
 
     if (!instituicaoId) {
       return NextResponse.json(
-        { error: "Instituição não identificada." },
-        { status: 400 }
+        {
+          error: "Instituição não identificada.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
     const busca =
-      req.nextUrl.searchParams
-        .get("busca")
-        ?.trim() || "";
+      req.nextUrl.searchParams.get("busca")?.trim() || "";
 
     const filtroLiberado =
       req.nextUrl.searchParams.get("liberado");
@@ -110,15 +117,19 @@ export async function GET(req: NextRequest) {
           },
         },
         {
-          email: {
+          cargo: {
             contains: busca,
             mode: "insensitive",
           },
         },
         {
-          cargo: {
-            contains: busca,
-            mode: "insensitive",
+          user: {
+            is: {
+              email: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
           },
         },
       ];
@@ -132,7 +143,7 @@ export async function GET(req: NextRequest) {
       where.pontoMobileLiberado = false;
     }
 
-    const [configuracao, funcionarios] =
+    const [configuracao, funcionariosBrutos] =
       await Promise.all([
         prisma.configuracaoPontoMobileRH.findUnique({
           where: {
@@ -153,9 +164,14 @@ export async function GET(req: NextRequest) {
           select: {
             id: true,
             nome: true,
-            email: true,
             cargo: true,
             fotoPerfil: true,
+
+            user: {
+              select: {
+                email: true,
+              },
+            },
 
             pontoMobileLiberado: true,
             pontoMobileLiberadoEm: true,
@@ -165,14 +181,20 @@ export async function GET(req: NextRequest) {
         }),
       ]);
 
+    const funcionarios = funcionariosBrutos.map(
+      ({ user: usuarioFuncionario, ...funcionario }) => ({
+        ...funcionario,
+        email: usuarioFuncionario?.email || null,
+      })
+    );
+
     return NextResponse.json({
       configuracao: {
         pontoMobileAtivo:
           configuracao?.ativo === true,
 
         exigirFuncionarioLiberado:
-          configuracao?.exigirFuncionarioLiberado !==
-          false,
+          configuracao?.exigirFuncionarioLiberado !== false,
       },
 
       permissoes: {
@@ -192,7 +214,9 @@ export async function GET(req: NextRequest) {
         error:
           "Não foi possível carregar os funcionários do Ponto Mobile.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
@@ -203,13 +227,16 @@ export async function PUT(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Usuário não autenticado." },
-        { status: 401 }
+        {
+          error: "Usuário não autenticado.",
+        },
+        {
+          status: 401,
+        }
       );
     }
 
-    const podeGerenciar =
-      await validarPermissao(user);
+    const podeGerenciar = await validarPermissao(user);
 
     if (!podeGerenciar) {
       return NextResponse.json(
@@ -217,7 +244,9 @@ export async function PUT(req: NextRequest) {
           error:
             "Você não possui permissão para liberar ou bloquear funcionários no Ponto Mobile.",
         },
-        { status: 403 }
+        {
+          status: 403,
+        }
       );
     }
 
@@ -225,8 +254,12 @@ export async function PUT(req: NextRequest) {
 
     if (!instituicaoId) {
       return NextResponse.json(
-        { error: "Instituição não identificada." },
-        { status: 400 }
+        {
+          error: "Instituição não identificada.",
+        },
+        {
+          status: 400,
+        }
       );
     }
 
@@ -257,7 +290,9 @@ export async function PUT(req: NextRequest) {
           error:
             "Selecione pelo menos um funcionário.",
         },
-        { status: 400 }
+        {
+          status: 400,
+        }
       );
     }
 
@@ -288,7 +323,9 @@ export async function PUT(req: NextRequest) {
           error:
             "Nenhum funcionário válido foi encontrado nesta instituição.",
         },
-        { status: 404 }
+        {
+          status: 404,
+        }
       );
     }
 
@@ -320,7 +357,7 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    const funcionariosAtualizados =
+    const funcionariosAtualizadosBrutos =
       await prisma.funcionario.findMany({
         where: {
           instituicaoId,
@@ -334,9 +371,14 @@ export async function PUT(req: NextRequest) {
         select: {
           id: true,
           nome: true,
-          email: true,
           cargo: true,
           fotoPerfil: true,
+
+          user: {
+            select: {
+              email: true,
+            },
+          },
 
           pontoMobileLiberado: true,
           pontoMobileLiberadoEm: true,
@@ -345,6 +387,14 @@ export async function PUT(req: NextRequest) {
         },
       });
 
+    const funcionariosAtualizados =
+      funcionariosAtualizadosBrutos.map(
+        ({ user: usuarioFuncionario, ...funcionario }) => ({
+          ...funcionario,
+          email: usuarioFuncionario?.email || null,
+        })
+      );
+
     return NextResponse.json({
       sucesso: true,
 
@@ -352,8 +402,7 @@ export async function PUT(req: NextRequest) {
         ? `${funcionariosAtualizados.length} funcionário(s) liberado(s) para o Ponto Mobile.`
         : `${funcionariosAtualizados.length} funcionário(s) bloqueado(s) no Ponto Mobile.`,
 
-      funcionarios:
-        funcionariosAtualizados,
+      funcionarios: funcionariosAtualizados,
     });
   } catch (error) {
     console.error(
@@ -366,7 +415,9 @@ export async function PUT(req: NextRequest) {
         error:
           "Não foi possível atualizar o acesso dos funcionários ao Ponto Mobile.",
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }
