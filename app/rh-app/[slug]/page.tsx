@@ -147,46 +147,34 @@ export default function RhAppInstituicaoPage() {
 </div>
 
           <div className="space-y-5 p-6">
-            <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
-              <p className="font-black">
-                Aplicativo do funcionário
-              </p>
+  {dados.pontoMobileAtivo ? (
+    <Link
+      href={`/login?portal=admin&destino=${encodeURIComponent(
+        destino
+      )}&instituicao=${encodeURIComponent(
+        dados.slug
+      )}`}
+      className="flex min-h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 py-4 text-center font-black text-white transition hover:bg-blue-700"
+    >
+      Entrar no PHANYX RH
+    </Link>
+  ) : (
+    <div className="rounded-2xl border border-amber-800 bg-amber-950/40 p-4">
+      <p className="font-black text-amber-200">
+        Ponto Mobile indisponível
+      </p>
 
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                Acesse seu registro de ponto e os recursos
-                de RH disponibilizados pela instituição.
-              </p>
-            </div>
+      <p className="mt-2 text-sm leading-6 text-amber-100">
+        Esta instituição ainda não ativou o registro de ponto pelo celular.
+      </p>
+    </div>
+  )}
 
-            {dados.pontoMobileAtivo ? (
-              <Link
-                href={`/login?portal=admin&destino=${encodeURIComponent(
-                  destino
-                )}&instituicao=${encodeURIComponent(
-                  dados.slug
-                )}`}
-                className="flex min-h-14 items-center justify-center rounded-2xl bg-blue-600 px-5 py-4 text-center font-black text-white transition hover:bg-blue-700"
-              >
-                Entrar no PHANYX RH
-              </Link>
-            ) : (
-              <div className="rounded-2xl border border-amber-800 bg-amber-950/40 p-4">
-                <p className="font-black text-amber-200">
-                  Ponto Mobile indisponível
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-amber-100">
-                  Esta instituição ainda não ativou o
-                  registro de ponto pelo celular.
-                </p>
-              </div>
-            )}
-
-            <p className="text-center text-xs leading-5 text-slate-400">
-              O registro de ponto só estará disponível para
-              funcionários liberados individualmente pelo RH.
-            </p>
-          </div>
+  <p className="text-center text-xs leading-5 text-slate-400">
+    O registro de ponto só estará disponível para funcionários liberados
+    individualmente pelo RH.
+  </p>
+</div>
         </section>
       </div>
     </main>
