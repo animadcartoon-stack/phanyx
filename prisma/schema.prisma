@@ -3041,8 +3041,17 @@ model LocalPontoMobileRH {
   id            Int @id @default(autoincrement())
   instituicaoId Int
 
-  nome      String
-  endereco  String?
+  nome String
+
+  cep         String?
+  logradouro  String?
+  numero      String?
+  complemento String?
+  bairro      String?
+  cidade      String?
+  estado      String?
+  endereco    String?
+
   latitude  Float
   longitude Float
 
@@ -3058,6 +3067,8 @@ model LocalPontoMobileRH {
   @@index([instituicaoId])
   @@index([ativo])
   @@index([instituicaoId, ativo])
+  @@index([instituicaoId, cep])
+  @@index([instituicaoId, cidade, estado])
 }
 
 model MarcacaoPontoMobileRH {

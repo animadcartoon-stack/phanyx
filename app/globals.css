@@ -11536,3 +11536,160 @@ html[data-theme="light"]
     background-color: #ffffff !important;
   }
 }
+
+/* =========================================================
+   PHANYX — MODAL DE LOCAIS DO PONTO MOBILE
+   Tema claro
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal h2,
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal label,
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal strong,
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal span {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal input {
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  button[aria-label="Fechar"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  button[type="button"].border-blue-300 {
+  background-color: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1e40af !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  label.flex {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  button[type="button"].border-slate-300 {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  button[type="submit"] {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-modal
+  button[type="submit"]:hover {
+  background-color: #1e40af !important;
+}
+
+/* Tema sistema quando o computador estiver no modo claro */
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal h2,
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal label,
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal strong,
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal span {
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal input {
+    background-color: #ffffff !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal
+    input::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal
+    button[aria-label="Fechar"] {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal
+    button[type="button"].border-blue-300 {
+    background-color: #eff6ff !important;
+    border-color: #93c5fd !important;
+    color: #1e40af !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal
+    label.flex {
+    background-color: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal
+    button[type="button"].border-slate-300 {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-modal
+    button[type="submit"] {
+    background-color: #1d4ed8 !important;
+    color: #ffffff !important;
+  }
+}

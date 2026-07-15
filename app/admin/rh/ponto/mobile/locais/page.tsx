@@ -800,11 +800,11 @@ export default function LocaisPontoMobilePage() {
       </div>
 
       {modalAberto && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
+        <div className="phanyx-ponto-mobile-locais-overlay fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
           <form
-            onSubmit={salvarLocal}
-            className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
-          >
+  onSubmit={salvarLocal}
+  className="phanyx-ponto-mobile-locais-modal max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
+>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-700 dark:text-blue-300">
