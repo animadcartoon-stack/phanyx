@@ -575,6 +575,24 @@ function imprimirQrCode() {
             </div>
           </section>
 
+<section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
+  <h2 className="text-lg font-black text-blue-950 dark:text-blue-100">
+    Locais autorizados
+  </h2>
+
+  <p className="mt-2 text-sm leading-6 text-blue-900/80 dark:text-blue-200">
+    Cadastre sedes, polos e áreas permitidas para o
+    registro de ponto pelo celular.
+  </p>
+
+  <Link
+    href="/admin/rh/ponto/mobile/locais"
+    className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-blue-700 px-4 py-3 text-center text-sm font-black text-white transition hover:bg-blue-800"
+  >
+    Gerenciar locais
+  </Link>
+</section>
+
           <div className="space-y-6">
             <section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
               <h2 className="text-lg font-black text-blue-950 dark:text-blue-100">
