@@ -1185,6 +1185,12 @@ model Funcionario {
   pontoMobileLiberadoPorId Int?
   pontoMobileValidoAte     DateTime?
 
+  pontoMobileConviteToken       String?   @unique
+  pontoMobileConviteExpiraEm    DateTime?
+  pontoMobileConviteCriadoEm    DateTime?
+  pontoMobileConviteCriadoPorId Int?
+  pontoMobileConviteUsadoEm     DateTime?
+
   instituicaoId             Int
   userId                    Int           @unique
   departamentoId            Int?

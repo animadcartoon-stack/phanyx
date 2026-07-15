@@ -5,6 +5,31 @@ import { usuarioPossuiPermissao } from "@/lib/server-permissions";
 
 export const runtime = "nodejs";
 
+const selecaoFuncionario = {
+  id: true,
+  nome: true,
+  cargo: true,
+  fotoPerfil: true,
+
+  user: {
+    select: {
+      email: true,
+      ativo: true,
+      precisaTrocarSenha: true,
+    },
+  },
+
+  pontoMobileLiberado: true,
+  pontoMobileLiberadoEm: true,
+  pontoMobileLiberadoPorId: true,
+  pontoMobileValidoAte: true,
+
+  pontoMobileConviteToken: true,
+  pontoMobileConviteExpiraEm: true,
+  pontoMobileConviteCriadoEm: true,
+  pontoMobileConviteUsadoEm: true,
+} as const;
+
 function obterInstituicaoId(user: any) {
   const instituicaoId = Number(user?.instituicaoId);
 
@@ -54,6 +79,56 @@ async function validarPermissao(user: any) {
     user,
     "rh.ponto.mobile.funcionarios.gerenciar"
   );
+}
+
+function obterStatusConvite(funcionario: any) {
+  if (funcionario.pontoMobileConviteUsadoEm) {
+    return "USADO";
+  }
+
+  if (!funcionario.pontoMobileConviteToken) {
+    return "SEM_CONVITE";
+  }
+
+  if (!funcionario.pontoMobileConviteExpiraEm) {
+    return "EXPIRADO";
+  }
+
+  const expiraEm = new Date(
+    funcionario.pontoMobileConviteExpiraEm
+  );
+
+  if (
+    Number.isNaN(expiraEm.getTime()) ||
+    expiraEm.getTime() <= Date.now()
+  ) {
+    return "EXPIRADO";
+  }
+
+  return "PENDENTE";
+}
+
+function serializarFuncionario(funcionarioBruto: any) {
+  const {
+    user: usuarioFuncionario,
+    pontoMobileConviteToken: _tokenProtegido,
+    ...funcionario
+  } = funcionarioBruto;
+
+  return {
+    ...funcionario,
+
+    email: usuarioFuncionario?.email || null,
+
+    usuarioAtivo:
+      usuarioFuncionario?.ativo === true,
+
+    precisaTrocarSenha:
+      usuarioFuncionario?.precisaTrocarSenha === true,
+
+    pontoMobileConviteStatus:
+      obterStatusConvite(funcionarioBruto),
+  };
 }
 
 export async function GET(req: NextRequest) {
@@ -161,31 +236,12 @@ export async function GET(req: NextRequest) {
             nome: "asc",
           },
           take: 500,
-          select: {
-            id: true,
-            nome: true,
-            cargo: true,
-            fotoPerfil: true,
-
-            user: {
-              select: {
-                email: true,
-              },
-            },
-
-            pontoMobileLiberado: true,
-            pontoMobileLiberadoEm: true,
-            pontoMobileLiberadoPorId: true,
-            pontoMobileValidoAte: true,
-          },
+          select: selecaoFuncionario,
         }),
       ]);
 
     const funcionarios = funcionariosBrutos.map(
-      ({ user: usuarioFuncionario, ...funcionario }) => ({
-        ...funcionario,
-        email: usuarioFuncionario?.email || null,
-      })
+      serializarFuncionario
     );
 
     return NextResponse.json({
@@ -340,6 +396,7 @@ export async function PUT(req: NextRequest) {
           in: idsPermitidos,
         },
       },
+
       data: {
         pontoMobileLiberado: liberado,
 
@@ -354,6 +411,16 @@ export async function PUT(req: NextRequest) {
         pontoMobileValidoAte: liberado
           ? validoAte
           : null,
+
+        ...(!liberado
+          ? {
+              pontoMobileConviteToken: null,
+              pontoMobileConviteExpiraEm: null,
+              pontoMobileConviteCriadoEm: null,
+              pontoMobileConviteCriadoPorId: null,
+              pontoMobileConviteUsadoEm: null,
+            }
+          : {}),
       },
     });
 
@@ -368,31 +435,12 @@ export async function PUT(req: NextRequest) {
         orderBy: {
           nome: "asc",
         },
-        select: {
-          id: true,
-          nome: true,
-          cargo: true,
-          fotoPerfil: true,
-
-          user: {
-            select: {
-              email: true,
-            },
-          },
-
-          pontoMobileLiberado: true,
-          pontoMobileLiberadoEm: true,
-          pontoMobileLiberadoPorId: true,
-          pontoMobileValidoAte: true,
-        },
+        select: selecaoFuncionario,
       });
 
     const funcionariosAtualizados =
       funcionariosAtualizadosBrutos.map(
-        ({ user: usuarioFuncionario, ...funcionario }) => ({
-          ...funcionario,
-          email: usuarioFuncionario?.email || null,
-        })
+        serializarFuncionario
       );
 
     return NextResponse.json({
