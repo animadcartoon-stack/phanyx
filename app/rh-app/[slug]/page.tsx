@@ -115,14 +115,20 @@ const nomeInstituicaoExibicao =
     "$1 – $2"
   );
 
+  const nomeInstituicaoCurto =
+  nomeInstituicao
+    .split(/\s*[–—-]\s*/)
+    .map((parte) => parte.trim())
+    .find(Boolean) || nomeInstituicao;
+
   const destino = `/rh-app/${dados.slug}/ponto`;
 
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-8 pb-28 text-white">
 
       <InstallPromptPhanyxRH
-      nomeInstituicao={nomeInstituicao}
-    />
+  nomeInstituicao={nomeInstituicaoCurto}
+/>
 
     <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center">
         <section className="w-full overflow-hidden rounded-[32px] border border-slate-700 bg-slate-900 shadow-2xl">
