@@ -1,9 +1,9 @@
 import crypto from "crypto";
+import { put } from "@vercel/blob";
 import {
-  issueSignedToken,
-  presignUrl,
-} from "@vercel/blob";
-import { NextRequest, NextResponse } from "next/server";
+  NextRequest,
+  NextResponse,
+} from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 
@@ -16,18 +16,22 @@ type ContextoRota = {
   };
 };
 
-const TIPOS_PERMITIDOS = [
+const TIPOS_PERMITIDOS = new Set([
   "image/webp",
   "image/jpeg",
   "image/png",
-] as const;
+]);
 
-const TAMANHO_MAXIMO_BYTES = 2 * 1024 * 1024;
-const VALIDADE_UPLOAD_MS = 5 * 60 * 1000;
+const TAMANHO_MAXIMO_BYTES =
+  2 * 1024 * 1024;
 
-function normalizarSlug(valor: unknown) {
+function normalizarSlug(
+  valor: unknown
+) {
   try {
-    return decodeURIComponent(String(valor || ""))
+    return decodeURIComponent(
+      String(valor || "")
+    )
       .trim()
       .toLowerCase();
   } catch {
@@ -37,7 +41,9 @@ function normalizarSlug(valor: unknown) {
   }
 }
 
-function obterExtensao(contentType: string) {
+function obterExtensao(
+  contentType: string
+) {
   switch (contentType) {
     case "image/jpeg":
       return "jpg";
@@ -53,7 +59,8 @@ function obterExtensao(contentType: string) {
 
 function obterTokenBlob() {
   return String(
-    process.env.RH_PONTO_READ_WRITE_TOKEN || ""
+    process.env
+      .RH_PONTO_READ_WRITE_TOKEN || ""
   ).trim();
 }
 
@@ -69,7 +76,8 @@ export async function POST(
     if (!slug) {
       return NextResponse.json(
         {
-          error: "Instituição não identificada.",
+          error:
+            "Instituição não identificada.",
         },
         {
           status: 400,
@@ -77,7 +85,8 @@ export async function POST(
       );
     }
 
-    const user = await getUserFromToken();
+    const user =
+      await getUserFromToken();
 
     if (!user) {
       return NextResponse.json(
@@ -91,7 +100,10 @@ export async function POST(
       );
     }
 
-    const usuarioId = Number(user.id);
+    const usuarioId = Number(
+      user.id
+    );
+
     const instituicaoId = Number(
       user.instituicaoId
     );
@@ -113,36 +125,8 @@ export async function POST(
       );
     }
 
-    const body = await req
-      .json()
-      .catch(() => ({}));
-
-    const contentType = String(
-      body?.contentType || "image/webp"
-    )
-      .trim()
-      .toLowerCase();
-
-    if (
-      !TIPOS_PERMITIDOS.includes(
-        contentType as
-          | "image/webp"
-          | "image/jpeg"
-          | "image/png"
-      )
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            "Formato de imagem não permitido. Utilize WEBP, JPEG ou PNG.",
-        },
-        {
-          status: 400,
-        }
-      );
-    }
-
-    const tokenBlob = obterTokenBlob();
+    const tokenBlob =
+      obterTokenBlob();
 
     if (!tokenBlob) {
       console.error(
@@ -186,8 +170,9 @@ export async function POST(
 
         select: {
           ativo: true,
-          exigirFoto: true,
-          exigirFuncionarioLiberado: true,
+
+          exigirFuncionarioLiberado:
+            true,
         },
       }),
 
@@ -201,8 +186,11 @@ export async function POST(
           id: true,
           ativo: true,
 
-          pontoMobileLiberado: true,
-          pontoMobileValidoAte: true,
+          pontoMobileLiberado:
+            true,
+
+          pontoMobileValidoAte:
+            true,
 
           user: {
             select: {
@@ -265,8 +253,10 @@ export async function POST(
     }
 
     if (
-      configuracao.exigirFuncionarioLiberado &&
-      funcionario.pontoMobileLiberado !== true
+      configuracao
+        .exigirFuncionarioLiberado &&
+      funcionario
+        .pontoMobileLiberado !== true
     ) {
       return NextResponse.json(
         {
@@ -280,9 +270,12 @@ export async function POST(
     }
 
     const acessoExpirado =
-      funcionario.pontoMobileValidoAte !== null &&
-      funcionario.pontoMobileValidoAte.getTime() <=
-        agora.getTime();
+      funcionario
+        .pontoMobileValidoAte !==
+        null &&
+      funcionario
+        .pontoMobileValidoAte
+        .getTime() <= agora.getTime();
 
     if (acessoExpirado) {
       return NextResponse.json(
@@ -292,6 +285,76 @@ export async function POST(
         },
         {
           status: 403,
+        }
+      );
+    }
+
+    const formData =
+      await req.formData();
+
+    const foto =
+      formData.get("foto");
+
+    if (!(foto instanceof File)) {
+      return NextResponse.json(
+        {
+          error:
+            "A foto não foi recebida pelo servidor.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const contentType = String(
+      foto.type || ""
+    )
+      .trim()
+      .toLowerCase();
+
+    if (
+      !TIPOS_PERMITIDOS.has(
+        contentType
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Formato de imagem não permitido. Utilize WEBP, JPEG ou PNG.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      !Number.isFinite(foto.size) ||
+      foto.size <= 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A foto recebida está vazia.",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    if (
+      foto.size >
+      TAMANHO_MAXIMO_BYTES
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A foto ultrapassou o limite de 2 MB.",
+        },
+        {
+          status: 413,
         }
       );
     }
@@ -324,77 +387,46 @@ export async function POST(
       `${identificador}.${extensao}`,
     ].join("/");
 
-    const expiraEm =
-      Date.now() + VALIDADE_UPLOAD_MS;
-
-    const tokenAssinado =
-      await issueSignedToken({
-        pathname,
-
-        operations: ["put"],
-
-        allowedContentTypes: [
-          contentType,
-        ],
-
-        maximumSizeInBytes:
-          TAMANHO_MAXIMO_BYTES,
-
-        validUntil: expiraEm,
+    const blob = await put(
+      pathname,
+      foto,
+      {
+        access: "private",
 
         token: tokenBlob,
-      });
 
-    const { presignedUrl } =
-      await presignUrl(
-        tokenAssinado,
-        {
-          operation: "put",
-          pathname,
-          access: "private",
+        contentType,
 
-          allowedContentTypes: [
-            contentType,
-          ],
+        addRandomSuffix: false,
+        allowOverwrite: false,
 
-          maximumSizeInBytes:
-            TAMANHO_MAXIMO_BYTES,
-
-          validUntil: expiraEm,
-
-          addRandomSuffix: false,
-          allowOverwrite: false,
-
-          cacheControlMaxAge:
-            30 * 24 * 60 * 60,
-        }
-      );
+        cacheControlMaxAge:
+          30 * 24 * 60 * 60,
+      }
+    );
 
     return NextResponse.json({
       sucesso: true,
 
       upload: {
-        url: presignedUrl,
-        pathname,
-        contentType,
+        pathname: blob.pathname,
+        contentType:
+          blob.contentType ||
+          contentType,
 
-        tamanhoMaximoBytes:
-          TAMANHO_MAXIMO_BYTES,
-
-        expiraEm:
-          new Date(expiraEm).toISOString(),
+        tamanhoBytes: foto.size,
       },
     });
   } catch (error) {
     console.error(
-      "Erro ao gerar URL da foto do Ponto Mobile:",
+      "Erro ao enviar foto do Ponto Mobile:",
       error
     );
 
     return NextResponse.json(
       {
         error:
-          "Não foi possível preparar o envio da foto.",
+          "Não foi possível enviar a foto com segurança.",
       },
       {
         status: 500,

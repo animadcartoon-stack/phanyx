@@ -77,11 +77,9 @@ type RespostaUpload = {
   sucesso?: boolean;
 
   upload?: {
-    url: string;
     pathname: string;
     contentType: string;
-    tamanhoMaximoBytes: number;
-    expiraEm: string;
+    tamanhoBytes: number;
   };
 
   error?: string;
@@ -713,14 +711,20 @@ export default function RegistroPontoMobile({
     configuracao?.exigirFoto === true &&
     !fotoPronta;
 
+    const localizacaoObrigatoriaAusente =
+  configuracao?.exigirLocalizacao ===
+    true &&
+  !localizacao;
+
   const botaoDesabilitado =
-    carregandoContexto ||
-    processando ||
-    !contexto ||
-    jornada?.concluida === true ||
-    fotoObrigatoriaAusente ||
-    semLocalAutorizado ||
-    processamentoEspecialPendente;
+  carregandoContexto ||
+  processando ||
+  !contexto ||
+  jornada?.concluida === true ||
+  fotoObrigatoriaAusente ||
+  localizacaoObrigatoriaAusente ||
+  semLocalAutorizado ||
+  processamentoEspecialPendente;
 
   async function abrirCamera() {
     try {
@@ -821,8 +825,11 @@ export default function RegistroPontoMobile({
       pararCamera();
 
       setMensagemSucesso(
-        "Foto ao vivo capturada. Agora você pode registrar o ponto."
-      );
+  configuracao?.exigirLocalizacao &&
+  !localizacao
+    ? "Foto ao vivo capturada. Agora obtenha sua localização."
+    : "Foto ao vivo capturada. Você já pode registrar o ponto."
+);
     } catch (error) {
       setMensagemErro(
         error instanceof Error
@@ -893,90 +900,96 @@ export default function RegistroPontoMobile({
   }
 
   async function enviarFotoPrivada() {
-    if (fotoPathname) {
-      return fotoPathname;
-    }
+  if (fotoPathname) {
+    return fotoPathname;
+  }
 
-    if (!fotoBlob) {
-      return null;
-    }
+  if (!fotoBlob) {
+    return null;
+  }
 
-    setEtapaProcessamento(
-      "Preparando envio seguro da foto..."
-    );
+  setEtapaProcessamento(
+    "Enviando foto com segurança..."
+  );
 
-    const respostaPreparacao = await fetch(
-      `/api/rh-app/${encodeURIComponent(
-        slug
-      )}/ponto/foto/upload-url`,
-      {
-        method: "POST",
-        credentials: "include",
+  const extensao =
+    fotoBlob.type === "image/jpeg"
+      ? "jpg"
+      : fotoBlob.type === "image/png"
+        ? "png"
+        : "webp";
 
-        headers: {
-          "Content-Type": "application/json",
-        },
+  const formularioFoto =
+    new FormData();
 
-        body: JSON.stringify({
-          contentType:
-            fotoBlob.type ||
-            "image/webp",
-        }),
-      }
-    );
+  formularioFoto.append(
+    "foto",
+    fotoBlob,
+    `foto-ponto.${extensao}`
+  );
 
-    const dadosPreparacao: RespostaUpload =
-      await respostaPreparacao.json();
+  const controlador =
+    new AbortController();
 
-    if (!respostaPreparacao.ok) {
+  const timer =
+    window.setTimeout(() => {
+      controlador.abort();
+    }, 60_000);
+
+  try {
+    const resposta =
+      await fetch(
+        `/api/rh-app/${encodeURIComponent(
+          slug
+        )}/ponto/foto/upload-url`,
+        {
+          method: "POST",
+          credentials: "include",
+
+          body: formularioFoto,
+
+          signal:
+            controlador.signal,
+        }
+      );
+
+    const dados: RespostaUpload =
+      await resposta.json();
+
+    if (!resposta.ok) {
       throw new Error(
-        dadosPreparacao.error ||
-          "Não foi possível preparar o envio da foto."
+        dados.error ||
+          "Não foi possível enviar a foto."
       );
     }
 
-    const upload =
-      dadosPreparacao.upload;
+    const pathname =
+      dados.upload?.pathname;
 
+    if (!pathname) {
+      throw new Error(
+        "O armazenamento não retornou o endereço interno da foto."
+      );
+    }
+
+    setFotoPathname(pathname);
+
+    return pathname;
+  } catch (error) {
     if (
-      !upload?.url ||
-      !upload.pathname
+      error instanceof DOMException &&
+      error.name === "AbortError"
     ) {
       throw new Error(
-        "O armazenamento não retornou uma autorização válida."
+        "O envio da foto demorou muito. Verifique sua conexão e tente novamente."
       );
     }
 
-    setEtapaProcessamento(
-      "Enviando foto com segurança..."
-    );
-
-    const respostaUpload = await fetch(
-      upload.url,
-      {
-        method: "PUT",
-
-        headers: {
-          "Content-Type":
-            upload.contentType ||
-            fotoBlob.type ||
-            "image/webp",
-        },
-
-        body: fotoBlob,
-      }
-    );
-
-    if (!respostaUpload.ok) {
-      throw new Error(
-        "Não foi possível enviar a foto para o armazenamento privado."
-      );
-    }
-
-    setFotoPathname(upload.pathname);
-
-    return upload.pathname;
+    throw error;
+  } finally {
+    window.clearTimeout(timer);
   }
+}
 
   async function registrarPonto() {
     try {
@@ -1469,13 +1482,18 @@ export default function RegistroPontoMobile({
                 .proximoTipoRotulo}
       </button>
 
+      {!processando &&
+  (fotoObrigatoriaAusente ||
+    localizacaoObrigatoriaAusente) && (
+    <p className="text-center text-xs text-slate-400">
       {fotoObrigatoriaAusente &&
-        !processando && (
-          <p className="text-center text-xs text-slate-400">
-            Tire a foto ao vivo para habilitar o
-            registro.
-          </p>
-        )}
+      localizacaoObrigatoriaAusente
+        ? "Tire a foto ao vivo e obtenha sua localização para habilitar o registro."
+        : fotoObrigatoriaAusente
+          ? "Tire a foto ao vivo para habilitar o registro."
+          : "Obtenha sua localização para habilitar o registro."}
+    </p>
+  )}
 
       {comprovante && (
         <div className="rounded-[30px] border border-emerald-700 bg-emerald-950/40 p-6 shadow-xl">
