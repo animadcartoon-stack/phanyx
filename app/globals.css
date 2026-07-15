@@ -11369,3 +11369,170 @@ html[data-theme="light"] .phanyx-ponto-mobile-funcionarios-page button:disabled 
   color: #64748b !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   PHANYX — LOCAIS AUTORIZADOS DO PONTO MOBILE
+   Correção exclusiva do tema claro
+   ========================================================= */
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-page {
+  --phanyx-locais-texto: #0f172a;
+  --phanyx-locais-texto-secundario: #475569;
+  --phanyx-locais-texto-suave: #64748b;
+  --phanyx-locais-fundo: #ffffff;
+  --phanyx-locais-fundo-suave: #f8fafc;
+  --phanyx-locais-borda: #cbd5e1;
+
+  color: var(--phanyx-locais-texto) !important;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-page {
+    --phanyx-locais-texto: #0f172a;
+    --phanyx-locais-texto-secundario: #475569;
+    --phanyx-locais-texto-suave: #64748b;
+    --phanyx-locais-fundo: #ffffff;
+    --phanyx-locais-fundo-suave: #f8fafc;
+    --phanyx-locais-borda: #cbd5e1;
+
+    color: var(--phanyx-locais-texto) !important;
+  }
+}
+
+/* Títulos e textos principais */
+
+.phanyx-ponto-mobile-locais-page h1,
+.phanyx-ponto-mobile-locais-page h2,
+.phanyx-ponto-mobile-locais-page h3,
+.phanyx-ponto-mobile-locais-page label,
+.phanyx-ponto-mobile-locais-page strong {
+  color: var(--phanyx-locais-texto) !important;
+}
+
+/* Textos secundários que estavam quase brancos */
+
+.phanyx-ponto-mobile-locais-page .text-slate-900,
+.phanyx-ponto-mobile-locais-page .text-slate-800,
+.phanyx-ponto-mobile-locais-page .text-slate-700 {
+  color: var(--phanyx-locais-texto) !important;
+}
+
+.phanyx-ponto-mobile-locais-page .text-slate-600,
+.phanyx-ponto-mobile-locais-page .text-slate-500,
+.phanyx-ponto-mobile-locais-page .text-slate-400,
+.phanyx-ponto-mobile-locais-page .text-slate-300 {
+  color: var(
+    --phanyx-locais-texto-secundario
+  ) !important;
+}
+
+/* Campos e filtros */
+
+.phanyx-ponto-mobile-locais-page input,
+.phanyx-ponto-mobile-locais-page select {
+  color: var(--phanyx-locais-texto) !important;
+  background-color: var(
+    --phanyx-locais-fundo
+  ) !important;
+  border-color: var(
+    --phanyx-locais-borda
+  ) !important;
+}
+
+.phanyx-ponto-mobile-locais-page
+  input::placeholder {
+  color: var(
+    --phanyx-locais-texto-suave
+  ) !important;
+  opacity: 1 !important;
+}
+
+.phanyx-ponto-mobile-locais-page select option {
+  color: #0f172a !important;
+  background: #ffffff !important;
+}
+
+/* Cards brancos */
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-page
+  .bg-white {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-page
+    .bg-white {
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+  }
+}
+
+/* Botão Voltar do cabeçalho */
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-page
+  a[href="/admin/rh/ponto/mobile"] {
+  color: #1e293b !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-page
+  a[href="/admin/rh/ponto/mobile"]:hover {
+  color: #0f172a !important;
+  background-color: #f1f5f9 !important;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-page
+    a[href="/admin/rh/ponto/mobile"] {
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+  }
+}
+
+/* Paginação e botões claros */
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-page
+  button.border-slate-300 {
+  color: #1e293b !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-page
+    button.border-slate-300 {
+    color: #1e293b !important;
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+  }
+}
+
+/* Modal de cadastro e edição */
+
+html[data-theme="light"]
+  .phanyx-ponto-mobile-locais-page
+  form.bg-white {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+}
+
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-ponto-mobile-locais-page
+    form.bg-white {
+    color: #0f172a !important;
+    background-color: #ffffff !important;
+  }
+}

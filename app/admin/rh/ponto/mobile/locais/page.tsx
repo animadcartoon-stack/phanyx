@@ -518,7 +518,7 @@ export default function LocaisPontoMobilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <main className="phanyx-ponto-mobile-locais-page min-h-screen bg-slate-50 px-4 py-8 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       {toast && (
         <div
           className={`fixed right-4 top-4 z-[120] max-w-md rounded-2xl border px-5 py-4 shadow-2xl ${
