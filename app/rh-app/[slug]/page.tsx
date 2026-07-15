@@ -171,7 +171,7 @@ const nomeInstituicaoExibicao =
           <div className="space-y-5 p-6">
   {dados.pontoMobileAtivo ? (
     <Link
-      href={`/login?portal=admin&destino=${encodeURIComponent(
+      href={`/login?portal=rh&destino=${encodeURIComponent(
         destino
       )}&instituicao=${encodeURIComponent(
         dados.slug

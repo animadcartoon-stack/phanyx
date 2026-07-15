@@ -5,17 +5,30 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 
-type Portal = "admin" | "professor" | "aluno";
+type Portal =
+  | "admin"
+  | "professor"
+  | "aluno"
+  | "rh";
 
 function LoginContent() {
   const searchParams = useSearchParams();
 
   const portal = useMemo<Portal>(() => {
     const valor = searchParams.get("portal");
+
+    if (valor === "rh") return "rh";
     if (valor === "professor") return "professor";
     if (valor === "aluno") return "aluno";
+
     return "admin";
   }, [searchParams]);
+
+  const instituicaoSlug =
+  searchParams
+    .get("instituicao")
+    ?.trim()
+    .toLowerCase() || "";
 
   const [portalSelecionado, setPortalSelecionado] = useState<Portal>(portal);
   const [email, setEmail] = useState("");
@@ -43,22 +56,36 @@ function LoginContent() {
   }
 
   const titulo = useMemo(() => {
-    if (portalSelecionado === "professor") return "Login do Professor";
-    if (portalSelecionado === "aluno") return "Login do Aluno";
-    return "Login da Instituição";
-  }, [portalSelecionado]);
+  if (portalSelecionado === "rh") {
+    return "Login do Funcionário";
+  }
+
+  if (portalSelecionado === "professor") {
+    return "Login do Professor";
+  }
+
+  if (portalSelecionado === "aluno") {
+    return "Login do Aluno";
+  }
+
+  return "Login da Instituição";
+}, [portalSelecionado]);
 
   const subtitulo = useMemo(() => {
-    if (portalSelecionado === "professor") {
-      return "Acesse sua área docente com seu email e senha.";
-    }
+  if (portalSelecionado === "rh") {
+    return "Entre com seu e-mail e senha para acessar o RH Ponto.";
+  }
 
-    if (portalSelecionado === "aluno") {
-      return "Acesse sua área do aluno com seu email e senha.";
-    }
+  if (portalSelecionado === "professor") {
+    return "Acesse sua área docente com seu email e senha.";
+  }
 
-    return "Acesse o painel administrativo da instituição.";
-  }, [portalSelecionado]);
+  if (portalSelecionado === "aluno") {
+    return "Acesse sua área do aluno com seu email e senha.";
+  }
+
+  return "Acesse o painel administrativo da instituição.";
+}, [portalSelecionado]);
 
   async function handleLogin() {
     try {
@@ -72,10 +99,11 @@ function LoginContent() {
         },
         credentials: "include",
         body: JSON.stringify({
-          email,
-          senha,
-          portal: portalSelecionado,
-        }),
+  email,
+  senha,
+  portal: portalSelecionado,
+  instituicao: instituicaoSlug,
+}),
       });
 
       const json = await res.json();
@@ -84,7 +112,13 @@ function LoginContent() {
         setErro(json.error || "Email ou senha inválidos");
         return;
       }
-
+if (
+  json.destino &&
+  String(json.destino).startsWith("/rh-app/")
+) {
+  window.location.href = json.destino;
+  return;
+}
       if (json.user?.precisaTrocarSenha) {
         window.location.href = "/primeiro-acesso";
         return;
@@ -287,12 +321,17 @@ function LoginContent() {
               )}
 
               <button
-                onClick={handleLogin}
-                disabled={loading}
-                className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white disabled:opacity-60"
-              >
-                {loading ? "Entrando..." : "Entrar"}
-              </button>
+  type="button"
+  onClick={handleLogin}
+  disabled={loading}
+  className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white disabled:opacity-60"
+>
+  {loading
+    ? "Entrando..."
+    : portalSelecionado === "rh"
+      ? "Entrar no RH Ponto"
+      : "Entrar"}
+</button>
 
               <a
                 href={`/esqueci-senha?portal=${portalSelecionado}`}
