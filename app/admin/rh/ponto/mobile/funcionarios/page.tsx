@@ -33,6 +33,137 @@ type ToastState = {
 
 type FiltroAcesso = "TODOS" | "LIBERADOS" | "BLOQUEADOS";
 
+function normalizarBusca(valor?: string | null) {
+  return String(valor || "")
+    .toLocaleLowerCase("pt-BR")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9@.\s-]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function calcularDistanciaLevenshtein(
+  textoA: string,
+  textoB: string
+) {
+  const a = normalizarBusca(textoA);
+  const b = normalizarBusca(textoB);
+
+  const matriz = Array.from(
+    { length: b.length + 1 },
+    () => Array<number>(a.length + 1).fill(0)
+  );
+
+  for (let coluna = 0; coluna <= a.length; coluna++) {
+    matriz[0][coluna] = coluna;
+  }
+
+  for (let linha = 0; linha <= b.length; linha++) {
+    matriz[linha][0] = linha;
+  }
+
+  for (let linha = 1; linha <= b.length; linha++) {
+    for (
+      let coluna = 1;
+      coluna <= a.length;
+      coluna++
+    ) {
+      const custo =
+        b[linha - 1] === a[coluna - 1] ? 0 : 1;
+
+      matriz[linha][coluna] = Math.min(
+        matriz[linha - 1][coluna] + 1,
+        matriz[linha][coluna - 1] + 1,
+        matriz[linha - 1][coluna - 1] + custo
+      );
+    }
+  }
+
+  return matriz[b.length][a.length];
+}
+
+function pontuarTexto(
+  valor: string | null | undefined,
+  termo: string
+) {
+  const texto = normalizarBusca(valor);
+  const buscaNormalizada = normalizarBusca(termo);
+
+  if (!texto) return 9999;
+  if (!buscaNormalizada) return 0;
+
+  if (texto === buscaNormalizada) {
+    return 0;
+  }
+
+  if (texto.startsWith(buscaNormalizada)) {
+    return 10;
+  }
+
+  const palavras = texto.split(" ").filter(Boolean);
+
+  const palavraIniciaBusca = palavras.some((palavra) =>
+    palavra.startsWith(buscaNormalizada)
+  );
+
+  if (palavraIniciaBusca) {
+    return 20;
+  }
+
+  const posicao = texto.indexOf(buscaNormalizada);
+
+  if (posicao >= 0) {
+    return 30 + posicao;
+  }
+
+  const distancias = [
+    calcularDistanciaLevenshtein(
+      texto,
+      buscaNormalizada
+    ),
+
+    ...palavras.map((palavra) =>
+      calcularDistanciaLevenshtein(
+        palavra,
+        buscaNormalizada
+      )
+    ),
+  ];
+
+  const menorDistancia = Math.min(...distancias);
+
+  const limiteErro =
+    buscaNormalizada.length <= 4
+      ? 1
+      : buscaNormalizada.length <= 8
+        ? 2
+        : 3;
+
+  if (menorDistancia <= limiteErro) {
+    return 40 + menorDistancia * 5;
+  }
+
+  /*
+   * Mesmo sem correspondência direta, mantém uma pontuação
+   * para podermos sugerir os nomes mais próximos.
+   */
+  return 200 + menorDistancia;
+}
+
+function pontuarFuncionario(
+  funcionario: FuncionarioPontoMobile,
+  termo: string
+) {
+  return Math.min(
+    pontuarTexto(funcionario.nome, termo),
+
+    pontuarTexto(funcionario.email, termo) + 20,
+
+    pontuarTexto(funcionario.cargo, termo) + 40
+  );
+}
+
 export default function FuncionariosPontoMobilePage() {
   const [funcionarios, setFuncionarios] = useState<
     FuncionarioPontoMobile[]
@@ -45,6 +176,9 @@ export default function FuncionariosPontoMobilePage() {
   const [busca, setBusca] = useState("");
   const [filtroAcesso, setFiltroAcesso] =
     useState<FiltroAcesso>("TODOS");
+
+    const [buscaFocada, setBuscaFocada] =
+  useState(false);
 
   const [pontoMobileAtivo, setPontoMobileAtivo] =
     useState(false);
@@ -68,32 +202,80 @@ export default function FuncionariosPontoMobilePage() {
     return () => window.clearTimeout(timer);
   }, [toast]);
 
-  const funcionariosFiltrados = useMemo(() => {
-    const termo = busca.trim().toLocaleLowerCase("pt-BR");
+  const funcionariosOrdenados = useMemo(() => {
+  const termo = normalizarBusca(busca);
 
-    return funcionarios.filter((funcionario) => {
-      const correspondeBusca =
-        !termo ||
-        funcionario.nome
-          .toLocaleLowerCase("pt-BR")
-          .includes(termo) ||
-        funcionario.email
-          ?.toLocaleLowerCase("pt-BR")
-          .includes(termo) ||
-        funcionario.cargo
-          ?.toLocaleLowerCase("pt-BR")
-          .includes(termo);
+  return funcionarios
+    .filter((funcionario) => {
+      if (filtroAcesso === "LIBERADOS") {
+        return funcionario.pontoMobileLiberado;
+      }
 
-      const correspondeAcesso =
-        filtroAcesso === "TODOS" ||
-        (filtroAcesso === "LIBERADOS" &&
-          funcionario.pontoMobileLiberado) ||
-        (filtroAcesso === "BLOQUEADOS" &&
-          !funcionario.pontoMobileLiberado);
+      if (filtroAcesso === "BLOQUEADOS") {
+        return !funcionario.pontoMobileLiberado;
+      }
 
-      return correspondeBusca && correspondeAcesso;
+      return true;
+    })
+    .map((funcionario) => ({
+      funcionario,
+      pontuacao: termo
+        ? pontuarFuncionario(funcionario, termo)
+        : 0,
+    }))
+    .sort((itemA, itemB) => {
+      if (
+        termo &&
+        itemA.pontuacao !== itemB.pontuacao
+      ) {
+        return itemA.pontuacao - itemB.pontuacao;
+      }
+
+      return itemA.funcionario.nome.localeCompare(
+        itemB.funcionario.nome,
+        "pt-BR",
+        {
+          sensitivity: "base",
+        }
+      );
     });
-  }, [funcionarios, busca, filtroAcesso]);
+}, [funcionarios, busca, filtroAcesso]);
+
+const funcionariosFiltrados = useMemo(() => {
+  const termo = normalizarBusca(busca);
+
+  if (!termo) {
+    return funcionariosOrdenados.map(
+      (item) => item.funcionario
+    );
+  }
+
+  const correspondenciasDiretas =
+    funcionariosOrdenados.filter(
+      (item) => item.pontuacao < 200
+    );
+
+  /*
+   * Se não existir correspondência direta, mostra os dez
+   * funcionários com nomes mais próximos.
+   */
+  const resultados =
+    correspondenciasDiretas.length > 0
+      ? correspondenciasDiretas
+      : funcionariosOrdenados.slice(0, 10);
+
+  return resultados.map((item) => item.funcionario);
+}, [funcionariosOrdenados, busca]);
+
+const sugestoesBusca = useMemo(() => {
+  if (!normalizarBusca(busca)) {
+    return [];
+  }
+
+  return funcionariosOrdenados
+    .slice(0, 8)
+    .map((item) => item.funcionario);
+}, [funcionariosOrdenados, busca]);
 
   const totalLiberados = useMemo(
     () =>
@@ -382,25 +564,83 @@ export default function FuncionariosPontoMobilePage() {
 
         <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <div className="grid gap-4 lg:grid-cols-[1fr_240px]">
-            <div>
-              <label
-                htmlFor="buscaFuncionarios"
-                className="mb-2 block text-sm font-black"
-              >
-                Buscar funcionário
-              </label>
+           <div className="relative">
+  <label
+    htmlFor="buscaFuncionarios"
+    className="mb-2 block text-sm font-black"
+  >
+    Buscar funcionário
+  </label>
 
-              <input
-                id="buscaFuncionarios"
-                type="search"
-                value={busca}
-                onChange={(evento) =>
-                  setBusca(evento.target.value)
-                }
-                placeholder="Nome, e-mail ou cargo"
-                className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-blue-500 focus:ring-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
-              />
-            </div>
+  <input
+    id="buscaFuncionarios"
+    type="search"
+    value={busca}
+    autoComplete="off"
+    aria-autocomplete="list"
+    aria-expanded={
+      buscaFocada && sugestoesBusca.length > 0
+    }
+    onFocus={() => setBuscaFocada(true)}
+    onBlur={() => {
+      window.setTimeout(() => {
+        setBuscaFocada(false);
+      }, 180);
+    }}
+    onChange={(evento) => {
+      setBusca(evento.target.value);
+      setBuscaFocada(true);
+    }}
+    placeholder="Nome, e-mail ou cargo"
+    className="min-h-11 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-blue-500 focus:ring-2 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+  />
+
+  {buscaFocada && normalizarBusca(busca) && (
+    <div className="absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+      {sugestoesBusca.length > 0 ? (
+        sugestoesBusca.map((funcionario) => (
+          <button
+            key={funcionario.id}
+            type="button"
+            onMouseDown={(evento) => {
+              evento.preventDefault();
+            }}
+            onClick={() => {
+              setBusca(funcionario.nome);
+              setBuscaFocada(false);
+            }}
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <FuncionarioAvatar
+              nome={funcionario.nome}
+              fotoPerfil={funcionario.fotoPerfil}
+            />
+
+            <span className="min-w-0">
+              <span className="block truncate text-sm font-black text-slate-900 dark:text-slate-100">
+                {funcionario.nome}
+              </span>
+
+              <span className="mt-1 block truncate text-xs text-slate-500 dark:text-slate-400">
+                {[
+                  funcionario.cargo,
+                  funcionario.email,
+                ]
+                  .filter(Boolean)
+                  .join(" • ") ||
+                  "Funcionário"}
+              </span>
+            </span>
+          </button>
+        ))
+      ) : (
+        <div className="p-4 text-center text-sm text-slate-500 dark:text-slate-300">
+          Nenhuma sugestão encontrada.
+        </div>
+      )}
+    </div>
+  )}
+</div>
 
             <div>
               <label
