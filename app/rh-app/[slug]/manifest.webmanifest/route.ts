@@ -89,53 +89,53 @@ export async function GET(
     const nomeCurto = criarNomeCurto(nomeInstituicao);
 
     const caminhoApp = `/rh-app/${encodeURIComponent(
-      instituicao.slug
-    )}`;
+  instituicao.slug
+)}`;
 
-    const manifesto = {
-      id: `${caminhoApp}/`,
+const manifesto = {
+  id: caminhoApp,
 
-      name: `RH - ${nomeInstituicao}`,
+  name: `RH - ${nomeInstituicao}`,
 
-      short_name: `RH - ${nomeCurto}`,
+  short_name: `RH - ${nomeCurto}`,
 
-      description: `Aplicativo de ponto e RH de ${nomeInstituicao}.`,
+  description: `Aplicativo de ponto e RH de ${nomeInstituicao}.`,
 
-      start_url: caminhoApp,
+  start_url: caminhoApp,
 
-      scope: `${caminhoApp}/`,
+  scope: caminhoApp,
 
-      display: "standalone",
+  display: "standalone",
 
-      orientation: "any",
+  orientation: "any",
 
-      background_color: "#020617",
+  background_color: "#020617",
 
-      theme_color: "#0f172a",
+  theme_color: "#0f172a",
 
-      categories: ["business", "productivity"],
+  categories: ["business", "productivity"],
 
-      lang: "pt-BR",
+  lang: "pt-BR",
 
-      dir: "ltr",
+  dir: "ltr",
 
-      prefer_related_applications: false,
+  prefer_related_applications: false,
 
-      icons: [
-        {
-          src: "/app-rh-icon-192.png",
-          sizes: "192x192",
-          type: "image/png",
-          purpose: "any",
-        },
-        {
-          src: "/app-rh-icon-512.png",
-          sizes: "512x512",
-          type: "image/png",
-          purpose: "any",
-        },
-      ],
-    };
+  icons: [
+    {
+      src: "/app-rh-icon-192.png",
+      sizes: "192x192",
+      type: "image/png",
+      purpose: "any",
+    },
+    {
+      src: "/app-rh-icon-512.png",
+      sizes: "512x512",
+      type: "image/png",
+      purpose: "any",
+    },
+  ],
+};
 
     return new NextResponse(
       JSON.stringify(manifesto, null, 2),
