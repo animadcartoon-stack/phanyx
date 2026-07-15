@@ -796,11 +796,11 @@ export async function POST(
       await prisma.$transaction(
         async (tx) => {
           await tx.$queryRaw`
-            SELECT pg_advisory_xact_lock(
-              ${CHAVE_BLOQUEIO_1},
-              ${CHAVE_BLOQUEIO_2}
-            )
-          `;
+  SELECT pg_advisory_xact_lock(
+    CAST(${CHAVE_BLOQUEIO_1} AS integer),
+    CAST(${CHAVE_BLOQUEIO_2} AS integer)
+  )
+`;
 
           /*
            * Outra instância pode ter preenchido o cache
