@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Instituicao {
@@ -2504,10 +2505,12 @@ model PontoFuncionarioRH {
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
+  @@unique([instituicaoId, funcionarioId, data])
   @@index([funcionarioId])
   @@index([instituicaoId])
   @@index([data])
   @@index([status])
+  @@index([instituicaoId, funcionarioId, status])
 }
 
 model EscalaTrabalhoRH {
@@ -3024,6 +3027,7 @@ model ConfiguracaoPontoMobileRH {
   permitirForaDoRaio        Boolean @default(true)
   exigirFuncionarioLiberado Boolean @default(true)
   raioPadraoMetros          Int     @default(150)
+  fusoHorario               String  @default("America/Sao_Paulo")
 
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
@@ -3053,6 +3057,7 @@ model LocalPontoMobileRH {
 
   @@index([instituicaoId])
   @@index([ativo])
+  @@index([instituicaoId, ativo])
 }
 
 model MarcacaoPontoMobileRH {
@@ -3086,6 +3091,7 @@ model MarcacaoPontoMobileRH {
   userAgent     String? @db.Text
 
   comprovanteCodigo String @unique
+  idempotenciaChave String
 
   criadoEm DateTime @default(now())
 
@@ -3097,6 +3103,7 @@ model MarcacaoPontoMobileRH {
 
   local LocalPontoMobileRH? @relation(fields: [localId], references: [id], onDelete: SetNull)
 
+  @@unique([instituicaoId, idempotenciaChave])
   @@index([instituicaoId])
   @@index([funcionarioId])
   @@index([pontoFuncionarioRHId])
@@ -3105,6 +3112,8 @@ model MarcacaoPontoMobileRH {
   @@index([tipo])
   @@index([statusLocalizacao])
   @@index([reconhecimentoStatus])
+  @@index([instituicaoId, funcionarioId, dataHora])
+  @@index([instituicaoId, dataHora])
 }
 
 enum TipoDocumentoAluno {
