@@ -114,17 +114,9 @@ export default function RhAppInstituicaoPage() {
     className="mx-auto h-auto w-full max-w-[190px] object-contain"
   />
 
-  <p className="mt-5 text-xs font-black uppercase tracking-[0.24em] text-blue-100">
-    Aplicativo do funcionário
-  </p>
-
-  <h1 className="mt-2 text-3xl font-black">
-    PHANYX RH
-  </h1>
-
-  <div className="mt-5 rounded-3xl border border-white/20 bg-white/10 p-4 backdrop-blur">
+  <div className="mt-7">
     {dados.logoUrl && (
-      <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-lg">
+      <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-white p-3 shadow-xl">
         <img
           src={dados.logoUrl}
           alt={`Logo de ${dados.nome}`}
@@ -133,16 +125,19 @@ export default function RhAppInstituicaoPage() {
       </div>
     )}
 
-    <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-100">
-      Instituição
+    <p className="mt-5 text-sm font-black uppercase tracking-[0.25em] text-blue-100">
+      RH Ponto
     </p>
 
-    <h2 className="mt-1 text-xl font-black text-white">
-      {dados.nome}
-    </h2>
+    <h1 className="mt-3 text-2xl font-black leading-tight text-white">
+      {dados.nome.replace(
+        /^([^-]+)-(.+)$/,
+        "$1 – $2"
+      )}
+    </h1>
 
     {(dados.cidade || dados.estado) && (
-      <p className="mt-2 text-sm text-blue-100">
+      <p className="mt-3 text-sm font-medium text-blue-100">
         {[dados.cidade, dados.estado]
           .filter(Boolean)
           .join(" - ")}
