@@ -328,7 +328,11 @@ const sugestoesBusca = useMemo(() => {
         );
       }
 
-      setFuncionarios(dados.funcionarios || []);
+      setFuncionarios(
+  Array.isArray(dados.funcionarios)
+    ? dados.funcionarios
+    : []
+);
 
       setPontoMobileAtivo(
         dados.configuracao?.pontoMobileAtivo === true

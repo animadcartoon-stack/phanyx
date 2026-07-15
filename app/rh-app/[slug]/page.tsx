@@ -7,7 +7,7 @@ import InstallPromptPhanyxRH from "@/components/pwa/InstallPromptPhanyxRH";
 
 type DadosInstituicao = {
   slug: string;
-  nome: string;
+  nome: string | null;
   nomeCadastro?: string | null;
   logoUrl?: string | null;
   cidade?: string | null;
@@ -77,17 +77,14 @@ export default function RhAppInstituicaoPage() {
   }
 
   if (carregando) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
-        <InstallPromptPhanyxRH
-  nomeInstituicao={dados.nome}
-/>
-        <p className="text-sm font-bold">
-          Carregando PHANYX RH...
-        </p>
-      </main>
-    );
-  }
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
+      <p className="text-sm font-bold">
+        Carregando PHANYX RH...
+      </p>
+    </main>
+  );
+}
 
   if (erro || !dados) {
     return (
@@ -105,11 +102,29 @@ export default function RhAppInstituicaoPage() {
     );
   }
 
+
+  const nomeInstituicao = String(
+  dados.nome ||
+    dados.nomeCadastro ||
+    "Instituição"
+).trim();
+
+const nomeInstituicaoExibicao =
+  nomeInstituicao.replace(
+    /^([^-]+)-(.+)$/,
+    "$1 – $2"
+  );
+
   const destino = `/rh-app/${dados.slug}/ponto`;
 
   return (
-    <main className="min-h-screen bg-slate-950 px-5 py-8 text-white">
-      <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center">
+    <main className="min-h-screen bg-slate-950 px-5 py-8 pb-28 text-white">
+
+      <InstallPromptPhanyxRH
+      nomeInstituicao={nomeInstituicao}
+    />
+
+    <div className="mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center">
         <section className="w-full overflow-hidden rounded-[32px] border border-slate-700 bg-slate-900 shadow-2xl">
           <div className="bg-gradient-to-br from-blue-700 to-indigo-800 px-6 py-8 text-center">
   <img
@@ -123,7 +138,7 @@ export default function RhAppInstituicaoPage() {
       <div className="mx-auto flex h-24 w-24 items-center justify-center overflow-hidden rounded-3xl bg-white p-3 shadow-xl">
         <img
           src={dados.logoUrl}
-          alt={`Logo de ${dados.nome}`}
+          alt={`Logo de ${nomeInstituicao}`}
           className="h-full w-full object-contain"
         />
       </div>
@@ -134,10 +149,7 @@ export default function RhAppInstituicaoPage() {
     </p>
 
     <h1 className="mt-3 text-2xl font-black leading-tight text-white">
-      {dados.nome.replace(
-        /^([^-]+)-(.+)$/,
-        "$1 – $2"
-      )}
+      {nomeInstituicaoExibicao}
     </h1>
 
     {(dados.cidade || dados.estado) && (
