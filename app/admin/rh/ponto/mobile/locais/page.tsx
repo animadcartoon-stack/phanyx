@@ -11,13 +11,42 @@ import {
 type LocalPontoMobile = {
   id: number;
   nome: string;
+
+  cep?: string | null;
+  logradouro?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
   endereco?: string | null;
+
   latitude: number;
   longitude: number;
   raioMetros: number;
   ativo: boolean;
   criadoEm: string;
   atualizadoEm: string;
+};
+
+type RespostaCep = {
+  sucesso?: boolean;
+
+  endereco?: {
+    cep: string;
+    logradouro: string;
+    complemento: string;
+    bairro: string;
+    cidade: string;
+    estado: string;
+    latitude: number | null;
+    longitude: number | null;
+    fonte: string;
+  };
+
+  coordenadasDisponiveis?: boolean;
+  aviso?: string;
+  error?: string;
 };
 
 type Paginacao = {
@@ -52,21 +81,51 @@ type FiltroStatus =
 
 type FormularioLocal = {
   nome: string;
-  endereco: string;
+
+  cep: string;
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+
   latitude: string;
   longitude: string;
+
   raioMetros: string;
   ativo: boolean;
 };
 
 const formularioInicial: FormularioLocal = {
   nome: "",
-  endereco: "",
+
+  cep: "",
+  logradouro: "",
+  numero: "",
+  complemento: "",
+  bairro: "",
+  cidade: "",
+  estado: "",
+
   latitude: "",
   longitude: "",
+
   raioMetros: "150",
   ativo: true,
 };
+
+function formatarCepDigitado(valor: string) {
+  const numeros = valor
+    .replace(/\D/g, "")
+    .slice(0, 8);
+
+  if (numeros.length <= 5) {
+    return numeros;
+  }
+
+  return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+}
 
 export default function LocaisPontoMobilePage() {
   const [locais, setLocais] = useState<
@@ -113,6 +172,9 @@ export default function LocaisPontoMobilePage() {
     obtendoLocalizacao,
     setObtendoLocalizacao,
   ] = useState(false);
+
+  const [buscandoCep, setBuscandoCep] =
+  useState(false);
 
   const [
     processandoLocalId,
@@ -287,23 +349,35 @@ export default function LocaisPontoMobilePage() {
   }
 
   function abrirEdicao(
-    local: LocalPontoMobile
-  ) {
-    setLocalEmEdicao(local);
+  local: LocalPontoMobile
+) {
+  setLocalEmEdicao(local);
 
-    setFormulario({
-      nome: local.nome,
-      endereco: local.endereco || "",
-      latitude: String(local.latitude),
-      longitude: String(local.longitude),
-      raioMetros: String(
-        local.raioMetros
-      ),
-      ativo: local.ativo,
-    });
+  setFormulario({
+    nome: local.nome,
 
-    setModalAberto(true);
-  }
+    cep: local.cep || "",
+    logradouro:
+      local.logradouro || "",
+    numero: local.numero || "",
+    complemento:
+      local.complemento || "",
+    bairro: local.bairro || "",
+    cidade: local.cidade || "",
+    estado: local.estado || "",
+
+    latitude: String(local.latitude),
+    longitude: String(local.longitude),
+
+    raioMetros: String(
+      local.raioMetros
+    ),
+
+    ativo: local.ativo,
+  });
+
+  setModalAberto(true);
+}
 
   function fecharModal() {
     if (salvando) return;
@@ -311,6 +385,96 @@ export default function LocaisPontoMobilePage() {
     setModalAberto(false);
     setLocalEmEdicao(null);
   }
+
+  async function buscarCep() {
+  try {
+    const cepLimpo =
+      formulario.cep.replace(/\D/g, "");
+
+    if (!/^\d{8}$/.test(cepLimpo)) {
+      mostrarToast(
+        "erro",
+        "Informe um CEP válido com 8 números."
+      );
+
+      return;
+    }
+
+    setBuscandoCep(true);
+
+    const resposta = await fetch(
+      `/api/admin/rh/ponto/mobile/cep/${cepLimpo}`,
+      {
+        method: "GET",
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const dados: RespostaCep =
+      await resposta.json();
+
+    if (!resposta.ok || !dados.endereco) {
+      throw new Error(
+        dados.error ||
+          "Não foi possível localizar o CEP."
+      );
+    }
+
+    const endereco = dados.endereco;
+
+    setFormulario((anterior) => ({
+      ...anterior,
+
+      cep:
+        endereco.cep ||
+        formatarCepDigitado(cepLimpo),
+
+      logradouro:
+        endereco.logradouro || "",
+
+      complemento:
+        endereco.complemento ||
+        anterior.complemento,
+
+      bairro:
+        endereco.bairro || "",
+
+      cidade:
+        endereco.cidade || "",
+
+      estado:
+        endereco.estado || "",
+
+      latitude:
+        typeof endereco.latitude ===
+        "number"
+          ? String(endereco.latitude)
+          : "",
+
+      longitude:
+        typeof endereco.longitude ===
+        "number"
+          ? String(endereco.longitude)
+          : "",
+    }));
+
+    mostrarToast(
+      "sucesso",
+      dados.aviso ||
+        "Endereço localizado. Confira os dados."
+    );
+  } catch (error) {
+    mostrarToast(
+      "erro",
+      error instanceof Error
+        ? error.message
+        : "Não foi possível localizar o CEP."
+    );
+  } finally {
+    setBuscandoCep(false);
+  }
+}
 
   async function usarLocalizacaoAtual() {
     try {
@@ -393,69 +557,162 @@ export default function LocaisPontoMobilePage() {
   }
 
   async function salvarLocal(
-    evento: FormEvent
-  ) {
-    evento.preventDefault();
+  evento: FormEvent
+) {
+  evento.preventDefault();
 
-    try {
-      setSalvando(true);
+  const cepLimpo =
+    formulario.cep.replace(/\D/g, "");
 
-      const url = localEmEdicao
-        ? `/api/admin/rh/ponto/mobile/locais/${localEmEdicao.id}`
-        : "/api/admin/rh/ponto/mobile/locais";
-
-      const resposta = await fetch(url, {
-        method: localEmEdicao
-          ? "PUT"
-          : "POST",
-
-        credentials: "include",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify(formulario),
-      });
-
-      const dados =
-        await resposta.json();
-
-      if (!resposta.ok) {
-        throw new Error(
-          dados?.error ||
-            "Não foi possível salvar o local."
-        );
-      }
-
-      mostrarToast(
-        "sucesso",
-        dados?.mensagem ||
-          "Local salvo com sucesso."
-      );
-
-      fecharModal();
-
-      if (
-        !localEmEdicao &&
-        pagina !== 1
-      ) {
-        setPagina(1);
-      } else {
-        await carregarLocais();
-      }
-    } catch (error) {
-      mostrarToast(
-        "erro",
-        error instanceof Error
-          ? error.message
-          : "Não foi possível salvar o local."
-      );
-    } finally {
-      setSalvando(false);
-    }
+  if (formulario.nome.trim().length < 2) {
+    mostrarToast(
+      "erro",
+      "Informe o nome do local."
+    );
+    return;
   }
+
+  if (!/^\d{8}$/.test(cepLimpo)) {
+    mostrarToast(
+      "erro",
+      "Informe um CEP válido com 8 números."
+    );
+    return;
+  }
+
+  if (
+    formulario.logradouro.trim().length <
+    2
+  ) {
+    mostrarToast(
+      "erro",
+      "Busque o CEP ou informe o logradouro."
+    );
+    return;
+  }
+
+  if (!formulario.numero.trim()) {
+    mostrarToast(
+      "erro",
+      "Informe o número do endereço ou use S/N."
+    );
+    return;
+  }
+
+  if (!formulario.cidade.trim()) {
+    mostrarToast(
+      "erro",
+      "Informe a cidade."
+    );
+    return;
+  }
+
+  if (
+    !/^[A-Za-z]{2}$/.test(
+      formulario.estado.trim()
+    )
+  ) {
+    mostrarToast(
+      "erro",
+      "Informe a sigla do estado com 2 letras."
+    );
+    return;
+  }
+
+  if (
+    !formulario.latitude ||
+    !formulario.longitude
+  ) {
+    mostrarToast(
+      "erro",
+      "Não foi possível confirmar a posição do endereço. Busque o CEP novamente ou use sua localização atual."
+    );
+    return;
+  }
+
+  const raio = Number(
+    formulario.raioMetros
+  );
+
+  if (
+    !Number.isInteger(raio) ||
+    raio < 10 ||
+    raio > 5000
+  ) {
+    mostrarToast(
+      "erro",
+      "O raio deve estar entre 10 e 5.000 metros."
+    );
+    return;
+  }
+
+  try {
+    setSalvando(true);
+
+    const url = localEmEdicao
+      ? `/api/admin/rh/ponto/mobile/locais/${localEmEdicao.id}`
+      : "/api/admin/rh/ponto/mobile/locais";
+
+    const resposta = await fetch(url, {
+      method: localEmEdicao
+        ? "PUT"
+        : "POST",
+
+      credentials: "include",
+
+      headers: {
+        "Content-Type":
+          "application/json",
+      },
+
+      body: JSON.stringify({
+        ...formulario,
+        cep: cepLimpo,
+        estado:
+          formulario.estado
+            .trim()
+            .toUpperCase(),
+      }),
+    });
+
+    const dados =
+      await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.error ||
+          "Não foi possível salvar o local."
+      );
+    }
+
+    mostrarToast(
+      "sucesso",
+      dados?.mensagem ||
+        "Local salvo com sucesso."
+    );
+
+    setModalAberto(false);
+    setLocalEmEdicao(null);
+
+    if (
+      !localEmEdicao &&
+      pagina !== 1
+    ) {
+      setPagina(1);
+    } else {
+      await carregarLocais();
+    }
+  } catch (error) {
+    mostrarToast(
+      "erro",
+      error instanceof Error
+        ? error.message
+        : "Não foi possível salvar o local."
+    );
+  } finally {
+    setSalvando(false);
+  }
+}
 
   async function alternarAtivo(
     local: LocalPontoMobile
@@ -474,16 +731,27 @@ export default function LocaisPontoMobilePage() {
               "application/json",
           },
 
-          body: JSON.stringify({
-            nome: local.nome,
-            endereco:
-              local.endereco || "",
-            latitude: local.latitude,
-            longitude: local.longitude,
-            raioMetros:
-              local.raioMetros,
-            ativo: !local.ativo,
-          }),
+         body: JSON.stringify({
+  nome: local.nome,
+
+  cep: local.cep || "",
+  logradouro:
+    local.logradouro || "",
+  numero: local.numero || "",
+  complemento:
+    local.complemento || "",
+  bairro: local.bairro || "",
+  cidade: local.cidade || "",
+  estado: local.estado || "",
+
+  latitude: local.latitude,
+  longitude: local.longitude,
+
+  raioMetros:
+    local.raioMetros,
+
+  ativo: !local.ativo,
+}),
         }
       );
 
@@ -802,6 +1070,7 @@ export default function LocaisPontoMobilePage() {
       {modalAberto && (
         <div className="phanyx-ponto-mobile-locais-overlay fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm">
           <form
+  noValidate
   onSubmit={salvarLocal}
   className="phanyx-ponto-mobile-locais-modal max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900"
 >
@@ -829,156 +1098,258 @@ export default function LocaisPontoMobilePage() {
             </div>
 
             <div className="mt-6 space-y-5">
-              <div>
-                <label className="mb-2 block text-sm font-black">
-                  Nome do local
-                </label>
+  <div>
+    <label className="mb-2 block text-sm font-black">
+      Nome do local
+    </label>
 
-                <input
-                  required
-                  value={formulario.nome}
-                  onChange={(evento) =>
-                    atualizarFormulario(
-                      "nome",
-                      evento.target.value
-                    )
-                  }
-                  placeholder="Ex.: Sede IBE"
-                  className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
-                />
-              </div>
+    <input
+      value={formulario.nome}
+      onChange={(evento) =>
+        atualizarFormulario(
+          "nome",
+          evento.target.value
+        )
+      }
+      placeholder="Ex.: Sede IBE"
+      className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+    />
+  </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-black">
-                  Endereço
-                </label>
+  <div>
+    <label className="mb-2 block text-sm font-black">
+      CEP
+    </label>
 
-                <input
-                  value={
-                    formulario.endereco
-                  }
-                  onChange={(evento) =>
-                    atualizarFormulario(
-                      "endereco",
-                      evento.target.value
-                    )
-                  }
-                  placeholder="Rua, número, bairro e cidade"
-                  className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
-                />
-              </div>
+    <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+      <input
+        inputMode="numeric"
+        value={formulario.cep}
+        onChange={(evento) => {
+          setFormulario((anterior) => ({
+            ...anterior,
 
-              <button
-                type="button"
-                disabled={
-                  obtendoLocalizacao
-                }
-                onClick={
-                  usarLocalizacaoAtual
-                }
-                className="min-h-12 w-full rounded-xl border border-blue-300 bg-blue-50 px-4 py-3 text-sm font-black text-blue-800 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200"
-              >
-                {obtendoLocalizacao
-                  ? "Obtendo localização..."
-                  : "Usar minha localização atual"}
-              </button>
+            cep: formatarCepDigitado(
+              evento.target.value
+            ),
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-black">
-                    Latitude
-                  </label>
+            latitude: "",
+            longitude: "",
+          }));
+        }}
+        placeholder="00000-000"
+        maxLength={9}
+        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+      />
 
-                  <input
-                    required
-                    inputMode="decimal"
-                    value={
-                      formulario.latitude
-                    }
-                    onChange={(evento) =>
-                      atualizarFormulario(
-                        "latitude",
-                        evento.target.value
-                      )
-                    }
-                    placeholder="-23.0000000"
-                    className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
-                  />
-                </div>
+      <button
+        type="button"
+        disabled={buscandoCep}
+        onClick={buscarCep}
+        className="min-h-12 rounded-xl bg-blue-700 px-5 py-3 text-sm font-black text-white disabled:opacity-50"
+      >
+        {buscandoCep
+          ? "Buscando..."
+          : "Buscar CEP"}
+      </button>
+    </div>
+  </div>
 
-                <div>
-                  <label className="mb-2 block text-sm font-black">
-                    Longitude
-                  </label>
+  <div>
+    <label className="mb-2 block text-sm font-black">
+      Logradouro
+    </label>
 
-                  <input
-                    required
-                    inputMode="decimal"
-                    value={
-                      formulario.longitude
-                    }
-                    onChange={(evento) =>
-                      atualizarFormulario(
-                        "longitude",
-                        evento.target.value
-                      )
-                    }
-                    placeholder="-46.0000000"
-                    className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
-                  />
-                </div>
-              </div>
+    <input
+      value={formulario.logradouro}
+      onChange={(evento) =>
+        atualizarFormulario(
+          "logradouro",
+          evento.target.value
+        )
+      }
+      placeholder="Rua, avenida ou estrada"
+      className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+    />
+  </div>
 
-              <div>
-                <label className="mb-2 block text-sm font-black">
-                  Raio permitido
-                </label>
+  <div className="grid gap-4 sm:grid-cols-2">
+    <div>
+      <label className="mb-2 block text-sm font-black">
+        Número
+      </label>
 
-                <div className="flex items-center gap-3">
-                  <input
-                    required
-                    type="number"
-                    min={10}
-                    max={5000}
-                    step={1}
-                    value={
-                      formulario.raioMetros
-                    }
-                    onChange={(evento) =>
-                      atualizarFormulario(
-                        "raioMetros",
-                        evento.target.value
-                      )
-                    }
-                    className="min-h-12 w-40 rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
-                  />
+      <input
+        value={formulario.numero}
+        onChange={(evento) =>
+          atualizarFormulario(
+            "numero",
+            evento.target.value
+          )
+        }
+        placeholder="Ex.: 398 ou S/N"
+        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
 
-                  <span className="text-sm font-bold">
-                    metros
-                  </span>
-                </div>
-              </div>
+    <div>
+      <label className="mb-2 block text-sm font-black">
+        Complemento
+      </label>
 
-              <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-300 p-4 dark:border-slate-700">
-                <input
-                  type="checkbox"
-                  checked={
-                    formulario.ativo
-                  }
-                  onChange={(evento) =>
-                    atualizarFormulario(
-                      "ativo",
-                      evento.target.checked
-                    )
-                  }
-                  className="h-5 w-5 accent-blue-600"
-                />
+      <input
+        value={
+          formulario.complemento
+        }
+        onChange={(evento) =>
+          atualizarFormulario(
+            "complemento",
+            evento.target.value
+          )
+        }
+        placeholder="Opcional"
+        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+  </div>
 
-                <span className="text-sm font-black">
-                  Local ativo
-                </span>
-              </label>
-            </div>
+  <div>
+    <label className="mb-2 block text-sm font-black">
+      Bairro
+    </label>
+
+    <input
+      value={formulario.bairro}
+      onChange={(evento) =>
+        atualizarFormulario(
+          "bairro",
+          evento.target.value
+        )
+      }
+      placeholder="Bairro"
+      className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+    />
+  </div>
+
+  <div className="grid gap-4 sm:grid-cols-[1fr_120px]">
+    <div>
+      <label className="mb-2 block text-sm font-black">
+        Cidade
+      </label>
+
+      <input
+        value={formulario.cidade}
+        onChange={(evento) =>
+          atualizarFormulario(
+            "cidade",
+            evento.target.value
+          )
+        }
+        placeholder="Cidade"
+        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+
+    <div>
+      <label className="mb-2 block text-sm font-black">
+        Estado
+      </label>
+
+      <input
+        value={formulario.estado}
+        maxLength={2}
+        onChange={(evento) =>
+          atualizarFormulario(
+            "estado",
+            evento.target.value
+              .toUpperCase()
+          )
+        }
+        placeholder="SP"
+        className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 uppercase dark:border-slate-700 dark:bg-slate-950"
+      />
+    </div>
+  </div>
+
+  <button
+    type="button"
+    disabled={obtendoLocalizacao}
+    onClick={usarLocalizacaoAtual}
+    className="min-h-12 w-full rounded-xl border border-blue-300 bg-blue-50 px-4 py-3 text-sm font-black text-blue-800 disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200"
+  >
+    {obtendoLocalizacao
+      ? "Obtendo localização..."
+      : "Usar minha localização atual"}
+  </button>
+
+  <div
+    className={`rounded-2xl border p-4 ${
+      formulario.latitude &&
+      formulario.longitude
+        ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100"
+        : "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+    }`}
+  >
+    <p className="text-sm font-black">
+      {formulario.latitude &&
+      formulario.longitude
+        ? "Localização técnica confirmada"
+        : "Localização ainda não confirmada"}
+    </p>
+
+    <p className="mt-1 text-xs leading-5">
+      {formulario.latitude &&
+      formulario.longitude
+        ? "As coordenadas foram obtidas automaticamente e ficarão armazenadas internamente."
+        : "Busque o CEP. Caso ele não forneça uma posição precisa, use sua localização atual enquanto estiver na empresa."}
+    </p>
+  </div>
+
+  <div>
+    <label className="mb-2 block text-sm font-black">
+      Raio permitido
+    </label>
+
+    <div className="flex items-center gap-3">
+      <input
+        type="number"
+        min={10}
+        max={5000}
+        step={1}
+        value={formulario.raioMetros}
+        onChange={(evento) =>
+          atualizarFormulario(
+            "raioMetros",
+            evento.target.value
+          )
+        }
+        className="min-h-12 w-40 rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
+      />
+
+      <span className="text-sm font-bold">
+        metros
+      </span>
+    </div>
+  </div>
+
+  <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-300 p-4 dark:border-slate-700">
+    <input
+      type="checkbox"
+      checked={formulario.ativo}
+      onChange={(evento) =>
+        atualizarFormulario(
+          "ativo",
+          evento.target.checked
+        )
+      }
+      className="h-5 w-5 accent-blue-600"
+    />
+
+    <span className="text-sm font-black">
+      Local ativo
+    </span>
+  </label>
+</div>
 
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               <button

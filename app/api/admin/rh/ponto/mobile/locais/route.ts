@@ -9,6 +9,28 @@ export const dynamic = "force-dynamic";
 const LIMITE_PADRAO = 20;
 const LIMITE_MAXIMO = 100;
 
+const selecaoLocal = {
+  id: true,
+  nome: true,
+
+  cep: true,
+  logradouro: true,
+  numero: true,
+  complemento: true,
+  bairro: true,
+  cidade: true,
+  estado: true,
+  endereco: true,
+
+  latitude: true,
+  longitude: true,
+  raioMetros: true,
+  ativo: true,
+
+  criadoEm: true,
+  atualizadoEm: true,
+} as const;
+
 function obterInstituicaoId(user: any) {
   const instituicaoId = Number(user?.instituicaoId);
 
@@ -27,6 +49,28 @@ async function validarPermissao(user: any) {
     user,
     "rh.ponto.mobile.locais.gerenciar"
   );
+}
+
+function limparCep(valor: unknown) {
+  return String(valor || "")
+    .replace(/\D/g, "")
+    .slice(0, 8);
+}
+
+function formatarCep(cep: string) {
+  return cep.replace(
+    /^(\d{5})(\d{3})$/,
+    "$1-$2"
+  );
+}
+
+function limparTexto(
+  valor: unknown,
+  tamanhoMaximo: number
+) {
+  return String(valor || "")
+    .trim()
+    .slice(0, tamanhoMaximo);
 }
 
 function obterNumero(valor: unknown) {
@@ -49,16 +93,86 @@ function obterNumero(valor: unknown) {
     : null;
 }
 
-function prepararDadosLocal(body: any) {
-  const nome = String(body?.nome || "")
-    .trim()
-    .slice(0, 120);
+function montarEnderecoCompleto(args: {
+  logradouro: string;
+  numero: string;
+  complemento: string;
+  bairro: string;
+  cidade: string;
+  estado: string;
+  cep: string;
+}) {
+  const {
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    estado,
+    cep,
+  } = args;
 
-  const enderecoTexto = String(
-    body?.endereco || ""
-  )
-    .trim()
-    .slice(0, 300);
+  const primeiraParte = [
+    logradouro,
+    numero,
+    complemento,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const segundaParte = [
+    bairro,
+    cidade && estado
+      ? `${cidade} - ${estado}`
+      : cidade || estado,
+    cep ? `CEP ${formatarCep(cep)}` : "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  return [primeiraParte, segundaParte]
+    .filter(Boolean)
+    .join(" — ")
+    .slice(0, 500);
+}
+
+function prepararDadosLocal(body: any) {
+  const nome = limparTexto(
+    body?.nome,
+    120
+  );
+
+  const cep = limparCep(body?.cep);
+
+  const logradouro = limparTexto(
+    body?.logradouro,
+    200
+  );
+
+  const numero = limparTexto(
+    body?.numero,
+    30
+  );
+
+  const complemento = limparTexto(
+    body?.complemento,
+    120
+  );
+
+  const bairro = limparTexto(
+    body?.bairro,
+    120
+  );
+
+  const cidade = limparTexto(
+    body?.cidade,
+    120
+  );
+
+  const estado = limparTexto(
+    body?.estado,
+    2
+  ).toUpperCase();
 
   const latitude = obterNumero(
     body?.latitude
@@ -79,6 +193,48 @@ function prepararDadosLocal(body: any) {
     };
   }
 
+  if (!/^\d{8}$/.test(cep)) {
+    return {
+      error:
+        "Informe um CEP válido com 8 números.",
+    };
+  }
+
+  if (logradouro.length < 2) {
+    return {
+      error:
+        "Informe o logradouro do local.",
+    };
+  }
+
+  if (!numero) {
+    return {
+      error:
+        "Informe o número do endereço ou use S/N.",
+    };
+  }
+
+  if (cidade.length < 2) {
+    return {
+      error:
+        "Informe a cidade do local.",
+    };
+  }
+
+  if (!/^[A-Z]{2}$/.test(estado)) {
+    return {
+      error:
+        "Informe a sigla do estado com 2 letras.",
+    };
+  }
+
+  /*
+   * As coordenadas continuam obrigatórias no banco,
+   * mas não serão digitadas pelo usuário.
+   *
+   * Elas virão da busca do CEP ou do botão
+   * “Usar minha localização atual”.
+   */
   if (
     latitude === null ||
     latitude < -90 ||
@@ -86,7 +242,7 @@ function prepararDadosLocal(body: any) {
   ) {
     return {
       error:
-        "Informe uma latitude válida entre -90 e 90.",
+        "Não foi possível confirmar a localização deste endereço. Busque novamente o CEP ou use sua localização atual.",
     };
   }
 
@@ -97,7 +253,7 @@ function prepararDadosLocal(body: any) {
   ) {
     return {
       error:
-        "Informe uma longitude válida entre -180 e 180.",
+        "Não foi possível confirmar a localização deste endereço. Busque novamente o CEP ou use sua localização atual.",
     };
   }
 
@@ -113,11 +269,30 @@ function prepararDadosLocal(body: any) {
     };
   }
 
+  const endereco = montarEnderecoCompleto({
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    estado,
+    cep,
+  });
+
   return {
     dados: {
       nome,
-      endereco:
-        enderecoTexto || null,
+
+      cep: formatarCep(cep),
+      logradouro,
+      numero,
+      complemento:
+        complemento || null,
+      bairro:
+        bairro || null,
+      cidade,
+      estado,
+      endereco,
 
       latitude,
       longitude,
@@ -226,6 +401,20 @@ export async function GET(
             mode: "insensitive",
           },
         },
+
+        {
+          cep: {
+            contains: busca,
+            mode: "insensitive",
+          },
+        },
+
+        {
+          cidade: {
+            contains: busca,
+            mode: "insensitive",
+          },
+        },
       ];
     }
 
@@ -237,7 +426,8 @@ export async function GET(
       where.ativo = false;
     }
 
-    const skip = (pagina - 1) * limite;
+    const skip =
+      (pagina - 1) * limite;
 
     const [
       total,
@@ -265,17 +455,7 @@ export async function GET(
           },
         ],
 
-        select: {
-          id: true,
-          nome: true,
-          endereco: true,
-          latitude: true,
-          longitude: true,
-          raioMetros: true,
-          ativo: true,
-          criadoEm: true,
-          atualizadoEm: true,
-        },
+        select: selecaoLocal,
       }),
 
       prisma.configuracaoPontoMobileRH.findUnique({
@@ -310,7 +490,8 @@ export async function GET(
         limite,
         total,
         totalPaginas,
-        possuiAnterior: pagina > 1,
+        possuiAnterior:
+          pagina > 1,
         possuiProxima:
           pagina < totalPaginas,
       },
@@ -434,17 +615,7 @@ export async function POST(
           ...preparado.dados,
         },
 
-        select: {
-          id: true,
-          nome: true,
-          endereco: true,
-          latitude: true,
-          longitude: true,
-          raioMetros: true,
-          ativo: true,
-          criadoEm: true,
-          atualizadoEm: true,
-        },
+        select: selecaoLocal,
       });
 
     return NextResponse.json(
