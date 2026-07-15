@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type SistemaCelular = "android" | "ios" | "outro";
 
@@ -35,12 +36,26 @@ function estaInstalado() {
 }
 
 export default function PhanyxRhAppPage() {
+  const router = useRouter();
+
   const [sistema, setSistema] =
     useState<SistemaCelular>("outro");
 
   const [instalado, setInstalado] = useState(false);
   const [mostrarInstalacao, setMostrarInstalacao] =
     useState(false);
+
+useEffect(() => {
+  const slugSalvo = localStorage.getItem(
+    "phanyx_rh_instituicao_slug"
+  );
+
+  if (slugSalvo) {
+    router.replace(
+      `/rh-app/${encodeURIComponent(slugSalvo)}`
+    );
+  }
+}, [router]);
 
   useEffect(() => {
     setSistema(detectarSistema());
@@ -91,13 +106,17 @@ export default function PhanyxRhAppPage() {
               </div>
             </div>
 
-            <Link
-              href="/login?portal=admin&destino=/rh-app/ponto"
-              className="flex min-h-14 w-full items-center justify-center rounded-2xl bg-blue-600 px-5 py-4 text-center text-base font-black text-white shadow-lg transition hover:bg-blue-700"
-            >
-              Entrar no PHANYX RH
-            </Link>
+            <div className="rounded-2xl border border-amber-800 bg-amber-950/40 p-4 text-center">
+  <p className="font-black text-amber-200">
+    Abra o link fornecido pela sua instituição
+  </p>
 
+  <p className="mt-2 text-sm leading-6 text-amber-100">
+    Para acessar o PHANYX RH pela primeira vez, utilize o link
+    ou o QR Code enviado pelo setor de RH da instituição onde
+    você trabalha.
+  </p>
+</div>
             {!instalado && (
               <button
                 type="button"

@@ -23,6 +23,15 @@ type ToastState = {
   mensagem: string;
 } | null;
 
+type IdentidadeInstituicao = {
+  slug: string;
+  nome: string;
+  nomeCadastro?: string | null;
+  logoUrl?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+};
+
 const configuracaoPadrao: ConfiguracaoPontoMobile = {
   ativo: false,
   exigirFoto: true,
@@ -38,8 +47,12 @@ export default function PontoMobileConfiguracaoPage() {
   const [configuracao, setConfiguracao] =
     useState<ConfiguracaoPontoMobile>(configuracaoPadrao);
 
-  const linkAplicativo =
-  "https://www.phanyx.com.br/rh-app";
+  const [linkAplicativo, setLinkAplicativo] = useState(
+  "https://www.phanyx.com.br/rh-app"
+);
+
+const [identidadeInstituicao, setIdentidadeInstituicao] =
+  useState<IdentidadeInstituicao | null>(null);
 
 const [qrCodeUrl, setQrCodeUrl] = useState("");
 
@@ -49,8 +62,11 @@ const [qrCodeUrl, setQrCodeUrl] = useState("");
 
   useEffect(() => {
   carregarConfiguracao();
-  gerarQrCode();
 }, []);
+
+useEffect(() => {
+  gerarQrCode();
+}, [linkAplicativo]);
 
   useEffect(() => {
     if (!toast) return;
@@ -93,6 +109,19 @@ const [qrCodeUrl, setQrCodeUrl] = useState("");
             "Não foi possível carregar a configuração."
         );
       }
+
+      const identidade =
+  dados?.instituicao as IdentidadeInstituicao | undefined;
+
+if (identidade?.slug) {
+  setIdentidadeInstituicao(identidade);
+
+  setLinkAplicativo(
+    `https://www.phanyx.com.br/rh-app/${encodeURIComponent(
+      identidade.slug
+    )}`
+  );
+}
 
       setConfiguracao({
         ativo: dados.ativo === true,
@@ -569,6 +598,30 @@ function imprimirQrCode() {
   <h2 className="text-lg font-black">
     Link e QR Code do PHANYX RH
   </h2>
+
+  {identidadeInstituicao?.nome && (
+  <div className="mt-3 rounded-2xl border border-slate-700 p-4">
+    <p className="text-xs font-black uppercase tracking-[0.16em] text-blue-300">
+      Aplicativo desta instituição
+    </p>
+
+    <p className="mt-1 text-base font-black">
+      {identidadeInstituicao.nome}
+    </p>
+
+    {(identidadeInstituicao.cidade ||
+      identidadeInstituicao.estado) && (
+      <p className="mt-1 text-xs">
+        {[
+          identidadeInstituicao.cidade,
+          identidadeInstituicao.estado,
+        ]
+          .filter(Boolean)
+          .join(" - ")}
+      </p>
+    )}
+  </div>
+)}
 
   <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
     Copie o link, envie o QR Code ao funcionário ou imprima

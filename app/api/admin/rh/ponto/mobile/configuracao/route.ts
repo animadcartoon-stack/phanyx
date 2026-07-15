@@ -8,10 +8,7 @@ export const runtime = "nodejs";
 function obterInstituicaoId(user: any) {
   const instituicaoId = Number(user?.instituicaoId);
 
-  if (
-    !Number.isInteger(instituicaoId) ||
-    instituicaoId <= 0
-  ) {
+  if (!Number.isInteger(instituicaoId) || instituicaoId <= 0) {
     return null;
   }
 
@@ -25,10 +22,7 @@ function limitarRaio(valor: unknown) {
     return 150;
   }
 
-  return Math.min(
-    5000,
-    Math.max(10, Math.round(raio))
-  );
+  return Math.min(5000, Math.max(10, Math.round(raio)));
 }
 
 export async function GET() {
@@ -38,16 +32,15 @@ export async function GET() {
     if (!user) {
       return NextResponse.json(
         { error: "Usuário não autenticado." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const podeVisualizar =
-      await usuarioPossuiPermissao(
-        user,
-        "rh.ponto.mobile.ver",
-        "rh.ponto.mobile.configurar"
-      );
+    const podeVisualizar = await usuarioPossuiPermissao(
+      user,
+      "rh.ponto.mobile.ver",
+      "rh.ponto.mobile.configurar",
+    );
 
     if (!podeVisualizar) {
       return NextResponse.json(
@@ -55,7 +48,7 @@ export async function GET() {
           error:
             "Você não possui permissão para visualizar a configuração do Ponto Mobile.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -64,12 +57,12 @@ export async function GET() {
     if (!instituicaoId) {
       return NextResponse.json(
         { error: "Instituição não identificada." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const configuracao =
-      await prisma.configuracaoPontoMobileRH.upsert({
+    const [configuracao, instituicao] = await Promise.all([
+      prisma.configuracaoPontoMobileRH.upsert({
         where: {
           instituicaoId,
         },
@@ -85,33 +78,76 @@ export async function GET() {
           exigirFuncionarioLiberado: true,
           raioPadraoMetros: 150,
         },
-      });
+      }),
 
-    const podeConfigurar =
-      await usuarioPossuiPermissao(
-        user,
-        "rh.ponto.mobile.configurar"
+      prisma.instituicao.findUnique({
+        where: {
+          id: instituicaoId,
+        },
+        select: {
+          nome: true,
+          slug: true,
+
+          configuracaoInstituicao: {
+            select: {
+              nomeFantasia: true,
+              logoUrl: true,
+              logoPath: true,
+              cidade: true,
+              estado: true,
+            },
+          },
+        },
+      }),
+    ]);
+
+    if (!instituicao) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada." },
+        { status: 404 },
       );
+    }
+
+    const podeConfigurar = await usuarioPossuiPermissao(
+      user,
+      "rh.ponto.mobile.configurar",
+    );
+
+    const configuracaoInstituicao = instituicao.configuracaoInstituicao;
 
     return NextResponse.json({
       ...configuracao,
+
+      instituicao: {
+        slug: instituicao.slug,
+
+        nome: configuracaoInstituicao?.nomeFantasia?.trim() || instituicao.nome,
+
+        nomeCadastro: instituicao.nome,
+
+        logoUrl:
+          configuracaoInstituicao?.logoUrl ||
+          configuracaoInstituicao?.logoPath ||
+          null,
+
+        cidade: configuracaoInstituicao?.cidade || null,
+
+        estado: configuracaoInstituicao?.estado || null,
+      },
+
       permissoes: {
         podeVisualizar: true,
         podeConfigurar,
       },
     });
   } catch (error) {
-    console.error(
-      "Erro ao carregar configuração do Ponto Mobile:",
-      error
-    );
+    console.error("Erro ao carregar configuração do Ponto Mobile:", error);
 
     return NextResponse.json(
       {
-        error:
-          "Não foi possível carregar a configuração do Ponto Mobile.",
+        error: "Não foi possível carregar a configuração do Ponto Mobile.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -123,23 +159,21 @@ export async function PUT(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "Usuário não autenticado." },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const podeConfigurar =
-      await usuarioPossuiPermissao(
-        user,
-        "rh.ponto.mobile.configurar"
-      );
+    const podeConfigurar = await usuarioPossuiPermissao(
+      user,
+      "rh.ponto.mobile.configurar",
+    );
 
     if (!podeConfigurar) {
       return NextResponse.json(
         {
-          error:
-            "Você não possui permissão para configurar o Ponto Mobile.",
+          error: "Você não possui permissão para configurar o Ponto Mobile.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -148,7 +182,7 @@ export async function PUT(req: NextRequest) {
     if (!instituicaoId) {
       return NextResponse.json(
         { error: "Instituição não identificada." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -157,57 +191,45 @@ export async function PUT(req: NextRequest) {
     const dados = {
       ativo: body.ativo === true,
 
-      exigirFoto:
-        body.exigirFoto !== false,
+      exigirFoto: body.exigirFoto !== false,
 
-      exigirLocalizacao:
-        body.exigirLocalizacao !== false,
+      exigirLocalizacao: body.exigirLocalizacao !== false,
 
-      reconhecimentoFacialAtivo:
-        body.reconhecimentoFacialAtivo === true,
+      reconhecimentoFacialAtivo: body.reconhecimentoFacialAtivo === true,
 
-      exigirProvaVida:
-        body.exigirProvaVida === true,
+      exigirProvaVida: body.exigirProvaVida === true,
 
-      permitirForaDoRaio:
-        body.permitirForaDoRaio !== false,
+      permitirForaDoRaio: body.permitirForaDoRaio !== false,
 
       exigirFuncionarioLiberado: true,
 
-      raioPadraoMetros:
-        limitarRaio(body.raioPadraoMetros),
+      raioPadraoMetros: limitarRaio(body.raioPadraoMetros),
     };
 
-    const configuracao =
-      await prisma.configuracaoPontoMobileRH.upsert({
-        where: {
-          instituicaoId,
-        },
-        update: dados,
-        create: {
-          instituicaoId,
-          ...dados,
-        },
-      });
+    const configuracao = await prisma.configuracaoPontoMobileRH.upsert({
+      where: {
+        instituicaoId,
+      },
+      update: dados,
+      create: {
+        instituicaoId,
+        ...dados,
+      },
+    });
 
     return NextResponse.json({
       sucesso: true,
-      mensagem:
-        "Configuração do Ponto Mobile salva com sucesso.",
+      mensagem: "Configuração do Ponto Mobile salva com sucesso.",
       configuracao,
     });
   } catch (error) {
-    console.error(
-      "Erro ao salvar configuração do Ponto Mobile:",
-      error
-    );
+    console.error("Erro ao salvar configuração do Ponto Mobile:", error);
 
     return NextResponse.json(
       {
-        error:
-          "Não foi possível salvar a configuração do Ponto Mobile.",
+        error: "Não foi possível salvar a configuração do Ponto Mobile.",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
