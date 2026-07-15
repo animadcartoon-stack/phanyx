@@ -49,6 +49,23 @@ type RespostaCep = {
   error?: string;
 };
 
+type RespostaGeocodificacao = {
+  sucesso?: boolean;
+
+  localizacao?: {
+    latitude: number;
+    longitude: number;
+    nomeExibicao: string;
+    precisao: "EXATA" | "APROXIMADA";
+  };
+
+  origem?: "CACHE" | "NOMINATIM";
+  atribuicao?: string;
+  aviso?: string;
+  error?: string;
+  codigo?: string | null;
+};
+
 type Paginacao = {
   pagina: number;
   limite: number;
@@ -175,6 +192,16 @@ export default function LocaisPontoMobilePage() {
 
   const [buscandoCep, setBuscandoCep] =
   useState(false);
+
+  const [
+  confirmandoEndereco,
+  setConfirmandoEndereco,
+] = useState(false);
+
+const [
+  atribuicaoLocalizacao,
+  setAtribuicaoLocalizacao,
+] = useState("");
 
   const [
     processandoLocalId,
@@ -335,6 +362,32 @@ export default function LocaisPontoMobilePage() {
     }));
   }
 
+  function atualizarCampoEndereco(
+  campo:
+    | "cep"
+    | "logradouro"
+    | "numero"
+    | "complemento"
+    | "bairro"
+    | "cidade"
+    | "estado",
+  valor: string
+) {
+  setFormulario((anterior) => ({
+    ...anterior,
+    [campo]: valor,
+
+    /*
+     * Se o endereço foi alterado, as coordenadas
+     * anteriores deixam de ser confiáveis.
+     */
+    latitude: "",
+    longitude: "",
+  }));
+
+  setAtribuicaoLocalizacao("");
+}
+
   function abrirNovoLocal() {
     setLocalEmEdicao(null);
 
@@ -344,6 +397,8 @@ export default function LocaisPontoMobilePage() {
         raioPadraoMetros || 150
       ),
     });
+
+    setAtribuicaoLocalizacao("");
 
     setModalAberto(true);
   }
@@ -375,6 +430,10 @@ export default function LocaisPontoMobilePage() {
 
     ativo: local.ativo,
   });
+
+  setAtribuicaoLocalizacao(
+  "Localização já cadastrada para este endereço."
+);
 
   setModalAberto(true);
 }
@@ -459,6 +518,16 @@ export default function LocaisPontoMobilePage() {
           : "",
     }));
 
+    const recebeuCoordenadas =
+  typeof endereco.latitude === "number" &&
+  typeof endereco.longitude === "number";
+
+setAtribuicaoLocalizacao(
+  recebeuCoordenadas
+    ? "Coordenadas fornecidas automaticamente pela consulta do CEP."
+    : ""
+);
+
     mostrarToast(
       "sucesso",
       dados.aviso ||
@@ -473,6 +542,151 @@ export default function LocaisPontoMobilePage() {
     );
   } finally {
     setBuscandoCep(false);
+  }
+}
+
+async function confirmarLocalizacaoEndereco() {
+  const cepLimpo =
+    formulario.cep.replace(/\D/g, "");
+
+  if (!/^\d{8}$/.test(cepLimpo)) {
+    mostrarToast(
+      "erro",
+      "Informe e busque um CEP válido."
+    );
+    return;
+  }
+
+  if (
+    formulario.logradouro.trim().length < 2
+  ) {
+    mostrarToast(
+      "erro",
+      "Informe o logradouro do endereço."
+    );
+    return;
+  }
+
+  if (!formulario.numero.trim()) {
+    mostrarToast(
+      "erro",
+      "Informe o número do endereço ou use S/N."
+    );
+    return;
+  }
+
+  if (!formulario.cidade.trim()) {
+    mostrarToast(
+      "erro",
+      "Informe a cidade do endereço."
+    );
+    return;
+  }
+
+  if (
+    !/^[A-Za-z]{2}$/.test(
+      formulario.estado.trim()
+    )
+  ) {
+    mostrarToast(
+      "erro",
+      "Informe a sigla do estado com 2 letras."
+    );
+    return;
+  }
+
+  try {
+    setConfirmandoEndereco(true);
+
+    const resposta = await fetch(
+      "/api/admin/rh/ponto/mobile/geocodificar",
+      {
+        method: "POST",
+        credentials: "include",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          cep: cepLimpo,
+
+          logradouro:
+            formulario.logradouro,
+
+          numero:
+            formulario.numero,
+
+          complemento:
+            formulario.complemento,
+
+          bairro:
+            formulario.bairro,
+
+          cidade:
+            formulario.cidade,
+
+          estado:
+            formulario.estado
+              .trim()
+              .toUpperCase(),
+        }),
+      }
+    );
+
+    const dados: RespostaGeocodificacao =
+      await resposta.json();
+
+    if (
+      !resposta.ok ||
+      !dados.localizacao
+    ) {
+      throw new Error(
+        dados.error ||
+          "Não foi possível localizar este endereço."
+      );
+    }
+
+    setFormulario((anterior) => ({
+      ...anterior,
+
+      latitude: String(
+        dados.localizacao?.latitude
+      ),
+
+      longitude: String(
+        dados.localizacao?.longitude
+      ),
+    }));
+
+    setAtribuicaoLocalizacao(
+      dados.atribuicao ||
+        "© OpenStreetMap contributors"
+    );
+
+    mostrarToast(
+      "sucesso",
+      dados.aviso ||
+        "Localização do endereço confirmada."
+    );
+  } catch (error) {
+    setFormulario((anterior) => ({
+      ...anterior,
+      latitude: "",
+      longitude: "",
+    }));
+
+    setAtribuicaoLocalizacao("");
+
+    mostrarToast(
+      "erro",
+      error instanceof Error
+        ? error.message
+        : "Não foi possível confirmar a localização."
+    );
+  } finally {
+    setConfirmandoEndereco(false);
   }
 }
 
@@ -514,6 +728,10 @@ export default function LocaisPontoMobilePage() {
             7
           ),
       }));
+
+      setAtribuicaoLocalizacao(
+  "Localização confirmada pelo GPS deste dispositivo."
+);
 
       mostrarToast(
         "sucesso",
@@ -625,7 +843,7 @@ export default function LocaisPontoMobilePage() {
   ) {
     mostrarToast(
       "erro",
-      "Não foi possível confirmar a posição do endereço. Busque o CEP novamente ou use sua localização atual."
+      "Confirme a localização do endereço ou use sua localização atual antes de salvar."
     );
     return;
   }
@@ -972,21 +1190,27 @@ export default function LocaisPontoMobilePage() {
                 </div>
 
                 <div className="mt-5 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm dark:border-slate-700 dark:bg-slate-950/60">
-                  <p>
-                    <strong>Latitude:</strong>{" "}
-                    {local.latitude}
-                  </p>
+  <p>
+    <strong>CEP:</strong>{" "}
+    {local.cep || "Não informado"}
+  </p>
 
-                  <p>
-                    <strong>Longitude:</strong>{" "}
-                    {local.longitude}
-                  </p>
+  <p>
+    <strong>Cidade:</strong>{" "}
+    {[local.cidade, local.estado]
+      .filter(Boolean)
+      .join(" - ") || "Não informada"}
+  </p>
 
-                  <p>
-                    <strong>Raio permitido:</strong>{" "}
-                    {local.raioMetros} metros
-                  </p>
-                </div>
+  <p>
+    <strong>Raio permitido:</strong>{" "}
+    {local.raioMetros} metros
+  </p>
+
+  <p className="text-xs text-slate-500 dark:text-slate-400">
+    Localização técnica armazenada internamente.
+  </p>
+</div>
 
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <button
@@ -1126,17 +1350,19 @@ export default function LocaisPontoMobilePage() {
         inputMode="numeric"
         value={formulario.cep}
         onChange={(evento) => {
-          setFormulario((anterior) => ({
-            ...anterior,
+  setFormulario((anterior) => ({
+    ...anterior,
 
-            cep: formatarCepDigitado(
-              evento.target.value
-            ),
+    cep: formatarCepDigitado(
+      evento.target.value
+    ),
 
-            latitude: "",
-            longitude: "",
-          }));
-        }}
+    latitude: "",
+    longitude: "",
+  }));
+
+  setAtribuicaoLocalizacao("");
+}}
         placeholder="00000-000"
         maxLength={9}
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
@@ -1163,11 +1389,11 @@ export default function LocaisPontoMobilePage() {
     <input
       value={formulario.logradouro}
       onChange={(evento) =>
-        atualizarFormulario(
-          "logradouro",
-          evento.target.value
-        )
-      }
+  atualizarCampoEndereco(
+    "logradouro",
+    evento.target.value
+  )
+}
       placeholder="Rua, avenida ou estrada"
       className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
     />
@@ -1182,11 +1408,12 @@ export default function LocaisPontoMobilePage() {
       <input
         value={formulario.numero}
         onChange={(evento) =>
-          atualizarFormulario(
-            "numero",
-            evento.target.value
-          )
-        }
+  atualizarCampoEndereco(
+    "numero",
+    evento.target.value
+  )
+}
+    
         placeholder="Ex.: 398 ou S/N"
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
@@ -1202,11 +1429,11 @@ export default function LocaisPontoMobilePage() {
           formulario.complemento
         }
         onChange={(evento) =>
-          atualizarFormulario(
-            "complemento",
-            evento.target.value
-          )
-        }
+  atualizarCampoEndereco(
+    "complemento",
+    evento.target.value
+  )
+}
         placeholder="Opcional"
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
@@ -1220,12 +1447,12 @@ export default function LocaisPontoMobilePage() {
 
     <input
       value={formulario.bairro}
-      onChange={(evento) =>
-        atualizarFormulario(
-          "bairro",
-          evento.target.value
-        )
-      }
+     onChange={(evento) =>
+  atualizarCampoEndereco(
+    "bairro",
+    evento.target.value
+  )
+}
       placeholder="Bairro"
       className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
     />
@@ -1240,11 +1467,11 @@ export default function LocaisPontoMobilePage() {
       <input
         value={formulario.cidade}
         onChange={(evento) =>
-          atualizarFormulario(
-            "cidade",
-            evento.target.value
-          )
-        }
+  atualizarCampoEndereco(
+    "cidade",
+    evento.target.value
+  )
+}
         placeholder="Cidade"
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 dark:border-slate-700 dark:bg-slate-950"
       />
@@ -1259,17 +1486,33 @@ export default function LocaisPontoMobilePage() {
         value={formulario.estado}
         maxLength={2}
         onChange={(evento) =>
-          atualizarFormulario(
-            "estado",
-            evento.target.value
-              .toUpperCase()
-          )
-        }
+  atualizarCampoEndereco(
+    "estado",
+    evento.target.value.toUpperCase()
+  )
+}
         placeholder="SP"
         className="min-h-12 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 uppercase dark:border-slate-700 dark:bg-slate-950"
       />
     </div>
   </div>
+
+<button
+  type="button"
+  disabled={
+    confirmandoEndereco ||
+    buscandoCep ||
+    obtendoLocalizacao
+  }
+  onClick={
+    confirmarLocalizacaoEndereco
+  }
+  className="min-h-12 w-full rounded-xl bg-emerald-700 px-4 py-3 text-sm font-black text-white disabled:opacity-50"
+>
+  {confirmandoEndereco
+    ? "Confirmando endereço..."
+    : "Confirmar localização do endereço"}
+</button>
 
   <button
     type="button"
@@ -1283,27 +1526,33 @@ export default function LocaisPontoMobilePage() {
   </button>
 
   <div
-    className={`rounded-2xl border p-4 ${
-      formulario.latitude &&
-      formulario.longitude
-        ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100"
-        : "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
-    }`}
-  >
-    <p className="text-sm font-black">
-      {formulario.latitude &&
-      formulario.longitude
-        ? "Localização técnica confirmada"
-        : "Localização ainda não confirmada"}
-    </p>
+  className={`rounded-2xl border p-4 ${
+    formulario.latitude &&
+    formulario.longitude
+      ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100"
+      : "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+  }`}
+>
+  <p className="text-sm font-black">
+    {formulario.latitude &&
+    formulario.longitude
+      ? "Localização confirmada"
+      : "Localização ainda não confirmada"}
+  </p>
 
-    <p className="mt-1 text-xs leading-5">
-      {formulario.latitude &&
-      formulario.longitude
-        ? "As coordenadas foram obtidas automaticamente e ficarão armazenadas internamente."
-        : "Busque o CEP. Caso ele não forneça uma posição precisa, use sua localização atual enquanto estiver na empresa."}
+  <p className="mt-1 text-xs leading-5">
+    {formulario.latitude &&
+    formulario.longitude
+      ? "A posição foi confirmada e ficará armazenada internamente para o cálculo do raio."
+      : "Depois de preencher o número, clique em Confirmar localização do endereço. O GPS atual continua disponível como alternativa."}
+  </p>
+
+  {atribuicaoLocalizacao && (
+    <p className="mt-2 text-[11px] font-bold opacity-80">
+      {atribuicaoLocalizacao}
     </p>
-  </div>
+  )}
+</div>
 
   <div>
     <label className="mb-2 block text-sm font-black">

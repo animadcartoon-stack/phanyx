@@ -3131,6 +3131,26 @@ model MarcacaoPontoMobileRH {
   @@index([instituicaoId, funcionarioId, dataLocal])
 }
 
+model CacheGeocodificacaoEndereco {
+  id Int @id @default(autoincrement())
+
+  chave    String @unique
+  consulta String @db.Text
+
+  latitude  Float
+  longitude Float
+
+  nomeExibicao String? @db.Text
+  provedor     String  @default("NOMINATIM")
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  ultimoUsoEm  DateTime @default(now())
+
+  @@index([ultimoUsoEm])
+  @@index([provedor])
+}
+
 enum TipoDocumentoAluno {
   CONTRATO
   DECLARACAO
