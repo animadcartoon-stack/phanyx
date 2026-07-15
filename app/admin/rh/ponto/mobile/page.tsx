@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import QRCode from "qrcode";
 
 type ConfiguracaoPontoMobile = {
   id?: number;
@@ -40,13 +41,16 @@ export default function PontoMobileConfiguracaoPage() {
   const linkAplicativo =
   "https://www.phanyx.com.br/rh-app";
 
+const [qrCodeUrl, setQrCodeUrl] = useState("");
+
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
   const [toast, setToast] = useState<ToastState>(null);
 
   useEffect(() => {
-    carregarConfiguracao();
-  }, []);
+  carregarConfiguracao();
+  gerarQrCode();
+}, []);
 
   useEffect(() => {
     if (!toast) return;
@@ -209,6 +213,128 @@ export default function PontoMobileConfiguracaoPage() {
       );
     }
   }
+
+  async function gerarQrCode() {
+  try {
+    const url = await QRCode.toDataURL(linkAplicativo, {
+      width: 320,
+      margin: 2,
+      color: {
+        dark: "#0f172a",
+        light: "#ffffff",
+      },
+    });
+
+    setQrCodeUrl(url);
+  } catch {
+    mostrarToast(
+      "erro",
+      "Não foi possível gerar o QR Code."
+    );
+  }
+}
+
+function baixarQrCode() {
+  if (!qrCodeUrl) {
+    mostrarToast(
+      "erro",
+      "O QR Code ainda não foi gerado."
+    );
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.href = qrCodeUrl;
+  link.download = "phanyx-rh-qrcode.png";
+  link.click();
+}
+
+function imprimirQrCode() {
+  if (!qrCodeUrl) {
+    mostrarToast(
+      "erro",
+      "O QR Code ainda não foi gerado."
+    );
+    return;
+  }
+
+  const janela = window.open(
+    "",
+    "_blank",
+    "width=800,height=900"
+  );
+
+  if (!janela) {
+    mostrarToast(
+      "erro",
+      "Não foi possível abrir a janela de impressão."
+    );
+    return;
+  }
+
+  janela.document.write(`
+    <html>
+      <head>
+        <title>QR Code - PHANYX RH</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 32px;
+            text-align: center;
+            color: #0f172a;
+          }
+
+          .box {
+            max-width: 520px;
+            margin: 0 auto;
+            border: 1px solid #cbd5e1;
+            border-radius: 24px;
+            padding: 24px;
+          }
+
+          h1 {
+            margin: 0 0 10px;
+            font-size: 28px;
+          }
+
+          p {
+            font-size: 16px;
+            line-height: 1.6;
+          }
+
+          img {
+            width: 260px;
+            height: 260px;
+            margin: 20px auto;
+            display: block;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            padding: 12px;
+            background: white;
+          }
+
+          .link {
+            margin-top: 14px;
+            font-weight: bold;
+            word-break: break-all;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="box">
+          <h1>PHANYX RH</h1>
+          <p>Escaneie o QR Code abaixo para acessar o aplicativo de ponto do funcionário.</p>
+          <img src="${qrCodeUrl}" alt="QR Code PHANYX RH" />
+          <p class="link">${linkAplicativo}</p>
+        </div>
+      </body>
+    </html>
+  `);
+
+  janela.document.close();
+  janela.focus();
+  janela.print();
+}
 
   if (carregando) {
     return (
@@ -439,28 +565,60 @@ export default function PontoMobileConfiguracaoPage() {
               </Link>
             </section>
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <h2 className="text-lg font-black">
-                Link do PHANYX RH
-              </h2>
+           <section className="phanyx-ponto-mobile-neutral-card rounded-3xl border p-6 shadow-sm">
+  <h2 className="text-lg font-black">
+    Link e QR Code do PHANYX RH
+  </h2>
 
-              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-                Copie e envie este endereço ao funcionário
-                para acessar e instalar o aplicativo.
-              </p>
+  <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+    Copie o link, envie o QR Code ao funcionário ou imprima
+    para facilitar a instalação do aplicativo.
+  </p>
 
-              <div className="phanyx-ponto-mobile-link-box mt-4 break-all rounded-2xl border p-4 text-sm font-semibold">
-                {linkAplicativo}
-              </div>
+  <div className="mt-5 flex justify-center">
+    {qrCodeUrl ? (
+      <img
+        src={qrCodeUrl}
+        alt="QR Code do PHANYX RH"
+        className="h-52 w-52 rounded-2xl border border-slate-300 bg-white p-3 dark:border-slate-700"
+      />
+    ) : (
+      <div className="flex h-52 w-52 items-center justify-center rounded-2xl border border-slate-300 bg-slate-50 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+        Gerando QR Code...
+      </div>
+    )}
+  </div>
 
-              <button
-  type="button"
-  onClick={copiarLink}
-  className="phanyx-ponto-mobile-copy-button mt-4 min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
->
-                Copiar link
-              </button>
-            </section>
+  <div className="phanyx-ponto-mobile-link-box mt-5 break-all rounded-2xl border p-4 text-sm font-semibold">
+    {linkAplicativo}
+  </div>
+
+  <div className="mt-4 grid gap-3">
+    <button
+      type="button"
+      onClick={copiarLink}
+      className="phanyx-ponto-mobile-copy-button min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
+    >
+      Copiar link
+    </button>
+
+    <button
+      type="button"
+      onClick={baixarQrCode}
+      className="phanyx-ponto-mobile-copy-button min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
+    >
+      Baixar QR Code
+    </button>
+
+    <button
+      type="button"
+      onClick={imprimirQrCode}
+      className="phanyx-ponto-mobile-copy-button min-h-11 w-full rounded-xl border px-4 py-3 text-sm font-black transition"
+    >
+      Imprimir QR Code
+    </button>
+  </div>
+</section>
 
             <section className="phanyx-ponto-mobile-note-card rounded-3xl border p-5">
               <p className="text-sm font-black text-amber-950 dark:text-amber-100">
