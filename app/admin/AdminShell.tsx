@@ -71,6 +71,7 @@ setTimeout(() => {
   const descobrirMenuInicial = () => {
   if (pathname.startsWith("/admin/leads")) return "comercial";
   if (pathname.startsWith("/admin/financeiro")) return "financeiro";
+  if (pathname.startsWith("/admin/rh")) return "rh";
 
   if (pathname.startsWith("/admin/contratos")) return "documentos";
   if (pathname.startsWith("/admin/documentos")) return "documentos";
@@ -656,6 +657,13 @@ function abrirTourAdmin() {
 </Link>
 
 <Link
+  href="/admin/rh/ponto/mobile"
+  className={getLinkClass("/admin/rh/ponto/mobile")}
+>
+  📱 Ponto Mobile
+</Link>
+
+<Link
   href="/admin/rh/ponto/importacao-afd"
   className={getLinkClass("/admin/rh/ponto/importacao-afd")}
 >
@@ -1013,6 +1021,66 @@ function abrirTourAdmin() {
           </div>
         )}
 
+        {menuMobileAberto === "RH" && (
+  <div className="grid grid-cols-2 gap-2">
+    <Link
+      href="/admin/rh"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      👥 Visão Geral
+    </Link>
+
+    <Link
+      href="/admin/funcionarios"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      👤 Funcionários
+    </Link>
+
+    <Link
+      href="/admin/rh/ponto"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      ⏱️ Ponto
+    </Link>
+
+    <Link
+      href="/admin/rh/ponto/configuracoes"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      ⚙️ Configurações de Ponto
+    </Link>
+
+    <Link
+      href="/admin/rh/ponto/mobile"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      📱 Ponto Mobile
+    </Link>
+
+    <Link
+      href="/admin/rh/ponto/importacao-afd"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      📥 Importação AFD
+    </Link>
+
+    <Link
+      href="/admin/rh/banco-horas"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      📊 Banco de Horas
+    </Link>
+
+    <Link
+      href="/admin/rh/holerites"
+      className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+    >
+      💵 Holerites
+    </Link>
+  </div>
+)}
+
         {menuMobileAberto === "Comunicação" && (
   <div className="grid grid-cols-1 gap-2">
     <Link
@@ -1100,7 +1168,7 @@ function abrirTourAdmin() {
 </div>
 
     <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-      <div className="grid grid-cols-6 gap-1 text-[9px] font-semibold text-slate-600">
+      <div className="grid grid-cols-7 gap-1 text-[8px] font-semibold text-slate-600">
         <Link href="/admin" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
           <span className="text-lg">📊</span>
           Painel
@@ -1115,6 +1183,19 @@ function abrirTourAdmin() {
           <span className="text-lg">💰</span>
           Financ.
         </button>
+
+        <button
+  type="button"
+  onClick={() =>
+    setMenuMobileAberto(
+      menuMobileAberto === "RH" ? null : "RH"
+    )
+  }
+  className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
+>
+  <span className="text-lg">👥</span>
+  RH
+</button>
 
         <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Documentos" ? null : "Documentos")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
           <span className="text-lg">📄</span>
