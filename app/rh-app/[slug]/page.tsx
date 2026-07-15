@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import InstallPromptPhanyxRH from "@/components/pwa/InstallPromptPhanyxRH";
 
 type DadosInstituicao = {
   slug: string;
@@ -78,6 +79,9 @@ export default function RhAppInstituicaoPage() {
   if (carregando) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-950 px-5 text-white">
+        <InstallPromptPhanyxRH
+  nomeInstituicao={dados.nome}
+/>
         <p className="text-sm font-bold">
           Carregando PHANYX RH...
         </p>
