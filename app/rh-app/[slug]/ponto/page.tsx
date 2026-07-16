@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import RegistroPontoMobile from "@/components/rh-ponto/RegistroPontoMobile";
+import MeusPontosMobile from "@/components/rh-ponto/MeusPontosMobile";
 
 type PontoRhPageProps = {
   params: {
@@ -42,69 +43,74 @@ export default async function PontoRhPage({
     );
   }
 
-  const usuarioId = Number(user?.id);
-const instituicaoId = Number(user?.instituicaoId);
-
-if (
-  !Number.isInteger(usuarioId) ||
-  usuarioId <= 0 ||
-  !Number.isInteger(instituicaoId) ||
-  instituicaoId <= 0
-) {
-  redirect(
-    `/rh-app/${encodeURIComponent(slug)}/login`
+  const usuarioId = Number(user.id);
+  const instituicaoId = Number(
+    user.instituicaoId
   );
-}
 
-  const [instituicao, funcionario, configuracao] =
-    await Promise.all([
-      prisma.instituicao.findFirst({
-        where: {
-          id: instituicaoId,
-          slug,
-        },
-        select: {
-          id: true,
-          nome: true,
-          slug: true,
-        },
-      }),
+  if (
+    !Number.isInteger(usuarioId) ||
+    usuarioId <= 0 ||
+    !Number.isInteger(instituicaoId) ||
+    instituicaoId <= 0
+  ) {
+    redirect(
+      `/rh-app/${encodeURIComponent(slug)}/login`
+    );
+  }
 
-      prisma.funcionario.findFirst({
-        where: {
-  userId: usuarioId,
-  instituicaoId,
-},
-        select: {
-          id: true,
-          nome: true,
-          cargo: true,
-          fotoPerfil: true,
-          ativo: true,
-          statusFuncionario: true,
+  const [
+    instituicao,
+    funcionario,
+    configuracao,
+  ] = await Promise.all([
+    prisma.instituicao.findFirst({
+      where: {
+        id: instituicaoId,
+        slug,
+      },
+      select: {
+        id: true,
+        nome: true,
+        slug: true,
+      },
+    }),
 
-          pontoMobileLiberado: true,
-          pontoMobileLiberadoEm: true,
-          pontoMobileValidoAte: true,
+    prisma.funcionario.findFirst({
+      where: {
+        userId: usuarioId,
+        instituicaoId,
+      },
+      select: {
+        id: true,
+        nome: true,
+        cargo: true,
+        fotoPerfil: true,
+        ativo: true,
+        statusFuncionario: true,
 
-          user: {
-            select: {
-              email: true,
-              ativo: true,
-            },
+        pontoMobileLiberado: true,
+        pontoMobileLiberadoEm: true,
+        pontoMobileValidoAte: true,
+
+        user: {
+          select: {
+            email: true,
+            ativo: true,
           },
         },
-      }),
+      },
+    }),
 
-      prisma.configuracaoPontoMobileRH.findUnique({
-        where: {
-          instituicaoId,
-        },
-        select: {
-          ativo: true,
-        },
-      }),
-    ]);
+    prisma.configuracaoPontoMobileRH.findUnique({
+      where: {
+        instituicaoId,
+      },
+      select: {
+        ativo: true,
+      },
+    }),
+  ]);
 
   if (!instituicao || !funcionario) {
     redirect(
@@ -132,7 +138,9 @@ if (
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
-    .map((parte) => parte.charAt(0).toUpperCase())
+    .map((parte) =>
+      parte.charAt(0).toUpperCase()
+    )
     .join("");
 
   return (
@@ -243,19 +251,22 @@ if (
         )}
 
         {acessoPermitido ? (
-  <RegistroPontoMobile slug={slug} />
-) : (
-  <section className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
-    <p className="font-black text-slate-200">
-      Registro indisponível
-    </p>
+          <>
+            <RegistroPontoMobile slug={slug} />
+            <MeusPontosMobile slug={slug} />
+          </>
+        ) : (
+          <section className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
+            <p className="font-black text-slate-200">
+              Registro indisponível
+            </p>
 
-    <p className="mt-2 text-sm leading-6 text-slate-400">
-      Entre em contato com o RH para verificar sua
-      autorização.
-    </p>
-  </section>
-)}
+            <p className="mt-2 text-sm leading-6 text-slate-400">
+              Entre em contato com o RH para verificar sua
+              autorização.
+            </p>
+          </section>
+        )}
 
         <Link
           href={`/rh-app/${encodeURIComponent(slug)}`}
