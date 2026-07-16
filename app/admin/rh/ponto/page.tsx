@@ -53,6 +53,12 @@ type ResponsavelAtual = {
   nome: string;
 };
 
+type MarcacaoCorrecaoRH = {
+  id: number | null;
+  tipo: "ENTRADA" | "SAIDA";
+  hora: string;
+};
+
 type RegistroPonto = {
   id: number;
   dataLocal: string;
@@ -160,6 +166,45 @@ function formatarHora(
     return data.toLocaleTimeString(
       "pt-BR"
     );
+  }
+}
+
+function formatarHoraParaEdicao(
+  dataHora: string,
+  fusoHorario: string
+) {
+  const data = new Date(dataHora);
+
+  if (Number.isNaN(data.getTime())) {
+    return "";
+  }
+
+  try {
+    const partes =
+      new Intl.DateTimeFormat("pt-BR", {
+        timeZone: fusoHorario,
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).formatToParts(data);
+
+    const hora =
+      partes.find(
+        (parte) => parte.type === "hour"
+      )?.value || "";
+
+    const minuto =
+      partes.find(
+        (parte) => parte.type === "minute"
+      )?.value || "";
+
+    if (!hora || !minuto) {
+      return "";
+    }
+
+    return `${hora}:${minuto}`;
+  } catch {
+    return "";
   }
 }
 
@@ -450,6 +495,40 @@ export default function PontoRHPage() {
     processandoAutorizacao,
     setProcessandoAutorizacao,
   ] = useState(false);
+
+  const [
+  modalCorrecaoRHAberto,
+  setModalCorrecaoRHAberto,
+] = useState(false);
+
+const [
+  pontoCorrecaoRH,
+  setPontoCorrecaoRH,
+] = useState<RegistroPonto | null>(
+  null
+);
+
+const [
+  marcacoesCorrecaoRH,
+  setMarcacoesCorrecaoRH,
+] = useState<MarcacaoCorrecaoRH[]>(
+  []
+);
+
+const [
+  motivoCorrecaoRH,
+  setMotivoCorrecaoRH,
+] = useState("");
+
+const [
+  processandoCorrecaoRH,
+  setProcessandoCorrecaoRH,
+] = useState(false);
+
+const [
+  erroModalCorrecaoRH,
+  setErroModalCorrecaoRH,
+] = useState("");
 
   const [
     pontoExpandidoId,
@@ -887,6 +966,221 @@ export default function PontoRHPage() {
       );
     }
   }
+
+  function abrirModalCorrecaoRH(
+  ponto: RegistroPonto
+) {
+  const marcacoesValidas =
+    marcacoesParaExibir(ponto)
+      .filter(
+        (marcacao) =>
+          String(
+            marcacao.status || ""
+          ).toUpperCase() !==
+          "INVALIDADA"
+      )
+      .map((marcacao) => ({
+        id:
+          marcacao.id > 0
+            ? marcacao.id
+            : null,
+
+        tipo:
+          rotuloTipo(
+            marcacao.tipo
+          ) === "Entrada"
+            ? ("ENTRADA" as const)
+            : ("SAIDA" as const),
+
+        hora:
+          formatarHoraParaEdicao(
+            marcacao.dataHora,
+            fusoHorario
+          ),
+      }));
+
+  setPontoCorrecaoRH(ponto);
+
+  setMarcacoesCorrecaoRH(
+    marcacoesValidas
+  );
+
+  setMotivoCorrecaoRH("");
+  setErroModalCorrecaoRH("");
+  setErro("");
+  setSucesso("");
+
+  setModalCorrecaoRHAberto(true);
+}
+
+function fecharModalCorrecaoRH() {
+  if (processandoCorrecaoRH) {
+    return;
+  }
+
+  setModalCorrecaoRHAberto(false);
+  setPontoCorrecaoRH(null);
+  setMarcacoesCorrecaoRH([]);
+  setMotivoCorrecaoRH("");
+  setErroModalCorrecaoRH("");
+}
+
+function adicionarMarcacaoCorrecaoRH(
+  tipo: "ENTRADA" | "SAIDA"
+) {
+  setMarcacoesCorrecaoRH(
+    (marcacoesAtuais) => [
+      ...marcacoesAtuais,
+      {
+        id: null,
+        tipo,
+        hora: "",
+      },
+    ]
+  );
+}
+
+function alterarMarcacaoCorrecaoRH(
+  indice: number,
+  alteracao: Partial<MarcacaoCorrecaoRH>
+) {
+  setMarcacoesCorrecaoRH(
+    (marcacoesAtuais) =>
+      marcacoesAtuais.map(
+        (marcacao, indiceAtual) =>
+          indiceAtual === indice
+            ? {
+                ...marcacao,
+                ...alteracao,
+              }
+            : marcacao
+      )
+  );
+}
+
+function removerMarcacaoCorrecaoRH(
+  indice: number
+) {
+  setMarcacoesCorrecaoRH(
+    (marcacoesAtuais) =>
+      marcacoesAtuais.filter(
+        (_, indiceAtual) =>
+          indiceAtual !== indice
+      )
+  );
+}
+
+async function enviarCorrecaoRH() {
+  if (!pontoCorrecaoRH) {
+    return;
+  }
+
+  try {
+    setProcessandoCorrecaoRH(true);
+    setErroModalCorrecaoRH("");
+    setSucesso("");
+
+    if (
+      motivoCorrecaoRH.trim().length <
+      10
+    ) {
+      throw new Error(
+        "Informe o motivo da correção com pelo menos 10 caracteres."
+      );
+    }
+
+    if (
+      marcacoesCorrecaoRH.length === 0
+    ) {
+      throw new Error(
+        "Informe pelo menos uma marcação."
+      );
+    }
+
+    if (
+      marcacoesCorrecaoRH.length > 20
+    ) {
+      throw new Error(
+        "O limite é de 20 marcações por jornada."
+      );
+    }
+
+    const possuiHorarioVazio =
+      marcacoesCorrecaoRH.some(
+        (marcacao) =>
+          !marcacao.hora.trim()
+      );
+
+    if (possuiHorarioVazio) {
+      throw new Error(
+        "Preencha o horário de todas as marcações."
+      );
+    }
+
+    const resposta = await fetch(
+      "/api/admin/rh/ponto/correcoes-rh",
+      {
+        method: "POST",
+        credentials: "include",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          pontoFuncionarioRHId:
+            pontoCorrecaoRH.id,
+
+          motivoCorrecaoRH:
+            motivoCorrecaoRH.trim(),
+
+          marcacoes:
+            marcacoesCorrecaoRH.map(
+              (marcacao) => ({
+                id: marcacao.id,
+                tipo: marcacao.tipo,
+                hora: marcacao.hora,
+              })
+            ),
+        }),
+      }
+    );
+
+    const dados =
+      await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.error ||
+          "Não foi possível aplicar a correção pelo RH."
+      );
+    }
+
+    setSucesso(
+      dados?.mensagem ||
+        "Correção realizada pelo RH."
+    );
+
+    setModalCorrecaoRHAberto(false);
+    setPontoCorrecaoRH(null);
+    setMarcacoesCorrecaoRH([]);
+    setMotivoCorrecaoRH("");
+
+    await carregarPontos(
+      pagina,
+      filtrosAplicados
+    );
+  } catch (error) {
+    setErroModalCorrecaoRH(
+      error instanceof Error
+        ? error.message
+        : "Não foi possível aplicar a correção pelo RH."
+    );
+  } finally {
+    setProcessandoCorrecaoRH(false);
+  }
+}
 
   return (
     <div className="phanyx-rh-page w-full max-w-full space-y-6 overflow-x-hidden px-4 py-6 sm:px-6">
@@ -1335,6 +1629,15 @@ const marcacoesSubstituidas =
         Autorizar correção
       </button>
     )}
+    <button
+  type="button"
+  onClick={() =>
+    abrirModalCorrecaoRH(ponto)
+  }
+  className="min-h-9 w-full rounded-xl border border-amber-500 bg-amber-500 px-3 py-2 text-xs font-black !text-slate-950 shadow-sm transition hover:border-amber-600 hover:bg-amber-600 dark:border-amber-400 dark:bg-amber-500 dark:!text-slate-950 dark:hover:bg-amber-400"
+>
+  Corrigir pelo RH
+</button>
   </div>
 </td>
                       </tr>
@@ -1794,7 +2097,255 @@ const marcacoesSubstituidas =
             </div>
           </section>
         </div>
+      
+      
       )}
+      {modalCorrecaoRHAberto &&
+  pontoCorrecaoRH && (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+      <section className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-amber-600 dark:text-amber-300">
+              Correção administrativa
+            </p>
+
+            <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">
+              Corrigir ponto pelo RH
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            disabled={
+              processandoCorrecaoRH
+            }
+            onClick={
+              fecharModalCorrecaoRH
+            }
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-xl font-black text-slate-600 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/60">
+          <p className="font-black text-slate-950 dark:text-white">
+            {
+              pontoCorrecaoRH
+                .funcionario.nome
+            }
+          </p>
+
+          <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+            Ponto de{" "}
+            {formatarDataLocal(
+              pontoCorrecaoRH.dataLocal
+            )}
+          </p>
+        </div>
+
+        <div className="mt-5">
+          <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+            Corrigido por
+          </label>
+
+          <div className="rounded-xl border border-slate-300 bg-slate-100 p-3 font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+            {responsavelAtual?.nome ||
+              "Responsável do RH conectado"}
+          </div>
+
+          <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+            O responsável é identificado
+            automaticamente pelo usuário
+            conectado.
+          </p>
+        </div>
+
+        {erroModalCorrecaoRH && (
+          <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+            {erroModalCorrecaoRH}
+          </div>
+        )}
+
+        <div className="mt-6 space-y-4">
+          {marcacoesCorrecaoRH.map(
+            (marcacao, indice) => (
+              <div
+                key={`${marcacao.id || "nova"}-${indice}`}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/50"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-black text-slate-900 dark:text-white">
+                    {indice + 1}ª marcação
+                  </p>
+
+                  <button
+                    type="button"
+                    disabled={
+                      processandoCorrecaoRH
+                    }
+                    onClick={() =>
+                      removerMarcacaoCorrecaoRH(
+                        indice
+                      )
+                    }
+                    className="rounded-xl border border-red-500 px-3 py-2 text-xs font-black text-red-700 hover:bg-red-50 disabled:opacity-50 dark:text-red-200 dark:hover:bg-red-950/30"
+                  >
+                    Remover
+                  </button>
+                </div>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <select
+                    value={marcacao.tipo}
+                    disabled={
+                      processandoCorrecaoRH
+                    }
+                    onChange={(evento) =>
+                      alterarMarcacaoCorrecaoRH(
+                        indice,
+                        {
+                          tipo:
+                            evento.target
+                              .value as
+                              | "ENTRADA"
+                              | "SAIDA",
+                        }
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-amber-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  >
+                    <option value="ENTRADA">
+                      Entrada
+                    </option>
+
+                    <option value="SAIDA">
+                      Saída
+                    </option>
+                  </select>
+
+                  <input
+                    type="time"
+                    value={marcacao.hora}
+                    disabled={
+                      processandoCorrecaoRH
+                    }
+                    onChange={(evento) =>
+                      alterarMarcacaoCorrecaoRH(
+                        indice,
+                        {
+                          hora:
+                            evento.target
+                              .value,
+                        }
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-amber-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </div>
+              </div>
+            )
+          )}
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            disabled={
+              processandoCorrecaoRH
+            }
+            onClick={() =>
+              adicionarMarcacaoCorrecaoRH(
+                "ENTRADA"
+              )
+            }
+            className="min-h-12 rounded-xl border border-emerald-600 bg-emerald-50 px-4 py-3 font-black text-emerald-800 disabled:opacity-50 dark:bg-emerald-950/30 dark:text-emerald-200"
+          >
+            + Adicionar entrada
+          </button>
+
+          <button
+            type="button"
+            disabled={
+              processandoCorrecaoRH
+            }
+            onClick={() =>
+              adicionarMarcacaoCorrecaoRH(
+                "SAIDA"
+              )
+            }
+            className="min-h-12 rounded-xl border border-blue-600 bg-blue-50 px-4 py-3 font-black text-blue-800 disabled:opacity-50 dark:bg-blue-950/30 dark:text-blue-200"
+          >
+            + Adicionar saída
+          </button>
+        </div>
+
+        <div className="mt-6">
+          <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+            Motivo obrigatório da correção
+          </label>
+
+          <textarea
+            value={motivoCorrecaoRH}
+            disabled={
+              processandoCorrecaoRH
+            }
+            onChange={(evento) =>
+              setMotivoCorrecaoRH(
+                evento.target.value
+              )
+            }
+            placeholder="Explique detalhadamente por que o RH está alterando este registro."
+            className="min-h-[130px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-amber-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+
+          <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+            {
+              motivoCorrecaoRH.trim()
+                .length
+            }
+            /10 caracteres mínimos
+          </p>
+        </div>
+
+        <div className="mt-6 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+          As marcações atuais serão
+          preservadas na auditoria. Nenhum
+          registro anterior será apagado.
+        </div>
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            disabled={
+              processandoCorrecaoRH
+            }
+            onClick={
+              fecharModalCorrecaoRH
+            }
+            className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 py-3 font-black text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+          >
+            Voltar
+          </button>
+
+          <button
+            type="button"
+            disabled={
+              processandoCorrecaoRH
+            }
+            onClick={enviarCorrecaoRH}
+            className="min-h-12 rounded-xl bg-amber-500 px-4 py-3 font-black text-slate-950 hover:bg-amber-600 disabled:opacity-50"
+          >
+            {processandoCorrecaoRH
+              ? "Aplicando correção..."
+              : "Confirmar correção pelo RH"}
+          </button>
+        </div>
+      </section>
+    </div>
+  )}
     </div>
   );
 }
