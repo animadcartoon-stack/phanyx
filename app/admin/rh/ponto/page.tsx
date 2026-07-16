@@ -1077,7 +1077,7 @@ export default function PontoRHPage() {
         </h2>
 
         {loading ? (
-  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm font-bold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+  <div className="rounded-2xl border !border-slate-200 !bg-slate-50 p-5 text-sm font-bold !text-slate-700 shadow-sm dark:!border-slate-700 dark:!bg-slate-900 dark:!text-slate-200">
     Carregando pontos...
   </div>
 ) : (
