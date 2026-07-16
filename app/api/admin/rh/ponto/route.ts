@@ -329,6 +329,32 @@ export async function GET(
               },
             },
           },
+
+          autorizacoesCorrecaoPontoRH: {
+            orderBy: {
+              criadoEm: "desc",
+            },
+
+            take: 1,
+
+            select: {
+              id: true,
+              status: true,
+              motivoAutorizacao: true,
+              autorizadoEm: true,
+              validoAte: true,
+              utilizadoEm: true,
+              limiteEnvios: true,
+              enviosRealizados: true,
+
+              autorizadoPor: {
+                select: {
+                  id: true,
+                  nome: true,
+                },
+              },
+            },
+          },
         },
 
         orderBy: [
@@ -465,6 +491,63 @@ export async function GET(
                 null,
             })
           ),
+
+        autorizacaoCorrecao: (() => {
+          const autorizacao =
+            ponto
+              .autorizacoesCorrecaoPontoRH[0];
+
+          if (!autorizacao) {
+            return null;
+          }
+
+          const expirada =
+            autorizacao.status === "ATIVA" &&
+            autorizacao.validoAte.getTime() <=
+              Date.now();
+
+          return {
+            id: autorizacao.id,
+
+            status: expirada
+              ? "EXPIRADA"
+              : autorizacao.status,
+
+            motivoAutorizacao:
+              autorizacao
+                .motivoAutorizacao,
+
+            autorizadoEm:
+              autorizacao
+                .autorizadoEm
+                .toISOString(),
+
+            validoAte:
+              autorizacao
+                .validoAte
+                .toISOString(),
+
+            utilizadoEm:
+              autorizacao.utilizadoEm
+                ?.toISOString() || null,
+
+            limiteEnvios:
+              autorizacao.limiteEnvios,
+
+            enviosRealizados:
+              autorizacao.enviosRealizados,
+
+            autorizadoPor: {
+              id:
+                autorizacao
+                  .autorizadoPor.id,
+
+              nome:
+                autorizacao
+                  .autorizadoPor.nome,
+            },
+          };
+        })(),
       })),
     });
   } catch (error) {

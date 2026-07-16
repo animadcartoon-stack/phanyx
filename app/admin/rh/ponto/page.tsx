@@ -32,6 +32,27 @@ type MarcacaoPonto = {
   localNome?: string | null;
 };
 
+type AutorizacaoCorrecao = {
+  id: number;
+  status: string;
+  motivoAutorizacao: string;
+  autorizadoEm: string;
+  validoAte: string;
+  utilizadoEm?: string | null;
+  limiteEnvios: number;
+  enviosRealizados: number;
+
+  autorizadoPor: {
+    id: number;
+    nome: string;
+  };
+};
+
+type ResponsavelAtual = {
+  id: number;
+  nome: string;
+};
+
 type RegistroPonto = {
   id: number;
   dataLocal: string;
@@ -50,6 +71,10 @@ type RegistroPonto = {
 
   funcionario: FuncionarioOpcao;
   marcacoes: MarcacaoPonto[];
+
+  autorizacaoCorrecao?:
+    | AutorizacaoCorrecao
+    | null;
 };
 
 type RespostaPontos = {
@@ -59,6 +84,7 @@ type RespostaPontos = {
   total?: number;
   totalPaginas?: number;
   fusoHorario?: string;
+  responsavelAtual?: ResponsavelAtual;
   pontos?: RegistroPonto[];
   error?: string;
 };
@@ -156,6 +182,45 @@ function rotuloTipo(tipo: string) {
     default:
       return tipo || "Marcação";
   }
+}
+
+function valorDataHoraLocalPadrao() {
+  const data = new Date(
+    Date.now() +
+      24 * 60 * 60 * 1000
+  );
+
+  const deslocamento =
+    data.getTimezoneOffset() *
+    60 *
+    1000;
+
+  return new Date(
+    data.getTime() - deslocamento
+  )
+    .toISOString()
+    .slice(0, 16);
+}
+
+function formatarDataHoraCompleta(
+  dataIso: string
+) {
+  const data = new Date(dataIso);
+
+  if (Number.isNaN(data.getTime())) {
+    return dataIso;
+  }
+
+  return data.toLocaleString(
+    "pt-BR",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }
+  );
 }
 
 function saldoBanco(
@@ -272,6 +337,57 @@ export default function PontoRHPage() {
     useState("");
 
   const [
+    responsavelAtual,
+    setResponsavelAtual,
+  ] = useState<ResponsavelAtual | null>(
+    null
+  );
+
+  const [sucesso, setSucesso] =
+    useState("");
+
+  const [
+    modalAutorizacaoAberto,
+    setModalAutorizacaoAberto,
+  ] = useState(false);
+
+  const [
+    modoModalAutorizacao,
+    setModoModalAutorizacao,
+  ] = useState<
+    "AUTORIZAR" | "CANCELAR"
+  >("AUTORIZAR");
+
+  const [
+    pontoAutorizacao,
+    setPontoAutorizacao,
+  ] = useState<RegistroPonto | null>(
+    null
+  );
+
+  const [
+    motivoAutorizacao,
+    setMotivoAutorizacao,
+  ] = useState("");
+
+  const [
+    validoAte,
+    setValidoAte,
+  ] = useState(
+    valorDataHoraLocalPadrao()
+  );
+
+  const [
+    motivoCancelamento,
+    setMotivoCancelamento,
+  ] = useState("");
+
+  const [
+    processandoAutorizacao,
+    setProcessandoAutorizacao,
+  ] = useState(false);
+
+  const [
     pontoExpandidoId,
     setPontoExpandidoId,
   ] = useState<number | null>(null);
@@ -386,6 +502,11 @@ export default function PontoRHPage() {
             dados.fusoHorario ||
               "America/Sao_Paulo"
           );
+
+          setResponsavelAtual(
+            dados.responsavelAtual ||
+              null
+          );
         } catch (error) {
           setPontos([]);
 
@@ -463,6 +584,244 @@ export default function PontoRHPage() {
     );
   }
 
+  function abrirModalAutorizar(
+    ponto: RegistroPonto
+  ) {
+    setPontoAutorizacao(ponto);
+    setModoModalAutorizacao(
+      "AUTORIZAR"
+    );
+
+    setMotivoAutorizacao("");
+    setMotivoCancelamento("");
+
+    setValidoAte(
+      valorDataHoraLocalPadrao()
+    );
+
+    setErro("");
+    setSucesso("");
+
+    setModalAutorizacaoAberto(
+      true
+    );
+  }
+
+  function abrirModalCancelar(
+    ponto: RegistroPonto
+  ) {
+    setPontoAutorizacao(ponto);
+    setModoModalAutorizacao(
+      "CANCELAR"
+    );
+
+    setMotivoCancelamento("");
+    setErro("");
+    setSucesso("");
+
+    setModalAutorizacaoAberto(
+      true
+    );
+  }
+
+  function fecharModalAutorizacao() {
+    if (processandoAutorizacao) {
+      return;
+    }
+
+    setModalAutorizacaoAberto(
+      false
+    );
+
+    setPontoAutorizacao(null);
+  }
+
+  async function enviarAutorizacao() {
+    if (!pontoAutorizacao) {
+      return;
+    }
+
+    try {
+      setProcessandoAutorizacao(
+        true
+      );
+
+      setErro("");
+      setSucesso("");
+
+      if (
+        motivoAutorizacao
+          .trim()
+          .length < 10
+      ) {
+        throw new Error(
+          "Informe o motivo da autorização com pelo menos 10 caracteres."
+        );
+      }
+
+      if (!validoAte) {
+        throw new Error(
+          "Informe até quando a autorização será válida."
+        );
+      }
+
+      const validadeIso =
+        new Date(
+          validoAte
+        ).toISOString();
+
+      const resposta = await fetch(
+        "/api/admin/rh/ponto/autorizacoes",
+        {
+          method: "POST",
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            pontoFuncionarioRHId:
+              pontoAutorizacao.id,
+
+            motivoAutorizacao:
+              motivoAutorizacao.trim(),
+
+            validoAte:
+              validadeIso,
+          }),
+        }
+      );
+
+      const dados =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+            "Não foi possível autorizar a correção."
+        );
+      }
+
+      setSucesso(
+        dados.mensagem ||
+          "Correção autorizada."
+      );
+
+      setModalAutorizacaoAberto(
+        false
+      );
+
+      setPontoAutorizacao(null);
+
+      await carregarPontos(
+        pagina,
+        filtrosAplicados
+      );
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível autorizar a correção."
+      );
+    } finally {
+      setProcessandoAutorizacao(
+        false
+      );
+    }
+  }
+
+  async function cancelarAutorizacao() {
+    const autorizacao =
+      pontoAutorizacao
+        ?.autorizacaoCorrecao;
+
+    if (
+      !pontoAutorizacao ||
+      !autorizacao
+    ) {
+      return;
+    }
+
+    try {
+      setProcessandoAutorizacao(
+        true
+      );
+
+      setErro("");
+      setSucesso("");
+
+      if (
+        motivoCancelamento
+          .trim()
+          .length < 5
+      ) {
+        throw new Error(
+          "Informe o motivo do cancelamento."
+        );
+      }
+
+      const resposta = await fetch(
+        "/api/admin/rh/ponto/autorizacoes",
+        {
+          method: "DELETE",
+          credentials: "include",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            autorizacaoId:
+              autorizacao.id,
+
+            motivoCancelamento:
+              motivoCancelamento
+                .trim(),
+          }),
+        }
+      );
+
+      const dados =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+            "Não foi possível cancelar a autorização."
+        );
+      }
+
+      setSucesso(
+        dados.mensagem ||
+          "Autorização cancelada."
+      );
+
+      setModalAutorizacaoAberto(
+        false
+      );
+
+      setPontoAutorizacao(null);
+
+      await carregarPontos(
+        pagina,
+        filtrosAplicados
+      );
+    } catch (error) {
+      setErro(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível cancelar a autorização."
+      );
+    } finally {
+      setProcessandoAutorizacao(
+        false
+      );
+    }
+  }
+
   return (
     <div className="phanyx-rh-page w-full max-w-full space-y-6 overflow-x-hidden px-4 py-6 sm:px-6">
       <div>
@@ -480,6 +839,12 @@ export default function PontoRHPage() {
       {erro && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
           {erro}
+        </div>
+      )}
+
+      {sucesso && (
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+          {sucesso}
         </div>
       )}
 
@@ -856,21 +1221,58 @@ export default function PontoRHPage() {
                         </td>
 
                         <td className="px-3 py-4">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              setPontoExpandidoId(
-                                expandido
-                                  ? null
-                                  : ponto.id
-                              )
-                            }
-                            className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-black text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
-                          >
-                            {expandido
-                              ? "Ocultar"
-                              : "Ver detalhes"}
-                          </button>
+                          <div className="flex min-w-[170px] flex-col gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setPontoExpandidoId(
+                                  expandido
+                                    ? null
+                                    : ponto.id
+                                )
+                              }
+                              className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-black text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+                            >
+                              {expandido
+                                ? "Ocultar"
+                                : "Ver detalhes"}
+                            </button>
+
+                            {ponto
+                              .autorizacaoCorrecao
+                              ?.status ===
+                            "ATIVA" ? (
+                              <>
+                                <span className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
+                                  Correção autorizada
+                                </span>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    abrirModalCancelar(
+                                      ponto
+                                    )
+                                  }
+                                  className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-black text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+                                >
+                                  Cancelar autorização
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  abrirModalAutorizar(
+                                    ponto
+                                  )
+                                }
+                                className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
+                              >
+                                Autorizar correção
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
 
@@ -971,6 +1373,60 @@ export default function PontoRHPage() {
                               </p>
                             )}
 
+                            {ponto
+                              .autorizacaoCorrecao && (
+                              <div className="mt-4 rounded-2xl border border-emerald-300 bg-emerald-50 p-4 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-100">
+                                <p className="font-black">
+                                  Autorização de correção
+                                </p>
+
+                                <p className="mt-2">
+                                  <strong>
+                                    Situação:
+                                  </strong>{" "}
+                                  {
+                                    ponto
+                                      .autorizacaoCorrecao
+                                      .status
+                                  }
+                                </p>
+
+                                <p className="mt-1">
+                                  <strong>
+                                    Autorizado por:
+                                  </strong>{" "}
+                                  {
+                                    ponto
+                                      .autorizacaoCorrecao
+                                      .autorizadoPor
+                                      .nome
+                                  }
+                                </p>
+
+                                <p className="mt-1">
+                                  <strong>
+                                    Válida até:
+                                  </strong>{" "}
+                                  {formatarDataHoraCompleta(
+                                    ponto
+                                      .autorizacaoCorrecao
+                                      .validoAte
+                                  )}
+                                </p>
+
+                                <p className="mt-1">
+                                  <strong>
+                                    Motivo:
+                                  </strong>{" "}
+                                  {
+                                    ponto
+                                      .autorizacaoCorrecao
+                                      .motivoAutorizacao
+                                  }
+                                </p>
+                              </div>
+                            )}
+
                             {ponto.observacoes && (
                               <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
                                 <strong>
@@ -1026,6 +1482,210 @@ export default function PontoRHPage() {
           </button>
         </div>
       </section>
+
+      {modalAutorizacaoAberto &&
+        pontoAutorizacao && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm">
+          <section className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-3xl border border-slate-300 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.16em] text-blue-600 dark:text-blue-300">
+                  Correção de ponto
+                </p>
+
+                <h2 className="mt-2 text-xl font-black text-slate-950 dark:text-white">
+                  {modoModalAutorizacao ===
+                  "AUTORIZAR"
+                    ? "Autorizar funcionário"
+                    : "Cancelar autorização"}
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                disabled={
+                  processandoAutorizacao
+                }
+                onClick={
+                  fecharModalAutorizacao
+                }
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 text-xl font-black text-slate-600 disabled:opacity-50 dark:border-slate-700 dark:text-slate-200"
+                aria-label="Fechar"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950/60">
+              <p className="font-black text-slate-950 dark:text-white">
+                {
+                  pontoAutorizacao
+                    .funcionario.nome
+                }
+              </p>
+
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                Ponto de{" "}
+                {formatarDataLocal(
+                  pontoAutorizacao
+                    .dataLocal
+                )}
+              </p>
+            </div>
+
+            {modoModalAutorizacao ===
+            "AUTORIZAR" ? (
+              <>
+                <div className="mt-5">
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Autorizado por
+                  </label>
+
+                  <div className="rounded-xl border border-slate-300 bg-slate-100 p-3 font-bold text-slate-800 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100">
+                    {responsavelAtual?.nome ||
+                      "Usuário do RH conectado"}
+                  </div>
+
+                  <p className="mt-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                    Esse nome vem do usuário
+                    autenticado e não pode ser
+                    digitado pelo funcionário.
+                  </p>
+                </div>
+
+                <div className="mt-5">
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Motivo da autorização
+                  </label>
+
+                  <textarea
+                    value={
+                      motivoAutorizacao
+                    }
+                    onChange={(evento) =>
+                      setMotivoAutorizacao(
+                        evento.target
+                          .value
+                      )
+                    }
+                    placeholder="Exemplo: funcionário esqueceu de registrar a saída do expediente."
+                    className="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </div>
+
+                <div className="mt-5">
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Autorização válida até
+                  </label>
+
+                  <input
+                    type="datetime-local"
+                    value={validoAte}
+                    onChange={(evento) =>
+                      setValidoAte(
+                        evento.target
+                          .value
+                      )
+                    }
+                    className="w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="mt-5 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
+                  <p>
+                    <strong>
+                      Autorizado por:
+                    </strong>{" "}
+                    {
+                      pontoAutorizacao
+                        .autorizacaoCorrecao
+                        ?.autorizadoPor
+                        .nome
+                    }
+                  </p>
+
+                  <p className="mt-1">
+                    <strong>
+                      Válida até:
+                    </strong>{" "}
+                    {pontoAutorizacao
+                      .autorizacaoCorrecao
+                      ? formatarDataHoraCompleta(
+                          pontoAutorizacao
+                            .autorizacaoCorrecao
+                            .validoAte
+                        )
+                      : "-"}
+                  </p>
+                </div>
+
+                <div className="mt-5">
+                  <label className="mb-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+                    Motivo do cancelamento
+                  </label>
+
+                  <textarea
+                    value={
+                      motivoCancelamento
+                    }
+                    onChange={(evento) =>
+                      setMotivoCancelamento(
+                        evento.target
+                          .value
+                      )
+                    }
+                    placeholder="Informe por que a autorização está sendo cancelada."
+                    className="min-h-[110px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-red-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                  />
+                </div>
+              </>
+            )}
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                disabled={
+                  processandoAutorizacao
+                }
+                onClick={
+                  fecharModalAutorizacao
+                }
+                className="min-h-12 rounded-xl border border-slate-300 bg-white px-4 py-3 font-black text-slate-700 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200"
+              >
+                Voltar
+              </button>
+
+              <button
+                type="button"
+                disabled={
+                  processandoAutorizacao
+                }
+                onClick={
+                  modoModalAutorizacao ===
+                  "AUTORIZAR"
+                    ? enviarAutorizacao
+                    : cancelarAutorizacao
+                }
+                className={`min-h-12 rounded-xl px-4 py-3 font-black text-white disabled:opacity-50 ${
+                  modoModalAutorizacao ===
+                  "AUTORIZAR"
+                    ? "bg-emerald-600 hover:bg-emerald-700"
+                    : "bg-red-600 hover:bg-red-700"
+                }`}
+              >
+                {processandoAutorizacao
+                  ? "Processando..."
+                  : modoModalAutorizacao ===
+                      "AUTORIZAR"
+                    ? "Autorizar correção"
+                    : "Cancelar autorização"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
