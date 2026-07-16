@@ -337,22 +337,29 @@ export async function GET(
               take: 1,
 
               select: {
-                id: true,
-                status: true,
-                motivoAutorizacao: true,
-                autorizadoEm: true,
-                validoAte: true,
-                utilizadoEm: true,
-                limiteEnvios: true,
-                enviosRealizados: true,
+  id: true,
+  status: true,
+  motivoAutorizacao: true,
+  autorizadoPorNome: true,
+  autorizadoEm: true,
+  validoAte: true,
+  utilizadoEm: true,
+  limiteEnvios: true,
+  enviosRealizados: true,
 
-                autorizadoPor: {
-                  select: {
-                    id: true,
-                    nome: true,
-                  },
-                },
-              },
+  autorizadoPor: {
+    select: {
+      id: true,
+      nome: true,
+
+      funcionario: {
+        select: {
+          nome: true,
+        },
+      },
+    },
+  },
+},
             },
 
             solicitacoesCorrecaoPontoRH: {
@@ -512,14 +519,15 @@ export async function GET(
                     .enviosRealizados,
 
                 autorizadoPor: {
-                  id:
-                    autorizacao
-                      .autorizadoPor.id,
+  id:
+    autorizacao.autorizadoPor.id,
 
-                  nome:
-                    autorizacao
-                      .autorizadoPor.nome,
-                },
+  nome:
+    autorizacao.autorizadoPor.nome?.trim() ||
+    autorizacao.autorizadoPor.funcionario?.nome?.trim() ||
+    autorizacao.autorizadoPorNome?.trim() ||
+    "Responsável do RH",
+},
               }
             : null,
 

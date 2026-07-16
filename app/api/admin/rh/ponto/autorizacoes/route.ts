@@ -273,12 +273,33 @@ export async function POST(
       );
     }
 
-    const nomeResponsavel =
-      limparTexto(
-        user.nome ||
-          "Responsável do RH",
-        200
-      );
+    const usuarioResponsavel =
+  await prisma.user.findFirst({
+    where: {
+      id: usuarioId,
+      instituicaoId,
+    },
+
+    select: {
+      nome: true,
+      email: true,
+
+      funcionario: {
+        select: {
+          nome: true,
+        },
+      },
+    },
+  });
+
+const nomeResponsavel =
+  limparTexto(
+    usuarioResponsavel?.nome ||
+      usuarioResponsavel?.funcionario?.nome ||
+      usuarioResponsavel?.email ||
+      "Responsável do RH",
+    200
+  );
 
     const dataTexto =
       ponto.data

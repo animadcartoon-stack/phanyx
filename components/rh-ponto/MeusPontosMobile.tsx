@@ -1352,24 +1352,21 @@ export default function MeusPontosMobile({
 
             <div className="mt-4 rounded-2xl border border-emerald-800 bg-emerald-950/30 p-4">
               <p className="text-sm font-black text-emerald-100">
-                Autorizado por
-              </p>
+  Autorizado por
+</p>
 
-              <p className="mt-1 text-sm text-emerald-200">
-                {
-                  jornadaEditando
-                    .autorizacao
-                    .autorizadoPor.nome
-                }
-              </p>
+<p className="mt-1 text-sm font-bold text-emerald-200">
+  {jornadaEditando.autorizacao.autorizadoPor.nome ||
+    "Responsável do RH"}
+</p>
 
-              <p className="mt-2 text-xs leading-5 text-emerald-300">
-                {
-                  jornadaEditando
-                    .autorizacao
-                    .motivoAutorizacao
-                }
-              </p>
+<p className="mt-4 text-xs font-black uppercase tracking-wider text-emerald-200">
+  Motivo da autorização
+</p>
+
+<p className="mt-1 text-sm leading-6 text-emerald-300">
+  {jornadaEditando.autorizacao.motivoAutorizacao}
+</p>
             </div>
 
             <div className="mt-5 space-y-3">
