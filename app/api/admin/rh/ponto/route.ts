@@ -332,30 +332,37 @@ export async function GET(
           },
 
           autorizacoesCorrecaoPontoRH: {
-            orderBy: {
-              criadoEm: "desc",
-            },
+  orderBy: {
+    criadoEm: "desc",
+  },
 
-            take: 1,
+  take: 1,
 
-            select: {
-              id: true,
-              status: true,
-              motivoAutorizacao: true,
-              autorizadoEm: true,
-              validoAte: true,
-              utilizadoEm: true,
-              limiteEnvios: true,
-              enviosRealizados: true,
+  select: {
+    id: true,
+    status: true,
+    motivoAutorizacao: true,
+    autorizadoPorNome: true,
+    autorizadoEm: true,
+    validoAte: true,
+    utilizadoEm: true,
+    limiteEnvios: true,
+    enviosRealizados: true,
 
-              autorizadoPor: {
-                select: {
-                  id: true,
-                  nome: true,
-                },
-              },
-            },
+    autorizadoPor: {
+      select: {
+        id: true,
+        nome: true,
+
+        funcionario: {
+          select: {
+            nome: true,
           },
+        },
+      },
+    },
+  },
+},
         },
 
         orderBy: [
@@ -391,6 +398,13 @@ export async function GET(
   select: {
     id: true,
     nome: true,
+    email: true,
+
+    funcionario: {
+      select: {
+        nome: true,
+      },
+    },
   },
 }),
     ]);
@@ -413,7 +427,9 @@ export async function GET(
     Number(user.id),
 
   nome:
-    usuarioAtual?.nome ||
+    usuarioAtual?.nome?.trim() ||
+    usuarioAtual?.funcionario?.nome?.trim() ||
+    usuarioAtual?.email?.trim() ||
     "Responsável do RH",
 },
 
@@ -559,14 +575,15 @@ export async function GET(
               autorizacao.enviosRealizados,
 
             autorizadoPor: {
-              id:
-                autorizacao
-                  .autorizadoPor.id,
+  id:
+    autorizacao.autorizadoPor.id,
 
-              nome:
-                autorizacao
-                  .autorizadoPor.nome,
-            },
+  nome:
+    autorizacao.autorizadoPor.nome?.trim() ||
+    autorizacao.autorizadoPor.funcionario?.nome?.trim() ||
+    autorizacao.autorizadoPorNome?.trim() ||
+    "Responsável do RH",
+},
           };
         })(),
       })),
