@@ -131,40 +131,78 @@ function AdminTour({
     height: number;
   } | null>(null);
 
+  const bubbleRef = useRef<HTMLDivElement | null>(null);
+
+const [bubbleSize, setBubbleSize] = useState({
+  width: 420,
+  height: 290,
+});
+
   const step = tourSteps[stepIndex];
 
   useEffect(() => {
-    if (!aberto) return;
+  if (!aberto) return;
 
-    function atualizarPosicao() {
-      const rect = getRectFromSelector(step.selector);
-      setTargetRect(rect);
-    }
+  setTargetRect(null);
 
-    if (step.id === "configuracoes") {
-      window.dispatchEvent(new CustomEvent("phanyx:abrir-menu-configuracoes"));
-    } else if (
-      step.id === "departamentos" ||
-      step.id === "professores" ||
-      step.id === "alunos" ||
-      step.id === "matriculas"
-    ) {
-      window.dispatchEvent(new CustomEvent("phanyx:abrir-menu-academico"));
-    } else {
-      window.dispatchEvent(new CustomEvent("phanyx:resetar-menu-tour"));
-    }
+  function atualizarPosicao() {
+    const rect = getRectFromSelector(step.selector);
+    setTargetRect(rect);
+  }
 
-    const timer = setTimeout(atualizarPosicao, 220);
+  const detalheTour = {
+    selector: step.selector,
+  };
 
-    window.addEventListener("resize", atualizarPosicao);
-    window.addEventListener("scroll", atualizarPosicao, true);
+  if (step.id === "configuracoes") {
+    window.dispatchEvent(
+      new CustomEvent("phanyx:abrir-menu-configuracoes", {
+        detail: detalheTour,
+      })
+    );
+  } else if (
+    step.id === "departamentos" ||
+    step.id === "professores" ||
+    step.id === "alunos" ||
+    step.id === "matriculas"
+  ) {
+    window.dispatchEvent(
+      new CustomEvent("phanyx:abrir-menu-academico", {
+        detail: detalheTour,
+      })
+    );
+  } else {
+    window.dispatchEvent(
+      new CustomEvent("phanyx:resetar-menu-tour")
+    );
+  }
 
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", atualizarPosicao);
-      window.removeEventListener("scroll", atualizarPosicao, true);
-    };
-  }, [aberto, step]);
+  /*
+   * Primeira leitura: depois que o React abrir o grupo do menu.
+   * Segunda leitura: depois que a rolagem suave da sidebar terminar.
+   */
+  const timerInicial = window.setTimeout(atualizarPosicao, 150);
+  const timerFinal = window.setTimeout(atualizarPosicao, 750);
+
+  window.addEventListener("resize", atualizarPosicao);
+  window.addEventListener("scroll", atualizarPosicao, true);
+  window.addEventListener(
+    "phanyx:reposicionar-tour",
+    atualizarPosicao as EventListener
+  );
+
+  return () => {
+    window.clearTimeout(timerInicial);
+    window.clearTimeout(timerFinal);
+
+    window.removeEventListener("resize", atualizarPosicao);
+    window.removeEventListener("scroll", atualizarPosicao, true);
+    window.removeEventListener(
+      "phanyx:reposicionar-tour",
+      atualizarPosicao as EventListener
+    );
+  };
+}, [aberto, step]);
 
   useEffect(() => {
     if (!aberto) {
@@ -173,6 +211,47 @@ function AdminTour({
       setTourConcluido(false);
     }
   }, [aberto]);
+
+  useEffect(() => {
+  if (!aberto) return;
+
+  const elemento = bubbleRef.current;
+
+  if (!elemento) return;
+
+  function medirBalao() {
+    const rect = elemento.getBoundingClientRect();
+
+    const width = Math.ceil(rect.width);
+    const height = Math.ceil(rect.height);
+
+    setBubbleSize((atual) => {
+      if (
+        atual.width === width &&
+        atual.height === height
+      ) {
+        return atual;
+      }
+
+      return {
+        width,
+        height,
+      };
+    });
+  }
+
+  const frame = window.requestAnimationFrame(medirBalao);
+  const observer = new ResizeObserver(medirBalao);
+
+  observer.observe(elemento);
+  window.addEventListener("resize", medirBalao);
+
+  return () => {
+    window.cancelAnimationFrame(frame);
+    observer.disconnect();
+    window.removeEventListener("resize", medirBalao);
+  };
+}, [aberto, stepIndex, tourConcluido]);
 
   if (!aberto) return null;
 
@@ -188,8 +267,8 @@ function AdminTour({
         }
       : null;
 
-  const bubbleWidth = 420;
-  const bubbleHeight = 290;
+  const bubbleWidth = bubbleSize.width;
+const bubbleHeight = bubbleSize.height;
 
   const bubbleStyle = spotlight
     ? (() => {
@@ -240,7 +319,8 @@ function AdminTour({
       )}
 
       <div
-        className="absolute w-[min(420px,calc(100vw-32px))] rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
+  ref={bubbleRef}
+  className="absolute max-h-[calc(100vh-32px)] w-[min(420px,calc(100vw-32px))] overflow-y-auto rounded-[28px] border border-slate-200 bg-white px-5 py-4 shadow-2xl transition-all duration-300"
         style={
           tourConcluido
             ? {
@@ -254,12 +334,12 @@ function AdminTour({
         {!tourConcluido &&
           (spotlight && spotlight.left < 320 ? (
             <div
-              className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"
-              style={{
-                left: "-6px",
-                top: "40px",
-              }}
-            />
+  className="absolute h-3 w-3 -translate-y-1/2 rotate-45 border border-gray-200 bg-white shadow-sm"
+  style={{
+    left: "-6px",
+    top: "50%",
+  }}
+/>
           ) : (
             <div
               className="absolute h-3 w-3 rotate-45 border border-gray-200 bg-white shadow-sm"

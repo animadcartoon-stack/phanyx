@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
@@ -25,6 +25,7 @@ export default function AdminShell({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const sidebarDesktopRef = useRef<HTMLElement | null>(null);
   const esconderSidebar = pathname?.includes(
     "/admin/configuracoes/certificado"
   );
@@ -114,46 +115,116 @@ setTimeout(() => {
 }, [pathname]);
 
   useEffect(() => {
-    function abrirMenuConfiguracoes() {
-      setMenuAberto("configuracoes");
-    }
+  function rolarSidebarAteAlvo(seletor: string) {
+    /*
+     * O atraso é necessário porque primeiro o React precisa abrir
+     * o grupo do menu e renderizar o link que será destacado.
+     */
+    window.setTimeout(() => {
+      const sidebar = sidebarDesktopRef.current;
+      const alvo = document.querySelector<HTMLElement>(seletor);
 
-    function abrirMenuAcademico() {
-      setMenuAberto("academico");
-    }
+      if (!sidebar || !alvo) return;
 
-    function abrirMenuPainel() {
-      setMenuAberto(null);
-    }
+      const sidebarRect = sidebar.getBoundingClientRect();
+      const alvoRect = alvo.getBoundingClientRect();
 
-    window.addEventListener(
+      const destino =
+        sidebar.scrollTop +
+        (alvoRect.top - sidebarRect.top) -
+        sidebar.clientHeight / 2 +
+        alvoRect.height / 2;
+
+      sidebar.scrollTo({
+        top: Math.max(0, destino),
+        behavior: "smooth",
+      });
+
+      /*
+       * Depois da rolagem, avisamos o componente do tour para
+       * recalcular a posição do destaque e do balão.
+       */
+      window.setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+        window.dispatchEvent(new Event("scroll"));
+        window.dispatchEvent(
+          new CustomEvent("phanyx:reposicionar-tour")
+        );
+      }, 450);
+    }, 100);
+  }
+
+  function abrirMenuConfiguracoes() {
+    setMenuAberto("configuracoes");
+
+    rolarSidebarAteAlvo(
+      '[data-tour="menu-configuracoes"]'
+    );
+  }
+
+  function abrirMenuAcademico(evento: Event) {
+    setMenuAberto("academico");
+
+    const detalhe = (
+      evento as CustomEvent<{ seletor?: string }>
+    ).detail;
+
+    rolarSidebarAteAlvo(
+      detalhe?.seletor || '[data-tour="menu-alunos"]'
+    );
+  }
+
+  function abrirMenuPainel() {
+    setMenuAberto(null);
+
+    window.setTimeout(() => {
+      sidebarDesktopRef.current?.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+
+      window.setTimeout(() => {
+        window.dispatchEvent(new Event("resize"));
+        window.dispatchEvent(new Event("scroll"));
+        window.dispatchEvent(
+          new CustomEvent("phanyx:reposicionar-tour")
+        );
+      }, 450);
+    }, 80);
+  }
+
+  window.addEventListener(
+    "phanyx:abrir-menu-configuracoes",
+    abrirMenuConfiguracoes as EventListener
+  );
+
+  window.addEventListener(
+    "phanyx:abrir-menu-academico",
+    abrirMenuAcademico as EventListener
+  );
+
+  window.addEventListener(
+    "phanyx:resetar-menu-tour",
+    abrirMenuPainel as EventListener
+  );
+
+  return () => {
+    window.removeEventListener(
       "phanyx:abrir-menu-configuracoes",
       abrirMenuConfiguracoes as EventListener
     );
-    window.addEventListener(
+
+    window.removeEventListener(
       "phanyx:abrir-menu-academico",
       abrirMenuAcademico as EventListener
     );
-    window.addEventListener(
+
+    window.removeEventListener(
       "phanyx:resetar-menu-tour",
       abrirMenuPainel as EventListener
     );
-
-    return () => {
-      window.removeEventListener(
-        "phanyx:abrir-menu-configuracoes",
-        abrirMenuConfiguracoes as EventListener
-      );
-      window.removeEventListener(
-        "phanyx:abrir-menu-academico",
-        abrirMenuAcademico as EventListener
-      );
-      window.removeEventListener(
-        "phanyx:resetar-menu-tour",
-        abrirMenuPainel as EventListener
-      );
-    };
-  }, []);
+  };
+}, []);
 
   useEffect(() => {
     async function carregarUsuario() {
@@ -340,7 +411,10 @@ function abrirTourAdmin() {
 
     <div className="flex min-h-screen bg-gray-100">
       {!esconderSidebar && (
-        <aside className="hidden fixed left-0 top-0 z-40 w-72 h-screen bg-white shadow-lg p-6 lg:flex flex-col overflow-y-auto">
+        <aside
+  ref={sidebarDesktopRef}
+  className="hidden fixed left-0 top-0 z-40 h-screen w-72 overflow-y-auto bg-white p-6 shadow-lg lg:flex lg:flex-col"
+>
           <div>
             <div className="mb-8">
               <h2 className="text-xl font-semibold">

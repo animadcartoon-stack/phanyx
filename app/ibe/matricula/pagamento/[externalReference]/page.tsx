@@ -5,8 +5,19 @@ import { useParams } from "next/navigation";
 import {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
+
+type FormaPagamento =
+  | "PIX"
+  | "CREDIT_CARD"
+  | "BOLETO"
+  | "DEBIT_CARD";
+
+type ModoPagamento =
+  | "UNICO"
+  | "DUAS_FORMAS";
 
 type PagamentoIbe = {
   ordem: number;
@@ -38,6 +49,33 @@ type PagamentosResponse = {
   pagamentos: PagamentoIbe[];
 };
 
+const FORMAS_PAGAMENTO: Array<{
+  id: FormaPagamento;
+  titulo: string;
+  descricao: string;
+}> = [
+  {
+    id: "PIX",
+    titulo: "Pix",
+    descricao: "Pagamento à vista e confirmação rápida.",
+  },
+  {
+    id: "CREDIT_CARD",
+    titulo: "Cartão de crédito",
+    descricao: "Pagamento à vista ou parcelado.",
+  },
+  {
+    id: "BOLETO",
+    titulo: "Boleto bancário",
+    descricao: "Boleto com vencimento para pagamento.",
+  },
+  {
+    id: "DEBIT_CARD",
+    titulo: "Cartão de débito",
+    descricao: "Pagamento pela página segura do Asaas.",
+  },
+];
+
 function formatarMoeda(valor: number) {
   return Number(valor || 0).toLocaleString(
     "pt-BR",
@@ -55,9 +93,7 @@ function formatarData(
 
   const data = new Date(valor);
 
-  if (
-    Number.isNaN(data.getTime())
-  ) {
+  if (Number.isNaN(data.getTime())) {
     return null;
   }
 
@@ -139,6 +175,28 @@ function obterStatusPagamento(
   };
 }
 
+function converterValorDigitado(
+  texto: string
+) {
+  const somenteNumeros = String(
+    texto || ""
+  ).replace(/\D/g, "");
+
+  if (!somenteNumeros) {
+    return 0;
+  }
+
+  return Number(somenteNumeros) / 100;
+}
+
+function formatarValorDigitado(
+  valor: number
+) {
+  return Number(valor || 0)
+    .toFixed(2)
+    .replace(".", ",");
+}
+
 export default function PagamentoMatriculaIbePage() {
   const params = useParams<{
     externalReference: string;
@@ -161,8 +219,35 @@ export default function PagamentoMatriculaIbePage() {
     setAtualizando,
   ] = useState(false);
 
+  const [
+    preparandoPagamento,
+    setPreparandoPagamento,
+  ] = useState(false);
+
   const [erro, setErro] =
     useState("");
+
+  const [
+    modoPagamento,
+    setModoPagamento,
+  ] = useState<ModoPagamento>("UNICO");
+
+  const [
+    formaPagamento1,
+    setFormaPagamento1,
+  ] = useState<FormaPagamento>("PIX");
+
+  const [
+    formaPagamento2,
+    setFormaPagamento2,
+  ] = useState<FormaPagamento>(
+    "CREDIT_CARD"
+  );
+
+  const [
+    valorPrimeiraParteTexto,
+    setValorPrimeiraParteTexto,
+  ] = useState("");
 
   const carregarPagamentos =
     useCallback(
@@ -225,10 +310,6 @@ export default function PagamentoMatriculaIbePage() {
     carregarPagamentos();
   }, [carregarPagamentos]);
 
-  /*
-   * Enquanto houver pagamento pendente,
-   * atualiza automaticamente o status.
-   */
   useEffect(() => {
     if (!dados) return;
 
@@ -255,6 +336,206 @@ export default function PagamentoMatriculaIbePage() {
     dados,
     carregarPagamentos,
   ]);
+
+  const valorTotal =
+    dados?.matricula.valorTotal || 0;
+
+  const valorPrimeiraParte =
+    modoPagamento === "DUAS_FORMAS"
+      ? Number(
+          converterValorDigitado(
+            valorPrimeiraParteTexto
+          ).toFixed(2)
+        )
+      : Number(valorTotal.toFixed(2));
+
+  const valorSegundaParte =
+    modoPagamento === "DUAS_FORMAS"
+      ? Number(
+          Math.max(
+            0,
+            valorTotal -
+              valorPrimeiraParte
+          ).toFixed(2)
+        )
+      : 0;
+
+  const divisaoValida =
+    modoPagamento === "UNICO" ||
+    (
+      valorPrimeiraParte >= 1 &&
+      valorSegundaParte >= 1 &&
+      Math.abs(
+        valorPrimeiraParte +
+          valorSegundaParte -
+          valorTotal
+      ) < 0.01
+    );
+
+  const pagamentosJaPreparados =
+    Boolean(
+      dados &&
+      (
+        dados.pagamentos.length > 0 ||
+        dados.matricula.quantidadePartes >
+          0
+      )
+    );
+
+  const mostrarEscolhaPagamento =
+    Boolean(
+      dados &&
+      !pagamentosJaPreparados &&
+      dados.matricula.status !==
+        "PAGO"
+    );
+
+  const formasComCobranca = useMemo(
+    () =>
+      [
+        formaPagamento1,
+        modoPagamento ===
+        "DUAS_FORMAS"
+          ? formaPagamento2
+          : null,
+      ].some(
+        (forma) =>
+          forma === "BOLETO" ||
+          forma === "DEBIT_CARD"
+      ),
+    [
+      formaPagamento1,
+      formaPagamento2,
+      modoPagamento,
+    ]
+  );
+
+  function selecionarModo(
+    modo: ModoPagamento
+  ) {
+    setModoPagamento(modo);
+    setErro("");
+
+    if (
+      modo === "DUAS_FORMAS"
+    ) {
+      const metade = Number(
+        (valorTotal / 2).toFixed(2)
+      );
+
+      setValorPrimeiraParteTexto(
+        formatarValorDigitado(metade)
+      );
+    } else {
+      setValorPrimeiraParteTexto("");
+    }
+  }
+
+  async function prepararPagamentos() {
+    if (
+      preparandoPagamento ||
+      !dados
+    ) {
+      return;
+    }
+
+    if (
+      modoPagamento ===
+        "DUAS_FORMAS" &&
+      !divisaoValida
+    ) {
+      setErro(
+        "Informe um valor válido. Cada parte precisa ter pelo menos R$ 1,00."
+      );
+      return;
+    }
+
+    const partesPagamento =
+      modoPagamento === "UNICO"
+        ? [
+            {
+              ordem: 1,
+              forma:
+                formaPagamento1,
+              valor:
+                dados.matricula
+                  .valorTotal,
+            },
+          ]
+        : [
+            {
+              ordem: 1,
+              forma:
+                formaPagamento1,
+              valor:
+                valorPrimeiraParte,
+            },
+            {
+              ordem: 2,
+              forma:
+                formaPagamento2,
+              valor:
+                valorSegundaParte,
+            },
+          ];
+
+    setPreparandoPagamento(true);
+    setErro("");
+
+    try {
+      const resposta = await fetch(
+        `/api/ibe/matricula/pagamento/${encodeURIComponent(
+          externalReference
+        )}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+          body: JSON.stringify({
+            modoPagamento,
+            partesPagamento,
+          }),
+        }
+      );
+
+      const resultado =
+        await resposta
+          .json()
+          .catch(() => ({}));
+
+      if (!resposta.ok) {
+        if (
+          resultado?.jaPreparado
+        ) {
+          await carregarPagamentos(
+            true
+          );
+          return;
+        }
+
+        setErro(
+          resultado?.error ||
+            "Não foi possível preparar os pagamentos."
+        );
+        return;
+      }
+
+      await carregarPagamentos(true);
+    } catch (error) {
+      console.error(
+        "Erro ao preparar pagamentos:",
+        error
+      );
+
+      setErro(
+        "Não foi possível comunicar com o servidor."
+      );
+    } finally {
+      setPreparandoPagamento(false);
+    }
+  }
 
   if (carregando) {
     return (
@@ -337,7 +618,10 @@ export default function PagamentoMatriculaIbePage() {
             onClick={() =>
               carregarPagamentos(true)
             }
-            disabled={atualizando}
+            disabled={
+              atualizando ||
+              preparandoPagamento
+            }
             className="rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-sm font-bold text-white hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {atualizando
@@ -418,6 +702,246 @@ export default function PagamentoMatriculaIbePage() {
             </p>
           </div>
         </section>
+
+        {mostrarEscolhaPagamento && (
+          <section className="mb-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-lg">
+            <div>
+              <p className="text-sm font-semibold text-emerald-700">
+                Etapa de pagamento
+              </p>
+
+              <h2 className="mt-1 text-2xl font-black text-slate-900">
+                Como deseja pagar?
+              </h2>
+
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">
+                Escolha uma forma para o valor total
+                ou divida a matrícula em duas formas
+                de pagamento.
+              </p>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <button
+                type="button"
+                onClick={() =>
+                  selecionarModo("UNICO")
+                }
+                className={`rounded-2xl border p-4 text-left transition ${
+                  modoPagamento === "UNICO"
+                    ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-100"
+                    : "border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40"
+                }`}
+              >
+                <span className="block font-bold text-slate-900">
+                  Uma forma de pagamento
+                </span>
+
+                <span className="mt-1 block text-sm text-slate-600">
+                  Pague o valor total com uma única
+                  opção.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  selecionarModo(
+                    "DUAS_FORMAS"
+                  )
+                }
+                className={`rounded-2xl border p-4 text-left transition ${
+                  modoPagamento ===
+                  "DUAS_FORMAS"
+                    ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-100"
+                    : "border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40"
+                }`}
+              >
+                <span className="block font-bold text-slate-900">
+                  Dividir em duas formas
+                </span>
+
+                <span className="mt-1 block text-sm text-slate-600">
+                  Escolha duas opções e defina o
+                  valor da primeira parte.
+                </span>
+              </button>
+            </div>
+
+            <div className="mt-7">
+              <h3 className="font-bold text-slate-900">
+                {modoPagamento ===
+                "DUAS_FORMAS"
+                  ? "Forma da primeira parte"
+                  : "Forma de pagamento"}
+              </h3>
+
+              <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                {FORMAS_PAGAMENTO.map(
+                  (forma) => (
+                    <button
+                      key={`p1-${forma.id}`}
+                      type="button"
+                      onClick={() =>
+                        setFormaPagamento1(
+                          forma.id
+                        )
+                      }
+                      className={`rounded-2xl border p-4 text-left transition ${
+                        formaPagamento1 ===
+                        forma.id
+                          ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-100"
+                          : "border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40"
+                      }`}
+                    >
+                      <span className="block font-bold text-slate-900">
+                        {forma.titulo}
+                      </span>
+
+                      <span className="mt-1 block text-sm text-slate-600">
+                        {forma.descricao}
+                      </span>
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+
+            {modoPagamento ===
+              "DUAS_FORMAS" && (
+              <>
+                <div className="mt-7">
+                  <label className="font-bold text-slate-900">
+                    Valor da primeira parte
+                  </label>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_180px_180px]">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={
+                        valorPrimeiraParteTexto
+                      }
+                      onChange={(event) =>
+                        setValorPrimeiraParteTexto(
+                          event.target.value
+                        )
+                      }
+                      placeholder="Ex.: 1.500,00"
+                      className="rounded-xl border border-slate-300 px-4 py-3 text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    />
+
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <span className="block text-xs font-semibold uppercase text-slate-500">
+                        Parte 1
+                      </span>
+
+                      <strong className="mt-1 block text-slate-900">
+                        {formatarMoeda(
+                          valorPrimeiraParte
+                        )}
+                      </strong>
+                    </div>
+
+                    <div className="rounded-xl bg-slate-50 p-3">
+                      <span className="block text-xs font-semibold uppercase text-slate-500">
+                        Parte 2
+                      </span>
+
+                      <strong className="mt-1 block text-slate-900">
+                        {formatarMoeda(
+                          valorSegundaParte
+                        )}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {!divisaoValida && (
+                    <p className="mt-2 text-sm font-semibold text-red-600">
+                      Cada parte precisa ter pelo
+                      menos R$ 1,00.
+                    </p>
+                  )}
+                </div>
+
+                <div className="mt-7">
+                  <h3 className="font-bold text-slate-900">
+                    Forma da segunda parte
+                  </h3>
+
+                  <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                    {FORMAS_PAGAMENTO.map(
+                      (forma) => (
+                        <button
+                          key={`p2-${forma.id}`}
+                          type="button"
+                          onClick={() =>
+                            setFormaPagamento2(
+                              forma.id
+                            )
+                          }
+                          className={`rounded-2xl border p-4 text-left transition ${
+                            formaPagamento2 ===
+                            forma.id
+                              ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-100"
+                              : "border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/40"
+                          }`}
+                        >
+                          <span className="block font-bold text-slate-900">
+                            {forma.titulo}
+                          </span>
+
+                          <span className="mt-1 block text-sm text-slate-600">
+                            {forma.descricao}
+                          </span>
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {formasComCobranca && (
+              <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-relaxed text-amber-800">
+                Boleto e cartão de débito criam uma
+                cobrança real no Asaas somente
+                depois da confirmação abaixo.
+              </div>
+            )}
+
+            {modoPagamento ===
+              "DUAS_FORMAS" && (
+              <div className="mt-4 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm leading-relaxed text-blue-800">
+                A matrícula será liberada somente
+                depois da confirmação das duas
+                partes.
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={
+                prepararPagamentos
+              }
+              disabled={
+                preparandoPagamento ||
+                !divisaoValida
+              }
+              className="mt-7 inline-flex w-full items-center justify-center rounded-xl bg-emerald-600 px-5 py-4 font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              {preparandoPagamento
+                ? "Preparando pagamentos..."
+                : modoPagamento ===
+                    "DUAS_FORMAS"
+                ? "Confirmar divisão e continuar"
+                : formaPagamento1 ===
+                    "BOLETO"
+                ? "Gerar boleto"
+                : "Continuar para pagamento"}
+            </button>
+          </section>
+        )}
 
         <section className="space-y-5">
           {pagamentos.map(
@@ -533,10 +1057,7 @@ export default function PagamentoMatriculaIbePage() {
                       "CANCELADO") && (
                     <p className="mt-6 text-sm font-semibold text-amber-700">
                       Este link não está mais
-                      disponível. Em seguida
-                      adicionaremos a opção de
-                      gerar um novo link sem criar
-                      outra matrícula.
+                      disponível.
                     </p>
                   )}
                 </article>
