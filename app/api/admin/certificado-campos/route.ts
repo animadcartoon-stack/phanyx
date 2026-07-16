@@ -231,91 +231,88 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
     }
 
+    if (!user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Instituição do usuário não encontrada." },
+        { status: 400 }
+      );
+    }
+
     const body = await req.json();
     const camposRecebidos = Array.isArray(body?.campos) ? body.campos : [];
 
-    const idsValidosNaTela = camposRecebidos
-      .map((campo: any) => Number(campo?.bancoId || campo?.id))
-      .filter(
-        (id: number) =>
-          Number.isFinite(id) && id > 0 && id < 1000000000
-      );
+    const camposValidos = camposRecebidos.filter((campo: any) => {
+      if (!campo) return false;
+      if (campo.id === -999999) return false;
+      if (campo.arrayPreview === true) return false;
+      if (campo.idOriginalArray) return false;
+      if (!String(campo?.tipo || "").trim()) return false;
+
+      return true;
+    });
+
+    const camposParaCriar = camposValidos.map((campo: any, index: number) => {
+      const {
+        id: _id,
+        bancoId: _bancoId,
+        tempId: _tempId,
+        arrayPreview: _arrayPreview,
+        idOriginalArray: _idOriginalArray,
+        dadosJson: dadosJsonRecebido,
+        ...campoSemControle
+      } = campo;
+
+      const dadosJson: any = {
+        ...(dadosJsonRecebido || {}),
+        ...campoSemControle,
+      };
+
+      delete dadosJson.id;
+      delete dadosJson.bancoId;
+      delete dadosJson.tempId;
+      delete dadosJson.arrayPreview;
+      delete dadosJson.idOriginalArray;
+
+      return {
+        instituicaoId: user.instituicaoId,
+        tipo: String(campo?.tipo || "").trim(),
+
+        x: Number(campo?.x ?? 100),
+        y: Number(campo?.y ?? 100),
+        largura: Number(campo?.largura ?? 220),
+        altura: Number(campo?.altura ?? 40),
+
+        fonte: String(campo?.fonte || "Helvetica"),
+        tamanho: Number(campo?.tamanho ?? 18),
+        cor: String(campo?.cor || "#1e3a8a"),
+        alinhamento: String(campo?.alinhamento || "left"),
+
+        pagina: Number(campo?.pagina ?? 1),
+        ordem: Number(campo?.ordem ?? index + 1),
+
+        lineHeight:
+          campo?.lineHeight !== undefined && campo?.lineHeight !== null
+            ? Number(campo.lineHeight)
+            : null,
+
+        marcador:
+          typeof campo?.marcador === "string" ? campo.marcador : null,
+
+        dadosJson,
+      };
+    });
 
     await prisma.$transaction(async (tx) => {
-      if (body?.removerAusentes === true) {
-  await tx.certificadoCampo.deleteMany({
-    where: {
-      instituicaoId: user.instituicaoId,
-      id: {
-        notIn: idsValidosNaTela.length ? idsValidosNaTela : [0],
-      },
-    },
-  });
-}
+      await tx.certificadoCampo.deleteMany({
+        where: {
+          instituicaoId: user.instituicaoId,
+        },
+      });
 
-      for (const campo of camposRecebidos) {
-        const id = Number(campo?.bancoId || campo?.id);
-        const idValido =
-          Number.isFinite(id) && id > 0 && id < 1000000000;
-
-        const {
-  id: _id,
-  bancoId: _bancoId,
-  tempId: _tempId,
-  arrayPreview: _arrayPreview,
-  idOriginalArray: _idOriginalArray,
-  dadosJson: dadosJsonRecebido,
-  ...campoSemIds
-} = campo;
-
-const tipo = String(campoSemIds?.tipo || "").trim();
-
-if (!tipo) {
-  continue;
-}
-
-const dadosJson = {
-  ...(dadosJsonRecebido || {}),
-  ...campoSemIds,
-};
-
-        const data = {
-  instituicaoId: user.instituicaoId,
-  tipo,
-          x: Number(campo?.x ?? 100),
-          y: Number(campo?.y ?? 100),
-          largura: Number(campo?.largura ?? 220),
-          altura: Number(campo?.altura ?? 40),
-          fonte: String(campo?.fonte || "Helvetica"),
-          tamanho: Number(campo?.tamanho ?? 18),
-          cor: String(campo?.cor || "#1e3a8a"),
-          alinhamento: String(campo?.alinhamento || "left"),
-          pagina: Number(campo?.pagina ?? 1),
-          ordem: Number(campo?.ordem ?? 0),
-          lineHeight:
-            campo?.lineHeight !== undefined && campo?.lineHeight !== null
-              ? Number(campo.lineHeight)
-              : null,
-          marcador:
-            typeof campo?.marcador === "string"
-              ? campo.marcador
-              : null,
-          dadosJson,
-        };
-
-        if (idValido) {
-          await tx.certificadoCampo.updateMany({
-            where: {
-              id,
-              instituicaoId: user.instituicaoId,
-            },
-            data,
-          });
-        } else {
-          await tx.certificadoCampo.create({
-            data,
-          });
-        }
+      if (camposParaCriar.length > 0) {
+        await tx.certificadoCampo.createMany({
+          data: camposParaCriar,
+        });
       }
 
       await tx.certificado.updateMany({
@@ -332,25 +329,33 @@ const dadosJson = {
       where: {
         instituicaoId: user.instituicaoId,
       },
-      orderBy: {
-        id: "asc",
-      },
+      orderBy: [
+        {
+          ordem: "asc",
+        },
+        {
+          id: "asc",
+        },
+      ],
     });
 
     return NextResponse.json({
-  ok: true,
-  campos: campos.map((campo: any) => {
-    const dados = campo.dadosJson || {};
+      ok: true,
+      totalSalvo: campos.length,
+      campos: campos.map((campo: any) => {
+        const dados = campo.dadosJson || {};
 
-    return {
-      ...campo,
-      ...dados,
-      bancoId: campo.id,
-      id: campo.id,
-    };
-  }),
-});
+        return {
+          ...campo,
+          ...dados,
+          id: campo.id,
+          bancoId: campo.id,
+        };
+      }),
+    });
   } catch (error: any) {
+    console.error("ERRO SALVAR MODELO COMPLETO DO CERTIFICADO:", error);
+
     return NextResponse.json(
       {
         error: "Erro ao salvar modelo completo do certificado.",
