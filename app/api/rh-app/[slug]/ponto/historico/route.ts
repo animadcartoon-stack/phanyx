@@ -1,4 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
@@ -13,7 +16,7 @@ type ContextoRota = {
 };
 
 const LIMITE_PADRAO = 10;
-const LIMITE_MAXIMO = 50;
+const LIMITE_MAXIMO = 31;
 
 function normalizarSlug(valor: unknown) {
   try {
@@ -47,7 +50,9 @@ function dataCanonica(valor: string | null) {
 
   const data = new Date(`${valor}T00:00:00.000Z`);
 
-  return Number.isNaN(data.getTime()) ? null : data;
+  return Number.isNaN(data.getTime())
+    ? null
+    : data;
 }
 
 function tiposDoFiltro(tipo: string) {
@@ -67,12 +72,15 @@ export async function GET(
   contexto: ContextoRota
 ) {
   try {
-    const slug = normalizarSlug(contexto.params.slug);
+    const slug = normalizarSlug(
+      contexto.params.slug
+    );
 
     if (!slug) {
       return NextResponse.json(
         {
-          error: "Instituição não identificada.",
+          error:
+            "Instituição não identificada.",
         },
         {
           status: 400,
@@ -95,7 +103,9 @@ export async function GET(
     }
 
     const usuarioId = Number(user.id);
-    const instituicaoId = Number(user.instituicaoId);
+    const instituicaoId = Number(
+      user.instituicaoId
+    );
 
     if (
       !Number.isInteger(usuarioId) ||
@@ -149,39 +159,42 @@ export async function GET(
       url.searchParams.get("dataFim")
     );
 
-    const [instituicao, funcionario, configuracao] =
-      await Promise.all([
-        prisma.instituicao.findFirst({
-          where: {
-            id: instituicaoId,
-            slug,
-          },
-          select: {
-            id: true,
-          },
-        }),
+    const [
+      instituicao,
+      funcionario,
+      configuracao,
+    ] = await Promise.all([
+      prisma.instituicao.findFirst({
+        where: {
+          id: instituicaoId,
+          slug,
+        },
+        select: {
+          id: true,
+        },
+      }),
 
-        prisma.funcionario.findFirst({
-          where: {
-            userId: usuarioId,
-            instituicaoId,
-          },
-          select: {
-            id: true,
-            ativo: true,
-            pontoMobileLiberado: true,
-          },
-        }),
+      prisma.funcionario.findFirst({
+        where: {
+          userId: usuarioId,
+          instituicaoId,
+        },
+        select: {
+          id: true,
+          ativo: true,
+          pontoMobileLiberado: true,
+        },
+      }),
 
-        prisma.configuracaoPontoMobileRH.findUnique({
-          where: {
-            instituicaoId,
-          },
-          select: {
-            fusoHorario: true,
-          },
-        }),
-      ]);
+      prisma.configuracaoPontoMobileRH.findUnique({
+        where: {
+          instituicaoId,
+        },
+        select: {
+          fusoHorario: true,
+        },
+      }),
+    ]);
 
     if (!instituicao) {
       return NextResponse.json(
@@ -207,26 +220,19 @@ export async function GET(
       );
     }
 
-    const where: Prisma.MarcacaoPontoMobileRHWhereInput = {
+    const where: Prisma.PontoFuncionarioRHWhereInput = {
       instituicaoId,
       funcionarioId: funcionario.id,
     };
 
-    const tipos = tiposDoFiltro(tipo);
-
-    if (tipos.length > 0) {
-      where.tipo = {
-        in: tipos,
-      };
-    }
-
     if (dataInicio || dataFim) {
-      where.dataLocal = {
+      where.data = {
         ...(dataInicio
           ? {
               gte: dataInicio,
             }
           : {}),
+
         ...(dataFim
           ? {
               lte: dataFim,
@@ -235,77 +241,140 @@ export async function GET(
       };
     }
 
+    const tipos = tiposDoFiltro(tipo);
+
+    const filtroMarcacao: Prisma.MarcacaoPontoMobileRHWhereInput =
+      {};
+
+    if (tipos.length > 0) {
+      filtroMarcacao.tipo = {
+        in: tipos,
+      };
+    }
+
     if (
       situacao === "VALIDA" ||
       situacao === "INVALIDADA"
     ) {
-      where.status = situacao;
+      filtroMarcacao.status = situacao;
     }
 
     if (situacao === "CORRIGIDA") {
-      where.ajustes = {
-        some: {},
+      where.solicitacoesCorrecaoPontoRH = {
+        some: {
+          status: "APLICADA",
+        },
+      };
+    } else if (
+      tipos.length > 0 ||
+      situacao === "VALIDA" ||
+      situacao === "INVALIDADA"
+    ) {
+      where.marcacoesMobile = {
+        some: filtroMarcacao,
       };
     }
 
-    const [total, marcacoes] = await Promise.all([
-      prisma.marcacaoPontoMobileRH.count({
-        where,
-      }),
+    const [total, jornadas] =
+      await Promise.all([
+        prisma.pontoFuncionarioRH.count({
+          where,
+        }),
 
-      prisma.marcacaoPontoMobileRH.findMany({
-        where,
+        prisma.pontoFuncionarioRH.findMany({
+          where,
 
-        orderBy: [
-          {
-            dataHora: "desc",
-          },
-          {
-            id: "desc",
-          },
-        ],
-
-        skip: (pagina - 1) * limite,
-        take: limite,
-
-        select: {
-          id: true,
-          tipo: true,
-          dataHora: true,
-          dataLocal: true,
-          status: true,
-          statusLocalizacao: true,
-          comprovanteCodigo: true,
-          distanciaMetros: true,
-          origem: true,
-
-          local: {
-            select: {
-              nome: true,
-            },
+          orderBy: {
+            data: "desc",
           },
 
-          ajustes: {
-            orderBy: {
-              criadoEm: "desc",
-            },
-            take: 1,
-            select: {
-              id: true,
-              acao: true,
-              motivo: true,
-              criadoEm: true,
+          skip: (pagina - 1) * limite,
+          take: limite,
 
-              criadoPor: {
-                select: {
-                  nome: true,
+          select: {
+            id: true,
+            data: true,
+            status: true,
+            horasTrabalhadas: true,
+            horasExtras: true,
+            horasAtraso: true,
+            observacoes: true,
+
+            marcacoesMobile: {
+              orderBy: [
+                {
+                  dataHora: "asc",
+                },
+                {
+                  id: "asc",
+                },
+              ],
+
+              select: {
+                id: true,
+                tipo: true,
+                dataHora: true,
+                dataLocal: true,
+                status: true,
+                statusLocalizacao: true,
+                comprovanteCodigo: true,
+                distanciaMetros: true,
+                origem: true,
+
+                local: {
+                  select: {
+                    nome: true,
+                  },
                 },
               },
             },
+
+            autorizacoesCorrecaoPontoRH: {
+              orderBy: {
+                criadoEm: "desc",
+              },
+
+              take: 1,
+
+              select: {
+                id: true,
+                status: true,
+                motivoAutorizacao: true,
+                autorizadoEm: true,
+                validoAte: true,
+                utilizadoEm: true,
+                limiteEnvios: true,
+                enviosRealizados: true,
+
+                autorizadoPor: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+              },
+            },
+
+            solicitacoesCorrecaoPontoRH: {
+              orderBy: {
+                criadoEm: "desc",
+              },
+
+              take: 1,
+
+              select: {
+                id: true,
+                status: true,
+                motivoFuncionario: true,
+                enviadoEm: true,
+                aplicadoEm: true,
+              },
+            },
           },
-        },
-      }),
-    ]);
+        }),
+      ]);
+
+    const agora = Date.now();
 
     const totalPaginas = Math.max(
       1,
@@ -323,56 +392,177 @@ export async function GET(
         configuracao?.fusoHorario ||
         "America/Sao_Paulo",
 
-      marcacoes: marcacoes.map((marcacao) => ({
-        id: marcacao.id,
-        tipo: marcacao.tipo,
-        dataHora: marcacao.dataHora.toISOString(),
+      jornadas: jornadas.map((jornada) => {
+        const autorizacao =
+          jornada
+            .autorizacoesCorrecaoPontoRH[0] ||
+          null;
 
-        dataLocal:
-          marcacao.dataLocal
-            .toISOString()
-            .slice(0, 10),
+        const autorizacaoExpirada =
+          autorizacao?.status === "ATIVA" &&
+          autorizacao.validoAte.getTime() <=
+            agora;
 
-        status: marcacao.status,
-        statusLocalizacao:
-          marcacao.statusLocalizacao,
+        return {
+          id: jornada.id,
 
-        comprovanteCodigo:
-          marcacao.comprovanteCodigo,
+          dataLocal:
+            jornada.data
+              .toISOString()
+              .slice(0, 10),
 
-        distanciaMetros:
-          marcacao.distanciaMetros,
+          status: jornada.status,
 
-        origem: marcacao.origem,
-        localNome: marcacao.local?.nome || null,
+          horasTrabalhadas:
+            jornada.horasTrabalhadas !== null
+              ? String(
+                  jornada.horasTrabalhadas
+                )
+              : null,
 
-        corrigida:
-          marcacao.ajustes.length > 0,
+          horasExtras:
+            jornada.horasExtras !== null
+              ? String(
+                  jornada.horasExtras
+                )
+              : null,
 
-        ultimoAjuste:
-          marcacao.ajustes[0]
-            ? {
-                acao:
-                  marcacao.ajustes[0].acao,
+          horasAtraso:
+            jornada.horasAtraso !== null
+              ? String(
+                  jornada.horasAtraso
+                )
+              : null,
 
-                motivo:
-                  marcacao.ajustes[0].motivo,
+          observacoes:
+            jornada.observacoes,
 
-                criadoEm:
-                  marcacao.ajustes[0]
-                    .criadoEm
+          marcacoes:
+            jornada.marcacoesMobile.map(
+              (marcacao) => ({
+                id: marcacao.id,
+                tipo: marcacao.tipo,
+
+                dataHora:
+                  marcacao.dataHora
                     .toISOString(),
 
-                criadoPorNome:
-                  marcacao.ajustes[0]
-                    .criadoPor?.nome || null,
+                dataLocal:
+                  marcacao.dataLocal
+                    .toISOString()
+                    .slice(0, 10),
+
+                status:
+                  marcacao.status,
+
+                statusLocalizacao:
+                  marcacao
+                    .statusLocalizacao,
+
+                comprovanteCodigo:
+                  marcacao
+                    .comprovanteCodigo,
+
+                distanciaMetros:
+                  marcacao
+                    .distanciaMetros,
+
+                origem:
+                  marcacao.origem,
+
+                localNome:
+                  marcacao.local?.nome ||
+                  null,
+              })
+            ),
+
+          autorizacao: autorizacao
+            ? {
+                id: autorizacao.id,
+
+                status:
+                  autorizacaoExpirada
+                    ? "EXPIRADA"
+                    : autorizacao.status,
+
+                motivoAutorizacao:
+                  autorizacao
+                    .motivoAutorizacao,
+
+                autorizadoEm:
+                  autorizacao
+                    .autorizadoEm
+                    .toISOString(),
+
+                validoAte:
+                  autorizacao
+                    .validoAte
+                    .toISOString(),
+
+                utilizadoEm:
+                  autorizacao.utilizadoEm
+                    ?.toISOString() ||
+                  null,
+
+                limiteEnvios:
+                  autorizacao.limiteEnvios,
+
+                enviosRealizados:
+                  autorizacao
+                    .enviosRealizados,
+
+                autorizadoPor: {
+                  id:
+                    autorizacao
+                      .autorizadoPor.id,
+
+                  nome:
+                    autorizacao
+                      .autorizadoPor.nome,
+                },
               }
             : null,
-      })),
+
+          ultimaSolicitacao:
+            jornada
+              .solicitacoesCorrecaoPontoRH[0]
+              ? {
+                  id:
+                    jornada
+                      .solicitacoesCorrecaoPontoRH[0]
+                      .id,
+
+                  status:
+                    jornada
+                      .solicitacoesCorrecaoPontoRH[0]
+                      .status,
+
+                  motivoFuncionario:
+                    jornada
+                      .solicitacoesCorrecaoPontoRH[0]
+                      .motivoFuncionario,
+
+                  enviadoEm:
+                    jornada
+                      .solicitacoesCorrecaoPontoRH[0]
+                      .enviadoEm
+                      ?.toISOString() ||
+                    null,
+
+                  aplicadoEm:
+                    jornada
+                      .solicitacoesCorrecaoPontoRH[0]
+                      .aplicadoEm
+                      ?.toISOString() ||
+                    null,
+                }
+              : null,
+        };
+      }),
     });
   } catch (error) {
     console.error(
-      "Erro ao carregar histórico do Ponto Mobile:",
+      "Erro ao carregar histórico diário do Ponto Mobile:",
       error
     );
 
