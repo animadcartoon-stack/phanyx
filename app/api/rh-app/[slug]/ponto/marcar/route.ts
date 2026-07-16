@@ -14,15 +14,13 @@ type ContextoRota = {
   };
 };
 
-const SEQUENCIA_MARCACOES = [
+const TIPOS_MARCACAO = [
   "ENTRADA",
-  "SAIDA_ALMOCO",
-  "RETORNO_ALMOCO",
   "SAIDA",
 ] as const;
 
 type TipoMarcacao =
-  (typeof SEQUENCIA_MARCACOES)[number];
+  (typeof TIPOS_MARCACAO)[number];
 
 type LocalProximoBanco = {
   id: number;
@@ -167,22 +165,25 @@ function criarDataLocalCanonica(
   return data;
 }
 
-function obterProximoTipo(
-  tiposRegistrados: string[]
+function normalizarTipoParaCalculo(
+  tipo: string
 ): TipoMarcacao | null {
-  const tiposDoDia = new Set(
-    tiposRegistrados.map((tipo) =>
-      String(tipo || "")
-        .trim()
-        .toUpperCase()
-    )
-  );
+  switch (
+    String(tipo || "")
+      .trim()
+      .toUpperCase()
+  ) {
+    case "ENTRADA":
+    case "RETORNO_ALMOCO":
+      return "ENTRADA";
 
-  return (
-    SEQUENCIA_MARCACOES.find(
-      (tipo) => !tiposDoDia.has(tipo)
-    ) || null
-  );
+    case "SAIDA":
+    case "SAIDA_ALMOCO":
+      return "SAIDA";
+
+    default:
+      return null;
+  }
 }
 
 function obterRotuloTipo(
@@ -192,41 +193,27 @@ function obterRotuloTipo(
     case "ENTRADA":
       return "Entrada";
 
+    case "SAIDA":
+      return "Saída";
+
     case "SAIDA_ALMOCO":
       return "Saída para almoço";
 
     case "RETORNO_ALMOCO":
       return "Retorno do almoço";
 
-    case "SAIDA":
-      return "Saída";
-
     default:
-      return "Jornada concluída";
+      return "Marcação";
   }
 }
 
 function obterMensagemSucesso(
   tipo: TipoMarcacao
 ) {
-  switch (tipo) {
-    case "ENTRADA":
-      return "Entrada registrada com sucesso.";
-
-    case "SAIDA_ALMOCO":
-      return "Saída para almoço registrada com sucesso.";
-
-    case "RETORNO_ALMOCO":
-      return "Retorno do almoço registrado com sucesso.";
-
-    case "SAIDA":
-      return "Saída registrada com sucesso.";
-
-    default:
-      return "Ponto registrado com sucesso.";
-  }
+  return tipo === "ENTRADA"
+    ? "Entrada registrada com sucesso."
+    : "Saída registrada com sucesso.";
 }
-
 function valorAusente(valor: unknown) {
   return (
     valor === null ||
@@ -320,68 +307,72 @@ function alvoErroPrisma(error: unknown) {
   return String(target || "");
 }
 
-function calcularHorasTrabalhadas(
+function calcularResumoJornada(
   marcacoes: Array<{
     tipo: string;
     dataHora: Date;
-  }>,
-  tipoAtual: TipoMarcacao,
-  dataHoraAtual: Date
+  }>
 ) {
-  if (tipoAtual !== "SAIDA") {
-    return null;
-  }
+  const ordenadas = [...marcacoes].sort(
+    (a, b) =>
+      a.dataHora.getTime() -
+      b.dataHora.getTime()
+  );
 
-  function horario(tipo: TipoMarcacao) {
-    if (tipo === tipoAtual) {
-      return dataHoraAtual;
+  let primeiraEntrada: Date | null = null;
+  let ultimaSaida: Date | null = null;
+  let entradaAberta: Date | null = null;
+  let totalTrabalhadoMs = 0;
+
+  for (const marcacao of ordenadas) {
+    const tipoNormalizado =
+      normalizarTipoParaCalculo(
+        marcacao.tipo
+      );
+
+    if (tipoNormalizado === "ENTRADA") {
+      if (!primeiraEntrada) {
+        primeiraEntrada =
+          marcacao.dataHora;
+      }
+
+      if (!entradaAberta) {
+        entradaAberta =
+          marcacao.dataHora;
+      }
+
+      continue;
     }
 
-    return marcacoes.find(
-      (marcacao) =>
-        marcacao.tipo === tipo
-    )?.dataHora;
+    if (tipoNormalizado === "SAIDA") {
+      ultimaSaida = marcacao.dataHora;
+
+      if (
+        entradaAberta &&
+        marcacao.dataHora.getTime() >
+          entradaAberta.getTime()
+      ) {
+        totalTrabalhadoMs +=
+          marcacao.dataHora.getTime() -
+          entradaAberta.getTime();
+
+        entradaAberta = null;
+      }
+    }
   }
 
-  const entrada = horario("ENTRADA");
+  return {
+    primeiraEntrada,
+    ultimaSaida,
 
-  const saidaAlmoco =
-    horario("SAIDA_ALMOCO");
-
-  const retornoAlmoco =
-    horario("RETORNO_ALMOCO");
-
-  const saida = horario("SAIDA");
-
-  if (
-    !entrada ||
-    !saidaAlmoco ||
-    !retornoAlmoco ||
-    !saida
-  ) {
-    return null;
-  }
-
-  const periodoManha =
-    saidaAlmoco.getTime() -
-    entrada.getTime();
-
-  const periodoTarde =
-    saida.getTime() -
-    retornoAlmoco.getTime();
-
-  if (
-    periodoManha < 0 ||
-    periodoTarde < 0
-  ) {
-    return null;
-  }
-
-  const totalHoras =
-    (periodoManha + periodoTarde) /
-    (60 * 60 * 1000);
-
-  return totalHoras.toFixed(2);
+    horasTrabalhadas:
+      totalTrabalhadoMs > 0
+        ? (
+            totalTrabalhadoMs /
+            (60 * 60 * 1000)
+          ).toFixed(2)
+        : null,
+  };
 }
 
 async function localizarPontoMaisProximo(
@@ -862,29 +853,6 @@ async function obterRespostaIdempotente(args: {
     return null;
   }
 
-  const marcacoesDoDia =
-    await prisma.marcacaoPontoMobileRH.findMany({
-      where: {
-        instituicaoId,
-        funcionarioId,
-        dataLocal: marcacao.dataLocal,
-      },
-
-      orderBy: {
-        dataHora: "asc",
-      },
-
-      select: {
-        tipo: true,
-      },
-    });
-
-  const proximoTipo = obterProximoTipo(
-    marcacoesDoDia.map(
-      (item) => item.tipo
-    )
-  );
-
   return {
     sucesso: true,
     repetida: true,
@@ -894,9 +862,10 @@ async function obterRespostaIdempotente(args: {
 
     marcacao: {
       tipo: marcacao.tipo,
-      tipoRotulo: obterRotuloTipo(
-        marcacao.tipo
-      ),
+      tipoRotulo:
+        obterRotuloTipo(
+          marcacao.tipo
+        ),
 
       dataHora:
         marcacao.dataHora.toISOString(),
@@ -920,22 +889,18 @@ async function obterRespostaIdempotente(args: {
     },
 
     jornada: {
-      proximoTipo,
+      ultimaMarcacaoTipo:
+        marcacao.tipo,
 
-      proximoTipoRotulo:
-        proximoTipo
-          ? obterRotuloTipo(proximoTipo)
-          : "Jornada concluída",
-
-      concluida: proximoTipo === null,
+      concluida: false,
     },
   };
 }
-
 async function registrarMarcacaoComRetry(args: {
   instituicaoId: number;
   funcionarioId: number;
   idempotenciaChave: string;
+  tipo: TipoMarcacao;
   agora: Date;
   dataLocalHoje: Date;
   foto: ResultadoFoto;
@@ -985,35 +950,6 @@ async function registrarMarcacaoComRetry(args: {
             });
 
           if (existente) {
-            const marcacoesDoDia =
-              await tx.marcacaoPontoMobileRH.findMany({
-                where: {
-                  instituicaoId:
-                    args.instituicaoId,
-
-                  funcionarioId:
-                    args.funcionarioId,
-
-                  dataLocal:
-                    existente.dataLocal,
-                },
-
-                orderBy: {
-                  dataHora: "asc",
-                },
-
-                select: {
-                  tipo: true,
-                },
-              });
-
-            const proximoTipo =
-              obterProximoTipo(
-                marcacoesDoDia.map(
-                  (item) => item.tipo
-                )
-              );
-
             return {
               sucesso: true,
               repetida: true,
@@ -1052,35 +988,28 @@ async function registrarMarcacaoComRetry(args: {
               },
 
               jornada: {
-                proximoTipo,
+                ultimaMarcacaoTipo:
+                  existente.tipo,
 
-                proximoTipoRotulo:
-                  proximoTipo
-                    ? obterRotuloTipo(
-                        proximoTipo
-                      )
-                    : "Jornada concluída",
-
-                concluida:
-                  proximoTipo === null,
+                concluida: false,
               },
             };
           }
 
-          const pontoAberto =
-            await tx.pontoFuncionarioRH.findFirst({
+          const pontoDoDia =
+            await tx.pontoFuncionarioRH.findUnique({
               where: {
-                instituicaoId:
-                  args.instituicaoId,
+                instituicaoId_funcionarioId_data:
+                  {
+                    instituicaoId:
+                      args.instituicaoId,
 
-                funcionarioId:
-                  args.funcionarioId,
+                    funcionarioId:
+                      args.funcionarioId,
 
-                status: "ABERTO",
-              },
-
-              orderBy: {
-                data: "desc",
+                    data:
+                      args.dataLocalHoje,
+                  },
               },
 
               select: {
@@ -1089,13 +1018,45 @@ async function registrarMarcacaoComRetry(args: {
               },
             });
 
+          const pontoAbertoAnterior =
+            pontoDoDia
+              ? null
+              : await tx.pontoFuncionarioRH.findFirst({
+                  where: {
+                    instituicaoId:
+                      args.instituicaoId,
+
+                    funcionarioId:
+                      args.funcionarioId,
+
+                    status: "ABERTO",
+
+                    data: {
+                      lt: args.dataLocalHoje,
+                    },
+                  },
+
+                  orderBy: {
+                    data: "desc",
+                  },
+
+                  select: {
+                    id: true,
+                    data: true,
+                  },
+                });
+
           let dataJornada =
             args.dataLocalHoje;
 
-          if (pontoAberto) {
+          if (
+            !pontoDoDia &&
+            pontoAbertoAnterior &&
+            args.tipo === "SAIDA"
+          ) {
             const idadeJornada =
               args.agora.getTime() -
-              pontoAberto.data.getTime();
+              pontoAbertoAnterior.data.getTime();
 
             if (
               idadeJornada >
@@ -1109,7 +1070,7 @@ async function registrarMarcacaoComRetry(args: {
             }
 
             dataJornada =
-              pontoAberto.data;
+              pontoAbertoAnterior.data;
           }
 
           const marcacoesDoDia =
@@ -1122,6 +1083,7 @@ async function registrarMarcacaoComRetry(args: {
                   args.funcionarioId,
 
                 dataLocal: dataJornada,
+                status: "VALIDA",
               },
 
               orderBy: {
@@ -1133,22 +1095,6 @@ async function registrarMarcacaoComRetry(args: {
                 dataHora: true,
               },
             });
-
-          const proximoTipo =
-            obterProximoTipo(
-              marcacoesDoDia.map(
-                (marcacao) =>
-                  marcacao.tipo
-              )
-            );
-
-          if (!proximoTipo) {
-            throw new ErroHttp(
-              409,
-              "A jornada já possui todas as marcações previstas.",
-              "JORNADA_CONCLUIDA"
-            );
-          }
 
           const ultimaMarcacao =
             marcacoesDoDia[
@@ -1186,47 +1132,46 @@ async function registrarMarcacaoComRetry(args: {
             }
           }
 
-          let pontoFuncionario =
-            pontoAberto;
+          const pontoFuncionario =
+            await tx.pontoFuncionarioRH.upsert({
+              where: {
+                instituicaoId_funcionarioId_data:
+                  {
+                    instituicaoId:
+                      args.instituicaoId,
 
-          if (!pontoFuncionario) {
-            pontoFuncionario =
-              await tx.pontoFuncionarioRH.upsert({
-                where: {
-                  instituicaoId_funcionarioId_data:
-                    {
-                      instituicaoId:
-                        args.instituicaoId,
+                    funcionarioId:
+                      args.funcionarioId,
 
-                      funcionarioId:
-                        args.funcionarioId,
+                    data: dataJornada,
+                  },
+              },
 
-                      data: dataJornada,
-                    },
-                },
+              update: {
+                atualizadoEm:
+                  args.agora,
+              },
 
-                update: {
-                  status: "ABERTO",
-                },
+              create: {
+                instituicaoId:
+                  args.instituicaoId,
 
-                create: {
-                  instituicaoId:
-                    args.instituicaoId,
+                funcionarioId:
+                  args.funcionarioId,
 
-                  funcionarioId:
-                    args.funcionarioId,
+                data: dataJornada,
 
-                  data: dataJornada,
+                status:
+                  args.tipo === "ENTRADA"
+                    ? "ABERTO"
+                    : "FECHADO",
+              },
 
-                  status: "ABERTO",
-                },
-
-                select: {
-                  id: true,
-                  data: true,
-                },
-              });
-          }
+              select: {
+                id: true,
+                data: true,
+              },
+            });
 
           const dataLocalTexto =
             dataJornada
@@ -1255,7 +1200,8 @@ async function registrarMarcacaoComRetry(args: {
 
                 dataHora: args.agora,
                 dataLocal: dataJornada,
-                tipo: proximoTipo,
+                tipo: args.tipo,
+                status: "VALIDA",
 
                 fotoUrl:
                   args.foto.fotoUrl,
@@ -1317,74 +1263,40 @@ async function registrarMarcacaoComRetry(args: {
               },
             });
 
-          const atualizacaoPonto: any = {
-            status: "ABERTO",
-          };
+          const marcacoesAposRegistro = [
+            ...marcacoesDoDia,
+            {
+              tipo: args.tipo,
+              dataHora: args.agora,
+            },
+          ];
 
-          if (
-            proximoTipo === "ENTRADA"
-          ) {
-            atualizacaoPonto.entrada =
-              args.agora;
-          }
-
-          if (
-            proximoTipo ===
-            "SAIDA_ALMOCO"
-          ) {
-            atualizacaoPonto.saidaAlmoco =
-              args.agora;
-          }
-
-          if (
-            proximoTipo ===
-            "RETORNO_ALMOCO"
-          ) {
-            atualizacaoPonto.retornoAlmoco =
-              args.agora;
-          }
-
-          if (
-            proximoTipo === "SAIDA"
-          ) {
-            atualizacaoPonto.saida =
-              args.agora;
-
-            atualizacaoPonto.status =
-              "FECHADO";
-
-            const horasTrabalhadas =
-              calcularHorasTrabalhadas(
-                marcacoesDoDia,
-                proximoTipo,
-                args.agora
-              );
-
-            if (horasTrabalhadas) {
-              atualizacaoPonto.horasTrabalhadas =
-                horasTrabalhadas;
-            }
-          }
+          const resumo =
+            calcularResumoJornada(
+              marcacoesAposRegistro
+            );
 
           await tx.pontoFuncionarioRH.update({
             where: {
               id: pontoFuncionario.id,
             },
 
-            data: atualizacaoPonto,
+            data: {
+              entrada:
+                resumo.primeiraEntrada,
+
+              saida:
+                resumo.ultimaSaida,
+
+              horasTrabalhadas:
+                resumo.horasTrabalhadas,
+
+              status:
+                args.tipo === "ENTRADA"
+                  ? "ABERTO"
+                  : "FECHADO",
+            },
           });
-
-          const tiposAposRegistro = [
-            ...marcacoesDoDia.map(
-              (item) => item.tipo
-            ),
-            proximoTipo,
-          ];
-
-          const proximoTipoDepois =
-            obterProximoTipo(
-              tiposAposRegistro
-            );
 
           return {
             sucesso: true,
@@ -1392,7 +1304,7 @@ async function registrarMarcacaoComRetry(args: {
 
             mensagem:
               obterMensagemSucesso(
-                proximoTipo
+                args.tipo
               ),
 
             marcacao: {
@@ -1428,19 +1340,10 @@ async function registrarMarcacaoComRetry(args: {
             },
 
             jornada: {
-              proximoTipo:
-                proximoTipoDepois,
+              ultimaMarcacaoTipo:
+                args.tipo,
 
-              proximoTipoRotulo:
-                proximoTipoDepois
-                  ? obterRotuloTipo(
-                      proximoTipoDepois
-                    )
-                  : "Jornada concluída",
-
-              concluida:
-                proximoTipoDepois ===
-                null,
+              concluida: false,
             },
           };
         },
@@ -1482,7 +1385,6 @@ async function registrarMarcacaoComRetry(args: {
 
   throw ultimoErro;
 }
-
 export async function POST(
   req: NextRequest,
   contexto: ContextoRota
@@ -1532,6 +1434,27 @@ export async function POST(
     const body = await req
       .json()
       .catch(() => ({}));
+
+    const tipoRecebido = String(
+      body?.tipo || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    if (
+      !TIPOS_MARCACAO.includes(
+        tipoRecebido as TipoMarcacao
+      )
+    ) {
+      throw new ErroHttp(
+        400,
+        "Escolha se deseja registrar uma entrada ou uma saída.",
+        "TIPO_MARCACAO_INVALIDO"
+      );
+    }
+
+    const tipo =
+      tipoRecebido as TipoMarcacao;
 
     const idempotenciaChave =
       String(
@@ -1777,6 +1700,7 @@ export async function POST(
           funcionario.id,
 
         idempotenciaChave,
+        tipo,
         agora,
         dataLocalHoje,
         foto,

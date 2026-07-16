@@ -11,13 +11,6 @@ type ContextoRota = {
   };
 };
 
-const SEQUENCIA_MARCACOES = [
-  "ENTRADA",
-  "SAIDA_ALMOCO",
-  "RETORNO_ALMOCO",
-  "SAIDA",
-] as const;
-
 function normalizarSlug(valor: unknown) {
   try {
     return decodeURIComponent(String(valor || ""))
@@ -61,41 +54,6 @@ function obterDataLocal(
     return `${ano}-${mes}-${dia}`;
   } catch {
     return data.toISOString().slice(0, 10);
-  }
-}
-
-function obterProximoTipo(
-  tiposRegistrados: string[]
-) {
-  const tiposDoDia = new Set(
-    tiposRegistrados.map((tipo) =>
-      String(tipo || "").toUpperCase()
-    )
-  );
-
-  return (
-    SEQUENCIA_MARCACOES.find(
-      (tipo) => !tiposDoDia.has(tipo)
-    ) || null
-  );
-}
-
-function rotuloTipo(tipo: string | null) {
-  switch (tipo) {
-    case "ENTRADA":
-      return "Registrar entrada";
-
-    case "SAIDA_ALMOCO":
-      return "Registrar saída para almoço";
-
-    case "RETORNO_ALMOCO":
-      return "Registrar retorno do almoço";
-
-    case "SAIDA":
-      return "Registrar saída";
-
-    default:
-      return "Jornada concluída";
   }
 }
 
@@ -305,13 +263,6 @@ export async function GET(
       configuracao.fusoHorario ||
       "America/Sao_Paulo";
 
-    /*
-     * Consultamos somente as últimas 36 horas.
-     * Depois filtramos pelo dia local da instituição.
-     *
-     * Isso cobre todos os fusos horários sem precisar
-     * carregar o histórico inteiro do funcionário.
-     */
     const inicioConsulta = new Date(
       agora.getTime() -
         36 * 60 * 60 * 1000
@@ -324,6 +275,7 @@ export async function GET(
       prisma.marcacaoPontoMobileRH.findMany({
         where: {
           instituicaoId,
+          status: "VALIDA",
 
           funcionario: {
             userId: usuarioId,
@@ -338,7 +290,7 @@ export async function GET(
           dataHora: "asc",
         },
 
-        take: 20,
+        take: 100,
 
         select: {
           tipo: true,
@@ -371,11 +323,12 @@ export async function GET(
           ) === dataLocalHoje
       );
 
-    const proximoTipo = obterProximoTipo(
-      marcacoesHoje.map(
-        (marcacao) => marcacao.tipo
-      )
-    );
+    const ultimaMarcacao =
+      marcacoesHoje.length > 0
+        ? marcacoesHoje[
+            marcacoesHoje.length - 1
+          ]
+        : null;
 
     const nomeInstituicao = String(
       instituicao.nome || "Instituição"
@@ -428,11 +381,21 @@ export async function GET(
       },
 
       jornada: {
-        proximoTipo,
-        proximoTipoRotulo:
-          rotuloTipo(proximoTipo),
+        concluida: false,
 
-        concluida: proximoTipo === null,
+        ultimaMarcacaoTipo:
+          ultimaMarcacao?.tipo || null,
+
+        opcoesMarcacao: [
+          {
+            tipo: "ENTRADA",
+            rotulo: "Registrar entrada",
+          },
+          {
+            tipo: "SAIDA",
+            rotulo: "Registrar saída",
+          },
+        ],
 
         marcacoesHoje: marcacoesHoje.map(
           (marcacao) => ({

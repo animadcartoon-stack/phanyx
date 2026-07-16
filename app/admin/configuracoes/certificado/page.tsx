@@ -713,6 +713,11 @@ const figurasDecorativas = [
   const [futuro, setFuturo] = useState<CampoCertificado[][]>([]);
   const [campoCopiado, setCampoCopiado] = useState<any>(null);
 
+  const [barraSelecaoPosicao, setBarraSelecaoPosicao] = useState({
+  x: 260,
+  y: 150,
+});
+
   const [arrayJanelaPos, setArrayJanelaPos] = useState({
   x: 180,
   y: 180,
@@ -830,12 +835,15 @@ useEffect(() => {
     const alvo = e.target as HTMLElement | null;
 
     if (
-      alvo?.closest("[data-menu-contexto-certificado]") ||
-      alvo?.closest("[data-menu-camada-certificado]") ||
-      alvo?.closest("[data-menu-gradiente-certificado]")
-    ) {
-      return;
-    }
+  alvo?.closest("[data-menu-contexto-certificado]") ||
+  alvo?.closest("[data-menu-camada-certificado]") ||
+  alvo?.closest("[data-menu-gradiente-certificado]") ||
+  alvo?.closest("[data-barra-selecao-certificado]") ||
+  alvo?.closest("[data-shape-inspector-certificado]") ||
+  alvo?.closest("[data-array-modal-certificado]")
+) {
+  return;
+}
 
     setMenuContexto(null);
     setMenuCamada(null);
@@ -4307,6 +4315,35 @@ const dadosPreviewCertificado = {
   qrCodeUrl: null,
 };
 
+function iniciarArrasteBarraSelecao(e: React.MouseEvent<HTMLDivElement>) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  const inicioMouseX = e.clientX;
+  const inicioMouseY = e.clientY;
+
+  const inicioBarraX = barraSelecaoPosicao.x;
+  const inicioBarraY = barraSelecaoPosicao.y;
+
+  const mover = (ev: globalThis.MouseEvent) => {
+    const novoX = inicioBarraX + ev.clientX - inicioMouseX;
+    const novoY = inicioBarraY + ev.clientY - inicioMouseY;
+
+    setBarraSelecaoPosicao({
+      x: Math.max(8, Math.min(window.innerWidth - 120, novoX)),
+      y: Math.max(8, Math.min(window.innerHeight - 80, novoY)),
+    });
+  };
+
+  const soltar = () => {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  };
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
   return (
   <div className="phanyx-config-certificado-page mx-auto max-w-[1600px] p-6">
     {mensagemErro && (
@@ -5515,14 +5552,26 @@ contornoEspessura: 2,
           )}
 
 {camposSelecionadosIds.length >= 2 && (
-  <div className="fixed left-1/2 top-[92px] z-[9999998] w-[min(920px,calc(100vw-32px))] -translate-x-1/2 rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur">
+  <div
+  data-barra-selecao-certificado="true"
+  onMouseDown={(e) => e.stopPropagation()}
+  className="fixed z-[9999998] w-[min(920px,calc(100vw-32px))] rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur"
+  style={{
+    left: `${barraSelecaoPosicao.x}px`,
+    top: `${barraSelecaoPosicao.y}px`,
+  }}
+>
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-      <div>
-        <p className="text-sm font-bold">Alinhar elementos selecionados</p>
-        <p className="text-xs text-slate-300">
-          Referência: último elemento ativo selecionado.
-        </p>
-      </div>
+  <div
+    onMouseDown={iniciarArrasteBarraSelecao}
+    className="cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
+    title="Arraste para mover esta barra"
+  >
+    <p className="text-sm font-bold">↕ Alinhar elementos selecionados</p>
+    <p className="text-xs text-slate-300">
+      Arraste esta área para mover a barra. Referência: último elemento ativo selecionado.
+    </p>
+  </div>
 
       <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold">
         {camposSelecionadosIds.length} selecionados
@@ -7678,22 +7727,24 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
   </div>
 )}
 
-<FloatingShapeInspector
-  aberto={shapeInspectorAberto}
-  campo={campoSelecionado || null}
-  posicao={shapeInspectorPosicao}
-  onOpenArray={() => setModalArrayAberto(true)}
-  onFechar={() => setShapeInspectorAberto(false)}
-  onMover={setShapeInspectorPosicao}
-  onAtualizarCampo={(campoAtualizado) => {
-    setCampos((prev) =>
-      prev.map((c) =>
-        c.id === campoAtualizado.id ? (campoAtualizado as any) : c
-      )
-    );
-  }}
-  setMostrarHandlesForma={setMostrarHandlesForma}
-/>
+<div data-shape-inspector-certificado="true">
+  <FloatingShapeInspector
+    aberto={shapeInspectorAberto}
+    campo={campoSelecionado || null}
+    posicao={shapeInspectorPosicao}
+    onOpenArray={() => setModalArrayAberto(true)}
+    onFechar={() => setShapeInspectorAberto(false)}
+    onMover={setShapeInspectorPosicao}
+    onAtualizarCampo={(campoAtualizado) => {
+      setCampos((prev) =>
+        prev.map((c) =>
+          c.id === campoAtualizado.id ? (campoAtualizado as any) : c
+        )
+      );
+    }}
+    setMostrarHandlesForma={setMostrarHandlesForma}
+  />
+</div>
 
           </main>
 
@@ -9159,7 +9210,8 @@ atualizarCampoLocal("tamanho", tamanho);
 
 {modalArrayAberto && (
   <div
-  className="fixed z-[99999]"
+    data-array-modal-certificado="true"
+    className="fixed z-[99999]"
   style={{
     left: arrayJanelaPos.x,
     top: arrayJanelaPos.y,

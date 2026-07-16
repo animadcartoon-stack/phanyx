@@ -144,6 +144,7 @@ model Instituicao {
   configuracaoPontoMobile       ConfiguracaoPontoMobileRH?
   locaisPontoMobile             LocalPontoMobileRH[]
   marcacoesPontoMobile          MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH        AjusteMarcacaoPontoRH[]
   eventosFolhaRH                EventoFolhaRH[]
   beneficiosRH                  BeneficioRH[]
   funcionariosBeneficiosRH      FuncionarioBeneficioRH[]
@@ -222,6 +223,7 @@ model User {
   documentosProfessorRestaurados DocumentoProfessor[]           @relation("DocumentoProfessorRestauradoPor")
   preferenciasAgendaOperacional  PreferenciaAgendaOperacional[]
   visitantesCriados              Visitante[]                    @relation("VisitanteCriadoPor")
+  ajustesMarcacaoPontoRHCriados  AjusteMarcacaoPontoRH[]        @relation("AjusteMarcacaoPontoRHCriadoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -1201,19 +1203,20 @@ model Funcionario {
   recebeMensagemAniversario Boolean       @default(true)
   recebeWhatsappAniversario Boolean       @default(true)
 
-  permissoes           FuncionarioPermissao[]
-  historicosRH         HistoricoRH[]
-  ocorrenciasRH        OcorrenciaRH[]
-  documentosRH         DocumentoRH[]
-  feriasRH             FeriasRH[]
-  examesRH             ExameMedicoRH[]
-  rescisoesRH          RescisaoRH[]
-  holeritesRH          HoleriteRH[]
-  pontosRH             PontoFuncionarioRH[]
-  escalasRH            EscalaTrabalhoRH[]
-  bancoHorasRH         BancoHorasRH[]
-  beneficiosRH         FuncionarioBeneficioRH[]
-  marcacoesPontoMobile MarcacaoPontoMobileRH[]
+  permissoes             FuncionarioPermissao[]
+  historicosRH           HistoricoRH[]
+  ocorrenciasRH          OcorrenciaRH[]
+  documentosRH           DocumentoRH[]
+  feriasRH               FeriasRH[]
+  examesRH               ExameMedicoRH[]
+  rescisoesRH            RescisaoRH[]
+  holeritesRH            HoleriteRH[]
+  pontosRH               PontoFuncionarioRH[]
+  escalasRH              EscalaTrabalhoRH[]
+  bancoHorasRH           BancoHorasRH[]
+  beneficiosRH           FuncionarioBeneficioRH[]
+  marcacoesPontoMobile   MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH AjusteMarcacaoPontoRH[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -3083,6 +3086,10 @@ model MarcacaoPontoMobileRH {
   dataLocal DateTime
   tipo      String
 
+  // VALIDA ou INVALIDADA.
+  // A marcação original não será apagada pelo RH.
+  status String @default("VALIDA")
+
   fotoUrl      String?
   fotoPathname String? @unique
   fotoHash     String?
@@ -3106,29 +3113,65 @@ model MarcacaoPontoMobileRH {
   comprovanteCodigo String @unique
   idempotenciaChave String
 
-  criadoEm DateTime @default(now())
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
 
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-
-  funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
-
-  pontoFuncionarioRH PontoFuncionarioRH? @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
-
-  local LocalPontoMobileRH? @relation(fields: [localId], references: [id], onDelete: SetNull)
+  instituicao        Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario        Funcionario             @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  pontoFuncionarioRH PontoFuncionarioRH?     @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
+  local              LocalPontoMobileRH?     @relation(fields: [localId], references: [id], onDelete: SetNull)
+  ajustes            AjusteMarcacaoPontoRH[]
 
   @@unique([instituicaoId, idempotenciaChave])
-  @@unique([instituicaoId, funcionarioId, dataLocal, tipo])
   @@index([instituicaoId])
   @@index([funcionarioId])
   @@index([pontoFuncionarioRHId])
   @@index([localId])
   @@index([dataHora])
   @@index([tipo])
+  @@index([status])
   @@index([statusLocalizacao])
   @@index([reconhecimentoStatus])
   @@index([instituicaoId, funcionarioId, dataHora])
   @@index([instituicaoId, dataHora])
-  @@index([instituicaoId, funcionarioId, dataLocal])
+  @@index([instituicaoId, funcionarioId, dataLocal, status], map: "idx_marcacao_mobile_func_data_status")
+}
+
+model AjusteMarcacaoPontoRH {
+  id Int @id @default(autoincrement())
+
+  instituicaoId Int
+  funcionarioId Int
+  marcacaoId    Int
+  criadoPorId   Int?
+
+  // INCLUSAO_MANUAL, ALTERACAO_TIPO, ALTERACAO_HORARIO,
+  // INVALIDACAO ou RESTAURACAO.
+  acao String
+
+  motivo String @db.Text
+
+  // Preserva os dados anteriores e posteriores à correção.
+  dadosAntes  Json?
+  dadosDepois Json?
+
+  ip        String?
+  userAgent String? @db.Text
+
+  criadoEm DateTime @default(now())
+
+  instituicao Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario Funcionario           @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  marcacao    MarcacaoPontoMobileRH @relation(fields: [marcacaoId], references: [id], onDelete: Restrict)
+  criadoPor   User?                 @relation("AjusteMarcacaoPontoRHCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([marcacaoId])
+  @@index([criadoPorId])
+  @@index([acao])
+  @@index([criadoEm])
+  @@index([instituicaoId, funcionarioId, criadoEm])
 }
 
 model CacheGeocodificacaoEndereco {

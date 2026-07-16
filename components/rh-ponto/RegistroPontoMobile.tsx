@@ -10,8 +10,6 @@ import {
 
 type TipoMarcacao =
   | "ENTRADA"
-  | "SAIDA_ALMOCO"
-  | "RETORNO_ALMOCO"
   | "SAIDA";
 
 type MarcacaoHoje = {
@@ -55,9 +53,14 @@ type ContextoPonto = {
   };
 
   jornada: {
-    proximoTipo: TipoMarcacao | null;
-    proximoTipoRotulo: string;
     concluida: boolean;
+    ultimaMarcacaoTipo: string | null;
+
+    opcoesMarcacao: Array<{
+      tipo: TipoMarcacao;
+      rotulo: string;
+    }>;
+
     marcacoesHoje: MarcacaoHoje[];
   };
 };
@@ -104,8 +107,7 @@ type RespostaMarcacao = {
   marcacao?: ComprovanteMarcacao;
 
   jornada?: {
-    proximoTipo: TipoMarcacao | null;
-    proximoTipoRotulo: string;
+    ultimaMarcacaoTipo: string | null;
     concluida: boolean;
   };
 
@@ -461,6 +463,11 @@ export default function RegistroPontoMobile({
   const [contexto, setContexto] =
     useState<ContextoPonto | null>(null);
 
+  const [
+    tipoSelecionado,
+    setTipoSelecionado,
+  ] = useState<TipoMarcacao | null>(null);
+
   const [carregandoContexto, setCarregandoContexto] =
     useState(true);
 
@@ -711,20 +718,24 @@ export default function RegistroPontoMobile({
     configuracao?.exigirFoto === true &&
     !fotoPronta;
 
-    const localizacaoObrigatoriaAusente =
-  configuracao?.exigirLocalizacao ===
-    true &&
-  !localizacao;
+  const localizacaoObrigatoriaAusente =
+    configuracao?.exigirLocalizacao ===
+      true &&
+    !localizacao;
+
+  const tipoMarcacaoAusente =
+    !tipoSelecionado;
 
   const botaoDesabilitado =
-  carregandoContexto ||
-  processando ||
-  !contexto ||
-  jornada?.concluida === true ||
-  fotoObrigatoriaAusente ||
-  localizacaoObrigatoriaAusente ||
-  semLocalAutorizado ||
-  processamentoEspecialPendente;
+    carregandoContexto ||
+    processando ||
+    !contexto ||
+    jornada?.concluida === true ||
+    tipoMarcacaoAusente ||
+    fotoObrigatoriaAusente ||
+    localizacaoObrigatoriaAusente ||
+    semLocalAutorizado ||
+    processamentoEspecialPendente;
 
   async function abrirCamera() {
     try {
@@ -824,12 +835,21 @@ export default function RegistroPontoMobile({
 
       pararCamera();
 
-      setMensagemSucesso(
-  configuracao?.exigirLocalizacao &&
-  !localizacao
-    ? "Foto ao vivo capturada. Agora obtenha sua localização."
-    : "Foto ao vivo capturada. Você já pode registrar o ponto."
-);
+      if (!tipoSelecionado) {
+        setMensagemSucesso(
+          configuracao?.exigirLocalizacao &&
+          !localizacao
+            ? "Foto ao vivo capturada. Escolha Entrada ou Saída e obtenha sua localização."
+            : "Foto ao vivo capturada. Agora escolha Entrada ou Saída."
+        );
+      } else {
+        setMensagemSucesso(
+          configuracao?.exigirLocalizacao &&
+          !localizacao
+            ? "Foto ao vivo capturada. Agora obtenha sua localização."
+            : "Foto ao vivo capturada. Você já pode registrar o ponto."
+        );
+      }
     } catch (error) {
       setMensagemErro(
         error instanceof Error
@@ -881,9 +901,13 @@ export default function RegistroPontoMobile({
       setLocalizacao(novaLocalizacao);
 
       setMensagemSucesso(
-        `Localização obtida com precisão aproximada de ${Math.round(
-          novaLocalizacao.precisaoMetros
-        )} metros.`
+        tipoSelecionado
+          ? `Localização obtida com precisão aproximada de ${Math.round(
+              novaLocalizacao.precisaoMetros
+            )} metros.`
+          : `Localização obtida com precisão aproximada de ${Math.round(
+              novaLocalizacao.precisaoMetros
+            )} metros. Agora escolha Entrada ou Saída.`
       );
 
       return novaLocalizacao;
@@ -900,96 +924,96 @@ export default function RegistroPontoMobile({
   }
 
   async function enviarFotoPrivada() {
-  if (fotoPathname) {
-    return fotoPathname;
-  }
-
-  if (!fotoBlob) {
-    return null;
-  }
-
-  setEtapaProcessamento(
-    "Enviando foto com segurança..."
-  );
-
-  const extensao =
-    fotoBlob.type === "image/jpeg"
-      ? "jpg"
-      : fotoBlob.type === "image/png"
-        ? "png"
-        : "webp";
-
-  const formularioFoto =
-    new FormData();
-
-  formularioFoto.append(
-    "foto",
-    fotoBlob,
-    `foto-ponto.${extensao}`
-  );
-
-  const controlador =
-    new AbortController();
-
-  const timer =
-    window.setTimeout(() => {
-      controlador.abort();
-    }, 60_000);
-
-  try {
-    const resposta =
-      await fetch(
-        `/api/rh-app/${encodeURIComponent(
-          slug
-        )}/ponto/foto/upload-url`,
-        {
-          method: "POST",
-          credentials: "include",
-
-          body: formularioFoto,
-
-          signal:
-            controlador.signal,
-        }
-      );
-
-    const dados: RespostaUpload =
-      await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(
-        dados.error ||
-          "Não foi possível enviar a foto."
-      );
+    if (fotoPathname) {
+      return fotoPathname;
     }
 
-    const pathname =
-      dados.upload?.pathname;
-
-    if (!pathname) {
-      throw new Error(
-        "O armazenamento não retornou o endereço interno da foto."
-      );
+    if (!fotoBlob) {
+      return null;
     }
 
-    setFotoPathname(pathname);
+    setEtapaProcessamento(
+      "Enviando foto com segurança..."
+    );
 
-    return pathname;
-  } catch (error) {
-    if (
-      error instanceof DOMException &&
-      error.name === "AbortError"
-    ) {
-      throw new Error(
-        "O envio da foto demorou muito. Verifique sua conexão e tente novamente."
-      );
+    const extensao =
+      fotoBlob.type === "image/jpeg"
+        ? "jpg"
+        : fotoBlob.type === "image/png"
+          ? "png"
+          : "webp";
+
+    const formularioFoto =
+      new FormData();
+
+    formularioFoto.append(
+      "foto",
+      fotoBlob,
+      `foto-ponto.${extensao}`
+    );
+
+    const controlador =
+      new AbortController();
+
+    const timer =
+      window.setTimeout(() => {
+        controlador.abort();
+      }, 60_000);
+
+    try {
+      const resposta =
+        await fetch(
+          `/api/rh-app/${encodeURIComponent(
+            slug
+          )}/ponto/foto/upload-url`,
+          {
+            method: "POST",
+            credentials: "include",
+
+            body: formularioFoto,
+
+            signal:
+              controlador.signal,
+          }
+        );
+
+      const dados: RespostaUpload =
+        await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+            "Não foi possível enviar a foto."
+        );
+      }
+
+      const pathname =
+        dados.upload?.pathname;
+
+      if (!pathname) {
+        throw new Error(
+          "O armazenamento não retornou o endereço interno da foto."
+        );
+      }
+
+      setFotoPathname(pathname);
+
+      return pathname;
+    } catch (error) {
+      if (
+        error instanceof DOMException &&
+        error.name === "AbortError"
+      ) {
+        throw new Error(
+          "O envio da foto demorou muito. Verifique sua conexão e tente novamente."
+        );
+      }
+
+      throw error;
+    } finally {
+      window.clearTimeout(timer);
     }
-
-    throw error;
-  } finally {
-    window.clearTimeout(timer);
   }
-}
 
   async function registrarPonto() {
     try {
@@ -1005,12 +1029,12 @@ export default function RegistroPontoMobile({
       const contextoAtual =
         await carregarContexto(true);
 
-      if (
-        contextoAtual.jornada.concluida ||
-        !contextoAtual.jornada.proximoTipo
-      ) {
+      const tipoParaRegistrar =
+        tipoSelecionado;
+
+      if (!tipoParaRegistrar) {
         throw new Error(
-          "A jornada de hoje já está concluída."
+          "Escolha se deseja registrar uma entrada ou uma saída."
         );
       }
 
@@ -1080,7 +1104,7 @@ export default function RegistroPontoMobile({
 
       if (!idempotenciaRef.current) {
         idempotenciaRef.current =
-          `ponto:${gerarIdentificadorSeguro()}`;
+          `ponto:${tipoParaRegistrar}:${gerarIdentificadorSeguro()}`;
       }
 
       setEtapaProcessamento(
@@ -1100,6 +1124,8 @@ export default function RegistroPontoMobile({
           },
 
           body: JSON.stringify({
+            tipo: tipoParaRegistrar,
+
             idempotenciaChave:
               idempotenciaRef.current,
 
@@ -1163,6 +1189,7 @@ export default function RegistroPontoMobile({
 
       limparFoto();
       setLocalizacao(null);
+      setTipoSelecionado(null);
 
       await carregarContexto(true);
     } catch (error) {
@@ -1234,25 +1261,118 @@ export default function RegistroPontoMobile({
           </div>
 
           <span className="rounded-full border border-blue-800 bg-blue-950 px-3 py-2 text-xs font-black text-blue-200">
-            {contexto.jornada.concluida
-              ? "Concluída"
-              : rotuloTipoMarcacao(
+            {contexto.jornada
+              .ultimaMarcacaoTipo
+              ? `Última: ${rotuloTipoMarcacao(
                   contexto.jornada
-                    .proximoTipo || ""
-                )}
+                    .ultimaMarcacaoTipo
+                )}`
+              : "Sem marcações hoje"}
           </span>
         </div>
 
         <div className="mt-6 rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
           <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Próxima marcação
+            Registro de ponto
           </p>
 
           <p className="mt-2 text-lg font-black text-white">
-            {contexto.jornada
-              .proximoTipoRotulo}
+            Escolha Entrada ou Saída antes de registrar.
           </p>
         </div>
+      </div>
+
+      <div className="rounded-[30px] border border-slate-700 bg-slate-900 p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-300">
+              Tipo da marcação
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              Escolha conscientemente o que deseja registrar.
+              O PHANYX não define automaticamente almoço, retorno
+              ou fim do expediente.
+            </p>
+          </div>
+
+          <span
+            className={`shrink-0 rounded-full border px-3 py-1 text-xs font-black ${
+              tipoSelecionado
+                ? "border-emerald-700 bg-emerald-950 text-emerald-200"
+                : "border-slate-600 bg-slate-950 text-slate-300"
+            }`}
+          >
+            {tipoSelecionado
+              ? rotuloTipoMarcacao(
+                  tipoSelecionado
+                )
+              : "Pendente"}
+          </span>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {contexto.jornada.opcoesMarcacao.map(
+            (opcao) => {
+              const selecionada =
+                tipoSelecionado ===
+                opcao.tipo;
+
+              return (
+                <button
+                  key={opcao.tipo}
+                  type="button"
+                  disabled={processando}
+                  onClick={() => {
+                    setTipoSelecionado(
+                      opcao.tipo
+                    );
+
+                    idempotenciaRef.current =
+                      null;
+
+                    setMensagemErro("");
+
+                    setMensagemSucesso(
+                      opcao.tipo ===
+                        "ENTRADA"
+                        ? "Entrada selecionada. Tire a foto e obtenha sua localização."
+                        : "Saída selecionada. Tire a foto e obtenha sua localização."
+                    );
+                  }}
+                  className={`min-h-16 rounded-2xl border px-4 py-4 text-base font-black transition disabled:opacity-50 ${
+                    selecionada
+                      ? opcao.tipo ===
+                        "ENTRADA"
+                        ? "border-emerald-500 bg-emerald-600 text-white"
+                        : "border-red-500 bg-red-700 text-white"
+                      : "border-slate-600 bg-slate-950 text-slate-200"
+                  }`}
+                >
+                  {opcao.tipo ===
+                  "ENTRADA"
+                    ? "Registrar entrada"
+                    : "Registrar saída"}
+                </button>
+              );
+            }
+          )}
+        </div>
+
+        {contexto.jornada
+          .ultimaMarcacaoTipo && (
+          <p className="mt-4 text-xs leading-5 text-slate-400">
+            Última marcação de hoje: {" "}
+            <strong className="text-slate-200">
+              {rotuloTipoMarcacao(
+                contexto.jornada
+                  .ultimaMarcacaoTipo
+              )}
+            </strong>
+            . O funcionário pode registrar novamente
+            Entrada ou Saída quando necessário.
+          </p>
+        )}
       </div>
 
       {processamentoEspecialPendente && (
@@ -1476,24 +1596,29 @@ export default function RegistroPontoMobile({
         {processando
           ? etapaProcessamento ||
             "Processando..."
-          : contexto.jornada.concluida
-            ? "Jornada concluída"
-            : contexto.jornada
-                .proximoTipoRotulo}
+          : !tipoSelecionado
+            ? "Escolha Entrada ou Saída"
+            : tipoSelecionado ===
+                "ENTRADA"
+              ? "Registrar entrada"
+              : "Registrar saída"}
       </button>
 
       {!processando &&
-  (fotoObrigatoriaAusente ||
-    localizacaoObrigatoriaAusente) && (
-    <p className="text-center text-xs text-slate-400">
-      {fotoObrigatoriaAusente &&
-      localizacaoObrigatoriaAusente
-        ? "Tire a foto ao vivo e obtenha sua localização para habilitar o registro."
-        : fotoObrigatoriaAusente
-          ? "Tire a foto ao vivo para habilitar o registro."
-          : "Obtenha sua localização para habilitar o registro."}
-    </p>
-  )}
+        (tipoMarcacaoAusente ||
+          fotoObrigatoriaAusente ||
+          localizacaoObrigatoriaAusente) && (
+          <p className="text-center text-xs leading-5 text-slate-400">
+            {tipoMarcacaoAusente
+              ? "Escolha Entrada ou Saída para continuar."
+              : fotoObrigatoriaAusente &&
+                  localizacaoObrigatoriaAusente
+                ? "Tire a foto ao vivo e obtenha sua localização para habilitar o registro."
+                : fotoObrigatoriaAusente
+                  ? "Tire a foto ao vivo para habilitar o registro."
+                  : "Obtenha sua localização para habilitar o registro."}
+          </p>
+        )}
 
       {comprovante && (
         <div className="rounded-[30px] border border-emerald-700 bg-emerald-950/40 p-6 shadow-xl">
