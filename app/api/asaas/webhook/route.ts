@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { timingSafeEqual } from "crypto";
 import {
   enviarEmailAcesso,
   enviarEmailAcessoExistente,
@@ -14,6 +15,32 @@ const ASAAS_API_URL =
     : "https://api-sandbox.asaas.com/v3";
 
 const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
+
+const ASAAS_WEBHOOK_TOKEN =
+  process.env.ASAAS_WEBHOOK_TOKEN;
+
+function tokensIguais(
+  recebido: string,
+  esperado: string
+) {
+  const bufferRecebido =
+    Buffer.from(recebido);
+
+  const bufferEsperado =
+    Buffer.from(esperado);
+
+  if (
+    bufferRecebido.length !==
+    bufferEsperado.length
+  ) {
+    return false;
+  }
+
+  return timingSafeEqual(
+    bufferRecebido,
+    bufferEsperado
+  );
+}
 
 function gerarSlugBase(texto: string) {
   return String(texto || "")
@@ -536,6 +563,45 @@ async function buscarPagamentoDoCheckoutAsaas(
 
 export async function POST(req: Request) {
   try {
+    if (!ASAAS_WEBHOOK_TOKEN) {
+      console.error(
+        "ASAAS_WEBHOOK_TOKEN não configurado."
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Webhook não configurado.",
+        },
+        { status: 500 }
+      );
+    }
+
+    const tokenRecebido =
+      req.headers
+        .get("asaas-access-token")
+        ?.trim() || "";
+
+    if (
+      !tokenRecebido ||
+      !tokensIguais(
+        tokenRecebido,
+        ASAAS_WEBHOOK_TOKEN
+      )
+    ) {
+      console.error(
+        "Tentativa de webhook com token inválido."
+      );
+
+      return NextResponse.json(
+        {
+          error:
+            "Webhook não autorizado.",
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await req.json();
 
     const event = String(body?.event || "").trim().toUpperCase();
@@ -947,7 +1013,7 @@ if (
           },
         });
 
-      const preMatricula =
+            const preMatricula =
         await prisma
           .matriculaOnlineIbe
           .findUnique({
@@ -956,6 +1022,7 @@ if (
                 pagamentoIbe
                   .matriculaOnlineIbeId,
             },
+
             include: {
               pagamentos: {
                 orderBy: {
@@ -1011,39 +1078,40 @@ if (
         valorPagoConfirmado + 0.009 >=
         valorTotalMatricula;
 
-      await prisma
-        .matriculaOnlineIbe
-        .update({
-          where: {
-            id: preMatricula.id,
-          },
-          data: {
-            valorPago:
-              valorPagoConfirmado,
-
-            status: matriculaQuitada
-              ? preMatricula.status
-              : "PAGAMENTO_PARCIAL",
-
-            asaasPaymentId:
-              asaasPaymentIdConfirmado ||
-              preMatricula.asaasPaymentId,
-          },
-        });
-
       /*
-       * Uma parte foi paga, mas ainda falta a
-       * segunda. Não cria aluno, matrícula,
-       * contrato ou acesso neste momento.
+       * Ainda falta uma parte.
+       * Atualiza somente o valor confirmado.
        */
       if (!matriculaQuitada) {
+        await prisma
+          .matriculaOnlineIbe
+          .update({
+            where: {
+              id: preMatricula.id,
+            },
+
+            data: {
+              valorPago:
+                valorPagoConfirmado,
+
+              status:
+                "PAGAMENTO_PARCIAL",
+
+              asaasPaymentId:
+                asaasPaymentIdConfirmado ||
+                preMatricula.asaasPaymentId,
+            },
+          });
+
         console.log(
           "💰 Pagamento parcial da matrícula IBE:",
           {
             matriculaOnlineIbeId:
               preMatricula.id,
+
             valorPago:
               valorPagoConfirmado,
+
             valorTotal:
               valorTotalMatricula,
           }
@@ -1052,10 +1120,13 @@ if (
         return NextResponse.json({
           ok: true,
           pagamentoParcial: true,
+
           valorPago:
             valorPagoConfirmado,
+
           valorTotal:
             valorTotalMatricula,
+
           saldoRestante: Math.max(
             0,
             valorTotalMatricula -
@@ -1064,8 +1135,56 @@ if (
         });
       }
 
-      const instituicaoIdIbe = 1;
+      /*
+       * Bloqueio atômico:
+       * somente uma execução poderá criar
+       * aluno, matrícula, contrato e caixa.
+       */
+      const bloqueioProcessamento =
+        await prisma
+          .matriculaOnlineIbe
+          .updateMany({
+            where: {
+              id: preMatricula.id,
 
+              status: {
+                in: [
+                  "AGUARDANDO_PAGAMENTO",
+                  "PAGAMENTO_PARCIAL",
+                  "EXPIRADO",
+                  "CANCELADO",
+                ],
+              },
+            },
+
+            data: {
+              valorPago:
+                valorPagoConfirmado,
+
+              status:
+                "PROCESSANDO_MATRICULA",
+
+              asaasPaymentId:
+                asaasPaymentIdConfirmado ||
+                preMatricula.asaasPaymentId,
+            },
+          });
+
+      if (
+        bloqueioProcessamento.count !== 1
+      ) {
+        return NextResponse.json({
+          ok: true,
+
+          jaProcessadoOuEmAndamento:
+            true,
+        });
+      }
+
+      try {
+        const instituicaoIdIbe = 1;
+
+    
   let senhaTempIbe = "";
   let userIbe = await prisma.user.findUnique({
     where: { email: preMatricula.email },
@@ -1206,14 +1325,7 @@ if (
     });
   }
 
-  const movimentoExistente = await prisma.movimentoCaixa.findFirst({
-    where: {
-      OR: [
-        asaasPaymentId ? { asaasPaymentId } : undefined,
-        externalReference ? { externalReference } : undefined,
-      ].filter(Boolean) as any,
-    },
-  });  let totalNovosMovimentos = 0;
+  let totalNovosMovimentos = 0;
 
   const partesPagas =
     preMatricula.pagamentos.filter(
@@ -1363,12 +1475,42 @@ if (
     console.error("Erro ao enviar email de acesso/assinatura:", e);
   }
 
-  return NextResponse.json({
-    ok: true,
-    alunoId: alunoIbe.id,
-    matriculaId: matriculaIbe.id,
-  });
-}
+          return NextResponse.json({
+          ok: true,
+          alunoId: alunoIbe.id,
+          matriculaId:
+            matriculaIbe.id,
+        });
+      } catch (
+        processamentoError
+      ) {
+        /*
+         * Impede que uma nova entrega do
+         * mesmo webhook crie registros
+         * duplicados após uma falha parcial.
+         */
+        await prisma
+          .matriculaOnlineIbe
+          .updateMany({
+            where: {
+              id: preMatricula.id,
+
+              status:
+                "PROCESSANDO_MATRICULA",
+            },
+
+            data: {
+              status:
+                "ERRO_PROCESSAMENTO",
+
+              valorPago:
+                valorPagoConfirmado,
+            },
+          });
+
+        throw processamentoError;
+      }
+    }
 
     console.log("🔎 Resumo webhook:", {
       event,
