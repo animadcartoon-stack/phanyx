@@ -5,6 +5,7 @@ import FormaVetorial from "./components/FormaVetorial";
 import FloatingShapeInspector from "./components/FloatingShapeInspector";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 import CertificadoRender from "@/components/certificados/CertificadoRender";
+
 import {
   useEffect,
   useMemo,
@@ -1157,6 +1158,24 @@ if (alvo.closest("[data-campo-certificado-id]")) {
   const [abaLateral, setAbaLateral] = useState<"campos" | "cena">("campos");
   const [camposDinamicosAberto, setCamposDinamicosAberto] = useState(false);
 
+  const zIndexFlutuanteRef = useRef(1000000);
+
+const [zIndexFlutuante, setZIndexFlutuante] = useState({
+  barraSelecao: 1000001,
+  opcoesForma: 1000002,
+  arrayModal: 1000003,
+});
+
+function trazerPainelFlutuanteParaFrente(
+  painel: "barraSelecao" | "opcoesForma" | "arrayModal"
+) {
+  zIndexFlutuanteRef.current += 1;
+
+  setZIndexFlutuante((prev) => ({
+    ...prev,
+    [painel]: zIndexFlutuanteRef.current,
+  }));
+}
   const [contornoTextoAtivo, setContornoTextoAtivo] = useState(false);
 
   const [menuCamada, setMenuCamada] = useState<{
@@ -2741,6 +2760,7 @@ function abrirMenuFerramentasSelecao() {
   setMenuPontoGradiente(null);
 
   // abre o painel correto: Opções da forma / Array / Multiplicar
+  trazerPainelFlutuanteParaFrente("opcoesForma");
   setShapeInspectorAberto(true);
   setShapeInspectorPosicao({
     x: Math.max(24, Math.min(window.innerWidth - 340, window.innerWidth - 390)),
@@ -5824,14 +5844,18 @@ contornoEspessura: 2,
 
 {camposSelecionadosIds.length >= 2 && (
   <div
-  data-barra-selecao-certificado="true"
-  onMouseDown={(e) => e.stopPropagation()}
-  className="fixed z-[9999998] w-[min(920px,calc(100vw-32px))] rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur"
-  style={{
-    left: `${barraSelecaoPosicao.x}px`,
-    top: `${barraSelecaoPosicao.y}px`,
-  }}
->
+    data-barra-selecao-certificado="true"
+    onMouseDownCapture={(e) => {
+      e.stopPropagation();
+      trazerPainelFlutuanteParaFrente("barraSelecao");
+    }}
+    className="fixed w-[min(920px,calc(100vw-32px))] rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur"
+    style={{
+      left: `${barraSelecaoPosicao.x}px`,
+      top: `${barraSelecaoPosicao.y}px`,
+      zIndex: zIndexFlutuante.barraSelecao,
+    }}
+  >
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
   <div
     onMouseDown={iniciarArrasteBarraSelecao}
@@ -8027,7 +8051,14 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
     aberto={shapeInspectorAberto}
     campo={campoSelecionado || null}
     posicao={shapeInspectorPosicao}
-    onOpenArray={() => setModalArrayAberto(true)}
+    zIndex={zIndexFlutuante.opcoesForma}
+    onTrazerParaFrente={() =>
+      trazerPainelFlutuanteParaFrente("opcoesForma")
+    }
+    onOpenArray={() => {
+      trazerPainelFlutuanteParaFrente("arrayModal");
+      setModalArrayAberto(true);
+    }}
     onFechar={() => setShapeInspectorAberto(false)}
     onMover={setShapeInspectorPosicao}
     onAtualizarCampo={(campoAtualizado) => {
@@ -9506,12 +9537,17 @@ atualizarCampoLocal("tamanho", tamanho);
 {modalArrayAberto && (
   <div
     data-array-modal-certificado="true"
-    className="fixed z-[99999]"
-  style={{
-    left: arrayJanelaPos.x,
-    top: arrayJanelaPos.y,
-  }}
->
+    onMouseDownCapture={(e) => {
+      e.stopPropagation();
+      trazerPainelFlutuanteParaFrente("arrayModal");
+    }}
+    className="fixed rounded-2xl border border-blue-500/40 bg-slate-950 text-white shadow-2xl"
+    style={{
+      left: `${arrayJanelaPos.x}px`,
+      top: `${arrayJanelaPos.y}px`,
+      zIndex: zIndexFlutuante.arrayModal,
+    }}
+  >
     <div className="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
       <div
   className="cursor-move rounded-t-3xl -mx-6 -mt-6 mb-4 bg-slate-800 px-4 py-3 text-sm font-bold text-white"
@@ -9986,6 +10022,7 @@ atualizarCampoLocal("tamanho", tamanho);
     type="button"
     onClick={() => {
       setModalArrayAberto(true);
+      trazerPainelFlutuanteParaFrente("arrayModal");
       setMenuContexto(null);
     }}
     className="block w-full px-3 py-2 text-left text-sm hover:bg-slate-100"

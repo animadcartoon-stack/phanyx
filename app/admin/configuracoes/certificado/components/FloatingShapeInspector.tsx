@@ -50,6 +50,8 @@ type Props = {
   onAtualizarCampo: (campo: CampoForma) => void;
   setMostrarHandlesForma?: (valor: boolean | ((prev: boolean) => boolean)) => void;
   onOpenArray?: () => void;
+  zIndex?: number;
+  onTrazerParaFrente?: () => void;
 };
 
 function gerarPathComCantosArredondados(campo: CampoForma) {
@@ -142,6 +144,8 @@ export default function FloatingShapeInspector({
   onAtualizarCampo,
   setMostrarHandlesForma,
   onOpenArray,
+  zIndex,
+  onTrazerParaFrente,
 }: Props) {
   if (!aberto || !campo || campo.tipo !== "FORMA") return null;
 
@@ -374,18 +378,24 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 }
 
   return (
-    <div
-      className="fixed z-[9999999] min-h-[360px] w-[280px] resize-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
-      style={{
-  left: posicao.x,
-  top: posicao.y,
-  height: 620,
-  minHeight: 360,
-  maxHeight: "85vh",
-}}
-      onMouseDown={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
-    >
+  <div
+    data-shape-inspector-certificado="true"
+    className="fixed min-h-[360px] w-[280px] resize-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+    style={{
+      left: posicao.x,
+      top: posicao.y,
+      height: 620,
+      minHeight: 360,
+      maxHeight: "85vh",
+      zIndex: zIndex ?? 1000002,
+    }}
+    onMouseDownCapture={(e) => {
+      e.stopPropagation();
+      onTrazerParaFrente?.();
+    }}
+    onMouseDown={(e) => e.stopPropagation()}
+    onClick={(e) => e.stopPropagation()}
+  >
       <div
         onMouseDown={iniciarArraste}
         className="flex cursor-move items-center justify-between rounded-t-2xl bg-blue-600 px-4 py-3 text-white"
