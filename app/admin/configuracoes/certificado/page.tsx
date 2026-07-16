@@ -3041,6 +3041,134 @@ function atualizarGeometriaCampo(
   };
 }
 
+type UnidadeAlinhamento = {
+  chave: string;
+  ids: number[];
+  x: number;
+  y: number;
+  largura: number;
+  altura: number;
+  direita: number;
+  baixo: number;
+  centroX: number;
+  centroY: number;
+};
+
+function caixaDosCamposParaAlinhamento(itens: CampoCertificado[]) {
+  const minX = Math.min(...itens.map((campo) => Number(campo.x || 0)));
+  const minY = Math.min(...itens.map((campo) => Number(campo.y || 0)));
+
+  const maxX = Math.max(
+    ...itens.map(
+      (campo) => Number(campo.x || 0) + Number(campo.largura || 120)
+    )
+  );
+
+  const maxY = Math.max(
+    ...itens.map(
+      (campo) => Number(campo.y || 0) + Number(campo.altura || 40)
+    )
+  );
+
+  const largura = Math.max(1, maxX - minX);
+  const altura = Math.max(1, maxY - minY);
+
+  return {
+    x: minX,
+    y: minY,
+    largura,
+    altura,
+    direita: minX + largura,
+    baixo: minY + altura,
+    centroX: minX + largura / 2,
+    centroY: minY + altura / 2,
+  };
+}
+
+function unidadesSelecionadasParaAlinhamento(): UnidadeAlinhamento[] {
+  const idsBase =
+    camposSelecionadosIds.length > 0
+      ? camposSelecionadosIds
+      : campoSelecionadoId
+      ? [campoSelecionadoId]
+      : [];
+
+  const mapa = new Map<string, CampoCertificado[]>();
+
+  idsBase.forEach((id) => {
+    const campo = campos.find((item) => item.id === id);
+
+    if (!campo) return;
+    if ((campo as any).arrayPreview) return;
+
+    const grupoId = (campo as any).grupoId;
+    const chave = grupoId ? `grupo:${grupoId}` : `campo:${campo.id}`;
+
+    const itensDaUnidade = grupoId
+      ? campos.filter(
+          (item) =>
+            (item as any).grupoId === grupoId &&
+            !(item as any).arrayPreview
+        )
+      : [campo];
+
+    const atuais = mapa.get(chave) || [];
+
+    itensDaUnidade.forEach((item) => {
+      if (!atuais.some((atual) => atual.id === item.id)) {
+        atuais.push(item);
+      }
+    });
+
+    mapa.set(chave, atuais);
+  });
+
+  return Array.from(mapa.entries())
+    .map(([chave, itens]) => {
+      const caixa = caixaDosCamposParaAlinhamento(itens);
+
+      return {
+        chave,
+        ids: itens.map((item) => item.id),
+        ...caixa,
+      };
+    })
+    .filter((unidade) => unidade.ids.length > 0);
+}
+
+function escalarCampoDentroDaUnidade(
+  campo: CampoCertificado,
+  unidade: UnidadeAlinhamento,
+  fator: number
+) {
+  const x = Number(campo.x || 0);
+  const y = Number(campo.y || 0);
+  const largura = Number(campo.largura || 120);
+  const altura = Number(campo.altura || 40);
+
+  const novosDados: any = {
+    x: Math.round(unidade.x + (x - unidade.x) * fator),
+    y: Math.round(unidade.y + (y - unidade.y) * fator),
+    largura: Math.round(Math.max(4, largura * fator)),
+    altura: Math.round(Math.max(4, altura * fator)),
+  };
+
+  if (
+    campo.tipo === "TEXTO" ||
+    campo.tipo === "TEXTO_LIVRE" ||
+    campo.tipo === "NOME_ALUNO" ||
+    campo.tipo === "NOME_CURSO" ||
+    campo.tipo === "DISCIPLINAS_CONCLUIDAS"
+  ) {
+    novosDados.tamanho = Math.max(
+      4,
+      Math.round(Number(campo.tamanho || 18) * fator)
+    );
+  }
+
+  return atualizarGeometriaCampo(campo, novosDados as any);
+}
+
 function alinharSelecionados(
   tipo:
     | "ESQUERDA"
@@ -3053,89 +3181,120 @@ function alinharSelecionados(
     | "MESMA_ALTURA"
     | "MESMO_TAMANHO"
 ) {
-  const referencia = campoReferenciaAlinhamento();
+  const unidades = unidadesSelecionadasParaAlinhamento();
 
-  if (!referencia) {
-    setMensagemErro("Selecione pelo menos dois elementos para alinhar.");
+  if (unidades.length < 2) {
+    setMensagemErro("Selecione pelo menos dois elementos ou grupos para alinhar.");
     setTimeout(() => setMensagemErro(""), 2500);
     return;
   }
 
-  const ids = camposSelecionadosIds.filter((id) => id !== referencia.id);
+  const referencia =
+    unidades.find(
+      (unidade) =>
+        campoSelecionadoId !== null &&
+        unidade.ids.includes(campoSelecionadoId)
+    ) || unidades[unidades.length - 1];
 
-  if (ids.length === 0) {
+  const unidadesAlvo = unidades.filter(
+    (unidade) => unidade.chave !== referencia.chave
+  );
+
+  if (unidadesAlvo.length === 0) {
     setMensagemErro("Selecione outro elemento além da referência.");
     setTimeout(() => setMensagemErro(""), 2500);
     return;
   }
 
-  const refX = Number(referencia.x || 0);
-  const refY = Number(referencia.y || 0);
-  const refLargura = Number(referencia.largura || 120);
-  const refAltura = Number(referencia.altura || 40);
-  const refCentroX = refX + refLargura / 2;
-  const refCentroY = refY + refAltura / 2;
-  const refDireita = refX + refLargura;
-  const refBaixo = refY + refAltura;
+  registrarHistoricoAntesDaAcao();
 
   setCampos((prev) =>
     prev.map((campo) => {
-      if (!ids.includes(campo.id)) return campo;
+      const unidade = unidadesAlvo.find((item) =>
+        item.ids.includes(campo.id)
+      );
 
+      if (!unidade) return campo;
       if ((campo as any).bloqueado) return campo;
 
-      const largura = Number(campo.largura || 120);
-      const altura = Number(campo.altura || 40);
+      const xAtual = Number(campo.x || 0);
+      const yAtual = Number(campo.y || 0);
 
       if (tipo === "ESQUERDA") {
-        return atualizarGeometriaCampo(campo, { x: refX } as any);
+        const dx = referencia.x - unidade.x;
+
+        return atualizarGeometriaCampo(campo, {
+          x: Math.round(xAtual + dx),
+        } as any);
       }
 
       if (tipo === "CENTRO_HORIZONTAL") {
+        const dx = referencia.centroX - unidade.centroX;
+
         return atualizarGeometriaCampo(campo, {
-          x: refCentroX - largura / 2,
+          x: Math.round(xAtual + dx),
         } as any);
       }
 
       if (tipo === "DIREITA") {
+        const dx = referencia.direita - unidade.direita;
+
         return atualizarGeometriaCampo(campo, {
-          x: refDireita - largura,
+          x: Math.round(xAtual + dx),
         } as any);
       }
 
       if (tipo === "TOPO") {
-        return atualizarGeometriaCampo(campo, { y: refY } as any);
+        const dy = referencia.y - unidade.y;
+
+        return atualizarGeometriaCampo(campo, {
+          y: Math.round(yAtual + dy),
+        } as any);
       }
 
       if (tipo === "CENTRO_VERTICAL") {
+        const dy = referencia.centroY - unidade.centroY;
+
         return atualizarGeometriaCampo(campo, {
-          y: refCentroY - altura / 2,
+          y: Math.round(yAtual + dy),
         } as any);
       }
 
       if (tipo === "BAIXO") {
+        const dy = referencia.baixo - unidade.baixo;
+
         return atualizarGeometriaCampo(campo, {
-          y: refBaixo - altura,
+          y: Math.round(yAtual + dy),
         } as any);
       }
 
+      /*
+        IMPORTANTE:
+        Para grupos, não podemos fazer:
+        largura: refLargura
+        altura: refAltura
+
+        Isso deforma cada pedacinho interno.
+        Então usamos fator proporcional no grupo inteiro.
+      */
+
       if (tipo === "MESMA_LARGURA") {
-        return atualizarGeometriaCampo(campo, {
-          largura: refLargura,
-        } as any);
+        const fator = referencia.largura / Math.max(1, unidade.largura);
+        return escalarCampoDentroDaUnidade(campo, unidade, fator);
       }
 
       if (tipo === "MESMA_ALTURA") {
-        return atualizarGeometriaCampo(campo, {
-          altura: refAltura,
-        } as any);
+        const fator = referencia.altura / Math.max(1, unidade.altura);
+        return escalarCampoDentroDaUnidade(campo, unidade, fator);
       }
 
       if (tipo === "MESMO_TAMANHO") {
-        return atualizarGeometriaCampo(campo, {
-          largura: refLargura,
-          altura: refAltura,
-        } as any);
+        const fatorLargura = referencia.largura / Math.max(1, unidade.largura);
+        const fatorAltura = referencia.altura / Math.max(1, unidade.altura);
+
+        const fator = Math.min(fatorLargura, fatorAltura);
+
+        return escalarCampoDentroDaUnidade(campo, unidade, fator);
       }
 
       return campo;
