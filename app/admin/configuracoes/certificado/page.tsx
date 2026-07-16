@@ -4287,30 +4287,24 @@ async function salvarModeloCompleto() {
       const ehIdBancoValido =
         Number.isFinite(idBanco) && idBanco > 0 && idBanco < 1000000000;
 
-      const campoSemControle: any = {
+      const campoLimpo: any = {
         ...campo,
       };
 
-      delete campoSemControle.dadosJson;
-      delete campoSemControle.tempId;
-      delete campoSemControle.arrayPreview;
-      delete campoSemControle.idOriginalArray;
+      delete campoLimpo.dadosJson;
+      delete campoLimpo.tempId;
+      delete campoLimpo.arrayPreview;
+      delete campoLimpo.idOriginalArray;
 
       if (ehIdBancoValido) {
-        campoSemControle.id = idBanco;
-        campoSemControle.bancoId = idBanco;
+        campoLimpo.id = idBanco;
+        campoLimpo.bancoId = idBanco;
       } else {
-        delete campoSemControle.id;
-        delete campoSemControle.bancoId;
+        delete campoLimpo.id;
+        delete campoLimpo.bancoId;
       }
 
-      return {
-        ...campoSemControle,
-        dadosJson: {
-          ...(campo?.dadosJson || {}),
-          ...campoSemControle,
-        },
-      };
+      return campoLimpo;
     });
 
     const resCampos = await fetch("/api/admin/certificado-campos", {
