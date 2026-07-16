@@ -621,19 +621,7 @@ async function cancelarRecursosAsaas(
 }
 
 export async function POST(req: Request) {
-  let checkoutIdCriado: string | null = null;
-
   try {
-    if (!ASAAS_API_KEY) {
-      return NextResponse.json(
-        {
-          error:
-            "ASAAS_API_KEY não configurada.",
-        },
-        { status: 500 }
-      );
-    }
-
     const body = await req.json();
 
     const nome = String(body.nome || "").trim();
@@ -660,17 +648,6 @@ export async function POST(req: Request) {
     const modulosCompletosInformados = new Set(
       normalizarIds(body.modulosCompletos)
     );
-
-const modoPagamento: ModoPagamentoIbe =
-  body.modoPagamento ===
-  "DUAS_FORMAS"
-    ? "DUAS_FORMAS"
-    : "UNICO";
-
-const partesInformadas =
-  normalizarPartesPagamento(
-    body.partesPagamento
-  );
 
     if (!nome || !email || !whatsappNumeros || !cpf) {
       return NextResponse.json(
@@ -1004,341 +981,80 @@ const partesInformadas =
       );
     }
 
-   const parte1Informada =
-  partesInformadas.find(
-    (parte) => parte.ordem === 1
-  );
+       const matriculaExternalReference =
+      `IBE_MATRICULA_${randomUUID()}`;
 
-const parte2Informada =
-  partesInformadas.find(
-    (parte) => parte.ordem === 2
-  );
+    const origin = new URL(req.url).origin;
 
-if (!parte1Informada) {
-  return NextResponse.json(
-    {
-      error:
-        "Selecione a primeira forma de pagamento.",
-    },
-    { status: 400 }
-  );
-}
-
-let partesSeguras: PartePagamentoIbe[];
-
-if (modoPagamento === "UNICO") {
-  partesSeguras = [
-    {
-      ordem: 1,
-      forma:
-        parte1Informada.forma,
-
-      /*
-       * O servidor usa o total real,
-       * ignorando o valor enviado.
-       */
-      valor: valorTotalSeguro,
-    },
-  ];
-} else {
-  if (!parte2Informada) {
-    return NextResponse.json(
-      {
-        error:
-          "Selecione a segunda forma de pagamento.",
-      },
-      { status: 400 }
-    );
-  }
-
-  const valorPrimeiraParte =
-    Number(
-      parte1Informada.valor.toFixed(2)
-    );
-
-  const valorSegundaParte =
-    Number(
-      (
-        valorTotalSeguro -
-        valorPrimeiraParte
-      ).toFixed(2)
-    );
-
-  if (
-    valorPrimeiraParte < 1 ||
-    valorSegundaParte < 1
-  ) {
-    return NextResponse.json(
-      {
-        error:
-          "Cada parte do pagamento precisa ter pelo menos R$ 1,00.",
-      },
-      { status: 400 }
-    );
-  }
-
-  partesSeguras = [
-    {
-      ordem: 1,
-      forma:
-        parte1Informada.forma,
-      valor:
-        valorPrimeiraParte,
-    },
-    {
-      ordem: 2,
-      forma:
-        parte2Informada.forma,
-      valor:
-        valorSegundaParte,
-    },
-  ];
-}
-
-const matriculaExternalReference =
-  `IBE_MATRICULA_${randomUUID()}`;
-
-const origin =
-  new URL(req.url).origin;
-
-const precisaClienteAsaas =
-  partesSeguras.some(
-    (parte) =>
-      parte.forma === "BOLETO" ||
-      parte.forma ===
-        "DEBIT_CARD"
-  );
-
-const clienteAsaasId =
-  precisaClienteAsaas
-    ? await obterOuCriarClienteAsaas({
-        nome,
-        email,
-        whatsapp:
-          whatsappNumeros,
-        cpf,
-      })
-    : null;
-
-const recursosCriados:
-  RecursoPagamentoAsaas[] = [];
-
-try {
-  for (const parte of partesSeguras) {
-    const recurso =
-      await criarRecursoPagamentoAsaas({
-        parte,
-
-        matriculaExternalReference,
-
-        origin,
-
-        clienteAsaasId,
-
-        quantidadePartes:
-          partesSeguras.length,
-
-        quantidadeDisciplinas:
-          disciplinasIds.length,
-      });
-
-    recursosCriados.push(
-      recurso
-    );
-  }
-} catch (error) {
-  await cancelarRecursosAsaas(
-    recursosCriados
-  );
-
-  throw error;
-}
-
-try {
-  await prisma
-    .matriculaOnlineIbe
-    .create({
+    /*
+     * Nesta etapa criamos somente a pré-matrícula.
+     *
+     * Nenhuma cobrança, boleto, Pix, cartão
+     * ou Checkout é criado no Asaas.
+     */
+    await prisma.matriculaOnlineIbe.create({
       data: {
         nome,
         email,
         whatsapp,
         cpf,
 
-        valorTotal:
-          valorTotalSeguro,
-
+        valorTotal: valorTotalSeguro,
         valorPago: 0,
 
-        disciplinasIds:
-          JSON.stringify(
-            disciplinasIds
-          ),
+        disciplinasIds: JSON.stringify(
+          disciplinasIds
+        ),
 
-        modoPagamento,
-
-        quantidadePartes:
-          partesSeguras.length,
+        /*
+         * A forma de pagamento será escolhida
+         * na página seguinte.
+         */
+        modoPagamento: "NAO_DEFINIDO",
+        quantidadePartes: 0,
 
         externalReference:
           matriculaExternalReference,
 
         status:
-          "AGUARDANDO_PAGAMENTO",
-
-        /*
-         * Mantido somente para
-         * compatibilidade antiga.
-         */
-        asaasPaymentId:
-          recursosCriados.find(
-            (recurso) =>
-              recurso.asaasPaymentId
-          )?.asaasPaymentId ||
-          null,
-
-        pagamentos: {
-          create:
-            recursosCriados.map(
-              (recurso) => ({
-                ordem:
-                  recurso.ordem,
-
-                tipoIntegracao:
-                  recurso.tipoIntegracao,
-
-                formaSolicitada:
-                  recurso.forma,
-
-                billingTypeAsaas:
-                  recurso
-                    .billingTypeAsaas,
-
-                valor:
-                  recurso.valor,
-
-                status:
-                  "AGUARDANDO_PAGAMENTO",
-
-                externalReference:
-                  recurso
-                    .externalReference,
-
-                asaasCheckoutId:
-                  recurso
-                    .asaasCheckoutId,
-
-                asaasPaymentId:
-                  recurso
-                    .asaasPaymentId,
-
-                /*
-                 * O campo possui esse
-                 * nome, mas também guarda
-                 * a URL da fatura.
-                 */
-                checkoutUrl:
-                  recurso.url,
-
-                expiraEm:
-                  recurso.expiraEm,
-              })
-            ),
-        },
+          "AGUARDANDO_ESCOLHA_PAGAMENTO",
       },
     });
-} catch (databaseError) {
-  console.error(
-    "Erro ao registrar matrícula:",
-    databaseError
-  );
 
-  await cancelarRecursosAsaas(
-    recursosCriados
-  );
+    const urlPagamento =
+      `${origin}/ibe/matricula/pagamento/` +
+      `${encodeURIComponent(
+        matriculaExternalReference
+      )}`;
 
-  throw databaseError;
-}
+    return NextResponse.json({
+      externalReference:
+        matriculaExternalReference,
 
-const recursoPrimeiraParte =
-  recursosCriados.find(
-    (recurso) =>
-      recurso.ordem === 1
-  );
+      valorTotal: valorTotalSeguro,
 
-if (!recursoPrimeiraParte) {
-  throw new Error(
-    "A primeira parte do pagamento não foi criada."
-  );
-}
+      urlPagamento,
 
-/*
- * Em duas formas, o comprador irá
- * para uma página PHANYX que mostrará
- * as duas partes separadamente.
- */
-const paginaPagamentos =
-  `${origin}/ibe/matricula/pagamento/` +
-  `${encodeURIComponent(
-    matriculaExternalReference
-  )}`;
-
-const urlPagamento =
-  modoPagamento ===
-  "DUAS_FORMAS"
-    ? paginaPagamentos
-    : recursoPrimeiraParte.url;
-
-return NextResponse.json({
-  externalReference:
-    matriculaExternalReference,
-
-  modoPagamento,
-
-  quantidadePartes:
-    partesSeguras.length,
-
-  valorTotal:
-    valorTotalSeguro,
-
-  urlPagamento,
-
-  checkoutUrl:
-    modoPagamento === "UNICO" &&
-    recursoPrimeiraParte
-      .tipoIntegracao ===
-      "CHECKOUT"
-      ? recursoPrimeiraParte.url
-      : undefined,
-
-  paymentUrl:
-    modoPagamento === "UNICO" &&
-    recursoPrimeiraParte
-      .tipoIntegracao ===
-      "COBRANCA"
-      ? recursoPrimeiraParte.url
-      : undefined,
-
-  partes: recursosCriados.map(
-    (recurso) => ({
-      ordem: recurso.ordem,
-      forma: recurso.forma,
-      valor: recurso.valor,
-      tipoIntegracao:
-        recurso.tipoIntegracao,
-    })
-  ),
-});
-  } catch (error: any) {
+      /*
+       * A página atual ainda procura
+       * data.checkoutUrl para redirecionar.
+       */
+      checkoutUrl: urlPagamento,
+    });
+  } catch (error: unknown) {
     console.error(
       "Erro matrícula IBE:",
       error
     );
 
+    const mensagem =
+      error instanceof Error
+        ? error.message
+        : "Erro ao iniciar a matrícula.";
+
     return NextResponse.json(
       {
-        error:
-          error?.message ||
-          "Erro ao iniciar a matrícula.",
+        error: mensagem,
       },
       { status: 500 }
     );
