@@ -320,6 +320,41 @@ function classeStatusPonto(status: string) {
   }
 }
 
+function formatarHorasDecimais(
+  valor: number | string | null | undefined,
+  mostrarSinal = false
+) {
+  const horasDecimais = Number(valor || 0);
+
+  if (!Number.isFinite(horasDecimais)) {
+    return mostrarSinal
+      ? "+0h00min"
+      : "0h00min";
+  }
+
+  const totalMinutos = Math.round(
+    Math.abs(horasDecimais) * 60
+  );
+
+  const horas = Math.floor(
+    totalMinutos / 60
+  );
+
+  const minutos =
+    totalMinutos % 60;
+
+  const sinal =
+    horasDecimais < 0
+      ? "-"
+      : mostrarSinal
+        ? "+"
+        : "";
+
+  return `${sinal}${horas}h${String(
+    minutos
+  ).padStart(2, "0")}min`;
+}
+
 export default function PontoRHPage() {
   const [pontos, setPontos] =
     useState<RegistroPonto[]>([]);
@@ -1130,6 +1165,20 @@ export default function PontoRHPage() {
                       ponto
                     );
 
+                    const marcacoesValidas =
+  marcacoes.filter(
+    (marcacao) =>
+      marcacao.status !==
+      "INVALIDADA"
+  );
+
+const marcacoesSubstituidas =
+  marcacoes.filter(
+    (marcacao) =>
+      marcacao.status ===
+      "INVALIDADA"
+  );
+
                   const expandido =
                     pontoExpandidoId ===
                     ponto.id;
@@ -1167,30 +1216,25 @@ export default function PontoRHPage() {
                         </td>
 
                         <td className="px-3 py-4">
-                          {marcacoes.length ===
-                          0 ? (
+                          {marcacoesValidas.length === 0 ? (
                             <span className="text-slate-500">
                               Sem marcações
                             </span>
                           ) : (
                             <div className="flex max-w-[420px] flex-wrap gap-2">
-                              {marcacoes.map(
+                              {marcacoesValidas.map(
                                 (marcacao) => (
                                   <span
                                     key={
                                       marcacao.id
                                     }
                                     className={`rounded-full border px-3 py-1.5 text-xs font-black ${
-                                      marcacao.status ===
-                                      "INVALIDADA"
-                                        ? "border-red-300 bg-red-50 text-red-700 line-through dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-                                        : rotuloTipo(
-                                              marcacao.tipo
-                                            ) ===
-                                            "Entrada"
-                                          ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
-                                          : "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
-                                    }`}
+  rotuloTipo(
+    marcacao.tipo
+  ) === "Entrada"
+    ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
+    : "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200"
+}`}
                                   >
                                     {formatarHora(
                                       marcacao.dataHora,
@@ -1206,26 +1250,23 @@ export default function PontoRHPage() {
                           )}
                         </td>
 
-                        <td className="px-3 py-4 font-bold">
-                          {numero(
-                            ponto.horasTrabalhadas
-                          ).toFixed(2)}
-                          h
-                        </td>
+                        <td className="whitespace-nowrap px-3 py-4 font-bold">
+  {formatarHorasDecimais(
+    ponto.horasTrabalhadas
+  )}
+</td>
 
-                        <td className="px-3 py-4 font-bold text-green-600">
-                          {numero(
-                            ponto.horasExtras
-                          ).toFixed(2)}
-                          h
-                        </td>
+<td className="whitespace-nowrap px-3 py-4 font-bold text-emerald-600 dark:text-emerald-400">
+  {formatarHorasDecimais(
+    ponto.horasExtras
+  )}
+</td>
 
-                        <td className="px-3 py-4 font-bold text-red-600">
-                          {numero(
-                            ponto.horasAtraso
-                          ).toFixed(2)}
-                          h
-                        </td>
+<td className="whitespace-nowrap px-3 py-4 font-bold text-red-600 dark:text-red-400">
+  {formatarHorasDecimais(
+    ponto.horasAtraso
+  )}
+</td>
 
                         <td
                           className={`px-3 py-4 font-black ${
@@ -1234,10 +1275,10 @@ export default function PontoRHPage() {
                               : "text-red-600"
                           }`}
                         >
-                          {saldo >= 0
-                            ? "+"
-                            : ""}
-                          {saldo.toFixed(2)}h
+                          {formatarHorasDecimais(
+  saldo,
+  true
+)}
                         </td>
 
                         <td className="px-3 py-4">
@@ -1385,6 +1426,43 @@ export default function PontoRHPage() {
                                 )
                               )}
                             </div>
+
+{marcacoesSubstituidas.length > 0 && (
+  <details className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
+    <summary className="cursor-pointer font-black text-red-700 dark:text-red-200">
+      Ver marcações substituídas (
+      {marcacoesSubstituidas.length})
+    </summary>
+
+    <div className="mt-4 grid gap-3 lg:grid-cols-2">
+      {marcacoesSubstituidas.map(
+        (marcacao) => (
+          <div
+            key={marcacao.id}
+            className="rounded-2xl border border-red-300 bg-white p-4 text-red-700 line-through dark:border-red-900 dark:bg-slate-900 dark:text-red-200"
+          >
+            <p className="font-black">
+              {rotuloTipo(
+                marcacao.tipo
+              )}
+            </p>
+
+            <p className="mt-1 text-sm">
+              {formatarHora(
+                marcacao.dataHora,
+                fusoHorario
+              )}
+            </p>
+
+            <p className="mt-2 text-xs no-underline">
+              Registro original preservado para auditoria.
+            </p>
+          </div>
+        )
+      )}
+    </div>
+  </details>
+)}
 
                             {marcacoes.length ===
                               0 && (
