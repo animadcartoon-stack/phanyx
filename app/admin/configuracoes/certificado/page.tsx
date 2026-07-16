@@ -2466,21 +2466,128 @@ async function excluirCampo(id: number) {
   });
 }
 
-useEffect(() => {
-  if (
-  !modalArrayAberto ||
-  !campoSelecionado ||
-  campoSelecionado.tipo !== "FORMA" ||
-  (campoSelecionado as any)?.grupoId
-) {
-  setCopiasPreviewArray([]);
-  return;
+function gerarCopiasArraySelecionado(preview = false) {
+  const ids = idsAlvoDaAcao();
+
+  const bases = campos.filter(
+    (campo) =>
+      ids.includes(campo.id) &&
+      campo.tipo === "FORMA" &&
+      !(campo as any).arrayPreview
+  );
+
+  if (bases.length === 0) return [];
+
+  const quantidade = Math.max(
+    1,
+    Math.min(100, Number(arrayQuantidade || 1))
+  );
+
+  const anguloRad = (Number(arrayAngulo || 0) * Math.PI) / 180;
+  const escalaPorCopia = Number(arrayEscala || 100) / 100;
+  const opacidadePorCopia = Number(arrayOpacidade || 100) / 100;
+
+  const resultado: CampoCertificado[] = [];
+
+  for (let indexCopia = 0; indexCopia < quantidade; indexCopia++) {
+    const passo = indexCopia + 1;
+
+    const baseX = Number(arrayX || 0) * passo;
+    const baseY = Number(arrayY || 0) * passo;
+
+    const deslocamentoX =
+      baseX * Math.cos(anguloRad) - baseY * Math.sin(anguloRad);
+
+    const deslocamentoY =
+      baseX * Math.sin(anguloRad) + baseY * Math.cos(anguloRad);
+
+    const novoGrupoId =
+      bases.length > 1
+        ? preview
+          ? `preview-grupo-array-${passo}`
+          : `grupo-array-${Date.now()}-${passo}`
+        : null;
+
+    bases.forEach((base, indexBase) => {
+      const novoId = preview
+        ? -1 * (passo * 100000 + indexBase + 1)
+        : Date.now() + passo * 1000 + indexBase;
+
+      const novaLargura =
+        Number(base.largura || 120) * Math.pow(escalaPorCopia, passo);
+
+      const novaAltura =
+        Number(base.altura || 40) * Math.pow(escalaPorCopia, passo);
+
+      const novosDados = {
+        x: Math.round(Number(base.x || 0) + deslocamentoX),
+        y: Math.round(Number(base.y || 0) + deslocamentoY),
+        largura: Math.round(Math.max(4, novaLargura)),
+        altura: Math.round(Math.max(4, novaAltura)),
+        rotate:
+          Number((base as any).rotate || 0) +
+          Number(arrayRotacao || 0) * passo,
+        opacity: Math.max(
+          0.05,
+          Number((base as any).opacity || 1) *
+            Math.pow(opacidadePorCopia, passo)
+        ),
+        grupoId: novoGrupoId,
+      };
+
+      resultado.push({
+        ...JSON.parse(JSON.stringify(base)),
+        ...novosDados,
+        id: novoId,
+        bancoId: undefined,
+        tempId: novoId,
+        arrayPreview: preview,
+        arrayAtivo: false,
+        arrayConfig: null,
+        nomeCamada: `${base.nomeCamada || base.forma || "Forma"} cópia ${passo}`,
+        ordem: Number(base.ordem || 5) + passo / 100,
+        dadosJson: {
+          ...((base as any).dadosJson || {}),
+          ...novosDados,
+          id: undefined,
+          bancoId: undefined,
+          tempId: novoId,
+          arrayPreview: preview,
+          arrayAtivo: false,
+          arrayConfig: null,
+        },
+      } as any);
+    });
+  }
+
+  return resultado;
 }
 
-  setCopiasPreviewArray(gerarCopiasArray(true));
+useEffect(() => {
+  if (!modalArrayAberto) {
+    setCopiasPreviewArray([]);
+    return;
+  }
+
+  const ids = idsAlvoDaAcao();
+  const itens = campos.filter(
+    (campo) =>
+      ids.includes(campo.id) &&
+      campo.tipo === "FORMA" &&
+      !(campo as any).arrayPreview
+  );
+
+  if (itens.length === 0) {
+    setCopiasPreviewArray([]);
+    return;
+  }
+
+  setCopiasPreviewArray(gerarCopiasArraySelecionado(true));
 }, [
   modalArrayAberto,
-  campoSelecionado,
+  campoSelecionadoId,
+  camposSelecionadosIds,
+  campos,
   arrayQuantidade,
   arrayX,
   arrayY,
@@ -2491,13 +2598,43 @@ useEffect(() => {
 ]);
 
   function aplicarArrayForma() {
-  if (
-  !campoSelecionado ||
-  campoSelecionado.tipo !== "FORMA" ||
-  (campoSelecionado as any)?.grupoId
-) {
-  return;
-}
+  const ids = idsAlvoDaAcao();
+
+  const formasSelecionadas = campos.filter(
+    (campo) =>
+      ids.includes(campo.id) &&
+      campo.tipo === "FORMA" &&
+      !(campo as any).arrayPreview
+  );
+
+  if (formasSelecionadas.length === 0) {
+    setMensagemErro("Selecione uma forma ou grupo de formas para aplicar Array.");
+    setTimeout(() => setMensagemErro(""), 2200);
+    return;
+  }
+
+  registrarHistoricoAntesDaAcao();
+
+  // Grupo: cria cópias reais de todas as formas do grupo
+  if (formasSelecionadas.length > 1) {
+    const copias = gerarCopiasArraySelecionado(false);
+    const novosIds = copias.map((campo) => campo.id);
+
+    setCampos((prev) => [...prev, ...copias]);
+    setCamposSelecionadosIds(novosIds);
+    setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
+
+    setCopiasPreviewArray([]);
+    setModalArrayAberto(false);
+    setShapeInspectorAberto(false);
+
+    setMensagemSucesso("Array aplicado ao grupo.");
+    setTimeout(() => setMensagemSucesso(""), 1800);
+    return;
+  }
+
+  // Forma única: mantém o comportamento antigo
+  const campoBase = formasSelecionadas[0];
 
   const arrayConfig = {
     ativo: true,
@@ -2512,21 +2649,28 @@ useEffect(() => {
 
   setCampos((prev) =>
     prev.map((campo) =>
-      campo.id === campoSelecionado.id
-        ? {
+      campo.id === campoBase.id
+        ? ({
             ...campo,
             arrayAtivo: true,
             arrayConfig,
             nomeCamada: campo.nomeCamada || "Array",
-          }
+            dadosJson: {
+              ...((campo as any).dadosJson || {}),
+              arrayAtivo: true,
+              arrayConfig,
+            },
+          } as any)
         : campo
     )
   );
 
   setCopiasPreviewArray([]);
   setModalArrayAberto(false);
+  setShapeInspectorAberto(false);
 
   setMensagemSucesso("Array aplicado à forma.");
+  setTimeout(() => setMensagemSucesso(""), 1800);
 }
 
 function idsAlvoDaAcao() {
