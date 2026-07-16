@@ -8,6 +8,13 @@ import {
   enviarEmailAssinaturaContrato,
 } from "@/lib/email";
 
+const ASAAS_API_URL =
+  process.env.ASAAS_ENV === "production"
+    ? "https://api.asaas.com/v3"
+    : "https://api-sandbox.asaas.com/v3";
+
+const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
+
 function gerarSlugBase(texto: string) {
   return String(texto || "")
     .trim()
@@ -425,6 +432,108 @@ function obterReferencia(body: any) {
   };
 }
 
+function mapearFormaPagamentoCaixa(
+  billingType: unknown
+) {
+  const tipo = String(
+    billingType || ""
+  )
+    .trim()
+    .toUpperCase();
+
+  if (tipo === "PIX") {
+    return "PIX" as const;
+  }
+
+  if (tipo === "BOLETO") {
+    return "BOLETO" as const;
+  }
+
+  if (
+    tipo === "CREDIT_CARD" ||
+    tipo === "DEBIT_CARD"
+  ) {
+    return "CARTAO" as const;
+  }
+
+  return "OUTRO" as const;
+}
+
+async function buscarPagamentoDoCheckoutAsaas(
+  checkoutId: string
+) {
+  if (!ASAAS_API_KEY || !checkoutId) {
+    return null;
+  }
+
+  try {
+    const url = new URL(
+      `${ASAAS_API_URL}/payments`
+    );
+
+    url.searchParams.set(
+      "checkoutSession",
+      checkoutId
+    );
+
+    url.searchParams.set("limit", "10");
+
+    const resposta = await fetch(
+      url.toString(),
+      {
+        method: "GET",
+        headers: {
+          accept: "application/json",
+          access_token: ASAAS_API_KEY,
+          "User-Agent": "PHANYX/1.0",
+        },
+      }
+    );
+
+    const dados = await resposta
+      .json()
+      .catch(() => null);
+
+    if (!resposta.ok) {
+      console.error(
+        "Erro ao consultar pagamento do Checkout:",
+        dados
+      );
+
+      return null;
+    }
+
+    const pagamentos = Array.isArray(
+      dados?.data
+    )
+      ? dados.data
+      : [];
+
+    return (
+      pagamentos.find((item: any) =>
+        [
+          "RECEIVED",
+          "CONFIRMED",
+          "RECEIVED_IN_CASH",
+        ].includes(
+          String(
+            item?.status || ""
+          ).toUpperCase()
+        )
+      ) ||
+      pagamentos[0] ||
+      null
+    );
+  } catch (error) {
+    console.error(
+      "Falha ao consultar pagamento do Checkout:",
+      error
+    );
+
+    return null;
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -522,38 +631,440 @@ if (
   }
 }
 
-    // 🚀 BLOCO — MATRÍCULA IBE
-if (externalReference?.startsWith("IBE_MATRICULA_")) {
-  console.log("🎓 Pagamento de matrícula IBE detectado");
+        // 🚀 BLOCO — MATRÍCULA IBE
+    const filtrosPagamentoIbe: any[] = [];
 
-  const pagamentoConfirmado =
-    paymentStatus === "RECEIVED" ||
-    paymentStatus === "CONFIRMED" ||
-    paymentStatus === "RECEIVED_IN_CASH" ||
-    event === "PAYMENT_RECEIVED" ||
-    event === "PAYMENT_CONFIRMED";
+    if (externalReference) {
+      filtrosPagamentoIbe.push({
+        externalReference,
+      });
+    }
 
-  if (!pagamentoConfirmado) {
-    console.log("⏳ Matrícula aguardando pagamento...");
-    return NextResponse.json({ ok: true });
-  }
+    if (asaasCheckoutId) {
+      filtrosPagamentoIbe.push({
+        asaasCheckoutId,
+      });
+    }
 
-  const preMatricula = await prisma.matriculaOnlineIbe.findUnique({
-    where: { externalReference },
-  });
+    if (asaasPaymentId) {
+      filtrosPagamentoIbe.push({
+        asaasPaymentId,
+      });
+    }
 
-  if (!preMatricula) {
-    return NextResponse.json(
-      { error: "Pré-matrícula não encontrada" },
-      { status: 404 }
-    );
-  }
+    const pagamentoIbeLocalizado =
+      filtrosPagamentoIbe.length > 0
+        ? await prisma
+            .matriculaOnlineIbePagamento
+            .findFirst({
+              where: {
+                OR: filtrosPagamentoIbe,
+              },
+              include: {
+                matriculaOnlineIbe: {
+                  include: {
+                    pagamentos: {
+                      orderBy: {
+                        ordem: "asc",
+                      },
+                    },
+                  },
+                },
+              },
+            })
+        : null;
 
-  if (preMatricula.status === "PAGO") {
-    return NextResponse.json({ ok: true, jaProcessado: true });
-  }
+    const eventoMatriculaIbe =
+      externalReference?.startsWith(
+        "IBE_MATRICULA_"
+      ) ||
+      Boolean(pagamentoIbeLocalizado);
 
-  const instituicaoIdIbe = 1;
+    if (eventoMatriculaIbe) {
+      console.log(
+        "🎓 Evento de matrícula IBE detectado:",
+        {
+          event,
+          externalReference,
+          asaasCheckoutId,
+          asaasPaymentId,
+        }
+      );
+
+      const pagamentoIbe =
+        pagamentoIbeLocalizado;
+
+      /*
+       * Não devolvemos 404 para um webhook não
+       * localizado. Respostas fora da faixa 2xx
+       * provocam novas tentativas no Asaas.
+       */
+      if (!pagamentoIbe) {
+        console.error(
+          "Pagamento da matrícula IBE não encontrado:",
+          {
+            event,
+            externalReference,
+            asaasCheckoutId,
+            asaasPaymentId,
+          }
+        );
+
+        return NextResponse.json({
+          ok: true,
+          ignorado: true,
+          motivo:
+            "PAGAMENTO_IBE_NAO_LOCALIZADO",
+        });
+      }
+
+      /*
+       * O Checkout já foi salvo pela API de
+       * matrícula. Este evento apenas sincroniza.
+       */
+      if (event === "CHECKOUT_CREATED") {
+        await prisma
+          .matriculaOnlineIbePagamento
+          .update({
+            where: {
+              id: pagamentoIbe.id,
+            },
+            data: {
+              status:
+                "AGUARDANDO_PAGAMENTO",
+
+              asaasCheckoutId:
+                asaasCheckoutId ||
+                pagamentoIbe.asaasCheckoutId,
+            },
+          });
+
+        return NextResponse.json({
+          ok: true,
+          checkoutIbeCriado: true,
+        });
+      }
+
+      const checkoutCancelado =
+        event === "CHECKOUT_CANCELED" ||
+        event === "PAYMENT_DELETED" ||
+        paymentStatus === "DELETED" ||
+        paymentStatus === "CANCELED" ||
+        paymentStatus === "CANCELLED";
+
+      const checkoutExpirado =
+        event === "CHECKOUT_EXPIRED" ||
+        event === "PAYMENT_OVERDUE" ||
+        paymentStatus === "OVERDUE";
+
+      if (
+        checkoutCancelado ||
+        checkoutExpirado
+      ) {
+        const statusParte =
+          checkoutExpirado
+            ? "EXPIRADO"
+            : "CANCELADO";
+
+        await prisma
+          .matriculaOnlineIbePagamento
+          .updateMany({
+            where: {
+              id: pagamentoIbe.id,
+
+              /*
+               * Um evento atrasado de expiração ou
+               * cancelamento não pode desfazer um
+               * pagamento já confirmado.
+               */
+              status: {
+                not: "PAGO",
+              },
+            },
+            data: {
+              status: statusParte,
+
+              asaasCheckoutId:
+                asaasCheckoutId ||
+                pagamentoIbe.asaasCheckoutId,
+
+              asaasPaymentId:
+                asaasPaymentId ||
+                pagamentoIbe.asaasPaymentId,
+            },
+          });
+
+        const partesAtualizadas =
+          await prisma
+            .matriculaOnlineIbePagamento
+            .findMany({
+              where: {
+                matriculaOnlineIbeId:
+                  pagamentoIbe
+                    .matriculaOnlineIbeId,
+              },
+            });
+
+        const valorJaPago =
+          partesAtualizadas
+            .filter(
+              (parte) =>
+                parte.status === "PAGO"
+            )
+            .reduce(
+              (total, parte) =>
+                total +
+                Number(parte.valor || 0),
+              0
+            );
+
+        const matriculaAtual =
+          pagamentoIbe.matriculaOnlineIbe;
+
+        if (
+          matriculaAtual.status !== "PAGO"
+        ) {
+          await prisma
+            .matriculaOnlineIbe
+            .update({
+              where: {
+                id: matriculaAtual.id,
+              },
+              data: {
+                valorPago: valorJaPago,
+
+                status:
+                  valorJaPago > 0
+                    ? "PAGAMENTO_PARCIAL"
+                    : statusParte,
+              },
+            });
+        }
+
+        return NextResponse.json({
+          ok: true,
+          checkoutIbeEncerrado: true,
+          status: statusParte,
+          valorPago: valorJaPago,
+        });
+      }
+
+      /*
+       * No CHECKOUT_PAID, consultamos a cobrança
+       * criada pelo Checkout para obter o ID e a
+       * forma realmente utilizada pelo comprador.
+       */
+      const checkoutIdParaConsulta =
+        asaasCheckoutId ||
+        pagamentoIbe.asaasCheckoutId ||
+        "";
+
+      const pagamentoDoCheckout =
+        event === "CHECKOUT_PAID" &&
+        checkoutIdParaConsulta
+          ? await buscarPagamentoDoCheckoutAsaas(
+              checkoutIdParaConsulta
+            )
+          : null;
+
+      const asaasPaymentIdConfirmado =
+        asaasPaymentId ||
+        String(
+          pagamentoDoCheckout?.id || ""
+        ).trim() ||
+        pagamentoIbe.asaasPaymentId ||
+        "";
+
+      const billingTypeConfirmado =
+        String(
+          payment?.billingType ||
+            pagamentoDoCheckout?.billingType ||
+            pagamentoIbe.billingTypeAsaas ||
+            ""
+        )
+          .trim()
+          .toUpperCase();
+
+      const statusAsaasConfirmado =
+        String(
+          paymentStatus ||
+            pagamentoDoCheckout?.status ||
+            ""
+        )
+          .trim()
+          .toUpperCase();
+
+      const pagamentoConfirmado =
+        event === "CHECKOUT_PAID" ||
+        event === "PAYMENT_RECEIVED" ||
+        event === "PAYMENT_CONFIRMED" ||
+        statusAsaasConfirmado ===
+          "RECEIVED" ||
+        statusAsaasConfirmado ===
+          "CONFIRMED" ||
+        statusAsaasConfirmado ===
+          "RECEIVED_IN_CASH";
+
+      if (!pagamentoConfirmado) {
+        console.log(
+          "⏳ Matrícula IBE ainda aguardando pagamento:",
+          {
+            event,
+            paymentStatus:
+              statusAsaasConfirmado,
+          }
+        );
+
+        return NextResponse.json({
+          ok: true,
+          aguardandoPagamento: true,
+        });
+      }
+
+      await prisma
+        .matriculaOnlineIbePagamento
+        .update({
+          where: {
+            id: pagamentoIbe.id,
+          },
+          data: {
+            status: "PAGO",
+            pagoEm:
+              pagamentoIbe.pagoEm ||
+              new Date(),
+
+            asaasCheckoutId:
+              checkoutIdParaConsulta ||
+              pagamentoIbe.asaasCheckoutId,
+
+            asaasPaymentId:
+              asaasPaymentIdConfirmado ||
+              pagamentoIbe.asaasPaymentId,
+
+            billingTypeAsaas:
+              billingTypeConfirmado ||
+              pagamentoIbe.billingTypeAsaas,
+          },
+        });
+
+      const preMatricula =
+        await prisma
+          .matriculaOnlineIbe
+          .findUnique({
+            where: {
+              id:
+                pagamentoIbe
+                  .matriculaOnlineIbeId,
+            },
+            include: {
+              pagamentos: {
+                orderBy: {
+                  ordem: "asc",
+                },
+              },
+            },
+          });
+
+      if (!preMatricula) {
+        console.error(
+          "Pré-matrícula IBE não encontrada:",
+          pagamentoIbe
+            .matriculaOnlineIbeId
+        );
+
+        return NextResponse.json({
+          ok: true,
+          ignorado: true,
+          motivo:
+            "PRE_MATRICULA_IBE_NAO_LOCALIZADA",
+        });
+      }
+
+      if (
+        preMatricula.status === "PAGO"
+      ) {
+        return NextResponse.json({
+          ok: true,
+          jaProcessado: true,
+        });
+      }
+
+      const valorPagoConfirmado =
+        preMatricula.pagamentos
+          .filter(
+            (parte) =>
+              parte.status === "PAGO"
+          )
+          .reduce(
+            (total, parte) =>
+              total +
+              Number(parte.valor || 0),
+            0
+          );
+
+      const valorTotalMatricula =
+        Number(
+          preMatricula.valorTotal || 0
+        );
+
+      const matriculaQuitada =
+        valorPagoConfirmado + 0.009 >=
+        valorTotalMatricula;
+
+      await prisma
+        .matriculaOnlineIbe
+        .update({
+          where: {
+            id: preMatricula.id,
+          },
+          data: {
+            valorPago:
+              valorPagoConfirmado,
+
+            status: matriculaQuitada
+              ? preMatricula.status
+              : "PAGAMENTO_PARCIAL",
+
+            asaasPaymentId:
+              asaasPaymentIdConfirmado ||
+              preMatricula.asaasPaymentId,
+          },
+        });
+
+      /*
+       * Uma parte foi paga, mas ainda falta a
+       * segunda. Não cria aluno, matrícula,
+       * contrato ou acesso neste momento.
+       */
+      if (!matriculaQuitada) {
+        console.log(
+          "💰 Pagamento parcial da matrícula IBE:",
+          {
+            matriculaOnlineIbeId:
+              preMatricula.id,
+            valorPago:
+              valorPagoConfirmado,
+            valorTotal:
+              valorTotalMatricula,
+          }
+        );
+
+        return NextResponse.json({
+          ok: true,
+          pagamentoParcial: true,
+          valorPago:
+            valorPagoConfirmado,
+          valorTotal:
+            valorTotalMatricula,
+          saldoRestante: Math.max(
+            0,
+            valorTotalMatricula -
+              valorPagoConfirmado
+          ),
+        });
+      }
+
+      const instituicaoIdIbe = 1;
 
   let senhaTempIbe = "";
   let userIbe = await prisma.user.findUnique({
@@ -647,7 +1158,9 @@ if (externalReference?.startsWith("IBE_MATRICULA_")) {
       vencimento: new Date(),
       pagoEm: new Date(),
       status: "PAGO",
-      observacao: `Pagamento confirmado pelo Asaas. Referência: ${externalReference}`,
+      observacao:
+  `Pagamento confirmado pelo Asaas. ` +
+  `Referência: ${preMatricula.externalReference}`,
       instituicaoId: instituicaoIdIbe,
       alunoId: alunoIbe.id,
       matriculaId: matriculaIbe.id,
@@ -700,31 +1213,92 @@ if (externalReference?.startsWith("IBE_MATRICULA_")) {
         externalReference ? { externalReference } : undefined,
       ].filter(Boolean) as any,
     },
-  });
+  });  let totalNovosMovimentos = 0;
 
-  if (!movimentoExistente) {
+  const partesPagas =
+    preMatricula.pagamentos.filter(
+      (parte) =>
+        parte.status === "PAGO"
+    );
+
+  for (const partePaga of partesPagas) {
+    const filtrosMovimento: any[] = [
+      {
+        externalReference:
+          partePaga.externalReference,
+      },
+    ];
+
+    if (partePaga.asaasPaymentId) {
+      filtrosMovimento.push({
+        asaasPaymentId:
+          partePaga.asaasPaymentId,
+      });
+    }
+
+    const movimentoExistente =
+      await prisma.movimentoCaixa.findFirst({
+        where: {
+          OR: filtrosMovimento,
+        },
+      });
+
+    if (movimentoExistente) {
+      continue;
+    }
+
+    const valorParte = Number(
+      partePaga.valor || 0
+    );
+
     await prisma.movimentoCaixa.create({
       data: {
         tipo: "ENTRADA",
-        descricao: "Recebimento online Asaas - matrícula IBE",
-        valor: Number(preMatricula.valorTotal || 0),
-        formaPagamento: "PIX",
+
+        descricao:
+          `Recebimento online Asaas - ` +
+          `matrícula IBE - parte ` +
+          `${partePaga.ordem}`,
+
+        valor: valorParte,
+
+        formaPagamento:
+          mapearFormaPagamentoCaixa(
+            partePaga.billingTypeAsaas
+          ),
+
         origem: "ONLINE_ASAAS_IBE",
-        asaasPaymentId: asaasPaymentId || null,
-        externalReference,
-        instituicaoId: instituicaoIdIbe,
+
+        asaasPaymentId:
+          partePaga.asaasPaymentId ||
+          null,
+
+        externalReference:
+          partePaga.externalReference,
+
+        instituicaoId:
+          instituicaoIdIbe,
+
         caixaId: caixaOnline.id,
         alunoId: alunoIbe.id,
         lancamentoId: lancamento.id,
       },
     });
 
+    totalNovosMovimentos +=
+      valorParte;
+  }
+
+  if (totalNovosMovimentos > 0) {
     await prisma.caixa.update({
-      where: { id: caixaOnline.id },
+      where: {
+        id: caixaOnline.id,
+      },
       data: {
-        saldoSistema:
-          Number(caixaOnline.saldoSistema || 0) +
-          Number(preMatricula.valorTotal || 0),
+        saldoSistema: {
+          increment:
+            totalNovosMovimentos,
+        },
       },
     });
   }
@@ -747,12 +1321,20 @@ if (externalReference?.startsWith("IBE_MATRICULA_")) {
   });
 
   await prisma.matriculaOnlineIbe.update({
-    where: { id: preMatricula.id },
-    data: {
-      status: "PAGO",
-      asaasPaymentId: asaasPaymentId || preMatricula.asaasPaymentId,
-    },
-  });
+  where: {
+    id: preMatricula.id,
+  },
+  data: {
+    status: "PAGO",
+
+    valorPago:
+      preMatricula.valorTotal,
+
+    asaasPaymentId:
+      asaasPaymentIdConfirmado ||
+      preMatricula.asaasPaymentId,
+  },
+});
 
   try {
     const baseUrl =
