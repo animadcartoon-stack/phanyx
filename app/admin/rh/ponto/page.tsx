@@ -1098,9 +1098,9 @@ export default function PontoRHPage() {
                     Status
                   </th>
 
-                  <th className="px-3 py-3">
-                    Ações
-                  </th>
+                  <th className="sticky right-0 z-20 min-w-[210px] border-l border-slate-200 bg-slate-100 px-3 py-3 text-center text-slate-700 shadow-[-8px_0_18px_-14px_rgba(15,23,42,0.45)] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+  Ações
+</th>
                 </tr>
               </thead>
 
@@ -1227,60 +1227,52 @@ export default function PontoRHPage() {
                           </span>
                         </td>
 
-                        <td className="px-3 py-4">
-                          <div className="flex min-w-[170px] flex-col gap-2">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setPontoExpandidoId(
-                                  expandido
-                                    ? null
-                                    : ponto.id
-                                )
-                              }
-                              className="rounded-xl border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-black text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
-                            >
-                              {expandido
-                                ? "Ocultar"
-                                : "Ver detalhes"}
-                            </button>
+                        <td className="sticky right-0 z-10 min-w-[210px] border-l border-slate-200 bg-white px-3 py-4 shadow-[-8px_0_18px_-14px_rgba(15,23,42,0.45)] dark:border-slate-700 dark:bg-slate-900">
+  <div className="flex w-full min-w-[185px] flex-col gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        setPontoExpandidoId(
+          expandido ? null : ponto.id
+        )
+      }
+      className="min-h-10 w-full whitespace-nowrap rounded-xl border border-blue-700 bg-blue-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-offset-slate-900"
+    >
+      {expandido
+        ? "Ocultar detalhes"
+        : "Ver detalhes"}
+    </button>
 
-                            {ponto
-                              .autorizacaoCorrecao
-                              ?.status ===
-                            "ATIVA" ? (
-                              <>
-                                <span className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200">
-                                  Correção autorizada
-                                </span>
+    {ponto.autorizacaoCorrecao?.status ===
+    "ATIVA" ? (
+      <>
+        <span className="flex min-h-10 w-full items-center justify-center whitespace-nowrap rounded-xl border border-emerald-500 bg-emerald-100 px-4 py-2 text-center text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200">
+          Correção autorizada
+        </span>
 
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    abrirModalCancelar(
-                                      ponto
-                                    )
-                                  }
-                                  className="rounded-xl border border-red-300 bg-red-50 px-3 py-2 text-xs font-black text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-                                >
-                                  Cancelar autorização
-                                </button>
-                              </>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  abrirModalAutorizar(
-                                    ponto
-                                  )
-                                }
-                                className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-black text-emerald-700 hover:bg-emerald-100 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
-                              >
-                                Autorizar correção
-                              </button>
-                            )}
-                          </div>
-                        </td>
+        <button
+          type="button"
+          onClick={() =>
+            abrirModalCancelar(ponto)
+          }
+          className="min-h-10 w-full whitespace-nowrap rounded-xl border border-red-700 bg-red-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:border-red-500 dark:bg-red-600 dark:hover:bg-red-500 dark:focus:ring-offset-slate-900"
+        >
+          Cancelar autorização
+        </button>
+      </>
+    ) : (
+      <button
+        type="button"
+        onClick={() =>
+          abrirModalAutorizar(ponto)
+        }
+        className="min-h-10 w-full whitespace-nowrap rounded-xl border border-emerald-700 bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:focus:ring-offset-slate-900"
+      >
+        Autorizar correção
+      </button>
+    )}
+  </div>
+</td>
                       </tr>
 
                       {expandido && (
