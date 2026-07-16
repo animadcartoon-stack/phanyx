@@ -4273,21 +4273,41 @@ async function salvarModeloCompleto() {
       );
     }
 
-    const payloadCampos = campos
-  .filter((campo: any) => campo.id !== -999999)
-  .map((campo: any) => {
-      const {
-        dadosJson,
-        tempId,
-        arrayPreview,
-        idOriginalArray,
-        ...campoSemControle
-      } = campo;
+    const camposParaSalvar = campos.filter((campo: any) => {
+      if (campo.id === -999999) return false;
+      if (campo.arrayPreview === true) return false;
+      if (campo.idOriginalArray) return false;
+
+      return true;
+    });
+
+    const payloadCampos = camposParaSalvar.map((campo: any) => {
+      const idBanco = Number(campo?.bancoId || campo?.id);
+
+      const ehIdBancoValido =
+        Number.isFinite(idBanco) && idBanco > 0 && idBanco < 1000000000;
+
+      const campoSemControle: any = {
+        ...campo,
+      };
+
+      delete campoSemControle.dadosJson;
+      delete campoSemControle.tempId;
+      delete campoSemControle.arrayPreview;
+      delete campoSemControle.idOriginalArray;
+
+      if (ehIdBancoValido) {
+        campoSemControle.id = idBanco;
+        campoSemControle.bancoId = idBanco;
+      } else {
+        delete campoSemControle.id;
+        delete campoSemControle.bancoId;
+      }
 
       return {
         ...campoSemControle,
         dadosJson: {
-          ...(dadosJson || {}),
+          ...(campo?.dadosJson || {}),
           ...campoSemControle,
         },
       };
@@ -4299,7 +4319,7 @@ async function salvarModeloCompleto() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        removerAusentes: false,
+        removerAusentes: true,
         campos: payloadCampos,
       }),
     });
@@ -4312,6 +4332,24 @@ async function salvarModeloCompleto() {
           dataCampos?.error ||
           "Erro ao salvar campos do certificado."
       );
+    }
+
+    if (Array.isArray(dataCampos?.campos)) {
+      const camposSalvos = dataCampos.campos.map((campo: any) => {
+        const dados = campo?.dadosJson || {};
+
+        return {
+          ...campo,
+          ...dados,
+          id: campo.id,
+          bancoId: campo.id,
+        };
+      });
+
+      setCampos(camposSalvos);
+      setCampoSelecionadoId(null);
+      setCamposSelecionadosIds([]);
+      setPontoFormaSelecionado(null);
     }
 
     setMensagemSucesso("Modelo de certificado salvo com sucesso!");
