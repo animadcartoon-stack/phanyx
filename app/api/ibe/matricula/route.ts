@@ -445,8 +445,15 @@ export async function POST(req: Request) {
       );
     }
 
-    const externalReference =
-      `IBE_MATRICULA_${randomUUID()}`;
+    const matriculaExternalReference =
+  `IBE_MATRICULA_${randomUUID()}`;
+
+const pagamentoExternalReference =
+  `${matriculaExternalReference}_P1`;
+
+const checkoutExpiraEm = new Date(
+  Date.now() + 60 * 60 * 1000
+);
 
     const origin = new URL(req.url).origin;
 
@@ -475,7 +482,7 @@ export async function POST(req: Request) {
 
           minutesToExpire: 60,
 
-          externalReference,
+          externalReference: pagamentoExternalReference,
 
           callback: {
             successUrl:
@@ -548,9 +555,9 @@ export async function POST(req: Request) {
       );
     }
 
-    checkoutIdCriado = String(
-      checkout.id
-    );
+    const checkoutId = String(checkout.id);
+
+checkoutIdCriado = checkoutId;
 
     /*
      * Algumas respostas podem trazer o link.
@@ -561,31 +568,59 @@ export async function POST(req: Request) {
       typeof checkout.link === "string" &&
       checkout.link.trim()
         ? checkout.link
-        : `https://asaas.com/checkoutSession/show?id=${encodeURIComponent(
-            checkoutIdCriado
-          )}`;
+        : `https://asaas.com/checkoutSession/show?id=${encodeURIComponent(checkoutId)}`;
 
     try {
       await prisma.matriculaOnlineIbe.create({
-        data: {
-          nome,
-          email,
-          whatsapp,
-          cpf,
-          valorTotal:
-            valorTotalSeguro,
+  data: {
+    nome,
+    email,
+    whatsapp,
+    cpf,
 
-          disciplinasIds:
-            JSON.stringify(
-              disciplinasIds
-            ),
+    valorTotal: valorTotalSeguro,
+    valorPago: 0,
 
-          externalReference,
+    disciplinasIds:
+      JSON.stringify(disciplinasIds),
 
-          status:
-            "AGUARDANDO_PAGAMENTO",
-        },
-      });
+    modoPagamento: "UNICO",
+    quantidadePartes: 1,
+
+    externalReference:
+      matriculaExternalReference,
+
+    status: "AGUARDANDO_PAGAMENTO",
+
+    pagamentos: {
+      create: {
+        ordem: 1,
+
+        tipoIntegracao: "CHECKOUT",
+
+        // Neste Checkout o aluno poderá escolher
+        // Pix ou cartão de crédito.
+        formaSolicitada: "PIX_CREDIT_CARD",
+
+        valor: valorTotalSeguro,
+
+        status:
+          "AGUARDANDO_PAGAMENTO",
+
+        externalReference:
+          pagamentoExternalReference,
+
+        asaasCheckoutId:
+          checkoutId,
+
+        checkoutUrl,
+
+        expiraEm:
+          checkoutExpiraEm,
+      },
+    },
+  },
+});
     } catch (databaseError) {
       console.error(
         "Erro ao registrar matrícula:",
@@ -632,11 +667,16 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      checkoutId: checkoutIdCriado,
-      externalReference,
-      checkoutUrl,
-      valorTotal: valorTotalSeguro,
-    });
+  checkoutId,
+
+  externalReference:
+    matriculaExternalReference,
+
+  pagamentoExternalReference,
+
+  checkoutUrl,
+  valorTotal: valorTotalSeguro,
+});
   } catch (error: any) {
     console.error(
       "Erro matrícula IBE:",
