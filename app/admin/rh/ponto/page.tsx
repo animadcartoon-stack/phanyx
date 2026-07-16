@@ -336,6 +336,11 @@ export default function PontoRHPage() {
   const [erro, setErro] =
     useState("");
 
+    const [
+  erroModalAutorizacao,
+  setErroModalAutorizacao,
+] = useState("");
+
   const [
     responsavelAtual,
     setResponsavelAtual,
@@ -600,6 +605,7 @@ export default function PontoRHPage() {
     );
 
     setErro("");
+    setErroModalAutorizacao("");
     setSucesso("");
 
     setModalAutorizacaoAberto(
@@ -617,6 +623,7 @@ export default function PontoRHPage() {
 
     setMotivoCancelamento("");
     setErro("");
+    setErroModalAutorizacao("");
     setSucesso("");
 
     setModalAutorizacaoAberto(
@@ -632,7 +639,7 @@ export default function PontoRHPage() {
     setModalAutorizacaoAberto(
       false
     );
-
+    setErroModalAutorizacao("");
     setPontoAutorizacao(null);
   }
 
@@ -646,7 +653,7 @@ export default function PontoRHPage() {
         true
       );
 
-      setErro("");
+      setErroModalAutorizacao("");
       setSucesso("");
 
       if (
@@ -720,11 +727,11 @@ export default function PontoRHPage() {
         filtrosAplicados
       );
     } catch (error) {
-      setErro(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível autorizar a correção."
-      );
+      setErroModalAutorizacao(
+  error instanceof Error
+    ? error.message
+    : "Não foi possível autorizar a correção."
+);
     } finally {
       setProcessandoAutorizacao(
         false
@@ -810,11 +817,11 @@ export default function PontoRHPage() {
         filtrosAplicados
       );
     } catch (error) {
-      setErro(
-        error instanceof Error
-          ? error.message
-          : "Não foi possível cancelar a autorização."
-      );
+      setErroModalAutorizacao(
+  error instanceof Error
+    ? error.message
+    : "Não foi possível autorizar a correção."
+);
     } finally {
       setProcessandoAutorizacao(
         false
@@ -1533,6 +1540,12 @@ export default function PontoRHPage() {
               </p>
             </div>
 
+{erroModalAutorizacao && (
+  <div className="mt-4 rounded-2xl border border-red-300 bg-red-50 p-4 text-sm font-bold text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200">
+    {erroModalAutorizacao}
+  </div>
+)}
+
             {modoModalAutorizacao ===
             "AUTORIZAR" ? (
               <>
@@ -1571,6 +1584,10 @@ export default function PontoRHPage() {
                     placeholder="Exemplo: funcionário esqueceu de registrar a saída do expediente."
                     className="min-h-[120px] w-full rounded-xl border border-slate-300 bg-white p-3 text-slate-900 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
                   />
+
+                  <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+  {motivoAutorizacao.trim().length}/10 caracteres mínimos
+</p>
                 </div>
 
                 <div className="mt-5">

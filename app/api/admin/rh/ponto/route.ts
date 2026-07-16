@@ -275,10 +275,11 @@ export async function GET(
     }
 
     const [
-      total,
-      pontos,
-      configuracao,
-    ] = await Promise.all([
+  total,
+  pontos,
+  configuracao,
+  usuarioAtual,
+] = await Promise.all([
       prisma.pontoFuncionarioRH.count({
         where,
       }),
@@ -381,6 +382,17 @@ export async function GET(
           fusoHorario: true,
         },
       }),
+      prisma.user.findFirst({
+  where: {
+    id: Number(user.id),
+    instituicaoId,
+  },
+
+  select: {
+    id: true,
+    nome: true,
+  },
+}),
     ]);
 
     const totalPaginas = Math.max(
@@ -395,6 +407,15 @@ export async function GET(
       limite,
       total,
       totalPaginas,
+      responsavelAtual: {
+  id:
+    usuarioAtual?.id ||
+    Number(user.id),
+
+  nome:
+    usuarioAtual?.nome ||
+    "Responsável do RH",
+},
 
       fusoHorario:
         configuracao?.fusoHorario ||
