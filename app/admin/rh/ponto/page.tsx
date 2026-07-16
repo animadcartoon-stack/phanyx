@@ -1098,7 +1098,7 @@ export default function PontoRHPage() {
                     Status
                   </th>
 
-                  <th className="sticky right-0 z-20 min-w-[210px] border-l border-slate-200 bg-slate-100 px-3 py-3 text-center text-slate-700 shadow-[-8px_0_18px_-14px_rgba(15,23,42,0.45)] dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                  <th className="min-w-[190px] px-3 py-3 text-center">
   Ações
 </th>
                 </tr>
@@ -1227,8 +1227,8 @@ export default function PontoRHPage() {
                           </span>
                         </td>
 
-                        <td className="sticky right-0 z-10 min-w-[210px] border-l border-slate-200 bg-white px-3 py-4 shadow-[-8px_0_18px_-14px_rgba(15,23,42,0.45)] dark:border-slate-700 dark:bg-slate-900">
-  <div className="flex w-full min-w-[185px] flex-col gap-2">
+                        <td className="min-w-[190px] px-3 py-4">
+  <div className="mx-auto flex w-[175px] flex-col gap-2">
     <button
       type="button"
       onClick={() =>
@@ -1236,7 +1236,7 @@ export default function PontoRHPage() {
           expandido ? null : ponto.id
         )
       }
-      className="min-h-10 w-full whitespace-nowrap rounded-xl border border-blue-700 bg-blue-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500 dark:focus:ring-offset-slate-900"
+      className="min-h-9 w-full rounded-xl border border-blue-600 bg-blue-600 px-3 py-2 text-xs font-black !text-white shadow-sm transition hover:border-blue-700 hover:bg-blue-700 dark:border-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500"
     >
       {expandido
         ? "Ocultar detalhes"
@@ -1246,7 +1246,7 @@ export default function PontoRHPage() {
     {ponto.autorizacaoCorrecao?.status ===
     "ATIVA" ? (
       <>
-        <span className="flex min-h-10 w-full items-center justify-center whitespace-nowrap rounded-xl border border-emerald-500 bg-emerald-100 px-4 py-2 text-center text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-200">
+        <span className="flex min-h-9 w-full items-center justify-center rounded-xl border border-emerald-600 bg-emerald-50 px-3 py-2 text-center text-xs font-black text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-200">
           Correção autorizada
         </span>
 
@@ -1255,7 +1255,7 @@ export default function PontoRHPage() {
           onClick={() =>
             abrirModalCancelar(ponto)
           }
-          className="min-h-10 w-full whitespace-nowrap rounded-xl border border-red-700 bg-red-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:border-red-500 dark:bg-red-600 dark:hover:bg-red-500 dark:focus:ring-offset-slate-900"
+          className="min-h-9 w-full rounded-xl border border-red-600 bg-white px-3 py-2 text-xs font-black text-red-700 transition hover:bg-red-50 dark:border-red-700 dark:bg-red-950/30 dark:text-red-200 dark:hover:bg-red-950/60"
         >
           Cancelar autorização
         </button>
@@ -1266,7 +1266,7 @@ export default function PontoRHPage() {
         onClick={() =>
           abrirModalAutorizar(ponto)
         }
-        className="min-h-10 w-full whitespace-nowrap rounded-xl border border-emerald-700 bg-emerald-600 px-4 py-2 text-xs font-black text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:focus:ring-offset-slate-900"
+        className="min-h-9 w-full rounded-xl border border-emerald-600 bg-emerald-600 px-3 py-2 text-xs font-black !text-white shadow-sm transition hover:border-emerald-700 hover:bg-emerald-700 dark:border-emerald-500 dark:bg-emerald-600 dark:hover:bg-emerald-500"
       >
         Autorizar correção
       </button>
