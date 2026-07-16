@@ -136,6 +136,10 @@ model Instituicao {
   rescisoesRH                   RescisaoRH[]
   holeritesRH                   HoleriteRH[]
   pontosRH                      PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH   AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH   SolicitacaoCorrecaoPontoRH[]
+  itensCorrecaoPontoRH          SolicitacaoCorrecaoPontoItemRH[]
+  avisosWhatsappCorrecaoPontoRH AvisoWhatsappCorrecaoPontoRH[]
   historicosRH                  HistoricoRH[]
   ocorrenciasRH                 OcorrenciaRH[]
   escalasRH                     EscalaTrabalhoRH[]
@@ -187,10 +191,19 @@ model User {
   isMasterAdmin      Boolean      @default(false)
   instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
-  cursosCriados           Curso[]               @relation("CursoCriadoPor")
-  cursosExcluidos         Curso[]               @relation("CursoExcluidoPor")
-  CreditoIA               CreditoIA?
-  notificacoes            Notificacao[]
+  cursosCriados                             Curso[]                         @relation("CursoCriadoPor")
+  cursosExcluidos                           Curso[]                         @relation("CursoExcluidoPor")
+  CreditoIA                                 CreditoIA?
+  notificacoes                              Notificacao[]
+
+  autorizacoesCorrecaoPontoRH               AutorizacaoCorrecaoPontoRH[]    @relation("AutorizacaoCorrecaoPontoRHAutorizadoPor")
+
+  cancelamentosCorrecaoPontoRH              AutorizacaoCorrecaoPontoRH[]    @relation("AutorizacaoCorrecaoPontoRHCanceladoPor")
+
+  solicitacoesCorrecaoPontoRHAplicadas      SolicitacaoCorrecaoPontoRH[]    @relation("SolicitacaoCorrecaoPontoRHAplicadoPor")
+
+  avisosWhatsappCorrecaoPontoRHDestinatario AvisoWhatsappCorrecaoPontoRH[]  @relation("AvisoWhatsappCorrecaoPontoRHDestinatario")
+  
   reunioesCriadas         Reuniao[]             @relation("ReuniaoCriadaPor")
   reunioesParticipante    ReuniaoParticipante[]
   documentosRHCriados     DocumentoRH[]         @relation("DocumentoRHCriadoPor")
@@ -1194,29 +1207,31 @@ model Funcionario {
   pontoMobileConviteCriadoPorId Int?
   pontoMobileConviteUsadoEm     DateTime?
 
-  instituicaoId             Int
-  userId                    Int           @unique
-  departamentoId            Int?
-  departamento              Departamento? @relation(fields: [departamentoId], references: [id])
-  instituicao               Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  user                      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  recebeMensagemAniversario Boolean       @default(true)
-  recebeWhatsappAniversario Boolean       @default(true)
+  instituicaoId                     Int
+  userId                            Int           @unique
+  departamentoId                    Int?
+  departamento                      Departamento? @relation(fields: [departamentoId], references: [id])
+  instituicao                       Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  user                              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recebeMensagemAniversario         Boolean       @default(true)
+  recebeWhatsappAniversario         Boolean       @default(true)
 
-  permissoes             FuncionarioPermissao[]
-  historicosRH           HistoricoRH[]
-  ocorrenciasRH          OcorrenciaRH[]
-  documentosRH           DocumentoRH[]
-  feriasRH               FeriasRH[]
-  examesRH               ExameMedicoRH[]
-  rescisoesRH            RescisaoRH[]
-  holeritesRH            HoleriteRH[]
-  pontosRH               PontoFuncionarioRH[]
-  escalasRH              EscalaTrabalhoRH[]
-  bancoHorasRH           BancoHorasRH[]
-  beneficiosRH           FuncionarioBeneficioRH[]
-  marcacoesPontoMobile   MarcacaoPontoMobileRH[]
-  ajustesMarcacaoPontoRH AjusteMarcacaoPontoRH[]
+  permissoes                        FuncionarioPermissao[]
+  historicosRH                      HistoricoRH[]
+  ocorrenciasRH                     OcorrenciaRH[]
+  documentosRH                      DocumentoRH[]
+  feriasRH                          FeriasRH[]
+  examesRH                          ExameMedicoRH[]
+  rescisoesRH                       RescisaoRH[]
+  holeritesRH                       HoleriteRH[]
+  pontosRH                          PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH       AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH       SolicitacaoCorrecaoPontoRH[]
+  escalasRH                         EscalaTrabalhoRH[]
+  bancoHorasRH                      BancoHorasRH[]
+  beneficiosRH                      FuncionarioBeneficioRH[]
+  marcacoesPontoMobile              MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH            AjusteMarcacaoPontoRH[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -2502,8 +2517,10 @@ model PontoFuncionarioRH {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  bancoHoras      BancoHorasRH[]
-  marcacoesMobile MarcacaoPontoMobileRH[]
+  bancoHoras                        BancoHorasRH[]
+  marcacoesMobile                   MarcacaoPontoMobileRH[]
+  autorizacoesCorrecaoPontoRH       AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH       SolicitacaoCorrecaoPontoRH[]
 
   funcionario Funcionario @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
@@ -3116,11 +3133,14 @@ model MarcacaoPontoMobileRH {
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @default(now()) @updatedAt
 
-  instituicao        Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  funcionario        Funcionario             @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
-  pontoFuncionarioRH PontoFuncionarioRH?     @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
-  local              LocalPontoMobileRH?     @relation(fields: [localId], references: [id], onDelete: SetNull)
-  ajustes            AjusteMarcacaoPontoRH[]
+  instituicao                     Instituicao                       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario                     Funcionario                       @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  pontoFuncionarioRH              PontoFuncionarioRH?               @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
+  local                           LocalPontoMobileRH?               @relation(fields: [localId], references: [id], onDelete: SetNull)
+  ajustes                         AjusteMarcacaoPontoRH[]
+  itensCorrecaoComoOriginal       SolicitacaoCorrecaoPontoItemRH[]  @relation("ItemCorrecaoMarcacaoOriginal")
+
+  itensCorrecaoComoGerada         SolicitacaoCorrecaoPontoItemRH[]  @relation("ItemCorrecaoMarcacaoGerada")
 
   @@unique([instituicaoId, idempotenciaChave])
   @@index([instituicaoId])
@@ -3172,6 +3192,193 @@ model AjusteMarcacaoPontoRH {
   @@index([acao])
   @@index([criadoEm])
   @@index([instituicaoId, funcionarioId, criadoEm])
+}
+
+model AutorizacaoCorrecaoPontoRH {
+  id Int @id @default(autoincrement())
+
+  instituicaoId       Int
+  funcionarioId       Int
+  pontoFuncionarioRHId Int?
+
+  dataLocal DateTime
+
+  autorizadoPorId   Int
+  autorizadoPorNome String
+
+  motivoAutorizacao String @db.Text
+
+  // ATIVA, UTILIZADA, CANCELADA ou EXPIRADA
+  status String @default("ATIVA")
+
+  autorizadoEm DateTime @default(now())
+  validoAte     DateTime
+
+  limiteEnvios      Int @default(1)
+  enviosRealizados  Int @default(0)
+
+  utilizadoEm DateTime?
+
+  canceladoEm              DateTime?
+  canceladoPorId           Int?
+  motivoCancelamento       String? @db.Text
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
+
+  instituicao       Instituicao         @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario       Funcionario         @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  pontoFuncionarioRH PontoFuncionarioRH? @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
+
+  autorizadoPor User  @relation("AutorizacaoCorrecaoPontoRHAutorizadoPor", fields: [autorizadoPorId], references: [id], onDelete: Restrict)
+  canceladoPor  User? @relation("AutorizacaoCorrecaoPontoRHCanceladoPor", fields: [canceladoPorId], references: [id], onDelete: SetNull)
+
+  solicitacoes SolicitacaoCorrecaoPontoRH[]
+  avisosWhatsapp AvisoWhatsappCorrecaoPontoRH[]
+
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([pontoFuncionarioRHId])
+  @@index([dataLocal])
+  @@index([autorizadoPorId])
+  @@index([canceladoPorId])
+  @@index([status])
+  @@index([validoAte])
+  @@index([instituicaoId, funcionarioId, dataLocal], map: "idx_aut_correcao_inst_func_data")
+  @@index([instituicaoId, status, validoAte], map: "idx_aut_correcao_inst_status_validade")
+}
+
+model SolicitacaoCorrecaoPontoRH {
+  id Int @id @default(autoincrement())
+
+  instituicaoId        Int
+  autorizacaoId        Int
+  funcionarioId        Int
+  pontoFuncionarioRHId Int?
+
+  dataLocal DateTime
+
+  // RASCUNHO, ENVIADA, APLICADA, REJEITADA ou CANCELADA
+  status String @default("RASCUNHO")
+
+  motivoFuncionario String @db.Text
+
+  dadosAntes  Json?
+  dadosDepois Json?
+
+  enviadoEm  DateTime?
+  aplicadoEm DateTime?
+
+  aplicadoPorId Int?
+
+  ip            String?
+  userAgent     String? @db.Text
+  dispositivoId String?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
+
+  instituicao        Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  autorizacao        AutorizacaoCorrecaoPontoRH @relation(fields: [autorizacaoId], references: [id], onDelete: Restrict)
+  funcionario        Funcionario          @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  pontoFuncionarioRH PontoFuncionarioRH?  @relation(fields: [pontoFuncionarioRHId], references: [id], onDelete: SetNull)
+  aplicadoPor        User?                @relation("SolicitacaoCorrecaoPontoRHAplicadoPor", fields: [aplicadoPorId], references: [id], onDelete: SetNull)
+
+  itens          SolicitacaoCorrecaoPontoItemRH[]
+  avisosWhatsapp AvisoWhatsappCorrecaoPontoRH[]
+
+  @@index([instituicaoId])
+  @@index([autorizacaoId])
+  @@index([funcionarioId])
+  @@index([pontoFuncionarioRHId])
+  @@index([dataLocal])
+  @@index([status])
+  @@index([aplicadoPorId])
+  @@index([criadoEm])
+  @@index([instituicaoId, funcionarioId, dataLocal], map: "idx_sol_correcao_inst_func_data")
+  @@index([instituicaoId, status, criadoEm], map: "idx_sol_correcao_inst_status_criado")
+}
+
+model SolicitacaoCorrecaoPontoItemRH {
+  id Int @id @default(autoincrement())
+
+  instituicaoId Int
+  solicitacaoId Int
+
+  marcacaoOriginalId Int?
+  marcacaoGeradaId   Int?
+
+  // ADICIONAR, ALTERAR, INVALIDAR ou RESTAURAR
+  acao String
+
+  tipoOriginal     String?
+  dataHoraOriginal DateTime?
+
+  tipoProposto     String?
+  dataHoraProposta DateTime?
+
+  ordem Int @default(0)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  solicitacao SolicitacaoCorrecaoPontoRH @relation(fields: [solicitacaoId], references: [id], onDelete: Cascade)
+
+  marcacaoOriginal MarcacaoPontoMobileRH? @relation("ItemCorrecaoMarcacaoOriginal", fields: [marcacaoOriginalId], references: [id], onDelete: SetNull)
+  marcacaoGerada   MarcacaoPontoMobileRH? @relation("ItemCorrecaoMarcacaoGerada", fields: [marcacaoGeradaId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([solicitacaoId])
+  @@index([marcacaoOriginalId])
+  @@index([marcacaoGeradaId])
+  @@index([acao])
+  @@index([ordem])
+}
+
+model AvisoWhatsappCorrecaoPontoRH {
+  id Int @id @default(autoincrement())
+
+  instituicaoId Int
+  autorizacaoId Int?
+  solicitacaoId Int?
+
+  destinatarioUsuarioId Int
+  destinatarioNome      String
+  destinatarioTelefone  String?
+
+  tipo String @default("CORRECAO_PONTO_FUNCIONARIO")
+
+  mensagem String @db.Text
+
+  // PENDENTE_CONFIGURACAO, PENDENTE, ENVIANDO, ENVIADA,
+  // SEM_TELEFONE ou ERRO
+  status String @default("PENDENTE_CONFIGURACAO")
+
+  tentativas Int @default(0)
+
+  provedor          String?
+  mensagemExternaId String?
+  ultimoErro        String? @db.Text
+
+  agendadoEm DateTime @default(now())
+  enviadoEm  DateTime?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @default(now()) @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  autorizacao AutorizacaoCorrecaoPontoRH? @relation(fields: [autorizacaoId], references: [id], onDelete: SetNull)
+  solicitacao SolicitacaoCorrecaoPontoRH? @relation(fields: [solicitacaoId], references: [id], onDelete: SetNull)
+  destinatarioUsuario User @relation("AvisoWhatsappCorrecaoPontoRHDestinatario", fields: [destinatarioUsuarioId], references: [id], onDelete: Restrict)
+
+  @@index([instituicaoId])
+  @@index([autorizacaoId])
+  @@index([solicitacaoId])
+  @@index([destinatarioUsuarioId])
+  @@index([status])
+  @@index([agendadoEm])
+  @@index([instituicaoId, status, agendadoEm], map: "idx_whats_correcao_inst_status_agenda")
 }
 
 model CacheGeocodificacaoEndereco {
