@@ -19,6 +19,49 @@ type DisciplinaCheckout = Prisma.DisciplinaGetPayload<{
   };
 }>;
 
+type ModoPagamentoIbe =
+  | "UNICO"
+  | "DUAS_FORMAS";
+
+type FormaPagamentoIbe =
+  | "PIX"
+  | "CREDIT_CARD"
+  | "BOLETO"
+  | "DEBIT_CARD";
+
+type PartePagamentoIbe = {
+  ordem: number;
+  forma: FormaPagamentoIbe;
+  valor: number;
+};
+
+type RecursoPagamentoAsaas = {
+  ordem: number;
+  forma: FormaPagamentoIbe;
+  valor: number;
+
+  tipoIntegracao:
+    | "CHECKOUT"
+    | "COBRANCA";
+
+  externalReference: string;
+  url: string;
+
+  asaasCheckoutId: string | null;
+  asaasPaymentId: string | null;
+  billingTypeAsaas: string | null;
+
+  expiraEm: Date | null;
+};
+
+const FORMAS_PAGAMENTO_VALIDAS =
+  new Set<FormaPagamentoIbe>([
+    "PIX",
+    "CREDIT_CARD",
+    "BOLETO",
+    "DEBIT_CARD",
+  ]);
+
 export const runtime = "nodejs";
 
 const ASAAS_API_URL =
@@ -72,6 +115,511 @@ function removerDuplicadosPorId<
   });
 }
 
+function obterHeadersAsaas() {
+  if (!ASAAS_API_KEY) {
+    throw new Error(
+      "ASAAS_API_KEY não configurada."
+    );
+  }
+
+  return {
+    accept: "application/json",
+    "Content-Type": "application/json",
+    access_token: ASAAS_API_KEY,
+    "User-Agent": "PHANYX/1.0",
+  };
+}
+
+function normalizarPartesPagamento(
+  valor: unknown
+): PartePagamentoIbe[] {
+  if (!Array.isArray(valor)) {
+    return [];
+  }
+
+  const partes: PartePagamentoIbe[] = [];
+
+  for (const item of valor) {
+    const ordem = Number(item?.ordem);
+    const forma = String(
+      item?.forma || ""
+    )
+      .trim()
+      .toUpperCase() as FormaPagamentoIbe;
+
+    const valorParte = Number(
+      item?.valor
+    );
+
+    if (
+      !Number.isInteger(ordem) ||
+      ordem < 1 ||
+      ordem > 2 ||
+      !FORMAS_PAGAMENTO_VALIDAS.has(
+        forma
+      ) ||
+      !Number.isFinite(valorParte)
+    ) {
+      continue;
+    }
+
+    partes.push({
+      ordem,
+      forma,
+      valor: Number(
+        valorParte.toFixed(2)
+      ),
+    });
+  }
+
+  return partes.sort(
+    (a, b) => a.ordem - b.ordem
+  );
+}
+
+function dataDaquiDias(
+  quantidadeDias: number
+) {
+  const data = new Date();
+
+  data.setDate(
+    data.getDate() + quantidadeDias
+  );
+
+  return data;
+}
+
+async function obterOuCriarClienteAsaas({
+  nome,
+  email,
+  whatsapp,
+  cpf,
+}: {
+  nome: string;
+  email: string;
+  whatsapp: string;
+  cpf: string;
+}) {
+  const referenciaCliente =
+    `IBE_CLIENTE_${cpf}`;
+
+  const urlConsulta = new URL(
+    `${ASAAS_API_URL}/customers`
+  );
+
+  urlConsulta.searchParams.set(
+    "externalReference",
+    referenciaCliente
+  );
+
+  urlConsulta.searchParams.set(
+    "limit",
+    "1"
+  );
+
+  const consultaRes = await fetch(
+    urlConsulta.toString(),
+    {
+      method: "GET",
+      headers: obterHeadersAsaas(),
+      cache: "no-store",
+    }
+  );
+
+  const consulta = await consultaRes
+    .json()
+    .catch(() => null);
+
+  if (!consultaRes.ok) {
+    throw new Error(
+      obterMensagemErroAsaas(
+        consulta,
+        "Erro ao consultar cliente no Asaas."
+      )
+    );
+  }
+
+  const clienteExistente =
+    Array.isArray(consulta?.data)
+      ? consulta.data[0]
+      : null;
+
+  if (clienteExistente?.id) {
+    return String(
+      clienteExistente.id
+    );
+  }
+
+  const clienteRes = await fetch(
+    `${ASAAS_API_URL}/customers`,
+    {
+      method: "POST",
+      headers: obterHeadersAsaas(),
+      body: JSON.stringify({
+        name: nome,
+        email,
+        mobilePhone: whatsapp,
+        cpfCnpj: cpf,
+
+        externalReference:
+          referenciaCliente,
+
+        /*
+         * Evita os emails automáticos que
+         * causaram o problema inicial.
+         */
+        notificationDisabled: true,
+      }),
+    }
+  );
+
+  const cliente = await clienteRes
+    .json()
+    .catch(() => null);
+
+  if (
+    !clienteRes.ok ||
+    !cliente?.id
+  ) {
+    throw new Error(
+      obterMensagemErroAsaas(
+        cliente,
+        "Erro ao criar cliente no Asaas."
+      )
+    );
+  }
+
+  return String(cliente.id);
+}
+
+async function criarRecursoPagamentoAsaas({
+  parte,
+  matriculaExternalReference,
+  origin,
+  clienteAsaasId,
+  quantidadePartes,
+  quantidadeDisciplinas,
+}: {
+  parte: PartePagamentoIbe;
+  matriculaExternalReference: string;
+  origin: string;
+  clienteAsaasId: string | null;
+  quantidadePartes: number;
+  quantidadeDisciplinas: number;
+}): Promise<RecursoPagamentoAsaas> {
+  const pagamentoExternalReference =
+    `${matriculaExternalReference}_P${parte.ordem}`;
+
+  const paginaAcompanhamento =
+    `${origin}/ibe/matricula/pagamento/` +
+    `${encodeURIComponent(
+      matriculaExternalReference
+    )}`;
+
+  const urlSucesso =
+    `${paginaAcompanhamento}` +
+    `?retorno=sucesso` +
+    `&parte=${parte.ordem}`;
+
+  const urlCancelamento =
+    `${paginaAcompanhamento}` +
+    `?retorno=cancelado` +
+    `&parte=${parte.ordem}`;
+
+  const urlExpiracao =
+    `${paginaAcompanhamento}` +
+    `?retorno=expirado` +
+    `&parte=${parte.ordem}`;
+
+  /*
+   * Pix e crédito usam o Checkout.
+   * Abrir a tela não cria cobrança.
+   */
+  if (
+    parte.forma === "PIX" ||
+    parte.forma === "CREDIT_CARD"
+  ) {
+    const payloadCheckout: Record<
+      string,
+      unknown
+    > = {
+      billingTypes: [
+        parte.forma,
+      ],
+
+      chargeTypes:
+        parte.forma === "CREDIT_CARD"
+          ? [
+              "DETACHED",
+              "INSTALLMENT",
+            ]
+          : ["DETACHED"],
+
+      minutesToExpire: 60,
+
+      externalReference:
+        pagamentoExternalReference,
+
+      callback: {
+        successUrl: urlSucesso,
+        cancelUrl: urlCancelamento,
+        expiredUrl: urlExpiracao,
+      },
+
+      items: [
+        {
+          name:
+            quantidadePartes === 2
+              ? `Matrícula online IBE — parte ${parte.ordem}`
+              : "Matrícula online IBE",
+
+          description:
+            `Bacharel Livre em Teologia — ` +
+            `${quantidadeDisciplinas} disciplina` +
+            `${
+              quantidadeDisciplinas === 1
+                ? ""
+                : "s"
+            }`,
+
+          quantity: 1,
+          value: parte.valor,
+        },
+      ],
+    };
+
+    if (
+      parte.forma === "CREDIT_CARD"
+    ) {
+      payloadCheckout.installment = {
+        maxInstallmentCount: 12,
+      };
+    }
+
+    const checkoutRes = await fetch(
+      `${ASAAS_API_URL}/checkouts`,
+      {
+        method: "POST",
+        headers: obterHeadersAsaas(),
+        body: JSON.stringify(
+          payloadCheckout
+        ),
+      }
+    );
+
+    const checkout = await checkoutRes
+      .json()
+      .catch(() => null);
+
+    if (
+      !checkoutRes.ok ||
+      !checkout?.id
+    ) {
+      throw new Error(
+        obterMensagemErroAsaas(
+          checkout,
+          `Erro ao criar a parte ${parte.ordem} no Checkout Asaas.`
+        )
+      );
+    }
+
+    const checkoutId = String(
+      checkout.id
+    );
+
+    const url =
+      typeof checkout.link ===
+        "string" &&
+      checkout.link.trim()
+        ? checkout.link.trim()
+        : `https://asaas.com/checkoutSession/show?id=${encodeURIComponent(
+            checkoutId
+          )}`;
+
+    return {
+      ordem: parte.ordem,
+      forma: parte.forma,
+      valor: parte.valor,
+
+      tipoIntegracao: "CHECKOUT",
+
+      externalReference:
+        pagamentoExternalReference,
+
+      url,
+
+      asaasCheckoutId:
+        checkoutId,
+
+      asaasPaymentId: null,
+      billingTypeAsaas: null,
+
+      expiraEm: new Date(
+        Date.now() +
+          60 * 60 * 1000
+      ),
+    };
+  }
+
+  /*
+   * Boleto e débito precisam de uma
+   * cobrança vinculada a um cliente.
+   */
+  if (!clienteAsaasId) {
+    throw new Error(
+      "Não foi possível identificar o cliente para gerar a cobrança."
+    );
+  }
+
+  const vencimento =
+    dataDaquiDias(3);
+
+  const dueDate = vencimento
+    .toISOString()
+    .slice(0, 10);
+
+  /*
+   * A API não possui DEBIT_CARD como
+   * billingType de criação.
+   *
+   * CREDIT_CARD abre a fatura Asaas,
+   * onde a opção de débito pode aparecer.
+   */
+  const billingType =
+    parte.forma === "BOLETO"
+      ? "BOLETO"
+      : "CREDIT_CARD";
+
+  const pagamentoRes = await fetch(
+    `${ASAAS_API_URL}/payments`,
+    {
+      method: "POST",
+      headers: obterHeadersAsaas(),
+
+      body: JSON.stringify({
+        customer: clienteAsaasId,
+
+        billingType,
+
+        value: parte.valor,
+        dueDate,
+
+        description:
+          quantidadePartes === 2
+            ? `Matrícula online IBE - parte ${parte.ordem}`
+            : "Matrícula online IBE - Bacharel Livre em Teologia",
+
+        externalReference:
+          pagamentoExternalReference,
+
+        callback: {
+          successUrl: urlSucesso,
+
+          /*
+           * Débito possui confirmação
+           * instantânea na fatura.
+           */
+          autoRedirect:
+            parte.forma ===
+            "DEBIT_CARD",
+        },
+      }),
+    }
+  );
+
+  const pagamento =
+    await pagamentoRes
+      .json()
+      .catch(() => null);
+
+  if (
+    !pagamentoRes.ok ||
+    !pagamento?.id
+  ) {
+    throw new Error(
+      obterMensagemErroAsaas(
+        pagamento,
+        `Erro ao criar a cobrança da parte ${parte.ordem}.`
+      )
+    );
+  }
+
+  const url = String(
+    pagamento.invoiceUrl ||
+      pagamento.bankSlipUrl ||
+      ""
+  ).trim();
+
+  if (!url) {
+    throw new Error(
+      `A cobrança da parte ${parte.ordem} foi criada, mas o Asaas não retornou o link.`
+    );
+  }
+
+  return {
+    ordem: parte.ordem,
+    forma: parte.forma,
+    valor: parte.valor,
+
+    tipoIntegracao: "COBRANCA",
+
+    externalReference:
+      pagamentoExternalReference,
+
+    url,
+
+    asaasCheckoutId: null,
+
+    asaasPaymentId: String(
+      pagamento.id
+    ),
+
+    billingTypeAsaas:
+      billingType,
+
+    expiraEm: vencimento,
+  };
+}
+
+async function cancelarRecursosAsaas(
+  recursos: RecursoPagamentoAsaas[]
+) {
+  for (
+    const recurso of [...recursos].reverse()
+  ) {
+    try {
+      if (recurso.asaasCheckoutId) {
+        await fetch(
+          `${ASAAS_API_URL}/checkouts/${recurso.asaasCheckoutId}/cancel`,
+          {
+            method: "POST",
+            headers:
+              obterHeadersAsaas(),
+          }
+        );
+
+        continue;
+      }
+
+      if (recurso.asaasPaymentId) {
+        await fetch(
+          `${ASAAS_API_URL}/payments/${recurso.asaasPaymentId}`,
+          {
+            method: "DELETE",
+            headers:
+              obterHeadersAsaas(),
+          }
+        );
+      }
+    } catch (error) {
+      console.error(
+        "Erro ao cancelar recurso Asaas:",
+        error
+      );
+    }
+  }
+}
+
 export async function POST(req: Request) {
   let checkoutIdCriado: string | null = null;
 
@@ -112,6 +660,17 @@ export async function POST(req: Request) {
     const modulosCompletosInformados = new Set(
       normalizarIds(body.modulosCompletos)
     );
+
+const modoPagamento: ModoPagamentoIbe =
+  body.modoPagamento ===
+  "DUAS_FORMAS"
+    ? "DUAS_FORMAS"
+    : "UNICO";
+
+const partesInformadas =
+  normalizarPartesPagamento(
+    body.partesPagamento
+  );
 
     if (!nome || !email || !whatsappNumeros || !cpf) {
       return NextResponse.json(
@@ -445,237 +1004,329 @@ export async function POST(req: Request) {
       );
     }
 
-    const matriculaExternalReference =
-  `IBE_MATRICULA_${randomUUID()}`;
+   const parte1Informada =
+  partesInformadas.find(
+    (parte) => parte.ordem === 1
+  );
 
-const pagamentoExternalReference =
-  `${matriculaExternalReference}_P1`;
+const parte2Informada =
+  partesInformadas.find(
+    (parte) => parte.ordem === 2
+  );
 
-const checkoutExpiraEm = new Date(
-  Date.now() + 60 * 60 * 1000
-);
+if (!parte1Informada) {
+  return NextResponse.json(
+    {
+      error:
+        "Selecione a primeira forma de pagamento.",
+    },
+    { status: 400 }
+  );
+}
 
-    const origin = new URL(req.url).origin;
+let partesSeguras: PartePagamentoIbe[];
 
-    /*
-     * Cria somente uma sessão temporária de
-     * Checkout. Não cria boleto antecipadamente.
-     */
-    const checkoutRes = await fetch(
-      `${ASAAS_API_URL}/checkouts`,
+if (modoPagamento === "UNICO") {
+  partesSeguras = [
+    {
+      ordem: 1,
+      forma:
+        parte1Informada.forma,
+
+      /*
+       * O servidor usa o total real,
+       * ignorando o valor enviado.
+       */
+      valor: valorTotalSeguro,
+    },
+  ];
+} else {
+  if (!parte2Informada) {
+    return NextResponse.json(
       {
-        method: "POST",
-        headers: {
-          accept: "application/json",
-          "Content-Type":
-            "application/json",
-          access_token: ASAAS_API_KEY,
-          "User-Agent": "PHANYX/1.0",
-        },
-        body: JSON.stringify({
-          billingTypes: [
-            "PIX",
-            "CREDIT_CARD",
-          ],
+        error:
+          "Selecione a segunda forma de pagamento.",
+      },
+      { status: 400 }
+    );
+  }
 
-          chargeTypes: ["DETACHED"],
-
-          minutesToExpire: 60,
-
-          externalReference: pagamentoExternalReference,
-
-          callback: {
-            successUrl:
-              `${origin}/ibe/matricula/checkout?retorno=sucesso`,
-
-            cancelUrl:
-              `${origin}/ibe/matricula/checkout?retorno=cancelado`,
-
-            expiredUrl:
-              `${origin}/ibe/matricula/checkout?retorno=expirado`,
-          },
-
-          items: [
-            {
-              name:
-                "Matrícula online IBE",
-
-              description:
-                `Bacharel Livre em Teologia — ` +
-                `${disciplinasIds.length} disciplina` +
-                `${
-                  disciplinasIds.length === 1
-                    ? ""
-                    : "s"
-                }`,
-
-              quantity: 1,
-              value: valorTotalSeguro,
-            },
-          ],
-
-        }),
-      }
+  const valorPrimeiraParte =
+    Number(
+      parte1Informada.valor.toFixed(2)
     );
 
-    const checkout =
-      await checkoutRes
-        .json()
-        .catch(() => null);
+  const valorSegundaParte =
+    Number(
+      (
+        valorTotalSeguro -
+        valorPrimeiraParte
+      ).toFixed(2)
+    );
 
-    if (!checkoutRes.ok) {
-      console.error(
-        "Erro Checkout Asaas:",
-        checkout
-      );
+  if (
+    valorPrimeiraParte < 1 ||
+    valorSegundaParte < 1
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Cada parte do pagamento precisa ter pelo menos R$ 1,00.",
+      },
+      { status: 400 }
+    );
+  }
 
-      return NextResponse.json(
-        {
-          error: obterMensagemErroAsaas(
-            checkout,
-            "Erro ao criar o Checkout no Asaas."
+  partesSeguras = [
+    {
+      ordem: 1,
+      forma:
+        parte1Informada.forma,
+      valor:
+        valorPrimeiraParte,
+    },
+    {
+      ordem: 2,
+      forma:
+        parte2Informada.forma,
+      valor:
+        valorSegundaParte,
+    },
+  ];
+}
+
+const matriculaExternalReference =
+  `IBE_MATRICULA_${randomUUID()}`;
+
+const origin =
+  new URL(req.url).origin;
+
+const precisaClienteAsaas =
+  partesSeguras.some(
+    (parte) =>
+      parte.forma === "BOLETO" ||
+      parte.forma ===
+        "DEBIT_CARD"
+  );
+
+const clienteAsaasId =
+  precisaClienteAsaas
+    ? await obterOuCriarClienteAsaas({
+        nome,
+        email,
+        whatsapp:
+          whatsappNumeros,
+        cpf,
+      })
+    : null;
+
+const recursosCriados:
+  RecursoPagamentoAsaas[] = [];
+
+try {
+  for (const parte of partesSeguras) {
+    const recurso =
+      await criarRecursoPagamentoAsaas({
+        parte,
+
+        matriculaExternalReference,
+
+        origin,
+
+        clienteAsaasId,
+
+        quantidadePartes:
+          partesSeguras.length,
+
+        quantidadeDisciplinas:
+          disciplinasIds.length,
+      });
+
+    recursosCriados.push(
+      recurso
+    );
+  }
+} catch (error) {
+  await cancelarRecursosAsaas(
+    recursosCriados
+  );
+
+  throw error;
+}
+
+try {
+  await prisma
+    .matriculaOnlineIbe
+    .create({
+      data: {
+        nome,
+        email,
+        whatsapp,
+        cpf,
+
+        valorTotal:
+          valorTotalSeguro,
+
+        valorPago: 0,
+
+        disciplinasIds:
+          JSON.stringify(
+            disciplinasIds
           ),
-        },
-        { status: 400 }
-      );
-    }
 
-    if (!checkout?.id) {
-      console.error(
-        "Checkout sem identificador:",
-        checkout
-      );
+        modoPagamento,
 
-      return NextResponse.json(
-        {
-          error:
-            "O Asaas não retornou o identificador do Checkout.",
-        },
-        { status: 502 }
-      );
-    }
+        quantidadePartes:
+          partesSeguras.length,
 
-    const checkoutId = String(checkout.id);
-
-checkoutIdCriado = checkoutId;
-
-    /*
-     * Algumas respostas podem trazer o link.
-     * Caso não tragam, ele é montado usando
-     * o identificador retornado.
-     */
-    const checkoutUrl =
-      typeof checkout.link === "string" &&
-      checkout.link.trim()
-        ? checkout.link
-        : `https://asaas.com/checkoutSession/show?id=${encodeURIComponent(checkoutId)}`;
-
-    try {
-      await prisma.matriculaOnlineIbe.create({
-  data: {
-    nome,
-    email,
-    whatsapp,
-    cpf,
-
-    valorTotal: valorTotalSeguro,
-    valorPago: 0,
-
-    disciplinasIds:
-      JSON.stringify(disciplinasIds),
-
-    modoPagamento: "UNICO",
-    quantidadePartes: 1,
-
-    externalReference:
-      matriculaExternalReference,
-
-    status: "AGUARDANDO_PAGAMENTO",
-
-    pagamentos: {
-      create: {
-        ordem: 1,
-
-        tipoIntegracao: "CHECKOUT",
-
-        // Neste Checkout o aluno poderá escolher
-        // Pix ou cartão de crédito.
-        formaSolicitada: "PIX_CREDIT_CARD",
-
-        valor: valorTotalSeguro,
+        externalReference:
+          matriculaExternalReference,
 
         status:
           "AGUARDANDO_PAGAMENTO",
 
-        externalReference:
-          pagamentoExternalReference,
+        /*
+         * Mantido somente para
+         * compatibilidade antiga.
+         */
+        asaasPaymentId:
+          recursosCriados.find(
+            (recurso) =>
+              recurso.asaasPaymentId
+          )?.asaasPaymentId ||
+          null,
 
-        asaasCheckoutId:
-          checkoutId,
+        pagamentos: {
+          create:
+            recursosCriados.map(
+              (recurso) => ({
+                ordem:
+                  recurso.ordem,
 
-        checkoutUrl,
+                tipoIntegracao:
+                  recurso.tipoIntegracao,
 
-        expiraEm:
-          checkoutExpiraEm,
+                formaSolicitada:
+                  recurso.forma,
+
+                billingTypeAsaas:
+                  recurso
+                    .billingTypeAsaas,
+
+                valor:
+                  recurso.valor,
+
+                status:
+                  "AGUARDANDO_PAGAMENTO",
+
+                externalReference:
+                  recurso
+                    .externalReference,
+
+                asaasCheckoutId:
+                  recurso
+                    .asaasCheckoutId,
+
+                asaasPaymentId:
+                  recurso
+                    .asaasPaymentId,
+
+                /*
+                 * O campo possui esse
+                 * nome, mas também guarda
+                 * a URL da fatura.
+                 */
+                checkoutUrl:
+                  recurso.url,
+
+                expiraEm:
+                  recurso.expiraEm,
+              })
+            ),
+        },
       },
-    },
-  },
-});
-    } catch (databaseError) {
-      console.error(
-        "Erro ao registrar matrícula:",
-        databaseError
-      );
+    });
+} catch (databaseError) {
+  console.error(
+    "Erro ao registrar matrícula:",
+    databaseError
+  );
 
-      /*
-       * Evita deixar um Checkout sem registro
-       * correspondente no PHANYX.
-       */
-      try {
-        const cancelamentoRes =
-          await fetch(
-            `${ASAAS_API_URL}/checkouts/${checkoutIdCriado}/cancel`,
-            {
-              method: "POST",
-              headers: {
-                accept:
-                  "application/json",
-                access_token:
-                  ASAAS_API_KEY,
-                "User-Agent":
-                  "PHANYX/1.0",
-              },
-            }
-          );
+  await cancelarRecursosAsaas(
+    recursosCriados
+  );
 
-        if (!cancelamentoRes.ok) {
-          console.error(
-            "Falha ao cancelar Checkout órfão:",
-            await cancelamentoRes
-              .text()
-              .catch(() => "")
-          );
-        }
-      } catch (cancelamentoError) {
-        console.error(
-          "Erro ao cancelar Checkout órfão:",
-          cancelamentoError
-        );
-      }
+  throw databaseError;
+}
 
-      throw databaseError;
-    }
+const recursoPrimeiraParte =
+  recursosCriados.find(
+    (recurso) =>
+      recurso.ordem === 1
+  );
 
-    return NextResponse.json({
-  checkoutId,
+if (!recursoPrimeiraParte) {
+  throw new Error(
+    "A primeira parte do pagamento não foi criada."
+  );
+}
 
+/*
+ * Em duas formas, o comprador irá
+ * para uma página PHANYX que mostrará
+ * as duas partes separadamente.
+ */
+const paginaPagamentos =
+  `${origin}/ibe/matricula/pagamento/` +
+  `${encodeURIComponent(
+    matriculaExternalReference
+  )}`;
+
+const urlPagamento =
+  modoPagamento ===
+  "DUAS_FORMAS"
+    ? paginaPagamentos
+    : recursoPrimeiraParte.url;
+
+return NextResponse.json({
   externalReference:
     matriculaExternalReference,
 
-  pagamentoExternalReference,
+  modoPagamento,
 
-  checkoutUrl,
-  valorTotal: valorTotalSeguro,
+  quantidadePartes:
+    partesSeguras.length,
+
+  valorTotal:
+    valorTotalSeguro,
+
+  urlPagamento,
+
+  checkoutUrl:
+    modoPagamento === "UNICO" &&
+    recursoPrimeiraParte
+      .tipoIntegracao ===
+      "CHECKOUT"
+      ? recursoPrimeiraParte.url
+      : undefined,
+
+  paymentUrl:
+    modoPagamento === "UNICO" &&
+    recursoPrimeiraParte
+      .tipoIntegracao ===
+      "COBRANCA"
+      ? recursoPrimeiraParte.url
+      : undefined,
+
+  partes: recursosCriados.map(
+    (recurso) => ({
+      ordem: recurso.ordem,
+      forma: recurso.forma,
+      valor: recurso.valor,
+      tipoIntegracao:
+        recurso.tipoIntegracao,
+    })
+  ),
 });
   } catch (error: any) {
     console.error(
