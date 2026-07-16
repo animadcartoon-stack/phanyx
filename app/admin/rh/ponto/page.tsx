@@ -1077,15 +1077,10 @@ export default function PontoRHPage() {
         </h2>
 
         {loading ? (
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm font-bold text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-            Carregando pontos...
-          </div>
-        ) : pontos.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
-            Nenhum registro encontrado com
-            os filtros informados.
-          </div>
-        ) : (
+  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-sm font-bold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+    Carregando pontos...
+  </div>
+) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1100px] border-collapse text-sm">
               <thead>
