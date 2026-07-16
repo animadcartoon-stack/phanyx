@@ -1,20 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const VALOR_DISCIPLINA = 110;
-
-function calcularValorDisciplina(nome: string) {
-  const n = String(nome || "").toUpperCase();
-
-  if (
-    n.includes("TRABALHO DE CONCLUSÃO DE CURSO B") ||
-    n.includes("TCC B")
-  ) {
-    return 220;
-  }
-
-  return 110;
-}
+import { calcularValorDisciplina } from "@/lib/ibe/matricula-precos";
 
 export async function GET(req: NextRequest) {
   try {
@@ -129,10 +116,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const valorDisciplina =
-      disciplina.nome.toUpperCase().includes("TRABALHO DE CONCLUSÃO DE CURSO B")
-        ? 220
-        : VALOR_DISCIPLINA;
+    const valorDisciplina = calcularValorDisciplina(disciplina.nome);
 
     return {
       id: disciplina.id,

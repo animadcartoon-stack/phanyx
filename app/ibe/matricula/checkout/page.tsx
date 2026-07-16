@@ -3,6 +3,13 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import PhanyxToast from "@/components/ui/PhanyxToast"; 
+import {
+  INSTITUICAO_ID_PADRAO,
+  VALOR_CURSO_COMPLETO,
+  VALOR_DISCIPLINA,
+  VALOR_SEMESTRE_6_COMPLETO,
+  VALOR_SEMESTRE_COMPLETO,
+} from "@/lib/ibe/matricula-precos";
 
 type Disciplina = {
   id: number;
@@ -22,12 +29,6 @@ type Modulo = {
   descricao?: string | null;
   disciplinas: Disciplina[];
 };
-
-const VALOR_DISCIPLINA = 110;
-const VALOR_SEMESTRE_COMPLETO = 550;
-const VALOR_SEMESTRE_6_COMPLETO = 660;
-const VALOR_CURSO_COMPLETO = 3000;
-const INSTITUICAO_ID_PADRAO = 1; // IBE
 
 export default function IbeCheckoutPage() {
   const [nome, setNome] = useState("");
@@ -154,20 +155,31 @@ const total = cursoCompletoSelecionado
     }, 0);
 
   async function handleSubmit() {
-    if (carregando) return;
+  if (carregando) return;
 
-    if (!nome.trim() || !email.trim() || !whatsapp.trim() || !cpf.trim()) {
-      setErro("Preencha nome, email, WhatsApp e CPF antes de finalizar a matrícula.");
-      return;
-    }
+  if (
+    !nome.trim() ||
+    !email.trim() ||
+    !whatsapp.trim() ||
+    !cpf.trim()
+  ) {
+    setErro(
+      "Preencha nome, email, WhatsApp e CPF antes de finalizar a matrícula."
+    );
+    return;
+  }
 
-    if (disciplinas.length === 0) {
-      setErro("Selecione pelo menos uma disciplina antes de continuar para o pagamento.");
-      return;
-    }
+  if (disciplinas.length === 0) {
+    setErro(
+      "Selecione pelo menos uma disciplina antes de continuar para o pagamento."
+    );
+    return;
+  }
 
-    setCarregando(true);
+  setCarregando(true);
+  setErro("");
 
+  try {
     const res = await fetch("/api/ibe/matricula", {
       method: "POST",
       headers: {
@@ -179,15 +191,17 @@ const total = cursoCompletoSelecionado
         whatsapp,
         cpf,
         disciplinas,
-        valorTotal: total,
+        modulosCompletos,
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
-      setCarregando(false);
-      setErro(data?.error || "Erro ao iniciar pagamento.");
+      setErro(
+        data?.error ||
+          "Erro ao iniciar pagamento."
+      );
       return;
     }
 
@@ -196,12 +210,23 @@ const total = cursoCompletoSelecionado
       return;
     }
 
-    setCarregando(false);
     setErro(
-  data?.error ||
-    "Pagamento criado, mas o Asaas não retornou o link de pagamento. Tente novamente ou fale com o suporte."
-);
+      data?.error ||
+        "O checkout foi criado, mas o Asaas não retornou o link de pagamento."
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao iniciar matrícula:",
+      error
+    );
+
+    setErro(
+      "Não foi possível comunicar com o servidor. Tente novamente."
+    );
+  } finally {
+    setCarregando(false);
   }
+}
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50 px-6 py-10">
