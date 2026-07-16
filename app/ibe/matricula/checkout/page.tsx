@@ -30,6 +30,67 @@ type Modulo = {
   disciplinas: Disciplina[];
 };
 
+type ModoPagamento =
+  | "UNICO"
+  | "DUAS_FORMAS";
+
+type FormaPagamento =
+  | "PIX"
+  | "CREDIT_CARD"
+  | "BOLETO"
+  | "DEBIT_CARD";
+
+const FORMAS_PAGAMENTO: Array<{
+  id: FormaPagamento;
+  titulo: string;
+  descricao: string;
+}> = [
+  {
+    id: "PIX",
+    titulo: "Pix",
+    descricao: "Pagamento à vista",
+  },
+  {
+    id: "CREDIT_CARD",
+    titulo: "Cartão de crédito",
+    descricao: "À vista ou parcelado",
+  },
+  {
+    id: "BOLETO",
+    titulo: "Boleto bancário",
+    descricao: "Cobrança com vencimento",
+  },
+  {
+    id: "DEBIT_CARD",
+    titulo: "Cartão de débito",
+    descricao: "Pagamento pela fatura Asaas",
+  },
+];
+
+function formatarMoeda(valor: number) {
+  return valor.toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
+function converterValorDigitado(
+  texto: string
+) {
+  const normalizado = String(texto || "")
+    .trim()
+    .replace(/\s/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/[^\d.]/g, "");
+
+  const valor = Number(normalizado);
+
+  return Number.isFinite(valor)
+    ? valor
+    : 0;
+}
+
 export default function IbeCheckoutPage() {
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
@@ -41,6 +102,28 @@ export default function IbeCheckoutPage() {
   const [modulosAbertos, setModulosAbertos] = useState<number[]>([1]);
   const [modulosCompletos, setModulosCompletos] = useState<number[]>([]);
   const [erro, setErro] = useState("");
+
+  const [
+  modoPagamento,
+  setModoPagamento,
+] = useState<ModoPagamento>("UNICO");
+
+const [
+  formaPagamento1,
+  setFormaPagamento1,
+] = useState<FormaPagamento>("PIX");
+
+const [
+  formaPagamento2,
+  setFormaPagamento2,
+] = useState<FormaPagamento>(
+  "CREDIT_CARD"
+);
+
+const [
+  valorPrimeiraParteTexto,
+  setValorPrimeiraParteTexto,
+] = useState("");
 
   useEffect(() => {
     fetch(`/api/ibe/disciplinas?instituicaoId=${INSTITUICAO_ID_PADRAO}`)
@@ -154,6 +237,72 @@ const total = cursoCompletoSelecionado
 );
     }, 0);
 
+    const valorPrimeiraParte =
+  modoPagamento === "DUAS_FORMAS"
+    ? Number(
+        converterValorDigitado(
+          valorPrimeiraParteTexto
+        ).toFixed(2)
+      )
+    : Number(total.toFixed(2));
+
+const valorSegundaParte =
+  modoPagamento === "DUAS_FORMAS"
+    ? Number(
+        Math.max(
+          0,
+          total - valorPrimeiraParte
+        ).toFixed(2)
+      )
+    : 0;
+
+const divisaoValida =
+  modoPagamento === "UNICO" ||
+  (
+    valorPrimeiraParte >= 1 &&
+    valorSegundaParte >= 1 &&
+    Math.abs(
+      valorPrimeiraParte +
+        valorSegundaParte -
+        total
+    ) < 0.01
+  );
+
+const possuiFormaComCobranca =
+  formaPagamento1 === "BOLETO" ||
+  formaPagamento1 === "DEBIT_CARD" ||
+  (
+    modoPagamento === "DUAS_FORMAS" &&
+    (
+      formaPagamento2 === "BOLETO" ||
+      formaPagamento2 ===
+        "DEBIT_CARD"
+    )
+  );
+
+function selecionarModoPagamento(
+  modo: ModoPagamento
+) {
+  setModoPagamento(modo);
+  setErro("");
+
+  if (modo === "DUAS_FORMAS") {
+    const metade = Number(
+      (total / 2).toFixed(2)
+    );
+
+    setValorPrimeiraParteTexto(
+      metade
+        .toFixed(2)
+        .replace(".", ",")
+    );
+
+    return;
+  }
+
+  setValorPrimeiraParteTexto("");
+}
+
   async function handleSubmit() {
   if (carregando) return;
 
@@ -176,26 +325,71 @@ const total = cursoCompletoSelecionado
     return;
   }
 
+  if (
+    modoPagamento ===
+      "DUAS_FORMAS" &&
+    !divisaoValida
+  ) {
+    setErro(
+      "Informe um valor válido para a primeira parte. Cada parte precisa ter pelo menos R$ 1,00."
+    );
+    return;
+  }
+
+  const partesPagamento =
+    modoPagamento === "UNICO"
+      ? [
+          {
+            ordem: 1,
+            forma: formaPagamento1,
+            valor: Number(
+              total.toFixed(2)
+            ),
+          },
+        ]
+      : [
+          {
+            ordem: 1,
+            forma: formaPagamento1,
+            valor:
+              valorPrimeiraParte,
+          },
+          {
+            ordem: 2,
+            forma: formaPagamento2,
+            valor:
+              valorSegundaParte,
+          },
+        ];
+
   setCarregando(true);
   setErro("");
 
   try {
-    const res = await fetch("/api/ibe/matricula", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nome,
-        email,
-        whatsapp,
-        cpf,
-        disciplinas,
-        modulosCompletos,
-      }),
-    });
+    const res = await fetch(
+      "/api/ibe/matricula",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          email,
+          whatsapp,
+          cpf,
+          disciplinas,
+          modulosCompletos,
+          modoPagamento,
+          partesPagamento,
+        }),
+      }
+    );
 
-    const data = await res.json().catch(() => ({}));
+    const data = await res
+      .json()
+      .catch(() => ({}));
 
     if (!res.ok) {
       setErro(
@@ -205,14 +399,20 @@ const total = cursoCompletoSelecionado
       return;
     }
 
-    if (data.checkoutUrl) {
-      window.location.href = data.checkoutUrl;
+    const urlPagamento =
+      data?.checkoutUrl ||
+      data?.paymentUrl ||
+      data?.urlPagamento;
+
+    if (urlPagamento) {
+      window.location.href =
+        urlPagamento;
       return;
     }
 
     setErro(
       data?.error ||
-        "O checkout foi criado, mas o Asaas não retornou o link de pagamento."
+        "O pagamento foi preparado, mas o Asaas não retornou o link para continuar."
     );
   } catch (error) {
     console.error(
@@ -527,12 +727,221 @@ Você pode avançar por módulos conforme sua disponibilidade.
             </p>
           </div>
 
+<div className="mt-6 rounded-2xl border border-white/15 bg-white/5 p-5">
+  <h3 className="font-bold text-white">
+    Como deseja pagar?
+  </h3>
+
+  <p className="mt-1 text-xs leading-relaxed text-slate-300">
+    Escolha uma única forma ou divida o
+    valor em duas formas de pagamento.
+  </p>
+
+  <div className="mt-4 grid gap-2 sm:grid-cols-2">
+    <button
+      type="button"
+      onClick={() =>
+        selecionarModoPagamento(
+          "UNICO"
+        )
+      }
+      className={`rounded-xl border px-3 py-3 text-left text-sm font-bold transition ${
+        modoPagamento === "UNICO"
+          ? "border-emerald-400 bg-emerald-500/20 text-white"
+          : "border-white/15 bg-white/5 text-slate-200 hover:border-white/30 hover:bg-white/10"
+      }`}
+    >
+      Uma forma
+    </button>
+
+    <button
+      type="button"
+      onClick={() =>
+        selecionarModoPagamento(
+          "DUAS_FORMAS"
+        )
+      }
+      className={`rounded-xl border px-3 py-3 text-left text-sm font-bold transition ${
+        modoPagamento ===
+        "DUAS_FORMAS"
+          ? "border-emerald-400 bg-emerald-500/20 text-white"
+          : "border-white/15 bg-white/5 text-slate-200 hover:border-white/30 hover:bg-white/10"
+      }`}
+    >
+      Dividir em duas
+    </button>
+  </div>
+
+  <div className="mt-5">
+    <p className="mb-2 text-sm font-bold text-white">
+      {modoPagamento ===
+      "DUAS_FORMAS"
+        ? "Forma da primeira parte"
+        : "Forma de pagamento"}
+    </p>
+
+    <div className="grid gap-2 sm:grid-cols-2">
+      {FORMAS_PAGAMENTO.map(
+        (forma) => (
+          <button
+            key={`parte-1-${forma.id}`}
+            type="button"
+            onClick={() =>
+              setFormaPagamento1(
+                forma.id
+              )
+            }
+            className={`rounded-xl border px-3 py-3 text-left transition ${
+              formaPagamento1 ===
+              forma.id
+                ? "border-emerald-400 bg-emerald-500/20 text-white"
+                : "border-white/15 bg-white/5 text-slate-200 hover:border-white/30 hover:bg-white/10"
+            }`}
+          >
+            <span className="block text-sm font-bold">
+              {forma.titulo}
+            </span>
+
+            <span className="mt-1 block text-[11px] leading-tight text-slate-300">
+              {forma.descricao}
+            </span>
+          </button>
+        )
+      )}
+    </div>
+  </div>
+
+  {modoPagamento ===
+    "DUAS_FORMAS" && (
+    <>
+      <div className="mt-5">
+        <label className="block text-sm font-bold text-white">
+          Valor da primeira parte
+        </label>
+
+        <input
+          type="text"
+          inputMode="decimal"
+          placeholder="Ex.: 1.500,00"
+          value={
+            valorPrimeiraParteTexto
+          }
+          onChange={(e) =>
+            setValorPrimeiraParteTexto(
+              e.target.value
+            )
+          }
+          className="mt-2 w-full rounded-xl border border-white/15 bg-slate-950/40 px-3 py-3 text-white outline-none placeholder:text-slate-500 focus:border-emerald-400"
+        />
+
+        <div className="mt-3 grid gap-2 text-xs text-slate-200 sm:grid-cols-2">
+          <div className="rounded-xl bg-white/5 p-3">
+            <span className="block text-slate-400">
+              Primeira parte
+            </span>
+
+            <strong className="mt-1 block text-white">
+              {formatarMoeda(
+                valorPrimeiraParte
+              )}
+            </strong>
+          </div>
+
+          <div className="rounded-xl bg-white/5 p-3">
+            <span className="block text-slate-400">
+              Segunda parte
+            </span>
+
+            <strong className="mt-1 block text-white">
+              {formatarMoeda(
+                valorSegundaParte
+              )}
+            </strong>
+          </div>
+        </div>
+
+        {!divisaoValida && (
+          <p className="mt-2 text-xs font-semibold text-red-300">
+            Cada parte precisa ter pelo
+            menos R$ 1,00.
+          </p>
+        )}
+      </div>
+
+      <div className="mt-5">
+        <p className="mb-2 text-sm font-bold text-white">
+          Forma da segunda parte
+        </p>
+
+        <div className="grid gap-2 sm:grid-cols-2">
+          {FORMAS_PAGAMENTO.map(
+            (forma) => (
+              <button
+                key={`parte-2-${forma.id}`}
+                type="button"
+                onClick={() =>
+                  setFormaPagamento2(
+                    forma.id
+                  )
+                }
+                className={`rounded-xl border px-3 py-3 text-left transition ${
+                  formaPagamento2 ===
+                  forma.id
+                    ? "border-emerald-400 bg-emerald-500/20 text-white"
+                    : "border-white/15 bg-white/5 text-slate-200 hover:border-white/30 hover:bg-white/10"
+                }`}
+              >
+                <span className="block text-sm font-bold">
+                  {forma.titulo}
+                </span>
+
+                <span className="mt-1 block text-[11px] leading-tight text-slate-300">
+                  {forma.descricao}
+                </span>
+              </button>
+            )
+          )}
+        </div>
+      </div>
+    </>
+  )}
+
+  {possuiFormaComCobranca && (
+    <div className="mt-4 rounded-xl border border-amber-300/30 bg-amber-400/10 p-3 text-xs leading-relaxed text-amber-100">
+      Boleto e cartão de débito exigem
+      a criação de uma cobrança no
+      Asaas. Ela somente será criada
+      depois que você clicar no botão
+      para continuar.
+    </div>
+  )}
+
+  {modoPagamento ===
+    "DUAS_FORMAS" && (
+    <div className="mt-4 rounded-xl border border-blue-300/20 bg-blue-400/10 p-3 text-xs leading-relaxed text-blue-100">
+      A matrícula será liberada somente
+      depois que as duas partes forem
+      confirmadas.
+    </div>
+  )}
+</div>
+
           <button
             onClick={handleSubmit}
             disabled={carregando}
             className="mt-6 w-full rounded-xl bg-emerald-500 p-4 font-bold text-white transition hover:bg-emerald-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {carregando ? "🔄 Redirecionando para pagamento..." : "Finalizar matrícula"}
+            {carregando
+  ? "🔄 Preparando pagamento..."
+  : modoPagamento ===
+      "DUAS_FORMAS"
+  ? "Criar pagamentos e continuar"
+  : formaPagamento1 === "BOLETO"
+  ? "Gerar boleto e continuar"
+  : formaPagamento1 ===
+      "DEBIT_CARD"
+  ? "Continuar para cartão de débito"
+  : "Continuar para pagamento"}
           </button>
 
           <p className="mt-4 text-center text-xs text-slate-400">
