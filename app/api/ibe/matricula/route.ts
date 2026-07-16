@@ -507,12 +507,6 @@ export async function POST(req: Request) {
             },
           ],
 
-          customerData: {
-            name: nome,
-            cpfCnpj: cpf,
-            email,
-            phone: whatsappNumeros,
-          },
         }),
       }
     );
