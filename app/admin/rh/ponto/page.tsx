@@ -1345,11 +1345,11 @@ const marcacoesSubstituidas =
                           className="border-b border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950/50"
                         >
                           <td
-                            colSpan={9}
-                            className="px-4 py-5"
-                          >
+  colSpan={9}
+  className="sticky left-0 z-10 bg-slate-50 px-4 py-5 dark:bg-slate-950"
+>
                             <div className="grid gap-3 lg:grid-cols-2">
-                              {marcacoes.map(
+                              {marcacoesValidas.map(
                                 (
                                   marcacao,
                                   indice
@@ -1464,8 +1464,7 @@ const marcacoesSubstituidas =
   </details>
 )}
 
-                            {marcacoes.length ===
-                              0 && (
+                            {marcacoesValidas.length === 0 && (
                               <p className="text-sm text-slate-500">
                                 Este registro não
                                 possui marcações
