@@ -296,6 +296,30 @@ function marcacoesParaExibir(
   return marcacoes;
 }
 
+function classeStatusPonto(status: string) {
+  switch (String(status || "").toUpperCase()) {
+    case "REGISTRADO":
+      return "border-emerald-300 bg-emerald-100 !text-emerald-800 dark:border-emerald-700 dark:bg-emerald-950/60 dark:!text-emerald-200";
+
+    case "ABERTO":
+      return "border-amber-300 bg-amber-100 !text-amber-800 dark:border-amber-700 dark:bg-amber-950/60 dark:!text-amber-200";
+
+    case "CORRIGIDO":
+      return "border-blue-300 bg-blue-100 !text-blue-800 dark:border-blue-700 dark:bg-blue-950/60 dark:!text-blue-200";
+
+    case "INCONSISTENTE":
+    case "PENDENTE":
+      return "border-orange-300 bg-orange-100 !text-orange-800 dark:border-orange-700 dark:bg-orange-950/60 dark:!text-orange-200";
+
+    case "INVALIDADO":
+    case "CANCELADO":
+      return "border-red-300 bg-red-100 !text-red-800 dark:border-red-700 dark:bg-red-950/60 dark:!text-red-200";
+
+    default:
+      return "border-slate-300 bg-slate-100 !text-slate-800 dark:border-slate-600 dark:bg-slate-800 dark:!text-slate-200";
+  }
+}
+
 export default function PontoRHPage() {
   const [pontos, setPontos] =
     useState<RegistroPonto[]>([]);
@@ -1222,9 +1246,13 @@ export default function PontoRHPage() {
                         </td>
 
                         <td className="px-3 py-4">
-                          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700 dark:bg-slate-800 dark:text-slate-200">
-                            {ponto.status}
-                          </span>
+                          <span
+  className={`inline-flex min-w-[104px] items-center justify-center whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-black uppercase tracking-wide ${classeStatusPonto(
+    ponto.status
+  )}`}
+>
+  {ponto.status}
+</span>
                         </td>
 
                         <td className="min-w-[190px] px-3 py-4">
