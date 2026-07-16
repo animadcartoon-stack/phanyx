@@ -3169,6 +3169,86 @@ function escalarCampoDentroDaUnidade(
   return atualizarGeometriaCampo(campo, novosDados as any);
 }
 
+function centralizarSelecaoNaCena(tipo: "X" | "Y" | "XY") {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) {
+    setMensagemErro("Selecione um elemento ou grupo para centralizar na página.");
+    setTimeout(() => setMensagemErro(""), 2200);
+    return;
+  }
+
+  const itens = campos.filter(
+    (campo: any) =>
+      ids.includes(campo.id) &&
+      campo.id !== -999999 &&
+      campo.arrayPreview !== true &&
+      !campo.idOriginalArray
+  );
+
+  if (itens.length === 0) {
+    setMensagemErro("Nenhum elemento válido selecionado.");
+    setTimeout(() => setMensagemErro(""), 2200);
+    return;
+  }
+
+  registrarHistoricoAntesDaAcao();
+
+  const minX = Math.min(...itens.map((campo: any) => Number(campo.x || 0)));
+  const minY = Math.min(...itens.map((campo: any) => Number(campo.y || 0)));
+
+  const maxX = Math.max(
+    ...itens.map(
+      (campo: any) => Number(campo.x || 0) + Number(campo.largura || 120)
+    )
+  );
+
+  const maxY = Math.max(
+    ...itens.map(
+      (campo: any) => Number(campo.y || 0) + Number(campo.altura || 40)
+    )
+  );
+
+  const larguraSelecao = maxX - minX;
+  const alturaSelecao = maxY - minY;
+
+  const centroSelecaoX = minX + larguraSelecao / 2;
+  const centroSelecaoY = minY + alturaSelecao / 2;
+
+  const centroPaginaX = Number(baseCanvas.largura || 1123) / 2;
+  const centroPaginaY = Number(baseCanvas.altura || 794) / 2;
+
+  const deslocamentoX =
+    tipo === "X" || tipo === "XY" ? centroPaginaX - centroSelecaoX : 0;
+
+  const deslocamentoY =
+    tipo === "Y" || tipo === "XY" ? centroPaginaY - centroSelecaoY : 0;
+
+  setCampos((prev) =>
+    prev.map((campo: any) => {
+      if (!ids.includes(campo.id)) return campo;
+      if (campo.bloqueado) return campo;
+
+      const novosDados = {
+        x: Math.round(Number(campo.x || 0) + deslocamentoX),
+        y: Math.round(Number(campo.y || 0) + deslocamentoY),
+      };
+
+      return {
+        ...campo,
+        ...novosDados,
+        dadosJson: {
+          ...(campo.dadosJson || {}),
+          ...novosDados,
+        },
+      };
+    })
+  );
+
+  setMensagemSucesso("Seleção centralizada na página.");
+  setTimeout(() => setMensagemSucesso(""), 1800);
+}
+
 function alinharSelecionados(
   tipo:
     | "ESQUERDA"
@@ -5817,6 +5897,30 @@ contornoEspessura: 2,
       >
         Mesmo baixo
       </button>
+
+<button
+  type="button"
+  onClick={() => centralizarSelecaoNaCena("X")}
+  className="rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500"
+>
+  Centro página X
+</button>
+
+<button
+  type="button"
+  onClick={() => centralizarSelecaoNaCena("Y")}
+  className="rounded-xl bg-purple-600 px-3 py-2 text-xs font-bold text-white hover:bg-purple-500"
+>
+  Centro página Y
+</button>
+
+<button
+  type="button"
+  onClick={() => centralizarSelecaoNaCena("XY")}
+  className="rounded-xl bg-purple-700 px-3 py-2 text-xs font-bold text-white hover:bg-purple-600"
+>
+  Centro da página
+</button>
 
       <button
         type="button"
