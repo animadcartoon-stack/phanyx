@@ -4884,6 +4884,52 @@ function iniciarArrasteBarraSelecao(e: React.MouseEvent<HTMLDivElement>) {
   window.addEventListener("mouseup", soltar);
 }
 
+function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
+  e.preventDefault();
+  e.stopPropagation();
+
+  if (!menuContexto) return;
+
+  const inicioMouseX = e.clientX;
+  const inicioMouseY = e.clientY;
+
+  const inicioMenuX = Number(menuContexto.x || 80);
+  const inicioMenuY = Number(menuContexto.y || 80);
+
+  const mover = (ev: globalThis.MouseEvent) => {
+    const larguraPainel = 460;
+    const alturaPainel = 520;
+    const margem = 8;
+
+    const novoX = inicioMenuX + ev.clientX - inicioMouseX;
+    const novoY = inicioMenuY + ev.clientY - inicioMouseY;
+
+    setMenuContexto((prev: any) => {
+      if (!prev) return prev;
+
+      return {
+        ...prev,
+        x: Math.max(
+          margem,
+          Math.min(window.innerWidth - larguraPainel - margem, novoX)
+        ),
+        y: Math.max(
+          margem,
+          Math.min(window.innerHeight - 80, novoY)
+        ),
+      };
+    });
+  };
+
+  const soltar = () => {
+    window.removeEventListener("mousemove", mover);
+    window.removeEventListener("mouseup", soltar);
+  };
+
+  window.addEventListener("mousemove", mover);
+  window.addEventListener("mouseup", soltar);
+}
+
   return (
   <div className="phanyx-config-certificado-page mx-auto max-w-[1600px] p-6">
     {mensagemErro && (
@@ -6091,7 +6137,7 @@ contornoEspessura: 2,
             </aside>
           )}
 
-{camposSelecionadosIds.length >= 2 && (
+{(camposSelecionadosIds.length >= 1 || campoSelecionadoId) && (
   <div
     data-barra-selecao-certificado="true"
     onMouseDown={(e) => {
@@ -10023,11 +10069,11 @@ atualizarCampoLocal("tamanho", tamanho);
       window.addEventListener("mousemove", mover);
       window.addEventListener("mouseup", soltar);
     }}
-    style={{
+   style={{
   position: "fixed",
-  top: Math.min(menuContexto.y, window.innerHeight - 520),
-  left: menuContexto.x,
-  zIndex: 999999,
+  top: Math.max(8, Math.min(menuContexto.y, window.innerHeight - 80)),
+  left: Math.max(8, Math.min(menuContexto.x, window.innerWidth - 460)),
+  zIndex: 9999999,
   maxHeight: "500px",
   overflowY: "auto",
 }}
@@ -10036,9 +10082,10 @@ atualizarCampoLocal("tamanho", tamanho);
 
 <div
   data-arrastar-menu-contexto
-  className="mb-3 flex cursor-move items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600"
+  onMouseDown={iniciarArrasteMenuContexto}
+  className="mb-3 flex cursor-move select-none items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold"
 >
-  <span>⋮⋮ Arrastar painel</span>
+  <span>↕ Arrastar painel</span>
 
   <button
     type="button"
