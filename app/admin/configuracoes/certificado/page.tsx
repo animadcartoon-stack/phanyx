@@ -1732,19 +1732,6 @@ const idsParaExcluir =
   const larguraMaxima = window.innerWidth - 120;
   const alturaMaxima = window.innerHeight - 120;
 
-  const escalaCanvasVisual =
-  Number(previewScale || 1) > 5
-    ? Number(previewScale || 100) / 100
-    : Number(previewScale || 1);
-
-const larguraCanvasComZoom = Math.round(
-  Number(baseCanvas.largura || 1123) * escalaCanvasVisual
-);
-
-const alturaCanvasComZoom = Math.round(
-  Number(baseCanvas.altura || 794) * escalaCanvasVisual
-);
-
   return Math.min(
     1,
     larguraMaxima / baseCanvas.largura,
