@@ -1732,6 +1732,19 @@ const idsParaExcluir =
   const larguraMaxima = window.innerWidth - 120;
   const alturaMaxima = window.innerHeight - 120;
 
+  const escalaCanvasVisual =
+  Number(previewScale || 1) > 5
+    ? Number(previewScale || 100) / 100
+    : Number(previewScale || 1);
+
+const larguraCanvasComZoom = Math.round(
+  Number(baseCanvas.largura || 1123) * escalaCanvasVisual
+);
+
+const alturaCanvasComZoom = Math.round(
+  Number(baseCanvas.altura || 794) * escalaCanvasVisual
+);
+
   return Math.min(
     1,
     larguraMaxima / baseCanvas.largura,
@@ -6046,7 +6059,7 @@ contornoEspessura: 2,
   onMouseMove={moverCanvas}
   onMouseUp={finalizarArrastoCanvas}
   onMouseLeave={finalizarArrastoCanvas}
-  className="relative flex min-h-0 flex-1 items-center justify-center overflow-auto bg-[#eef2f7] p-8"
+  className="relative flex min-h-0 flex-1 items-start justify-start overflow-auto bg-[#eef2f7] p-8"
   style={{
   cursor: modoMao || espacoPressionado
     ? arrastandoCanvas
@@ -6056,13 +6069,13 @@ contornoEspessura: 2,
 }}
 >
               <div
-  className="relative flex items-center justify-center"
+  className="relative flex-shrink-0"
   style={{
     width: `${canvasWidth}px`,
     height: `${canvasHeight}px`,
     minWidth: `${canvasWidth}px`,
     minHeight: `${canvasHeight}px`,
-    flexShrink: 0,
+    margin: "auto",
   }}
 >
 
