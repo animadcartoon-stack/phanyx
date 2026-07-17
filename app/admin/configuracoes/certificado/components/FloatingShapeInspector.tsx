@@ -389,11 +389,10 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
       maxHeight: "85vh",
       zIndex: zIndex ?? 1000002,
     }}
-    onMouseDownCapture={(e) => {
+    onMouseDown={(e) => {
       e.stopPropagation();
       onTrazerParaFrente?.();
     }}
-    onMouseDown={(e) => e.stopPropagation()}
     onClick={(e) => e.stopPropagation()}
   >
       <div

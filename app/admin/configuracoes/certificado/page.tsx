@@ -5845,7 +5845,7 @@ contornoEspessura: 2,
 {camposSelecionadosIds.length >= 2 && (
   <div
     data-barra-selecao-certificado="true"
-    onMouseDownCapture={(e) => {
+    onMouseDown={(e) => {
       e.stopPropagation();
       trazerPainelFlutuanteParaFrente("barraSelecao");
     }}
@@ -5858,15 +5858,15 @@ contornoEspessura: 2,
   >
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
   <div
-    onMouseDown={iniciarArrasteBarraSelecao}
-    className="cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
-    title="Arraste para mover esta barra"
-  >
-    <p className="text-sm font-bold">↕ Alinhar elementos selecionados</p>
-    <p className="text-xs text-slate-300">
-      Arraste esta área para mover a barra. Referência: último elemento ativo selecionado.
-    </p>
-  </div>
+  onMouseDown={iniciarArrasteBarraSelecao}
+  className="cursor-move select-none rounded-lg px-2 py-1 hover:bg-white/10"
+  title="Arraste para mover esta barra"
+>
+  <p className="text-sm font-bold">↕ Alinhar elementos selecionados</p>
+  <p className="text-xs text-slate-300">
+    Arraste esta área para mover a barra. Referência: último elemento ativo selecionado.
+  </p>
+</div>
 
       <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-bold">
         {camposSelecionadosIds.length} selecionados
@@ -9537,7 +9537,7 @@ atualizarCampoLocal("tamanho", tamanho);
 {modalArrayAberto && (
   <div
     data-array-modal-certificado="true"
-    onMouseDownCapture={(e) => {
+    onMouseDown={(e) => {
       e.stopPropagation();
       trazerPainelFlutuanteParaFrente("arrayModal");
     }}
