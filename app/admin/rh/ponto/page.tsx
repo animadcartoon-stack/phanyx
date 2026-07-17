@@ -107,6 +107,7 @@ type Filtros = {
   statusPonto: string;
 };
 
+
 const FILTROS_INICIAIS: Filtros = {
   busca: "",
   dataInicio: "",
@@ -534,6 +535,7 @@ const [
     pontoExpandidoId,
     setPontoExpandidoId,
   ] = useState<number | null>(null);
+
 
   const carregarPontos =
     useCallback(
