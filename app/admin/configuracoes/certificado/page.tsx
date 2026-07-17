@@ -2695,6 +2695,49 @@ useEffect(() => {
       return;
     }
 
+    const teclasSeta = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+
+if (teclasSeta.includes(e.key)) {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) return;
+
+  e.preventDefault();
+
+  const passo = e.shiftKey ? 10 : 1;
+
+  const dx =
+    e.key === "ArrowLeft" ? -passo : e.key === "ArrowRight" ? passo : 0;
+
+  const dy =
+    e.key === "ArrowUp" ? -passo : e.key === "ArrowDown" ? passo : 0;
+
+  registrarHistoricoAntesDaAcao();
+
+  setCampos((prev) =>
+    prev.map((campo) => {
+      if (!ids.includes(campo.id)) return campo;
+      if ((campo as any).bloqueado) return campo;
+
+      const novoX = Number(campo.x || 0) + dx;
+      const novoY = Number(campo.y || 0) + dy;
+
+      return {
+        ...campo,
+        x: novoX,
+        y: novoY,
+        dadosJson: {
+          ...((campo as any).dadosJson || {}),
+          x: novoX,
+          y: novoY,
+        },
+      };
+    })
+  );
+
+  return;
+}
+
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
       const ids = idsAlvoDaAcao();
 
@@ -4285,12 +4328,25 @@ function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
     const altura = campo.altura || 40;
     
     let novoX =
-      (event.clientX - canvasRect.left) / escala - dragRef.current.offsetX;
-    let novoY =
-      (event.clientY - canvasRect.top) / escala - dragRef.current.offsetY;
+  (event.clientX - canvasRect.left) / escala - dragRef.current.offsetX;
+let novoY =
+  (event.clientY - canvasRect.top) / escala - dragRef.current.offsetY;
 
-    novoX = Math.round(novoX);
-    novoY = Math.round(novoY);
+novoX = Math.round(novoX);
+novoY = Math.round(novoY);
+
+if (event.shiftKey) {
+  const deltaX = novoX - dragRef.current.inicioX;
+  const deltaY = novoY - dragRef.current.inicioY;
+
+  if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+    // trava na horizontal
+    novoY = dragRef.current.inicioY;
+  } else {
+    // trava na vertical
+    novoX = dragRef.current.inicioX;
+  }
+}
 
     if (dragRef.current.grupoId) {
   const deltaX = Math.round(novoX - dragRef.current.inicioX);
