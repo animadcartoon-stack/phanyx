@@ -290,6 +290,9 @@ function rotuloLocalizacao(
     case "CORRECAO_AUTORIZADA":
       return "Correção autorizada pelo RH";
 
+      case "CORRECAO_RH":
+  return "Correção realizada pelo RH";
+
     case "NAO_EXIGIDA":
       return "Localização não exigida";
 
@@ -312,6 +315,54 @@ function numero(valor: unknown) {
   return Number.isFinite(convertido)
     ? convertido
     : 0;
+}
+
+function formatarHorasDecimais(
+  valor: unknown
+) {
+  const horasDecimais = numero(valor);
+
+  const sinal =
+    horasDecimais < 0 ? "-" : "";
+
+  const totalMinutos = Math.round(
+    Math.abs(horasDecimais) * 60
+  );
+
+  const horas = Math.floor(
+    totalMinutos / 60
+  );
+
+  const minutos =
+    totalMinutos % 60;
+
+  return `${sinal}${horas}h${String(
+    minutos
+  ).padStart(2, "0")}min`;
+}
+
+function limparMotivoAutorizacao(
+  valor: unknown
+) {
+  const texto = String(valor || "")
+    .trim();
+
+  const textoLimpo = texto
+    .replace(
+      /^Correção aplicada diretamente pelo RH\.?\s*/i,
+      ""
+    )
+    .replace(
+      /^Motivo:\s*/i,
+      ""
+    )
+    .trim();
+
+  return (
+    textoLimpo ||
+    texto ||
+    "Motivo não informado"
+  );
 }
 
 export default function MeusPontosMobile({
@@ -1008,6 +1059,24 @@ export default function MeusPontosMobile({
               jornada.autorizacao
                 ?.status === "ATIVA";
 
+                const correcaoDiretaRH =
+  atuais.some(
+    (marcacao) =>
+      String(
+        marcacao.origem || ""
+      ).toUpperCase() ===
+      "CORRECAO_RH"
+  ) ||
+  String(
+    jornada.autorizacao
+      ?.motivoAutorizacao || ""
+  )
+    .trim()
+    .toLocaleLowerCase("pt-BR")
+    .startsWith(
+      "correção aplicada diretamente pelo rh"
+    );
+
             return (
               <article
                 key={jornada.id}
@@ -1109,10 +1178,9 @@ export default function MeusPontosMobile({
                     </p>
 
                     <p className="mt-1 text-sm font-black text-white">
-                      {numero(
-                        jornada.horasTrabalhadas
-                      ).toFixed(2)}
-                      h
+                      {formatarHorasDecimais(
+  jornada.horasTrabalhadas
+)}
                     </p>
                   </div>
 
@@ -1122,10 +1190,9 @@ export default function MeusPontosMobile({
                     </p>
 
                     <p className="mt-1 text-sm font-black text-emerald-300">
-                      {numero(
-                        jornada.horasExtras
-                      ).toFixed(2)}
-                      h
+                      {formatarHorasDecimais(
+  jornada.horasExtras
+)}
                     </p>
                   </div>
 
@@ -1135,10 +1202,9 @@ export default function MeusPontosMobile({
                     </p>
 
                     <p className="mt-1 text-sm font-black text-red-300">
-                      {numero(
-                        jornada.horasAtraso
-                      ).toFixed(2)}
-                      h
+                      {formatarHorasDecimais(
+  jornada.horasAtraso
+)}
                     </p>
                   </div>
                 </div>
@@ -1153,8 +1219,12 @@ export default function MeusPontosMobile({
                   >
                     <p className="text-sm font-black text-white">
                       {autorizacaoAtiva
-                        ? "Correção autorizada"
-                        : `Autorização ${jornada.autorizacao.status.toLocaleLowerCase("pt-BR")}`}
+  ? "Correção autorizada"
+  : correcaoDiretaRH
+    ? "Correção realizada pelo RH"
+    : `Autorização ${jornada.autorizacao.status.toLocaleLowerCase(
+        "pt-BR"
+      )}`}
                     </p>
 
                     <p className="mt-2 text-xs leading-5 text-slate-300">
@@ -1173,11 +1243,10 @@ export default function MeusPontosMobile({
                       <strong>
                         Motivo:
                       </strong>{" "}
-                      {
-                        jornada
-                          .autorizacao
-                          .motivoAutorizacao
-                      }
+                      {limparMotivoAutorizacao(
+  jornada.autorizacao
+    .motivoAutorizacao
+)}
                     </p>
 
                     <p className="mt-1 text-xs leading-5 text-slate-300">
