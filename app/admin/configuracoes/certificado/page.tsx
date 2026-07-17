@@ -6137,7 +6137,7 @@ contornoEspessura: 2,
             </aside>
           )}
 
-{(camposSelecionadosIds.length >= 1 || campoSelecionadoId) && (
+{(camposSelecionadosIds.length >= 1 || campoSelecionadoId !== null) && (
   <div
     data-barra-selecao-certificado="true"
     onMouseDown={(e) => {
@@ -6146,10 +6146,10 @@ contornoEspessura: 2,
     }}
     className="fixed w-[min(920px,calc(100vw-32px))] rounded-2xl border border-blue-500/40 bg-slate-950/95 p-3 text-white shadow-2xl backdrop-blur"
     style={{
-      left: `${barraSelecaoPosicao.x}px`,
-      top: `${barraSelecaoPosicao.y}px`,
-      zIndex: zIndexFlutuante.barraSelecao,
-    }}
+  left: `${barraSelecaoPosicao.x}px`,
+  top: `${barraSelecaoPosicao.y}px`,
+  zIndex: Math.max(zIndexFlutuante.barraSelecao, 10000020),
+}}
   >
     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
   <div
