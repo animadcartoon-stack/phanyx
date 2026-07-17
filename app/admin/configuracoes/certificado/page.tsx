@@ -1856,6 +1856,61 @@ function atualizarQuantidadeDisciplinasCampo(valor: number) {
 }
 
 useEffect(() => {
+  function colarCamposCopiados(deslocamento: number, mensagem: string) {
+    if (!campoCopiado) {
+      setMensagemErro("Copie um campo ou grupo antes de colar.");
+      setTimeout(() => setMensagemErro(""), 1600);
+      return;
+    }
+
+    registrarHistoricoAntesDaAcao();
+
+    const itensOriginais = Array.isArray(campoCopiado?.itens)
+      ? campoCopiado.itens
+      : [campoCopiado];
+
+    const novoGrupoId =
+      itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
+
+    const agora = Date.now();
+
+    const novosCampos = itensOriginais.map(
+      (item: CampoCertificado, index: number) => {
+        const novoId = agora + index + 1;
+        const novoX = Number(item.x || 0) + deslocamento;
+        const novoY = Number(item.y || 0) + deslocamento;
+
+        return {
+          ...JSON.parse(JSON.stringify(item)),
+          id: novoId,
+          bancoId: undefined,
+          tempId: novoId,
+          grupoId: novoGrupoId,
+          x: novoX,
+          y: novoY,
+          dadosJson: {
+            ...((item as any).dadosJson || {}),
+            id: undefined,
+            bancoId: undefined,
+            tempId: novoId,
+            grupoId: novoGrupoId,
+            x: novoX,
+            y: novoY,
+          },
+        } as CampoCertificado;
+      }
+    );
+
+    const novosIds = novosCampos.map((campo) => campo.id);
+
+    setCampos((prev) => [...prev, ...novosCampos]);
+    setCamposSelecionadosIds(novosIds);
+    setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
+
+    setMensagemSucesso(mensagem);
+    setTimeout(() => setMensagemSucesso(""), 1200);
+  }
+
   function handleCopiarColar(e: KeyboardEvent) {
     const alvo = e.target as HTMLElement | null;
     const tag = alvo?.tagName?.toLowerCase();
@@ -1886,62 +1941,37 @@ useEffect(() => {
       });
 
       setMensagemSucesso(
-        itensCopiados.length > 1
-          ? "Grupo copiado."
-          : "Campo copiado."
+        itensCopiados.length > 1 ? "Grupo copiado." : "Campo copiado."
       );
       setTimeout(() => setMensagemSucesso(""), 1200);
+
+      return;
     }
 
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
-      if (!campoCopiado) return;
-
       e.preventDefault();
 
-      registrarHistoricoAntesDaAcao();
-
-      const itensOriginais = Array.isArray(campoCopiado?.itens)
-        ? campoCopiado.itens
-        : [campoCopiado];
-
-      const novoGrupoId =
-        itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
-
-      const novosCampos = itensOriginais.map((item: CampoCertificado, index: number) => {
-        const novoId = Date.now() + index + 1;
-
-        return {
-          ...JSON.parse(JSON.stringify(item)),
-          id: novoId,
-          bancoId: undefined,
-          tempId: novoId,
-          grupoId: novoGrupoId,
-          x: Number(item.x || 0) + 24,
-          y: Number(item.y || 0) + 24,
-          dadosJson: {
-            ...((item as any).dadosJson || {}),
-            id: undefined,
-            bancoId: undefined,
-            tempId: novoId,
-            grupoId: novoGrupoId,
-            x: Number(item.x || 0) + 24,
-            y: Number(item.y || 0) + 24,
-          },
-        } as CampoCertificado;
-      });
-
-      const novosIds = novosCampos.map((campo) => campo.id);
-
-      setCampos((prev) => [...prev, ...novosCampos]);
-      setCamposSelecionadosIds(novosIds);
-      setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
-
-      setMensagemSucesso(
-        novosCampos.length > 1
+      colarCamposCopiados(
+        24,
+        Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
           ? "Grupo colado."
           : "Campo colado."
       );
-      setTimeout(() => setMensagemSucesso(""), 1200);
+
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+      e.preventDefault();
+
+      colarCamposCopiados(
+        0,
+        Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
+          ? "Grupo colado no mesmo lugar."
+          : "Campo colado no mesmo lugar."
+      );
+
+      return;
     }
   }
 
@@ -1952,10 +1982,9 @@ useEffect(() => {
   };
 }, [
   campoCopiado,
-  campoSelecionado,
-  campoSelecionadoId,
   campos,
   camposSelecionadosIds,
+  campoSelecionadoId,
 ]);
 
   const caixaDoGrupoSelecionado = useMemo(() => {
