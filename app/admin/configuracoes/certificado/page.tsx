@@ -924,6 +924,128 @@ function gerarPontosEstrela(
   pontoId: string;
 } | null>(null);
 
+function selecionarCampoUnico(id: number) {
+  setCampoSelecionadoId(id);
+  setCamposSelecionadosIds([id]);
+  setPontoFormaSelecionado(null);
+}
+
+type TipoFormaGeometrica =
+  | "RETANGULO"
+  | "QUADRADO"
+  | "CIRCULO"
+  | "LINHA"
+  | "ESTRELA"
+  | "TRIANGULO"
+  | "SETA"
+  | "LOSANGO"
+  | "LIVRE";
+
+function adicionarFormaGeometrica(forma: TipoFormaGeometrica) {
+  const novoId = Date.now();
+
+  const configPorForma: Partial<Record<TipoFormaGeometrica, any>> = {
+    RETANGULO: {
+      x: 120,
+      y: 120,
+      largura: 180,
+      altura: 90,
+      opacity: 0.35,
+      contornoEspessura: 2,
+    },
+    QUADRADO: {
+      x: 130,
+      y: 130,
+      largura: 120,
+      altura: 120,
+      opacity: 0.35,
+      contornoEspessura: 2,
+    },
+    CIRCULO: {
+      x: 140,
+      y: 140,
+      largura: 110,
+      altura: 110,
+      opacity: 0.35,
+      contornoEspessura: 2,
+    },
+    LINHA: {
+      x: 160,
+      y: 160,
+      largura: 180,
+      altura: 1,
+      opacity: 1,
+      contornoEspessura: 2,
+    },
+    ESTRELA: {
+      x: 180,
+      y: 180,
+      largura: 160,
+      altura: 160,
+      opacity: 1,
+      contornoEspessura: 3,
+      pontasEstrela: 5,
+      raioInterno: 22,
+      raioExterno: 44,
+      profundidadeEstrela: 45,
+      arredondarEstrela: 0,
+      pontas: 5,
+    },
+    TRIANGULO: {
+      x: 200,
+      y: 200,
+      largura: 140,
+      altura: 140,
+      opacity: 0.55,
+      contornoEspessura: 2,
+    },
+    SETA: {
+      x: 200,
+      y: 200,
+      largura: 180,
+      altura: 100,
+      opacity: 0.55,
+      contornoEspessura: 2,
+    },
+    LOSANGO: {
+      x: 200,
+      y: 200,
+      largura: 130,
+      altura: 130,
+      opacity: 0.55,
+      contornoEspessura: 2,
+    },
+  };
+
+  const config = configPorForma[forma] || {
+    x: 160,
+    y: 160,
+    largura: 140,
+    altura: 140,
+    opacity: 0.55,
+    contornoEspessura: 2,
+  };
+
+  const novoCampo = {
+    id: novoId,
+    tempId: novoId,
+    tipo: "FORMA",
+    forma,
+    pontosForma: criarPontosIniciaisForma(forma),
+    mostrarPreenchimento: true,
+    mostrarContorno: true,
+    preenchimentoCor: "#1d4ed8",
+    contornoCor: "#1d4ed8",
+    cor: "#1d4ed8",
+    ordem: 5,
+    pagina: 1,
+    ...config,
+  } as any;
+
+  setCampos((prev) => [...prev, novoCampo]);
+  selecionarCampoUnico(novoId);
+}
+
   const [mostrarHandlesForma, setMostrarHandlesForma] = useState(true);
 
   const [modoFormaLivre, setModoFormaLivre] = useState(false);
@@ -1118,8 +1240,7 @@ if (alvo.closest("[data-campo-certificado-id]")) {
       },
     ]);
 
-    setCampoSelecionadoId(novoId);
-    setCamposSelecionadosIds([novoId]);
+    selecionarCampoUnico(novoId);
     setModoFormaLivre(false);
     setPontosFormaLivre([]);
     setMensagemSucesso("Forma livre criada. Agora você pode editar pontos e tangentes.");
@@ -1266,7 +1387,7 @@ function adicionarImagemBiblioteca(
     } as any,
   ]);
 
-  setCampoSelecionadoId(novoId);
+  selecionarCampoUnico(novoId);
 }
 
  const handleUploadImagem = async (e: React.ChangeEvent<HTMLInputElement>) => {
