@@ -3394,6 +3394,117 @@ function centralizarSelecaoNaCena(tipo: "X" | "Y" | "XY") {
   setTimeout(() => setMensagemSucesso(""), 1800);
 }
 
+function duplicarSelecaoNoOposto(eixo: "X" | "Y" | "XY") {
+  const ids = idsAlvoDaAcao();
+
+  if (ids.length === 0) {
+    setMensagemErro("Selecione uma forma ou grupo para duplicar no lado oposto.");
+    setTimeout(() => setMensagemErro(""), 1800);
+    return;
+  }
+
+  const itensOriginais = campos.filter((campo: any) => {
+    if (!ids.includes(campo.id)) return false;
+    if (campo.id === -999999) return false;
+    if (campo.arrayPreview === true) return false;
+    if (campo.idOriginalArray) return false;
+
+    return true;
+  });
+
+  if (itensOriginais.length === 0) {
+    setMensagemErro("Nenhum item válido selecionado.");
+    setTimeout(() => setMensagemErro(""), 1800);
+    return;
+  }
+
+  registrarHistoricoAntesDaAcao();
+
+  const minX = Math.min(...itensOriginais.map((campo: any) => Number(campo.x || 0)));
+  const minY = Math.min(...itensOriginais.map((campo: any) => Number(campo.y || 0)));
+
+  const maxX = Math.max(
+    ...itensOriginais.map(
+      (campo: any) => Number(campo.x || 0) + Number(campo.largura || 120)
+    )
+  );
+
+  const maxY = Math.max(
+    ...itensOriginais.map(
+      (campo: any) => Number(campo.y || 0) + Number(campo.altura || 40)
+    )
+  );
+
+  const larguraSelecao = maxX - minX;
+  const alturaSelecao = maxY - minY;
+
+  const larguraPagina = Number(baseCanvas.largura || 1123);
+  const alturaPagina = Number(baseCanvas.altura || 794);
+
+  const novoMinX =
+    eixo === "X" || eixo === "XY"
+      ? larguraPagina - minX - larguraSelecao
+      : minX;
+
+  const novoMinY =
+    eixo === "Y" || eixo === "XY"
+      ? alturaPagina - minY - alturaSelecao
+      : minY;
+
+  const deslocamentoX = novoMinX - minX;
+  const deslocamentoY = novoMinY - minY;
+
+  const novoGrupoId =
+    itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
+
+  const agora = Date.now();
+
+  const novosCampos = itensOriginais.map((campo: any, index: number) => {
+    const novoId = agora + index + 1;
+
+    const novoX = Number(campo.x || 0) + deslocamentoX;
+    const novoY = Number(campo.y || 0) + deslocamentoY;
+
+    const campoClonado: any = {
+      ...JSON.parse(JSON.stringify(campo)),
+      id: novoId,
+      bancoId: undefined,
+      tempId: novoId,
+      grupoId: novoGrupoId,
+      x: Number(novoX.toFixed(3)),
+      y: Number(novoY.toFixed(3)),
+    };
+
+    campoClonado.dadosJson = {
+      ...((campo as any).dadosJson || {}),
+      id: undefined,
+      bancoId: undefined,
+      tempId: novoId,
+      grupoId: novoGrupoId,
+      x: campoClonado.x,
+      y: campoClonado.y,
+    };
+
+    return campoClonado as CampoCertificado;
+  });
+
+  const novosIds = novosCampos.map((campo) => campo.id);
+
+  setCampos((prev) => [...prev, ...novosCampos]);
+  setCamposSelecionadosIds(novosIds);
+  setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
+
+  setMensagemSucesso(
+    eixo === "X"
+      ? "Duplicado no lado oposto horizontal."
+      : eixo === "Y"
+      ? "Duplicado no lado oposto vertical."
+      : "Duplicado no lado oposto da página."
+  );
+
+  setTimeout(() => setMensagemSucesso(""), 1600);
+}
+
 function alinharSelecionados(
   tipo:
     | "ESQUERDA"
@@ -6082,6 +6193,30 @@ contornoEspessura: 2,
   className="rounded-xl bg-purple-700 px-3 py-2 text-xs font-bold text-white hover:bg-purple-600"
 >
   Centro da página
+</button>
+
+<button
+  type="button"
+  onClick={() => duplicarSelecaoNoOposto("X")}
+  className="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-600"
+>
+  Duplicar oposto X
+</button>
+
+<button
+  type="button"
+  onClick={() => duplicarSelecaoNoOposto("Y")}
+  className="rounded-xl bg-cyan-700 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-600"
+>
+  Duplicar oposto Y
+</button>
+
+<button
+  type="button"
+  onClick={() => duplicarSelecaoNoOposto("XY")}
+  className="rounded-xl bg-cyan-800 px-3 py-2 text-xs font-bold text-white hover:bg-cyan-700"
+>
+  Duplicar oposto X/Y
 </button>
 
       <button
