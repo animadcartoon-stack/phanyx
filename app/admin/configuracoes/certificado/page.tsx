@@ -2854,13 +2854,15 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
   const startY = e.clientY;
 
   const caixaInicial = {
-    x: caixaDoGrupoSelecionado.x,
-    y: caixaDoGrupoSelecionado.y,
-    largura: Math.max(1, caixaDoGrupoSelecionado.largura),
-    altura: Math.max(1, caixaDoGrupoSelecionado.altura),
+    x: Number(caixaDoGrupoSelecionado.x || 0),
+    y: Number(caixaDoGrupoSelecionado.y || 0),
+    largura: Math.max(1, Number(caixaDoGrupoSelecionado.largura || 1)),
+    altura: Math.max(1, Number(caixaDoGrupoSelecionado.altura || 1)),
   };
 
   const proporcaoGrupo = caixaInicial.largura / caixaInicial.altura;
+
+  const arredondar = (valor: number) => Number(valor.toFixed(3));
 
   const itensIniciais = campos
     .filter((campo) => ids.includes(campo.id))
@@ -2871,6 +2873,27 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
       largura: Number(campo.largura || 120),
       altura: Number(campo.altura || 40),
       tamanho: Number(campo.tamanho || 18),
+      contornoEspessura:
+        campo.contornoEspessura !== null &&
+        campo.contornoEspessura !== undefined
+          ? Number(campo.contornoEspessura)
+          : null,
+      sombraBlur:
+        campo.sombraBlur !== null && campo.sombraBlur !== undefined
+          ? Number(campo.sombraBlur)
+          : null,
+      sombraDistancia:
+        campo.sombraDistancia !== null && campo.sombraDistancia !== undefined
+          ? Number(campo.sombraDistancia)
+          : null,
+      sombraX:
+        campo.sombraX !== null && campo.sombraX !== undefined
+          ? Number(campo.sombraX)
+          : null,
+      sombraY:
+        campo.sombraY !== null && campo.sombraY !== undefined
+          ? Number(campo.sombraY)
+          : null,
     }));
 
   const move = (ev: globalThis.MouseEvent) => {
@@ -2883,11 +2906,11 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
         : deltaY * proporcaoGrupo;
 
     const novaLarguraGrupo = Math.max(
-      20,
+      1,
       caixaInicial.largura + deltaDominante
     );
 
-    const fator = Math.max(0.05, novaLarguraGrupo / caixaInicial.largura);
+    const fator = Math.max(0.02, novaLarguraGrupo / caixaInicial.largura);
 
     setCampos((prev) =>
       prev.map((campo) => {
@@ -2905,10 +2928,12 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
           caixaInicial.y + (itemInicial.y - caixaInicial.y) * fator;
 
         const novosDados: Partial<CampoCertificado> = {
-          x: Math.round(novoX),
-          y: Math.round(novoY),
-          largura: Math.round(Math.max(4, itemInicial.largura * fator)),
-          altura: Math.round(Math.max(4, itemInicial.altura * fator)),
+          x: arredondar(novoX),
+          y: arredondar(novoY),
+
+          // Não use mínimo 4 aqui, porque isso deforma peças pequenas.
+          largura: arredondar(Math.max(0.25, itemInicial.largura * fator)),
+          altura: arredondar(Math.max(0.25, itemInicial.altura * fator)),
         };
 
         if (
@@ -2918,10 +2943,38 @@ function iniciarRedimensionamentoGrupo(e: React.MouseEvent<HTMLDivElement>) {
           campo.tipo === "NOME_CURSO" ||
           campo.tipo === "DISCIPLINAS_CONCLUIDAS"
         ) {
-          novosDados.tamanho = Math.max(
-            4,
-            Math.round(itemInicial.tamanho * fator)
+          novosDados.tamanho = arredondar(
+            Math.max(1, itemInicial.tamanho * fator)
           );
+        }
+
+        if (
+          campo.tipo === "FORMA" &&
+          itemInicial.contornoEspessura !== null
+        ) {
+          novosDados.contornoEspessura = arredondar(
+            Math.max(0.1, itemInicial.contornoEspessura * fator)
+          );
+        }
+
+        if (itemInicial.sombraBlur !== null) {
+          novosDados.sombraBlur = arredondar(
+            Math.max(0, itemInicial.sombraBlur * fator)
+          );
+        }
+
+        if (itemInicial.sombraDistancia !== null) {
+          novosDados.sombraDistancia = arredondar(
+            itemInicial.sombraDistancia * fator
+          );
+        }
+
+        if (itemInicial.sombraX !== null) {
+          novosDados.sombraX = arredondar(itemInicial.sombraX * fator);
+        }
+
+        if (itemInicial.sombraY !== null) {
+          novosDados.sombraY = arredondar(itemInicial.sombraY * fator);
         }
 
         return {
