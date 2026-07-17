@@ -1855,138 +1855,6 @@ function atualizarQuantidadeDisciplinasCampo(valor: number) {
   );
 }
 
-useEffect(() => {
-  function colarCamposCopiados(deslocamento: number, mensagem: string) {
-    if (!campoCopiado) {
-      setMensagemErro("Copie um campo ou grupo antes de colar.");
-      setTimeout(() => setMensagemErro(""), 1600);
-      return;
-    }
-
-    registrarHistoricoAntesDaAcao();
-
-    const itensOriginais = Array.isArray(campoCopiado?.itens)
-      ? campoCopiado.itens
-      : [campoCopiado];
-
-    const novoGrupoId =
-      itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
-
-    const agora = Date.now();
-
-    const novosCampos = itensOriginais.map(
-      (item: CampoCertificado, index: number) => {
-        const novoId = agora + index + 1;
-        const novoX = Number(item.x || 0) + deslocamento;
-        const novoY = Number(item.y || 0) + deslocamento;
-
-        return {
-          ...JSON.parse(JSON.stringify(item)),
-          id: novoId,
-          bancoId: undefined,
-          tempId: novoId,
-          grupoId: novoGrupoId,
-          x: novoX,
-          y: novoY,
-          dadosJson: {
-            ...((item as any).dadosJson || {}),
-            id: undefined,
-            bancoId: undefined,
-            tempId: novoId,
-            grupoId: novoGrupoId,
-            x: novoX,
-            y: novoY,
-          },
-        } as CampoCertificado;
-      }
-    );
-
-    const novosIds = novosCampos.map((campo) => campo.id);
-
-    setCampos((prev) => [...prev, ...novosCampos]);
-    setCamposSelecionadosIds(novosIds);
-    setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
-
-    setMensagemSucesso(mensagem);
-    setTimeout(() => setMensagemSucesso(""), 1200);
-  }
-
-  function handleCopiarColar(e: KeyboardEvent) {
-    const alvo = e.target as HTMLElement | null;
-    const tag = alvo?.tagName?.toLowerCase();
-
-    if (
-      tag === "input" ||
-      tag === "textarea" ||
-      tag === "select" ||
-      alvo?.isContentEditable
-    ) {
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
-      const ids = idsAlvoDaAcao();
-
-      if (ids.length === 0) return;
-
-      e.preventDefault();
-
-      const itensCopiados = campos
-        .filter((campo) => ids.includes(campo.id))
-        .map((campo) => JSON.parse(JSON.stringify(campo)));
-
-      setCampoCopiado({
-        tipo: itensCopiados.length > 1 ? "GRUPO" : "CAMPO",
-        itens: itensCopiados,
-      });
-
-      setMensagemSucesso(
-        itensCopiados.length > 1 ? "Grupo copiado." : "Campo copiado."
-      );
-      setTimeout(() => setMensagemSucesso(""), 1200);
-
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
-      e.preventDefault();
-
-      colarCamposCopiados(
-        24,
-        Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
-          ? "Grupo colado."
-          : "Campo colado."
-      );
-
-      return;
-    }
-
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
-      e.preventDefault();
-
-      colarCamposCopiados(
-        0,
-        Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
-          ? "Grupo colado no mesmo lugar."
-          : "Campo colado no mesmo lugar."
-      );
-
-      return;
-    }
-  }
-
-  window.addEventListener("keydown", handleCopiarColar);
-
-  return () => {
-    window.removeEventListener("keydown", handleCopiarColar);
-  };
-}, [
-  campoCopiado,
-  campos,
-  camposSelecionadosIds,
-  campoSelecionadoId,
-]);
-
   const caixaDoGrupoSelecionado = useMemo(() => {
   const idsBase =
     camposSelecionadosIds.length > 0
@@ -2770,6 +2638,138 @@ function idsAlvoDaAcao() {
 
   return Array.from(new Set(idsExpandidos));
 }
+
+useEffect(() => {
+  function colarCamposCopiados(deslocamento: number, mensagem: string) {
+    if (!campoCopiado) {
+      setMensagemErro("Copie um campo ou grupo antes de colar.");
+      setTimeout(() => setMensagemErro(""), 1600);
+      return;
+    }
+
+    registrarHistoricoAntesDaAcao();
+
+    const itensOriginais = Array.isArray(campoCopiado?.itens)
+      ? campoCopiado.itens
+      : [campoCopiado];
+
+    const novoGrupoId =
+      itensOriginais.length > 1 ? `grupo-${Date.now()}` : null;
+
+    const agora = Date.now();
+
+    const novosCampos = itensOriginais.map(
+      (item: CampoCertificado, index: number) => {
+        const novoId = agora + index + 1;
+        const novoX = Number(item.x || 0) + deslocamento;
+        const novoY = Number(item.y || 0) + deslocamento;
+
+        return {
+          ...JSON.parse(JSON.stringify(item)),
+          id: novoId,
+          bancoId: undefined,
+          tempId: novoId,
+          grupoId: novoGrupoId,
+          x: novoX,
+          y: novoY,
+          dadosJson: {
+            ...((item as any).dadosJson || {}),
+            id: undefined,
+            bancoId: undefined,
+            tempId: novoId,
+            grupoId: novoGrupoId,
+            x: novoX,
+            y: novoY,
+          },
+        } as CampoCertificado;
+      }
+    );
+
+    const novosIds = novosCampos.map((campo) => campo.id);
+
+    setCampos((prev) => [...prev, ...novosCampos]);
+    setCamposSelecionadosIds(novosIds);
+    setCampoSelecionadoId(novosIds[novosIds.length - 1] || null);
+
+    setMensagemSucesso(mensagem);
+    setTimeout(() => setMensagemSucesso(""), 1200);
+  }
+
+  function handleCopiarColar(e: KeyboardEvent) {
+    const alvo = e.target as HTMLElement | null;
+    const tag = alvo?.tagName?.toLowerCase();
+
+    if (
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      alvo?.isContentEditable
+    ) {
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "c") {
+      const ids = idsAlvoDaAcao();
+
+      if (ids.length === 0) return;
+
+      e.preventDefault();
+
+      const itensCopiados = campos
+        .filter((campo) => ids.includes(campo.id))
+        .map((campo) => JSON.parse(JSON.stringify(campo)));
+
+      setCampoCopiado({
+        tipo: itensCopiados.length > 1 ? "GRUPO" : "CAMPO",
+        itens: itensCopiados,
+      });
+
+      setMensagemSucesso(
+        itensCopiados.length > 1 ? "Grupo copiado." : "Campo copiado."
+      );
+      setTimeout(() => setMensagemSucesso(""), 1200);
+
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "v") {
+      e.preventDefault();
+
+      colarCamposCopiados(
+        24,
+        Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
+          ? "Grupo colado."
+          : "Campo colado."
+      );
+
+      return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
+      e.preventDefault();
+
+      colarCamposCopiados(
+        0,
+        Array.isArray(campoCopiado?.itens) && campoCopiado.itens.length > 1
+          ? "Grupo colado no mesmo lugar."
+          : "Campo colado no mesmo lugar."
+      );
+
+      return;
+    }
+  }
+
+  window.addEventListener("keydown", handleCopiarColar);
+
+  return () => {
+    window.removeEventListener("keydown", handleCopiarColar);
+  };
+}, [
+  campoCopiado,
+  campos,
+  camposSelecionadosIds,
+  campoSelecionadoId,
+]);
 
 function abrirMenuFerramentasSelecao() {
   const ids = idsAlvoDaAcao();
