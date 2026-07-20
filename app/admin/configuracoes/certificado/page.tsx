@@ -1565,7 +1565,10 @@ setCorTextoSelecionado(corHex || null);
   inicioX: number;
   inicioY: number;
   posicoesIniciais: { id: number; x: number; y: number }[];
-} | null>(null);;
+} | null>(null);
+
+const modeloAtivoIdRef = useRef<number | null>(null);
+const versaoRascunhoIdRef = useRef<number | null>(null);
 
 useEffect(() => {
   async function carregarPlano() {
@@ -1585,111 +1588,305 @@ useEffect(() => {
   carregarPlano();
 }, []);
 
-const podeUsarEditorCertificados =
-  planoInstituicao === "PROFISSIONAL" || planoInstituicao === "ENTERPRISE";
+const podeUsarEditorCertificados = [
+  "ESSENCIAL",
+  "PROFISSIONAL",
+  "ENTERPRISE",
+].includes(planoInstituicao);
+
+function aplicarConfiguracaoVisualCertificado(
+  configuracao: any,
+  dataInstituicao: any
+) {
+  setCertificadoTemplateUrl(
+    configuracao?.templateUrl ||
+      configuracao?.certificadoTemplateUrl ||
+      ""
+  );
+
+  setCertificadoPreviewUrl(
+    configuracao?.previewUrl ||
+      configuracao?.certificadoPreviewUrl ||
+      ""
+  );
+
+  setCertificadoCoordenadorNome(
+    configuracao?.coordenadorNome ||
+      configuracao?.certificadoCoordenadorNome ||
+      ""
+  );
+
+  setCertificadoCidade(
+    configuracao?.cidade ||
+      configuracao?.certificadoCidade ||
+      ""
+  );
+
+  const modoFundo =
+    configuracao?.modoFundo ||
+    configuracao?.certificadoModoFundo;
+
+  if (
+    modoFundo === "modelo" ||
+    modoFundo === "phanyx" ||
+    modoFundo === "cor"
+  ) {
+    setModoFundo(
+      modoFundo === "cor" ? "phanyx" : modoFundo
+    );
+  }
+
+  const corFundoPagina =
+    configuracao?.corFundoPagina ||
+    configuracao?.certificadoCorFundoPagina;
+
+  if (corFundoPagina) {
+    setCorFundoPagina(corFundoPagina);
+  }
+
+  const tamanhoPapel =
+    configuracao?.tamanhoPapel ||
+    configuracao?.certificadoTamanhoPapel;
+
+  if (
+    tamanhoPapel === "A5" ||
+    tamanhoPapel === "A4" ||
+    tamanhoPapel === "A3"
+  ) {
+    setTamanhoPapel(tamanhoPapel);
+  }
+
+  const orientacao =
+    configuracao?.orientacao ||
+    configuracao?.certificadoOrientacao;
+
+  if (
+    orientacao === "paisagem" ||
+    orientacao === "retrato"
+  ) {
+    setOrientacao(orientacao);
+  }
+
+  setCertificadoAssinaturaUrl(
+    configuracao?.assinaturaUrl ||
+      configuracao?.certificadoAssinaturaUrl ||
+      dataInstituicao?.certificadoAssinaturaUrl ||
+      dataInstituicao?.configuracaoInstituicao
+        ?.certificadoAssinaturaUrl ||
+      ""
+  );
+
+  setNomeDiretorInstituicao(
+    dataInstituicao?.responsavelNome ||
+      configuracao?.coordenadorNome ||
+      configuracao?.certificadoCoordenadorNome ||
+      ""
+  );
+}
+
+function aplicarCamposCarregados(dataCampos: any) {
+  setCampos(
+    Array.isArray(dataCampos?.campos)
+      ? dataCampos.campos.map((campo: any) => {
+          const dados = campo.dadosJson || {};
+
+          return {
+            ...dados,
+            ...campo,
+            bancoId: campo.id,
+            id: campo.id,
+          };
+        })
+      : []
+  );
+
+  setCampoSelecionadoId(null);
+  setCamposSelecionadosIds([]);
+  setPontoFormaSelecionado(null);
+  setHistorico([]);
+  setFuturo([]);
+}
 
   useEffect(() => {
   async function carregarConfiguracao() {
     try {
-      const [resConfig, resCampos, resInstituicao] = await Promise.all([
-  fetch("/api/admin/configuracoes/certificado", {
-    cache: "no-store",
-  }),
-  fetch("/api/admin/certificado-campos", {
-    cache: "no-store",
-  }),
-  fetch("/api/admin/configuracoes/instituicao", {
-    cache: "no-store",
-  }),
-]);
-      const dataConfig = await resConfig.json();
-      const dataCampos = await resCampos.json();
-      const dataInstituicao = await resInstituicao.json();
+      setCarregando(true);
+      setMensagemErro("");
+
+      const [resModelos, resInstituicao] =
+        await Promise.all([
+          fetch("/api/admin/certificado-modelos", {
+            cache: "no-store",
+          }),
+
+          fetch("/api/admin/configuracoes/instituicao", {
+            cache: "no-store",
+          }),
+        ]);
+
+      const dataModelos = await resModelos.json();
+
+      const dataInstituicao =
+        await resInstituicao
+          .json()
+          .catch(() => ({}));
+
+      if (!resModelos.ok) {
+        throw new Error(
+          dataModelos?.detalhe ||
+            dataModelos?.error ||
+            "Erro ao buscar modelos de certificado."
+        );
+      }
+
+      const modelosAtivos = Array.isArray(
+        dataModelos?.modelos
+      )
+        ? dataModelos.modelos.filter(
+            (modelo: any) =>
+              modelo?.ativo === true &&
+              modelo?.arquivado !== true
+          )
+        : [];
+
+      const modeloInicial =
+        modelosAtivos.find(
+          (modelo: any) => modelo.padraoGeral === true
+        ) ||
+        modelosAtivos.find(
+          (modelo: any) =>
+            modelo.padraoModalidade === true
+        ) ||
+        modelosAtivos[0] ||
+        null;
+
+      /*
+       * Quando existe modelo novo, o editor abre somente
+       * o RASCUNHO desse modelo.
+       */
+      if (modeloInicial) {
+        const modeloId = Number(modeloInicial.id);
+
+        const [resRascunho, resCampos] =
+          await Promise.all([
+            fetch(
+              `/api/admin/certificado-modelos/${modeloId}/rascunho`,
+              {
+                cache: "no-store",
+              }
+            ),
+
+            fetch(
+              `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
+              {
+                cache: "no-store",
+              }
+            ),
+          ]);
+
+        const dataRascunho =
+          await resRascunho.json();
+
+        const dataCampos =
+          await resCampos.json();
+
+        if (!resRascunho.ok) {
+          throw new Error(
+            dataRascunho?.detalhe ||
+              dataRascunho?.error ||
+              "Erro ao buscar o rascunho do modelo."
+          );
+        }
+
+        if (!resCampos.ok) {
+          throw new Error(
+            dataCampos?.detalhe ||
+              dataCampos?.error ||
+              "Erro ao buscar os campos do rascunho."
+          );
+        }
+
+        const rascunho = dataRascunho?.rascunho;
+
+        if (!rascunho?.id) {
+          throw new Error(
+            "O modelo selecionado não possui rascunho."
+          );
+        }
+
+        modeloAtivoIdRef.current = modeloId;
+        versaoRascunhoIdRef.current =
+          Number(rascunho.id);
+
+        aplicarConfiguracaoVisualCertificado(
+          rascunho,
+          dataInstituicao
+        );
+
+        aplicarCamposCarregados(dataCampos);
+
+        return;
+      }
+
+      /*
+       * Instituições que ainda não possuem modelo novo
+       * continuam usando o certificado legado.
+       */
+      modeloAtivoIdRef.current = null;
+      versaoRascunhoIdRef.current = null;
+
+      const [resConfig, resCampos] =
+        await Promise.all([
+          fetch(
+            "/api/admin/configuracoes/certificado",
+            {
+              cache: "no-store",
+            }
+          ),
+
+          fetch("/api/admin/certificado-campos", {
+            cache: "no-store",
+          }),
+        ]);
+
+      const dataConfig =
+        await resConfig.json();
+
+      const dataCampos =
+        await resCampos.json();
 
       if (!resConfig.ok) {
-        setMensagemErro(
-  dataConfig?.detalhe ||
-    dataConfig?.error ||
-    "Erro ao buscar configuração."
-);
-        return;
+        throw new Error(
+          dataConfig?.detalhe ||
+            dataConfig?.error ||
+            "Erro ao buscar configuração legada."
+        );
       }
 
       if (!resCampos.ok) {
-        setMensagemErro(
-  dataCampos?.detalhe ||
-    dataCampos?.error ||
-    "Erro ao buscar campos."
-);
-        return;
+        throw new Error(
+          dataCampos?.detalhe ||
+            dataCampos?.error ||
+            "Erro ao buscar campos legados."
+        );
       }
 
-      setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-      setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
+      aplicarConfiguracaoVisualCertificado(
+        dataConfig,
+        dataInstituicao
+      );
 
-      setCertificadoCoordenadorNome(
-  dataConfig?.certificadoCoordenadorNome || ""
-);
+      aplicarCamposCarregados(dataCampos);
+    } catch (error: any) {
+      console.error(
+        "ERRO AO CARREGAR EDITOR DE CERTIFICADO:",
+        error
+      );
 
-setCertificadoCidade(dataConfig?.certificadoCidade || "");
-
-if (
-  dataConfig?.certificadoModoFundo === "modelo" ||
-  dataConfig?.certificadoModoFundo === "phanyx" ||
-  dataConfig?.certificadoModoFundo === "cor"
-) {
-  setModoFundo(
-    dataConfig.certificadoModoFundo === "cor"
-      ? "phanyx"
-      : dataConfig.certificadoModoFundo
-  );
-}
-
-if (dataConfig?.certificadoCorFundoPagina) {
-  setCorFundoPagina(dataConfig.certificadoCorFundoPagina);
-}
-
-if (
-  dataConfig?.certificadoTamanhoPapel === "A5" ||
-  dataConfig?.certificadoTamanhoPapel === "A4" ||
-  dataConfig?.certificadoTamanhoPapel === "A3"
-) {
-  setTamanhoPapel(dataConfig.certificadoTamanhoPapel);
-}
-
-if (
-  dataConfig?.certificadoOrientacao === "paisagem" ||
-  dataConfig?.certificadoOrientacao === "retrato"
-) {
-  setOrientacao(dataConfig.certificadoOrientacao);
-}
-      setCertificadoAssinaturaUrl(
-  dataInstituicao?.certificadoAssinaturaUrl ||
-    dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ||
-    dataConfig?.certificadoAssinaturaUrl ||
-    ""
-);
-
-setNomeDiretorInstituicao(
-  dataInstituicao?.responsavelNome || dataConfig?.certificadoCoordenadorNome || ""
-);
-      setCampos(
-  Array.isArray(dataCampos?.campos)
-    ? dataCampos.campos.map((campo: any) => {
-        const dados = campo.dadosJson || {};
-
-        return {
-  ...dados,
-  ...campo,
-
-  bancoId: campo.id,
-  id: campo.id,
-};
-      })
-    : []
-);
-    } catch {
-      setMensagemErro("Erro ao carregar configuração do certificado.");
+      setMensagemErro(
+        error?.message ||
+          "Erro ao carregar configuração do certificado."
+      );
     } finally {
       setCarregando(false);
     }
@@ -5186,13 +5383,45 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
 
           <div className="mt-4 flex flex-wrap gap-3">
             <button
-              type="button"
-              onClick={fazerUploadModelo}
-              disabled={enviandoArquivo}
-              className="rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {enviandoArquivo ? "Enviando PDF..." : "Enviar modelo PDF"}
-            </button>
+  type="button"
+  onClick={fazerUploadModelo}
+  disabled={enviandoArquivo}
+  className="phanyx-certificado-upload-pdf-btn"
+>
+  {enviandoArquivo ? (
+    <>
+      <span
+        className="phanyx-certificado-upload-spinner"
+        aria-hidden="true"
+      />
+      Enviando PDF...
+    </>
+  ) : (
+    <>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="h-5 w-5"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 16V4m0 0-4 4m4-4 4 4"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"
+        />
+      </svg>
+
+      Enviar modelo PDF
+    </>
+  )}
+</button>
           </div>
 
           <p className="mt-3 text-xs text-slate-500">
