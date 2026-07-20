@@ -376,33 +376,90 @@ export async function POST(request: Request) {
         })
       : [];
 
-    const modeloCriado = await prisma.$transaction(async (tx) => {
-      if (padraoGeralSolicitado) {
-        await tx.certificadoModelo.updateMany({
-          where: {
-            instituicaoId,
-            padraoGeral: true,
-          },
-          data: {
-            padraoGeral: false,
-          },
-        });
-      }
+      const configuracaoInicialRascunho = copiarLegado
+  ? {
+      templateUrl:
+        instituicao.certificadoTemplateUrl,
+      previewUrl:
+        instituicao.certificadoPreviewUrl,
+      textoPadrao:
+        instituicao.certificadoTextoPadrao,
+      assinaturaUrl:
+        instituicao.certificadoAssinaturaUrl,
+      coordenadorNome:
+        instituicao.certificadoCoordenadorNome,
+      cidade:
+        instituicao.certificadoCidade,
 
-      if (padraoModalidadeSolicitado) {
-        await tx.certificadoModelo.updateMany({
-          where: {
-            instituicaoId,
-            modalidade,
-            padraoModalidade: true,
-          },
-          data: {
-            padraoModalidade: false,
-          },
-        });
-      }
+      modoFundo:
+        instituicao.certificadoModoFundo ??
+        "modelo",
+      corFundoPagina:
+        instituicao.certificadoCorFundoPagina ??
+        "#ffffff",
+      tamanhoPapel:
+        instituicao.certificadoTamanhoPapel ??
+        "A4",
+      orientacao:
+        instituicao.certificadoOrientacao ??
+        "paisagem",
+      larguraBase:
+        instituicao.certificadoLarguraBase ??
+        1123,
+      alturaBase:
+        instituicao.certificadoAlturaBase ??
+        794,
+    }
+  : {
+      /*
+       * Modelo novo e independente.
+       * Não herda PDF, assinatura, nomes ou cores
+       * do certificado institucional anterior.
+       */
+      templateUrl: null,
+      previewUrl: null,
+      textoPadrao: null,
+      assinaturaUrl: null,
+      coordenadorNome: null,
+      cidade: null,
 
-      const modelo = await tx.certificadoModelo.create({
+      modoFundo: "phanyx",
+      corFundoPagina: "#ffffff",
+      tamanhoPapel: "A4",
+      orientacao: "paisagem",
+      larguraBase: 1123,
+      alturaBase: 794,
+    };
+
+const modeloCriado = await prisma.$transaction(
+  async (tx) => {
+    if (padraoGeralSolicitado) {
+      await tx.certificadoModelo.updateMany({
+        where: {
+          instituicaoId,
+          padraoGeral: true,
+        },
+        data: {
+          padraoGeral: false,
+        },
+      });
+    }
+
+    if (padraoModalidadeSolicitado) {
+      await tx.certificadoModelo.updateMany({
+        where: {
+          instituicaoId,
+          modalidade,
+          padraoModalidade: true,
+        },
+        data: {
+          padraoModalidade: false,
+        },
+      });
+    }
+
+    const modelo =
+      await tx.certificadoModelo.create({
         data: {
           instituicaoId,
           nome,
@@ -412,40 +469,26 @@ export async function POST(request: Request) {
           ativo: true,
           arquivado: false,
 
-          padraoGeral: padraoGeralSolicitado,
-          padraoModalidade: padraoModalidadeSolicitado,
+          padraoGeral:
+            padraoGeralSolicitado,
+          padraoModalidade:
+            padraoModalidadeSolicitado,
 
           criadoPorId: user.id,
 
           versoes: {
             create: {
-              tipo: TipoVersaoCertificado.RASCUNHO,
+              tipo:
+                TipoVersaoCertificado.RASCUNHO,
 
-              templateUrl: instituicao.certificadoTemplateUrl,
-              previewUrl: instituicao.certificadoPreviewUrl,
-              textoPadrao: instituicao.certificadoTextoPadrao,
-              assinaturaUrl: instituicao.certificadoAssinaturaUrl,
-              coordenadorNome:
-                instituicao.certificadoCoordenadorNome,
-              cidade: instituicao.certificadoCidade,
-
-              modoFundo:
-                instituicao.certificadoModoFundo || "modelo",
-              corFundoPagina:
-                instituicao.certificadoCorFundoPagina || "#ffffff",
-              tamanhoPapel:
-                instituicao.certificadoTamanhoPapel || "A4",
-              orientacao:
-                instituicao.certificadoOrientacao || "paisagem",
-              larguraBase:
-                instituicao.certificadoLarguraBase || 1123,
-              alturaBase:
-                instituicao.certificadoAlturaBase || 794,
+              ...configuracaoInicialRascunho,
             },
           },
         },
+
         include: {
           versoes: true,
+
           _count: {
             select: {
               cursos: true,
