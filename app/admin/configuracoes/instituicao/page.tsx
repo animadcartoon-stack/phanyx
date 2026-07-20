@@ -80,6 +80,7 @@ export default function ConfigInstituicaoPage() {
   const [nomeArquivoAssinatura, setNomeArquivoAssinatura] = useState("");
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [nomeArquivoLogo, setNomeArquivoLogo] = useState("");
+  const [ajudaLogoAberta, setAjudaLogoAberta] = useState(false);
   const [nomeArquivoPapelTimbrado, setNomeArquivoPapelTimbrado] =
     useState("");
   const [mensagem, setMensagem] = useState("");
@@ -107,6 +108,14 @@ export default function ConfigInstituicaoPage() {
       });
       const json = await res.json();
 
+      if (!res.ok) {
+  throw new Error(
+    json?.error ||
+      json?.message ||
+      "Erro ao carregar configurações da instituição."
+  );
+}
+
       const layout = normalizarLayoutProfissional(
         json?.estiloPapelTimbrado || json?.estiloDocumento
       );
@@ -120,9 +129,17 @@ export default function ConfigInstituicaoPage() {
       });
 
       setPreviewPapelTimbrado(json?.papelTimbradoUrl || "");
-    } catch {
-      setMensagem("Erro ao carregar configurações da instituição.");
-    } finally {
+    } catch (error: any) {
+  console.error(
+    "ERRO AO CARREGAR CONFIGURAÇÕES:",
+    error
+  );
+
+  setMensagem(
+    error?.message ||
+      "Erro ao carregar configurações da instituição."
+  );
+} finally {
       setLoading(false);
     }
   }
@@ -137,12 +154,34 @@ export default function ConfigInstituicaoPage() {
       );
 
       const payload = {
-  ...form,
+  nomeFantasia: form.nomeFantasia || "",
+  razaoSocial: form.razaoSocial || "",
+  cnpj: form.cnpj || "",
+  telefone: form.telefone || "",
+  email: form.email || "",
+  cep: form.cep || "",
+  endereco: form.endereco || "",
+  numero: form.numero || "",
+  cidade: form.cidade || "",
+  estado: form.estado || "",
+
+  responsavelNome: form.responsavelNome || "",
+  responsavelCargo: form.responsavelCargo || "",
+  cidadeAssinatura: form.cidadeAssinatura || "",
+
+  logoUrl: form.logoUrl || "",
+  certificadoAssinaturaUrl:
+    form.certificadoAssinaturaUrl || "",
+
+  contratoTemplate: form.contratoTemplate || "",
+  observacoesContrato: form.observacoesContrato || "",
+
   estiloDocumento: layout,
   estiloPapelTimbrado: layout,
+
   usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
   papelTimbradoUrl: form.papelTimbradoUrl || "",
-  certificadoAssinaturaUrl: form.certificadoAssinaturaUrl || "",
+
   corRelatorio: form.corRelatorio || "AZUL",
 };
 
@@ -165,12 +204,15 @@ export default function ConfigInstituicaoPage() {
 }
 
 const data = await res.json();
+const configSalva = data?.config || data;
 
 setForm((prev) => ({
   ...prev,
-  ...data,
+  ...configSalva,
   certificadoAssinaturaUrl:
-    data?.certificadoAssinaturaUrl || payload.certificadoAssinaturaUrl || "",
+    configSalva?.certificadoAssinaturaUrl ||
+    payload.certificadoAssinaturaUrl ||
+    "",
   estiloDocumento: layout,
   estiloPapelTimbrado: layout,
 }));
@@ -188,37 +230,91 @@ setForm((prev) => ({
   }
 
   async function enviarLogo(file: File) {
+  try {
+    setEnviandoLogo(true);
+    setMensagem("");
+    setNomeArquivoLogo(file.name);
+
+    const tiposPermitidos = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+    ];
+
+    if (!tiposPermitidos.includes(file.type)) {
+      throw new Error(
+        "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP."
+      );
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("A imagem excede o limite de 5 MB.");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/admin/upload/logo", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const textoResposta = await res.text();
+
+    let data: any = {};
+
     try {
-      setEnviandoLogo(true);
-      setMensagem("");
-      setNomeArquivoLogo(file.name);
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload/logo", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar logo");
-      }
-
-      setForm((prev) => ({
-        ...prev,
-        logoUrl: data.url,
-      }));
-
-      setMensagem("Logo enviada com sucesso.");
+      data = textoResposta ? JSON.parse(textoResposta) : {};
     } catch {
-      setMensagem("Erro ao enviar logo.");
-    } finally {
-      setEnviandoLogo(false);
+      throw new Error(
+        textoResposta ||
+          `O servidor retornou uma resposta inválida (${res.status}).`
+      );
+    }
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          data?.message ||
+          `Erro ao enviar logo (${res.status}).`
+      );
+    }
+
+    const logoUrl =
+      data?.url ||
+      data?.logoUrl ||
+      data?.arquivo?.url ||
+      "";
+
+    if (!logoUrl) {
+      throw new Error(
+        "A imagem foi enviada, mas a URL da logo não foi retornada."
+      );
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      logoUrl,
+    }));
+
+    setMensagem("Logo enviada e salva com sucesso.");
+  } catch (error: any) {
+    console.error("ERRO AO ENVIAR LOGO:", error);
+
+    setMensagem(
+      error?.message ||
+        "Não foi possível enviar a logo da instituição."
+    );
+  } finally {
+    setEnviandoLogo(false);
+
+    if (inputFileLogoRef.current) {
+      inputFileLogoRef.current.value = "";
     }
   }
+}
 
   async function enviarPapelTimbrado(file: File) {
     try {
@@ -333,35 +429,82 @@ async function enviarAssinaturaDiretor(file: File) {
 }
 
   async function buscarEnderecoPorCep(cepInformado: string) {
-    const cepLimpo = cepInformado.replace(/\D/g, "");
-    if (cepLimpo.length !== 8) return;
+  const cepLimpo = cepInformado
+    .replace(/\D/g, "")
+    .slice(0, 8);
 
-    try {
-      setBuscandoCep(true);
-      setMensagem("");
+  const cepFormatado =
+    cepLimpo.length === 8
+      ? `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5)}`
+      : cepLimpo;
 
-      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const data = await res.json();
+  setForm((prev) => ({
+    ...prev,
+    cep: cepFormatado,
+  }));
 
-      if (data?.erro) {
-        setMensagem("CEP não encontrado.");
-        return;
-      }
-
-      setForm((prev) => ({
-        ...prev,
-        cep: cepLimpo,
-        endereco: data.logradouro || prev.endereco || "",
-        cidade: data.localidade || prev.cidade || "",
-        estado: data.uf || prev.estado || "",
-        cidadeAssinatura: prev.cidadeAssinatura || data.localidade || "",
-      }));
-    } catch {
-      setMensagem("Não foi possível buscar o endereço pelo CEP.");
-    } finally {
-      setBuscandoCep(false);
-    }
+  if (cepLimpo.length !== 8) {
+    setMensagem("Informe um CEP com 8 números.");
+    return;
   }
+
+  try {
+    setBuscandoCep(true);
+    setMensagem("");
+
+    const res = await fetch(
+      `https://viacep.com.br/ws/${cepLimpo}/json/`,
+      {
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(
+        `Não foi possível consultar o CEP (${res.status}).`
+      );
+    }
+
+    const data = await res.json();
+
+    if (data?.erro === true) {
+      setMensagem(
+        "CEP não encontrado. Confira os números ou preencha o endereço manualmente."
+      );
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      cep: cepFormatado,
+      endereco:
+        data?.logradouro ||
+        prev.endereco ||
+        "",
+      cidade:
+        data?.localidade ||
+        prev.cidade ||
+        "",
+      estado:
+        data?.uf ||
+        prev.estado ||
+        "",
+      cidadeAssinatura:
+        prev.cidadeAssinatura ||
+        data?.localidade ||
+        "",
+    }));
+  } catch (error: any) {
+    console.error("ERRO AO BUSCAR CEP:", error);
+
+    setMensagem(
+      error?.message ||
+        "Não foi possível buscar o endereço pelo CEP. Você pode preencher o endereço manualmente."
+    );
+  } finally {
+    setBuscandoCep(false);
+  }
+}
 
   useEffect(() => {
     carregar();
@@ -1095,7 +1238,79 @@ async function enviarAssinaturaDiretor(file: File) {
 
           <div className="space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-3 text-lg font-semibold text-slate-800">Logo</h2>
+              <div className="mb-3 flex items-center justify-between gap-3">
+  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+    Logo
+  </h2>
+
+  <button
+    type="button"
+    onClick={() => setAjudaLogoAberta((aberta) => !aberta)}
+    aria-label={
+      ajudaLogoAberta
+        ? "Fechar orientações da logo"
+        : "Abrir orientações da logo"
+    }
+    aria-expanded={ajudaLogoAberta}
+    title="Configurações recomendadas para a logo"
+    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-xs font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900"
+  >
+    i
+  </button>
+</div>
+
+{ajudaLogoAberta && (
+  <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700 shadow-sm dark:border-blue-900 dark:bg-blue-950/40 dark:text-slate-200">
+    <div className="mb-2 flex items-center justify-between gap-3">
+      <h3 className="font-bold text-blue-900 dark:text-blue-200">
+        Configurações recomendadas
+      </h3>
+
+      <button
+        type="button"
+        onClick={() => setAjudaLogoAberta(false)}
+        className="rounded-lg px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-900"
+      >
+        Fechar
+      </button>
+    </div>
+
+    <div className="space-y-2 text-xs leading-5 sm:text-sm">
+      <p>
+        <strong>Formato preferencial:</strong> PNG com fundo transparente.
+      </p>
+
+      <p>
+        <strong>Formatos aceitos:</strong> PNG, JPG, JPEG e WEBP.
+      </p>
+
+      <p>
+        <strong>Tamanho recomendado:</strong> entre 800 e 1.500 pixels
+        no lado maior.
+      </p>
+
+      <p>
+        <strong>Peso máximo:</strong> 5 MB.
+      </p>
+
+      <p>
+        <strong>Proporção:</strong> mantenha a proporção original da marca,
+        sem esticar ou achatar.
+      </p>
+
+      <p>
+        <strong>Margens:</strong> evite espaços vazios excessivos ao redor
+        da logo.
+      </p>
+
+      <p>
+        Para logos horizontais, uma medida como
+        <strong> 1.200 × 600 px</strong> funciona bem. Para logos quadradas,
+        use aproximadamente <strong>800 × 800 px</strong>.
+      </p>
+    </div>
+  </div>
+)}
 
               <div className="flex h-28 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
                 {form.logoUrl ? (

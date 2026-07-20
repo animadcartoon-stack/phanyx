@@ -1411,6 +1411,7 @@ model ConfiguracaoInstituicao {
   cnpj                     String?
   telefone                 String?
   email                    String?
+  cep                      String?
   endereco                 String?
   cidade                   String?
   estado                   String?

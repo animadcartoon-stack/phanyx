@@ -11693,3 +11693,30 @@ html[data-theme="light"]
     color: #ffffff !important;
   }
 }
+
+/* CONFIGURAÇÕES DA INSTITUIÇÃO — AUTOFILL DO CHROME */
+
+html.dark .phanyx-config-instituicao input:-webkit-autofill,
+html.dark .phanyx-config-instituicao input:-webkit-autofill:hover,
+html.dark .phanyx-config-instituicao input:-webkit-autofill:focus,
+html[data-theme="dark"] .phanyx-config-instituicao input:-webkit-autofill,
+html[data-theme="dark"] .phanyx-config-instituicao input:-webkit-autofill:hover,
+html[data-theme="dark"] .phanyx-config-instituicao input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border-color: #475569 !important;
+  -webkit-box-shadow: 0 0 0 1000px #0f172a inset !important;
+  box-shadow: 0 0 0 1000px #0f172a inset !important;
+  background-color: #0f172a !important;
+}
+
+html[data-theme="system"] .phanyx-config-instituicao input:-webkit-autofill,
+html[data-theme="system"] .phanyx-config-instituicao input:-webkit-autofill:hover,
+html[data-theme="system"] .phanyx-config-instituicao input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  border-color: #525252 !important;
+  -webkit-box-shadow: 0 0 0 1000px #262626 inset !important;
+  box-shadow: 0 0 0 1000px #262626 inset !important;
+  background-color: #262626 !important;
+}

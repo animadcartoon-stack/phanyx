@@ -1,24 +1,116 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import {
+  getUserFromToken,
+  isAdminLike,
+} from "@/lib/server-auth";
+import { uploadArquivo } from "@/lib/storage/uploadArquivo";
 
-export async function POST(req: Request) {
-  const formData = await req.formData();
-  const file = formData.get("file") as File;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const runtime = "nodejs";
 
-  if (!file) {
-    return NextResponse.json({ error: "Arquivo não enviado" }, { status: 400 });
+const TIPOS_PERMITIDOS = [
+  "image/png",
+  "image/jpeg",
+  "image/jpg",
+  "image/webp",
+];
+
+const LIMITE_BYTES = 5 * 1024 * 1024; // 5 MB
+
+export async function POST(req: NextRequest) {
+  try {
+    const user = await getUserFromToken();
+
+    if (!user || !user.instituicaoId) {
+      return NextResponse.json(
+        { error: "Usuário ou instituição não identificados." },
+        { status: 401 }
+      );
+    }
+
+    if (!isAdminLike(user.role)) {
+  return NextResponse.json(
+    {
+      error:
+        "Somente administradores e gestores autorizados podem alterar a logo da instituição.",
+    },
+    { status: 403 }
+  );
+}
+
+    const formData = await req.formData();
+    const file = formData.get("file");
+
+    if (!(file instanceof File)) {
+      return NextResponse.json(
+        { error: "Nenhuma imagem foi selecionada." },
+        { status: 400 }
+      );
+    }
+
+    if (!file.size) {
+      return NextResponse.json(
+        { error: "O arquivo selecionado está vazio." },
+        { status: 400 }
+      );
+    }
+
+    if (!TIPOS_PERMITIDOS.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP." },
+        { status: 400 }
+      );
+    }
+
+    if (file.size > LIMITE_BYTES) {
+      return NextResponse.json(
+        { error: "A imagem excede o limite de 5 MB." },
+        { status: 400 }
+      );
+    }
+
+    const instituicaoId = Number(user.instituicaoId);
+
+    const resultado = await uploadArquivo({
+      file,
+      pasta: `instituicoes/${instituicaoId}/logos`,
+    });
+
+    if (!resultado?.url) {
+      throw new Error("O armazenamento não retornou a URL da logo.");
+    }
+
+    await prisma.configuracaoInstituicao.upsert({
+      where: {
+        instituicaoId,
+      },
+      update: {
+        logoUrl: resultado.url,
+      },
+      create: {
+        instituicaoId,
+        logoUrl: resultado.url,
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      url: resultado.url,
+      arquivo: resultado,
+    });
+  } catch (error) {
+    console.error("ERRO AO ENVIAR LOGO DA INSTITUIÇÃO:", error);
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erro interno ao enviar a logo.",
+      },
+      { status: 500 }
+    );
   }
-
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  const fileName = `logo_${Date.now()}.png`;
-  const uploadPath = path.join(process.cwd(), "public/uploads", fileName);
-
-  fs.writeFileSync(uploadPath, buffer);
-
-  return NextResponse.json({
-    url: `/uploads/${fileName}`,
-  });
 }
