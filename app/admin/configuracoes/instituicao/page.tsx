@@ -429,35 +429,82 @@ async function enviarAssinaturaDiretor(file: File) {
 }
 
   async function buscarEnderecoPorCep(cepInformado: string) {
-    const cepLimpo = cepInformado.replace(/\D/g, "");
-    if (cepLimpo.length !== 8) return;
+  const cepLimpo = cepInformado
+    .replace(/\D/g, "")
+    .slice(0, 8);
 
-    try {
-      setBuscandoCep(true);
-      setMensagem("");
+  const cepFormatado =
+    cepLimpo.length === 8
+      ? `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5)}`
+      : cepLimpo;
 
-      const res = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
-      const data = await res.json();
+  setForm((prev) => ({
+    ...prev,
+    cep: cepFormatado,
+  }));
 
-      if (data?.erro) {
-        setMensagem("CEP não encontrado.");
-        return;
-      }
-
-      setForm((prev) => ({
-        ...prev,
-        cep: cepLimpo,
-        endereco: data.logradouro || prev.endereco || "",
-        cidade: data.localidade || prev.cidade || "",
-        estado: data.uf || prev.estado || "",
-        cidadeAssinatura: prev.cidadeAssinatura || data.localidade || "",
-      }));
-    } catch {
-      setMensagem("Não foi possível buscar o endereço pelo CEP.");
-    } finally {
-      setBuscandoCep(false);
-    }
+  if (cepLimpo.length !== 8) {
+    setMensagem("Informe um CEP com 8 números.");
+    return;
   }
+
+  try {
+    setBuscandoCep(true);
+    setMensagem("");
+
+    const res = await fetch(
+      `https://viacep.com.br/ws/${cepLimpo}/json/`,
+      {
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error(
+        `Não foi possível consultar o CEP (${res.status}).`
+      );
+    }
+
+    const data = await res.json();
+
+    if (data?.erro === true) {
+      setMensagem(
+        "CEP não encontrado. Confira os números ou preencha o endereço manualmente."
+      );
+      return;
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      cep: cepFormatado,
+      endereco:
+        data?.logradouro ||
+        prev.endereco ||
+        "",
+      cidade:
+        data?.localidade ||
+        prev.cidade ||
+        "",
+      estado:
+        data?.uf ||
+        prev.estado ||
+        "",
+      cidadeAssinatura:
+        prev.cidadeAssinatura ||
+        data?.localidade ||
+        "",
+    }));
+  } catch (error: any) {
+    console.error("ERRO AO BUSCAR CEP:", error);
+
+    setMensagem(
+      error?.message ||
+        "Não foi possível buscar o endereço pelo CEP. Você pode preencher o endereço manualmente."
+    );
+  } finally {
+    setBuscandoCep(false);
+  }
+}
 
   useEffect(() => {
     carregar();

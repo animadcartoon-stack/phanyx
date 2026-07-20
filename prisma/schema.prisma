@@ -1421,6 +1421,7 @@ model ConfiguracaoInstituicao {
   email                    String?
   cep                      String?
   endereco                 String?
+  numero                   String?
   cidade                   String?
   estado                   String?
   responsavelNome          String?
@@ -1432,7 +1433,6 @@ model ConfiguracaoInstituicao {
   cidadeAssinatura         String?
   contratoTemplate         String?
   observacoesContrato      String?
-  numero                   String?
   estiloDocumento          String?     @default("INSTITUCIONAL")
   papelTimbradoUrl         String?
   corRelatorio             String?     @default("AZUL")
