@@ -108,6 +108,14 @@ export default function ConfigInstituicaoPage() {
       });
       const json = await res.json();
 
+      if (!res.ok) {
+  throw new Error(
+    json?.error ||
+      json?.message ||
+      "Erro ao carregar configurações da instituição."
+  );
+}
+
       const layout = normalizarLayoutProfissional(
         json?.estiloPapelTimbrado || json?.estiloDocumento
       );
@@ -121,9 +129,17 @@ export default function ConfigInstituicaoPage() {
       });
 
       setPreviewPapelTimbrado(json?.papelTimbradoUrl || "");
-    } catch {
-      setMensagem("Erro ao carregar configurações da instituição.");
-    } finally {
+    } catch (error: any) {
+  console.error(
+    "ERRO AO CARREGAR CONFIGURAÇÕES:",
+    error
+  );
+
+  setMensagem(
+    error?.message ||
+      "Erro ao carregar configurações da instituição."
+  );
+} finally {
       setLoading(false);
     }
   }
@@ -138,12 +154,34 @@ export default function ConfigInstituicaoPage() {
       );
 
       const payload = {
-  ...form,
+  nomeFantasia: form.nomeFantasia || "",
+  razaoSocial: form.razaoSocial || "",
+  cnpj: form.cnpj || "",
+  telefone: form.telefone || "",
+  email: form.email || "",
+  cep: form.cep || "",
+  endereco: form.endereco || "",
+  numero: form.numero || "",
+  cidade: form.cidade || "",
+  estado: form.estado || "",
+
+  responsavelNome: form.responsavelNome || "",
+  responsavelCargo: form.responsavelCargo || "",
+  cidadeAssinatura: form.cidadeAssinatura || "",
+
+  logoUrl: form.logoUrl || "",
+  certificadoAssinaturaUrl:
+    form.certificadoAssinaturaUrl || "",
+
+  contratoTemplate: form.contratoTemplate || "",
+  observacoesContrato: form.observacoesContrato || "",
+
   estiloDocumento: layout,
   estiloPapelTimbrado: layout,
+
   usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
   papelTimbradoUrl: form.papelTimbradoUrl || "",
-  certificadoAssinaturaUrl: form.certificadoAssinaturaUrl || "",
+
   corRelatorio: form.corRelatorio || "AZUL",
 };
 
@@ -166,12 +204,15 @@ export default function ConfigInstituicaoPage() {
 }
 
 const data = await res.json();
+const configSalva = data?.config || data;
 
 setForm((prev) => ({
   ...prev,
-  ...data,
+  ...configSalva,
   certificadoAssinaturaUrl:
-    data?.certificadoAssinaturaUrl || payload.certificadoAssinaturaUrl || "",
+    configSalva?.certificadoAssinaturaUrl ||
+    payload.certificadoAssinaturaUrl ||
+    "",
   estiloDocumento: layout,
   estiloPapelTimbrado: layout,
 }));

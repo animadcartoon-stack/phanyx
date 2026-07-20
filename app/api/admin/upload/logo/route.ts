@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getUserFromToken } from "@/lib/server-auth";
+import {
+  getUserFromToken,
+  isAdminLike,
+} from "@/lib/server-auth";
 import { uploadArquivo } from "@/lib/storage/uploadArquivo";
 
 export const dynamic = "force-dynamic";
@@ -27,12 +30,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (String(user.role).toUpperCase() !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Somente o administrador pode alterar a logo da instituição." },
-        { status: 403 }
-      );
-    }
+    if (!isAdminLike(user.role)) {
+  return NextResponse.json(
+    {
+      error:
+        "Somente administradores e gestores autorizados podem alterar a logo da instituição.",
+    },
+    { status: 403 }
+  );
+}
 
     const formData = await req.formData();
     const file = formData.get("file");
