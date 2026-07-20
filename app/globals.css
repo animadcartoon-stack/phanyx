@@ -11720,3 +11720,206 @@ html[data-theme="system"] .phanyx-config-instituicao input:-webkit-autofill:focu
   box-shadow: 0 0 0 1000px #262626 inset !important;
   background-color: #262626 !important;
 }
+
+/* ==================================================
+   MODAL DE EXCLUSÃO — LOGO E ASSINATURA INSTITUCIONAL
+================================================== */
+
+.phanyx-modal-imagem-overlay {
+  background: rgba(15, 23, 42, 0.68) !important;
+  backdrop-filter: blur(2px);
+}
+
+.phanyx-modal-imagem-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-modal-imagem-titulo {
+  color: #0f172a !important;
+}
+
+.phanyx-modal-imagem-texto {
+  color: #475569 !important;
+}
+
+.phanyx-modal-imagem-icone {
+  background: #fef2f2 !important;
+  color: #dc2626 !important;
+}
+
+.phanyx-modal-imagem-cancelar {
+  background: #ffffff !important;
+  border: 1px solid #94a3b8 !important;
+  color: #334155 !important;
+}
+
+.phanyx-modal-imagem-cancelar:hover {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+}
+
+/* Tema escuro */
+
+html[data-theme="dark"] .phanyx-modal-imagem-card {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-modal-imagem-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-modal-imagem-texto {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-modal-imagem-icone {
+  background: rgba(220, 38, 38, 0.18) !important;
+  color: #f87171 !important;
+}
+
+html[data-theme="dark"] .phanyx-modal-imagem-cancelar {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-modal-imagem-cancelar:hover {
+  background: #334155 !important;
+}
+
+/* Tema sistema */
+
+html[data-theme="system"] .phanyx-modal-imagem-card {
+  background: #292929 !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-modal-imagem-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-modal-imagem-texto {
+  color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-modal-imagem-icone {
+  background: rgba(220, 38, 38, 0.2) !important;
+  color: #f87171 !important;
+}
+
+html[data-theme="system"] .phanyx-modal-imagem-cancelar {
+  background: #333333 !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-modal-imagem-cancelar:hover {
+  background: #404040 !important;
+}
+
+/* ==================================================
+   MENU DE EDIÇÃO — LOGO E ASSINATURA INSTITUCIONAL
+================================================== */
+
+.phanyx-menu-imagem {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-menu-imagem button,
+.phanyx-menu-imagem button span {
+  opacity: 1 !important;
+}
+
+.phanyx-menu-imagem-trocar,
+.phanyx-menu-imagem-trocar span {
+  color: #1e3a5f !important;
+}
+
+.phanyx-menu-imagem-trocar:hover {
+  background: #eff6ff !important;
+}
+
+.phanyx-menu-imagem-trocar:hover,
+.phanyx-menu-imagem-trocar:hover span {
+  color: #1d4ed8 !important;
+}
+
+.phanyx-menu-imagem-excluir,
+.phanyx-menu-imagem-excluir span {
+  color: #dc2626 !important;
+}
+
+.phanyx-menu-imagem-excluir:hover {
+  background: #fef2f2 !important;
+}
+
+.phanyx-menu-imagem-excluir:hover,
+.phanyx-menu-imagem-excluir:hover span {
+  color: #b91c1c !important;
+}
+
+/* Tema escuro */
+
+html[data-theme="dark"] .phanyx-menu-imagem {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-menu-imagem-trocar,
+html[data-theme="dark"] .phanyx-menu-imagem-trocar span {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] .phanyx-menu-imagem-trocar:hover {
+  background: #1e293b !important;
+}
+
+html[data-theme="dark"] .phanyx-menu-imagem-trocar:hover,
+html[data-theme="dark"] .phanyx-menu-imagem-trocar:hover span {
+  color: #93c5fd !important;
+}
+
+html[data-theme="dark"] .phanyx-menu-imagem-excluir,
+html[data-theme="dark"] .phanyx-menu-imagem-excluir span {
+  color: #f87171 !important;
+}
+
+html[data-theme="dark"] .phanyx-menu-imagem-excluir:hover {
+  background: rgba(127, 29, 29, 0.35) !important;
+}
+
+/* Tema sistema */
+
+html[data-theme="system"] .phanyx-menu-imagem {
+  background: #292929 !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-menu-imagem-trocar,
+html[data-theme="system"] .phanyx-menu-imagem-trocar span {
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-menu-imagem-trocar:hover {
+  background: #3a3a3a !important;
+}
+
+html[data-theme="system"] .phanyx-menu-imagem-trocar:hover,
+html[data-theme="system"] .phanyx-menu-imagem-trocar:hover span {
+  color: #bfdbfe !important;
+}
+
+html[data-theme="system"] .phanyx-menu-imagem-excluir,
+html[data-theme="system"] .phanyx-menu-imagem-excluir span {
+  color: #f87171 !important;
+}
+
+html[data-theme="system"] .phanyx-menu-imagem-excluir:hover {
+  background: rgba(127, 29, 29, 0.4) !important;
+}

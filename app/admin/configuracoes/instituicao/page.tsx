@@ -1093,28 +1093,34 @@ async function excluirImagemInstitucional(
   return (
     <>
     {confirmacaoExclusao && (
-  <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/70 p-4">
-    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
-      <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-        {confirmacaoExclusao === "logo"
-          ? "Excluir logo?"
-          : "Excluir assinatura do diretor?"}
-      </h2>
+  <div className="phanyx-modal-imagem-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4">
+    <div className="phanyx-modal-imagem-card w-full max-w-md rounded-2xl p-6 shadow-2xl">
+      <div className="flex items-start gap-4">
+        <div className="phanyx-modal-imagem-icone flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl">
+          ⚠️
+        </div>
 
-      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-        {confirmacaoExclusao === "logo"
-          ? "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
-          : "A assinatura deixará de aparecer nos certificados e documentos institucionais."}
-      </p>
+        <div className="min-w-0 flex-1">
+          <h2 className="phanyx-modal-imagem-titulo text-lg font-bold">
+            {confirmacaoExclusao === "logo"
+              ? "Excluir logo?"
+              : "Excluir assinatura do diretor?"}
+          </h2>
 
-      <div className="mt-6 flex justify-end gap-3">
+          <p className="phanyx-modal-imagem-texto mt-2 text-sm leading-6">
+            {confirmacaoExclusao === "logo"
+              ? "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
+              : "A assinatura deixará de aparecer nos certificados e documentos institucionais."}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <button
           type="button"
-          onClick={() =>
-            setConfirmacaoExclusao(null)
-          }
+          onClick={() => setConfirmacaoExclusao(null)}
           disabled={excluindoImagem}
-          className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+          className="phanyx-modal-imagem-cancelar rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           Cancelar
         </button>
@@ -1122,16 +1128,12 @@ async function excluirImagemInstitucional(
         <button
           type="button"
           onClick={() =>
-            excluirImagemInstitucional(
-              confirmacaoExclusao
-            )
+            excluirImagemInstitucional(confirmacaoExclusao)
           }
           disabled={excluindoImagem}
-          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+          className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {excluindoImagem
-            ? "Excluindo..."
-            : "Excluir"}
+          {excluindoImagem ? "Excluindo..." : "Excluir"}
         </button>
       </div>
     </div>
@@ -1468,30 +1470,32 @@ async function excluirImagemInstitucional(
         </button>
 
         {menuLogoAberto && (
-          <div className="absolute right-0 top-9 z-40 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-            <button
-              type="button"
-              onClick={() => {
-                setMenuLogoAberto(false);
-                inputFileLogoRef.current?.click();
-              }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              🔄 Trocar logo
-            </button>
+  <div className="phanyx-menu-imagem absolute right-0 top-9 z-40 w-48 overflow-hidden rounded-xl p-1 shadow-xl">
+    <button
+      type="button"
+      onClick={() => {
+        setMenuLogoAberto(false);
+        inputFileLogoRef.current?.click();
+      }}
+      className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+    >
+      <span aria-hidden="true">🔄</span>
+      <span>Trocar logo</span>
+    </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setMenuLogoAberto(false);
-                setConfirmacaoExclusao("logo");
-              }}
-              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-            >
-              🗑️ Excluir logo
-            </button>
-          </div>
-        )}
+    <button
+      type="button"
+      onClick={() => {
+        setMenuLogoAberto(false);
+        setConfirmacaoExclusao("logo");
+      }}
+      className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+    >
+      <span aria-hidden="true">🗑️</span>
+      <span>Excluir logo</span>
+    </button>
+  </div>
+)}
       </div>
     )}
   </div>
@@ -1633,30 +1637,32 @@ async function excluirImagemInstitucional(
       </button>
 
       {menuAssinaturaAberto && (
-        <div className="absolute right-0 top-9 z-40 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
-          <button
-            type="button"
-            onClick={() => {
-              setMenuAssinaturaAberto(false);
-              inputFileAssinaturaRef.current?.click();
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
-          >
-            🔄 Trocar assinatura
-          </button>
+  <div className="phanyx-menu-imagem absolute right-0 top-9 z-40 w-56 overflow-hidden rounded-xl p-1 shadow-xl">
+    <button
+      type="button"
+      onClick={() => {
+        setMenuAssinaturaAberto(false);
+        inputFileAssinaturaRef.current?.click();
+      }}
+      className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+    >
+      <span aria-hidden="true">🔄</span>
+      <span>Trocar assinatura</span>
+    </button>
 
-          <button
-            type="button"
-            onClick={() => {
-              setMenuAssinaturaAberto(false);
-              setConfirmacaoExclusao("assinatura");
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
-          >
-            🗑️ Excluir assinatura
-          </button>
-        </div>
-      )}
+    <button
+      type="button"
+      onClick={() => {
+        setMenuAssinaturaAberto(false);
+        setConfirmacaoExclusao("assinatura");
+      }}
+      className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+    >
+      <span aria-hidden="true">🗑️</span>
+      <span>Excluir assinatura</span>
+    </button>
+  </div>
+)}
     </div>
   )}
 </div>
