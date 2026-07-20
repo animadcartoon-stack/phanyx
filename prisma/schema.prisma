@@ -106,6 +106,7 @@ model Instituicao {
   assinaturaPhanyx           AssinaturaPhanyx?
   TurmaDisciplina            TurmaDisciplina[]
   certificadoCampos          CertificadoCampo[]
+  certificadoModelos         CertificadoModelo[]
   periodosMatricula          PeriodoMatricula[]
   disciplinaPreRequisitos    DisciplinaPreRequisito[]
   cursosDisciplinasExtras    CursoDisciplinaExtraPermitida[]
@@ -238,6 +239,9 @@ model User {
   visitantesCriados              Visitante[]                    @relation("VisitanteCriadoPor")
   ajustesMarcacaoPontoRHCriados  AjusteMarcacaoPontoRH[]        @relation("AjusteMarcacaoPontoRHCriadoPor")
 
+  certificadoModelosCriados    CertificadoModelo[] @relation("CertificadoModeloCriadoPor")
+  certificadoModelosPublicados CertificadoModelo[] @relation("CertificadoModeloPublicadoPor")
+
   @@index([instituicaoId])
   @@index([role])
 }
@@ -365,26 +369,30 @@ model Professor {
 }
 
 model Curso {
-  id                          Int                             @id @default(autoincrement())
-  nome                        String
-  descricao                   String?
-  ativo                       Boolean                         @default(true)
-  createdAt                   DateTime                        @default(now())
-  instituicaoId               Int
-  codigo                      String?
-  updatedAt                   DateTime                        @updatedAt
-  quantidadeParcelas          Int?
-  valorMatricula              Float?
-  valorMensalidade            Float?
-  quantidadeSemestres         Int?
-  cargaHorariaMaximaSemestre  Int?
-  excluidoEm                  DateTime?
-  expiraExclusaoEm            DateTime?
-  criadoPorId                 Int?
-  excluidoPorId               Int?
-  criadoPor                   User?                           @relation("CursoCriadoPor", fields: [criadoPorId], references: [id])
-  excluidoPor                 User?                           @relation("CursoExcluidoPor", fields: [excluidoPorId], references: [id])
-  instituicao                 Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id                         Int                   @id @default(autoincrement())
+  nome                       String
+  descricao                  String?
+  ativo                      Boolean               @default(true)
+  createdAt                  DateTime              @default(now())
+  instituicaoId              Int
+  codigo                     String?
+  updatedAt                  DateTime              @updatedAt
+  quantidadeParcelas         Int?
+  valorMatricula             Float?
+  valorMensalidade           Float?
+  quantidadeSemestres        Int?
+  cargaHorariaMaximaSemestre Int?
+  excluidoEm                 DateTime?
+  expiraExclusaoEm           DateTime?
+  modalidadeCertificado      ModalidadeCertificado @default(GERAL)
+  certificadoModeloId        Int?
+  criadoPorId                Int?
+  excluidoPorId              Int?
+  criadoPor                  User?                 @relation("CursoCriadoPor", fields: [criadoPorId], references: [id])
+  excluidoPor                User?                 @relation("CursoExcluidoPor", fields: [excluidoPorId], references: [id])
+  instituicao                Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  certificadoModelo          CertificadoModelo?    @relation(fields: [certificadoModeloId], references: [id], onDelete: SetNull)
+
   semestres                   CursoSemestre[]
   disciplinas                 Disciplina[]
   documentosGerados           DocumentoGerado[]
@@ -398,6 +406,8 @@ model Curso {
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
   @@index([instituicaoId])
+  @@index([certificadoModeloId])
+  @@index([instituicaoId, modalidadeCertificado])
 }
 
 model CursoSemestre {
@@ -1675,29 +1685,100 @@ model AdesaoInstituicao {
   assinaturaPhanyx AssinaturaPhanyx?
 }
 
-model CertificadoCampo {
-  id            Int      @id @default(autoincrement())
+model CertificadoModelo {
+  id            Int @id @default(autoincrement())
   instituicaoId Int
-  tipo          String
-  x             Float
-  y             Float
-  largura       Float?
-  altura        Float?
-  fonte         String?
-  tamanho       Int?
-  cor           String?
-  alinhamento   String?
-  dadosJson     Json?
-  lineHeight    Float?
-  marcador      String?
-  pagina        Int      @default(1)
-  ordem         Int      @default(0)
-  createdAt     DateTime @default(now())
+
+  nome       String
+  descricao  String?
+  modalidade ModalidadeCertificado @default(GERAL)
+
+  ativo     Boolean @default(true)
+  arquivado Boolean @default(false)
+
+  padraoGeral      Boolean @default(false)
+  padraoModalidade Boolean @default(false)
+
+  criadoPorId    Int?
+  publicadoPorId Int?
+  publicadoEm    DateTime?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
 
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
+  criadoPor User? @relation("CertificadoModeloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  publicadoPor User? @relation("CertificadoModeloPublicadoPor", fields: [publicadoPorId], references: [id], onDelete: SetNull)
+
+  versoes CertificadoModeloVersao[]
+  cursos  Curso[]
+
+  @@index([instituicaoId])
+  @@index([instituicaoId, modalidade])
+  @@index([instituicaoId, ativo, arquivado])
+  @@index([criadoPorId])
+  @@index([publicadoPorId])
+}
+
+model CertificadoModeloVersao {
+  id       Int                   @id @default(autoincrement())
+  modeloId Int
+  tipo     TipoVersaoCertificado
+
+  templateUrl     String?
+  previewUrl      String?
+  textoPadrao     String?
+  assinaturaUrl   String?
+  coordenadorNome String?
+  cidade          String?
+
+  modoFundo      String @default("modelo")
+  corFundoPagina String @default("#ffffff")
+  tamanhoPapel   String @default("A4")
+  orientacao     String @default("paisagem")
+  larguraBase    Int    @default(1123)
+  alturaBase     Int    @default(794)
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  modelo CertificadoModelo @relation(fields: [modeloId], references: [id], onDelete: Cascade)
+
+  campos CertificadoCampo[]
+
+  @@unique([modeloId, tipo])
+  @@index([modeloId])
+  @@index([tipo])
+}
+
+model CertificadoCampo {
+  id                        Int      @id @default(autoincrement())
+  instituicaoId             Int
+  certificadoModeloVersaoId Int?
+  tipo                      String
+  x                         Float
+  y                         Float
+  largura                   Float?
+  altura                    Float?
+  fonte                     String?
+  tamanho                   Int?
+  cor                       String?
+  alinhamento               String?
+  dadosJson                 Json?
+  lineHeight                Float?
+  marcador                  String?
+  pagina                    Int      @default(1)
+  ordem                     Int      @default(0)
+  createdAt                 DateTime @default(now())
+
+  instituicao             Instituicao              @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  certificadoModeloVersao CertificadoModeloVersao? @relation(fields: [certificadoModeloVersaoId], references: [id], onDelete: Cascade)
+
   @@index([instituicaoId])
   @@index([tipo])
+  @@index([certificadoModeloVersaoId])
 }
 
 model DisciplinaPreRequisito {
@@ -3456,6 +3537,34 @@ model CacheGeocodificacaoEndereco {
 
   @@index([ultimoUsoEm])
   @@index([provedor])
+}
+
+enum ModalidadeCertificado {
+  GERAL
+  BACHARELADO
+  LICENCIATURA
+  TECNOLOGO
+  POS_GRADUACAO
+  MBA
+  MESTRADO
+  DOUTORADO
+  TECNICO
+  CURSO_LIVRE
+  OFICINA
+  ENSINO_MEDIO
+  ENSINO_FUNDAMENTAL
+  EDUCACAO_INFANTIL
+  PRE_ESCOLA
+  EXTENSAO
+  CAPACITACAO
+  TREINAMENTO
+  EJA
+  OUTRO
+}
+
+enum TipoVersaoCertificado {
+  RASCUNHO
+  PUBLICADO
 }
 
 enum TipoDocumentoAluno {

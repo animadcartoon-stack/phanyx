@@ -11923,3 +11923,321 @@ html[data-theme="system"] .phanyx-menu-imagem-excluir span {
 html[data-theme="system"] .phanyx-menu-imagem-excluir:hover {
   background: rgba(127, 29, 29, 0.4) !important;
 }
+
+/* ESTILOS DO EDITOR COM MÚLTIPLOS MODELOS DE CERTIFICADO */
+.phanyx-config-certificado-page
+  .phanyx-certificado-upload-pdf-btn {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  padding: 12px 20px;
+
+  border: 1px solid #1d4ed8;
+  border-radius: 14px;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb 0%,
+    #1d4ed8 100%
+  ) !important;
+
+  color: #ffffff !important;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+
+  box-shadow:
+    0 10px 24px rgba(37, 99, 235, 0.22),
+    0 2px 5px rgba(15, 23, 42, 0.12);
+
+  cursor: pointer;
+
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background 160ms ease;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-certificado-upload-pdf-btn:hover:not(:disabled) {
+  background: linear-gradient(
+    135deg,
+    #1d4ed8 0%,
+    #1e40af 100%
+  ) !important;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 14px 30px rgba(37, 99, 235, 0.3),
+    0 3px 7px rgba(15, 23, 42, 0.14);
+}
+
+.phanyx-config-certificado-page
+  .phanyx-certificado-upload-pdf-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.phanyx-config-certificado-page
+  .phanyx-certificado-upload-pdf-btn:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.35);
+  outline-offset: 3px;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-certificado-upload-pdf-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Animação exibida durante o envio */
+.phanyx-certificado-upload-spinner {
+  width: 18px;
+  height: 18px;
+
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 9999px;
+
+  animation: phanyx-certificado-upload-spin 0.7s linear infinite;
+}
+
+@keyframes phanyx-certificado-upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Modal de publicação — tema Sistema */
+html[data-theme="system"] .phanyx-cert-publicar-modal {
+  background-color: #262626 !important;
+  border-color: #525252 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-publicar-modal
+  .bg-slate-50 {
+  background-color: #303030 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-publicar-modal
+  .text-slate-600,
+html[data-theme="system"]
+  .phanyx-cert-publicar-modal
+  .text-slate-500 {
+  color: #d4d4d8 !important;
+}
+
+/* =========================================================
+   PHANYX — Barra do editor de certificados
+   Tema Sistema: cinza quase preto
+   ========================================================= */
+
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-certificado-toolbar {
+  background: linear-gradient(
+    135deg,
+    #292929 0%,
+    #171717 100%
+  ) !important;
+
+  border-color: #454545 !important;
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* =========================================================
+   PHANYX — Seletor e contador de modelos de certificado
+   ========================================================= */
+
+.phanyx-cert-modelo-seletor {
+  border-color: #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.phanyx-cert-modelo-seletor:hover {
+  border-color: #60a5fa;
+}
+
+.phanyx-cert-modelo-menu {
+  border-color: #e2e8f0;
+  background-color: #ffffff;
+}
+
+.phanyx-cert-modelo-opcao {
+  color: #334155;
+}
+
+.phanyx-cert-modelo-opcao:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.phanyx-cert-modelo-opcao.is-active {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.phanyx-cert-modelos-contador {
+  border-color: #bfdbfe;
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  .phanyx-cert-modelo-seletor,
+html.dark
+  .phanyx-cert-modelo-seletor {
+  border-color: #475569 !important;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-cert-modelo-menu,
+html.dark
+  .phanyx-cert-modelo-menu {
+  border-color: #475569 !important;
+  background-color: #0f172a !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-cert-modelo-opcao,
+html.dark
+  .phanyx-cert-modelo-opcao {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-cert-modelo-opcao:hover,
+html.dark
+  .phanyx-cert-modelo-opcao:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-cert-modelo-opcao.is-active,
+html.dark
+  .phanyx-cert-modelo-opcao.is-active {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-cert-modelos-contador,
+html.dark
+  .phanyx-cert-modelos-contador {
+  border-color: #64748b !important;
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* Tema Sistema */
+html[data-theme="system"]
+  .phanyx-cert-modelo-seletor {
+  border-color: #525252 !important;
+  background-color: #262626 !important;
+  color: #fafafa !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelo-seletor:hover {
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelo-menu {
+  border-color: #525252 !important;
+  background-color: #262626 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelo-opcao {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelo-opcao:hover {
+  background-color: #3f3f46 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelo-opcao.is-active {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelos-contador {
+  border-color: #737373 !important;
+  background-color: #2f2f2f !important;
+  color: #fafafa !important;
+}
+
+/* Barra inferior do canvas — tema Sistema */
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-editor-info-bar {
+  background-color: #171717 !important;
+  background-image: none !important;
+  border-top: 1px solid #303030 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Botão Editar dados — modelos de certificado */
+.phanyx-cert-modelo-editar-btn {
+  border: 1px solid #475569 !important;
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-cert-modelo-editar-btn:hover {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  .phanyx-cert-modelo-editar-btn,
+html.dark
+  .phanyx-cert-modelo-editar-btn {
+  border-color: #64748b !important;
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-cert-modelo-editar-btn:hover,
+html.dark
+  .phanyx-cert-modelo-editar-btn:hover {
+  background-color: #475569 !important;
+}
+
+/* Tema Sistema */
+html[data-theme="system"]
+  .phanyx-cert-modelo-editar-btn {
+  border-color: #525252 !important;
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-cert-modelo-editar-btn:hover {
+  border-color: #737373 !important;
+  background-color: #525252 !important;
+  color: #ffffff !important;
+}

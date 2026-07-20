@@ -100,7 +100,7 @@ crop?: {
   right: number;
   bottom: number;
 };
-  
+
   cropBaseW?: number | null;
   cropBaseH?: number | null;
 
@@ -695,7 +695,7 @@ const figurasDecorativas = [
 });
 
   const [previewAberto, setPreviewAberto] = useState(false);
-  
+
   const [certificadoTemplateUrl, setCertificadoTemplateUrl] = useState("");
   const [certificadoPreviewUrl, setCertificadoPreviewUrl] = useState("");
   const [certificadoCoordenadorNome, setCertificadoCoordenadorNome] =
@@ -735,7 +735,7 @@ const figurasDecorativas = [
   const [espacamentoPalavrasTexto, setEspacamentoPalavrasTexto] = useState(0);
 
   const [tamanhoSelecaoTexto, setTamanhoSelecaoTexto] = useState(18);
-  
+
   const [menuPontoGradiente, setMenuPontoGradiente] = useState<{
   campoId: number;
   pontoIndex: number;
@@ -914,11 +914,11 @@ function gerarPontosEstrela(
   return pontos;
 }
 
-  const [camposSelecionadosIds, setCamposSelecionadosIds] = useState<number[]>([]); 
+  const [camposSelecionadosIds, setCamposSelecionadosIds] = useState<number[]>([]);
   const [campoSelecionadoId, setCampoSelecionadoId] = useState<number | null>(
     null
   );
-  
+
   const [pontoFormaSelecionado, setPontoFormaSelecionado] = useState<{
   campoId: number;
   pontoId: string;
@@ -1262,6 +1262,72 @@ if (alvo.closest("[data-campo-certificado-id]")) {
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [publicando, setPublicando] = useState(false);
+  const [modalPublicacaoAberto, setModalPublicacaoAberto] =
+  useState(false);
+
+const [modelosCertificado, setModelosCertificado] =
+  useState<any[]>([]);
+
+  const [modelosArquivados, setModelosArquivados] =
+  useState<any[]>([]);
+
+const [modalArquivadosAberto, setModalArquivadosAberto] =
+  useState(false);
+
+const [restaurandoModeloId, setRestaurandoModeloId] =
+  useState<number | null>(null);
+
+const [modeloAtivoId, setModeloAtivoId] =
+  useState<number | null>(null);
+
+const [resumoModelos, setResumoModelos] = useState({
+  plano: "ESSENCIAL",
+  limite: 1,
+  utilizados: 0,
+  restantes: 1,
+  podeCriar: false,
+});
+
+const [trocandoModelo, setTrocandoModelo] =
+  useState(false);
+
+const [criandoModelo, setCriandoModelo] =
+  useState(false);
+
+const [novoModeloFormAberto, setNovoModeloFormAberto] =
+  useState(false);
+
+const [novoModeloNome, setNovoModeloNome] =
+  useState("");
+
+const [novoModeloDescricao, setNovoModeloDescricao] =
+  useState("");
+
+  const [menuModelosAberto, setMenuModelosAberto] =
+  useState(false);
+
+  const [modalEditarModeloAberto, setModalEditarModeloAberto] =
+  useState(false);
+
+const [modalArquivarModeloAberto, setModalArquivarModeloAberto] =
+  useState(false);
+
+const [nomeModeloEditando, setNomeModeloEditando] =
+  useState("");
+
+const [descricaoModeloEditando, setDescricaoModeloEditando] =
+  useState("");
+
+const [salvandoDadosModelo, setSalvandoDadosModelo] =
+  useState(false);
+
+const [definindoPadraoModelo, setDefinindoPadraoModelo] =
+  useState(false);
+
+const [arquivandoModelo, setArquivandoModelo] =
+  useState(false);
+
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
@@ -1327,7 +1393,7 @@ function trazerPainelFlutuanteParaFrente(
 
   const [inicioArrastoCanvas, setInicioArrastoCanvas] = useState({ x: 0, y: 0 });
   const [corTextoSelecionado, setCorTextoSelecionado] = useState<string | null>(null);
-  
+
   const [editorCorGradiente, setEditorCorGradiente] = useState<{
   campoId: number;
   pontoIndex: number;
@@ -1556,7 +1622,7 @@ setCorTextoSelecionado(corHex || null);
 
   return () => observer.disconnect();
 }, []);
-  
+
   const dragRef = useRef<{
   campoId: number;
   offsetX: number;
@@ -1565,7 +1631,10 @@ setCorTextoSelecionado(corHex || null);
   inicioX: number;
   inicioY: number;
   posicoesIniciais: { id: number; x: number; y: number }[];
-} | null>(null);;
+} | null>(null);
+
+const modeloAtivoIdRef = useRef<number | null>(null);
+const versaoRascunhoIdRef = useRef<number | null>(null);
 
 useEffect(() => {
   async function carregarPlano() {
@@ -1585,111 +1654,916 @@ useEffect(() => {
   carregarPlano();
 }, []);
 
-const podeUsarEditorCertificados =
-  planoInstituicao === "PROFISSIONAL" || planoInstituicao === "ENTERPRISE";
+const podeUsarEditorCertificados = [
+  "ESSENCIAL",
+  "PROFISSIONAL",
+  "ENTERPRISE",
+].includes(planoInstituicao);
+
+const modeloAtivo = useMemo(() => {
+  return (
+    modelosCertificado.find(
+      (modelo: any) =>
+        Number(modelo.id) === Number(modeloAtivoId)
+    ) || null
+  );
+}, [modelosCertificado, modeloAtivoId]);
+
+function resetarConfiguracaoVisualCertificado() {
+  setCertificadoTemplateUrl("");
+  setCertificadoPreviewUrl("");
+  setCertificadoAssinaturaUrl("");
+  setCertificadoCoordenadorNome("");
+  setCertificadoCidade("");
+  setNomeDiretorInstituicao("");
+
+  setModoFundo("modelo");
+  setCorFundoPagina("#ffffff");
+  setTamanhoPapel("A4");
+  setOrientacao("paisagem");
+
+  setArquivoModelo(null);
+}
+
+function aplicarConfiguracaoVisualCertificado(
+  configuracao: any,
+  dataInstituicao: any
+) {
+  const templateUrl = String(
+    configuracao?.templateUrl ??
+      configuracao?.certificadoTemplateUrl ??
+      ""
+  );
+
+  const previewUrl = String(
+    configuracao?.previewUrl ??
+      configuracao?.certificadoPreviewUrl ??
+      ""
+  );
+
+  const coordenadorNome = String(
+    configuracao?.coordenadorNome ??
+      configuracao?.certificadoCoordenadorNome ??
+      ""
+  );
+
+  const cidade = String(
+    configuracao?.cidade ??
+      configuracao?.certificadoCidade ??
+      ""
+  );
+
+  setCertificadoTemplateUrl(templateUrl);
+  setCertificadoPreviewUrl(previewUrl);
+  setCertificadoCoordenadorNome(coordenadorNome);
+  setCertificadoCidade(cidade);
+
+  const modoFundoRecebido = String(
+    configuracao?.modoFundo ??
+      configuracao?.certificadoModoFundo ??
+      "modelo"
+  ).toLowerCase();
+
+  setModoFundo(
+    modoFundoRecebido === "phanyx" ||
+      modoFundoRecebido === "cor"
+      ? "phanyx"
+      : "modelo"
+  );
+
+  const corFundoRecebida = String(
+    configuracao?.corFundoPagina ??
+      configuracao?.certificadoCorFundoPagina ??
+      "#ffffff"
+  ).trim();
+
+  setCorFundoPagina(
+    /^#[0-9a-fA-F]{6}$/.test(corFundoRecebida)
+      ? corFundoRecebida
+      : "#ffffff"
+  );
+
+  const tamanhoPapelRecebido = String(
+    configuracao?.tamanhoPapel ??
+      configuracao?.certificadoTamanhoPapel ??
+      "A4"
+  ).toUpperCase();
+
+  setTamanhoPapel(
+    tamanhoPapelRecebido === "A5" ||
+      tamanhoPapelRecebido === "A3"
+      ? tamanhoPapelRecebido
+      : "A4"
+  );
+
+  const orientacaoRecebida = String(
+    configuracao?.orientacao ??
+      configuracao?.certificadoOrientacao ??
+      "paisagem"
+  ).toLowerCase();
+
+  setOrientacao(
+    orientacaoRecebida === "retrato"
+      ? "retrato"
+      : "paisagem"
+  );
+
+  setCertificadoAssinaturaUrl(
+    String(
+      configuracao?.assinaturaUrl ??
+        configuracao?.certificadoAssinaturaUrl ??
+        dataInstituicao?.certificadoAssinaturaUrl ??
+        dataInstituicao?.configuracaoInstituicao
+          ?.certificadoAssinaturaUrl ??
+        ""
+    )
+  );
+
+  setNomeDiretorInstituicao(
+    String(
+      dataInstituicao?.responsavelNome ??
+        configuracao?.coordenadorNome ??
+        configuracao?.certificadoCoordenadorNome ??
+        ""
+    )
+  );
+}
+
+function aplicarCamposCarregados(dataCampos: any) {
+  setCampos(
+    Array.isArray(dataCampos?.campos)
+      ? dataCampos.campos.map((campo: any) => {
+          const dados = campo.dadosJson || {};
+
+          return {
+            ...dados,
+            ...campo,
+            bancoId: campo.id,
+            id: campo.id,
+          };
+        })
+      : []
+  );
+
+  setCampoSelecionadoId(null);
+  setCamposSelecionadosIds([]);
+  setPontoFormaSelecionado(null);
+  setHistorico([]);
+  setFuturo([]);
+}
+
+async function recarregarListaModelosCertificado() {
+  const resposta = await fetch(
+    "/api/admin/certificado-modelos",
+    {
+      cache: "no-store",
+    }
+  );
+
+  const dados = await resposta.json();
+
+  if (!resposta.ok) {
+    throw new Error(
+      dados?.detalhe ||
+        dados?.error ||
+        "Erro ao atualizar a lista de modelos."
+    );
+  }
+
+  const todosModelos = Array.isArray(dados?.modelos)
+  ? dados.modelos
+  : [];
+
+const modelosAtivos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.ativo === true &&
+    modelo?.arquivado !== true
+);
+
+const modelosArquivadosRecebidos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.arquivado === true ||
+    modelo?.ativo === false
+);
+
+setModelosCertificado(modelosAtivos);
+setModelosArquivados(modelosArquivadosRecebidos);
+
+  setResumoModelos({
+    plano: String(
+      dados?.resumo?.plano || "ESSENCIAL"
+    ),
+    limite: Number(dados?.resumo?.limite || 1),
+    utilizados: Number(
+      dados?.resumo?.utilizados || 0
+    ),
+    restantes: Number(
+      dados?.resumo?.restantes || 0
+    ),
+    podeCriar:
+      dados?.resumo?.podeCriar === true,
+  });
+
+  return modelosAtivos;
+}
+
+async function abrirModeloCertificado(
+  modeloId: number
+) {
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    return;
+  }
+
+  if (
+    modeloId === modeloAtivoIdRef.current &&
+    versaoRascunhoIdRef.current
+  ) {
+    return;
+  }
+
+  try {
+  setTrocandoModelo(true);
+  setMensagemErro("");
+
+  /*
+   * Remove imediatamente as configurações visuais
+   * pertencentes ao modelo anteriormente aberto.
+   */
+  resetarConfiguracaoVisualCertificado();
+
+    const [
+      respostaRascunho,
+      respostaCampos,
+      respostaInstituicao,
+    ] = await Promise.all([
+      fetch(
+        `/api/admin/certificado-modelos/${modeloId}/rascunho`,
+        {
+          cache: "no-store",
+        }
+      ),
+
+      fetch(
+        `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
+        {
+          cache: "no-store",
+        }
+      ),
+
+      fetch(
+        "/api/admin/configuracoes/instituicao",
+        {
+          cache: "no-store",
+        }
+      ),
+    ]);
+
+    const dadosRascunho =
+      await respostaRascunho.json();
+
+    const dadosCampos =
+      await respostaCampos.json();
+
+    const dadosInstituicao =
+      await respostaInstituicao
+        .json()
+        .catch(() => ({}));
+
+    if (!respostaRascunho.ok) {
+      throw new Error(
+        dadosRascunho?.detalhe ||
+          dadosRascunho?.error ||
+          "Erro ao abrir o rascunho do modelo."
+      );
+    }
+
+    if (!respostaCampos.ok) {
+      throw new Error(
+        dadosCampos?.detalhe ||
+          dadosCampos?.error ||
+          "Erro ao abrir os elementos do modelo."
+      );
+    }
+
+    const rascunho = dadosRascunho?.rascunho;
+
+    if (!rascunho?.id) {
+      throw new Error(
+        "O modelo selecionado não possui rascunho."
+      );
+    }
+
+    modeloAtivoIdRef.current = modeloId;
+versaoRascunhoIdRef.current =
+  Number(rascunho.id);
+
+setModeloAtivoId(modeloId);
+
+/*
+ * Remove as configurações visuais do modelo anterior
+ * antes de carregar o modelo selecionado.
+ */
+resetarConfiguracaoVisualCertificado();
+
+aplicarConfiguracaoVisualCertificado(
+  rascunho,
+  dadosInstituicao
+);
+
+    aplicarCamposCarregados(dadosCampos);
+
+    const modeloAberto =
+      modelosCertificado.find(
+        (modelo: any) =>
+          Number(modelo.id) === modeloId
+      );
+
+    setMensagemSucesso(
+      modeloAberto?.nome
+        ? `Modelo “${modeloAberto.nome}” aberto no editor.`
+        : "Modelo aberto no editor."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 2500);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO TROCAR MODELO DE CERTIFICADO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao abrir o modelo de certificado."
+    );
+  } finally {
+    setTrocandoModelo(false);
+  }
+}
+
+async function criarNovoModeloCertificado() {
+  const nome = novoModeloNome.trim();
+  const descricao = novoModeloDescricao.trim();
+
+  if (nome.length < 3) {
+    setMensagemErro(
+      "Informe um nome com pelo menos 3 caracteres."
+    );
+    return;
+  }
+
+  try {
+    setCriandoModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      "/api/admin/certificado-modelos",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          descricao: descricao || null,
+          modalidade: "GERAL",
+          padraoGeral: false,
+          copiarLegado: false,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao criar o modelo de certificado."
+      );
+    }
+
+    const novoModeloId = Number(
+      dados?.modelo?.id || dados?.id
+    );
+
+    await recarregarListaModelosCertificado();
+
+    setNovoModeloNome("");
+    setNovoModeloDescricao("");
+    setNovoModeloFormAberto(false);
+
+    if (
+      Number.isInteger(novoModeloId) &&
+      novoModeloId > 0
+    ) {
+      await abrirModeloCertificado(
+        novoModeloId
+      );
+    }
+
+    setMensagemSucesso(
+      "Novo modelo de certificado criado com sucesso."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO CRIAR MODELO DE CERTIFICADO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao criar o modelo de certificado."
+    );
+  } finally {
+    setCriandoModelo(false);
+  }
+}
+
+function abrirEdicaoModeloAtual() {
+  if (!modeloAtivo) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  setNomeModeloEditando(
+    String(modeloAtivo.nome || "")
+  );
+
+  setDescricaoModeloEditando(
+    String(modeloAtivo.descricao || "")
+  );
+
+  setModalEditarModeloAberto(true);
+}
+
+async function salvarDadosModeloAtual() {
+  const modeloId = Number(modeloAtivo?.id);
+  const nome = nomeModeloEditando.trim();
+  const descricao = descricaoModeloEditando.trim();
+
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  if (nome.length < 3) {
+    setMensagemErro(
+      "O nome do modelo precisa ter pelo menos 3 caracteres."
+    );
+    return;
+  }
+
+  try {
+    setSalvandoDadosModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          descricao: descricao || null,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao atualizar os dados do modelo."
+      );
+    }
+
+    await recarregarListaModelosCertificado();
+
+    setModalEditarModeloAberto(false);
+    setNomeModeloEditando("");
+    setDescricaoModeloEditando("");
+
+    setMensagemSucesso(
+      dados?.mensagem ||
+        "Dados do modelo atualizados com sucesso."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO ATUALIZAR MODELO DE CERTIFICADO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao atualizar os dados do modelo."
+    );
+  } finally {
+    setSalvandoDadosModelo(false);
+  }
+}
+
+async function definirModeloAtualComoPadraoGeral() {
+  const modeloId = Number(modeloAtivo?.id);
+
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  if (modeloAtivo?.padraoGeral === true) {
+    return;
+  }
+
+  try {
+    setDefinindoPadraoModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          padraoGeral: true,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao definir o modelo como padrão geral."
+      );
+    }
+
+    await recarregarListaModelosCertificado();
+
+    setMensagemSucesso(
+      `O modelo “${modeloAtivo?.nome}” agora é o padrão geral.`
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO DEFINIR MODELO PADRÃO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao definir o modelo como padrão geral."
+    );
+  } finally {
+    setDefinindoPadraoModelo(false);
+  }
+}
+
+function solicitarArquivamentoModeloAtual() {
+  if (!modeloAtivo) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  setModalArquivarModeloAberto(true);
+}
+
+async function arquivarModeloAtual() {
+  const modeloId = Number(modeloAtivo?.id);
+  const nomeModelo = String(
+    modeloAtivo?.nome || "Modelo"
+  );
+
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  try {
+    setArquivandoModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao: "ARQUIVAR",
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao arquivar o modelo."
+      );
+    }
+
+    const modelosRestantes =
+      await recarregarListaModelosCertificado();
+
+    setModalArquivarModeloAberto(false);
+
+    const proximoModelo =
+      modelosRestantes.find(
+        (modelo: any) =>
+          modelo.padraoGeral === true
+      ) ||
+      modelosRestantes.find(
+        (modelo: any) =>
+          modelo.padraoModalidade === true
+      ) ||
+      modelosRestantes[0] ||
+      null;
+
+    if (proximoModelo?.id) {
+      await abrirModeloCertificado(
+        Number(proximoModelo.id)
+      );
+    }
+
+    setMensagemSucesso(
+      `O modelo “${nomeModelo}” foi arquivado com sucesso.`
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3500);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO ARQUIVAR MODELO DE CERTIFICADO:",
+      error
+    );
+
+    setModalArquivarModeloAberto(false);
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao arquivar o modelo de certificado."
+    );
+  } finally {
+    setArquivandoModelo(false);
+  }
+}
 
   useEffect(() => {
   async function carregarConfiguracao() {
     try {
-      const [resConfig, resCampos, resInstituicao] = await Promise.all([
-  fetch("/api/admin/configuracoes/certificado", {
-    cache: "no-store",
-  }),
-  fetch("/api/admin/certificado-campos", {
-    cache: "no-store",
-  }),
-  fetch("/api/admin/configuracoes/instituicao", {
-    cache: "no-store",
-  }),
-]);
-      const dataConfig = await resConfig.json();
-      const dataCampos = await resCampos.json();
-      const dataInstituicao = await resInstituicao.json();
+      setCarregando(true);
+      setMensagemErro("");
+
+      const [resModelos, resInstituicao] =
+        await Promise.all([
+          fetch("/api/admin/certificado-modelos", {
+            cache: "no-store",
+          }),
+
+          fetch("/api/admin/configuracoes/instituicao", {
+            cache: "no-store",
+          }),
+        ]);
+
+      const dataModelos = await resModelos.json();
+
+      const dataInstituicao =
+        await resInstituicao
+          .json()
+          .catch(() => ({}));
+
+      if (!resModelos.ok) {
+        throw new Error(
+          dataModelos?.detalhe ||
+            dataModelos?.error ||
+            "Erro ao buscar modelos de certificado."
+        );
+      }
+
+      const todosModelos = Array.isArray(
+  dataModelos?.modelos
+)
+  ? dataModelos.modelos
+  : [];
+
+const modelosAtivos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.ativo === true &&
+    modelo?.arquivado !== true
+);
+
+const modelosArquivadosRecebidos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.arquivado === true ||
+    modelo?.ativo === false
+);
+
+setModelosCertificado(modelosAtivos);
+setModelosArquivados(modelosArquivadosRecebidos);
+setResumoModelos({
+  plano: String(
+    dataModelos?.resumo?.plano || "ESSENCIAL"
+  ),
+  limite: Number(
+    dataModelos?.resumo?.limite || 1
+  ),
+  utilizados: Number(
+    dataModelos?.resumo?.utilizados || 0
+  ),
+  restantes: Number(
+    dataModelos?.resumo?.restantes || 0
+  ),
+  podeCriar:
+    dataModelos?.resumo?.podeCriar === true,
+});
+
+      const modeloInicial =
+        modelosAtivos.find(
+          (modelo: any) => modelo.padraoGeral === true
+        ) ||
+        modelosAtivos.find(
+          (modelo: any) =>
+            modelo.padraoModalidade === true
+        ) ||
+        modelosAtivos[0] ||
+        null;
+
+      /*
+       * Quando existe modelo novo, o editor abre somente
+       * o RASCUNHO desse modelo.
+       */
+      if (modeloInicial) {
+        const modeloId = Number(modeloInicial.id);
+
+        const [resRascunho, resCampos] =
+          await Promise.all([
+            fetch(
+              `/api/admin/certificado-modelos/${modeloId}/rascunho`,
+              {
+                cache: "no-store",
+              }
+            ),
+
+            fetch(
+              `/api/admin/certificado-campos?modeloId=${modeloId}&versao=RASCUNHO`,
+              {
+                cache: "no-store",
+              }
+            ),
+          ]);
+
+        const dataRascunho =
+          await resRascunho.json();
+
+        const dataCampos =
+          await resCampos.json();
+
+        if (!resRascunho.ok) {
+          throw new Error(
+            dataRascunho?.detalhe ||
+              dataRascunho?.error ||
+              "Erro ao buscar o rascunho do modelo."
+          );
+        }
+
+        if (!resCampos.ok) {
+          throw new Error(
+            dataCampos?.detalhe ||
+              dataCampos?.error ||
+              "Erro ao buscar os campos do rascunho."
+          );
+        }
+
+        const rascunho = dataRascunho?.rascunho;
+
+        if (!rascunho?.id) {
+          throw new Error(
+            "O modelo selecionado não possui rascunho."
+          );
+        }
+
+        modeloAtivoIdRef.current = modeloId;
+        versaoRascunhoIdRef.current =
+          Number(rascunho.id);
+          setModeloAtivoId(modeloId);
+
+        aplicarConfiguracaoVisualCertificado(
+          rascunho,
+          dataInstituicao
+        );
+
+        aplicarCamposCarregados(dataCampos);
+
+        return;
+      }
+
+      /*
+       * Instituições que ainda não possuem modelo novo
+       * continuam usando o certificado legado.
+       */
+      modeloAtivoIdRef.current = null;
+      versaoRascunhoIdRef.current = null;
+      setModeloAtivoId(null);
+
+      const [resConfig, resCampos] =
+        await Promise.all([
+          fetch(
+            "/api/admin/configuracoes/certificado",
+            {
+              cache: "no-store",
+            }
+          ),
+
+          fetch("/api/admin/certificado-campos", {
+            cache: "no-store",
+          }),
+        ]);
+
+      const dataConfig =
+        await resConfig.json();
+
+      const dataCampos =
+        await resCampos.json();
 
       if (!resConfig.ok) {
-        setMensagemErro(
-  dataConfig?.detalhe ||
-    dataConfig?.error ||
-    "Erro ao buscar configuração."
-);
-        return;
+        throw new Error(
+          dataConfig?.detalhe ||
+            dataConfig?.error ||
+            "Erro ao buscar configuração legada."
+        );
       }
 
       if (!resCampos.ok) {
-        setMensagemErro(
-  dataCampos?.detalhe ||
-    dataCampos?.error ||
-    "Erro ao buscar campos."
-);
-        return;
+        throw new Error(
+          dataCampos?.detalhe ||
+            dataCampos?.error ||
+            "Erro ao buscar campos legados."
+        );
       }
 
-      setCertificadoTemplateUrl(dataConfig?.certificadoTemplateUrl || "");
-      setCertificadoPreviewUrl(dataConfig?.certificadoPreviewUrl || "");
+      aplicarConfiguracaoVisualCertificado(
+        dataConfig,
+        dataInstituicao
+      );
 
-      setCertificadoCoordenadorNome(
-  dataConfig?.certificadoCoordenadorNome || ""
-);
+      aplicarCamposCarregados(dataCampos);
+    } catch (error: any) {
+      console.error(
+        "ERRO AO CARREGAR EDITOR DE CERTIFICADO:",
+        error
+      );
 
-setCertificadoCidade(dataConfig?.certificadoCidade || "");
-
-if (
-  dataConfig?.certificadoModoFundo === "modelo" ||
-  dataConfig?.certificadoModoFundo === "phanyx" ||
-  dataConfig?.certificadoModoFundo === "cor"
-) {
-  setModoFundo(
-    dataConfig.certificadoModoFundo === "cor"
-      ? "phanyx"
-      : dataConfig.certificadoModoFundo
-  );
-}
-
-if (dataConfig?.certificadoCorFundoPagina) {
-  setCorFundoPagina(dataConfig.certificadoCorFundoPagina);
-}
-
-if (
-  dataConfig?.certificadoTamanhoPapel === "A5" ||
-  dataConfig?.certificadoTamanhoPapel === "A4" ||
-  dataConfig?.certificadoTamanhoPapel === "A3"
-) {
-  setTamanhoPapel(dataConfig.certificadoTamanhoPapel);
-}
-
-if (
-  dataConfig?.certificadoOrientacao === "paisagem" ||
-  dataConfig?.certificadoOrientacao === "retrato"
-) {
-  setOrientacao(dataConfig.certificadoOrientacao);
-}
-      setCertificadoAssinaturaUrl(
-  dataInstituicao?.certificadoAssinaturaUrl ||
-    dataInstituicao?.configuracaoInstituicao?.certificadoAssinaturaUrl ||
-    dataConfig?.certificadoAssinaturaUrl ||
-    ""
-);
-
-setNomeDiretorInstituicao(
-  dataInstituicao?.responsavelNome || dataConfig?.certificadoCoordenadorNome || ""
-);
-      setCampos(
-  Array.isArray(dataCampos?.campos)
-    ? dataCampos.campos.map((campo: any) => {
-        const dados = campo.dadosJson || {};
-
-        return {
-  ...dados,
-  ...campo,
-
-  bancoId: campo.id,
-  id: campo.id,
-};
-      })
-    : []
-);
-    } catch {
-      setMensagemErro("Erro ao carregar configuração do certificado.");
+      setMensagemErro(
+        error?.message ||
+          "Erro ao carregar configuração do certificado."
+      );
     } finally {
       setCarregando(false);
     }
@@ -1838,7 +2712,7 @@ const idsParaExcluir =
 
   return Math.max(45, Math.min(75, Math.floor(escalaFinal * 100)));
 }, [baseCanvas, stageSize.width, stageSize.height]);
-  
+
   useEffect(() => {
   setZoom(fitZoom);
 }, [fitZoom, tamanhoPapel, orientacao]);
@@ -2044,7 +2918,7 @@ function atualizarQuantidadeDisciplinasCampo(valor: number) {
       }
 
       setCertificadoTemplateUrl(data.url || "");
-      
+
       setCertificadoPreviewUrl(
   data.previewUrl ||
     data.certificadoPreviewUrl ||
@@ -3854,7 +4728,7 @@ function atualizarCamposAlvo(chave: keyof CampoCertificado, valor: any) {
     )
   );
 }
- 
+
 function temSelecaoTextoLivreSalva() {
   return (
     campoSelecionado?.tipo === "TEXTO_LIVRE" &&
@@ -4317,7 +5191,7 @@ const cropBaseH =
   (campo as any).cropBaseH ||
   alturaInicial + cropInicial.top + cropInicial.bottom;
 
-  
+
   const move = (ev: globalThis.MouseEvent) => {
     const dx = ev.clientX - startX;
     const dy = ev.clientY - startY;
@@ -4558,7 +5432,7 @@ function iniciarRotacao(e: React.MouseEvent, campo: CampoCertificado) {
 
     const largura = campo.largura || 220;
     const altura = campo.altura || 40;
-    
+
     let novoX =
   (event.clientX - canvasRect.left) / escala - dragRef.current.offsetX;
 let novoY =
@@ -4602,7 +5476,7 @@ if (event.shiftKey) {
 
   return;
 }
-    
+
     setCampos((prev) =>
       prev.map((item) =>
         item.id === dragRef.current?.campoId
@@ -4710,28 +5584,52 @@ function baixarArquivo() {
   }
 }
 
-async function salvarModeloCompleto() {
+async function salvarRascunhoCompleto(
+  opcoes?: {
+    silencioso?: boolean;
+  }
+): Promise<boolean> {
   try {
     setSalvando(true);
+    setMensagemErro("");
 
-    const resConfig = await fetch("/api/admin/configuracoes/certificado", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        certificadoTemplateUrl,
-        certificadoPreviewUrl,
-        certificadoCoordenadorNome,
-        certificadoCidade,
-        certificadoModoFundo: modoFundo,
-        certificadoCorFundoPagina: corFundoPagina,
-        certificadoTamanhoPapel: tamanhoPapel,
-        certificadoOrientacao: orientacao,
-        certificadoLarguraBase: baseCanvas.largura,
-        certificadoAlturaBase: baseCanvas.altura,
-      }),
-    });
+    const modeloId = modeloAtivoIdRef.current;
+    const versaoRascunhoId = versaoRascunhoIdRef.current;
+
+    if (!modeloId || !versaoRascunhoId) {
+      throw new Error(
+        "Nenhum modelo de certificado com rascunho está selecionado."
+      );
+    }
+
+    /*
+     * Salva as configurações visuais somente na versão RASCUNHO.
+     */
+    const resConfig = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}/rascunho`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          templateUrl: certificadoTemplateUrl || null,
+          previewUrl: certificadoPreviewUrl || null,
+          assinaturaUrl: certificadoAssinaturaUrl || null,
+          coordenadorNome:
+            certificadoCoordenadorNome || null,
+          cidade: certificadoCidade || null,
+
+          modoFundo,
+          corFundoPagina,
+          tamanhoPapel,
+          orientacao,
+
+          larguraBase: baseCanvas.largura,
+          alturaBase: baseCanvas.altura,
+        }),
+      }
+    );
 
     const dataConfig = await resConfig.json();
 
@@ -4739,54 +5637,64 @@ async function salvarModeloCompleto() {
       throw new Error(
         dataConfig?.detalhe ||
           dataConfig?.error ||
-          "Erro ao salvar configuração."
+          "Erro ao salvar as configurações do rascunho."
       );
     }
 
-    const camposParaSalvar = campos.filter((campo: any) => {
-      if (campo.id === -999999) return false;
-      if (campo.arrayPreview === true) return false;
-      if (campo.idOriginalArray) return false;
+    const camposParaSalvar = campos.filter(
+      (campo: any) => {
+        if (!campo) return false;
+        if (campo.id === -999999) return false;
+        if (campo.arrayPreview === true) return false;
+        if (campo.idOriginalArray) return false;
+        if (!String(campo.tipo || "").trim()) return false;
 
-      return true;
-    });
+        return true;
+      }
+    );
 
-    const payloadCampos = camposParaSalvar.map((campo: any) => {
-      const idBanco = Number(campo?.bancoId || campo?.id);
+    const payloadCampos = camposParaSalvar.map(
+      (campo: any) => {
+        const campoLimpo: any = {
+          ...campo,
+        };
 
-      const ehIdBancoValido =
-        Number.isFinite(idBanco) && idBanco > 0 && idBanco < 1000000000;
-
-      const campoLimpo: any = {
-        ...campo,
-      };
-
-      delete campoLimpo.dadosJson;
-      delete campoLimpo.tempId;
-      delete campoLimpo.arrayPreview;
-      delete campoLimpo.idOriginalArray;
-
-      if (ehIdBancoValido) {
-        campoLimpo.id = idBanco;
-        campoLimpo.bancoId = idBanco;
-      } else {
+        /*
+         * Remove dados de controle ou pertencentes ao registro antigo.
+         * A API criará novos IDs exclusivamente dentro do RASCUNHO.
+         */
         delete campoLimpo.id;
         delete campoLimpo.bancoId;
+        delete campoLimpo.tempId;
+        delete campoLimpo.arrayPreview;
+        delete campoLimpo.idOriginalArray;
+
+        delete campoLimpo.instituicaoId;
+        delete campoLimpo.certificadoModeloVersaoId;
+        delete campoLimpo.createdAt;
+        delete campoLimpo.updatedAt;
+
+        return campoLimpo;
       }
+    );
 
-      return campoLimpo;
-    });
-
-    const resCampos = await fetch("/api/admin/certificado-campos", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        removerAusentes: true,
-        campos: payloadCampos,
-      }),
-    });
+    /*
+     * Salva somente os campos da versão RASCUNHO selecionada.
+     * A API não tocará no legado nem na versão PUBLICADO.
+     */
+    const resCampos = await fetch(
+      `/api/admin/certificado-campos?versaoId=${versaoRascunhoId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+  removerAusentes: true,
+  campos: payloadCampos,
+}),
+      }
+    );
 
     const dataCampos = await resCampos.json();
 
@@ -4794,35 +5702,130 @@ async function salvarModeloCompleto() {
       throw new Error(
         dataCampos?.detalhe ||
           dataCampos?.error ||
-          "Erro ao salvar campos do certificado."
+          "Erro ao salvar os campos do rascunho."
       );
     }
 
     if (Array.isArray(dataCampos?.campos)) {
-      const camposSalvos = dataCampos.campos.map((campo: any) => {
-        const dados = campo?.dadosJson || {};
+      const camposSalvos = dataCampos.campos.map(
+        (campo: any) => {
+          const dados = campo?.dadosJson || {};
 
-        return {
-          ...campo,
-          ...dados,
-          id: campo.id,
-          bancoId: campo.id,
-        };
-      });
+          return {
+            ...campo,
+            ...dados,
+
+            id: campo.id,
+            bancoId: campo.id,
+          };
+        }
+      );
 
       setCampos(camposSalvos);
       setCampoSelecionadoId(null);
       setCamposSelecionadosIds([]);
       setPontoFormaSelecionado(null);
+      setHistorico([]);
+      setFuturo([]);
     }
 
-    setMensagemSucesso("Modelo de certificado salvo com sucesso!");
-    setTimeout(() => setMensagemSucesso(""), 3000);
+    if (!opcoes?.silencioso) {
+  setMensagemSucesso(
+    "Rascunho salvo com sucesso. A versão publicada usada pelos alunos não foi alterada."
+  );
+
+  setTimeout(() => {
+    setMensagemSucesso("");
+  }, 4000);
+}
+
+return true;
   } catch (error: any) {
-    console.error(error);
-    setMensagemErro(error?.message || "Erro ao salvar modelo.");
+    console.error(
+      "ERRO AO SALVAR RASCUNHO DO CERTIFICADO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao salvar o rascunho do certificado."
+    );
+    return false;
   } finally {
     setSalvando(false);
+  }
+}
+
+async function publicarModeloFinal() {
+  try {
+    setPublicando(true);
+    setMensagemErro("");
+
+    const modeloId = modeloAtivoIdRef.current;
+
+    if (!modeloId) {
+      throw new Error(
+        "Nenhum modelo de certificado está selecionado."
+      );
+    }
+
+    /*
+     * Antes de publicar, salva tudo o que está atualmente
+     * aberto no editor dentro do RASCUNHO.
+     */
+    const rascunhoSalvo =
+      await salvarRascunhoCompleto({
+        silencioso: true,
+      });
+
+    if (!rascunhoSalvo) {
+      return;
+    }
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}/publicar`,
+      {
+        method: "POST",
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao publicar o modelo final."
+      );
+    }
+
+    setModalPublicacaoAberto(false);
+
+    const totalCampos = Number(
+      dados?.publicacao?.totalCampos || 0
+    );
+
+    setMensagemSucesso(
+      totalCampos > 0
+        ? `Modelo final publicado com sucesso. ${totalCampos} elementos foram enviados para a versão publicada.`
+        : "Modelo final publicado com sucesso."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 5000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO PUBLICAR MODELO FINAL:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao publicar o modelo final."
+    );
+  } finally {
+    setPublicando(false);
   }
 }
 
@@ -5149,6 +6152,334 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
         </div>
       </div>
 
+<div className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <p className="text-sm font-semibold uppercase tracking-[0.18em] text-blue-700">
+        Modelos de certificado
+      </p>
+
+      <h2 className="mt-2 text-2xl font-black text-slate-900">
+        Modelo aberto no editor
+      </h2>
+
+      <p className="mt-1 text-sm text-slate-500">
+        Salve o rascunho antes de trocar para outro
+        modelo.
+      </p>
+    </div>
+
+    <div className="flex flex-wrap items-center gap-3">
+      <span className="phanyx-cert-modelos-contador rounded-full border px-4 py-2 text-sm font-bold">
+  {resumoModelos.utilizados} de{" "}
+  {resumoModelos.limite} utilizados
+</span>
+
+      <button
+        type="button"
+        onClick={() =>
+          setNovoModeloFormAberto(
+            (anterior) => !anterior
+          )
+        }
+        disabled={
+          !resumoModelos.podeCriar ||
+          criandoModelo ||
+          salvando ||
+          publicando
+        }
+        className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+      >
+        + Novo modelo
+      </button>
+    </div>
+  </div>
+
+  <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(280px,1fr)_minmax(280px,1fr)]">
+    <div>
+      <label className="mb-2 block text-sm font-bold text-slate-700">
+        Selecionar modelo
+      </label>
+
+      <div className="relative">
+  <button
+    type="button"
+    disabled={
+      trocandoModelo ||
+      salvando ||
+      publicando
+    }
+    onClick={() =>
+      setMenuModelosAberto(
+        (aberto) => !aberto
+      )
+    }
+    className="phanyx-cert-modelo-seletor flex w-full items-center justify-between gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-left text-sm font-semibold text-slate-900 outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    <span className="truncate">
+      {modeloAtivo?.nome ||
+        "Selecionar modelo"}
+    </span>
+
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={`h-5 w-5 shrink-0 transition ${
+        menuModelosAberto
+          ? "rotate-180"
+          : ""
+      }`}
+    >
+      <path
+        fillRule="evenodd"
+        d="M5.23 7.21a.75.75 0 0 1 1.06.02L10 11.168l3.71-3.938a.75.75 0 1 1 1.08 1.04l-4.25 4.51a.75.75 0 0 1-1.08 0l-4.25-4.51a.75.75 0 0 1 .02-1.06Z"
+        clipRule="evenodd"
+      />
+    </svg>
+  </button>
+
+  {menuModelosAberto && (
+    <div className="phanyx-cert-modelo-menu absolute left-0 right-0 top-full z-[200] mt-2 max-h-72 overflow-y-auto rounded-xl border border-slate-200 bg-white p-1.5 shadow-2xl">
+      {modelosCertificado.map(
+        (modelo: any) => {
+          const selecionado =
+            Number(modelo.id) ===
+            Number(modeloAtivoId);
+
+          return (
+            <button
+              key={modelo.id}
+              type="button"
+              onClick={() => {
+                setMenuModelosAberto(false);
+
+                if (!selecionado) {
+                  void abrirModeloCertificado(
+                    Number(modelo.id)
+                  );
+                }
+              }}
+              className={`phanyx-cert-modelo-opcao flex w-full items-center justify-between gap-3 rounded-lg px-4 py-3 text-left text-sm font-semibold transition ${
+                selecionado
+                  ? "is-active"
+                  : ""
+              }`}
+            >
+              <span className="truncate">
+                {modelo.nome}
+              </span>
+
+              {selecionado && (
+                <span
+                  className="text-base"
+                  aria-label="Modelo selecionado"
+                >
+                  ✓
+                </span>
+              )}
+            </button>
+          );
+        }
+      )}
+    </div>
+  )}
+</div>
+
+      {trocandoModelo && (
+        <p className="mt-2 text-xs font-semibold text-blue-600">
+          Abrindo modelo...
+        </p>
+      )}
+    </div>
+
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+  <div className="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+        Modelo atual
+      </p>
+
+      <p className="mt-1 text-lg font-black text-slate-900">
+        {modeloAtivo?.nome ||
+          "Nenhum modelo selecionado"}
+      </p>
+
+      {modeloAtivo?.descricao && (
+        <p className="mt-1 text-sm text-slate-600">
+          {modeloAtivo.descricao}
+        </p>
+      )}
+    </div>
+
+    <div className="flex flex-wrap gap-2">
+      {modeloAtivo?.padraoGeral && (
+        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
+          Padrão geral
+        </span>
+      )}
+
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-bold ${
+          modeloAtivo?.publicadoEm
+            ? "bg-green-100 text-green-800"
+            : "bg-amber-100 text-amber-800"
+        }`}
+      >
+        {modeloAtivo?.publicadoEm
+          ? "Publicado"
+          : "Somente rascunho"}
+      </span>
+    </div>
+  </div>
+
+  {modeloAtivo && (
+    <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-slate-300/50 pt-4">
+      <button
+        type="button"
+        onClick={abrirEdicaoModeloAtual}
+        disabled={
+          salvandoDadosModelo ||
+          definindoPadraoModelo ||
+          arquivandoModelo ||
+          salvando ||
+          publicando ||
+          trocandoModelo
+        }
+        className="phanyx-cert-modelo-editar-btn inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Editar dados
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          void definirModeloAtualComoPadraoGeral();
+        }}
+        disabled={
+          modeloAtivo.padraoGeral === true ||
+          salvandoDadosModelo ||
+          definindoPadraoModelo ||
+          arquivandoModelo ||
+          salvando ||
+          publicando ||
+          trocandoModelo
+        }
+        className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
+          modeloAtivo.padraoGeral
+            ? "bg-slate-500"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
+      >
+        {definindoPadraoModelo
+          ? "Definindo..."
+          : modeloAtivo.padraoGeral
+            ? "Padrão geral atual"
+            : "Definir como padrão geral"}
+      </button>
+
+      <button
+        type="button"
+        onClick={solicitarArquivamentoModeloAtual}
+        disabled={
+          salvandoDadosModelo ||
+          definindoPadraoModelo ||
+          arquivandoModelo ||
+          salvando ||
+          publicando ||
+          trocandoModelo
+        }
+        className="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-500 bg-transparent px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {arquivandoModelo
+          ? "Arquivando..."
+          : "Arquivar modelo"}
+      </button>
+    </div>
+  )}
+</div>
+  </div>
+
+  {novoModeloFormAberto && (
+    <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div>
+          <label className="mb-2 block text-sm font-bold text-slate-700">
+            Nome do novo modelo
+          </label>
+
+          <input
+            type="text"
+            value={novoModeloNome}
+            onChange={(evento) =>
+              setNovoModeloNome(
+                evento.target.value
+              )
+            }
+            placeholder="Ex.: Certificado de Extensão"
+            maxLength={120}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500"
+          />
+        </div>
+
+        <div>
+          <label className="mb-2 block text-sm font-bold text-slate-700">
+            Descrição
+          </label>
+
+          <input
+            type="text"
+            value={novoModeloDescricao}
+            onChange={(evento) =>
+              setNovoModeloDescricao(
+                evento.target.value
+              )
+            }
+            placeholder="Descrição opcional"
+            maxLength={500}
+            className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          disabled={criandoModelo}
+          onClick={() => {
+            setNovoModeloFormAberto(false);
+            setNovoModeloNome("");
+            setNovoModeloDescricao("");
+          }}
+          className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={criandoModelo}
+          onClick={() => {
+            void criarNovoModeloCertificado();
+          }}
+          className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {criandoModelo
+            ? "Criando..."
+            : "Criar modelo"}
+        </button>
+      </div>
+    </div>
+  )}
+
+  {!resumoModelos.podeCriar && (
+    <p className="mt-4 text-xs font-semibold text-amber-700">
+      O limite de {resumoModelos.limite} modelo(s)
+      do Plano {resumoModelos.plano} foi atingido.
+    </p>
+  )}
+</div>
+
       <div className="mb-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
@@ -5186,13 +6517,45 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
 
           <div className="mt-4 flex flex-wrap gap-3">
             <button
-              type="button"
-              onClick={fazerUploadModelo}
-              disabled={enviandoArquivo}
-              className="rounded-xl bg-slate-900 px-5 py-3 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
-            >
-              {enviandoArquivo ? "Enviando PDF..." : "Enviar modelo PDF"}
-            </button>
+  type="button"
+  onClick={fazerUploadModelo}
+  disabled={enviandoArquivo}
+  className="phanyx-certificado-upload-pdf-btn"
+>
+  {enviandoArquivo ? (
+    <>
+      <span
+        className="phanyx-certificado-upload-spinner"
+        aria-hidden="true"
+      />
+      Enviando PDF...
+    </>
+  ) : (
+    <>
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="h-5 w-5"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M12 16V4m0 0-4 4m4-4 4 4"
+        />
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"
+        />
+      </svg>
+
+      Enviar modelo PDF
+    </>
+  )}
+</button>
           </div>
 
           <p className="mt-3 text-xs text-slate-500">
@@ -5203,12 +6566,12 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
       </div>
 
       <section
-      
+
   id="editor-certificado"
   className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
 
-<div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
+<div className="phanyx-certificado-toolbar sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
             <button
@@ -5341,26 +6704,40 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
 </span>
           </div>
 
-          <div className="relative">
+          <div className="relative flex flex-wrap items-center justify-end gap-2">
   <button
     type="button"
     onClick={() => setMenuDownloadAberto((prev) => !prev)}
-    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+    className="inline-flex min-h-9 items-center justify-center rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-green-700"
   >
     Baixar
   </button>
 
 <button
-  onClick={salvarModeloCompleto}
-  className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
+  type="button"
+  onClick={() => {
+    void salvarRascunhoCompleto();
+  }}
+  disabled={salvando || publicando}
+  className="inline-flex min-h-9 items-center justify-center rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
-  Salvar modelo
+  {salvando ? "Salvando..." : "Salvar rascunho"}
+</button>
+
+<button
+  type="button"
+  onClick={() => setModalPublicacaoAberto(true)}
+  disabled={salvando || publicando}
+  className="inline-flex min-h-9 items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {publicando ? "Publicando..." : "Publicar final"}
 </button>
 
 <button
   type="button"
   onClick={() => setPreviewAberto(true)}
-  className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+  disabled={salvando || publicando}
+  className="inline-flex min-h-9 items-center justify-center rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
   Visualizar
 </button>
@@ -5408,7 +6785,7 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
       : "lg:grid-cols-[minmax(0,1fr)_300px]"
   }`}
 >
-           
+
           {mostrarPainelCampos && !modoAmplo && (
             <aside className="max-h-[calc(100vh-360px)] overflow-y-auto border-b border-slate-200 bg-slate-50 p-5 lg:border-b-0 lg:border-r">
               <div className="mb-4 flex flex-col gap-3 pr-20">
@@ -5551,7 +6928,7 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
   </div>
 </div>
 
-                
+
               </div>
 
               <div className="mb-4 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
@@ -5695,7 +7072,7 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
             className="h-14 w-full object-contain"
           />
         </button>
-      
+
       ))}
     </div>
   </details>
@@ -6453,16 +7830,20 @@ contornoEspessura: 2,
 </button>
 
       <button
-        type="button"
-        onClick={() => {
-          setCamposSelecionadosIds(
-            campoSelecionadoId ? [campoSelecionadoId] : []
-          );
-        }}
-        className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
-      >
-        Fechar seleção
-      </button>
+  type="button"
+  onMouseDown={(e) => {
+    e.stopPropagation();
+  }}
+  onClick={(e) => {
+    e.stopPropagation();
+
+    setCamposSelecionadosIds([]);
+    setCampoSelecionadoId(null);
+  }}
+  className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
+>
+  Fechar seleção
+</button>
     </div>
   </div>
 )}
@@ -6478,7 +7859,7 @@ contornoEspessura: 2,
   if (e.target === e.currentTarget) {
     setCamposSelecionadosIds([]);
     setCampoSelecionadoId(null);
-    
+
   }
 
   iniciarArrastoCanvas(e);
@@ -6564,7 +7945,7 @@ onMouseLeave={() => {
       width: `${caixaDoGrupoSelecionado.largura}px`,
       height: `${caixaDoGrupoSelecionado.altura}px`,
       backgroundColor: "transparent",
-      boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)", 
+      boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)",
     }}
   />
 )}
@@ -6578,7 +7959,7 @@ onMouseLeave={() => {
       width: `${caixaDoGrupoSelecionado.largura}px`,
       height: `${caixaDoGrupoSelecionado.altura}px`,
       backgroundColor: "transparent",
-      boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)", 
+      boxShadow: "0 0 0 2px rgba(37, 99, 235, 0.35)",
     }}
   />
 )}
@@ -6679,7 +8060,7 @@ onMouseLeave={() => {
       Number(a.ordem || 0) - Number(b.ordem || 0)
   )
   .map((c) => {
-    
+
 
  if (c.tipo === "IMAGEM") {
   const selecionadoImagem = camposSelecionadosIds.includes(c.id);
@@ -6689,7 +8070,7 @@ onMouseLeave={() => {
       key={c.id}
       onMouseDown={(event) => {
   event.stopPropagation();
-   
+
   if (event.button === 2) return;
 
   if (event.shiftKey || event.ctrlKey || event.metaKey) {
@@ -6948,7 +8329,7 @@ className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-re
   scaleX(${(c as any).flipX ? -1 : 1})
   scaleY(${(c as any).flipY ? -1 : 1})
 `,
-        
+
         boxShadow: (() => {
   if (!c.sombraAtiva) return "none";
 
@@ -6968,7 +8349,7 @@ className="absolute bottom-[-12px] right-[-12px] z-[999999] h-6 w-6 cursor-se-re
       <div
   className="relative h-full w-full overflow-visible"
   onDoubleClick={(e) => {
-        
+
     if (!(c as any).usarGradiente) return;
 
     e.stopPropagation();
@@ -7480,7 +8861,7 @@ altura: ev.shiftKey
 
         </>
       )}
-      
+
     </div>
   );
 }
@@ -8159,7 +9540,7 @@ alignItems: c.tipo === "DISCIPLINAS_CONCLUIDAS" ? undefined : "center",
     </div>
   );
 })}
-  
+
 </div>
               </div>
             </div>
@@ -9577,7 +10958,7 @@ atualizarCampoLocal("tamanho", tamanho);
                     <option value="right">Direita</option>
                   </select>
                   </div>
-    
+
                 <div className="rounded-2xl border border-slate-200 bg-white">
   <button
     type="button"
@@ -9911,7 +11292,7 @@ atualizarCampoLocal("tamanho", tamanho);
 )}
 
         </div>
-        
+
       </section>
 
       <div className="mt-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -9964,12 +11345,17 @@ atualizarCampoLocal("tamanho", tamanho);
 
           <div className="pt-2">
             <button
-              onClick={salvarConfiguracao}
-              disabled={salvando}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {salvando ? "Salvando..." : "Salvar configuração"}
-            </button>
+  type="button"
+  onClick={() => {
+  void salvarRascunhoCompleto();
+}}
+  disabled={salvando}
+  className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {salvando
+    ? "Salvando..."
+    : "Salvar dados do rascunho"}
+</button>
           </div>
         </div>
       </div>
@@ -10850,11 +12236,364 @@ atualizarContornoTextoCampoSelecionado({
     </button>
   </div>
 )}
-{mensagemSucesso && (
-  <div className="fixed right-6 top-24 z-[9999] rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-xl">
-    {mensagemSucesso}
+
+{modalEditarModeloAberto && (
+  <div
+    className="fixed inset-0 z-[10000010] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+    onMouseDown={() => {
+      if (!salvandoDadosModelo) {
+        setModalEditarModeloAberto(false);
+      }
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-editar-modelo-certificado"
+      className="phanyx-cert-modelo-modal w-full max-w-xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-white shadow-2xl"
+      onMouseDown={(evento) => {
+        evento.stopPropagation();
+      }}
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-slate-700 px-6 py-5">
+        <div>
+          <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-blue-800">
+            Modelo de certificado
+          </span>
+
+          <h2
+            id="titulo-editar-modelo-certificado"
+            className="mt-3 text-xl font-black"
+          >
+            Editar dados do modelo
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-300">
+            Altere o nome e a descrição. O conteúdo visual do
+            certificado não será modificado.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Fechar"
+          disabled={salvandoDadosModelo}
+          onClick={() => {
+            setModalEditarModeloAberto(false);
+          }}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-600 text-xl font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="space-y-5 px-6 py-6">
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label
+              htmlFor="nome-modelo-certificado"
+              className="text-sm font-bold"
+            >
+              Nome do modelo
+            </label>
+
+            <span className="text-xs text-slate-400">
+              {nomeModeloEditando.length}/120
+            </span>
+          </div>
+
+          <input
+            id="nome-modelo-certificado"
+            type="text"
+            value={nomeModeloEditando}
+            maxLength={120}
+            disabled={salvandoDadosModelo}
+            onChange={(evento) => {
+              setNomeModeloEditando(evento.target.value);
+            }}
+            placeholder="Ex.: Certificado de Extensão"
+            className="phanyx-cert-modelo-modal-input w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label
+              htmlFor="descricao-modelo-certificado"
+              className="text-sm font-bold"
+            >
+              Descrição
+            </label>
+
+            <span className="text-xs text-slate-400">
+              {descricaoModeloEditando.length}/500
+            </span>
+          </div>
+
+          <textarea
+            id="descricao-modelo-certificado"
+            value={descricaoModeloEditando}
+            maxLength={500}
+            rows={4}
+            disabled={salvandoDadosModelo}
+            onChange={(evento) => {
+              setDescricaoModeloEditando(evento.target.value);
+            }}
+            placeholder="Informe para que este modelo será utilizado."
+            className="phanyx-cert-modelo-modal-input w-full resize-none rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-700 bg-slate-950/40 px-6 py-5">
+        <button
+          type="button"
+          disabled={salvandoDadosModelo}
+          onClick={() => {
+            setModalEditarModeloAberto(false);
+          }}
+          className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-bold text-slate-100 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            salvandoDadosModelo ||
+            nomeModeloEditando.trim().length < 3
+          }
+          onClick={() => {
+            void salvarDadosModeloAtual();
+          }}
+          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {salvandoDadosModelo
+            ? "Salvando..."
+            : "Salvar alterações"}
+        </button>
+      </div>
+    </div>
   </div>
 )}
+
+{modalArquivarModeloAberto && (
+  <div
+    className="fixed inset-0 z-[10000010] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+    onMouseDown={() => {
+      if (!arquivandoModelo) {
+        setModalArquivarModeloAberto(false);
+      }
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-arquivar-modelo-certificado"
+      className="w-full max-w-xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-white shadow-2xl"
+      onMouseDown={(evento) => {
+        evento.stopPropagation();
+      }}
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-slate-700 px-6 py-5">
+        <div>
+          <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-red-800">
+            Arquivamento
+          </span>
+
+          <h2
+            id="titulo-arquivar-modelo-certificado"
+            className="mt-3 text-xl font-black"
+          >
+            Arquivar este modelo?
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-300">
+            O modelo será retirado da lista de modelos ativos,
+            mas seu histórico e suas versões serão preservados.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Fechar"
+          disabled={arquivandoModelo}
+          onClick={() => {
+            setModalArquivarModeloAberto(false);
+          }}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-600 text-xl font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="space-y-4 px-6 py-6">
+        <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+            Modelo selecionado
+          </p>
+
+          <p className="mt-1 text-lg font-black text-white">
+            {modeloAtivo?.nome || "Modelo de certificado"}
+          </p>
+
+          {modeloAtivo?.descricao && (
+            <p className="mt-1 text-sm text-slate-300">
+              {modeloAtivo.descricao}
+            </p>
+          )}
+        </div>
+
+        {modeloAtivo?.padraoGeral && (
+          <div className="rounded-2xl border border-amber-400 bg-amber-50 p-4 text-amber-950">
+            <p className="font-bold">
+              Atenção: este é o padrão geral atual.
+            </p>
+
+            <p className="mt-1 text-sm">
+              Ao arquivá-lo, ele deixará de ser o modelo padrão.
+              Defina outro modelo como padrão geral depois do
+              arquivamento.
+            </p>
+          </div>
+        )}
+
+        <p className="text-sm text-slate-300">
+          Modelos vinculados a cursos não podem ser arquivados.
+          Nesse caso, o sistema exibirá a orientação necessária
+          sem apagar nenhuma informação.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-700 bg-slate-950/40 px-6 py-5">
+        <button
+          type="button"
+          disabled={arquivandoModelo}
+          onClick={() => {
+            setModalArquivarModeloAberto(false);
+          }}
+          className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-bold text-slate-100 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={arquivandoModelo}
+          onClick={() => {
+            void arquivarModeloAtual();
+          }}
+          className="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {arquivandoModelo
+            ? "Arquivando..."
+            : "Arquivar modelo"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{modalPublicacaoAberto && (
+  <div
+    className="fixed inset-0 z-[10000000] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+    onMouseDown={() => {
+      if (!publicando) {
+        setModalPublicacaoAberto(false);
+      }
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-publicar-certificado"
+      className="phanyx-cert-publicar-modal w-full max-w-xl overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      onMouseDown={(evento) => {
+        evento.stopPropagation();
+      }}
+    >
+      <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="mb-2 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-800">
+              Publicação
+            </span>
+
+            <h2
+              id="titulo-publicar-certificado"
+              className="text-xl font-black"
+            >
+              Publicar modelo final?
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            disabled={publicando}
+            onClick={() =>
+              setModalPublicacaoAberto(false)
+            }
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-xl font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-4 px-6 py-5">
+        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+          O rascunho atual será salvo e substituirá a versão
+          publicada deste modelo.
+        </p>
+
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+          <strong>Atenção:</strong> os alunos e as novas
+          emissões passarão a usar esta versão depois da
+          publicação.
+        </div>
+
+        <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+          Certificados em PDF que já foram emitidos e
+          armazenados não serão modificados.
+        </p>
+      </div>
+
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-700 dark:bg-slate-950/40">
+        <button
+          type="button"
+          disabled={publicando}
+          onClick={() =>
+            setModalPublicacaoAberto(false)
+          }
+          className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={publicando}
+          onClick={publicarModeloFinal}
+          className="inline-flex min-w-[170px] items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {publicando ? (
+            <>
+              <span
+                className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950"
+                aria-hidden="true"
+              />
+              Publicando...
+            </>
+          ) : (
+            "Publicar modelo final"
+          )}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
