@@ -1269,6 +1269,15 @@ if (alvo.closest("[data-campo-certificado-id]")) {
 const [modelosCertificado, setModelosCertificado] =
   useState<any[]>([]);
 
+  const [modelosArquivados, setModelosArquivados] =
+  useState<any[]>([]);
+
+const [modalArquivadosAberto, setModalArquivadosAberto] =
+  useState(false);
+
+const [restaurandoModeloId, setRestaurandoModeloId] =
+  useState<number | null>(null);
+
 const [modeloAtivoId, setModeloAtivoId] =
   useState<number | null>(null);
 
@@ -1821,15 +1830,24 @@ async function recarregarListaModelosCertificado() {
     );
   }
 
-  const modelosAtivos = Array.isArray(dados?.modelos)
-    ? dados.modelos.filter(
-        (modelo: any) =>
-          modelo?.ativo === true &&
-          modelo?.arquivado !== true
-      )
-    : [];
+  const todosModelos = Array.isArray(dados?.modelos)
+  ? dados.modelos
+  : [];
 
-  setModelosCertificado(modelosAtivos);
+const modelosAtivos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.ativo === true &&
+    modelo?.arquivado !== true
+);
+
+const modelosArquivadosRecebidos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.arquivado === true ||
+    modelo?.ativo === false
+);
+
+setModelosCertificado(modelosAtivos);
+setModelosArquivados(modelosArquivadosRecebidos);
 
   setResumoModelos({
     plano: String(
@@ -2369,18 +2387,26 @@ async function arquivarModeloAtual() {
         );
       }
 
-      const modelosAtivos = Array.isArray(
-        dataModelos?.modelos
-      )
-        ? dataModelos.modelos.filter(
-            (modelo: any) =>
-              modelo?.ativo === true &&
-              modelo?.arquivado !== true
-          )
-        : [];
+      const todosModelos = Array.isArray(
+  dataModelos?.modelos
+)
+  ? dataModelos.modelos
+  : [];
 
-        setModelosCertificado(modelosAtivos);
+const modelosAtivos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.ativo === true &&
+    modelo?.arquivado !== true
+);
 
+const modelosArquivadosRecebidos = todosModelos.filter(
+  (modelo: any) =>
+    modelo?.arquivado === true ||
+    modelo?.ativo === false
+);
+
+setModelosCertificado(modelosAtivos);
+setModelosArquivados(modelosArquivadosRecebidos);
 setResumoModelos({
   plano: String(
     dataModelos?.resumo?.plano || "ESSENCIAL"
