@@ -4907,28 +4907,48 @@ function baixarArquivo() {
   }
 }
 
-async function salvarModeloCompleto() {
+async function salvarRascunhoCompleto() {
   try {
     setSalvando(true);
+    setMensagemErro("");
 
-    const resConfig = await fetch("/api/admin/configuracoes/certificado", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        certificadoTemplateUrl,
-        certificadoPreviewUrl,
-        certificadoCoordenadorNome,
-        certificadoCidade,
-        certificadoModoFundo: modoFundo,
-        certificadoCorFundoPagina: corFundoPagina,
-        certificadoTamanhoPapel: tamanhoPapel,
-        certificadoOrientacao: orientacao,
-        certificadoLarguraBase: baseCanvas.largura,
-        certificadoAlturaBase: baseCanvas.altura,
-      }),
-    });
+    const modeloId = modeloAtivoIdRef.current;
+    const versaoRascunhoId = versaoRascunhoIdRef.current;
+
+    if (!modeloId || !versaoRascunhoId) {
+      throw new Error(
+        "Nenhum modelo de certificado com rascunho está selecionado."
+      );
+    }
+
+    /*
+     * Salva as configurações visuais somente na versão RASCUNHO.
+     */
+    const resConfig = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}/rascunho`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          templateUrl: certificadoTemplateUrl || null,
+          previewUrl: certificadoPreviewUrl || null,
+          assinaturaUrl: certificadoAssinaturaUrl || null,
+          coordenadorNome:
+            certificadoCoordenadorNome || null,
+          cidade: certificadoCidade || null,
+
+          modoFundo,
+          corFundoPagina,
+          tamanhoPapel,
+          orientacao,
+
+          larguraBase: baseCanvas.largura,
+          alturaBase: baseCanvas.altura,
+        }),
+      }
+    );
 
     const dataConfig = await resConfig.json();
 
@@ -4936,54 +4956,64 @@ async function salvarModeloCompleto() {
       throw new Error(
         dataConfig?.detalhe ||
           dataConfig?.error ||
-          "Erro ao salvar configuração."
+          "Erro ao salvar as configurações do rascunho."
       );
     }
 
-    const camposParaSalvar = campos.filter((campo: any) => {
-      if (campo.id === -999999) return false;
-      if (campo.arrayPreview === true) return false;
-      if (campo.idOriginalArray) return false;
+    const camposParaSalvar = campos.filter(
+      (campo: any) => {
+        if (!campo) return false;
+        if (campo.id === -999999) return false;
+        if (campo.arrayPreview === true) return false;
+        if (campo.idOriginalArray) return false;
+        if (!String(campo.tipo || "").trim()) return false;
 
-      return true;
-    });
+        return true;
+      }
+    );
 
-    const payloadCampos = camposParaSalvar.map((campo: any) => {
-      const idBanco = Number(campo?.bancoId || campo?.id);
+    const payloadCampos = camposParaSalvar.map(
+      (campo: any) => {
+        const campoLimpo: any = {
+          ...campo,
+        };
 
-      const ehIdBancoValido =
-        Number.isFinite(idBanco) && idBanco > 0 && idBanco < 1000000000;
-
-      const campoLimpo: any = {
-        ...campo,
-      };
-
-      delete campoLimpo.dadosJson;
-      delete campoLimpo.tempId;
-      delete campoLimpo.arrayPreview;
-      delete campoLimpo.idOriginalArray;
-
-      if (ehIdBancoValido) {
-        campoLimpo.id = idBanco;
-        campoLimpo.bancoId = idBanco;
-      } else {
+        /*
+         * Remove dados de controle ou pertencentes ao registro antigo.
+         * A API criará novos IDs exclusivamente dentro do RASCUNHO.
+         */
         delete campoLimpo.id;
         delete campoLimpo.bancoId;
+        delete campoLimpo.tempId;
+        delete campoLimpo.arrayPreview;
+        delete campoLimpo.idOriginalArray;
+
+        delete campoLimpo.instituicaoId;
+        delete campoLimpo.certificadoModeloVersaoId;
+        delete campoLimpo.createdAt;
+        delete campoLimpo.updatedAt;
+
+        return campoLimpo;
       }
+    );
 
-      return campoLimpo;
-    });
-
-    const resCampos = await fetch("/api/admin/certificado-campos", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        removerAusentes: true,
-        campos: payloadCampos,
-      }),
-    });
+    /*
+     * Salva somente os campos da versão RASCUNHO selecionada.
+     * A API não tocará no legado nem na versão PUBLICADO.
+     */
+    const resCampos = await fetch(
+      `/api/admin/certificado-campos?versaoId=${versaoRascunhoId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+  removerAusentes: true,
+  campos: payloadCampos,
+}),
+      }
+    );
 
     const dataCampos = await resCampos.json();
 
@@ -4991,33 +5021,50 @@ async function salvarModeloCompleto() {
       throw new Error(
         dataCampos?.detalhe ||
           dataCampos?.error ||
-          "Erro ao salvar campos do certificado."
+          "Erro ao salvar os campos do rascunho."
       );
     }
 
     if (Array.isArray(dataCampos?.campos)) {
-      const camposSalvos = dataCampos.campos.map((campo: any) => {
-        const dados = campo?.dadosJson || {};
+      const camposSalvos = dataCampos.campos.map(
+        (campo: any) => {
+          const dados = campo?.dadosJson || {};
 
-        return {
-          ...campo,
-          ...dados,
-          id: campo.id,
-          bancoId: campo.id,
-        };
-      });
+          return {
+            ...campo,
+            ...dados,
+
+            id: campo.id,
+            bancoId: campo.id,
+          };
+        }
+      );
 
       setCampos(camposSalvos);
       setCampoSelecionadoId(null);
       setCamposSelecionadosIds([]);
       setPontoFormaSelecionado(null);
+      setHistorico([]);
+      setFuturo([]);
     }
 
-    setMensagemSucesso("Modelo de certificado salvo com sucesso!");
-    setTimeout(() => setMensagemSucesso(""), 3000);
+    setMensagemSucesso(
+      "Rascunho salvo com sucesso. A versão publicada usada pelos alunos não foi alterada."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 4000);
   } catch (error: any) {
-    console.error(error);
-    setMensagemErro(error?.message || "Erro ao salvar modelo.");
+    console.error(
+      "ERRO AO SALVAR RASCUNHO DO CERTIFICADO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao salvar o rascunho do certificado."
+    );
   } finally {
     setSalvando(false);
   }
@@ -5580,10 +5627,12 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
   </button>
 
 <button
-  onClick={salvarModeloCompleto}
-  className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-semibold hover:bg-green-700"
+  type="button"
+  onClick={salvarRascunhoCompleto}
+  disabled={salvando}
+  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
-  Salvar modelo
+  {salvando ? "Salvando..." : "Salvar rascunho"}
 </button>
 
 <button
@@ -10193,12 +10242,15 @@ atualizarCampoLocal("tamanho", tamanho);
 
           <div className="pt-2">
             <button
-              onClick={salvarConfiguracao}
-              disabled={salvando}
-              className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
-            >
-              {salvando ? "Salvando..." : "Salvar configuração"}
-            </button>
+  type="button"
+  onClick={salvarRascunhoCompleto}
+  disabled={salvando}
+  className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {salvando
+    ? "Salvando..."
+    : "Salvar dados do rascunho"}
+</button>
           </div>
         </div>
       </div>
