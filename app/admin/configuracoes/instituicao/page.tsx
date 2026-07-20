@@ -81,6 +81,14 @@ export default function ConfigInstituicaoPage() {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [nomeArquivoLogo, setNomeArquivoLogo] = useState("");
   const [ajudaLogoAberta, setAjudaLogoAberta] = useState(false);
+  const [menuLogoAberto, setMenuLogoAberto] = useState(false);
+  const [menuAssinaturaAberto, setMenuAssinaturaAberto] = useState(false);
+
+  const [confirmacaoExclusao, setConfirmacaoExclusao] = useState<
+  "logo" | "assinatura" | null
+>(null);
+
+  const [excluindoImagem, setExcluindoImagem] = useState(false);
   const [nomeArquivoPapelTimbrado, setNomeArquivoPapelTimbrado] =
     useState("");
   const [mensagem, setMensagem] = useState("");
@@ -97,6 +105,51 @@ export default function ConfigInstituicaoPage() {
   const layoutSelecionado = normalizarLayoutProfissional(
     form.estiloPapelTimbrado || form.estiloDocumento
   );
+
+  function montarPayloadConfiguracao(
+  alteracoes: Partial<ConfigInstituicao> = {}
+) {
+  const dados = {
+    ...form,
+    ...alteracoes,
+  };
+
+  const layout = normalizarLayoutProfissional(
+    dados.estiloPapelTimbrado || dados.estiloDocumento
+  );
+
+  return {
+    nomeFantasia: dados.nomeFantasia || "",
+    razaoSocial: dados.razaoSocial || "",
+    cnpj: dados.cnpj || "",
+    telefone: dados.telefone || "",
+    email: dados.email || "",
+    cep: dados.cep || "",
+    endereco: dados.endereco || "",
+    numero: dados.numero || "",
+    cidade: dados.cidade || "",
+    estado: dados.estado || "",
+
+    responsavelNome: dados.responsavelNome || "",
+    responsavelCargo: dados.responsavelCargo || "",
+    cidadeAssinatura: dados.cidadeAssinatura || "",
+
+    logoUrl: dados.logoUrl || "",
+    certificadoAssinaturaUrl:
+      dados.certificadoAssinaturaUrl || "",
+
+    contratoTemplate: dados.contratoTemplate || "",
+    observacoesContrato: dados.observacoesContrato || "",
+
+    estiloDocumento: layout,
+    estiloPapelTimbrado: layout,
+
+    usarPapelTimbrado: Boolean(dados.usarPapelTimbrado),
+    papelTimbradoUrl: dados.papelTimbradoUrl || "",
+
+    corRelatorio: dados.corRelatorio || "AZUL",
+  };
+}
 
   async function carregar() {
     try {
@@ -300,6 +353,7 @@ setForm((prev) => ({
     }));
 
     setMensagem("Logo enviada e salva com sucesso.");
+    setMenuLogoAberto(false);
   } catch (error: any) {
     console.error("ERRO AO ENVIAR LOGO:", error);
 
@@ -421,10 +475,102 @@ async function enviarAssinaturaDiretor(file: File) {
     }
 
     setMensagem("Assinatura do diretor enviada e salva com sucesso.");
+    setMenuAssinaturaAberto(false);
   } catch (error: any) {
     setMensagem(error?.message || "Erro ao enviar assinatura do diretor.");
   } finally {
     setEnviandoAssinatura(false);
+  }
+}
+
+async function excluirImagemInstitucional(
+  tipo: "logo" | "assinatura"
+) {
+  try {
+    setExcluindoImagem(true);
+    setMensagem("");
+
+    const alteracoes: Partial<ConfigInstituicao> =
+      tipo === "logo"
+        ? { logoUrl: "" }
+        : { certificadoAssinaturaUrl: "" };
+
+    const payload = montarPayloadConfiguracao(alteracoes);
+
+    const res = await fetch(
+      "/api/admin/configuracoes/instituicao",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const textoResposta = await res.text();
+
+    let data: any = {};
+
+    try {
+      data = textoResposta
+        ? JSON.parse(textoResposta)
+        : {};
+    } catch {
+      throw new Error(
+        textoResposta ||
+          `O servidor retornou uma resposta inválida (${res.status}).`
+      );
+    }
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          data?.message ||
+          "Não foi possível excluir a imagem."
+      );
+    }
+
+    const configSalva = data?.config || data;
+
+    if (tipo === "logo") {
+      setForm((prev) => ({
+        ...prev,
+        ...configSalva,
+        logoUrl: "",
+      }));
+
+      setNomeArquivoLogo("");
+      setMenuLogoAberto(false);
+      setMensagem("Logo excluída com sucesso.");
+    } else {
+      setForm((prev) => ({
+        ...prev,
+        ...configSalva,
+        certificadoAssinaturaUrl: "",
+      }));
+
+      setNomeArquivoAssinatura("");
+      setMenuAssinaturaAberto(false);
+      setMensagem(
+        "Assinatura do diretor excluída com sucesso."
+      );
+    }
+
+    setConfirmacaoExclusao(null);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO EXCLUIR IMAGEM INSTITUCIONAL:",
+      error
+    );
+
+    setMensagem(
+      error?.message ||
+        "Não foi possível excluir a imagem."
+    );
+  } finally {
+    setExcluindoImagem(false);
   }
 }
 
@@ -946,6 +1092,51 @@ async function enviarAssinaturaDiretor(file: File) {
 
   return (
     <>
+    {confirmacaoExclusao && (
+  <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-slate-950/70 p-4">
+    <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+      <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+        {confirmacaoExclusao === "logo"
+          ? "Excluir logo?"
+          : "Excluir assinatura do diretor?"}
+      </h2>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+        {confirmacaoExclusao === "logo"
+          ? "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
+          : "A assinatura deixará de aparecer nos certificados e documentos institucionais."}
+      </p>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={() =>
+            setConfirmacaoExclusao(null)
+          }
+          disabled={excluindoImagem}
+          className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:text-slate-200 dark:hover:bg-slate-800"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            excluirImagemInstitucional(
+              confirmacaoExclusao
+            )
+          }
+          disabled={excluindoImagem}
+          className="rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+        >
+          {excluindoImagem
+            ? "Excluindo..."
+            : "Excluir"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {previewAmpliada && (
         <div className="fixed inset-0 z-[9999] bg-slate-950/70 p-4">
           <div className="mx-auto flex h-full max-w-5xl flex-col justify-center">
@@ -1238,25 +1429,72 @@ async function enviarAssinaturaDiretor(file: File) {
 
           <div className="space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-3 flex items-center justify-between gap-3">
+              <div className="relative mb-3 flex items-center justify-between gap-3">
   <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
     Logo
   </h2>
 
-  <button
-    type="button"
-    onClick={() => setAjudaLogoAberta((aberta) => !aberta)}
-    aria-label={
-      ajudaLogoAberta
-        ? "Fechar orientações da logo"
-        : "Abrir orientações da logo"
-    }
-    aria-expanded={ajudaLogoAberta}
-    title="Configurações recomendadas para a logo"
-    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-xs font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900"
-  >
-    i
-  </button>
+  <div className="flex items-center gap-2">
+    <button
+      type="button"
+      onClick={() =>
+        setAjudaLogoAberta((aberta) => !aberta)
+      }
+      aria-label={
+        ajudaLogoAberta
+          ? "Fechar orientações da logo"
+          : "Abrir orientações da logo"
+      }
+      aria-expanded={ajudaLogoAberta}
+      title="Configurações recomendadas para a logo"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-xs font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900"
+    >
+      i
+    </button>
+
+    {form.logoUrl && (
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => {
+            setMenuLogoAberto((aberto) => !aberto);
+            setMenuAssinaturaAberto(false);
+          }}
+          aria-label="Editar logo"
+          title="Editar logo"
+          className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
+        >
+          ✏️
+        </button>
+
+        {menuLogoAberto && (
+          <div className="absolute right-0 top-9 z-40 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+            <button
+              type="button"
+              onClick={() => {
+                setMenuLogoAberto(false);
+                inputFileLogoRef.current?.click();
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              🔄 Trocar logo
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setMenuLogoAberto(false);
+                setConfirmacaoExclusao("logo");
+              }}
+              className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+            >
+              🗑️ Excluir logo
+            </button>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
 </div>
 
 {ajudaLogoAberta && (
@@ -1338,6 +1576,7 @@ async function enviarAssinaturaDiretor(file: File) {
                 }}
               />
 
+{!form.logoUrl && (
               <button
                 type="button"
                 onClick={() => inputFileLogoRef.current?.click()}
@@ -1346,6 +1585,7 @@ async function enviarAssinaturaDiretor(file: File) {
               >
                 {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
               </button>
+              )}
 
               <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
   <div>
@@ -1370,9 +1610,56 @@ async function enviarAssinaturaDiretor(file: File) {
             </div>
 
 <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-  <h2 className="mb-3 text-lg font-semibold text-slate-800">
+  <div className="relative mb-3 flex items-center justify-between gap-3">
+  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
     Assinatura do diretor
   </h2>
+
+  {form.certificadoAssinaturaUrl && (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => {
+          setMenuAssinaturaAberto(
+            (aberto) => !aberto
+          );
+          setMenuLogoAberto(false);
+        }}
+        aria-label="Editar assinatura do diretor"
+        title="Editar assinatura do diretor"
+        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
+      >
+        ✏️
+      </button>
+
+      {menuAssinaturaAberto && (
+        <div className="absolute right-0 top-9 z-40 w-52 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+          <button
+            type="button"
+            onClick={() => {
+              setMenuAssinaturaAberto(false);
+              inputFileAssinaturaRef.current?.click();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            🔄 Trocar assinatura
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setMenuAssinaturaAberto(false);
+              setConfirmacaoExclusao("assinatura");
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/40"
+          >
+            🗑️ Excluir assinatura
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
 
   <div className="flex h-28 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50">
   {form.certificadoAssinaturaUrl ? (
@@ -1400,14 +1687,20 @@ async function enviarAssinaturaDiretor(file: File) {
     }}
   />
 
+ {!form.certificadoAssinaturaUrl && (
   <button
     type="button"
-    onClick={() => inputFileAssinaturaRef.current?.click()}
+    onClick={() =>
+      inputFileAssinaturaRef.current?.click()
+    }
     disabled={enviandoAssinatura}
     className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
   >
-    {enviandoAssinatura ? "Enviando assinatura..." : "Selecionar assinatura"}
+    {enviandoAssinatura
+      ? "Enviando assinatura..."
+      : "Selecionar assinatura"}
   </button>
+)}
 
   <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
   <div>
