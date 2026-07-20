@@ -170,150 +170,208 @@ export async function POST(
     }
 
     const resultado = await prisma.$transaction(
-      async (tx) => {
-        /*
-         * Cria a versão PUBLICADO na primeira publicação
-         * ou atualiza suas configurações nas publicações seguintes.
-         */
-        const versaoPublicada =
-          await tx.certificadoModeloVersao.upsert({
-            where: {
-              modeloId_tipo: {
-                modeloId,
-                tipo: TipoVersaoCertificado.PUBLICADO,
+  async (tx) => {
+    /*
+     * Relê o rascunho dentro da transação.
+     * Isso garante que a publicação utilize as configurações
+     * que acabaram de ser salvas pelo editor.
+     */
+    const rascunhoAtual =
+      await tx.certificadoModeloVersao.findFirst({
+        where: {
+          modeloId,
+          tipo: TipoVersaoCertificado.RASCUNHO,
+
+          modelo: {
+            instituicaoId: user.instituicaoId,
+          },
+        },
+
+        include: {
+          campos: {
+            orderBy: [
+              {
+                pagina: "asc",
               },
-            },
-
-            create: {
-              modeloId,
-              tipo: TipoVersaoCertificado.PUBLICADO,
-
-              templateUrl: rascunho.templateUrl,
-              previewUrl: rascunho.previewUrl,
-              textoPadrao: rascunho.textoPadrao,
-              assinaturaUrl: rascunho.assinaturaUrl,
-              coordenadorNome: rascunho.coordenadorNome,
-              cidade: rascunho.cidade,
-
-              modoFundo: rascunho.modoFundo,
-              corFundoPagina: rascunho.corFundoPagina,
-              tamanhoPapel: rascunho.tamanhoPapel,
-              orientacao: rascunho.orientacao,
-              larguraBase: rascunho.larguraBase,
-              alturaBase: rascunho.alturaBase,
-            },
-
-            update: {
-              templateUrl: rascunho.templateUrl,
-              previewUrl: rascunho.previewUrl,
-              textoPadrao: rascunho.textoPadrao,
-              assinaturaUrl: rascunho.assinaturaUrl,
-              coordenadorNome: rascunho.coordenadorNome,
-              cidade: rascunho.cidade,
-
-              modoFundo: rascunho.modoFundo,
-              corFundoPagina: rascunho.corFundoPagina,
-              tamanhoPapel: rascunho.tamanhoPapel,
-              orientacao: rascunho.orientacao,
-              larguraBase: rascunho.larguraBase,
-              alturaBase: rascunho.alturaBase,
-            },
-          });
-
-        /*
-         * Substitui somente os elementos da versão publicada.
-         * O rascunho permanece intacto.
-         */
-        await tx.certificadoCampo.deleteMany({
-          where: {
-            instituicaoId: user.instituicaoId,
-            certificadoModeloVersaoId:
-              versaoPublicada.id,
+              {
+                ordem: "asc",
+              },
+              {
+                id: "asc",
+              },
+            ],
           },
-        });
+        },
+      });
 
-        await tx.certificadoCampo.createMany({
-          data: rascunho.campos.map((campo) => ({
-            instituicaoId: user.instituicaoId,
-            certificadoModeloVersaoId:
-              versaoPublicada.id,
+    if (!rascunhoAtual) {
+      throw new ErroPublicacaoCertificado(
+        "Este modelo não possui uma versão de rascunho.",
+        404
+      );
+    }
 
-            tipo: campo.tipo,
-            x: campo.x,
-            y: campo.y,
-            largura: campo.largura,
-            altura: campo.altura,
+    if (rascunhoAtual.campos.length === 0) {
+      throw new ErroPublicacaoCertificado(
+        "O rascunho está vazio. Adicione elementos antes de publicar.",
+        409
+      );
+    }
 
-            fonte: campo.fonte,
-            tamanho: campo.tamanho,
-            cor: campo.cor,
-            alinhamento: campo.alinhamento,
+    const agora = new Date();
 
-            pagina: campo.pagina,
-            ordem: campo.ordem,
-            lineHeight: campo.lineHeight,
-            marcador: campo.marcador,
-
-            dadosJson:
-              campo.dadosJson === null
-                ? Prisma.JsonNull
-                : campo.dadosJson,
-          })),
-        });
-
-        const agora = new Date();
-
-        await tx.certificadoModelo.update({
-          where: {
-            id: modeloId,
+    /*
+     * Cria a versão PUBLICADO na primeira publicação
+     * ou substitui suas configurações nas próximas.
+     */
+    const versaoPublicada =
+      await tx.certificadoModeloVersao.upsert({
+        where: {
+          modeloId_tipo: {
+            modeloId,
+            tipo: TipoVersaoCertificado.PUBLICADO,
           },
-          data: {
-            publicadoEm: agora,
-            publicadoPorId: user.id,
-          },
-        });
+        },
 
-        const modeloPublicado =
-          await tx.certificadoModelo.findFirst({
-            where: {
-              id: modeloId,
-              instituicaoId: user.instituicaoId,
+        create: {
+          modeloId,
+          tipo: TipoVersaoCertificado.PUBLICADO,
+
+          templateUrl: rascunhoAtual.templateUrl,
+          previewUrl: rascunhoAtual.previewUrl,
+          textoPadrao: rascunhoAtual.textoPadrao,
+          assinaturaUrl: rascunhoAtual.assinaturaUrl,
+          coordenadorNome:
+            rascunhoAtual.coordenadorNome,
+          cidade: rascunhoAtual.cidade,
+
+          modoFundo: rascunhoAtual.modoFundo,
+          corFundoPagina:
+            rascunhoAtual.corFundoPagina,
+          tamanhoPapel: rascunhoAtual.tamanhoPapel,
+          orientacao: rascunhoAtual.orientacao,
+          larguraBase: rascunhoAtual.larguraBase,
+          alturaBase: rascunhoAtual.alturaBase,
+
+          atualizadoEm: agora,
+        },
+
+        update: {
+          templateUrl: rascunhoAtual.templateUrl,
+          previewUrl: rascunhoAtual.previewUrl,
+          textoPadrao: rascunhoAtual.textoPadrao,
+          assinaturaUrl: rascunhoAtual.assinaturaUrl,
+          coordenadorNome:
+            rascunhoAtual.coordenadorNome,
+          cidade: rascunhoAtual.cidade,
+
+          modoFundo: rascunhoAtual.modoFundo,
+          corFundoPagina:
+            rascunhoAtual.corFundoPagina,
+          tamanhoPapel: rascunhoAtual.tamanhoPapel,
+          orientacao: rascunhoAtual.orientacao,
+          larguraBase: rascunhoAtual.larguraBase,
+          alturaBase: rascunhoAtual.alturaBase,
+
+          atualizadoEm: agora,
+        },
+      });
+
+    /*
+     * Substitui somente os elementos publicados.
+     * O rascunho permanece intacto.
+     */
+    await tx.certificadoCampo.deleteMany({
+      where: {
+        instituicaoId: user.instituicaoId,
+        certificadoModeloVersaoId:
+          versaoPublicada.id,
+      },
+    });
+
+    await tx.certificadoCampo.createMany({
+      data: rascunhoAtual.campos.map((campo) => ({
+        instituicaoId: user.instituicaoId,
+        certificadoModeloVersaoId:
+          versaoPublicada.id,
+
+        tipo: campo.tipo,
+        x: campo.x,
+        y: campo.y,
+        largura: campo.largura,
+        altura: campo.altura,
+
+        fonte: campo.fonte,
+        tamanho: campo.tamanho,
+        cor: campo.cor,
+        alinhamento: campo.alinhamento,
+
+        pagina: campo.pagina,
+        ordem: campo.ordem,
+        lineHeight: campo.lineHeight,
+        marcador: campo.marcador,
+
+        dadosJson:
+          campo.dadosJson === null
+            ? Prisma.JsonNull
+            : campo.dadosJson,
+      })),
+    });
+
+    await tx.certificadoModelo.update({
+      where: {
+        id: modeloId,
+      },
+      data: {
+        publicadoEm: agora,
+        publicadoPorId: user.id,
+      },
+    });
+
+    const modeloPublicado =
+      await tx.certificadoModelo.findFirst({
+        where: {
+          id: modeloId,
+          instituicaoId: user.instituicaoId,
+        },
+
+        include: {
+          versoes: {
+            orderBy: {
+              tipo: "asc",
             },
+
             include: {
-              versoes: {
-                orderBy: {
-                  tipo: "asc",
-                },
-                include: {
-                  _count: {
-                    select: {
-                      campos: true,
-                    },
-                  },
-                },
-              },
               _count: {
                 select: {
-                  cursos: true,
+                  campos: true,
                 },
               },
             },
-          });
+          },
 
-        if (!modeloPublicado) {
-          throw new Error(
-            "O modelo desapareceu após a publicação."
-          );
-        }
+          _count: {
+            select: {
+              cursos: true,
+            },
+          },
+        },
+      });
 
-        return {
-          modelo: modeloPublicado,
-          versaoPublicadaId: versaoPublicada.id,
-          totalCamposPublicados:
-            rascunho.campos.length,
-        };
-      }
-    );
+    if (!modeloPublicado) {
+      throw new Error(
+        "O modelo desapareceu após a publicação."
+      );
+    }
+
+    return {
+      modelo: modeloPublicado,
+      versaoPublicadaId: versaoPublicada.id,
+      totalCamposPublicados:
+        rascunhoAtual.campos.length,
+    };
+  }
+);
 
     return NextResponse.json({
       mensagem:

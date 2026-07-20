@@ -1262,6 +1262,9 @@ if (alvo.closest("[data-campo-certificado-id]")) {
 
   const [carregando, setCarregando] = useState(true);
   const [salvando, setSalvando] = useState(false);
+  const [publicando, setPublicando] = useState(false);
+  const [modalPublicacaoAberto, setModalPublicacaoAberto] =
+  useState(false);
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
@@ -4907,7 +4910,11 @@ function baixarArquivo() {
   }
 }
 
-async function salvarRascunhoCompleto() {
+async function salvarRascunhoCompleto(
+  opcoes?: {
+    silencioso?: boolean;
+  }
+): Promise<boolean> {
   try {
     setSalvando(true);
     setMensagemErro("");
@@ -5048,13 +5055,17 @@ async function salvarRascunhoCompleto() {
       setFuturo([]);
     }
 
-    setMensagemSucesso(
-      "Rascunho salvo com sucesso. A versão publicada usada pelos alunos não foi alterada."
-    );
+    if (!opcoes?.silencioso) {
+  setMensagemSucesso(
+    "Rascunho salvo com sucesso. A versão publicada usada pelos alunos não foi alterada."
+  );
 
-    setTimeout(() => {
-      setMensagemSucesso("");
-    }, 4000);
+  setTimeout(() => {
+    setMensagemSucesso("");
+  }, 4000);
+}
+
+return true;
   } catch (error: any) {
     console.error(
       "ERRO AO SALVAR RASCUNHO DO CERTIFICADO:",
@@ -5065,8 +5076,82 @@ async function salvarRascunhoCompleto() {
       error?.message ||
         "Erro ao salvar o rascunho do certificado."
     );
+    return false;
   } finally {
     setSalvando(false);
+  }
+}
+
+async function publicarModeloFinal() {
+  try {
+    setPublicando(true);
+    setMensagemErro("");
+
+    const modeloId = modeloAtivoIdRef.current;
+
+    if (!modeloId) {
+      throw new Error(
+        "Nenhum modelo de certificado está selecionado."
+      );
+    }
+
+    /*
+     * Antes de publicar, salva tudo o que está atualmente
+     * aberto no editor dentro do RASCUNHO.
+     */
+    const rascunhoSalvo =
+      await salvarRascunhoCompleto({
+        silencioso: true,
+      });
+
+    if (!rascunhoSalvo) {
+      return;
+    }
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}/publicar`,
+      {
+        method: "POST",
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao publicar o modelo final."
+      );
+    }
+
+    setModalPublicacaoAberto(false);
+
+    const totalCampos = Number(
+      dados?.publicacao?.totalCampos || 0
+    );
+
+    setMensagemSucesso(
+      totalCampos > 0
+        ? `Modelo final publicado com sucesso. ${totalCampos} elementos foram enviados para a versão publicada.`
+        : "Modelo final publicado com sucesso."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 5000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO PUBLICAR MODELO FINAL:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao publicar o modelo final."
+    );
+  } finally {
+    setPublicando(false);
   }
 }
 
@@ -5484,7 +5569,7 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
   className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
 
-<div className="sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
+<div className="phanyx-certificado-toolbar sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
         <div className="flex items-center gap-3">
           {!mostrarPainelCampos && (
             <button
@@ -5617,28 +5702,40 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
 </span>
           </div>
 
-          <div className="relative">
+          <div className="relative flex flex-wrap items-center justify-end gap-2">
   <button
     type="button"
     onClick={() => setMenuDownloadAberto((prev) => !prev)}
-    className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700"
+    className="inline-flex min-h-9 items-center justify-center rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-green-700"
   >
     Baixar
   </button>
 
 <button
   type="button"
-  onClick={salvarRascunhoCompleto}
-  disabled={salvando}
-  className="rounded-lg bg-green-600 px-4 py-2 text-sm font-semibold text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+  onClick={() => {
+    void salvarRascunhoCompleto();
+  }}
+  disabled={salvando || publicando}
+  className="inline-flex min-h-9 items-center justify-center rounded-lg bg-green-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
   {salvando ? "Salvando..." : "Salvar rascunho"}
 </button>
 
 <button
   type="button"
+  onClick={() => setModalPublicacaoAberto(true)}
+  disabled={salvando || publicando}
+  className="inline-flex min-h-9 items-center justify-center rounded-lg bg-amber-500 px-3 py-2 text-xs font-bold text-slate-950 shadow-sm transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {publicando ? "Publicando..." : "Publicar final"}
+</button>
+
+<button
+  type="button"
   onClick={() => setPreviewAberto(true)}
-  className="rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-700"
+  disabled={salvando || publicando}
+  className="inline-flex min-h-9 items-center justify-center rounded-lg bg-purple-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
   Visualizar
 </button>
@@ -10243,7 +10340,9 @@ atualizarCampoLocal("tamanho", tamanho);
           <div className="pt-2">
             <button
   type="button"
-  onClick={salvarRascunhoCompleto}
+  onClick={() => {
+  void salvarRascunhoCompleto();
+}}
   disabled={salvando}
   className="rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
 >
@@ -11134,6 +11233,106 @@ atualizarContornoTextoCampoSelecionado({
 {mensagemSucesso && (
   <div className="fixed right-6 top-24 z-[9999] rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-xl">
     {mensagemSucesso}
+  </div>
+)}
+
+{modalPublicacaoAberto && (
+  <div
+    className="fixed inset-0 z-[10000000] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+    onMouseDown={() => {
+      if (!publicando) {
+        setModalPublicacaoAberto(false);
+      }
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-publicar-certificado"
+      className="phanyx-cert-publicar-modal w-full max-w-xl overflow-hidden rounded-3xl border border-slate-200 bg-white text-slate-900 shadow-2xl dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      onMouseDown={(evento) => {
+        evento.stopPropagation();
+      }}
+    >
+      <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <span className="mb-2 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-amber-800">
+              Publicação
+            </span>
+
+            <h2
+              id="titulo-publicar-certificado"
+              className="text-xl font-black"
+            >
+              Publicar modelo final?
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            disabled={publicando}
+            onClick={() =>
+              setModalPublicacaoAberto(false)
+            }
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 text-xl font-bold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-white"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-4 px-6 py-5">
+        <p className="text-sm leading-6 text-slate-600 dark:text-slate-300">
+          O rascunho atual será salvo e substituirá a versão
+          publicada deste modelo.
+        </p>
+
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+          <strong>Atenção:</strong> os alunos e as novas
+          emissões passarão a usar esta versão depois da
+          publicação.
+        </div>
+
+        <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+          Certificados em PDF que já foram emitidos e
+          armazenados não serão modificados.
+        </p>
+      </div>
+
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end dark:border-slate-700 dark:bg-slate-950/40">
+        <button
+          type="button"
+          disabled={publicando}
+          onClick={() =>
+            setModalPublicacaoAberto(false)
+          }
+          className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-100 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={publicando}
+          onClick={publicarModeloFinal}
+          className="inline-flex min-w-[170px] items-center justify-center gap-2 rounded-xl bg-amber-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/20 transition hover:bg-amber-400 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {publicando ? (
+            <>
+              <span
+                className="h-4 w-4 animate-spin rounded-full border-2 border-slate-950/30 border-t-slate-950"
+                aria-hidden="true"
+              />
+              Publicando...
+            </>
+          ) : (
+            "Publicar modelo final"
+          )}
+        </button>
+      </div>
+    </div>
   </div>
 )}
 
