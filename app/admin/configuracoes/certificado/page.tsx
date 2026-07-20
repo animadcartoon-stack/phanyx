@@ -1298,6 +1298,27 @@ const [novoModeloDescricao, setNovoModeloDescricao] =
   const [menuModelosAberto, setMenuModelosAberto] =
   useState(false);
 
+  const [modalEditarModeloAberto, setModalEditarModeloAberto] =
+  useState(false);
+
+const [modalArquivarModeloAberto, setModalArquivarModeloAberto] =
+  useState(false);
+
+const [nomeModeloEditando, setNomeModeloEditando] =
+  useState("");
+
+const [descricaoModeloEditando, setDescricaoModeloEditando] =
+  useState("");
+
+const [salvandoDadosModelo, setSalvandoDadosModelo] =
+  useState(false);
+
+const [definindoPadraoModelo, setDefinindoPadraoModelo] =
+  useState(false);
+
+const [arquivandoModelo, setArquivandoModelo] =
+  useState(false);
+
   const [enviandoArquivo, setEnviandoArquivo] = useState(false);
   const [salvandoCampo, setSalvandoCampo] = useState(false);
   const [mensagemSucesso, setMensagemSucesso] = useState("");
@@ -2046,6 +2067,273 @@ async function criarNovoModeloCertificado() {
     );
   } finally {
     setCriandoModelo(false);
+  }
+}
+
+function abrirEdicaoModeloAtual() {
+  if (!modeloAtivo) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  setNomeModeloEditando(
+    String(modeloAtivo.nome || "")
+  );
+
+  setDescricaoModeloEditando(
+    String(modeloAtivo.descricao || "")
+  );
+
+  setModalEditarModeloAberto(true);
+}
+
+async function salvarDadosModeloAtual() {
+  const modeloId = Number(modeloAtivo?.id);
+  const nome = nomeModeloEditando.trim();
+  const descricao = descricaoModeloEditando.trim();
+
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  if (nome.length < 3) {
+    setMensagemErro(
+      "O nome do modelo precisa ter pelo menos 3 caracteres."
+    );
+    return;
+  }
+
+  try {
+    setSalvandoDadosModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome,
+          descricao: descricao || null,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao atualizar os dados do modelo."
+      );
+    }
+
+    await recarregarListaModelosCertificado();
+
+    setModalEditarModeloAberto(false);
+    setNomeModeloEditando("");
+    setDescricaoModeloEditando("");
+
+    setMensagemSucesso(
+      dados?.mensagem ||
+        "Dados do modelo atualizados com sucesso."
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO ATUALIZAR MODELO DE CERTIFICADO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao atualizar os dados do modelo."
+    );
+  } finally {
+    setSalvandoDadosModelo(false);
+  }
+}
+
+async function definirModeloAtualComoPadraoGeral() {
+  const modeloId = Number(modeloAtivo?.id);
+
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  if (modeloAtivo?.padraoGeral === true) {
+    return;
+  }
+
+  try {
+    setDefinindoPadraoModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          padraoGeral: true,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao definir o modelo como padrão geral."
+      );
+    }
+
+    await recarregarListaModelosCertificado();
+
+    setMensagemSucesso(
+      `O modelo “${modeloAtivo?.nome}” agora é o padrão geral.`
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3000);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO DEFINIR MODELO PADRÃO:",
+      error
+    );
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao definir o modelo como padrão geral."
+    );
+  } finally {
+    setDefinindoPadraoModelo(false);
+  }
+}
+
+function solicitarArquivamentoModeloAtual() {
+  if (!modeloAtivo) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  setModalArquivarModeloAberto(true);
+}
+
+async function arquivarModeloAtual() {
+  const modeloId = Number(modeloAtivo?.id);
+  const nomeModelo = String(
+    modeloAtivo?.nome || "Modelo"
+  );
+
+  if (
+    !Number.isInteger(modeloId) ||
+    modeloId <= 0
+  ) {
+    setMensagemErro(
+      "Nenhum modelo de certificado está selecionado."
+    );
+    return;
+  }
+
+  try {
+    setArquivandoModelo(true);
+    setMensagemErro("");
+
+    const resposta = await fetch(
+      `/api/admin/certificado-modelos/${modeloId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao: "ARQUIVAR",
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.detalhe ||
+          dados?.error ||
+          "Erro ao arquivar o modelo."
+      );
+    }
+
+    const modelosRestantes =
+      await recarregarListaModelosCertificado();
+
+    setModalArquivarModeloAberto(false);
+
+    const proximoModelo =
+      modelosRestantes.find(
+        (modelo: any) =>
+          modelo.padraoGeral === true
+      ) ||
+      modelosRestantes.find(
+        (modelo: any) =>
+          modelo.padraoModalidade === true
+      ) ||
+      modelosRestantes[0] ||
+      null;
+
+    if (proximoModelo?.id) {
+      await abrirModeloCertificado(
+        Number(proximoModelo.id)
+      );
+    }
+
+    setMensagemSucesso(
+      `O modelo “${nomeModelo}” foi arquivado com sucesso.`
+    );
+
+    setTimeout(() => {
+      setMensagemSucesso("");
+    }, 3500);
+  } catch (error: any) {
+    console.error(
+      "ERRO AO ARQUIVAR MODELO DE CERTIFICADO:",
+      error
+    );
+
+    setModalArquivarModeloAberto(false);
+
+    setMensagemErro(
+      error?.message ||
+        "Erro ao arquivar o modelo de certificado."
+    );
+  } finally {
+    setArquivandoModelo(false);
   }
 }
 
@@ -5980,45 +6268,110 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
     </div>
 
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
-            Modelo atual
-          </p>
+  <div className="flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">
+        Modelo atual
+      </p>
 
-          <p className="mt-1 text-lg font-black text-slate-900">
-            {modeloAtivo?.nome ||
-              "Nenhum modelo selecionado"}
-          </p>
+      <p className="mt-1 text-lg font-black text-slate-900">
+        {modeloAtivo?.nome ||
+          "Nenhum modelo selecionado"}
+      </p>
 
-          {modeloAtivo?.descricao && (
-            <p className="mt-1 text-sm text-slate-600">
-              {modeloAtivo.descricao}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-2">
-          {modeloAtivo?.padraoGeral && (
-            <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
-              Padrão geral
-            </span>
-          )}
-
-          <span
-            className={`rounded-full px-3 py-1 text-xs font-bold ${
-              modeloAtivo?.publicadoEm
-                ? "bg-green-100 text-green-800"
-                : "bg-amber-100 text-amber-800"
-            }`}
-          >
-            {modeloAtivo?.publicadoEm
-              ? "Publicado"
-              : "Somente rascunho"}
-          </span>
-        </div>
-      </div>
+      {modeloAtivo?.descricao && (
+        <p className="mt-1 text-sm text-slate-600">
+          {modeloAtivo.descricao}
+        </p>
+      )}
     </div>
+
+    <div className="flex flex-wrap gap-2">
+      {modeloAtivo?.padraoGeral && (
+        <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-800">
+          Padrão geral
+        </span>
+      )}
+
+      <span
+        className={`rounded-full px-3 py-1 text-xs font-bold ${
+          modeloAtivo?.publicadoEm
+            ? "bg-green-100 text-green-800"
+            : "bg-amber-100 text-amber-800"
+        }`}
+      >
+        {modeloAtivo?.publicadoEm
+          ? "Publicado"
+          : "Somente rascunho"}
+      </span>
+    </div>
+  </div>
+
+  {modeloAtivo && (
+    <div className="mt-4 flex flex-wrap items-center justify-end gap-2 border-t border-slate-300/50 pt-4">
+      <button
+        type="button"
+        onClick={abrirEdicaoModeloAtual}
+        disabled={
+          salvandoDadosModelo ||
+          definindoPadraoModelo ||
+          arquivandoModelo ||
+          salvando ||
+          publicando ||
+          trocandoModelo
+        }
+        className="phanyx-cert-modelo-editar-btn inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold transition disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        Editar dados
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          void definirModeloAtualComoPadraoGeral();
+        }}
+        disabled={
+          modeloAtivo.padraoGeral === true ||
+          salvandoDadosModelo ||
+          definindoPadraoModelo ||
+          arquivandoModelo ||
+          salvando ||
+          publicando ||
+          trocandoModelo
+        }
+        className={`inline-flex min-h-9 items-center justify-center rounded-lg px-3 py-2 text-xs font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
+          modeloAtivo.padraoGeral
+            ? "bg-slate-500"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
+      >
+        {definindoPadraoModelo
+          ? "Definindo..."
+          : modeloAtivo.padraoGeral
+            ? "Padrão geral atual"
+            : "Definir como padrão geral"}
+      </button>
+
+      <button
+        type="button"
+        onClick={solicitarArquivamentoModeloAtual}
+        disabled={
+          salvandoDadosModelo ||
+          definindoPadraoModelo ||
+          arquivandoModelo ||
+          salvando ||
+          publicando ||
+          trocandoModelo
+        }
+        className="inline-flex min-h-9 items-center justify-center rounded-lg border border-red-500 bg-transparent px-3 py-2 text-xs font-bold text-red-500 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {arquivandoModelo
+          ? "Arquivando..."
+          : "Arquivar modelo"}
+      </button>
+    </div>
+  )}
+</div>
   </div>
 
   {novoModeloFormAberto && (
@@ -7451,16 +7804,20 @@ contornoEspessura: 2,
 </button>
 
       <button
-        type="button"
-        onClick={() => {
-          setCamposSelecionadosIds(
-            campoSelecionadoId ? [campoSelecionadoId] : []
-          );
-        }}
-        className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
-      >
-        Fechar seleção
-      </button>
+  type="button"
+  onMouseDown={(e) => {
+    e.stopPropagation();
+  }}
+  onClick={(e) => {
+    e.stopPropagation();
+
+    setCamposSelecionadosIds([]);
+    setCampoSelecionadoId(null);
+  }}
+  className="ml-auto rounded-xl bg-red-600 px-3 py-2 text-xs font-bold hover:bg-red-500"
+>
+  Fechar seleção
+</button>
     </div>
   </div>
 )}
@@ -11853,9 +12210,261 @@ atualizarContornoTextoCampoSelecionado({
     </button>
   </div>
 )}
-{mensagemSucesso && (
-  <div className="fixed right-6 top-24 z-[9999] rounded-2xl bg-green-600 px-5 py-3 text-sm font-semibold text-white shadow-xl">
-    {mensagemSucesso}
+
+{modalEditarModeloAberto && (
+  <div
+    className="fixed inset-0 z-[10000010] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+    onMouseDown={() => {
+      if (!salvandoDadosModelo) {
+        setModalEditarModeloAberto(false);
+      }
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-editar-modelo-certificado"
+      className="phanyx-cert-modelo-modal w-full max-w-xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-white shadow-2xl"
+      onMouseDown={(evento) => {
+        evento.stopPropagation();
+      }}
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-slate-700 px-6 py-5">
+        <div>
+          <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-blue-800">
+            Modelo de certificado
+          </span>
+
+          <h2
+            id="titulo-editar-modelo-certificado"
+            className="mt-3 text-xl font-black"
+          >
+            Editar dados do modelo
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-300">
+            Altere o nome e a descrição. O conteúdo visual do
+            certificado não será modificado.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Fechar"
+          disabled={salvandoDadosModelo}
+          onClick={() => {
+            setModalEditarModeloAberto(false);
+          }}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-600 text-xl font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="space-y-5 px-6 py-6">
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label
+              htmlFor="nome-modelo-certificado"
+              className="text-sm font-bold"
+            >
+              Nome do modelo
+            </label>
+
+            <span className="text-xs text-slate-400">
+              {nomeModeloEditando.length}/120
+            </span>
+          </div>
+
+          <input
+            id="nome-modelo-certificado"
+            type="text"
+            value={nomeModeloEditando}
+            maxLength={120}
+            disabled={salvandoDadosModelo}
+            onChange={(evento) => {
+              setNomeModeloEditando(evento.target.value);
+            }}
+            placeholder="Ex.: Certificado de Extensão"
+            className="phanyx-cert-modelo-modal-input w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <label
+              htmlFor="descricao-modelo-certificado"
+              className="text-sm font-bold"
+            >
+              Descrição
+            </label>
+
+            <span className="text-xs text-slate-400">
+              {descricaoModeloEditando.length}/500
+            </span>
+          </div>
+
+          <textarea
+            id="descricao-modelo-certificado"
+            value={descricaoModeloEditando}
+            maxLength={500}
+            rows={4}
+            disabled={salvandoDadosModelo}
+            onChange={(evento) => {
+              setDescricaoModeloEditando(evento.target.value);
+            }}
+            placeholder="Informe para que este modelo será utilizado."
+            className="phanyx-cert-modelo-modal-input w-full resize-none rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-700 bg-slate-950/40 px-6 py-5">
+        <button
+          type="button"
+          disabled={salvandoDadosModelo}
+          onClick={() => {
+            setModalEditarModeloAberto(false);
+          }}
+          className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-bold text-slate-100 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            salvandoDadosModelo ||
+            nomeModeloEditando.trim().length < 3
+          }
+          onClick={() => {
+            void salvarDadosModeloAtual();
+          }}
+          className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {salvandoDadosModelo
+            ? "Salvando..."
+            : "Salvar alterações"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{modalArquivarModeloAberto && (
+  <div
+    className="fixed inset-0 z-[10000010] flex items-center justify-center bg-slate-950/75 p-4 backdrop-blur-sm"
+    onMouseDown={() => {
+      if (!arquivandoModelo) {
+        setModalArquivarModeloAberto(false);
+      }
+    }}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-arquivar-modelo-certificado"
+      className="w-full max-w-xl overflow-hidden rounded-3xl border border-slate-700 bg-slate-900 text-white shadow-2xl"
+      onMouseDown={(evento) => {
+        evento.stopPropagation();
+      }}
+    >
+      <div className="flex items-start justify-between gap-4 border-b border-slate-700 px-6 py-5">
+        <div>
+          <span className="inline-flex rounded-full bg-red-100 px-3 py-1 text-xs font-black uppercase tracking-wide text-red-800">
+            Arquivamento
+          </span>
+
+          <h2
+            id="titulo-arquivar-modelo-certificado"
+            className="mt-3 text-xl font-black"
+          >
+            Arquivar este modelo?
+          </h2>
+
+          <p className="mt-1 text-sm text-slate-300">
+            O modelo será retirado da lista de modelos ativos,
+            mas seu histórico e suas versões serão preservados.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          aria-label="Fechar"
+          disabled={arquivandoModelo}
+          onClick={() => {
+            setModalArquivarModeloAberto(false);
+          }}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-600 text-xl font-bold text-slate-200 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          ×
+        </button>
+      </div>
+
+      <div className="space-y-4 px-6 py-6">
+        <div className="rounded-2xl border border-slate-700 bg-slate-950/60 p-4">
+          <p className="text-xs font-bold uppercase tracking-wide text-slate-400">
+            Modelo selecionado
+          </p>
+
+          <p className="mt-1 text-lg font-black text-white">
+            {modeloAtivo?.nome || "Modelo de certificado"}
+          </p>
+
+          {modeloAtivo?.descricao && (
+            <p className="mt-1 text-sm text-slate-300">
+              {modeloAtivo.descricao}
+            </p>
+          )}
+        </div>
+
+        {modeloAtivo?.padraoGeral && (
+          <div className="rounded-2xl border border-amber-400 bg-amber-50 p-4 text-amber-950">
+            <p className="font-bold">
+              Atenção: este é o padrão geral atual.
+            </p>
+
+            <p className="mt-1 text-sm">
+              Ao arquivá-lo, ele deixará de ser o modelo padrão.
+              Defina outro modelo como padrão geral depois do
+              arquivamento.
+            </p>
+          </div>
+        )}
+
+        <p className="text-sm text-slate-300">
+          Modelos vinculados a cursos não podem ser arquivados.
+          Nesse caso, o sistema exibirá a orientação necessária
+          sem apagar nenhuma informação.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap justify-end gap-3 border-t border-slate-700 bg-slate-950/40 px-6 py-5">
+        <button
+          type="button"
+          disabled={arquivandoModelo}
+          onClick={() => {
+            setModalArquivarModeloAberto(false);
+          }}
+          className="rounded-xl border border-slate-600 px-5 py-3 text-sm font-bold text-slate-100 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={arquivandoModelo}
+          onClick={() => {
+            void arquivarModeloAtual();
+          }}
+          className="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-lg transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {arquivandoModelo
+            ? "Arquivando..."
+            : "Arquivar modelo"}
+        </button>
+      </div>
+    </div>
   </div>
 )}
 

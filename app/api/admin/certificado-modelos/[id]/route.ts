@@ -140,6 +140,32 @@ async function buscarModelo(params: {
   return modelo;
 }
 
+async function garantirOutroModeloAtivo(params: {
+  modeloId: number;
+  instituicaoId: number;
+}) {
+  const quantidadeOutrosAtivos =
+    await prisma.certificadoModelo.count({
+      where: {
+        instituicaoId: params.instituicaoId,
+
+        id: {
+          not: params.modeloId,
+        },
+
+        ativo: true,
+        arquivado: false,
+      },
+    });
+
+  if (quantidadeOutrosAtivos === 0) {
+    throw new ErroModeloCertificado(
+      "Não é possível arquivar o único modelo ativo de certificado. Crie outro modelo antes de arquivar este.",
+      409
+    );
+  }
+}
+
 function responderErro(
   error: unknown,
   mensagemPadrao: string,
@@ -242,6 +268,17 @@ export async function PATCH(
         409
       );
     }
+
+    if (
+  arquivarSolicitado &&
+  modeloAtual.ativo &&
+  !modeloAtual.arquivado
+) {
+  await garantirOutroModeloAtivo({
+    modeloId,
+    instituicaoId: user.instituicaoId,
+  });
+}
 
     if (
       restaurarSolicitado &&
@@ -520,6 +557,13 @@ export async function DELETE(
         409
       );
     }
+
+    if (modeloAtual.ativo) {
+  await garantirOutroModeloAtivo({
+    modeloId,
+    instituicaoId: user.instituicaoId,
+  });
+}
 
     const modeloArquivado =
       await prisma.certificadoModelo.update({

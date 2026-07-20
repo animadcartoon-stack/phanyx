@@ -188,37 +188,91 @@ setForm((prev) => ({
   }
 
   async function enviarLogo(file: File) {
+  try {
+    setEnviandoLogo(true);
+    setMensagem("");
+    setNomeArquivoLogo(file.name);
+
+    const tiposPermitidos = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/webp",
+    ];
+
+    if (!tiposPermitidos.includes(file.type)) {
+      throw new Error(
+        "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP."
+      );
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error("A imagem excede o limite de 5 MB.");
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/admin/upload/logo", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
+    });
+
+    const textoResposta = await res.text();
+
+    let data: any = {};
+
     try {
-      setEnviandoLogo(true);
-      setMensagem("");
-      setNomeArquivoLogo(file.name);
-
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload/logo", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.error || "Erro ao enviar logo");
-      }
-
-      setForm((prev) => ({
-        ...prev,
-        logoUrl: data.url,
-      }));
-
-      setMensagem("Logo enviada com sucesso.");
+      data = textoResposta ? JSON.parse(textoResposta) : {};
     } catch {
-      setMensagem("Erro ao enviar logo.");
-    } finally {
-      setEnviandoLogo(false);
+      throw new Error(
+        textoResposta ||
+          `O servidor retornou uma resposta inválida (${res.status}).`
+      );
+    }
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          data?.message ||
+          `Erro ao enviar logo (${res.status}).`
+      );
+    }
+
+    const logoUrl =
+      data?.url ||
+      data?.logoUrl ||
+      data?.arquivo?.url ||
+      "";
+
+    if (!logoUrl) {
+      throw new Error(
+        "A imagem foi enviada, mas a URL da logo não foi retornada."
+      );
+    }
+
+    setForm((prev) => ({
+      ...prev,
+      logoUrl,
+    }));
+
+    setMensagem("Logo enviada e salva com sucesso.");
+  } catch (error: any) {
+    console.error("ERRO AO ENVIAR LOGO:", error);
+
+    setMensagem(
+      error?.message ||
+        "Não foi possível enviar a logo da instituição."
+    );
+  } finally {
+    setEnviandoLogo(false);
+
+    if (inputFileLogoRef.current) {
+      inputFileLogoRef.current.value = "";
     }
   }
+}
 
   async function enviarPapelTimbrado(file: File) {
     try {
