@@ -80,6 +80,7 @@ export default function ConfigInstituicaoPage() {
   const [nomeArquivoAssinatura, setNomeArquivoAssinatura] = useState("");
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [nomeArquivoLogo, setNomeArquivoLogo] = useState("");
+  const [ajudaLogoAberta, setAjudaLogoAberta] = useState(false);
   const [nomeArquivoPapelTimbrado, setNomeArquivoPapelTimbrado] =
     useState("");
   const [mensagem, setMensagem] = useState("");
@@ -1149,7 +1150,79 @@ async function enviarAssinaturaDiretor(file: File) {
 
           <div className="space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h2 className="mb-3 text-lg font-semibold text-slate-800">Logo</h2>
+              <div className="mb-3 flex items-center justify-between gap-3">
+  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+    Logo
+  </h2>
+
+  <button
+    type="button"
+    onClick={() => setAjudaLogoAberta((aberta) => !aberta)}
+    aria-label={
+      ajudaLogoAberta
+        ? "Fechar orientações da logo"
+        : "Abrir orientações da logo"
+    }
+    aria-expanded={ajudaLogoAberta}
+    title="Configurações recomendadas para a logo"
+    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-xs font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900"
+  >
+    i
+  </button>
+</div>
+
+{ajudaLogoAberta && (
+  <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700 shadow-sm dark:border-blue-900 dark:bg-blue-950/40 dark:text-slate-200">
+    <div className="mb-2 flex items-center justify-between gap-3">
+      <h3 className="font-bold text-blue-900 dark:text-blue-200">
+        Configurações recomendadas
+      </h3>
+
+      <button
+        type="button"
+        onClick={() => setAjudaLogoAberta(false)}
+        className="rounded-lg px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-900"
+      >
+        Fechar
+      </button>
+    </div>
+
+    <div className="space-y-2 text-xs leading-5 sm:text-sm">
+      <p>
+        <strong>Formato preferencial:</strong> PNG com fundo transparente.
+      </p>
+
+      <p>
+        <strong>Formatos aceitos:</strong> PNG, JPG, JPEG e WEBP.
+      </p>
+
+      <p>
+        <strong>Tamanho recomendado:</strong> entre 800 e 1.500 pixels
+        no lado maior.
+      </p>
+
+      <p>
+        <strong>Peso máximo:</strong> 5 MB.
+      </p>
+
+      <p>
+        <strong>Proporção:</strong> mantenha a proporção original da marca,
+        sem esticar ou achatar.
+      </p>
+
+      <p>
+        <strong>Margens:</strong> evite espaços vazios excessivos ao redor
+        da logo.
+      </p>
+
+      <p>
+        Para logos horizontais, uma medida como
+        <strong> 1.200 × 600 px</strong> funciona bem. Para logos quadradas,
+        use aproximadamente <strong>800 × 800 px</strong>.
+      </p>
+    </div>
+  </div>
+)}
 
               <div className="flex h-28 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
                 {form.logoUrl ? (
