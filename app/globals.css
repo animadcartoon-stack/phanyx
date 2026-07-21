@@ -12543,3 +12543,200 @@ html[data-theme="system"]
   background-color: #404040 !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   PERMISSÕES INDIVIDUAIS DO FUNCIONÁRIO
+   Claro, escuro e sistema
+========================================================= */
+
+.phanyx-funcionario-permissoes-page {
+  color: #0f172a !important;
+}
+
+/* Garante que os textos gerais não fiquem apagados */
+html[data-theme="light"] .phanyx-funcionario-permissoes-page h1,
+html[data-theme="light"] .phanyx-funcionario-permissoes-page h2,
+html[data-theme="light"] .phanyx-funcionario-permissoes-page h3,
+html[data-theme="light"] .phanyx-funcionario-permissoes-page strong {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-funcionario-permissoes-page p {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Card de cada permissão */
+.phanyx-permissao-funcionario-card {
+  width: 100%;
+  min-height: 78px;
+  border-radius: 16px;
+  border: 1px solid;
+  padding: 16px;
+  text-align: left;
+  opacity: 1 !important;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.phanyx-permissao-funcionario-card:hover {
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   TEMA CLARO
+========================================================= */
+
+/* Não marcada */
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-card.inativa {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.05);
+}
+
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-card.inativa:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  box-shadow: 0 4px 10px rgb(15 23 42 / 0.08);
+}
+
+/* Herdada do departamento */
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-card.herdada {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+  color: #064e3b !important;
+}
+
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-card.herdada:hover {
+  background: #d1fae5 !important;
+  border-color: #34d399 !important;
+}
+
+/* Selecionada individualmente */
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-card.individual {
+  background: #172554 !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgb(37 99 235 / 0.18);
+}
+
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-card.individual:hover {
+  background: #1e3a8a !important;
+  border-color: #3b82f6 !important;
+}
+
+/* Todos os textos internos seguem a cor do card */
+.phanyx-permissao-funcionario-card div {
+  color: inherit !important;
+  opacity: 1 !important;
+}
+
+.phanyx-permissao-funcionario-card .text-xs {
+  color: inherit !important;
+  opacity: 0.78 !important;
+}
+
+/* Selos */
+.phanyx-permissao-funcionario-badge {
+  flex-shrink: 0;
+  border-radius: 9999px;
+  padding: 4px 9px;
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 700;
+}
+
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-badge.herdada {
+  background: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-permissao-funcionario-badge.individual {
+  background: #dbeafe !important;
+  color: #1e3a8a !important;
+}
+
+/* =========================================================
+   TEMA ESCURO
+========================================================= */
+
+html[data-theme="dark"]
+  .phanyx-funcionario-permissoes-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-permissao-funcionario-card.inativa {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-permissao-funcionario-card.inativa:hover {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-permissao-funcionario-card.herdada {
+  background: #022c22 !important;
+  border-color: #047857 !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-permissao-funcionario-card.individual {
+  background: #172554 !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   TEMA SISTEMA
+========================================================= */
+
+html[data-theme="system"]
+  .phanyx-funcionario-permissoes-page {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-permissao-funcionario-card.inativa {
+  background: #2f2f2f !important;
+  border-color: #5f5f5f !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-permissao-funcionario-card.inativa:hover {
+  background: #3a3a3a !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-permissao-funcionario-card.herdada {
+  background: #17372f !important;
+  border-color: #2f8069 !important;
+  color: #d1fae5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-permissao-funcionario-card.individual {
+  background: #303b55 !important;
+  border-color: #64748b !important;
+  color: #ffffff !important;
+}

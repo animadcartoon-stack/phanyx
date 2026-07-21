@@ -133,7 +133,7 @@ export default function FuncionarioPermissoesPage({
   }, []);
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-6 text-slate-900 dark:text-slate-100">
+    <div className="phanyx-funcionario-permissoes-page mx-auto max-w-6xl space-y-6 p-6">
       <div>
         <Link
           href="/admin/funcionarios"
@@ -215,17 +215,17 @@ export default function FuncionarioPermissoesPage({
 
             return (
               <button
-                key={permissao.chave}
-                type="button"
-                onClick={() => alternar(permissao.chave)}
-                className={`rounded-2xl border p-4 text-left transition ${
-                  marcadaIndividual
-                    ? "border-blue-500 bg-blue-50 text-blue-900 dark:border-blue-400 dark:bg-blue-950 dark:text-blue-100"
-                    : herdada
-                    ? "border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-100"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200 dark:hover:bg-slate-800"
-                }`}
-              >
+  key={permissao.chave}
+  type="button"
+  onClick={() => alternar(permissao.chave)}
+  className={`phanyx-permissao-funcionario-card ${
+    marcadaIndividual
+      ? "individual"
+      : herdada
+      ? "herdada"
+      : "inativa"
+  }`}
+>
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <div className="font-semibold">
@@ -239,16 +239,16 @@ export default function FuncionarioPermissoesPage({
                   </div>
 
                   {herdada && !marcadaIndividual && (
-                    <span className="rounded-full bg-emerald-100 px-2 py-1 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-900 dark:text-emerald-100">
-                      Herdada
-                    </span>
-                  )}
+  <span className="phanyx-permissao-funcionario-badge herdada">
+    Herdada
+  </span>
+)}
 
                   {marcadaIndividual && (
-                    <span className="rounded-full bg-blue-100 px-2 py-1 text-[11px] font-semibold text-blue-800 dark:bg-blue-900 dark:text-blue-100">
-                      Individual
-                    </span>
-                  )}
+  <span className="phanyx-permissao-funcionario-badge individual">
+    Individual
+  </span>
+)}
                 </div>
               </button>
             );

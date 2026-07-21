@@ -1151,21 +1151,30 @@ model ResultadoFinal {
 }
 
 model Certificado {
-  id            Int         @id @default(autoincrement())
-  alunoId       Int
-  disciplinaId  Int
-  arquivoUrl    String?
-  codigo        String      @unique
-  emitidoEm     DateTime    @default(now())
-  instituicaoId Int
-  aluno         Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  disciplina    Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  instituicao   Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  id                        Int      @id @default(autoincrement())
+  alunoId                   Int
+  disciplinaId              Int
+  arquivoUrl                String?
+  codigo                    String   @unique
+  emitidoEm                 DateTime @default(now())
+  instituicaoId             Int
+  certificadoModeloId       Int?
+  certificadoModeloVersaoId Int?
+
+  aluno       Aluno       @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  certificadoModelo CertificadoModelo? @relation("CertificadoModeloEmitido", fields: [certificadoModeloId], references: [id], onDelete: SetNull)
+
+  certificadoModeloVersao CertificadoModeloVersao? @relation("CertificadoModeloVersaoEmitida", fields: [certificadoModeloVersaoId], references: [id], onDelete: SetNull)
 
   @@unique([alunoId, disciplinaId])
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([disciplinaId])
+  @@index([certificadoModeloId])
+  @@index([certificadoModeloVersaoId])
 }
 
 model Funcionario {
@@ -1712,8 +1721,9 @@ model CertificadoModelo {
 
   publicadoPor User? @relation("CertificadoModeloPublicadoPor", fields: [publicadoPorId], references: [id], onDelete: SetNull)
 
-  versoes CertificadoModeloVersao[]
-  cursos  Curso[]
+  versoes              CertificadoModeloVersao[]
+  cursos               Curso[]
+  certificadosEmitidos Certificado[]             @relation("CertificadoModeloEmitido")
 
   @@index([instituicaoId])
   @@index([instituicaoId, modalidade])
@@ -1746,7 +1756,8 @@ model CertificadoModeloVersao {
 
   modelo CertificadoModelo @relation(fields: [modeloId], references: [id], onDelete: Cascade)
 
-  campos CertificadoCampo[]
+  campos               CertificadoCampo[]
+  certificadosEmitidos Certificado[]      @relation("CertificadoModeloVersaoEmitida")
 
   @@unique([modeloId, tipo])
   @@index([modeloId])
