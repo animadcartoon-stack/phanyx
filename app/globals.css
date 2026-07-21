@@ -12241,3 +12241,258 @@ html[data-theme="system"]
   background-color: #525252 !important;
   color: #ffffff !important;
 }
+
+/* =========================================================
+   MODAL PUBLICAR CERTIFICADO — CORREÇÃO DO TEMA CLARO
+   ========================================================= */
+
+.phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  #titulo-publicar-certificado {
+  color: #0f172a !important;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child {
+  color: #334155 !important;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child {
+  color: #475569 !important;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  button[aria-label="Fechar"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  button[aria-label="Fechar"]:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  > div:last-child {
+  background-color: #f8fafc !important;
+}
+
+/* Tema escuro e sistema */
+html.dark
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  #titulo-publicar-certificado,
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  #titulo-publicar-certificado,
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  #titulo-publicar-certificado {
+  color: #f8fafc !important;
+}
+
+html.dark
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child,
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child,
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child {
+  color: #cbd5e1 !important;
+}
+
+html.dark
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child,
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child,
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child {
+  color: #94a3b8 !important;
+}
+
+html.dark
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  button[aria-label="Fechar"],
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  button[aria-label="Fechar"],
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  button[aria-label="Fechar"] {
+  background-color: #0f172a !important;
+  border-color: #475569 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  > div:last-child,
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  > div:last-child,
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .phanyx-cert-publicar-modal
+  > div:last-child {
+  background-color: #0f172a !important;
+}
+
+/* Modal Publicar certificado — tema claro */
+.phanyx-cert-publicar-modal #titulo-publicar-certificado {
+  color: #0f172a !important;
+}
+
+.phanyx-cert-publicar-modal .space-y-4 > p:first-child {
+  color: #334155 !important;
+}
+
+.phanyx-cert-publicar-modal .space-y-4 > p:last-child {
+  color: #475569 !important;
+}
+
+.phanyx-cert-publicar-modal button[aria-label="Fechar"] {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+/* Modal Publicar certificado — tema Sistema com Windows claro */
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    #titulo-publicar-certificado {
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    .space-y-4
+    > p:first-child {
+    color: #334155 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    .space-y-4
+    > p:last-child {
+    color: #475569 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    button[aria-label="Fechar"] {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    > div:last-child {
+    background-color: #f8fafc !important;
+  }
+}
+
+/* =========================================================
+   MODAL PUBLICAR CERTIFICADO — CORREÇÃO DEFINITIVA DE TEXTO
+   ========================================================= */
+
+.phanyx-cert-publicar-modal
+  #titulo-publicar-certificado {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+.phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+.phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+.phanyx-cert-publicar-modal
+  button[aria-label="Fechar"] {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+/* Preserva o tema escuro */
+html.dark
+  .phanyx-cert-publicar-modal
+  #titulo-publicar-certificado,
+html[data-theme="dark"]
+  .phanyx-cert-publicar-modal
+  #titulo-publicar-certificado {
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+}
+
+html.dark
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child,
+html[data-theme="dark"]
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:first-child {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html.dark
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child,
+html[data-theme="dark"]
+  .phanyx-cert-publicar-modal
+  .space-y-4
+  > p:last-child {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+}
