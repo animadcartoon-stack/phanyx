@@ -6859,15 +6859,34 @@ html[data-theme="system"] .phanyx-config-certificado-page .text-slate-500 {
   color: #cbd5e1 !important;
 }
 
-html[data-theme="dark"] .phanyx-config-certificado-page .bg-white,
-html[data-theme="system"] .phanyx-config-certificado-page .bg-white {
+/* Tema escuro — azul ardósia */
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .bg-white {
   background: #0f172a !important;
   border-color: #334155 !important;
 }
 
-html[data-theme="dark"] .phanyx-config-certificado-page .bg-slate-50,
-html[data-theme="system"] .phanyx-config-certificado-page .bg-slate-50 {
+html[data-theme="dark"]
+  .phanyx-config-certificado-page
+  .bg-slate-50 {
   background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+/* Tema Sistema — cinza neutro, sem azul */
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .bg-white {
+  background: #262626 !important;
+  border-color: #454545 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-config-certificado-page
+  .bg-slate-50 {
+  background: #1f1f1f !important;
+  border-color: #3f3f46 !important;
 }
 
 .phanyx-cert-editor-info-bar {
