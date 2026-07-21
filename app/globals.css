@@ -13234,3 +13234,71 @@ html[data-theme="system"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   AVISO — PERMISSÕES INDIVIDUAIS DO FUNCIONÁRIO
+========================================================= */
+
+/* Tema claro: card neutro com detalhe azul */
+html[data-theme="light"]
+  .phanyx-funcionario-permissoes-page
+  .phanyx-permissoes-funcionario-aviso {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  border-left: 4px solid #2563eb !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-funcionario-permissoes-page
+  .phanyx-permissoes-funcionario-aviso
+  strong {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  .phanyx-funcionario-permissoes-page
+  .phanyx-permissoes-funcionario-aviso {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  background-image: none !important;
+  border-color: #334155 !important;
+  border-left: 4px solid #3b82f6 !important;
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-funcionario-permissoes-page
+  .phanyx-permissoes-funcionario-aviso
+  strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"]
+  .phanyx-funcionario-permissoes-page
+  .phanyx-permissoes-funcionario-aviso {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  background-image: none !important;
+  border-color: #555555 !important;
+  border-left: 4px solid #60a5fa !important;
+  color: #e5e5e5 !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+}
+
+html[data-theme="system"]
+  .phanyx-funcionario-permissoes-page
+  .phanyx-permissoes-funcionario-aviso
+  strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}

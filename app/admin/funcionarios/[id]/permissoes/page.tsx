@@ -656,11 +656,11 @@ const sugestoesBusca = useMemo(() => {
       )}
 
       <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-        <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900 dark:border-blue-900 dark:bg-blue-950 dark:text-blue-100">
-          <strong>Como funciona:</strong> as permissões herdadas do departamento
-          continuam valendo. Aqui você marca apenas permissões extras para este
-          funcionário.
-        </div>
+        <div className="phanyx-permissoes-funcionario-aviso mb-5 rounded-2xl border p-4 text-sm">
+  <strong>Como funciona:</strong> as permissões herdadas do departamento
+  continuam valendo. Aqui você marca apenas permissões extras para este
+  funcionário.
+</div>
 
         <div className="mb-6">
   <label
