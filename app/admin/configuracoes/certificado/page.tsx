@@ -2651,7 +2651,20 @@ useEffect(() => {
     const alvo = e.target as HTMLElement | null;
     const tag = alvo?.tagName?.toLowerCase();
 
+    const estaDigitando =
+      tag === "input" ||
+      tag === "textarea" ||
+      tag === "select" ||
+      Boolean(alvo?.isContentEditable) ||
+      Boolean(
+        alvo?.closest?.(
+          '[contenteditable="true"], [data-texto-livre-id]'
+        )
+      );
+
     if (e.code === "Space") {
+      if (estaDigitando) return;
+
       e.preventDefault();
       setEspacoPressionado(true);
       return;
@@ -2755,11 +2768,27 @@ const idsParaExcluir =
   }
 
   function handleKeyUp(e: KeyboardEvent) {
-    if (e.code === "Space") {
-      e.preventDefault();
-      setEspacoPressionado(false);
-    }
-  }
+  if (e.code !== "Space") return;
+
+  const alvo = e.target as HTMLElement | null;
+  const tag = alvo?.tagName?.toLowerCase();
+
+  const estaDigitando =
+    tag === "input" ||
+    tag === "textarea" ||
+    tag === "select" ||
+    Boolean(alvo?.isContentEditable) ||
+    Boolean(
+      alvo?.closest?.(
+        '[contenteditable="true"], [data-texto-livre-id]'
+      )
+    );
+
+  if (estaDigitando) return;
+
+  e.preventDefault();
+  setEspacoPressionado(false);
+}
 
   window.addEventListener("keydown", handleKeyDown);
   window.addEventListener("keyup", handleKeyUp);
@@ -5837,14 +5866,21 @@ async function publicarModeloFinal() {
 
     const modeloId = modeloAtivoIdRef.current;
 
-    if (!modeloId) {
-      throw new Error(
-        "Nenhum modelo de certificado está selecionado."
-      );
-    }
+if (!modeloId) {
+  throw new Error(
+    "Nenhum modelo de certificado está selecionado."
+  );
+}
 
-    /*
-     * Antes de publicar, salva tudo o que está atualmente
+/*
+ * Fecha a confirmação imediatamente.
+ * O resultado da publicação será exibido pelo Toast PHANYX.
+ */
+setModalPublicacaoAberto(false);
+setMensagemSucesso("");
+
+/*
+ * Antes de publicar, salva tudo o que está atualmente
      * aberto no editor dentro do RASCUNHO.
      */
     const rascunhoSalvo =
@@ -5872,8 +5908,6 @@ async function publicarModeloFinal() {
           "Erro ao publicar o modelo final."
       );
     }
-
-    setModalPublicacaoAberto(false);
 
     const totalCampos = Number(
       dados?.publicacao?.totalCampos || 0

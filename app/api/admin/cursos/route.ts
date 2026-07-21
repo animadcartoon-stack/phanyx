@@ -1,8 +1,27 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
+import { ModalidadeCertificado } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
+const MODALIDADES_CERTIFICADO = new Set<string>(
+  Object.values(ModalidadeCertificado)
+);
+
+function normalizarModalidadeCertificado(
+  valor: unknown
+): ModalidadeCertificado {
+  const modalidade = String(
+    valor || ModalidadeCertificado.GERAL
+  )
+    .trim()
+    .toUpperCase();
+
+  return MODALIDADES_CERTIFICADO.has(modalidade)
+    ? (modalidade as ModalidadeCertificado)
+    : ModalidadeCertificado.GERAL;
+}
+
 export const revalidate = 0;
 
 function podeGerenciarCurso(role?: string) {
