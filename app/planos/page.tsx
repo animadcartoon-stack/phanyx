@@ -55,6 +55,15 @@ const planos = [
   "Editor PHANYX de Crachás",
   "Criação, QR Code e emissão individual ou em lote",
 
+  "RH completo com ponto, banco de horas, holerites, benefícios, férias, exames e rescisões",
+  "PHANYX RH Ponto Mobile institucional com link e QR Code, foto, localização e liberação individual",
+  "Histórico com correções autorizadas pelo RH por prazo determinado e auditoria",
+
+  "RH completo com ponto, banco de horas, holerites, benefícios, férias, exames e rescisões",
+  "PHANYX RH Ponto Mobile com link e QR Code exclusivos da instituição",
+  "Registro pelo celular com foto, localização e locais autorizados",
+  "Histórico de pontos com correções autorizadas pelo RH por prazo determinado",
+
   "Contratos e documentos com preenchimento automático",
   "Histórico acadêmico em PDF e no portal do aluno",
 
@@ -85,6 +94,12 @@ const planos = [
   "Modelos ativos de certificado ilimitados",
   "Certificados e crachás avançados para múltiplos polos",
   "Modelos institucionais com personalização ampliada",
+
+  "RH e Ponto Mobile avançados para múltiplos polos",
+  "Regras ampliadas de localização, perímetro e auditoria",
+
+  "RH e Ponto Mobile avançados para múltiplos polos",
+  "Regras ampliadas de localização, auditoria e reconhecimento facial",
 
   "PHANYX Growth avançado",
 
@@ -190,6 +205,36 @@ const comparativo = [
   essencial: "Não",
   profissional: "Sim",
   enterprise: "Avançada",
+},
+{
+  recurso: "Gestão de RH",
+  essencial: "Base",
+  profissional: "Completa",
+  enterprise: "Completa + multi-polo",
+},
+{
+  recurso: "PHANYX RH Ponto Mobile",
+  essencial: "Não",
+  profissional: "Sim",
+  enterprise: "Avançado",
+},
+{
+  recurso: "Aplicativo web móvel institucional",
+  essencial: "Não",
+  profissional: "Link e QR Code próprios",
+  enterprise: "Multi-polo",
+},
+{
+  recurso: "Foto, localização e locais autorizados",
+  essencial: "Não",
+  profissional: "Sim",
+  enterprise: "Regras avançadas",
+},
+{
+  recurso: "Histórico e correções de ponto",
+  essencial: "Não",
+  profissional: "Autorizadas pelo RH por prazo",
+  enterprise: "Auditoria ampliada",
 },
   {
     recurso: "Prioridade de suporte",
