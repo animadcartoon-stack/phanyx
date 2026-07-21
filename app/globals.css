@@ -12389,3 +12389,45 @@ html[data-theme="system"]
   border-color: #cbd5e1 !important;
   color: #475569 !important;
 }
+
+/* Modal Publicar certificado — tema Sistema com Windows claro */
+@media (prefers-color-scheme: light) {
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    #titulo-publicar-certificado {
+    color: #0f172a !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    .space-y-4
+    > p:first-child {
+    color: #334155 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    .space-y-4
+    > p:last-child {
+    color: #475569 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    button[aria-label="Fechar"] {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #475569 !important;
+  }
+
+  html[data-theme="system"]
+    .phanyx-config-certificado-page
+    .phanyx-cert-publicar-modal
+    > div:last-child {
+    background-color: #f8fafc !important;
+  }
+}
