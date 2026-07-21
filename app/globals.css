@@ -12880,3 +12880,130 @@ html[data-theme="system"]
   background: #262626 !important;
   color: #fafafa !important;
 }
+
+/* Lista de modelos de certificado — tema claro */
+html[data-theme="light"] .phanyx-cert-modelos-lista {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Cabeçalho superior: título, filtros e ordenação */
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  > div:first-child {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  > div:first-child
+  p:first-child {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  > div:first-child
+  p:last-child {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+/* Botões de filtro não selecionados */
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  button[class*="bg-white"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  button[class*="bg-white"]:hover {
+  background: #f1f5f9 !important;
+}
+
+/* Campo de ordenação */
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  select {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  select
+  option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Linhas da tabela */
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  > button {
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  > button[class*="bg-white"] {
+  background: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  > button[class*="bg-white"]:hover {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  > button[class*="bg-blue-50"] {
+  background: #eff6ff !important;
+}
+
+/* Textos das linhas */
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  [class*="text-slate-900"] {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  [class*="text-slate-700"] {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  [class*="text-slate-600"] {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-cert-modelos-lista
+  .divide-y
+  [class*="text-slate-500"] {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+}

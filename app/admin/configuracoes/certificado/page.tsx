@@ -159,6 +159,15 @@ type ModalidadeCertificadoValor =
   | "EJA"
   | "OUTRO";
 
+  type FiltroSituacaoModelo =
+  | "TODOS"
+  | "RASCUNHOS"
+  | "PUBLICADOS";
+
+type OrdemListaModelos =
+  | "MAIS_RECENTES"
+  | "MAIS_ANTIGOS";
+
 const MODALIDADES_CERTIFICADO: {
   valor: ModalidadeCertificadoValor;
   label: string;
@@ -1323,6 +1332,16 @@ if (alvo.closest("[data-campo-certificado-id]")) {
 const [modelosCertificado, setModelosCertificado] =
   useState<any[]>([]);
 
+  const [
+  filtroSituacaoModelos,
+  setFiltroSituacaoModelos,
+] = useState<FiltroSituacaoModelo>("TODOS");
+
+const [
+  ordemListaModelos,
+  setOrdemListaModelos,
+] = useState<OrdemListaModelos>("MAIS_RECENTES");
+
   const [modelosArquivados, setModelosArquivados] =
   useState<any[]>([]);
 
@@ -1740,6 +1759,108 @@ const modeloAtivo = useMemo(() => {
     ) || null
   );
 }, [modelosCertificado, modeloAtivoId]);
+
+const modelosFiltradosOrdenados = useMemo(() => {
+  return modelosCertificado
+    .map((modelo: any) => {
+      const versoes = Array.isArray(modelo?.versoes)
+        ? modelo.versoes
+        : [];
+
+      const versaoRascunho = versoes.find(
+        (versao: any) =>
+          String(versao?.tipo || "").toUpperCase() ===
+          "RASCUNHO"
+      );
+
+      const versaoPublicada = versoes.find(
+        (versao: any) =>
+          String(versao?.tipo || "").toUpperCase() ===
+          "PUBLICADO"
+      );
+
+      const publicado =
+        Boolean(modelo?.publicadoEm) ||
+        Boolean(versaoPublicada);
+
+      const datasAlteracao = [
+        modelo?.atualizadoEm,
+        versaoRascunho?.atualizadoEm,
+      ]
+        .map((data) => {
+          const timestamp = data
+            ? new Date(data).getTime()
+            : 0;
+
+          return Number.isFinite(timestamp)
+            ? timestamp
+            : 0;
+        })
+        .filter((timestamp) => timestamp > 0);
+
+      const ultimaAlteracaoTimestamp =
+        datasAlteracao.length > 0
+          ? Math.max(...datasAlteracao)
+          : 0;
+
+      return {
+        ...modelo,
+        _publicado: publicado,
+        _ultimaAlteracaoTimestamp:
+          ultimaAlteracaoTimestamp,
+      };
+    })
+    .filter((modelo: any) => {
+      if (filtroSituacaoModelos === "RASCUNHOS") {
+        return modelo._publicado !== true;
+      }
+
+      if (filtroSituacaoModelos === "PUBLICADOS") {
+        return modelo._publicado === true;
+      }
+
+      return true;
+    })
+    .sort((modeloA: any, modeloB: any) => {
+      const dataA = Number(
+        modeloA._ultimaAlteracaoTimestamp || 0
+      );
+
+      const dataB = Number(
+        modeloB._ultimaAlteracaoTimestamp || 0
+      );
+
+      return ordemListaModelos === "MAIS_ANTIGOS"
+        ? dataA - dataB
+        : dataB - dataA;
+    });
+}, [
+  modelosCertificado,
+  filtroSituacaoModelos,
+  ordemListaModelos,
+]);
+
+const totalModelosRascunho = useMemo(() => {
+  return modelosCertificado.filter((modelo: any) => {
+    const versoes = Array.isArray(modelo?.versoes)
+      ? modelo.versoes
+      : [];
+
+    const possuiVersaoPublicada = versoes.some(
+      (versao: any) =>
+        String(versao?.tipo || "").toUpperCase() ===
+        "PUBLICADO"
+    );
+
+    return (
+      !modelo?.publicadoEm &&
+      !possuiVersaoPublicada
+    );
+  }).length;
+}, [modelosCertificado]);
+
+const totalModelosPublicados =
+  modelosCertificado.length - totalModelosRascunho;
 
 function resetarConfiguracaoVisualCertificado() {
   setCertificadoTemplateUrl("");
@@ -6612,6 +6733,197 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
 </div>
   </div>
 
+  <div className="phanyx-cert-modelos-lista mt-5 overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <div className="flex flex-col gap-4 border-b border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800/60 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p className="text-sm font-black text-slate-900 dark:text-white">
+          Lista de modelos
+        </p>
+
+        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+          Clique em um modelo para abri-lo no editor.
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() =>
+              setFiltroSituacaoModelos("TODOS")
+            }
+            className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
+              filtroSituacaoModelos === "TODOS"
+                ? "border-blue-600 bg-blue-600 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-blue-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            }`}
+          >
+            Todos ({modelosCertificado.length})
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              setFiltroSituacaoModelos("RASCUNHOS")
+            }
+            className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
+              filtroSituacaoModelos === "RASCUNHOS"
+                ? "border-amber-500 bg-amber-500 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-amber-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            }`}
+          >
+            Rascunhos ({totalModelosRascunho})
+          </button>
+
+          <button
+            type="button"
+            onClick={() =>
+              setFiltroSituacaoModelos("PUBLICADOS")
+            }
+            className={`rounded-lg border px-3 py-2 text-xs font-bold transition ${
+              filtroSituacaoModelos === "PUBLICADOS"
+                ? "border-emerald-600 bg-emerald-600 text-white"
+                : "border-slate-300 bg-white text-slate-700 hover:border-emerald-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
+            }`}
+          >
+            Publicados ({totalModelosPublicados})
+          </button>
+        </div>
+
+        <select
+          value={ordemListaModelos}
+          onChange={(evento) =>
+            setOrdemListaModelos(
+              evento.target.value as OrdemListaModelos
+            )
+          }
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-bold text-slate-700 outline-none focus:border-blue-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+        >
+          <option value="MAIS_RECENTES">
+            Mais recentes primeiro
+          </option>
+
+          <option value="MAIS_ANTIGOS">
+            Mais antigos primeiro
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div className="hidden grid-cols-[minmax(0,1.5fr)_minmax(150px,0.8fr)_minmax(190px,0.7fr)] gap-4 border-b border-slate-200 bg-slate-100 px-4 py-3 text-xs font-black uppercase tracking-wide text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 md:grid">
+      <span>Nome do modelo</span>
+      <span>Modalidade</span>
+      <span>Última alteração</span>
+    </div>
+
+    <div className="divide-y divide-slate-200 dark:divide-slate-700">
+      {modelosFiltradosOrdenados.length === 0 ? (
+        <div className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+          Nenhum modelo encontrado neste filtro.
+        </div>
+      ) : (
+        modelosFiltradosOrdenados.map(
+          (modelo: any) => {
+            const selecionado =
+              Number(modelo.id) ===
+              Number(modeloAtivoId);
+
+            const modalidadeLabel =
+              MODALIDADES_CERTIFICADO.find(
+                (item) =>
+                  String(item.valor) ===
+                  String(
+                    modelo?.modalidade || "GERAL"
+                  )
+              )?.label || "Geral";
+
+            const ultimaAlteracao =
+              Number(
+                modelo?._ultimaAlteracaoTimestamp ||
+                  0
+              ) > 0
+                ? new Date(
+                    modelo._ultimaAlteracaoTimestamp
+                  ).toLocaleString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Data não disponível";
+
+            return (
+              <button
+                key={modelo.id}
+                type="button"
+                disabled={
+                  trocandoModelo ||
+                  salvando ||
+                  publicando
+                }
+                onClick={() => {
+                  if (!selecionado) {
+                    void abrirModeloCertificado(
+                      Number(modelo.id)
+                    );
+                  }
+                }}
+                className={`grid w-full gap-3 px-4 py-4 text-left transition disabled:cursor-not-allowed disabled:opacity-60 md:grid-cols-[minmax(0,1.5fr)_minmax(150px,0.8fr)_minmax(190px,0.7fr)] md:items-center md:gap-4 ${
+                  selecionado
+                    ? "bg-blue-50 dark:bg-blue-950/30"
+                    : "bg-white hover:bg-slate-50 dark:bg-slate-900 dark:hover:bg-slate-800"
+                }`}
+              >
+                <span className="min-w-0">
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-sm font-black text-slate-900 dark:text-white">
+                      {modelo.nome}
+                    </span>
+
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-black uppercase ${
+                        modelo._publicado
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-amber-100 text-amber-800"
+                      }`}
+                    >
+                      {modelo._publicado
+                        ? "Publicado"
+                        : "Rascunho"}
+                    </span>
+
+                    {selecionado && (
+                      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-black uppercase text-blue-800">
+                        Aberto
+                      </span>
+                    )}
+                  </span>
+                </span>
+
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  <span className="mr-2 font-bold text-slate-500 md:hidden">
+                    Modalidade:
+                  </span>
+
+                  {modalidadeLabel}
+                </span>
+
+                <span className="text-sm text-slate-600 dark:text-slate-300">
+                  <span className="mr-2 font-bold text-slate-500 md:hidden">
+                    Última alteração:
+                  </span>
+
+                  {ultimaAlteracao}
+                </span>
+              </button>
+            );
+          }
+        )
+      )}
+    </div>
+  </div>
+
   {novoModeloFormAberto && (
     <div className="mt-5 rounded-2xl border border-blue-200 bg-blue-50 p-5">
       <div className="grid gap-4 lg:grid-cols-2">
@@ -6845,7 +7157,7 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
       <section
 
   id="editor-certificado"
-  className="scroll-mt-[140px] rounded-3xl border border-slate-200 bg-white shadow-sm"
+  className="rounded-3xl border border-slate-200 bg-white shadow-sm"
 >
 
 <div className="phanyx-certificado-toolbar sticky top-0 z-40 mb-6 flex items-center justify-between rounded-2xl border border-blue-700 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 px-6 py-3 shadow-lg">
