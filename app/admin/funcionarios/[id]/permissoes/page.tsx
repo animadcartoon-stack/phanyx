@@ -678,14 +678,14 @@ const sugestoesBusca = useMemo(() => {
       onChange={(event) => setBusca(event.target.value)}
       placeholder="Ex.: editar alunos, dinheiro, ponto, crachá, ver boletim..."
       autoComplete="off"
-      className="w-full rounded-2xl border border-slate-300 bg-white px-5 py-4 pr-24 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
+      className="phanyx-busca-permissoes-input w-full rounded-2xl border px-5 py-4 pr-24 text-sm outline-none transition"
     />
 
     {busca && (
       <button
         type="button"
         onClick={() => setBusca("")}
-        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+        className="phanyx-busca-permissoes-limpar absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border px-3 py-1.5 text-xs font-semibold transition"
       >
         Limpar
       </button>
@@ -699,7 +699,7 @@ const sugestoesBusca = useMemo(() => {
     </p>
 
     {busca.trim() && (
-      <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+      <span className="phanyx-busca-permissoes-contador rounded-full border px-3 py-1 text-xs font-semibold">
         {permissoesFiltradas.length}{" "}
         {permissoesFiltradas.length === 1
           ? "permissão encontrada"
@@ -709,25 +709,29 @@ const sugestoesBusca = useMemo(() => {
   </div>
 
   {sugestoesBusca.length > 0 && (
-    <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
-      <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-        Sugestões mais próximas
-      </p>
+  <div
+    data-permissoes-sugestoes="true"
+    className="phanyx-busca-permissoes-sugestoes mt-4 rounded-2xl border p-4"
+  >
+    <p className="phanyx-busca-permissoes-titulo-sugestoes mb-3 text-xs font-bold uppercase tracking-wide">
+      Sugestões mais próximas
+    </p>
 
-      <div className="flex flex-wrap gap-2">
-        {sugestoesBusca.map((sugestao) => (
-          <button
-            key={`sugestao-${sugestao.chave}`}
-            type="button"
-            onClick={() => setBusca(sugestao.nome)}
-            className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-blue-500 dark:hover:bg-blue-950 dark:hover:text-blue-200"
-          >
-            {sugestao.nome}
-          </button>
-        ))}
-      </div>
+    <div className="flex flex-wrap gap-2">
+      {sugestoesBusca.map((sugestao) => (
+        <button
+          key={`sugestao-${sugestao.chave}`}
+          type="button"
+          data-permissao-sugestao="true"
+          onClick={() => setBusca(sugestao.nome)}
+          className="phanyx-busca-permissoes-chip rounded-full border px-3 py-2 text-xs font-semibold transition"
+        >
+          {sugestao.nome}
+        </button>
+      ))}
     </div>
-  )}
+  </div>
+)}
 </div>
 
 {permissoesFiltradas.length === 0 ? (
