@@ -4,8 +4,8 @@ import { getUserFromToken } from "@/lib/server-auth";
 import { planoTemRecurso } from "@/lib/plano-acesso";
 import { assinaturaPermiteUso } from "@/lib/assinatura-acesso";
 import { put } from "@vercel/blob";
-
 import { gerarCertificadoVisualPdf } from "@/lib/certificados/gerarCertificadoVisualPdf";
+import { resolverModeloCertificadoPublicado } from "@/lib/certificados/resolverModeloCertificadoPublicado";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -124,6 +124,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const matriculaDoCertificado =
+  aluno.matriculas.find((matricula) =>
+    matricula.itens.some(
+      (item) => item.disciplinaId === disciplina.id
+    )
+  ) ||
+  aluno.matriculas.find((matricula) => matricula.cursoId) ||
+  aluno.matriculas[0] ||
+  null;
+
+const modeloResolvido =
+  await resolverModeloCertificadoPublicado({
+    instituicaoId: user.instituicaoId,
+    cursoId: matriculaDoCertificado?.cursoId ?? null,
+  });
+
+if (!modeloResolvido) {
+  return NextResponse.json(
+    {
+      error:
+        "Nenhum modelo de certificado publicado foi encontrado para este curso. Configure um modelo da modalidade ou um modelo padrão geral.",
+    },
+    { status: 400 }
+  );
+}
+
     const existente = await prisma.certificado.findUnique({
       where: {
         alunoId_disciplinaId: {
@@ -152,6 +178,8 @@ export async function POST(req: NextRequest) {
         disciplinaId: disciplina.id,
         instituicaoId: user.instituicaoId,
         codigo,
+        certificadoModeloId: modeloResolvido.modelo.id,
+        certificadoModeloVersaoId: modeloResolvido.versao.id,
       },
       include: {
         disciplina: true,

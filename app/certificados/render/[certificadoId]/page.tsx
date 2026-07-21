@@ -145,6 +145,16 @@ export default async function CertificadoRenderPage({
         },
       },
       disciplina: true,
+      certificadoModeloVersao: {
+  include: {
+    modelo: true,
+    campos: {
+      orderBy: {
+        id: "asc",
+      },
+    },
+  },
+},
             instituicao: {
         include: {
           configuracaoInstituicao: true,
@@ -165,34 +175,52 @@ export default async function CertificadoRenderPage({
   const aluno = certificado.aluno as any;
   const curso = cursoDoCertificado(certificado);
 
-  const modoFundoSalvo = ["modelo", "phanyx", "cor"].includes(
-  instituicao?.certificadoModoFundo
+  const versaoEmitida =
+  certificado.certificadoModeloVersao || null;
+
+  const modoFundoOriginal =
+  versaoEmitida?.modoFundo ||
+  instituicao?.certificadoModoFundo ||
+  "modelo";
+
+const modoFundoSalvo = ["modelo", "phanyx", "cor"].includes(
+  modoFundoOriginal
 )
-  ? instituicao.certificadoModoFundo
+  ? modoFundoOriginal
   : "modelo";
 
 const corFundoSalva =
-  instituicao?.certificadoCorFundoPagina || "#ffffff";
+  versaoEmitida?.corFundoPagina ||
+  instituicao?.certificadoCorFundoPagina ||
+  "#ffffff";
 
 const larguraBase =
-  Number(instituicao?.certificadoLarguraBase) || 1123;
+  Number(
+    versaoEmitida?.larguraBase ||
+      instituicao?.certificadoLarguraBase
+  ) || 1123;
 
 const alturaBase =
-  Number(instituicao?.certificadoAlturaBase) || 794;
+  Number(
+    versaoEmitida?.alturaBase ||
+      instituicao?.certificadoAlturaBase
+  ) || 794;
 
   const configuracaoInstituicao =
     instituicao?.configuracaoInstituicao || null;
 
   const matriculaRelacionada = matriculaDoCertificado(certificado);
 
-  const camposBanco = await prisma.certificadoCampo.findMany({
-    where: {
-      instituicaoId: certificado.instituicaoId,
-    },
-    orderBy: {
-      id: "asc",
-    },
-  });
+  const camposBanco = versaoEmitida
+  ? versaoEmitida.campos
+  : await prisma.certificadoCampo.findMany({
+      where: {
+        instituicaoId: certificado.instituicaoId,
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
 
   const campos = camposBanco.map((campo: any) => {
     const normalizado = normalizarCampo(campo);
@@ -280,7 +308,9 @@ const alturaBase =
 
   const templateUrl =
   modoFundoSalvo === "modelo"
-    ? instituicao?.certificadoPreviewUrl ||
+    ? versaoEmitida?.previewUrl ||
+      versaoEmitida?.templateUrl ||
+      instituicao?.certificadoPreviewUrl ||
       instituicao?.certificadoTemplateUrl ||
       null
     : null;

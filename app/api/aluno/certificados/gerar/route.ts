@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { gerarCodigoCertificado } from "@/lib/certificados/assinatura";
+import { resolverModeloCertificadoPublicado } from "@/lib/certificados/resolverModeloCertificadoPublicado";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,11 +23,26 @@ export async function POST(req: NextRequest) {
     }
 
     const aluno = await prisma.aluno.findFirst({
-      where: {
-        userId: user.id,
-        instituicaoId: user.instituicaoId,
+  where: {
+    userId: user.id,
+    instituicaoId: user.instituicaoId,
+  },
+  include: {
+    matriculas: {
+      orderBy: {
+        createdAt: "desc",
       },
-    });
+      include: {
+        curso: true,
+        itens: {
+          select: {
+            disciplinaId: true,
+          },
+        },
+      },
+    },
+  },
+});
 
     if (!aluno) {
       return NextResponse.json(
@@ -34,6 +50,23 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
+
+    const matriculaDoCertificado =
+  aluno.matriculas.find((matricula) =>
+    matricula.itens.some(
+      (item) => item.disciplinaId === disciplinaId
+    )
+  ) || null;
+
+if (!matriculaDoCertificado) {
+  return NextResponse.json(
+    {
+      error:
+        "A disciplina informada não pertence a uma matrícula deste aluno.",
+    },
+    { status: 400 }
+  );
+}
 
     const existente = await prisma.certificado.findUnique({
       where: {
@@ -53,13 +86,31 @@ export async function POST(req: NextRequest) {
       });
     }
 
+const modeloResolvido =
+  await resolverModeloCertificadoPublicado({
+    instituicaoId: user.instituicaoId,
+    cursoId: matriculaDoCertificado.cursoId,
+  });
+
+if (!modeloResolvido) {
+  return NextResponse.json(
+    {
+      error:
+        "Nenhum modelo de certificado publicado foi encontrado para este curso.",
+    },
+    { status: 400 }
+  );
+}
+
     const criado = await prisma.certificado.create({
       data: {
-        alunoId: aluno.id,
-        disciplinaId,
-        instituicaoId: user.instituicaoId,
-        codigo: `TEMP-${Date.now()}`,
-      },
+  alunoId: aluno.id,
+  disciplinaId,
+  instituicaoId: user.instituicaoId,
+  codigo: `TEMP-${Date.now()}`,
+  certificadoModeloId: modeloResolvido.modelo.id,
+  certificadoModeloVersaoId: modeloResolvido.versao.id,
+},
     });
 
     const codigoAssinado = gerarCodigoCertificado({

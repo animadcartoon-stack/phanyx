@@ -137,6 +137,60 @@ arcoAngulo?: number | null;
 arcoInvertido?: boolean | null;
 };
 
+type ModalidadeCertificadoValor =
+  | "GERAL"
+  | "BACHARELADO"
+  | "LICENCIATURA"
+  | "TECNOLOGO"
+  | "POS_GRADUACAO"
+  | "MBA"
+  | "MESTRADO"
+  | "DOUTORADO"
+  | "TECNICO"
+  | "CURSO_LIVRE"
+  | "OFICINA"
+  | "ENSINO_MEDIO"
+  | "ENSINO_FUNDAMENTAL"
+  | "EDUCACAO_INFANTIL"
+  | "PRE_ESCOLA"
+  | "EXTENSAO"
+  | "CAPACITACAO"
+  | "TREINAMENTO"
+  | "EJA"
+  | "OUTRO";
+
+const MODALIDADES_CERTIFICADO: {
+  valor: ModalidadeCertificadoValor;
+  label: string;
+}[] = [
+  { valor: "GERAL", label: "Geral" },
+  { valor: "BACHARELADO", label: "Bacharelado" },
+  { valor: "LICENCIATURA", label: "Licenciatura" },
+  { valor: "TECNOLOGO", label: "Tecnólogo" },
+  { valor: "POS_GRADUACAO", label: "Pós-graduação" },
+  { valor: "MBA", label: "MBA" },
+  { valor: "MESTRADO", label: "Mestrado" },
+  { valor: "DOUTORADO", label: "Doutorado" },
+  { valor: "TECNICO", label: "Curso Técnico" },
+  { valor: "CURSO_LIVRE", label: "Curso Livre" },
+  { valor: "OFICINA", label: "Oficina" },
+  { valor: "ENSINO_MEDIO", label: "Ensino Médio" },
+  {
+    valor: "ENSINO_FUNDAMENTAL",
+    label: "Ensino Fundamental",
+  },
+  {
+    valor: "EDUCACAO_INFANTIL",
+    label: "Educação Infantil",
+  },
+  { valor: "PRE_ESCOLA", label: "Pré-escola" },
+  { valor: "EXTENSAO", label: "Extensão" },
+  { valor: "CAPACITACAO", label: "Capacitação" },
+  { valor: "TREINAMENTO", label: "Treinamento" },
+  { valor: "EJA", label: "EJA" },
+  { valor: "OUTRO", label: "Outro" },
+];
+
 const FONTES = [
   // Padrão
   "Arial",
@@ -1304,6 +1358,14 @@ const [novoModeloNome, setNovoModeloNome] =
 const [novoModeloDescricao, setNovoModeloDescricao] =
   useState("");
 
+  const [novoModeloModalidade, setNovoModeloModalidade] =
+  useState<ModalidadeCertificadoValor>("GERAL");
+
+const [
+  novoModeloPadraoModalidade,
+  setNovoModeloPadraoModalidade,
+] = useState(false);
+
   const [menuModelosAberto, setMenuModelosAberto] =
   useState(false);
 
@@ -1318,6 +1380,16 @@ const [nomeModeloEditando, setNomeModeloEditando] =
 
 const [descricaoModeloEditando, setDescricaoModeloEditando] =
   useState("");
+
+  const [
+  modalidadeModeloEditando,
+  setModalidadeModeloEditando,
+] = useState<ModalidadeCertificadoValor>("GERAL");
+
+const [
+  padraoModalidadeModeloEditando,
+  setPadraoModalidadeModeloEditando,
+] = useState(false);
 
 const [salvandoDadosModelo, setSalvandoDadosModelo] =
   useState(false);
@@ -2028,12 +2100,13 @@ async function criarNovoModeloCertificado() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nome,
-          descricao: descricao || null,
-          modalidade: "GERAL",
-          padraoGeral: false,
-          copiarLegado: false,
-        }),
+  nome,
+  descricao: descricao || null,
+  modalidade: novoModeloModalidade,
+  padraoGeral: false,
+  padraoModalidade: novoModeloPadraoModalidade,
+  copiarLegado: false,
+}),
       }
     );
 
@@ -2055,6 +2128,8 @@ async function criarNovoModeloCertificado() {
 
     setNovoModeloNome("");
     setNovoModeloDescricao("");
+    setNovoModeloModalidade("GERAL");
+    setNovoModeloPadraoModalidade(false);
     setNovoModeloFormAberto(false);
 
     if (
@@ -2104,6 +2179,22 @@ function abrirEdicaoModeloAtual() {
     String(modeloAtivo.descricao || "")
   );
 
+  const modalidadeAtual = String(
+  modeloAtivo.modalidade || "GERAL"
+) as ModalidadeCertificadoValor;
+
+setModalidadeModeloEditando(
+  MODALIDADES_CERTIFICADO.some(
+    (item) => item.valor === modalidadeAtual
+  )
+    ? modalidadeAtual
+    : "GERAL"
+);
+
+setPadraoModalidadeModeloEditando(
+  modeloAtivo.padraoModalidade === true
+);
+
   setModalEditarModeloAberto(true);
 }
 
@@ -2141,9 +2232,11 @@ async function salvarDadosModeloAtual() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          nome,
-          descricao: descricao || null,
-        }),
+  nome,
+  descricao: descricao || null,
+  modalidade: modalidadeModeloEditando,
+  padraoModalidade: padraoModalidadeModeloEditando,
+}),
       }
     );
 
@@ -2162,6 +2255,8 @@ async function salvarDadosModeloAtual() {
     setModalEditarModeloAberto(false);
     setNomeModeloEditando("");
     setDescricaoModeloEditando("");
+    setModalidadeModeloEditando("GERAL");
+    setPadraoModalidadeModeloEditando(false);
 
     setMensagemSucesso(
       dados?.mensagem ||
@@ -6557,6 +6652,69 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
             className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500"
           />
         </div>
+
+<div className="lg:col-span-2 grid gap-4 md:grid-cols-2">
+  <div>
+    <label className="mb-2 block text-sm font-bold text-slate-700">
+      Modalidade do modelo
+    </label>
+
+    <select
+      value={novoModeloModalidade}
+      onChange={(evento) => {
+        const modalidade =
+          evento.target.value as ModalidadeCertificadoValor;
+
+        setNovoModeloModalidade(modalidade);
+
+        if (modalidade === "GERAL") {
+          setNovoModeloPadraoModalidade(false);
+        }
+      }}
+      className="phanyx-curso-modalidade-select phanyx-certificado-modalidade-select w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-blue-500"
+    >
+      {MODALIDADES_CERTIFICADO.map((item) => (
+        <option key={item.valor} value={item.valor}>
+          {item.label}
+        </option>
+      ))}
+    </select>
+
+    <p className="mt-2 text-xs text-slate-500">
+      Esta modalidade será comparada com o tipo definido no cadastro do
+      curso.
+    </p>
+  </div>
+
+  <label
+  data-disabled={
+    novoModeloModalidade === "GERAL" ? "true" : "false"
+  }
+  className="phanyx-certificado-padrao-modalidade flex items-start gap-3 rounded-xl border p-4"
+>
+  <input
+    type="checkbox"
+    checked={novoModeloPadraoModalidade}
+    disabled={novoModeloModalidade === "GERAL"}
+    onChange={(evento) =>
+      setNovoModeloPadraoModalidade(evento.target.checked)
+    }
+    className="mt-0.5 h-5 w-5 shrink-0 accent-blue-600 disabled:cursor-not-allowed"
+  />
+
+  <span>
+    <span className="phanyx-certificado-padrao-modalidade-titulo block text-sm font-bold">
+      Modelo padrão desta modalidade
+    </span>
+
+    <span className="phanyx-certificado-padrao-modalidade-descricao mt-1 block text-xs leading-5">
+      Será usado automaticamente quando o curso não possuir um modelo
+      específico vinculado.
+    </span>
+  </span>
+</label>
+</div>
+
       </div>
 
       <div className="mt-4 flex flex-wrap justify-end gap-3">
@@ -6567,6 +6725,8 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
             setNovoModeloFormAberto(false);
             setNovoModeloNome("");
             setNovoModeloDescricao("");
+            setNovoModeloModalidade("GERAL");
+            setNovoModeloPadraoModalidade(false);
           }}
           className="rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-100 disabled:opacity-50"
         >
@@ -12386,8 +12546,8 @@ atualizarContornoTextoCampoSelecionado({
           </h2>
 
           <p className="mt-1 text-sm text-slate-300">
-            Altere o nome e a descrição. O conteúdo visual do
-            certificado não será modificado.
+            Altere o nome, a descrição e a modalidade. O conteúdo visual do
+certificado não será modificado.
           </p>
         </div>
 
@@ -12460,6 +12620,76 @@ atualizarContornoTextoCampoSelecionado({
             className="phanyx-cert-modelo-modal-input w-full resize-none rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500"
           />
         </div>
+        <div>
+  <label
+    htmlFor="modalidade-modelo-certificado"
+    className="mb-2 block text-sm font-bold"
+  >
+    Modalidade do modelo
+  </label>
+
+  <select
+    id="modalidade-modelo-certificado"
+    value={modalidadeModeloEditando}
+    disabled={salvandoDadosModelo}
+    onChange={(evento) => {
+      const modalidade =
+        evento.target.value as ModalidadeCertificadoValor;
+
+      setModalidadeModeloEditando(modalidade);
+
+      if (modalidade === "GERAL") {
+        setPadraoModalidadeModeloEditando(false);
+      }
+    }}
+    className="phanyx-curso-modalidade-select phanyx-certificado-modalidade-select phanyx-cert-modelo-modal-input w-full rounded-xl border border-slate-600 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-blue-500 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {MODALIDADES_CERTIFICADO.map((item) => (
+      <option key={item.valor} value={item.valor}>
+        {item.label}
+      </option>
+    ))}
+  </select>
+
+  <p className="mt-2 text-xs text-slate-400">
+    O sistema usará esta modalidade para relacionar o modelo ao tipo
+    cadastrado no curso.
+  </p>
+</div>
+
+<label
+  className={`flex items-start gap-3 rounded-xl border p-4 transition ${
+    modalidadeModeloEditando === "GERAL"
+      ? "cursor-not-allowed border-slate-700 bg-slate-800/60 opacity-60"
+      : "cursor-pointer border-slate-600 bg-slate-950"
+  }`}
+>
+  <input
+    type="checkbox"
+    checked={padraoModalidadeModeloEditando}
+    disabled={
+      salvandoDadosModelo ||
+      modalidadeModeloEditando === "GERAL"
+    }
+    onChange={(evento) => {
+      setPadraoModalidadeModeloEditando(
+        evento.target.checked
+      );
+    }}
+    className="mt-1 h-4 w-4"
+  />
+
+  <span>
+    <span className="block text-sm font-bold text-white">
+      Modelo padrão desta modalidade
+    </span>
+
+    <span className="mt-1 block text-xs text-slate-400">
+      Será escolhido automaticamente para cursos dessa modalidade que
+      não tenham um modelo específico vinculado.
+    </span>
+  </span>
+</label>
       </div>
 
       <div className="flex flex-wrap justify-end gap-3 border-t border-slate-700 bg-slate-950/40 px-6 py-5">
