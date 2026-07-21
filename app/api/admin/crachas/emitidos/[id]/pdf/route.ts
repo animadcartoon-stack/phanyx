@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 import { gerarCrachaVisualPdf } from "@/lib/crachas/gerarCrachaVisualPdf";
+import { obterPlanoInstituicao } from "@/lib/obter-plano-instituicao";
+import { planoTemRecurso } from "@/lib/plano-acesso";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -66,6 +68,29 @@ export async function GET(
         { status: 400 }
       );
     }
+
+    const planoInstituicao =
+  await obterPlanoInstituicao(
+    user.instituicaoId
+  );
+
+const podeEmitirCrachas = planoTemRecurso(
+  planoInstituicao,
+  "CRACHAS_EMISSAO"
+);
+
+if (!podeEmitirCrachas) {
+  return NextResponse.json(
+    {
+      error:
+        "A geração de PDF de crachás está disponível a partir do Plano Profissional.",
+      codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+      plano: planoInstituicao,
+      recurso: "CRACHAS_EMISSAO",
+    },
+    { status: 403 }
+  );
+}
 
     const crachaEmitidoId = Number(params.id);
 

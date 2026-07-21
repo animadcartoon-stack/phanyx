@@ -1354,9 +1354,17 @@ const [restaurandoModeloId, setRestaurandoModeloId] =
 const [modeloAtivoId, setModeloAtivoId] =
   useState<number | null>(null);
 
-const [resumoModelos, setResumoModelos] = useState({
+const [resumoModelos, setResumoModelos] = useState<{
+  plano: string;
+  limite: number | null;
+  ilimitado: boolean;
+  utilizados: number;
+  restantes: number | null;
+  podeCriar: boolean;
+}>({
   plano: "ESSENCIAL",
   limite: 1,
+  ilimitado: false,
   utilizados: 0,
   restantes: 1,
   podeCriar: false,
@@ -2043,19 +2051,33 @@ setModelosCertificado(modelosAtivos);
 setModelosArquivados(modelosArquivadosRecebidos);
 
   setResumoModelos({
-    plano: String(
-      dados?.resumo?.plano || "ESSENCIAL"
-    ),
-    limite: Number(dados?.resumo?.limite || 1),
-    utilizados: Number(
-      dados?.resumo?.utilizados || 0
-    ),
-    restantes: Number(
-      dados?.resumo?.restantes || 0
-    ),
-    podeCriar:
-      dados?.resumo?.podeCriar === true,
-  });
+  plano: String(
+    dados?.resumo?.plano || "ESSENCIAL"
+  ),
+
+  limite:
+    dados?.resumo?.ilimitado === true ||
+    dados?.resumo?.limite === null
+      ? null
+      : Number(dados?.resumo?.limite ?? 1),
+
+  ilimitado:
+    dados?.resumo?.ilimitado === true ||
+    dados?.resumo?.limite === null,
+
+  utilizados: Number(
+    dados?.resumo?.utilizados ?? 0
+  ),
+
+  restantes:
+    dados?.resumo?.ilimitado === true ||
+    dados?.resumo?.restantes === null
+      ? null
+      : Number(dados?.resumo?.restantes ?? 0),
+
+  podeCriar:
+    dados?.resumo?.podeCriar === true,
+});
 
   return modelosAtivos;
 }
@@ -2701,15 +2723,31 @@ setResumoModelos({
   plano: String(
     dataModelos?.resumo?.plano || "ESSENCIAL"
   ),
-  limite: Number(
-    dataModelos?.resumo?.limite || 1
-  ),
+
+  limite:
+    dataModelos?.resumo?.ilimitado === true ||
+    dataModelos?.resumo?.limite === null
+      ? null
+      : Number(
+          dataModelos?.resumo?.limite ?? 1
+        ),
+
+  ilimitado:
+    dataModelos?.resumo?.ilimitado === true ||
+    dataModelos?.resumo?.limite === null,
+
   utilizados: Number(
-    dataModelos?.resumo?.utilizados || 0
+    dataModelos?.resumo?.utilizados ?? 0
   ),
-  restantes: Number(
-    dataModelos?.resumo?.restantes || 0
-  ),
+
+  restantes:
+    dataModelos?.resumo?.ilimitado === true ||
+    dataModelos?.resumo?.restantes === null
+      ? null
+      : Number(
+          dataModelos?.resumo?.restantes ?? 0
+        ),
+
   podeCriar:
     dataModelos?.resumo?.podeCriar === true,
 });
@@ -6495,8 +6533,9 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
 
     <div className="flex flex-wrap items-center gap-3">
       <span className="phanyx-cert-modelos-contador rounded-full border px-4 py-2 text-sm font-bold">
-  {resumoModelos.utilizados} de{" "}
-  {resumoModelos.limite} utilizados
+  {resumoModelos.ilimitado
+    ? `${resumoModelos.utilizados} modelo(s) ativo(s) • Ilimitado`
+    : `${resumoModelos.utilizados} de ${resumoModelos.limite} utilizados`}
 </span>
 
 <button
@@ -7061,10 +7100,12 @@ function iniciarArrasteMenuContexto(e: React.MouseEvent<HTMLDivElement>) {
     </div>
   )}
 
-  {!resumoModelos.podeCriar && (
+  {!resumoModelos.podeCriar &&
+  resumoModelos.limite !== null && (
     <p className="mt-4 text-xs font-semibold text-amber-700">
-      O limite de {resumoModelos.limite} modelo(s)
+      O limite de {resumoModelos.limite} modelo(s) ativo(s)
       do Plano {resumoModelos.plano} foi atingido.
+      Modelos arquivados não consomem o limite.
     </p>
   )}
 </div>

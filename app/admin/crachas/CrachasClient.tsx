@@ -566,6 +566,24 @@ const [emitindoCracha, setEmitindoCracha] = useState(false);
 const [ultimoCrachaEmitidoId, setUltimoCrachaEmitidoId] =
   useState<number | null>(null);
 
+  type PlanoCracha =
+  | "ESSENCIAL"
+  | "PROFISSIONAL"
+  | "ENTERPRISE";
+
+const [planoInstituicaoCracha, setPlanoInstituicaoCracha] =
+  useState<PlanoCracha | null>(null);
+
+const [carregandoPlanoCracha, setCarregandoPlanoCracha] =
+  useState(true);
+
+const [erroPlanoCracha, setErroPlanoCracha] =
+  useState("");
+
+const podeUsarEditorCrachas =
+  planoInstituicaoCracha === "PROFISSIONAL" ||
+  planoInstituicaoCracha === "ENTERPRISE";
+
 const objetos =
   lado === "FRENTE" ? objetosFrente : objetosVerso;
 
@@ -4158,8 +4176,92 @@ function gerarPontosPoligono(
 }
 
 useEffect(() => {
-  carregarModelosSalvosCracha(tipoModeloCracha);
-}, [tipoModeloCracha]);
+  let componenteAtivo = true;
+
+  async function carregarPlanoInstituicaoCracha() {
+    try {
+      setCarregandoPlanoCracha(true);
+      setErroPlanoCracha("");
+
+      const resposta = await fetch(
+        "/api/admin/uso-plano",
+        {
+          credentials: "include",
+          cache: "no-store",
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error ||
+            "Não foi possível verificar o plano da instituição."
+        );
+      }
+
+      const planoNormalizado = String(
+        dados?.plano || "ESSENCIAL"
+      )
+        .trim()
+        .toUpperCase()
+        .replace(
+          "PROFESSIONAL",
+          "PROFISSIONAL"
+        ) as PlanoCracha;
+
+      const planoValido: PlanoCracha =
+        planoNormalizado === "PROFISSIONAL" ||
+        planoNormalizado === "ENTERPRISE"
+          ? planoNormalizado
+          : "ESSENCIAL";
+
+      if (componenteAtivo) {
+        setPlanoInstituicaoCracha(planoValido);
+      }
+    } catch (error: any) {
+      console.error(
+        "ERRO AO VERIFICAR PLANO PARA CRACHÁS:",
+        error
+      );
+
+      if (componenteAtivo) {
+        setPlanoInstituicaoCracha("ESSENCIAL");
+        setErroPlanoCracha(
+          error?.message ||
+            "Não foi possível verificar o plano da instituição."
+        );
+      }
+    } finally {
+      if (componenteAtivo) {
+        setCarregandoPlanoCracha(false);
+      }
+    }
+  }
+
+  void carregarPlanoInstituicaoCracha();
+
+  return () => {
+    componenteAtivo = false;
+  };
+}, []);
+
+useEffect(() => {
+  if (
+    carregandoPlanoCracha ||
+    !podeUsarEditorCrachas
+  ) {
+    return;
+  }
+
+  void carregarModelosSalvosCracha(
+    tipoModeloCracha
+  );
+}, [
+  tipoModeloCracha,
+  carregandoPlanoCracha,
+  podeUsarEditorCrachas,
+]);
 
 function anguloGradienteCracha(direcao: DirecaoGradienteCracha) {
   if (direcao === "HORIZONTAL") return "90deg";
@@ -4403,6 +4505,87 @@ function removerPontoGradienteFundo(id: number) {
 
     return pontos.filter((ponto) => ponto.id !== id);
   });
+}
+
+if (carregandoPlanoCracha) {
+  return (
+    <div className="phanyx-crachas-page p-4">
+      <div className="phanyx-crachas-card mx-auto max-w-3xl p-8 text-center">
+        <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-slate-300 border-t-blue-600" />
+
+        <h1 className="mt-5 text-xl font-black text-slate-900 dark:text-white">
+          Verificando o plano da instituição
+        </h1>
+
+        <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+          Aguarde enquanto o PHANYX verifica a disponibilidade do Editor de
+          Crachás.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+if (!podeUsarEditorCrachas) {
+  return (
+    <div className="phanyx-crachas-page p-4">
+      <div className="phanyx-crachas-card mx-auto max-w-3xl overflow-hidden">
+        <div className="border-b border-slate-200 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 p-6 text-white dark:border-slate-700">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-100">
+            Recurso do Plano Profissional
+          </p>
+
+          <h1 className="mt-2 text-2xl font-black">
+            Editor PHANYX de Crachás
+          </h1>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-blue-100">
+            Crie modelos personalizados, trabalhe com frente e verso e emita
+            crachás individuais ou em lote.
+          </p>
+        </div>
+
+        <div className="p-6">
+          <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
+            <p className="text-sm font-black">
+              O plano atual não inclui este recurso
+            </p>
+
+            <p className="mt-2 text-sm leading-6">
+              Sua instituição está no Plano{" "}
+              <strong>
+                {planoInstituicaoCracha || "ESSENCIAL"}
+              </strong>
+              . O Editor de Crachás e a emissão de crachás estão disponíveis a
+              partir do Plano Profissional.
+            </p>
+
+            {erroPlanoCracha && (
+              <p className="mt-3 text-xs font-semibold">
+                Não foi possível confirmar o plano: {erroPlanoCracha}
+              </p>
+            )}
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <a
+              href="/planos"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700"
+            >
+              Ver planos disponíveis
+            </a>
+
+            <a
+              href="/admin"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-black text-slate-800 transition hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+            >
+              Voltar ao painel
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
   return (

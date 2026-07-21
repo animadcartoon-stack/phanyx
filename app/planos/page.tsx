@@ -23,6 +23,7 @@ const planos = [
   "Sistema financeiro institucional",
   "Avisos e feriados institucionais",
   "Documentos institucionais básicos",
+  "Editor básico de certificados com 1 modelo ativo",
   "1 polo incluso no plano",
 ],
   idealPara:
@@ -44,27 +45,20 @@ const planos = [
   recursos: [
   "Tudo do plano Essencial",
 
-  "LMS com aulas, materiais e progresso",
+  "LMS completo com aulas, materiais e progresso",
   "Provas online com correção automática",
 
-  "Editor PHANYX de Certificados",
-  "Campos dinâmicos para certificados",
-  "Certificados automáticos por conclusão",
-  "Certificados liberados no portal do aluno",
-  "QR Code de validação pública",
+  "Editor PHANYX de Certificados com até 20 modelos ativos",
+  "Certificados automáticos por modalidade e curso, com QR Code",
+  "Emissões ilimitadas e certificados no portal do aluno",
 
-  "Contratos automáticos com dados do aluno",
-  "Documentos automáticos com preenchimento dinâmico",
-  "Histórico acadêmico escolar em PDF",
+  "Editor PHANYX de Crachás",
+  "Criação, QR Code e emissão individual ou em lote",
 
-  "Modelo de histórico com campos dinâmicos",
-  "Histórico disponível no portal do aluno",
+  "Contratos e documentos com preenchimento automático",
+  "Histórico acadêmico em PDF e no portal do aluno",
 
-  "Chat interno em tempo real",
-  "Ouvidoria institucional integrada",
-
-  "Reputação PHANYX por Ouvidoria",
-
+  "Chat interno, Ouvidoria e Reputação PHANYX",
   "Integrações Google básicas",
 
   "Até 3 polos inclusos",
@@ -87,6 +81,10 @@ const planos = [
     "Plano ideal para operações maiores que precisam de mais capacidade institucional, prioridade de suporte, personalização ampliada e recursos avançados com cobrança automática.",
   recursos: [
   "Tudo do plano Profissional",
+
+  "Modelos ativos de certificado ilimitados",
+  "Certificados e crachás avançados para múltiplos polos",
+  "Modelos institucionais com personalização ampliada",
 
   "PHANYX Growth avançado",
 
@@ -157,6 +155,42 @@ const comparativo = [
     profissional: "Sim",
     enterprise: "Sim",
   },
+  {
+  recurso: "Editor visual de certificados",
+  essencial: "Básico — 1 modelo",
+  profissional: "Completo — até 20 modelos",
+  enterprise: "Completo — ilimitado",
+},
+{
+  recurso: "Modelos ativos de certificado",
+  essencial: "1 modelo",
+  profissional: "Até 20",
+  enterprise: "Ilimitados",
+},
+{
+  recurso: "Certificados por modalidade e curso",
+  essencial: "Não",
+  profissional: "Sim",
+  enterprise: "Sim",
+},
+{
+  recurso: "Emissão de certificados aos alunos",
+  essencial: "Base",
+  profissional: "Ilimitada",
+  enterprise: "Ilimitada",
+},
+{
+  recurso: "Editor PHANYX de Crachás",
+  essencial: "Não",
+  profissional: "Completo",
+  enterprise: "Completo + multi-polo",
+},
+{
+  recurso: "Emissão de crachás em lote",
+  essencial: "Não",
+  profissional: "Sim",
+  enterprise: "Avançada",
+},
   {
     recurso: "Prioridade de suporte",
     essencial: "Não",

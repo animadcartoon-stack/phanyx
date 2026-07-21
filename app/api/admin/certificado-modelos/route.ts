@@ -31,9 +31,17 @@ function normalizarModalidade(
 
 function mensagemLimitePlano(params: {
   plano: string;
-  limite: number;
+  limite: number | null;
 }) {
-  const plano = String(params.plano || "ESSENCIAL").toUpperCase();
+  const plano = String(
+    params.plano || "ESSENCIAL"
+  ).toUpperCase();
+
+  if (params.limite === null) {
+    return (
+      "O plano Enterprise possui modelos de certificado ativos ilimitados."
+    );
+  }
 
   if (params.limite === 1) {
     return (
@@ -150,12 +158,13 @@ export async function GET() {
     return NextResponse.json({
       modelos,
       resumo: {
-        plano: regraPlano.plano,
-        limite: regraPlano.limite,
-        utilizados: regraPlano.utilizados,
-        restantes: regraPlano.restantes,
-        podeCriar: regraPlano.permitido,
-      },
+  plano: regraPlano.plano,
+  limite: regraPlano.limite,
+  ilimitado: regraPlano.ilimitado,
+  utilizados: regraPlano.utilizados,
+  restantes: regraPlano.restantes,
+  podeCriar: regraPlano.permitido,
+},
     });
   } catch (error: any) {
     console.error("ERRO AO LISTAR MODELOS DE CERTIFICADO:", error);
@@ -327,11 +336,12 @@ export async function POST(request: Request) {
           }),
           codigo: "LIMITE_MODELOS_CERTIFICADO",
           resumo: {
-            plano: regraPlano.plano,
-            limite: regraPlano.limite,
-            utilizados: regraPlano.utilizados,
-            restantes: regraPlano.restantes,
-          },
+  plano: regraPlano.plano,
+  limite: regraPlano.limite,
+  ilimitado: regraPlano.ilimitado,
+  utilizados: regraPlano.utilizados,
+  restantes: regraPlano.restantes,
+},
         },
         { status: 409 }
       );

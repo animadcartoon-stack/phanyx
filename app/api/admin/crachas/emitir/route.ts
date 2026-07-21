@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import { obterPlanoInstituicao } from "@/lib/obter-plano-instituicao";
+import { planoTemRecurso } from "@/lib/plano-acesso";
 
 export const dynamic = "force-dynamic";
 
@@ -186,6 +188,29 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const planoInstituicao =
+  await obterPlanoInstituicao(
+    user.instituicaoId
+  );
+
+const podeEmitirCrachas = planoTemRecurso(
+  planoInstituicao,
+  "CRACHAS_EMISSAO"
+);
+
+if (!podeEmitirCrachas) {
+  return NextResponse.json(
+    {
+      error:
+        "A emissão de crachás está disponível a partir do Plano Profissional.",
+      codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+      plano: planoInstituicao,
+      recurso: "CRACHAS_EMISSAO",
+    },
+    { status: 403 }
+  );
+}
 
     const body = await req.json();
 

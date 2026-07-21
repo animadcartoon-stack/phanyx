@@ -1,8 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import { obterPlanoInstituicao } from "@/lib/obter-plano-instituicao";
+import { planoTemRecurso } from "@/lib/plano-acesso";
 
 export const dynamic = "force-dynamic";
+
+async function verificarAcessoEditorCrachas(
+  instituicaoId: number
+) {
+  const plano = await obterPlanoInstituicao(
+    instituicaoId
+  );
+
+  return {
+    plano,
+    permitido: planoTemRecurso(
+      plano,
+      "CRACHAS_EDITOR"
+    ),
+  };
+}
 
 const TIPOS_VALIDOS = [
   "ALUNO",
@@ -81,6 +99,24 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    const acessoPlano =
+  await verificarAcessoEditorCrachas(
+    user.instituicaoId
+  );
+
+if (!acessoPlano.permitido) {
+  return NextResponse.json(
+    {
+      error:
+        "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
+      codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+      plano: acessoPlano.plano,
+      recurso: "CRACHAS_EDITOR",
+    },
+    { status: 403 }
+  );
+}
+
     const { searchParams } = new URL(req.url);
 
     const tipoPessoa = limparTexto(searchParams.get("tipoPessoa")).toUpperCase();
@@ -136,6 +172,24 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
+    const acessoPlano =
+  await verificarAcessoEditorCrachas(
+    user.instituicaoId
+  );
+
+if (!acessoPlano.permitido) {
+  return NextResponse.json(
+    {
+      error:
+        "O Editor PHANYX de Crachás está disponível a partir do Plano Profissional.",
+      codigo: "RECURSO_NAO_DISPONIVEL_NO_PLANO",
+      plano: acessoPlano.plano,
+      recurso: "CRACHAS_EDITOR",
+    },
+    { status: 403 }
+  );
+}
 
     const body = await req.json();
 
