@@ -12515,3 +12515,31 @@ html[data-theme="dark"]
   color: #94a3b8 !important;
   -webkit-text-fill-color: #94a3b8 !important;
 }
+
+/* Cursos — modalidade em cinza neutro no tema Sistema */
+html[data-theme="system"] .phanyx-curso-modalidade-select {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+  border-color: #525252 !important;
+  color-scheme: dark;
+}
+
+html[data-theme="system"] .phanyx-curso-modalidade-select option {
+  background-color: #2f2f2f !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-curso-modalidade-select
+  option:checked {
+  background-color: #525252 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 100vmax #525252 inset !important;
+}
+
+html[data-theme="system"]
+  .phanyx-curso-modalidade-select
+  option:hover {
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}

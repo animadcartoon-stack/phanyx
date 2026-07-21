@@ -5,15 +5,13 @@ import { ModalidadeCertificado } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 const MODALIDADES_CERTIFICADO = new Set<string>(
-  Object.values(ModalidadeCertificado)
+  Object.values(ModalidadeCertificado),
 );
 
 function normalizarModalidadeCertificado(
-  valor: unknown
+  valor: unknown,
 ): ModalidadeCertificado {
-  const modalidade = String(
-    valor || ModalidadeCertificado.GERAL
-  )
+  const modalidade = String(valor || ModalidadeCertificado.GERAL)
     .trim()
     .toUpperCase();
 
@@ -41,39 +39,36 @@ export async function GET() {
     const user = await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Não autenticado" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
     const cursos = await prisma.curso.findMany({
-  where: {
-    instituicaoId: user.instituicaoId,
-  },
-  include: {
-    cursosPolos: {
+      where: {
+        instituicaoId: user.instituicaoId,
+      },
       include: {
-        polo: true,
+        cursosPolos: {
+          include: {
+            polo: true,
+          },
+        },
+        criadoPor: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+        excluidoPor: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
       },
-    },
-    criadoPor: {
-      select: {
-        id: true,
-        nome: true,
+      orderBy: {
+        nome: "asc",
       },
-    },
-    excluidoPor: {
-      select: {
-        id: true,
-        nome: true,
-      },
-    },
-  },
-  orderBy: {
-    nome: "asc",
-  },
-});
+    });
 
     return NextResponse.json(cursos);
   } catch (error) {
@@ -81,7 +76,7 @@ export async function GET() {
 
     return NextResponse.json(
       { error: "Erro ao buscar cursos" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -91,16 +86,13 @@ export async function POST(req: Request) {
     const user = await getUserFromToken();
 
     if (!user || !podeGerenciarCurso(user.role)) {
-      return NextResponse.json(
-        { error: "Sem permissão" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
     if (!user.instituicaoId) {
       return NextResponse.json(
         { error: "Usuário sem instituição vinculada." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,6 +102,7 @@ export async function POST(req: Request) {
       nome,
       codigo,
       descricao,
+      modalidadeCertificado,
       quantidadeSemestres,
       valorMatricula,
       valorMensalidade,
@@ -120,7 +113,7 @@ export async function POST(req: Request) {
     if (!nome || !String(nome).trim()) {
       return NextResponse.json(
         { error: "Nome do curso é obrigatório" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -134,25 +127,28 @@ export async function POST(req: Request) {
     if (cursoExistente) {
       return NextResponse.json(
         { error: "Já existe um curso com este nome" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (codigo && String(codigo).trim()) {
-  const cursoComCodigo = await prisma.curso.findFirst({
-    where: {
-      instituicaoId: user.instituicaoId,
-      codigo: String(codigo).trim(),
-    },
-  });
+      const cursoComCodigo = await prisma.curso.findFirst({
+        where: {
+          instituicaoId: user.instituicaoId,
+          codigo: String(codigo).trim(),
+        },
+      });
 
-  if (cursoComCodigo) {
-    return NextResponse.json(
-      { error: "Já existe um curso cadastrado com este código. Use outro código para continuar." },
-      { status: 400 }
-    );
-  }
-}
+      if (cursoComCodigo) {
+        return NextResponse.json(
+          {
+            error:
+              "Já existe um curso cadastrado com este código. Use outro código para continuar.",
+          },
+          { status: 400 },
+        );
+      }
+    }
 
     const poloIdsNormalizados = normalizarPoloIds(poloIds);
 
@@ -168,7 +164,7 @@ export async function POST(req: Request) {
       if (polosValidos.length !== poloIdsNormalizados.length) {
         return NextResponse.json(
           { error: "Um ou mais polos são inválidos para esta instituição." },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -178,6 +174,9 @@ export async function POST(req: Request) {
         nome: String(nome).trim(),
         codigo: codigo ? String(codigo).trim() : null,
         descricao: descricao ? String(descricao).trim() : null,
+        modalidadeCertificado: normalizarModalidadeCertificado(
+          modalidadeCertificado,
+        ),
         quantidadeSemestres:
           quantidadeSemestres !== null && quantidadeSemestres !== undefined
             ? Number(quantidadeSemestres)
@@ -216,10 +215,7 @@ export async function POST(req: Request) {
   } catch (error) {
     console.error("Erro ao criar curso:", error);
 
-    return NextResponse.json(
-      { error: "Erro ao criar curso" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Erro ao criar curso" }, { status: 500 });
   }
 }
 
@@ -228,16 +224,13 @@ export async function PUT(req: Request) {
     const user = await getUserFromToken();
 
     if (!user || !podeGerenciarCurso(user.role)) {
-      return NextResponse.json(
-        { error: "Sem permissão" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
     }
 
     if (!user.instituicaoId) {
       return NextResponse.json(
         { error: "Usuário sem instituição vinculada." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -248,6 +241,7 @@ export async function PUT(req: Request) {
       nome,
       codigo,
       descricao,
+      modalidadeCertificado,
       quantidadeSemestres,
       valorMatricula,
       valorMensalidade,
@@ -259,14 +253,14 @@ export async function PUT(req: Request) {
     if (!id) {
       return NextResponse.json(
         { error: "ID do curso é obrigatório" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!nome || !String(nome).trim()) {
       return NextResponse.json(
         { error: "Nome do curso é obrigatório" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -280,7 +274,7 @@ export async function PUT(req: Request) {
     if (!cursoExistente) {
       return NextResponse.json(
         { error: "Curso não encontrado" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -297,7 +291,7 @@ export async function PUT(req: Request) {
     if (conflitoNome) {
       return NextResponse.json(
         { error: "Já existe outro curso com este nome" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -315,7 +309,7 @@ export async function PUT(req: Request) {
       if (polosValidos.length !== poloIdsNormalizados.length) {
         return NextResponse.json(
           { error: "Um ou mais polos são inválidos para esta instituição." },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -329,6 +323,9 @@ export async function PUT(req: Request) {
           nome: String(nome).trim(),
           codigo: codigo ? String(codigo).trim() : null,
           descricao: descricao ? String(descricao).trim() : null,
+          modalidadeCertificado: normalizarModalidadeCertificado(
+            modalidadeCertificado,
+          ),
           quantidadeSemestres:
             quantidadeSemestres !== null && quantidadeSemestres !== undefined
               ? Number(quantidadeSemestres)
@@ -384,7 +381,7 @@ export async function PUT(req: Request) {
 
     return NextResponse.json(
       { error: "Erro ao editar curso" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -400,7 +397,10 @@ export async function DELETE(req: Request) {
     const id = Number(body.id);
 
     if (!id) {
-      return NextResponse.json({ error: "ID do curso é obrigatório" }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID do curso é obrigatório" },
+        { status: 400 },
+      );
     }
 
     const curso = await prisma.curso.findFirst({
@@ -411,21 +411,24 @@ export async function DELETE(req: Request) {
     });
 
     if (!curso) {
-      return NextResponse.json({ error: "Curso não encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Curso não encontrado" },
+        { status: 404 },
+      );
     }
 
     const agora = new Date();
-const expira = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const expira = new Date(agora.getTime() + 3 * 24 * 60 * 60 * 1000);
 
-const atualizado = await prisma.curso.update({
-  where: { id },
- data: {
-  ativo: false,
-  excluidoEm: agora,
-  expiraExclusaoEm: expira,
-  excluidoPorId: user.id,
-},
-});
+    const atualizado = await prisma.curso.update({
+      where: { id },
+      data: {
+        ativo: false,
+        excluidoEm: agora,
+        expiraExclusaoEm: expira,
+        excluidoPorId: user.id,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
@@ -434,7 +437,10 @@ const atualizado = await prisma.curso.update({
     });
   } catch (error) {
     console.error("Erro ao excluir curso:", error);
-    return NextResponse.json({ error: "Erro ao excluir curso" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro ao excluir curso" },
+      { status: 500 },
+    );
   }
 }
 
@@ -451,7 +457,10 @@ export async function PATCH(req: Request) {
     const ativo = Boolean(body.ativo);
 
     if (!id) {
-      return NextResponse.json({ error: "ID do curso é obrigatório" }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID do curso é obrigatório" },
+        { status: 400 },
+      );
     }
 
     const curso = await prisma.curso.findFirst({
@@ -462,26 +471,34 @@ export async function PATCH(req: Request) {
     });
 
     if (!curso) {
-      return NextResponse.json({ error: "Curso não encontrado" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Curso não encontrado" },
+        { status: 404 },
+      );
     }
 
     const atualizado = await prisma.curso.update({
-  where: { id },
-  data: {
-  ativo,
-  excluidoEm: ativo ? null : curso.excluidoEm,
-  expiraExclusaoEm: ativo ? null : curso.expiraExclusaoEm,
-  excluidoPorId: ativo ? null : curso.excluidoPorId,
-},
-});
+      where: { id },
+      data: {
+        ativo,
+        excluidoEm: ativo ? null : curso.excluidoEm,
+        expiraExclusaoEm: ativo ? null : curso.expiraExclusaoEm,
+        excluidoPorId: ativo ? null : curso.excluidoPorId,
+      },
+    });
 
     return NextResponse.json({
       ok: true,
       curso: atualizado,
-      message: ativo ? "Curso restaurado com sucesso." : "Curso arquivado com sucesso.",
+      message: ativo
+        ? "Curso restaurado com sucesso."
+        : "Curso arquivado com sucesso.",
     });
   } catch (error) {
     console.error("Erro ao alterar status do curso:", error);
-    return NextResponse.json({ error: "Erro ao alterar status do curso" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro ao alterar status do curso" },
+      { status: 500 },
+    );
   }
 }

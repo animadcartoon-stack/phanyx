@@ -10,11 +10,60 @@ type Polo = {
   codigo?: string | null;
 };
 
+type ModalidadeCertificado =
+  | "GERAL"
+  | "BACHARELADO"
+  | "LICENCIATURA"
+  | "TECNOLOGO"
+  | "POS_GRADUACAO"
+  | "MBA"
+  | "MESTRADO"
+  | "DOUTORADO"
+  | "TECNICO"
+  | "CURSO_LIVRE"
+  | "OFICINA"
+  | "ENSINO_MEDIO"
+  | "ENSINO_FUNDAMENTAL"
+  | "EDUCACAO_INFANTIL"
+  | "PRE_ESCOLA"
+  | "EXTENSAO"
+  | "CAPACITACAO"
+  | "TREINAMENTO"
+  | "EJA"
+  | "OUTRO";
+
+const OPCOES_MODALIDADE_CERTIFICADO: {
+  valor: ModalidadeCertificado;
+  rotulo: string;
+}[] = [
+  { valor: "GERAL", rotulo: "Geral" },
+  { valor: "BACHARELADO", rotulo: "Bacharelado" },
+  { valor: "LICENCIATURA", rotulo: "Licenciatura" },
+  { valor: "TECNOLOGO", rotulo: "Tecnólogo" },
+  { valor: "POS_GRADUACAO", rotulo: "Pós-graduação" },
+  { valor: "MBA", rotulo: "MBA" },
+  { valor: "MESTRADO", rotulo: "Mestrado" },
+  { valor: "DOUTORADO", rotulo: "Doutorado" },
+  { valor: "TECNICO", rotulo: "Curso Técnico" },
+  { valor: "CURSO_LIVRE", rotulo: "Curso Livre" },
+  { valor: "OFICINA", rotulo: "Oficina" },
+  { valor: "ENSINO_MEDIO", rotulo: "Ensino Médio" },
+  { valor: "ENSINO_FUNDAMENTAL", rotulo: "Ensino Fundamental" },
+  { valor: "EDUCACAO_INFANTIL", rotulo: "Educação Infantil" },
+  { valor: "PRE_ESCOLA", rotulo: "Pré-escola" },
+  { valor: "EXTENSAO", rotulo: "Extensão" },
+  { valor: "CAPACITACAO", rotulo: "Capacitação" },
+  { valor: "TREINAMENTO", rotulo: "Treinamento" },
+  { valor: "EJA", rotulo: "EJA" },
+  { valor: "OUTRO", rotulo: "Outro" },
+];
+
 type Curso = {
   id: number;
   nome: string;
   codigo?: string | null;
   descricao?: string | null;
+  modalidadeCertificado?: ModalidadeCertificado | null;
   quantidadeSemestres?: number | null;
   ativo: boolean;
   valorMatricula?: number | null;
@@ -54,6 +103,7 @@ export default function AdminCursosPage() {
     nome: "",
     codigo: "",
     descricao: "",
+    modalidadeCertificado: "GERAL" as ModalidadeCertificado,
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
@@ -182,6 +232,7 @@ function estaNoUltimoDia(data?: string | null) {
           nome: form.nome,
           codigo: form.codigo || null,
           descricao: form.descricao || null,
+          modalidadeCertificado: form.modalidadeCertificado,
           quantidadeSemestres: form.quantidadeSemestres
             ? Number(form.quantidadeSemestres)
             : null,
@@ -208,6 +259,7 @@ function estaNoUltimoDia(data?: string | null) {
         nome: "",
         codigo: "",
         descricao: "",
+        modalidadeCertificado: "GERAL",
         quantidadeSemestres: "",
         valorMatricula: "",
         valorMensalidade: "",
@@ -415,6 +467,35 @@ if (!termoTexto) return cursosPorStatus;
             value={form.codigo}
             onChange={(e) => setForm({ ...form, codigo: e.target.value })}
           />
+
+<div className="md:col-span-2">
+  <label className="mb-1 block text-sm font-medium">
+    Tipo / modalidade do curso
+  </label>
+
+  <select
+    value={form.modalidadeCertificado}
+    onChange={(e) =>
+      setForm({
+        ...form,
+        modalidadeCertificado:
+          e.target.value as ModalidadeCertificado,
+      })
+    }
+    className="phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2"
+  >
+    {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
+      <option key={opcao.valor} value={opcao.valor}>
+        {opcao.rotulo}
+      </option>
+    ))}
+  </select>
+
+  <p className="mt-1 text-xs text-gray-500">
+    Essa informação define qual modelo de certificado será usado para
+    o curso.
+  </p>
+</div>
 
           <textarea
             placeholder="Descrição"

@@ -10,11 +10,70 @@ type Disciplina = {
   codigo?: string | null;
 };
 
+type ModalidadeCertificado =
+  | "GERAL"
+  | "BACHARELADO"
+  | "LICENCIATURA"
+  | "TECNOLOGO"
+  | "POS_GRADUACAO"
+  | "MBA"
+  | "MESTRADO"
+  | "DOUTORADO"
+  | "TECNICO"
+  | "CURSO_LIVRE"
+  | "OFICINA"
+  | "ENSINO_MEDIO"
+  | "ENSINO_FUNDAMENTAL"
+  | "EDUCACAO_INFANTIL"
+  | "PRE_ESCOLA"
+  | "EXTENSAO"
+  | "CAPACITACAO"
+  | "TREINAMENTO"
+  | "EJA"
+  | "OUTRO";
+
+  const OPCOES_MODALIDADE_CERTIFICADO: {
+  valor: ModalidadeCertificado;
+  rotulo: string;
+}[] = [
+  { valor: "GERAL", rotulo: "Geral" },
+  { valor: "BACHARELADO", rotulo: "Bacharelado" },
+  { valor: "LICENCIATURA", rotulo: "Licenciatura" },
+  { valor: "TECNOLOGO", rotulo: "Tecnólogo" },
+  { valor: "POS_GRADUACAO", rotulo: "Pós-graduação" },
+  { valor: "MBA", rotulo: "MBA" },
+  { valor: "MESTRADO", rotulo: "Mestrado" },
+  { valor: "DOUTORADO", rotulo: "Doutorado" },
+  { valor: "TECNICO", rotulo: "Curso Técnico" },
+  { valor: "CURSO_LIVRE", rotulo: "Curso Livre" },
+  { valor: "OFICINA", rotulo: "Oficina" },
+  { valor: "ENSINO_MEDIO", rotulo: "Ensino Médio" },
+  { valor: "ENSINO_FUNDAMENTAL", rotulo: "Ensino Fundamental" },
+  { valor: "EDUCACAO_INFANTIL", rotulo: "Educação Infantil" },
+  { valor: "PRE_ESCOLA", rotulo: "Pré-escola" },
+  { valor: "EXTENSAO", rotulo: "Extensão" },
+  { valor: "CAPACITACAO", rotulo: "Capacitação" },
+  { valor: "TREINAMENTO", rotulo: "Treinamento" },
+  { valor: "EJA", rotulo: "EJA" },
+  { valor: "OUTRO", rotulo: "Outro" },
+];
+
+function obterRotuloModalidade(
+  valor?: ModalidadeCertificado | null
+) {
+  return (
+    OPCOES_MODALIDADE_CERTIFICADO.find(
+      (opcao) => opcao.valor === valor
+    )?.rotulo || "Geral"
+  );
+}
+
 type Curso = {
   id: number;
   nome: string;
   codigo?: string | null;
   descricao?: string | null;
+  modalidadeCertificado?: ModalidadeCertificado | null;
   quantidadeSemestres?: number | null;
   valorMatricula?: number | null;
   valorMensalidade?: number | null;
@@ -61,6 +120,7 @@ export default function CursoDetalhePage() {
     nome: "",
     codigo: "",
     descricao: "",
+    modalidadeCertificado: "GERAL" as ModalidadeCertificado,
     quantidadeSemestres: "",
     valorMatricula: "",
     valorMensalidade: "",
@@ -114,6 +174,8 @@ export default function CursoDetalhePage() {
         nome: encontrado.nome ?? "",
         codigo: encontrado.codigo ?? "",
         descricao: encontrado.descricao ?? "",
+        modalidadeCertificado:
+        encontrado.modalidadeCertificado || "GERAL",
         quantidadeSemestres:
           encontrado.quantidadeSemestres != null
             ? String(encontrado.quantidadeSemestres)
@@ -214,6 +276,7 @@ export default function CursoDetalhePage() {
           nome: formCurso.nome,
           codigo: formCurso.codigo || null,
           descricao: formCurso.descricao || null,
+          modalidadeCertificado: formCurso.modalidadeCertificado,
           quantidadeSemestres: formCurso.quantidadeSemestres
             ? Number(formCurso.quantidadeSemestres)
             : null,
@@ -502,6 +565,30 @@ cargaMaxima: cargaMaximaNumero,
     />
   </div>
 
+<div>
+  <label className="mb-1 block text-sm font-medium text-gray-700">
+    Tipo / modalidade do curso
+  </label>
+
+  <select
+    value={formCurso.modalidadeCertificado}
+    onChange={(e) =>
+      setFormCurso({
+        ...formCurso,
+        modalidadeCertificado:
+          e.target.value as ModalidadeCertificado,
+      })
+    }
+    className="phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2"
+  >
+    {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
+      <option key={opcao.valor} value={opcao.valor}>
+        {opcao.rotulo}
+      </option>
+    ))}
+  </select>
+</div>
+
   <div>
     <label className="mb-1 block text-sm font-medium text-gray-700">
       Quantidade de semestres do curso
@@ -634,7 +721,13 @@ cargaMaxima: cargaMaximaNumero,
 
                 <div className="mt-3 space-y-1 text-sm text-gray-700">
                   <p>Código: {curso.codigo || "Não informado"}</p>
-                  <p>Descrição: {curso.descricao || "Não informada"}</p>
+
+<p>
+  Tipo/modalidade:{" "}
+  {obterRotuloModalidade(curso.modalidadeCertificado)}
+</p>
+
+<p>Descrição: {curso.descricao || "Não informada"}</p>
                   <p>
                     Quantidade prevista de semestres:{" "}
                     {curso.quantidadeSemestres ?? "Não informado"}
