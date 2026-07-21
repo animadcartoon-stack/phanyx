@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { PERMISSOES_PHANYX } from "@/lib/permissoes-phanyx";
 
@@ -23,6 +23,428 @@ type FuncionarioPermissoesPayload = {
   permissoesDepartamento?: PermissaoSalva[];
 };
 
+type PermissaoPhanyx = (typeof PERMISSOES_PHANYX)[number];
+
+type ContextoBusca = {
+  gatilhos: string[];
+  relacionados: string[];
+};
+
+const CONTEXTOS_BUSCA: ContextoBusca[] = [
+  {
+    gatilhos: [
+      "aluno",
+      "alunos",
+      "estudante",
+      "estudantes",
+      "discente",
+      "academico",
+    ],
+    relacionados: [
+      "aluno",
+      "matricula",
+      "turma",
+      "curso",
+      "disciplina",
+      "boletim",
+      "nota",
+      "frequencia",
+      "presenca",
+      "prova",
+      "avaliacao",
+    ],
+  },
+  {
+    gatilhos: [
+      "professor",
+      "professores",
+      "docente",
+      "docentes",
+      "educador",
+    ],
+    relacionados: [
+      "professor",
+      "docente",
+      "disciplina",
+      "turma",
+      "aula",
+      "prova",
+      "avaliacao",
+      "publicacao",
+      "substituicao",
+    ],
+  },
+  {
+    gatilhos: [
+      "funcionario",
+      "funcionarios",
+      "colaborador",
+      "colaboradores",
+      "empregado",
+      "equipe",
+      "pessoal",
+      "rh",
+    ],
+    relacionados: [
+      "funcionario",
+      "departamento",
+      "rh",
+      "ponto",
+      "ferias",
+      "holerite",
+      "beneficio",
+      "exame",
+      "rescisao",
+      "jornada",
+      "escala",
+    ],
+  },
+  {
+    gatilhos: [
+      "dinheiro",
+      "financeiro",
+      "financas",
+      "pagamento",
+      "pagamentos",
+      "mensalidade",
+      "mensalidades",
+      "cobranca",
+      "cobrancas",
+      "receita",
+      "despesa",
+      "caixa",
+    ],
+    relacionados: [
+      "financeiro",
+      "pagamento",
+      "mensalidade",
+      "cobranca",
+      "receita",
+      "despesa",
+      "contrato",
+      "boleto",
+      "caixa",
+      "inadimplencia",
+    ],
+  },
+  {
+    gatilhos: [
+      "cracha",
+      "crachas",
+      "cartao",
+      "identificacao",
+      "credencial",
+    ],
+    relacionados: [
+      "cracha",
+      "modelo",
+      "emitir",
+      "emissao",
+      "identificacao",
+    ],
+  },
+  {
+    gatilhos: [
+      "visitante",
+      "visitantes",
+      "visita",
+      "portaria",
+      "entrada",
+      "saida",
+      "acesso",
+    ],
+    relacionados: [
+      "visitante",
+      "entrada",
+      "saida",
+      "acesso",
+      "bloquear",
+      "arquivar",
+      "portaria",
+    ],
+  },
+  {
+    gatilhos: [
+      "certificado",
+      "certificados",
+      "diploma",
+      "conclusao",
+      "formatura",
+    ],
+    relacionados: [
+      "certificado",
+      "modelo",
+      "emitir",
+      "emissao",
+      "conclusao",
+    ],
+  },
+  {
+    gatilhos: [
+      "documento",
+      "documentos",
+      "arquivo",
+      "arquivos",
+      "pdf",
+      "contrato",
+    ],
+    relacionados: [
+      "documento",
+      "arquivo",
+      "pdf",
+      "contrato",
+      "modelo",
+      "editor",
+    ],
+  },
+  {
+    gatilhos: [
+      "mensagem",
+      "mensagens",
+      "comunicacao",
+      "aviso",
+      "avisos",
+      "whatsapp",
+      "email",
+      "notificacao",
+    ],
+    relacionados: [
+      "mensagem",
+      "comunicacao",
+      "aviso",
+      "whatsapp",
+      "email",
+      "notificacao",
+      "publicacao",
+    ],
+  },
+  {
+    gatilhos: [
+      "configuracao",
+      "configuracoes",
+      "ajuste",
+      "ajustes",
+      "instituicao",
+      "sistema",
+    ],
+    relacionados: [
+      "configuracao",
+      "instituicao",
+      "integracao",
+      "sistema",
+      "personalizacao",
+    ],
+  },
+  {
+    gatilhos: [
+      "assinatura",
+      "plano",
+      "planos",
+      "phanyx",
+      "cancelar assinatura",
+    ],
+    relacionados: [
+      "assinatura",
+      "plano",
+      "cancelar",
+      "phanyx",
+      "pagamento",
+    ],
+  },
+  {
+    gatilhos: [
+      "painel",
+      "inicio",
+      "dashboard",
+      "pagina inicial",
+      "resumo",
+    ],
+    relacionados: ["dashboard", "painel", "inicio", "resumo", "geral"],
+  },
+  {
+    gatilhos: ["ver", "visualizar", "consultar", "acessar", "abrir", "listar"],
+    relacionados: ["ver", "visualizar", "consultar", "acessar", "listar"],
+  },
+  {
+    gatilhos: ["criar", "cadastrar", "adicionar", "incluir", "novo", "registrar"],
+    relacionados: ["criar", "cadastrar", "adicionar", "incluir", "registrar"],
+  },
+  {
+    gatilhos: ["editar", "alterar", "atualizar", "modificar", "corrigir"],
+    relacionados: ["editar", "alterar", "atualizar", "modificar", "corrigir"],
+  },
+  {
+    gatilhos: ["excluir", "apagar", "remover", "deletar", "eliminar"],
+    relacionados: ["excluir", "apagar", "remover", "deletar"],
+  },
+  {
+    gatilhos: ["gerenciar", "administrar", "controlar", "gestao"],
+    relacionados: ["gerenciar", "administrar", "controlar", "gestao"],
+  },
+  {
+    gatilhos: ["emitir", "gerar", "imprimir", "expedir"],
+    relacionados: ["emitir", "gerar", "imprimir", "emissao"],
+  },
+  {
+    gatilhos: [
+      "relatorio",
+      "relatorios",
+      "planilha",
+      "excel",
+      "exportar",
+      "imprimir",
+    ],
+    relacionados: [
+      "relatorio",
+      "excel",
+      "exportar",
+      "imprimir",
+      "pdf",
+      "planilha",
+    ],
+  },
+  {
+    gatilhos: [
+      "nota",
+      "notas",
+      "boletim",
+      "prova",
+      "provas",
+      "avaliacao",
+      "avaliacoes",
+    ],
+    relacionados: [
+      "nota",
+      "boletim",
+      "prova",
+      "avaliacao",
+      "tentativa",
+      "resultado",
+    ],
+  },
+  {
+    gatilhos: [
+      "presenca",
+      "presencas",
+      "falta",
+      "faltas",
+      "frequencia",
+      "chamada",
+    ],
+    relacionados: [
+      "presenca",
+      "falta",
+      "frequencia",
+      "chamada",
+      "aula",
+    ],
+  },
+];
+
+function normalizarTexto(valor: string) {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[._/\\-]+/g, " ")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function expandirBusca(valor: string) {
+  const consulta = normalizarTexto(valor);
+
+  if (!consulta) {
+    return [];
+  }
+
+  const palavrasDigitadas = consulta
+    .split(" ")
+    .filter((palavra) => palavra.length >= 2);
+
+  const termos = new Set<string>([consulta, ...palavrasDigitadas]);
+
+  CONTEXTOS_BUSCA.forEach((contexto) => {
+    const contextoEncontrado = contexto.gatilhos.some((gatilho) => {
+      const gatilhoNormalizado = normalizarTexto(gatilho);
+
+      return (
+        consulta.includes(gatilhoNormalizado) ||
+        palavrasDigitadas.some(
+          (palavra) =>
+            gatilhoNormalizado.includes(palavra) ||
+            palavra.includes(gatilhoNormalizado)
+        )
+      );
+    });
+
+    if (contextoEncontrado) {
+      contexto.gatilhos.forEach((termo) =>
+        termos.add(normalizarTexto(termo))
+      );
+
+      contexto.relacionados.forEach((termo) =>
+        termos.add(normalizarTexto(termo))
+      );
+    }
+  });
+
+  return Array.from(termos).filter(Boolean);
+}
+
+function pontuarPermissao(
+  permissao: PermissaoPhanyx,
+  valorBusca: string
+) {
+  const consulta = normalizarTexto(valorBusca);
+
+  if (!consulta) {
+    return 1;
+  }
+
+  const nome = normalizarTexto(permissao.nome);
+  const chave = normalizarTexto(permissao.chave);
+  const textoCompleto = `${nome} ${chave}`;
+  const termosExpandidos = expandirBusca(valorBusca);
+
+  let pontuacao = 0;
+
+  if (nome === consulta) {
+    pontuacao += 200;
+  }
+
+  if (chave === consulta) {
+    pontuacao += 190;
+  }
+
+  if (nome.includes(consulta)) {
+    pontuacao += 120;
+  }
+
+  if (chave.includes(consulta)) {
+    pontuacao += 110;
+  }
+
+  termosExpandidos.forEach((termo) => {
+    if (!termo) return;
+
+    if (nome.includes(termo)) {
+      pontuacao += 20;
+    }
+
+    if (chave.includes(termo)) {
+      pontuacao += 18;
+    }
+
+    if (textoCompleto.startsWith(termo)) {
+      pontuacao += 5;
+    }
+  });
+
+  return pontuacao;
+}
+
 export default function FuncionarioPermissoesPage({
   params,
 }: {
@@ -42,6 +464,38 @@ export default function FuncionarioPermissoesPage({
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
+
+  const [busca, setBusca] = useState("");
+
+const permissoesFiltradas = useMemo(() => {
+  const consulta = busca.trim();
+
+  if (!consulta) {
+    return PERMISSOES_PHANYX;
+  }
+
+  return PERMISSOES_PHANYX.map((permissao) => ({
+    permissao,
+    pontuacao: pontuarPermissao(permissao, consulta),
+  }))
+    .filter((resultado) => resultado.pontuacao > 0)
+    .sort((a, b) => {
+      if (b.pontuacao !== a.pontuacao) {
+        return b.pontuacao - a.pontuacao;
+      }
+
+      return a.permissao.nome.localeCompare(b.permissao.nome, "pt-BR");
+    })
+    .map((resultado) => resultado.permissao);
+}, [busca]);
+
+const sugestoesBusca = useMemo(() => {
+  if (!busca.trim()) {
+    return [];
+  }
+
+  return permissoesFiltradas.slice(0, 6);
+}, [busca, permissoesFiltradas]);
 
   async function carregarPermissoes() {
     try {
@@ -208,8 +662,98 @@ export default function FuncionarioPermissoesPage({
           funcionário.
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          {PERMISSOES_PHANYX.map((permissao) => {
+        <div className="mb-6">
+  <label
+    htmlFor="busca-permissoes-funcionario"
+    className="mb-2 block text-sm font-semibold text-slate-800 dark:text-slate-100"
+  >
+    🔎 Busca inteligente de permissões
+  </label>
+
+  <div className="relative">
+    <input
+      id="busca-permissoes-funcionario"
+      type="search"
+      value={busca}
+      onChange={(event) => setBusca(event.target.value)}
+      placeholder="Ex.: editar alunos, dinheiro, ponto, crachá, ver boletim..."
+      autoComplete="off"
+      className="w-full rounded-2xl border border-slate-300 bg-white px-5 py-4 pr-24 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 dark:border-slate-600 dark:bg-slate-950 dark:text-white dark:placeholder:text-slate-500 dark:focus:ring-blue-950"
+    />
+
+    {busca && (
+      <button
+        type="button"
+        onClick={() => setBusca("")}
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+      >
+        Limpar
+      </button>
+    )}
+  </div>
+
+  <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+    <p className="text-xs text-slate-500 dark:text-slate-400">
+      Digite com suas próprias palavras. O PHANYX procurará permissões
+      diretas e relacionadas.
+    </p>
+
+    {busca.trim() && (
+      <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+        {permissoesFiltradas.length}{" "}
+        {permissoesFiltradas.length === 1
+          ? "permissão encontrada"
+          : "permissões encontradas"}
+      </span>
+    )}
+  </div>
+
+  {sugestoesBusca.length > 0 && (
+    <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+      <p className="mb-3 text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+        Sugestões mais próximas
+      </p>
+
+      <div className="flex flex-wrap gap-2">
+        {sugestoesBusca.map((sugestao) => (
+          <button
+            key={`sugestao-${sugestao.chave}`}
+            type="button"
+            onClick={() => setBusca(sugestao.nome)}
+            className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:hover:border-blue-500 dark:hover:bg-blue-950 dark:hover:text-blue-200"
+          >
+            {sugestao.nome}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+{permissoesFiltradas.length === 0 ? (
+  <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-950">
+    <div className="text-3xl">🔍</div>
+
+    <h3 className="mt-3 font-bold text-slate-900 dark:text-white">
+      Nenhuma permissão encontrada
+    </h3>
+
+    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      Tente escrever de outra forma, como “alunos”, “financeiro”,
+      “funcionários”, “documentos” ou “configurações”.
+    </p>
+
+    <button
+      type="button"
+      onClick={() => setBusca("")}
+      className="mt-4 rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+    >
+      Mostrar todas as permissões
+    </button>
+  </div>
+) : (
+  <div className="grid gap-3 md:grid-cols-2">
+    {permissoesFiltradas.map((permissao) => {
             const marcadaIndividual = selecionadas.includes(permissao.chave);
             const herdada = herdadasDepartamento.includes(permissao.chave);
 
@@ -253,7 +797,8 @@ export default function FuncionarioPermissoesPage({
               </button>
             );
           })}
-        </div>
+                </div>
+      )}
 
         <button
           type="button"
