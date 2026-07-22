@@ -782,12 +782,13 @@ export async function GET(
     const usuariosAuditoriaIds = Array.from(
   new Set(
     programa.lancamentos.flatMap((lancamento) =>
-      [
-        lancamento.criadoPorId,
-        lancamento.aprovadoPorId,
-        lancamento.reprovadoPorId,
-        lancamento.estornadoPorId,
-      ].filter(
+     [
+  lancamento.criadoPorId,
+  lancamento.aprovadoPorId,
+  lancamento.reprovadoPorId,
+  lancamento.enviadoHoleritePorId,
+  lancamento.estornadoPorId,
+].filter(
         (id): id is number => typeof id === "number"
       )
     )
@@ -858,6 +859,13 @@ const lancamentosFormatados =
             lancamento.reprovadoPorId
           ) ?? null
         : null,
+
+        enviadoHoleritePor:
+  lancamento.enviadoHoleritePorId !== null
+    ? usuariosAuditoriaPorId.get(
+        lancamento.enviadoHoleritePorId
+      ) ?? null
+    : null,
 
     estornadoPor:
       lancamento.estornadoPorId !== null
@@ -1045,7 +1053,8 @@ if (
   acao !== "PREVISUALIZAR_DISTRIBUICAO" &&
   acao !== "ATIVAR_E_GERAR_LANCAMENTOS" &&
   acao !== "APROVAR_LANCAMENTOS" &&
-  acao !== "REPROVAR_LANCAMENTOS"
+  acao !== "REPROVAR_LANCAMENTOS" &&
+  acao !== "REABRIR_LANCAMENTO"
 ) {
   return NextResponse.json(
     { error: "Ação inválida." },
@@ -1441,6 +1450,163 @@ if (acao === "REPROVAR_LANCAMENTOS") {
 
     reprovados: resultado.count,
     ignorados,
+  });
+}
+
+if (acao === "REABRIR_LANCAMENTO") {
+  if (
+    programa.status !==
+    StatusProgramaRemuneracaoVariavelRH.ATIVO
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "O lançamento somente pode ser reaberto enquanto o programa estiver ativo.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lancamentoId = Number(body.lancamentoId);
+
+  const motivoReabertura = String(
+    body.motivoReabertura || ""
+  ).trim();
+
+  if (
+    !Number.isInteger(lancamentoId) ||
+    lancamentoId <= 0
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Informe um lançamento válido para reabertura.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (motivoReabertura.length < 5) {
+    return NextResponse.json(
+      {
+        error:
+          "Informe o motivo da reabertura com pelo menos 5 caracteres.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lancamento =
+    await prisma.lancamentoRemuneracaoVariavelRH.findFirst(
+      {
+        where: {
+          id: lancamentoId,
+          instituicaoId,
+          programaId,
+          status:
+            StatusLancamentoRemuneracaoVariavelRH.REPROVADO,
+        },
+        select: {
+          id: true,
+          funcionarioId: true,
+          funcionarioNomeSnapshot: true,
+          competenciaMes: true,
+          competenciaAno: true,
+          valorCalculado: true,
+          reprovadoPorId: true,
+          reprovadoEm: true,
+          motivoReprovacao: true,
+        },
+      }
+    );
+
+  if (!lancamento) {
+    return NextResponse.json(
+      {
+        error:
+          "O lançamento não foi encontrado ou não está mais reprovado.",
+      },
+      { status: 404 }
+    );
+  }
+
+  const reabertoPorId = Number(user.id);
+  const reabertoEm = new Date();
+
+  await prisma.$transaction(async (tx) => {
+    const atualizacao =
+      await tx.lancamentoRemuneracaoVariavelRH.updateMany(
+        {
+          where: {
+            id: lancamento.id,
+            instituicaoId,
+            programaId,
+            status:
+              StatusLancamentoRemuneracaoVariavelRH.REPROVADO,
+          },
+          data: {
+            status:
+              StatusLancamentoRemuneracaoVariavelRH.PENDENTE,
+
+            aprovadoPorId: null,
+            aprovadoEm: null,
+            valorAprovado: null,
+
+            reprovadoPorId: null,
+            reprovadoEm: null,
+            motivoReprovacao: null,
+          },
+        }
+      );
+
+    if (atualizacao.count !== 1) {
+      throw new Error(
+        "O lançamento foi alterado por outro usuário. Atualize a página."
+      );
+    }
+
+    await tx.historicoRH.create({
+      data: {
+        funcionarioId: lancamento.funcionarioId,
+        instituicaoId,
+        criadoPorId: reabertoPorId,
+        tipo: "REABERTURA_REMUNERACAO_VARIAVEL",
+        titulo:
+          "Lançamento de remuneração variável reaberto",
+        descricao:
+          `O lançamento de ${lancamento.funcionarioNomeSnapshot} ` +
+          `da competência ${String(
+            lancamento.competenciaMes
+          ).padStart(2, "0")}/${lancamento.competenciaAno} ` +
+          `foi reaberto para uma nova análise.`,
+        dataEvento: reabertoEm,
+        observacoes: [
+          `ID do lançamento: ${lancamento.id}`,
+          `Motivo da reabertura: ${motivoReabertura}`,
+          `Motivo anterior da reprovação: ${
+            lancamento.motivoReprovacao ||
+            "Não informado"
+          }`,
+          `Reprovado anteriormente pelo usuário ID: ${
+            lancamento.reprovadoPorId || "-"
+          }`,
+          `Data da reprovação anterior: ${
+            lancamento.reprovadoEm
+              ? lancamento.reprovadoEm.toISOString()
+              : "-"
+          }`,
+          `Valor do lançamento: ${lancamento.valorCalculado.toString()}`,
+        ].join("\n"),
+      },
+    });
+  });
+
+  return NextResponse.json({
+    message:
+      "Lançamento reaberto e devolvido para análise.",
+    lancamentoId: lancamento.id,
+    status:
+      StatusLancamentoRemuneracaoVariavelRH.PENDENTE,
   });
 }
 

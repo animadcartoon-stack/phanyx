@@ -70,6 +70,7 @@ type LancamentoRemuneracaoVariavel = {
   criadoPor?: UsuarioAuditoria | null;
   aprovadoPor?: UsuarioAuditoria | null;
   reprovadoPor?: UsuarioAuditoria | null;
+  enviadoHoleritePor?: UsuarioAuditoria | null;
   estornadoPor?: UsuarioAuditoria | null;
 };
 
@@ -223,7 +224,8 @@ function classeStatusLancamento(status: string) {
       return "border-red-500/40 bg-red-500/15 text-red-700";
 
     case "ENVIADO_HOLERITE":
-      return "border-blue-500/40 bg-blue-500/15 text-blue-700";
+  return "phanyx-remuneracao-status-enviado border-blue-500/40 bg-blue-500/15 text-blue-700";
+      
 
     case "PAGO":
       return "border-violet-500/40 bg-violet-500/15 text-violet-700";
@@ -324,6 +326,27 @@ const [
 
 const [motivoReprovacao, setMotivoReprovacao] =
   useState("");
+
+  const [
+  modalReaberturaAberto,
+  setModalReaberturaAberto,
+] = useState(false);
+
+const [
+  lancamentoReabertura,
+  setLancamentoReabertura,
+] =
+  useState<LancamentoRemuneracaoVariavel | null>(
+    null
+  );
+
+const [motivoReabertura, setMotivoReabertura] =
+  useState("");
+
+const [
+  reabrindoLancamento,
+  setReabrindoLancamento,
+] = useState(false);
 
   const [
   selecionadosEnvioHolerite,
@@ -673,6 +696,93 @@ async function reprovarLancamentosSelecionados() {
     "REPROVAR_LANCAMENTOS",
     motivo
   );
+}
+
+function abrirModalReabertura(
+  lancamento: LancamentoRemuneracaoVariavel
+) {
+  setErro("");
+  setSucesso("");
+  setLancamentoReabertura(lancamento);
+  setMotivoReabertura("");
+  setModalReaberturaAberto(true);
+}
+
+function fecharModalReabertura() {
+  if (reabrindoLancamento) return;
+
+  setModalReaberturaAberto(false);
+  setLancamentoReabertura(null);
+  setMotivoReabertura("");
+}
+
+async function reabrirLancamento() {
+  if (!lancamentoReabertura) {
+    setErro(
+      "O lançamento para reabertura não foi identificado."
+    );
+    return;
+  }
+
+  const motivo = motivoReabertura.trim();
+
+  if (motivo.length < 5) {
+    setErro(
+      "Informe o motivo da reabertura com pelo menos 5 caracteres."
+    );
+    return;
+  }
+
+  try {
+    setReabrindoLancamento(true);
+    setErro("");
+    setSucesso("");
+
+    const resposta = await fetch(
+      `/api/admin/rh/remuneracao-variavel/${programaId}`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao: "REABRIR_LANCAMENTO",
+          lancamentoId: lancamentoReabertura.id,
+          motivoReabertura: motivo,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados.error ||
+          "Não foi possível reabrir o lançamento."
+      );
+    }
+
+    setSucesso(
+      dados.message ||
+        "Lançamento reaberto e devolvido para análise."
+    );
+
+    setSelecionadosLancamentos([]);
+    setSelecionadosEnvioHolerite([]);
+    setModalReaberturaAberto(false);
+    setLancamentoReabertura(null);
+    setMotivoReabertura("");
+
+    await carregar();
+  } catch (error: any) {
+    setErro(
+      error?.message ||
+        "Erro ao reabrir o lançamento."
+    );
+  } finally {
+    setReabrindoLancamento(false);
+  }
 }
 
 function alternarLancamentoEnvioHolerite(id: number) {
@@ -1523,7 +1633,7 @@ const sugestoesFuncionarios = criarSugestoes(
                     onClick={() =>
                       setModalReprovacaoAberto(true)
                     }
-                    className="rounded-xl border border-red-500 px-4 py-2.5 text-sm font-black text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="phanyx-remuneracao-botao-reprovar rounded-xl border px-4 py-2.5 text-sm font-black disabled:cursor-not-allowed"
                   >
                     Reprovar selecionados
                   </button>
@@ -1646,25 +1756,73 @@ const sugestoesFuncionarios = criarSugestoes(
 
               <tbody>
                 {lancamentos.map((lancamento) => {
-                  const pendente =
-                    String(
-                      lancamento.status
-                    ).toUpperCase() === "PENDENTE";
+                  const statusLancamento = String(
+  lancamento.status || ""
+).toUpperCase();
 
-                    const aprovado =
-  String(
-    lancamento.status
-  ).toUpperCase() === "APROVADO";
+const pendente =
+  statusLancamento === "PENDENTE";
 
-                  const usuarioAuditoria =
-                    lancamento.aprovadoPor ||
-                    lancamento.reprovadoPor ||
-                    lancamento.criadoPor;
+const aprovado =
+  statusLancamento === "APROVADO";
 
-                  const dataAuditoria =
-                    lancamento.aprovadoEm ||
-                    lancamento.reprovadoEm ||
-                    lancamento.calculadoEm;
+let usuarioAuditoria:
+  | UsuarioAuditoria
+  | null
+  | undefined = lancamento.criadoPor;
+
+let dataAuditoria:
+  | string
+  | null
+  | undefined = lancamento.calculadoEm;
+
+let rotuloUsuarioAuditoria = "Gerado por";
+let rotuloDataAuditoria = "Gerado em";
+
+switch (statusLancamento) {
+  case "APROVADO":
+    usuarioAuditoria = lancamento.aprovadoPor;
+    dataAuditoria = lancamento.aprovadoEm;
+    rotuloUsuarioAuditoria = "Aprovado por";
+    rotuloDataAuditoria = "Aprovado em";
+    break;
+
+  case "REPROVADO":
+    usuarioAuditoria = lancamento.reprovadoPor;
+    dataAuditoria = lancamento.reprovadoEm;
+    rotuloUsuarioAuditoria = "Reprovado por";
+    rotuloDataAuditoria = "Reprovado em";
+    break;
+
+  case "ENVIADO_HOLERITE":
+    usuarioAuditoria =
+      lancamento.enviadoHoleritePor;
+    dataAuditoria =
+      lancamento.enviadoHoleriteEm;
+    rotuloUsuarioAuditoria = "Enviado por";
+    rotuloDataAuditoria = "Enviado em";
+    break;
+
+  case "PAGO":
+    usuarioAuditoria =
+      lancamento.enviadoHoleritePor;
+    dataAuditoria =
+      lancamento.pagoEm ||
+      lancamento.enviadoHoleriteEm;
+    rotuloUsuarioAuditoria =
+      "Responsável registrado";
+    rotuloDataAuditoria = lancamento.pagoEm
+      ? "Pago em"
+      : "Enviado em";
+    break;
+
+  case "ESTORNADO":
+    usuarioAuditoria = lancamento.estornadoPor;
+    dataAuditoria = lancamento.estornadoEm;
+    rotuloUsuarioAuditoria = "Estornado por";
+    rotuloDataAuditoria = "Estornado em";
+    break;
+}
 
                   return (
                     <tr
@@ -1753,27 +1911,50 @@ const sugestoesFuncionarios = criarSugestoes(
                       </td>
 
                       <td className="p-3">
-                        <p className="font-semibold">
-                          {usuarioAuditoria?.nome ||
-                            usuarioAuditoria?.email ||
-                            "Aguardando análise"}
-                        </p>
+  <p className="text-xs font-bold uppercase text-slate-400">
+    {rotuloUsuarioAuditoria}
+  </p>
 
-                        <p className="mt-1 text-xs text-slate-400">
-                          {formatarDataHora(
-                            dataAuditoria
-                          )}
-                        </p>
+  <p className="mt-1 font-semibold">
+    {usuarioAuditoria?.nome ||
+      usuarioAuditoria?.email ||
+      (statusLancamento ===
+      "ENVIADO_HOLERITE"
+        ? "Usuário do envio não registrado"
+        : "Aguardando análise")}
+  </p>
 
-                        {lancamento.motivoReprovacao && (
-                          <p className="mt-2 text-xs text-red-600">
-                            Motivo:{" "}
-                            {
-                              lancamento.motivoReprovacao
-                            }
-                          </p>
-                        )}
-                      </td>
+  {usuarioAuditoria?.id && (
+    <p className="mt-1 text-xs text-slate-400">
+      ID do usuário: {usuarioAuditoria.id}
+    </p>
+  )}
+
+  <p className="mt-1 text-xs text-slate-400">
+    {rotuloDataAuditoria}:{" "}
+    {formatarDataHora(dataAuditoria)}
+  </p>
+
+  {lancamento.motivoReprovacao && (
+    <p className="mt-2 text-xs text-red-600">
+      Motivo:{" "}
+      {lancamento.motivoReprovacao}
+    </p>
+  )}
+  {programaAtivo &&
+  statusLancamento === "REPROVADO" && (
+    <button
+      type="button"
+      disabled={reabrindoLancamento}
+      onClick={() =>
+        abrirModalReabertura(lancamento)
+      }
+      className="mt-3 rounded-xl border border-amber-500 px-3 py-2 text-xs font-black transition hover:bg-amber-500/10 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Reabrir análise
+    </button>
+  )}
+</td>
                     </tr>
                   );
                 })}
@@ -1925,6 +2106,122 @@ const sugestoesFuncionarios = criarSugestoes(
   )}
 </section>
       </div>
+
+      {modalReaberturaAberto &&
+  lancamentoReabertura && (
+    <div
+      className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-modal-reabertura"
+    >
+      <button
+        type="button"
+        aria-label="Fechar reabertura"
+        onClick={fecharModalReabertura}
+        className="absolute inset-0 bg-black/70"
+      />
+
+      <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] text-amber-500">
+          Correção auditada
+        </p>
+
+        <h2
+          id="titulo-modal-reabertura"
+          className="mt-2 text-2xl font-black"
+        >
+          Reabrir lançamento?
+        </h2>
+
+        <p className="mt-4 text-sm">
+          O lançamento de{" "}
+          <strong>
+            {
+              lancamentoReabertura.funcionarioNomeSnapshot
+            }
+          </strong>{" "}
+          voltará para o status pendente.
+        </p>
+
+        <div className="mt-5 rounded-2xl border p-4 text-sm">
+          <p>
+            <strong>Competência:</strong>{" "}
+            {String(
+              lancamentoReabertura.competenciaMes
+            ).padStart(2, "0")}
+            /{lancamentoReabertura.competenciaAno}
+          </p>
+
+          <p className="mt-2">
+            <strong>Valor:</strong>{" "}
+            {formatarMoeda(
+              lancamentoReabertura.valorAprovado ??
+                lancamentoReabertura.valorCalculado
+            )}
+          </p>
+
+          <p className="mt-2">
+            <strong>
+              Motivo anterior da reprovação:
+            </strong>{" "}
+            {lancamentoReabertura.motivoReprovacao ||
+              "Não informado"}
+          </p>
+        </div>
+
+        <label className="mt-5 block">
+          <span className="text-sm font-black">
+            Motivo da reabertura
+          </span>
+
+          <textarea
+            value={motivoReabertura}
+            onChange={(event) =>
+              setMotivoReabertura(
+                event.target.value
+              )
+            }
+            placeholder="Explique por que este lançamento precisa voltar para análise."
+            rows={4}
+            disabled={reabrindoLancamento}
+            className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400 disabled:opacity-60"
+          />
+        </label>
+
+        <div className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm">
+          A reprovação anterior não será apagada do
+          histórico. O PHANYX registrará quem reabriu,
+          quando reabriu e a justificativa informada.
+        </div>
+
+        <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            disabled={reabrindoLancamento}
+            onClick={fecharModalReabertura}
+            className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            disabled={
+              reabrindoLancamento ||
+              motivoReabertura.trim().length < 5
+            }
+            onClick={reabrirLancamento}
+            className="rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-black text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {reabrindoLancamento
+              ? "Reabrindo..."
+              : "Confirmar reabertura"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
 
       {modalEnvioHoleriteAberto && (
   <div

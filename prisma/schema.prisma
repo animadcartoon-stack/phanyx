@@ -265,6 +265,7 @@ model User {
   lancamentosRemuneracaoVariavelRHCriados              LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHCriadoPor")
   lancamentosRemuneracaoVariavelRHAprovados            LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHAprovadoPor")
   lancamentosRemuneracaoVariavelRHReprovados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHReprovadoPor")
+  lancamentosRemuneracaoVariavelRHEnviadosHolerite     LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEnviadoHoleritePor")
   lancamentosRemuneracaoVariavelRHEstornados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEstornadoPor")
 
   @@index([instituicaoId])
@@ -3881,6 +3882,7 @@ model LancamentoRemuneracaoVariavelRH {
   criadoPorId                     Int?
   aprovadoPorId                   Int?
   reprovadoPorId                  Int?
+  enviadoHoleritePorId            Int?
   estornadoPorId                  Int?
   chaveLancamento                 String
   status                          StatusLancamentoRemuneracaoVariavelRH @default(PENDENTE)
@@ -3916,9 +3918,14 @@ model LancamentoRemuneracaoVariavelRH {
   participante   ParticipanteProgramaRemuneracaoVariavelRH? @relation(fields: [participanteId], references: [id], onDelete: SetNull)
   holeriteEvento HoleriteEventoRH?                          @relation(fields: [holeriteEventoId], references: [id], onDelete: SetNull)
   criadoPor      User?                                      @relation("LancamentoRemuneracaoVariavelRHCriadoPor", fields: [criadoPorId], references: [id])
-  aprovadoPor    User?                                      @relation("LancamentoRemuneracaoVariavelRHAprovadoPor", fields: [aprovadoPorId], references: [id])
-  reprovadoPor   User?                                      @relation("LancamentoRemuneracaoVariavelRHReprovadoPor", fields: [reprovadoPorId], references: [id])
-  estornadoPor   User?                                      @relation("LancamentoRemuneracaoVariavelRHEstornadoPor", fields: [estornadoPorId], references: [id])
+
+  aprovadoPor User? @relation("LancamentoRemuneracaoVariavelRHAprovadoPor", fields: [aprovadoPorId], references: [id])
+
+  reprovadoPor User? @relation("LancamentoRemuneracaoVariavelRHReprovadoPor", fields: [reprovadoPorId], references: [id])
+
+  enviadoHoleritePor User? @relation("LancamentoRemuneracaoVariavelRHEnviadoHoleritePor", fields: [enviadoHoleritePorId], references: [id], onDelete: SetNull)
+
+  estornadoPor User? @relation("LancamentoRemuneracaoVariavelRHEstornadoPor", fields: [estornadoPorId], references: [id])
 
   @@unique([instituicaoId, chaveLancamento])
   @@index([instituicaoId])
@@ -3928,6 +3935,7 @@ model LancamentoRemuneracaoVariavelRH {
   @@index([holeriteEventoId])
   @@index([status])
   @@index([competenciaMes, competenciaAno])
+  @@index([enviadoHoleritePorId])
 }
 
 enum ModalidadeCertificado {

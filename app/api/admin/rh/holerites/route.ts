@@ -381,12 +381,14 @@ export async function POST(req: NextRequest) {
                       StatusLancamentoRemuneracaoVariavelRH.APROVADO,
                     holeriteEventoId: null,
                   },
+                  
                   data: {
-                    status:
-                      StatusLancamentoRemuneracaoVariavelRH.ENVIADO_HOLERITE,
-                    holeriteEventoId: evento.id,
-                    enviadoHoleriteEm: agora,
-                  },
+  status:
+    StatusLancamentoRemuneracaoVariavelRH.ENVIADO_HOLERITE,
+  holeriteEventoId: evento.id,
+  enviadoHoleriteEm: agora,
+  enviadoHoleritePorId: criadoPorId,
+},
                 }
               );
 
