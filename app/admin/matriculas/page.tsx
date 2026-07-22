@@ -592,6 +592,12 @@ const matriculasFiltradas = useMemo(() => {
     const status = String(m.status || "").toLowerCase();
     const semestre = String(m.semestre ?? "").toLowerCase();
 
+    const vendedor = String(
+  m.vendedorResponsavel?.nome ||
+    m.vendedorResponsavelNomeSnapshot ||
+    ""
+).toLowerCase();
+
     const itensTexto = Array.isArray(m.itens)
       ? m.itens
           .map((item) =>
@@ -611,9 +617,11 @@ const matriculasFiltradas = useMemo(() => {
       id.includes(termo) ||
       aluno.includes(termo) ||
       curso.includes(termo) ||
+      vendedor.includes(termo) ||
       status.includes(termo) ||
       semestre.includes(termo) ||
       itensTexto.includes(termo);
+      
 
     const batePeriodo = dataNoPeriodo(m.createdAt, filtroPeriodoMatricula);
 
@@ -1961,7 +1969,7 @@ function renderGrupoDisciplina(
   <div className="flex gap-2 w-full md:w-auto">
     <input
       type="text"
-      placeholder="Buscar por aluno, curso, turma, disciplina, professor, status ou ID"
+      placeholder="Buscar por aluno, vendedor, curso, turma, disciplina, professor, status ou ID"
       value={busca}
       onChange={(e) => setBusca(e.target.value)}
       className="w-full md:w-[400px] border rounded-xl px-3 py-2"
@@ -2015,6 +2023,7 @@ function renderGrupoDisciplina(
           <th className="px-4 py-3 font-semibold text-gray-700">Curso</th>
           <th className="px-4 py-3 font-semibold text-gray-700">Semestre</th>
           <th className="px-4 py-3 font-semibold text-gray-700">Status</th>
+          <th className="px-4 py-3 font-semibold text-gray-700">Vendedor</th>
           <th className="px-4 py-3 font-semibold text-gray-700">Disciplinas</th>
           <th className="px-4 py-3 font-semibold text-gray-700">Ações</th>
         </tr>
@@ -2070,6 +2079,31 @@ function renderGrupoDisciplina(
                     {m.status || "ATIVA"}
                   </span>
                 </td>
+
+                <td className="px-4 py-3">
+  {m.vendedorResponsavel?.nome ||
+  m.vendedorResponsavelNomeSnapshot ? (
+    <div>
+      <p className="font-semibold text-slate-900 dark:text-slate-100">
+        {m.vendedorResponsavel?.nome ||
+          m.vendedorResponsavelNomeSnapshot}
+      </p>
+
+      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+        {m.vendedorResponsavel?.cargo ||
+          "Vendedor responsável"}
+
+        {m.vendedorResponsavel?.departamento?.nome
+          ? ` • ${m.vendedorResponsavel.departamento.nome}`
+          : ""}
+      </p>
+    </div>
+  ) : (
+    <span className="text-xs text-slate-500 dark:text-slate-400">
+      Não informado
+    </span>
+  )}
+</td>
 
                 <td className="px-4 py-3 text-slate-700 dark:text-slate-200">
   {itens.length} disciplina(s)
@@ -2130,8 +2164,32 @@ function renderGrupoDisciplina(
   key={`detalhes-${m.id}`}
   className="border-b bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100"
 >
-                  <td colSpan={6} className="px-4 py-4">
+                  <td colSpan={7} className="px-4 py-4">
                     <div className="space-y-4">
+
+<div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+  <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+    Responsável comercial
+  </p>
+
+  <p className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
+    {m.vendedorResponsavel?.nome ||
+      m.vendedorResponsavelNomeSnapshot ||
+      "Nenhum vendedor informado"}
+  </p>
+
+  {(m.vendedorResponsavel?.cargo ||
+    m.vendedorResponsavel?.departamento?.nome) && (
+    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+      {m.vendedorResponsavel?.cargo || "Vendedor"}
+
+      {m.vendedorResponsavel?.departamento?.nome
+        ? ` • ${m.vendedorResponsavel.departamento.nome}`
+        : ""}
+    </p>
+  )}
+</div>
+
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => alterarStatusMatricula(m.id, "A_INICIAR")}
