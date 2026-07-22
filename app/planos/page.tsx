@@ -56,7 +56,7 @@ const planos = [
   "Criação, QR Code e emissão individual ou em lote",
 
   "RH completo com ponto, banco de horas, holerites, benefícios, férias, exames e rescisões",
-  "PHANYX RH Ponto Mobile institucional com link e QR Code, foto, localização e liberação individual",
+  "PHANYX RH Ponto Mobile com link e QR Code, foto, localização, reconhecimento facial opcional e liberação individual",
   "Histórico com correções autorizadas pelo RH por prazo determinado e auditoria",
 
   "RH completo com ponto, banco de horas, holerites, benefícios, férias, exames e rescisões",
@@ -94,9 +94,6 @@ const planos = [
   "Modelos ativos de certificado ilimitados",
   "Certificados e crachás avançados para múltiplos polos",
   "Modelos institucionais com personalização ampliada",
-
-  "RH e Ponto Mobile avançados para múltiplos polos",
-  "Regras ampliadas de localização, perímetro e auditoria",
 
   "RH e Ponto Mobile avançados para múltiplos polos",
   "Regras ampliadas de localização, auditoria e reconhecimento facial",
