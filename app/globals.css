@@ -13302,3 +13302,246 @@ html[data-theme="system"]
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
+
+/* =========================================================
+   PHANYX RH - REMUNERAÇÃO VARIÁVEL
+   Tema Sistema em tons de cinza, sem cards azul-marinho
+========================================================= */
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .bg-slate-900\/80,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .bg-slate-900 {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #565656 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .bg-slate-950\/70 {
+  background: #242424 !important;
+  background-color: #242424 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .bg-slate-950\/50 {
+  background: #292929 !important;
+  background-color: #292929 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .bg-slate-950 {
+  background: #242424 !important;
+  background-color: #242424 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .border-slate-800,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .border-slate-700 {
+  border-color: #565656 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page table thead,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page table thead tr {
+  background: #242424 !important;
+  background-color: #242424 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page input,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page select,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page textarea {
+  background: #242424 !important;
+  background-color: #242424 !important;
+  border-color: #5a5a5a !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page input::placeholder,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page textarea::placeholder {
+  color: #a3a3a3 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .text-slate-300 {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .text-slate-400 {
+  color: #c7c7c7 !important;
+}
+
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .text-slate-500 {
+  color: #a3a3a3 !important;
+}
+
+/* REMUNERAÇÃO VARIÁVEL - ABA ATIVA SEMPRE BRANCA */
+
+.phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa,
+html[data-theme="light"] .phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa,
+html[data-theme="dark"] .phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa {
+  background: #2563eb !important;
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa:hover,
+html[data-theme="light"] .phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa:hover,
+html[data-theme="dark"] .phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa:hover,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page button.phanyx-remuneracao-tab-ativa:hover {
+  background: #1d4ed8 !important;
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+/* REMUNERAÇÃO VARIÁVEL - BOTÕES PRIMÁRIOS */
+
+.phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario,
+html[data-theme="light"] .phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario,
+html[data-theme="dark"] .phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario {
+  background: #2563eb !important;
+  background-color: #2563eb !important;
+  border-color: #2563eb !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario:hover,
+html[data-theme="light"] .phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario:hover,
+html[data-theme="dark"] .phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario:hover,
+html[data-theme="system"] .phanyx-remuneracao-variavel-page .phanyx-remuneracao-botao-primario:hover {
+  background: #1d4ed8 !important;
+  background-color: #1d4ed8 !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+/* =========================================================
+   REMUNERAÇÃO VARIÁVEL - CARDS DE ELEGIBILIDADE
+========================================================= */
+
+/* Tema Claro */
+html[data-theme="light"]
+  .phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card
+  span {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card
+  .text-slate-400 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card
+  input[type="number"] {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Tema Escuro */
+html[data-theme="dark"]
+  .phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Tema Sistema */
+html[data-theme="system"]
+  .phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card {
+  background: #303030 !important;
+  border-color: #565656 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-remuneracao-variavel-page
+  .phanyx-remuneracao-elegibilidade-card
+  input[type="checkbox"] {
+  accent-color: #2563eb;
+}
+
+/* =========================================================
+   REMUNERAÇÃO VARIÁVEL - MODAL DE ATIVAÇÃO
+========================================================= */
+
+.phanyx-remuneracao-modal {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-remuneracao-modal > div > button,
+.phanyx-remuneracao-modal button:not(
+    .phanyx-remuneracao-botao-primario
+  ) {
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.phanyx-remuneracao-modal > div.rounded-2xl,
+.phanyx-remuneracao-modal .grid > div {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+html[data-theme="dark"]
+  .phanyx-remuneracao-modal {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+html[data-theme="dark"]
+  .phanyx-remuneracao-modal
+  button:not(
+    .phanyx-remuneracao-botao-primario
+  ) {
+  border-color: #475569;
+  color: #f8fafc;
+}
+
+html[data-theme="dark"]
+  .phanyx-remuneracao-modal
+  .grid
+  > div {
+  background: #020617;
+  border-color: #334155;
+}
+
+html[data-theme="system"]
+  .phanyx-remuneracao-modal {
+  background: #303030;
+  border-color: #5c5c5c;
+  color: #ffffff;
+}
+
+html[data-theme="system"]
+  .phanyx-remuneracao-modal
+  button:not(
+    .phanyx-remuneracao-botao-primario
+  ) {
+  border-color: #666666;
+  color: #ffffff;
+}
+
+html[data-theme="system"]
+  .phanyx-remuneracao-modal
+  .grid
+  > div {
+  background: #242424;
+  border-color: #565656;
+}

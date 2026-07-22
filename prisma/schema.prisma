@@ -131,45 +131,53 @@ model Instituicao {
   ouvidorias              Ouvidoria[]
   reunioes                Reuniao[]
 
-  documentosRH                  DocumentoRH[]
-  feriasRH                      FeriasRH[]
-  examesRH                      ExameMedicoRH[]
-  rescisoesRH                   RescisaoRH[]
-  holeritesRH                   HoleriteRH[]
-  pontosRH                      PontoFuncionarioRH[]
-  autorizacoesCorrecaoPontoRH   AutorizacaoCorrecaoPontoRH[]
-  solicitacoesCorrecaoPontoRH   SolicitacaoCorrecaoPontoRH[]
-  itensCorrecaoPontoRH          SolicitacaoCorrecaoPontoItemRH[]
-  avisosWhatsappCorrecaoPontoRH AvisoWhatsappCorrecaoPontoRH[]
-  historicosRH                  HistoricoRH[]
-  ocorrenciasRH                 OcorrenciaRH[]
-  escalasRH                     EscalaTrabalhoRH[]
-  bancoHorasRH                  BancoHorasRH[]
-  integracoesPontoRH            IntegracaoPontoRH[]
-  configuracaoPontoMobile       ConfiguracaoPontoMobileRH?
-  locaisPontoMobile             LocalPontoMobileRH[]
-  marcacoesPontoMobile          MarcacaoPontoMobileRH[]
-  ajustesMarcacaoPontoRH        AjusteMarcacaoPontoRH[]
-  eventosFolhaRH                EventoFolhaRH[]
-  beneficiosRH                  BeneficioRH[]
-  funcionariosBeneficiosRH      FuncionarioBeneficioRH[]
-  configuracoesPortais          ConfiguracaoPortalInstituicao[]
-  isentaPagamento               Boolean                          @default(false)
-  motivoIsencao                 String?
-  EntregaAtividadeHistorico     EntregaAtividadeHistorico[]
-  documentosProfessor           DocumentoProfessor[]
-  notificacoes                  Notificacao[]
-  substituicoesDocentes         SubstituicaoDocente[]
-  preferenciasAgendaOperacional PreferenciaAgendaOperacional[]
-  crachaModelos                 CrachaModelo[]
-  crachasEmitidos               CrachaEmitido[]
-  CrachaLoteEmissao             CrachaLoteEmissao[]
-  visitantes                    Visitante[]
+  documentosRH                                DocumentoRH[]
+  feriasRH                                    FeriasRH[]
+  examesRH                                    ExameMedicoRH[]
+  rescisoesRH                                 RescisaoRH[]
+  holeritesRH                                 HoleriteRH[]
+  pontosRH                                    PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
+  itensCorrecaoPontoRH                        SolicitacaoCorrecaoPontoItemRH[]
+  avisosWhatsappCorrecaoPontoRH               AvisoWhatsappCorrecaoPontoRH[]
+  historicosRH                                HistoricoRH[]
+  ocorrenciasRH                               OcorrenciaRH[]
+  escalasRH                                   EscalaTrabalhoRH[]
+  bancoHorasRH                                BancoHorasRH[]
+  integracoesPontoRH                          IntegracaoPontoRH[]
+  configuracaoPontoMobile                     ConfiguracaoPontoMobileRH?
+  locaisPontoMobile                           LocalPontoMobileRH[]
+  marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
+  eventosFolhaRH                              EventoFolhaRH[]
+  beneficiosRH                                BeneficioRH[]
+  funcionariosBeneficiosRH                    FuncionarioBeneficioRH[]
+  programasRemuneracaoVariavelRH              ProgramaRemuneracaoVariavelRH[]
+  participantesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  configuracoesPortais                        ConfiguracaoPortalInstituicao[]
+  isentaPagamento                             Boolean                                     @default(false)
+  motivoIsencao                               String?
+  EntregaAtividadeHistorico                   EntregaAtividadeHistorico[]
+  documentosProfessor                         DocumentoProfessor[]
+  notificacoes                                Notificacao[]
+  substituicoesDocentes                       SubstituicaoDocente[]
+  preferenciasAgendaOperacional               PreferenciaAgendaOperacional[]
+  crachaModelos                               CrachaModelo[]
+  crachasEmitidos                             CrachaEmitido[]
+  CrachaLoteEmissao                           CrachaLoteEmissao[]
+  visitantes                                  Visitante[]
 
-  regraLiberacaoCertificado    String  @default("CURSO_COMPLETO")
-  mediaMinimaCertificado       Float   @default(7)
-  frequenciaMinimaCertificado  Float   @default(75)
-  liberarCertificadoAutomatico Boolean @default(true)
+  regraLiberacaoCertificado      String                           @default("CURSO_COMPLETO")
+  mediaMinimaCertificado         Float                            @default(7)
+  frequenciaMinimaCertificado    Float                            @default(75)
+  liberarCertificadoAutomatico   Boolean                          @default(true)
+  PlanoComissaoRH                PlanoComissaoRH[]
+  RegraComissaoRH                RegraComissaoRH[]
+  FuncionarioPlanoComissaoRH     FuncionarioPlanoComissaoRH[]
+  MatriculaParticipanteComercial MatriculaParticipanteComercial[]
+  LancamentoComissaoRH           LancamentoComissaoRH[]
 }
 
 model User {
@@ -241,6 +249,23 @@ model User {
 
   certificadoModelosCriados    CertificadoModelo[] @relation("CertificadoModeloCriadoPor")
   certificadoModelosPublicados CertificadoModelo[] @relation("CertificadoModeloPublicadoPor")
+
+  planosComissaoRHCriados             PlanoComissaoRH[]                @relation("PlanoComissaoRHCriadoPor")
+  regrasComissaoRHCriadas             RegraComissaoRH[]                @relation("RegraComissaoRHCriadoPor")
+  funcionariosPlanosComissaoRHCriados FuncionarioPlanoComissaoRH[]     @relation("FuncionarioPlanoComissaoRHCriadoPor")
+  participantesComerciaisCriados      MatriculaParticipanteComercial[] @relation("MatriculaParticipanteComercialCriadoPor")
+  lancamentosComissaoRHCriados        LancamentoComissaoRH[]           @relation("LancamentoComissaoRHCriadoPor")
+  lancamentosComissaoRHAprovados      LancamentoComissaoRH[]           @relation("LancamentoComissaoRHAprovadoPor")
+  lancamentosComissaoRHReprovados     LancamentoComissaoRH[]           @relation("LancamentoComissaoRHReprovadoPor")
+  lancamentosComissaoRHEstornados     LancamentoComissaoRH[]           @relation("LancamentoComissaoRHEstornadoPor")
+
+  programasRemuneracaoVariavelRHCriados                ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHCriadoPor")
+  programasRemuneracaoVariavelRHAprovados              ProgramaRemuneracaoVariavelRH[]             @relation("ProgramaRemuneracaoVariavelRHAprovadoPor")
+  participantesProgramasRemuneracaoVariavelRHIncluidos ParticipanteProgramaRemuneracaoVariavelRH[] @relation("ParticipanteProgramaRemuneracaoVariavelRHIncluidoPor")
+  lancamentosRemuneracaoVariavelRHCriados              LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHCriadoPor")
+  lancamentosRemuneracaoVariavelRHAprovados            LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHAprovadoPor")
+  lancamentosRemuneracaoVariavelRHReprovados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHReprovadoPor")
+  lancamentosRemuneracaoVariavelRHEstornados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEstornadoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -402,6 +427,7 @@ model Curso {
   disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
   cursosPolos                 CursoPolo[]
   reunioes                    Reuniao[]
+  regrasComissaoRH            RegraComissaoRH[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -462,6 +488,8 @@ model Pagamento {
   aluno          Aluno                @relation(fields: [alunoId], references: [id], onDelete: Cascade)
   instituicao    Instituicao          @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   lancamento     LancamentoFinanceiro @relation(fields: [lancamentoId], references: [id], onDelete: Cascade)
+
+  lancamentosComissaoRH LancamentoComissaoRH[]
 
   @@index([instituicaoId])
   @@index([alunoId])
@@ -664,42 +692,53 @@ model TurmaDisciplinaHorario {
 }
 
 model Matricula {
-  id                     Int                    @id @default(autoincrement())
-  numeroMatriculaLegado  String?
-  sistemaOrigem          String?
-  importadaSistemaAntigo Boolean                @default(false)
-  alunoId                Int
-  numeroMatricula        String?
-  modalidade             String?
-  createdAt              DateTime               @default(now())
-  instituicaoId          Int
-  poloId                 Int?
-  status                 StatusMatricula        @default(ATIVA)
-  updatedAt              DateTime               @updatedAt
-  cursoId                Int?
-  semestre               Int?
-  dataPrimeiroVencimento DateTime?
-  quantidadeParcelas     Int?
-  valorMatricula         Decimal?               @db.Decimal(10, 2)
-  valorMensalidade       Decimal?               @db.Decimal(10, 2)
-  primeiroVencimento     DateTime?
-  quantidadeMensalidades Int?
+  id                              Int             @id @default(autoincrement())
+  numeroMatriculaLegado           String?
+  sistemaOrigem                   String?
+  importadaSistemaAntigo          Boolean         @default(false)
+  alunoId                         Int
+  numeroMatricula                 String?
+  modalidade                      String?
+  createdAt                       DateTime        @default(now())
+  instituicaoId                   Int
+  poloId                          Int?
+  status                          StatusMatricula @default(ATIVA)
+  updatedAt                       DateTime        @updatedAt
+  cursoId                         Int?
+  semestre                        Int?
+  dataPrimeiroVencimento          DateTime?
+  quantidadeParcelas              Int?
+  valorMatricula                  Decimal?        @db.Decimal(10, 2)
+  valorMensalidade                Decimal?        @db.Decimal(10, 2)
+  primeiroVencimento              DateTime?
+  quantidadeMensalidades          Int?
+  vendedorResponsavelId           Int?
+  vendedorResponsavelNomeSnapshot String?
+  origemComercial                 String?
+  campanhaComercial               String?
+  atendidoComercialEm             DateTime?
+  observacaoComercial             String?         @db.Text
+
   contratos              Contrato[]
   documentos             DocumentoAluno[]
   documentosGerados      DocumentoGerado[]
   itens                  ItemMatricula[]
   lancamentosFinanceiros LancamentoFinanceiro[]
-  cursoSemestreId        Int?
-  periodoMatriculaId     Int?
-  periodoLetivo          String?
-  realizadaPeloAluno     Boolean                @default(false)
-  confirmadaEm           DateTime?
-  cursoSemestre          CursoSemestre?         @relation(fields: [cursoSemestreId], references: [id])
-  periodoMatricula       PeriodoMatricula?      @relation(fields: [periodoMatriculaId], references: [id])
-  aluno                  Aluno                  @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  curso                  Curso?                 @relation(fields: [cursoId], references: [id])
-  instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                   Polo?                  @relation(fields: [poloId], references: [id])
+  vendedorResponsavel    Funcionario?           @relation("MatriculaVendedorResponsavel", fields: [vendedorResponsavelId], references: [id], onDelete: SetNull)
+
+  participantesComerciais MatriculaParticipanteComercial[]
+  lancamentosComissaoRH   LancamentoComissaoRH[]
+  cursoSemestreId         Int?
+  periodoMatriculaId      Int?
+  periodoLetivo           String?
+  realizadaPeloAluno      Boolean                          @default(false)
+  confirmadaEm            DateTime?
+  cursoSemestre           CursoSemestre?                   @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula        PeriodoMatricula?                @relation(fields: [periodoMatriculaId], references: [id])
+  aluno                   Aluno                            @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso                   Curso?                           @relation(fields: [cursoId], references: [id])
+  instituicao             Instituicao                      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                    Polo?                            @relation(fields: [poloId], references: [id])
 
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -711,6 +750,7 @@ model Matricula {
   @@index([poloId])
   @@index([numeroMatricula])
   @@index([numeroMatriculaLegado])
+  @@index([vendedorResponsavelId])
 }
 
 model ItemMatricula {
@@ -1235,22 +1275,28 @@ model Funcionario {
   recebeMensagemAniversario Boolean       @default(true)
   recebeWhatsappAniversario Boolean       @default(true)
 
-  permissoes                  FuncionarioPermissao[]
-  historicosRH                HistoricoRH[]
-  ocorrenciasRH               OcorrenciaRH[]
-  documentosRH                DocumentoRH[]
-  feriasRH                    FeriasRH[]
-  examesRH                    ExameMedicoRH[]
-  rescisoesRH                 RescisaoRH[]
-  holeritesRH                 HoleriteRH[]
-  pontosRH                    PontoFuncionarioRH[]
-  autorizacoesCorrecaoPontoRH AutorizacaoCorrecaoPontoRH[]
-  solicitacoesCorrecaoPontoRH SolicitacaoCorrecaoPontoRH[]
-  escalasRH                   EscalaTrabalhoRH[]
-  bancoHorasRH                BancoHorasRH[]
-  beneficiosRH                FuncionarioBeneficioRH[]
-  marcacoesPontoMobile        MarcacaoPontoMobileRH[]
-  ajustesMarcacaoPontoRH      AjusteMarcacaoPontoRH[]
+  permissoes                                  FuncionarioPermissao[]
+  historicosRH                                HistoricoRH[]
+  ocorrenciasRH                               OcorrenciaRH[]
+  documentosRH                                DocumentoRH[]
+  feriasRH                                    FeriasRH[]
+  examesRH                                    ExameMedicoRH[]
+  rescisoesRH                                 RescisaoRH[]
+  holeritesRH                                 HoleriteRH[]
+  pontosRH                                    PontoFuncionarioRH[]
+  autorizacoesCorrecaoPontoRH                 AutorizacaoCorrecaoPontoRH[]
+  solicitacoesCorrecaoPontoRH                 SolicitacaoCorrecaoPontoRH[]
+  escalasRH                                   EscalaTrabalhoRH[]
+  bancoHorasRH                                BancoHorasRH[]
+  beneficiosRH                                FuncionarioBeneficioRH[]
+  marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
+  ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
+  planosComissaoRH                            FuncionarioPlanoComissaoRH[]
+  participacoesComerciais                     MatriculaParticipanteComercial[]
+  matriculasComoVendedor                      Matricula[]                                 @relation("MatriculaVendedorResponsavel")
+  lancamentosComissaoRH                       LancamentoComissaoRH[]
+  participacoesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
 
   @@index([instituicaoId])
   @@index([departamentoId])
@@ -1259,17 +1305,18 @@ model Funcionario {
 }
 
 model Departamento {
-  id            Int                     @id @default(autoincrement())
-  nome          String
-  slug          String?
-  ativo         Boolean                 @default(true)
-  createdAt     DateTime                @default(now())
-  updatedAt     DateTime                @updatedAt
-  instituicaoId Int
-  instituicao   Instituicao             @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  funcionarios  Funcionario[]
-  permissoes    DepartamentoPermissao[]
-  professores   Professor[]
+  id                             Int                             @id @default(autoincrement())
+  nome                           String
+  slug                           String?
+  ativo                          Boolean                         @default(true)
+  createdAt                      DateTime                        @default(now())
+  updatedAt                      DateTime                        @updatedAt
+  instituicaoId                  Int
+  instituicao                    Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionarios                   Funcionario[]
+  permissoes                     DepartamentoPermissao[]
+  professores                    Professor[]
+  programasRemuneracaoVariavelRH ProgramaRemuneracaoVariavelRH[]
 
   @@unique([instituicaoId, nome])
   @@index([instituicaoId])
@@ -2641,6 +2688,9 @@ model HoleriteEventoRH {
 
   holerite HoleriteRH @relation(fields: [holeriteId], references: [id], onDelete: Cascade)
 
+  lancamentosComissaoRH            LancamentoComissaoRH[]
+  lancamentosRemuneracaoVariavelRH LancamentoRemuneracaoVariavelRH[]
+
   @@index([holeriteId])
   @@index([tipo])
 }
@@ -3550,6 +3600,336 @@ model CacheGeocodificacaoEndereco {
   @@index([provedor])
 }
 
+model PlanoComissaoRH {
+  id                       Int       @id @default(autoincrement())
+  instituicaoId            Int
+  criadoPorId              Int?
+  nome                     String
+  descricao                String?   @db.Text
+  ativo                    Boolean   @default(true)
+  inicioVigencia           DateTime?
+  fimVigencia              DateTime?
+  exigePagamentoConfirmado Boolean   @default(true)
+  permiteCompartilhamento  Boolean   @default(false)
+  criadoEm                 DateTime  @default(now())
+  atualizadoEm             DateTime  @updatedAt
+
+  instituicao  Instituicao                  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor    User?                        @relation("PlanoComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
+  regras       RegraComissaoRH[]
+  funcionarios FuncionarioPlanoComissaoRH[]
+  lancamentos  LancamentoComissaoRH[]
+
+  @@index([instituicaoId])
+  @@index([ativo])
+  @@index([inicioVigencia, fimVigencia])
+}
+
+model RegraComissaoRH {
+  id                       Int                   @id @default(autoincrement())
+  instituicaoId            Int
+  planoId                  Int
+  cursoId                  Int?
+  criadoPorId              Int?
+  nome                     String
+  descricao                String?               @db.Text
+  tipo                     TipoRegraComissaoRH
+  baseCalculo              BaseCalculoComissaoRH
+  gatilho                  GatilhoComissaoRH
+  percentual               Decimal?              @db.Decimal(7, 4)
+  valorFixo                Decimal?              @db.Decimal(12, 2)
+  quantidadeMinima         Int?
+  quantidadeMaxima         Int?
+  usarValorLiquidoRecebido Boolean               @default(true)
+  estornarEmCancelamento   Boolean               @default(true)
+  estornarEmInadimplencia  Boolean               @default(false)
+  diasCarenciaEstorno      Int?
+  ordem                    Int                   @default(0)
+  ativo                    Boolean               @default(true)
+  criadoEm                 DateTime              @default(now())
+  atualizadoEm             DateTime              @updatedAt
+
+  instituicao Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  plano       PlanoComissaoRH        @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  curso       Curso?                 @relation(fields: [cursoId], references: [id], onDelete: SetNull)
+  criadoPor   User?                  @relation("RegraComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
+  lancamentos LancamentoComissaoRH[]
+
+  @@index([instituicaoId])
+  @@index([planoId])
+  @@index([cursoId])
+  @@index([tipo])
+  @@index([baseCalculo])
+  @@index([gatilho])
+  @@index([ativo])
+}
+
+model FuncionarioPlanoComissaoRH {
+  id                Int       @id @default(autoincrement())
+  instituicaoId     Int
+  funcionarioId     Int
+  planoId           Int
+  criadoPorId       Int?
+  inicioVigencia    DateTime
+  fimVigencia       DateTime?
+  ativo             Boolean   @default(true)
+  planoNomeSnapshot String?
+  observacoes       String?   @db.Text
+  criadoEm          DateTime  @default(now())
+  atualizadoEm      DateTime  @updatedAt
+
+  instituicao Instituicao     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario Funcionario     @relation(fields: [funcionarioId], references: [id], onDelete: Cascade)
+  plano       PlanoComissaoRH @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  criadoPor   User?           @relation("FuncionarioPlanoComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
+
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([planoId])
+  @@index([ativo])
+  @@index([inicioVigencia, fimVigencia])
+}
+
+model MatriculaParticipanteComercial {
+  id                              Int                        @id @default(autoincrement())
+  instituicaoId                   Int
+  matriculaId                     Int
+  funcionarioId                   Int
+  criadoPorId                     Int?
+  papel                           PapelParticipanteComercial
+  percentualParticipacao          Decimal                    @default(100) @db.Decimal(5, 2)
+  funcionarioNomeSnapshot         String
+  funcionarioCargoSnapshot        String?
+  funcionarioDepartamentoSnapshot String?
+  criadoEm                        DateTime                   @default(now())
+  atualizadoEm                    DateTime                   @updatedAt
+
+  instituicao Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  matricula   Matricula              @relation(fields: [matriculaId], references: [id], onDelete: Cascade)
+  funcionario Funcionario            @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  criadoPor   User?                  @relation("MatriculaParticipanteComercialCriadoPor", fields: [criadoPorId], references: [id])
+  lancamentos LancamentoComissaoRH[]
+
+  @@unique([matriculaId, funcionarioId])
+  @@index([instituicaoId])
+  @@index([matriculaId])
+  @@index([funcionarioId])
+  @@index([papel])
+}
+
+model LancamentoComissaoRH {
+  id                      Int                        @id @default(autoincrement())
+  instituicaoId           Int
+  funcionarioId           Int
+  matriculaId             Int
+  participanteComercialId Int?
+  planoId                 Int?
+  regraId                 Int?
+  pagamentoId             Int?
+  holeriteEventoId        Int?
+  criadoPorId             Int?
+  aprovadoPorId           Int?
+  reprovadoPorId          Int?
+  estornadoPorId          Int?
+  chaveCalculo            String
+  origem                  OrigemLancamentoComissaoRH @default(AUTOMATICA)
+  status                  StatusLancamentoComissaoRH @default(PENDENTE)
+  competenciaMes          Int
+  competenciaAno          Int
+  descricao               String
+  baseCalculo             Decimal                    @default(0) @db.Decimal(12, 2)
+  percentualAplicado      Decimal?                   @db.Decimal(7, 4)
+  valorFixoAplicado       Decimal?                   @db.Decimal(12, 2)
+  percentualParticipacao  Decimal                    @default(100) @db.Decimal(5, 2)
+  valorCalculado          Decimal                    @default(0) @db.Decimal(12, 2)
+  valorAprovado           Decimal?                   @db.Decimal(12, 2)
+  funcionarioNomeSnapshot String
+  planoNomeSnapshot       String?
+  regraNomeSnapshot       String?
+  alunoNomeSnapshot       String?
+  cursoNomeSnapshot       String?
+  matriculaNumeroSnapshot String?
+  calculadoEm             DateTime                   @default(now())
+  aprovadoEm              DateTime?
+  reprovadoEm             DateTime?
+  enviadoHoleriteEm       DateTime?
+  pagoEm                  DateTime?
+  estornadoEm             DateTime?
+  motivoAjuste            String?                    @db.Text
+  motivoReprovacao        String?                    @db.Text
+  motivoEstorno           String?                    @db.Text
+  observacoes             String?                    @db.Text
+  criadoEm                DateTime                   @default(now())
+  atualizadoEm            DateTime                   @updatedAt
+
+  instituicao           Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario           Funcionario                     @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  matricula             Matricula                       @relation(fields: [matriculaId], references: [id], onDelete: Restrict)
+  participanteComercial MatriculaParticipanteComercial? @relation(fields: [participanteComercialId], references: [id], onDelete: SetNull)
+  plano                 PlanoComissaoRH?                @relation(fields: [planoId], references: [id], onDelete: SetNull)
+  regra                 RegraComissaoRH?                @relation(fields: [regraId], references: [id], onDelete: SetNull)
+  pagamento             Pagamento?                      @relation(fields: [pagamentoId], references: [id], onDelete: SetNull)
+  holeriteEvento        HoleriteEventoRH?               @relation(fields: [holeriteEventoId], references: [id], onDelete: SetNull)
+  criadoPor             User?                           @relation("LancamentoComissaoRHCriadoPor", fields: [criadoPorId], references: [id])
+  aprovadoPor           User?                           @relation("LancamentoComissaoRHAprovadoPor", fields: [aprovadoPorId], references: [id])
+  reprovadoPor          User?                           @relation("LancamentoComissaoRHReprovadoPor", fields: [reprovadoPorId], references: [id])
+  estornadoPor          User?                           @relation("LancamentoComissaoRHEstornadoPor", fields: [estornadoPorId], references: [id])
+
+  @@unique([instituicaoId, chaveCalculo])
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([matriculaId])
+  @@index([participanteComercialId])
+  @@index([planoId])
+  @@index([regraId])
+  @@index([pagamentoId])
+  @@index([holeriteEventoId])
+  @@index([status])
+  @@index([competenciaMes, competenciaAno])
+}
+
+model ProgramaRemuneracaoVariavelRH {
+  id                        Int                                     @id @default(autoincrement())
+  instituicaoId             Int
+  departamentoId            Int?
+  criadoPorId               Int?
+  aprovadoPorId             Int?
+  nome                      String
+  descricao                 String?                                 @db.Text
+  tipo                      TipoRemuneracaoVariavelRH
+  abrangencia               AbrangenciaRemuneracaoVariavelRH        @default(FUNCIONARIOS_SELECIONADOS)
+  metodoDistribuicao        MetodoDistribuicaoRemuneracaoVariavelRH @default(MANUAL)
+  competenciaMes            Int?
+  competenciaAno            Int?
+  periodoInicio             DateTime?
+  periodoFim                DateTime?
+  percentualFundo           Decimal?                                @db.Decimal(7, 4)
+  valorFundo                Decimal?                                @db.Decimal(12, 2)
+  valorMinimoIndividual     Decimal?                                @db.Decimal(12, 2)
+  valorMaximoIndividual     Decimal?                                @db.Decimal(12, 2)
+  considerarSalarioBase     Boolean                                 @default(false)
+  considerarTempoTrabalhado Boolean                                 @default(false)
+  exigirFuncionarioAtivo    Boolean                                 @default(true)
+  excluirEmExperiencia      Boolean                                 @default(false)
+  diasMinimosAdmissao       Int?
+  permitirAjusteManual      Boolean                                 @default(true)
+  criteriosElegibilidade    Json?
+  regrasCalculo             Json?
+  observacoes               String?                                 @db.Text
+  status                    StatusProgramaRemuneracaoVariavelRH     @default(RASCUNHO)
+  aprovadoEm                DateTime?
+  criadoEm                  DateTime                                @default(now())
+  atualizadoEm              DateTime                                @updatedAt
+
+  instituicao   Instituicao                                 @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  departamento  Departamento?                               @relation(fields: [departamentoId], references: [id], onDelete: SetNull)
+  criadoPor     User?                                       @relation("ProgramaRemuneracaoVariavelRHCriadoPor", fields: [criadoPorId], references: [id])
+  aprovadoPor   User?                                       @relation("ProgramaRemuneracaoVariavelRHAprovadoPor", fields: [aprovadoPorId], references: [id])
+  participantes ParticipanteProgramaRemuneracaoVariavelRH[]
+  lancamentos   LancamentoRemuneracaoVariavelRH[]
+
+  @@index([instituicaoId])
+  @@index([departamentoId])
+  @@index([tipo])
+  @@index([abrangencia])
+  @@index([status])
+  @@index([competenciaMes, competenciaAno])
+  @@index([periodoInicio, periodoFim])
+}
+
+model ParticipanteProgramaRemuneracaoVariavelRH {
+  id                              Int       @id @default(autoincrement())
+  instituicaoId                   Int
+  programaId                      Int
+  funcionarioId                   Int
+  incluidoPorId                   Int?
+  elegivel                        Boolean   @default(true)
+  peso                            Decimal   @default(1) @db.Decimal(10, 4)
+  percentualIndividual            Decimal?  @db.Decimal(7, 4)
+  valorFixoIndividual             Decimal?  @db.Decimal(12, 2)
+  salarioBaseSnapshot             Decimal?  @db.Decimal(12, 2)
+  dataAdmissaoSnapshot            DateTime?
+  diasConsiderados                Int?
+  funcionarioNomeSnapshot         String
+  funcionarioCargoSnapshot        String?
+  funcionarioDepartamentoSnapshot String?
+  motivoExclusao                  String?   @db.Text
+  observacoes                     String?   @db.Text
+  criadoEm                        DateTime  @default(now())
+  atualizadoEm                    DateTime  @updatedAt
+
+  instituicao Instituicao                       @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  programa    ProgramaRemuneracaoVariavelRH     @relation(fields: [programaId], references: [id], onDelete: Cascade)
+  funcionario Funcionario                       @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  incluidoPor User?                             @relation("ParticipanteProgramaRemuneracaoVariavelRHIncluidoPor", fields: [incluidoPorId], references: [id])
+  lancamentos LancamentoRemuneracaoVariavelRH[]
+
+  @@unique([programaId, funcionarioId])
+  @@index([instituicaoId])
+  @@index([programaId])
+  @@index([funcionarioId])
+  @@index([elegivel])
+}
+
+model LancamentoRemuneracaoVariavelRH {
+  id                              Int                                   @id @default(autoincrement())
+  instituicaoId                   Int
+  programaId                      Int
+  funcionarioId                   Int
+  participanteId                  Int?
+  holeriteEventoId                Int?
+  criadoPorId                     Int?
+  aprovadoPorId                   Int?
+  reprovadoPorId                  Int?
+  estornadoPorId                  Int?
+  chaveLancamento                 String
+  status                          StatusLancamentoRemuneracaoVariavelRH @default(PENDENTE)
+  competenciaMes                  Int
+  competenciaAno                  Int
+  descricao                       String
+  baseCalculo                     Decimal                               @default(0) @db.Decimal(12, 2)
+  percentualAplicado              Decimal?                              @db.Decimal(7, 4)
+  pesoAplicado                    Decimal?                              @db.Decimal(10, 4)
+  valorCalculado                  Decimal                               @default(0) @db.Decimal(12, 2)
+  valorAprovado                   Decimal?                              @db.Decimal(12, 2)
+  funcionarioNomeSnapshot         String
+  funcionarioCargoSnapshot        String?
+  funcionarioDepartamentoSnapshot String?
+  programaNomeSnapshot            String
+  tipoRemuneracaoSnapshot         TipoRemuneracaoVariavelRH
+  calculadoEm                     DateTime                              @default(now())
+  aprovadoEm                      DateTime?
+  reprovadoEm                     DateTime?
+  enviadoHoleriteEm               DateTime?
+  pagoEm                          DateTime?
+  estornadoEm                     DateTime?
+  motivoAjuste                    String?                               @db.Text
+  motivoReprovacao                String?                               @db.Text
+  motivoEstorno                   String?                               @db.Text
+  observacoes                     String?                               @db.Text
+  criadoEm                        DateTime                              @default(now())
+  atualizadoEm                    DateTime                              @updatedAt
+
+  instituicao    Instituicao                                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  programa       ProgramaRemuneracaoVariavelRH              @relation(fields: [programaId], references: [id], onDelete: Restrict)
+  funcionario    Funcionario                                @relation(fields: [funcionarioId], references: [id], onDelete: Restrict)
+  participante   ParticipanteProgramaRemuneracaoVariavelRH? @relation(fields: [participanteId], references: [id], onDelete: SetNull)
+  holeriteEvento HoleriteEventoRH?                          @relation(fields: [holeriteEventoId], references: [id], onDelete: SetNull)
+  criadoPor      User?                                      @relation("LancamentoRemuneracaoVariavelRHCriadoPor", fields: [criadoPorId], references: [id])
+  aprovadoPor    User?                                      @relation("LancamentoRemuneracaoVariavelRHAprovadoPor", fields: [aprovadoPorId], references: [id])
+  reprovadoPor   User?                                      @relation("LancamentoRemuneracaoVariavelRHReprovadoPor", fields: [reprovadoPorId], references: [id])
+  estornadoPor   User?                                      @relation("LancamentoRemuneracaoVariavelRHEstornadoPor", fields: [estornadoPorId], references: [id])
+
+  @@unique([instituicaoId, chaveLancamento])
+  @@index([instituicaoId])
+  @@index([programaId])
+  @@index([funcionarioId])
+  @@index([participanteId])
+  @@index([holeriteEventoId])
+  @@index([status])
+  @@index([competenciaMes, competenciaAno])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -3842,4 +4222,90 @@ enum TipoModeloCracha {
   VISITANTE
   MEMBRO
   PERSONALIZADO
+}
+
+enum TipoRegraComissaoRH {
+  PERCENTUAL
+  VALOR_FIXO
+}
+
+enum BaseCalculoComissaoRH {
+  VALOR_MATRICULA
+  VALOR_MENSALIDADE
+  VALOR_TOTAL_CONTRATO
+  VALOR_RECEBIDO
+  LUCRO
+  QUANTIDADE_MATRICULAS
+}
+
+enum GatilhoComissaoRH {
+  MATRICULA_CONFIRMADA
+  PAGAMENTO_MATRICULA_CONFIRMADO
+  PRIMEIRA_MENSALIDADE_PAGA
+  MENSALIDADE_PAGA
+  MANUAL
+}
+
+enum PapelParticipanteComercial {
+  RESPONSAVEL
+  PARTICIPANTE
+}
+
+enum StatusLancamentoComissaoRH {
+  PENDENTE
+  APROVADO
+  REPROVADO
+  ENVIADO_HOLERITE
+  PAGO
+  ESTORNADO
+  CANCELADO
+}
+
+enum OrigemLancamentoComissaoRH {
+  AUTOMATICA
+  MANUAL
+  AJUSTE
+  ESTORNO
+}
+
+enum TipoRemuneracaoVariavelRH {
+  BONUS
+  PREMIO
+  PARTICIPACAO_RESULTADOS
+  PARTICIPACAO_LUCROS
+  OUTRO
+}
+
+enum AbrangenciaRemuneracaoVariavelRH {
+  TODOS_FUNCIONARIOS
+  DEPARTAMENTO
+  FUNCIONARIOS_SELECIONADOS
+}
+
+enum MetodoDistribuicaoRemuneracaoVariavelRH {
+  VALOR_FIXO_INDIVIDUAL
+  IGUALITARIO
+  PROPORCIONAL_SALARIO
+  PROPORCIONAL_TEMPO_TRABALHADO
+  PERCENTUAL_INDIVIDUAL
+  PONTUACAO
+  MANUAL
+}
+
+enum StatusProgramaRemuneracaoVariavelRH {
+  RASCUNHO
+  ATIVO
+  EM_APURACAO
+  FECHADO
+  CANCELADO
+}
+
+enum StatusLancamentoRemuneracaoVariavelRH {
+  PENDENTE
+  APROVADO
+  REPROVADO
+  ENVIADO_HOLERITE
+  PAGO
+  ESTORNADO
+  CANCELADO
 }

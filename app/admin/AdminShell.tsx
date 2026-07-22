@@ -349,6 +349,16 @@ const podeVerPontoMobile = podeAcessar(
   "rh.ponto.mobile.ocorrencias.gerenciar"
 );
 
+const podeVerRemuneracaoVariavelRH = podeAcessar(
+  "rh.remuneracaoVariavel.ver",
+  "rh.remuneracaoVariavel.comissoes.gerenciar",
+  "rh.remuneracaoVariavel.bonus.gerenciar",
+  "rh.remuneracaoVariavel.participacao.gerenciar",
+  "rh.remuneracaoVariavel.aprovar",
+  "rh.remuneracaoVariavel.holerite.enviar",
+  "rh.remuneracaoVariavel.relatorios.ver"
+);
+
 const podeVerPublicacoesAcademicas =
   usuarioAdmin || temPermissao("academico.publicacoes.ver");
 
@@ -737,18 +747,27 @@ function abrirTourAdmin() {
     </Link>
 
     <Link
-      href="/admin/departamentos"
-      className={getLinkClass("/admin/departamentos")}
-    >
-      🏢 Departamentos
-    </Link>
+  href="/admin/departamentos"
+  className={getLinkClass("/admin/departamentos")}
+>
+  🏢 Departamentos
+</Link>
 
-    <Link
-      href="/admin/rh/ponto"
-      className={getLinkClass("/admin/rh/ponto")}
-    >
-      ⏱️ Ponto
-    </Link>
+{podeVerRemuneracaoVariavelRH && (
+  <Link
+    href="/admin/rh/remuneracao-variavel"
+    className={getLinkClass("/admin/rh/comercial")}
+  >
+    💰 Remuneração Variável
+  </Link>
+)}
+
+<Link
+  href="/admin/rh/ponto"
+  className={getLinkClass("/admin/rh/ponto")}
+>
+  ⏱️ Ponto
+</Link>
 
 
 
@@ -1141,6 +1160,15 @@ function abrirTourAdmin() {
     >
       👤 Funcionários
     </Link>
+
+{podeVerRemuneracaoVariavelRH && (
+  <Link
+    href="/admin/rh/remuneracao-variavel"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    💰 Remuneração Variável
+  </Link>
+)}
 
     <Link
       href="/admin/rh/ponto"
