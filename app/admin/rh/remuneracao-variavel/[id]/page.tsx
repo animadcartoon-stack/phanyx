@@ -26,6 +26,63 @@ type Participante = {
   funcionarioDepartamentoSnapshot?: string | null;
 };
 
+type UsuarioAuditoria = {
+  id: number;
+  nome: string;
+  email: string;
+};
+
+type LancamentoRemuneracaoVariavel = {
+  id: number;
+  funcionarioId: number;
+  participanteId?: number | null;
+
+  status: string;
+
+  competenciaMes: number;
+  competenciaAno: number;
+
+  descricao: string;
+
+  baseCalculo?: string | number | null;
+  percentualAplicado?: string | number | null;
+  pesoAplicado?: string | number | null;
+
+  valorCalculado: string | number;
+  valorAprovado?: string | number | null;
+
+  funcionarioNomeSnapshot: string;
+  funcionarioCargoSnapshot?: string | null;
+  funcionarioDepartamentoSnapshot?: string | null;
+
+  calculadoEm?: string | null;
+  aprovadoEm?: string | null;
+  reprovadoEm?: string | null;
+  enviadoHoleriteEm?: string | null;
+  pagoEm?: string | null;
+  estornadoEm?: string | null;
+
+  motivoAjuste?: string | null;
+  motivoReprovacao?: string | null;
+  motivoEstorno?: string | null;
+  observacoes?: string | null;
+
+  criadoPor?: UsuarioAuditoria | null;
+  aprovadoPor?: UsuarioAuditoria | null;
+  reprovadoPor?: UsuarioAuditoria | null;
+  estornadoPor?: UsuarioAuditoria | null;
+};
+
+type ResumoLancamentos = {
+  total: number;
+  pendentes: number;
+  aprovados: number;
+  reprovados: number;
+  enviadosHolerite: number;
+  valorPendente: number;
+  valorAprovado: number;
+};
+
 type Programa = {
   id: number;
   nome: string;
@@ -50,6 +107,7 @@ type Programa = {
     nome: string;
   } | null;
   participantes: Participante[];
+  lancamentos?: LancamentoRemuneracaoVariavel[];
 };
 
 type LinhaPreviaDistribuicao = {
@@ -153,6 +211,32 @@ function criarSugestoes(
     .slice(0, 6);
 }
 
+function classeStatusLancamento(status: string) {
+  switch (String(status || "").toUpperCase()) {
+    case "PENDENTE":
+      return "border-amber-500/40 bg-amber-500/15 text-amber-700";
+
+    case "APROVADO":
+      return "border-emerald-500/40 bg-emerald-500/15 text-emerald-700";
+
+    case "REPROVADO":
+      return "border-red-500/40 bg-red-500/15 text-red-700";
+
+    case "ENVIADO_HOLERITE":
+      return "border-blue-500/40 bg-blue-500/15 text-blue-700";
+
+    case "PAGO":
+      return "border-violet-500/40 bg-violet-500/15 text-violet-700";
+
+    case "ESTORNADO":
+    case "CANCELADO":
+      return "border-slate-500/40 bg-slate-500/15 text-slate-700";
+
+    default:
+      return "border-slate-500/40 bg-slate-500/15 text-slate-700";
+  }
+}
+
 export default function GerenciarRemuneracaoVariavelPage() {
   const params = useParams<{ id: string }>();
   const programaId = Number(params.id);
@@ -202,6 +286,58 @@ const [previa, setPrevia] =
 const [ativandoPrograma, setAtivandoPrograma] =
   useState(false);
 
+  const [lancamentosAberto, setLancamentosAberto] =
+  useState(true);
+
+const [
+  selecionadosLancamentos,
+  setSelecionadosLancamentos,
+] = useState<number[]>([]);
+
+const [
+  resumoLancamentos,
+  setResumoLancamentos,
+] = useState<ResumoLancamentos>({
+  total: 0,
+  pendentes: 0,
+  aprovados: 0,
+  reprovados: 0,
+  enviadosHolerite: 0,
+  valorPendente: 0,
+  valorAprovado: 0,
+});
+
+const [
+  processandoLancamentos,
+  setProcessandoLancamentos,
+] = useState(false);
+
+const [
+  modalAprovacaoAberto,
+  setModalAprovacaoAberto,
+] = useState(false);
+
+const [
+  modalReprovacaoAberto,
+  setModalReprovacaoAberto,
+] = useState(false);
+
+const [motivoReprovacao, setMotivoReprovacao] =
+  useState("");
+
+  const [
+  selecionadosEnvioHolerite,
+  setSelecionadosEnvioHolerite,
+] = useState<number[]>([]);
+
+const [
+  modalEnvioHoleriteAberto,
+  setModalEnvioHoleriteAberto,
+] = useState(false);
+
+const [enviandoHolerite, setEnviandoHolerite] =
+  useState(false);
+
   async function carregar() {
     try {
       setCarregando(true);
@@ -225,7 +361,19 @@ const [ativandoPrograma, setAtivandoPrograma] =
       }
 
       setPrograma(dados.programa);
-      setFuncionarios(dados.funcionarios || []);
+setFuncionarios(dados.funcionarios || []);
+
+setResumoLancamentos(
+  dados.resumoLancamentos || {
+    total: 0,
+    pendentes: 0,
+    aprovados: 0,
+    reprovados: 0,
+    enviadosHolerite: 0,
+    valorPendente: 0,
+    valorAprovado: 0,
+  }
+);
     } catch (error: any) {
       setErro(
         error?.message ||
@@ -401,6 +549,227 @@ async function ativarPrograma() {
   }
 }
 
+function alternarLancamento(id: number) {
+  setSelecionadosEnvioHolerite([]);
+
+  setSelecionadosLancamentos((atuais) =>
+    atuais.includes(id)
+      ? atuais.filter((item) => item !== id)
+      : [...atuais, id]
+  );
+}
+
+function alternarTodosLancamentosPendentes() {
+  if (!programa) return;
+  setSelecionadosEnvioHolerite([]);
+
+  const idsPendentes = (
+    programa.lancamentos || []
+  )
+    .filter(
+      (lancamento) =>
+        String(lancamento.status).toUpperCase() ===
+        "PENDENTE"
+    )
+    .map((lancamento) => lancamento.id);
+
+  const todosSelecionados =
+    idsPendentes.length > 0 &&
+    idsPendentes.every((id) =>
+      selecionadosLancamentos.includes(id)
+    );
+
+  setSelecionadosLancamentos(
+    todosSelecionados ? [] : idsPendentes
+  );
+}
+
+async function processarLancamentos(
+  acao:
+    | "APROVAR_LANCAMENTOS"
+    | "REPROVAR_LANCAMENTOS",
+  motivo?: string
+) {
+  if (selecionadosLancamentos.length === 0) {
+    setErro(
+      "Selecione pelo menos um lançamento pendente."
+    );
+    return;
+  }
+
+  try {
+    setProcessandoLancamentos(true);
+    setErro("");
+    setSucesso("");
+
+    const resposta = await fetch(
+      `/api/admin/rh/remuneracao-variavel/${programaId}`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao,
+          lancamentoIds: selecionadosLancamentos,
+          ...(acao === "REPROVAR_LANCAMENTOS"
+            ? {
+                motivoReprovacao: motivo,
+              }
+            : {}),
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados.error ||
+          "Não foi possível processar os lançamentos."
+      );
+    }
+
+    setSucesso(
+      dados.message ||
+        "Lançamentos processados com sucesso."
+    );
+
+    setSelecionadosLancamentos([]);
+    setSelecionadosEnvioHolerite([]);
+    setModalAprovacaoAberto(false);
+    setModalReprovacaoAberto(false);
+    setMotivoReprovacao("");
+
+    await carregar();
+  } catch (error: any) {
+    setErro(
+      error?.message ||
+        "Erro ao processar os lançamentos."
+    );
+  } finally {
+    setProcessandoLancamentos(false);
+  }
+}
+
+async function aprovarLancamentosSelecionados() {
+  await processarLancamentos(
+    "APROVAR_LANCAMENTOS"
+  );
+}
+
+async function reprovarLancamentosSelecionados() {
+  const motivo = motivoReprovacao.trim();
+
+  if (motivo.length < 5) {
+    setErro(
+      "Informe o motivo da reprovação com pelo menos 5 caracteres."
+    );
+    return;
+  }
+
+  await processarLancamentos(
+    "REPROVAR_LANCAMENTOS",
+    motivo
+  );
+}
+
+function alternarLancamentoEnvioHolerite(id: number) {
+  setSelecionadosLancamentos([]);
+
+  setSelecionadosEnvioHolerite((atuais) =>
+    atuais.includes(id)
+      ? atuais.filter((item) => item !== id)
+      : [...atuais, id]
+  );
+}
+
+function alternarTodosLancamentosAprovados() {
+  if (!programa) return;
+
+  setSelecionadosLancamentos([]);
+
+  const idsAprovados = (
+    programa.lancamentos || []
+  )
+    .filter(
+      (lancamento) =>
+        String(lancamento.status).toUpperCase() ===
+        "APROVADO"
+    )
+    .map((lancamento) => lancamento.id);
+
+  const todosSelecionados =
+    idsAprovados.length > 0 &&
+    idsAprovados.every((id) =>
+      selecionadosEnvioHolerite.includes(id)
+    );
+
+  setSelecionadosEnvioHolerite(
+    todosSelecionados ? [] : idsAprovados
+  );
+}
+
+async function enviarAprovadosAoHolerite() {
+  if (selecionadosEnvioHolerite.length === 0) {
+    setErro(
+      "Selecione pelo menos um lançamento aprovado."
+    );
+    return;
+  }
+
+  try {
+    setEnviandoHolerite(true);
+    setErro("");
+    setSucesso("");
+
+    const resposta = await fetch(
+      "/api/admin/rh/holerites",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao: "ENVIAR_REMUNERACAO_VARIAVEL",
+          programaId,
+          lancamentoIds:
+            selecionadosEnvioHolerite,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados.error ||
+          "Não foi possível enviar os lançamentos ao holerite."
+      );
+    }
+
+    setSucesso(
+      dados.message ||
+        "Lançamentos enviados ao holerite."
+    );
+
+    setSelecionadosEnvioHolerite([]);
+    setSelecionadosLancamentos([]);
+    setModalEnvioHoleriteAberto(false);
+
+    await carregar();
+  } catch (error: any) {
+    setErro(
+      error?.message ||
+        "Erro ao enviar os lançamentos ao holerite."
+    );
+  } finally {
+    setEnviandoHolerite(false);
+  }
+}
+
   if (carregando) {
     return (
       <main className="phanyx-rh-page phanyx-remuneracao-variavel-page min-h-screen p-6">
@@ -420,6 +789,87 @@ async function ativarPrograma() {
   const exigeSelecao =
     programa.abrangencia ===
     "FUNCIONARIOS_SELECIONADOS";
+    
+    const statusPrograma = String(programa.status || "")
+  .trim()
+  .toUpperCase();
+
+const programaEmRascunho =
+  statusPrograma === "RASCUNHO";
+
+  const programaAtivo =
+  statusPrograma === "ATIVO";
+
+const lancamentos =
+  programa.lancamentos || [];
+
+const lancamentosPendentes =
+  lancamentos.filter(
+    (lancamento) =>
+      String(lancamento.status).toUpperCase() ===
+      "PENDENTE"
+  );
+
+const todosPendentesSelecionados =
+  lancamentosPendentes.length > 0 &&
+  lancamentosPendentes.every((lancamento) =>
+    selecionadosLancamentos.includes(
+      lancamento.id
+    )
+  );
+
+const lancamentosSelecionados =
+  lancamentosPendentes.filter((lancamento) =>
+    selecionadosLancamentos.includes(
+      lancamento.id
+    )
+  );
+
+const valorLancamentosSelecionados =
+  lancamentosSelecionados.reduce(
+    (total, lancamento) =>
+      total +
+      Number(
+        lancamento.valorAprovado ??
+          lancamento.valorCalculado ??
+          0
+      ),
+    0
+  );
+
+  const lancamentosAprovados =
+  lancamentos.filter(
+    (lancamento) =>
+      String(lancamento.status).toUpperCase() ===
+      "APROVADO"
+  );
+
+const todosAprovadosSelecionados =
+  lancamentosAprovados.length > 0 &&
+  lancamentosAprovados.every((lancamento) =>
+    selecionadosEnvioHolerite.includes(
+      lancamento.id
+    )
+  );
+
+const lancamentosSelecionadosEnvio =
+  lancamentosAprovados.filter((lancamento) =>
+    selecionadosEnvioHolerite.includes(
+      lancamento.id
+    )
+  );
+
+const valorSelecionadoEnvioHolerite =
+  lancamentosSelecionadosEnvio.reduce(
+    (total, lancamento) =>
+      total +
+      Number(
+        lancamento.valorAprovado ??
+          lancamento.valorCalculado ??
+          0
+      ),
+    0
+  );
 
     const participantesFiltrados =
   programa.participantes.filter((participante) =>
@@ -641,7 +1091,7 @@ const sugestoesFuncionarios = criarSugestoes(
       type="button"
       disabled={
         processando ||
-        programa.status !== "RASCUNHO" ||
+        !programaEmRascunho ||
         (exigeSelecao && selecionados.length === 0)
       }
       onClick={gerarParticipantes}
@@ -916,7 +1366,7 @@ const sugestoesFuncionarios = criarSugestoes(
 </table>
 </div>
 
-{programa.status === "RASCUNHO" && (
+{programaEmRascunho && (
   <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-700 p-4 sm:flex-row sm:items-center sm:justify-between">
     <div>
       <p className="font-black">
@@ -952,48 +1402,384 @@ const sugestoesFuncionarios = criarSugestoes(
   </div>
 )}
 
-
-{programa.status === "RASCUNHO" && (
-  <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-slate-700 p-4 sm:flex-row sm:items-center sm:justify-between">
-    <div>
-      <p className="font-black">
-        Ativação do programa
-      </p>
-
-      <p className="mt-1 text-sm text-slate-400">
-        Serão gerados{" "}
-        {previa.totalParticipantes} lançamentos
-        pendentes, totalizando{" "}
-        {formatarMoeda(
-          previa.totalDistribuido
-        )}.
-      </p>
-
-      {previa.saldo > 0 && (
-        <p className="mt-1 text-xs text-amber-600">
-          Permanecerá um saldo não distribuído de{" "}
-          {formatarMoeda(previa.saldo)}.
-        </p>
+        </>
       )}
-    </div>
+    </>
+  )}
+</section>
 
+<section className="rounded-3xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
     <button
       type="button"
-      disabled={
-        previa.totalParticipantes === 0 ||
-        previa.totalDistribuido <= 0 ||
-        previa.saldo < -0.009
-      }
+      aria-expanded={lancamentosAberto}
       onClick={() =>
-        setModalAtivacaoAberto(true)
+        setLancamentosAberto((atual) => !atual)
       }
-      className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+      className="flex min-w-0 flex-1 items-center justify-between gap-4 text-left"
     >
-      Ativar programa e gerar lançamentos
+      <div>
+        <h2 className="text-lg font-black">
+          Lançamentos e aprovação
+        </h2>
+
+        <p className="mt-1 text-sm text-slate-400">
+          {resumoLancamentos.total} lançamento(s), sendo{" "}
+          {resumoLancamentos.pendentes} pendente(s).
+        </p>
+      </div>
+
+      <span className="text-2xl font-black">
+        {lancamentosAberto ? "▴" : "▾"}
+      </span>
     </button>
   </div>
-)}
 
+  {lancamentosAberto && (
+    <>
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-400">
+            Pendentes
+          </p>
+
+          <p className="mt-2 text-2xl font-black">
+            {resumoLancamentos.pendentes}
+          </p>
+
+          <p className="mt-1 text-xs text-slate-400">
+            {formatarMoeda(
+              resumoLancamentos.valorPendente
+            )}
+          </p>
+        </article>
+
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-400">
+            Aprovados
+          </p>
+
+          <p className="mt-2 text-2xl font-black">
+            {resumoLancamentos.aprovados}
+          </p>
+
+          <p className="mt-1 text-xs text-slate-400">
+            {formatarMoeda(
+              resumoLancamentos.valorAprovado
+            )}
+          </p>
+        </article>
+
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-400">
+            Reprovados
+          </p>
+
+          <p className="mt-2 text-2xl font-black">
+            {resumoLancamentos.reprovados}
+          </p>
+        </article>
+
+        <article className="phanyx-remuneracao-elegibilidade-card rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+          <p className="text-xs font-bold uppercase text-slate-400">
+            Enviados ao holerite
+          </p>
+
+          <p className="mt-2 text-2xl font-black">
+            {resumoLancamentos.enviadosHolerite}
+          </p>
+        </article>
+      </div>
+
+      {lancamentos.length === 0 ? (
+        <div className="mt-5 rounded-2xl border border-dashed border-slate-700 p-5 text-sm text-slate-400">
+          Nenhum lançamento foi gerado para este programa.
+        </div>
+      ) : (
+        <>
+          {programaAtivo &&
+            resumoLancamentos.pendentes > 0 && (
+              <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-slate-700 p-4 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="font-black">
+                    Aprovação dos lançamentos
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-400">
+                    {selecionadosLancamentos.length} selecionado(s), totalizando{" "}
+                    {formatarMoeda(
+                      valorLancamentosSelecionados
+                    )}.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    disabled={
+                      processandoLancamentos ||
+                      selecionadosLancamentos.length === 0
+                    }
+                    onClick={() =>
+                      setModalReprovacaoAberto(true)
+                    }
+                    className="rounded-xl border border-red-500 px-4 py-2.5 text-sm font-black text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Reprovar selecionados
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={
+                      processandoLancamentos ||
+                      selecionadosLancamentos.length === 0
+                    }
+                    onClick={() =>
+                      setModalAprovacaoAberto(true)
+                    }
+                    className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Aprovar selecionados
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {programaAtivo &&
+  resumoLancamentos.aprovados > 0 && (
+    <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-blue-500/50 p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p className="font-black">
+          Envio ao holerite
+        </p>
+
+        <p className="mt-1 text-sm text-slate-400">
+          {selecionadosEnvioHolerite.length} aprovado(s)
+          selecionado(s), totalizando{" "}
+          {formatarMoeda(
+            valorSelecionadoEnvioHolerite
+          )}.
+        </p>
+
+        <p className="mt-1 text-xs text-slate-400">
+          O valor será incluído como vencimento no
+          holerite da competência correspondente.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap gap-3">
+        <button
+          type="button"
+          disabled={
+            enviandoHolerite ||
+            lancamentosAprovados.length === 0
+          }
+          onClick={
+            alternarTodosLancamentosAprovados
+          }
+          className="rounded-xl border border-slate-600 px-4 py-2.5 text-sm font-black disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {todosAprovadosSelecionados
+            ? "Limpar seleção"
+            : "Selecionar todos aprovados"}
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            enviandoHolerite ||
+            selecionadosEnvioHolerite.length === 0
+          }
+          onClick={() =>
+            setModalEnvioHoleriteAberto(true)
+          }
+          className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Enviar selecionados ao holerite
+        </button>
+      </div>
+    </div>
+  )}
+
+          <div className="mt-5 overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-950/70 text-left text-xs uppercase text-slate-400">
+                <tr>
+                  <th className="p-3">
+                    <input
+                      type="checkbox"
+                      aria-label="Selecionar todos os lançamentos pendentes"
+                      checked={
+                        todosPendentesSelecionados
+                      }
+                      disabled={
+                        lancamentosPendentes.length === 0 ||
+                        processandoLancamentos
+                      }
+                      onChange={
+                        alternarTodosLancamentosPendentes
+                      }
+                    />
+                  </th>
+
+                  <th className="p-3">
+                    Funcionário
+                  </th>
+
+                  <th className="p-3">
+                    Competência
+                  </th>
+
+                  <th className="p-3">
+                    Valor
+                  </th>
+
+                  <th className="p-3">
+                    Status
+                  </th>
+
+                  <th className="p-3">
+                    Auditoria
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {lancamentos.map((lancamento) => {
+                  const pendente =
+                    String(
+                      lancamento.status
+                    ).toUpperCase() === "PENDENTE";
+
+                    const aprovado =
+  String(
+    lancamento.status
+  ).toUpperCase() === "APROVADO";
+
+                  const usuarioAuditoria =
+                    lancamento.aprovadoPor ||
+                    lancamento.reprovadoPor ||
+                    lancamento.criadoPor;
+
+                  const dataAuditoria =
+                    lancamento.aprovadoEm ||
+                    lancamento.reprovadoEm ||
+                    lancamento.calculadoEm;
+
+                  return (
+                    <tr
+                      key={lancamento.id}
+                      className="border-t border-slate-800"
+                    >
+                      <td className="p-3">
+                        <input
+  type="checkbox"
+  aria-label={
+    pendente
+      ? `Selecionar lançamento de ${lancamento.funcionarioNomeSnapshot} para aprovação`
+      : `Selecionar lançamento de ${lancamento.funcionarioNomeSnapshot} para envio ao holerite`
+  }
+  disabled={
+    (!pendente && !aprovado) ||
+    processandoLancamentos ||
+    enviandoHolerite
+  }
+  checked={
+    pendente
+      ? selecionadosLancamentos.includes(
+          lancamento.id
+        )
+      : aprovado
+        ? selecionadosEnvioHolerite.includes(
+            lancamento.id
+          )
+        : false
+  }
+  onChange={() => {
+    if (pendente) {
+      alternarLancamento(lancamento.id);
+      return;
+    }
+
+    if (aprovado) {
+      alternarLancamentoEnvioHolerite(
+        lancamento.id
+      );
+    }
+  }}
+/>
+                      </td>
+
+                      <td className="p-3">
+                        <p className="font-black">
+                          {
+                            lancamento.funcionarioNomeSnapshot
+                          }
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-400">
+                          {lancamento.funcionarioCargoSnapshot ||
+                            "Cargo não informado"}
+                          {" • "}
+                          {lancamento.funcionarioDepartamentoSnapshot ||
+                            "Sem departamento"}
+                        </p>
+                      </td>
+
+                      <td className="p-3">
+                        {String(
+                          lancamento.competenciaMes
+                        ).padStart(2, "0")}
+                        /{lancamento.competenciaAno}
+                      </td>
+
+                      <td className="p-3 text-base font-black">
+                        {formatarMoeda(
+                          lancamento.valorAprovado ??
+                            lancamento.valorCalculado
+                        )}
+                      </td>
+
+                      <td className="p-3">
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-black ${classeStatusLancamento(
+                            lancamento.status
+                          )}`}
+                        >
+                          {formatarTexto(
+                            lancamento.status
+                          )}
+                        </span>
+                      </td>
+
+                      <td className="p-3">
+                        <p className="font-semibold">
+                          {usuarioAuditoria?.nome ||
+                            usuarioAuditoria?.email ||
+                            "Aguardando análise"}
+                        </p>
+
+                        <p className="mt-1 text-xs text-slate-400">
+                          {formatarDataHora(
+                            dataAuditoria
+                          )}
+                        </p>
+
+                        {lancamento.motivoReprovacao && (
+                          <p className="mt-2 text-xs text-red-600">
+                            Motivo:{" "}
+                            {
+                              lancamento.motivoReprovacao
+                            }
+                          </p>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </>
       )}
     </>
@@ -1139,6 +1925,258 @@ const sugestoesFuncionarios = criarSugestoes(
   )}
 </section>
       </div>
+
+      {modalEnvioHoleriteAberto && (
+  <div
+    className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-modal-envio-holerite"
+  >
+    <button
+      type="button"
+      aria-label="Fechar confirmação de envio"
+      onClick={() =>
+        !enviandoHolerite &&
+        setModalEnvioHoleriteAberto(false)
+      }
+      className="absolute inset-0 bg-black/70"
+    />
+
+    <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
+      <p className="text-xs font-bold uppercase tracking-[0.2em] text-blue-400">
+        Integração com a folha
+      </p>
+
+      <h2
+        id="titulo-modal-envio-holerite"
+        className="mt-2 text-2xl font-black"
+      >
+        Enviar ao holerite?
+      </h2>
+
+      <p className="mt-4 text-sm">
+        Serão enviados{" "}
+        <strong>
+          {selecionadosEnvioHolerite.length} lançamento(s)
+        </strong>
+        , totalizando{" "}
+        <strong>
+          {formatarMoeda(
+            valorSelecionadoEnvioHolerite
+          )}
+        </strong>
+        .
+      </p>
+
+      <div className="mt-5 rounded-2xl border p-4 text-sm">
+        <p className="font-black">
+          O que acontecerá
+        </p>
+
+        <p className="mt-2 text-slate-400">
+          O PHANYX criará o holerite da competência
+          quando ele ainda não existir ou acrescentará
+          o valor ao holerite existente.
+        </p>
+
+        <p className="mt-2 text-slate-400">
+          Cada remuneração será registrada como um
+          evento do tipo vencimento. Esta ação não marca
+          o holerite como pago.
+        </p>
+      </div>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          disabled={enviandoHolerite}
+          onClick={() =>
+            setModalEnvioHoleriteAberto(false)
+          }
+          className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={enviandoHolerite}
+          onClick={enviarAprovadosAoHolerite}
+          className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {enviandoHolerite
+            ? "Enviando..."
+            : "Confirmar envio ao holerite"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{modalAprovacaoAberto && (
+  <div
+    className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-modal-aprovacao"
+  >
+    <button
+      type="button"
+      aria-label="Fechar confirmação"
+      onClick={() =>
+        !processandoLancamentos &&
+        setModalAprovacaoAberto(false)
+      }
+      className="absolute inset-0 bg-black/70"
+    />
+
+    <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
+      <h2
+        id="titulo-modal-aprovacao"
+        className="text-2xl font-black"
+      >
+        Aprovar lançamentos?
+      </h2>
+
+      <p className="mt-4 text-sm">
+        Serão aprovados{" "}
+        <strong>
+          {selecionadosLancamentos.length} lançamento(s)
+        </strong>
+        , totalizando{" "}
+        <strong>
+          {formatarMoeda(
+            valorLancamentosSelecionados
+          )}
+        </strong>
+        .
+      </p>
+
+      <p className="mt-4 text-sm text-slate-400">
+        Os valores aprovados ficarão prontos para a
+        próxima etapa de envio ao holerite.
+      </p>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          disabled={processandoLancamentos}
+          onClick={() =>
+            setModalAprovacaoAberto(false)
+          }
+          className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={processandoLancamentos}
+          onClick={
+            aprovarLancamentosSelecionados
+          }
+          className="phanyx-remuneracao-botao-primario rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {processandoLancamentos
+            ? "Aprovando..."
+            : "Confirmar aprovação"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{modalReprovacaoAberto && (
+  <div
+    className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="titulo-modal-reprovacao"
+  >
+    <button
+      type="button"
+      aria-label="Fechar reprovação"
+      onClick={() =>
+        !processandoLancamentos &&
+        setModalReprovacaoAberto(false)
+      }
+      className="absolute inset-0 bg-black/70"
+    />
+
+    <div className="phanyx-remuneracao-modal relative z-10 w-full max-w-lg rounded-3xl border p-6 shadow-2xl">
+      <h2
+        id="titulo-modal-reprovacao"
+        className="text-2xl font-black"
+      >
+        Reprovar lançamentos?
+      </h2>
+
+      <p className="mt-4 text-sm">
+        Serão reprovados{" "}
+        <strong>
+          {selecionadosLancamentos.length} lançamento(s)
+        </strong>
+        , totalizando{" "}
+        <strong>
+          {formatarMoeda(
+            valorLancamentosSelecionados
+          )}
+        </strong>
+        .
+      </p>
+
+      <label className="mt-5 block">
+        <span className="text-sm font-black">
+          Motivo da reprovação
+        </span>
+
+        <textarea
+          value={motivoReprovacao}
+          onChange={(event) =>
+            setMotivoReprovacao(
+              event.target.value
+            )
+          }
+          placeholder="Explique por que os lançamentos estão sendo reprovados."
+          rows={4}
+          className="mt-2 w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm outline-none transition focus:border-blue-400"
+        />
+      </label>
+
+      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+        <button
+          type="button"
+          disabled={processandoLancamentos}
+          onClick={() => {
+            setModalReprovacaoAberto(false);
+            setMotivoReprovacao("");
+          }}
+          className="rounded-xl border px-5 py-2.5 text-sm font-bold disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          disabled={
+            processandoLancamentos ||
+            motivoReprovacao.trim().length < 5
+          }
+          onClick={
+            reprovarLancamentosSelecionados
+          }
+          className="rounded-xl bg-red-600 px-5 py-2.5 text-sm font-black text-white disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {processandoLancamentos
+            ? "Reprovando..."
+            : "Confirmar reprovação"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {modalAtivacaoAberto && previa && (
   <div
     className="fixed inset-0 z-[9999999] flex items-center justify-center p-4"

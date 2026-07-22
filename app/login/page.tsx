@@ -1,6 +1,13 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+} from "react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
@@ -158,11 +165,13 @@ if (
     }
   }
 
-  function handleEnterKey(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === "Enter") {
-      handleLogin();
-    }
-  }
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  e.preventDefault();
+
+  if (loading) return;
+
+  void handleLogin();
+}
 
   const cardSelecionado =
     "border-blue-600 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-lg shadow-blue-200/40";
@@ -288,58 +297,61 @@ if (
               <p className="text-sm text-slate-500">{subtitulo}</p>
             </div>
 
-            <div className="mt-5 space-y-4">
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={handleEnterKey}
-                className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none"
-              />
+            <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+  <input
+    type="email"
+    placeholder="Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    autoComplete="email"
+    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none"
+  />
 
-              <div className="relative">
-                <input
-                  type={mostrarSenha ? "text" : "password"}
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  placeholder="Senha"
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-12 outline-none"
-                />
+  <div className="relative">
+    <input
+      type={mostrarSenha ? "text" : "password"}
+      value={senha}
+      onChange={(e) => setSenha(e.target.value)}
+      placeholder="Senha"
+      autoComplete="current-password"
+      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 pr-12 outline-none"
+    />
 
-                <button
-                  type="button"
-                  onClick={() => setMostrarSenha(!mostrarSenha)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-lg"
-                >
-                  {mostrarSenha ? "🙈" : "👁️"}
-                </button>
-              </div>
+    <button
+      type="button"
+      onClick={() => setMostrarSenha(!mostrarSenha)}
+      className="absolute right-4 top-1/2 -translate-y-1/2 text-lg"
+      aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+    >
+      {mostrarSenha ? "🙈" : "👁️"}
+    </button>
+  </div>
 
-              {erro && (
-                <p className="text-sm font-medium text-red-600">{erro}</p>
-              )}
+  {erro && (
+    <p className="text-sm font-medium text-red-600">
+      {erro}
+    </p>
+  )}
 
-              <button
-  type="button"
-  onClick={handleLogin}
-  disabled={loading}
-  className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white disabled:opacity-60"
->
-  {loading
-    ? "Entrando..."
-    : portalSelecionado === "rh"
-      ? "Entrar no RH Ponto"
-      : "Entrar"}
-</button>
+  <button
+    type="submit"
+    disabled={loading}
+    className="w-full rounded-2xl bg-blue-600 py-4 font-bold text-white disabled:opacity-60"
+  >
+    {loading
+      ? "Entrando..."
+      : portalSelecionado === "rh"
+        ? "Entrar no RH Ponto"
+        : "Entrar"}
+  </button>
 
-              <a
-                href={`/esqueci-senha?portal=${portalSelecionado}`}
-                className="block text-center text-sm font-medium text-blue-600"
-              >
-                Esqueci minha senha
-              </a>
-            </div>
+  <a
+    href={`/esqueci-senha?portal=${portalSelecionado}`}
+    className="block text-center text-sm font-medium text-blue-600"
+  >
+    Esqueci minha senha
+  </a>
+</form>
           </div>
         </div>
       </main>

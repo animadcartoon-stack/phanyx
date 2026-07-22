@@ -670,6 +670,16 @@ async function buscarPrograma(
           funcionarioNomeSnapshot: "asc",
         },
       },
+      lancamentos: {
+  orderBy: [
+    {
+      status: "asc",
+    },
+    {
+      funcionarioNomeSnapshot: "asc",
+    },
+  ],
+},
       _count: {
         select: {
           participantes: true,
@@ -716,6 +726,23 @@ async function buscarFuncionarios(
   });
 }
 
+function normalizarLancamentoIds(valor: unknown) {
+  if (!Array.isArray(valor)) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      valor
+        .map((id) => Number(id))
+        .filter(
+          (id) =>
+            Number.isInteger(id) && id > 0
+        )
+    )
+  );
+}
+
 export async function GET(
   _req: NextRequest,
   { params }: ContextoRota
@@ -751,6 +778,151 @@ export async function GET(
         { status: 404 }
       );
     }
+
+    const usuariosAuditoriaIds = Array.from(
+  new Set(
+    programa.lancamentos.flatMap((lancamento) =>
+      [
+        lancamento.criadoPorId,
+        lancamento.aprovadoPorId,
+        lancamento.reprovadoPorId,
+        lancamento.estornadoPorId,
+      ].filter(
+        (id): id is number => typeof id === "number"
+      )
+    )
+  )
+);
+
+const usuariosAuditoria =
+  usuariosAuditoriaIds.length > 0
+    ? await prisma.user.findMany({
+        where: {
+          instituicaoId,
+          id: {
+            in: usuariosAuditoriaIds,
+          },
+        },
+        select: {
+          id: true,
+          nome: true,
+          email: true,
+        },
+      })
+    : [];
+
+const usuariosAuditoriaPorId = new Map(
+  usuariosAuditoria.map((usuario) => [
+    usuario.id,
+    usuario,
+  ])
+);
+
+const lancamentosFormatados =
+  programa.lancamentos.map((lancamento) => ({
+    ...lancamento,
+
+    baseCalculo:
+      lancamento.baseCalculo?.toString() ?? "0",
+
+    percentualAplicado:
+      lancamento.percentualAplicado?.toString() ??
+      null,
+
+    pesoAplicado:
+      lancamento.pesoAplicado?.toString() ?? null,
+
+    valorCalculado:
+      lancamento.valorCalculado?.toString() ?? "0",
+
+    valorAprovado:
+      lancamento.valorAprovado?.toString() ?? null,
+
+    criadoPor:
+      lancamento.criadoPorId !== null
+        ? usuariosAuditoriaPorId.get(
+            lancamento.criadoPorId
+          ) ?? null
+        : null,
+
+    aprovadoPor:
+      lancamento.aprovadoPorId !== null
+        ? usuariosAuditoriaPorId.get(
+            lancamento.aprovadoPorId
+          ) ?? null
+        : null,
+
+    reprovadoPor:
+      lancamento.reprovadoPorId !== null
+        ? usuariosAuditoriaPorId.get(
+            lancamento.reprovadoPorId
+          ) ?? null
+        : null,
+
+    estornadoPor:
+      lancamento.estornadoPorId !== null
+        ? usuariosAuditoriaPorId.get(
+            lancamento.estornadoPorId
+          ) ?? null
+        : null,
+  }));
+
+const resumoLancamentos = {
+  total: programa.lancamentos.length,
+
+  pendentes: programa.lancamentos.filter(
+    (lancamento) =>
+      lancamento.status ===
+      StatusLancamentoRemuneracaoVariavelRH.PENDENTE
+  ).length,
+
+  aprovados: programa.lancamentos.filter(
+    (lancamento) =>
+      lancamento.status ===
+      StatusLancamentoRemuneracaoVariavelRH.APROVADO
+  ).length,
+
+  reprovados: programa.lancamentos.filter(
+    (lancamento) =>
+      lancamento.status ===
+      StatusLancamentoRemuneracaoVariavelRH.REPROVADO
+  ).length,
+
+  enviadosHolerite: programa.lancamentos.filter(
+    (lancamento) =>
+      lancamento.status ===
+      StatusLancamentoRemuneracaoVariavelRH.ENVIADO_HOLERITE
+  ).length,
+
+  valorPendente: programa.lancamentos
+    .filter(
+      (lancamento) =>
+        lancamento.status ===
+        StatusLancamentoRemuneracaoVariavelRH.PENDENTE
+    )
+    .reduce(
+      (total, lancamento) =>
+        total + Number(lancamento.valorCalculado || 0),
+      0
+    ),
+
+  valorAprovado: programa.lancamentos
+    .filter(
+      (lancamento) =>
+        lancamento.status ===
+        StatusLancamentoRemuneracaoVariavelRH.APROVADO
+    )
+    .reduce(
+      (total, lancamento) =>
+        total +
+        Number(
+          lancamento.valorAprovado ??
+            lancamento.valorCalculado ??
+            0
+        ),
+      0
+    ),
+};
 
     const funcionarios = await buscarFuncionarios(
       programa,
@@ -813,8 +985,12 @@ export async function GET(
             },
           })
         ),
+
+        lancamentos: lancamentosFormatados,
+
       },
       funcionarios: funcionariosFormatados,
+      resumoLancamentos,
     });
   } catch (error: any) {
     console.error(
@@ -867,14 +1043,16 @@ const acao = String(body.acao || "");
 if (
   acao !== "GERAR_PARTICIPANTES" &&
   acao !== "PREVISUALIZAR_DISTRIBUICAO" &&
-  acao !== "ATIVAR_E_GERAR_LANCAMENTOS"
+  acao !== "ATIVAR_E_GERAR_LANCAMENTOS" &&
+  acao !== "APROVAR_LANCAMENTOS" &&
+  acao !== "REPROVAR_LANCAMENTOS"
 ) {
   return NextResponse.json(
     { error: "Ação inválida." },
     { status: 400 }
   );
 }
-
+  
     const programa = await buscarPrograma(
       programaId,
       instituicaoId
@@ -1069,6 +1247,203 @@ if (acao === "ATIVAR_E_GERAR_LANCAMENTOS") {
   });
 }
 
+if (acao === "APROVAR_LANCAMENTOS") {
+  if (
+    programa.status !==
+    StatusProgramaRemuneracaoVariavelRH.ATIVO
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Os lançamentos somente podem ser aprovados em um programa ativo.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lancamentoIds = normalizarLancamentoIds(
+    body.lancamentoIds
+  );
+
+  if (lancamentoIds.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Selecione pelo menos um lançamento pendente.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lancamentosPendentes =
+    await prisma.lancamentoRemuneracaoVariavelRH.findMany(
+      {
+        where: {
+          id: {
+            in: lancamentoIds,
+          },
+          instituicaoId,
+          programaId,
+          status:
+            StatusLancamentoRemuneracaoVariavelRH.PENDENTE,
+        },
+        select: {
+          id: true,
+          valorCalculado: true,
+        },
+      }
+    );
+
+  if (lancamentosPendentes.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Nenhum dos lançamentos selecionados está pendente.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const aprovadoPorId = Number(user.id);
+  const aprovadoEm = new Date();
+
+  await prisma.$transaction(
+    lancamentosPendentes.map((lancamento) =>
+      prisma.lancamentoRemuneracaoVariavelRH.update({
+        where: {
+          id: lancamento.id,
+        },
+        data: {
+          status:
+            StatusLancamentoRemuneracaoVariavelRH.APROVADO,
+
+          valorAprovado:
+            lancamento.valorCalculado,
+
+          aprovadoPorId,
+          aprovadoEm,
+
+          reprovadoPorId: null,
+          reprovadoEm: null,
+          motivoReprovacao: null,
+        },
+      })
+    )
+  );
+
+  const ignorados =
+    lancamentoIds.length -
+    lancamentosPendentes.length;
+
+  return NextResponse.json({
+    message:
+      `${lancamentosPendentes.length} lançamento(s) aprovado(s).` +
+      (ignorados > 0
+        ? ` ${ignorados} lançamento(s) já processado(s) foram ignorados.`
+        : ""),
+
+    aprovados: lancamentosPendentes.length,
+    ignorados,
+  });
+}
+
+if (acao === "REPROVAR_LANCAMENTOS") {
+  if (
+    programa.status !==
+    StatusProgramaRemuneracaoVariavelRH.ATIVO
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Os lançamentos somente podem ser reprovados em um programa ativo.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lancamentoIds = normalizarLancamentoIds(
+    body.lancamentoIds
+  );
+
+  const motivoReprovacao = String(
+    body.motivoReprovacao || ""
+  ).trim();
+
+  if (lancamentoIds.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Selecione pelo menos um lançamento pendente.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (motivoReprovacao.length < 5) {
+    return NextResponse.json(
+      {
+        error:
+          "Informe o motivo da reprovação com pelo menos 5 caracteres.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const reprovadoPorId = Number(user.id);
+  const reprovadoEm = new Date();
+
+  const resultado =
+    await prisma.lancamentoRemuneracaoVariavelRH.updateMany(
+      {
+        where: {
+          id: {
+            in: lancamentoIds,
+          },
+          instituicaoId,
+          programaId,
+          status:
+            StatusLancamentoRemuneracaoVariavelRH.PENDENTE,
+        },
+        data: {
+          status:
+            StatusLancamentoRemuneracaoVariavelRH.REPROVADO,
+
+          reprovadoPorId,
+          reprovadoEm,
+          motivoReprovacao,
+
+          aprovadoPorId: null,
+          aprovadoEm: null,
+          valorAprovado: null,
+        },
+      }
+    );
+
+  if (resultado.count === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Nenhum dos lançamentos selecionados está pendente.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const ignorados =
+    lancamentoIds.length - resultado.count;
+
+  return NextResponse.json({
+    message:
+      `${resultado.count} lançamento(s) reprovado(s).` +
+      (ignorados > 0
+        ? ` ${ignorados} lançamento(s) já processado(s) foram ignorados.`
+        : ""),
+
+    reprovados: resultado.count,
+    ignorados,
+  });
+}
+
     if (programa.status !== "RASCUNHO") {
       return NextResponse.json(
         {
@@ -1183,15 +1558,15 @@ if (acao === "ATIVAR_E_GERAR_LANCAMENTOS") {
     });
   } catch (error: any) {
     console.error(
-      "Erro ao gerar participantes:",
-      error
-    );
+  "Erro ao processar remuneração variável:",
+  error
+);
 
     return NextResponse.json(
       {
         error:
-          error?.message ||
-          "Erro ao gerar os participantes.",
+  error?.message ||
+  "Erro ao processar a remuneração variável.",
       },
       { status: 500 }
     );
