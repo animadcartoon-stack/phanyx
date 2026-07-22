@@ -14167,3 +14167,103 @@ html[data-theme="system"] .phanyx-turma-horarios-texto {
   -webkit-text-fill-color: #e5e5e5 !important;
   opacity: 1 !important;
 }
+
+/* =========================================================
+   MATRÍCULAS — VENDEDOR RESPONSÁVEL
+========================================================= */
+
+/* Tema claro */
+html[data-theme="light"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-card {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-titulo {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-opcional {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-select {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-ajuda {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-alerta {
+  color: #92400e !important;
+  opacity: 1 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-card {
+  background: #111827 !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-opcional,
+html[data-theme="dark"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-ajuda {
+  color: #cbd5e1 !important;
+}
+
+/* Tema sistema: cinza neutro, sem azul */
+html[data-theme="system"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-card {
+  background: #363636 !important;
+  background-image: none !important;
+  border-color: #686868 !important;
+}
+
+html[data-theme="system"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-opcional,
+html[data-theme="system"] body
+  .admin-matriculas-page
+  .matriculas-vendedor-ajuda {
+  color: #e5e7eb !important;
+}

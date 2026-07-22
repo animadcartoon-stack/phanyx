@@ -23,9 +23,10 @@ interface Professor {
   telefone?: string | null;
   dataNascimento?: string | null;
   titulacao?: string | null;
-  especialidade?: string | null;
-  formacao?: string | null;
-  miniBio?: string | null;
+especialidade?: string | null;
+formacao?: string | null;
+areaAtuacao?: string | null;
+miniBio?: string | null;
   codigoFuncionario?: string | null;
   fotoPerfil?: string | null;
   documentoUrl?: string | null;
@@ -56,9 +57,10 @@ function AdminProfessoresPage() {
   const [telefone, setTelefone] = useState("");
   const [dataNascimento, setDataNascimento] = useState("");
   const [titulacao, setTitulacao] = useState("");
-  const [especialidade, setEspecialidade] = useState("");
-  const [formacao, setFormacao] = useState("");
-  const [miniBio, setMiniBio] = useState("");
+const [especialidade, setEspecialidade] = useState("");
+const [formacao, setFormacao] = useState("");
+const [areaAtuacao, setAreaAtuacao] = useState("");
+const [miniBio, setMiniBio] = useState("");
   const [codigoFuncionario, setCodigoFuncionario] = useState("");
   const [fotoPerfil, setFotoPerfil] = useState("");
   const [documentoUrl, setDocumentoUrl] = useState("");
@@ -90,9 +92,10 @@ const [linksPortfolioProfessor, setLinksPortfolioProfessor] = useState([
   const [editTelefone, setEditTelefone] = useState("");
   const [editDataNascimento, setEditDataNascimento] = useState("");
   const [editTitulacao, setEditTitulacao] = useState("");
-  const [editEspecialidade, setEditEspecialidade] = useState("");
-  const [editFormacao, setEditFormacao] = useState("");
-  const [editMiniBio, setEditMiniBio] = useState("");
+const [editEspecialidade, setEditEspecialidade] = useState("");
+const [editFormacao, setEditFormacao] = useState("");
+const [editAreaAtuacao, setEditAreaAtuacao] = useState("");
+const [editMiniBio, setEditMiniBio] = useState("");
   const [editCodigoFuncionario, setEditCodigoFuncionario] = useState("");
   const [editFotoPerfil, setEditFotoPerfil] = useState("");
   const [editDocumentoUrl, setEditDocumentoUrl] = useState("");
@@ -287,9 +290,10 @@ async function carregarDisciplinas() {
           telefone,
           dataNascimento: dataNascimento || null,
           titulacao,
-          especialidade,
-          formacao,
-          miniBio,
+especialidade,
+formacao,
+areaAtuacao,
+miniBio,
           codigoFuncionario,
           fotoPerfil,
           documentoUrl,
@@ -347,9 +351,10 @@ if (professorIdCriado) {
       setTelefone("");
       setDataNascimento("");
       setTitulacao("");
-      setEspecialidade("");
-      setFormacao("");
-      setMiniBio("");
+setEspecialidade("");
+setFormacao("");
+setAreaAtuacao("");
+setMiniBio("");
       setCodigoFuncionario("");
       setFotoPerfil("");
       setDocumentoUrl("");
@@ -383,9 +388,10 @@ setLinksPortfolioProfessor([{ tipo: "LinkedIn", url: "" }]);
         : ""
     );
     setEditTitulacao(professor.titulacao || "");
-    setEditEspecialidade(professor.especialidade || "");
-    setEditFormacao(professor.formacao || "");
-    setEditMiniBio(professor.miniBio || "");
+setEditEspecialidade(professor.especialidade || "");
+setEditFormacao(professor.formacao || "");
+setEditAreaAtuacao(professor.areaAtuacao || "");
+setEditMiniBio(professor.miniBio || "");
     setEditCodigoFuncionario(professor.codigoFuncionario || "");
     setEditFotoPerfil(professor.fotoPerfil || "");
     setEditDocumentoUrl(professor.documentoUrl || "");
@@ -413,9 +419,10 @@ setLinksPortfolioProfessor([{ tipo: "LinkedIn", url: "" }]);
           telefone: editTelefone,
           dataNascimento: editDataNascimento || null,
           titulacao: editTitulacao,
-          especialidade: editEspecialidade,
-          formacao: editFormacao,
-          miniBio: editMiniBio,
+especialidade: editEspecialidade,
+formacao: editFormacao,
+areaAtuacao: editAreaAtuacao,
+miniBio: editMiniBio,
           codigoFuncionario: editCodigoFuncionario,
           fotoPerfil: editFotoPerfil,
           documentoUrl: editDocumentoUrl,
@@ -505,6 +512,9 @@ carregarDisciplinas();
       const formacaoTexto = String(professor.formacao || "")
         .toLowerCase()
         .trim();
+        const areaAtuacaoTexto = String(professor.areaAtuacao || "")
+  .toLowerCase()
+  .trim();
       const codigoFuncionarioTexto = String(professor.codigoFuncionario || "")
         .toLowerCase()
         .trim();
@@ -524,8 +534,9 @@ carregarDisciplinas();
         telefoneTexto.includes(termoTexto) ||
         titulacaoTexto.includes(termoTexto) ||
         especialidadeTexto.includes(termoTexto) ||
-        formacaoTexto.includes(termoTexto) ||
-        codigoFuncionarioTexto.includes(termoTexto) ||
+formacaoTexto.includes(termoTexto) ||
+areaAtuacaoTexto.includes(termoTexto) ||
+codigoFuncionarioTexto.includes(termoTexto) ||
         slugTexto.includes(termoTexto) ||
         poloTexto.includes(termoTexto) ||
         (termoNumerico !== "" &&
@@ -625,12 +636,18 @@ carregarDisciplinas();
   />
 </div>
 
-            <input
-              placeholder="Titulação"
-              value={titulacao}
-              onChange={(e) => setTitulacao(e.target.value)}
-              className="w-full rounded-lg border p-2"
-            />
+            <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Titulação acadêmica
+  </label>
+
+  <input
+    placeholder="Ex.: Especialista, Mestre ou Doutor"
+    value={titulacao}
+    onChange={(e) => setTitulacao(e.target.value)}
+    className="w-full rounded-lg border p-2"
+  />
+</div>
 
             <div className="rounded-lg border p-2 md:col-span-2">
   <button
@@ -684,12 +701,31 @@ carregarDisciplinas();
   )}
 </div>
 
-            <input
-              placeholder="Formação"
-              value={formacao}
-              onChange={(e) => setFormacao(e.target.value)}
-              className="w-full rounded-lg border p-2"
-            />
+            <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Formação acadêmica
+  </label>
+
+  <input
+    placeholder="Ex.: Licenciatura em Pedagogia"
+    value={formacao}
+    onChange={(e) => setFormacao(e.target.value)}
+    className="w-full rounded-lg border p-2"
+  />
+</div>
+
+<div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Área de atuação
+  </label>
+
+  <input
+    placeholder="Ex.: Educação Infantil e Gestão Escolar"
+    value={areaAtuacao}
+    onChange={(e) => setAreaAtuacao(e.target.value)}
+    className="w-full rounded-lg border p-2"
+  />
+</div>
 
             <input
               placeholder="Código do funcionário"
@@ -938,7 +974,7 @@ carregarDisciplinas();
 
             <input
               type="text"
-              placeholder="Buscar por nome, email, CPF, telefone, código, especialidade ou polo"
+              placeholder="Buscar por nome, email, CPF, telefone, titulação, formação, área de atuação, disciplina ou polo"
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               className="w-full rounded-lg border p-2 md:w-[460px]"
@@ -1011,12 +1047,18 @@ carregarDisciplinas();
     className="w-full rounded border p-2"
   />
 </div>
-                      <input
-                        value={editTitulacao}
-                        onChange={(e) => setEditTitulacao(e.target.value)}
-                        className="rounded border p-2"
-                        placeholder="Titulação"
-                      />
+                      <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Titulação acadêmica
+  </label>
+
+  <input
+    value={editTitulacao}
+    onChange={(e) => setEditTitulacao(e.target.value)}
+    className="w-full rounded border p-2"
+    placeholder="Ex.: Especialista, Mestre ou Doutor"
+  />
+</div>
                       <div className="rounded border p-2 md:col-span-2">
   <button
     type="button"
@@ -1068,12 +1110,31 @@ carregarDisciplinas();
     </div>
   )}
 </div>
-                      <input
-                        value={editFormacao}
-                        onChange={(e) => setEditFormacao(e.target.value)}
-                        className="rounded border p-2"
-                        placeholder="Formação"
-                      />
+                      <div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Formação acadêmica
+  </label>
+
+  <input
+    value={editFormacao}
+    onChange={(e) => setEditFormacao(e.target.value)}
+    className="w-full rounded border p-2"
+    placeholder="Ex.: Licenciatura em Pedagogia"
+  />
+</div>
+
+<div>
+  <label className="mb-1 block text-xs font-semibold text-slate-600">
+    Área de atuação
+  </label>
+
+  <input
+    value={editAreaAtuacao}
+    onChange={(e) => setEditAreaAtuacao(e.target.value)}
+    className="w-full rounded border p-2"
+    placeholder="Ex.: Educação Infantil e Gestão Escolar"
+  />
+</div>
                       <input
                         value={editCodigoFuncionario}
                         onChange={(e) => setEditCodigoFuncionario(e.target.value)}
@@ -1255,14 +1316,20 @@ carregarDisciplinas();
                       Telefone: {p.telefone || "-"}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Titulação: {p.titulacao || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Especialidade: {p.especialidade || "-"}
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Formação: {p.formacao || "-"}
-                    </p>
+  Titulação acadêmica: {p.titulacao || "-"}
+</p>
+
+<p className="text-sm text-gray-600">
+  Formação acadêmica: {p.formacao || "-"}
+</p>
+
+<p className="text-sm text-gray-600">
+  Área de atuação: {p.areaAtuacao || "-"}
+</p>
+
+<p className="text-sm text-gray-600">
+  Disciplinas habilitadas: {p.especialidade || "-"}
+</p>
                     <p className="text-sm text-gray-600">
                       Código: {p.codigoFuncionario || "-"}
                     </p>

@@ -158,9 +158,10 @@ export async function POST(request: Request) {
           ? new Date(body.dataNascimento)
           : null,
         titulacao: body.titulacao || null,
-        especialidade: body.especialidade || null,
-        formacao: body.formacao || null,
-        miniBio: body.miniBio || null,
+especialidade: body.especialidade || null,
+formacao: body.formacao || null,
+areaAtuacao: body.areaAtuacao || null,
+miniBio: body.miniBio || null,
         codigoFuncionario: body.codigoFuncionario || null,
         fotoPerfil: body.fotoPerfil || null,
         documentoUrl: body.documentoUrl || null,

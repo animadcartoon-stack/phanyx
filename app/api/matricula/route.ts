@@ -1,6 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { getUserFromToken } from "@/lib/server-auth";
+import {
+  getUserFromToken,
+  temPermissao,
+} from "@/lib/server-auth";
+
+import {
+  PapelParticipanteComercial,
+} from "@prisma/client";
 
 function addMonths(date: Date, months: number) {
   const d = new Date(date);
@@ -25,6 +32,106 @@ function uniqueNumbers(values: number[]) {
   return Array.from(new Set(values.filter((v) => Number.isFinite(v) && v > 0)));
 }
 
+type VendedorElegivel = {
+  id: number;
+  nome: string;
+  cargo: string | null;
+  departamento: {
+    nome: string;
+  } | null;
+};
+
+async function buscarVendedorElegivel(
+  instituicaoId: number,
+  funcionarioId: number
+): Promise<VendedorElegivel | null> {
+  const agora = new Date();
+
+  return prisma.funcionario.findFirst({
+    where: {
+      id: funcionarioId,
+      instituicaoId,
+      ativo: true,
+      statusFuncionario: "ATIVO",
+
+      planosComissaoRH: {
+        some: {
+          instituicaoId,
+          ativo: true,
+
+          inicioVigencia: {
+            lte: agora,
+          },
+
+          OR: [
+            {
+              fimVigencia: null,
+            },
+            {
+              fimVigencia: {
+                gte: agora,
+              },
+            },
+          ],
+
+          plano: {
+            is: {
+              instituicaoId,
+              ativo: true,
+
+              regras: {
+                some: {
+                  instituicaoId,
+                  ativo: true,
+                },
+              },
+
+              AND: [
+                {
+                  OR: [
+                    {
+                      inicioVigencia: null,
+                    },
+                    {
+                      inicioVigencia: {
+                        lte: agora,
+                      },
+                    },
+                  ],
+                },
+                {
+                  OR: [
+                    {
+                      fimVigencia: null,
+                    },
+                    {
+                      fimVigencia: {
+                        gte: agora,
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+
+    select: {
+      id: true,
+      nome: true,
+      cargo: true,
+
+      departamento: {
+        select: {
+          nome: true,
+        },
+      },
+    },
+  });
+}
+
 type TipoItemMatricula =
   | "GRADE_PRINCIPAL"
   | "EXTRA_MESMO_CURSO"
@@ -34,6 +141,7 @@ type MatriculaBody = {
   id?: number | string;
   alunoId?: number | string;
   cursoId?: number | string;
+  vendedorResponsavelId?: number | string | null;
   cursoSemestreId?: number | string;
   periodoMatriculaId?: number | string;
   semestre?: number | string;
@@ -331,6 +439,44 @@ const includeMatricula = {
   },
 } as const;
 
+const includeMatriculaAdmin = {
+  ...includeMatricula,
+
+  vendedorResponsavel: {
+    select: {
+      id: true,
+      nome: true,
+      cargo: true,
+
+      departamento: {
+        select: {
+          id: true,
+          nome: true,
+        },
+      },
+    },
+  },
+
+  participantesComerciais: {
+    where: {
+      papel:
+        PapelParticipanteComercial.RESPONSAVEL,
+    },
+
+    select: {
+      id: true,
+      funcionarioId: true,
+      papel: true,
+      percentualParticipacao: true,
+      funcionarioNomeSnapshot: true,
+      funcionarioCargoSnapshot: true,
+      funcionarioDepartamentoSnapshot: true,
+      criadoPorId: true,
+      criadoEm: true,
+    },
+  },
+} as const;
+
 export async function GET() {
   try {
     const user = await getUserFromToken();
@@ -369,7 +515,7 @@ export async function GET() {
         where: {
           instituicaoId: user.instituicaoId,
         },
-        include: includeMatricula,
+        include: includeMatriculaAdmin,
         orderBy: { id: "desc" },
       });
 
@@ -477,6 +623,66 @@ export async function POST(request: Request) {
     }
 
     const body = (await request.json()) as MatriculaBody;
+
+    const vendedorResponsavelValor =
+  body.vendedorResponsavelId;
+
+const vendedorResponsavelId =
+  toPositiveNumberOrNull(
+    vendedorResponsavelValor
+  );
+
+if (
+  vendedorResponsavelValor !== undefined &&
+  vendedorResponsavelValor !== null &&
+  vendedorResponsavelValor !== "" &&
+  !vendedorResponsavelId
+) {
+  return NextResponse.json(
+    {
+      error:
+        "O vendedor responsável informado é inválido.",
+    },
+    { status: 400 }
+  );
+}
+
+let vendedorResponsavel:
+  | VendedorElegivel
+  | null = null;
+
+if (vendedorResponsavelId) {
+  if (
+    !temPermissao(
+      user,
+      "comercial.matriculas.vincular_vendedor"
+    )
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Você não possui permissão para vincular um vendedor à matrícula.",
+      },
+      { status: 403 }
+    );
+  }
+
+  vendedorResponsavel =
+    await buscarVendedorElegivel(
+      user.instituicaoId,
+      vendedorResponsavelId
+    );
+
+  if (!vendedorResponsavel) {
+    return NextResponse.json(
+      {
+        error:
+          "O vendedor não está ativo, não pertence à instituição ou não possui um plano de comissão vigente e configurado.",
+      },
+      { status: 400 }
+    );
+  }
+}
 
     const alunoId = Number(body.alunoId);
     const cursoIdBody = body.cursoId ? Number(body.cursoId) : null;
@@ -749,17 +955,52 @@ export async function POST(request: Request) {
           ? quantidadeParcelas
           : null,
         primeiroVencimento: dataPrimeiroVencimento,
+        participantesComerciais:
+  vendedorResponsavel
+    ? {
+        create: {
+          instituicaoId:
+            user.instituicaoId,
+
+          funcionarioId:
+            vendedorResponsavel.id,
+
+          criadoPorId:
+            user.id,
+
+          papel:
+            PapelParticipanteComercial.RESPONSAVEL,
+
+          percentualParticipacao: 100,
+
+          funcionarioNomeSnapshot:
+            vendedorResponsavel.nome,
+
+          funcionarioCargoSnapshot:
+            vendedorResponsavel.cargo,
+
+          funcionarioDepartamentoSnapshot:
+            vendedorResponsavel
+              .departamento?.nome ?? null,
+        },
+      }
+    : undefined,
         itens: {
           create: itensClassificados.map((item) => ({
             turmaId: item.turmaId,
             disciplinaId: item.disciplinaId,
             tipoItem: item.tipoItem as any,
             instituicaoId: user.instituicaoId,
+            vendedorResponsavelId:
+  vendedorResponsavel?.id ?? null,
+
+vendedorResponsavelNomeSnapshot:
+  vendedorResponsavel?.nome ?? null,
             status: statusInicialItens as any,
           })),
         },
       },
-      include: includeMatricula,
+      include: includeMatriculaAdmin,
     });
 
     const resumoContratacao = montarResumoContratacao(
@@ -1031,6 +1272,77 @@ export async function PUT(request: Request) {
 
     const body = (await request.json()) as MatriculaBody;
 
+    const vendedorFoiInformado =
+  Object.prototype.hasOwnProperty.call(
+    body,
+    "vendedorResponsavelId"
+  );
+
+const vendedorResponsavelValor =
+  body.vendedorResponsavelId;
+
+const vendedorResponsavelId =
+  vendedorFoiInformado
+    ? toPositiveNumberOrNull(
+        vendedorResponsavelValor
+      )
+    : null;
+
+if (
+  vendedorFoiInformado &&
+  vendedorResponsavelValor !== null &&
+  vendedorResponsavelValor !== undefined &&
+  vendedorResponsavelValor !== "" &&
+  !vendedorResponsavelId
+) {
+  return NextResponse.json(
+    {
+      error:
+        "O vendedor responsável informado é inválido.",
+    },
+    { status: 400 }
+  );
+}
+
+let vendedorResponsavel:
+  | VendedorElegivel
+  | null = null;
+
+if (vendedorFoiInformado) {
+  if (
+    !temPermissao(
+      user,
+      "comercial.matriculas.vincular_vendedor"
+    )
+  ) {
+    return NextResponse.json(
+      {
+        error:
+          "Você não possui permissão para vincular um vendedor à matrícula.",
+      },
+      { status: 403 }
+    );
+  }
+
+  if (vendedorResponsavelId) {
+    vendedorResponsavel =
+      await buscarVendedorElegivel(
+        user.instituicaoId,
+        vendedorResponsavelId
+      );
+
+    if (!vendedorResponsavel) {
+      return NextResponse.json(
+        {
+          error:
+            "O vendedor não está ativo, não pertence à instituição ou não possui plano de comissão vigente.",
+        },
+        { status: 400 }
+      );
+    }
+  }
+}
+
     const id = Number(body.id);
     const alunoId = toPositiveNumberOrNull(body.alunoId);
     const cursoId = toPositiveNumberOrNull(body.cursoId);
@@ -1094,6 +1406,29 @@ export async function PUT(request: Request) {
         { status: 404 }
       );
     }
+
+    if (vendedorFoiInformado) {
+  const vendedorAtualId =
+    matriculaExistente.vendedorResponsavelId ??
+    null;
+
+  const novoVendedorId =
+    vendedorResponsavel?.id ?? null;
+
+  const tentandoAlterarOuRemover =
+    vendedorAtualId !== null &&
+    novoVendedorId !== vendedorAtualId;
+
+  if (tentandoAlterarOuRemover) {
+    return NextResponse.json(
+      {
+        error:
+          "Esta matrícula já possui um vendedor responsável. A alteração ou remoção deverá ser feita pela rotina auditada, com motivo obrigatório.",
+      },
+      { status: 409 }
+    );
+  }
+}
 
     const alunoIdFinal = alunoId ?? matriculaExistente.alunoId;
     const cursoIdFinal = cursoId ?? matriculaExistente.cursoId ?? null;
@@ -1182,30 +1517,128 @@ export async function PUT(request: Request) {
       );
     }
 
-    await prisma.matricula.update({
-      where: { id },
+    await prisma.$transaction(
+  async (tx) => {
+    await tx.matricula.update({
+      where: {
+        id,
+      },
+
       data: {
         alunoId: alunoIdFinal,
         cursoId: cursoIdFinal,
+
         cursoSemestreId:
-          cursoSemestreId ?? matriculaExistente.cursoSemestreId ?? null,
+          cursoSemestreId ??
+          matriculaExistente
+            .cursoSemestreId ??
+          null,
+
         periodoMatriculaId:
-          periodoMatriculaId ?? matriculaExistente.periodoMatriculaId ?? null,
+          periodoMatriculaId ??
+          matriculaExistente
+            .periodoMatriculaId ??
+          null,
+
         periodoLetivo:
-          String(body.periodoLetivo || "").trim() ||
+          String(
+            body.periodoLetivo || ""
+          ).trim() ||
           matriculaExistente.periodoLetivo ||
           null,
-          modalidade:
-  String(body.modalidade || "").trim() ||
-  matriculaExistente.modalidade ||
-  null,
+
+        modalidade:
+          String(
+            body.modalidade || ""
+          ).trim() ||
+          matriculaExistente.modalidade ||
+          null,
+
         semestre: semestreFinal,
-        valorMatricula: valorPagoMatricula,
+        valorMatricula:
+          valorPagoMatricula,
+
         valorMensalidade,
         quantidadeMensalidades,
         primeiroVencimento,
+
+        vendedorResponsavelId:
+          vendedorFoiInformado
+            ? vendedorResponsavel?.id ??
+              null
+            : undefined,
+
+        vendedorResponsavelNomeSnapshot:
+          vendedorFoiInformado
+            ? vendedorResponsavel?.nome ??
+              null
+            : undefined,
       },
     });
+
+    if (
+      vendedorFoiInformado &&
+      vendedorResponsavel
+    ) {
+      await tx
+        .matriculaParticipanteComercial
+        .upsert({
+          where: {
+            matriculaId_funcionarioId: {
+              matriculaId: id,
+              funcionarioId:
+                vendedorResponsavel.id,
+            },
+          },
+
+          update: {
+            papel:
+              PapelParticipanteComercial.RESPONSAVEL,
+
+            percentualParticipacao: 100,
+
+            funcionarioNomeSnapshot:
+              vendedorResponsavel.nome,
+
+            funcionarioCargoSnapshot:
+              vendedorResponsavel.cargo,
+
+            funcionarioDepartamentoSnapshot:
+              vendedorResponsavel
+                .departamento?.nome ?? null,
+          },
+
+          create: {
+            instituicaoId:
+              user.instituicaoId,
+
+            matriculaId: id,
+
+            funcionarioId:
+              vendedorResponsavel.id,
+
+            criadoPorId:
+              user.id,
+
+            papel:
+              PapelParticipanteComercial.RESPONSAVEL,
+
+            percentualParticipacao: 100,
+
+            funcionarioNomeSnapshot:
+              vendedorResponsavel.nome,
+
+            funcionarioCargoSnapshot:
+              vendedorResponsavel.cargo,
+
+            funcionarioDepartamentoSnapshot:
+              vendedorResponsavel
+                .departamento?.nome ?? null,
+          },
+        });
+    }
+  }
+);
 
     if (Array.isArray(body.turmaIds) || body.turmaId !== undefined) {
       await prisma.itemMatricula.deleteMany({
@@ -1333,7 +1766,7 @@ Assinatura da instituição: ________________________________
         id,
         instituicaoId: user.instituicaoId,
       },
-      include: includeMatricula,
+      include: includeMatriculaAdmin,
     });
 
     return NextResponse.json(retorno);

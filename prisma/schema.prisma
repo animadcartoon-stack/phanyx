@@ -356,6 +356,7 @@ model Professor {
   documentoUrl      String?
   especialidade     String?
   formacao          String?
+  areaAtuacao       String?
   fotoPerfil        String?
   miniBio           String?
   rg                String?

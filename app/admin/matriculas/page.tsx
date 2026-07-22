@@ -18,6 +18,23 @@ type AlunoOption = {
   nome: string;
 };
 
+type VendedorOption = {
+  id: number;
+  nome: string;
+  cargo?: string | null;
+  departamento?: {
+    id: number;
+    nome: string;
+  } | null;
+  planoComissao?: {
+    vinculoId: number;
+    planoId: number;
+    planoNome: string;
+    inicioVigencia: string;
+    fimVigencia?: string | null;
+  } | null;
+};
+
 type TurmaOption = {
   id: number;
   nome: string;
@@ -66,6 +83,18 @@ type MatriculaApi = {
   valorMensalidade?: number | null;
   quantidadeMensalidades?: number | null;
   primeiroVencimento?: string | null;
+  vendedorResponsavelId?: number | null;
+vendedorResponsavelNomeSnapshot?: string | null;
+
+vendedorResponsavel?: {
+  id: number;
+  nome: string;
+  cargo?: string | null;
+  departamento?: {
+    id: number;
+    nome: string;
+  } | null;
+} | null;
   aluno?: { id: number; nome: string; nomeSocial?: string | null; genero?: string | null } | null;
   curso?: { id: number; nome: string } | null;
   itens?: Array<{
@@ -98,6 +127,8 @@ type MatriculaEdicao = {
   primeiroVencimento: string;
   nomeSocial: string;
   genero: string;
+  vendedorResponsavelId: string;
+  vendedorResponsavelNome: string;
 };
 
 function AdminMatriculasPage() {
@@ -122,6 +153,15 @@ function AdminMatriculasPage() {
   const [cursos, setCursos] = useState<CursoOption[]>([]);
   const [turmas, setTurmas] = useState<TurmaOption[]>([]);
   const [semestresCurso, setSemestresCurso] = useState<CursoSemestreOption[]>([]);
+
+  const [vendedores, setVendedores] =
+  useState<VendedorOption[]>([]);
+
+const [vendedorResponsavelId, setVendedorResponsavelId] =
+  useState("");
+
+const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
+  useState(false);
 
   const [matriculaExpandidaId, setMatriculaExpandidaId] = useState<number | null>(null);
   const [alunoId, setAlunoId] = useState<string>("");
@@ -156,6 +196,7 @@ function AdminMatriculasPage() {
   const [contratoSecretariaId, setContratoSecretariaId] = useState<number | null>(null);
   const [desenhandoSecretaria, setDesenhandoSecretaria] = useState(false);
   const [salvandoSecretaria, setSalvandoSecretaria] = useState(false);
+
   async function carregarTudo() {
     setLoading(true);
 
@@ -224,6 +265,63 @@ setAlunos(listaAlunos);
         console.error("Erro ao carregar cursos:", error);
         setCursos([]);
       }
+
+      try {
+  const resVendedores = await fetch(
+    "/api/admin/comercial/vendedores",
+    {
+      credentials: "include",
+      cache: "no-store",
+    }
+  );
+
+  const dataVendedores = await resVendedores
+    .json()
+    .catch(() => null);
+
+  if (resVendedores.status === 403) {
+    setVendedores([]);
+    setPodeSelecionarVendedor(false);
+  } else if (!resVendedores.ok) {
+    throw new Error(
+      dataVendedores?.error ||
+        "Não foi possível carregar os vendedores."
+    );
+  } else {
+    const listaVendedores: VendedorOption[] = (
+      Array.isArray(dataVendedores)
+        ? dataVendedores
+        : []
+    )
+      .map((vendedor: any) => ({
+        id: Number(vendedor?.id),
+        nome: String(
+          vendedor?.nome ?? "Vendedor"
+        ),
+        cargo: vendedor?.cargo ?? null,
+        departamento:
+          vendedor?.departamento ?? null,
+        planoComissao:
+          vendedor?.planoComissao ?? null,
+      }))
+      .filter(
+        (vendedor) =>
+          Number.isFinite(vendedor.id) &&
+          vendedor.id > 0
+      );
+
+    setVendedores(listaVendedores);
+    setPodeSelecionarVendedor(true);
+  }
+} catch (error) {
+  console.error(
+    "Erro ao carregar vendedores:",
+    error
+  );
+
+  setVendedores([]);
+  setPodeSelecionarVendedor(false);
+}
 
       try {
         const resTurmas = await fetch("/api/admin/turmas", {
@@ -671,6 +769,10 @@ console.log("DEBUG MATRÍCULA", {
         body: JSON.stringify({
   alunoId: Number(alunoId),
   cursoId: Number(cursoId),
+  vendedorResponsavelId:
+  vendedorResponsavelId === ""
+    ? null
+    : Number(vendedorResponsavelId),
   cursoSemestreId: cursoSemestreIds[0] ?? null,
   cursoSemestreIds,
   semestre: semestresSelecionados[0]?.numero ?? null,
@@ -698,6 +800,7 @@ console.log("DEBUG MATRÍCULA", {
 
       setAlunoId("");
       setCursoId("");
+      setVendedorResponsavelId("");
       setCursoSemestreId("");
       setTurmasSelecionadas([]);
       setValorPagoMatricula("");
@@ -1044,6 +1147,17 @@ setDisciplinasExtrasEdicaoSelecionadas(
 
   setMatriculaEditando({
     id: matricula.id,
+    vendedorResponsavelId:
+  matricula.vendedorResponsavel?.id
+    ? String(matricula.vendedorResponsavel.id)
+    : matricula.vendedorResponsavelId
+      ? String(matricula.vendedorResponsavelId)
+      : "",
+
+vendedorResponsavelNome:
+  matricula.vendedorResponsavel?.nome ||
+  matricula.vendedorResponsavelNomeSnapshot ||
+  "",
     alunoId: matricula.aluno?.id ? String(matricula.aluno.id) : "",
     periodoLetivo: String(matricula.periodoLetivo ?? ""),
     modalidade: String(matricula.modalidade ?? ""),
@@ -1108,6 +1222,12 @@ async function salvarEdicao() {
       credentials: "include",
       body: JSON.stringify({
         id: matriculaEditando.id,
+        vendedorResponsavelId:
+  matriculaEditando.vendedorResponsavelId === ""
+    ? null
+    : Number(
+        matriculaEditando.vendedorResponsavelId
+      ),
         alunoId:
           matriculaEditando.alunoId === ""
             ? null
@@ -1465,6 +1585,61 @@ function renderGrupoDisciplina(
     <option value="A_INICIAR">A iniciar</option>
   </select>
 </div>
+
+{podeSelecionarVendedor && (
+  <div className="matriculas-vendedor-card mt-4 rounded-2xl border p-4">
+    <label className="matriculas-vendedor-titulo block text-sm font-bold">
+      Vendedor responsável
+
+      <span className="matriculas-vendedor-opcional ml-2 font-normal">
+        Opcional
+      </span>
+    </label>
+
+    <select
+      value={vendedorResponsavelId}
+      onChange={(evento) =>
+        setVendedorResponsavelId(evento.target.value)
+      }
+      className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500"
+    >
+      <option value="">
+        Nenhum vendedor selecionado
+      </option>
+
+      {vendedores.map((vendedor) => (
+        <option
+          key={vendedor.id}
+          value={String(vendedor.id)}
+        >
+          {vendedor.nome}
+          {vendedor.cargo
+            ? ` — ${vendedor.cargo}`
+            : ""}
+          {vendedor.departamento?.nome
+            ? ` — ${vendedor.departamento.nome}`
+            : ""}
+          {vendedor.planoComissao?.planoNome
+            ? ` — Plano: ${vendedor.planoComissao.planoNome}`
+            : ""}
+        </option>
+      ))}
+    </select>
+
+    {vendedores.length === 0 ? (
+      <p className="matriculas-vendedor-alerta mt-2 text-xs">
+        Nenhum vendedor possui plano de comissão ativo e
+        configurado.
+      </p>
+    ) : (
+      <p className="matriculas-vendedor-ajuda mt-2 text-xs">
+        Quando selecionado, esta matrícula será atribuída ao
+        vendedor e poderá participar do cálculo de comissão
+        conforme o plano vigente.
+      </p>
+    )}
+  </div>
+)}
 
         <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
           <div>
@@ -2075,6 +2250,79 @@ function renderGrupoDisciplina(
   ×
 </button>
       <h2 className="text-lg font-bold mb-4">Editar matrícula</h2>
+
+      {matriculaEditando.vendedorResponsavelNome ? (
+  <div className="matriculas-vendedor-card mb-5 rounded-2xl border p-4">
+    <p className="matriculas-vendedor-titulo text-sm font-bold">
+      Vendedor responsável
+    </p>
+
+    <p className="mt-2 font-semibold text-slate-900 dark:text-slate-100">
+      {matriculaEditando.vendedorResponsavelNome}
+    </p>
+
+    <p className="matriculas-vendedor-ajuda mt-2 text-xs">
+      O vendedor já está registrado nesta matrícula. Para evitar
+      manipulação de comissão, a troca ou remoção deverá ser feita
+      pela rotina auditada, com motivo obrigatório.
+    </p>
+  </div>
+) : podeSelecionarVendedor ? (
+  <div className="matriculas-vendedor-card mb-5 rounded-2xl border p-4">
+    <label className="matriculas-vendedor-titulo block text-sm font-bold">
+      Vendedor responsável
+
+      <span className="matriculas-vendedor-opcional ml-2 font-normal">
+        Opcional
+      </span>
+    </label>
+
+    <select
+      value={
+        matriculaEditando.vendedorResponsavelId
+      }
+      onChange={(evento) =>
+        setMatriculaEditando((anterior) =>
+          anterior
+            ? {
+                ...anterior,
+                vendedorResponsavelId:
+                  evento.target.value,
+              }
+            : anterior
+        )
+      }
+      className="matriculas-vendedor-select mt-2 w-full rounded-xl border px-3 py-2 outline-none"
+    >
+      <option value="">
+        Nenhum vendedor selecionado
+      </option>
+
+      {vendedores.map((vendedor) => (
+        <option
+          key={vendedor.id}
+          value={String(vendedor.id)}
+        >
+          {vendedor.nome}
+          {vendedor.cargo
+            ? ` — ${vendedor.cargo}`
+            : ""}
+          {vendedor.departamento?.nome
+            ? ` — ${vendedor.departamento.nome}`
+            : ""}
+          {vendedor.planoComissao?.planoNome
+            ? ` — Plano: ${vendedor.planoComissao.planoNome}`
+            : ""}
+        </option>
+      ))}
+    </select>
+
+    <p className="matriculas-vendedor-ajuda mt-2 text-xs">
+      Após salvar, o vendedor ficará registrado e não poderá ser
+      trocado silenciosamente.
+    </p>
+  </div>
+) : null}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
   <div>
