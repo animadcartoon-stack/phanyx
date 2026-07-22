@@ -68,6 +68,188 @@ export const PERMISSOES_PHANYX = [
     nome: "Apoio Docente - Selecionar alunos específicos",
   },
 
+    // =====================================================
+  // COMERCIAL
+  // =====================================================
+
+  {
+    chave: "comercial.ver",
+    nome: "Comercial - Acessar módulo",
+    descricao:
+      "Permite visualizar o módulo Comercial da instituição.",
+  },
+
+  {
+    chave: "comercial.dashboard.ver",
+    nome: "Comercial - Ver visão geral",
+    descricao:
+      "Permite consultar indicadores, resultados e o resumo comercial.",
+  },
+
+  // LEADS E OPORTUNIDADES
+  {
+    chave: "comercial.leads.ver",
+    nome: "Comercial - Ver leads e oportunidades",
+    descricao:
+      "Permite consultar interessados, contatos e oportunidades comerciais.",
+  },
+  {
+    chave: "comercial.leads.criar",
+    nome: "Comercial - Cadastrar leads",
+    descricao:
+      "Permite cadastrar novos interessados e oportunidades.",
+  },
+  {
+    chave: "comercial.leads.editar",
+    nome: "Comercial - Editar leads",
+    descricao:
+      "Permite alterar dados, etapa, origem e informações dos leads.",
+  },
+  {
+    chave: "comercial.leads.excluir",
+    nome: "Comercial - Excluir leads",
+    descricao:
+      "Permite excluir leads conforme as regras de auditoria da instituição.",
+  },
+  {
+    chave: "comercial.leads.atribuir",
+    nome: "Comercial - Atribuir responsável ao lead",
+    descricao:
+      "Permite encaminhar um lead para um vendedor ou responsável comercial.",
+  },
+  {
+    chave: "comercial.leads.converter",
+    nome: "Comercial - Converter lead em venda ou matrícula",
+    descricao:
+      "Permite transformar uma oportunidade em venda ou matrícula.",
+  },
+
+  // VENDEDORES
+  {
+    chave: "comercial.vendedores.ver",
+    nome: "Comercial - Ver vendedores",
+    descricao:
+      "Permite consultar os funcionários vinculados às atividades comerciais.",
+  },
+  {
+    chave: "comercial.vendedores.gerenciar",
+    nome: "Comercial - Gerenciar vendedores",
+    descricao:
+      "Permite definir funcionários responsáveis por vendas, matrículas e metas.",
+  },
+
+  // METAS
+  {
+    chave: "comercial.metas.ver",
+    nome: "Comercial - Ver metas",
+    descricao:
+      "Permite consultar metas por vendedor, equipe, curso, polo ou período.",
+  },
+  {
+    chave: "comercial.metas.criar",
+    nome: "Comercial - Criar metas",
+    descricao:
+      "Permite cadastrar novas metas comerciais.",
+  },
+  {
+    chave: "comercial.metas.editar",
+    nome: "Comercial - Editar metas",
+    descricao:
+      "Permite alterar valores, períodos, participantes e critérios das metas.",
+  },
+  {
+    chave: "comercial.metas.excluir",
+    nome: "Comercial - Excluir metas",
+    descricao:
+      "Permite excluir metas comerciais ainda não consolidadas.",
+  },
+
+  // VENDAS E MATRÍCULAS
+  {
+    chave: "comercial.vendas.ver",
+    nome: "Comercial - Ver vendas",
+    descricao:
+      "Permite consultar vendas, matrículas comerciais e responsáveis.",
+  },
+  {
+    chave: "comercial.vendas.criar",
+    nome: "Comercial - Registrar vendas",
+    descricao:
+      "Permite registrar vendas e matrículas com vendedor responsável.",
+  },
+  {
+    chave: "comercial.vendas.editar",
+    nome: "Comercial - Editar vendas",
+    descricao:
+      "Permite corrigir dados comerciais antes da consolidação da venda.",
+  },
+  {
+    chave: "comercial.vendas.cancelar",
+    nome: "Comercial - Cancelar vendas",
+    descricao:
+      "Permite cancelar vendas mediante justificativa e auditoria.",
+  },
+  {
+    chave: "comercial.vendas.aprovar",
+    nome: "Comercial - Aprovar vendas",
+    descricao:
+      "Permite validar vendas antes do cálculo de comissão.",
+  },
+  {
+    chave: "comercial.matriculas.vincular_vendedor",
+    nome: "Comercial - Vincular vendedor à matrícula",
+    descricao:
+      "Permite selecionar o funcionário responsável por uma matrícula.",
+  },
+
+  // COMISSÕES
+  {
+    chave: "comercial.comissoes.ver",
+    nome: "Comercial - Ver comissões",
+    descricao:
+      "Permite consultar comissões originadas por vendas e matrículas.",
+  },
+  {
+    chave: "comercial.comissoes.calcular",
+    nome: "Comercial - Calcular comissões",
+    descricao:
+      "Permite calcular comissões conforme o plano comercial vigente.",
+  },
+  {
+    chave: "comercial.comissoes.aprovar",
+    nome: "Comercial - Aprovar comissões",
+    descricao:
+      "Permite aprovar ou devolver comissões para revisão.",
+  },
+  {
+    chave: "comercial.comissoes.enviar_rh",
+    nome: "Comercial - Enviar comissões ao RH",
+    descricao:
+      "Permite encaminhar comissões aprovadas para a remuneração variável e o holerite.",
+  },
+
+  // RELATÓRIOS
+  {
+    chave: "comercial.relatorios.ver",
+    nome: "Comercial - Ver relatórios",
+    descricao:
+      "Permite consultar conversão, desempenho, metas, vendas e comissões.",
+  },
+  {
+    chave: "comercial.relatorios.exportar",
+    nome: "Comercial - Exportar relatórios",
+    descricao:
+      "Permite exportar relatórios comerciais em PDF ou Excel.",
+  },
+
+  // CONFIGURAÇÕES
+  {
+    chave: "comercial.configuracoes.gerenciar",
+    nome: "Comercial - Gerenciar configurações",
+    descricao:
+      "Permite configurar etapas, origens, regras, planos e parâmetros comerciais.",
+  },
+
   // =====================================================
   // FINANCEIRO
   // =====================================================

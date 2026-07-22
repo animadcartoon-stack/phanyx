@@ -15,11 +15,16 @@ export async function GET() {
 
     const role = String(user.role || "").toUpperCase();
 
-if (role === "ADMIN" || user.isMasterAdmin) {
-      return NextResponse.json({
-        permissoes: ["*"],
-      });
-    }
+if (
+  role === "ADMIN" ||
+  role === "GERENCIA" ||
+  role === "SUPER_ADMIN" ||
+  user.isMasterAdmin
+) {
+  return NextResponse.json({
+    permissoes: ["*"],
+  });
+}
 
     const funcionario = await prisma.funcionario.findUnique({
       where: {

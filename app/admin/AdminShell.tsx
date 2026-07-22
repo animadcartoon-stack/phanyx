@@ -70,7 +70,13 @@ setTimeout(() => {
 }, []);
 
   const descobrirMenuInicial = () => {
-  if (pathname.startsWith("/admin/leads")) return "comercial";
+  if (pathname.startsWith("/admin/leads")) {
+  return "comercial-phanyx";
+}
+
+if (pathname.startsWith("/admin/comercial")) {
+  return "comercial";
+}
   if (pathname.startsWith("/admin/financeiro")) return "financeiro";
   if (pathname.startsWith("/admin/rh")) return "rh";
 
@@ -328,6 +334,7 @@ const roleUsuario = String(usuario?.role || "").toUpperCase();
 
 const usuarioAdmin =
   roleUsuario === "ADMIN" ||
+  roleUsuario === "GERENCIA" ||
   roleUsuario === "SUPER_ADMIN" ||
   usuario?.isMasterAdmin === true;
 
@@ -357,6 +364,36 @@ const podeVerRemuneracaoVariavelRH = podeAcessar(
   "rh.remuneracaoVariavel.aprovar",
   "rh.remuneracaoVariavel.holerite.enviar",
   "rh.remuneracaoVariavel.relatorios.ver"
+);
+
+const podeVerComercialInstituicao = podeAcessar(
+  "comercial.ver",
+  "comercial.dashboard.ver",
+  "comercial.leads.ver",
+  "comercial.leads.criar",
+  "comercial.leads.editar",
+  "comercial.leads.excluir",
+  "comercial.leads.atribuir",
+  "comercial.leads.converter",
+  "comercial.vendedores.ver",
+  "comercial.vendedores.gerenciar",
+  "comercial.metas.ver",
+  "comercial.metas.criar",
+  "comercial.metas.editar",
+  "comercial.metas.excluir",
+  "comercial.vendas.ver",
+  "comercial.vendas.criar",
+  "comercial.vendas.editar",
+  "comercial.vendas.cancelar",
+  "comercial.vendas.aprovar",
+  "comercial.matriculas.vincular_vendedor",
+  "comercial.comissoes.ver",
+  "comercial.comissoes.calcular",
+  "comercial.comissoes.aprovar",
+  "comercial.comissoes.enviar_rh",
+  "comercial.relatorios.ver",
+  "comercial.relatorios.exportar",
+  "comercial.configuracoes.gerenciar"
 );
 
 const podeVerPublicacoesAcademicas =
@@ -550,7 +587,9 @@ function abrirTourAdmin() {
                 <div className="border-t pt-2 mt-2">
                   <button
                     type="button"
-                    onClick={() => toggleMenu("comercial")}
+                    onClick={() =>
+  toggleMenu("comercial-phanyx")
+}
                     className={buttonClass}
                   >
                     <span className={sectionTitleClass}>
@@ -559,7 +598,7 @@ function abrirTourAdmin() {
                     <span>{menuAberto === "comercial" ? "▾" : "▸"}</span>
                   </button>
 
-                  {menuAberto === "comercial" && (
+                  {menuAberto === "comercial-phanyx" && (
                     <div className="ml-3 mt-2 flex flex-col space-y-1">
                       <Link
                         href="/admin/leads"
@@ -571,6 +610,37 @@ function abrirTourAdmin() {
                   )}
                 </div>
               )}
+
+              {podeVerComercialInstituicao && (
+  <div className="mt-2 border-t pt-2">
+    <button
+      type="button"
+      onClick={() => toggleMenu("comercial")}
+      className={buttonClass}
+    >
+      <span className={sectionTitleClass}>
+        📈 Comercial
+      </span>
+
+      <span>
+        {menuAberto === "comercial" ? "▾" : "▸"}
+      </span>
+    </button>
+
+    {menuAberto === "comercial" && (
+      <div className="ml-3 mt-2 flex flex-col space-y-1">
+        <Link
+          href="/admin/comercial"
+          className={getLinkClass(
+            "/admin/comercial"
+          )}
+        >
+          📊 Visão Geral
+        </Link>
+      </div>
+    )}
+  </div>
+)}
 
               <div className="border-t pt-2 mt-2">
                 <button

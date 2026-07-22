@@ -70,6 +70,14 @@ const GRUPOS_PERMISSOES: GrupoPermissoes[] = [
       "substituicoes-docentes",
     ],
   },
+    {
+    id: "comercial",
+    nome: "Comercial",
+    icone: "📈",
+    descricao:
+      "Leads, vendedores, metas, vendas, matrículas comerciais, comissões e relatórios.",
+    prefixos: ["comercial"],
+  },
   {
     id: "financeiro",
     nome: "Financeiro",
@@ -208,9 +216,10 @@ export default function DepartamentoPermissoesPage({
   const [mensagem, setMensagem] = useState("");
   const [erro, setErro] = useState("");
   const [gruposAbertos, setGruposAbertos] = useState<string[]>([
-    "academico",
-    "apoio-docente",
-  ]);
+  "academico",
+  "apoio-docente",
+  "comercial",
+]);
 
   const gruposComPermissoes = useMemo(() => {
     const mapa = new Map<

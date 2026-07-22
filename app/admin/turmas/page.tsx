@@ -682,7 +682,7 @@ const disciplinasFiltradas = useMemo(() => {
     </button>
 
     {disciplinasAbertas && (
-  <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-950">
+  <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2">
     <div className="grid grid-cols-1 gap-3">
       {disciplinasFiltradas.map((disciplina) => {
         const selecionada = disciplinasSelecionadas.includes(disciplina.id);
@@ -690,7 +690,7 @@ const disciplinasFiltradas = useMemo(() => {
         return (
           <div
             key={disciplina.id}
-            className="rounded-lg border border-slate-300 bg-white p-3 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="rounded-lg border border-slate-300 bg-white p-3 text-slate-900 shadow-sm"
           >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
@@ -716,7 +716,7 @@ const disciplinasFiltradas = useMemo(() => {
                 }}
               />
 
-              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+              <span className="text-sm font-semibold text-slate-900">
   {disciplina.nome}
 </span>
             </label>
@@ -731,7 +731,7 @@ const disciplinasFiltradas = useMemo(() => {
                       [disciplina.id]: e.target.value,
                     }))
                   }
-                  className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                  className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900"
                 >
                   <option value="">Professor desta disciplina</option>
                   {professoresDaDisciplina(disciplina).map((professor) => (
@@ -741,11 +741,11 @@ const disciplinasFiltradas = useMemo(() => {
                   ))}
                 </select>
 
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-3 dark:border-slate-700 dark:bg-slate-900">
-                  <div className="mb-2 flex items-center justify-between gap-3">
-                    <p className="text-sm font-bold text-blue-900">
-                      Horários desta disciplina
-                    </p>
+                <div className="phanyx-turma-horarios-card rounded-xl border p-3">
+  <div className="mb-2 flex items-center justify-between gap-3">
+    <p className="phanyx-turma-horarios-titulo text-sm font-bold">
+      Horários desta disciplina
+    </p>
 
                     <button
                       type="button"
@@ -765,9 +765,9 @@ const disciplinasFiltradas = useMemo(() => {
                   </div>
 
                   {(horariosPorDisciplina[disciplina.id] || []).length === 0 ? (
-                    <p className="text-xs text-blue-700">
-                      Nenhum horário cadastrado. Adicione pelo menos um horário para permitir lembrete automático ao professor.
-                    </p>
+                    <p className="phanyx-turma-horarios-texto text-xs">
+  Nenhum horário cadastrado. Adicione pelo menos um horário para permitir lembrete automático ao professor.
+</p>
                   ) : (
                     <div className="space-y-2">
                       {(horariosPorDisciplina[disciplina.id] || []).map((horario, index) => (
@@ -1036,7 +1036,7 @@ const disciplinasFiltradas = useMemo(() => {
   </button>
 
  {editDisciplinasAbertas && (
-  <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2 dark:border-slate-700 dark:bg-slate-950">
+  <div className="mt-2 max-h-72 overflow-auto rounded border border-slate-300 bg-white p-2">
     <div className="grid grid-cols-1 gap-3">
       {disciplinasFiltradas.map((disciplina) => {
         const selecionada = editDisciplinasSelecionadas.includes(disciplina.id);
@@ -1044,7 +1044,7 @@ const disciplinasFiltradas = useMemo(() => {
         return (
           <div
             key={disciplina.id}
-            className="rounded-lg border border-slate-300 bg-white p-3 text-slate-900 shadow-sm dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            className="rounded-lg border border-slate-300 bg-white p-3 text-slate-900 shadow-sm"
           >
             <label className="flex items-center gap-2 text-sm font-medium">
               <input
@@ -1070,7 +1070,7 @@ const disciplinasFiltradas = useMemo(() => {
                 }}
               />
 
-              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+              <span className="text-sm font-semibold text-slate-900">
   {disciplina.nome || `Disciplina ${disciplina.id}`}
 </span>
             </label>
@@ -1105,7 +1105,7 @@ const disciplinasFiltradas = useMemo(() => {
             [disciplina.id]: e.target.value,
           }))
         }
-        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900"
       />
 
       <input
@@ -1117,7 +1117,7 @@ const disciplinasFiltradas = useMemo(() => {
             [disciplina.id]: e.target.value,
           }))
         }
-        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900"
       />
 
       <select
@@ -1128,7 +1128,7 @@ const disciplinasFiltradas = useMemo(() => {
             [disciplina.id]: e.target.value,
           }))
         }
-        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+        className="h-[42px] w-full rounded-lg border border-slate-300 bg-white p-2 text-sm text-slate-900"
       >
         <option value="">Status</option>
         <option value="A_INICIAR">A iniciar</option>

@@ -168,7 +168,10 @@ const roleNormalizada = normalizarRole(usuario.role);
 
 export function isAdminLike(role?: string | null) {
   const roleNormalizada = normalizarRole(role);
-  return ["ADMIN", "GERENCIA"].includes(roleNormalizada);
+
+  return ["ADMIN", "GERENCIA", "SUPER_ADMIN"].includes(
+    roleNormalizada
+  );
 }
 
 export function temPermissao(

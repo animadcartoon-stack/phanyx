@@ -99,6 +99,47 @@ const CONTEXTOS_BUSCA: ContextoBusca[] = [
       "escala",
     ],
   },
+    {
+    gatilhos: [
+      "comercial",
+      "vendedor",
+      "vendedores",
+      "venda",
+      "vendas",
+      "lead",
+      "leads",
+      "cliente",
+      "clientes",
+      "prospect",
+      "prospects",
+      "oportunidade",
+      "oportunidades",
+      "meta",
+      "metas",
+      "comissão",
+      "comissões",
+      "funil",
+      "conversão",
+      "crm",
+    ],
+    relacionados: [
+      "comercial",
+      "lead",
+      "oportunidade",
+      "vendedor",
+      "venda",
+      "matrícula",
+      "meta",
+      "comissão",
+      "atribuir",
+      "converter",
+      "aprovar",
+      "cancelar",
+      "relatório",
+      "exportar",
+      "configuração",
+    ],
+  },
   {
     gatilhos: [
       "dinheiro",
@@ -676,7 +717,7 @@ const sugestoesBusca = useMemo(() => {
       type="search"
       value={busca}
       onChange={(event) => setBusca(event.target.value)}
-      placeholder="Ex.: editar alunos, dinheiro, ponto, crachá, ver boletim..."
+      placeholder="Ex.: editar alunos, vendedor, comissão, dinheiro, ponto, crachá..."
       autoComplete="off"
       className="phanyx-busca-permissoes-input w-full rounded-2xl border px-5 py-4 pr-24 text-sm outline-none transition"
     />
@@ -743,8 +784,8 @@ const sugestoesBusca = useMemo(() => {
     </h3>
 
     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-      Tente escrever de outra forma, como “alunos”, “financeiro”,
-      “funcionários”, “documentos” ou “configurações”.
+      Tente escrever de outra forma, como “alunos”, “comercial”,
+“vendedor”, “financeiro”, “funcionários” ou “documentos”.
     </p>
 
     <button
