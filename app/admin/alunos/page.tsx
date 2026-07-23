@@ -1790,8 +1790,16 @@ async function baixarCertificadoAlunoSelecionado() {
     setCep(valor);
 
     if (valor.replace(/\D/g, "").length === 8) {
-      buscarEnderecoPorCep(valor);
+      void buscarEnderecoPorCep(valor);
     }
+  }}
+  onKeyDown={(e) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    void buscarEnderecoPorCep(e.currentTarget.value);
   }}
   className="w-full rounded-xl border p-2.5"
 />
@@ -2498,8 +2506,16 @@ name="busca-alunos-phanyx"
     setEditCep(valor);
 
     if (valor.replace(/\D/g, "").length === 8) {
-      buscarEnderecoEdicaoPorCep(valor);
+      void buscarEnderecoEdicaoPorCep(valor);
     }
+  }}
+  onKeyDown={(e) => {
+    if (e.key !== "Enter") return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    void buscarEnderecoEdicaoPorCep(e.currentTarget.value);
   }}
   className="rounded-xl border p-2.5"
   placeholder="CEP"
