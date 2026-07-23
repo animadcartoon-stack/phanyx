@@ -301,9 +301,48 @@ export const PERMISSOES_PHANYX = [
   { chave: "rh.ver", nome: "RH - Ver RH" },
 
   { chave: "rh.funcionarios", nome: "RH - Funcionários" },
-  { chave: "rh.professores", nome: "RH - Professores" },
-  { chave: "rh.departamentos", nome: "RH - Departamentos" },
-  { chave: "rh.permissoes", nome: "RH - Permissões por setor" },
+
+{ chave: "rh.professores", nome: "RH - Professores" },
+
+{
+  chave: "rh.professores.ver",
+  nome: "RH - Ver professores",
+  descricao:
+    "Permite acessar a lista de professores pelo módulo de RH.",
+},
+{
+  chave: "rh.professores.criar",
+  nome: "RH - Cadastrar professores",
+  descricao:
+    "Permite cadastrar professores acadêmicos e professores com vínculo trabalhista.",
+},
+{
+  chave: "rh.professores.editar",
+  nome: "RH - Editar professores",
+  descricao:
+    "Permite alterar os dados cadastrais e acadêmicos dos professores.",
+},
+{
+  chave: "rh.professores.vinculo.gerenciar",
+  nome: "RH - Gerenciar vínculo trabalhista dos professores",
+  descricao:
+    "Permite incluir o professor no RH e alterar dados do vínculo contratual.",
+},
+{
+  chave: "rh.professores.remuneracao.ver",
+  nome: "RH - Ver remuneração dos professores",
+  descricao:
+    "Permite visualizar salário, valores por hora, aula, turma ou disciplina.",
+},
+{
+  chave: "rh.professores.remuneracao.editar",
+  nome: "RH - Editar remuneração dos professores",
+  descricao:
+    "Permite alterar salário e demais modalidades de remuneração dos professores.",
+},
+
+{ chave: "rh.departamentos", nome: "RH - Departamentos" },
+{ chave: "rh.permissoes", nome: "RH - Permissões por setor" },
 
   { chave: "rh.admissoes", nome: "RH - Admissões" },
   { chave: "rh.desligamentos", nome: "RH - Desligamentos" },

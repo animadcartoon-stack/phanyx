@@ -366,6 +366,16 @@ const podeVerRemuneracaoVariavelRH = podeAcessar(
   "rh.remuneracaoVariavel.relatorios.ver"
 );
 
+const podeVerProfessoresRH = podeAcessar(
+  "rh.professores",
+  "rh.professores.ver",
+  "rh.professores.criar",
+  "rh.professores.editar",
+  "rh.professores.vinculo.gerenciar",
+  "rh.professores.remuneracao.ver",
+  "rh.professores.remuneracao.editar"
+);
+
 const podeVerComercialInstituicao = podeAcessar(
   "comercial.ver",
   "comercial.dashboard.ver",
@@ -816,6 +826,17 @@ function abrirTourAdmin() {
       👤 Funcionários
     </Link>
 
+    {podeVerProfessoresRH && (
+  <Link
+    href="/admin/rh/professores"
+    className={getLinkClass(
+      "/admin/rh/professores"
+    )}
+  >
+    👨‍🏫 Professores
+  </Link>
+)}
+
     <Link
   href="/admin/departamentos"
   className={getLinkClass("/admin/departamentos")}
@@ -1230,6 +1251,15 @@ function abrirTourAdmin() {
     >
       👤 Funcionários
     </Link>
+
+    {podeVerProfessoresRH && (
+  <Link
+    href="/admin/rh/professores"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    👨‍🏫 Professores
+  </Link>
+)}
 
 {podeVerRemuneracaoVariavelRH && (
   <Link
