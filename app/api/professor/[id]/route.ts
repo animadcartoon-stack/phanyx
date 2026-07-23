@@ -1008,14 +1008,22 @@ if (
   dadosRemuneracaoNovos &&
   vigenciaInicioRemuneracao
 ) {
-  const nomeUsuarioResponsavel =
-    limparTexto(
-      (
-        user as {
-          nome?: string;
-        }
-      ).nome
-    ) || `Usuário ${user.id}`;
+ const usuarioResponsavel =
+  await tx.user.findUnique({
+    where: {
+      id: user.id,
+    },
+    select: {
+      nome: true,
+      email: true,
+      role: true,
+    },
+  });
+
+const nomeUsuarioResponsavel =
+  limparTexto(usuarioResponsavel?.nome) ||
+  limparTexto(usuarioResponsavel?.email) ||
+  `Usuário ${user.id}`;
 
   await tx.historicoRemuneracaoRH.create({
     data: {
@@ -1042,8 +1050,9 @@ if (
         nomeUsuarioResponsavel,
 
       alteradoPorRoleSnapshot:
-        limparTexto(user.role) ||
-        null,
+  limparTexto(usuarioResponsavel?.role) ||
+  limparTexto(user.role) ||
+  null,
 
       tipoAnterior:
         dadosRemuneracaoAnteriores
