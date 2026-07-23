@@ -156,6 +156,7 @@ model Instituicao {
   programasRemuneracaoVariavelRH              ProgramaRemuneracaoVariavelRH[]
   participantesProgramasRemuneracaoVariavelRH ParticipanteProgramaRemuneracaoVariavelRH[]
   lancamentosRemuneracaoVariavelRH            LancamentoRemuneracaoVariavelRH[]
+  historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
   configuracoesPortais                        ConfiguracaoPortalInstituicao[]
   isentaPagamento                             Boolean                                     @default(false)
   motivoIsencao                               String?
@@ -225,9 +226,10 @@ model User {
   anexosAtividadeCriados  AtividadeAnexo[]      @relation("AtividadeAnexoCriadoPor")
   crachaModelosCriados    CrachaModelo[]        @relation("CrachaModeloCriadoPor")
 
-  feriasRHCriadas     FeriasRH[] @relation("FeriasRHCriadoPor")
-  feriasRHArquivadas  FeriasRH[] @relation("FeriasRHArquivadaPor")
-  feriasRHRestauradas FeriasRH[] @relation("FeriasRHRestauradoPor")
+  feriasRHCriadas         FeriasRH[]               @relation("FeriasRHCriadoPor")
+  feriasRHArquivadas      FeriasRH[]               @relation("FeriasRHArquivadaPor")
+  feriasRHRestauradas     FeriasRH[]               @relation("FeriasRHRestauradoPor")
+  alteracoesRemuneracaoRH HistoricoRemuneracaoRH[] @relation("HistoricoRemuneracaoRHAlteradoPor")
 
   examesRHCriados     ExameMedicoRH[] @relation("ExameMedicoRHCriadoPor")
   examesRHArquivados  ExameMedicoRH[] @relation("ExameMedicoRHArquivadoPor")
@@ -384,12 +386,13 @@ model Professor {
   disciplinasPadrao           Disciplina[]
   disciplinasHabilitadas      ProfessorDisciplina[]
   poloId                      Int?
-  polo                        Polo?                 @relation(fields: [poloId], references: [id])
-  reunioesCriadas             Reuniao[]             @relation("ReuniaoProfessor")
-  atividadesResponsavel       Atividade[]           @relation("AtividadeProfessorResponsavel")
+  polo                        Polo?                    @relation(fields: [poloId], references: [id])
+  reunioesCriadas             Reuniao[]                @relation("ReuniaoProfessor")
+  atividadesResponsavel       Atividade[]              @relation("AtividadeProfessorResponsavel")
   documentosProfessor         DocumentoProfessor[]
-  substituicoesComoTitular    SubstituicaoDocente[] @relation("ProfessorTitularSubstituicao")
-  substituicoesComoSubstituto SubstituicaoDocente[] @relation("ProfessorSubstitutoSubstituicao")
+  substituicoesComoTitular    SubstituicaoDocente[]    @relation("ProfessorTitularSubstituicao")
+  substituicoesComoSubstituto SubstituicaoDocente[]    @relation("ProfessorSubstitutoSubstituicao")
+  historicosRemuneracaoRH     HistoricoRemuneracaoRH[]
 
   @@unique([instituicaoId, slug])
   @@index([instituicaoId])
@@ -1312,6 +1315,7 @@ model Funcionario {
   marcacoesPontoMobile                        MarcacaoPontoMobileRH[]
   ajustesMarcacaoPontoRH                      AjusteMarcacaoPontoRH[]
   planosComissaoRH                            FuncionarioPlanoComissaoRH[]
+  historicosRemuneracaoRH                     HistoricoRemuneracaoRH[]
   participacoesComerciais                     MatriculaParticipanteComercial[]
   matriculasComoVendedor                      Matricula[]                                 @relation("MatriculaVendedorResponsavel")
   lancamentosComissaoRH                       LancamentoComissaoRH[]
@@ -2917,6 +2921,53 @@ model FuncionarioBeneficioRH {
   @@index([funcionarioId])
   @@index([beneficioId])
   @@index([instituicaoId])
+}
+
+model HistoricoRemuneracaoRH {
+  id Int @id @default(autoincrement())
+
+  instituicaoId Int
+  funcionarioId Int?
+  professorId   Int?
+  alteradoPorId Int?
+
+  origem String @default("PROFESSORES_RH")
+
+  funcionarioNomeSnapshot String
+  professorNomeSnapshot   String?
+
+  alteradoPorNomeSnapshot String
+  alteradoPorRoleSnapshot String?
+
+  tipoAnterior TipoRemuneracaoRH?
+  tipoNovo     TipoRemuneracaoRH
+
+  // Snapshot completo da remuneração antes e depois da alteração.
+  dadosAnteriores Json
+  dadosNovos      Json
+
+  // Data e hora em que a nova remuneração começa a valer.
+  vigenciaInicio DateTime
+
+  // Justificativa obrigatória informada pelo RH.
+  motivo String @db.Text
+
+  // Data e hora em que a alteração foi registrada no PHANYX.
+  alteradoEm DateTime @default(now())
+
+  instituicao Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  funcionario Funcionario? @relation(fields: [funcionarioId], references: [id], onDelete: SetNull)
+  professor   Professor?   @relation(fields: [professorId], references: [id], onDelete: SetNull)
+  alteradoPor User?        @relation("HistoricoRemuneracaoRHAlteradoPor", fields: [alteradoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([funcionarioId])
+  @@index([professorId])
+  @@index([alteradoPorId])
+  @@index([vigenciaInicio])
+  @@index([alteradoEm])
+  @@index([instituicaoId, alteradoEm])
+  @@index([funcionarioId, alteradoEm])
 }
 
 model ProvaAluno {
