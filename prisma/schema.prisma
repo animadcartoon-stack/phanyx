@@ -366,6 +366,10 @@ model Professor {
   instituicao       Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  funcionarioId Int? @unique
+
+  funcionario Funcionario? @relation("ProfessorFuncionarioRH", fields: [funcionarioId], references: [id], onDelete: SetNull)
+
   statusProfessor String  @default("ATIVO")
   motivoStatus    String?
 
@@ -1257,6 +1261,19 @@ model Funcionario {
   salarioBase        Decimal?  @db.Decimal(10, 2)
   cargaHorariaMensal Int?
 
+  tipoRemuneracao TipoRemuneracaoRH?
+
+  valorHoraAula       Decimal? @db.Decimal(10, 2)
+  valorHoraTrabalhada Decimal? @db.Decimal(10, 2)
+  valorPorAula        Decimal? @db.Decimal(10, 2)
+  valorPorTurma       Decimal? @db.Decimal(10, 2)
+  valorPorDisciplina  Decimal? @db.Decimal(10, 2)
+
+  duracaoHoraAulaMinutos Int?
+  cargaHorariaSemanal    Decimal? @db.Decimal(8, 2)
+
+  observacoesRemuneracao String? @db.Text
+
   pontoMobileLiberado      Boolean   @default(false)
   pontoMobileLiberadoEm    DateTime?
   pontoMobileLiberadoPorId Int?
@@ -1276,6 +1293,7 @@ model Funcionario {
   user                      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   recebeMensagemAniversario Boolean       @default(true)
   recebeWhatsappAniversario Boolean       @default(true)
+  professor                 Professor?    @relation("ProfessorFuncionarioRH")
 
   permissoes                                  FuncionarioPermissao[]
   historicosRH                                HistoricoRH[]
@@ -4317,4 +4335,15 @@ enum StatusLancamentoRemuneracaoVariavelRH {
   PAGO
   ESTORNADO
   CANCELADO
+}
+
+enum TipoRemuneracaoRH {
+  MENSAL
+  HORA_AULA
+  HORA_TRABALHADA
+  POR_AULA
+  POR_TURMA
+  POR_DISCIPLINA
+  MISTO
+  SEM_REMUNERACAO
 }

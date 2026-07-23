@@ -15,6 +15,93 @@ interface DisciplinaOpcao {
   nome: string;
 }
 
+interface DepartamentoOpcao {
+  id: number;
+  nome: string;
+}
+
+type TipoRemuneracaoProfessor =
+  | ""
+  | "MENSAL"
+  | "HORA_AULA"
+  | "HORA_TRABALHADA"
+  | "POR_AULA"
+  | "POR_TURMA"
+  | "POR_DISCIPLINA"
+  | "MISTO"
+  | "SEM_REMUNERACAO";
+
+type DadosTrabalhistasProfessorForm = {
+  departamentoId: string;
+
+  cargo: string;
+  setor: string;
+
+  dataAdmissao: string;
+  tipoContrato: string;
+  jornadaTrabalho: string;
+
+  cargaHorariaMensal: string;
+  cargaHorariaSemanal: string;
+
+  tipoRemuneracao: TipoRemuneracaoProfessor;
+
+  salarioBase: string;
+  valorHoraAula: string;
+  valorHoraTrabalhada: string;
+  valorPorAula: string;
+  valorPorTurma: string;
+  valorPorDisciplina: string;
+
+  duracaoHoraAulaMinutos: string;
+
+  codigoPonto: string;
+  pisPasep: string;
+
+  banco: string;
+  agencia: string;
+  conta: string;
+  pix: string;
+
+  observacoesRemuneracao: string;
+};
+
+const DADOS_TRABALHISTAS_PROFESSOR_INICIAIS:
+  DadosTrabalhistasProfessorForm = {
+  departamentoId: "",
+
+  cargo: "Professor",
+  setor: "Acadêmico",
+
+  dataAdmissao: "",
+  tipoContrato: "",
+  jornadaTrabalho: "",
+
+  cargaHorariaMensal: "",
+  cargaHorariaSemanal: "",
+
+  tipoRemuneracao: "",
+
+  salarioBase: "",
+  valorHoraAula: "",
+  valorHoraTrabalhada: "",
+  valorPorAula: "",
+  valorPorTurma: "",
+  valorPorDisciplina: "",
+
+  duracaoHoraAulaMinutos: "50",
+
+  codigoPonto: "",
+  pisPasep: "",
+
+  banco: "",
+  agencia: "",
+  conta: "",
+  pix: "",
+
+  observacoesRemuneracao: "",
+};
+
 interface Professor {
   id: number;
   nome: string;
@@ -46,6 +133,18 @@ function AdminProfessoresPage() {
   const [professores, setProfessores] = useState<Professor[]>([]);
   const [polos, setPolos] = useState<Polo[]>([]);
   const [disciplinas, setDisciplinas] = useState<DisciplinaOpcao[]>([]);
+
+const [departamentos, setDepartamentos] =
+  useState<DepartamentoOpcao[]>([]);
+
+const [possuiVinculoRH, setPossuiVinculoRH] =
+  useState(false);
+
+const [dadosTrabalhistas, setDadosTrabalhistas] =
+  useState<DadosTrabalhistasProfessorForm>(
+    DADOS_TRABALHISTAS_PROFESSOR_INICIAIS
+  );
+
   const [disciplinasAberto, setDisciplinasAberto] = useState(false);
   const [editDisciplinasAberto, setEditDisciplinasAberto] = useState(false);
   const [busca, setBusca] = useState("");
@@ -126,6 +225,18 @@ const [editMiniBio, setEditMiniBio] = useState("");
     setFeedbackTipo(tipo);
     setFeedback(mensagem);
   }
+
+  function atualizarDadoTrabalhista<
+  Campo extends keyof DadosTrabalhistasProfessorForm
+>(
+  campo: Campo,
+  valor: DadosTrabalhistasProfessorForm[Campo]
+) {
+  setDadosTrabalhistas((anterior) => ({
+    ...anterior,
+    [campo]: valor,
+  }));
+}
 
   const FORMATOS_FOTO_PROFESSOR_ACEITOS = [
   "image/png",
@@ -252,6 +363,51 @@ async function enviarFotoOficialProfessor(
     }
   }
 
+  async function carregarDepartamentos() {
+  try {
+    const res = await fetch("/api/departamento", {
+      credentials: "include",
+      cache: "no-store",
+    });
+
+    const data = await res.json().catch(() => []);
+
+    if (!res.ok) {
+      console.error(
+        "Erro ao buscar departamentos:",
+        data?.error
+      );
+
+      setDepartamentos([]);
+      return;
+    }
+
+    const lista: DepartamentoOpcao[] = (
+      Array.isArray(data) ? data : []
+    )
+      .map((departamento: any) => ({
+        id: Number(departamento?.id),
+        nome: String(
+          departamento?.nome || "Departamento"
+        ),
+      }))
+      .filter(
+        (departamento) =>
+          Number.isFinite(departamento.id) &&
+          departamento.id > 0
+      );
+
+    setDepartamentos(lista);
+  } catch (error) {
+    console.error(
+      "Erro ao carregar departamentos:",
+      error
+    );
+
+    setDepartamentos([]);
+  }
+}
+
 async function carregarDisciplinas() {
   const res = await fetch("/api/disciplina", {
     credentials: "include",
@@ -273,10 +429,120 @@ async function carregarDisciplinas() {
 }
 
   async function handleCriarProfessor(e: React.FormEvent) {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      setCriando(true);
+  if (
+    possuiVinculoRH &&
+    !dadosTrabalhistas.tipoRemuneracao
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Selecione a modalidade de remuneração do professor."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao === "MENSAL" &&
+    !dadosTrabalhistas.salarioBase
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Informe o salário mensal do professor."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao === "HORA_AULA" &&
+    !dadosTrabalhistas.valorHoraAula
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Informe o valor da hora-aula do professor."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao ===
+      "HORA_TRABALHADA" &&
+    !dadosTrabalhistas.valorHoraTrabalhada
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Informe o valor da hora trabalhada."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao === "POR_AULA" &&
+    !dadosTrabalhistas.valorPorAula
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Informe o valor por aula."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao === "POR_TURMA" &&
+    !dadosTrabalhistas.valorPorTurma
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Informe o valor por turma."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao ===
+      "POR_DISCIPLINA" &&
+    !dadosTrabalhistas.valorPorDisciplina
+  ) {
+    mostrarFeedback(
+      "erro",
+      "Informe o valor por disciplina."
+    );
+    return;
+  }
+
+  if (
+    possuiVinculoRH &&
+    dadosTrabalhistas.tipoRemuneracao === "MISTO"
+  ) {
+    const possuiAlgumValor =
+      Boolean(dadosTrabalhistas.salarioBase) ||
+      Boolean(dadosTrabalhistas.valorHoraAula) ||
+      Boolean(
+        dadosTrabalhistas.valorHoraTrabalhada
+      ) ||
+      Boolean(dadosTrabalhistas.valorPorAula) ||
+      Boolean(dadosTrabalhistas.valorPorTurma) ||
+      Boolean(
+        dadosTrabalhistas.valorPorDisciplina
+      );
+
+    if (!possuiAlgumValor) {
+      mostrarFeedback(
+        "erro",
+        "Na remuneração mista, informe pelo menos um valor."
+      );
+      return;
+    }
+  }
+
+  try {
+    setCriando(true);
 
       const res = await fetch("/api/professor", {
         method: "POST",
@@ -285,6 +551,72 @@ async function carregarDisciplinas() {
         body: JSON.stringify({
           nome,
           email,
+
+          possuiVinculoRH,
+
+departamentoId:
+  dadosTrabalhistas.departamentoId
+    ? Number(dadosTrabalhistas.departamentoId)
+    : null,
+
+cargo: dadosTrabalhistas.cargo,
+setor: dadosTrabalhistas.setor,
+
+dataAdmissao:
+  dadosTrabalhistas.dataAdmissao || null,
+
+tipoContrato:
+  dadosTrabalhistas.tipoContrato || null,
+
+jornadaTrabalho:
+  dadosTrabalhistas.jornadaTrabalho || null,
+
+cargaHorariaMensal:
+  dadosTrabalhistas.cargaHorariaMensal || null,
+
+cargaHorariaSemanal:
+  dadosTrabalhistas.cargaHorariaSemanal || null,
+
+tipoRemuneracao:
+  dadosTrabalhistas.tipoRemuneracao || null,
+
+salarioBase:
+  dadosTrabalhistas.salarioBase || null,
+
+valorHoraAula:
+  dadosTrabalhistas.valorHoraAula || null,
+
+valorHoraTrabalhada:
+  dadosTrabalhistas.valorHoraTrabalhada || null,
+
+valorPorAula:
+  dadosTrabalhistas.valorPorAula || null,
+
+valorPorTurma:
+  dadosTrabalhistas.valorPorTurma || null,
+
+valorPorDisciplina:
+  dadosTrabalhistas.valorPorDisciplina || null,
+
+duracaoHoraAulaMinutos:
+  dadosTrabalhistas.duracaoHoraAulaMinutos ||
+  null,
+
+codigoPonto:
+  dadosTrabalhistas.codigoPonto || null,
+
+pisPasep:
+  dadosTrabalhistas.pisPasep || null,
+
+banco: dadosTrabalhistas.banco || null,
+agencia: dadosTrabalhistas.agencia || null,
+conta: dadosTrabalhistas.conta || null,
+pix: dadosTrabalhistas.pix || null,
+
+observacoesRemuneracao:
+  dadosTrabalhistas.observacoesRemuneracao ||
+  null,
+
           cpf,
           rg,
           telefone,
@@ -360,6 +692,11 @@ setMiniBio("");
       setDocumentoUrl("");
       setSlug("");
       setPoloId("");
+      setPossuiVinculoRH(false);
+
+setDadosTrabalhistas({
+  ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
+});
       setDocumentosProfessor((prev) =>
   prev.map((doc) => ({ ...doc, arquivo: null }))
 );
@@ -475,10 +812,11 @@ miniBio: editMiniBio,
   }
 
   useEffect(() => {
-    carregarProfessores();
-carregarPolos();
-carregarDisciplinas();
-  }, []);
+  carregarProfessores();
+  carregarPolos();
+  carregarDisciplinas();
+  carregarDepartamentos();
+}, []);
 
   useEffect(() => {
     const buscaUrl = searchParams.get("busca");
@@ -740,6 +1078,625 @@ codigoFuncionarioTexto.includes(termoTexto) ||
               onChange={(e) => setSlug(e.target.value)}
               className="w-full rounded-lg border p-2"
             />
+
+<div className="md:col-span-2 rounded-2xl border border-slate-300 bg-slate-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="flex items-start gap-3">
+    <input
+      id="professor-possui-vinculo-rh"
+      type="checkbox"
+      checked={possuiVinculoRH}
+      onChange={(e) => {
+        const marcado = e.target.checked;
+
+        setPossuiVinculoRH(marcado);
+
+        if (!marcado) {
+          setDadosTrabalhistas(
+            DADOS_TRABALHISTAS_PROFESSOR_INICIAIS
+          );
+        }
+      }}
+      className="mt-1 h-4 w-4"
+    />
+
+    <label
+      htmlFor="professor-possui-vinculo-rh"
+      className="cursor-pointer"
+    >
+      <span className="block font-bold text-slate-900 dark:text-slate-100">
+        Possui vínculo trabalhista com a instituição
+      </span>
+
+      <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
+        Quando marcado, o professor também será incluído no RH,
+        participando de folha, holerite, documentos, férias,
+        ponto e histórico trabalhista.
+      </span>
+    </label>
+  </div>
+
+  {!possuiVinculoRH && (
+    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+      Este cadastro será somente acadêmico. Nenhum vínculo de
+      funcionário será criado.
+    </div>
+  )}
+
+  {possuiVinculoRH && (
+    <div className="mt-5 space-y-5">
+      <div>
+        <h3 className="font-bold text-slate-900 dark:text-slate-100">
+          🧾 Dados trabalhistas e de remuneração
+        </h3>
+
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Configure o vínculo conforme a política da instituição.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Departamento
+          </label>
+
+          <select
+            value={dadosTrabalhistas.departamentoId}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "departamentoId",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          >
+            <option value="">
+              Selecione o departamento
+            </option>
+
+            {departamentos.map((departamento) => (
+              <option
+                key={departamento.id}
+                value={String(departamento.id)}
+              >
+                {departamento.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Cargo
+          </label>
+
+          <input
+            value={dadosTrabalhistas.cargo}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "cargo",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Professor"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Setor
+          </label>
+
+          <input
+            value={dadosTrabalhistas.setor}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "setor",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Acadêmico"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Data de admissão
+          </label>
+
+          <input
+            type="date"
+            value={dadosTrabalhistas.dataAdmissao}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "dataAdmissao",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Tipo de contrato
+          </label>
+
+          <select
+            value={dadosTrabalhistas.tipoContrato}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "tipoContrato",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+          >
+            <option value="">Selecione</option>
+            <option value="CLT">CLT</option>
+            <option value="PJ">Pessoa jurídica</option>
+            <option value="AUTONOMO">Autônomo</option>
+            <option value="TEMPORARIO">Temporário</option>
+            <option value="ESTAGIO">Estágio</option>
+            <option value="VOLUNTARIO">Voluntário</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Jornada de trabalho
+          </label>
+
+          <input
+            value={dadosTrabalhistas.jornadaTrabalho}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "jornadaTrabalho",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Ex.: 20h semanais"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Carga horária semanal
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={dadosTrabalhistas.cargaHorariaSemanal}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "cargaHorariaSemanal",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Ex.: 20"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Carga horária mensal
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={dadosTrabalhistas.cargaHorariaMensal}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "cargaHorariaMensal",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Ex.: 80"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold text-slate-700 dark:text-slate-200">
+            Modalidade de remuneração
+          </label>
+
+          <select
+            value={dadosTrabalhistas.tipoRemuneracao}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "tipoRemuneracao",
+                e.target
+                  .value as TipoRemuneracaoProfessor
+              )
+            }
+            className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+            required={possuiVinculoRH}
+          >
+            <option value="">
+              Selecione a modalidade
+            </option>
+            <option value="MENSAL">
+              Salário mensal
+            </option>
+            <option value="HORA_AULA">
+              Por hora-aula
+            </option>
+            <option value="HORA_TRABALHADA">
+              Por hora trabalhada
+            </option>
+            <option value="POR_AULA">
+              Valor por aula
+            </option>
+            <option value="POR_TURMA">
+              Valor por turma
+            </option>
+            <option value="POR_DISCIPLINA">
+              Valor por disciplina
+            </option>
+            <option value="MISTO">
+              Remuneração mista
+            </option>
+            <option value="SEM_REMUNERACAO">
+              Sem remuneração
+            </option>
+          </select>
+        </div>
+      </div>
+
+      {dadosTrabalhistas.tipoRemuneracao &&
+        dadosTrabalhistas.tipoRemuneracao !==
+          "SEM_REMUNERACAO" && (
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+            <h4 className="font-bold text-slate-900 dark:text-slate-100">
+              Valores da remuneração
+            </h4>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {(dadosTrabalhistas.tipoRemuneracao ===
+                "MENSAL" ||
+                dadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Salário mensal
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={dadosTrabalhistas.salarioBase}
+                    onChange={(e) =>
+                      atualizarDadoTrabalhista(
+                        "salarioBase",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(dadosTrabalhistas.tipoRemuneracao ===
+                "HORA_AULA" ||
+                dadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <>
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold">
+                      Valor da hora-aula
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={
+                        dadosTrabalhistas.valorHoraAula
+                      }
+                      onChange={(e) =>
+                        atualizarDadoTrabalhista(
+                          "valorHoraAula",
+                          e.target.value
+                        )
+                      }
+                      className="w-full rounded-lg border p-2"
+                      placeholder="0,00"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold">
+                      Duração da hora-aula
+                    </label>
+
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={
+                          dadosTrabalhistas.duracaoHoraAulaMinutos
+                        }
+                        onChange={(e) =>
+                          atualizarDadoTrabalhista(
+                            "duracaoHoraAulaMinutos",
+                            e.target.value
+                          )
+                        }
+                        className="w-full rounded-lg border p-2 pr-20"
+                      />
+
+                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+                        minutos
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {(dadosTrabalhistas.tipoRemuneracao ===
+                "HORA_TRABALHADA" ||
+                dadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor da hora trabalhada
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={
+                      dadosTrabalhistas.valorHoraTrabalhada
+                    }
+                    onChange={(e) =>
+                      atualizarDadoTrabalhista(
+                        "valorHoraTrabalhada",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(dadosTrabalhistas.tipoRemuneracao ===
+                "POR_AULA" ||
+                dadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor por aula
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={dadosTrabalhistas.valorPorAula}
+                    onChange={(e) =>
+                      atualizarDadoTrabalhista(
+                        "valorPorAula",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(dadosTrabalhistas.tipoRemuneracao ===
+                "POR_TURMA" ||
+                dadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor por turma
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={dadosTrabalhistas.valorPorTurma}
+                    onChange={(e) =>
+                      atualizarDadoTrabalhista(
+                        "valorPorTurma",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(dadosTrabalhistas.tipoRemuneracao ===
+                "POR_DISCIPLINA" ||
+                dadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor por disciplina
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={
+                      dadosTrabalhistas.valorPorDisciplina
+                    }
+                    onChange={(e) =>
+                      atualizarDadoTrabalhista(
+                        "valorPorDisciplina",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+      {dadosTrabalhistas.tipoRemuneracao ===
+        "SEM_REMUNERACAO" && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
+          O professor será incluído no RH, mas sem valores de
+          remuneração configurados.
+        </div>
+      )}
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Código do ponto
+          </label>
+
+          <input
+            value={dadosTrabalhistas.codigoPonto}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "codigoPonto",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Identificador no relógio/app"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            PIS/PASEP/NIT
+          </label>
+
+          <input
+            value={dadosTrabalhistas.pisPasep}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "pisPasep",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="PIS/PASEP/NIT"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Banco
+          </label>
+
+          <input
+            value={dadosTrabalhistas.banco}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "banco",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Banco"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Agência
+          </label>
+
+          <input
+            value={dadosTrabalhistas.agencia}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "agencia",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Agência"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Conta
+          </label>
+
+          <input
+            value={dadosTrabalhistas.conta}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "conta",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Conta"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Chave Pix
+          </label>
+
+          <input
+            value={dadosTrabalhistas.pix}
+            onChange={(e) =>
+              atualizarDadoTrabalhista(
+                "pix",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Chave Pix"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold">
+          Observações da remuneração
+        </label>
+
+        <textarea
+          value={
+            dadosTrabalhistas.observacoesRemuneracao
+          }
+          onChange={(e) =>
+            atualizarDadoTrabalhista(
+              "observacoesRemuneracao",
+              e.target.value
+            )
+          }
+          className="min-h-[100px] w-full rounded-lg border p-3"
+          placeholder="Regras, acordos, adicionais ou observações sobre a remuneração."
+        />
+      </div>
+    </div>
+  )}
+</div>
 
             <div className="phanyx-foto-oficial-card md:col-span-2">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
