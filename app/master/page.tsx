@@ -72,6 +72,23 @@ type FeedbackMasterResponse = {
   registros: FeedbackPhanyx[];
 };
 
+type UsuarioSuporte = {
+  id: number;
+  nome?: string | null;
+  email: string;
+  role: string;
+  ativo: boolean;
+  instituicaoId?: number | null;
+  portal: "admin" | "professor" | "aluno";
+  destino: string;
+  instituicao?: {
+    id: number;
+    nome: string;
+    slug?: string | null;
+    ativo?: boolean;
+  } | null;
+};
+
 function formatarData(data?: string) {
   if (!data) return "-";
 
@@ -141,6 +158,24 @@ function MasterPage() {
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("TODOS");
   const [plano, setPlano] = useState("TODOS");
+
+  const [emailSuporte, setEmailSuporte] =
+  useState("");
+
+const [motivoSuporte, setMotivoSuporte] =
+  useState("");
+
+const [usuarioSuporte, setUsuarioSuporte] =
+  useState<UsuarioSuporte | null>(null);
+
+const [buscandoUsuarioSuporte, setBuscandoUsuarioSuporte] =
+  useState(false);
+
+const [iniciandoSuporte, setIniciandoSuporte] =
+  useState(false);
+
+const [erroSuporte, setErroSuporte] =
+  useState("");
 
   async function carregarDashboard() {
     try {
@@ -299,6 +334,112 @@ function MasterPage() {
   ];
 }, [feedbacksPhanyx]);
 
+async function buscarUsuarioParaSuporte() {
+  const emailNormalizado = emailSuporte
+    .trim()
+    .toLowerCase();
+
+  if (!emailNormalizado) {
+    setErroSuporte(
+      "Informe o e-mail de login do usuário."
+    );
+    return;
+  }
+
+  try {
+    setBuscandoUsuarioSuporte(true);
+    setErroSuporte("");
+    setUsuarioSuporte(null);
+    setMotivoSuporte("");
+
+    const res = await fetch(
+      `/api/master/impersonacao/buscar?email=${encodeURIComponent(
+        emailNormalizado
+      )}`,
+      {
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          "Não foi possível localizar o usuário."
+      );
+    }
+
+    setUsuarioSuporte(data.usuario);
+  } catch (error: any) {
+    setErroSuporte(
+      error?.message ||
+        "Não foi possível localizar o usuário."
+    );
+  } finally {
+    setBuscandoUsuarioSuporte(false);
+  }
+}
+
+async function iniciarAcessoDeSuporte() {
+  if (!usuarioSuporte) {
+    setErroSuporte(
+      "Localize primeiro o usuário."
+    );
+    return;
+  }
+
+  if (motivoSuporte.trim().length < 5) {
+    setErroSuporte(
+      "Informe o motivo do atendimento com pelo menos 5 caracteres."
+    );
+    return;
+  }
+
+  try {
+    setIniciandoSuporte(true);
+    setErroSuporte("");
+
+    const res = await fetch(
+      "/api/master/impersonacao/iniciar",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          usuarioAlvoId: usuarioSuporte.id,
+          motivo: motivoSuporte.trim(),
+        }),
+      }
+    );
+
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          "Não foi possível iniciar o atendimento."
+      );
+    }
+
+    window.location.assign(
+      data?.destino ||
+        usuarioSuporte.destino ||
+        "/admin"
+    );
+  } catch (error: any) {
+    setErroSuporte(
+      error?.message ||
+        "Não foi possível iniciar o atendimento."
+    );
+  } finally {
+    setIniciandoSuporte(false);
+  }
+}
+
   return (
     <div className="min-h-screen bg-slate-950 px-4 py-8 text-white md:px-6 md:py-10">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -331,6 +472,161 @@ function MasterPage() {
             </div>
           </div>
         </section>
+
+        <section className="rounded-3xl border border-amber-400/30 bg-slate-900 p-6 shadow-xl">
+  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <p className="text-sm font-semibold uppercase tracking-[0.25em] text-amber-300">
+        Suporte PHANYX
+      </p>
+
+      <h2 className="mt-2 text-2xl font-bold text-white">
+        Entrar como usuário
+      </h2>
+
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+        Localize uma conta pelo e-mail e acesse temporariamente
+        o ambiente do usuário para prestar suporte. Nenhuma senha
+        será exibida ou alterada.
+      </p>
+    </div>
+
+    <span className="inline-flex rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 text-xs font-bold text-amber-300">
+      Acesso auditado
+    </span>
+  </div>
+
+  <div className="mt-6 flex flex-col gap-3 md:flex-row">
+    <input
+      type="email"
+      value={emailSuporte}
+      onChange={(e) => {
+        setEmailSuporte(e.target.value);
+        setUsuarioSuporte(null);
+        setErroSuporte("");
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          void buscarUsuarioParaSuporte();
+        }
+      }}
+      placeholder="E-mail de login do usuário"
+      className="min-w-0 flex-1 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-amber-400"
+    />
+
+    <button
+      type="button"
+      onClick={buscarUsuarioParaSuporte}
+      disabled={buscandoUsuarioSuporte}
+      className="rounded-2xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-slate-950 transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {buscandoUsuarioSuporte
+        ? "Buscando..."
+        : "Buscar usuário"}
+    </button>
+  </div>
+
+  {erroSuporte && (
+    <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm font-medium text-red-200">
+      {erroSuporte}
+    </div>
+  )}
+
+  {usuarioSuporte && (
+    <div className="mt-6 rounded-3xl border border-slate-700 bg-slate-950 p-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <p className="text-lg font-bold text-white">
+            {usuarioSuporte.nome ||
+              usuarioSuporte.email}
+          </p>
+
+          <p className="mt-1 text-sm text-slate-400">
+            {usuarioSuporte.email}
+          </p>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-bold text-blue-300">
+              Perfil: {usuarioSuporte.role}
+            </span>
+
+            <span className="rounded-full border border-violet-500/30 bg-violet-500/10 px-3 py-1 text-xs font-bold text-violet-300">
+              Portal: {usuarioSuporte.portal}
+            </span>
+
+            <span
+              className={[
+                "rounded-full border px-3 py-1 text-xs font-bold",
+                usuarioSuporte.ativo
+                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                  : "border-red-500/30 bg-red-500/10 text-red-300",
+              ].join(" ")}
+            >
+              {usuarioSuporte.ativo
+                ? "Conta ativa"
+                : "Conta inativa"}
+            </span>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-3 text-sm">
+          <p className="text-slate-500">
+            Instituição
+          </p>
+
+          <p className="mt-1 font-bold text-white">
+            {usuarioSuporte.instituicao?.nome ||
+              "Não informada"}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5">
+        <label className="mb-2 block text-sm font-bold text-slate-300">
+          Motivo do atendimento
+        </label>
+
+        <textarea
+          value={motivoSuporte}
+          onChange={(e) =>
+            setMotivoSuporte(e.target.value)
+          }
+          maxLength={1000}
+          rows={3}
+          placeholder="Ex.: Usuário relatou dificuldade para localizar uma matrícula e autorizou o suporte a verificar a conta."
+          className="w-full resize-none rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-white outline-none transition placeholder:text-slate-500 focus:border-amber-400"
+        />
+
+        <p className="mt-1 text-right text-xs text-slate-500">
+          {motivoSuporte.length}/1000
+        </p>
+      </div>
+
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-3xl text-xs leading-5 text-slate-500">
+          O acesso será temporário, identificado por uma faixa
+          permanente e registrado no histórico de auditoria.
+        </p>
+
+        <button
+          type="button"
+          onClick={iniciarAcessoDeSuporte}
+          disabled={
+            iniciandoSuporte ||
+            !usuarioSuporte.ativo ||
+            motivoSuporte.trim().length < 5
+          }
+          className="rounded-2xl bg-blue-600 px-5 py-3 text-sm font-extrabold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+        >
+          {iniciandoSuporte
+            ? "Iniciando acesso..."
+            : "Entrar como este usuário"}
+        </button>
+      </div>
+    </div>
+  )}
+</section>
 
         <section className="rounded-3xl border border-slate-800 bg-slate-900 p-6 shadow-xl">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import jwt from "jsonwebtoken";
 import AdminShell from "./AdminShell";
+import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 
 
 export default async function AdminLayout({
@@ -35,9 +36,22 @@ const podeEntrarNoPortalAdmin = [
   "SUPORTE",
   "GERENCIA",
 ].includes(role);
+
+if (!podeEntrarNoPortalAdmin) {
+  redirect("/login?portal=admin");
+}
+
   } catch {
     redirect("/login?portal=admin");
   }
 
-  return <AdminShell>{children}</AdminShell>;
+  return (
+  <>
+    <ImpersonacaoBanner />
+
+    <AdminShell>
+      {children}
+    </AdminShell>
+  </>
+);
 }

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import { TipoRemuneracaoRH } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { enviarEmailPrimeiroAcesso } from "@/lib/email";
@@ -31,6 +32,62 @@ async function gerarCodigoFuncionario(instituicaoId: number) {
 
 function limparTexto(valor: unknown) {
   return String(valor ?? "").trim();
+}
+
+function numeroDecimalOuNull(valor: unknown) {
+  if (
+    valor === undefined ||
+    valor === null ||
+    limparTexto(valor) === ""
+  ) {
+    return null;
+  }
+
+  const texto = limparTexto(valor);
+
+  const normalizado = texto.includes(",")
+    ? texto.replace(/\./g, "").replace(",", ".")
+    : texto;
+
+  const numero = Number(normalizado);
+
+  return Number.isFinite(numero) ? numero : null;
+}
+
+function numeroInteiroOuNull(valor: unknown) {
+  if (
+    valor === undefined ||
+    valor === null ||
+    limparTexto(valor) === ""
+  ) {
+    return null;
+  }
+
+  const numero = Number(valor);
+
+  return Number.isInteger(numero) && numero > 0
+    ? numero
+    : null;
+}
+
+function obterTipoRemuneracao(
+  valor: unknown
+): TipoRemuneracaoRH | null {
+  const texto = limparTexto(valor).toUpperCase();
+
+  if (!texto) {
+    return null;
+  }
+
+  const tiposPermitidos = Object.values(
+    TipoRemuneracaoRH
+  );
+
+  return tiposPermitidos.includes(
+    texto as TipoRemuneracaoRH
+  )
+    ? (texto as TipoRemuneracaoRH)
+    : null;
 }
 
 function gerarSenhaTemporaria() {
@@ -74,124 +131,639 @@ export async function POST(request: Request) {
     const user = await getUserFromToken();
 
     if (!user) {
-      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Não autenticado" },
+        { status: 401 }
+      );
     }
 
     if (!isAdminLike(user.role)) {
-  return NextResponse.json({ error: "Sem permissão" }, { status: 403 });
-}
+      return NextResponse.json(
+        { error: "Sem permissão" },
+        { status: 403 }
+      );
+    }
 
     if (!user.instituicaoId) {
       return NextResponse.json(
-        { error: "Usuário sem instituição vinculada." },
+        {
+          error:
+            "Usuário sem instituição vinculada.",
+        },
         { status: 400 }
       );
     }
 
-    const body = await request.json();
-    const codigoInformado = String(body.codigoFuncionario || "").trim();
+    const instituicaoId = Number(
+      user.instituicaoId
+    );
 
-    const codigoFuncionario =
-    codigoInformado || (await gerarCodigoFuncionario(Number(user.instituicaoId)));
+    const body = await request.json();
+
     const nome = limparTexto(body.nome);
-    const email = limparTexto(body.email).toLowerCase();
-    const role = limparTexto(body.role).toUpperCase() || "SECRETARIA";
+
+    const email = limparTexto(
+      body.email
+    ).toLowerCase();
+
+    const role =
+      limparTexto(body.role).toUpperCase() ||
+      "SECRETARIA";
 
     if (!nome) {
       return NextResponse.json(
-        { error: "O nome do funcionário é obrigatório." },
+        {
+          error:
+            "O nome do funcionário é obrigatório.",
+        },
         { status: 400 }
       );
     }
 
     if (!email) {
       return NextResponse.json(
-        { error: "O email do funcionário é obrigatório." },
+        {
+          error:
+            "O email do funcionário é obrigatório.",
+        },
         { status: 400 }
       );
     }
 
-    const userExistente = await prisma.user.findUnique({
-      where: { email },
-    });
+    const userExistente =
+      await prisma.user.findUnique({
+        where: {
+          email,
+        },
+        select: {
+          id: true,
+        },
+      });
 
     if (userExistente) {
       return NextResponse.json(
-        { error: "Email já cadastrado" },
+        {
+          error: "Email já cadastrado",
+        },
         { status: 400 }
       );
     }
 
-    const instituicao = await prisma.instituicao.findUnique({
-      where: { id: user.instituicaoId },
-      select: { nome: true },
-    });
+    /*
+     * Departamento
+     */
+    const departamentoId =
+      numeroInteiroOuNull(
+        body.departamentoId
+      );
 
-    const senhaTemporaria = gerarSenhaTemporaria();
-    const senhaHash = await bcrypt.hash(senhaTemporaria, 10);
+    if (
+      body.departamentoId !== null &&
+      body.departamentoId !== undefined &&
+      limparTexto(body.departamentoId) !== "" &&
+      !departamentoId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O departamento informado é inválido.",
+        },
+        { status: 400 }
+      );
+    }
 
-    const novoUser = await prisma.user.create({
-      data: {
-        nome,
-        email,
-        senha: senhaHash,
-        role,
-        instituicaoId: user.instituicaoId,
-        precisaTrocarSenha: true,
-      },
-    });
+    if (departamentoId) {
+      const departamento =
+        await prisma.departamento.findFirst({
+          where: {
+            id: departamentoId,
+            instituicaoId,
+          },
+          select: {
+            id: true,
+          },
+        });
 
-    const funcionario = await prisma.funcionario.create({
-      data: {
-        nome,
-        cpf: body.cpf || null,
-        rg: body.rg || null,
-        telefone: body.telefone || null,
-        dataNascimento: body.dataNascimento
-          ? new Date(body.dataNascimento)
-          : null,
-        endereco: body.endereco || null,
-        numero: body.numero || null,
-        complemento: body.complemento || null,
-        bairro: body.bairro || null,
-        cidade: body.cidade || null,
-        estado: body.estado || null,
-        cep: body.cep || null,
-        cargo: body.cargo || null,
-        setor: body.setor || null,
-        fotoPerfil: body.fotoPerfil || null,
-        documentoUrl: body.documentoUrl || null,
-        codigoFuncionario,
-        dataAdmissao: body.dataAdmissao ? new Date(body.dataAdmissao) : null,
-        salarioBase: body.salarioBase
-            ? Number(String(body.salarioBase).replace(",", "."))
-            : null,
-        salario: body.salarioBase
-            ? Number(String(body.salarioBase).replace(",", "."))
-            : null,
-        tipoContrato: body.tipoContrato || null,
-        jornadaTrabalho: body.jornadaTrabalho || null,
-        cargaHorariaMensal: body.cargaHorariaMensal
-            ? Number(body.cargaHorariaMensal)
-            : null,
-        codigoPonto: body.codigoPonto || null,
-        pisPasep: body.pisPasep || null,
-        banco: body.banco || null,
-        agencia: body.agencia || null,
-        conta: body.conta || null,
-        pix: body.pix || null,
-        departamentoId: body.departamentoId ? Number(body.departamentoId) : null,
-        instituicaoId: user.instituicaoId,
-        userId: novoUser.id,
-        statusFuncionario: body.statusFuncionario || "ATIVO",
-        motivoStatus: body.motivoStatus || null,
-        ativo: (body.statusFuncionario || "ATIVO") === "ATIVO",
-      },
-        include: {
-        user: true,
-        departamento: true,
-      },
-    });
+      if (!departamento) {
+        return NextResponse.json(
+          {
+            error:
+              "Departamento inválido para esta instituição.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    /*
+     * Datas
+     */
+    const dataNascimento = body.dataNascimento
+      ? new Date(body.dataNascimento)
+      : null;
+
+    const dataAdmissao = body.dataAdmissao
+      ? new Date(body.dataAdmissao)
+      : null;
+
+    if (
+      dataNascimento &&
+      Number.isNaN(dataNascimento.getTime())
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A data de nascimento é inválida.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      dataAdmissao &&
+      Number.isNaN(dataAdmissao.getTime())
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A data de admissão é inválida.",
+        },
+        { status: 400 }
+      );
+    }
+
+    /*
+     * Remuneração
+     */
+    const salarioBaseInformado =
+      numeroDecimalOuNull(
+        body.salarioBase
+      );
+
+    const tipoRemuneracaoInformado =
+      obterTipoRemuneracao(
+        body.tipoRemuneracao
+      );
+
+    const tipoRemuneracao =
+      tipoRemuneracaoInformado ||
+      (salarioBaseInformado !== null
+        ? TipoRemuneracaoRH.MENSAL
+        : TipoRemuneracaoRH.SEM_REMUNERACAO);
+
+    if (
+      limparTexto(body.tipoRemuneracao) &&
+      !tipoRemuneracaoInformado
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A modalidade de remuneração informada é inválida.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const salarioBase =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MENSAL ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? salarioBaseInformado
+        : null;
+
+    const valorHoraAula =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.HORA_AULA ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? numeroDecimalOuNull(
+            body.valorHoraAula
+          )
+        : null;
+
+    const valorHoraTrabalhada =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.HORA_TRABALHADA ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? numeroDecimalOuNull(
+            body.valorHoraTrabalhada
+          )
+        : null;
+
+    const valorPorAula =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.POR_AULA ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? numeroDecimalOuNull(
+            body.valorPorAula
+          )
+        : null;
+
+    const valorPorTurma =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.POR_TURMA ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? numeroDecimalOuNull(
+            body.valorPorTurma
+          )
+        : null;
+
+    const valorPorDisciplina =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.POR_DISCIPLINA ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? numeroDecimalOuNull(
+            body.valorPorDisciplina
+          )
+        : null;
+
+    const duracaoHoraAulaMinutos =
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.HORA_AULA ||
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO
+        ? numeroInteiroOuNull(
+            body.duracaoHoraAulaMinutos
+          ) || 50
+        : null;
+
+    const cargaHorariaSemanal =
+      numeroDecimalOuNull(
+        body.cargaHorariaSemanal
+      );
+
+    const cargaHorariaMensal =
+      numeroInteiroOuNull(
+        body.cargaHorariaMensal
+      );
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MENSAL &&
+      salarioBase === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o salário mensal do funcionário.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.HORA_AULA &&
+      valorHoraAula === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o valor da hora-aula.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.HORA_TRABALHADA &&
+      valorHoraTrabalhada === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o valor da hora trabalhada.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.POR_AULA &&
+      valorPorAula === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o valor por aula.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.POR_TURMA &&
+      valorPorTurma === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o valor por turma.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.POR_DISCIPLINA &&
+      valorPorDisciplina === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o valor por disciplina.",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      tipoRemuneracao ===
+        TipoRemuneracaoRH.MISTO &&
+      salarioBase === null &&
+      valorHoraAula === null &&
+      valorHoraTrabalhada === null &&
+      valorPorAula === null &&
+      valorPorTurma === null &&
+      valorPorDisciplina === null
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Na remuneração mista, informe pelo menos um valor.",
+        },
+        { status: 400 }
+      );
+    }
+
+    /*
+     * Identificação e status
+     */
+    const codigoInformado =
+      limparTexto(
+        body.codigoFuncionario
+      );
+
+    const codigoFuncionario =
+      codigoInformado ||
+      (await gerarCodigoFuncionario(
+        instituicaoId
+      ));
+
+    const statusFuncionario =
+      limparTexto(
+        body.statusFuncionario
+      ).toUpperCase() || "ATIVO";
+
+    const instituicao =
+      await prisma.instituicao.findUnique({
+        where: {
+          id: instituicaoId,
+        },
+        select: {
+          nome: true,
+        },
+      });
+
+    const senhaTemporaria =
+      gerarSenhaTemporaria();
+
+    const senhaHash = await bcrypt.hash(
+      senhaTemporaria,
+      10
+    );
+
+    const resultado =
+      await prisma.$transaction(
+        async (tx) => {
+          const novoUser =
+            await tx.user.create({
+              data: {
+                nome,
+                email,
+                senha: senhaHash,
+                role,
+                instituicaoId,
+                precisaTrocarSenha: true,
+              },
+            });
+
+          const funcionario =
+            await tx.funcionario.create({
+              data: {
+                nome,
+                cpf: body.cpf || null,
+                rg: body.rg || null,
+                telefone:
+                  body.telefone || null,
+
+                dataNascimento,
+
+                endereco:
+                  body.endereco || null,
+
+                numero:
+                  body.numero || null,
+
+                complemento:
+                  body.complemento || null,
+
+                bairro:
+                  body.bairro || null,
+
+                cidade:
+                  body.cidade || null,
+
+                estado:
+                  body.estado || null,
+
+                cep:
+                  body.cep || null,
+
+                cargo:
+                  body.cargo || null,
+
+                setor:
+                  body.setor || null,
+
+                fotoPerfil:
+                  body.fotoPerfil || null,
+
+                documentoUrl:
+                  body.documentoUrl || null,
+
+                codigoFuncionario,
+                dataAdmissao,
+
+                tipoRemuneracao,
+
+                salarioBase,
+                salario: salarioBase,
+
+                valorHoraAula,
+                valorHoraTrabalhada,
+                valorPorAula,
+                valorPorTurma,
+                valorPorDisciplina,
+
+                duracaoHoraAulaMinutos,
+                cargaHorariaSemanal,
+                cargaHorariaMensal,
+
+                observacoesRemuneracao:
+                  limparTexto(
+                    body.observacoesRemuneracao
+                  ) || null,
+
+                tipoContrato:
+                  body.tipoContrato || null,
+
+                jornadaTrabalho:
+                  body.jornadaTrabalho || null,
+
+                codigoPonto:
+                  body.codigoPonto || null,
+
+                pisPasep:
+                  body.pisPasep || null,
+
+                banco:
+                  body.banco || null,
+
+                agencia:
+                  body.agencia || null,
+
+                conta:
+                  body.conta || null,
+
+                pix:
+                  body.pix || null,
+
+                departamentoId,
+                instituicaoId,
+                userId: novoUser.id,
+
+                statusFuncionario,
+                motivoStatus:
+                  body.motivoStatus || null,
+
+                ativo:
+                  statusFuncionario === "ATIVO",
+              },
+              include: {
+                user: true,
+                departamento: true,
+              },
+            });
+
+          const usuarioResponsavel =
+            await tx.user.findUnique({
+              where: {
+                id: user.id,
+              },
+              select: {
+                nome: true,
+                email: true,
+                role: true,
+              },
+            });
+
+          const nomeResponsavel =
+            limparTexto(
+              usuarioResponsavel?.nome
+            ) ||
+            limparTexto(
+              usuarioResponsavel?.email
+            ) ||
+            `Usuário ${user.id}`;
+
+          const dadosRemuneracaoInicial = {
+            tipoRemuneracao,
+            salarioBase,
+            valorHoraAula,
+            valorHoraTrabalhada,
+            valorPorAula,
+            valorPorTurma,
+            valorPorDisciplina,
+            duracaoHoraAulaMinutos,
+            cargaHorariaSemanal,
+            cargaHorariaMensal,
+          };
+
+          await tx.historicoRemuneracaoRH.create({
+            data: {
+              instituicaoId,
+              funcionarioId:
+                funcionario.id,
+
+              professorId: null,
+
+              alteradoPorId:
+                user.id,
+
+              origem:
+                "FUNCIONARIOS_RH_CADASTRO",
+
+              funcionarioNomeSnapshot:
+                nome,
+
+              professorNomeSnapshot:
+                null,
+
+              alteradoPorNomeSnapshot:
+                nomeResponsavel,
+
+              alteradoPorRoleSnapshot:
+                limparTexto(
+                  usuarioResponsavel?.role
+                ) ||
+                limparTexto(user.role) ||
+                null,
+
+              tipoAnterior: null,
+              tipoNovo:
+                tipoRemuneracao,
+
+              dadosAnteriores: {
+                tipoRemuneracao: null,
+                salarioBase: null,
+                valorHoraAula: null,
+                valorHoraTrabalhada: null,
+                valorPorAula: null,
+                valorPorTurma: null,
+                valorPorDisciplina: null,
+                duracaoHoraAulaMinutos:
+                  null,
+                cargaHorariaSemanal:
+                  null,
+                cargaHorariaMensal:
+                  null,
+              },
+
+              dadosNovos:
+                dadosRemuneracaoInicial,
+
+              vigenciaInicio:
+                dataAdmissao ||
+                new Date(),
+
+              motivo:
+                "Cadastro inicial da contratação do funcionário.",
+            },
+          });
+
+          return funcionario;
+        }
+      );
 
     let avisoEmail: string | null = null;
 
@@ -200,7 +772,8 @@ export async function POST(request: Request) {
         email,
         nome,
         senha: senhaTemporaria,
-        instituicao: instituicao?.nome || "PHANYX",
+        instituicao:
+          instituicao?.nome || "PHANYX",
         portal: "admin",
       });
     } catch (emailError) {
@@ -208,22 +781,30 @@ export async function POST(request: Request) {
         "ERRO AO ENVIAR EMAIL DE ACESSO DO FUNCIONÁRIO:",
         emailError
       );
+
       avisoEmail =
         "Funcionário criado com sucesso, mas houve erro ao enviar o email de acesso.";
     }
 
     return NextResponse.json(
       {
-        ...funcionario,
+        ...resultado,
         senhaTemporaria,
         avisoEmail,
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error(error);
+    console.error(
+      "ERRO AO CRIAR FUNCIONÁRIO:",
+      error
+    );
+
     return NextResponse.json(
-      { error: "Erro ao criar funcionário" },
+      {
+        error:
+          "Erro ao criar funcionário",
+      },
       { status: 500 }
     );
   }

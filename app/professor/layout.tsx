@@ -11,6 +11,7 @@ import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import { paginaVisivel } from "@/lib/portal-config";
+import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 
 export default async function ProfessorLayout({
   children,
@@ -117,7 +118,10 @@ export default async function ProfessorLayout({
 };
 
   return (
-  <ProfessorProvider>
+  <>
+    <ImpersonacaoBanner />
+
+    <ProfessorProvider>
     <InstallPromptPHANYX />
     <ToastProvider>
       <ConfirmDialogProvider>
@@ -222,7 +226,7 @@ export default async function ProfessorLayout({
         </div>
       </ConfirmDialogProvider>
     </ToastProvider>
-  </ProfessorProvider>
-  
+      </ProfessorProvider>
+  </>
 );
 }

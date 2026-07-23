@@ -11,6 +11,11 @@ type TokenPayload = {
   role?: string;
   instituicaoId?: number | null;
   nome?: string | null;
+  portal?: string | null;
+
+  impersonacao?: boolean;
+  impersonacaoId?: number | string;
+  masterOriginalId?: number | string;
 };
 
 export type UsuarioLogado = {
@@ -22,6 +27,11 @@ export type UsuarioLogado = {
   plano: string | null;
   isMasterAdmin: boolean;
   precisaTrocarSenha: boolean;
+  portal: string | null;
+
+  impersonacao: boolean;
+  impersonacaoId: number | null;
+  masterOriginalId: number | null;
 
   funcionarioId: number | null;
   departamentoId: number | null;
@@ -105,7 +115,68 @@ export async function getUserFromToken(): Promise<UsuarioLogado | null> {
 
     if (!usuario) return null;
 
-if (usuario.instituicaoId && !usuario.isMasterAdmin) {
+    const tokenEhImpersonacao = decoded.impersonacao === true;
+
+let impersonacaoId: number | null = null;
+let masterOriginalId: number | null = null;
+
+if (tokenEhImpersonacao) {
+  impersonacaoId = Number(decoded.impersonacaoId);
+  masterOriginalId = Number(decoded.masterOriginalId);
+
+  if (
+    !Number.isFinite(impersonacaoId) ||
+    impersonacaoId <= 0 ||
+    !Number.isFinite(masterOriginalId) ||
+    masterOriginalId <= 0
+  ) {
+    return null;
+  }
+
+  const impersonacaoAtiva =
+    await prisma.impersonacaoSuporte.findFirst({
+      where: {
+        id: impersonacaoId,
+        usuarioAlvoId: usuario.id,
+        masterUserId: masterOriginalId,
+        ativa: true,
+        encerradoEm: null,
+        expiraEm: {
+          gt: new Date(),
+        },
+      },
+      select: {
+        id: true,
+        masterUser: {
+          select: {
+            id: true,
+            email: true,
+            ativo: true,
+            isMasterAdmin: true,
+          },
+        },
+      },
+    });
+
+  if (
+    !impersonacaoAtiva ||
+    !impersonacaoAtiva.masterUser ||
+    impersonacaoAtiva.masterUser.ativo === false ||
+    impersonacaoAtiva.masterUser.isMasterAdmin !== true ||
+    impersonacaoAtiva.masterUser.email
+      .trim()
+      .toLowerCase() !== "academicophanyx@gmail.com"
+  ) {
+    return null;
+  }
+}
+
+if (
+  usuario.instituicaoId &&
+  !usuario.isMasterAdmin &&
+  !tokenEhImpersonacao
+) {
+  
   const assinatura = await prisma.assinaturaPhanyx.findUnique({
     where: {
       instituicaoId: usuario.instituicaoId,
@@ -151,6 +222,18 @@ const roleNormalizada = normalizarRole(usuario.role);
       plano: usuario.instituicao?.plano ?? null,
       isMasterAdmin: Boolean(usuario.isMasterAdmin),
       precisaTrocarSenha: Boolean(usuario.precisaTrocarSenha),
+
+      portal: decoded.portal
+  ? String(decoded.portal).trim().toLowerCase()
+  : null,
+
+impersonacao: tokenEhImpersonacao,
+impersonacaoId: tokenEhImpersonacao
+  ? impersonacaoId
+  : null,
+masterOriginalId: tokenEhImpersonacao
+  ? masterOriginalId
+  : null,
 
       funcionarioId: usuario.funcionario?.id ?? null,
       departamentoId: usuario.funcionario?.departamentoId ?? null,

@@ -6,6 +6,17 @@ import Link from "next/link";
 import withAuth from "@/components/auth/withAuth";
 import PhanyxToast from "@/components/ui/PhanyxToast";
 
+type TipoRemuneracaoFuncionario =
+  | ""
+  | "MENSAL"
+  | "HORA_AULA"
+  | "HORA_TRABALHADA"
+  | "POR_AULA"
+  | "POR_TURMA"
+  | "POR_DISCIPLINA"
+  | "MISTO"
+  | "SEM_REMUNERACAO";
+
 type Beneficio = {
   id: number;
   nome: string;
@@ -87,18 +98,89 @@ const [linksPortfolio, setLinksPortfolio] = useState([
   const [formTrabalhista, setFormTrabalhista] = useState({
   dataAdmissao: "",
   dataDesligamento: "",
+
+  tipoRemuneracao:
+    "" as TipoRemuneracaoFuncionario,
+
   salarioBase: "",
   salario: "",
+
+  valorHoraAula: "",
+  valorHoraTrabalhada: "",
+  valorPorAula: "",
+  valorPorTurma: "",
+  valorPorDisciplina: "",
+
+  duracaoHoraAulaMinutos: "50",
+
+  cargaHorariaSemanal: "",
+  cargaHorariaMensal: "",
+
+  observacoesRemuneracao: "",
+
   tipoContrato: "",
   jornadaTrabalho: "",
-  cargaHorariaMensal: "",
+
   codigoPonto: "",
   pisPasep: "",
+
   banco: "",
   agencia: "",
   conta: "",
   pix: "",
 });
+
+const [
+  assinaturaRemuneracaoOriginal,
+  setAssinaturaRemuneracaoOriginal,
+] = useState("");
+
+const [
+  motivoAlteracaoRemuneracao,
+  setMotivoAlteracaoRemuneracao,
+] = useState("");
+
+const [
+  vigenciaInicioRemuneracao,
+  setVigenciaInicioRemuneracao,
+] = useState("");
+
+function criarAssinaturaRemuneracaoFuncionario(
+  dados: typeof formTrabalhista
+) {
+  return JSON.stringify({
+    tipoRemuneracao: dados.tipoRemuneracao,
+    salarioBase: dados.salarioBase,
+    valorHoraAula: dados.valorHoraAula,
+    valorHoraTrabalhada: dados.valorHoraTrabalhada,
+    valorPorAula: dados.valorPorAula,
+    valorPorTurma: dados.valorPorTurma,
+    valorPorDisciplina: dados.valorPorDisciplina,
+    duracaoHoraAulaMinutos:
+      dados.duracaoHoraAulaMinutos,
+    cargaHorariaSemanal:
+      dados.cargaHorariaSemanal,
+    cargaHorariaMensal:
+      dados.cargaHorariaMensal,
+  });
+}
+
+function obterDataHoraLocalAtual() {
+  const agora = new Date();
+
+  const compensado = new Date(
+    agora.getTime() -
+      agora.getTimezoneOffset() * 60 * 1000
+  );
+
+  return compensado.toISOString().slice(0, 16);
+}
+
+const houveAlteracaoRemuneracao =
+  assinaturaRemuneracaoOriginal !== "" &&
+  criarAssinaturaRemuneracaoFuncionario(
+    formTrabalhista
+  ) !== assinaturaRemuneracaoOriginal;
 
   const [beneficiosDisponiveis, setBeneficiosDisponiveis] = useState<Beneficio[]>([]);
   const [beneficiosVinculados, setBeneficiosVinculados] = useState<Vinculo[]>([]);
@@ -194,21 +276,107 @@ function dataInput(v: any) {
 }
 
 function preencherFormTrabalhista(f: any) {
-  setFormTrabalhista({
+  const dadosTrabalhistasCarregados = {
     dataAdmissao: dataInput(f.dataAdmissao),
     dataDesligamento: dataInput(f.dataDesligamento),
-    salarioBase: f.salarioBase ? String(f.salarioBase) : "",
-    salario: f.salario ? String(f.salario) : "",
+
+    tipoRemuneracao:
+      (f.tipoRemuneracao as TipoRemuneracaoFuncionario) ||
+      (f.salarioBase !== null &&
+      f.salarioBase !== undefined
+        ? "MENSAL"
+        : "SEM_REMUNERACAO"),
+
+    salarioBase:
+      f.salarioBase !== null &&
+      f.salarioBase !== undefined
+        ? String(f.salarioBase)
+        : "",
+
+    salario:
+      f.salario !== null &&
+      f.salario !== undefined
+        ? String(f.salario)
+        : "",
+
+    valorHoraAula:
+      f.valorHoraAula !== null &&
+      f.valorHoraAula !== undefined
+        ? String(f.valorHoraAula)
+        : "",
+
+    valorHoraTrabalhada:
+      f.valorHoraTrabalhada !== null &&
+      f.valorHoraTrabalhada !== undefined
+        ? String(f.valorHoraTrabalhada)
+        : "",
+
+    valorPorAula:
+      f.valorPorAula !== null &&
+      f.valorPorAula !== undefined
+        ? String(f.valorPorAula)
+        : "",
+
+    valorPorTurma:
+      f.valorPorTurma !== null &&
+      f.valorPorTurma !== undefined
+        ? String(f.valorPorTurma)
+        : "",
+
+    valorPorDisciplina:
+      f.valorPorDisciplina !== null &&
+      f.valorPorDisciplina !== undefined
+        ? String(f.valorPorDisciplina)
+        : "",
+
+    duracaoHoraAulaMinutos:
+      f.duracaoHoraAulaMinutos !== null &&
+      f.duracaoHoraAulaMinutos !== undefined
+        ? String(f.duracaoHoraAulaMinutos)
+        : "50",
+
+    cargaHorariaSemanal:
+      f.cargaHorariaSemanal !== null &&
+      f.cargaHorariaSemanal !== undefined
+        ? String(f.cargaHorariaSemanal)
+        : "",
+
+    cargaHorariaMensal:
+      f.cargaHorariaMensal !== null &&
+      f.cargaHorariaMensal !== undefined
+        ? String(f.cargaHorariaMensal)
+        : "",
+
+    observacoesRemuneracao:
+      f.observacoesRemuneracao || "",
+
     tipoContrato: f.tipoContrato || "",
     jornadaTrabalho: f.jornadaTrabalho || "",
-    cargaHorariaMensal: f.cargaHorariaMensal ? String(f.cargaHorariaMensal) : "",
+
     codigoPonto: f.codigoPonto || "",
     pisPasep: f.pisPasep || "",
+
     banco: f.banco || "",
     agencia: f.agencia || "",
     conta: f.conta || "",
     pix: f.pix || "",
-  });
+  };
+
+  setFormTrabalhista(
+    dadosTrabalhistasCarregados
+  );
+
+  setAssinaturaRemuneracaoOriginal(
+    criarAssinaturaRemuneracaoFuncionario(
+      dadosTrabalhistasCarregados
+    )
+  );
+
+  setMotivoAlteracaoRemuneracao("");
+
+  setVigenciaInicioRemuneracao(
+    obterDataHoraLocalAtual()
+  );
 }
 
   async function carregarBeneficios() {
@@ -472,37 +640,187 @@ if (novoDocumento.url.trim()) {
   }
 }
 
-  async function salvarDadosTrabalhistas(e: React.FormEvent) {
+  async function salvarDadosTrabalhistas(
+  e: React.FormEvent
+) {
   e.preventDefault();
+
+  const tipoRemuneracao =
+    formTrabalhista.tipoRemuneracao;
+
+  const possuiValor = (valor: string) =>
+    String(valor || "").trim() !== "";
+
+  if (!tipoRemuneracao) {
+    setErro(
+      "Selecione a modalidade de remuneração do funcionário."
+    );
+    return;
+  }
+
+  if (
+    tipoRemuneracao === "MENSAL" &&
+    !possuiValor(formTrabalhista.salarioBase)
+  ) {
+    setErro(
+      "Informe o salário mensal do funcionário."
+    );
+    return;
+  }
+
+  if (
+    tipoRemuneracao === "HORA_AULA" &&
+    !possuiValor(formTrabalhista.valorHoraAula)
+  ) {
+    setErro("Informe o valor da hora-aula.");
+    return;
+  }
+
+  if (
+    tipoRemuneracao === "HORA_TRABALHADA" &&
+    !possuiValor(
+      formTrabalhista.valorHoraTrabalhada
+    )
+  ) {
+    setErro(
+      "Informe o valor da hora trabalhada."
+    );
+    return;
+  }
+
+  if (
+    tipoRemuneracao === "POR_AULA" &&
+    !possuiValor(formTrabalhista.valorPorAula)
+  ) {
+    setErro("Informe o valor por aula.");
+    return;
+  }
+
+  if (
+    tipoRemuneracao === "POR_TURMA" &&
+    !possuiValor(formTrabalhista.valorPorTurma)
+  ) {
+    setErro("Informe o valor por turma.");
+    return;
+  }
+
+  if (
+    tipoRemuneracao === "POR_DISCIPLINA" &&
+    !possuiValor(
+      formTrabalhista.valorPorDisciplina
+    )
+  ) {
+    setErro("Informe o valor por disciplina.");
+    return;
+  }
+
+  if (tipoRemuneracao === "MISTO") {
+    const possuiAlgumValor =
+      possuiValor(formTrabalhista.salarioBase) ||
+      possuiValor(formTrabalhista.valorHoraAula) ||
+      possuiValor(
+        formTrabalhista.valorHoraTrabalhada
+      ) ||
+      possuiValor(formTrabalhista.valorPorAula) ||
+      possuiValor(formTrabalhista.valorPorTurma) ||
+      possuiValor(
+        formTrabalhista.valorPorDisciplina
+      );
+
+    if (!possuiAlgumValor) {
+      setErro(
+        "Na remuneração mista, informe pelo menos um valor."
+      );
+      return;
+    }
+  }
+
+  if (
+    houveAlteracaoRemuneracao &&
+    !motivoAlteracaoRemuneracao.trim()
+  ) {
+    setErro(
+      "Informe o motivo da alteração da remuneração."
+    );
+    return;
+  }
+
+  if (
+    houveAlteracaoRemuneracao &&
+    !vigenciaInicioRemuneracao
+  ) {
+    setErro(
+      "Informe a data e a hora em que a nova remuneração começa a valer."
+    );
+    return;
+  }
 
   try {
     setSalvando(true);
     setErro("");
     setSucesso("");
 
-    const res = await fetch(`/api/funcionario/${funcionarioId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        ...funcionario,
-        email: funcionario?.user?.email,
-        role: funcionario?.user?.role,
-        ...formTrabalhista,
-      }),
-    });
+    const res = await fetch(
+      `/api/funcionario/${funcionarioId}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          ...funcionario,
+
+          email:
+            funcionario?.user?.email,
+
+          role:
+            funcionario?.user?.role,
+
+          ...formTrabalhista,
+
+          motivoAlteracaoRemuneracao:
+            houveAlteracaoRemuneracao
+              ? motivoAlteracaoRemuneracao.trim()
+              : null,
+
+          vigenciaInicioRemuneracao:
+            houveAlteracaoRemuneracao &&
+            vigenciaInicioRemuneracao
+              ? new Date(
+                  vigenciaInicioRemuneracao
+                ).toISOString()
+              : null,
+        }),
+      }
+    );
 
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data.error || "Erro ao salvar dados trabalhistas.");
+      throw new Error(
+        data.error ||
+          "Erro ao salvar dados trabalhistas."
+      );
     }
 
-    setSucesso("Dados trabalhistas atualizados com sucesso.");
+    setSucesso(
+      houveAlteracaoRemuneracao
+        ? "Dados trabalhistas e alteração remuneratória registrados com sucesso."
+        : "Dados trabalhistas atualizados com sucesso."
+    );
+
     setEditandoTrabalhista(false);
+
+    setMotivoAlteracaoRemuneracao("");
+    setVigenciaInicioRemuneracao("");
+
     await carregarFuncionario();
   } catch (e: any) {
-    setErro(e.message || "Erro ao salvar dados trabalhistas.");
+    setErro(
+      e.message ||
+        "Erro ao salvar dados trabalhistas."
+    );
   } finally {
     setSalvando(false);
   }
@@ -922,10 +1240,9 @@ text-slate-900 dark:text-white
         {[
   ["dataAdmissao", "Data de Admissão", "date"],
   ["dataDesligamento", "Data de Desligamento", "date"],
-  ["salarioBase", "Salário Base", "text"],
-  ["salario", "Salário Atual", "text"],
   ["tipoContrato", "Tipo de Contrato", "text"],
   ["jornadaTrabalho", "Jornada", "text"],
+  ["cargaHorariaSemanal", "Carga Horária Semanal", "number"],
   ["cargaHorariaMensal", "Carga Horária Mensal", "number"],
   ["codigoPonto", "Código do Ponto", "text"],
   ["pisPasep", "PIS / PASEP", "text"],
@@ -953,6 +1270,277 @@ text-slate-900 dark:text-white
 />
           </label>
         ))}
+
+        <div className="md:col-span-4 rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950">
+  <h3 className="font-bold text-slate-900 dark:text-white">
+    💰 Remuneração
+  </h3>
+
+  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+    Selecione como o funcionário é remunerado e informe os valores correspondentes.
+  </p>
+
+  <div className="mt-4 grid gap-4 md:grid-cols-3">
+    <label className="space-y-1">
+      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        Modalidade de remuneração
+      </span>
+
+      <select
+        value={formTrabalhista.tipoRemuneracao}
+        onChange={(e) =>
+          setFormTrabalhista((p) => ({
+            ...p,
+            tipoRemuneracao:
+              e.target.value as TipoRemuneracaoFuncionario,
+          }))
+        }
+        className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+      >
+        <option value="">Selecione</option>
+        <option value="MENSAL">Salário mensal</option>
+        <option value="HORA_AULA">Hora-aula</option>
+        <option value="HORA_TRABALHADA">
+          Hora trabalhada
+        </option>
+        <option value="POR_AULA">Valor por aula</option>
+        <option value="POR_TURMA">Valor por turma</option>
+        <option value="POR_DISCIPLINA">
+          Valor por disciplina
+        </option>
+        <option value="MISTO">Remuneração mista</option>
+        <option value="SEM_REMUNERACAO">
+          Sem remuneração
+        </option>
+      </select>
+    </label>
+
+    {(formTrabalhista.tipoRemuneracao === "MENSAL" ||
+      formTrabalhista.tipoRemuneracao === "MISTO") && (
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Salário mensal
+        </span>
+
+        <input
+          value={formTrabalhista.salarioBase}
+          onChange={(e) =>
+            setFormTrabalhista((p) => ({
+              ...p,
+              salarioBase: e.target.value,
+            }))
+          }
+          placeholder="0,00"
+          inputMode="decimal"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        />
+      </label>
+    )}
+
+    {(formTrabalhista.tipoRemuneracao === "HORA_AULA" ||
+      formTrabalhista.tipoRemuneracao === "MISTO") && (
+      <>
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Valor da hora-aula
+          </span>
+
+          <input
+            value={formTrabalhista.valorHoraAula}
+            onChange={(e) =>
+              setFormTrabalhista((p) => ({
+                ...p,
+                valorHoraAula: e.target.value,
+              }))
+            }
+            placeholder="0,00"
+            inputMode="decimal"
+            className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          />
+        </label>
+
+        <label className="space-y-1">
+          <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+            Duração da hora-aula
+          </span>
+
+          <div className="relative">
+            <input
+              type="number"
+              min="1"
+              value={formTrabalhista.duracaoHoraAulaMinutos}
+              onChange={(e) =>
+                setFormTrabalhista((p) => ({
+                  ...p,
+                  duracaoHoraAulaMinutos: e.target.value,
+                }))
+              }
+              className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-20 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+            />
+
+            <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+              minutos
+            </span>
+          </div>
+        </label>
+      </>
+    )}
+
+    {(formTrabalhista.tipoRemuneracao === "HORA_TRABALHADA" ||
+      formTrabalhista.tipoRemuneracao === "MISTO") && (
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Valor da hora trabalhada
+        </span>
+
+        <input
+          value={formTrabalhista.valorHoraTrabalhada}
+          onChange={(e) =>
+            setFormTrabalhista((p) => ({
+              ...p,
+              valorHoraTrabalhada: e.target.value,
+            }))
+          }
+          placeholder="0,00"
+          inputMode="decimal"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        />
+      </label>
+    )}
+
+    {(formTrabalhista.tipoRemuneracao === "POR_AULA" ||
+      formTrabalhista.tipoRemuneracao === "MISTO") && (
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Valor por aula
+        </span>
+
+        <input
+          value={formTrabalhista.valorPorAula}
+          onChange={(e) =>
+            setFormTrabalhista((p) => ({
+              ...p,
+              valorPorAula: e.target.value,
+            }))
+          }
+          placeholder="0,00"
+          inputMode="decimal"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        />
+      </label>
+    )}
+
+    {(formTrabalhista.tipoRemuneracao === "POR_TURMA" ||
+      formTrabalhista.tipoRemuneracao === "MISTO") && (
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Valor por turma
+        </span>
+
+        <input
+          value={formTrabalhista.valorPorTurma}
+          onChange={(e) =>
+            setFormTrabalhista((p) => ({
+              ...p,
+              valorPorTurma: e.target.value,
+            }))
+          }
+          placeholder="0,00"
+          inputMode="decimal"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        />
+      </label>
+    )}
+
+    {(formTrabalhista.tipoRemuneracao === "POR_DISCIPLINA" ||
+      formTrabalhista.tipoRemuneracao === "MISTO") && (
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+          Valor por disciplina
+        </span>
+
+        <input
+          value={formTrabalhista.valorPorDisciplina}
+          onChange={(e) =>
+            setFormTrabalhista((p) => ({
+              ...p,
+              valorPorDisciplina: e.target.value,
+            }))
+          }
+          placeholder="0,00"
+          inputMode="decimal"
+          className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        />
+      </label>
+    )}
+
+    <label className="space-y-1 md:col-span-3">
+      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+        Observações da remuneração
+      </span>
+
+      <textarea
+        value={formTrabalhista.observacoesRemuneracao}
+        onChange={(e) =>
+          setFormTrabalhista((p) => ({
+            ...p,
+            observacoesRemuneracao: e.target.value,
+          }))
+        }
+        className="min-h-[100px] w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        placeholder="Acordos, adicionais ou regras da remuneração."
+      />
+    </label>
+  </div>
+</div>
+
+{houveAlteracaoRemuneracao && (
+  <div className="md:col-span-4 rounded-2xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/30">
+    <h3 className="font-bold text-amber-950 dark:text-amber-100">
+      🕒 Registro da alteração remuneratória
+    </h3>
+
+    <p className="mt-2 text-sm text-amber-900 dark:text-amber-200">
+      A remuneração foi alterada. Informe quando a nova condição começa a valer e o motivo da mudança.
+    </p>
+
+    <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-amber-950 dark:text-amber-100">
+          Início da vigência
+        </span>
+
+        <input
+          type="datetime-local"
+          value={vigenciaInicioRemuneracao}
+          onChange={(e) =>
+            setVigenciaInicioRemuneracao(e.target.value)
+          }
+          className="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-amber-700 dark:bg-slate-950 dark:text-white"
+        />
+      </label>
+
+      <label className="space-y-1">
+        <span className="text-xs font-semibold text-amber-950 dark:text-amber-100">
+          Motivo da alteração
+        </span>
+
+        <textarea
+          value={motivoAlteracaoRemuneracao}
+          onChange={(e) =>
+            setMotivoAlteracaoRemuneracao(e.target.value)
+          }
+          className="min-h-[100px] w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-sm text-slate-900 dark:border-amber-700 dark:bg-slate-950 dark:text-white"
+          placeholder="Ex.: reajuste salarial aprovado pela direção."
+        />
+      </label>
+    </div>
+
+    <p className="mt-3 text-xs text-amber-800 dark:text-amber-300">
+      A data e a hora do salvamento e o usuário responsável serão registrados automaticamente.
+    </p>
+  </div>
+)}
 
 <label className="relative space-y-1">
   <span className="text-xs font-semibold text-slate-700 dark:text-slate-300"></span>

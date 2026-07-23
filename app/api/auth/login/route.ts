@@ -423,6 +423,20 @@ export async function POST(req: Request) {
       path: "/",
     });
 
+    response.cookies.set(
+  "phanyx_master_token",
+  "",
+  {
+    httpOnly: true,
+    secure:
+      process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    expires: new Date(0),
+    maxAge: 0,
+  }
+);
+
     return response;
   } catch (error) {
     console.error("ERRO LOGIN:", error);

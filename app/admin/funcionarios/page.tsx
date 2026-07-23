@@ -11,6 +11,17 @@ interface Departamento {
   nome: string;
 }
 
+type TipoRemuneracaoFuncionario =
+  | ""
+  | "MENSAL"
+  | "HORA_AULA"
+  | "HORA_TRABALHADA"
+  | "POR_AULA"
+  | "POR_TURMA"
+  | "POR_DISCIPLINA"
+  | "MISTO"
+  | "SEM_REMUNERACAO";
+
 interface Funcionario {
   id: number;
   nome: string;
@@ -27,6 +38,19 @@ interface Funcionario {
   dataDesligamento?: string | null;
   salario?: string | number | null;
   salarioBase?: string | number | null;
+  tipoRemuneracao?: TipoRemuneracaoFuncionario | null;
+
+valorHoraAula?: string | number | null;
+valorHoraTrabalhada?: string | number | null;
+valorPorAula?: string | number | null;
+valorPorTurma?: string | number | null;
+valorPorDisciplina?: string | number | null;
+
+duracaoHoraAulaMinutos?: number | null;
+cargaHorariaSemanal?: string | number | null;
+
+observacoesRemuneracao?: string | null;
+
   tipoContrato?: string | null;
   jornadaTrabalho?: string | null;
   cargaHorariaMensal?: string | number | null;
@@ -120,6 +144,40 @@ function AdminFuncionariosPage() {
 
   const [dataAdmissao, setDataAdmissao] = useState("");
   const [salarioBase, setSalarioBase] = useState("");
+
+const [
+  tipoRemuneracao,
+  setTipoRemuneracao,
+] = useState<TipoRemuneracaoFuncionario>("");
+
+const [valorHoraAula, setValorHoraAula] = useState("");
+const [
+  valorHoraTrabalhada,
+  setValorHoraTrabalhada,
+] = useState("");
+
+const [valorPorAula, setValorPorAula] = useState("");
+const [valorPorTurma, setValorPorTurma] = useState("");
+const [
+  valorPorDisciplina,
+  setValorPorDisciplina,
+] = useState("");
+
+const [
+  duracaoHoraAulaMinutos,
+  setDuracaoHoraAulaMinutos,
+] = useState("50");
+
+const [
+  cargaHorariaSemanal,
+  setCargaHorariaSemanal,
+] = useState("");
+
+const [
+  observacoesRemuneracao,
+  setObservacoesRemuneracao,
+] = useState("");
+
   const [tipoContrato, setTipoContrato] = useState("");
   const [jornadaTrabalho, setJornadaTrabalho] = useState("");
   const [cargaHorariaMensal, setCargaHorariaMensal] = useState("");
@@ -290,6 +348,63 @@ async function enviarFotoOficialFuncionario(arquivo: File | null) {
     setDepartamentoId(f.departamento?.id ? String(f.departamento.id) : "");
     setDataAdmissao(dataParaInput(f.dataAdmissao));
     setSalarioBase(f.salarioBase ? String(f.salarioBase).replace(".", ",") : "");
+    setTipoRemuneracao(
+  f.tipoRemuneracao ||
+    (f.salarioBase ? "MENSAL" : "SEM_REMUNERACAO")
+);
+
+setValorHoraAula(
+  f.valorHoraAula !== null &&
+    f.valorHoraAula !== undefined
+    ? String(f.valorHoraAula).replace(".", ",")
+    : ""
+);
+
+setValorHoraTrabalhada(
+  f.valorHoraTrabalhada !== null &&
+    f.valorHoraTrabalhada !== undefined
+    ? String(f.valorHoraTrabalhada).replace(".", ",")
+    : ""
+);
+
+setValorPorAula(
+  f.valorPorAula !== null &&
+    f.valorPorAula !== undefined
+    ? String(f.valorPorAula).replace(".", ",")
+    : ""
+);
+
+setValorPorTurma(
+  f.valorPorTurma !== null &&
+    f.valorPorTurma !== undefined
+    ? String(f.valorPorTurma).replace(".", ",")
+    : ""
+);
+
+setValorPorDisciplina(
+  f.valorPorDisciplina !== null &&
+    f.valorPorDisciplina !== undefined
+    ? String(f.valorPorDisciplina).replace(".", ",")
+    : ""
+);
+
+setDuracaoHoraAulaMinutos(
+  f.duracaoHoraAulaMinutos !== null &&
+    f.duracaoHoraAulaMinutos !== undefined
+    ? String(f.duracaoHoraAulaMinutos)
+    : "50"
+);
+
+setCargaHorariaSemanal(
+  f.cargaHorariaSemanal !== null &&
+    f.cargaHorariaSemanal !== undefined
+    ? String(f.cargaHorariaSemanal)
+    : ""
+);
+
+setObservacoesRemuneracao(
+  f.observacoesRemuneracao || ""
+);
     setTipoContrato(f.tipoContrato || "");
     setJornadaTrabalho(f.jornadaTrabalho || "");
     setCargaHorariaMensal(
@@ -320,6 +435,15 @@ async function enviarFotoOficialFuncionario(arquivo: File | null) {
     setDepartamentoId("");
     setDataAdmissao("");
     setSalarioBase("");
+    setTipoRemuneracao("");
+setValorHoraAula("");
+setValorHoraTrabalhada("");
+setValorPorAula("");
+setValorPorTurma("");
+setValorPorDisciplina("");
+setDuracaoHoraAulaMinutos("50");
+setCargaHorariaSemanal("");
+setObservacoesRemuneracao("");
     setTipoContrato("");
     setJornadaTrabalho("");
     setCargaHorariaMensal("");
@@ -332,6 +456,70 @@ async function enviarFotoOficialFuncionario(arquivo: File | null) {
     setStatusFuncionario("ATIVO");
     setMotivoStatus("");
   }
+
+  function validarRemuneracaoFuncionario() {
+  if (!tipoRemuneracao) {
+    return "Selecione a modalidade de remuneração do funcionário.";
+  }
+
+  if (
+    tipoRemuneracao === "MENSAL" &&
+    !salarioBase.trim()
+  ) {
+    return "Informe o salário mensal do funcionário.";
+  }
+
+  if (
+    tipoRemuneracao === "HORA_AULA" &&
+    !valorHoraAula.trim()
+  ) {
+    return "Informe o valor da hora-aula.";
+  }
+
+  if (
+    tipoRemuneracao === "HORA_TRABALHADA" &&
+    !valorHoraTrabalhada.trim()
+  ) {
+    return "Informe o valor da hora trabalhada.";
+  }
+
+  if (
+    tipoRemuneracao === "POR_AULA" &&
+    !valorPorAula.trim()
+  ) {
+    return "Informe o valor por aula.";
+  }
+
+  if (
+    tipoRemuneracao === "POR_TURMA" &&
+    !valorPorTurma.trim()
+  ) {
+    return "Informe o valor por turma.";
+  }
+
+  if (
+    tipoRemuneracao === "POR_DISCIPLINA" &&
+    !valorPorDisciplina.trim()
+  ) {
+    return "Informe o valor por disciplina.";
+  }
+
+  if (tipoRemuneracao === "MISTO") {
+    const possuiAlgumValor =
+      Boolean(salarioBase.trim()) ||
+      Boolean(valorHoraAula.trim()) ||
+      Boolean(valorHoraTrabalhada.trim()) ||
+      Boolean(valorPorAula.trim()) ||
+      Boolean(valorPorTurma.trim()) ||
+      Boolean(valorPorDisciplina.trim());
+
+    if (!possuiAlgumValor) {
+      return "Na remuneração mista, informe pelo menos um valor.";
+    }
+  }
+
+  return "";
+}
 
   async function salvarEdicaoFuncionario(e: React.FormEvent) {
     e.preventDefault();
@@ -475,6 +663,14 @@ async function enviarFotoOficialFuncionario(arquivo: File | null) {
       return;
     }
 
+    const erroRemuneracao =
+  validarRemuneracaoFuncionario();
+
+if (erroRemuneracao) {
+  setErro(erroRemuneracao);
+  return;
+}
+
     try {
       setCarregando(true);
 
@@ -496,8 +692,20 @@ async function enviarFotoOficialFuncionario(arquivo: File | null) {
           statusFuncionario,
           motivoStatus,
           dataAdmissao,
-          salarioBase,
-          tipoContrato,
+          tipoRemuneracao,
+salarioBase,
+
+valorHoraAula,
+valorHoraTrabalhada,
+valorPorAula,
+valorPorTurma,
+valorPorDisciplina,
+
+duracaoHoraAulaMinutos,
+cargaHorariaSemanal,
+observacoesRemuneracao,
+
+tipoContrato,
           jornadaTrabalho,
           cargaHorariaMensal,
           codigoPonto,
@@ -573,6 +781,15 @@ if (funcionarioIdCriado) {
       setDepartamentoId("");
       setDataAdmissao("");
       setSalarioBase("");
+      setTipoRemuneracao("");
+setValorHoraAula("");
+setValorHoraTrabalhada("");
+setValorPorAula("");
+setValorPorTurma("");
+setValorPorDisciplina("");
+setDuracaoHoraAulaMinutos("50");
+setCargaHorariaSemanal("");
+setObservacoesRemuneracao("");
       setTipoContrato("");
       setJornadaTrabalho("");
       setCargaHorariaMensal("");
@@ -907,17 +1124,176 @@ dark:text-white
     </div>
 
     <div className="space-y-1">
+  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+    Modalidade de remuneração
+  </label>
+
+  <select
+    value={tipoRemuneracao}
+    onChange={(e) =>
+      setTipoRemuneracao(
+        e.target.value as TipoRemuneracaoFuncionario
+      )
+    }
+    className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    required
+  >
+    <option value="">Selecione</option>
+    <option value="MENSAL">Salário mensal</option>
+    <option value="HORA_AULA">Hora-aula</option>
+    <option value="HORA_TRABALHADA">
+      Hora trabalhada
+    </option>
+    <option value="POR_AULA">Valor por aula</option>
+    <option value="POR_TURMA">Valor por turma</option>
+    <option value="POR_DISCIPLINA">
+      Valor por disciplina
+    </option>
+    <option value="MISTO">Remuneração mista</option>
+    <option value="SEM_REMUNERACAO">
+      Sem remuneração
+    </option>
+  </select>
+</div>
+
+{(tipoRemuneracao === "MENSAL" ||
+  tipoRemuneracao === "MISTO") && (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      Salário mensal
+    </label>
+
+    <input
+      placeholder="0,00"
+      value={salarioBase}
+      onChange={(e) =>
+        setSalarioBase(e.target.value)
+      }
+      className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      inputMode="decimal"
+    />
+  </div>
+)}
+
+{(tipoRemuneracao === "HORA_AULA" ||
+  tipoRemuneracao === "MISTO") && (
+  <>
+    <div className="space-y-1">
       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
-        Salário base
+        Valor da hora-aula
       </label>
+
       <input
         placeholder="0,00"
-        value={salarioBase}
-        onChange={(e) => setSalarioBase(e.target.value)}
+        value={valorHoraAula}
+        onChange={(e) =>
+          setValorHoraAula(e.target.value)
+        }
         className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
         inputMode="decimal"
       />
     </div>
+
+    <div className="space-y-1">
+      <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+        Duração da hora-aula
+      </label>
+
+      <div className="relative">
+        <input
+          value={duracaoHoraAulaMinutos}
+          onChange={(e) =>
+            setDuracaoHoraAulaMinutos(
+              e.target.value.replace(/\D/g, "")
+            )
+          }
+          className="w-full rounded-lg border border-slate-300 bg-white p-2 pr-20 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+          inputMode="numeric"
+        />
+
+        <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-500">
+          minutos
+        </span>
+      </div>
+    </div>
+  </>
+)}
+
+{(tipoRemuneracao === "HORA_TRABALHADA" ||
+  tipoRemuneracao === "MISTO") && (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      Valor da hora trabalhada
+    </label>
+
+    <input
+      placeholder="0,00"
+      value={valorHoraTrabalhada}
+      onChange={(e) =>
+        setValorHoraTrabalhada(e.target.value)
+      }
+      className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      inputMode="decimal"
+    />
+  </div>
+)}
+
+{(tipoRemuneracao === "POR_AULA" ||
+  tipoRemuneracao === "MISTO") && (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      Valor por aula
+    </label>
+
+    <input
+      placeholder="0,00"
+      value={valorPorAula}
+      onChange={(e) =>
+        setValorPorAula(e.target.value)
+      }
+      className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      inputMode="decimal"
+    />
+  </div>
+)}
+
+{(tipoRemuneracao === "POR_TURMA" ||
+  tipoRemuneracao === "MISTO") && (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      Valor por turma
+    </label>
+
+    <input
+      placeholder="0,00"
+      value={valorPorTurma}
+      onChange={(e) =>
+        setValorPorTurma(e.target.value)
+      }
+      className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      inputMode="decimal"
+    />
+  </div>
+)}
+
+{(tipoRemuneracao === "POR_DISCIPLINA" ||
+  tipoRemuneracao === "MISTO") && (
+  <div className="space-y-1">
+    <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+      Valor por disciplina
+    </label>
+
+    <input
+      placeholder="0,00"
+      value={valorPorDisciplina}
+      onChange={(e) =>
+        setValorPorDisciplina(e.target.value)
+      }
+      className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+      inputMode="decimal"
+    />
+  </div>
+)}
 
     <div className="space-y-1">
       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -950,6 +1326,22 @@ dark:text-white
         className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
       />
     </div>
+
+    <div className="space-y-1">
+  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+    Carga horária semanal
+  </label>
+
+  <input
+    placeholder="Ex.: 44"
+    value={cargaHorariaSemanal}
+    onChange={(e) =>
+      setCargaHorariaSemanal(e.target.value)
+    }
+    className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    inputMode="decimal"
+  />
+</div>
 
     <div className="space-y-1">
       <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -1037,6 +1429,22 @@ dark:text-white
         className="w-full rounded-lg border border-slate-300 bg-white p-2 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
       />
     </div>
+
+<div className="space-y-1 md:col-span-3">
+  <label className="text-sm font-medium text-slate-700 dark:text-slate-200">
+    Observações da remuneração
+  </label>
+
+  <textarea
+    value={observacoesRemuneracao}
+    onChange={(e) =>
+      setObservacoesRemuneracao(e.target.value)
+    }
+    className="min-h-[100px] w-full rounded-lg border border-slate-300 bg-white p-3 text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+    placeholder="Acordos, adicionais, regras de pagamento ou outras observações."
+  />
+</div>
+
   </div>
 </div>
 

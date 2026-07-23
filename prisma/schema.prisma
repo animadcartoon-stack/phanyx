@@ -110,6 +110,7 @@ model Instituicao {
   periodosMatricula          PeriodoMatricula[]
   disciplinaPreRequisitos    DisciplinaPreRequisito[]
   cursosDisciplinasExtras    CursoDisciplinaExtraPermitida[]
+  impersonacoesSuporte       ImpersonacaoSuporte[]
   certificadoTemplateUrl     String?
   certificadoPreviewUrl      String?
   certificadoTextoPadrao     String?
@@ -270,8 +271,47 @@ model User {
   lancamentosRemuneracaoVariavelRHEnviadosHolerite     LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEnviadoHoleritePor")
   lancamentosRemuneracaoVariavelRHEstornados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEstornadoPor")
 
+  impersonacoesComoMaster ImpersonacaoSuporte[] @relation("ImpersonacaoSuporteMaster")
+  impersonacoesComoAlvo   ImpersonacaoSuporte[] @relation("ImpersonacaoSuporteAlvo")
+
   @@index([instituicaoId])
   @@index([role])
+}
+
+model ImpersonacaoSuporte {
+  id Int @id @default(autoincrement())
+
+  masterUserId  Int?
+  usuarioAlvoId Int?
+  instituicaoId Int?
+
+  masterEmailSnapshot      String
+  usuarioAlvoEmailSnapshot String
+  usuarioAlvoNomeSnapshot  String
+  instituicaoNomeSnapshot  String
+
+  motivo String @db.Text
+  portal String
+
+  iniciadoEm  DateTime  @default(now())
+  expiraEm    DateTime
+  encerradoEm DateTime?
+
+  ativa Boolean @default(true)
+
+  ip        String?
+  userAgent String? @db.Text
+
+  masterUser User? @relation("ImpersonacaoSuporteMaster", fields: [masterUserId], references: [id], onDelete: SetNull)
+
+  usuarioAlvo User? @relation("ImpersonacaoSuporteAlvo", fields: [usuarioAlvoId], references: [id], onDelete: SetNull)
+
+  instituicao Instituicao? @relation(fields: [instituicaoId], references: [id], onDelete: SetNull)
+
+  @@index([masterUserId, iniciadoEm])
+  @@index([usuarioAlvoId, iniciadoEm])
+  @@index([instituicaoId])
+  @@index([ativa, expiraEm])
 }
 
 model Aluno {
@@ -1191,7 +1231,7 @@ model ResultadoFinal {
   instituicao   Instituicao   @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   turma         Turma         @relation(fields: [turmaId], references: [id], onDelete: Cascade)
 
-  @@unique([alunoId, turmaId])
+  @@unique([alunoId, turmaId, disciplinaId])
   @@index([instituicaoId])
   @@index([alunoId])
   @@index([turmaId])

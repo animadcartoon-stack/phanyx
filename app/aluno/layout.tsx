@@ -9,6 +9,7 @@ import PhanyxFeriadoAviso from "@/components/ui/PhanyxFeriadoAviso";
 import InstallPromptPHANYX from "@/components/pwa/InstallPromptPHANYX";
 import PhanyxThemeToggle from "@/components/theme/PhanyxThemeToggle";
 import { paginaVisivel } from "@/lib/portal-config";
+import ImpersonacaoBanner from "@/components/suporte/ImpersonacaoBanner";
 
 export default async function AlunoLayout({
   children,
@@ -78,9 +79,14 @@ export default async function AlunoLayout({
     configFinanceira?.bloquearAlunoInadimplente
   );
 
-  if (bloqueioFinanceiroAtivo && aluno.statusAluno === "INADIMPLENTE") {
+  if (
+  bloqueioFinanceiroAtivo &&
+  aluno.statusAluno === "INADIMPLENTE"
+) {
+  return (
+    <>
+      <ImpersonacaoBanner />
 
-    return (
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-amber-50 flex items-center justify-center p-6">
         <div className="w-full max-w-3xl bg-white border border-red-100 rounded-3xl shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-red-600 to-amber-500 px-8 py-8 text-white">
@@ -167,6 +173,7 @@ export default async function AlunoLayout({
           </div>
         </div>
       </div>
+      </>
     );
   }
 
@@ -183,6 +190,9 @@ export default async function AlunoLayout({
 };
 
   return (
+  <>
+    <ImpersonacaoBanner />
+
     <AlunoProvider>
       <InstallPromptPHANYX />
       <Header />
@@ -313,6 +323,7 @@ export default async function AlunoLayout({
   {children}
 </main>
       </div>
-    </AlunoProvider>
-  );
+        </AlunoProvider>
+  </>
+);
 }

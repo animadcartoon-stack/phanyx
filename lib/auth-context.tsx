@@ -35,11 +35,32 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 function normalizeRole(role: string): UserRole | null {
-  const value = String(role).toUpperCase();
+  const value = String(role || "")
+    .trim()
+    .toUpperCase();
 
-  if (value === "ADMIN") return "admin";
-  if (value === "PROFESSOR") return "professor";
-  if (value === "ALUNO") return "aluno";
+  if (
+    [
+      "ADMIN",
+      "FUNCIONARIO",
+      "SECRETARIA",
+      "FINANCEIRO",
+      "COORDENADOR",
+      "SUPORTE",
+      "GERENCIA",
+      "SUPER_ADMIN",
+    ].includes(value)
+  ) {
+    return "admin";
+  }
+
+  if (value === "PROFESSOR") {
+    return "professor";
+  }
+
+  if (value === "ALUNO") {
+    return "aluno";
+  }
 
   return null;
 }
