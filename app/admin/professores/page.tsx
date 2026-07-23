@@ -913,6 +913,72 @@ setEditMiniBio(professor.miniBio || "");
         body: JSON.stringify({
           nome: editNome,
           email: editEmail,
+
+possuiVinculoRH: editPossuiVinculoRH,
+
+departamentoId:
+  editDadosTrabalhistas.departamentoId
+    ? Number(editDadosTrabalhistas.departamentoId)
+    : null,
+
+cargo: editDadosTrabalhistas.cargo,
+setor: editDadosTrabalhistas.setor,
+
+dataAdmissao:
+  editDadosTrabalhistas.dataAdmissao || null,
+
+tipoContrato:
+  editDadosTrabalhistas.tipoContrato || null,
+
+jornadaTrabalho:
+  editDadosTrabalhistas.jornadaTrabalho || null,
+
+cargaHorariaMensal:
+  editDadosTrabalhistas.cargaHorariaMensal || null,
+
+cargaHorariaSemanal:
+  editDadosTrabalhistas.cargaHorariaSemanal || null,
+
+tipoRemuneracao:
+  editDadosTrabalhistas.tipoRemuneracao || null,
+
+salarioBase:
+  editDadosTrabalhistas.salarioBase || null,
+
+valorHoraAula:
+  editDadosTrabalhistas.valorHoraAula || null,
+
+valorHoraTrabalhada:
+  editDadosTrabalhistas.valorHoraTrabalhada || null,
+
+valorPorAula:
+  editDadosTrabalhistas.valorPorAula || null,
+
+valorPorTurma:
+  editDadosTrabalhistas.valorPorTurma || null,
+
+valorPorDisciplina:
+  editDadosTrabalhistas.valorPorDisciplina || null,
+
+duracaoHoraAulaMinutos:
+  editDadosTrabalhistas.duracaoHoraAulaMinutos ||
+  null,
+
+codigoPonto:
+  editDadosTrabalhistas.codigoPonto || null,
+
+pisPasep:
+  editDadosTrabalhistas.pisPasep || null,
+
+banco: editDadosTrabalhistas.banco || null,
+agencia: editDadosTrabalhistas.agencia || null,
+conta: editDadosTrabalhistas.conta || null,
+pix: editDadosTrabalhistas.pix || null,
+
+observacoesRemuneracao:
+  editDadosTrabalhistas.observacoesRemuneracao ||
+  null,
+
           cpf: editCpf,
           rg: editRg,
           telefone: editTelefone,
@@ -937,8 +1003,19 @@ miniBio: editMiniBio,
       }
 
       setEditandoId(null);
-      await carregarProfessores();
-      mostrarFeedback("sucesso", "Professor atualizado com sucesso.");
+setEditPossuiVinculoRH(false);
+setEditDisciplinasAberto(false);
+
+setEditDadosTrabalhistas({
+  ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
+});
+
+await carregarProfessores();
+
+mostrarFeedback(
+  "sucesso",
+  "Professor atualizado com sucesso."
+);
     } catch (error: any) {
       mostrarFeedback("erro", error?.message || "Erro ao atualizar professor");
     } finally {
@@ -2266,6 +2343,529 @@ codigoFuncionarioTexto.includes(termoTexto) ||
                         className="rounded border p-2"
                         placeholder="Slug público"
                       />
+
+<div className="professores-vinculo-rh-card md:col-span-2 rounded-2xl border p-5 shadow-sm">
+  <div className="flex items-start gap-3">
+    <input
+      id={`editar-professor-vinculo-rh-${p.id}`}
+      type="checkbox"
+      checked={editPossuiVinculoRH}
+      disabled={Boolean(
+        p.funcionarioId || p.funcionario?.id
+      )}
+      onChange={(e) => {
+        const marcado = e.target.checked;
+
+        setEditPossuiVinculoRH(marcado);
+
+        if (!marcado) {
+          setEditDadosTrabalhistas({
+            ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
+          });
+        }
+      }}
+      className="mt-1 h-4 w-4"
+    />
+
+    <label
+      htmlFor={`editar-professor-vinculo-rh-${p.id}`}
+      className={
+        p.funcionarioId || p.funcionario?.id
+          ? "cursor-not-allowed"
+          : "cursor-pointer"
+      }
+    >
+      <span className="professores-vinculo-rh-titulo block font-bold">
+        Possui vínculo trabalhista com a instituição
+      </span>
+
+      <span className="professores-vinculo-rh-texto mt-1 block text-sm">
+        {p.funcionarioId || p.funcionario?.id
+          ? "Este professor já está vinculado ao RH. O vínculo não pode ser removido por esta tela, mas os dados trabalhistas podem ser editados."
+          : "Marque para incluir este professor no RH, sem criar outro usuário ou outro e-mail de acesso."}
+      </span>
+    </label>
+  </div>
+
+  {!editPossuiVinculoRH && (
+    <div className="professores-vinculo-rh-aviso mt-4 rounded-xl border p-4 text-sm">
+      Este professor possui somente cadastro acadêmico.
+    </div>
+  )}
+
+  {editPossuiVinculoRH && (
+    <div className="mt-5 space-y-5">
+      <div>
+        <h3 className="font-bold text-slate-900 dark:text-slate-100">
+          🧾 Dados trabalhistas e remuneração
+        </h3>
+
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+          Altere contrato, jornada, salário, hora-aula e dados
+          bancários do professor.
+        </p>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Departamento
+          </label>
+
+          <select
+            value={editDadosTrabalhistas.departamentoId}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "departamentoId",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+          >
+            <option value="">
+              Selecione o departamento
+            </option>
+
+            {departamentos.map((departamento) => (
+              <option
+                key={departamento.id}
+                value={String(departamento.id)}
+              >
+                {departamento.nome}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Cargo
+          </label>
+
+          <input
+            value={editDadosTrabalhistas.cargo}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "cargo",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Professor"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Setor
+          </label>
+
+          <input
+            value={editDadosTrabalhistas.setor}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "setor",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Acadêmico"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Data de admissão
+          </label>
+
+          <input
+            type="date"
+            value={editDadosTrabalhistas.dataAdmissao}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "dataAdmissao",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Tipo de contrato
+          </label>
+
+          <select
+            value={editDadosTrabalhistas.tipoContrato}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "tipoContrato",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+          >
+            <option value="">Selecione</option>
+            <option value="CLT">CLT</option>
+            <option value="PJ">Pessoa jurídica</option>
+            <option value="AUTONOMO">Autônomo</option>
+            <option value="TEMPORARIO">Temporário</option>
+            <option value="ESTAGIO">Estágio</option>
+            <option value="VOLUNTARIO">Voluntário</option>
+            <option value="OUTRO">Outro</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Jornada de trabalho
+          </label>
+
+          <input
+            value={editDadosTrabalhistas.jornadaTrabalho}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "jornadaTrabalho",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Ex.: 20h semanais"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Carga horária semanal
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            step="0.01"
+            value={editDadosTrabalhistas.cargaHorariaSemanal}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "cargaHorariaSemanal",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Ex.: 20"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Carga horária mensal
+          </label>
+
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={editDadosTrabalhistas.cargaHorariaMensal}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "cargaHorariaMensal",
+                e.target.value
+              )
+            }
+            className="w-full rounded-lg border p-2"
+            placeholder="Ex.: 80"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-semibold">
+            Modalidade de remuneração
+          </label>
+
+          <select
+            value={editDadosTrabalhistas.tipoRemuneracao}
+            onChange={(e) =>
+              atualizarDadoTrabalhistaEdicao(
+                "tipoRemuneracao",
+                e.target.value as TipoRemuneracaoProfessor
+              )
+            }
+            className="w-full rounded-lg border p-2"
+          >
+            <option value="">
+              Selecione a modalidade
+            </option>
+            <option value="MENSAL">Salário mensal</option>
+            <option value="HORA_AULA">Hora-aula</option>
+            <option value="HORA_TRABALHADA">
+              Hora trabalhada
+            </option>
+            <option value="POR_AULA">Valor por aula</option>
+            <option value="POR_TURMA">Valor por turma</option>
+            <option value="POR_DISCIPLINA">
+              Valor por disciplina
+            </option>
+            <option value="MISTO">Remuneração mista</option>
+            <option value="SEM_REMUNERACAO">
+              Sem remuneração
+            </option>
+          </select>
+        </div>
+      </div>
+
+      {editDadosTrabalhistas.tipoRemuneracao &&
+        editDadosTrabalhistas.tipoRemuneracao !==
+          "SEM_REMUNERACAO" && (
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950">
+            <h4 className="font-bold">
+              Valores da remuneração
+            </h4>
+
+            <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {(editDadosTrabalhistas.tipoRemuneracao ===
+                "MENSAL" ||
+                editDadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Salário mensal
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={editDadosTrabalhistas.salarioBase}
+                    onChange={(e) =>
+                      atualizarDadoTrabalhistaEdicao(
+                        "salarioBase",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(editDadosTrabalhistas.tipoRemuneracao ===
+                "HORA_AULA" ||
+                editDadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <>
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold">
+                      Valor da hora-aula
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={
+                        editDadosTrabalhistas.valorHoraAula
+                      }
+                      onChange={(e) =>
+                        atualizarDadoTrabalhistaEdicao(
+                          "valorHoraAula",
+                          e.target.value
+                        )
+                      }
+                      className="w-full rounded-lg border p-2"
+                      placeholder="0,00"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-sm font-semibold">
+                      Duração da hora-aula em minutos
+                    </label>
+
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={
+                        editDadosTrabalhistas
+                          .duracaoHoraAulaMinutos
+                      }
+                      onChange={(e) =>
+                        atualizarDadoTrabalhistaEdicao(
+                          "duracaoHoraAulaMinutos",
+                          e.target.value
+                        )
+                      }
+                      className="w-full rounded-lg border p-2"
+                    />
+                  </div>
+                </>
+              )}
+
+              {(editDadosTrabalhistas.tipoRemuneracao ===
+                "HORA_TRABALHADA" ||
+                editDadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor da hora trabalhada
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={
+                      editDadosTrabalhistas.valorHoraTrabalhada
+                    }
+                    onChange={(e) =>
+                      atualizarDadoTrabalhistaEdicao(
+                        "valorHoraTrabalhada",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(editDadosTrabalhistas.tipoRemuneracao ===
+                "POR_AULA" ||
+                editDadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor por aula
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={editDadosTrabalhistas.valorPorAula}
+                    onChange={(e) =>
+                      atualizarDadoTrabalhistaEdicao(
+                        "valorPorAula",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(editDadosTrabalhistas.tipoRemuneracao ===
+                "POR_TURMA" ||
+                editDadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor por turma
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={editDadosTrabalhistas.valorPorTurma}
+                    onChange={(e) =>
+                      atualizarDadoTrabalhistaEdicao(
+                        "valorPorTurma",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+
+              {(editDadosTrabalhistas.tipoRemuneracao ===
+                "POR_DISCIPLINA" ||
+                editDadosTrabalhistas.tipoRemuneracao ===
+                  "MISTO") && (
+                <div>
+                  <label className="mb-1 block text-sm font-semibold">
+                    Valor por disciplina
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={
+                      editDadosTrabalhistas.valorPorDisciplina
+                    }
+                    onChange={(e) =>
+                      atualizarDadoTrabalhistaEdicao(
+                        "valorPorDisciplina",
+                        e.target.value
+                      )
+                    }
+                    className="w-full rounded-lg border p-2"
+                    placeholder="0,00"
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {[
+          ["codigoPonto", "Código do ponto"],
+          ["pisPasep", "PIS/PASEP/NIT"],
+          ["banco", "Banco"],
+          ["agencia", "Agência"],
+          ["conta", "Conta"],
+          ["pix", "Chave Pix"],
+        ].map(([campo, titulo]) => (
+          <div key={campo}>
+            <label className="mb-1 block text-sm font-semibold">
+              {titulo}
+            </label>
+
+            <input
+              value={
+                editDadosTrabalhistas[
+                  campo as keyof DadosTrabalhistasProfessorForm
+                ]
+              }
+              onChange={(e) =>
+                atualizarDadoTrabalhistaEdicao(
+                  campo as keyof DadosTrabalhistasProfessorForm,
+                  e.target.value as never
+                )
+              }
+              className="w-full rounded-lg border p-2"
+            />
+          </div>
+        ))}
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold">
+          Observações da remuneração
+        </label>
+
+        <textarea
+          value={
+            editDadosTrabalhistas.observacoesRemuneracao
+          }
+          onChange={(e) =>
+            atualizarDadoTrabalhistaEdicao(
+              "observacoesRemuneracao",
+              e.target.value
+            )
+          }
+          className="min-h-[100px] w-full rounded-lg border p-3"
+        />
+      </div>
+    </div>
+  )}
+</div>
+
                       <div className="phanyx-foto-oficial-card md:col-span-2">
   <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
     <div className="phanyx-foto-oficial-preview">
@@ -2418,6 +3018,7 @@ codigoFuncionarioTexto.includes(termoTexto) ||
                         onClick={() => {
   setEditandoId(null);
   setEditPossuiVinculoRH(false);
+  setEditDisciplinasAberto(false);
 
   setEditDadosTrabalhistas({
     ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
