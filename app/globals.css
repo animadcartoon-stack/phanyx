@@ -14385,3 +14385,191 @@ html[data-theme="light"] .matriculas-multiselect-neutro input {
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   ADMIN ALUNOS
+   Hover dos botões no tema claro + status no tema sistema
+========================================================= */
+
+/* ---------------------------------------------------------
+   TEMA CLARO
+   Impede variantes dark:hover de deixarem os botões escuros
+--------------------------------------------------------- */
+
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .dark\:hover\:bg-slate-800:hover {
+  background: #f1f5f9 !important;
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .dark\:hover\:bg-blue-900:hover {
+  background: #dbeafe !important;
+  background-color: #dbeafe !important;
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+  border-color: #60a5fa !important;
+}
+
+/* Aba normal do painel lateral */
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.text-slate-600:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Botão Editar cadastro */
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.border-blue-300:hover {
+  background: #dbeafe !important;
+  color: #1d4ed8 !important;
+  -webkit-text-fill-color: #1d4ed8 !important;
+  border-color: #2563eb !important;
+}
+
+/* Botões verdes */
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.border-emerald-200:hover {
+  background: #d1fae5 !important;
+  color: #047857 !important;
+  -webkit-text-fill-color: #047857 !important;
+  border-color: #10b981 !important;
+}
+
+/* Botão Cancelar aluno */
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.border-orange-200:hover {
+  background: #ffedd5 !important;
+  color: #c2410c !important;
+  -webkit-text-fill-color: #c2410c !important;
+  border-color: #fb923c !important;
+}
+
+/* Botões neutros: Fechar, Ver e Cancelar edição */
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.border-slate-300:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #64748b !important;
+}
+
+/* A aba selecionada deve continuar azul e branca */
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.bg-blue-600,
+html[data-theme="light"]
+  .phanyx-admin-alunos-page
+  .fixed
+  button.bg-blue-600:hover {
+  background: #2563eb !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+/* ---------------------------------------------------------
+   TEMA SISTEMA
+   Status com fundo e texto de alto contraste
+--------------------------------------------------------- */
+
+/* Ativo */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-emerald-50 {
+  background: #064e3b !important;
+  background-color: #064e3b !important;
+  border-color: #34d399 !important;
+  color: #d1fae5 !important;
+  -webkit-text-fill-color: #d1fae5 !important;
+  opacity: 1 !important;
+}
+
+/* Inadimplente */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-red-50 {
+  background: #7f1d1d !important;
+  background-color: #7f1d1d !important;
+  border-color: #f87171 !important;
+  color: #fee2e2 !important;
+  -webkit-text-fill-color: #fee2e2 !important;
+  opacity: 1 !important;
+}
+
+/* Trancado */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-amber-50 {
+  background: #78350f !important;
+  background-color: #78350f !important;
+  border-color: #fbbf24 !important;
+  color: #fef3c7 !important;
+  -webkit-text-fill-color: #fef3c7 !important;
+  opacity: 1 !important;
+}
+
+/* Suspenso */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-orange-50 {
+  background: #7c2d12 !important;
+  background-color: #7c2d12 !important;
+  border-color: #fb923c !important;
+  color: #ffedd5 !important;
+  -webkit-text-fill-color: #ffedd5 !important;
+  opacity: 1 !important;
+}
+
+/* Formado */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-blue-50 {
+  background: #1e3a8a !important;
+  background-color: #1e3a8a !important;
+  border-color: #60a5fa !important;
+  color: #dbeafe !important;
+  -webkit-text-fill-color: #dbeafe !important;
+  opacity: 1 !important;
+}
+
+/* Cancelado */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-slate-100 {
+  background: #3f3f46 !important;
+  background-color: #3f3f46 !important;
+  border-color: #a1a1aa !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Outros status */
+html[data-theme="system"]
+  .phanyx-admin-alunos-page
+  span.rounded-full.bg-gray-50 {
+  background: #404040 !important;
+  background-color: #404040 !important;
+  border-color: #a3a3a3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
