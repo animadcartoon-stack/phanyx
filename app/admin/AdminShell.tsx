@@ -558,16 +558,26 @@ function abrirTourAdmin() {
 
     {menuAberto === "master" && (
       <div className="ml-3 mt-2 flex flex-col space-y-1">
-        <Link href="/master" className={getLinkClass("/master")}>
-          🚀 Painel Master
-        </Link>
-
         <Link
-          href="/master/plataforma"
-          className={getLinkClass("/master/plataforma")}
-        >
-          🧠 Plataforma PHANYX
-        </Link>
+  href="/master"
+  className={getLinkClass("/master")}
+>
+  🚀 Painel Master
+</Link>
+
+<Link
+  href="/master#suporte-usuario"
+  className="flex items-center gap-2 rounded p-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-50"
+>
+  🛠️ Entrar como usuário
+</Link>
+
+<Link
+  href="/master/plataforma"
+  className={getLinkClass("/master/plataforma")}
+>
+  🧠 Plataforma PHANYX
+</Link>
       </div>
     )}
   </div>

@@ -180,6 +180,8 @@ model Instituicao {
   FuncionarioPlanoComissaoRH     FuncionarioPlanoComissaoRH[]
   MatriculaParticipanteComercial MatriculaParticipanteComercial[]
   LancamentoComissaoRH           LancamentoComissaoRH[]
+  rematriculasSemestrais         RematriculaSemestral[]
+  itensRematriculaSemestral      RematriculaSemestralItem[]
 }
 
 model User {
@@ -270,9 +272,9 @@ model User {
   lancamentosRemuneracaoVariavelRHReprovados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHReprovadoPor")
   lancamentosRemuneracaoVariavelRHEnviadosHolerite     LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEnviadoHoleritePor")
   lancamentosRemuneracaoVariavelRHEstornados           LancamentoRemuneracaoVariavelRH[]           @relation("LancamentoRemuneracaoVariavelRHEstornadoPor")
-
-  impersonacoesComoMaster ImpersonacaoSuporte[] @relation("ImpersonacaoSuporteMaster")
-  impersonacoesComoAlvo   ImpersonacaoSuporte[] @relation("ImpersonacaoSuporteAlvo")
+  impersonacoesComoMaster                              ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteMaster")
+  impersonacoesComoAlvo                                ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteAlvo")
+  rematriculasAnalisadas                               RematriculaSemestral[]                      @relation("RematriculaAnalisadaPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -374,6 +376,7 @@ model Aluno {
   reunioesParticipante         ReuniaoParticipante[]
   provasLiberadas              ProvaAluno[]
   EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
+  rematriculasSemestrais       RematriculaSemestral[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -486,20 +489,23 @@ model Curso {
 }
 
 model CursoSemestre {
-  id            Int                       @id @default(autoincrement())
-  numero        Int
-  titulo        String?
-  descricao     String?
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
-  instituicaoId Int
-  cursoId       Int
-  cargaMaxima   Int?
-  cargaMinima   Int?
-  curso         Curso                     @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  instituicao   Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  disciplinas   CursoSemestreDisciplina[]
-  matriculas    Matricula[]
+  id                          Int                             @id @default(autoincrement())
+  numero                      Int
+  titulo                      String?
+  descricao                   String?
+  createdAt                   DateTime                        @default(now())
+  updatedAt                   DateTime                        @updatedAt
+  instituicaoId               Int
+  cursoId                     Int
+  cargaMaxima                 Int?
+  cargaMinima                 Int?
+  curso                       Curso                           @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  instituicao                 Instituicao                     @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  disciplinas                 CursoSemestreDisciplina[]
+  disciplinasExtrasPermitidas CursoDisciplinaExtraPermitida[]
+  matriculas                  Matricula[]
+  periodosMatricula           PeriodoMatricula[]
+  rematriculasDestino         RematriculaSemestral[]
 
   @@unique([cursoId, numero])
   @@index([instituicaoId])
@@ -640,6 +646,7 @@ model Disciplina {
   aulas                     Aula[]
   atividades                Atividade[]
   substituicoesDocentes     SubstituicaoDocente[]
+  itensRematriculaSemestral RematriculaSemestralItem[]
 
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
@@ -686,7 +693,7 @@ model Turma {
   reunioes              Reuniao[]
   substituicoesDocentes SubstituicaoDocente[]
 
-  @@unique([instituicaoId, nome, semestre])
+  @@unique([instituicaoId, nome, semestre, periodoLetivo])
   @@index([instituicaoId])
   @@index([professorId])
   @@index([statusTurma])
@@ -707,11 +714,12 @@ model TurmaDisciplina {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
-  turma       Turma                    @relation(fields: [turmaId], references: [id], onDelete: Cascade)
-  disciplina  Disciplina               @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
-  professor   Professor?               @relation(fields: [professorId], references: [id])
-  instituicao Instituicao              @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  horarios    TurmaDisciplinaHorario[]
+  turma                     Turma                      @relation(fields: [turmaId], references: [id], onDelete: Cascade)
+  disciplina                Disciplina                 @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  professor                 Professor?                 @relation(fields: [professorId], references: [id])
+  instituicao               Instituicao                @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  horarios                  TurmaDisciplinaHorario[]
+  itensRematriculaSemestral RematriculaSemestralItem[]
 
   @@unique([turmaId, disciplinaId])
   @@index([turmaId])
@@ -777,17 +785,20 @@ model Matricula {
 
   participantesComerciais MatriculaParticipanteComercial[]
   lancamentosComissaoRH   LancamentoComissaoRH[]
-  cursoSemestreId         Int?
-  periodoMatriculaId      Int?
-  periodoLetivo           String?
-  realizadaPeloAluno      Boolean                          @default(false)
-  confirmadaEm            DateTime?
-  cursoSemestre           CursoSemestre?                   @relation(fields: [cursoSemestreId], references: [id])
-  periodoMatricula        PeriodoMatricula?                @relation(fields: [periodoMatriculaId], references: [id])
-  aluno                   Aluno                            @relation(fields: [alunoId], references: [id], onDelete: Cascade)
-  curso                   Curso?                           @relation(fields: [cursoId], references: [id])
-  instituicao             Instituicao                      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  polo                    Polo?                            @relation(fields: [poloId], references: [id])
+  rematriculasComoOrigem  RematriculaSemestral[]           @relation("RematriculaMatriculaOrigem")
+
+  rematriculaGeradora RematriculaSemestral? @relation("RematriculaMatriculaGerada")
+  cursoSemestreId     Int?
+  periodoMatriculaId  Int?
+  periodoLetivo       String?
+  realizadaPeloAluno  Boolean               @default(false)
+  confirmadaEm        DateTime?
+  cursoSemestre       CursoSemestre?        @relation(fields: [cursoSemestreId], references: [id])
+  periodoMatricula    PeriodoMatricula?     @relation(fields: [periodoMatriculaId], references: [id])
+  aluno               Aluno                 @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+  curso               Curso?                @relation(fields: [cursoId], references: [id])
+  instituicao         Instituicao           @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  polo                Polo?                 @relation(fields: [poloId], references: [id])
 
   @@unique([instituicaoId, numeroMatricula])
   @@index([instituicaoId])
@@ -1922,21 +1933,29 @@ model DisciplinaPreRequisito {
 }
 
 model CursoDisciplinaExtraPermitida {
-  id            Int      @id @default(autoincrement())
-  instituicaoId Int
-  cursoId       Int
-  disciplinaId  Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  instituicaoId    Int
+  cursoId          Int
+  cursoSemestreId  Int?
+  disciplinaId     Int
+  ativa            Boolean  @default(true)
+  obrigatoria      Boolean  @default(false)
+  contaCargaMinima Boolean  @default(true)
+  contaCargaMaxima Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
-  curso       Curso       @relation(fields: [cursoId], references: [id], onDelete: Cascade)
-  disciplina  Disciplina  @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
+  instituicao   Instituicao    @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  curso         Curso          @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+  cursoSemestre CursoSemestre? @relation(fields: [cursoSemestreId], references: [id], onDelete: Cascade)
+  disciplina    Disciplina     @relation(fields: [disciplinaId], references: [id], onDelete: Cascade)
 
-  @@unique([cursoId, disciplinaId])
+  @@unique([cursoId, cursoSemestreId, disciplinaId])
   @@index([instituicaoId])
   @@index([cursoId])
+  @@index([cursoSemestreId])
   @@index([disciplinaId])
+  @@index([ativa])
 }
 
 model PeriodoMatricula {
@@ -1955,15 +1974,36 @@ model PeriodoMatricula {
   createdAt                DateTime             @default(now())
   updatedAt                DateTime             @updatedAt
 
+  cursoSemestreId Int?
+
+  status StatusPeriodoMatricula @default(RASCUNHO)
+
+  dataInicioAulas DateTime?
+
+  instrucoes String? @db.Text
+
+  exigeAprovacao       Boolean @default(false)
+  permiteRascunho      Boolean @default(true)
+  bloqueiaInadimplente Boolean @default(false)
+
+  cargaMinimaOverride Int?
+  cargaMaximaOverride Int?
+
+  cursoSemestre CursoSemestre? @relation(fields: [cursoSemestreId], references: [id], onDelete: SetNull)
+
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   curso       Curso?      @relation(fields: [cursoId], references: [id])
   matriculas  Matricula[]
+
+  rematriculas RematriculaSemestral[]
 
   @@index([instituicaoId])
   @@index([cursoId])
   @@index([periodoLetivo])
   @@index([ativo])
   @@index([dataInicio, dataFim])
+  @@index([cursoSemestreId])
+  @@index([status])
 }
 
 model Polo {
@@ -4048,6 +4088,103 @@ model LancamentoRemuneracaoVariavelRH {
   @@index([enviadoHoleritePorId])
 }
 
+model RematriculaSemestral {
+  id Int @id @default(autoincrement())
+
+  instituicaoId          Int
+  alunoId                Int
+  periodoMatriculaId     Int
+  cursoSemestreDestinoId Int
+
+  matriculaOrigemId Int?
+  matriculaGeradaId Int? @unique
+
+  analisadoPorId Int?
+
+  protocolo String @unique @default(cuid())
+
+  status StatusRematriculaSemestral @default(RASCUNHO)
+
+  cargaHorariaSelecionada Int @default(0)
+
+  declaracaoAceitaEm DateTime?
+  enviadaEm          DateTime?
+  analisadaEm        DateTime?
+  aprovadaEm         DateTime?
+  devolvidaEm        DateTime?
+  recusadaEm         DateTime?
+  canceladaEm        DateTime?
+
+  motivoDevolucao    String? @db.Text
+  motivoRecusa       String? @db.Text
+  motivoCancelamento String? @db.Text
+  observacoes        String? @db.Text
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  aluno Aluno @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  periodoMatricula PeriodoMatricula @relation(fields: [periodoMatriculaId], references: [id], onDelete: Restrict)
+
+  cursoSemestreDestino CursoSemestre @relation(fields: [cursoSemestreDestinoId], references: [id], onDelete: Restrict)
+
+  matriculaOrigem Matricula? @relation("RematriculaMatriculaOrigem", fields: [matriculaOrigemId], references: [id], onDelete: SetNull)
+
+  matriculaGerada Matricula? @relation("RematriculaMatriculaGerada", fields: [matriculaGeradaId], references: [id], onDelete: SetNull)
+
+  analisadoPor User? @relation("RematriculaAnalisadaPor", fields: [analisadoPorId], references: [id], onDelete: SetNull)
+
+  itens RematriculaSemestralItem[]
+
+  @@unique([alunoId, periodoMatriculaId])
+  @@index([instituicaoId])
+  @@index([alunoId])
+  @@index([periodoMatriculaId])
+  @@index([cursoSemestreDestinoId])
+  @@index([matriculaOrigemId])
+  @@index([matriculaGeradaId])
+  @@index([analisadoPorId])
+  @@index([status])
+  @@index([criadaEm])
+}
+
+model RematriculaSemestralItem {
+  id Int @id @default(autoincrement())
+
+  instituicaoId     Int
+  rematriculaId     Int
+  disciplinaId      Int
+  turmaDisciplinaId Int
+
+  tipo TipoItemRematriculaSemestral
+
+  cargaHorariaSnapshot Int
+  semestreOrigemNumero Int?
+
+  obrigatoria Boolean @default(false)
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+
+  rematricula RematriculaSemestral @relation(fields: [rematriculaId], references: [id], onDelete: Cascade)
+
+  disciplina Disciplina @relation(fields: [disciplinaId], references: [id], onDelete: Restrict)
+
+  turmaDisciplina TurmaDisciplina @relation(fields: [turmaDisciplinaId], references: [id], onDelete: Restrict)
+
+  @@unique([rematriculaId, disciplinaId])
+  @@index([instituicaoId])
+  @@index([rematriculaId])
+  @@index([disciplinaId])
+  @@index([turmaDisciplinaId])
+  @@index([tipo])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -4437,4 +4574,28 @@ enum TipoRemuneracaoRH {
   POR_DISCIPLINA
   MISTO
   SEM_REMUNERACAO
+}
+
+enum StatusPeriodoMatricula {
+  RASCUNHO
+  PUBLICADO
+  ENCERRADO
+  CANCELADO
+}
+
+enum StatusRematriculaSemestral {
+  RASCUNHO
+  ENVIADA
+  EM_ANALISE
+  APROVADA
+  DEVOLVIDA
+  RECUSADA
+  CANCELADA
+  EXPIRADA
+}
+
+enum TipoItemRematriculaSemestral {
+  PROXIMO_SEMESTRE
+  PENDENCIA_ANTERIOR
+  EXTRACURRICULAR
 }
