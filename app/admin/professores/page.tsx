@@ -1079,7 +1079,7 @@ codigoFuncionarioTexto.includes(termoTexto) ||
               className="w-full rounded-lg border p-2"
             />
 
-<div className="md:col-span-2 rounded-2xl border border-slate-300 bg-slate-50 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+<div className="professores-vinculo-rh-card md:col-span-2 rounded-2xl border p-5 shadow-sm">
   <div className="flex items-start gap-3">
     <input
       id="professor-possui-vinculo-rh"
@@ -1103,11 +1103,11 @@ codigoFuncionarioTexto.includes(termoTexto) ||
       htmlFor="professor-possui-vinculo-rh"
       className="cursor-pointer"
     >
-      <span className="block font-bold text-slate-900 dark:text-slate-100">
+      <span className="professores-vinculo-rh-titulo block font-bold">
         Possui vínculo trabalhista com a instituição
       </span>
 
-      <span className="mt-1 block text-sm text-slate-600 dark:text-slate-300">
+      <span className="professores-vinculo-rh-texto mt-1 block text-sm">
         Quando marcado, o professor também será incluído no RH,
         participando de folha, holerite, documentos, férias,
         ponto e histórico trabalhista.
@@ -1116,7 +1116,7 @@ codigoFuncionarioTexto.includes(termoTexto) ||
   </div>
 
   {!possuiVinculoRH && (
-    <div className="mt-4 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+    <div className="professores-vinculo-rh-aviso mt-4 rounded-xl border p-4 text-sm">
       Este cadastro será somente acadêmico. Nenhum vínculo de
       funcionário será criado.
     </div>

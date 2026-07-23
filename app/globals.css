@@ -14267,3 +14267,77 @@ html[data-theme="system"] body
   .matriculas-vendedor-ajuda {
   color: #e5e7eb !important;
 }
+
+/* =========================================================
+   PROFESSORES — VÍNCULO TRABALHISTA E RH
+========================================================= */
+
+/* Tema claro */
+html[data-theme="light"] body .professores-vinculo-rh-card {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] body .professores-vinculo-rh-titulo {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body .professores-vinculo-rh-texto {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] body .professores-vinculo-rh-aviso {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #e2e8f0 !important;
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] body .professores-vinculo-rh-card {
+  background: #0f172a !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] body .professores-vinculo-rh-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body .professores-vinculo-rh-texto {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] body .professores-vinculo-rh-aviso {
+  background: #020617 !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+/* Tema sistema: cinza neutro */
+html[data-theme="system"] body .professores-vinculo-rh-card {
+  background: #363636 !important;
+  background-image: none !important;
+  border-color: #686868 !important;
+}
+
+html[data-theme="system"] body .professores-vinculo-rh-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] body .professores-vinculo-rh-texto {
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="system"] body .professores-vinculo-rh-aviso {
+  background: #262626 !important;
+  border-color: #595959 !important;
+  color: #d1d5db !important;
+}
