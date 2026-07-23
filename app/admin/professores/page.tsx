@@ -1112,6 +1112,10 @@ miniBio: editMiniBio,
 setEditPossuiVinculoRH(false);
 setEditDisciplinasAberto(false);
 
+setEditAssinaturaRemuneracaoOriginal("");
+setEditMotivoAlteracaoRemuneracao("");
+setEditVigenciaInicioRemuneracao("");
+
 setEditDadosTrabalhistas({
   ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
 });
@@ -3188,25 +3192,24 @@ codigoFuncionarioTexto.includes(termoTexto) ||
                       </button>
 
                       <button
-                        onClick={() => {
-  setEditandoId(null);
-  setEditPossuiVinculoRH(false);
-  setEditDisciplinasAberto(false);
-  setEditAssinaturaRemuneracaoOriginal("");
-  setEditMotivoAlteracaoRemuneracao("");
-  setEditVigenciaInicioRemuneracao("");
-  setEditAssinaturaRemuneracaoOriginal("");
-  setEditMotivoAlteracaoRemuneracao("");
-  setEditVigenciaInicioRemuneracao("");
+  type="button"
+  onClick={() => {
+    setEditandoId(null);
+    setEditPossuiVinculoRH(false);
+    setEditDisciplinasAberto(false);
 
-  setEditDadosTrabalhistas({
-    ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
-  });
-}}
-                        className="rounded bg-gray-400 px-3 py-1 text-slate-900 dark:text-white"
-                      >
-                        Cancelar
-                      </button>
+    setEditAssinaturaRemuneracaoOriginal("");
+    setEditMotivoAlteracaoRemuneracao("");
+    setEditVigenciaInicioRemuneracao("");
+
+    setEditDadosTrabalhistas({
+      ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
+    });
+  }}
+  className="rounded bg-gray-400 px-3 py-1 text-slate-900 dark:text-white"
+>
+  Cancelar
+</button>
                     </div>
                   </div>
                 ) : (
