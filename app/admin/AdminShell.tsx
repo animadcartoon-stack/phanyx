@@ -77,6 +77,11 @@ setTimeout(() => {
 if (pathname.startsWith("/admin/comercial")) {
   return "comercial";
 }
+
+if (pathname.startsWith("/admin/rematriculas-semestrais")) {
+  return "academico";
+}
+
   if (pathname.startsWith("/admin/financeiro")) return "financeiro";
   if (pathname.startsWith("/admin/rh")) return "rh";
 
@@ -337,6 +342,10 @@ const usuarioAdmin =
   roleUsuario === "GERENCIA" ||
   roleUsuario === "SUPER_ADMIN" ||
   usuario?.isMasterAdmin === true;
+
+const podeGerenciarRematriculasSemestrais =
+  roleUsuario === "ADMIN" ||
+  roleUsuario === "SUPER_ADMIN";
 
   function podeAcessar(...chaves: string[]) {
   if (usuarioAdmin) return true;
@@ -726,6 +735,17 @@ function abrirTourAdmin() {
                     >
                       📝 Matrículas
                     </Link>
+
+                    {podeGerenciarRematriculasSemestrais && (
+  <Link
+    href="/admin/rematriculas-semestrais"
+    className={getLinkClass(
+      "/admin/rematriculas-semestrais"
+    )}
+  >
+    🔄 Rematrículas semestrais
+  </Link>
+)}
 
                     <Link
                       href="/admin/turmas"
@@ -1197,6 +1217,14 @@ function abrirTourAdmin() {
             <Link href="/admin/matriculas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               📝 Matrículas
             </Link>
+            {podeGerenciarRematriculasSemestrais && (
+  <Link
+    href="/admin/rematriculas-semestrais"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    🔄 Rematrículas
+  </Link>
+)}
             <Link href="/admin/turmas" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
               🏫 Turmas
             </Link>
