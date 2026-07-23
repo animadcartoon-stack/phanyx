@@ -14670,3 +14670,56 @@ html[data-theme="system"] .phanyx-rematricula-select option:hover {
   background-image: linear-gradient(#505050, #505050) !important;
   color: #ffffff !important;
 }
+
+/* =========================================
+   REMATRÍCULAS — LISTAGEM NO TEMA CLARO
+========================================= */
+
+html[data-theme="light"] .phanyx-rematriculas-lista {
+  background: #ffffff !important;
+  border-color: #dbe3ee !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rematriculas-lista > div:first-child {
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .phanyx-rematriculas-lista h2,
+html[data-theme="light"] .phanyx-rematriculas-lista h3 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rematriculas-lista p {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-periodo-card {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-periodo-card .text-slate-500 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-periodo-card .text-slate-600 {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-contador {
+  min-width: 98px;
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-contador span:first-child {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-contador span:last-child {
+  color: #475569 !important;
+}
