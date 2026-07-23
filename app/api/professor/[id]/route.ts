@@ -96,6 +96,28 @@ function obterTipoRemuneracao(
     : null;
 }
 
+type SnapshotRemuneracaoRH = {
+  tipoRemuneracao: TipoRemuneracaoRH | null;
+
+  salarioBase: number | null;
+  valorHoraAula: number | null;
+  valorHoraTrabalhada: number | null;
+  valorPorAula: number | null;
+  valorPorTurma: number | null;
+  valorPorDisciplina: number | null;
+
+  duracaoHoraAulaMinutos: number | null;
+  cargaHorariaSemanal: number | null;
+  cargaHorariaMensal: number | null;
+};
+
+function remuneracoesSaoIguais(
+  anterior: SnapshotRemuneracaoRH,
+  nova: SnapshotRemuneracaoRH
+) {
+  return JSON.stringify(anterior) === JSON.stringify(nova);
+}
+
 export async function GET(
   request: Request,
   context: { params: { id: string } }
@@ -510,6 +532,234 @@ export async function PUT(
           ).toUpperCase() || "ATIVO"
         : null;
 
+/*
+ * Auditoria da alteração de remuneração
+ */
+const motivoAlteracaoRemuneracao =
+  limparTexto(
+    body.motivoAlteracaoRemuneracao
+  );
+
+const vigenciaInicioTexto =
+  limparTexto(
+    body.vigenciaInicioRemuneracao
+  );
+
+const vigenciaInicioRemuneracao =
+  vigenciaInicioTexto
+    ? new Date(vigenciaInicioTexto)
+    : null;
+
+if (
+  vigenciaInicioRemuneracao &&
+  Number.isNaN(
+    vigenciaInicioRemuneracao.getTime()
+  )
+) {
+  return NextResponse.json(
+    {
+      error:
+        "A data e hora de início da nova remuneração são inválidas.",
+    },
+    { status: 400 }
+  );
+}
+
+const funcionarioAtual =
+  professorExistente.funcionario;
+
+const dadosRemuneracaoAnteriores:
+  | SnapshotRemuneracaoRH
+  | null = funcionarioAtual
+  ? {
+      tipoRemuneracao:
+        funcionarioAtual.tipoRemuneracao ??
+        null,
+
+      salarioBase:
+        numeroDecimalOuNull(
+          funcionarioAtual.salarioBase
+        ),
+
+      valorHoraAula:
+        numeroDecimalOuNull(
+          funcionarioAtual.valorHoraAula
+        ),
+
+      valorHoraTrabalhada:
+        numeroDecimalOuNull(
+          funcionarioAtual.valorHoraTrabalhada
+        ),
+
+      valorPorAula:
+        numeroDecimalOuNull(
+          funcionarioAtual.valorPorAula
+        ),
+
+      valorPorTurma:
+        numeroDecimalOuNull(
+          funcionarioAtual.valorPorTurma
+        ),
+
+      valorPorDisciplina:
+        numeroDecimalOuNull(
+          funcionarioAtual.valorPorDisciplina
+        ),
+
+      duracaoHoraAulaMinutos:
+        numeroInteiroOuNull(
+          funcionarioAtual
+            .duracaoHoraAulaMinutos
+        ),
+
+      cargaHorariaSemanal:
+        numeroDecimalOuNull(
+          funcionarioAtual
+            .cargaHorariaSemanal
+        ),
+
+      cargaHorariaMensal:
+        numeroInteiroOuNull(
+          funcionarioAtual
+            .cargaHorariaMensal
+        ),
+    }
+  : null;
+
+const tipoRemuneracaoNovo =
+  temCampo("tipoRemuneracao")
+    ? tipoRemuneracao
+    : funcionarioAtual
+        ?.tipoRemuneracao ?? null;
+
+if (
+  desejaVinculoRH &&
+  !tipoRemuneracaoNovo
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Selecione a modalidade de remuneração do professor.",
+    },
+    { status: 400 }
+  );
+}
+
+const dadosRemuneracaoNovos:
+  | SnapshotRemuneracaoRH
+  | null = desejaVinculoRH
+  ? {
+      tipoRemuneracao:
+        tipoRemuneracaoNovo,
+
+      salarioBase:
+        temCampo("salarioBase")
+          ? salarioBase
+          : numeroDecimalOuNull(
+              funcionarioAtual?.salarioBase
+            ),
+
+      valorHoraAula:
+        temCampo("valorHoraAula")
+          ? valorHoraAula
+          : numeroDecimalOuNull(
+              funcionarioAtual?.valorHoraAula
+            ),
+
+      valorHoraTrabalhada:
+        temCampo("valorHoraTrabalhada")
+          ? valorHoraTrabalhada
+          : numeroDecimalOuNull(
+              funcionarioAtual
+                ?.valorHoraTrabalhada
+            ),
+
+      valorPorAula:
+        temCampo("valorPorAula")
+          ? valorPorAula
+          : numeroDecimalOuNull(
+              funcionarioAtual?.valorPorAula
+            ),
+
+      valorPorTurma:
+        temCampo("valorPorTurma")
+          ? valorPorTurma
+          : numeroDecimalOuNull(
+              funcionarioAtual?.valorPorTurma
+            ),
+
+      valorPorDisciplina:
+        temCampo("valorPorDisciplina")
+          ? valorPorDisciplina
+          : numeroDecimalOuNull(
+              funcionarioAtual
+                ?.valorPorDisciplina
+            ),
+
+      duracaoHoraAulaMinutos:
+        temCampo(
+          "duracaoHoraAulaMinutos"
+        )
+          ? duracaoHoraAulaMinutos
+          : numeroInteiroOuNull(
+              funcionarioAtual
+                ?.duracaoHoraAulaMinutos
+            ),
+
+      cargaHorariaSemanal:
+        temCampo("cargaHorariaSemanal")
+          ? cargaHorariaSemanal
+          : numeroDecimalOuNull(
+              funcionarioAtual
+                ?.cargaHorariaSemanal
+            ),
+
+      cargaHorariaMensal:
+        temCampo("cargaHorariaMensal")
+          ? cargaHorariaMensal
+          : numeroInteiroOuNull(
+              funcionarioAtual
+                ?.cargaHorariaMensal
+            ),
+    }
+  : null;
+
+const houveAlteracaoRemuneracao =
+  Boolean(
+    dadosRemuneracaoAnteriores &&
+      dadosRemuneracaoNovos &&
+      !remuneracoesSaoIguais(
+        dadosRemuneracaoAnteriores,
+        dadosRemuneracaoNovos
+      )
+  );
+
+if (
+  houveAlteracaoRemuneracao &&
+  !motivoAlteracaoRemuneracao
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Informe o motivo da alteração da remuneração.",
+    },
+    { status: 400 }
+  );
+}
+
+if (
+  houveAlteracaoRemuneracao &&
+  !vigenciaInicioRemuneracao
+) {
+  return NextResponse.json(
+    {
+      error:
+        "Informe a data e hora em que a nova remuneração começa a valer.",
+    },
+    { status: 400 }
+  );
+}
+
     const resultado =
       await prisma.$transaction(
         async (tx) => {
@@ -752,6 +1002,71 @@ export async function PUT(
                       : undefined,
                 },
               });
+              if (
+  houveAlteracaoRemuneracao &&
+  dadosRemuneracaoAnteriores &&
+  dadosRemuneracaoNovos &&
+  vigenciaInicioRemuneracao
+) {
+  const nomeUsuarioResponsavel =
+    limparTexto(
+      (
+        user as {
+          nome?: string;
+        }
+      ).nome
+    ) || `Usuário ${user.id}`;
+
+  await tx.historicoRemuneracaoRH.create({
+    data: {
+      instituicaoId:
+        user.instituicaoId,
+
+      funcionarioId,
+      professorId,
+
+      alteradoPorId:
+        user.id,
+
+      origem:
+        "PROFESSORES_RH",
+
+      funcionarioNomeSnapshot:
+        funcionarioAtual?.nome ||
+        nome,
+
+      professorNomeSnapshot:
+        professorExistente.nome,
+
+      alteradoPorNomeSnapshot:
+        nomeUsuarioResponsavel,
+
+      alteradoPorRoleSnapshot:
+        limparTexto(user.role) ||
+        null,
+
+      tipoAnterior:
+        dadosRemuneracaoAnteriores
+          .tipoRemuneracao,
+
+      tipoNovo:
+        dadosRemuneracaoNovos
+          .tipoRemuneracao!,
+
+      dadosAnteriores:
+        dadosRemuneracaoAnteriores,
+
+      dadosNovos:
+        dadosRemuneracaoNovos,
+
+      vigenciaInicio:
+        vigenciaInicioRemuneracao,
+
+      motivo:
+        motivoAlteracaoRemuneracao,
+    },
+  });
+}
             } else {
               const statusInicial =
                 statusFuncionario || "ATIVO";

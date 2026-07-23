@@ -102,6 +102,37 @@ const DADOS_TRABALHISTAS_PROFESSOR_INICIAIS:
   observacoesRemuneracao: "",
 };
 
+function criarAssinaturaRemuneracao(
+  dados: DadosTrabalhistasProfessorForm
+) {
+  return JSON.stringify({
+    tipoRemuneracao: dados.tipoRemuneracao,
+    salarioBase: dados.salarioBase,
+    valorHoraAula: dados.valorHoraAula,
+    valorHoraTrabalhada: dados.valorHoraTrabalhada,
+    valorPorAula: dados.valorPorAula,
+    valorPorTurma: dados.valorPorTurma,
+    valorPorDisciplina: dados.valorPorDisciplina,
+    duracaoHoraAulaMinutos:
+      dados.duracaoHoraAulaMinutos,
+    cargaHorariaSemanal:
+      dados.cargaHorariaSemanal,
+    cargaHorariaMensal:
+      dados.cargaHorariaMensal,
+  });
+}
+
+function obterDataHoraLocalAtual() {
+  const agora = new Date();
+
+  const compensado = new Date(
+    agora.getTime() -
+      agora.getTimezoneOffset() * 60 * 1000
+  );
+
+  return compensado.toISOString().slice(0, 16);
+}
+
 interface Professor {
   id: number;
   nome: string;
@@ -256,6 +287,28 @@ const [
 ] = useState<DadosTrabalhistasProfessorForm>({
   ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
 });
+
+const [
+  editAssinaturaRemuneracaoOriginal,
+  setEditAssinaturaRemuneracaoOriginal,
+] = useState("");
+
+const [
+  editMotivoAlteracaoRemuneracao,
+  setEditMotivoAlteracaoRemuneracao,
+] = useState("");
+
+const [
+  editVigenciaInicioRemuneracao,
+  setEditVigenciaInicioRemuneracao,
+] = useState("");
+
+const houveAlteracaoRemuneracaoEdicao =
+  editPossuiVinculoRH &&
+  editAssinaturaRemuneracaoOriginal !== "" &&
+  criarAssinaturaRemuneracao(
+    editDadosTrabalhistas
+  ) !== editAssinaturaRemuneracaoOriginal;
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
@@ -785,7 +838,8 @@ setLinksPortfolioProfessor([{ tipo: "LinkedIn", url: "" }]);
 
 setEditPossuiVinculoRH(Boolean(funcionarioRH?.id));
 
-setEditDadosTrabalhistas({
+const dadosTrabalhistasCarregados:
+  DadosTrabalhistasProfessorForm = {
   departamentoId:
     funcionarioRH?.departamentoId !== null &&
     funcionarioRH?.departamentoId !== undefined
@@ -875,7 +929,23 @@ setEditDadosTrabalhistas({
 
   observacoesRemuneracao:
     funcionarioRH?.observacoesRemuneracao || "",
-});
+};
+
+setEditDadosTrabalhistas(
+  dadosTrabalhistasCarregados
+);
+
+setEditAssinaturaRemuneracaoOriginal(
+  criarAssinaturaRemuneracao(
+    dadosTrabalhistasCarregados
+  )
+);
+
+setEditMotivoAlteracaoRemuneracao("");
+
+setEditVigenciaInicioRemuneracao(
+  obterDataHoraLocalAtual()
+);
     setEditNome(professor.nome || "");
     setEditEmail(professor.user?.email || "");
     setEditCpf(professor.cpf || "");
@@ -903,6 +973,29 @@ setEditMiniBio(professor.miniBio || "");
   }
 
   async function salvarEdicao(id: number) {
+    if (
+  houveAlteracaoRemuneracaoEdicao &&
+  !editMotivoAlteracaoRemuneracao.trim()
+) {
+  mostrarFeedback(
+    "erro",
+    "Informe o motivo da alteração da remuneração."
+  );
+
+  return;
+}
+
+if (
+  houveAlteracaoRemuneracaoEdicao &&
+  !editVigenciaInicioRemuneracao
+) {
+  mostrarFeedback(
+    "erro",
+    "Informe a data e a hora de início da nova remuneração."
+  );
+
+  return;
+}
     try {
       setSalvandoId(id);
 
@@ -913,6 +1006,19 @@ setEditMiniBio(professor.miniBio || "");
         body: JSON.stringify({
           nome: editNome,
           email: editEmail,
+
+          motivoAlteracaoRemuneracao:
+  houveAlteracaoRemuneracaoEdicao
+    ? editMotivoAlteracaoRemuneracao.trim()
+    : null,
+
+vigenciaInicioRemuneracao:
+  houveAlteracaoRemuneracaoEdicao &&
+  editVigenciaInicioRemuneracao
+    ? new Date(
+        editVigenciaInicioRemuneracao
+      ).toISOString()
+    : null,
 
 possuiVinculoRH: editPossuiVinculoRH,
 
@@ -2812,6 +2918,73 @@ codigoFuncionarioTexto.includes(termoTexto) ||
           </div>
         )}
 
+{houveAlteracaoRemuneracaoEdicao && (
+  <div className="rounded-2xl border border-amber-300 bg-amber-50 p-5 dark:border-amber-700 dark:bg-amber-950/30">
+    <h4 className="font-bold text-amber-950 dark:text-amber-100">
+      🕒 Registro da alteração remuneratória
+    </h4>
+
+    <p className="mt-2 text-sm text-amber-900 dark:text-amber-200">
+      A modalidade, os valores ou a carga horária da
+      remuneração foram alterados. Informe quando a nova
+      condição começa a valer e o motivo da mudança.
+    </p>
+
+    <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-amber-950 dark:text-amber-100">
+          Início da vigência
+        </label>
+
+        <input
+          type="datetime-local"
+          value={
+            editVigenciaInicioRemuneracao
+          }
+          onChange={(evento) =>
+            setEditVigenciaInicioRemuneracao(
+              evento.target.value
+            )
+          }
+          className="w-full rounded-lg border border-amber-300 bg-white p-2 text-slate-900 dark:border-amber-700 dark:bg-slate-950 dark:text-white"
+          required
+        />
+
+        <p className="mt-1 text-xs text-amber-800 dark:text-amber-300">
+          Data e hora em que a nova remuneração passa
+          efetivamente a valer.
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-sm font-semibold text-amber-950 dark:text-amber-100">
+          Motivo da alteração
+        </label>
+
+        <textarea
+          value={
+            editMotivoAlteracaoRemuneracao
+          }
+          onChange={(evento) =>
+            setEditMotivoAlteracaoRemuneracao(
+              evento.target.value
+            )
+          }
+          className="min-h-[100px] w-full rounded-lg border border-amber-300 bg-white p-3 text-slate-900 dark:border-amber-700 dark:bg-slate-950 dark:text-white"
+          placeholder="Ex.: alteração contratual aprovada pela direção."
+          required
+        />
+      </div>
+    </div>
+
+    <div className="mt-4 rounded-xl border border-amber-200 bg-white/70 p-3 text-xs text-amber-900 dark:border-amber-800 dark:bg-slate-950/50 dark:text-amber-200">
+      A data e a hora em que esta alteração for salva no
+      PHANYX serão registradas automaticamente, juntamente
+      com o usuário responsável.
+    </div>
+  </div>
+)}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[
           ["codigoPonto", "Código do ponto"],
@@ -3019,6 +3192,12 @@ codigoFuncionarioTexto.includes(termoTexto) ||
   setEditandoId(null);
   setEditPossuiVinculoRH(false);
   setEditDisciplinasAberto(false);
+  setEditAssinaturaRemuneracaoOriginal("");
+  setEditMotivoAlteracaoRemuneracao("");
+  setEditVigenciaInicioRemuneracao("");
+  setEditAssinaturaRemuneracaoOriginal("");
+  setEditMotivoAlteracaoRemuneracao("");
+  setEditVigenciaInicioRemuneracao("");
 
   setEditDadosTrabalhistas({
     ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
