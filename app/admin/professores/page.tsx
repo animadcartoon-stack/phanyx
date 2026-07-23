@@ -120,6 +120,49 @@ miniBio?: string | null;
   slug?: string | null;
   poloId?: number | null;
   polo?: Polo | null;
+  funcionarioId?: number | null;
+
+funcionario?: {
+  id: number;
+
+  departamentoId?: number | null;
+  departamento?: {
+    id: number;
+    nome: string;
+  } | null;
+
+  cargo?: string | null;
+  setor?: string | null;
+
+  dataAdmissao?: string | null;
+  tipoContrato?: string | null;
+  jornadaTrabalho?: string | null;
+
+  cargaHorariaMensal?: number | null;
+  cargaHorariaSemanal?: number | string | null;
+
+  tipoRemuneracao?: TipoRemuneracaoProfessor | null;
+
+  salarioBase?: number | string | null;
+  valorHoraAula?: number | string | null;
+  valorHoraTrabalhada?: number | string | null;
+  valorPorAula?: number | string | null;
+  valorPorTurma?: number | string | null;
+  valorPorDisciplina?: number | string | null;
+
+  duracaoHoraAulaMinutos?: number | null;
+
+  codigoPonto?: string | null;
+  pisPasep?: string | null;
+
+  banco?: string | null;
+  agencia?: string | null;
+  conta?: string | null;
+  pix?: string | null;
+
+  observacoesRemuneracao?: string | null;
+  statusFuncionario?: string | null;
+} | null;
   user: {
     email: string;
   };
@@ -202,6 +245,18 @@ const [editMiniBio, setEditMiniBio] = useState("");
   const [editSlug, setEditSlug] = useState("");
   const [editPoloId, setEditPoloId] = useState("");
 
+  const [
+  editPossuiVinculoRH,
+  setEditPossuiVinculoRH,
+] = useState(false);
+
+const [
+  editDadosTrabalhistas,
+  setEditDadosTrabalhistas,
+] = useState<DadosTrabalhistasProfessorForm>({
+  ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
+});
+
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
   const [criando, setCriando] = useState(false);
@@ -233,6 +288,18 @@ const [editMiniBio, setEditMiniBio] = useState("");
   valor: DadosTrabalhistasProfessorForm[Campo]
 ) {
   setDadosTrabalhistas((anterior) => ({
+    ...anterior,
+    [campo]: valor,
+  }));
+}
+
+function atualizarDadoTrabalhistaEdicao<
+  Campo extends keyof DadosTrabalhistasProfessorForm
+>(
+  campo: Campo,
+  valor: DadosTrabalhistasProfessorForm[Campo]
+) {
+  setEditDadosTrabalhistas((anterior) => ({
     ...anterior,
     [campo]: valor,
   }));
@@ -714,6 +781,101 @@ setLinksPortfolioProfessor([{ tipo: "LinkedIn", url: "" }]);
 
   function iniciarEdicao(professor: Professor) {
     setEditandoId(professor.id);
+    const funcionarioRH = professor.funcionario ?? null;
+
+setEditPossuiVinculoRH(Boolean(funcionarioRH?.id));
+
+setEditDadosTrabalhistas({
+  departamentoId:
+    funcionarioRH?.departamentoId !== null &&
+    funcionarioRH?.departamentoId !== undefined
+      ? String(funcionarioRH.departamentoId)
+      : "",
+
+  cargo: funcionarioRH?.cargo || "Professor",
+  setor: funcionarioRH?.setor || "Acadêmico",
+
+  dataAdmissao: funcionarioRH?.dataAdmissao
+    ? String(funcionarioRH.dataAdmissao).slice(0, 10)
+    : "",
+
+  tipoContrato:
+    funcionarioRH?.tipoContrato || "",
+
+  jornadaTrabalho:
+    funcionarioRH?.jornadaTrabalho || "",
+
+  cargaHorariaMensal:
+    funcionarioRH?.cargaHorariaMensal !== null &&
+    funcionarioRH?.cargaHorariaMensal !== undefined
+      ? String(funcionarioRH.cargaHorariaMensal)
+      : "",
+
+  cargaHorariaSemanal:
+    funcionarioRH?.cargaHorariaSemanal !== null &&
+    funcionarioRH?.cargaHorariaSemanal !== undefined
+      ? String(funcionarioRH.cargaHorariaSemanal)
+      : "",
+
+  tipoRemuneracao:
+    funcionarioRH?.tipoRemuneracao || "",
+
+  salarioBase:
+    funcionarioRH?.salarioBase !== null &&
+    funcionarioRH?.salarioBase !== undefined
+      ? String(funcionarioRH.salarioBase)
+      : "",
+
+  valorHoraAula:
+    funcionarioRH?.valorHoraAula !== null &&
+    funcionarioRH?.valorHoraAula !== undefined
+      ? String(funcionarioRH.valorHoraAula)
+      : "",
+
+  valorHoraTrabalhada:
+    funcionarioRH?.valorHoraTrabalhada !== null &&
+    funcionarioRH?.valorHoraTrabalhada !== undefined
+      ? String(funcionarioRH.valorHoraTrabalhada)
+      : "",
+
+  valorPorAula:
+    funcionarioRH?.valorPorAula !== null &&
+    funcionarioRH?.valorPorAula !== undefined
+      ? String(funcionarioRH.valorPorAula)
+      : "",
+
+  valorPorTurma:
+    funcionarioRH?.valorPorTurma !== null &&
+    funcionarioRH?.valorPorTurma !== undefined
+      ? String(funcionarioRH.valorPorTurma)
+      : "",
+
+  valorPorDisciplina:
+    funcionarioRH?.valorPorDisciplina !== null &&
+    funcionarioRH?.valorPorDisciplina !== undefined
+      ? String(funcionarioRH.valorPorDisciplina)
+      : "",
+
+  duracaoHoraAulaMinutos:
+    funcionarioRH?.duracaoHoraAulaMinutos !== null &&
+    funcionarioRH?.duracaoHoraAulaMinutos !== undefined
+      ? String(funcionarioRH.duracaoHoraAulaMinutos)
+      : "50",
+
+  codigoPonto:
+    funcionarioRH?.codigoPonto || "",
+
+  pisPasep:
+    funcionarioRH?.pisPasep || "",
+
+  banco: funcionarioRH?.banco || "",
+  agencia: funcionarioRH?.agencia || "",
+  conta: funcionarioRH?.conta || "",
+  pix: funcionarioRH?.pix || "",
+
+  observacoesRemuneracao:
+    funcionarioRH?.observacoesRemuneracao || "",
+});
     setEditNome(professor.nome || "");
     setEditEmail(professor.user?.email || "");
     setEditCpf(professor.cpf || "");
@@ -2253,7 +2415,14 @@ codigoFuncionarioTexto.includes(termoTexto) ||
                       </button>
 
                       <button
-                        onClick={() => setEditandoId(null)}
+                        onClick={() => {
+  setEditandoId(null);
+  setEditPossuiVinculoRH(false);
+
+  setEditDadosTrabalhistas({
+    ...DADOS_TRABALHISTAS_PROFESSOR_INICIAIS,
+  });
+}}
                         className="rounded bg-gray-400 px-3 py-1 text-slate-900 dark:text-white"
                       >
                         Cancelar
