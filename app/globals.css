@@ -14341,3 +14341,47 @@ html[data-theme="system"] body .professores-vinculo-rh-aviso {
   border-color: #595959 !important;
   color: #d1d5db !important;
 }
+
+/* ======================================================
+   MATRÍCULAS - MULTISELECT DE DISCIPLINAS / TEMA CLARO
+====================================================== */
+
+html[data-theme="light"] .matriculas-multiselect-neutro > div {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .matriculas-multiselect-neutro button {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .matriculas-multiselect-neutro button:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .matriculas-multiselect-neutro label {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .matriculas-multiselect-neutro
+  label:has(input:checked) {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .matriculas-multiselect-neutro input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}

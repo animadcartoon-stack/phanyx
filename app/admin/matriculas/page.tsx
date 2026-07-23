@@ -413,17 +413,19 @@ useEffect(() => {
 
   useEffect(() => {
   setCursoSemestreId("");
+  setCursoSemestreIds([]);
   setTurmasSelecionadas([]);
   setDisciplinasSelecionadas([]);
   setDisciplinasExtrasSelecionadas([]);
-  carregarSemestresDoCurso(cursoId);
+
+  void carregarSemestresDoCurso(cursoId);
 }, [cursoId]);
 
   useEffect(() => {
   setTurmasSelecionadas([]);
   setDisciplinasSelecionadas([]);
   setDisciplinasExtrasSelecionadas([]);
-}, [cursoSemestreId]);
+}, [cursoSemestreIds]);
 
 useEffect(() => {
   const buscaUrl = searchParams.get("busca");
@@ -448,35 +450,79 @@ const semestreSelecionado = semestresSelecionados[0] ?? null;
   );
 }, [semestresSelecionados]);
 
-const turmaSelecionadaObj = useMemo(() => {
-  return turmas.find((t) => t.id === Number(turmasSelecionadas[0]));
-}, [turmas, turmasSelecionadas]);
-
 const disciplinasDoSemestre = useMemo(() => {
-  if (!turmaSelecionadaObj?.disciplinas?.length) return [];
+  const mapa = new Map<
+    number,
+    {
+      id: number;
+      nome: string;
+      cargaHoraria: number;
+    }
+  >();
 
-  return turmaSelecionadaObj.disciplinas
-    .map((d) => ({
-      id: Number(d.id),
-      nome: d.nome,
-      cargaHoraria: d.cargaHoraria ?? 0,
-    }))
-    .filter((d) => Number.isFinite(d.id))
-    .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-}, [turmaSelecionadaObj]);
+  for (const semestreItem of semestresSelecionados) {
+    for (const vinculo of semestreItem.disciplinas || []) {
+      const disciplinaId = Number(
+        vinculo.disciplinaId ?? vinculo.disciplina?.id
+      );
+
+      if (!Number.isFinite(disciplinaId) || disciplinaId <= 0) {
+        continue;
+      }
+
+      const disciplinaEncontradaNaTurma = turmas
+        .flatMap((turma) => turma.disciplinas || [])
+        .find((disciplina) => Number(disciplina.id) === disciplinaId);
+
+      mapa.set(disciplinaId, {
+        id: disciplinaId,
+        nome:
+          vinculo.disciplina?.nome ||
+          disciplinaEncontradaNaTurma?.nome ||
+          `Disciplina ${disciplinaId}`,
+        cargaHoraria: Number(
+          vinculo.disciplina?.cargaHoraria ??
+            disciplinaEncontradaNaTurma?.cargaHoraria ??
+            0
+        ),
+      });
+    }
+  }
+
+  return Array.from(mapa.values()).sort((a, b) =>
+    a.nome.localeCompare(b.nome, "pt-BR")
+  );
+}, [semestresSelecionados, turmas]);
 
   const turmasBaseDoSemestre = useMemo(() => {
-    if (!cursoId || !semestreSelecionado) return [];
+  if (!cursoId || !semestreSelecionado) return [];
 
-    return turmas.filter((t) => {
-      const bateCurso = Number(t.cursoId) === Number(cursoId);
-      const bateDisciplina =
-        t.disciplinaId != null &&
-        disciplinasDoSemestreIds.includes(Number(t.disciplinaId));
+  return turmas.filter((turma) => {
+    const bateCurso = Number(turma.cursoId) === Number(cursoId);
 
-      return bateCurso && bateDisciplina;
-    });
-  }, [turmas, cursoId, semestreSelecionado, disciplinasDoSemestreIds]);
+    const idsDisciplinasDaTurma = Array.from(
+      new Set([
+        ...(turma.disciplinas || []).map((disciplina) =>
+          Number(disciplina.id)
+        ),
+        ...(turma.disciplinaId
+          ? [Number(turma.disciplinaId)]
+          : []),
+      ])
+    );
+
+    const bateDisciplina = idsDisciplinasDaTurma.some((disciplinaId) =>
+      disciplinasDoSemestreIds.includes(disciplinaId)
+    );
+
+    return bateCurso && bateDisciplina;
+  });
+}, [
+  turmas,
+  cursoId,
+  semestreSelecionado,
+  disciplinasDoSemestreIds,
+]);
 
   const turmasExtrasMesmoCurso = useMemo(() => {
     if (!cursoId || !semestreSelecionado) return [];
@@ -492,24 +538,69 @@ const disciplinasDoSemestre = useMemo(() => {
   }, [turmas, cursoId, semestreSelecionado, disciplinasDoSemestreIds]);
 
   const disciplinasExtras = useMemo(() => {
-  const mapa = new Map<number, { id: number; nome: string; cargaHoraria?: number | null }>();
-
-  for (const turma of turmasExtrasMesmoCurso) {
-    if (!turma.disciplinaId) continue;
-
-    if (!mapa.has(turma.disciplinaId)) {
-      mapa.set(turma.disciplinaId, {
-        id: turma.disciplinaId,
-        nome: turma.disciplinaNome ?? "Disciplina extra",
-        cargaHoraria: 0,
-      });
-    }
+  if (!cursoId || semestresSelecionados.length === 0) {
+    return [];
   }
+
+  const idsDaGrade = new Set(
+    disciplinasDoSemestreIds.map((id) => Number(id))
+  );
+
+  const mapa = new Map<
+    number,
+    {
+      id: number;
+      nome: string;
+      cargaHoraria: number;
+    }
+  >();
+
+  turmas
+    .filter((turma) => Number(turma.cursoId) === Number(cursoId))
+    .forEach((turma) => {
+      const disciplinasDaTurma =
+        turma.disciplinas && turma.disciplinas.length > 0
+          ? turma.disciplinas
+          : turma.disciplinaId
+            ? [
+                {
+                  id: Number(turma.disciplinaId),
+                  nome:
+                    turma.disciplinaNome ||
+                    "Disciplina extra",
+                  cargaHoraria: 0,
+                },
+              ]
+            : [];
+
+      disciplinasDaTurma.forEach((disciplina) => {
+        const disciplinaId = Number(disciplina.id);
+
+        if (
+          !Number.isFinite(disciplinaId) ||
+          disciplinaId <= 0 ||
+          idsDaGrade.has(disciplinaId)
+        ) {
+          return;
+        }
+
+        mapa.set(disciplinaId, {
+          id: disciplinaId,
+          nome: disciplina.nome,
+          cargaHoraria: Number(disciplina.cargaHoraria || 0),
+        });
+      });
+    });
 
   return Array.from(mapa.values()).sort((a, b) =>
     a.nome.localeCompare(b.nome, "pt-BR")
   );
-}, [turmasExtrasMesmoCurso]);
+}, [
+  turmas,
+  cursoId,
+  semestresSelecionados,
+  disciplinasDoSemestreIds,
+]);
 
 const semestreEditandoSelecionado = useMemo(() => {
   if (!matriculaEditando) return null;
@@ -1885,20 +1976,24 @@ function renderGrupoDisciplina(
           </div>
         ) : null}
 
-        <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-  <MultiSelectDisciplinas
-    titulo="Disciplinas contratadas"
-    disciplinas={disciplinasDoSemestre}
-    selecionadas={disciplinasSelecionadas}
-    setSelecionadas={setDisciplinasSelecionadas}
-  />
+        <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2">
+  <div className="matriculas-multiselect-neutro">
+    <MultiSelectDisciplinas
+      titulo="Disciplinas contratadas"
+      disciplinas={disciplinasDoSemestre}
+      selecionadas={disciplinasSelecionadas}
+      setSelecionadas={setDisciplinasSelecionadas}
+    />
+  </div>
 
-  <MultiSelectDisciplinas
-    titulo="Disciplinas extras curriculares"
-    disciplinas={disciplinasExtras}
-    selecionadas={disciplinasExtrasSelecionadas}
-    setSelecionadas={setDisciplinasExtrasSelecionadas}
-  />
+  <div className="matriculas-multiselect-neutro">
+    <MultiSelectDisciplinas
+      titulo="Disciplinas extras curriculares"
+      disciplinas={disciplinasExtras}
+      selecionadas={disciplinasExtrasSelecionadas}
+      setSelecionadas={setDisciplinasExtrasSelecionadas}
+    />
+  </div>
 </div>
 
 {limiteCargaHoraria > 0 && (
