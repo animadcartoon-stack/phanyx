@@ -15332,3 +15332,195 @@ html[data-theme="system"] .phanyx-polos-page .phanyx-polos-alerta-texto,
 html[data-theme="sistema"] .phanyx-polos-page .phanyx-polos-alerta-texto {
   color: #fde68a !important;
 }
+
+/* =========================================
+   REMATRÍCULA — DISCIPLINAS EXTRACURRICULARES
+========================================= */
+
+.phanyx-extras-painel {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-extras-cabecalho {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-extras-cabecalho h3 {
+  color: #0f172a !important;
+}
+
+.phanyx-extras-cabecalho p {
+  color: #475569 !important;
+}
+
+.phanyx-extras-contador {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+.phanyx-extras-escopo {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-extras-escopo:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+.phanyx-extras-escopo strong {
+  color: #0f172a !important;
+}
+
+.phanyx-extras-escopo span {
+  color: #475569 !important;
+}
+
+.phanyx-extras-escopo-semestre-ativo {
+  background: #dbeafe !important;
+  border-color: #2563eb !important;
+}
+
+.phanyx-extras-escopo-semestre-ativo strong {
+  color: #1e3a8a !important;
+}
+
+.phanyx-extras-escopo-semestre-ativo span {
+  color: #1e40af !important;
+}
+
+.phanyx-extras-escopo-curso-ativo {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+}
+
+.phanyx-extras-escopo-curso-ativo strong {
+  color: #14532d !important;
+}
+
+.phanyx-extras-escopo-curso-ativo span {
+  color: #166534 !important;
+}
+
+.phanyx-extras-campo {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-extras-campo::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.phanyx-extras-campo option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.phanyx-extras-contagem {
+  color: #475569 !important;
+}
+
+.phanyx-extras-lista {
+  background: transparent !important;
+}
+
+.phanyx-extras-disciplina {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-extras-disciplina-selecionada {
+  background: #eff6ff !important;
+  border-color: #60a5fa !important;
+}
+
+.phanyx-extras-disciplina-titulo {
+  color: #0f172a !important;
+}
+
+.phanyx-extras-disciplina-meta {
+  color: #475569 !important;
+}
+
+.phanyx-extras-disciplina-descricao {
+  color: #64748b !important;
+  line-height: 1.5;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-extras-painel,
+html[data-theme="system"] .phanyx-extras-painel {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-cabecalho,
+html[data-theme="system"] .phanyx-extras-cabecalho {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-cabecalho h3,
+html[data-theme="system"] .phanyx-extras-cabecalho h3 {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-cabecalho p,
+html[data-theme="system"] .phanyx-extras-cabecalho p {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-escopo,
+html[data-theme="system"] .phanyx-extras-escopo,
+html[data-theme="dark"] .phanyx-extras-campo,
+html[data-theme="system"] .phanyx-extras-campo,
+html[data-theme="dark"] .phanyx-extras-disciplina,
+html[data-theme="system"] .phanyx-extras-disciplina {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-escopo strong,
+html[data-theme="system"] .phanyx-extras-escopo strong,
+html[data-theme="dark"] .phanyx-extras-disciplina-titulo,
+html[data-theme="system"] .phanyx-extras-disciplina-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-escopo span,
+html[data-theme="system"] .phanyx-extras-escopo span,
+html[data-theme="dark"] .phanyx-extras-disciplina-meta,
+html[data-theme="system"] .phanyx-extras-disciplina-meta,
+html[data-theme="dark"] .phanyx-extras-disciplina-descricao,
+html[data-theme="system"] .phanyx-extras-disciplina-descricao,
+html[data-theme="dark"] .phanyx-extras-contagem,
+html[data-theme="system"] .phanyx-extras-contagem {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-campo option,
+html[data-theme="system"] .phanyx-extras-campo option {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-extras-disciplina-selecionada,
+html[data-theme="system"] .phanyx-extras-disciplina-selecionada {
+  background: #172554 !important;
+  border-color: #3b82f6 !important;
+}

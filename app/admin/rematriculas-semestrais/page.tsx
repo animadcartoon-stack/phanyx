@@ -1316,8 +1316,8 @@ async function executarAcaoPeriodo() {
             </label>
           </div>
 
-          <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/50">
-  <div className="border-b border-slate-200 px-5 py-4 dark:border-slate-700">
+          <section className="phanyx-extras-painel mt-6 overflow-hidden rounded-2xl border">
+  <div className="phanyx-extras-cabecalho border-b px-5 py-4">
     <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
       <div>
         <h3 className="font-bold">
@@ -1330,7 +1330,7 @@ async function executarAcaoPeriodo() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+      <div className="phanyx-extras-contador rounded-xl border px-3 py-2 text-xs">
         {itensExtras.length} disciplina
         {itensExtras.length === 1
           ? ""
@@ -1359,12 +1359,11 @@ async function executarAcaoPeriodo() {
 
             setItensExtras([]);
           }}
-          className={`rounded-xl border p-4 text-left transition ${
-            escopoExtras ===
-            "SEMESTRE_ESPECIFICO"
-              ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-100"
-              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-          }`}
+          className={`phanyx-extras-escopo rounded-xl border p-4 text-left transition ${
+  escopoExtras === "SEMESTRE_ESPECIFICO"
+    ? "phanyx-extras-escopo-semestre-ativo"
+    : ""
+}`}
         >
           <strong className="block text-sm">
             Somente neste semestre
@@ -1384,12 +1383,11 @@ async function executarAcaoPeriodo() {
 
             setItensExtras([]);
           }}
-          className={`rounded-xl border p-4 text-left transition ${
-            escopoExtras ===
-            "TODOS_OS_SEMESTRES"
-              ? "border-emerald-600 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100"
-              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-          }`}
+          className={`phanyx-extras-escopo rounded-xl border p-4 text-left transition ${
+  escopoExtras === "TODOS_OS_SEMESTRES"
+    ? "phanyx-extras-escopo-curso-ativo"
+    : ""
+}`}
         >
           <strong className="block text-sm">
             Todos os semestres do curso
@@ -1423,7 +1421,7 @@ async function executarAcaoPeriodo() {
                   )
                 }
                 placeholder="Nome, código, descrição ou curso"
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
               />
             </label>
 
@@ -1441,7 +1439,7 @@ async function executarAcaoPeriodo() {
                     evento.target.value,
                   )
                 }
-                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none"
               >
                 <option value="">
                   Todos os cursos
@@ -1465,7 +1463,7 @@ async function executarAcaoPeriodo() {
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs text-slate-600 dark:text-slate-400">
+            <span className="phanyx-extras-contagem text-xs">
               {
                 disciplinasExtrasFiltradas.length
               }{" "}
@@ -1522,7 +1520,7 @@ async function executarAcaoPeriodo() {
               Nenhuma disciplina encontrada.
             </div>
           ) : (
-            <div className="max-h-[560px] space-y-3 overflow-y-auto pr-1">
+            <div className="phanyx-extras-lista max-h-[560px] space-y-3 overflow-y-auto pr-1">
               {disciplinasExtrasFiltradas.map(
                 (disciplina) => {
                   const configuracao =
@@ -1538,11 +1536,11 @@ async function executarAcaoPeriodo() {
                       key={
                         disciplina.id
                       }
-                      className={`rounded-xl border p-4 transition ${
-                        selecionada
-                          ? "border-blue-400 bg-blue-50/70 dark:border-blue-800 dark:bg-blue-950/30"
-                          : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
-                      }`}
+                      className={`phanyx-extras-disciplina rounded-xl border p-4 transition ${
+  selecionada
+    ? "phanyx-extras-disciplina-selecionada"
+    : ""
+}`}
                     >
                       <div className="flex items-start gap-3">
                         <input
@@ -1564,7 +1562,7 @@ async function executarAcaoPeriodo() {
 
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-wrap items-center gap-2">
-                            <strong className="text-sm">
+                            <strong className="phanyx-extras-disciplina-titulo text-sm">
                               {
                                 disciplina.nome
                               }
@@ -1579,7 +1577,7 @@ async function executarAcaoPeriodo() {
                             )}
                           </div>
 
-                          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                          <p className="phanyx-extras-disciplina-meta mt-1 text-xs">
                             Curso de origem:{" "}
                             {disciplina
                               .curso
@@ -1594,7 +1592,7 @@ async function executarAcaoPeriodo() {
                           </p>
 
                           {disciplina.descricao && (
-                            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                            <p className="phanyx-extras-disciplina-descricao mt-2 text-xs">
                               {
                                 disciplina.descricao
                               }
