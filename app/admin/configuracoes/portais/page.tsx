@@ -334,73 +334,73 @@ function BlocoPortal({
 
         <div className="mt-4 grid gap-2">
           <button
-            type="button"
-            onClick={() =>
-              onAlterarModo(
-                pagina.chavePagina,
-                "AUTOMATICO",
-              )
-            }
-            className={`rounded-xl border p-3 text-left transition ${
-              modoAtual === "AUTOMATICO"
-                ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-100"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-            }`}
-          >
-            <span className="block text-sm font-black">
-              Automático
-            </span>
+  type="button"
+  onClick={() =>
+    onAlterarModo(
+      pagina.chavePagina,
+      "AUTOMATICO",
+    )
+  }
+  className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${
+    modoAtual === "AUTOMATICO"
+      ? "phanyx-portal-modo-automatico-ativo"
+      : ""
+  }`}
+>
+  <span className="phanyx-portal-modo-titulo block text-sm font-black">
+    Automático
+  </span>
 
-            <span className="mt-1 block text-xs">
-              Aparece somente quando houver período publicado e aberto para o aluno.
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() =>
-              onAlterarModo(
-                pagina.chavePagina,
-                "SEMPRE_VISIVEL",
-              )
-            }
-            className={`rounded-xl border p-3 text-left transition ${
-              modoAtual === "SEMPRE_VISIVEL"
-                ? "border-emerald-600 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-            }`}
-          >
-            <span className="block text-sm font-black">
-              Sempre visível
-            </span>
-
-            <span className="mt-1 block text-xs">
-              A página aparece mesmo quando não existe período de rematrícula aberto.
-            </span>
-          </button>
+  <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
+    Aparece somente quando houver período publicado e aberto para o aluno.
+  </span>
+</button>
 
           <button
-            type="button"
-            onClick={() =>
-              onAlterarModo(
-                pagina.chavePagina,
-                "OCULTO",
-              )
-            }
-            className={`rounded-xl border p-3 text-left transition ${
-              modoAtual === "OCULTO"
-                ? "border-red-600 bg-red-50 text-red-900 dark:bg-red-950/40 dark:text-red-100"
-                : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
-            }`}
-          >
-            <span className="block text-sm font-black">
-              Ocultar temporariamente
-            </span>
+  type="button"
+  onClick={() =>
+    onAlterarModo(
+      pagina.chavePagina,
+      "SEMPRE_VISIVEL",
+    )
+  }
+  className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${
+    modoAtual === "SEMPRE_VISIVEL"
+      ? "phanyx-portal-modo-sempre-ativo"
+      : ""
+  }`}
+>
+  <span className="phanyx-portal-modo-titulo block text-sm font-black">
+    Sempre visível
+  </span>
 
-            <span className="mt-1 block text-xs">
-              Não aparece no portal, mesmo que exista um período aberto e publicado.
-            </span>
-          </button>
+  <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
+    A página aparece mesmo quando não existe período de rematrícula aberto.
+  </span>
+</button>
+
+          <button
+  type="button"
+  onClick={() =>
+    onAlterarModo(
+      pagina.chavePagina,
+      "OCULTO",
+    )
+  }
+  className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${
+    modoAtual === "OCULTO"
+      ? "phanyx-portal-modo-oculto-ativo"
+      : ""
+  }`}
+>
+  <span className="phanyx-portal-modo-titulo block text-sm font-black">
+    Ocultar temporariamente
+  </span>
+
+  <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
+    Não aparece no portal, mesmo que exista um período aberto e publicado.
+  </span>
+</button>
         </div>
       </div>
     );

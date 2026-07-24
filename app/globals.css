@@ -15163,3 +15163,96 @@ html[data-theme="light"] .phanyx-rematricula-aviso-carga {
   border-color: #f59e0b !important;
   color: #92400e !important;
 }
+
+/* =========================================
+   VISIBILIDADE DOS PORTAIS — MODOS
+========================================= */
+
+.phanyx-portal-modo {
+  width: 100%;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-portal-modo:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+.phanyx-portal-modo-titulo {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-portal-modo-descricao {
+  color: #475569 !important;
+  opacity: 1 !important;
+  line-height: 1.45;
+}
+
+/* Automático selecionado */
+.phanyx-portal-modo-automatico-ativo {
+  background: #dbeafe !important;
+  border-color: #2563eb !important;
+}
+
+.phanyx-portal-modo-automatico-ativo
+  .phanyx-portal-modo-titulo {
+  color: #1e3a8a !important;
+}
+
+.phanyx-portal-modo-automatico-ativo
+  .phanyx-portal-modo-descricao {
+  color: #1e40af !important;
+}
+
+/* Sempre visível selecionado */
+.phanyx-portal-modo-sempre-ativo {
+  background: #dcfce7 !important;
+  border-color: #16a34a !important;
+}
+
+.phanyx-portal-modo-sempre-ativo
+  .phanyx-portal-modo-titulo {
+  color: #14532d !important;
+}
+
+.phanyx-portal-modo-sempre-ativo
+  .phanyx-portal-modo-descricao {
+  color: #166534 !important;
+}
+
+/* Oculto selecionado */
+.phanyx-portal-modo-oculto-ativo {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+}
+
+.phanyx-portal-modo-oculto-ativo
+  .phanyx-portal-modo-titulo {
+  color: #7f1d1d !important;
+}
+
+.phanyx-portal-modo-oculto-ativo
+  .phanyx-portal-modo-descricao {
+  color: #991b1b !important;
+}
+
+/* Tema escuro e sistema */
+html[data-theme="dark"] .phanyx-portal-modo,
+html[data-theme="system"] .phanyx-portal-modo {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-portal-modo-titulo,
+html[data-theme="system"] .phanyx-portal-modo-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-portal-modo-descricao,
+html[data-theme="system"] .phanyx-portal-modo-descricao {
+  color: #cbd5e1 !important;
+}
