@@ -587,15 +587,23 @@ async function copiarCredenciais() {
         dados independentes.
       </p>
 
-      <div className="mt-4 rounded-xl border-2 border-amber-500 bg-amber-100 p-4 shadow-sm dark:border-amber-700 dark:bg-amber-950/60">
-  <p className="text-sm font-bold text-amber-950 dark:text-amber-100">
-    Atenção
-  </p>
+      <div className="mt-4 rounded-xl border border-amber-300 !bg-amber-50 p-4 shadow-sm dark:border-amber-700 dark:!bg-amber-950/40">
+  <div className="flex items-start gap-3">
+    <div className="mt-0.5 text-base !text-amber-700 dark:!text-amber-300">
+      ⚠️
+    </div>
 
-  <p className="mt-1 text-sm font-medium leading-6 text-amber-950 dark:text-amber-100">
-    O plano e a cobrança continuarão vinculados à instituição contratante.
-    O responsável receberá login e senha temporária para administrar esta unidade.
-  </p>
+    <div>
+      <div className="text-sm font-bold !text-amber-900 dark:!text-amber-100">
+        Atenção
+      </div>
+
+      <div className="mt-1 text-sm leading-6 !text-amber-800 dark:!text-amber-200">
+        O plano e a cobrança continuarão vinculados à instituição contratante.
+        O responsável receberá login e senha temporária para administrar esta unidade.
+      </div>
+    </div>
+  </div>
 </div>
 
       <div className="mt-6 flex flex-wrap justify-end gap-3">
