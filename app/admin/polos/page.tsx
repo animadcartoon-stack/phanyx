@@ -16,7 +16,7 @@ type Polo = {
   createdAt?: string;
 };
 
-type FeedbackTipo = "sucesso" | "erro" | "";
+type FeedbackTipo = "sucesso" | "aviso" | "erro" | "";
 
 function AdminPolosPage() {
   const [polos, setPolos] = useState<Polo[]>([]);
@@ -29,8 +29,7 @@ function AdminPolosPage() {
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
   const [endereco, setEndereco] = useState("");
-  const [ativo, setAtivo] = useState(true);
-
+  
   const [criando, setCriando] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [feedback, setFeedback] = useState("");
@@ -44,9 +43,9 @@ const [editCidade, setEditCidade] = useState("");
 const [editEstado, setEditEstado] = useState("");
 const [editEndereco, setEditEndereco] = useState("");
 const [editDescricao, setEditDescricao] = useState("");
-const [editAtivo, setEditAtivo] = useState(true);
+const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
-function iniciarEdicao(polo: any) {
+function iniciarEdicao(polo: Polo) {
   setEditandoId(polo.id);
   setEditNome(polo.nome || "");
   setEditCodigo(polo.codigo || "");
@@ -55,28 +54,54 @@ function iniciarEdicao(polo: any) {
   setEditEstado(polo.estado || "");
   setEditEndereco(polo.endereco || "");
   setEditDescricao(polo.descricao || "");
-  setEditAtivo(polo.ativo);
 }
 
 async function salvarEdicao() {
-  await fetch("/api/admin/polos", {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      id: editandoId,
-      nome: editNome,
-      codigo: editCodigo,
-      cnpj: editCnpj,
-      cidade: editCidade,
-      estado: editEstado,
-      endereco: editEndereco,
-      descricao: editDescricao,
-      ativo: editAtivo,
-    }),
-  });
+  if (!editandoId) return;
 
-  setEditandoId(null);
-  carregarPolos();
+  try {
+    setSalvandoEdicao(true);
+
+    const res = await fetch("/api/admin/polos", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        id: editandoId,
+        nome: editNome,
+        codigo: editCodigo,
+        cnpj: editCnpj,
+        cidade: editCidade,
+        estado: editEstado,
+        endereco: editEndereco,
+        descricao: editDescricao,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Erro ao atualizar polo");
+    }
+
+    setEditandoId(null);
+
+    await carregarPolos();
+
+    setFeedback("Polo atualizado com sucesso.");
+    setFeedbackTipo("sucesso");
+  } catch (error: unknown) {
+    setFeedback(
+      error instanceof Error
+        ? error.message
+        : "Erro ao atualizar polo."
+    );
+    setFeedbackTipo("erro");
+  } finally {
+    setSalvandoEdicao(false);
+  }
 }
 
   async function carregarPolos() {
@@ -126,15 +151,14 @@ async function salvarEdicao() {
         },
         credentials: "include",
         body: JSON.stringify({
-          nome,
-          codigo,
-          cnpj,
-          descricao,
-          cidade,
-          estado,
-          endereco,
-          ativo,
-        }),
+  nome,
+  codigo,
+  cnpj,
+  descricao,
+  cidade,
+  estado,
+  endereco,
+}),
       });
 
       const data = await res.json();
@@ -150,11 +174,15 @@ async function salvarEdicao() {
       setCidade("");
       setEstado("");
       setEndereco("");
-      setAtivo(true);
-
       await carregarPolos();
-      setFeedback("Polo criado com sucesso.");
-      setFeedbackTipo("sucesso");
+
+setFeedback(
+  data?.aviso || "Polo criado com sucesso."
+);
+
+setFeedbackTipo(
+  data?.aviso ? "aviso" : "sucesso"
+);
     } catch (error: any) {
       setFeedback(error?.message || "Erro ao criar polo");
       setFeedbackTipo("erro");
@@ -186,10 +214,12 @@ async function salvarEdicao() {
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-            feedbackTipo === "sucesso"
-              ? "border-green-200 bg-green-50 text-green-700"
-              : "border-red-200 bg-red-50 text-red-700"
-          }`}
+  feedbackTipo === "sucesso"
+    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200"
+    : feedbackTipo === "aviso"
+      ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+      : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+}`}
         >
           {feedback}
         </div>
@@ -267,15 +297,6 @@ async function salvarEdicao() {
             className="min-h-[100px] w-full rounded-xl border px-3 py-2 md:col-span-2"
           />
         </div>
-
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={ativo}
-            onChange={(e) => setAtivo(e.target.checked)}
-          />
-          Polo ativo
-        </label>
 
         <button
           type="submit"
@@ -368,31 +389,24 @@ async function salvarEdicao() {
           />
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={editAtivo}
-            onChange={(e) => setEditAtivo(e.target.checked)}
-          />
-          Polo ativo
-        </label>
-
         <div className="flex gap-2">
           <button
-            type="button"
-            onClick={salvarEdicao}
-            className="rounded-xl bg-green-600 px-4 py-2 text-sm text-white"
-          >
-            Salvar
-          </button>
+  type="button"
+  onClick={salvarEdicao}
+  disabled={salvandoEdicao}
+  className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {salvandoEdicao ? "Salvando..." : "Salvar"}
+</button>
 
           <button
-            type="button"
-            onClick={() => setEditandoId(null)}
-            className="rounded-xl bg-gray-400 px-4 py-2 text-sm text-white"
-          >
-            Cancelar
-          </button>
+  type="button"
+  onClick={() => setEditandoId(null)}
+  disabled={salvandoEdicao}
+  className="rounded-xl bg-gray-400 px-4 py-2 text-sm text-white hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  Cancelar
+</button>
         </div>
       </div>
     ) : (
@@ -422,49 +436,35 @@ async function salvarEdicao() {
           </p>
 
           <p className="text-sm text-slate-600">
-            Status: {polo.ativo ? "Ativo" : "Inativo"}
+            Status: {polo.ativo ? "Ativo" : "Aguardando ativação"}
           </p>
 
-          <div className="mt-3 flex gap-4">
-            <button
-              type="button"
-              onClick={() => iniciarEdicao(polo)}
-              className="text-sm font-medium text-blue-600"
-            >
-              Editar
-            </button>
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+  <button
+    type="button"
+    onClick={() => iniciarEdicao(polo)}
+    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+  >
+    Editar dados
+  </button>
 
-            <button
-              type="button"
-              onClick={async () => {
-                await fetch("/api/admin/polos", {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  credentials: "include",
-                  body: JSON.stringify({
-                    ...polo,
-                    ativo: !polo.ativo,
-                  }),
-                });
+  {!polo.ativo && (
+    <span className="text-xs text-amber-700 dark:text-amber-300">
+      Ativação sujeita ao limite e à contratação do plano.
+    </span>
+  )}
+</div>
+</div>
 
-                await carregarPolos();
-              }}
-              className="text-sm font-medium text-red-600"
-            >
-              {polo.ativo ? "Inativar" : "Ativar"}
-            </button>
-          </div>
-        </div>
-
-        <div
-          className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${
-            polo.ativo
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-100 text-gray-600"
-          }`}
-        >
-          {polo.ativo ? "Ativo" : "Inativo"}
-        </div>
+<div
+  className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-medium ${
+    polo.ativo
+      ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300"
+      : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
+  }`}
+>
+  {polo.ativo ? "Ativo" : "Aguardando ativação"}
+</div>
       </div>
     )}
   </div>
