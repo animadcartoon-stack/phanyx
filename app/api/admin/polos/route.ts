@@ -15,30 +15,6 @@ function textoOpcional(valor: unknown) {
   return texto || null;
 }
 
-function normalizarPlano(plano: string | null | undefined) {
-  return String(plano ?? "ESSENCIAL")
-    .trim()
-    .toUpperCase();
-}
-
-function obterLimitePolosInclusos(
-  plano: string | null | undefined
-) {
-  const planoNormalizado = normalizarPlano(plano);
-
-  switch (planoNormalizado) {
-    case "PROFISSIONAL":
-      return 3;
-
-    case "ENTERPRISE":
-      return 10;
-
-    case "ESSENCIAL":
-    default:
-      return 1;
-  }
-}
-
 function emailValido(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -262,49 +238,75 @@ export async function POST(req: NextRequest) {
     }
 
     const instituicao =
-      await prisma.instituicao.findUnique({
-        where: {
-          id: user.instituicaoId,
-        },
-        select: {
-          plano: true,
-          isentaPagamento: true,
-        },
-      });
+  await prisma.instituicao.findUnique({
+    where: {
+      id: user.instituicaoId,
+    },
+    select: {
+      id: true,
+      isentaPagamento: true,
+    },
+  });
 
-    if (!instituicao) {
-      return NextResponse.json(
-        { error: "Instituição não encontrada" },
-        { status: 404 }
+if (!instituicao) {
+  return NextResponse.json(
+    { error: "Instituição não encontrada" },
+    { status: 404 }
+  );
+}
+
+const assinatura =
+  await prisma.assinaturaPhanyx.findUnique({
+    where: {
+      instituicaoId: user.instituicaoId,
+    },
+    select: {
+      polosInclusosContrato: true,
+    },
+  });
+
+const unidadesProvisionadasAtivas =
+  await prisma.polo.count({
+    where: {
+      instituicaoId: user.instituicaoId,
+      ativo: true,
+      statusComercial:
+        StatusComercialPolo.ATIVO,
+      instituicaoGeradaId: {
+        not: null,
+      },
+    },
+  });
+
+const unidadesAtivasCobraveis =
+  1 + unidadesProvisionadasAtivas;
+
+const limitePolosInclusos =
+  instituicao.isentaPagamento
+    ? null
+    : Math.max(
+        1,
+        Number(
+          assinatura?.polosInclusosContrato ?? 1
+        )
       );
-    }
 
-    const limitePolosInclusos =
-      instituicao.isentaPagamento
-        ? null
-        : obterLimitePolosInclusos(instituicao.plano);
+const seraUnidadeExcedente =
+  limitePolosInclusos !== null &&
+  unidadesAtivasCobraveis >=
+    limitePolosInclusos;
 
-    const quantidadePolosAtivos =
-      await prisma.polo.count({
-        where: {
-          instituicaoId: user.instituicaoId,
-          OR: [
-            {
-              ativo: true,
-            },
-            {
-              statusComercial:
-                StatusComercialPolo.ATIVO,
-            },
-          ],
-        },
-      });
+const quantidadePolosAtivos =
+  await prisma.polo.count({
+    where: {
+      instituicaoId: user.instituicaoId,
+      ativo: true,
+      statusComercial:
+        StatusComercialPolo.ATIVO,
+    },
+  });
 
-    const ativadoAutomaticamente =
-      limitePolosInclusos === null ||
-      quantidadePolosAtivos < limitePolosInclusos;
-
-    const agora = new Date();
+const agora = new Date();
 
     const polo = await prisma.polo.create({
       data: {
@@ -324,35 +326,30 @@ export async function POST(req: NextRequest) {
         responsavelEmail,
         responsavelTelefone,
         responsavelCargo,
-        ativo: ativadoAutomaticamente,
-        statusComercial: ativadoAutomaticamente
-          ? StatusComercialPolo.ATIVO
-          : StatusComercialPolo.PENDENTE_ATIVACAO,
-        criadoPorId: usuarioId,
-        ativadoEm: ativadoAutomaticamente
-          ? agora
-          : null,
-        ativadoPorId: ativadoAutomaticamente
-          ? usuarioId
-          : null,
+        ativo: true,
+statusComercial:
+  StatusComercialPolo.ATIVO,
+criadoPorId: usuarioId,
+ativadoEm: agora,
+ativadoPorId: usuarioId,
         instituicaoId: user.instituicaoId,
       },
     });
 
     return NextResponse.json(
-      {
-        polo,
-        ativadoAutomaticamente,
-        limitePolosInclusos,
-        quantidadePolosAtivos:
-          quantidadePolosAtivos +
-          (ativadoAutomaticamente ? 1 : 0),
-        aviso: ativadoAutomaticamente
-          ? null
-          : "O polo foi cadastrado, mas está aguardando ativação porque a instituição atingiu o limite incluído no plano.",
-      },
-      { status: 201 }
-    );
+  {
+    polo,
+    ativadoAutomaticamente: true,
+    limitePolosInclusos,
+    quantidadePolosAtivos:
+      quantidadePolosAtivos + 1,
+    seraUnidadeExcedente,
+    aviso: seraUnidadeExcedente
+      ? "O polo foi cadastrado como ativo. Ao criar o acesso institucional, esta unidade ficará acima do limite contratado e poderá gerar cobrança adicional."
+      : null,
+  },
+  { status: 201 }
+);
   } catch (error) {
     console.error("Erro ao criar polo:", error);
 

@@ -764,8 +764,9 @@ async function copiarCredenciais() {
           </h2>
 
           <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
-            O sistema verificará automaticamente o limite
-            incluído no plano.
+            O polo será cadastrado como ativo. Ao criar o acesso
+institucional, o sistema verificará se a unidade está
+incluída no contrato ou se haverá cobrança adicional.
           </p>
         </div>
 

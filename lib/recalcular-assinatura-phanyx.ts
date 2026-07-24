@@ -315,9 +315,7 @@ export async function recalcularAssinaturaPhanyx(
         updatePendingPayments:
           opcoes.atualizarCobrancasPendentes ===
           true,
-        externalReference: String(
-          instituicaoContratanteId
-        ),
+       
       }
     );
 

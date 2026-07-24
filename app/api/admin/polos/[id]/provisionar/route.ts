@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
+import { recalcularAssinaturaPhanyx } from "@/lib/recalcular-assinatura-phanyx";
 
 function normalizarEmail(valor: unknown) {
   return String(valor ?? "").trim().toLowerCase();
@@ -418,6 +419,34 @@ export async function POST(
       }
     );
 
+    let recalculoAssinatura:
+  | Awaited<
+      ReturnType<typeof recalcularAssinaturaPhanyx>
+    >
+  | null = null;
+
+let avisoCobranca: string | null = null;
+
+try {
+  recalculoAssinatura =
+    await recalcularAssinaturaPhanyx(
+      polo.instituicao.id,
+      {
+        sincronizarAsaas: true,
+        atualizarCobrancasPendentes: false,
+        motivo: `Criação da unidade institucional ${polo.nome}`,
+      }
+    );
+} catch (erroRecalculo) {
+  console.error(
+    "A instituição foi criada, mas houve erro ao recalcular a assinatura:",
+    erroRecalculo
+  );
+
+  avisoCobranca =
+    "A instituição e o acesso foram criados, mas a assinatura não pôde ser atualizada automaticamente. O recálculo financeiro deverá ser reprocessado.";
+}
+
     /*
      * A senha temporária é devolvida uma única vez.
      * Ela nunca é gravada em texto puro no banco.
@@ -435,6 +464,8 @@ export async function POST(
           senha: senhaTemporaria,
           precisaTrocarSenha: true,
         },
+        cobranca: recalculoAssinatura,
+aviso: avisoCobranca,
       },
       { status: 201 }
     );
