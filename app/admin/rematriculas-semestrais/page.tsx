@@ -123,18 +123,18 @@ function nomeStatus(status: string) {
 
 function classeStatus(status: string) {
   if (status === "PUBLICADO") {
-    return "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300";
+    return "phanyx-rematricula-status phanyx-rematricula-status-publicado";
   }
 
   if (status === "ENCERRADO") {
-    return "border-slate-300 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300";
+    return "phanyx-rematricula-status phanyx-rematricula-status-encerrado";
   }
 
   if (status === "CANCELADO") {
-    return "border-red-300 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300";
+    return "phanyx-rematricula-status phanyx-rematricula-status-cancelado";
   }
 
-  return "border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300";
+  return "phanyx-rematricula-status phanyx-rematricula-status-rascunho";
 }
 
 function converterParaIso(valor: string) {
