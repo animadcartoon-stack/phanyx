@@ -3194,13 +3194,14 @@ model ProvaAluno {
 }
 
 model ConfiguracaoPortalInstituicao {
-  id            Int      @id @default(autoincrement())
-  instituicaoId Int
-  portal        String
-  chavePagina   String
-  visivel       Boolean  @default(true)
-  criadoEm      DateTime @default(now())
-  atualizadoEm  DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  instituicaoId    Int
+  portal           String
+  chavePagina      String
+  visivel          Boolean  @default(true)
+  criadoEm         DateTime @default(now())
+  atualizadoEm     DateTime @updatedAt
+  modoVisibilidade String   @default("AUTOMATICO")
 
   instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 

@@ -35,8 +35,17 @@ type Polo = {
   responsavelEmail?: string | null;
   responsavelTelefone?: string | null;
   responsavelCargo?: string | null;
+  instituicaoGeradaId?: number | null;
   ativo: boolean;
   createdAt?: string;
+};
+
+type CredenciaisAcesso = {
+  instituicaoId: number;
+  instituicaoNome: string;
+  login: string;
+  senha: string;
+  precisaTrocarSenha: boolean;
 };
 
 type FeedbackTipo = "sucesso" | "aviso" | "erro" | "";
@@ -209,6 +218,18 @@ function AdminPolosPage() {
 
   const inputClass =
   "phanyx-polos-input w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
+
+const [poloParaProvisionar, setPoloParaProvisionar] =
+  useState<Polo | null>(null);
+
+const [provisionandoId, setProvisionandoId] =
+  useState<number | null>(null);
+
+const [credenciaisAcesso, setCredenciaisAcesso] =
+  useState<CredenciaisAcesso | null>(null);
+
+const [credenciaisCopiadas, setCredenciaisCopiadas] =
+  useState(false);
 
   function limparFormulario() {
     setNome("");
@@ -716,6 +737,28 @@ await carregarPolos();
               const mensagemStatus =
                 mensagemStatusPolo(polo);
 
+                const unidadeContratante =
+  String(polo.codigo || "")
+    .trim()
+    .toUpperCase() === "SEDE" &&
+  !polo.instituicaoGeradaId;
+
+const possuiResponsavel =
+  Boolean(String(polo.responsavelNome || "").trim()) &&
+  Boolean(String(polo.responsavelEmail || "").trim());
+
+const statusPermiteProvisionamento =
+  polo.statusComercial
+    ? polo.statusComercial === "ATIVO"
+    : polo.ativo === true;
+
+const podeCriarAcesso =
+  !unidadeContratante &&
+  !polo.instituicaoGeradaId &&
+  possuiResponsavel &&
+  polo.ativo === true &&
+  statusPermiteProvisionamento;
+
               return (
                 <div
                   key={polo.id}
@@ -969,23 +1012,54 @@ await carregarPolos();
                           {polo.descricao || "-"}
                         </p>
 
-                        <div className="mt-3 flex flex-wrap items-center gap-4">
-                          <button
-                            type="button"
-                            onClick={() =>
-                              iniciarEdicao(polo)
-                            }
-                            className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                          >
-                            Editar dados
-                          </button>
+                        <div className="mt-3 flex flex-wrap items-center gap-3">
+  <button
+    type="button"
+    onClick={() => iniciarEdicao(polo)}
+    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+  >
+    Editar dados
+  </button>
 
-                          {mensagemStatus && (
-                            <span className="text-xs text-amber-700 dark:text-amber-300">
-                              {mensagemStatus}
-                            </span>
-                          )}
-                        </div>
+  {podeCriarAcesso && (
+    <button
+      type="button"
+      onClick={() => setPoloParaProvisionar(polo)}
+      disabled={provisionandoId === polo.id}
+      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+    >
+      {provisionandoId === polo.id
+        ? "Criando acesso..."
+        : "Criar acesso institucional"}
+    </button>
+  )}
+
+  {polo.instituicaoGeradaId && (
+    <span className="rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
+      Instituição independente criada
+    </span>
+  )}
+
+  {unidadeContratante && (
+    <span className="rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
+      Unidade contratante
+    </span>
+  )}
+
+  {!unidadeContratante &&
+    !polo.instituicaoGeradaId &&
+    !possuiResponsavel && (
+      <span className="text-xs text-amber-700 dark:text-amber-300">
+        Preencha o nome e o e-mail do responsável para criar o acesso.
+      </span>
+    )}
+
+  {mensagemStatus && (
+    <span className="text-xs text-amber-700 dark:text-amber-300">
+      {mensagemStatus}
+    </span>
+  )}
+</div>
                       </div>
 
                       <div
