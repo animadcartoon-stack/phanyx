@@ -15256,3 +15256,79 @@ html[data-theme="dark"] .phanyx-portal-modo-descricao,
 html[data-theme="system"] .phanyx-portal-modo-descricao {
   color: #cbd5e1 !important;
 }
+
+/* =========================================================
+   POLOS - ALERTA DO MODAL DE CRIAÇÃO INSTITUCIONAL
+========================================================= */
+
+.phanyx-polos-page .phanyx-polos-alerta-provisionamento {
+  background: #fffbeb !important;
+  background-color: #fffbeb !important;
+  background-image: none !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-page .phanyx-polos-alerta-icone {
+  color: #d97706 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-page .phanyx-polos-alerta-titulo {
+  color: #92400e !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-page .phanyx-polos-alerta-texto {
+  color: #78350f !important;
+  opacity: 1 !important;
+}
+
+/* Tema escuro */
+html.dark .phanyx-polos-page .phanyx-polos-alerta-provisionamento,
+html[data-theme="dark"] .phanyx-polos-page .phanyx-polos-alerta-provisionamento {
+  background: #422006 !important;
+  background-color: #422006 !important;
+  background-image: none !important;
+  border-color: #d97706 !important;
+}
+
+html.dark .phanyx-polos-page .phanyx-polos-alerta-icone,
+html[data-theme="dark"] .phanyx-polos-page .phanyx-polos-alerta-icone {
+  color: #fbbf24 !important;
+}
+
+html.dark .phanyx-polos-page .phanyx-polos-alerta-titulo,
+html[data-theme="dark"] .phanyx-polos-page .phanyx-polos-alerta-titulo {
+  color: #fef3c7 !important;
+}
+
+html.dark .phanyx-polos-page .phanyx-polos-alerta-texto,
+html[data-theme="dark"] .phanyx-polos-page .phanyx-polos-alerta-texto {
+  color: #fde68a !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-polos-page .phanyx-polos-alerta-provisionamento,
+html[data-theme="sistema"] .phanyx-polos-page .phanyx-polos-alerta-provisionamento {
+  background: #3a2f1d !important;
+  background-color: #3a2f1d !important;
+  background-image: none !important;
+  border-color: #b7791f !important;
+}
+
+html[data-theme="system"] .phanyx-polos-page .phanyx-polos-alerta-icone,
+html[data-theme="sistema"] .phanyx-polos-page .phanyx-polos-alerta-icone {
+  color: #fbbf24 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-page .phanyx-polos-alerta-titulo,
+html[data-theme="sistema"] .phanyx-polos-page .phanyx-polos-alerta-titulo {
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-page .phanyx-polos-alerta-texto,
+html[data-theme="sistema"] .phanyx-polos-page .phanyx-polos-alerta-texto {
+  color: #fde68a !important;
+}

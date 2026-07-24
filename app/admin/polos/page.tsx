@@ -587,21 +587,25 @@ async function copiarCredenciais() {
         dados independentes.
       </p>
 
-      <div className="mt-4 rounded-xl border border-amber-300 !bg-amber-50 p-4 shadow-sm dark:border-amber-700 dark:!bg-amber-950/40">
+      <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
   <div className="flex items-start gap-3">
-    <div className="mt-0.5 text-base !text-amber-700 dark:!text-amber-300">
+    <span
+      aria-hidden="true"
+      className="phanyx-polos-alerta-icone mt-0.5 text-base"
+    >
       ⚠️
-    </div>
+    </span>
 
     <div>
-      <div className="text-sm font-bold !text-amber-900 dark:!text-amber-100">
+      <p className="phanyx-polos-alerta-titulo text-sm font-bold">
         Atenção
-      </div>
+      </p>
 
-      <div className="mt-1 text-sm leading-6 !text-amber-800 dark:!text-amber-200">
-        O plano e a cobrança continuarão vinculados à instituição contratante.
-        O responsável receberá login e senha temporária para administrar esta unidade.
-      </div>
+      <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
+        O plano e a cobrança continuarão vinculados à instituição
+        contratante. O responsável receberá login e senha temporária
+        para administrar esta unidade.
+      </p>
     </div>
   </div>
 </div>
