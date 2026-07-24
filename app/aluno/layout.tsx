@@ -186,6 +186,7 @@ export default async function AlunoLayout({
     },
     select: {
       visivel: true,
+      modoVisibilidade: true,
     },
   });
 
@@ -276,12 +277,19 @@ const periodoRematriculaAberto =
       })
     : null;
 
-const rematriculaManualVisivel =
-  configuracaoManualRematricula?.visivel === true;
+const modoVisibilidadeRematricula = String(
+  configuracaoManualRematricula?.modoVisibilidade ||
+    (configuracaoManualRematricula?.visivel
+      ? "SEMPRE_VISIVEL"
+      : "AUTOMATICO"),
+).toUpperCase();
 
 const mostrarRematricula =
-  rematriculaManualVisivel ||
-  periodoRematriculaAberto !== null;
+  modoVisibilidadeRematricula === "OCULTO"
+    ? false
+    : modoVisibilidadeRematricula === "SEMPRE_VISIVEL"
+      ? true
+      : periodoRematriculaAberto !== null;
 
   const visibilidadeAluno = {
   painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),

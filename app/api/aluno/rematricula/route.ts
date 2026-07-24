@@ -115,18 +115,48 @@ export async function GET() {
     const agora = new Date();
 
     const configuracaoManual =
-      await prisma.configuracaoPortalInstituicao.findFirst(
-        {
-          where: {
-            instituicaoId: aluno.instituicaoId,
-            portal: "ALUNO",
-            chavePagina: "aluno.rematricula",
-          },
-          select: {
-            visivel: true,
-          },
-        },
-      );
+  await prisma.configuracaoPortalInstituicao.findFirst({
+    where: {
+      instituicaoId: aluno.instituicaoId,
+      portal: "ALUNO",
+      chavePagina: "aluno.rematricula",
+    },
+    select: {
+      visivel: true,
+      modoVisibilidade: true,
+    },
+  });
+
+  const modoVisibilidade = String(
+  configuracaoManual?.modoVisibilidade ||
+    (configuracaoManual?.visivel
+      ? "SEMPRE_VISIVEL"
+      : "AUTOMATICO"),
+).toUpperCase();
+
+const visibilidadeManual =
+  modoVisibilidade === "SEMPRE_VISIVEL";
+
+const ocultoTemporariamente =
+  modoVisibilidade === "OCULTO";
+
+if (ocultoTemporariamente) {
+  return NextResponse.json({
+    mostrarPagina: false,
+    visibilidadeManual: false,
+    modoVisibilidade,
+    periodoAberto: false,
+    motivoIndisponibilidade:
+      "OCULTO_PELA_INSTITUICAO",
+    mensagem:
+      "A página de rematrícula foi temporariamente ocultada pela instituição.",
+    aluno,
+    matriculaAtual: null,
+    periodo: null,
+    disciplinas: [],
+    rematricula: null,
+  });
+}
 
     const matriculaAtual =
       await prisma.matricula.findFirst({
@@ -178,13 +208,11 @@ export async function GET() {
         },
       });
 
-    const visibilidadeManual =
-      configuracaoManual?.visivel === true;
-
     if (!matriculaAtual?.cursoId) {
       return NextResponse.json({
         mostrarPagina: visibilidadeManual,
         visibilidadeManual,
+        modoVisibilidade,
         periodoAberto: false,
         motivoIndisponibilidade:
           "SEM_MATRICULA_ATIVA",
