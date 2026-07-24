@@ -3498,7 +3498,7 @@ codigoFuncionarioTexto.includes(termoTexto) ||
                     </p>
 
                     {p.funcionarioId && (
-  <details className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+  <details className="professores-historico-remuneracao mt-4 rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
     <summary className="cursor-pointer list-none px-4 py-3 font-bold text-slate-900 dark:text-white">
       <span className="flex items-center justify-between gap-3">
         <span>

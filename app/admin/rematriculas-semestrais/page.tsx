@@ -218,12 +218,393 @@ function converterIsoParaDataLocal(valor?: string | null) {
     .slice(0, 16);
 }
 
-function normalizarTextoBusca(valor: string) {
+const PALAVRAS_IGNORADAS_BUSCA = new Set([
+  "a",
+  "o",
+  "as",
+  "os",
+  "de",
+  "da",
+  "do",
+  "das",
+  "dos",
+  "e",
+  "em",
+  "para",
+  "por",
+  "com",
+  "uma",
+  "um",
+  "disciplina",
+  "disciplinas",
+  "materia",
+  "materias",
+  "curso",
+  "cursos",
+]);
+
+const TERMOS_CURTOS_VALIDOS = new Set([
+  "fe",
+  "rh",
+  "ti",
+  "ia",
+]);
+
+const SINONIMOS_BUSCA_DISCIPLINA: Record<
+  string,
+  string[]
+> = {
+  etica: [
+    "moral",
+    "conduta",
+    "valores",
+    "bioetica",
+    "deontologia",
+  ],
+
+  gestao: [
+    "administracao",
+    "lideranca",
+    "planejamento",
+    "organizacao",
+  ],
+
+  igreja: [
+    "eclesiologia",
+    "congregacao",
+    "ministerio",
+    "pastoral",
+  ],
+
+  biblia: [
+    "biblico",
+    "biblica",
+    "escrituras",
+    "testamento",
+  ],
+
+  teologia: [
+    "doutrina",
+    "doutrinas",
+    "sistematica",
+    "dogmatica",
+  ],
+
+  aconselhamento: [
+    "pastoral",
+    "cuidado",
+    "orientacao",
+    "psicologia",
+  ],
+
+  educacao: [
+    "ensino",
+    "didatica",
+    "pedagogia",
+    "aprendizagem",
+  ],
+
+  missao: [
+    "missoes",
+    "missionario",
+    "missionaria",
+    "evangelismo",
+  ],
+
+  comunicacao: [
+    "oratoria",
+    "expressao",
+    "pregacao",
+    "homiletica",
+  ],
+
+  historia: [
+    "historico",
+    "historica",
+    "antiguidade",
+  ],
+
+  religiao: [
+    "religioes",
+    "religioso",
+    "religiosa",
+    "comparadas",
+  ],
+
+  hebraico: [
+    "hebraica",
+    "lingua hebraica",
+    "antigo testamento",
+  ],
+
+  grego: [
+    "grega",
+    "lingua grega",
+    "novo testamento",
+  ],
+
+  filosofia: [
+    "filosofico",
+    "filosofica",
+    "pensamento",
+  ],
+
+  fe: [
+    "espiritualidade",
+    "doutrina",
+    "crenca",
+    "crencas",
+  ],
+};
+
+function normalizarTextoBusca(
+  valor: string,
+) {
   return valor
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
     .toLowerCase()
     .trim();
+}
+
+function tokenizarBuscaInteligente(
+  valor: string,
+) {
+  return normalizarTextoBusca(valor)
+    .split(" ")
+    .filter(Boolean)
+    .filter(
+      (termo) =>
+        !PALAVRAS_IGNORADAS_BUSCA.has(
+          termo,
+        ),
+    )
+    .filter(
+      (termo) =>
+        termo.length >= 3 ||
+        TERMOS_CURTOS_VALIDOS.has(
+          termo,
+        ) ||
+        /^\d+$/.test(termo),
+    );
+}
+
+function expandirTermoBusca(
+  termo: string,
+) {
+  const variacoes = new Set<string>([
+    termo,
+  ]);
+
+  if (
+    termo.endsWith("s") &&
+    termo.length > 3
+  ) {
+    variacoes.add(
+      termo.slice(0, -1),
+    );
+  } else if (termo.length > 3) {
+    variacoes.add(`${termo}s`);
+  }
+
+  for (const [
+    principal,
+    sinonimos,
+  ] of Object.entries(
+    SINONIMOS_BUSCA_DISCIPLINA,
+  )) {
+    const termosDoGrupo = [
+      principal,
+      ...sinonimos,
+    ].map(normalizarTextoBusca);
+
+    if (
+      termosDoGrupo.includes(termo)
+    ) {
+      variacoes.add(principal);
+
+      for (const sinonimo of sinonimos) {
+        variacoes.add(
+          normalizarTextoBusca(
+            sinonimo,
+          ),
+        );
+      }
+    }
+  }
+
+  return Array.from(variacoes);
+}
+
+function pontuarCampoBusca(
+  campo:
+    | string
+    | null
+    | undefined,
+  variacoes: string[],
+  peso: number,
+) {
+  const texto =
+    normalizarTextoBusca(
+      campo || "",
+    );
+
+  if (!texto) {
+    return 0;
+  }
+
+  const palavras = texto.split(" ");
+
+  let melhorPontuacao = 0;
+
+  for (const variacao of variacoes) {
+    if (!variacao) {
+      continue;
+    }
+
+    if (texto === variacao) {
+      melhorPontuacao = Math.max(
+        melhorPontuacao,
+        peso * 5,
+      );
+
+      continue;
+    }
+
+    if (texto.startsWith(variacao)) {
+      melhorPontuacao = Math.max(
+        melhorPontuacao,
+        peso * 4,
+      );
+
+      continue;
+    }
+
+    if (
+      palavras.some((palavra) =>
+        palavra.startsWith(variacao),
+      )
+    ) {
+      melhorPontuacao = Math.max(
+        melhorPontuacao,
+        peso * 3,
+      );
+
+      continue;
+    }
+
+    if (texto.includes(variacao)) {
+      melhorPontuacao = Math.max(
+        melhorPontuacao,
+        peso,
+      );
+    }
+  }
+
+  return melhorPontuacao;
+}
+
+function pontuarDisciplinaNaBusca(
+  disciplina: DisciplinaExtraOption,
+  busca: string,
+) {
+  const buscaNormalizada =
+    normalizarTextoBusca(busca);
+
+  const termos =
+    tokenizarBuscaInteligente(busca);
+
+  if (
+    !buscaNormalizada ||
+    termos.length === 0
+  ) {
+    return 0;
+  }
+
+  const nome =
+    normalizarTextoBusca(
+      disciplina.nome,
+    );
+
+  const codigo =
+    normalizarTextoBusca(
+      disciplina.codigo || "",
+    );
+
+  let pontuacao = 0;
+
+  if (nome === buscaNormalizada) {
+    pontuacao += 1000;
+  } else if (
+    nome.startsWith(
+      buscaNormalizada,
+    )
+  ) {
+    pontuacao += 700;
+  } else if (
+    nome.includes(
+      buscaNormalizada,
+    )
+  ) {
+    pontuacao += 400;
+  }
+
+  if (
+    codigo &&
+    codigo === buscaNormalizada
+  ) {
+    pontuacao += 900;
+  }
+
+  for (const termo of termos) {
+    const variacoes =
+      expandirTermoBusca(termo);
+
+    const melhorResultado =
+      Math.max(
+        pontuarCampoBusca(
+          disciplina.nome,
+          variacoes,
+          100,
+        ),
+
+        pontuarCampoBusca(
+          disciplina.codigo,
+          variacoes,
+          90,
+        ),
+
+        pontuarCampoBusca(
+          disciplina.curso?.nome,
+          variacoes,
+          45,
+        ),
+
+        pontuarCampoBusca(
+          disciplina.curso?.codigo,
+          variacoes,
+          40,
+        ),
+
+        pontuarCampoBusca(
+          disciplina.descricao,
+          variacoes,
+          12,
+        ),
+      );
+
+    // Cada termo relevante digitado precisa
+    // aparecer em algum campo ou sinônimo.
+    if (melhorResultado === 0) {
+      return 0;
+    }
+
+    pontuacao += melhorResultado;
+  }
+
+  return pontuacao;
 }
 
 export default function RematriculasSemestraisPage() {
@@ -484,43 +865,78 @@ const cursosOrigemExtras = useMemo(() => {
 
 const disciplinasExtrasFiltradas =
   useMemo(() => {
-    const termo =
-      normalizarTextoBusca(buscaExtra);
-
     const cursoOrigemId = Number(
       filtroCursoOrigemExtra,
     );
 
-    return disciplinasExtrasDisponiveis.filter(
-      (disciplina) => {
-        if (
-          cursoOrigemId &&
-          disciplina.cursoId !==
-            cursoOrigemId
-        ) {
-          return false;
-        }
+    const disciplinasDoFiltro =
+      disciplinasExtrasDisponiveis.filter(
+        (disciplina) => {
+          if (
+            cursoOrigemId &&
+            (
+              disciplina.cursoId ??
+              disciplina.curso?.id
+            ) !== cursoOrigemId
+          ) {
+            return false;
+          }
 
-        if (!termo) {
           return true;
-        }
+        },
+      );
 
-        const texto =
-          normalizarTextoBusca(
-            [
-              disciplina.nome,
-              disciplina.codigo,
-              disciplina.descricao,
-              disciplina.curso?.nome,
-              disciplina.curso?.codigo,
-            ]
-              .filter(Boolean)
-              .join(" "),
-          );
+    const buscaNormalizada =
+      normalizarTextoBusca(
+        buscaExtra,
+      );
 
-        return texto.includes(termo);
-      },
-    );
+    if (!buscaNormalizada) {
+      return [
+        ...disciplinasDoFiltro,
+      ].sort((a, b) =>
+        a.nome.localeCompare(
+          b.nome,
+          "pt-BR",
+        ),
+      );
+    }
+
+    const termos =
+      tokenizarBuscaInteligente(
+        buscaExtra,
+      );
+
+    if (termos.length === 0) {
+      return [];
+    }
+
+    return disciplinasDoFiltro
+      .map((disciplina) => ({
+        disciplina,
+        pontuacao:
+          pontuarDisciplinaNaBusca(
+            disciplina,
+            buscaExtra,
+          ),
+      }))
+      .filter(
+        (resultado) =>
+          resultado.pontuacao > 0,
+      )
+      .sort(
+        (a, b) =>
+          b.pontuacao -
+            a.pontuacao ||
+          a.disciplina.nome.localeCompare(
+            b.disciplina.nome,
+            "pt-BR",
+          ),
+      )
+      .map(
+        (resultado) =>
+          resultado.disciplina,
+      );
   }, [
     disciplinasExtrasDisponiveis,
     buscaExtra,
@@ -1095,7 +1511,7 @@ async function executarAcaoPeriodo() {
                     periodoLetivo: evento.target.value,
                   }))
                 }
-                placeholder="Ex.: 2027.1"
+                placeholder="Ex.: ética, aconselhamento, gestão, missões..."
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </label>
@@ -1420,9 +1836,17 @@ async function executarAcaoPeriodo() {
                     evento.target.value,
                   )
                 }
-                placeholder="Nome, código, descrição ou curso"
+                placeholder="Ex.: ética, aconselhamento, gestão, missões..."
                 className="phanyx-extras-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
               />
+              {buscaExtra.trim() &&
+  tokenizarBuscaInteligente(
+    buscaExtra,
+  ).length === 0 && (
+    <span className="mt-1 block text-xs font-medium text-amber-700 dark:text-amber-300">
+      Digite pelo menos 3 letras para realizar uma busca mais precisa.
+    </span>
+  )}
             </label>
 
             <label className="space-y-2">

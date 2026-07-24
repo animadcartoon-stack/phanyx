@@ -508,8 +508,6 @@ await carregarPolos();
       : "Erro ao criar o acesso institucional.";
 
   setErroProvisionamento(mensagem);
-  setFeedback(mensagem);
-  setFeedbackTipo("erro");
 } finally {
   setProvisionandoId(null);
 }
@@ -577,6 +575,87 @@ async function copiarCredenciais() {
 
   return (
     <div className="phanyx-polos-page max-w-6xl space-y-6">
+
+      {erroProvisionamento && (
+  <div className="fixed inset-0 z-[1000001] flex items-center justify-center bg-black/75 p-4">
+    <div
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="titulo-erro-provisionamento"
+      className="w-full max-w-lg rounded-2xl border border-red-300 !bg-white p-6 shadow-2xl dark:border-red-800 dark:!bg-slate-950"
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full !bg-red-100 text-xl dark:!bg-red-950/60">
+          ⚠️
+        </div>
+
+        <div>
+          <h2
+            id="titulo-erro-provisionamento"
+            className="text-xl font-bold !text-slate-950 dark:!text-slate-100"
+          >
+            Não foi possível criar o acesso
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 !text-slate-700 dark:!text-slate-300">
+            {erroProvisionamento}
+          </p>
+        </div>
+      </div>
+
+      {erroProvisionamento
+        .toLowerCase()
+        .includes("já existe um usuário") && (
+        <div className="mt-5 rounded-xl border border-amber-300 !bg-amber-50 p-4 dark:border-amber-800 dark:!bg-amber-950/40">
+          <p className="text-sm font-bold !text-amber-900 dark:!text-amber-100">
+            O que fazer?
+          </p>
+
+          <p className="mt-1 text-sm leading-6 !text-amber-800 dark:!text-amber-200">
+            O e-mail do responsável já está vinculado a outro
+            usuário do PHANYX. Edite o polo e informe um e-mail
+            ainda não cadastrado para o primeiro administrador
+            desta unidade.
+          </p>
+
+          {poloParaProvisionar?.responsavelEmail && (
+            <p className="mt-2 break-all text-sm font-semibold !text-amber-900 dark:!text-amber-100">
+              E-mail informado:{" "}
+              {poloParaProvisionar.responsavelEmail}
+            </p>
+          )}
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => setErroProvisionamento("")}
+          className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold !text-slate-800 dark:!text-slate-200"
+        >
+          Voltar
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            const polo = poloParaProvisionar;
+
+            setErroProvisionamento("");
+            setPoloParaProvisionar(null);
+
+            if (polo) {
+              iniciarEdicao(polo);
+            }
+          }}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Editar responsável
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
 {poloParaProvisionar && (
   <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
