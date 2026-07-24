@@ -15822,3 +15822,56 @@ html[data-theme="system"]
   .text-slate-600 {
   color: #d4d4d4 !important;
 }
+
+/* =========================================
+   REMATRÍCULAS SEMESTRAIS
+   Botões de seleção no tema claro
+========================================= */
+
+html[data-theme="light"]
+  .phanyx-rematricula-selecionar-exibidas:not(:disabled) {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematricula-selecionar-exibidas:not(:disabled):hover {
+  background: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematricula-selecionar-exibidas:disabled {
+  background: #dbeafe !important;
+  border-color: #93c5fd !important;
+  color: #1e40af !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
+
+html[data-theme="light"]
+  .phanyx-rematricula-remover-exibidas:not(:disabled) {
+  background: #dc2626 !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematricula-remover-exibidas:not(:disabled):hover {
+  background: #b91c1c !important;
+  border-color: #991b1b !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematricula-remover-exibidas:disabled {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+  opacity: 1 !important;
+  cursor: not-allowed;
+}
