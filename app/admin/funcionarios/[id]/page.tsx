@@ -59,6 +59,172 @@ function formatarHoras(v: number) {
   return `${sinal}${Math.abs(v).toFixed(2)}h`;
 }
 
+function formatarDataHora(valor: any) {
+  if (!valor) return "-";
+
+  const data = new Date(valor);
+
+  if (Number.isNaN(data.getTime())) {
+    return "-";
+  }
+
+  return data.toLocaleString("pt-BR");
+}
+
+function obterDadosRemuneracao(valor: any) {
+  if (!valor) return {};
+
+  if (typeof valor === "string") {
+    try {
+      return JSON.parse(valor);
+    } catch {
+      return {};
+    }
+  }
+
+  return valor;
+}
+
+function traduzirTipoRemuneracao(tipo: any) {
+  switch (String(tipo || "").toUpperCase()) {
+    case "MENSAL":
+      return "Salário mensal";
+    case "HORA_AULA":
+      return "Hora-aula";
+    case "HORA_TRABALHADA":
+      return "Hora trabalhada";
+    case "POR_AULA":
+      return "Valor por aula";
+    case "POR_TURMA":
+      return "Valor por turma";
+    case "POR_DISCIPLINA":
+      return "Valor por disciplina";
+    case "MISTO":
+      return "Remuneração mista";
+    case "SEM_REMUNERACAO":
+      return "Sem remuneração";
+    default:
+      return tipo || "Não informada";
+  }
+}
+
+function traduzirOrigemHistorico(origem: any) {
+  switch (String(origem || "").toUpperCase()) {
+    case "FUNCIONARIOS_RH_CADASTRO":
+      return "Contratação inicial";
+    case "FUNCIONARIOS_RH_EDICAO":
+      return "Alteração pela ficha do funcionário";
+    case "FUNCIONARIOS_RH_PROFESSOR":
+      return "Alteração do professor pelo RH";
+    case "PROFESSORES_RH":
+      return "Alteração pela ficha do professor";
+    default:
+      return origem || "Alteração remuneratória";
+  }
+}
+
+function ResumoRemuneracao({
+  dados,
+}: {
+  dados: any;
+}) {
+  const valores = obterDadosRemuneracao(dados);
+
+  const itens = [
+    {
+      label: "Modalidade",
+      valor: traduzirTipoRemuneracao(
+        valores.tipoRemuneracao
+      ),
+    },
+    {
+      label: "Salário mensal",
+      valor:
+        valores.salarioBase !== null &&
+        valores.salarioBase !== undefined
+          ? moeda(valores.salarioBase)
+          : null,
+    },
+    {
+      label: "Hora-aula",
+      valor:
+        valores.valorHoraAula !== null &&
+        valores.valorHoraAula !== undefined
+          ? moeda(valores.valorHoraAula)
+          : null,
+    },
+    {
+      label: "Hora trabalhada",
+      valor:
+        valores.valorHoraTrabalhada !== null &&
+        valores.valorHoraTrabalhada !== undefined
+          ? moeda(valores.valorHoraTrabalhada)
+          : null,
+    },
+    {
+      label: "Valor por aula",
+      valor:
+        valores.valorPorAula !== null &&
+        valores.valorPorAula !== undefined
+          ? moeda(valores.valorPorAula)
+          : null,
+    },
+    {
+      label: "Valor por turma",
+      valor:
+        valores.valorPorTurma !== null &&
+        valores.valorPorTurma !== undefined
+          ? moeda(valores.valorPorTurma)
+          : null,
+    },
+    {
+      label: "Valor por disciplina",
+      valor:
+        valores.valorPorDisciplina !== null &&
+        valores.valorPorDisciplina !== undefined
+          ? moeda(valores.valorPorDisciplina)
+          : null,
+    },
+    {
+      label: "Duração da hora-aula",
+      valor:
+        valores.duracaoHoraAulaMinutos !== null &&
+        valores.duracaoHoraAulaMinutos !== undefined
+          ? `${valores.duracaoHoraAulaMinutos} minutos`
+          : null,
+    },
+    {
+      label: "Carga semanal",
+      valor:
+        valores.cargaHorariaSemanal !== null &&
+        valores.cargaHorariaSemanal !== undefined
+          ? `${valores.cargaHorariaSemanal}h`
+          : null,
+    },
+    {
+      label: "Carga mensal",
+      valor:
+        valores.cargaHorariaMensal !== null &&
+        valores.cargaHorariaMensal !== undefined
+          ? `${valores.cargaHorariaMensal}h`
+          : null,
+    },
+  ].filter((item) => item.valor !== null);
+
+  return (
+    <div className="space-y-1 text-sm">
+      {itens.map((item) => (
+        <p key={item.label}>
+          <span className="font-semibold">
+            {item.label}:
+          </span>{" "}
+          {item.valor}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function FuncionarioFichaPage() {
   const params = useParams();
   const funcionarioId = Number(params.id);
@@ -1633,6 +1799,130 @@ hover:bg-blue-100 dark:hover:bg-blue-600
 </div>
     )}
   </form>
+)}
+
+{funcionario && (
+  <section className="rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-900/80">
+    <div>
+      <h2 className="text-lg font-bold">
+        🕒 Histórico da remuneração
+      </h2>
+
+      <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+        Registro auditável das contratações e alterações
+        remuneratórias deste funcionário.
+      </p>
+    </div>
+
+    {!Array.isArray(
+      funcionario.historicosRemuneracaoRH
+    ) ||
+    funcionario.historicosRemuneracaoRH.length === 0 ? (
+      <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">
+        Nenhum histórico remuneratório registrado.
+      </div>
+    ) : (
+      <div className="mt-5 space-y-4">
+        {funcionario.historicosRemuneracaoRH.map(
+          (historico: any) => (
+            <article
+              key={historico.id}
+              className="rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-700 dark:bg-slate-950"
+            >
+              <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 dark:border-slate-700 md:flex-row md:items-start md:justify-between">
+                <div>
+                  <h3 className="font-bold text-slate-900 dark:text-white">
+                    {traduzirOrigemHistorico(
+                      historico.origem
+                    )}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                    Registrado em{" "}
+                    {formatarDataHora(
+                      historico.alteradoEm
+                    )}
+                  </p>
+                </div>
+
+                <div className="text-sm md:text-right">
+                  <p className="font-semibold text-slate-900 dark:text-white">
+                    {
+                      historico.alteradoPorNomeSnapshot
+                    }
+                  </p>
+
+                  <p className="text-slate-600 dark:text-slate-400">
+                    {historico.alteradoPorRoleSnapshot ||
+                      "Perfil não informado"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4 md:grid-cols-2">
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-950 dark:border-red-900 dark:bg-red-950/20 dark:text-red-100">
+                  <h4 className="mb-3 font-bold">
+                    Condição anterior
+                  </h4>
+
+                  <ResumoRemuneracao
+                    dados={historico.dadosAnteriores}
+                  />
+                </div>
+
+                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-950 dark:border-emerald-900 dark:bg-emerald-950/20 dark:text-emerald-100">
+                  <h4 className="mb-3 font-bold">
+                    Nova condição
+                  </h4>
+
+                  <ResumoRemuneracao
+                    dados={historico.dadosNovos}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-4 text-sm md:grid-cols-2">
+                <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                  <p className="font-semibold">
+                    Início da vigência
+                  </p>
+
+                  <p className="mt-1 text-slate-600 dark:text-slate-300">
+                    {formatarDataHora(
+                      historico.vigenciaInicio
+                    )}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+                  <p className="font-semibold">
+                    Data e hora do registro
+                  </p>
+
+                  <p className="mt-1 text-slate-600 dark:text-slate-300">
+                    {formatarDataHora(
+                      historico.alteradoEm
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-100">
+                <p className="font-semibold">
+                  Motivo
+                </p>
+
+                <p className="mt-1 whitespace-pre-wrap">
+                  {historico.motivo ||
+                    "Motivo não informado."}
+                </p>
+              </div>
+            </article>
+          )
+        )}
+      </div>
+    )}
+  </section>
 )}
 
 {funcionario && (

@@ -155,7 +155,15 @@ export async function GET(
             ativo: true,
           },
         },
+
         departamento: true,
+        
+        historicosRemuneracaoRH: {
+  orderBy: {
+    alteradoEm: "desc",
+  },
+  take: 50,
+},
       },
     });
 
