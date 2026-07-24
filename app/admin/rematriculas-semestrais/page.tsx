@@ -986,12 +986,12 @@ async function executarAcaoPeriodo() {
     {(periodo.status === "RASCUNHO" ||
       periodo.status === "PUBLICADO") && (
       <button
-        type="button"
-        onClick={() => editarPeriodo(periodo)}
-        className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-      >
-        Editar
-      </button>
+  type="button"
+  onClick={() => editarPeriodo(periodo)}
+  className="phanyx-rematricula-botao-editar rounded-lg border px-3 py-2 text-xs font-semibold transition"
+>
+  Editar
+</button>
     )}
 
     {periodo.status === "RASCUNHO" && (

@@ -14723,3 +14723,39 @@ html[data-theme="light"] .phanyx-rematricula-contador span:first-child {
 html[data-theme="light"] .phanyx-rematricula-contador span:last-child {
   color: #475569 !important;
 }
+
+/* REMATRÍCULA — BOTÃO EDITAR */
+
+.phanyx-rematricula-botao-editar {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.phanyx-rematricula-botao-editar:hover {
+  background: #f1f5f9 !important;
+  border-color: #64748b !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-botao-editar {
+  background: #111827 !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-botao-editar:hover {
+  background: #1e293b !important;
+}
+
+html[data-theme="system"] .phanyx-rematricula-botao-editar {
+  background: #303030 !important;
+  border-color: #666666 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-rematricula-botao-editar:hover {
+  background: #3b3b3b !important;
+}
