@@ -9,7 +9,9 @@ const planos = [
   nome: "Essencial",
   subtitulo: "Para instituições em fase inicial de estruturação digital",
   preco: "R$ 49",
-  periodo: "/mês + R$ 3 por aluno ativo + 1 polo incluso",
+  periodo: "/mês + R$ 3 por aluno ativo + 1 unidade ativa incluída",
+regraUnidades:
+  "A instituição contratante conta como a primeira unidade incluída. Cada unidade ativa excedente acrescenta R$ 49 por mês.",
   destaque: false,
   descricao:
     "Plano ideal para instituições que precisam organizar sua base acadêmica com um modelo acessível, profissional e escalável conforme o número de alunos ativos.",
@@ -24,7 +26,7 @@ const planos = [
   "Avisos e feriados institucionais",
   "Documentos institucionais básicos",
   "Editor básico de certificados com 1 modelo ativo",
-  "1 polo incluso no plano",
+  "1 unidade ativa incluída no plano",
 ],
   idealPara:
     "Escolas técnicas, cursos livres, seminários menores e instituições em início de implantação",
@@ -38,7 +40,9 @@ const planos = [
   nome: "Profissional",
   subtitulo: "Para instituições que querem operação forte e maior valor percebido",
   preco: "R$ 99",
-  periodo: "/mês + R$ 5 por aluno ativo + até 3 polos inclusos",
+  periodo: "/mês + R$ 5 por aluno ativo + até 3 unidades ativas incluídas",
+regraUnidades:
+  "A instituição contratante está incluída no limite de 3 unidades. Cada unidade ativa excedente acrescenta R$ 79 por mês.",
   destaque: true,
   descricao:
     "Plano mais indicado para instituições que precisam de uma operação acadêmica mais completa, com LMS, financeiro, documentos validados e crescimento escalável baseado em alunos ativos.",
@@ -70,7 +74,7 @@ const planos = [
   "Chat interno, Ouvidoria e Reputação PHANYX",
   "Integrações Google básicas",
 
-  "Até 3 polos inclusos",
+  "Até 3 unidades ativas incluídas",
 ],
   idealPara:
     "Faculdades, EADs, institutos, seminários e operações acadêmicas em crescimento",
@@ -84,7 +88,9 @@ const planos = [
   nome: "Enterprise",
   subtitulo: "Para instituições que precisam de mais escala, prioridade e recursos avançados",
   preco: "R$ 199",
-  periodo: "/mês + R$ 7 por aluno ativo + polos sob negociação",
+  periodo: "/mês + R$ 7 por aluno ativo + unidades definidas em contrato",
+regraUnidades:
+  "A quantidade de unidades incluídas e o valor das unidades excedentes são definidos na proposta comercial.",
   destaque: false,
   descricao:
     "Plano ideal para operações maiores que precisam de mais capacidade institucional, prioridade de suporte, personalização ampliada e recursos avançados com cobrança automática.",
@@ -345,11 +351,9 @@ export default function PlanosPage() {
 
 const polosExtrasEssencial = Math.max(0, polosSimulacao - 1);
 const polosExtrasProfissional = Math.max(0, polosSimulacao - 3);
-const polosExtrasEnterprise = Math.max(0, polosSimulacao - 10);
 
 const valorPoloExtraEssencial = 49;
 const valorPoloExtraProfissional = 79;
-const valorPoloExtraEnterprise = 99;
 
  const totalEssencial =
   49 + alunosSimulacao * 3 + polosExtrasEssencial * valorPoloExtraEssencial;
@@ -358,7 +362,7 @@ const totalProfissional =
   99 + alunosSimulacao * 5 + polosExtrasProfissional * valorPoloExtraProfissional;
 
 const totalEnterprise =
-  199 + alunosSimulacao * 7 + polosExtrasEnterprise * valorPoloExtraEnterprise;
+  199 + alunosSimulacao * 7;
 
   const custoAlunoEssencial = totalEssencial / alunosSimulacao;
 const custoAlunoProfissional = totalProfissional / alunosSimulacao;
@@ -579,7 +583,7 @@ if (alvo) {
         Cobrança por uso real
       </p>
       <p className="mt-1 text-xs leading-5 text-blue-800">
-        Após o teste, o valor acompanha o plano escolhido, alunos ativos e polos cadastrados.
+        Após o teste, o valor acompanha o plano escolhido, alunos ativos e unidades ativas com acesso institucional.
       </p>
     </div>
 
@@ -632,7 +636,7 @@ if (alvo) {
 />
 
 <label className="mb-2 mt-5 block text-sm font-semibold text-slate-700">
-  Quantidade de polos/unidades
+  Quantidade total de unidades ativas
 </label>
 
 <input
@@ -651,6 +655,11 @@ if (alvo) {
   }}
   className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-lg font-bold outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
 />
+<p className="mt-2 text-xs leading-5 text-slate-500">
+  Inclua a instituição contratante na quantidade. Somente
+  unidades ativas e com acesso institucional criado entram no
+  cálculo.
+</p>
   </div>
 
   <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -660,7 +669,7 @@ if (alvo) {
       </p>
 
       <p className="mt-2 text-sm text-slate-500">
-        R$ 49 + ({alunosSimulacao} × R$ 3) + ({polosExtrasEssencial} polos extras × R$ 49)
+        R$ 49 + ({alunosSimulacao} × R$ 3) + ({polosExtrasEssencial} unidades excedentes × R$ 49)
       </p>
 
       <p className="mt-3 text-2xl font-extrabold text-slate-900">
@@ -675,8 +684,8 @@ if (alvo) {
 </p>
       <p className="mt-3 text-xs text-slate-500">
   {polosSimulacao <= 1
-    ? "Todos os polos estão inclusos."
-    : `${polosSimulacao - 1} polo(s) extra(s) além do 1 incluso.`}
+  ? "A unidade informada está incluída no plano."
+  : `${polosExtrasEssencial} unidade(s) ativa(s) excedente(s) além da 1 incluída.`}
 </p>
     </div>
 
@@ -686,7 +695,7 @@ if (alvo) {
       </p>
 
       <p className="mt-2 text-sm text-blue-700">
-        R$ 99 + ({alunosSimulacao} × R$ 5) + ({polosExtrasProfissional} polos extras × R$ 79)
+        R$ 99 + ({alunosSimulacao} × R$ 5) + ({polosExtrasProfissional} unidades excedentes × R$ 79)
       </p>
 
       <p className="mt-3 text-2xl font-extrabold text-blue-900">
@@ -701,8 +710,8 @@ if (alvo) {
 </p>
       <p className="mt-3 text-xs text-slate-500">
   {polosSimulacao <= 3
-    ? "Todos os polos estão inclusos."
-    : `${polosSimulacao - 3} polo(s) extra(s) além dos 3 inclusos.`}
+  ? "Todas as unidades informadas estão incluídas no plano."
+  : `${polosExtrasProfissional} unidade(s) ativa(s) excedente(s) além das 3 incluídas.`}
 </p>
     </div>
 
@@ -712,12 +721,12 @@ if (alvo) {
       </p>
 
       <p className="mt-2 text-sm text-slate-500">
-        R$ 199 + ({alunosSimulacao} × R$ 7) + ({polosExtrasEnterprise} polos extras × R$ 99)
-      </p>
+  R$ 199 + ({alunosSimulacao} × R$ 7) + unidades conforme contrato
+</p>
 
       <p className="mt-3 text-2xl font-extrabold text-slate-900">
-        R$ {totalEnterprise.toLocaleString("pt-BR")}
-      </p>
+  A partir de R$ {totalEnterprise.toLocaleString("pt-BR")}
+</p>
 
       <p className="text-sm text-slate-500">
         Total estimado / mês
@@ -726,15 +735,20 @@ if (alvo) {
   ≈ R$ {custoAlunoEnterprise.toFixed(2)} por aluno ativo
 </p>
       <p className="mt-3 text-xs text-slate-500">
-  Condições comerciais personalizadas para universidades e operações de grande escala.
+  O valor exibido considera a mensalidade base e os alunos
+  ativos. A quantidade de unidades incluídas e o valor das
+  unidades excedentes são definidos em contrato.
 </p>
     </div>
   </div>
 
   <p className="mt-5 text-xs leading-6 text-slate-500">
-  * Durante os primeiros {PROMO_DIAS_GRATIS} dias, a instituição usa o PHANYX sem cobrança.
-  Após esse período, se não houver cancelamento, a cobrança mensal será iniciada
-  conforme o plano escolhido, a quantidade real de alunos ativos e os polos cadastrados.
+  * Durante os primeiros {PROMO_DIAS_GRATIS} dias, a instituição
+  usa o PHANYX sem cobrança. Após esse período, se não houver
+  cancelamento, a cobrança mensal será iniciada conforme o plano,
+  a quantidade real de alunos ativos e as unidades ativas com
+  acesso institucional criado. Unidades pendentes, suspensas ou
+  encerradas não entram no cálculo.
 </p>
 
   <div className="mt-6 rounded-2xl border border-blue-200 bg-blue-50 p-5 text-center">
@@ -811,6 +825,16 @@ if (alvo) {
                         {plano.periodo}
                       </span>
                     </div>
+
+<p
+  className={`mt-3 text-xs font-medium leading-5 ${
+    plano.destaque
+      ? "text-blue-100"
+      : "text-blue-700"
+  }`}
+>
+  {plano.regraUnidades}
+</p>
 
                     <p
                       className={`mt-4 text-sm leading-7 ${
