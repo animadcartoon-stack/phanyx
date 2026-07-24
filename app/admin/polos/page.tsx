@@ -231,6 +231,9 @@ const [credenciaisAcesso, setCredenciaisAcesso] =
 const [credenciaisCopiadas, setCredenciaisCopiadas] =
   useState(false);
 
+  const [erroProvisionamento, setErroProvisionamento] =
+  useState("");
+
   function limparFormulario() {
     setNome("");
     setTipoUnidade("POLO");
@@ -444,6 +447,8 @@ await carregarPolos();
   async function provisionarPolo() {
   if (!poloParaProvisionar) return;
 
+  setErroProvisionamento("");
+
   try {
     setProvisionandoId(poloParaProvisionar.id);
 
@@ -497,16 +502,24 @@ await carregarPolos();
     );
     setFeedbackTipo("sucesso");
   } catch (error: unknown) {
-    setFeedback(
-      error instanceof Error
-        ? error.message
-        : "Erro ao criar o acesso institucional."
-    );
-    setFeedbackTipo("erro");
-  } finally {
-    setProvisionandoId(null);
-  }
+  const mensagem =
+    error instanceof Error
+      ? error.message
+      : "Erro ao criar o acesso institucional.";
+
+  setErroProvisionamento(mensagem);
+  setFeedback(mensagem);
+  setFeedbackTipo("erro");
+} finally {
+  setProvisionandoId(null);
 }
+}
+
+{erroProvisionamento && (
+  <div className="mt-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+    {erroProvisionamento}
+  </div>
+)}
 
 async function copiarCredenciais() {
   if (!credenciaisAcesso) return;
@@ -613,7 +626,10 @@ async function copiarCredenciais() {
       <div className="mt-6 flex flex-wrap justify-end gap-3">
         <button
           type="button"
-          onClick={() => setPoloParaProvisionar(null)}
+          onClick={() => {
+  setErroProvisionamento("");
+  setPoloParaProvisionar(null);
+}}
           disabled={
             provisionandoId === poloParaProvisionar.id
           }
@@ -1274,7 +1290,10 @@ const podeCriarAcesso =
   {podeCriarAcesso && (
     <button
       type="button"
-      onClick={() => setPoloParaProvisionar(polo)}
+      onClick={() => {
+  setErroProvisionamento("");
+  setPoloParaProvisionar(polo);
+}}
       disabled={provisionandoId === polo.id}
       className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
     >
