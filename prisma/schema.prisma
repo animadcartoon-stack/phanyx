@@ -18,6 +18,8 @@ model Instituicao {
   slug                   String   @unique
   updatedAt              DateTime
   plano                  String   @default("ESSENCIAL")
+  redeInstitucionalId    Int?
+  herdaPlanoContratante  Boolean  @default(false)
   statusAssinatura       String   @default("ATIVA")
 
   metaAccessToken     String?
@@ -61,63 +63,67 @@ model Instituicao {
   aniversarioEnviarChatPadrao     Boolean @default(true)
   aniversarioEnviarWhatsappPadrao Boolean @default(false)
 
-  alternativas               Alternativa[]
-  ouvidoriasPhanyx           OuvidoriaPhanyx[]
-  alunos                     Aluno[]
-  atestadosMedicos           AtestadoMedico[]
-  atividades                 Atividade[]
-  anexosAtividade            AtividadeAnexo[]
-  aulas                      Aula[]
-  caixas                     Caixa[]
-  certificados               Certificado[]
-  cobrancas                  Cobranca[]
-  configuracaoInstituicao    ConfiguracaoInstituicao?
-  contratos                  Contrato[]
-  cursos                     Curso[]
-  cursoSemestres             CursoSemestre[]
-  cursoSemestreDisciplinas   CursoSemestreDisciplina[]
-  Departamento               Departamento[]
-  disciplinas                Disciplina[]
-  documentosAlunos           DocumentoAluno[]
-  documentosGerados          DocumentoGerado[]
-  documentoTemplates         DocumentoTemplate[]
-  entregas                   EntregaAtividade[]
-  Funcionario                Funcionario[]
-  itensMatricula             ItemMatricula[]
-  lancamentosFinanceiros     LancamentoFinanceiro[]
-  materiaisAula              MaterialAula[]
-  matriculas                 Matricula[]
-  modulos                    Modulo[]
-  movimentosCaixa            MovimentoCaixa[]
-  notas                      Nota[]
-  pagamentos                 Pagamento[]
-  presencasAula              PresencaAula[]
-  professores                Professor[]
-  progressoAulas             ProgressoAula[]
-  provas                     Prova[]
-  questoes                   Questao[]
-  respostas                  RespostaProva[]
-  resultadosFinais           ResultadoFinal[]
-  tentativas                 TentativaProva[]
-  turmas                     Turma[]
-  usuarios                   User[]
-  polos                      Polo[]
-  usuariosPolos              UserPolo[]
-  adesoes                    AdesaoInstituicao[]
-  assinaturaPhanyx           AssinaturaPhanyx?
-  TurmaDisciplina            TurmaDisciplina[]
-  certificadoCampos          CertificadoCampo[]
-  certificadoModelos         CertificadoModelo[]
-  periodosMatricula          PeriodoMatricula[]
-  disciplinaPreRequisitos    DisciplinaPreRequisito[]
-  cursosDisciplinasExtras    CursoDisciplinaExtraPermitida[]
-  impersonacoesSuporte       ImpersonacaoSuporte[]
-  certificadoTemplateUrl     String?
-  certificadoPreviewUrl      String?
-  certificadoTextoPadrao     String?
-  certificadoAssinaturaUrl   String?
-  certificadoCoordenadorNome String?
-  certificadoCidade          String?
+  alternativas                   Alternativa[]
+  ouvidoriasPhanyx               OuvidoriaPhanyx[]
+  alunos                         Aluno[]
+  atestadosMedicos               AtestadoMedico[]
+  atividades                     Atividade[]
+  anexosAtividade                AtividadeAnexo[]
+  aulas                          Aula[]
+  caixas                         Caixa[]
+  certificados                   Certificado[]
+  cobrancas                      Cobranca[]
+  configuracaoInstituicao        ConfiguracaoInstituicao?
+  contratos                      Contrato[]
+  cursos                         Curso[]
+  cursoSemestres                 CursoSemestre[]
+  cursoSemestreDisciplinas       CursoSemestreDisciplina[]
+  Departamento                   Departamento[]
+  disciplinas                    Disciplina[]
+  documentosAlunos               DocumentoAluno[]
+  documentosGerados              DocumentoGerado[]
+  documentoTemplates             DocumentoTemplate[]
+  entregas                       EntregaAtividade[]
+  Funcionario                    Funcionario[]
+  itensMatricula                 ItemMatricula[]
+  lancamentosFinanceiros         LancamentoFinanceiro[]
+  materiaisAula                  MaterialAula[]
+  matriculas                     Matricula[]
+  modulos                        Modulo[]
+  movimentosCaixa                MovimentoCaixa[]
+  notas                          Nota[]
+  pagamentos                     Pagamento[]
+  presencasAula                  PresencaAula[]
+  professores                    Professor[]
+  progressoAulas                 ProgressoAula[]
+  provas                         Prova[]
+  questoes                       Questao[]
+  respostas                      RespostaProva[]
+  resultadosFinais               ResultadoFinal[]
+  tentativas                     TentativaProva[]
+  turmas                         Turma[]
+  usuarios                       User[]
+  polos                          Polo[]
+  redeInstitucional              RedeInstitucional?              @relation("RedeInstitucionalMembros", fields: [redeInstitucionalId], references: [id], onDelete: SetNull)
+  redeComoContratante            RedeInstitucional?              @relation("RedeInstitucionalContratante")
+  acessosInstitucionaisRecebidos UserInstituicaoAcesso[]         @relation("UserInstituicaoAcessoDestino")
+  poloOrigem                     Polo?                           @relation("PoloInstituicaoGerada")
+  usuariosPolos                  UserPolo[]
+  adesoes                        AdesaoInstituicao[]
+  assinaturaPhanyx               AssinaturaPhanyx?
+  TurmaDisciplina                TurmaDisciplina[]
+  certificadoCampos              CertificadoCampo[]
+  certificadoModelos             CertificadoModelo[]
+  periodosMatricula              PeriodoMatricula[]
+  disciplinaPreRequisitos        DisciplinaPreRequisito[]
+  cursosDisciplinasExtras        CursoDisciplinaExtraPermitida[]
+  impersonacoesSuporte           ImpersonacaoSuporte[]
+  certificadoTemplateUrl         String?
+  certificadoPreviewUrl          String?
+  certificadoTextoPadrao         String?
+  certificadoAssinaturaUrl       String?
+  certificadoCoordenadorNome     String?
+  certificadoCidade              String?
 
   certificadoModoFundo      String @default("modelo") // modelo | phanyx | cor
   certificadoCorFundoPagina String @default("#ffffff")
@@ -183,6 +189,23 @@ model Instituicao {
   LancamentoComissaoRH           LancamentoComissaoRH[]
   rematriculasSemestrais         RematriculaSemestral[]
   itensRematriculaSemestral      RematriculaSemestralItem[]
+
+  @@index([redeInstitucionalId])
+  @@index([redeInstitucionalId, ativo])
+}
+
+model RedeInstitucional {
+  id                       Int      @id @default(autoincrement())
+  nome                     String
+  instituicaoContratanteId Int      @unique
+  ativo                    Boolean  @default(true)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  instituicaoContratante Instituicao   @relation("RedeInstitucionalContratante", fields: [instituicaoContratanteId], references: [id], onDelete: Restrict)
+  instituicoes           Instituicao[] @relation("RedeInstitucionalMembros")
+
+  @@index([ativo])
 }
 
 model User {
@@ -286,9 +309,39 @@ model User {
   polosSuspensos        Polo[]     @relation("PoloSuspensoPor")
   polosEncerrados       Polo[]     @relation("PoloEncerradoPor")
 
+  acessosInstitucionais          UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoUsuario")
+  acessosInstitucionaisCriados   UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoCriadoPor")
+  acessosInstitucionaisRevogados UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoRevogadoPor")
+
   @@index([instituicaoId])
   @@index([role])
   @@index([instituicaoId, acessoTodosPolos])
+}
+
+model UserInstituicaoAcesso {
+  id              Int                    @id @default(autoincrement())
+  userId          Int
+  instituicaoId   Int
+  nivelAcesso     NivelAcessoInstituicao @default(LEITURA)
+  ativo           Boolean                @default(true)
+  criadoPorId     Int?
+  revogadoPorId   Int?
+  criadoEm        DateTime               @default(now())
+  atualizadoEm    DateTime               @updatedAt
+  revogadoEm      DateTime?
+  motivoRevogacao String?                @db.Text
+
+  user        User        @relation("UserInstituicaoAcessoUsuario", fields: [userId], references: [id], onDelete: Cascade)
+  instituicao Instituicao @relation("UserInstituicaoAcessoDestino", fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor   User?       @relation("UserInstituicaoAcessoCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  revogadoPor User?       @relation("UserInstituicaoAcessoRevogadoPor", fields: [revogadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, instituicaoId])
+  @@index([userId])
+  @@index([instituicaoId])
+  @@index([instituicaoId, ativo])
+  @@index([criadoPorId])
+  @@index([revogadoPorId])
 }
 
 model ImpersonacaoSuporte {
@@ -2049,12 +2102,14 @@ model Polo {
   createdAt           DateTime            @default(now())
   updatedAt           DateTime            @updatedAt
   instituicaoId       Int
+  instituicaoGeradaId Int?                @unique
 
   instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
   criadoPor              User?                  @relation("PoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
   ativadoPor             User?                  @relation("PoloAtivadoPor", fields: [ativadoPorId], references: [id], onDelete: SetNull)
   suspensoPor            User?                  @relation("PoloSuspensoPor", fields: [suspensoPorId], references: [id], onDelete: SetNull)
   encerradoPor           User?                  @relation("PoloEncerradoPor", fields: [encerradoPorId], references: [id], onDelete: SetNull)
+  instituicaoGerada      Instituicao?           @relation("PoloInstituicaoGerada", fields: [instituicaoGeradaId], references: [id], onDelete: SetNull)
   usuariosAcesso         UserPolo[]
   professores            Professor[]
   turmas                 Turma[]
@@ -4691,5 +4746,14 @@ enum NivelAcessoPolo {
   RESPONSAVEL
   GESTOR
   OPERACIONAL
+  LEITURA
+}
+
+enum NivelAcessoInstituicao {
+  REITOR
+  DIRETOR
+  ADMINISTRADOR_REDE
+  GESTOR_CENTRAL
+  AUDITOR
   LEITURA
 }

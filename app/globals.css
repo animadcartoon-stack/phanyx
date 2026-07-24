@@ -15085,3 +15085,81 @@ html[data-theme="system"] .phanyx-polos-aviso {
   color: #fde68a !important;
   -webkit-text-fill-color: #fde68a !important;
 }
+
+/* =========================================
+   PORTAL DO ALUNO — REMATRÍCULA
+   AJUSTES DO TEMA CLARO
+========================================= */
+
+html[data-theme="light"] .phanyx-rematricula-hero-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-resumo-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-resumo-label {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-resumo-valor {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-resumo-linha {
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-resumo-linha-titulo {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-resumo-linha-valor {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-disciplina-titulo {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-disciplina-meta {
+  color: #64748b !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-disciplina-descricao {
+  color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-alerta-bloqueio {
+  background: #fff1f2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-prerequisito-pendente {
+  background: #fff1f2 !important;
+  border-color: #dc2626 !important;
+  color: #991b1b !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-declaracao {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-declaracao-texto {
+  color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-aviso-carga {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}

@@ -177,8 +177,115 @@ export default async function AlunoLayout({
     );
   }
 
+  const configuracaoManualRematricula =
+  await prisma.configuracaoPortalInstituicao.findFirst({
+    where: {
+      instituicaoId: aluno.instituicaoId,
+      portal: "ALUNO",
+      chavePagina: "aluno.rematricula",
+    },
+    select: {
+      visivel: true,
+    },
+  });
+
+const matriculaAtual = await prisma.matricula.findFirst({
+  where: {
+    alunoId: aluno.id,
+    instituicaoId: aluno.instituicaoId,
+    cursoId: {
+      not: null,
+    },
+    OR: [
+      {
+        status: "ATIVA",
+      },
+      {
+        status: "A_INICIAR",
+      },
+    ],
+  },
+  orderBy: [
+    {
+      updatedAt: "desc",
+    },
+    {
+      createdAt: "desc",
+    },
+  ],
+  select: {
+    id: true,
+    cursoId: true,
+    semestre: true,
+    cursoSemestre: {
+      select: {
+        numero: true,
+      },
+    },
+  },
+});
+
+const semestreAtual =
+  matriculaAtual?.cursoSemestre?.numero ??
+  matriculaAtual?.semestre ??
+  null;
+
+const proximoSemestreNumero =
+  semestreAtual !== null
+    ? semestreAtual + 1
+    : null;
+
+const agora = new Date();
+
+const periodoRematriculaAberto =
+  matriculaAtual?.cursoId
+    ? await prisma.periodoMatricula.findFirst({
+        where: {
+          instituicaoId: aluno.instituicaoId,
+          tipo: "REMATRICULA",
+          status: "PUBLICADO",
+          ativo: true,
+          permiteAluno: true,
+          dataInicio: {
+            lte: agora,
+          },
+          dataFim: {
+            gte: agora,
+          },
+          OR: [
+            {
+              cursoId: null,
+            },
+            {
+              cursoId: matriculaAtual.cursoId,
+            },
+          ],
+          ...(proximoSemestreNumero !== null
+            ? {
+                semestreNumero:
+                  proximoSemestreNumero,
+              }
+            : {}),
+        },
+        select: {
+          id: true,
+          periodoLetivo: true,
+          dataInicio: true,
+          dataFim: true,
+        },
+      })
+    : null;
+
+const rematriculaManualVisivel =
+  configuracaoManualRematricula?.visivel === true;
+
+const mostrarRematricula =
+  rematriculaManualVisivel ||
+  periodoRematriculaAberto !== null;
+
   const visibilidadeAluno = {
   painel: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.painel"),
+  rematricula: mostrarRematricula,
   disciplinas: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.disciplinas"),
   progresso: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.progresso"),
   trabalhos: await paginaVisivel(aluno.instituicaoId, "ALUNO", "aluno.trabalhos"),
@@ -202,6 +309,7 @@ export default async function AlunoLayout({
   aluno={aluno}
   visibilidade={{
     painel: visibilidadeAluno.painel,
+    rematricula: visibilidadeAluno.rematricula,
     disciplinas: visibilidadeAluno.disciplinas,
     progresso: visibilidadeAluno.progresso,
     trabalhos: visibilidadeAluno.trabalhos,
@@ -223,8 +331,8 @@ export default async function AlunoLayout({
 />
   </div>
 
-<nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-  <div className="grid grid-cols-8 gap-1 text-[9px] font-semibold text-slate-600">
+<nav className="fixed bottom-0 left-0 right-0 z-[70] overflow-x-auto border-t border-slate-200 bg-white/95 px-1 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+  <div className="grid w-max auto-cols-[72px] grid-flow-col gap-1 text-[9px] font-semibold text-slate-600">
     
     {visibilidadeAluno.painel && (
   <a href="/aluno" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
@@ -232,6 +340,17 @@ export default async function AlunoLayout({
     Painel
   </a>
 )}
+
+{visibilidadeAluno.rematricula && (
+  <a
+    href="/aluno/rematricula"
+    className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700"
+  >
+    <span className="text-lg">🔄</span>
+    Rematr.
+  </a>
+)}
+
  {visibilidadeAluno.disciplinas && (
     <a href="/aluno/disciplinas" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
       <span className="text-lg">📘</span>

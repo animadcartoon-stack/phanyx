@@ -7,6 +7,7 @@ import PhanyxNotificationBell from "@/components/notificacoes/PhanyxNotification
 
 type VisibilidadeAluno = {
   painel?: boolean;
+  rematricula?: boolean;
   disciplinas?: boolean;
   progresso?: boolean;
   trabalhos?: boolean;
@@ -32,6 +33,7 @@ export default function AlunoSidebar({
 
   const podeVer = {
     painel: visibilidade?.painel ?? true,
+    rematricula: visibilidade?.rematricula ?? false,
     disciplinas: visibilidade?.disciplinas ?? true,
     progresso: visibilidade?.progresso ?? true,
     trabalhos: visibilidade?.trabalhos ?? true,
@@ -49,6 +51,11 @@ export default function AlunoSidebar({
       href: "/aluno",
       icon: "📊",
     },
+    podeVer.rematricula && {
+  label: "Rematrícula semestral",
+  href: "/aluno/rematricula",
+  icon: "🔄",
+},
     podeVer.disciplinas && {
       label: "Disciplinas",
       href: "/aluno/disciplinas",
@@ -136,7 +143,12 @@ export default function AlunoSidebar({
         <nav className="space-y-1 px-3">
           {menu.map((item) => {
             const ativo =
-              pathname === item.href || pathname.startsWith(item.href + "/");
+  item.href === "/aluno"
+    ? pathname === "/aluno"
+    : pathname === item.href ||
+      pathname.startsWith(
+        item.href + "/",
+      );
 
             return (
               <Link
