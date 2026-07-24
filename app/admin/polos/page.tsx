@@ -46,6 +46,8 @@ type CredenciaisAcesso = {
   login: string;
   senha: string;
   precisaTrocarSenha: boolean;
+  titulo?: string;
+  orientacao?: string;
 };
 
 type FeedbackTipo = "sucesso" | "aviso" | "erro" | "";
@@ -232,6 +234,17 @@ const [credenciaisCopiadas, setCredenciaisCopiadas] =
   useState(false);
 
   const [erroProvisionamento, setErroProvisionamento] =
+  useState("");
+
+const [
+  poloParaRedefinirSenha,
+  setPoloParaRedefinirSenha,
+] = useState<Polo | null>(null);
+
+const [redefinindoSenhaId, setRedefinindoSenhaId] =
+  useState<number | null>(null);
+
+const [erroRedefinicaoSenha, setErroRedefinicaoSenha] =
   useState("");
 
   function limparFormulario() {
@@ -540,6 +553,74 @@ async function copiarCredenciais() {
   }
 }
 
+async function redefinirSenhaPolo() {
+  if (!poloParaRedefinirSenha) return;
+
+  setErroRedefinicaoSenha("");
+
+  try {
+    setRedefinindoSenhaId(poloParaRedefinirSenha.id);
+
+    const res = await fetch(
+      `/api/admin/polos/${poloParaRedefinirSenha.id}/redefinir-senha`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          "Erro ao gerar uma nova senha temporária."
+      );
+    }
+
+    if (
+      !data?.instituicao?.id ||
+      !data?.instituicao?.nome ||
+      !data?.credenciaisTemporarias?.login ||
+      !data?.credenciaisTemporarias?.senha
+    ) {
+      throw new Error(
+        "A senha foi redefinida, mas as novas credenciais não foram retornadas corretamente."
+      );
+    }
+
+    setPoloParaRedefinirSenha(null);
+
+    setCredenciaisAcesso({
+      instituicaoId: Number(data.instituicao.id),
+      instituicaoNome: String(data.instituicao.nome),
+      login: String(data.credenciaisTemporarias.login),
+      senha: String(data.credenciaisTemporarias.senha),
+      precisaTrocarSenha:
+        data.credenciaisTemporarias.precisaTrocarSenha ===
+        true,
+      titulo: "Nova senha temporária criada",
+      orientacao:
+        "A senha anterior deixou de funcionar. Guarde ou envie estas novas credenciais ao administrador da unidade.",
+    });
+
+    setCredenciaisCopiadas(false);
+
+    setFeedback(
+      "Nova senha temporária criada com sucesso."
+    );
+    setFeedbackTipo("sucesso");
+  } catch (error: unknown) {
+    setErroRedefinicaoSenha(
+      error instanceof Error
+        ? error.message
+        : "Erro ao gerar uma nova senha temporária."
+    );
+  } finally {
+    setRedefinindoSenhaId(null);
+  }
+}
+
   const polosFiltrados = useMemo(() => {
   const termo = normalizarBusca(busca);
 
@@ -739,6 +820,81 @@ async function copiarCredenciais() {
   </div>
 )}
 
+{poloParaRedefinirSenha && (
+  <div className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-[2px]">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-redefinir-senha-polo"
+      className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
+    >
+      <h2
+        id="titulo-redefinir-senha-polo"
+        className="text-xl font-bold"
+      >
+        Gerar nova senha temporária
+      </h2>
+
+      <p className="mt-3 text-sm leading-6">
+        Será criada uma nova senha para o administrador da
+        unidade{" "}
+        <strong>{poloParaRedefinirSenha.nome}</strong>.
+      </p>
+
+      <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
+        <p className="phanyx-polos-alerta-titulo text-sm font-bold">
+          Atenção
+        </p>
+
+        <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
+          A senha atual deixará de funcionar imediatamente. O
+          login continuará sendo o mesmo, e o administrador
+          deverá trocar a nova senha temporária no próximo
+          acesso.
+        </p>
+      </div>
+
+      {erroRedefinicaoSenha && (
+        <div className="mt-4 rounded-xl border border-red-300 !bg-red-50 p-4 text-sm font-semibold !text-red-800 dark:border-red-800 dark:!bg-red-950/40 dark:!text-red-200">
+          {erroRedefinicaoSenha}
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            setErroRedefinicaoSenha("");
+            setPoloParaRedefinirSenha(null);
+          }}
+          disabled={
+            redefinindoSenhaId ===
+            poloParaRedefinirSenha.id
+          }
+          className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={redefinirSenhaPolo}
+          disabled={
+            redefinindoSenhaId ===
+            poloParaRedefinirSenha.id
+          }
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {redefinindoSenhaId ===
+          poloParaRedefinirSenha.id
+            ? "Gerando nova senha..."
+            : "Confirmar nova senha"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 {credenciaisAcesso && (
   <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
     <div
@@ -751,13 +907,13 @@ async function copiarCredenciais() {
         id="titulo-credenciais-unidade"
         className="text-xl font-bold"
       >
-        Acesso institucional criado
+        {credenciaisAcesso.titulo ||
+  "Acesso institucional criado"}
       </h2>
 
       <p className="mt-2 text-sm">
-        Guarde ou envie estas credenciais ao responsável da
-        unidade. A senha temporária será exibida somente nesta
-        tela.
+        {credenciaisAcesso.orientacao ||
+  "Guarde ou envie estas credenciais ao responsável da unidade. A senha temporária será exibida somente nesta tela."}
       </p>
 
       <div className="mt-5 space-y-3">
@@ -1388,10 +1544,26 @@ const podeCriarAcesso =
   )}
 
   {polo.instituicaoGeradaId && (
+  <>
     <span className="rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
       Instituição independente criada
     </span>
-  )}
+
+    <button
+      type="button"
+      onClick={() => {
+        setErroRedefinicaoSenha("");
+        setPoloParaRedefinirSenha(polo);
+      }}
+      disabled={redefinindoSenhaId === polo.id}
+      className="rounded-lg border border-blue-500 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-blue-300 dark:hover:bg-blue-950/30"
+    >
+      {redefinindoSenhaId === polo.id
+        ? "Gerando nova senha..."
+        : "Gerar nova senha temporária"}
+    </button>
+  </>
+)}
 
   {unidadeContratante && (
     <span className="rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
