@@ -1913,7 +1913,7 @@ async function executarAcaoPeriodo() {
                   disciplinasExtrasFiltradas.length ===
                   0
                 }
-                className="rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+                className="phanyx-rematricula-selecionar-exibidas rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
               >
                 Selecionar todas exibidas
               </button>
@@ -1927,7 +1927,7 @@ async function executarAcaoPeriodo() {
                   disciplinasExtrasFiltradas.length ===
                   0
                 }
-                className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+                className="phanyx-rematricula-remover-exibidas rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
               >
                 Remover exibidas
               </button>
