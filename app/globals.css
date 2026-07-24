@@ -15875,3 +15875,151 @@ html[data-theme="light"]
   opacity: 1 !important;
   cursor: not-allowed;
 }
+
+/* =========================================================
+   POLOS — MODAL DE ERRO DO ACESSO INSTITUCIONAL
+========================================================= */
+
+.phanyx-polos-modal-erro {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #fecaca !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-modal-erro-icone {
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+.phanyx-polos-modal-erro-titulo {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-modal-erro-texto {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-modal-erro-ajuda {
+  background: #fffbeb !important;
+  background-color: #fffbeb !important;
+  background-image: none !important;
+  border-color: #fbbf24 !important;
+}
+
+.phanyx-polos-modal-erro-ajuda-titulo {
+  color: #78350f !important;
+}
+
+.phanyx-polos-modal-erro-ajuda-texto {
+  color: #92400e !important;
+}
+
+.phanyx-polos-modal-erro-email {
+  background: #ffffff !important;
+  border-color: #fcd34d !important;
+  color: #78350f !important;
+}
+
+.phanyx-polos-modal-erro-voltar {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #334155 !important;
+}
+
+.phanyx-polos-modal-erro-voltar:hover {
+  background: #f8fafc !important;
+}
+
+/* Tema escuro */
+html.dark .phanyx-polos-modal-erro,
+html[data-theme="dark"] .phanyx-polos-modal-erro {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  border-color: #7f1d1d !important;
+}
+
+html.dark .phanyx-polos-modal-erro-titulo,
+html[data-theme="dark"] .phanyx-polos-modal-erro-titulo {
+  color: #f8fafc !important;
+}
+
+html.dark .phanyx-polos-modal-erro-texto,
+html[data-theme="dark"] .phanyx-polos-modal-erro-texto {
+  color: #cbd5e1 !important;
+}
+
+html.dark .phanyx-polos-modal-erro-ajuda,
+html[data-theme="dark"] .phanyx-polos-modal-erro-ajuda {
+  background: #422006 !important;
+  border-color: #b45309 !important;
+}
+
+html.dark .phanyx-polos-modal-erro-ajuda-titulo,
+html[data-theme="dark"] .phanyx-polos-modal-erro-ajuda-titulo {
+  color: #fef3c7 !important;
+}
+
+html.dark .phanyx-polos-modal-erro-ajuda-texto,
+html[data-theme="dark"] .phanyx-polos-modal-erro-ajuda-texto {
+  color: #fde68a !important;
+}
+
+html.dark .phanyx-polos-modal-erro-email,
+html[data-theme="dark"] .phanyx-polos-modal-erro-email {
+  background: #292524 !important;
+  border-color: #a16207 !important;
+  color: #fef3c7 !important;
+}
+
+html.dark .phanyx-polos-modal-erro-voltar,
+html[data-theme="dark"] .phanyx-polos-modal-erro-voltar {
+  background: #1f2937 !important;
+  border-color: #64748b !important;
+  color: #e2e8f0 !important;
+}
+
+/* Tema sistema — cinza neutro */
+html[data-theme="system"] .phanyx-polos-modal-erro,
+html[data-theme="sistema"] .phanyx-polos-modal-erro {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  border-color: #8b3030 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-modal-erro-titulo,
+html[data-theme="sistema"] .phanyx-polos-modal-erro-titulo {
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-polos-modal-erro-texto,
+html[data-theme="sistema"] .phanyx-polos-modal-erro-texto {
+  color: #e5e7eb !important;
+}
+
+html[data-theme="system"] .phanyx-polos-modal-erro-ajuda,
+html[data-theme="sistema"] .phanyx-polos-modal-erro-ajuda {
+  background: #3a2f1d !important;
+  border-color: #b7791f !important;
+}
+
+html[data-theme="system"] .phanyx-polos-modal-erro-ajuda-titulo,
+html[data-theme="sistema"] .phanyx-polos-modal-erro-ajuda-titulo {
+  color: #fef3c7 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-modal-erro-ajuda-texto,
+html[data-theme="sistema"] .phanyx-polos-modal-erro-ajuda-texto {
+  color: #fde68a !important;
+}
+
+html[data-theme="system"] .phanyx-polos-modal-erro-email,
+html[data-theme="sistema"] .phanyx-polos-modal-erro-email {
+  background: #262626 !important;
+  border-color: #b7791f !important;
+  color: #fef3c7 !important;
+}

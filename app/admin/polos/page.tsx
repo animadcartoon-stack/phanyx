@@ -577,27 +577,27 @@ async function copiarCredenciais() {
     <div className="phanyx-polos-page max-w-6xl space-y-6">
 
       {erroProvisionamento && (
-  <div className="fixed inset-0 z-[1000001] flex items-center justify-center bg-black/75 p-4">
+  <div className="fixed inset-0 z-[1000001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-[2px]">
     <div
       role="alertdialog"
       aria-modal="true"
       aria-labelledby="titulo-erro-provisionamento"
-      className="w-full max-w-lg rounded-2xl border border-red-300 !bg-white p-6 shadow-2xl dark:border-red-800 dark:!bg-slate-950"
+      className="phanyx-polos-modal-erro w-full max-w-lg rounded-2xl border p-6 shadow-2xl"
     >
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full !bg-red-100 text-xl dark:!bg-red-950/60">
+      <div className="flex items-start gap-4">
+        <div className="phanyx-polos-modal-erro-icone flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl">
           ⚠️
         </div>
 
-        <div>
+        <div className="min-w-0 flex-1">
           <h2
             id="titulo-erro-provisionamento"
-            className="text-xl font-bold !text-slate-950 dark:!text-slate-100"
+            className="phanyx-polos-modal-erro-titulo text-xl font-bold"
           >
             Não foi possível criar o acesso
           </h2>
 
-          <p className="mt-2 text-sm leading-6 !text-slate-700 dark:!text-slate-300">
+          <p className="phanyx-polos-modal-erro-texto mt-2 text-sm leading-6">
             {erroProvisionamento}
           </p>
         </div>
@@ -606,12 +606,12 @@ async function copiarCredenciais() {
       {erroProvisionamento
         .toLowerCase()
         .includes("já existe um usuário") && (
-        <div className="mt-5 rounded-xl border border-amber-300 !bg-amber-50 p-4 dark:border-amber-800 dark:!bg-amber-950/40">
-          <p className="text-sm font-bold !text-amber-900 dark:!text-amber-100">
+        <div className="phanyx-polos-modal-erro-ajuda mt-5 rounded-xl border p-4">
+          <p className="phanyx-polos-modal-erro-ajuda-titulo text-sm font-bold">
             O que fazer?
           </p>
 
-          <p className="mt-1 text-sm leading-6 !text-amber-800 dark:!text-amber-200">
+          <p className="phanyx-polos-modal-erro-ajuda-texto mt-2 text-sm leading-6">
             O e-mail do responsável já está vinculado a outro
             usuário do PHANYX. Edite o polo e informe um e-mail
             ainda não cadastrado para o primeiro administrador
@@ -619,10 +619,15 @@ async function copiarCredenciais() {
           </p>
 
           {poloParaProvisionar?.responsavelEmail && (
-            <p className="mt-2 break-all text-sm font-semibold !text-amber-900 dark:!text-amber-100">
-              E-mail informado:{" "}
-              {poloParaProvisionar.responsavelEmail}
-            </p>
+            <div className="phanyx-polos-modal-erro-email mt-3 rounded-lg border px-3 py-2">
+              <p className="text-xs font-semibold uppercase">
+                E-mail informado
+              </p>
+
+              <p className="mt-1 break-all text-sm font-bold">
+                {poloParaProvisionar.responsavelEmail}
+              </p>
+            </div>
           )}
         </div>
       )}
@@ -631,7 +636,7 @@ async function copiarCredenciais() {
         <button
           type="button"
           onClick={() => setErroProvisionamento("")}
-          className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold !text-slate-800 dark:!text-slate-200"
+          className="phanyx-polos-modal-erro-voltar rounded-xl border px-4 py-2 text-sm font-semibold"
         >
           Voltar
         </button>
@@ -657,7 +662,7 @@ async function copiarCredenciais() {
   </div>
 )}
 
-{poloParaProvisionar && (
+{poloParaProvisionar && !erroProvisionamento && (
   <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
     <div
       role="dialog"
