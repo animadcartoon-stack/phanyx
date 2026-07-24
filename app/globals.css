@@ -15524,3 +15524,49 @@ html[data-theme="system"] .phanyx-extras-disciplina-selecionada {
   background: #172554 !important;
   border-color: #3b82f6 !important;
 }
+
+/* Correção forte — extracurriculares no tema claro */
+
+html[data-theme="light"]
+  .phanyx-rematriculas-semestrais
+  .phanyx-extras-painel {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematriculas-semestrais
+  .phanyx-extras-cabecalho {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematriculas-semestrais
+  .phanyx-extras-cabecalho h3 {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematriculas-semestrais
+  .phanyx-extras-cabecalho p {
+  color: #475569 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematriculas-semestrais
+  .phanyx-extras-contador {
+  background: #eff6ff !important;
+  border-color: #93c5fd !important;
+  color: #1d4ed8 !important;
+}
+
+html[data-theme="light"]
+  .phanyx-rematriculas-semestrais
+  .phanyx-extras-estado-vazio {
+  background: #f8fafc !important;
+  color: #475569 !important;
+  opacity: 1 !important;
+}

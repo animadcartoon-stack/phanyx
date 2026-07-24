@@ -1344,9 +1344,9 @@ async function executarAcaoPeriodo() {
   </div>
 
   {!formulario.cursoId ? (
-    <div className="p-5 text-sm text-slate-600 dark:text-slate-400">
-      Selecione primeiro o curso de destino.
-    </div>
+    <div className="phanyx-extras-estado-vazio p-5 text-sm">
+  Selecione primeiro o curso de destino.
+</div>
   ) : (
     <div className="space-y-5 p-5">
       <div className="grid gap-3 md:grid-cols-2">
