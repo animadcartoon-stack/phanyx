@@ -1,6 +1,11 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type CursoSemestreOption = {
@@ -59,6 +64,50 @@ type PeriodoRematricula = {
 type RespostaApi = {
   periodos?: PeriodoRematricula[];
   cursos?: CursoOption[];
+  error?: string;
+  message?: string;
+};
+
+type EscopoExtracurricular =
+  | "SEMESTRE_ESPECIFICO"
+  | "TODOS_OS_SEMESTRES";
+
+type DisciplinaExtraOption = {
+  id: number;
+  nome: string;
+  codigo?: string | null;
+  descricao?: string | null;
+  cargaHoraria?: number | null;
+  semestre?: number | null;
+  cursoId?: number | null;
+  curso?: {
+    id: number;
+    nome: string;
+    codigo?: string | null;
+  } | null;
+};
+
+type ConfiguracaoExtraApi = {
+  id: number;
+  cursoId: number;
+  cursoSemestreId?: number | null;
+  disciplinaId: number;
+  ativa: boolean;
+  obrigatoria: boolean;
+  contaCargaMinima: boolean;
+  contaCargaMaxima: boolean;
+};
+
+type ItemExtraSelecionado = {
+  disciplinaId: number;
+  obrigatoria: boolean;
+  contaCargaMinima: boolean;
+  contaCargaMaxima: boolean;
+};
+
+type RespostaExtracurriculares = {
+  disciplinas?: DisciplinaExtraOption[];
+  configuracoes?: ConfiguracaoExtraApi[];
   error?: string;
   message?: string;
 };
@@ -169,6 +218,14 @@ function converterIsoParaDataLocal(valor?: string | null) {
     .slice(0, 16);
 }
 
+function normalizarTextoBusca(valor: string) {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
 export default function RematriculasSemestraisPage() {
   const [cursos, setCursos] = useState<CursoOption[]>([]);
   const [periodos, setPeriodos] = useState<PeriodoRematricula[]>([]);
@@ -176,6 +233,37 @@ export default function RematriculasSemestraisPage() {
   const [salvando, setSalvando] = useState(false);
   const [mensagem, setMensagem] = useState<MensagemTela | null>(null);
   const [formulario, setFormulario] = useState(FORMULARIO_INICIAL);
+
+  const [escopoExtras, setEscopoExtras] =
+  useState<EscopoExtracurricular>(
+    "SEMESTRE_ESPECIFICO",
+  );
+
+const [
+  disciplinasExtrasDisponiveis,
+  setDisciplinasExtrasDisponiveis,
+] = useState<DisciplinaExtraOption[]>([]);
+
+const [itensExtras, setItensExtras] =
+  useState<ItemExtraSelecionado[]>([]);
+
+const [buscaExtra, setBuscaExtra] =
+  useState("");
+
+const [
+  filtroCursoOrigemExtra,
+  setFiltroCursoOrigemExtra,
+] = useState("");
+
+const [
+  carregandoExtras,
+  setCarregandoExtras,
+] = useState(false);
+
+const [
+  salvandoExtras,
+  setSalvandoExtras,
+] = useState(false);
 
   const [periodoEmEdicaoId, setPeriodoEmEdicaoId] = useState<number | null>(
   null,
@@ -220,6 +308,109 @@ const [executandoAcao, setExecutandoAcao] = useState(false);
     carregarDados();
   }, [carregarDados]);
 
+  const carregarExtracurriculares =
+  useCallback(async () => {
+    const cursoId = Number(
+      formulario.cursoId,
+    );
+
+    const cursoSemestreId = Number(
+      formulario.cursoSemestreId,
+    );
+
+    if (
+      !cursoId ||
+      (escopoExtras ===
+        "SEMESTRE_ESPECIFICO" &&
+        !cursoSemestreId)
+    ) {
+      setDisciplinasExtrasDisponiveis(
+        [],
+      );
+
+      setItensExtras([]);
+
+      return;
+    }
+
+    setCarregandoExtras(true);
+
+    try {
+      const parametros =
+        new URLSearchParams({
+          cursoId: String(cursoId),
+        });
+
+      if (
+        escopoExtras ===
+        "SEMESTRE_ESPECIFICO"
+      ) {
+        parametros.set(
+          "cursoSemestreId",
+          String(cursoSemestreId),
+        );
+      }
+
+      const resposta = await fetch(
+        `/api/admin/rematriculas-semestrais/extracurriculares?${parametros.toString()}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        },
+      );
+
+      const dados =
+        (await resposta.json()) as RespostaExtracurriculares;
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados.error ||
+            "Não foi possível carregar as disciplinas extracurriculares.",
+        );
+      }
+
+      setDisciplinasExtrasDisponiveis(
+        dados.disciplinas || [],
+      );
+
+      setItensExtras(
+        (dados.configuracoes || [])
+          .filter(
+            (configuracao) =>
+              configuracao.ativa,
+          )
+          .map((configuracao) => ({
+            disciplinaId:
+              configuracao.disciplinaId,
+            obrigatoria:
+              configuracao.obrigatoria,
+            contaCargaMinima:
+              configuracao.contaCargaMinima,
+            contaCargaMaxima:
+              configuracao.contaCargaMaxima,
+          })),
+      );
+    } catch (error) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível carregar as disciplinas extracurriculares.",
+      });
+    } finally {
+      setCarregandoExtras(false);
+    }
+  }, [
+    formulario.cursoId,
+    formulario.cursoSemestreId,
+    escopoExtras,
+  ]);
+
+useEffect(() => {
+  carregarExtracurriculares();
+}, [carregarExtracurriculares]);
+
   const cursoSelecionado = useMemo(() => {
     const cursoId = Number(formulario.cursoId);
 
@@ -227,14 +418,114 @@ const [executandoAcao, setExecutandoAcao] = useState(false);
   }, [cursos, formulario.cursoId]);
 
   const semestreSelecionado = useMemo(() => {
-    const semestreId = Number(formulario.cursoSemestreId);
+  const semestreId = Number(
+    formulario.cursoSemestreId,
+  );
 
-    return (
-      cursoSelecionado?.semestres.find(
-        (semestre) => semestre.id === semestreId,
-      ) || null
+  return (
+    cursoSelecionado?.semestres.find(
+      (semestre) =>
+        semestre.id === semestreId,
+    ) || null
+  );
+}, [
+  cursoSelecionado,
+  formulario.cursoSemestreId,
+]);
+
+const extrasPorDisciplina = useMemo(
+  () =>
+    new Map<
+      number,
+      ItemExtraSelecionado
+    >(
+      itensExtras.map(
+        (item) =>
+          [
+            item.disciplinaId,
+            item,
+          ] as const,
+      ),
+    ),
+  [itensExtras],
+);
+
+const cursosOrigemExtras = useMemo(() => {
+  const mapa = new Map<
+    number,
+    {
+      id: number;
+      nome: string;
+      codigo?: string | null;
+    }
+  >();
+
+  for (
+    const disciplina of
+    disciplinasExtrasDisponiveis
+  ) {
+    if (disciplina.curso) {
+      mapa.set(
+        disciplina.curso.id,
+        disciplina.curso,
+      );
+    }
+  }
+
+  return Array.from(
+    mapa.values(),
+  ).sort((a, b) =>
+    a.nome.localeCompare(
+      b.nome,
+      "pt-BR",
+    ),
+  );
+}, [disciplinasExtrasDisponiveis]);
+
+const disciplinasExtrasFiltradas =
+  useMemo(() => {
+    const termo =
+      normalizarTextoBusca(buscaExtra);
+
+    const cursoOrigemId = Number(
+      filtroCursoOrigemExtra,
     );
-  }, [cursoSelecionado, formulario.cursoSemestreId]);
+
+    return disciplinasExtrasDisponiveis.filter(
+      (disciplina) => {
+        if (
+          cursoOrigemId &&
+          disciplina.cursoId !==
+            cursoOrigemId
+        ) {
+          return false;
+        }
+
+        if (!termo) {
+          return true;
+        }
+
+        const texto =
+          normalizarTextoBusca(
+            [
+              disciplina.nome,
+              disciplina.codigo,
+              disciplina.descricao,
+              disciplina.curso?.nome,
+              disciplina.curso?.codigo,
+            ]
+              .filter(Boolean)
+              .join(" "),
+          );
+
+        return texto.includes(termo);
+      },
+    );
+  }, [
+    disciplinasExtrasDisponiveis,
+    buscaExtra,
+    filtroCursoOrigemExtra,
+  ]);
 
   function alterarCurso(cursoId: string) {
     setFormulario((atual) => ({
@@ -244,6 +535,11 @@ const [executandoAcao, setExecutandoAcao] = useState(false);
       cargaMinimaOverride: "",
       cargaMaximaOverride: "",
     }));
+
+    setItensExtras([]);
+setDisciplinasExtrasDisponiveis([]);
+setBuscaExtra("");
+setFiltroCursoOrigemExtra("");
   }
 
   function alterarSemestre(cursoSemestreId: string) {
@@ -266,6 +562,196 @@ const [executandoAcao, setExecutandoAcao] = useState(false);
           : "",
     }));
   }
+
+  function alternarDisciplinaExtra(
+  disciplinaId: number,
+  selecionada: boolean,
+) {
+  setItensExtras((atuais) => {
+    if (!selecionada) {
+      return atuais.filter(
+        (item) =>
+          item.disciplinaId !==
+          disciplinaId,
+      );
+    }
+
+    if (
+      atuais.some(
+        (item) =>
+          item.disciplinaId ===
+          disciplinaId,
+      )
+    ) {
+      return atuais;
+    }
+
+    return [
+      ...atuais,
+      {
+        disciplinaId,
+        obrigatoria: false,
+        contaCargaMinima: true,
+        contaCargaMaxima: true,
+      },
+    ];
+  });
+}
+
+function alterarRegraExtra(
+  disciplinaId: number,
+  campo:
+    | "obrigatoria"
+    | "contaCargaMinima"
+    | "contaCargaMaxima",
+  valor: boolean,
+) {
+  setItensExtras((atuais) =>
+    atuais.map((item) =>
+      item.disciplinaId ===
+      disciplinaId
+        ? {
+            ...item,
+            [campo]: valor,
+          }
+        : item,
+    ),
+  );
+}
+
+function selecionarTodasExtrasFiltradas() {
+  setItensExtras((atuais) => {
+    const mapa = new Map(
+      atuais.map((item) => [
+        item.disciplinaId,
+        item,
+      ]),
+    );
+
+    for (const disciplina of disciplinasExtrasFiltradas) {
+      if (!mapa.has(disciplina.id)) {
+        mapa.set(disciplina.id, {
+          disciplinaId:
+            disciplina.id,
+          obrigatoria: false,
+          contaCargaMinima: true,
+          contaCargaMaxima: true,
+        });
+      }
+    }
+
+    return Array.from(
+      mapa.values(),
+    );
+  });
+}
+
+function removerExtrasFiltradas() {
+  const idsVisiveis = new Set(
+    disciplinasExtrasFiltradas.map(
+      (disciplina) =>
+        disciplina.id,
+    ),
+  );
+
+  setItensExtras((atuais) =>
+    atuais.filter(
+      (item) =>
+        !idsVisiveis.has(
+          item.disciplinaId,
+        ),
+    ),
+  );
+}
+
+async function salvarExtracurriculares() {
+  setMensagem(null);
+
+  const cursoId = Number(
+    formulario.cursoId,
+  );
+
+  const cursoSemestreId = Number(
+    formulario.cursoSemestreId,
+  );
+
+  if (!cursoId) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        "Selecione o curso de destino.",
+    });
+
+    return;
+  }
+
+  if (
+    escopoExtras ===
+      "SEMESTRE_ESPECIFICO" &&
+    !cursoSemestreId
+  ) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        "Selecione o semestre de destino.",
+    });
+
+    return;
+  }
+
+  setSalvandoExtras(true);
+
+  try {
+    const resposta = await fetch(
+      "/api/admin/rematriculas-semestrais/extracurriculares",
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          cursoId,
+          cursoSemestreId:
+            escopoExtras ===
+            "SEMESTRE_ESPECIFICO"
+              ? cursoSemestreId
+              : null,
+          itens: itensExtras,
+        }),
+      },
+    );
+
+    const dados =
+      (await resposta.json()) as RespostaExtracurriculares;
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados.error ||
+          "Não foi possível salvar as disciplinas extracurriculares.",
+      );
+    }
+
+    setMensagem({
+      tipo: "sucesso",
+      texto:
+        dados.message ||
+        "Disciplinas extracurriculares salvas.",
+    });
+
+    await carregarExtracurriculares();
+  } catch (error) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        error instanceof Error
+          ? error.message
+          : "Não foi possível salvar as disciplinas extracurriculares.",
+    });
+  } finally {
+    setSalvandoExtras(false);
+  }
+}
 
   function editarPeriodo(periodo: PeriodoRematricula) {
   setPeriodoEmEdicaoId(periodo.id);
@@ -829,6 +1315,425 @@ async function executarAcaoPeriodo() {
               </span>
             </label>
           </div>
+
+          <section className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-950/50">
+  <div className="border-b border-slate-200 px-5 py-4 dark:border-slate-700">
+    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div>
+        <h3 className="font-bold">
+          Disciplinas extracurriculares permitidas
+        </h3>
+
+        <p className="mt-1 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+          Escolha disciplinas de qualquer curso da instituição que poderão
+          complementar a grade dos alunos deste curso.
+        </p>
+      </div>
+
+      <div className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-800 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-200">
+        {itensExtras.length} disciplina
+        {itensExtras.length === 1
+          ? ""
+          : "s"}{" "}
+        selecionada
+        {itensExtras.length === 1
+          ? ""
+          : "s"}
+      </div>
+    </div>
+  </div>
+
+  {!formulario.cursoId ? (
+    <div className="p-5 text-sm text-slate-600 dark:text-slate-400">
+      Selecione primeiro o curso de destino.
+    </div>
+  ) : (
+    <div className="space-y-5 p-5">
+      <div className="grid gap-3 md:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => {
+            setEscopoExtras(
+              "SEMESTRE_ESPECIFICO",
+            );
+
+            setItensExtras([]);
+          }}
+          className={`rounded-xl border p-4 text-left transition ${
+            escopoExtras ===
+            "SEMESTRE_ESPECIFICO"
+              ? "border-blue-600 bg-blue-50 text-blue-900 dark:bg-blue-950/40 dark:text-blue-100"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          }`}
+        >
+          <strong className="block text-sm">
+            Somente neste semestre
+          </strong>
+
+          <span className="mt-1 block text-xs">
+            As disciplinas serão oferecidas apenas para o semestre selecionado.
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setEscopoExtras(
+              "TODOS_OS_SEMESTRES",
+            );
+
+            setItensExtras([]);
+          }}
+          className={`rounded-xl border p-4 text-left transition ${
+            escopoExtras ===
+            "TODOS_OS_SEMESTRES"
+              ? "border-emerald-600 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100"
+              : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+          }`}
+        >
+          <strong className="block text-sm">
+            Todos os semestres do curso
+          </strong>
+
+          <span className="mt-1 block text-xs">
+            As disciplinas poderão ser oferecidas em qualquer semestre deste curso.
+          </span>
+        </button>
+      </div>
+
+      {escopoExtras ===
+        "SEMESTRE_ESPECIFICO" &&
+      !formulario.cursoSemestreId ? (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+          Selecione o semestre de destino para configurar as disciplinas.
+        </div>
+      ) : (
+        <>
+          <div className="grid gap-3 md:grid-cols-2">
+            <label className="space-y-2">
+              <span className="text-sm font-semibold">
+                Buscar disciplina
+              </span>
+
+              <input
+                value={buscaExtra}
+                onChange={(evento) =>
+                  setBuscaExtra(
+                    evento.target.value,
+                  )
+                }
+                placeholder="Nome, código, descrição ou curso"
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              />
+            </label>
+
+            <label className="space-y-2">
+              <span className="text-sm font-semibold">
+                Curso de origem
+              </span>
+
+              <select
+                value={
+                  filtroCursoOrigemExtra
+                }
+                onChange={(evento) =>
+                  setFiltroCursoOrigemExtra(
+                    evento.target.value,
+                  )
+                }
+                className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+              >
+                <option value="">
+                  Todos os cursos
+                </option>
+
+                {cursosOrigemExtras.map(
+                  (curso) => (
+                    <option
+                      key={curso.id}
+                      value={curso.id}
+                    >
+                      {curso.nome}
+                      {curso.codigo
+                        ? ` — ${curso.codigo}`
+                        : ""}
+                    </option>
+                  ),
+                )}
+              </select>
+            </label>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="text-xs text-slate-600 dark:text-slate-400">
+              {
+                disciplinasExtrasFiltradas.length
+              }{" "}
+              disciplina
+              {disciplinasExtrasFiltradas.length ===
+              1
+                ? ""
+                : "s"}{" "}
+              encontrada
+              {disciplinasExtrasFiltradas.length ===
+              1
+                ? ""
+                : "s"}
+            </span>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={
+                  selecionarTodasExtrasFiltradas
+                }
+                disabled={
+                  disciplinasExtrasFiltradas.length ===
+                  0
+                }
+                className="rounded-lg border border-blue-300 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200"
+              >
+                Selecionar todas exibidas
+              </button>
+
+              <button
+                type="button"
+                onClick={
+                  removerExtrasFiltradas
+                }
+                disabled={
+                  disciplinasExtrasFiltradas.length ===
+                  0
+                }
+                className="rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+              >
+                Remover exibidas
+              </button>
+            </div>
+          </div>
+
+          {carregandoExtras ? (
+            <div className="rounded-xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+              Carregando disciplinas...
+            </div>
+          ) : disciplinasExtrasFiltradas.length ===
+            0 ? (
+            <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">
+              Nenhuma disciplina encontrada.
+            </div>
+          ) : (
+            <div className="max-h-[560px] space-y-3 overflow-y-auto pr-1">
+              {disciplinasExtrasFiltradas.map(
+                (disciplina) => {
+                  const configuracao =
+                    extrasPorDisciplina.get(
+                      disciplina.id,
+                    );
+
+                  const selecionada =
+                    Boolean(configuracao);
+
+                  return (
+                    <article
+                      key={
+                        disciplina.id
+                      }
+                      className={`rounded-xl border p-4 transition ${
+                        selecionada
+                          ? "border-blue-400 bg-blue-50/70 dark:border-blue-800 dark:bg-blue-950/30"
+                          : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <input
+                          type="checkbox"
+                          checked={
+                            selecionada
+                          }
+                          onChange={(
+                            evento,
+                          ) =>
+                            alternarDisciplinaExtra(
+                              disciplina.id,
+                              evento.target
+                                .checked,
+                            )
+                          }
+                          className="mt-1 h-4 w-4"
+                        />
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <strong className="text-sm">
+                              {
+                                disciplina.nome
+                              }
+                            </strong>
+
+                            {disciplina.codigo && (
+                              <span className="rounded-full bg-slate-200 px-2 py-0.5 text-[11px] font-semibold text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                                {
+                                  disciplina.codigo
+                                }
+                              </span>
+                            )}
+                          </div>
+
+                          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                            Curso de origem:{" "}
+                            {disciplina
+                              .curso
+                              ?.nome ||
+                              "Disciplina institucional"}
+                            {" · "}
+                            {
+                              disciplina.cargaHoraria ??
+                              0
+                            }
+                            h
+                          </p>
+
+                          {disciplina.descricao && (
+                            <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                              {
+                                disciplina.descricao
+                              }
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {selecionada &&
+                        configuracao && (
+                          <div className="mt-4 grid gap-3 border-t border-blue-200 pt-4 md:grid-cols-3 dark:border-blue-900">
+                            <label className="flex cursor-pointer items-start gap-2 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={
+                                  configuracao.obrigatoria
+                                }
+                                onChange={(
+                                  evento,
+                                ) =>
+                                  alterarRegraExtra(
+                                    disciplina.id,
+                                    "obrigatoria",
+                                    evento
+                                      .target
+                                      .checked,
+                                  )
+                                }
+                                className="mt-0.5 h-4 w-4"
+                              />
+
+                              <span>
+                                <strong className="block">
+                                  Obrigatória
+                                </strong>
+
+                                <span className="text-slate-600 dark:text-slate-400">
+                                  O aluno deverá selecioná-la.
+                                </span>
+                              </span>
+                            </label>
+
+                            <label className="flex cursor-pointer items-start gap-2 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={
+                                  configuracao.contaCargaMinima
+                                }
+                                onChange={(
+                                  evento,
+                                ) =>
+                                  alterarRegraExtra(
+                                    disciplina.id,
+                                    "contaCargaMinima",
+                                    evento
+                                      .target
+                                      .checked,
+                                  )
+                                }
+                                className="mt-0.5 h-4 w-4"
+                              />
+
+                              <span>
+                                <strong className="block">
+                                  Contar na carga mínima
+                                </strong>
+
+                                <span className="text-slate-600 dark:text-slate-400">
+                                  Soma para atingir o mínimo.
+                                </span>
+                              </span>
+                            </label>
+
+                            <label className="flex cursor-pointer items-start gap-2 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={
+                                  configuracao.contaCargaMaxima
+                                }
+                                onChange={(
+                                  evento,
+                                ) =>
+                                  alterarRegraExtra(
+                                    disciplina.id,
+                                    "contaCargaMaxima",
+                                    evento
+                                      .target
+                                      .checked,
+                                  )
+                                }
+                                className="mt-0.5 h-4 w-4"
+                              />
+
+                              <span>
+                                <strong className="block">
+                                  Contar na carga máxima
+                                </strong>
+
+                                <span className="text-slate-600 dark:text-slate-400">
+                                  Soma para o limite máximo.
+                                </span>
+                              </span>
+                            </label>
+                          </div>
+                        )}
+                    </article>
+                  );
+                },
+              )}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 dark:border-slate-700 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-slate-600 dark:text-slate-400">
+              Esta configuração é independente das disciplinas obrigatórias da grade regular.
+            </p>
+
+            <button
+              type="button"
+              onClick={
+                salvarExtracurriculares
+              }
+              disabled={
+                salvandoExtras ||
+                carregandoExtras
+              }
+              className="h-11 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {salvandoExtras
+                ? "Salvando..."
+                : "Salvar extracurriculares"}
+            </button>
+          </div>
+        </>
+      )}
+
+    </div>
+  )}
+</section>
 
           <div className="mt-6 flex flex-col-reverse gap-3 border-t border-slate-200 pt-5 dark:border-slate-800 sm:flex-row sm:justify-end">
   {periodoEmEdicaoId && (

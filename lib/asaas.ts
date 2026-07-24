@@ -156,9 +156,9 @@ type AtualizarAssinaturaAsaasInput = Partial<{
   creditCardHolderInfo: AsaasCreditCardHolderInfo;
   creditCardToken: string;
   remoteIp: string;
+  updatePendingPayments: boolean;
+  externalReference: string;
 }>;
-
-
 
 function getAsaasConfig() {
   const apiKey =
