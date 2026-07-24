@@ -34,6 +34,12 @@ export async function GET() {
       departamento: true,
     },
   },
+ historicosRemuneracaoRH: {
+    orderBy: {
+      alteradoEm: "desc",
+    },
+    take: 50,
+  },
 },
       orderBy: {
         createdAt: "desc",
