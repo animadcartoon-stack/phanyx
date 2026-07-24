@@ -441,6 +441,94 @@ await carregarPolos();
     }
   }
 
+  async function provisionarPolo() {
+  if (!poloParaProvisionar) return;
+
+  try {
+    setProvisionandoId(poloParaProvisionar.id);
+
+    const res = await fetch(
+      `/api/admin/polos/${poloParaProvisionar.id}/provisionar`,
+      {
+        method: "POST",
+        credentials: "include",
+      }
+    );
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data?.error ||
+          "Erro ao criar a instituição e o acesso."
+      );
+    }
+
+    if (
+      !data?.instituicao?.id ||
+      !data?.instituicao?.nome ||
+      !data?.credenciaisTemporarias?.login ||
+      !data?.credenciaisTemporarias?.senha
+    ) {
+      throw new Error(
+        "A instituição foi criada, mas as credenciais retornadas são inválidas."
+      );
+    }
+
+    setPoloParaProvisionar(null);
+    setBusca("");
+
+    setCredenciaisAcesso({
+      instituicaoId: Number(data.instituicao.id),
+      instituicaoNome: String(data.instituicao.nome),
+      login: String(data.credenciaisTemporarias.login),
+      senha: String(data.credenciaisTemporarias.senha),
+      precisaTrocarSenha:
+        data.credenciaisTemporarias.precisaTrocarSenha ===
+        true,
+    });
+
+    setCredenciaisCopiadas(false);
+
+    await carregarPolos();
+
+    setFeedback(
+      "Instituição independente e acesso criados com sucesso."
+    );
+    setFeedbackTipo("sucesso");
+  } catch (error: unknown) {
+    setFeedback(
+      error instanceof Error
+        ? error.message
+        : "Erro ao criar o acesso institucional."
+    );
+    setFeedbackTipo("erro");
+  } finally {
+    setProvisionandoId(null);
+  }
+}
+
+async function copiarCredenciais() {
+  if (!credenciaisAcesso) return;
+
+  const texto = [
+    `Instituição: ${credenciaisAcesso.instituicaoNome}`,
+    `Login: ${credenciaisAcesso.login}`,
+    `Senha temporária: ${credenciaisAcesso.senha}`,
+    "Troca de senha obrigatória no primeiro acesso.",
+  ].join("\n");
+
+  try {
+    await navigator.clipboard.writeText(texto);
+    setCredenciaisCopiadas(true);
+  } catch {
+    setFeedback(
+      "Não foi possível copiar automaticamente. Selecione e copie as credenciais manualmente."
+    );
+    setFeedbackTipo("erro");
+  }
+}
+
   const polosFiltrados = useMemo(() => {
   const termo = normalizarBusca(busca);
 
@@ -476,6 +564,150 @@ await carregarPolos();
 
   return (
     <div className="phanyx-polos-page max-w-6xl space-y-6">
+
+{poloParaProvisionar && (
+  <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-confirmar-provisionamento"
+      className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
+    >
+      <h2
+        id="titulo-confirmar-provisionamento"
+        className="text-xl font-bold"
+      >
+        Criar instituição independente
+      </h2>
+
+      <p className="mt-3 text-sm">
+        O polo{" "}
+        <strong>{poloParaProvisionar.nome}</strong>{" "}
+        receberá um novo ID institucional, usuários próprios e
+        dados independentes.
+      </p>
+
+      <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+        O plano e a cobrança continuarão vinculados à
+        instituição contratante. O responsável receberá login e
+        senha temporária para administrar esta unidade.
+      </div>
+
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={() => setPoloParaProvisionar(null)}
+          disabled={
+            provisionandoId === poloParaProvisionar.id
+          }
+          className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          onClick={provisionarPolo}
+          disabled={
+            provisionandoId === poloParaProvisionar.id
+          }
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {provisionandoId === poloParaProvisionar.id
+            ? "Criando instituição..."
+            : "Criar instituição e acesso"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+{credenciaisAcesso && (
+  <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="titulo-credenciais-unidade"
+      className="phanyx-polos-card max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border p-6 shadow-2xl"
+    >
+      <h2
+        id="titulo-credenciais-unidade"
+        className="text-xl font-bold"
+      >
+        Acesso institucional criado
+      </h2>
+
+      <p className="mt-2 text-sm">
+        Guarde ou envie estas credenciais ao responsável da
+        unidade. A senha temporária será exibida somente nesta
+        tela.
+      </p>
+
+      <div className="mt-5 space-y-3">
+        <div className="phanyx-polos-input rounded-xl border p-3">
+          <p className="text-xs font-semibold uppercase">
+            Instituição
+          </p>
+
+          <p className="mt-1 font-bold">
+            {credenciaisAcesso.instituicaoNome}
+          </p>
+        </div>
+
+        <div className="phanyx-polos-input rounded-xl border p-3">
+          <p className="text-xs font-semibold uppercase">
+            Login
+          </p>
+
+          <p className="mt-1 break-all font-mono font-bold">
+            {credenciaisAcesso.login}
+          </p>
+        </div>
+
+        <div className="phanyx-polos-input rounded-xl border p-3">
+          <p className="text-xs font-semibold uppercase">
+            Senha temporária
+          </p>
+
+          <p className="mt-1 break-all font-mono text-lg font-bold">
+            {credenciaisAcesso.senha}
+          </p>
+        </div>
+      </div>
+
+      {credenciaisAcesso.precisaTrocarSenha && (
+        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+          O responsável deverá trocar esta senha no primeiro
+          acesso.
+        </div>
+      )}
+
+      <div className="mt-6 flex flex-wrap justify-end gap-3">
+        <button
+          type="button"
+          onClick={copiarCredenciais}
+          className="rounded-xl border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/30"
+        >
+          {credenciaisCopiadas
+            ? "Credenciais copiadas"
+            : "Copiar credenciais"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCredenciaisAcesso(null);
+            setCredenciaisCopiadas(false);
+          }}
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+        >
+          Fechar e apagar da tela
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
@@ -640,8 +872,8 @@ await carregarPolos();
             </h3>
 
             <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
-              O acesso pessoal do responsável será criado na
-              próxima etapa.
+              Após cadastrar o polo, será possível criar o acesso
+institucional do responsável.
             </p>
           </div>
 
