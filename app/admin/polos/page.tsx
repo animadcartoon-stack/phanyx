@@ -138,6 +138,16 @@ function formatarEndereco(polo: Polo) {
     .join(" | ");
 }
 
+function normalizarBusca(valor: unknown) {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[\/|,;-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function AdminPolosPage() {
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
@@ -329,7 +339,8 @@ function AdminPolosPage() {
       }
 
       limparFormulario();
-      await carregarPolos();
+setBusca("");
+await carregarPolos();
 
       setFeedback(
         data?.aviso || "Polo criado com sucesso."
@@ -392,7 +403,8 @@ function AdminPolosPage() {
       }
 
       setEditandoId(null);
-      await carregarPolos();
+setBusca("");
+await carregarPolos();
 
       setFeedback("Polo atualizado com sucesso.");
       setFeedbackTipo("sucesso");
@@ -409,51 +421,37 @@ function AdminPolosPage() {
   }
 
   const polosFiltrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
+  const termo = normalizarBusca(busca);
 
-    if (!termo) return polos;
+  if (!termo) return polos;
 
-    return polos.filter((polo) => {
-      return (
-        String(polo.nome || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.codigo || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.cnpj || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.tipoUnidade || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.statusComercial || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.cep || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.cidade || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.estado || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.endereco || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.responsavelNome || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.responsavelEmail || "")
-          .toLowerCase()
-          .includes(termo) ||
-        String(polo.descricao || "")
-          .toLowerCase()
-          .includes(termo)
-      );
-    });
-  }, [polos, busca]);
+  return polos.filter((polo) => {
+    const conteudoPolo = normalizarBusca(
+      [
+        polo.nome,
+        polo.codigo,
+        polo.cnpj,
+        polo.tipoUnidade,
+        polo.statusComercial,
+        polo.cep,
+        polo.endereco,
+        polo.numero,
+        polo.complemento,
+        polo.bairro,
+        polo.cidade,
+        polo.estado,
+        `${polo.cidade || ""} ${polo.estado || ""}`,
+        polo.responsavelNome,
+        polo.responsavelEmail,
+        polo.responsavelTelefone,
+        polo.responsavelCargo,
+        polo.descricao,
+      ].join(" ")
+    );
+
+    return conteudoPolo.includes(termo);
+  });
+}, [polos, busca]);
 
   return (
     <div className="phanyx-polos-page max-w-6xl space-y-6">
@@ -692,12 +690,16 @@ function AdminPolosPage() {
           </h2>
 
           <input
-            type="text"
-            placeholder="Buscar por nome, cidade, responsável..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className={`${inputClass} md:w-[420px]`}
-          />
+  type="search"
+  name="filtro-interno-polos"
+  autoComplete="off"
+  spellCheck={false}
+  aria-label="Buscar polos"
+  placeholder="Buscar por nome, cidade, responsável..."
+  value={busca}
+  onChange={(e) => setBusca(e.target.value)}
+  className={`${inputClass} md:w-[420px]`}
+/>
         </div>
 
         {carregando ? (

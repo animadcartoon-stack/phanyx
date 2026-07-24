@@ -8,7 +8,63 @@ type PaginaPortal = {
   chavePagina: string;
   nome: string;
   visivel: boolean;
+  descricao?: string;
+  automaticoNoPeriodo?: boolean;
 };
+
+const CHAVE_REMATRICULA_ALUNO = "aluno.rematricula";
+
+const PAGINA_REMATRICULA_ALUNO: PaginaPortal = {
+  id: null,
+  portal: "ALUNO",
+  chavePagina: CHAVE_REMATRICULA_ALUNO,
+  nome: "Rematrícula semestral",
+  visivel: false,
+  descricao:
+    "Permite ao aluno consultar e realizar a rematrícula para o próximo semestre.",
+  automaticoNoPeriodo: true,
+};
+
+function normalizarPaginasPortal(
+  paginasRecebidas: PaginaPortal[],
+): PaginaPortal[] {
+  const paginaExistente = paginasRecebidas.find(
+    (pagina) =>
+      pagina.portal === "ALUNO" &&
+      pagina.chavePagina === CHAVE_REMATRICULA_ALUNO,
+  );
+
+  const paginaRematricula: PaginaPortal = {
+    ...PAGINA_REMATRICULA_ALUNO,
+    ...paginaExistente,
+    nome: "Rematrícula semestral",
+    descricao:
+      "Permite ao aluno consultar e realizar a rematrícula para o próximo semestre.",
+    automaticoNoPeriodo: true,
+  };
+
+  const paginasSemRematricula = paginasRecebidas.filter(
+    (pagina) =>
+      !(
+        pagina.portal === "ALUNO" &&
+        pagina.chavePagina === CHAVE_REMATRICULA_ALUNO
+      ),
+  );
+
+  const indicePainelAluno = paginasSemRematricula.findIndex(
+    (pagina) =>
+      pagina.portal === "ALUNO" &&
+      pagina.chavePagina === "aluno.painel",
+  );
+
+  paginasSemRematricula.splice(
+    indicePainelAluno >= 0 ? indicePainelAluno + 1 : 0,
+    0,
+    paginaRematricula,
+  );
+
+  return paginasSemRematricula;
+}
 
 export default function ConfiguracaoPortaisPage() {
   const [paginas, setPaginas] = useState<PaginaPortal[]>([]);
@@ -33,7 +89,11 @@ export default function ConfiguracaoPortaisPage() {
         throw new Error(data?.error || "Erro ao carregar configurações");
       }
 
-      setPaginas(Array.isArray(data?.paginas) ? data.paginas : []);
+      const paginasRecebidas = Array.isArray(data?.paginas)
+  ? data.paginas
+  : [];
+
+setPaginas(normalizarPaginasPortal(paginasRecebidas));
     } catch (e: any) {
       setErro(e?.message || "Erro ao carregar configurações");
       setPaginas([]);
@@ -54,7 +114,15 @@ export default function ConfiguracaoPortaisPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ paginas }),
+        body: JSON.stringify({
+  paginas: paginas.map((pagina) => ({
+    id: pagina.id,
+    portal: pagina.portal,
+    chavePagina: pagina.chavePagina,
+    nome: pagina.nome,
+    visivel: pagina.visivel,
+  })),
+}),
       });
 
       const data = await res.json();
@@ -109,9 +177,10 @@ export default function ConfiguracaoPortaisPage() {
           </h1>
 
           <p className="phanyx-config-muted mt-2 text-sm leading-6">
-            Defina quais páginas aparecem para alunos e professores desta
-            instituição.
-          </p>
+  Defina quais páginas aparecem para alunos e professores desta
+  instituição. Páginas vinculadas a períodos acadêmicos também podem ser
+  exibidas automaticamente durante as datas configuradas.
+</p>
         </section>
 
         {mensagem && (
@@ -194,15 +263,36 @@ function BlocoPortal({
             onClick={() => onAlternar(pagina.chavePagina)}
             className="phanyx-portal-row flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition"
           >
-            <div>
-              <p className="font-bold">
-                {pagina.nome}
-              </p>
+            <div className="min-w-0 flex-1">
+  <div className="flex flex-wrap items-center gap-2">
+    <p className="font-bold">
+      {pagina.nome}
+    </p>
 
-              <p className="phanyx-portal-key mt-1 text-xs">
-                {pagina.chavePagina}
-              </p>
-            </div>
+    {pagina.automaticoNoPeriodo && (
+      <span className="rounded-full border border-emerald-300 bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">
+        Automática no período
+      </span>
+    )}
+  </div>
+
+  {pagina.descricao && (
+    <p className="phanyx-config-muted mt-1 text-xs leading-5">
+      {pagina.descricao}
+    </p>
+  )}
+
+  <p className="phanyx-portal-key mt-1 text-xs">
+    {pagina.chavePagina}
+  </p>
+
+  {pagina.automaticoNoPeriodo && (
+    <p className="mt-2 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+      Durante um período de rematrícula publicado, a página será exibida
+      automaticamente aos alunos elegíveis.
+    </p>
+  )}
+</div>
 
             <span
               className={`relative inline-flex h-7 w-12 shrink-0 rounded-full transition ${
