@@ -71,6 +71,20 @@ function formatarDataHora(valor: any) {
   return data.toLocaleString("pt-BR");
 }
 
+function formatarDataSemFuso(valor: any) {
+  if (!valor) return "-";
+
+  const data = new Date(valor);
+
+  if (Number.isNaN(data.getTime())) {
+    return "-";
+  }
+
+  return data.toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
+  });
+}
+
 function obterDadosRemuneracao(valor: any) {
   if (!valor) return {};
 
@@ -1888,9 +1902,14 @@ hover:bg-blue-100 dark:hover:bg-blue-600
                   </p>
 
                   <p className="mt-1 text-slate-600 dark:text-slate-300">
-                    {formatarDataHora(
-                      historico.vigenciaInicio
-                    )}
+                    {historico.origem ===
+"FUNCIONARIOS_RH_CADASTRO"
+  ? `${formatarDataSemFuso(
+      historico.vigenciaInicio
+    )} — data de admissão`
+  : formatarDataHora(
+      historico.vigenciaInicio
+    )}
                   </p>
                 </div>
 

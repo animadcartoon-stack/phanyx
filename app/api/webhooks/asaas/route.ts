@@ -45,7 +45,7 @@ function getPoliticaPlano(plano: string) {
       valorBase: 199,
       valorPorAluno: 7,
       valorPorPoloExtra: 99,
-      polosInclusos: 10,
+      polosInclusos: 1,
     };
   }
 
@@ -221,7 +221,8 @@ async function processarAssinaturaCriada(body: any) {
       valorMensalAtual: Number(subscription.value || adesao.valor || politicaPlano.valorBase),
 
       alunosAtivosReferencia: 0,
-      polosReferencia: 1,
+polosReferencia: 1,
+polosInclusosContrato: politicaPlano.polosInclusos,
 
       ultimoEventoAsaas: body?.event || "SUBSCRIPTION_CREATED",
       ultimoWebhookAsaasEm: new Date(),

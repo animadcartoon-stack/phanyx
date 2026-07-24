@@ -41,7 +41,7 @@ function getPoliticaPlano(plano: string) {
       valorBase: 199,
       valorPorAluno: 7,
       valorPorPoloExtra: 99,
-      polosInclusos: 10,
+      polosInclusos: 1,
     };
   }
 
@@ -492,7 +492,8 @@ if (formaPagamento === "CREDIT_CARD") {
             valorMensalAtual: valor,
 
             alunosAtivosReferencia: 0,
-            polosReferencia: 1,
+polosReferencia: 1,
+polosInclusosContrato: politicaPlano.polosInclusos,
           },
         });
 

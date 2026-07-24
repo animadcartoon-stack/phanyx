@@ -18,7 +18,7 @@ const regrasPlano = {
   ENTERPRISE: {
     base: 199,
     valorAluno: 7,
-    polosInclusos: 10,
+    polosInclusos: 1,
     valorPoloExtra: 99,
   },
 };

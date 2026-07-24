@@ -1,6 +1,9 @@
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
-import { NextResponse } from "next/server";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +20,26 @@ type TipoDisciplinaRematricula =
   | "PROXIMO_SEMESTRE"
   | "PENDENCIA_ANTERIOR"
   | "EXTRACURRICULAR";
+
+  type AcaoRematriculaAluno =
+  | "SALVAR_RASCUNHO"
+  | "ENVIAR";
+
+type ItemRematriculaRecebido = {
+  disciplinaId: number;
+  turmaDisciplinaId: number;
+};
+
+type ItemRematriculaValidado = {
+  disciplinaId: number;
+  turmaDisciplinaId: number;
+  tipo: TipoDisciplinaRematricula;
+  cargaHoraria: number;
+  semestreOrigemNumero: number | null;
+  obrigatoria: boolean;
+  contaCargaMinima: boolean;
+  contaCargaMaxima: boolean;
+};
 
 type CandidatoDisciplina = {
   disciplinaId: number;
@@ -95,6 +118,93 @@ function ordenarHorarios<
       b.horaInicio,
     );
   });
+}
+
+function inteiroPositivo(
+  valor: unknown,
+): number | null {
+  const numero = Number(valor);
+
+  if (
+    !Number.isInteger(numero) ||
+    numero <= 0
+  ) {
+    return null;
+  }
+
+  return numero;
+}
+
+function horarioEmMinutos(
+  valor?: string | null,
+): number | null {
+  if (!valor) {
+    return null;
+  }
+
+  const partes = valor.split(":");
+
+  const horas = Number(partes[0]);
+  const minutos = Number(partes[1]);
+
+  if (
+    !Number.isInteger(horas) ||
+    !Number.isInteger(minutos)
+  ) {
+    return null;
+  }
+
+  return horas * 60 + minutos;
+}
+
+function horariosSeSobrepoem(
+  horarioA: {
+    diaSemana: number;
+    horaInicio: string;
+    horaFim: string | null;
+  },
+  horarioB: {
+    diaSemana: number;
+    horaInicio: string;
+    horaFim: string | null;
+  },
+) {
+  if (
+    horarioA.diaSemana !==
+    horarioB.diaSemana
+  ) {
+    return false;
+  }
+
+  const inicioA = horarioEmMinutos(
+    horarioA.horaInicio,
+  );
+
+  const fimA = horarioEmMinutos(
+    horarioA.horaFim,
+  );
+
+  const inicioB = horarioEmMinutos(
+    horarioB.horaInicio,
+  );
+
+  const fimB = horarioEmMinutos(
+    horarioB.horaFim,
+  );
+
+  if (
+    inicioA === null ||
+    fimA === null ||
+    inicioB === null ||
+    fimB === null
+  ) {
+    return false;
+  }
+
+  return (
+    inicioA < fimB &&
+    inicioB < fimA
+  );
 }
 
 export async function GET() {
@@ -1166,6 +1276,1408 @@ if (ocultoTemporariamente) {
       {
         error:
           "Erro ao carregar as informações da rematrícula.",
+      },
+      {
+        status: 500,
+      },
+    );
+  }
+}
+
+export async function POST(
+  req: NextRequest,
+) {
+  try {
+    const aluno =
+      await obterAlunoAutenticado();
+
+    if (!aluno) {
+      return NextResponse.json(
+        {
+          error: "Não autorizado.",
+        },
+        {
+          status: 401,
+        },
+      );
+    }
+
+    const configuracaoPortal =
+      await prisma.configuracaoPortalInstituicao.findFirst(
+        {
+          where: {
+            instituicaoId:
+              aluno.instituicaoId,
+            portal: "ALUNO",
+            chavePagina:
+              "aluno.rematricula",
+          },
+          select: {
+            modoVisibilidade: true,
+          },
+        },
+      );
+
+    if (
+      configuracaoPortal
+        ?.modoVisibilidade === "OCULTO"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A rematrícula está temporariamente indisponível.",
+        },
+        {
+          status: 403,
+        },
+      );
+    }
+
+    const body = await req.json();
+
+    const acao = String(
+      body?.acao || "",
+    ).toUpperCase() as AcaoRematriculaAluno;
+
+    if (
+      acao !== "SALVAR_RASCUNHO" &&
+      acao !== "ENVIAR"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Ação de rematrícula inválida.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const periodoMatriculaId =
+      inteiroPositivo(
+        body?.periodoMatriculaId,
+      );
+
+    if (!periodoMatriculaId) {
+      return NextResponse.json(
+        {
+          error:
+            "Período de rematrícula inválido.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const itensRecebidos =
+      Array.isArray(body?.itens)
+        ? body.itens
+        : [];
+
+    const itens: ItemRematriculaRecebido[] =
+      [];
+
+    for (const item of itensRecebidos) {
+      const disciplinaId =
+        inteiroPositivo(
+          item?.disciplinaId,
+        );
+
+      const turmaDisciplinaId =
+        inteiroPositivo(
+          item?.turmaDisciplinaId,
+        );
+
+      if (
+        !disciplinaId ||
+        !turmaDisciplinaId
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Existe uma disciplina ou turma inválida na seleção.",
+          },
+          {
+            status: 400,
+          },
+        );
+      }
+
+      itens.push({
+        disciplinaId,
+        turmaDisciplinaId,
+      });
+    }
+
+    const disciplinasUnicas = new Set(
+      itens.map(
+        (item) => item.disciplinaId,
+      ),
+    );
+
+    if (
+      disciplinasUnicas.size !==
+      itens.length
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A mesma disciplina foi selecionada mais de uma vez.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    if (
+      acao === "ENVIAR" &&
+      itens.length === 0
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Selecione pelo menos uma disciplina antes de enviar.",
+        },
+        {
+          status: 400,
+        },
+      );
+    }
+
+    const agora = new Date();
+
+    const periodo =
+      await prisma.periodoMatricula.findFirst(
+        {
+          where: {
+            id: periodoMatriculaId,
+            instituicaoId:
+              aluno.instituicaoId,
+            tipo: "REMATRICULA",
+            status: "PUBLICADO",
+            ativo: true,
+            permiteAluno: true,
+            dataInicio: {
+              lte: agora,
+            },
+            dataFim: {
+              gte: agora,
+            },
+          },
+          include: {
+            curso: {
+              select: {
+                id: true,
+                nome: true,
+                cargaHorariaMaximaSemestre:
+                  true,
+              },
+            },
+            cursoSemestre: {
+              select: {
+                id: true,
+                numero: true,
+                titulo: true,
+                cargaMinima: true,
+                cargaMaxima: true,
+              },
+            },
+          },
+        },
+      );
+
+    if (!periodo) {
+      return NextResponse.json(
+        {
+          error:
+            "O período de rematrícula não está aberto ou publicado.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    if (
+      acao === "SALVAR_RASCUNHO" &&
+      !periodo.permiteRascunho
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A instituição não permite salvar rascunho neste período.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    if (
+      periodo.bloqueiaInadimplente &&
+      aluno.statusAluno ===
+        "INADIMPLENTE"
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "A rematrícula está bloqueada devido à situação financeira do aluno.",
+        },
+        {
+          status: 403,
+        },
+      );
+    }
+
+    const matriculaAtual =
+      await prisma.matricula.findFirst(
+        {
+          where: {
+            instituicaoId:
+              aluno.instituicaoId,
+            alunoId: aluno.id,
+            cursoId: {
+              not: null,
+            },
+            status: {
+              in: [
+                "ATIVA",
+                "A_INICIAR",
+              ],
+            },
+          },
+          orderBy: [
+            {
+              updatedAt: "desc",
+            },
+            {
+              createdAt: "desc",
+            },
+          ],
+          select: {
+            id: true,
+            cursoId: true,
+            semestre: true,
+            poloId: true,
+            cursoSemestre: {
+              select: {
+                numero: true,
+              },
+            },
+          },
+        },
+      );
+
+    if (!matriculaAtual?.cursoId) {
+      return NextResponse.json(
+        {
+          error:
+            "Não foi localizada uma matrícula ativa para o aluno.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    if (
+      periodo.cursoId !== null &&
+      periodo.cursoId !==
+        matriculaAtual.cursoId
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Este período não pertence ao curso atual do aluno.",
+        },
+        {
+          status: 403,
+        },
+      );
+    }
+
+    const semestreAtual =
+      matriculaAtual.cursoSemestre
+        ?.numero ??
+      matriculaAtual.semestre ??
+      null;
+
+    if (semestreAtual === null) {
+      return NextResponse.json(
+        {
+          error:
+            "O semestre atual da matrícula não está definido.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const proximoSemestreNumero =
+      semestreAtual + 1;
+
+    if (
+      periodo.semestreNumero !== null &&
+      periodo.semestreNumero !==
+        proximoSemestreNumero
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Este período não corresponde ao próximo semestre do aluno.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const cursoSemestreDestino =
+      periodo.cursoSemestre ??
+      (await prisma.cursoSemestre.findFirst(
+        {
+          where: {
+            instituicaoId:
+              aluno.instituicaoId,
+            cursoId:
+              matriculaAtual.cursoId,
+            numero:
+              proximoSemestreNumero,
+          },
+          select: {
+            id: true,
+            numero: true,
+            titulo: true,
+            cargaMinima: true,
+            cargaMaxima: true,
+          },
+        },
+      ));
+
+    if (!cursoSemestreDestino) {
+      return NextResponse.json(
+        {
+          error:
+            "O semestre de destino não foi encontrado.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const rematriculaExistente =
+      await prisma.rematriculaSemestral.findUnique(
+        {
+          where: {
+            alunoId_periodoMatriculaId:
+              {
+                alunoId: aluno.id,
+                periodoMatriculaId:
+                  periodo.id,
+              },
+          },
+          select: {
+            id: true,
+            status: true,
+          },
+        },
+      );
+
+    if (
+      rematriculaExistente &&
+      ![
+        "RASCUNHO",
+        "DEVOLVIDA",
+      ].includes(
+        rematriculaExistente.status,
+      )
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Esta rematrícula já foi enviada e não pode mais ser alterada.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const disciplinaIds = itens.map(
+      (item) => item.disciplinaId,
+    );
+
+    const turmaDisciplinaIds =
+      itens.map(
+        (item) =>
+          item.turmaDisciplinaId,
+      );
+
+    const [
+      vinculosDestino,
+      vinculosAnteriores,
+      extrasPermitidas,
+      resultadosAprovados,
+      itensAcademicos,
+      preRequisitos,
+      ofertas,
+    ] = await Promise.all([
+      disciplinaIds.length > 0
+        ? prisma.cursoSemestreDisciplina.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                cursoSemestreId:
+                  cursoSemestreDestino.id,
+                disciplinaId: {
+                  in: disciplinaIds,
+                },
+              },
+              include: {
+                disciplina: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    cargaHoraria: true,
+                    ativo: true,
+                  },
+                },
+              },
+            },
+          )
+        : [],
+
+      disciplinaIds.length > 0
+        ? prisma.cursoSemestreDisciplina.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                disciplinaId: {
+                  in: disciplinaIds,
+                },
+                cursoSemestre: {
+                  cursoId:
+                    matriculaAtual.cursoId,
+                  numero: {
+                    lt:
+                      cursoSemestreDestino.numero,
+                  },
+                },
+              },
+              include: {
+                cursoSemestre: {
+                  select: {
+                    numero: true,
+                  },
+                },
+                disciplina: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    cargaHoraria: true,
+                    ativo: true,
+                  },
+                },
+              },
+            },
+          )
+        : [],
+
+      disciplinaIds.length > 0
+        ? prisma.cursoDisciplinaExtraPermitida.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                cursoId:
+                  matriculaAtual.cursoId,
+                disciplinaId: {
+                  in: disciplinaIds,
+                },
+                ativa: true,
+                OR: [
+                  {
+                    cursoSemestreId:
+                      null,
+                  },
+                  {
+                    cursoSemestreId:
+                      cursoSemestreDestino.id,
+                  },
+                ],
+              },
+              include: {
+                disciplina: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    cargaHoraria: true,
+                    ativo: true,
+                  },
+                },
+              },
+            },
+          )
+        : [],
+
+      disciplinaIds.length > 0
+        ? prisma.resultadoFinal.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                alunoId: aluno.id,
+                disciplinaId: {
+                  in: disciplinaIds,
+                },
+                situacao:
+                  "APROVADO",
+              },
+              select: {
+                disciplinaId: true,
+              },
+            },
+          )
+        : [],
+
+      disciplinaIds.length > 0
+        ? prisma.itemMatricula.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                disciplinaId: {
+                  in: disciplinaIds,
+                },
+                matricula: {
+                  alunoId: aluno.id,
+                },
+                status: {
+                  in: [
+                    "A_CURSAR",
+                    "EM_CURSO",
+                    "CONCLUIDO",
+                  ],
+                },
+              },
+              select: {
+                disciplinaId: true,
+                status: true,
+              },
+            },
+          )
+        : [],
+
+      disciplinaIds.length > 0
+        ? prisma.disciplinaPreRequisito.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                disciplinaId: {
+                  in: disciplinaIds,
+                },
+              },
+              include: {
+                prerequisito: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+              },
+            },
+          )
+        : [],
+
+      turmaDisciplinaIds.length > 0
+        ? prisma.turmaDisciplina.findMany(
+            {
+              where: {
+                instituicaoId:
+                  aluno.instituicaoId,
+                id: {
+                  in:
+                    turmaDisciplinaIds,
+                },
+              },
+              include: {
+                disciplina: {
+                  select: {
+                    id: true,
+                    nome: true,
+                  },
+                },
+                turma: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    ativa: true,
+                    periodoLetivo: true,
+                    poloId: true,
+                    capacidadeMaxima:
+                      true,
+                    statusTurma: true,
+                  },
+                },
+                horarios: {
+                  where: {
+                    ativo: true,
+                  },
+                  select: {
+                    id: true,
+                    diaSemana: true,
+                    horaInicio: true,
+                    horaFim: true,
+                  },
+                },
+              },
+            },
+          )
+        : [],
+    ]);
+
+    const aprovadas = new Set<number>(
+      resultadosAprovados.map(
+        (item) => item.disciplinaId,
+      ),
+    );
+
+    const emAndamento =
+      new Set<number>();
+
+    for (const item of itensAcademicos) {
+      if (
+        item.status === "CONCLUIDO"
+      ) {
+        aprovadas.add(
+          item.disciplinaId,
+        );
+      }
+
+      if (
+        item.status === "A_CURSAR" ||
+        item.status === "EM_CURSO"
+      ) {
+        emAndamento.add(
+          item.disciplinaId,
+        );
+      }
+    }
+
+    const destinoPorDisciplina = new Map<
+  number,
+  (typeof vinculosDestino)[number]
+>(
+  vinculosDestino.map(
+    (vinculo) =>
+      [
+        vinculo.disciplinaId,
+        vinculo,
+      ] as const,
+  ),
+);
+
+    const anteriorPorDisciplina =
+      new Map<number, (typeof vinculosAnteriores)[number]>();
+
+    for (const vinculo of vinculosAnteriores) {
+      const atual =
+        anteriorPorDisciplina.get(
+          vinculo.disciplinaId,
+        );
+
+      if (
+        !atual ||
+        vinculo.cursoSemestre.numero >
+          atual.cursoSemestre.numero
+      ) {
+        anteriorPorDisciplina.set(
+          vinculo.disciplinaId,
+          vinculo,
+        );
+      }
+    }
+
+    const extrasPorDisciplina =
+      new Map<
+        number,
+        (typeof extrasPermitidas)[number]
+      >();
+
+    for (const extra of extrasPermitidas) {
+      const atual =
+        extrasPorDisciplina.get(
+          extra.disciplinaId,
+        );
+
+      if (
+        !atual ||
+        extra.cursoSemestreId ===
+          cursoSemestreDestino.id
+      ) {
+        extrasPorDisciplina.set(
+          extra.disciplinaId,
+          extra,
+        );
+      }
+    }
+
+    const itensValidados:
+      ItemRematriculaValidado[] = [];
+
+    for (const item of itens) {
+      if (
+        aprovadas.has(
+          item.disciplinaId,
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "Uma das disciplinas selecionadas já foi concluída pelo aluno.",
+          },
+          {
+            status: 409,
+          },
+        );
+      }
+
+      const destino =
+        destinoPorDisciplina.get(
+          item.disciplinaId,
+        );
+
+      const anterior =
+        anteriorPorDisciplina.get(
+          item.disciplinaId,
+        );
+
+      const extra =
+        extrasPorDisciplina.get(
+          item.disciplinaId,
+        );
+
+      if (destino) {
+        if (!destino.disciplina.ativo) {
+          return NextResponse.json(
+            {
+              error: `A disciplina ${destino.disciplina.nome} está inativa.`,
+            },
+            {
+              status: 409,
+            },
+          );
+        }
+
+        itensValidados.push({
+          disciplinaId:
+            item.disciplinaId,
+          turmaDisciplinaId:
+            item.turmaDisciplinaId,
+          tipo:
+            "PROXIMO_SEMESTRE",
+          cargaHoraria:
+            destino.disciplina
+              .cargaHoraria ?? 0,
+          semestreOrigemNumero:
+            cursoSemestreDestino.numero,
+          obrigatoria: true,
+          contaCargaMinima: true,
+          contaCargaMaxima: true,
+        });
+
+        continue;
+      }
+
+      if (
+        anterior &&
+        !emAndamento.has(
+          item.disciplinaId,
+        )
+      ) {
+        if (
+          !anterior.disciplina.ativo
+        ) {
+          return NextResponse.json(
+            {
+              error: `A disciplina ${anterior.disciplina.nome} está inativa.`,
+            },
+            {
+              status: 409,
+            },
+          );
+        }
+
+        itensValidados.push({
+          disciplinaId:
+            item.disciplinaId,
+          turmaDisciplinaId:
+            item.turmaDisciplinaId,
+          tipo:
+            "PENDENCIA_ANTERIOR",
+          cargaHoraria:
+            anterior.disciplina
+              .cargaHoraria ?? 0,
+          semestreOrigemNumero:
+            anterior.cursoSemestre
+              .numero,
+          obrigatoria: false,
+          contaCargaMinima: true,
+          contaCargaMaxima: true,
+        });
+
+        continue;
+      }
+
+      if (
+        extra &&
+        !emAndamento.has(
+          item.disciplinaId,
+        )
+      ) {
+        if (!extra.disciplina.ativo) {
+          return NextResponse.json(
+            {
+              error: `A disciplina ${extra.disciplina.nome} está inativa.`,
+            },
+            {
+              status: 409,
+            },
+          );
+        }
+
+        itensValidados.push({
+          disciplinaId:
+            item.disciplinaId,
+          turmaDisciplinaId:
+            item.turmaDisciplinaId,
+          tipo: "EXTRACURRICULAR",
+          cargaHoraria:
+            extra.disciplina
+              .cargaHoraria ?? 0,
+          semestreOrigemNumero:
+            null,
+          obrigatoria:
+            extra.obrigatoria,
+          contaCargaMinima:
+            extra.contaCargaMinima,
+          contaCargaMaxima:
+            extra.contaCargaMaxima,
+        });
+
+        continue;
+      }
+
+      return NextResponse.json(
+        {
+          error:
+            "Uma das disciplinas não está autorizada para esta rematrícula.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const preRequisitosPendentes: string[] =
+      [];
+
+    for (const requisito of preRequisitos) {
+      if (
+        !aprovadas.has(
+          requisito.prerequisitoId,
+        )
+      ) {
+        preRequisitosPendentes.push(
+          requisito.prerequisito.nome,
+        );
+      }
+    }
+
+    if (
+      preRequisitosPendentes.length > 0
+    ) {
+      return NextResponse.json(
+        {
+          error: `Pré-requisito pendente: ${Array.from(
+            new Set(
+              preRequisitosPendentes,
+            ),
+          ).join(", ")}.`,
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const ofertaPorId = new Map<
+  number,
+  (typeof ofertas)[number]
+>(
+  ofertas.map(
+    (oferta) =>
+      [
+        oferta.id,
+        oferta,
+      ] as const,
+  ),
+);
+
+    for (const item of itensValidados) {
+      const oferta =
+        ofertaPorId.get(
+          item.turmaDisciplinaId,
+        );
+
+      if (!oferta) {
+        return NextResponse.json(
+          {
+            error:
+              "Uma das turmas selecionadas não foi encontrada.",
+          },
+          {
+            status: 409,
+          },
+        );
+      }
+
+      if (
+        oferta.disciplinaId !==
+        item.disciplinaId
+      ) {
+        return NextResponse.json(
+          {
+            error:
+              "A turma selecionada não pertence à disciplina informada.",
+          },
+          {
+            status: 409,
+          },
+        );
+      }
+
+      if (
+        !oferta.turma.ativa ||
+        ![
+          "AGUARDANDO",
+          "A_INICIAR",
+          "ATIVA",
+        ].includes(
+          oferta.turma.statusTurma,
+        )
+      ) {
+        return NextResponse.json(
+          {
+            error: `A turma ${oferta.turma.nome} não está disponível.`,
+          },
+          {
+            status: 409,
+          },
+        );
+      }
+
+      if (
+        oferta.turma.periodoLetivo !==
+        periodo.periodoLetivo
+      ) {
+        return NextResponse.json(
+          {
+            error: `A turma ${oferta.turma.nome} não pertence ao período letivo da rematrícula.`,
+          },
+          {
+            status: 409,
+          },
+        );
+      }
+
+      if (
+        aluno.poloId !== null &&
+        oferta.turma.poloId !== null &&
+        oferta.turma.poloId !==
+          aluno.poloId
+      ) {
+        return NextResponse.json(
+          {
+            error: `A turma ${oferta.turma.nome} pertence a outro polo.`,
+          },
+          {
+            status: 403,
+          },
+        );
+      }
+    }
+
+    for (
+      let indiceA = 0;
+      indiceA < ofertas.length;
+      indiceA += 1
+    ) {
+      for (
+        let indiceB = indiceA + 1;
+        indiceB < ofertas.length;
+        indiceB += 1
+      ) {
+        const ofertaA =
+          ofertas[indiceA];
+
+        const ofertaB =
+          ofertas[indiceB];
+
+        for (const horarioA of ofertaA.horarios) {
+          for (const horarioB of ofertaB.horarios) {
+            if (
+              horariosSeSobrepoem(
+                horarioA,
+                horarioB,
+              )
+            ) {
+              return NextResponse.json(
+                {
+                  error: `Existe conflito de horário entre ${ofertaA.disciplina.nome} e ${ofertaB.disciplina.nome}.`,
+                },
+                {
+                  status: 409,
+                },
+              );
+            }
+          }
+        }
+      }
+    }
+
+    const cargaSelecionadaMinima =
+      itensValidados.reduce(
+        (total, item) =>
+          total +
+          (item.contaCargaMinima
+            ? item.cargaHoraria
+            : 0),
+        0,
+      );
+
+    const cargaSelecionadaMaxima =
+      itensValidados.reduce(
+        (total, item) =>
+          total +
+          (item.contaCargaMaxima
+            ? item.cargaHoraria
+            : 0),
+        0,
+      );
+
+    const cargaMinima =
+      periodo.cargaMinimaOverride ??
+      cursoSemestreDestino.cargaMinima ??
+      0;
+
+    const cargaMaxima =
+      periodo.cargaMaximaOverride ??
+      cursoSemestreDestino.cargaMaxima ??
+      periodo.curso
+        ?.cargaHorariaMaximaSemestre ??
+      null;
+
+    if (
+      cargaMaxima !== null &&
+      cargaSelecionadaMaxima >
+        cargaMaxima
+    ) {
+      return NextResponse.json(
+        {
+          error: `A carga horária selecionada ultrapassa o máximo de ${cargaMaxima} horas.`,
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    if (
+      acao === "ENVIAR" &&
+      cargaSelecionadaMinima <
+        cargaMinima
+    ) {
+      return NextResponse.json(
+        {
+          error: `A carga horária mínima é de ${cargaMinima} horas.`,
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const declaracaoAceita =
+      body?.declaracaoAceita === true;
+
+    if (
+      acao === "ENVIAR" &&
+      !declaracaoAceita
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Aceite a declaração antes de enviar a rematrícula.",
+        },
+        {
+          status: 409,
+        },
+      );
+    }
+
+    const statusNovo =
+      acao === "ENVIAR"
+        ? "ENVIADA"
+        : "RASCUNHO";
+
+    const rematriculaSalva =
+      await prisma.$transaction(
+        async (tx) => {
+          let rematriculaId:
+            number;
+
+          if (rematriculaExistente) {
+            await tx.rematriculaSemestralItem.deleteMany(
+              {
+                where: {
+                  rematriculaId:
+                    rematriculaExistente.id,
+                },
+              },
+            );
+
+            const atualizada =
+              await tx.rematriculaSemestral.update(
+                {
+                  where: {
+                    id:
+                      rematriculaExistente.id,
+                  },
+                  data: {
+                    cursoSemestreDestinoId:
+                      cursoSemestreDestino.id,
+                    matriculaOrigemId:
+                      matriculaAtual.id,
+                    status: statusNovo,
+                    cargaHorariaSelecionada:
+                      cargaSelecionadaMaxima,
+                    declaracaoAceitaEm:
+                      declaracaoAceita
+                        ? agora
+                        : null,
+                    enviadaEm:
+                      acao === "ENVIAR"
+                        ? agora
+                        : null,
+                    analisadaEm: null,
+                    aprovadaEm: null,
+                    devolvidaEm: null,
+                    recusadaEm: null,
+                    canceladaEm: null,
+                    motivoDevolucao: null,
+                    motivoRecusa: null,
+                    motivoCancelamento:
+                      null,
+                    observacoes:
+                      String(
+                        body?.observacoes ??
+                          "",
+                      ).trim() ||
+                      null,
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              );
+
+            rematriculaId =
+              atualizada.id;
+          } else {
+            const criada =
+              await tx.rematriculaSemestral.create(
+                {
+                  data: {
+                    instituicaoId:
+                      aluno.instituicaoId,
+                    alunoId: aluno.id,
+                    periodoMatriculaId:
+                      periodo.id,
+                    cursoSemestreDestinoId:
+                      cursoSemestreDestino.id,
+                    matriculaOrigemId:
+                      matriculaAtual.id,
+                    status: statusNovo,
+                    cargaHorariaSelecionada:
+                      cargaSelecionadaMaxima,
+                    declaracaoAceitaEm:
+                      declaracaoAceita
+                        ? agora
+                        : null,
+                    enviadaEm:
+                      acao === "ENVIAR"
+                        ? agora
+                        : null,
+                    observacoes:
+                      String(
+                        body?.observacoes ??
+                          "",
+                      ).trim() ||
+                      null,
+                  },
+                  select: {
+                    id: true,
+                  },
+                },
+              );
+
+            rematriculaId =
+              criada.id;
+          }
+
+          if (
+            itensValidados.length > 0
+          ) {
+            await tx.rematriculaSemestralItem.createMany(
+              {
+                data:
+                  itensValidados.map(
+                    (item) => ({
+                      instituicaoId:
+                        aluno.instituicaoId,
+                      rematriculaId,
+                      disciplinaId:
+                        item.disciplinaId,
+                      turmaDisciplinaId:
+                        item.turmaDisciplinaId,
+                      tipo: item.tipo,
+                      cargaHorariaSnapshot:
+                        item.cargaHoraria,
+                      semestreOrigemNumero:
+                        item.semestreOrigemNumero,
+                      obrigatoria:
+                        item.obrigatoria,
+                    }),
+                  ),
+              },
+            );
+          }
+
+          return tx.rematriculaSemestral.findUnique(
+            {
+              where: {
+                id: rematriculaId,
+              },
+              select: {
+                id: true,
+                protocolo: true,
+                status: true,
+                cargaHorariaSelecionada:
+                  true,
+                declaracaoAceitaEm:
+                  true,
+                enviadaEm: true,
+                criadaEm: true,
+                atualizadaEm: true,
+                itens: {
+                  select: {
+                    id: true,
+                    disciplinaId: true,
+                    turmaDisciplinaId:
+                      true,
+                    tipo: true,
+                    cargaHorariaSnapshot:
+                      true,
+                    semestreOrigemNumero:
+                      true,
+                    obrigatoria: true,
+                  },
+                },
+              },
+            },
+          );
+        },
+      );
+
+    if (acao === "ENVIAR") {
+      const responsaveis =
+        await prisma.user.findMany({
+          where: {
+            instituicaoId:
+              aluno.instituicaoId,
+            ativo: true,
+            role: {
+              in: [
+                "ADMIN",
+                "SECRETARIA",
+                "COORDENADOR",
+              ],
+            },
+          },
+          select: {
+            id: true,
+          },
+        });
+
+      if (responsaveis.length > 0) {
+        await prisma.notificacao.createMany(
+          {
+            data: responsaveis.map(
+              (responsavel) => ({
+                usuarioId:
+                  responsavel.id,
+                instituicaoId:
+                  aluno.instituicaoId,
+                tipo:
+                  "REMATRICULA_ENVIADA",
+                categoria:
+                  "ACADEMICO",
+                titulo:
+                  "Nova rematrícula enviada",
+                descricao: `${aluno.nome} enviou uma rematrícula para ${periodo.periodoLetivo}.`,
+                link:
+                  "/admin/rematriculas-semestrais",
+                chaveAgrupada: `rematricula:${rematriculaSalva?.id}:usuario:${responsavel.id}`,
+              }),
+            ),
+            skipDuplicates: true,
+          },
+        );
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      message:
+        acao === "ENVIAR"
+          ? periodo.exigeAprovacao
+            ? "Rematrícula enviada para análise da instituição."
+            : "Rematrícula enviada com sucesso."
+          : "Rascunho salvo com sucesso.",
+      rematricula:
+        rematriculaSalva,
+    });
+  } catch (error) {
+    console.error(
+      "Erro ao salvar rematrícula:",
+      error,
+    );
+
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Erro ao salvar a rematrícula.",
       },
       {
         status: 500,

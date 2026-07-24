@@ -3434,6 +3434,7 @@ model AssinaturaPhanyx {
 
   alunosAtivosReferencia Int @default(0)
   polosReferencia        Int @default(1)
+  polosInclusosContrato  Int @default(1)
 
   canceladaEm        DateTime?
   canceladaPorId     Int?
