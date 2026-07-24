@@ -1,7 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
+
+type TipoUnidadePolo =
+  | "SEDE"
+  | "CAMPUS"
+  | "POLO"
+  | "FILIAL"
+  | "UNIDADE";
+
+type StatusComercialPolo =
+  | "ATIVO"
+  | "PENDENTE_ATIVACAO"
+  | "SUSPENSO"
+  | "ENCERRADO";
 
 type Polo = {
   id: number;
@@ -9,100 +22,224 @@ type Polo = {
   codigo?: string | null;
   cnpj?: string | null;
   descricao?: string | null;
+  tipoUnidade?: TipoUnidadePolo;
+  statusComercial?: StatusComercialPolo;
+  cep?: string | null;
+  endereco?: string | null;
+  numero?: string | null;
+  complemento?: string | null;
+  bairro?: string | null;
   cidade?: string | null;
   estado?: string | null;
-  endereco?: string | null;
+  responsavelNome?: string | null;
+  responsavelEmail?: string | null;
+  responsavelTelefone?: string | null;
+  responsavelCargo?: string | null;
   ativo: boolean;
   createdAt?: string;
 };
 
 type FeedbackTipo = "sucesso" | "aviso" | "erro" | "";
 
+const TIPOS_UNIDADE: Array<{
+  valor: TipoUnidadePolo;
+  nome: string;
+}> = [
+  { valor: "SEDE", nome: "Sede" },
+  { valor: "CAMPUS", nome: "Campus" },
+  { valor: "POLO", nome: "Polo" },
+  { valor: "FILIAL", nome: "Filial" },
+  { valor: "UNIDADE", nome: "Unidade" },
+];
+
+function nomeTipoUnidade(tipo?: TipoUnidadePolo) {
+  return (
+    TIPOS_UNIDADE.find((item) => item.valor === tipo)?.nome ||
+    "Polo"
+  );
+}
+
+function nomeStatusPolo(polo: Polo) {
+  switch (polo.statusComercial) {
+    case "ATIVO":
+      return "Ativo";
+
+    case "PENDENTE_ATIVACAO":
+      return "Aguardando ativação";
+
+    case "SUSPENSO":
+      return "Suspenso";
+
+    case "ENCERRADO":
+      return "Encerrado";
+
+    default:
+      return polo.ativo ? "Ativo" : "Aguardando ativação";
+  }
+}
+
+function classesStatusPolo(polo: Polo) {
+  switch (polo.statusComercial) {
+    case "ATIVO":
+      return "border border-emerald-300 bg-emerald-100 !text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/70 dark:!text-emerald-200";
+
+    case "PENDENTE_ATIVACAO":
+      return "border border-amber-300 bg-amber-100 !text-amber-900 dark:border-amber-800 dark:bg-amber-950/70 dark:!text-amber-200";
+
+    case "SUSPENSO":
+      return "border border-red-300 bg-red-100 !text-red-900 dark:border-red-800 dark:bg-red-950/70 dark:!text-red-200";
+
+    case "ENCERRADO":
+      return "border border-slate-400 bg-slate-200 !text-slate-900 dark:border-slate-700 dark:bg-slate-800 dark:!text-slate-200";
+
+    default:
+      return polo.ativo
+        ? "border border-emerald-300 bg-emerald-100 !text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/70 dark:!text-emerald-200"
+        : "border border-amber-300 bg-amber-100 !text-amber-900 dark:border-amber-800 dark:bg-amber-950/70 dark:!text-amber-200";
+  }
+}
+
+function mensagemStatusPolo(polo: Polo) {
+  switch (polo.statusComercial) {
+    case "PENDENTE_ATIVACAO":
+      return "Ativação sujeita ao limite e à contratação do plano.";
+
+    case "SUSPENSO":
+      return "Este polo está temporariamente suspenso.";
+
+    case "ENCERRADO":
+      return "Este polo foi encerrado e permanece disponível apenas para histórico.";
+
+    default:
+      return null;
+  }
+}
+
+function formatarEndereco(polo: Polo) {
+  const primeiraLinha = [
+    polo.endereco,
+    polo.numero,
+    polo.complemento,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const segundaLinha = [
+    polo.bairro,
+    polo.cidade,
+    polo.estado,
+    polo.cep,
+  ]
+    .filter(Boolean)
+    .join(" - ");
+
+  return [primeiraLinha, segundaLinha]
+    .filter(Boolean)
+    .join(" | ");
+}
+
 function AdminPolosPage() {
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
 
   const [nome, setNome] = useState("");
+  const [tipoUnidade, setTipoUnidade] =
+    useState<TipoUnidadePolo>("POLO");
   const [codigo, setCodigo] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [cep, setCep] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [numero, setNumero] = useState("");
+  const [complemento, setComplemento] = useState("");
+  const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
-  const [endereco, setEndereco] = useState("");
-  
+  const [responsavelNome, setResponsavelNome] = useState("");
+  const [responsavelEmail, setResponsavelEmail] = useState("");
+  const [responsavelTelefone, setResponsavelTelefone] =
+    useState("");
+  const [responsavelCargo, setResponsavelCargo] = useState("");
+
   const [criando, setCriando] = useState(false);
   const [carregando, setCarregando] = useState(true);
   const [feedback, setFeedback] = useState("");
-  const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
+  const [feedbackTipo, setFeedbackTipo] =
+    useState<FeedbackTipo>("");
 
-const [editandoId, setEditandoId] = useState<number | null>(null);
-const [editNome, setEditNome] = useState("");
-const [editCodigo, setEditCodigo] = useState("");
-const [editCnpj, setEditCnpj] = useState("");
-const [editCidade, setEditCidade] = useState("");
-const [editEstado, setEditEstado] = useState("");
-const [editEndereco, setEditEndereco] = useState("");
-const [editDescricao, setEditDescricao] = useState("");
-const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  const [editandoId, setEditandoId] = useState<number | null>(
+    null
+  );
 
-function iniciarEdicao(polo: Polo) {
-  setEditandoId(polo.id);
-  setEditNome(polo.nome || "");
-  setEditCodigo(polo.codigo || "");
-  setEditCnpj(polo.cnpj || "");
-  setEditCidade(polo.cidade || "");
-  setEditEstado(polo.estado || "");
-  setEditEndereco(polo.endereco || "");
-  setEditDescricao(polo.descricao || "");
-}
+  const [editNome, setEditNome] = useState("");
+  const [editTipoUnidade, setEditTipoUnidade] =
+    useState<TipoUnidadePolo>("POLO");
+  const [editCodigo, setEditCodigo] = useState("");
+  const [editCnpj, setEditCnpj] = useState("");
+  const [editDescricao, setEditDescricao] = useState("");
+  const [editCep, setEditCep] = useState("");
+  const [editEndereco, setEditEndereco] = useState("");
+  const [editNumero, setEditNumero] = useState("");
+  const [editComplemento, setEditComplemento] = useState("");
+  const [editBairro, setEditBairro] = useState("");
+  const [editCidade, setEditCidade] = useState("");
+  const [editEstado, setEditEstado] = useState("");
+  const [editResponsavelNome, setEditResponsavelNome] =
+    useState("");
+  const [editResponsavelEmail, setEditResponsavelEmail] =
+    useState("");
+  const [
+    editResponsavelTelefone,
+    setEditResponsavelTelefone,
+  ] = useState("");
+  const [editResponsavelCargo, setEditResponsavelCargo] =
+    useState("");
 
-async function salvarEdicao() {
-  if (!editandoId) return;
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
-  try {
-    setSalvandoEdicao(true);
+  const inputClass =
+  "phanyx-polos-input w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
 
-    const res = await fetch("/api/admin/polos", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        id: editandoId,
-        nome: editNome,
-        codigo: editCodigo,
-        cnpj: editCnpj,
-        cidade: editCidade,
-        estado: editEstado,
-        endereco: editEndereco,
-        descricao: editDescricao,
-      }),
-    });
-
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao atualizar polo");
-    }
-
-    setEditandoId(null);
-
-    await carregarPolos();
-
-    setFeedback("Polo atualizado com sucesso.");
-    setFeedbackTipo("sucesso");
-  } catch (error: unknown) {
-    setFeedback(
-      error instanceof Error
-        ? error.message
-        : "Erro ao atualizar polo."
-    );
-    setFeedbackTipo("erro");
-  } finally {
-    setSalvandoEdicao(false);
+  function limparFormulario() {
+    setNome("");
+    setTipoUnidade("POLO");
+    setCodigo("");
+    setCnpj("");
+    setDescricao("");
+    setCep("");
+    setEndereco("");
+    setNumero("");
+    setComplemento("");
+    setBairro("");
+    setCidade("");
+    setEstado("");
+    setResponsavelNome("");
+    setResponsavelEmail("");
+    setResponsavelTelefone("");
+    setResponsavelCargo("");
   }
-}
+
+  function iniciarEdicao(polo: Polo) {
+    setEditandoId(polo.id);
+    setEditNome(polo.nome || "");
+    setEditTipoUnidade(polo.tipoUnidade || "POLO");
+    setEditCodigo(polo.codigo || "");
+    setEditCnpj(polo.cnpj || "");
+    setEditDescricao(polo.descricao || "");
+    setEditCep(polo.cep || "");
+    setEditEndereco(polo.endereco || "");
+    setEditNumero(polo.numero || "");
+    setEditComplemento(polo.complemento || "");
+    setEditBairro(polo.bairro || "");
+    setEditCidade(polo.cidade || "");
+    setEditEstado(polo.estado || "");
+    setEditResponsavelNome(polo.responsavelNome || "");
+    setEditResponsavelEmail(polo.responsavelEmail || "");
+    setEditResponsavelTelefone(
+      polo.responsavelTelefone || ""
+    );
+    setEditResponsavelCargo(polo.responsavelCargo || "");
+  }
 
   async function carregarPolos() {
     try {
@@ -112,11 +249,22 @@ async function salvarEdicao() {
         credentials: "include",
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || "Erro ao carregar polos"
+        );
+      }
+
       setPolos(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (error: unknown) {
       setPolos([]);
-      setFeedback("Erro ao carregar polos.");
+      setFeedback(
+        error instanceof Error
+          ? error.message
+          : "Erro ao carregar polos."
+      );
       setFeedbackTipo("erro");
     } finally {
       setCarregando(false);
@@ -133,12 +281,14 @@ async function salvarEdicao() {
     const timer = setTimeout(() => {
       setFeedback("");
       setFeedbackTipo("");
-    }, 3500);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, [feedback]);
 
-  async function criarPolo(e: React.FormEvent) {
+  async function criarPolo(
+    e: FormEvent<HTMLFormElement>
+  ) {
     e.preventDefault();
 
     try {
@@ -151,43 +301,110 @@ async function salvarEdicao() {
         },
         credentials: "include",
         body: JSON.stringify({
-  nome,
-  codigo,
-  cnpj,
-  descricao,
-  cidade,
-  estado,
-  endereco,
-}),
+          nome,
+          tipoUnidade,
+          codigo,
+          cnpj,
+          descricao,
+          cep,
+          endereco,
+          numero,
+          complemento,
+          bairro,
+          cidade,
+          estado,
+          responsavelNome,
+          responsavelEmail,
+          responsavelTelefone,
+          responsavelCargo,
+        }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.error || "Erro ao criar polo");
+        throw new Error(
+          data?.error || "Erro ao criar polo"
+        );
       }
 
-      setNome("");
-      setCodigo("");
-      setCnpj("");
-      setDescricao("");
-      setCidade("");
-      setEstado("");
-      setEndereco("");
+      limparFormulario();
       await carregarPolos();
 
-setFeedback(
-  data?.aviso || "Polo criado com sucesso."
-);
+      setFeedback(
+        data?.aviso || "Polo criado com sucesso."
+      );
 
-setFeedbackTipo(
-  data?.aviso ? "aviso" : "sucesso"
-);
-    } catch (error: any) {
-      setFeedback(error?.message || "Erro ao criar polo");
+      setFeedbackTipo(
+        data?.aviso ? "aviso" : "sucesso"
+      );
+    } catch (error: unknown) {
+      setFeedback(
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar polo."
+      );
       setFeedbackTipo("erro");
     } finally {
       setCriando(false);
+    }
+  }
+
+  async function salvarEdicao() {
+    if (!editandoId) return;
+
+    try {
+      setSalvandoEdicao(true);
+
+      const res = await fetch("/api/admin/polos", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          id: editandoId,
+          nome: editNome,
+          tipoUnidade: editTipoUnidade,
+          codigo: editCodigo,
+          cnpj: editCnpj,
+          descricao: editDescricao,
+          cep: editCep,
+          endereco: editEndereco,
+          numero: editNumero,
+          complemento: editComplemento,
+          bairro: editBairro,
+          cidade: editCidade,
+          estado: editEstado,
+          responsavelNome: editResponsavelNome,
+          responsavelEmail: editResponsavelEmail,
+          responsavelTelefone: editResponsavelTelefone,
+          responsavelCargo: editResponsavelCargo,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error || "Erro ao atualizar polo"
+        );
+      }
+
+      setEditandoId(null);
+      await carregarPolos();
+
+      setFeedback("Polo atualizado com sucesso.");
+      setFeedbackTipo("sucesso");
+    } catch (error: unknown) {
+      setFeedback(
+        error instanceof Error
+          ? error.message
+          : "Erro ao atualizar polo."
+      );
+      setFeedbackTipo("erro");
+    } finally {
+      setSalvandoEdicao(false);
     }
   }
 
@@ -198,282 +415,593 @@ setFeedbackTipo(
 
     return polos.filter((polo) => {
       return (
-        String(polo.nome || "").toLowerCase().includes(termo) ||
-        String(polo.codigo || "").toLowerCase().includes(termo) ||
-        String(polo.cnpj || "").toLowerCase().includes(termo) ||
-        String(polo.cidade || "").toLowerCase().includes(termo) ||
-        String(polo.estado || "").toLowerCase().includes(termo) ||
-        String(polo.endereco || "").toLowerCase().includes(termo) ||
-        String(polo.descricao || "").toLowerCase().includes(termo)
+        String(polo.nome || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.codigo || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.cnpj || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.tipoUnidade || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.statusComercial || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.cep || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.cidade || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.estado || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.endereco || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.responsavelNome || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.responsavelEmail || "")
+          .toLowerCase()
+          .includes(termo) ||
+        String(polo.descricao || "")
+          .toLowerCase()
+          .includes(termo)
       );
     });
   }, [polos, busca]);
 
   return (
-    <div className="max-w-6xl space-y-6">
+    <div className="phanyx-polos-page max-w-6xl space-y-6">
       {feedback && (
         <div
           className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-  feedbackTipo === "sucesso"
-    ? "border-green-200 bg-green-50 text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200"
-    : feedbackTipo === "aviso"
-      ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
-      : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
-}`}
+            feedbackTipo === "sucesso"
+              ? "border-green-200 bg-green-50 text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200"
+              : feedbackTipo === "aviso"
+                ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+                : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+          }`}
         >
           {feedback}
         </div>
       )}
 
       <div>
-        <h1 className="text-2xl font-bold">🏢 Polos</h1>
-        <p className="mt-1 text-gray-600">
-          Cadastre os polos, unidades, campi ou filiais da sua instituição.
-        </p>
+        <h1 className="text-2xl font-bold !text-slate-950 dark:!text-slate-100">
+          🏢 Polos
+        </h1>
+
+        <p className="phanyx-polos-subtitulo mt-1">
+  Cadastre as sedes, campi, polos, filiais ou unidades da instituição.
+</p>
       </div>
+
+      <div className="phanyx-polos-aviso rounded-2xl border p-4 text-sm font-semibold">
+  Cada endereço ou unidade operacional real deve ser cadastrado separadamente.
+  Um único polo não deve representar várias unidades físicas da instituição.
+</div>
 
       <form
         onSubmit={criarPolo}
-        className="rounded-2xl border bg-white p-6 shadow-sm space-y-4"
+        className="phanyx-polos-card space-y-6 rounded-2xl border p-6 shadow-sm"
       >
-        <h2 className="text-lg font-semibold">Novo polo</h2>
+        <div>
+          <h2 className="font-semibold !text-slate-950 dark:!text-slate-100">
+            Novo polo
+          </h2>
+
+          <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
+            O sistema verificará automaticamente o limite
+            incluído no plano.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <select
+            value={tipoUnidade}
+            onChange={(e) =>
+              setTipoUnidade(
+                e.target.value as TipoUnidadePolo
+              )
+            }
+            className={inputClass}
+          >
+            {TIPOS_UNIDADE.map((tipo) => (
+              <option key={tipo.valor} value={tipo.valor}>
+                {tipo.nome}
+              </option>
+            ))}
+          </select>
+
           <input
             type="text"
-            placeholder="Nome do polo"
+            placeholder="Nome da unidade"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
+            className={inputClass}
             required
           />
 
           <input
             type="text"
-            placeholder="Código do polo"
+            placeholder="Código interno"
             value={codigo}
             onChange={(e) => setCodigo(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2"
+            className={inputClass}
           />
-
-<input
-  type="text"
-  placeholder="CNPJ do polo"
-  value={cnpj}
-  onChange={(e) => setCnpj(e.target.value)}
-  className="w-full rounded-xl border px-3 py-2"
-/>
-
-<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-  <input
-    type="text"
-    placeholder="Cidade"
-    value={cidade}
-    onChange={(e) => setCidade(e.target.value)}
-    className="w-full rounded-xl border px-3 py-2"
-  />
-
-  <input
-    type="text"
-    placeholder="Estado"
-    value={estado}
-    onChange={(e) => setEstado(e.target.value)}
-    className="w-full rounded-xl border px-3 py-2"
-  />
-</div>
 
           <input
             type="text"
-            placeholder="Endereço"
-            value={endereco}
-            onChange={(e) => setEndereco(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2 md:col-span-2"
-          />
-
-          <textarea
-            placeholder="Descrição"
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
-            className="min-h-[100px] w-full rounded-xl border px-3 py-2 md:col-span-2"
+            placeholder="CNPJ da unidade, quando houver"
+            value={cnpj}
+            onChange={(e) => setCnpj(e.target.value)}
+            className={inputClass}
           />
         </div>
+
+        <div className="space-y-4">
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+            Endereço da unidade
+          </h3>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <input
+              type="text"
+              placeholder="CEP"
+              value={cep}
+              onChange={(e) => setCep(e.target.value)}
+              className={inputClass}
+            />
+
+            <input
+              type="text"
+              placeholder="Endereço"
+              value={endereco}
+              onChange={(e) => setEndereco(e.target.value)}
+              className={inputClass}
+              required
+            />
+
+            <input
+              type="text"
+              placeholder="Número"
+              value={numero}
+              onChange={(e) => setNumero(e.target.value)}
+              className={inputClass}
+            />
+
+            <input
+              type="text"
+              placeholder="Complemento"
+              value={complemento}
+              onChange={(e) => setComplemento(e.target.value)}
+              className={inputClass}
+            />
+
+            <input
+              type="text"
+              placeholder="Bairro"
+              value={bairro}
+              onChange={(e) => setBairro(e.target.value)}
+              className={inputClass}
+            />
+
+            <input
+              type="text"
+              placeholder="Cidade"
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              className={inputClass}
+              required
+            />
+
+            <input
+              type="text"
+              placeholder="Estado — ex.: SC"
+              value={estado}
+              maxLength={2}
+              onChange={(e) =>
+                setEstado(e.target.value.toUpperCase())
+              }
+              className={inputClass}
+              required
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+              Responsável pela unidade
+            </h3>
+
+            <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
+              O acesso pessoal do responsável será criado na
+              próxima etapa.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <input
+              type="text"
+              placeholder="Nome do responsável"
+              value={responsavelNome}
+              onChange={(e) =>
+                setResponsavelNome(e.target.value)
+              }
+              className={inputClass}
+            />
+
+            <input
+              type="email"
+              placeholder="E-mail do responsável"
+              value={responsavelEmail}
+              onChange={(e) =>
+                setResponsavelEmail(e.target.value)
+              }
+              className={inputClass}
+            />
+
+            <input
+              type="text"
+              placeholder="Telefone do responsável"
+              value={responsavelTelefone}
+              onChange={(e) =>
+                setResponsavelTelefone(e.target.value)
+              }
+              className={inputClass}
+            />
+
+            <input
+              type="text"
+              placeholder="Cargo do responsável"
+              value={responsavelCargo}
+              onChange={(e) =>
+                setResponsavelCargo(e.target.value)
+              }
+              className={inputClass}
+            />
+          </div>
+        </div>
+
+        <textarea
+          placeholder="Descrição ou observações"
+          value={descricao}
+          onChange={(e) => setDescricao(e.target.value)}
+          className={`${inputClass} min-h-[100px] resize-y`}
+        />
 
         <button
           type="submit"
           disabled={criando}
-          className="rounded-xl bg-blue-600 px-4 py-2 text-white hover:bg-blue-700 disabled:opacity-60"
+          className="rounded-xl bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {criando ? "Criando..." : "Criar polo"}
         </button>
-
       </form>
 
       <div className="space-y-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-lg font-semibold">Lista de polos</h2>
+          <h2 className="font-semibold !text-slate-950 dark:!text-slate-100">
+            Lista de polos
+          </h2>
 
           <input
             type="text"
-            placeholder="Buscar por nome, código, cidade, estado..."
+            placeholder="Buscar por nome, cidade, responsável..."
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            className="w-full rounded-xl border px-3 py-2 md:w-[420px]"
+            className={`${inputClass} md:w-[420px]`}
           />
         </div>
 
         {carregando ? (
-          <div className="rounded-2xl border bg-white p-4 text-sm text-gray-600">
+          <div className="phanyx-polos-card rounded-2xl border p-4 text-sm">
             Carregando polos...
           </div>
         ) : polosFiltrados.length === 0 ? (
-          <div className="rounded-2xl border bg-white p-4 text-sm text-gray-600">
+          <div className="phanyx-polos-card rounded-2xl border p-4 text-sm">
             Nenhum polo encontrado.
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {polosFiltrados.map((polo) => (
-  <div
-    key={polo.id}
-    className="rounded-2xl border bg-white p-4 shadow-sm"
-  >
-    {editandoId === polo.id ? (
-      <div className="space-y-3">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-          <input
-            value={editNome}
-            onChange={(e) => setEditNome(e.target.value)}
-            className="rounded-xl border px-3 py-2"
-            placeholder="Nome do polo"
-          />
+            {polosFiltrados.map((polo) => {
+              const mensagemStatus =
+                mensagemStatusPolo(polo);
 
-          <input
-            value={editCodigo}
-            onChange={(e) => setEditCodigo(e.target.value)}
-            className="rounded-xl border px-3 py-2"
-            placeholder="Código do polo"
-          />
+              return (
+                <div
+                  key={polo.id}
+                  className="phanyx-polos-card rounded-2xl border p-4 shadow-sm"
+                >
+                  {editandoId === polo.id ? (
+                    <div className="space-y-5">
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <select
+                          value={editTipoUnidade}
+                          onChange={(e) =>
+                            setEditTipoUnidade(
+                              e.target
+                                .value as TipoUnidadePolo
+                            )
+                          }
+                          className={inputClass}
+                        >
+                          {TIPOS_UNIDADE.map((tipo) => (
+                            <option
+                              key={tipo.valor}
+                              value={tipo.valor}
+                            >
+                              {tipo.nome}
+                            </option>
+                          ))}
+                        </select>
 
-          <input
-            value={editCnpj}
-            onChange={(e) => setEditCnpj(e.target.value)}
-            className="rounded-xl border px-3 py-2"
-            placeholder="CNPJ do polo"
-          />
+                        <input
+                          value={editNome}
+                          onChange={(e) =>
+                            setEditNome(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Nome da unidade"
+                        />
 
-          <input
-            value={editCidade}
-            onChange={(e) => setEditCidade(e.target.value)}
-            className="rounded-xl border px-3 py-2"
-            placeholder="Cidade"
-          />
+                        <input
+                          value={editCodigo}
+                          onChange={(e) =>
+                            setEditCodigo(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Código interno"
+                        />
 
-          <input
-            value={editEstado}
-            onChange={(e) => setEditEstado(e.target.value)}
-            className="rounded-xl border px-3 py-2"
-            placeholder="Estado"
-          />
+                        <input
+                          value={editCnpj}
+                          onChange={(e) =>
+                            setEditCnpj(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="CNPJ"
+                        />
 
-          <input
-            value={editEndereco}
-            onChange={(e) => setEditEndereco(e.target.value)}
-            className="rounded-xl border px-3 py-2"
-            placeholder="Endereço"
-          />
+                        <input
+                          value={editCep}
+                          onChange={(e) =>
+                            setEditCep(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="CEP"
+                        />
 
-          <textarea
-            value={editDescricao}
-            onChange={(e) => setEditDescricao(e.target.value)}
-            className="min-h-[90px] rounded-xl border px-3 py-2 md:col-span-2"
-            placeholder="Descrição"
-          />
-        </div>
+                        <input
+                          value={editEndereco}
+                          onChange={(e) =>
+                            setEditEndereco(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Endereço"
+                        />
 
-        <div className="flex gap-2">
-          <button
-  type="button"
-  onClick={salvarEdicao}
-  disabled={salvandoEdicao}
-  className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
->
-  {salvandoEdicao ? "Salvando..." : "Salvar"}
-</button>
+                        <input
+                          value={editNumero}
+                          onChange={(e) =>
+                            setEditNumero(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Número"
+                        />
 
-          <button
-  type="button"
-  onClick={() => setEditandoId(null)}
-  disabled={salvandoEdicao}
-  className="rounded-xl bg-gray-400 px-4 py-2 text-sm text-white hover:bg-gray-500 disabled:cursor-not-allowed disabled:opacity-60"
->
-  Cancelar
-</button>
-        </div>
-      </div>
-    ) : (
-      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-        <div className="space-y-1">
-          <p className="font-semibold text-slate-800">{polo.nome}</p>
+                        <input
+                          value={editComplemento}
+                          onChange={(e) =>
+                            setEditComplemento(
+                              e.target.value
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="Complemento"
+                        />
 
-          <p className="text-sm text-slate-600">
-            Código: {polo.codigo || "-"}
-          </p>
+                        <input
+                          value={editBairro}
+                          onChange={(e) =>
+                            setEditBairro(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Bairro"
+                        />
 
-          <p className="text-sm text-slate-600">
-            CNPJ: {polo.cnpj || "-"}
-          </p>
+                        <input
+                          value={editCidade}
+                          onChange={(e) =>
+                            setEditCidade(e.target.value)
+                          }
+                          className={inputClass}
+                          placeholder="Cidade"
+                        />
 
-          <p className="text-sm text-slate-600">
-            Cidade/Estado:{" "}
-            {[polo.cidade, polo.estado].filter(Boolean).join(" - ") || "-"}
-          </p>
+                        <input
+                          value={editEstado}
+                          maxLength={2}
+                          onChange={(e) =>
+                            setEditEstado(
+                              e.target.value.toUpperCase()
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="Estado"
+                        />
 
-          <p className="text-sm text-slate-600">
-            Endereço: {polo.endereco || "-"}
-          </p>
+                        <input
+                          value={editResponsavelNome}
+                          onChange={(e) =>
+                            setEditResponsavelNome(
+                              e.target.value
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="Nome do responsável"
+                        />
 
-          <p className="text-sm text-slate-600">
-            Descrição: {polo.descricao || "-"}
-          </p>
+                        <input
+                          type="email"
+                          value={editResponsavelEmail}
+                          onChange={(e) =>
+                            setEditResponsavelEmail(
+                              e.target.value
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="E-mail do responsável"
+                        />
 
-          <p className="text-sm text-slate-600">
-            Status: {polo.ativo ? "Ativo" : "Aguardando ativação"}
-          </p>
+                        <input
+                          value={editResponsavelTelefone}
+                          onChange={(e) =>
+                            setEditResponsavelTelefone(
+                              e.target.value
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="Telefone do responsável"
+                        />
 
-          <div className="mt-3 flex flex-wrap items-center gap-4">
-  <button
-    type="button"
-    onClick={() => iniciarEdicao(polo)}
-    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-  >
-    Editar dados
-  </button>
+                        <input
+                          value={editResponsavelCargo}
+                          onChange={(e) =>
+                            setEditResponsavelCargo(
+                              e.target.value
+                            )
+                          }
+                          className={inputClass}
+                          placeholder="Cargo do responsável"
+                        />
 
-  {!polo.ativo && (
-    <span className="text-xs text-amber-700 dark:text-amber-300">
-      Ativação sujeita ao limite e à contratação do plano.
-    </span>
-  )}
-</div>
-</div>
+                        <textarea
+                          value={editDescricao}
+                          onChange={(e) =>
+                            setEditDescricao(e.target.value)
+                          }
+                          className={`${inputClass} min-h-[90px] resize-y md:col-span-2`}
+                          placeholder="Descrição"
+                        />
+                      </div>
 
-<div
-  className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-medium ${
-    polo.ativo
-      ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-300"
-      : "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300"
-  }`}
->
-  {polo.ativo ? "Ativo" : "Aguardando ativação"}
-</div>
-      </div>
-    )}
-  </div>
-))}
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={salvarEdicao}
+                          disabled={salvandoEdicao}
+                          className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {salvandoEdicao
+                            ? "Salvando..."
+                            : "Salvar"}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setEditandoId(null)
+                          }
+                          disabled={salvandoEdicao}
+                          className="rounded-xl bg-slate-500 px-4 py-2 text-sm font-medium text-white hover:bg-slate-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                      <div className="space-y-1">
+                        <p className="text-base font-bold !text-slate-950 dark:!text-slate-100">
+  {polo.nome}
+</p>
+
+                        <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                          Tipo:{" "}
+                          {nomeTipoUnidade(
+                            polo.tipoUnidade
+                          )}
+                        </p>
+
+                        <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                          Código: {polo.codigo || "-"}
+                        </p>
+
+                        <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                          CNPJ: {polo.cnpj || "-"}
+                        </p>
+
+                        <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                          Endereço:{" "}
+                          {formatarEndereco(polo) || "-"}
+                        </p>
+
+                        <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                          Responsável:{" "}
+                          {polo.responsavelNome || "-"}
+                        </p>
+
+                        {polo.responsavelEmail && (
+                          <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                            E-mail:{" "}
+                            {polo.responsavelEmail}
+                          </p>
+                        )}
+
+                        {polo.responsavelTelefone && (
+                          <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                            Telefone:{" "}
+                            {polo.responsavelTelefone}
+                          </p>
+                        )}
+
+                        <p className="text-sm !text-slate-700 dark:!text-slate-300">
+                          Descrição:{" "}
+                          {polo.descricao || "-"}
+                        </p>
+
+                        <div className="mt-3 flex flex-wrap items-center gap-4">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              iniciarEdicao(polo)
+                            }
+                            className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            Editar dados
+                          </button>
+
+                          {mensagemStatus && (
+                            <span className="text-xs text-amber-700 dark:text-amber-300">
+                              {mensagemStatus}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div
+                        className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-bold shadow-sm ${classesStatusPolo(
+  polo
+)}`}
+                      >
+                        {nomeStatusPolo(polo)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
     </div>
-
   );
 }
 

@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  StatusComercialPolo,
+  TipoUnidadePolo,
+} from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken, isAdminLike } from "@/lib/server-auth";
 
@@ -17,15 +21,9 @@ function normalizarPlano(plano: string | null | undefined) {
     .toUpperCase();
 }
 
-/**
- * Quantidade de polos incluídos sem cobrança adicional.
- *
- * Enterprise está temporariamente considerando 10 polos,
- * conforme a regra que já vinha sendo usada na calculadora.
- * Depois podemos mover isso para uma configuração comercial
- * centralizada, evitando números fixos espalhados no sistema.
- */
-function obterLimitePolosInclusos(plano: string | null | undefined) {
+function obterLimitePolosInclusos(
+  plano: string | null | undefined
+) {
   const planoNormalizado = normalizarPlano(plano);
 
   switch (planoNormalizado) {
@@ -39,6 +37,18 @@ function obterLimitePolosInclusos(plano: string | null | undefined) {
     default:
       return 1;
   }
+}
+
+function emailValido(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function tipoUnidadeValido(
+  valor: string
+): valor is TipoUnidadePolo {
+  return Object.values(TipoUnidadePolo).includes(
+    valor as TipoUnidadePolo
+  );
 }
 
 export async function GET() {
@@ -102,15 +112,50 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const usuarioId = Number(user.id);
+
+    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+      return NextResponse.json(
+        { error: "Sessão inválida" },
+        { status: 401 }
+      );
+    }
+
     const body = (await req.json()) as Record<string, unknown>;
 
     const nome = textoObrigatorio(body.nome);
     const codigo = textoOpcional(body.codigo);
     const cnpj = textoOpcional(body.cnpj);
     const descricao = textoOpcional(body.descricao);
-    const cidade = textoOpcional(body.cidade);
-    const estado = textoOpcional(body.estado)?.toUpperCase() ?? null;
+
+    const cep = textoOpcional(body.cep);
     const endereco = textoOpcional(body.endereco);
+    const numero = textoOpcional(body.numero);
+    const complemento = textoOpcional(body.complemento);
+    const bairro = textoOpcional(body.bairro);
+    const cidade = textoOpcional(body.cidade);
+    const estado =
+      textoOpcional(body.estado)?.toUpperCase() ?? null;
+
+    const responsavelNome = textoOpcional(
+      body.responsavelNome
+    );
+
+    const responsavelEmail =
+      textoOpcional(body.responsavelEmail)?.toLowerCase() ??
+      null;
+
+    const responsavelTelefone = textoOpcional(
+      body.responsavelTelefone
+    );
+
+    const responsavelCargo = textoOpcional(
+      body.responsavelCargo
+    );
+
+    const tipoUnidadeInformado = textoObrigatorio(
+      body.tipoUnidade ?? TipoUnidadePolo.POLO
+    ).toUpperCase();
 
     if (!nome) {
       return NextResponse.json(
@@ -126,9 +171,53 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (estado && estado.length !== 2) {
+    if (!cidade) {
       return NextResponse.json(
-        { error: "Informe o estado usando a sigla com 2 letras" },
+        { error: "Cidade do polo é obrigatória" },
+        { status: 400 }
+      );
+    }
+
+    if (!estado) {
+      return NextResponse.json(
+        { error: "Estado do polo é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    if (estado.length !== 2) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe o estado usando a sigla com 2 letras",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!endereco) {
+      return NextResponse.json(
+        { error: "Endereço do polo é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      responsavelEmail &&
+      !emailValido(responsavelEmail)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe um e-mail válido para o responsável",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!tipoUnidadeValido(tipoUnidadeInformado)) {
+      return NextResponse.json(
+        { error: "Tipo de unidade inválido" },
         { status: 400 }
       );
     }
@@ -144,13 +233,6 @@ export async function POST(req: NextRequest) {
             },
           ]
         : []),
-      ...(cnpj
-        ? [
-            {
-              cnpj,
-            },
-          ]
-        : []),
     ];
 
     const poloExistente = await prisma.polo.findFirst({
@@ -162,20 +244,14 @@ export async function POST(req: NextRequest) {
         id: true,
         nome: true,
         codigo: true,
-        cnpj: true,
       },
     });
 
     if (poloExistente) {
-      let campoConflito = "nome";
-
-      if (codigo && poloExistente.codigo === codigo) {
-        campoConflito = "código";
-      }
-
-      if (cnpj && poloExistente.cnpj === cnpj) {
-        campoConflito = "CNPJ";
-      }
+      const campoConflito =
+        codigo && poloExistente.codigo === codigo
+          ? "código"
+          : "nome";
 
       return NextResponse.json(
         {
@@ -185,14 +261,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const instituicao = await prisma.instituicao.findUnique({
-      where: {
-        id: user.instituicaoId,
-      },
-      select: {
-        plano: true,
-      },
-    });
+    const instituicao =
+      await prisma.instituicao.findUnique({
+        where: {
+          id: user.instituicaoId,
+        },
+        select: {
+          plano: true,
+          isentaPagamento: true,
+        },
+      });
 
     if (!instituicao) {
       return NextResponse.json(
@@ -201,27 +279,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const limitePolosInclusos = obterLimitePolosInclusos(
-      instituicao.plano
-    );
+    const limitePolosInclusos =
+      instituicao.isentaPagamento
+        ? null
+        : obterLimitePolosInclusos(instituicao.plano);
 
-    const quantidadePolosAtivos = await prisma.polo.count({
-      where: {
-        instituicaoId: user.instituicaoId,
-        ativo: true,
-      },
-    });
+    const quantidadePolosAtivos =
+      await prisma.polo.count({
+        where: {
+          instituicaoId: user.instituicaoId,
+          OR: [
+            {
+              ativo: true,
+            },
+            {
+              statusComercial:
+                StatusComercialPolo.ATIVO,
+            },
+          ],
+        },
+      });
 
-    /*
-     * O primeiro polo ou os polos ainda dentro do limite do plano
-     * podem ser ativados automaticamente.
-     *
-     * Acima do limite, o polo é cadastrado como inativo.
-     * Posteriormente criaremos o status PENDENTE_ATIVACAO
-     * e a aprovação comercial.
-     */
     const ativadoAutomaticamente =
+      limitePolosInclusos === null ||
       quantidadePolosAtivos < limitePolosInclusos;
+
+    const agora = new Date();
 
     const polo = await prisma.polo.create({
       data: {
@@ -229,10 +312,29 @@ export async function POST(req: NextRequest) {
         codigo,
         cnpj,
         descricao,
+        tipoUnidade: tipoUnidadeInformado,
+        cep,
+        endereco,
+        numero,
+        complemento,
+        bairro,
         cidade,
         estado,
-        endereco,
+        responsavelNome,
+        responsavelEmail,
+        responsavelTelefone,
+        responsavelCargo,
         ativo: ativadoAutomaticamente,
+        statusComercial: ativadoAutomaticamente
+          ? StatusComercialPolo.ATIVO
+          : StatusComercialPolo.PENDENTE_ATIVACAO,
+        criadoPorId: usuarioId,
+        ativadoEm: ativadoAutomaticamente
+          ? agora
+          : null,
+        ativadoPorId: ativadoAutomaticamente
+          ? usuarioId
+          : null,
         instituicaoId: user.instituicaoId,
       },
     });
@@ -243,10 +345,11 @@ export async function POST(req: NextRequest) {
         ativadoAutomaticamente,
         limitePolosInclusos,
         quantidadePolosAtivos:
-          quantidadePolosAtivos + (ativadoAutomaticamente ? 1 : 0),
+          quantidadePolosAtivos +
+          (ativadoAutomaticamente ? 1 : 0),
         aviso: ativadoAutomaticamente
           ? null
-          : "O polo foi cadastrado, mas não foi ativado porque a instituição atingiu o limite incluído no plano.",
+          : "O polo foi cadastrado, mas está aguardando ativação porque a instituição atingiu o limite incluído no plano.",
       },
       { status: 201 }
     );
@@ -289,10 +392,6 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    /*
-     * Primeiro confirma que o polo realmente pertence
-     * à instituição do usuário logado.
-     */
     const poloAtual = await prisma.polo.findFirst({
       where: {
         id,
@@ -307,39 +406,118 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    /*
-     * O status não pode mais ser alterado livremente
-     * pela edição normal do polo.
-     *
-     * Enquanto a página ainda envia ativo, permitimos
-     * somente quando o valor permanece igual.
-     */
-    if ("ativo" in body) {
-      if (typeof body.ativo !== "boolean") {
+    if (
+      "ativo" in body ||
+      "statusComercial" in body ||
+      "ativadoEm" in body ||
+      "ativadoPorId" in body ||
+      "suspensoEm" in body ||
+      "suspensoPorId" in body ||
+      "encerradoEm" in body ||
+      "encerradoPorId" in body
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "O status comercial do polo deve ser alterado pelo fluxo específico de ativação, suspensão ou encerramento.",
+        },
+        { status: 409 }
+      );
+    }
+
+    const nome =
+      "nome" in body
+        ? textoObrigatorio(body.nome)
+        : poloAtual.nome;
+
+    const codigo =
+      "codigo" in body
+        ? textoOpcional(body.codigo)
+        : poloAtual.codigo;
+
+    const cnpj =
+      "cnpj" in body
+        ? textoOpcional(body.cnpj)
+        : poloAtual.cnpj;
+
+    const descricao =
+      "descricao" in body
+        ? textoOpcional(body.descricao)
+        : poloAtual.descricao;
+
+    const cep =
+      "cep" in body
+        ? textoOpcional(body.cep)
+        : poloAtual.cep;
+
+    const endereco =
+      "endereco" in body
+        ? textoOpcional(body.endereco)
+        : poloAtual.endereco;
+
+    const numero =
+      "numero" in body
+        ? textoOpcional(body.numero)
+        : poloAtual.numero;
+
+    const complemento =
+      "complemento" in body
+        ? textoOpcional(body.complemento)
+        : poloAtual.complemento;
+
+    const bairro =
+      "bairro" in body
+        ? textoOpcional(body.bairro)
+        : poloAtual.bairro;
+
+    const cidade =
+      "cidade" in body
+        ? textoOpcional(body.cidade)
+        : poloAtual.cidade;
+
+    const estado =
+      "estado" in body
+        ? textoOpcional(body.estado)?.toUpperCase() ?? null
+        : poloAtual.estado;
+
+    const responsavelNome =
+      "responsavelNome" in body
+        ? textoOpcional(body.responsavelNome)
+        : poloAtual.responsavelNome;
+
+    const responsavelEmail =
+      "responsavelEmail" in body
+        ? textoOpcional(
+            body.responsavelEmail
+          )?.toLowerCase() ?? null
+        : poloAtual.responsavelEmail;
+
+    const responsavelTelefone =
+      "responsavelTelefone" in body
+        ? textoOpcional(body.responsavelTelefone)
+        : poloAtual.responsavelTelefone;
+
+    const responsavelCargo =
+      "responsavelCargo" in body
+        ? textoOpcional(body.responsavelCargo)
+        : poloAtual.responsavelCargo;
+
+    let tipoUnidade = poloAtual.tipoUnidade;
+
+    if ("tipoUnidade" in body) {
+      const tipoInformado = textoObrigatorio(
+        body.tipoUnidade
+      ).toUpperCase();
+
+      if (!tipoUnidadeValido(tipoInformado)) {
         return NextResponse.json(
-          { error: "Status do polo inválido" },
+          { error: "Tipo de unidade inválido" },
           { status: 400 }
         );
       }
 
-      if (body.ativo !== poloAtual.ativo) {
-        return NextResponse.json(
-          {
-            error:
-              "A ativação ou inativação do polo deve ser feita pelo fluxo específico de gestão comercial.",
-          },
-          { status: 409 }
-        );
-      }
+      tipoUnidade = tipoInformado;
     }
-
-    const nome = textoObrigatorio(body.nome);
-    const codigo = textoOpcional(body.codigo);
-    const cnpj = textoOpcional(body.cnpj);
-    const descricao = textoOpcional(body.descricao);
-    const cidade = textoOpcional(body.cidade);
-    const estado = textoOpcional(body.estado)?.toUpperCase() ?? null;
-    const endereco = textoOpcional(body.endereco);
 
     if (!nome) {
       return NextResponse.json(
@@ -350,7 +528,23 @@ export async function PUT(req: NextRequest) {
 
     if (estado && estado.length !== 2) {
       return NextResponse.json(
-        { error: "Informe o estado usando a sigla com 2 letras" },
+        {
+          error:
+            "Informe o estado usando a sigla com 2 letras",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (
+      responsavelEmail &&
+      !emailValido(responsavelEmail)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            "Informe um e-mail válido para o responsável",
+        },
         { status: 400 }
       );
     }
@@ -363,13 +557,6 @@ export async function PUT(req: NextRequest) {
         ? [
             {
               codigo,
-            },
-          ]
-        : []),
-      ...(cnpj
-        ? [
-            {
-              cnpj,
             },
           ]
         : []),
@@ -387,20 +574,14 @@ export async function PUT(req: NextRequest) {
         id: true,
         nome: true,
         codigo: true,
-        cnpj: true,
       },
     });
 
     if (poloDuplicado) {
-      let campoConflito = "nome";
-
-      if (codigo && poloDuplicado.codigo === codigo) {
-        campoConflito = "código";
-      }
-
-      if (cnpj && poloDuplicado.cnpj === cnpj) {
-        campoConflito = "CNPJ";
-      }
+      const campoConflito =
+        codigo && poloDuplicado.codigo === codigo
+          ? "código"
+          : "nome";
 
       return NextResponse.json(
         {
@@ -418,15 +599,19 @@ export async function PUT(req: NextRequest) {
         nome,
         codigo,
         cnpj,
+        descricao,
+        tipoUnidade,
+        cep,
+        endereco,
+        numero,
+        complemento,
+        bairro,
         cidade,
         estado,
-        endereco,
-        descricao,
-
-        /*
-         * Não colocamos ativo aqui.
-         * A edição comum nunca poderá alterar o status comercial.
-         */
+        responsavelNome,
+        responsavelEmail,
+        responsavelTelefone,
+        responsavelCargo,
       },
     });
 

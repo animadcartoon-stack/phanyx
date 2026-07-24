@@ -102,6 +102,7 @@ model Instituicao {
   turmas                     Turma[]
   usuarios                   User[]
   polos                      Polo[]
+  usuariosPolos              UserPolo[]
   adesoes                    AdesaoInstituicao[]
   assinaturaPhanyx           AssinaturaPhanyx?
   TurmaDisciplina            TurmaDisciplina[]
@@ -202,6 +203,7 @@ model User {
   resetTokenExpira   DateTime?
   precisaTrocarSenha Boolean      @default(false)
   isMasterAdmin      Boolean      @default(false)
+  acessoTodosPolos   Boolean      @default(true)
   instituicao        Instituicao  @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
 
   cursosCriados   Curso[]       @relation("CursoCriadoPor")
@@ -276,8 +278,17 @@ model User {
   impersonacoesComoAlvo                                ImpersonacaoSuporte[]                       @relation("ImpersonacaoSuporteAlvo")
   rematriculasAnalisadas                               RematriculaSemestral[]                      @relation("RematriculaAnalisadaPor")
 
+  acessosPolos          UserPolo[] @relation("UserPoloUsuario")
+  acessosPolosCriados   UserPolo[] @relation("UserPoloCriadoPor")
+  acessosPolosRevogados UserPolo[] @relation("UserPoloRevogadoPor")
+  polosCriados          Polo[]     @relation("PoloCriadoPor")
+  polosAtivados         Polo[]     @relation("PoloAtivadoPor")
+  polosSuspensos        Polo[]     @relation("PoloSuspensoPor")
+  polosEncerrados       Polo[]     @relation("PoloEncerradoPor")
+
   @@index([instituicaoId])
   @@index([role])
+  @@index([instituicaoId, acessoTodosPolos])
 }
 
 model ImpersonacaoSuporte {
@@ -2007,20 +2018,44 @@ model PeriodoMatricula {
 }
 
 model Polo {
-  id            Int      @id @default(autoincrement())
-  nome          String
-  codigo        String?
-  cnpj          String?
-  descricao     String?
-  cidade        String?
-  estado        String?
-  endereco      String?
-  ativo         Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  instituicaoId Int
+  id                  Int                 @id @default(autoincrement())
+  nome                String
+  codigo              String?
+  cnpj                String?
+  descricao           String?
+  tipoUnidade         TipoUnidadePolo     @default(POLO)
+  statusComercial     StatusComercialPolo @default(ATIVO)
+  cep                 String?
+  endereco            String?
+  numero              String?
+  complemento         String?
+  bairro              String?
+  cidade              String?
+  estado              String?
+  responsavelNome     String?
+  responsavelEmail    String?
+  responsavelTelefone String?
+  responsavelCargo    String?
+  ativo               Boolean             @default(true)
+  ativadoEm           DateTime?
+  suspensoEm          DateTime?
+  encerradoEm         DateTime?
+  motivoSuspensao     String?             @db.Text
+  motivoEncerramento  String?             @db.Text
+  criadoPorId         Int?
+  ativadoPorId        Int?
+  suspensoPorId       Int?
+  encerradoPorId      Int?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  instituicaoId       Int
 
   instituicao            Instituicao            @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  criadoPor              User?                  @relation("PoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  ativadoPor             User?                  @relation("PoloAtivadoPor", fields: [ativadoPorId], references: [id], onDelete: SetNull)
+  suspensoPor            User?                  @relation("PoloSuspensoPor", fields: [suspensoPorId], references: [id], onDelete: SetNull)
+  encerradoPor           User?                  @relation("PoloEncerradoPor", fields: [encerradoPorId], references: [id], onDelete: SetNull)
+  usuariosAcesso         UserPolo[]
   professores            Professor[]
   turmas                 Turma[]
   alunos                 Aluno[]
@@ -2032,7 +2067,44 @@ model Polo {
   @@unique([instituicaoId, nome])
   @@unique([instituicaoId, codigo])
   @@index([instituicaoId])
+  @@index([instituicaoId, statusComercial])
+  @@index([instituicaoId, ativo])
   @@index([cnpj])
+  @@index([criadoPorId])
+  @@index([ativadoPorId])
+  @@index([suspensoPorId])
+  @@index([encerradoPorId])
+}
+
+model UserPolo {
+  id              Int             @id @default(autoincrement())
+  instituicaoId   Int
+  userId          Int
+  poloId          Int
+  nivelAcesso     NivelAcessoPolo @default(OPERACIONAL)
+  principal       Boolean         @default(false)
+  ativo           Boolean         @default(true)
+  criadoPorId     Int?
+  revogadoPorId   Int?
+  criadoEm        DateTime        @default(now())
+  atualizadoEm    DateTime        @updatedAt
+  revogadoEm      DateTime?
+  motivoRevogacao String?         @db.Text
+
+  instituicao Instituicao @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  user        User        @relation("UserPoloUsuario", fields: [userId], references: [id], onDelete: Cascade)
+  polo        Polo        @relation(fields: [poloId], references: [id], onDelete: Cascade)
+  criadoPor   User?       @relation("UserPoloCriadoPor", fields: [criadoPorId], references: [id], onDelete: SetNull)
+  revogadoPor User?       @relation("UserPoloRevogadoPor", fields: [revogadoPorId], references: [id], onDelete: SetNull)
+
+  @@unique([userId, poloId])
+  @@index([instituicaoId])
+  @@index([poloId])
+  @@index([userId])
+  @@index([instituicaoId, ativo])
+  @@index([poloId, ativo])
+  @@index([criadoPorId])
+  @@index([revogadoPorId])
 }
 
 model CursoPolo {
@@ -4598,4 +4670,26 @@ enum TipoItemRematriculaSemestral {
   PROXIMO_SEMESTRE
   PENDENCIA_ANTERIOR
   EXTRACURRICULAR
+}
+
+enum StatusComercialPolo {
+  ATIVO
+  PENDENTE_ATIVACAO
+  SUSPENSO
+  ENCERRADO
+}
+
+enum TipoUnidadePolo {
+  SEDE
+  CAMPUS
+  POLO
+  FILIAL
+  UNIDADE
+}
+
+enum NivelAcessoPolo {
+  RESPONSAVEL
+  GESTOR
+  OPERACIONAL
+  LEITURA
 }

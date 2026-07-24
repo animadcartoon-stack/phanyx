@@ -14846,3 +14846,242 @@ html[data-theme="system"] .phanyx-rematricula-status-cancelado {
   border-color: #f87171 !important;
   color: #fecaca !important;
 }
+
+/* =========================================================
+   ADMIN POLOS
+   Claro branco, Escuro preto e Sistema cinza — sem azul
+========================================================= */
+
+.phanyx-polos-page {
+  color: #0f172a !important;
+}
+
+.phanyx-polos-card {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-polos-input {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-input::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-input option {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* TEMA CLARO */
+
+html[data-theme="light"] .phanyx-polos-page {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-polos-card {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-polos-input {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  background-image: none !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-polos-page h1,
+html[data-theme="light"] .phanyx-polos-page h2,
+html[data-theme="light"] .phanyx-polos-page h3 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-polos-card p {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* TEMA ESCURO — AZUL-MARINHO PHANYX */
+
+html[data-theme="dark"] .phanyx-polos-page {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-card {
+  background: #111827 !important;
+  background-color: #111827 !important;
+  background-image: none !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-input {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  background-image: none !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+  -webkit-text-fill-color: #f8fafc !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-input::placeholder {
+  color: #94a3b8 !important;
+  -webkit-text-fill-color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-input option {
+  background: #0f172a !important;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-page h1,
+html[data-theme="dark"] .phanyx-polos-page h2,
+html[data-theme="dark"] .phanyx-polos-page h3 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-card p {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+/* TEMA SISTEMA — SOMENTE CINZA */
+
+html[data-theme="system"] .phanyx-polos-page {
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-card {
+  background: #303030 !important;
+  background-color: #303030 !important;
+  background-image: none !important;
+  border-color: #585858 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-polos-input {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  background-image: none !important;
+  border-color: #5f5f5f !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-input::placeholder {
+  color: #b3b3b3 !important;
+  -webkit-text-fill-color: #b3b3b3 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-input option {
+  background: #262626 !important;
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-polos-page h1,
+html[data-theme="system"] .phanyx-polos-page h2,
+html[data-theme="system"] .phanyx-polos-page h3 {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-card p {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+  opacity: 1 !important;
+}
+
+/* ADMIN POLOS — SUBTÍTULO E AVISO */
+
+.phanyx-polos-subtitulo {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-polos-aviso {
+  background: #fff7ed !important;
+  background-color: #fff7ed !important;
+  background-image: none !important;
+  border-color: #fb923c !important;
+  color: #9a3412 !important;
+  -webkit-text-fill-color: #9a3412 !important;
+  opacity: 1 !important;
+}
+
+/* Tema claro */
+
+html[data-theme="light"] .phanyx-polos-subtitulo {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+}
+
+html[data-theme="light"] .phanyx-polos-aviso {
+  background: #fff7ed !important;
+  background-color: #fff7ed !important;
+  border-color: #fb923c !important;
+  color: #9a3412 !important;
+  -webkit-text-fill-color: #9a3412 !important;
+}
+
+/* Tema escuro */
+
+html[data-theme="dark"] .phanyx-polos-subtitulo {
+  color: #cbd5e1 !important;
+  -webkit-text-fill-color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] .phanyx-polos-aviso {
+  background: #2a1608 !important;
+  background-color: #2a1608 !important;
+  border-color: #c2410c !important;
+  color: #fed7aa !important;
+  -webkit-text-fill-color: #fed7aa !important;
+}
+
+/* Tema sistema */
+
+html[data-theme="system"] .phanyx-polos-subtitulo {
+  color: #d4d4d4 !important;
+  -webkit-text-fill-color: #d4d4d4 !important;
+}
+
+html[data-theme="system"] .phanyx-polos-aviso {
+  background: #33251c !important;
+  background-color: #33251c !important;
+  border-color: #a16207 !important;
+  color: #fde68a !important;
+  -webkit-text-fill-color: #fde68a !important;
+}
