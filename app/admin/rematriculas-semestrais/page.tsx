@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import {
   useCallback,
   useEffect,
@@ -1511,7 +1513,7 @@ async function executarAcaoPeriodo() {
                     periodoLetivo: evento.target.value,
                   }))
                 }
-                placeholder="Ex.: ética, aconselhamento, gestão, missões..."
+                placeholder="Ex.: 2027.1"
                 className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
               />
             </label>
@@ -2310,16 +2312,23 @@ async function executarAcaoPeriodo() {
   </div>
 
   <div className="flex flex-wrap justify-end gap-2">
-    {(periodo.status === "RASCUNHO" ||
-      periodo.status === "PUBLICADO") && (
-      <button
-  type="button"
-  onClick={() => editarPeriodo(periodo)}
-  className="phanyx-rematricula-botao-editar rounded-lg border px-3 py-2 text-xs font-semibold transition"
->
-  Editar
-</button>
-    )}
+  <Link
+    href={`/admin/rematriculas-semestrais/${periodo.id}`}
+    className="rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-200"
+  >
+    Alunos e restrições
+  </Link>
+
+  {(periodo.status === "RASCUNHO" ||
+    periodo.status === "PUBLICADO") && (
+    <button
+      type="button"
+      onClick={() => editarPeriodo(periodo)}
+      className="phanyx-rematricula-botao-editar rounded-lg border px-3 py-2 text-xs font-semibold transition"
+    >
+      Editar
+    </button>
+  )}
 
     {periodo.status === "RASCUNHO" && (
       <button

@@ -190,6 +190,9 @@ model Instituicao {
   rematriculasSemestrais         RematriculaSemestral[]
   itensRematriculaSemestral      RematriculaSemestralItem[]
 
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
+
   @@index([redeInstitucionalId])
   @@index([redeInstitucionalId, ativo])
 }
@@ -312,6 +315,10 @@ model User {
   acessosInstitucionais          UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoUsuario")
   acessosInstitucionaisCriados   UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoCriadoPor")
   acessosInstitucionaisRevogados UserInstituicaoAcesso[] @relation("UserInstituicaoAcessoRevogadoPor")
+
+  restricoesRematriculaAplicadas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaAplicadaPor")
+  restricoesRematriculaRemovidas RestricaoRematriculaAluno[]     @relation("RestricaoRematriculaRemovidaPor")
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[] @relation("RestricaoRematriculaHistoricoRealizadoPor")
 
   @@index([instituicaoId])
   @@index([role])
@@ -441,6 +448,9 @@ model Aluno {
   provasLiberadas              ProvaAluno[]
   EntregaAtividadeHistorico    EntregaAtividadeHistorico[]
   rematriculasSemestrais       RematriculaSemestral[]
+
+  restricoesRematricula          RestricaoRematriculaAluno[]
+  historicosRestricaoRematricula RestricaoRematriculaHistorico[]
 
   @@unique([instituicaoId, matricula])
   @@unique([instituicaoId, slug])
@@ -2023,20 +2033,24 @@ model CursoDisciplinaExtraPermitida {
 }
 
 model PeriodoMatricula {
-  id                       Int                  @id @default(autoincrement())
-  instituicaoId            Int
-  cursoId                  Int?
-  periodoLetivo            String
-  semestreNumero           Int?
-  titulo                   String?
-  dataInicio               DateTime
-  dataFim                  DateTime
-  ativo                    Boolean              @default(true)
-  permiteAluno             Boolean              @default(true)
-  bloqueiaAlunoForaDoPrazo Boolean              @default(true)
-  tipo                     TipoPeriodoMatricula @default(REMATRICULA)
-  createdAt                DateTime             @default(now())
-  updatedAt                DateTime             @updatedAt
+  id                              Int                      @id @default(autoincrement())
+  instituicaoId                   Int
+  cursoId                         Int?
+  periodoLetivo                   String
+  semestreNumero                  Int?
+  titulo                          String?
+  dataInicio                      DateTime
+  dataFim                         DateTime
+  ativo                           Boolean                  @default(true)
+  permiteAluno                    Boolean                  @default(true)
+  bloqueiaAlunoForaDoPrazo        Boolean                  @default(true)
+  tipoRestricaoPadrao             TipoRestricaoRematricula @default(NENHUMA)
+  aplicarRestricaoAutomaticamente Boolean                  @default(false)
+  carenciaRestricaoDias           Int                      @default(0)
+  mensagemRestricaoPadrao         String?                  @db.Text
+  tipo                            TipoPeriodoMatricula     @default(REMATRICULA)
+  createdAt                       DateTime                 @default(now())
+  updatedAt                       DateTime                 @updatedAt
 
   cursoSemestreId Int?
 
@@ -2059,7 +2073,9 @@ model PeriodoMatricula {
   curso       Curso?      @relation(fields: [cursoId], references: [id])
   matriculas  Matricula[]
 
-  rematriculas RematriculaSemestral[]
+  rematriculas          RematriculaSemestral[]
+  restricoesRematricula RestricaoRematriculaAluno[]
+  historicosRestricao   RestricaoRematriculaHistorico[]
 
   @@index([instituicaoId])
   @@index([cursoId])
@@ -4314,6 +4330,83 @@ model RematriculaSemestralItem {
   @@index([tipo])
 }
 
+model RestricaoRematriculaAluno {
+  id                 Int @id @default(autoincrement())
+  instituicaoId      Int
+  periodoMatriculaId Int
+  alunoId            Int
+
+  tipo   TipoRestricaoRematricula   @default(NENHUMA)
+  origem OrigemRestricaoRematricula @default(MANUAL)
+  ativa  Boolean                    @default(true)
+
+  motivo        String? @db.Text
+  mensagemAluno String? @db.Text
+
+  aplicadaEm    DateTime @default(now())
+  aplicadaPorId Int?
+
+  removidaEm    DateTime?
+  removidaPorId Int?
+  motivoRemocao String?   @db.Text
+
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
+
+  instituicao      Instituicao      @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  periodoMatricula PeriodoMatricula @relation(fields: [periodoMatriculaId], references: [id], onDelete: Cascade)
+  aluno            Aluno            @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  aplicadaPor User? @relation("RestricaoRematriculaAplicadaPor", fields: [aplicadaPorId], references: [id], onDelete: SetNull)
+  removidaPor User? @relation("RestricaoRematriculaRemovidaPor", fields: [removidaPorId], references: [id], onDelete: SetNull)
+
+  historicos RestricaoRematriculaHistorico[]
+
+  @@unique([periodoMatriculaId, alunoId])
+  @@index([instituicaoId])
+  @@index([periodoMatriculaId])
+  @@index([alunoId])
+  @@index([tipo])
+  @@index([ativa])
+  @@index([aplicadaPorId])
+  @@index([removidaPorId])
+}
+
+model RestricaoRematriculaHistorico {
+  id                 Int @id @default(autoincrement())
+  instituicaoId      Int
+  restricaoId        Int
+  periodoMatriculaId Int
+  alunoId            Int
+
+  acao   AcaoHistoricoRestricaoRematricula
+  origem OrigemRestricaoRematricula
+
+  tipoAnterior TipoRestricaoRematricula?
+  tipoNovo     TipoRestricaoRematricula?
+
+  motivo        String? @db.Text
+  mensagemAluno String? @db.Text
+
+  realizadoPorId Int?
+  criadoEm       DateTime @default(now())
+
+  instituicao      Instituicao               @relation(fields: [instituicaoId], references: [id], onDelete: Cascade)
+  restricao        RestricaoRematriculaAluno @relation(fields: [restricaoId], references: [id], onDelete: Cascade)
+  periodoMatricula PeriodoMatricula          @relation(fields: [periodoMatriculaId], references: [id], onDelete: Cascade)
+  aluno            Aluno                     @relation(fields: [alunoId], references: [id], onDelete: Cascade)
+
+  realizadoPor User? @relation("RestricaoRematriculaHistoricoRealizadoPor", fields: [realizadoPorId], references: [id], onDelete: SetNull)
+
+  @@index([instituicaoId])
+  @@index([restricaoId])
+  @@index([periodoMatriculaId])
+  @@index([alunoId])
+  @@index([acao])
+  @@index([realizadoPorId])
+  @@index([criadoEm])
+}
+
 enum ModalidadeCertificado {
   GERAL
   BACHARELADO
@@ -4727,6 +4820,25 @@ enum TipoItemRematriculaSemestral {
   PROXIMO_SEMESTRE
   PENDENCIA_ANTERIOR
   EXTRACURRICULAR
+}
+
+enum TipoRestricaoRematricula {
+  NENHUMA
+  SOMENTE_AVISO
+  RESTRICAO_PARCIAL
+  BLOQUEIO_PORTAL
+}
+
+enum OrigemRestricaoRematricula {
+  MANUAL
+  AUTOMATICA
+}
+
+enum AcaoHistoricoRestricaoRematricula {
+  CRIADA
+  ALTERADA
+  REMOVIDA
+  REATIVADA
 }
 
 enum StatusComercialPolo {
