@@ -955,6 +955,11 @@ if (vendedorResponsavelId) {
           ? quantidadeParcelas
           : null,
         primeiroVencimento: dataPrimeiroVencimento,
+        vendedorResponsavelId:
+  vendedorResponsavel?.id ?? null,
+
+vendedorResponsavelNomeSnapshot:
+  vendedorResponsavel?.nome ?? null,
         participantesComerciais:
   vendedorResponsavel
     ? {
@@ -986,19 +991,14 @@ if (vendedorResponsavelId) {
       }
     : undefined,
         itens: {
-          create: itensClassificados.map((item) => ({
-            turmaId: item.turmaId,
-            disciplinaId: item.disciplinaId,
-            tipoItem: item.tipoItem as any,
-            instituicaoId: user.instituicaoId,
-            vendedorResponsavelId:
-  vendedorResponsavel?.id ?? null,
-
-vendedorResponsavelNomeSnapshot:
-  vendedorResponsavel?.nome ?? null,
-            status: statusInicialItens as any,
-          })),
-        },
+  create: itensClassificados.map((item) => ({
+    turmaId: item.turmaId,
+    disciplinaId: item.disciplinaId,
+    tipoItem: item.tipoItem as any,
+    instituicaoId: user.instituicaoId,
+    status: statusInicialItens as any,
+  })),
+},
       },
       include: includeMatriculaAdmin,
     });
