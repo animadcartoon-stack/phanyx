@@ -375,6 +375,15 @@ const podeVerRemuneracaoVariavelRH = podeAcessar(
   "rh.remuneracaoVariavel.relatorios.ver"
 );
 
+const podeVerComissoesRH = podeAcessar(
+  "rh.remuneracaoVariavel.comissoes.gerenciar",
+  "rh.remuneracaoVariavel.aprovar",
+  "rh.remuneracaoVariavel.holerite.enviar",
+  "comercial.comissoes.ver",
+  "comercial.comissoes.aprovar",
+  "comercial.comissoes.enviar_rh"
+);
+
 const podeVerProfessoresRH = podeAcessar(
   "rh.professores",
   "rh.professores.ver",
@@ -896,10 +905,23 @@ function abrirTourAdmin() {
 
 {podeVerRemuneracaoVariavelRH && (
   <Link
-    href="/admin/rh/remuneracao-variavel"
-    className={getLinkClass("/admin/rh/comercial")}
+  href="/admin/rh/remuneracao-variavel"
+  className={getLinkClass(
+    "/admin/rh/remuneracao-variavel"
+  )}
+>
+  💰 Remuneração Variável
+</Link>
+)}
+
+{podeVerComissoesRH && (
+  <Link
+    href="/admin/rh/comissoes"
+    className={getLinkClass(
+      "/admin/rh/comissoes"
+    )}
   >
-    💰 Remuneração Variável
+    💵 Comissões comerciais
   </Link>
 )}
 
@@ -1346,6 +1368,15 @@ function abrirTourAdmin() {
     className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
   >
     💰 Remuneração Variável
+  </Link>
+)}
+
+{podeVerComissoesRH && (
+  <Link
+    href="/admin/rh/comissoes"
+    className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+  >
+    💵 Comissões comerciais
   </Link>
 )}
 
