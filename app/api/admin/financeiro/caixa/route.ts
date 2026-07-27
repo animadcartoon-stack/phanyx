@@ -95,11 +95,129 @@ await fecharCaixasOnlineIbeAntigos();
         })
       : null;
 
+      const cobrancasPendentesRaw =
+  await prisma.lancamentoFinanceiro.findMany({
+    where: {
+      instituicaoId: user.instituicaoId,
+
+      matriculaId: {
+        not: null,
+      },
+
+      status: {
+        in: [
+          "PENDENTE",
+          "PARCIAL",
+          "ATRASADO",
+        ],
+      },
+    },
+
+    include: {
+      aluno: {
+        select: {
+          id: true,
+          nome: true,
+
+          user: {
+            select: {
+              email: true,
+            },
+          },
+        },
+      },
+
+      matricula: {
+        select: {
+          id: true,
+          numeroMatricula: true,
+          numeroMatriculaLegado: true,
+          vendedorResponsavelNomeSnapshot: true,
+
+          curso: {
+            select: {
+              id: true,
+              nome: true,
+            },
+          },
+        },
+      },
+
+      polo: {
+        select: {
+          id: true,
+          nome: true,
+        },
+      },
+
+      pagamentos: {
+        select: {
+          id: true,
+          valorPago: true,
+          pagoEm: true,
+          formaPagamento: true,
+        },
+
+        orderBy: {
+          pagoEm: "desc",
+        },
+      },
+    },
+
+    orderBy: [
+      {
+        vencimento: "asc",
+      },
+      {
+        createdAt: "asc",
+      },
+    ],
+
+    take: 300,
+  });
+
+const cobrancasPendentes =
+  cobrancasPendentesRaw
+    .map((cobranca) => {
+      const valorFinalRegistrado = Number(
+        cobranca.valorFinal || 0
+      );
+
+      const valorFinal =
+        valorFinalRegistrado > 0
+          ? valorFinalRegistrado
+          : Number(cobranca.valorOriginal || 0);
+
+      const valorPago = Number(
+        cobranca.valorPago || 0
+      );
+
+      const saldoPendente = Math.max(
+        0,
+        Number(
+          (valorFinal - valorPago).toFixed(2)
+        )
+      );
+
+      return {
+        ...cobranca,
+        valorFinalCalculado: valorFinal,
+        valorPagoCalculado: valorPago,
+        saldoPendente,
+      };
+    })
+    .filter(
+      (cobranca) =>
+        cobranca.saldoPendente > 0
+    );
+
     return NextResponse.json({
-      caixaManual,
-      caixaOnlineIbe,
-      podeVerCaixaOnlineIbe,
-    });
+  caixaManual,
+  caixaOnlineIbe,
+  podeVerCaixaOnlineIbe,
+  cobrancasPendentes,
+});
+
   } catch (e: any) {
     console.error("ERRO GET CAIXA:", e);
     return NextResponse.json(

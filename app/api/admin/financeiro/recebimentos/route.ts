@@ -459,12 +459,27 @@ if (novoTotalPago >= valorFinal) {
 }
 
     const caixaAberto = await prisma.caixa.findFirst({
-      where: {
-        instituicaoId: user.instituicaoId,
-        status: "ABERTO",
-        abertoPorId: user.id,
-      },
-    });
+  where: {
+    instituicaoId: user.instituicaoId,
+    status: "ABERTO",
+    abertoPorId: user.id,
+    origem: "MANUAL",
+  },
+  select: {
+    id: true,
+  },
+});
+
+if (!caixaAberto) {
+  return NextResponse.json(
+    {
+      error:
+        "Abra seu caixa em Financeiro → Caixa antes de registrar uma baixa manual.",
+      codigo: "CAIXA_MANUAL_NAO_ABERTO",
+    },
+    { status: 409 }
+  );
+}
 
     await prisma.$transaction(async (tx) => {
       const pagamentoCriado = await tx.pagamento.create({
@@ -544,29 +559,31 @@ if (novoTotalPago >= valorFinal) {
   }
 }
 
-      if (caixaAberto) {
-        await tx.movimentoCaixa.create({
-          data: {
-            instituicaoId: user.instituicaoId,
-            caixaId: caixaAberto.id,
-            tipo: "ENTRADA",
-            descricao: `Pagamento - ${lancamento.tipo}`,
-            valor: valorPago,
-            formaPagamento: formaPagamento as any,
-            alunoId: lancamento.alunoId,
-            lancamentoId: lancamento.id,
-          },
-        });
+      await tx.movimentoCaixa.create({
+  data: {
+    instituicaoId: user.instituicaoId,
+    caixaId: caixaAberto.id,
+    tipo: "ENTRADA",
+    descricao:
+      `Recebimento ${lancamento.tipo} — ` +
+      `${lancamento.aluno?.nome || "Aluno não identificado"}`,
+    valor: valorPago,
+    formaPagamento: formaPagamento as any,
+    alunoId: lancamento.alunoId,
+    lancamentoId: lancamento.id,
+  },
+});
 
-        await tx.caixa.update({
-          where: { id: caixaAberto.id },
-          data: {
-            saldoSistema: {
-              increment: valorPago,
-            },
-          },
-        });
-      }
+await tx.caixa.update({
+  where: {
+    id: caixaAberto.id,
+  },
+  data: {
+    saldoSistema: {
+      increment: valorPago,
+    },
+  },
+});
 
             await tx.historicoCobranca.create({
         data: {

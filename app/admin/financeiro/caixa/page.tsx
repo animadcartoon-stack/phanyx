@@ -25,6 +25,45 @@ type Caixa = {
   movimentos: Movimento[];
 };
 
+type CobrancaPendente = {
+  id: number;
+  tipo: string;
+  descricao?: string | null;
+  status: string;
+
+  valorOriginal: number;
+  valorFinalCalculado: number;
+  valorPagoCalculado: number;
+  saldoPendente: number;
+
+  vencimento?: string | null;
+
+  aluno: {
+    id: number;
+    nome: string;
+    user?: {
+      email?: string | null;
+    } | null;
+  };
+
+  matricula?: {
+    id: number;
+    numeroMatricula?: string | null;
+    numeroMatriculaLegado?: string | null;
+    vendedorResponsavelNomeSnapshot?: string | null;
+
+    curso?: {
+      id: number;
+      nome: string;
+    } | null;
+  } | null;
+
+  polo?: {
+    id: number;
+    nome: string;
+  } | null;
+};
+
 const caixaTourSteps = [
   
   {
@@ -345,6 +384,20 @@ export default function AdminFinanceiroCaixaPage() {
   const [caixa, setCaixa] = useState<Caixa | null>(null);
   const [caixaOnlineIbe, setCaixaOnlineIbe] = useState<Caixa | null>(null);
   const [podeVerCaixaOnlineIbe, setPodeVerCaixaOnlineIbe] = useState(false);
+  const [cobrancasPendentes, setCobrancasPendentes] =
+  useState<CobrancaPendente[]>([]);
+
+const [buscaCobranca, setBuscaCobranca] = useState("");
+
+const [cobrancaSelecionadaId, setCobrancaSelecionadaId] =
+  useState<number | null>(null);
+
+const [valorBaixa, setValorBaixa] = useState("");
+const [formaPagamentoBaixa, setFormaPagamentoBaixa] =
+  useState("PIX");
+
+const [observacaoBaixa, setObservacaoBaixa] = useState("");
+const [salvandoBaixa, setSalvandoBaixa] = useState(false);
 
   const [saldoInicial, setSaldoInicial] = useState("");
   const [observacaoAbertura, setObservacaoAbertura] = useState("");
@@ -376,9 +429,15 @@ export default function AdminFinanceiroCaixaPage() {
       setCaixa(data?.caixaManual || null);
       setCaixaOnlineIbe(data?.caixaOnlineIbe || null);
       setPodeVerCaixaOnlineIbe(Boolean(data?.podeVerCaixaOnlineIbe));
+      setCobrancasPendentes(
+  Array.isArray(data?.cobrancasPendentes)
+    ? data.cobrancasPendentes
+    : []
+);
     } catch (e: any) {
       setErro(e?.message || "Erro ao carregar caixa");
       setCaixa(null);
+      setCobrancasPendentes([]);
     } finally {
       setLoading(false);
     }
@@ -440,6 +499,97 @@ useEffect(() => {
       setErro(e?.message || "Erro ao abrir caixa");
     }
   }
+
+  function selecionarCobranca(cobranca: CobrancaPendente) {
+  setErro("");
+  setSucesso("");
+
+  setCobrancaSelecionadaId(cobranca.id);
+  setValorBaixa(
+    Number(cobranca.saldoPendente || 0).toFixed(2)
+  );
+  setFormaPagamentoBaixa("PIX");
+  setObservacaoBaixa("");
+}
+
+function cancelarSelecaoCobranca() {
+  setCobrancaSelecionadaId(null);
+  setValorBaixa("");
+  setFormaPagamentoBaixa("PIX");
+  setObservacaoBaixa("");
+}
+
+async function darBaixaCobranca() {
+  if (!caixa) {
+    setErro(
+      "Abra seu caixa antes de registrar o recebimento."
+    );
+    return;
+  }
+
+  if (!cobrancaSelecionadaId) {
+    setErro("Selecione uma cobrança.");
+    return;
+  }
+
+  const valorNumerico = Number(valorBaixa);
+
+  if (
+    !Number.isFinite(valorNumerico) ||
+    valorNumerico <= 0
+  ) {
+    setErro("Informe um valor válido para a baixa.");
+    return;
+  }
+
+  try {
+    setSalvandoBaixa(true);
+    setErro("");
+    setSucesso("");
+
+    const resposta = await fetch(
+      "/api/admin/financeiro/recebimentos",
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          lancamentoId: cobrancaSelecionadaId,
+          valorPago: valorNumerico,
+          formaPagamento: formaPagamentoBaixa,
+          observacao:
+            observacaoBaixa.trim() || null,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.error ||
+          "Não foi possível registrar o recebimento."
+      );
+    }
+
+    cancelarSelecaoCobranca();
+
+    await carregarCaixa();
+
+    setSucesso(
+      "Recebimento registrado e lançado no seu caixa com sucesso."
+    );
+  } catch (e: any) {
+    setErro(
+      e?.message ||
+        "Não foi possível registrar o recebimento."
+    );
+  } finally {
+    setSalvandoBaixa(false);
+  }
+}
 
   async function registrarMovimento() {
     if (!caixa) return;
@@ -524,6 +674,44 @@ useEffect(() => {
 
     return { dinheiro, pix, cartao };
   }, [caixa]);
+
+  const cobrancasFiltradas = useMemo(() => {
+  const termo = buscaCobranca
+    .trim()
+    .toLowerCase();
+
+  if (!termo) {
+    return cobrancasPendentes;
+  }
+
+  return cobrancasPendentes.filter((cobranca) => {
+    const texto = [
+      cobranca.aluno?.nome,
+      cobranca.aluno?.user?.email,
+      cobranca.descricao,
+      cobranca.tipo,
+      cobranca.matricula?.numeroMatricula,
+      cobranca.matricula?.numeroMatriculaLegado,
+      cobranca.matricula?.curso?.nome,
+      cobranca.matricula
+        ?.vendedorResponsavelNomeSnapshot,
+      cobranca.polo?.nome,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return texto.includes(termo);
+  });
+}, [buscaCobranca, cobrancasPendentes]);
+
+const totalPendente = useMemo(() => {
+  return cobrancasFiltradas.reduce(
+    (total, cobranca) =>
+      total + Number(cobranca.saldoPendente || 0),
+    0
+  );
+}, [cobrancasFiltradas]);
 
   return (
     <div className="space-y-6 max-w-7xl">
@@ -655,6 +843,254 @@ useEffect(() => {
               <p className="text-2xl font-bold">{caixa.movimentos.length}</p>
             </div>
           </div>
+
+          <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <h2 className="text-xl font-black text-slate-950 dark:text-white">
+        💵 Cobranças aguardando recebimento
+      </h2>
+
+      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        Matrículas e mensalidades pendentes para recebimento
+        neste caixa.
+      </p>
+    </div>
+
+    <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/20 dark:text-amber-100">
+      <p className="font-bold">
+        {cobrancasFiltradas.length} cobrança(s)
+      </p>
+
+      <p className="mt-1">
+        Total pendente:{" "}
+        <strong>
+          {totalPendente.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </strong>
+      </p>
+    </div>
+  </div>
+
+  <div className="mt-5">
+    <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+      Buscar cobrança
+    </label>
+
+    <input
+      value={buscaCobranca}
+      onChange={(evento) =>
+        setBuscaCobranca(evento.target.value)
+      }
+      placeholder="Aluno, matrícula, curso, vendedor ou descrição..."
+      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-950 outline-none focus:border-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+    />
+  </div>
+
+  {cobrancasFiltradas.length === 0 ? (
+    <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-300">
+      Nenhuma cobrança pendente encontrada.
+    </div>
+  ) : (
+    <div className="mt-5 space-y-4">
+      {cobrancasFiltradas.map((cobranca) => {
+        const selecionada =
+          cobrancaSelecionadaId === cobranca.id;
+
+        return (
+          <article
+            key={cobranca.id}
+            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"
+          >
+            <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="font-black text-slate-950 dark:text-white">
+                    {cobranca.aluno.nome}
+                  </h3>
+
+                  <span className="rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:border-blue-900 dark:bg-blue-950/30 dark:text-blue-200">
+                    {cobranca.tipo}
+                  </span>
+
+                  {cobranca.status === "ATRASADO" && (
+                    <span className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200">
+                      Atrasada
+                    </span>
+                  )}
+                </div>
+
+                <p className="mt-2 text-sm text-slate-700 dark:text-slate-300">
+                  {cobranca.descricao ||
+                    "Cobrança sem descrição"}
+                </p>
+
+                <div className="mt-3 grid gap-2 text-sm text-slate-600 dark:text-slate-400 sm:grid-cols-2 xl:grid-cols-4">
+                  <p>
+                    <strong>Matrícula:</strong>{" "}
+                    {cobranca.matricula
+                      ?.numeroMatricula ||
+                      cobranca.matricula
+                        ?.numeroMatriculaLegado ||
+                      `#${cobranca.matricula?.id || "-"}`}
+                  </p>
+
+                  <p>
+                    <strong>Curso:</strong>{" "}
+                    {cobranca.matricula?.curso?.nome ||
+                      "Não informado"}
+                  </p>
+
+                  <p>
+                    <strong>Vendedor:</strong>{" "}
+                    {cobranca.matricula
+                      ?.vendedorResponsavelNomeSnapshot ||
+                      "Não informado"}
+                  </p>
+
+                  <p>
+                    <strong>Vencimento:</strong>{" "}
+                    {cobranca.vencimento
+                      ? new Date(
+                          cobranca.vencimento
+                        ).toLocaleDateString("pt-BR")
+                      : "Não informado"}
+                  </p>
+                </div>
+              </div>
+
+              <div className="shrink-0 xl:text-right">
+                <p className="text-xs font-bold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Saldo pendente
+                </p>
+
+                <p className="mt-1 text-2xl font-black text-slate-950 dark:text-white">
+                  {Number(
+                    cobranca.saldoPendente || 0
+                  ).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
+                </p>
+
+                <button
+                  type="button"
+                  disabled={!caixa}
+                  onClick={() =>
+                    selecionada
+                      ? cancelarSelecaoCobranca()
+                      : selecionarCobranca(cobranca)
+                  }
+                  className={[
+                    "mt-3 rounded-xl px-4 py-2 text-sm font-black transition",
+                    selecionada
+                      ? "border border-slate-300 bg-white text-slate-700 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-900 dark:text-white"
+                      : "bg-emerald-600 text-white hover:bg-emerald-700",
+                    !caixa
+                      ? "cursor-not-allowed opacity-50"
+                      : "",
+                  ].join(" ")}
+                >
+                  {selecionada
+                    ? "Cancelar"
+                    : "Dar baixa"}
+                </button>
+              </div>
+            </div>
+
+            {selecionada && (
+              <div className="mt-5 border-t border-slate-200 pt-5 dark:border-slate-700">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+                      Valor recebido
+                    </label>
+
+                    <input
+                      type="number"
+                      min="0.01"
+                      step="0.01"
+                      value={valorBaixa}
+                      onChange={(evento) =>
+                        setValorBaixa(
+                          evento.target.value
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+                      Forma de pagamento
+                    </label>
+
+                    <select
+                      value={formaPagamentoBaixa}
+                      onChange={(evento) =>
+                        setFormaPagamentoBaixa(
+                          evento.target.value
+                        )
+                      }
+                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    >
+                      <option value="DINHEIRO">
+                        Dinheiro
+                      </option>
+                      <option value="PIX">PIX</option>
+                      <option value="CARTAO">
+                        Cartão
+                      </option>
+                      <option value="BOLETO">
+                        Boleto
+                      </option>
+                      <option value="TRANSFERENCIA">
+                        Transferência
+                      </option>
+                      <option value="OUTRO">
+                        Outro
+                      </option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">
+                      Observação
+                    </label>
+
+                    <input
+                      value={observacaoBaixa}
+                      onChange={(evento) =>
+                        setObservacaoBaixa(
+                          evento.target.value
+                        )
+                      }
+                      placeholder="Informação opcional"
+                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={salvandoBaixa}
+                  onClick={darBaixaCobranca}
+                  className="mt-4 rounded-xl bg-blue-600 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {salvandoBaixa
+                    ? "Registrando recebimento..."
+                    : "Confirmar recebimento"}
+                </button>
+              </div>
+            )}
+          </article>
+        );
+      })}
+    </div>
+  )}
+</section>
 
           <div className="bg-white border rounded-xl p-5 space-y-4">
             <h2 className="text-lg font-semibold">Registrar movimento</h2>
