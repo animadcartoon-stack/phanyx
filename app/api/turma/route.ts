@@ -20,22 +20,49 @@ export async function GET() {
         instituicaoId: user.instituicaoId,
       },
       include: {
-        polo: true, // 🔥 NOVO
-        disciplinas: {
-  include: {
-    professor: {
-      select: {
-        id: true,
-        nome: true,
-      },
-    },
-    disciplina: {
-      include: {
+        polo: true,
+
         curso: true,
-      },
-    },
-  },
-},
+
+        professor: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
+
+        disciplinas: {
+          include: {
+            professor: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
+
+            horarios: {
+              where: {
+                ativo: true,
+              },
+
+              orderBy: [
+                {
+                  diaSemana: "asc",
+                },
+                {
+                  horaInicio: "asc",
+                },
+              ],
+            },
+
+            disciplina: {
+              include: {
+                curso: true,
+              },
+            },
+          },
+        },
+
         _count: {
           select: {
             itensMatricula: true,
@@ -47,19 +74,63 @@ export async function GET() {
       },
     });
 
-    const turmasFormatadas = turmas.map((turma) => ({
-      ...turma,
-      disciplinas: turma.disciplinas.map((item) => ({
-  ...item.disciplina,
-  professorId: item.professorId,
-  professor: item.professor,
-})),
-      curso:
-  turma.curso ??
-  (turma.disciplinas.length > 0
-    ? turma.disciplinas[0].disciplina.curso ?? null
-    : null),
-    }));
+    const turmasFormatadas =
+      turmas.map((turma) => ({
+        ...turma,
+
+        disciplinas:
+          turma.disciplinas.map(
+            (item) => ({
+              ...item.disciplina,
+
+              turmaDisciplinaId:
+                item.id,
+
+              professorId:
+                item.professorId,
+
+              professor:
+                item.professor,
+
+              dataInicio:
+                item.dataInicio
+                  ? item.dataInicio.toISOString()
+                  : null,
+
+              dataFim:
+                item.dataFim
+                  ? item.dataFim.toISOString()
+                  : null,
+
+              status:
+                item.status,
+
+              turmaSemestreId:
+                item.turmaSemestreId,
+
+              horarios:
+                item.horarios.map(
+                  (horario) => ({
+                    id: horario.id,
+                    diaSemana:
+                      horario.diaSemana,
+                    horaInicio:
+                      horario.horaInicio,
+                    horaFim:
+                      horario.horaFim,
+                    ativo:
+                      horario.ativo,
+                  }),
+                ),
+            }),
+          ),
+
+        curso:
+          turma.curso ??
+          turma.disciplinas[0]
+            ?.disciplina.curso ??
+          null,
+      }));
 
     return NextResponse.json(turmasFormatadas);
   } catch (error) {
@@ -92,6 +163,48 @@ export async function POST(request: NextRequest) {
     const codigo = String(body?.codigo ?? "").trim();
     const semestre = String(body?.semestre ?? "").trim();
     const periodoLetivo = String(body?.periodoLetivo ?? "").trim();
+
+    const turno =
+      String(
+        body?.turno ?? "",
+      ).trim() || null;
+
+    const modalidade =
+      String(
+        body?.modalidade ??
+        "PRESENCIAL",
+      )
+        .trim()
+        .toUpperCase();
+
+    const predio =
+      modalidade === "EAD"
+        ? null
+        : String(
+          body?.predio ?? "",
+        ).trim() || null;
+
+    const ala =
+      modalidade === "EAD"
+        ? null
+        : String(
+          body?.ala ?? "",
+        ).trim() || null;
+
+    const andar =
+      modalidade === "EAD"
+        ? null
+        : String(
+          body?.andar ?? "",
+        ).trim() || null;
+
+    const sala =
+      modalidade === "EAD"
+        ? null
+        : String(
+          body?.sala ?? "",
+        ).trim() || null;
+
     const statusTurma = String(body?.statusTurma ?? "AGUARDANDO").trim();
     const ativa = body?.ativa !== undefined ? Boolean(body.ativa) : true;
 
@@ -120,31 +233,31 @@ export async function POST(request: NextRequest) {
 
     const professoresPorDisciplina =
       body?.professoresPorDisciplina &&
-      typeof body.professoresPorDisciplina === "object"
+        typeof body.professoresPorDisciplina === "object"
         ? body.professoresPorDisciplina
         : {};
 
     const datasInicioPorDisciplina =
       body?.datasInicioPorDisciplina &&
-      typeof body.datasInicioPorDisciplina === "object"
+        typeof body.datasInicioPorDisciplina === "object"
         ? body.datasInicioPorDisciplina
         : {};
 
     const datasFimPorDisciplina =
       body?.datasFimPorDisciplina &&
-      typeof body.datasFimPorDisciplina === "object"
+        typeof body.datasFimPorDisciplina === "object"
         ? body.datasFimPorDisciplina
         : {};
 
     const statusPorDisciplina =
       body?.statusPorDisciplina &&
-      typeof body.statusPorDisciplina === "object"
+        typeof body.statusPorDisciplina === "object"
         ? body.statusPorDisciplina
         : {};
 
-            const horariosPorDisciplina =
+    const horariosPorDisciplina =
       body?.horariosPorDisciplina &&
-      typeof body.horariosPorDisciplina === "object"
+        typeof body.horariosPorDisciplina === "object"
         ? body.horariosPorDisciplina
         : {};
 
@@ -162,29 +275,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-const semestreNumero = Number(String(semestre).match(/\d+/)?.[0] || 0);
+    const semestreNumero = Number(String(semestre).match(/\d+/)?.[0] || 0);
 
-const disciplinasValidas = await prisma.disciplina.findMany({
-  where: {
-    id: { in: disciplinaIds },
-    instituicaoId: user.instituicaoId,
-    cursoId,
-    semestre: semestreNumero || undefined,
-  },
-  select: {
-    id: true,
-  },
-});
+    const disciplinasValidas = await prisma.disciplina.findMany({
+      where: {
+        id: { in: disciplinaIds },
+        instituicaoId: user.instituicaoId,
+        cursoId,
+        semestre: semestreNumero || undefined,
+      },
+      select: {
+        id: true,
+      },
+    });
 
-if (disciplinasValidas.length !== disciplinaIds.length) {
-  return NextResponse.json(
-    {
-      error:
-        "Uma ou mais disciplinas não pertencem ao curso e semestre selecionados.",
-    },
-    { status: 400 }
-  );
-}
+    if (disciplinasValidas.length !== disciplinaIds.length) {
+      return NextResponse.json(
+        {
+          error:
+            "Uma ou mais disciplinas não pertencem ao curso e semestre selecionados.",
+        },
+        { status: 400 }
+      );
+    }
 
     const novaTurma = await prisma.$transaction(async (tx) => {
       const turmaCriada = await tx.turma.create({
@@ -201,6 +314,12 @@ if (disciplinasValidas.length !== disciplinaIds.length) {
           cursoId,
           poloId,
           professorId,
+          turno,
+          modalidade,
+          predio,
+          ala,
+          andar,
+          sala,
         },
       });
 
@@ -213,14 +332,14 @@ if (disciplinasValidas.length !== disciplinaIds.length) {
         },
       });
 
-            for (const id of disciplinaIds) {
+      for (const id of disciplinaIds) {
         const turmaDisciplinaCriada = await tx.turmaDisciplina.create({
           data: {
             turmaId: turmaCriada.id,
             disciplinaId: id,
             professorId:
               professoresPorDisciplina[id] &&
-              Number(professoresPorDisciplina[id]) > 0
+                Number(professoresPorDisciplina[id]) > 0
                 ? Number(professoresPorDisciplina[id])
                 : null,
             dataInicio: datasInicioPorDisciplina[id]
