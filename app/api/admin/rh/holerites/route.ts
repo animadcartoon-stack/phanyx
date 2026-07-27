@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
-import { StatusLancamentoRemuneracaoVariavelRH } from "@prisma/client";
+import {
+  StatusLancamentoComissaoRH,
+  StatusLancamentoRemuneracaoVariavelRH,
+} from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -464,6 +467,355 @@ export async function POST(req: NextRequest) {
         itens: resultado,
       });
     }
+
+    /*
+ * =====================================================
+ * COMISSÕES COMERCIAIS → HOLERITE
+ * =====================================================
+ */
+if (acao === "ENVIAR_COMISSOES") {
+  if (!usuarioPodeEnviarRemuneracao(user)) {
+    return NextResponse.json(
+      {
+        error:
+          "Você não possui autorização para enviar comissões ao holerite.",
+      },
+      { status: 403 }
+    );
+  }
+
+  const lancamentoIds = normalizarIds(
+    body.lancamentoIds
+  );
+
+  if (lancamentoIds.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Selecione pelo menos uma comissão aprovada.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const lancamentos =
+    await prisma.lancamentoComissaoRH.findMany({
+      where: {
+        id: {
+          in: lancamentoIds,
+        },
+
+        instituicaoId,
+
+        status:
+          StatusLancamentoComissaoRH.APROVADO,
+
+        holeriteEventoId: null,
+      },
+
+      include: {
+        funcionario: {
+          select: {
+            id: true,
+            nome: true,
+            salario: true,
+            salarioBase: true,
+          },
+        },
+      },
+
+      orderBy: {
+        funcionarioNomeSnapshot: "asc",
+      },
+    });
+
+  if (lancamentos.length === 0) {
+    return NextResponse.json(
+      {
+        error:
+          "Nenhuma das comissões selecionadas está aprovada e aguardando envio.",
+      },
+      { status: 400 }
+    );
+  }
+
+  const agora = new Date();
+  const criadoPorId = Number(user.id);
+
+  const resultado = await prisma.$transaction(
+    async (tx) => {
+      const enviados: Array<{
+        lancamentoId: number;
+        holeriteId: number;
+        holeriteEventoId: number;
+        funcionarioNome: string;
+        valor: number;
+      }> = [];
+
+      for (const lancamento of lancamentos) {
+        const valor = arredondarCentavos(
+          Number(
+            lancamento.valorAprovado ??
+              lancamento.valorCalculado ??
+              0
+          )
+        );
+
+        if (
+          !Number.isFinite(valor) ||
+          valor <= 0
+        ) {
+          throw new Error(
+            `A comissão de ${lancamento.funcionarioNomeSnapshot} possui valor inválido.`
+          );
+        }
+
+        let holerite =
+          await tx.holeriteRH.findFirst({
+            where: {
+              instituicaoId,
+              funcionarioId:
+                lancamento.funcionarioId,
+              competenciaMes:
+                lancamento.competenciaMes,
+              competenciaAno:
+                lancamento.competenciaAno,
+            },
+          });
+
+        if (
+          holerite?.arquivado ||
+          holerite?.cancelado ||
+          String(
+            holerite?.status || ""
+          ).toUpperCase() === "ARQUIVADO" ||
+          String(
+            holerite?.status || ""
+          ).toUpperCase() === "CANCELADO"
+        ) {
+          throw new Error(
+            `O holerite de ${lancamento.funcionarioNomeSnapshot}, competência ${String(
+              lancamento.competenciaMes
+            ).padStart(2, "0")}/${
+              lancamento.competenciaAno
+            }, está arquivado ou cancelado.`
+          );
+        }
+
+        if (!holerite) {
+          const salarioBase =
+            arredondarCentavos(
+              Number(
+                lancamento.funcionario
+                  .salarioBase ??
+                  lancamento.funcionario
+                    .salario ??
+                  0
+              )
+            );
+
+          holerite =
+            await tx.holeriteRH.create({
+              data: {
+                funcionarioId:
+                  lancamento.funcionarioId,
+
+                instituicaoId,
+                criadoPorId,
+
+                competenciaMes:
+                  lancamento.competenciaMes,
+
+                competenciaAno:
+                  lancamento.competenciaAno,
+
+                salarioBase,
+
+                totalVencimentos: 0,
+                totalDescontos: 0,
+                valorLiquido: salarioBase,
+
+                status: "GERADO",
+              },
+            });
+        }
+
+        const descricaoEvento = [
+          "Comissão comercial",
+
+          lancamento.regraNomeSnapshot ||
+            lancamento.descricao,
+
+          lancamento.alunoNomeSnapshot
+            ? `Aluno: ${lancamento.alunoNomeSnapshot}`
+            : null,
+
+          lancamento.matriculaNumeroSnapshot
+            ? `Matrícula: ${lancamento.matriculaNumeroSnapshot}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" — ");
+
+        const evento =
+          await tx.holeriteEventoRH.create({
+            data: {
+              holeriteId: holerite.id,
+
+              codigo: `COM-${lancamento.id}`,
+
+              descricao: descricaoEvento,
+
+              referencia: `${String(
+                lancamento.competenciaMes
+              ).padStart(2, "0")}/${
+                lancamento.competenciaAno
+              }`,
+
+              tipo: "VENCIMENTO",
+
+              valor,
+            },
+          });
+
+        const atualizacaoLancamento =
+          await tx.lancamentoComissaoRH.updateMany({
+            where: {
+              id: lancamento.id,
+              instituicaoId,
+
+              status:
+                StatusLancamentoComissaoRH.APROVADO,
+
+              holeriteEventoId: null,
+            },
+
+            data: {
+              status:
+                StatusLancamentoComissaoRH.ENVIADO_HOLERITE,
+
+              holeriteEventoId: evento.id,
+
+              enviadoHoleriteEm: agora,
+            },
+          });
+
+        if (
+          atualizacaoLancamento.count !== 1
+        ) {
+          throw new Error(
+            `A comissão de ${lancamento.funcionarioNomeSnapshot} já foi processada por outro usuário.`
+          );
+        }
+
+        await recalcularTotaisHolerite(
+          tx,
+          holerite.id
+        );
+
+        await tx.historicoRH.create({
+          data: {
+            funcionarioId:
+              lancamento.funcionarioId,
+
+            instituicaoId,
+            criadoPorId,
+
+            tipo:
+              "COMISSAO_COMERCIAL_ENVIADA_HOLERITE",
+
+            titulo:
+              "Comissão comercial enviada ao holerite",
+
+            descricao:
+              `${lancamento.regraNomeSnapshot ||
+                lancamento.descricao} — ` +
+              `R$ ${valor.toFixed(2)}`,
+
+            dataEvento: agora,
+
+            observacoes: [
+              `Competência: ${String(
+                lancamento.competenciaMes
+              ).padStart(2, "0")}/${
+                lancamento.competenciaAno
+              }`,
+
+              `Lançamento de comissão ID: ${lancamento.id}`,
+
+              `Holerite ID: ${holerite.id}`,
+
+              `Evento de holerite ID: ${evento.id}`,
+
+              `Aluno: ${
+                lancamento.alunoNomeSnapshot ||
+                "Não informado"
+              }`,
+
+              `Matrícula: ${
+                lancamento.matriculaNumeroSnapshot ||
+                lancamento.matriculaId
+              }`,
+
+              `Plano: ${
+                lancamento.planoNomeSnapshot ||
+                "Não informado"
+              }`,
+
+              `Regra: ${
+                lancamento.regraNomeSnapshot ||
+                "Não informada"
+              }`,
+            ].join("\n"),
+          },
+        });
+
+        enviados.push({
+          lancamentoId: lancamento.id,
+          holeriteId: holerite.id,
+          holeriteEventoId: evento.id,
+          funcionarioNome:
+            lancamento.funcionarioNomeSnapshot,
+          valor,
+        });
+      }
+
+      return enviados;
+    },
+    {
+      maxWait: 10_000,
+      timeout: 30_000,
+    }
+  );
+
+  const totalEnviado =
+    arredondarCentavos(
+      resultado.reduce(
+        (total, item) =>
+          total + item.valor,
+        0
+      )
+    );
+
+  const ignorados =
+    lancamentoIds.length -
+    resultado.length;
+
+  return NextResponse.json({
+    message:
+      `${resultado.length} comissão(ões) enviada(s) ao holerite, totalizando R$ ${totalEnviado.toFixed(
+        2
+      )}.` +
+      (ignorados > 0
+        ? ` ${ignorados} comissão(ões) já processada(s), pendente(s) ou reprovada(s) foram ignoradas.`
+        : ""),
+
+    enviados: resultado.length,
+    ignorados,
+    totalEnviado,
+    itens: resultado,
+  });
+}
 
     /*
      * =====================================================

@@ -480,6 +480,63 @@ export default function AdminRHComissoesPage() {
     }
   }
 
+  async function enviarComissoesAoHolerite(
+  lancamentoIds: number[]
+) {
+  if (lancamentoIds.length === 0) {
+    setErro(
+      "Selecione pelo menos uma comissão aprovada."
+    );
+    return;
+  }
+
+  try {
+    setProcessando(true);
+    setErro("");
+    setSucesso("");
+
+    const resposta = await fetch(
+      "/api/admin/rh/holerites",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          acao: "ENVIAR_COMISSOES",
+          lancamentoIds,
+        }),
+      }
+    );
+
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(
+        dados?.error ||
+          "Não foi possível enviar a comissão ao holerite."
+      );
+    }
+
+    setSucesso(
+      dados?.message ||
+        "Comissão enviada ao holerite com sucesso."
+    );
+
+    setSelecionados(new Set());
+
+    await carregarComissoes();
+  } catch (error: any) {
+    setErro(
+      error?.message ||
+        "Não foi possível enviar a comissão ao holerite."
+    );
+  } finally {
+    setProcessando(false);
+  }
+}
+
   function abrirReprovacao(
     ids: number[]
   ) {
@@ -1060,6 +1117,23 @@ export default function AdminRHComissoesPage() {
                                   ? "Ocultar"
                                   : "Detalhes"}
                               </button>
+
+                              {lancamento.status === "APROVADO" && (
+  <button
+    type="button"
+    disabled={processando}
+    onClick={() =>
+      enviarComissoesAoHolerite([
+        lancamento.id,
+      ])
+    }
+    className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-black text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+  >
+    {processando
+      ? "Enviando..."
+      : "Enviar ao holerite"}
+  </button>
+)}
 
                               {pendente && (
                                 <>
