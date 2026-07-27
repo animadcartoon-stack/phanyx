@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getUserFromToken } from "@/lib/server-auth";
 import { podeUsarFinanceiroCompleto } from "@/lib/permissoesPlano";
+import { GatilhoComissaoRH } from "@prisma/client";
+import { processarComissaoAutomatica } from "@/lib/comercial/processar-comissao";
 
 function calcularValorFinal(
   valorOriginal: number,
@@ -465,16 +467,16 @@ if (novoTotalPago >= valorFinal) {
     });
 
     await prisma.$transaction(async (tx) => {
-      await tx.pagamento.create({
-        data: {
-          valorPago,
-          formaPagamento: formaPagamento as any,
-          observacao,
-          instituicaoId: user.instituicaoId,
-          alunoId: lancamento.alunoId,
-          lancamentoId: lancamento.id,
-        },
-      });
+      const pagamentoCriado = await tx.pagamento.create({
+  data: {
+    valorPago,
+    formaPagamento: formaPagamento as any,
+    observacao,
+    instituicaoId: user.instituicaoId,
+    alunoId: lancamento.alunoId,
+    lancamentoId: lancamento.id,
+  },
+});
 
       await tx.lancamentoFinanceiro.update({
         where: {
@@ -491,6 +493,56 @@ if (novoTotalPago >= valorFinal) {
           observacao: lancamento.observacao,
         },
       });
+
+      if (
+  novoStatus === "PAGO" &&
+  lancamento.matriculaId
+) {
+  const dadosComissao = {
+    tx,
+    instituicaoId: user.instituicaoId,
+    matriculaId: lancamento.matriculaId,
+    pagamentoId: pagamentoCriado.id,
+
+    /*
+     * Usa o total efetivamente recebido nessa cobrança,
+     * inclusive quando houve pagamentos parciais anteriores.
+     */
+    valorRecebido: novoTotalPago,
+
+    eventoEm: pagamentoCriado.pagoEm,
+    criadoPorId: Number(user.id) || null,
+  };
+
+  if (lancamento.tipo === "MATRICULA") {
+    await processarComissaoAutomatica({
+      ...dadosComissao,
+      gatilho:
+        GatilhoComissaoRH
+          .PAGAMENTO_MATRICULA_CONFIRMADO,
+    });
+  }
+
+  if (lancamento.tipo === "MENSALIDADE") {
+    /*
+     * A chave única garante que o gatilho da primeira
+     * mensalidade gere comissão somente uma vez por
+     * matrícula, mesmo que outras mensalidades sejam pagas.
+     */
+    await processarComissaoAutomatica({
+      ...dadosComissao,
+      gatilho:
+        GatilhoComissaoRH
+          .PRIMEIRA_MENSALIDADE_PAGA,
+    });
+
+    await processarComissaoAutomatica({
+      ...dadosComissao,
+      gatilho:
+        GatilhoComissaoRH.MENSALIDADE_PAGA,
+    });
+  }
+}
 
       if (caixaAberto) {
         await tx.movimentoCaixa.create({
