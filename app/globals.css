@@ -16023,3 +16023,79 @@ html[data-theme="sistema"] .phanyx-polos-modal-erro-email {
   border-color: #b7791f !important;
   color: #fef3c7 !important;
 }
+
+/* =========================================================
+   PHANYX FINANCEIRO — CAIXA
+   Cards neutros nos temas claro, escuro e sistema
+========================================================= */
+
+/* Tema claro */
+html[data-theme="light"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-resumo {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-resumo {
+  background: #020617 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card {
+  background: #2f2f2f !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-resumo {
+  background: #262626 !important;
+  border-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+/* Textos internos */
+html[data-theme="dark"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card
+  p,
+html[data-theme="dark"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card
+  h2,
+html[data-theme="system"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card
+  p,
+html[data-theme="system"]
+  .phanyx-financeiro-caixa-page
+  .phanyx-caixa-online-card
+  h2 {
+  color: #f8fafc !important;
+}
