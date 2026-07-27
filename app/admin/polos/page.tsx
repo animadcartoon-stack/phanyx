@@ -52,6 +52,11 @@ type CredenciaisAcesso = {
 
 type FeedbackTipo = "sucesso" | "aviso" | "erro" | "";
 
+type AcaoStatusPolo =
+  | "SUSPENDER"
+  | "REATIVAR"
+  | "ENCERRAR";
+
 const TIPOS_UNIDADE: Array<{
   valor: TipoUnidadePolo;
   nome: string;
@@ -274,6 +279,31 @@ function AdminPolosPage() {
 
   const [erroRedefinicaoSenha, setErroRedefinicaoSenha] =
     useState("");
+
+  const [
+    poloParaAlterarStatus,
+    setPoloParaAlterarStatus,
+  ] = useState<Polo | null>(null);
+
+  const [
+    acaoStatusPolo,
+    setAcaoStatusPolo,
+  ] = useState<AcaoStatusPolo | null>(null);
+
+  const [
+    motivoStatusPolo,
+    setMotivoStatusPolo,
+  ] = useState("");
+
+  const [
+    alterandoStatusPolo,
+    setAlterandoStatusPolo,
+  ] = useState(false);
+
+  const [
+    erroStatusPolo,
+    setErroStatusPolo,
+  ] = useState("");
 
   async function buscarEnderecoPorCep(
     valorInformado: string
@@ -771,6 +801,88 @@ function AdminPolosPage() {
     }
   }
 
+  function abrirModalStatusPolo(
+    polo: Polo,
+    acao: AcaoStatusPolo
+  ) {
+    setPoloParaAlterarStatus(polo);
+    setAcaoStatusPolo(acao);
+    setMotivoStatusPolo("");
+    setErroStatusPolo("");
+  }
+
+  async function confirmarAlteracaoStatusPolo() {
+    if (!poloParaAlterarStatus || !acaoStatusPolo) {
+      return;
+    }
+
+    const exigeMotivo =
+      acaoStatusPolo === "SUSPENDER" ||
+      acaoStatusPolo === "ENCERRAR";
+
+    if (
+      exigeMotivo &&
+      motivoStatusPolo.trim().length < 5
+    ) {
+      setErroStatusPolo(
+        "Informe um motivo com pelo menos 5 caracteres."
+      );
+      return;
+    }
+
+    try {
+      setAlterandoStatusPolo(true);
+      setErroStatusPolo("");
+
+      const resposta = await fetch(
+        `/api/admin/polos/${poloParaAlterarStatus.id}/status`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            acao: acaoStatusPolo,
+            motivo: motivoStatusPolo.trim(),
+          }),
+        }
+      );
+
+      const dados = await resposta
+        .json()
+        .catch(() => ({}));
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error ||
+          "Não foi possível alterar o status do polo."
+        );
+      }
+
+      setPoloParaAlterarStatus(null);
+      setAcaoStatusPolo(null);
+      setMotivoStatusPolo("");
+      setBusca("");
+
+      await carregarPolos();
+
+      setFeedback(
+        dados?.mensagem ||
+        "Status do polo alterado com sucesso."
+      );
+      setFeedbackTipo("sucesso");
+    } catch (error: unknown) {
+      setErroStatusPolo(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível alterar o status do polo."
+      );
+    } finally {
+      setAlterandoStatusPolo(false);
+    }
+  }
+
   const polosFiltrados = useMemo(() => {
     const termo = normalizarBusca(busca);
 
@@ -806,6 +918,132 @@ function AdminPolosPage() {
 
   return (
     <div className="phanyx-polos-page max-w-6xl space-y-6">
+
+      {poloParaAlterarStatus && acaoStatusPolo && (
+        <div className="fixed inset-0 z-[1000002] flex items-center justify-center bg-black/70 p-4 backdrop-blur-[2px]">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-alterar-status-polo"
+            className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
+          >
+            <h2
+              id="titulo-alterar-status-polo"
+              className="text-xl font-bold"
+            >
+              {acaoStatusPolo === "SUSPENDER"
+                ? "Inativar polo"
+                : acaoStatusPolo === "REATIVAR"
+                  ? "Reativar polo"
+                  : "Encerrar polo"}
+            </h2>
+
+            <p className="mt-3 text-sm leading-6">
+              Você está alterando o polo{" "}
+              <strong>{poloParaAlterarStatus.nome}</strong>.
+            </p>
+
+            <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4">
+              {acaoStatusPolo === "SUSPENDER" && (
+                <p className="text-sm leading-6">
+                  O polo ficará temporariamente inativo. A
+                  instituição independente e os novos acessos
+                  serão bloqueados, mas o polo poderá ser
+                  reativado posteriormente.
+                </p>
+              )}
+
+              {acaoStatusPolo === "REATIVAR" && (
+                <p className="text-sm leading-6">
+                  O polo voltará a ficar ativo e o acesso da
+                  instituição independente será liberado
+                  novamente.
+                </p>
+              )}
+
+              {acaoStatusPolo === "ENCERRAR" && (
+                <p className="text-sm leading-6">
+                  O encerramento é definitivo nesta tela. O
+                  acesso será bloqueado e os dados permanecerão
+                  guardados apenas para histórico e auditoria.
+                </p>
+              )}
+            </div>
+
+            {acaoStatusPolo !== "REATIVAR" && (
+              <div className="mt-5">
+                <label
+                  htmlFor="motivo-status-polo"
+                  className="mb-2 block text-sm font-semibold"
+                >
+                  Motivo
+                </label>
+
+                <textarea
+                  id="motivo-status-polo"
+                  value={motivoStatusPolo}
+                  onChange={(e) =>
+                    setMotivoStatusPolo(e.target.value)
+                  }
+                  placeholder={
+                    acaoStatusPolo === "ENCERRAR"
+                      ? "Ex.: Polo criado somente para teste de suporte."
+                      : "Ex.: Unidade temporariamente sem funcionamento."
+                  }
+                  className={`${inputClass} min-h-[100px] resize-y`}
+                  autoFocus
+                />
+
+                <p className="mt-1 text-xs">
+                  Informe pelo menos 5 caracteres.
+                </p>
+              </div>
+            )}
+
+            {erroStatusPolo && (
+              <div className="mt-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+                {erroStatusPolo}
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setPoloParaAlterarStatus(null);
+                  setAcaoStatusPolo(null);
+                  setMotivoStatusPolo("");
+                  setErroStatusPolo("");
+                }}
+                disabled={alterandoStatusPolo}
+                className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+              >
+                Voltar
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmarAlteracaoStatusPolo}
+                disabled={alterandoStatusPolo}
+                className={`rounded-xl px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 ${acaoStatusPolo === "SUSPENDER"
+                    ? "bg-amber-600 hover:bg-amber-700"
+                    : acaoStatusPolo === "REATIVAR"
+                      ? "bg-emerald-600 hover:bg-emerald-700"
+                      : "bg-red-600 hover:bg-red-700"
+                  }`}
+              >
+                {alterandoStatusPolo
+                  ? "Processando..."
+                  : acaoStatusPolo === "SUSPENDER"
+                    ? "Confirmar inativação"
+                    : acaoStatusPolo === "REATIVAR"
+                      ? "Confirmar reativação"
+                      : "Confirmar encerramento"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {erroProvisionamento && (
         <div className="fixed inset-0 z-[1000001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-[2px]">
@@ -1737,6 +1975,55 @@ function AdminPolosPage() {
                           >
                             Editar dados
                           </button>
+
+                          {!unidadeContratante &&
+                            polo.statusComercial !== "ENCERRADO" && (
+                              <>
+                                {(polo.statusComercial === "ATIVO" ||
+                                  (!polo.statusComercial && polo.ativo)) && (
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        abrirModalStatusPolo(
+                                          polo,
+                                          "SUSPENDER"
+                                        )
+                                      }
+                                      className="rounded-lg border border-amber-500 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-950/30"
+                                    >
+                                      Inativar polo
+                                    </button>
+                                  )}
+
+                                {polo.statusComercial === "SUSPENSO" && (
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      abrirModalStatusPolo(
+                                        polo,
+                                        "REATIVAR"
+                                      )
+                                    }
+                                    className="rounded-lg border border-emerald-500 px-3 py-1.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-950/30"
+                                  >
+                                    Reativar polo
+                                  </button>
+                                )}
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    abrirModalStatusPolo(
+                                      polo,
+                                      "ENCERRAR"
+                                    )
+                                  }
+                                  className="rounded-lg border border-red-500 px-3 py-1.5 text-sm font-semibold text-red-700 hover:bg-red-50 dark:text-red-300 dark:hover:bg-red-950/30"
+                                >
+                                  Encerrar polo
+                                </button>
+                              </>
+                            )}
 
                           {podeCriarAcesso && (
                             <button
