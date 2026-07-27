@@ -415,6 +415,11 @@ const podeVerComercialInstituicao = podeAcessar(
   "comercial.configuracoes.gerenciar"
 );
 
+const podeGerenciarConfiguracoesComerciais =
+  podeAcessar(
+    "comercial.configuracoes.gerenciar"
+  );
+
 const podeVerPublicacoesAcademicas =
   usuarioAdmin || temPermissao("academico.publicacoes.ver");
 
@@ -429,6 +434,10 @@ const podeVerPublicacoesAcademicas =
   if (path === "/admin/rh") {
     return pathname === "/admin/rh";
   }
+
+  if (path === "/admin/comercial") {
+  return pathname === "/admin/comercial";
+}
 
   if (path === "/admin/rh/ponto") {
     return pathname === "/admin/rh/ponto";
@@ -657,17 +666,28 @@ function abrirTourAdmin() {
     </button>
 
     {menuAberto === "comercial" && (
-      <div className="ml-3 mt-2 flex flex-col space-y-1">
-        <Link
-          href="/admin/comercial"
-          className={getLinkClass(
-            "/admin/comercial"
-          )}
-        >
-          📊 Visão Geral
-        </Link>
-      </div>
+  <div className="ml-3 mt-2 flex flex-col space-y-1">
+    <Link
+      href="/admin/comercial"
+      className={getLinkClass(
+        "/admin/comercial"
+      )}
+    >
+      📊 Visão Geral
+    </Link>
+
+    {podeGerenciarConfiguracoesComerciais && (
+      <Link
+        href="/admin/comercial/configuracoes"
+        className={getLinkClass(
+          "/admin/comercial/configuracoes"
+        )}
+      >
+        ⚙️ Planos de comissão
+      </Link>
     )}
+  </div>
+)}
   </div>
 )}
 
@@ -1245,6 +1265,27 @@ function abrirTourAdmin() {
           </div>
         )}
 
+        {menuMobileAberto === "Comercial" &&
+  podeVerComercialInstituicao && (
+    <div className="grid grid-cols-2 gap-2">
+      <Link
+        href="/admin/comercial"
+        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+      >
+        📊 Visão Geral
+      </Link>
+
+      {podeGerenciarConfiguracoesComerciais && (
+        <Link
+          href="/admin/comercial/configuracoes"
+          className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+        >
+          ⚙️ Planos de comissão
+        </Link>
+      )}
+    </div>
+  )}
+
         {menuMobileAberto === "Financeiro" && (
           <div className="grid grid-cols-2 gap-2">
             <Link href="/admin/financeiro" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
@@ -1441,7 +1482,15 @@ function abrirTourAdmin() {
 </div>
 
     <nav className="fixed bottom-0 left-0 right-0 z-[70] border-t border-slate-200 bg-white/95 px-2 py-2 shadow-[0_-8px_25px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-      <div className="grid grid-cols-7 gap-1 text-[8px] font-semibold text-slate-600">
+      <div
+  className={[
+    "grid gap-1 text-[8px] font-semibold text-slate-600",
+    podeVerComercialInstituicao
+      ? "grid-cols-8"
+      : "grid-cols-7",
+  ].join(" ")}
+>
+
         <Link href="/admin" className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
           <span className="text-lg">📊</span>
           Painel
@@ -1451,6 +1500,28 @@ function abrirTourAdmin() {
           <span className="text-lg">🎓</span>
           Acad.
         </button>
+
+        {podeVerComercialInstituicao && (
+  <button
+    type="button"
+    onClick={() =>
+      setMenuMobileAberto(
+        menuMobileAberto === "Comercial"
+          ? null
+          : "Comercial"
+      )
+    }
+    className={[
+      "flex flex-col items-center justify-center rounded-xl px-1 py-2 transition",
+      menuMobileAberto === "Comercial"
+        ? "bg-blue-50 text-blue-700"
+        : "hover:bg-blue-50 hover:text-blue-700",
+    ].join(" ")}
+  >
+    <span className="text-lg">📈</span>
+    Comerc.
+  </button>
+)}
 
         <button type="button" onClick={() => setMenuMobileAberto(menuMobileAberto === "Financeiro" ? null : "Financeiro")} className="flex flex-col items-center justify-center rounded-xl px-1 py-2 hover:bg-blue-50 hover:text-blue-700">
           <span className="text-lg">💰</span>

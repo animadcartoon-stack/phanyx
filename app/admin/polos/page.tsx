@@ -536,11 +536,18 @@ async function copiarCredenciais() {
   if (!credenciaisAcesso) return;
 
   const texto = [
-    `Instituição: ${credenciaisAcesso.instituicaoNome}`,
-    `Login: ${credenciaisAcesso.login}`,
-    `Senha temporária: ${credenciaisAcesso.senha}`,
-    "Troca de senha obrigatória no primeiro acesso.",
-  ].join("\n");
+  `Acesso institucional PHANYX`,
+  ``,
+  `Instituição: ${credenciaisAcesso.instituicaoNome}`,
+  `Login: ${credenciaisAcesso.login}`,
+  `Senha temporária: ${credenciaisAcesso.senha}`,
+  ``,
+  `Por segurança, troque esta senha no primeiro acesso.`,
+  `A senha anterior não funciona mais para novos acessos.`,
+  `Caso o PHANYX esteja aberto em outro dispositivo ou navegador, saia dessas sessões manualmente.`,
+  ``,
+  `Não compartilhe estas credenciais com outras pessoas.`,
+].join("\n");
 
   try {
     await navigator.clipboard.writeText(texto);
@@ -601,7 +608,7 @@ async function redefinirSenhaPolo() {
         true,
       titulo: "Nova senha temporária criada",
       orientacao:
-        "A senha anterior deixou de funcionar. Guarde ou envie estas novas credenciais ao administrador da unidade.",
+  "A senha anterior deixou de funcionar para novos acessos. Guarde ou envie estas credenciais ao administrador da unidade e oriente-o a sair do PHANYX em todos os dispositivos onde já estiver conectado.",
     });
 
     setCredenciaisCopiadas(false);
@@ -847,11 +854,18 @@ async function redefinirSenhaPolo() {
         </p>
 
         <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
-          A senha atual deixará de funcionar imediatamente. O
-          login continuará sendo o mesmo, e o administrador
-          deverá trocar a nova senha temporária no próximo
-          acesso.
-        </p>
+  A senha atual deixará de funcionar para novos acessos.
+  O login continuará sendo o mesmo, e o administrador
+  deverá trocar a nova senha temporária no próximo acesso.
+</p>
+
+<p className="phanyx-polos-alerta-texto mt-3 text-sm leading-6">
+  <strong>Importante:</strong> caso o usuário já esteja com
+  o PHANYX aberto em outro computador, celular ou navegador,
+  essa sessão poderá continuar ativa até ser encerrada ou
+  expirar. Oriente o usuário a sair do sistema em todos os
+  dispositivos.
+</p>
       </div>
 
       {erroRedefinicaoSenha && (
