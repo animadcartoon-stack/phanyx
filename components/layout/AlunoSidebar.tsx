@@ -152,15 +152,20 @@ export default function AlunoSidebar({
 
             return (
               <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 transition ${
-                  ativo ? "bg-blue-700" : "hover:bg-blue-700"
-                }`}
-              >
-                <span>{item.icon}</span>
-                {item.label}
-              </Link>
+  key={item.href}
+  href={item.href}
+  className={`phanyx-aluno-menu-item flex items-center gap-2 rounded-lg px-3 py-2 transition ${
+    ativo
+      ? "phanyx-aluno-menu-item-ativo bg-blue-700 text-white"
+      : "text-slate-900 hover:bg-blue-700 hover:text-white"
+  }`}
+>
+  <span>{item.icon}</span>
+
+  <span className="phanyx-aluno-menu-texto">
+    {item.label}
+  </span>
+</Link>
             );
           })}
         </nav>

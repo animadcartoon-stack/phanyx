@@ -15836,3 +15836,44 @@ html[data-theme="system"] .phanyx-rematricula-turma-info-label {
 html[data-theme="system"] .phanyx-rematricula-turma-info-valor {
   color: #ffffff !important;
 }
+
+/* Portal do Aluno — contraste do menu lateral */
+
+.phanyx-aluno-menu-item {
+  color: #0f172a;
+}
+
+.phanyx-aluno-menu-item:hover {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-aluno-menu-item:hover .phanyx-aluno-menu-texto {
+  color: #ffffff !important;
+}
+
+.phanyx-aluno-menu-item-ativo {
+  background: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+
+.phanyx-aluno-menu-item-ativo .phanyx-aluno-menu-texto {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .phanyx-aluno-menu-item-ativo,
+html[data-theme="light"] .phanyx-aluno-menu-item-ativo .phanyx-aluno-menu-texto {
+  color: #ffffff !important;
+}
+
+html[data-theme="dark"] .phanyx-aluno-menu-item,
+html[data-theme="system"] .phanyx-aluno-menu-item {
+  color: #e2e8f0;
+}
+
+html[data-theme="dark"] .phanyx-aluno-menu-item-ativo,
+html[data-theme="system"] .phanyx-aluno-menu-item-ativo,
+html[data-theme="dark"] .phanyx-aluno-menu-item-ativo .phanyx-aluno-menu-texto,
+html[data-theme="system"] .phanyx-aluno-menu-item-ativo .phanyx-aluno-menu-texto {
+  color: #ffffff !important;
+}
