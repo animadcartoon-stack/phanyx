@@ -626,8 +626,10 @@ await tx.caixa.update({
         valor: valorPago,
         referencia: lancamento.descricao || lancamento.tipo,
       });
-    });
-
+    }, {
+  maxWait: 10_000,
+  timeout: 30_000,
+});
     const atualizado = await prisma.lancamentoFinanceiro.findUnique({
       where: {
         id: lancamento.id,
