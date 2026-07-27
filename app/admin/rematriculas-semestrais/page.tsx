@@ -2314,7 +2314,7 @@ async function executarAcaoPeriodo() {
   <div className="flex flex-wrap justify-end gap-2">
   <Link
     href={`/admin/rematriculas-semestrais/${periodo.id}`}
-    className="rounded-lg border border-violet-300 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-700 transition hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-200"
+    className="phanyx-rematricula-alunos-restricoes rounded-lg border px-3 py-2 text-xs font-semibold transition"
   >
     Alunos e restrições
   </Link>

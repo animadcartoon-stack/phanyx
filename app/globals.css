@@ -15707,3 +15707,132 @@ html[data-theme="system"] .phanyx-boletos-ibe-page textarea {
   -webkit-text-fill-color: #ffffff !important;
   border-color: #666666 !important;
 }
+
+/* =========================================================
+   REMATRÍCULA — CONTRASTE DOS ELEMENTOS
+========================================================= */
+
+.phanyx-rematricula-badge-tipo {
+  opacity: 1 !important;
+  font-weight: 800 !important;
+}
+
+.phanyx-rematricula-disciplina-item {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+.phanyx-rematricula-disciplina-selecionada {
+  background: #eaf2ff !important;
+  box-shadow: inset 4px 0 0 #2563eb;
+}
+
+.phanyx-rematricula-bloqueio {
+  background: #fff1f2 !important;
+  border-color: #f87171 !important;
+  color: #b91c1c !important;
+  opacity: 1 !important;
+}
+
+.phanyx-rematricula-badge-obrigatoria {
+  background: #ffffff;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.phanyx-rematricula-turma-card {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.phanyx-rematricula-turma-info-label {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+.phanyx-rematricula-turma-info-valor {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-rematricula-alunos-restricoes {
+  background: #f5f3ff !important;
+  border-color: #7c3aed !important;
+  color: #5b21b6 !important;
+}
+
+.phanyx-rematricula-alunos-restricoes:hover {
+  background: #ede9fe !important;
+}
+
+/* Tema claro */
+
+html[data-theme="light"] .phanyx-rematricula-badge-proximo {
+  background: #dbeafe !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-badge-pendencia {
+  background: #fef3c7 !important;
+  border-color: #d97706 !important;
+  color: #92400e !important;
+}
+
+html[data-theme="light"] .phanyx-rematricula-badge-extra {
+  background: #ede9fe !important;
+  border-color: #7c3aed !important;
+  color: #5b21b6 !important;
+}
+
+/* Tema escuro */
+
+html[data-theme="dark"] .phanyx-rematricula-disciplina-item {
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-disciplina-selecionada {
+  background: #172554 !important;
+  box-shadow: inset 4px 0 0 #60a5fa;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-turma-card {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-turma-info-label {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-turma-info-valor {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-rematricula-badge-obrigatoria {
+  background: #334155;
+  border-color: #64748b;
+  color: #ffffff;
+}
+
+/* Tema sistema */
+
+html[data-theme="system"] .phanyx-rematricula-disciplina-selecionada {
+  background: #303030 !important;
+  box-shadow: inset 4px 0 0 #60a5fa;
+}
+
+html[data-theme="system"] .phanyx-rematricula-turma-card {
+  background: #292929 !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="system"] .phanyx-rematricula-turma-info-label {
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="system"] .phanyx-rematricula-turma-info-valor {
+  color: #ffffff !important;
+}

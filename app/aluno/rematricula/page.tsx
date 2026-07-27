@@ -234,16 +234,18 @@ function nomeTipoDisciplina(tipo: TipoDisciplinaRematricula) {
   return "Extracurricular";
 }
 
-function classeTipoDisciplina(tipo: TipoDisciplinaRematricula) {
+function classeTipoDisciplina(
+  tipo: TipoDisciplinaRematricula,
+) {
   if (tipo === "PROXIMO_SEMESTRE") {
-    return "border-blue-300 bg-blue-50 text-blue-800 dark:border-blue-800 dark:bg-blue-950/40 dark:text-blue-200";
+    return "phanyx-rematricula-badge-tipo phanyx-rematricula-badge-proximo";
   }
 
   if (tipo === "PENDENCIA_ANTERIOR") {
-    return "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200";
+    return "phanyx-rematricula-badge-tipo phanyx-rematricula-badge-pendencia";
   }
 
-  return "border-violet-300 bg-violet-50 text-violet-800 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-200";
+  return "phanyx-rematricula-badge-tipo phanyx-rematricula-badge-extra";
 }
 
 function nomeStatusRematricula(status?: string | null) {
@@ -1425,12 +1427,13 @@ function GrupoDisciplinas({
 
             return (
               <article
-                key={disciplina.disciplinaId}
-                className={`p-5 transition ${selecionada
-                  ? "bg-blue-50/70 dark:bg-blue-950/20"
-                  : ""
-                  }`}
-              >
+  key={disciplina.disciplinaId}
+  className={`phanyx-rematricula-disciplina-item p-5 transition ${
+    selecionada
+      ? "phanyx-rematricula-disciplina-selecionada"
+      : ""
+  }`}
+>
                 <div className="flex items-start gap-4">
                   <input
                     type="checkbox"
@@ -1462,7 +1465,7 @@ function GrupoDisciplinas({
                       </span>
 
                       {disciplina.obrigatoria && (
-                        <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-800 px-3 py-1 text-xs font-semibold text-white dark:border-slate-700 dark:bg-slate-800">
+                        <span className="phanyx-rematricula-badge-obrigatoria inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold">
                           Obrigatória
                         </span>
                       )}
@@ -1578,7 +1581,7 @@ function GrupoDisciplinas({
                               key={
                                 turma.turmaDisciplinaId
                               }
-                              className="mt-3 grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-xs dark:border-slate-700 dark:bg-slate-800/60 sm:grid-cols-2"
+                              className="phanyx-rematricula-turma-card mt-3 grid gap-3 rounded-2xl border p-4 text-xs sm:grid-cols-2"
                             >
                               <InformacaoTurma
                                 titulo="Professor"
@@ -1638,7 +1641,7 @@ function InformacaoTurma({
 }) {
   return (
     <div>
-      <span className="block font-black uppercase tracking-wide text-slate-500 dark:text-slate-400">
+      <span className="phanyx-rematricula-turma-info-label block font-black uppercase tracking-wide">
         {titulo}
       </span>
 
