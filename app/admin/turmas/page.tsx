@@ -1212,26 +1212,26 @@ function AdminTurmasPage() {
                 </button>
 
                 {disciplinasAbertas && (
-                  <div className="mt-2 rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950/50">
+                  <div className="phanyx-turma-busca-painel mt-2 rounded-xl border p-3">
                     <label className="block">
-                      <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100">
-                        Buscar disciplina
-                      </span>
+                      <span className="phanyx-turma-busca-titulo mb-2 block text-sm font-bold">
+  Buscar disciplina
+</span>
 
                       <input
-                        type="search"
-                        value={buscaDisciplina}
-                        onChange={(e) =>
-                          setBuscaDisciplina(
-                            e.target.value,
-                          )
-                        }
-                        placeholder="Ex.: Antropologia, ética, ATB, missões..."
-                        className="h-11 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                      />
+  type="search"
+  value={buscaDisciplina}
+  onChange={(e) =>
+    setBuscaDisciplina(
+      e.target.value,
+    )
+  }
+  placeholder="Ex.: Antropologia, ética, ATB, missões..."
+  className="phanyx-turma-busca-campo h-11 w-full rounded-xl border px-3 text-sm outline-none transition focus:ring-2 focus:ring-blue-500/20"
+/>
                     </label>
 
-                    <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <div className="phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                       <span>
                         {
                           disciplinasFiltradas.length
@@ -1700,11 +1700,11 @@ function AdminTurmasPage() {
                           </button>
 
                           {editDisciplinasAbertas && (
-                            <div className="mt-2 rounded-xl border border-slate-300 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950/50">
+                            <div className="phanyx-turma-busca-painel mt-2 rounded-xl border p-3">
                               <label className="block">
-                                <span className="mb-2 block text-sm font-bold text-slate-900 dark:text-slate-100">
-                                  Buscar disciplina
-                                </span>
+                                <span className="phanyx-turma-busca-titulo mb-2 block text-sm font-bold">
+  Buscar disciplina
+</span>
 
                                 <input
                                   type="search"
@@ -1721,7 +1721,7 @@ function AdminTurmasPage() {
                                 />
                               </label>
 
-                              <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-400">
+                              <div className="phanyx-turma-busca-resumo mt-2 flex flex-wrap items-center justify-between gap-2 text-xs">
                                 <span>
                                   {
                                     editDisciplinasFiltradas.length

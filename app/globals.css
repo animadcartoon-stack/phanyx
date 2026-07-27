@@ -15448,3 +15448,105 @@ html[data-theme="system"] .phanyx-rh-comissoes-page .phanyx-comissoes-input opti
   background-color: #404040 !important;
   color: #ffffff !important;
 }
+
+/* =========================================
+   TURMAS — BUSCA INTELIGENTE DE DISCIPLINAS
+========================================= */
+
+.phanyx-turma-busca-painel {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-turma-busca-titulo {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-turma-busca-campo {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.phanyx-turma-busca-campo::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.phanyx-turma-busca-campo:focus {
+  background: #ffffff !important;
+  border-color: #2563eb !important;
+}
+
+.phanyx-turma-busca-resumo {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+
+/* Tema claro */
+html[data-theme="light"] .phanyx-turma-busca-painel {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-turma-busca-titulo {
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-turma-busca-campo {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-turma-busca-resumo {
+  color: #475569 !important;
+}
+
+/* Tema escuro */
+html[data-theme="dark"] .phanyx-turma-busca-painel {
+  background: #0f172a !important;
+  border-color: #475569 !important;
+}
+
+html[data-theme="dark"] .phanyx-turma-busca-titulo {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-turma-busca-campo {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-turma-busca-campo::placeholder {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="dark"] .phanyx-turma-busca-resumo {
+  color: #cbd5e1 !important;
+}
+
+/* Tema sistema */
+html[data-theme="system"] .phanyx-turma-busca-painel {
+  background: #e5e7eb !important;
+  border-color: #94a3b8 !important;
+}
+
+html[data-theme="system"] .phanyx-turma-busca-titulo {
+  color: #111827 !important;
+}
+
+html[data-theme="system"] .phanyx-turma-busca-campo {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color: #111827 !important;
+}
+
+html[data-theme="system"] .phanyx-turma-busca-resumo {
+  color: #475569 !important;
+}
