@@ -262,6 +262,14 @@ export async function GET(
             },
           },
 
+          enviadoHoleritePor: {
+  select: {
+    id: true,
+    nome: true,
+    email: true,
+  },
+},
+
           reprovadoPor: {
             select: {
               id: true,
@@ -356,6 +364,7 @@ export async function GET(
 
       valorPendente: 0,
       valorAprovado: 0,
+      valorEnviadoHolerite: 0,
     };
 
     for (
@@ -398,9 +407,13 @@ export async function GET(
           break;
 
         case StatusLancamentoComissaoRH.ENVIADO_HOLERITE:
-          resumo.enviadosHolerite =
-            quantidade;
-          break;
+  resumo.enviadosHolerite =
+    quantidade;
+
+  resumo.valorEnviadoHolerite =
+    valorAprovado ||
+    valorCalculado;
+  break;
 
         case StatusLancamentoComissaoRH.PAGO:
           resumo.pagos =

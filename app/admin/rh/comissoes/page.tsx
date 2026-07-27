@@ -83,6 +83,12 @@ type LancamentoComissao = {
     email?: string | null;
   } | null;
 
+  enviadoHoleritePor?: {
+    id: number;
+    nome?: string | null;
+    email?: string | null;
+  } | null;
+
   reprovadoPor?: {
     id: number;
     nome?: string | null;
@@ -103,6 +109,7 @@ type ResumoComissoes = {
 
   valorPendente: number;
   valorAprovado: number;
+  valorEnviadoHolerite: number;
 };
 
 const resumoInicial: ResumoComissoes = {
@@ -116,6 +123,7 @@ const resumoInicial: ResumoComissoes = {
   cancelados: 0,
   valorPendente: 0,
   valorAprovado: 0,
+  valorEnviadoHolerite: 0,
 };
 
 const meses = [
@@ -281,7 +289,7 @@ export default function AdminRHComissoesPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-            "Não foi possível carregar as comissões."
+          "Não foi possível carregar as comissões."
         );
       }
 
@@ -299,7 +307,7 @@ export default function AdminRHComissoesPage() {
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Não foi possível carregar as comissões."
+        "Não foi possível carregar as comissões."
       );
 
       setLancamentos([]);
@@ -455,13 +463,13 @@ export default function AdminRHComissoesPage() {
       if (!resposta.ok) {
         throw new Error(
           dados?.error ||
-            "Não foi possível processar as comissões."
+          "Não foi possível processar as comissões."
         );
       }
 
       setSucesso(
         dados?.message ||
-          "Comissões processadas com sucesso."
+        "Comissões processadas com sucesso."
       );
 
       setSelecionados(new Set());
@@ -473,7 +481,7 @@ export default function AdminRHComissoesPage() {
     } catch (error: any) {
       setErro(
         error?.message ||
-          "Não foi possível processar as comissões."
+        "Não foi possível processar as comissões."
       );
     } finally {
       setProcessando(false);
@@ -481,61 +489,61 @@ export default function AdminRHComissoesPage() {
   }
 
   async function enviarComissoesAoHolerite(
-  lancamentoIds: number[]
-) {
-  if (lancamentoIds.length === 0) {
-    setErro(
-      "Selecione pelo menos uma comissão aprovada."
-    );
-    return;
-  }
-
-  try {
-    setProcessando(true);
-    setErro("");
-    setSucesso("");
-
-    const resposta = await fetch(
-      "/api/admin/rh/holerites",
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          acao: "ENVIAR_COMISSOES",
-          lancamentoIds,
-        }),
-      }
-    );
-
-    const dados = await resposta.json();
-
-    if (!resposta.ok) {
-      throw new Error(
-        dados?.error ||
-          "Não foi possível enviar a comissão ao holerite."
+    lancamentoIds: number[]
+  ) {
+    if (lancamentoIds.length === 0) {
+      setErro(
+        "Selecione pelo menos uma comissão aprovada."
       );
+      return;
     }
 
-    setSucesso(
-      dados?.message ||
+    try {
+      setProcessando(true);
+      setErro("");
+      setSucesso("");
+
+      const resposta = await fetch(
+        "/api/admin/rh/holerites",
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            acao: "ENVIAR_COMISSOES",
+            lancamentoIds,
+          }),
+        }
+      );
+
+      const dados = await resposta.json();
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error ||
+          "Não foi possível enviar a comissão ao holerite."
+        );
+      }
+
+      setSucesso(
+        dados?.message ||
         "Comissão enviada ao holerite com sucesso."
-    );
+      );
 
-    setSelecionados(new Set());
+      setSelecionados(new Set());
 
-    await carregarComissoes();
-  } catch (error: any) {
-    setErro(
-      error?.message ||
+      await carregarComissoes();
+    } catch (error: any) {
+      setErro(
+        error?.message ||
         "Não foi possível enviar a comissão ao holerite."
-    );
-  } finally {
-    setProcessando(false);
+      );
+    } finally {
+      setProcessando(false);
+    }
   }
-}
 
   function abrirReprovacao(
     ids: number[]
@@ -611,7 +619,7 @@ export default function AdminRHComissoesPage() {
       )}
 
       <section className="phanyx-comissoes-panel rounded-3xl border p-5 shadow-sm">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
             <p className="text-sm phanyx-comissoes-texto-secundario">
               Pendentes
@@ -643,6 +651,20 @@ export default function AdminRHComissoesPage() {
               )}
             </p>
           </div>
+
+<div className="phanyx-comissoes-card rounded-2xl border p-4">
+  <p className="text-sm phanyx-comissoes-texto-secundario">
+    Enviadas ao holerite
+  </p>
+
+  <p className="mt-1 text-2xl font-black">
+    {resumo.enviadosHolerite}
+  </p>
+
+  <p className="mt-2 text-sm font-bold text-violet-700">
+    {formatarMoeda(resumo.valorEnviadoHolerite)}
+  </p>
+</div>
 
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
             <p className="text-sm phanyx-comissoes-texto-secundario">
@@ -1119,21 +1141,21 @@ export default function AdminRHComissoesPage() {
                               </button>
 
                               {lancamento.status === "APROVADO" && (
-  <button
-    type="button"
-    disabled={processando}
-    onClick={() =>
-      enviarComissoesAoHolerite([
-        lancamento.id,
-      ])
-    }
-    className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-black text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
-  >
-    {processando
-      ? "Enviando..."
-      : "Enviar ao holerite"}
-  </button>
-)}
+                                <button
+                                  type="button"
+                                  disabled={processando}
+                                  onClick={() =>
+                                    enviarComissoesAoHolerite([
+                                      lancamento.id,
+                                    ])
+                                  }
+                                  className="rounded-lg bg-violet-600 px-3 py-2 text-xs font-black text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                  {processando
+                                    ? "Enviando..."
+                                    : "Enviar ao holerite"}
+                                </button>
+                              )}
 
                               {pendente && (
                                 <>
@@ -1256,6 +1278,25 @@ export default function AdminRHComissoesPage() {
                                     </p>
                                   </div>
                                 )}
+
+                                {lancamento.enviadoHoleriteEm && (
+  <div>
+    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
+      Envio ao holerite
+    </p>
+
+    <p className="mt-1 text-sm">
+      {formatarDataHora(lancamento.enviadoHoleriteEm)}
+    </p>
+
+    <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
+      Por:{" "}
+      {lancamento.enviadoHoleritePor?.nome ||
+        lancamento.enviadoHoleritePor?.email ||
+        "Responsável não registrado"}
+    </p>
+  </div>
+)}
 
                                 {lancamento.reprovadoEm && (
                                   <div>

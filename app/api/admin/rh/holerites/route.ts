@@ -691,13 +691,14 @@ if (acao === "ENVIAR_COMISSOES") {
             },
 
             data: {
-              status:
-                StatusLancamentoComissaoRH.ENVIADO_HOLERITE,
+  status:
+    StatusLancamentoComissaoRH.ENVIADO_HOLERITE,
 
-              holeriteEventoId: evento.id,
+  holeriteEventoId: evento.id,
 
-              enviadoHoleriteEm: agora,
-            },
+  enviadoHoleriteEm: agora,
+  enviadoHoleritePorId: criadoPorId,
+},
           });
 
         if (
