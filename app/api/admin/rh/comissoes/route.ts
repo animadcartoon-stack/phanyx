@@ -145,82 +145,82 @@ export async function GET(
 
     const where:
       Prisma.LancamentoComissaoRHWhereInput =
-      {
-        instituicaoId,
+    {
+      instituicaoId,
 
-        ...(status
-          ? {
-              status,
-            }
-          : {}),
+      ...(status
+        ? {
+          status,
+        }
+        : {}),
 
-        ...(competenciaMes
-          ? {
-              competenciaMes,
-            }
-          : {}),
+      ...(competenciaMes
+        ? {
+          competenciaMes,
+        }
+        : {}),
 
-        ...(competenciaAno
-          ? {
-              competenciaAno,
-            }
-          : {}),
+      ...(competenciaAno
+        ? {
+          competenciaAno,
+        }
+        : {}),
 
-        ...(funcionarioId
-          ? {
-              funcionarioId,
-            }
-          : {}),
+      ...(funcionarioId
+        ? {
+          funcionarioId,
+        }
+        : {}),
 
-        ...(busca
-          ? {
-              OR: [
-                {
-                  funcionarioNomeSnapshot: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  alunoNomeSnapshot: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  cursoNomeSnapshot: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  matriculaNumeroSnapshot: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  descricao: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  planoNomeSnapshot: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-                {
-                  regraNomeSnapshot: {
-                    contains: busca,
-                    mode: "insensitive",
-                  },
-                },
-              ],
-            }
-          : {}),
-      };
+      ...(busca
+        ? {
+          OR: [
+            {
+              funcionarioNomeSnapshot: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              alunoNomeSnapshot: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              cursoNomeSnapshot: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              matriculaNumeroSnapshot: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              descricao: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              planoNomeSnapshot: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+            {
+              regraNomeSnapshot: {
+                contains: busca,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+        : {}),
+    };
 
     const [
       lancamentos,
@@ -399,13 +399,13 @@ export async function GET(
           break;
 
         case StatusLancamentoComissaoRH.ENVIADO_HOLERITE:
-  resumo.enviadosHolerite =
-    quantidade;
+          resumo.enviadosHolerite =
+            quantidade;
 
-  resumo.valorEnviadoHolerite =
-    valorAprovado ||
-    valorCalculado;
-  break;
+          resumo.valorEnviadoHolerite =
+            valorAprovado ||
+            valorCalculado;
+          break;
 
         case StatusLancamentoComissaoRH.PAGO:
           resumo.pagos =
@@ -511,9 +511,9 @@ export async function POST(
 
     if (
       acao !==
-        "APROVAR_LANCAMENTOS" &&
+      "APROVAR_LANCAMENTOS" &&
       acao !==
-        "REPROVAR_LANCAMENTOS"
+      "REPROVAR_LANCAMENTOS"
     ) {
       return NextResponse.json(
         {
@@ -654,7 +654,7 @@ export async function POST(
     const motivoReprovacao =
       String(
         body?.motivoReprovacao ||
-          ""
+        ""
       ).trim();
 
     if (

@@ -337,11 +337,10 @@ function formatarHorarios(horarios: HorarioTurma[]) {
         DIAS_SEMANA[horario.diaSemana] ||
         `Dia ${horario.diaSemana}`;
 
-      return `${dia}, ${horario.horaInicio}${
-        horario.horaFim
+      return `${dia}, ${horario.horaInicio}${horario.horaFim
           ? ` às ${horario.horaFim}`
           : ""
-      }`;
+        }`;
     })
     .join(" · ");
 }
@@ -364,17 +363,17 @@ export default function RematriculaAlunoPage() {
   const [declaracaoAceita, setDeclaracaoAceita] =
     useState(false);
 
-const [
-  processandoAcao,
-  setProcessandoAcao,
-] = useState<AcaoRematriculaAluno | null>(
-  null,
-);
+  const [
+    processandoAcao,
+    setProcessandoAcao,
+  ] = useState<AcaoRematriculaAluno | null>(
+    null,
+  );
 
-const [
-  confirmarEnvio,
-  setConfirmarEnvio,
-] = useState(false);
+  const [
+    confirmarEnvio,
+    setConfirmarEnvio,
+  ] = useState(false);
 
   const carregar = useCallback(async () => {
     try {
@@ -395,7 +394,7 @@ const [
       if (!resposta.ok) {
         throw new Error(
           json.error ||
-            "Não foi possível carregar a rematrícula.",
+          "Não foi possível carregar a rematrícula.",
         );
       }
 
@@ -535,7 +534,7 @@ const [
 
       const turmaSelecionadaId =
         selecionadas[
-          disciplinaSelecionada.disciplinaId
+        disciplinaSelecionada.disciplinaId
         ];
 
       const turmaSelecionada = encontrarTurma(
@@ -686,172 +685,172 @@ const [
   }
 
   async function salvarRematricula(
-  acao: AcaoRematriculaAluno,
-) {
-  setMensagem(null);
-
-  if (!dados?.periodo?.id) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        "O período de rematrícula não foi identificado.",
-    });
-
-    return;
-  }
-
-  if (!dados.edicaoPermitida) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        "Esta rematrícula não pode mais ser alterada.",
-    });
-
-    return;
-  }
-
-  if (
-    acao === "SALVAR_RASCUNHO" &&
-    !dados.periodo.permiteRascunho
+    acao: AcaoRematriculaAluno,
   ) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        "A instituição não permite salvar rascunho neste período.",
-    });
+    setMensagem(null);
 
-    return;
-  }
+    if (!dados?.periodo?.id) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "O período de rematrícula não foi identificado.",
+      });
 
-  if (acao === "ENVIAR") {
+      return;
+    }
+
+    if (!dados.edicaoPermitida) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Esta rematrícula não pode mais ser alterada.",
+      });
+
+      return;
+    }
+
     if (
-      disciplinasSelecionadas.length ===
-      0
+      acao === "SALVAR_RASCUNHO" &&
+      !dados.periodo.permiteRascunho
     ) {
       setMensagem({
         tipo: "erro",
         texto:
-          "Selecione pelo menos uma disciplina antes de enviar.",
+          "A instituição não permite salvar rascunho neste período.",
       });
 
       return;
     }
 
-    if (!atingiuCargaMinima) {
-      setMensagem({
-        tipo: "erro",
-        texto: `A carga horária mínima é de ${cargaMinima} horas.`,
-      });
+    if (acao === "ENVIAR") {
+      if (
+        disciplinasSelecionadas.length ===
+        0
+      ) {
+        setMensagem({
+          tipo: "erro",
+          texto:
+            "Selecione pelo menos uma disciplina antes de enviar.",
+        });
 
-      return;
+        return;
+      }
+
+      if (!atingiuCargaMinima) {
+        setMensagem({
+          tipo: "erro",
+          texto: `A carga horária mínima é de ${cargaMinima} horas.`,
+        });
+
+        return;
+      }
+
+      if (ultrapassouCargaMaxima) {
+        setMensagem({
+          tipo: "erro",
+          texto:
+            "A seleção ultrapassa a carga horária máxima permitida.",
+        });
+
+        return;
+      }
+
+      if (!declaracaoAceita) {
+        setMensagem({
+          tipo: "erro",
+          texto:
+            "Aceite a declaração antes de enviar a rematrícula.",
+        });
+
+        return;
+      }
     }
 
-    if (ultrapassouCargaMaxima) {
-      setMensagem({
-        tipo: "erro",
-        texto:
-          "A seleção ultrapassa a carga horária máxima permitida.",
-      });
+    const itens = disciplinasSelecionadas.map(
+      (disciplina) => ({
+        disciplinaId:
+          disciplina.disciplinaId,
 
-      return;
-    }
-
-    if (!declaracaoAceita) {
-      setMensagem({
-        tipo: "erro",
-        texto:
-          "Aceite a declaração antes de enviar a rematrícula.",
-      });
-
-      return;
-    }
-  }
-
-  const itens = disciplinasSelecionadas.map(
-    (disciplina) => ({
-      disciplinaId:
-        disciplina.disciplinaId,
-
-      turmaDisciplinaId:
-        selecionadas[
+        turmaDisciplinaId:
+          selecionadas[
           disciplina.disciplinaId
-        ],
-    }),
-  );
-
-  setProcessandoAcao(acao);
-
-  try {
-    const resposta = await fetch(
-      "/api/aluno/rematricula",
-      {
-        method: "POST",
-        credentials: "include",
-
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-
-        body: JSON.stringify({
-          acao,
-
-          periodoMatriculaId:
-            dados.periodo.id,
-
-          itens,
-
-          declaracaoAceita,
-
-          observacoes: null,
-        }),
-      },
+          ],
+      }),
     );
 
-    const resultado =
-      (await resposta.json()) as {
-        ok?: boolean;
-        message?: string;
-        error?: string;
+    setProcessandoAcao(acao);
 
-        rematricula?: {
-          id: number;
-          protocolo?: string | null;
-          status: string;
-        } | null;
-      };
+    try {
+      const resposta = await fetch(
+        "/api/aluno/rematricula",
+        {
+          method: "POST",
+          credentials: "include",
 
-    if (!resposta.ok) {
-      throw new Error(
-        resultado.error ||
-          "Não foi possível salvar a rematrícula.",
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            acao,
+
+            periodoMatriculaId:
+              dados.periodo.id,
+
+            itens,
+
+            declaracaoAceita,
+
+            observacoes: null,
+          }),
+        },
       );
+
+      const resultado =
+        (await resposta.json()) as {
+          ok?: boolean;
+          message?: string;
+          error?: string;
+
+          rematricula?: {
+            id: number;
+            protocolo?: string | null;
+            status: string;
+          } | null;
+        };
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.error ||
+          "Não foi possível salvar a rematrícula.",
+        );
+      }
+
+      setConfirmarEnvio(false);
+
+      await carregar();
+
+      setMensagem({
+        tipo: "sucesso",
+        texto:
+          resultado.message ||
+          (acao === "ENVIAR"
+            ? "Rematrícula enviada com sucesso."
+            : "Rascunho salvo com sucesso."),
+      });
+    } catch (error) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          error instanceof Error
+            ? error.message
+            : "Não foi possível salvar a rematrícula.",
+      });
+    } finally {
+      setProcessandoAcao(null);
     }
-
-    setConfirmarEnvio(false);
-
-    await carregar();
-
-    setMensagem({
-      tipo: "sucesso",
-      texto:
-        resultado.message ||
-        (acao === "ENVIAR"
-          ? "Rematrícula enviada com sucesso."
-          : "Rascunho salvo com sucesso."),
-    });
-  } catch (error) {
-    setMensagem({
-      tipo: "erro",
-      texto:
-        error instanceof Error
-          ? error.message
-          : "Não foi possível salvar a rematrícula.",
-    });
-  } finally {
-    setProcessandoAcao(null);
   }
-}
 
   if (carregando) {
     return (
@@ -980,13 +979,12 @@ const [
 
         {mensagem && (
           <div
-            className={`rounded-2xl border p-4 text-sm font-semibold ${
-              mensagem.tipo === "erro"
+            className={`rounded-2xl border p-4 text-sm font-semibold ${mensagem.tipo === "erro"
                 ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
                 : mensagem.tipo === "sucesso"
                   ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
                   : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
-            }`}
+              }`}
           >
             {mensagem.texto}
           </div>
@@ -1129,13 +1127,13 @@ const [
                   <span>
                     {cargaMinima > 0
                       ? Math.min(
-                          Math.round(
-                            (cargaSelecionadaMinima /
-                              cargaMinima) *
-                              100,
-                          ),
+                        Math.round(
+                          (cargaSelecionadaMinima /
+                            cargaMinima) *
                           100,
-                        )
+                        ),
+                        100,
+                      )
                       : 100}
                     %
                   </span>
@@ -1143,22 +1141,20 @@ const [
 
                 <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                   <div
-                    className={`h-full rounded-full transition-all ${
-                      atingiuCargaMinima
+                    className={`h-full rounded-full transition-all ${atingiuCargaMinima
                         ? "bg-emerald-500"
                         : "bg-blue-600"
-                    }`}
+                      }`}
                     style={{
-                      width: `${
-                        cargaMinima > 0
+                      width: `${cargaMinima > 0
                           ? Math.min(
-                              (cargaSelecionadaMinima /
-                                cargaMinima) *
-                                100,
-                              100,
-                            )
+                            (cargaSelecionadaMinima /
+                              cargaMinima) *
+                            100,
+                            100,
+                          )
                           : 100
-                      }%`,
+                        }%`,
                     }}
                   />
                 </div>
@@ -1169,7 +1165,7 @@ const [
                   Selecione mais{" "}
                   {Math.max(
                     cargaMinima -
-                      cargaSelecionadaMinima,
+                    cargaSelecionadaMinima,
                     0,
                   )}
                   h para atingir a carga mínima.
@@ -1200,70 +1196,70 @@ const [
                 </span>
               </label>
 
-           <div className="mt-5 grid gap-3">
-  {dados.periodo.permiteRascunho && (
-    <button
-      type="button"
-      onClick={() =>
-        salvarRematricula(
-          "SALVAR_RASCUNHO",
-        )
-      }
-      disabled={
-        processandoAcao !== null ||
-        !dados.edicaoPermitida
-      }
-      className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-    >
-      {processandoAcao ===
-      "SALVAR_RASCUNHO"
-        ? "Salvando rascunho..."
-        : dados.rematricula?.status ===
-            "RASCUNHO"
-          ? "Atualizar rascunho"
-          : "Salvar rascunho"}
-    </button>
-  )}
+              <div className="mt-5 grid gap-3">
+                {dados.periodo.permiteRascunho && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      salvarRematricula(
+                        "SALVAR_RASCUNHO",
+                      )
+                    }
+                    disabled={
+                      processandoAcao !== null ||
+                      !dados.edicaoPermitida
+                    }
+                    className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  >
+                    {processandoAcao ===
+                      "SALVAR_RASCUNHO"
+                      ? "Salvando rascunho..."
+                      : dados.rematricula?.status ===
+                        "RASCUNHO"
+                        ? "Atualizar rascunho"
+                        : "Salvar rascunho"}
+                  </button>
+                )}
 
-  <button
-    type="button"
-    onClick={() =>
-      setConfirmarEnvio(true)
-    }
-    disabled={
-      processandoAcao !== null ||
-      !dados.envioPermitido ||
-      disciplinasSelecionadas.length ===
-        0 ||
-      !atingiuCargaMinima ||
-      ultrapassouCargaMaxima ||
-      !declaracaoAceita
-    }
-    title={
-      disciplinasSelecionadas.length ===
-      0
-        ? "Selecione pelo menos uma disciplina."
-        : !atingiuCargaMinima
-          ? "A carga mínima ainda não foi atingida."
-          : ultrapassouCargaMaxima
-            ? "A carga máxima foi ultrapassada."
-            : !declaracaoAceita
-              ? "Aceite a declaração para enviar."
-              : "Enviar rematrícula."
-    }
-    className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-  >
-    {processandoAcao === "ENVIAR"
-      ? "Enviando..."
-      : dados.periodo.exigeAprovacao
-        ? "Enviar para análise"
-        : "Confirmar rematrícula"}
-  </button>
-</div>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setConfirmarEnvio(true)
+                  }
+                  disabled={
+                    processandoAcao !== null ||
+                    !dados.envioPermitido ||
+                    disciplinasSelecionadas.length ===
+                    0 ||
+                    !atingiuCargaMinima ||
+                    ultrapassouCargaMaxima ||
+                    !declaracaoAceita
+                  }
+                  title={
+                    disciplinasSelecionadas.length ===
+                      0
+                      ? "Selecione pelo menos uma disciplina."
+                      : !atingiuCargaMinima
+                        ? "A carga mínima ainda não foi atingida."
+                        : ultrapassouCargaMaxima
+                          ? "A carga máxima foi ultrapassada."
+                          : !declaracaoAceita
+                            ? "Aceite a declaração para enviar."
+                            : "Enviar rematrícula."
+                  }
+                  className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {processandoAcao === "ENVIAR"
+                    ? "Enviando..."
+                    : dados.periodo.exigeAprovacao
+                      ? "Enviar para análise"
+                      : "Confirmar rematrícula"}
+                </button>
+              </div>
 
-<p className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400">
-  Após o envio, a seleção não poderá ser alterada até que a instituição a devolva para correção.
-</p>
+              <p className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400">
+                Após o envio, a seleção não poderá ser alterada até que a instituição a devolva para correção.
+              </p>
             </section>
 
             <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -1276,7 +1272,7 @@ const [
               </p>
 
               {dados.gradeCurricular?.pdfDisponivel &&
-              dados.gradeCurricular.pdfUrl ? (
+                dados.gradeCurricular.pdfUrl ? (
                 <a
                   href={
                     dados.gradeCurricular.pdfUrl
@@ -1299,7 +1295,7 @@ const [
             </section>
           </aside>
         </section>
-            </div>
+      </div>
 
       <PhanyxConfirmModal
         aberto={confirmarEnvio}
@@ -1419,22 +1415,21 @@ function GrupoDisciplinas({
           {disciplinas.map((disciplina) => {
             const selecionada =
               selecionadas[
-                disciplina.disciplinaId
+              disciplina.disciplinaId
               ] !== undefined;
 
             const turmaSelecionada =
               selecionadas[
-                disciplina.disciplinaId
+              disciplina.disciplinaId
               ];
 
             return (
               <article
                 key={disciplina.disciplinaId}
-                className={`p-5 transition ${
-                  selecionada
+                className={`p-5 transition ${selecionada
                     ? "bg-blue-50/70 dark:bg-blue-950/20"
                     : ""
-                }`}
+                  }`}
               >
                 <div className="flex items-start gap-4">
                   <input
@@ -1453,8 +1448,8 @@ function GrupoDisciplinas({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3 className="phanyx-rematricula-disciplina-titulo font-black">
-  {disciplina.nome}
-</h3>
+                        {disciplina.nome}
+                      </h3>
 
                       <span
                         className={`rounded-full border px-2 py-1 text-[10px] font-black ${classeTipoDisciplina(
@@ -1468,8 +1463,8 @@ function GrupoDisciplinas({
 
                       {disciplina.obrigatoria && (
                         <span className="inline-flex items-center rounded-full border border-slate-800 bg-slate-800 px-3 py-1 text-xs font-semibold text-white dark:border-slate-700 dark:bg-slate-800">
-  Obrigatória
-</span>
+                          Obrigatória
+                        </span>
                       )}
                     </div>
 
@@ -1485,37 +1480,36 @@ function GrupoDisciplinas({
 
                     {disciplina.descricao && (
                       <p className="phanyx-rematricula-disciplina-descricao mt-2 text-sm leading-6">
-  {disciplina.descricao}
-</p>
+                        {disciplina.descricao}
+                      </p>
                     )}
 
                     {disciplina.preRequisitos.length >
                       0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {disciplina.preRequisitos.map(
-                          (requisito) => (
-                            <span
-                              key={
-                                requisito.disciplinaId
-                              }
-                              className={`rounded-full border px-2 py-1 text-[10px] font-bold ${
-                                requisito.cumprido
-  ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
-  : "phanyx-rematricula-prerequisito-pendente"
-                              }`}
-                            >
-                              {requisito.cumprido
-                                ? "✓"
-                                : "✕"}{" "}
-                              {requisito.nome}
-                            </span>
-                          ),
-                        )}
-                      </div>
-                    )}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {disciplina.preRequisitos.map(
+                            (requisito) => (
+                              <span
+                                key={
+                                  requisito.disciplinaId
+                                }
+                                className={`rounded-full border px-2 py-1 text-[10px] font-bold ${requisito.cumprido
+                                    ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
+                                    : "phanyx-rematricula-prerequisito-pendente"
+                                  }`}
+                              >
+                                {requisito.cumprido
+                                  ? "✓"
+                                  : "✕"}{" "}
+                                {requisito.nome}
+                              </span>
+                            ),
+                          )}
+                        </div>
+                      )}
 
                     {disciplina.bloqueada && (
-  <div className="phanyx-rematricula-alerta-bloqueio mt-3 rounded-xl border p-3 text-xs font-semibold">
+                      <div className="phanyx-rematricula-alerta-bloqueio mt-3 rounded-xl border p-3 text-xs font-semibold">
                         {disciplina.motivosBloqueio.map(
                           (motivo) => (
                             <p key={motivo}>
@@ -1599,8 +1593,8 @@ function GrupoDisciplinas({
                                 titulo="Vagas"
                                 valor={
                                   turma.vagasDisponiveis ===
-                                  null ||
-                                  turma.vagasDisponiveis ===
+                                    null ||
+                                    turma.vagasDisponiveis ===
                                     undefined
                                     ? "Sem limite informado"
                                     : `${turma.vagasDisponiveis} disponível(is)`
