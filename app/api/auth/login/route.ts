@@ -88,9 +88,9 @@ export async function POST(req: Request) {
 
     const portalNormalizado: Portal =
       portal === "admin" ||
-      portal === "professor" ||
-      portal === "aluno" ||
-      portal === "rh"
+        portal === "professor" ||
+        portal === "aluno" ||
+        portal === "rh"
         ? portal
         : "admin";
 
@@ -157,10 +157,37 @@ export async function POST(req: Request) {
             id: user.instituicaoId,
           },
           select: {
+            id: true,
+            nome: true,
+            ativo: true,
             statusAssinatura: true,
             isentaPagamento: true,
           },
         });
+
+      if (!instituicaoAssinatura) {
+        return NextResponse.json(
+          {
+            error:
+              "A instituição vinculada a este usuário não foi encontrada.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
+
+      if (instituicaoAssinatura.ativo === false) {
+        return NextResponse.json(
+          {
+            error:
+              "O acesso desta unidade está inativo. Procure a administração da instituição contratante.",
+          },
+          {
+            status: 403,
+          }
+        );
+      }
 
       const assinatura =
         await prisma.assinaturaPhanyx.findUnique({
@@ -331,7 +358,7 @@ export async function POST(req: Request) {
       if (
         funcionario.pontoMobileValidoAte &&
         funcionario.pontoMobileValidoAte.getTime() <
-          Date.now()
+        Date.now()
       ) {
         return NextResponse.json(
           {
@@ -424,18 +451,18 @@ export async function POST(req: Request) {
     });
 
     response.cookies.set(
-  "phanyx_master_token",
-  "",
-  {
-    httpOnly: true,
-    secure:
-      process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    expires: new Date(0),
-    maxAge: 0,
-  }
-);
+      "phanyx_master_token",
+      "",
+      {
+        httpOnly: true,
+        secure:
+          process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        expires: new Date(0),
+        maxAge: 0,
+      }
+    );
 
     return response;
   } catch (error) {

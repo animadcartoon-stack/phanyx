@@ -204,10 +204,10 @@ export async function POST(req: NextRequest) {
       },
       ...(codigo
         ? [
-            {
-              codigo,
-            },
-          ]
+          {
+            codigo,
+          },
+        ]
         : []),
     ];
 
@@ -238,75 +238,75 @@ export async function POST(req: NextRequest) {
     }
 
     const instituicao =
-  await prisma.instituicao.findUnique({
-    where: {
-      id: user.instituicaoId,
-    },
-    select: {
-      id: true,
-      isentaPagamento: true,
-    },
-  });
+      await prisma.instituicao.findUnique({
+        where: {
+          id: user.instituicaoId,
+        },
+        select: {
+          id: true,
+          isentaPagamento: true,
+        },
+      });
 
-if (!instituicao) {
-  return NextResponse.json(
-    { error: "Instituição não encontrada" },
-    { status: 404 }
-  );
-}
-
-const assinatura =
-  await prisma.assinaturaPhanyx.findUnique({
-    where: {
-      instituicaoId: user.instituicaoId,
-    },
-    select: {
-      polosInclusosContrato: true,
-    },
-  });
-
-const unidadesProvisionadasAtivas =
-  await prisma.polo.count({
-    where: {
-      instituicaoId: user.instituicaoId,
-      ativo: true,
-      statusComercial:
-        StatusComercialPolo.ATIVO,
-      instituicaoGeradaId: {
-        not: null,
-      },
-    },
-  });
-
-const unidadesAtivasCobraveis =
-  1 + unidadesProvisionadasAtivas;
-
-const limitePolosInclusos =
-  instituicao.isentaPagamento
-    ? null
-    : Math.max(
-        1,
-        Number(
-          assinatura?.polosInclusosContrato ?? 1
-        )
+    if (!instituicao) {
+      return NextResponse.json(
+        { error: "Instituição não encontrada" },
+        { status: 404 }
       );
+    }
 
-const seraUnidadeExcedente =
-  limitePolosInclusos !== null &&
-  unidadesAtivasCobraveis >=
-    limitePolosInclusos;
+    const assinatura =
+      await prisma.assinaturaPhanyx.findUnique({
+        where: {
+          instituicaoId: user.instituicaoId,
+        },
+        select: {
+          polosInclusosContrato: true,
+        },
+      });
 
-const quantidadePolosAtivos =
-  await prisma.polo.count({
-    where: {
-      instituicaoId: user.instituicaoId,
-      ativo: true,
-      statusComercial:
-        StatusComercialPolo.ATIVO,
-    },
-  });
+    const unidadesProvisionadasAtivas =
+      await prisma.polo.count({
+        where: {
+          instituicaoId: user.instituicaoId,
+          ativo: true,
+          statusComercial:
+            StatusComercialPolo.ATIVO,
+          instituicaoGeradaId: {
+            not: null,
+          },
+        },
+      });
 
-const agora = new Date();
+    const unidadesAtivasCobraveis =
+      1 + unidadesProvisionadasAtivas;
+
+    const limitePolosInclusos =
+      instituicao.isentaPagamento
+        ? null
+        : Math.max(
+          1,
+          Number(
+            assinatura?.polosInclusosContrato ?? 1
+          )
+        );
+
+    const seraUnidadeExcedente =
+      limitePolosInclusos !== null &&
+      unidadesAtivasCobraveis >=
+      limitePolosInclusos;
+
+    const quantidadePolosAtivos =
+      await prisma.polo.count({
+        where: {
+          instituicaoId: user.instituicaoId,
+          ativo: true,
+          statusComercial:
+            StatusComercialPolo.ATIVO,
+        },
+      });
+
+    const agora = new Date();
 
     const polo = await prisma.polo.create({
       data: {
@@ -327,29 +327,29 @@ const agora = new Date();
         responsavelTelefone,
         responsavelCargo,
         ativo: true,
-statusComercial:
-  StatusComercialPolo.ATIVO,
-criadoPorId: usuarioId,
-ativadoEm: agora,
-ativadoPorId: usuarioId,
+        statusComercial:
+          StatusComercialPolo.ATIVO,
+        criadoPorId: usuarioId,
+        ativadoEm: agora,
+        ativadoPorId: usuarioId,
         instituicaoId: user.instituicaoId,
       },
     });
 
     return NextResponse.json(
-  {
-    polo,
-    ativadoAutomaticamente: true,
-    limitePolosInclusos,
-    quantidadePolosAtivos:
-      quantidadePolosAtivos + 1,
-    seraUnidadeExcedente,
-    aviso: seraUnidadeExcedente
-      ? "O polo foi cadastrado como ativo. Ao criar o acesso institucional, esta unidade ficará acima do limite contratado e poderá gerar cobrança adicional."
-      : null,
-  },
-  { status: 201 }
-);
+      {
+        polo,
+        ativadoAutomaticamente: true,
+        limitePolosInclusos,
+        quantidadePolosAtivos:
+          quantidadePolosAtivos + 1,
+        seraUnidadeExcedente,
+        aviso: seraUnidadeExcedente
+          ? "O polo foi cadastrado como ativo. Ao criar o acesso institucional, esta unidade ficará acima do limite contratado e poderá gerar cobrança adicional."
+          : null,
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Erro ao criar polo:", error);
 
@@ -485,8 +485,8 @@ export async function PUT(req: NextRequest) {
     const responsavelEmail =
       "responsavelEmail" in body
         ? textoOpcional(
-            body.responsavelEmail
-          )?.toLowerCase() ?? null
+          body.responsavelEmail
+        )?.toLowerCase() ?? null
         : poloAtual.responsavelEmail;
 
     const responsavelTelefone =
@@ -552,10 +552,10 @@ export async function PUT(req: NextRequest) {
       },
       ...(codigo
         ? [
-            {
-              codigo,
-            },
-          ]
+          {
+            codigo,
+          },
+        ]
         : []),
     ];
 
