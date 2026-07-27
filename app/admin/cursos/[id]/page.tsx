@@ -32,31 +32,31 @@ type ModalidadeCertificado =
   | "EJA"
   | "OUTRO";
 
-  const OPCOES_MODALIDADE_CERTIFICADO: {
+const OPCOES_MODALIDADE_CERTIFICADO: {
   valor: ModalidadeCertificado;
   rotulo: string;
 }[] = [
-  { valor: "GERAL", rotulo: "Geral" },
-  { valor: "BACHARELADO", rotulo: "Bacharelado" },
-  { valor: "LICENCIATURA", rotulo: "Licenciatura" },
-  { valor: "TECNOLOGO", rotulo: "Tecnólogo" },
-  { valor: "POS_GRADUACAO", rotulo: "Pós-graduação" },
-  { valor: "MBA", rotulo: "MBA" },
-  { valor: "MESTRADO", rotulo: "Mestrado" },
-  { valor: "DOUTORADO", rotulo: "Doutorado" },
-  { valor: "TECNICO", rotulo: "Curso Técnico" },
-  { valor: "CURSO_LIVRE", rotulo: "Curso Livre" },
-  { valor: "OFICINA", rotulo: "Oficina" },
-  { valor: "ENSINO_MEDIO", rotulo: "Ensino Médio" },
-  { valor: "ENSINO_FUNDAMENTAL", rotulo: "Ensino Fundamental" },
-  { valor: "EDUCACAO_INFANTIL", rotulo: "Educação Infantil" },
-  { valor: "PRE_ESCOLA", rotulo: "Pré-escola" },
-  { valor: "EXTENSAO", rotulo: "Extensão" },
-  { valor: "CAPACITACAO", rotulo: "Capacitação" },
-  { valor: "TREINAMENTO", rotulo: "Treinamento" },
-  { valor: "EJA", rotulo: "EJA" },
-  { valor: "OUTRO", rotulo: "Outro" },
-];
+    { valor: "GERAL", rotulo: "Geral" },
+    { valor: "BACHARELADO", rotulo: "Bacharelado" },
+    { valor: "LICENCIATURA", rotulo: "Licenciatura" },
+    { valor: "TECNOLOGO", rotulo: "Tecnólogo" },
+    { valor: "POS_GRADUACAO", rotulo: "Pós-graduação" },
+    { valor: "MBA", rotulo: "MBA" },
+    { valor: "MESTRADO", rotulo: "Mestrado" },
+    { valor: "DOUTORADO", rotulo: "Doutorado" },
+    { valor: "TECNICO", rotulo: "Curso Técnico" },
+    { valor: "CURSO_LIVRE", rotulo: "Curso Livre" },
+    { valor: "OFICINA", rotulo: "Oficina" },
+    { valor: "ENSINO_MEDIO", rotulo: "Ensino Médio" },
+    { valor: "ENSINO_FUNDAMENTAL", rotulo: "Ensino Fundamental" },
+    { valor: "EDUCACAO_INFANTIL", rotulo: "Educação Infantil" },
+    { valor: "PRE_ESCOLA", rotulo: "Pré-escola" },
+    { valor: "EXTENSAO", rotulo: "Extensão" },
+    { valor: "CAPACITACAO", rotulo: "Capacitação" },
+    { valor: "TREINAMENTO", rotulo: "Treinamento" },
+    { valor: "EJA", rotulo: "EJA" },
+    { valor: "OUTRO", rotulo: "Outro" },
+  ];
 
 function obterRotuloModalidade(
   valor?: ModalidadeCertificado | null
@@ -115,7 +115,7 @@ export default function CursoDetalhePage() {
 
   const [feedback, setFeedback] = useState("");
   const [feedbackTipo, setFeedbackTipo] = useState<FeedbackTipo>("");
-  
+
   const [formCurso, setFormCurso] = useState({
     nome: "",
     codigo: "",
@@ -175,7 +175,7 @@ export default function CursoDetalhePage() {
         codigo: encontrado.codigo ?? "",
         descricao: encontrado.descricao ?? "",
         modalidadeCertificado:
-        encontrado.modalidadeCertificado || "GERAL",
+          encontrado.modalidadeCertificado || "GERAL",
         quantidadeSemestres:
           encontrado.quantidadeSemestres != null
             ? String(encontrado.quantidadeSemestres)
@@ -212,33 +212,33 @@ export default function CursoDetalhePage() {
   }
 
   async function carregarSemestres() {
-  const res = await fetch(`/api/admin/curso-semestres?cursoId=${cursoId}`, {
-    credentials: "include",
-    cache: "no-store",
-  });
+    const res = await fetch(`/api/admin/curso-semestres?cursoId=${cursoId}`, {
+      credentials: "include",
+      cache: "no-store",
+    });
 
-  const data = await res.json();
+    const data = await res.json();
 
-  if (!res.ok) {
-    console.error("Erro ao carregar semestres do curso:", data);
-    throw new Error(data?.detalhe || data?.error || "Erro ao carregar semestres do curso");
+    if (!res.ok) {
+      console.error("Erro ao carregar semestres do curso:", data);
+      throw new Error(data?.detalhe || data?.error || "Erro ao carregar semestres do curso");
+    }
+
+    const lista: CursoSemestre[] = Array.isArray(data) ? data : [];
+
+    console.log("📘 Semestres carregados na página do curso:", lista);
+
+    setSemestres(lista);
+
+    const mapa: Record<number, number[]> = {};
+    lista.forEach((semestre) => {
+      mapa[semestre.id] = Array.isArray(semestre.disciplinas)
+        ? semestre.disciplinas.map((d) => d.disciplinaId)
+        : [];
+    });
+
+    setSelecionadas(mapa);
   }
-
-  const lista: CursoSemestre[] = Array.isArray(data) ? data : [];
-
-  console.log("📘 Semestres carregados na página do curso:", lista);
-
-  setSemestres(lista);
-
-  const mapa: Record<number, number[]> = {};
-  lista.forEach((semestre) => {
-    mapa[semestre.id] = Array.isArray(semestre.disciplinas)
-      ? semestre.disciplinas.map((d) => d.disciplinaId)
-      : [];
-  });
-
-  setSelecionadas(mapa);
-}
 
   async function carregarTudo() {
     try {
@@ -334,36 +334,36 @@ export default function CursoDetalhePage() {
 
       const data = await res.json();
 
-if (!res.ok) {
-  console.error("Erro ao criar semestre:", data);
-  throw new Error(data?.detalhe || data?.error || "Erro ao criar semestre");
-}
+      if (!res.ok) {
+        console.error("Erro ao criar semestre:", data);
+        throw new Error(data?.detalhe || data?.error || "Erro ao criar semestre");
+      }
 
-setNovoSemestre({
-  numero: "",
-  titulo: "",
-  descricao: "",
-});
+      setNovoSemestre({
+        numero: "",
+        titulo: "",
+        descricao: "",
+      });
 
-const semestreCriado: CursoSemestre = {
-  ...data,
-  disciplinas: Array.isArray(data?.disciplinas) ? data.disciplinas : [],
-};
+      const semestreCriado: CursoSemestre = {
+        ...data,
+        disciplinas: Array.isArray(data?.disciplinas) ? data.disciplinas : [],
+      };
 
-setSemestres((prev) => {
-  const semDuplicado = prev.filter((s) => s.id !== semestreCriado.id);
-  return [...semDuplicado, semestreCriado].sort((a, b) => a.numero - b.numero);
-});
+      setSemestres((prev) => {
+        const semDuplicado = prev.filter((s) => s.id !== semestreCriado.id);
+        return [...semDuplicado, semestreCriado].sort((a, b) => a.numero - b.numero);
+      });
 
-setSelecionadas((prev) => ({
-  ...prev,
-  [semestreCriado.id]: Array.isArray(semestreCriado.disciplinas)
-    ? semestreCriado.disciplinas.map((d) => d.disciplinaId)
-    : [],
-}));
+      setSelecionadas((prev) => ({
+        ...prev,
+        [semestreCriado.id]: Array.isArray(semestreCriado.disciplinas)
+          ? semestreCriado.disciplinas.map((d) => d.disciplinaId)
+          : [],
+      }));
 
-await carregarSemestres();
-mostrarFeedback("sucesso", "Semestre criado com sucesso!");
+      await carregarSemestres();
+      mostrarFeedback("sucesso", "Semestre criado com sucesso!");
     } catch (error: any) {
       console.error("Erro ao criar semestre:", error);
       mostrarFeedback("erro", error?.message || "Erro ao criar semestre");
@@ -422,73 +422,73 @@ mostrarFeedback("sucesso", "Semestre criado com sucesso!");
     }
   }
 
-async function salvarCargaSemestre(semestre: CursoSemestre) {
-  try {
-    const cargaMinimaVazia =
-  semestre.cargaMinima === "" ||
-  semestre.cargaMinima === null ||
-  semestre.cargaMinima === undefined;
+  async function salvarCargaSemestre(semestre: CursoSemestre) {
+    try {
+      const cargaMinimaVazia =
+        semestre.cargaMinima === "" ||
+        semestre.cargaMinima === null ||
+        semestre.cargaMinima === undefined;
 
-const cargaMaximaVazia =
-  semestre.cargaMaxima === "" ||
-  semestre.cargaMaxima === null ||
-  semestre.cargaMaxima === undefined;
+      const cargaMaximaVazia =
+        semestre.cargaMaxima === "" ||
+        semestre.cargaMaxima === null ||
+        semestre.cargaMaxima === undefined;
 
-if (cargaMinimaVazia || cargaMaximaVazia) {
-  mostrarFeedback("erro", "Preencha a carga mínima e a carga máxima antes de salvar.");
-  return;
-}
+      if (cargaMinimaVazia || cargaMaximaVazia) {
+        mostrarFeedback("erro", "Preencha a carga mínima e a carga máxima antes de salvar.");
+        return;
+      }
 
-const cargaMinimaNumero = Number(semestre.cargaMinima);
-const cargaMaximaNumero = Number(semestre.cargaMaxima);
+      const cargaMinimaNumero = Number(semestre.cargaMinima);
+      const cargaMaximaNumero = Number(semestre.cargaMaxima);
 
-if (
-  !Number.isFinite(cargaMinimaNumero) ||
-  !Number.isFinite(cargaMaximaNumero) ||
-  cargaMinimaNumero <= 0 ||
-  cargaMaximaNumero <= 0
-) {
-  mostrarFeedback("erro", "A carga mínima e a carga máxima precisam ser maiores que zero.");
-  return;
-}
+      if (
+        !Number.isFinite(cargaMinimaNumero) ||
+        !Number.isFinite(cargaMaximaNumero) ||
+        cargaMinimaNumero <= 0 ||
+        cargaMaximaNumero <= 0
+      ) {
+        mostrarFeedback("erro", "A carga mínima e a carga máxima precisam ser maiores que zero.");
+        return;
+      }
 
-if (cargaMinimaNumero > cargaMaximaNumero) {
-  mostrarFeedback("erro", "A carga mínima não pode ser maior que a carga máxima.");
-  return;
-}
-    setSalvandoSemestreId(semestre.id);
-    setFeedback("");
-    setFeedbackTipo("");
+      if (cargaMinimaNumero > cargaMaximaNumero) {
+        mostrarFeedback("erro", "A carga mínima não pode ser maior que a carga máxima.");
+        return;
+      }
+      setSalvandoSemestreId(semestre.id);
+      setFeedback("");
+      setFeedbackTipo("");
 
-    const res = await fetch("/api/admin/curso-semestres", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        id: semestre.id,
-        cargaMinima: cargaMinimaNumero,
-cargaMaxima: cargaMaximaNumero,
-      }),
-    });
+      const res = await fetch("/api/admin/curso-semestres", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          id: semestre.id,
+          cargaMinima: cargaMinimaNumero,
+          cargaMaxima: cargaMaximaNumero,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao salvar carga horária");
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao salvar carga horária");
+      }
+
+      await carregarSemestres();
+
+      mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
+    } catch (error: any) {
+      console.error("Erro ao salvar carga horária:", error);
+      mostrarFeedback("erro", error?.message || "Erro ao salvar carga horária");
+    } finally {
+      setSalvandoSemestreId(null);
     }
-
-    await carregarSemestres();
-
-    mostrarFeedback("sucesso", "Carga horária salva com sucesso!");
-  } catch (error: any) {
-    console.error("Erro ao salvar carga horária:", error);
-    mostrarFeedback("erro", error?.message || "Erro ao salvar carga horária");
-  } finally {
-    setSalvandoSemestreId(null);
   }
-}
 
   const semestresOrdenados = useMemo(() => {
     return [...semestres].sort((a, b) => a.numero - b.numero);
@@ -506,11 +506,10 @@ cargaMaxima: cargaMaximaNumero,
     <div className="space-y-8">
       {feedback && (
         <div
-          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-            feedbackTipo === "sucesso"
+          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
               ? "border-green-200 bg-green-50 text-green-700"
               : "border-red-200 bg-red-50 text-red-700"
-          }`}
+            }`}
         >
           {feedback}
         </div>
@@ -550,133 +549,133 @@ cargaMaxima: cargaMaximaNumero,
                 />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-  <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      Código do curso
-    </label>
-    <input
-      type="text"
-      value={formCurso.codigo}
-      onChange={(e) =>
-        setFormCurso({ ...formCurso, codigo: e.target.value })
-      }
-      className="w-full border rounded-lg px-4 py-2"
-      placeholder="Ex: TEO-001"
-    />
-  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Código do curso
+                    </label>
+                    <input
+                      type="text"
+                      value={formCurso.codigo}
+                      onChange={(e) =>
+                        setFormCurso({ ...formCurso, codigo: e.target.value })
+                      }
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Ex: TEO-001"
+                    />
+                  </div>
 
-<div>
-  <label className="mb-1 block text-sm font-medium text-gray-700">
-    Tipo / modalidade do curso
-  </label>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Tipo / modalidade do curso
+                    </label>
 
-  <select
-    value={formCurso.modalidadeCertificado}
-    onChange={(e) =>
-      setFormCurso({
-        ...formCurso,
-        modalidadeCertificado:
-          e.target.value as ModalidadeCertificado,
-      })
-    }
-    className="phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2"
-  >
-    {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
-      <option key={opcao.valor} value={opcao.valor}>
-        {opcao.rotulo}
-      </option>
-    ))}
-  </select>
-</div>
+                    <select
+                      value={formCurso.modalidadeCertificado}
+                      onChange={(e) =>
+                        setFormCurso({
+                          ...formCurso,
+                          modalidadeCertificado:
+                            e.target.value as ModalidadeCertificado,
+                        })
+                      }
+                      className="phanyx-curso-modalidade-select w-full rounded-lg border px-4 py-2"
+                    >
+                      {OPCOES_MODALIDADE_CERTIFICADO.map((opcao) => (
+                        <option key={opcao.valor} value={opcao.valor}>
+                          {opcao.rotulo}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-  <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      Quantidade de semestres do curso
-    </label>
-    <input
-      type="number"
-      value={formCurso.quantidadeSemestres}
-      onChange={(e) =>
-        setFormCurso({
-          ...formCurso,
-          quantidadeSemestres: e.target.value,
-        })
-      }
-      className="w-full border rounded-lg px-4 py-2"
-      placeholder="Ex: 6"
-    />
-  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Quantidade de semestres do curso
+                    </label>
+                    <input
+                      type="number"
+                      value={formCurso.quantidadeSemestres}
+                      onChange={(e) =>
+                        setFormCurso({
+                          ...formCurso,
+                          quantidadeSemestres: e.target.value,
+                        })
+                      }
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Ex: 6"
+                    />
+                  </div>
 
-  <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      Valor da matrícula
-    </label>
-    <input
-      type="number"
-      step="0.01"
-      value={formCurso.valorMatricula}
-      onChange={(e) =>
-        setFormCurso({
-          ...formCurso,
-          valorMatricula: e.target.value,
-        })
-      }
-      className="w-full border rounded-lg px-4 py-2"
-      placeholder="Ex: 20"
-    />
-  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Valor da matrícula
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formCurso.valorMatricula}
+                      onChange={(e) =>
+                        setFormCurso({
+                          ...formCurso,
+                          valorMatricula: e.target.value,
+                        })
+                      }
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Ex: 20"
+                    />
+                  </div>
 
-  <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      Valor da mensalidade
-    </label>
-    <input
-      type="number"
-      step="0.01"
-      value={formCurso.valorMensalidade}
-      onChange={(e) =>
-        setFormCurso({
-          ...formCurso,
-          valorMensalidade: e.target.value,
-        })
-      }
-      className="w-full border rounded-lg px-4 py-2"
-      placeholder="Ex: 99.50"
-    />
-  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Valor da mensalidade
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formCurso.valorMensalidade}
+                      onChange={(e) =>
+                        setFormCurso({
+                          ...formCurso,
+                          valorMensalidade: e.target.value,
+                        })
+                      }
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Ex: 99.50"
+                    />
+                  </div>
 
-  <div>
-    <label className="mb-1 block text-sm font-medium text-gray-700">
-      Quantidade de parcelas
-    </label>
-    <input
-      type="number"
-      value={formCurso.quantidadeParcelas}
-      onChange={(e) =>
-        setFormCurso({
-          ...formCurso,
-          quantidadeParcelas: e.target.value,
-        })
-      }
-      className="w-full border rounded-lg px-4 py-2"
-      placeholder="Ex: 6"
-    />
-  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Quantidade de parcelas
+                    </label>
+                    <input
+                      type="number"
+                      value={formCurso.quantidadeParcelas}
+                      onChange={(e) =>
+                        setFormCurso({
+                          ...formCurso,
+                          quantidadeParcelas: e.target.value,
+                        })
+                      }
+                      className="w-full border rounded-lg px-4 py-2"
+                      placeholder="Ex: 6"
+                    />
+                  </div>
 
-  <label className="flex items-center gap-2 border rounded-lg px-4 py-2 mt-6">
-    <input
-      type="checkbox"
-      checked={formCurso.ativo}
-      onChange={(e) =>
-        setFormCurso({
-          ...formCurso,
-          ativo: e.target.checked,
-        })
-      }
-    />
-    Curso ativo
-  </label>
-</div>
+                  <label className="flex items-center gap-2 border rounded-lg px-4 py-2 mt-6">
+                    <input
+                      type="checkbox"
+                      checked={formCurso.ativo}
+                      onChange={(e) =>
+                        setFormCurso({
+                          ...formCurso,
+                          ativo: e.target.checked,
+                        })
+                      }
+                    />
+                    Curso ativo
+                  </label>
+                </div>
 
                 <textarea
                   value={formCurso.descricao}
@@ -722,12 +721,12 @@ cargaMaxima: cargaMaximaNumero,
                 <div className="mt-3 space-y-1 text-sm text-gray-700">
                   <p>Código: {curso.codigo || "Não informado"}</p>
 
-<p>
-  Tipo/modalidade:{" "}
-  {obterRotuloModalidade(curso.modalidadeCertificado)}
-</p>
+                  <p>
+                    Tipo/modalidade:{" "}
+                    {obterRotuloModalidade(curso.modalidadeCertificado)}
+                  </p>
 
-<p>Descrição: {curso.descricao || "Não informada"}</p>
+                  <p>Descrição: {curso.descricao || "Não informada"}</p>
                   <p>
                     Quantidade prevista de semestres:{" "}
                     {curso.quantidadeSemestres ?? "Não informado"}
@@ -834,183 +833,182 @@ cargaMaxima: cargaMaximaNumero,
               className="bg-white border rounded-xl p-6 shadow-sm"
             >
               <button
-  type="button"
-  onClick={() =>
-    setSemestresAbertos((prev) => ({
-      ...prev,
-      [semestre.id]: !prev[semestre.id],
-    }))
-  }
-  className="mb-4 flex w-full items-center justify-between rounded-lg border bg-slate-50 px-4 py-3 text-left"
->
-  <span className="font-bold text-gray-900">
-    Semestre {semestre.numero}
-    {semestre.titulo ? ` - ${semestre.titulo}` : ""}
-  </span>
-
-  <span className="text-sm text-gray-500">
-    {semestresAbertos[semestre.id] ? "▲ Fechar" : "▼ Abrir"}
-  </span>
-</button>
-{semestresAbertos[semestre.id] && (
-  <>
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-900">
-
-<div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-  
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Carga mínima permitida no semestre (horas)
-    </label>
-    <input
-      type="number"
-      placeholder="Ex: 200"
-      className="border rounded-lg px-3 py-2 text-sm w-full"
-      value={(semestre as any).cargaMinima ?? ""}
-      onChange={(e) => {
-        const valor = e.target.value;
-
-        setSemestres((prev) =>
-          prev.map((s) =>
-            s.id === semestre.id
-              ? { ...s, cargaMinima: valor }
-              : s
-          )
-        );
-      }}
-    />
-  </div>
-
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Carga máxima permitida no semestre (horas)
-    </label>
-    <input
-      type="number"
-      placeholder="Ex: 400"
-      className="border rounded-lg px-3 py-2 text-sm w-full"
-      value={(semestre as any).cargaMaxima ?? ""}
-      onChange={(e) => {
-        const valor = e.target.value;
-
-        setSemestres((prev) =>
-          prev.map((s) =>
-            s.id === semestre.id
-              ? { ...s, cargaMaxima: valor }
-              : s
-          )
-        );
-      }}
-    />
-  </div>
-
-</div>
-
+                type="button"
+                onClick={() =>
+                  setSemestresAbertos((prev) => ({
+                    ...prev,
+                    [semestre.id]: !prev[semestre.id],
+                  }))
+                }
+                className="mb-4 flex w-full items-center justify-between rounded-lg border bg-slate-50 px-4 py-3 text-left"
+              >
+                <span className="font-bold text-gray-900">
                   Semestre {semestre.numero}
                   {semestre.titulo ? ` - ${semestre.titulo}` : ""}
-                </h3>
+                </span>
 
-                {semestre.descricao ? (
-                  <p className="text-sm text-gray-600 mt-1">
-                    {semestre.descricao}
-                  </p>
-                ) : null}
-              </div>
-
-              <div className="mb-5">
-                <h4 className="text-sm font-semibold text-gray-700 mb-2">
-                  Disciplinas já vinculadas
-                </h4>
-
-                {semestre.disciplinas.length === 0 ? (
-                  <p className="text-sm text-gray-500">
-                    Nenhuma disciplina vinculada ainda.
-                  </p>
-                ) : (
-                  <div className="flex flex-wrap gap-2">
-                    {semestre.disciplinas.map((item) => (
-                      <span
-                        key={item.id}
-                        className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full"
-                      >
-                        {item.disciplina.nome}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {disciplinas.length === 0 ? (
-                <p className="text-gray-500">Nenhuma disciplina cadastrada.</p>
-              ) : (
+                <span className="text-sm text-gray-500">
+                  {semestresAbertos[semestre.id] ? "▲ Fechar" : "▼ Abrir"}
+                </span>
+              </button>
+              {semestresAbertos[semestre.id] && (
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {disciplinas.map((disciplina) => {
-                      const marcada = idsSelecionados.includes(disciplina.id);
+                  <div className="mb-4">
+                    <h3 className="text-xl font-semibold text-gray-900">
 
-                      return (
+                      <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Carga mínima permitida no semestre (horas)
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="Ex: 200"
+                            className="border rounded-lg px-3 py-2 text-sm w-full"
+                            value={(semestre as any).cargaMinima ?? ""}
+                            onChange={(e) => {
+                              const valor = e.target.value;
+
+                              setSemestres((prev) =>
+                                prev.map((s) =>
+                                  s.id === semestre.id
+                                    ? { ...s, cargaMinima: valor }
+                                    : s
+                                )
+                              );
+                            }}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Carga máxima permitida no semestre (horas)
+                          </label>
+                          <input
+                            type="number"
+                            placeholder="Ex: 400"
+                            className="border rounded-lg px-3 py-2 text-sm w-full"
+                            value={(semestre as any).cargaMaxima ?? ""}
+                            onChange={(e) => {
+                              const valor = e.target.value;
+
+                              setSemestres((prev) =>
+                                prev.map((s) =>
+                                  s.id === semestre.id
+                                    ? { ...s, cargaMaxima: valor }
+                                    : s
+                                )
+                              );
+                            }}
+                          />
+                        </div>
+
+                      </div>
+
+                      Semestre {semestre.numero}
+                      {semestre.titulo ? ` - ${semestre.titulo}` : ""}
+                    </h3>
+
+                    {semestre.descricao ? (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {semestre.descricao}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="mb-5">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">
+                      Disciplinas já vinculadas
+                    </h4>
+
+                    {semestre.disciplinas.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        Nenhuma disciplina vinculada ainda.
+                      </p>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {semestre.disciplinas.map((item) => (
+                          <span
+                            key={item.id}
+                            className="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full"
+                          >
+                            {item.disciplina.nome}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {disciplinas.length === 0 ? (
+                    <p className="text-gray-500">Nenhuma disciplina cadastrada.</p>
+                  ) : (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {disciplinas.map((disciplina) => {
+                          const marcada = idsSelecionados.includes(disciplina.id);
+
+                          return (
+                            <button
+                              key={disciplina.id}
+                              type="button"
+                              onClick={() =>
+                                toggleDisciplina(semestre.id, disciplina.id)
+                              }
+                              className={`text-left border rounded-lg p-3 cursor-pointer transition select-none ${marcada
+                                  ? "border-blue-500 bg-blue-50"
+                                  : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40"
+                                }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={marcada}
+                                  readOnly
+                                  className="mt-1 pointer-events-none"
+                                />
+
+                                <div>
+                                  <p className="font-medium text-gray-900">
+                                    {disciplina.nome}
+                                  </p>
+                                  <p className="text-sm text-gray-500">
+                                    Código: {disciplina.codigo || "Não informado"}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="mt-4">
                         <button
-                          key={disciplina.id}
                           type="button"
-                          onClick={() =>
-                            toggleDisciplina(semestre.id, disciplina.id)
-                          }
-                          className={`text-left border rounded-lg p-3 cursor-pointer transition select-none ${
-                            marcada
-                              ? "border-blue-500 bg-blue-50"
-                              : "border-gray-200 bg-white hover:border-blue-300 hover:bg-blue-50/40"
-                          }`}
+                          onClick={() => salvarDisciplinas(semestre.id)}
+                          disabled={salvandoSemestreId === semestre.id}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
                         >
-                          <div className="flex items-start gap-3">
-                            <input
-                              type="checkbox"
-                              checked={marcada}
-                              readOnly
-                              className="mt-1 pointer-events-none"
-                            />
-
-                            <div>
-                              <p className="font-medium text-gray-900">
-                                {disciplina.nome}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                Código: {disciplina.codigo || "Não informado"}
-                              </p>
-                            </div>
-                          </div>
+                          {salvandoSemestreId === semestre.id
+                            ? "Salvando..."
+                            : `Atualizar disciplinas do semestre ${semestre.numero}`}
                         </button>
-                      );
-                    })}
-                  </div>
 
-                  <div className="mt-4">
-                    <button
-                      type="button"
-                      onClick={() => salvarDisciplinas(semestre.id)}
-                      disabled={salvandoSemestreId === semestre.id}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                    >
-                      {salvandoSemestreId === semestre.id
-                        ? "Salvando..."
-                        : `Atualizar disciplinas do semestre ${semestre.numero}`}
-                    </button>
-
-<button
-  type="button"
-  onClick={() => salvarCargaSemestre(semestre)}
-  disabled={salvandoSemestreId === semestre.id}
-  className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
->
-  {salvandoSemestreId === semestre.id ? "Salvando..." : "Salvar carga"}
-</button>
+                        <button
+                          type="button"
+                          onClick={() => salvarCargaSemestre(semestre)}
+                          disabled={salvandoSemestreId === semestre.id}
+                          className="ml-2 bg-green-600 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                        >
+                          {salvandoSemestreId === semestre.id ? "Salvando..." : "Salvar carga"}
+                        </button>
 
 
-                  </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
-                </>
-)}
             </div>
           );
         })

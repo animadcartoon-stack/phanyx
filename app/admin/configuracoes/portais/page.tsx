@@ -44,17 +44,17 @@ function normalizarPaginasPortal(
   );
 
   const paginaRematricula: PaginaPortal = {
-  ...PAGINA_REMATRICULA_ALUNO,
-  ...paginaExistente,
-  nome: "Rematrícula semestral",
-  descricao:
-    "Permite ao aluno consultar e realizar a rematrícula para o próximo semestre.",
-  automaticoNoPeriodo: true,
-  controleAutomatico: true,
-  modoVisibilidade:
-    paginaExistente?.modoVisibilidade ??
-    "AUTOMATICO",
-};
+    ...PAGINA_REMATRICULA_ALUNO,
+    ...paginaExistente,
+    nome: "Rematrícula semestral",
+    descricao:
+      "Permite ao aluno consultar e realizar a rematrícula para o próximo semestre.",
+    automaticoNoPeriodo: true,
+    controleAutomatico: true,
+    modoVisibilidade:
+      paginaExistente?.modoVisibilidade ??
+      "AUTOMATICO",
+  };
 
   const paginasSemRematricula = paginasRecebidas.filter(
     (pagina) =>
@@ -103,10 +103,10 @@ export default function ConfiguracaoPortaisPage() {
       }
 
       const paginasRecebidas = Array.isArray(data?.paginas)
-  ? data.paginas
-  : [];
+        ? data.paginas
+        : [];
 
-setPaginas(normalizarPaginasPortal(paginasRecebidas));
+      setPaginas(normalizarPaginasPortal(paginasRecebidas));
     } catch (e: any) {
       setErro(e?.message || "Erro ao carregar configurações");
       setPaginas([]);
@@ -128,16 +128,16 @@ setPaginas(normalizarPaginasPortal(paginasRecebidas));
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-  paginas: paginas.map((pagina) => ({
-    id: pagina.id,
-    portal: pagina.portal,
-    chavePagina: pagina.chavePagina,
-    nome: pagina.nome,
-    visivel: pagina.visivel,
-    modoVisibilidade:
-      pagina.modoVisibilidade,
-  })),
-}),
+          paginas: paginas.map((pagina) => ({
+            id: pagina.id,
+            portal: pagina.portal,
+            chavePagina: pagina.chavePagina,
+            nome: pagina.nome,
+            visivel: pagina.visivel,
+            modoVisibilidade:
+              pagina.modoVisibilidade,
+          })),
+        }),
       });
 
       const data = await res.json();
@@ -166,23 +166,23 @@ setPaginas(normalizarPaginasPortal(paginasRecebidas));
   }
 
   function alterarModoVisibilidade(
-  chavePagina: string,
-  modoVisibilidade: ModoVisibilidadePortal,
-) {
-  setPaginas((atuais) =>
-    atuais.map((item) =>
-      item.chavePagina === chavePagina
-        ? {
+    chavePagina: string,
+    modoVisibilidade: ModoVisibilidadePortal,
+  ) {
+    setPaginas((atuais) =>
+      atuais.map((item) =>
+        item.chavePagina === chavePagina
+          ? {
             ...item,
             modoVisibilidade,
             visivel:
               modoVisibilidade ===
               "SEMPRE_VISIVEL",
           }
-        : item,
-    ),
-  );
-}
+          : item,
+      ),
+    );
+  }
 
   useEffect(() => {
     carregar();
@@ -211,10 +211,10 @@ setPaginas(normalizarPaginasPortal(paginasRecebidas));
           </h1>
 
           <p className="phanyx-config-muted mt-2 text-sm leading-6">
-  Defina quais páginas aparecem para alunos e professores desta
-  instituição. Páginas vinculadas a períodos acadêmicos também podem ser
-  exibidas automaticamente durante as datas configuradas.
-</p>
+            Defina quais páginas aparecem para alunos e professores desta
+            instituição. Páginas vinculadas a períodos acadêmicos também podem ser
+            exibidas automaticamente durante as datas configuradas.
+          </p>
         </section>
 
         {mensagem && (
@@ -297,152 +297,147 @@ function BlocoPortal({
       </div>
 
       <div className="mt-5 space-y-3">
-       {paginas.map((pagina) => {
-  const ehRematricula =
-    pagina.chavePagina ===
-    CHAVE_REMATRICULA_ALUNO;
+        {paginas.map((pagina) => {
+          const ehRematricula =
+            pagina.chavePagina ===
+            CHAVE_REMATRICULA_ALUNO;
 
-  if (ehRematricula) {
-    const modoAtual =
-      pagina.modoVisibilidade ??
-      "AUTOMATICO";
+          if (ehRematricula) {
+            const modoAtual =
+              pagina.modoVisibilidade ??
+              "AUTOMATICO";
 
-    return (
-      <div
-        key={pagina.chavePagina}
-        className="phanyx-portal-row rounded-2xl p-4"
-      >
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="font-bold">
-              {pagina.nome}
-            </p>
+            return (
+              <div
+                key={pagina.chavePagina}
+                className="phanyx-portal-row rounded-2xl p-4"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-bold">
+                      {pagina.nome}
+                    </p>
 
-            <span className="rounded-full border border-emerald-500 bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-              Controle inteligente
-            </span>
-          </div>
+                    <span className="rounded-full border border-emerald-500 bg-emerald-50 px-2 py-1 text-[10px] font-black uppercase tracking-wide text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                      Controle inteligente
+                    </span>
+                  </div>
 
-          <p className="phanyx-config-muted mt-1 text-xs leading-5">
-            {pagina.descricao}
-          </p>
+                  <p className="phanyx-config-muted mt-1 text-xs leading-5">
+                    {pagina.descricao}
+                  </p>
 
-          <p className="phanyx-portal-key mt-1 text-xs">
-            {pagina.chavePagina}
-          </p>
-        </div>
+                  <p className="phanyx-portal-key mt-1 text-xs">
+                    {pagina.chavePagina}
+                  </p>
+                </div>
 
-        <div className="mt-4 grid gap-2">
-          <button
-  type="button"
-  onClick={() =>
-    onAlterarModo(
-      pagina.chavePagina,
-      "AUTOMATICO",
-    )
-  }
-  className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${
-    modoAtual === "AUTOMATICO"
-      ? "phanyx-portal-modo-automatico-ativo"
-      : ""
-  }`}
->
-  <span className="phanyx-portal-modo-titulo block text-sm font-black">
-    Automático
-  </span>
+                <div className="mt-4 grid gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onAlterarModo(
+                        pagina.chavePagina,
+                        "AUTOMATICO",
+                      )
+                    }
+                    className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${modoAtual === "AUTOMATICO"
+                        ? "phanyx-portal-modo-automatico-ativo"
+                        : ""
+                      }`}
+                  >
+                    <span className="phanyx-portal-modo-titulo block text-sm font-black">
+                      Automático
+                    </span>
 
-  <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
-    Aparece somente quando houver período publicado e aberto para o aluno.
-  </span>
-</button>
+                    <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
+                      Aparece somente quando houver período publicado e aberto para o aluno.
+                    </span>
+                  </button>
 
-          <button
-  type="button"
-  onClick={() =>
-    onAlterarModo(
-      pagina.chavePagina,
-      "SEMPRE_VISIVEL",
-    )
-  }
-  className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${
-    modoAtual === "SEMPRE_VISIVEL"
-      ? "phanyx-portal-modo-sempre-ativo"
-      : ""
-  }`}
->
-  <span className="phanyx-portal-modo-titulo block text-sm font-black">
-    Sempre visível
-  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onAlterarModo(
+                        pagina.chavePagina,
+                        "SEMPRE_VISIVEL",
+                      )
+                    }
+                    className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${modoAtual === "SEMPRE_VISIVEL"
+                        ? "phanyx-portal-modo-sempre-ativo"
+                        : ""
+                      }`}
+                  >
+                    <span className="phanyx-portal-modo-titulo block text-sm font-black">
+                      Sempre visível
+                    </span>
 
-  <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
-    A página aparece mesmo quando não existe período de rematrícula aberto.
-  </span>
-</button>
+                    <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
+                      A página aparece mesmo quando não existe período de rematrícula aberto.
+                    </span>
+                  </button>
 
-          <button
-  type="button"
-  onClick={() =>
-    onAlterarModo(
-      pagina.chavePagina,
-      "OCULTO",
-    )
-  }
-  className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${
-    modoAtual === "OCULTO"
-      ? "phanyx-portal-modo-oculto-ativo"
-      : ""
-  }`}
->
-  <span className="phanyx-portal-modo-titulo block text-sm font-black">
-    Ocultar temporariamente
-  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      onAlterarModo(
+                        pagina.chavePagina,
+                        "OCULTO",
+                      )
+                    }
+                    className={`phanyx-portal-modo rounded-xl border p-3 text-left transition ${modoAtual === "OCULTO"
+                        ? "phanyx-portal-modo-oculto-ativo"
+                        : ""
+                      }`}
+                  >
+                    <span className="phanyx-portal-modo-titulo block text-sm font-black">
+                      Ocultar temporariamente
+                    </span>
 
-  <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
-    Não aparece no portal, mesmo que exista um período aberto e publicado.
-  </span>
-</button>
-        </div>
-      </div>
-    );
-  }
+                    <span className="phanyx-portal-modo-descricao mt-1 block text-xs">
+                      Não aparece no portal, mesmo que exista um período aberto e publicado.
+                    </span>
+                  </button>
+                </div>
+              </div>
+            );
+          }
 
-  return (
-    <button
-      key={pagina.chavePagina}
-      type="button"
-      onClick={() =>
-        onAlternar(pagina.chavePagina)
-      }
-      className="phanyx-portal-row flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition"
-    >
-      <div>
-        <p className="font-bold">
-          {pagina.nome}
-        </p>
+          return (
+            <button
+              key={pagina.chavePagina}
+              type="button"
+              onClick={() =>
+                onAlternar(pagina.chavePagina)
+              }
+              className="phanyx-portal-row flex w-full items-center justify-between gap-4 rounded-2xl p-4 text-left transition"
+            >
+              <div>
+                <p className="font-bold">
+                  {pagina.nome}
+                </p>
 
-        <p className="phanyx-portal-key mt-1 text-xs">
-          {pagina.chavePagina}
-        </p>
-      </div>
+                <p className="phanyx-portal-key mt-1 text-xs">
+                  {pagina.chavePagina}
+                </p>
+              </div>
 
-      <span
-        className={`relative inline-flex h-7 w-12 shrink-0 rounded-full transition ${
-          pagina.visivel
-            ? "bg-blue-600"
-            : "bg-slate-300 dark:bg-slate-700"
-        }`}
-      >
-        <span
-          className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${
-            pagina.visivel
-              ? "left-6"
-              : "left-1"
-          }`}
-        />
-      </span>
-    </button>
-  );
-})}
+              <span
+                className={`relative inline-flex h-7 w-12 shrink-0 rounded-full transition ${pagina.visivel
+                    ? "bg-blue-600"
+                    : "bg-slate-300 dark:bg-slate-700"
+                  }`}
+              >
+                <span
+                  className={`absolute top-1 h-5 w-5 rounded-full bg-white shadow transition ${pagina.visivel
+                      ? "left-6"
+                      : "left-1"
+                    }`}
+                />
+              </span>
+            </button>
+          );
+        })}
       </div>
     </section>
   );

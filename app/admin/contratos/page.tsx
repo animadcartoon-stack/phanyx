@@ -11,7 +11,7 @@ type AlunoOption = {
 };
 
 type ContratoResposta = {
-    matricula?: {
+  matricula?: {
     id: number;
     status?: string | null;
     semestre?: number | null;
@@ -120,77 +120,77 @@ export default function AdminContratosPage() {
     }
   }
 
-async function enviarParaAssinatura() {
-  try {
-    if (!contrato?.contrato?.id) {
-      setMensagem("Gere o contrato antes de enviar para assinatura.");
-      return;
+  async function enviarParaAssinatura() {
+    try {
+      if (!contrato?.contrato?.id) {
+        setMensagem("Gere o contrato antes de enviar para assinatura.");
+        return;
+      }
+
+      setEnviandoAssinatura(true);
+      setMensagem("");
+
+      const res = await fetch("/api/admin/documentos/enviar-assinatura", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contratoId: contrato.contrato.id,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao enviar contrato para assinatura");
+      }
+
+      setMensagem("Contrato enviado para assinatura com sucesso.");
+    } catch (error: any) {
+      setMensagem(error?.message || "Erro ao enviar contrato para assinatura");
+    } finally {
+      setEnviandoAssinatura(false);
     }
-
-    setEnviandoAssinatura(true);
-    setMensagem("");
-
-    const res = await fetch("/api/admin/documentos/enviar-assinatura", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contratoId: contrato.contrato.id,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data?.error || "Erro ao enviar contrato para assinatura");
-    }
-
-    setMensagem("Contrato enviado para assinatura com sucesso.");
-  } catch (error: any) {
-    setMensagem(error?.message || "Erro ao enviar contrato para assinatura");
-  } finally {
-    setEnviandoAssinatura(false);
   }
-}
 
-function normalizarTexto(texto: string) {
-  return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/y/g, "i")
-    .trim();
-}
+  function normalizarTexto(texto: string) {
+    return texto
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/y/g, "i")
+      .trim();
+  }
 
-const termoBuscaNormalizado = normalizarTexto(busca);
+  const termoBuscaNormalizado = normalizarTexto(busca);
 
-const alunosFiltrados = [...alunos]
-  .filter((aluno) => {
-    if (!termoBuscaNormalizado) return true;
+  const alunosFiltrados = [...alunos]
+    .filter((aluno) => {
+      if (!termoBuscaNormalizado) return true;
 
-    const nome = normalizarTexto(aluno.nome || "");
-    const email = normalizarTexto(aluno.email || "");
-    const matricula = normalizarTexto(aluno.matricula || "");
+      const nome = normalizarTexto(aluno.nome || "");
+      const email = normalizarTexto(aluno.email || "");
+      const matricula = normalizarTexto(aluno.matricula || "");
 
-    return (
-      nome.includes(termoBuscaNormalizado) ||
-      email.includes(termoBuscaNormalizado) ||
-      matricula.includes(termoBuscaNormalizado)
-    );
-  })
-  .sort((a, b) => {
-    const nomeA = normalizarTexto(a.nome || "");
-    const nomeB = normalizarTexto(b.nome || "");
+      return (
+        nome.includes(termoBuscaNormalizado) ||
+        email.includes(termoBuscaNormalizado) ||
+        matricula.includes(termoBuscaNormalizado)
+      );
+    })
+    .sort((a, b) => {
+      const nomeA = normalizarTexto(a.nome || "");
+      const nomeB = normalizarTexto(b.nome || "");
 
-    const aComeca = nomeA.startsWith(termoBuscaNormalizado);
-    const bComeca = nomeB.startsWith(termoBuscaNormalizado);
+      const aComeca = nomeA.startsWith(termoBuscaNormalizado);
+      const bComeca = nomeB.startsWith(termoBuscaNormalizado);
 
-    if (aComeca && !bComeca) return -1;
-    if (!aComeca && bComeca) return 1;
+      if (aComeca && !bComeca) return -1;
+      if (!aComeca && bComeca) return 1;
 
-    return nomeA.localeCompare(nomeB, "pt-BR");
-  });
+      return nomeA.localeCompare(nomeB, "pt-BR");
+    });
 
   useEffect(() => {
     const t = setTimeout(() => {
@@ -218,93 +218,92 @@ const alunosFiltrados = [...alunos]
       )}
 
       <div className="phanyx-doc-card p-6">
-  <h2 className="phanyx-doc-section-title mb-4 text-lg font-semibold">
-    Selecionar aluno
-  </h2>
+        <h2 className="phanyx-doc-section-title mb-4 text-lg font-semibold">
+          Selecionar aluno
+        </h2>
 
-  <div className="grid gap-4 md:grid-cols-2">
-    <div>
-      <label className="phanyx-doc-label mb-1 block text-sm">
-        Buscar aluno
-      </label>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <label className="phanyx-doc-label mb-1 block text-sm">
+              Buscar aluno
+            </label>
 
-      <div className="relative">
-        <input
-          autoComplete="off"
-          spellCheck={false}
-          name="buscarAlunoContrato"
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="phanyx-doc-input"
-          placeholder="Digite nome, matrícula ou email"
-        />
+            <div className="relative">
+              <input
+                autoComplete="off"
+                spellCheck={false}
+                name="buscarAlunoContrato"
+                value={busca}
+                onChange={(e) => setBusca(e.target.value)}
+                className="phanyx-doc-input"
+                placeholder="Digite nome, matrícula ou email"
+              />
 
-        {busca.trim() && alunosFiltrados.length > 0 && (
-          <div className="phanyx-doc-autocomplete max-h-64 overflow-auto">
-            {alunosFiltrados.map((aluno) => (
-              <button
-                key={aluno.id}
-                type="button"
-                onClick={() => {
-                  setAlunoId(String(aluno.id));
-                  setBusca(
-                    `${aluno.nome}${aluno.matricula ? ` - ${aluno.matricula}` : ""}${
-                      aluno.email ? ` - ${aluno.email}` : ""
-                    }`
-                  );
-                  carregarContrato(String(aluno.id));
-                }}
-                className="phanyx-doc-autocomplete-option"
-              >
-                <div className="flex flex-col">
-                  <span className="font-bold">
-                    {aluno.nome}
-                  </span>
+              {busca.trim() && alunosFiltrados.length > 0 && (
+                <div className="phanyx-doc-autocomplete max-h-64 overflow-auto">
+                  {alunosFiltrados.map((aluno) => (
+                    <button
+                      key={aluno.id}
+                      type="button"
+                      onClick={() => {
+                        setAlunoId(String(aluno.id));
+                        setBusca(
+                          `${aluno.nome}${aluno.matricula ? ` - ${aluno.matricula}` : ""}${aluno.email ? ` - ${aluno.email}` : ""
+                          }`
+                        );
+                        carregarContrato(String(aluno.id));
+                      }}
+                      className="phanyx-doc-autocomplete-option"
+                    >
+                      <div className="flex flex-col">
+                        <span className="font-bold">
+                          {aluno.nome}
+                        </span>
 
-                  <span className="text-xs opacity-90">
-                    {aluno.matricula || ""}
-                    {aluno.email ? ` • ${aluno.email}` : ""}
-                  </span>
+                        <span className="text-xs opacity-90">
+                          {aluno.matricula || ""}
+                          {aluno.email ? ` • ${aluno.email}` : ""}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
                 </div>
-              </button>
-            ))}
+              )}
+            </div>
+
+            {loadingAlunos && (
+              <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
+                Buscando alunos...
+              </p>
+            )}
           </div>
-        )}
+
+          <div>
+            <label className="phanyx-doc-label mb-1 block text-sm">
+              Selecionar aluno
+            </label>
+
+            <select
+              value={alunoId}
+              onChange={(e) => {
+                setAlunoId(e.target.value);
+                carregarContrato(e.target.value);
+              }}
+              className="phanyx-doc-input"
+            >
+              <option value="">Selecione um aluno</option>
+
+              {alunosFiltrados.map((aluno) => (
+                <option key={aluno.id} value={aluno.id}>
+                  {aluno.nome}
+                  {aluno.matricula ? ` - ${aluno.matricula}` : ""}
+                  {aluno.email ? ` - ${aluno.email}` : ""}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
-
-      {loadingAlunos && (
-        <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">
-          Buscando alunos...
-        </p>
-      )}
-    </div>
-
-    <div>
-      <label className="phanyx-doc-label mb-1 block text-sm">
-        Selecionar aluno
-      </label>
-
-      <select
-        value={alunoId}
-        onChange={(e) => {
-          setAlunoId(e.target.value);
-          carregarContrato(e.target.value);
-        }}
-        className="phanyx-doc-input"
-      >
-        <option value="">Selecione um aluno</option>
-
-        {alunosFiltrados.map((aluno) => (
-          <option key={aluno.id} value={aluno.id}>
-            {aluno.nome}
-            {aluno.matricula ? ` - ${aluno.matricula}` : ""}
-            {aluno.email ? ` - ${aluno.email}` : ""}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
-</div>
 
       {loadingContrato ? (
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm text-slate-600">
@@ -319,11 +318,11 @@ const alunosFiltrados = [...alunos]
               </h2>
 
               <div
-  className="phanyx-doc-preview p-4 text-sm leading-7 [&_p]:mb-4 [&_h1]:mb-6 [&_h1]:text-center [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mb-4 [&_h2]:mt-6 [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
-  dangerouslySetInnerHTML={{
-    __html: contrato.contratoFinal,
-  }}
-/>
+                className="phanyx-doc-preview p-4 text-sm leading-7 [&_p]:mb-4 [&_h1]:mb-6 [&_h1]:text-center [&_h1]:text-lg [&_h1]:font-bold [&_h2]:mb-4 [&_h2]:mt-6 [&_h2]:font-semibold [&_ul]:list-disc [&_ul]:pl-5"
+                dangerouslySetInnerHTML={{
+                  __html: contrato.contratoFinal,
+                }}
+              />
 
               {contrato.observacoesContrato && (
                 <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
@@ -388,25 +387,25 @@ const alunosFiltrados = [...alunos]
                 <button
                   className="phanyx-doc-primary-action w-full"
                   onClick={() => {
-  if (!alunoId) return;
-  window.open(`/api/admin/contratos/pdf?alunoId=${alunoId}`, "_blank");
-}}
+                    if (!alunoId) return;
+                    window.open(`/api/admin/contratos/pdf?alunoId=${alunoId}`, "_blank");
+                  }}
                 >
                   Gerar PDF do contrato
                 </button>
 
-<button
-  type="button"
-  onClick={enviarParaAssinatura}
-  disabled={enviandoAssinatura || contrato?.contrato?.status === "ASSINADO"}
-  className="mt-3 w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
->
-  {contrato?.contrato?.status === "ASSINADO"
-    ? "Contrato já assinado"
-    : enviandoAssinatura
-    ? "Enviando..."
-    : "Enviar para assinatura"}
-</button>
+                <button
+                  type="button"
+                  onClick={enviarParaAssinatura}
+                  disabled={enviandoAssinatura || contrato?.contrato?.status === "ASSINADO"}
+                  className="mt-3 w-full rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
+                >
+                  {contrato?.contrato?.status === "ASSINADO"
+                    ? "Contrato já assinado"
+                    : enviandoAssinatura
+                      ? "Enviando..."
+                      : "Enviar para assinatura"}
+                </button>
 
               </div>
             </div>

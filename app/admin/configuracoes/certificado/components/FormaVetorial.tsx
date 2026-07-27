@@ -24,11 +24,11 @@ type CampoForma = {
   opacity?: number | null;
   raioBorda?: number | null;
   cantosArredondados?: {
-  topoEsquerdo?: number;
-  topoDireito?: number;
-  baixoDireito?: number;
-  baixoEsquerdo?: number;
-} | null;
+    topoEsquerdo?: number;
+    topoDireito?: number;
+    baixoDireito?: number;
+    baixoEsquerdo?: number;
+  } | null;
   pontosForma?: PontoForma[] | null;
 };
 
@@ -137,11 +137,11 @@ function gerarPathComCantosArredondados(campo: CampoForma) {
     }
 
     if (index === 0) return Math.max(0, Math.min(45, cantos.topoEsquerdo ?? 0));
-if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? 0));
-if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? 0));
-if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? 0));
+    if (index === 1) return Math.max(0, Math.min(45, cantos.topoDireito ?? 0));
+    if (index === 2) return Math.max(0, Math.min(45, cantos.baixoDireito ?? 0));
+    if (index === 3) return Math.max(0, Math.min(45, cantos.baixoEsquerdo ?? 0));
 
-return 0;
+    return 0;
   }
 
   let d = "";
@@ -193,13 +193,13 @@ function gerarPath(campo: CampoForma) {
   if (!pontos.length) return "";
 
   if (
-  campo.forma !== "ESTRELA" &&
-  campo.forma !== "LINHA" &&
-  campo.forma !== "CIRCULO" &&
-  (campo.raioBorda || 0) > 0
-) {
-  return gerarPathComCantosArredondados(campo);
-}
+    campo.forma !== "ESTRELA" &&
+    campo.forma !== "LINHA" &&
+    campo.forma !== "CIRCULO" &&
+    (campo.raioBorda || 0) > 0
+  ) {
+    return gerarPathComCantosArredondados(campo);
+  }
 
   let d = `M ${pontos[0].x} ${pontos[0].y}`;
 
@@ -252,25 +252,25 @@ function garantirPontosIniciais(campo: CampoForma): PontoForma[] {
   if (pontos.length >= 3) return pontos;
 
   if (campo.forma === "SETA") {
-  return [
-    { id: "p-1", x: 0, y: 30, tipo: "reto" },
-    { id: "p-2", x: 62, y: 30, tipo: "reto" },
-    { id: "p-3", x: 62, y: 0, tipo: "reto" },
-    { id: "p-4", x: 100, y: 50, tipo: "reto" },
-    { id: "p-5", x: 62, y: 100, tipo: "reto" },
-    { id: "p-6", x: 62, y: 70, tipo: "reto" },
-    { id: "p-7", x: 0, y: 70, tipo: "reto" },
-  ];
-}
+    return [
+      { id: "p-1", x: 0, y: 30, tipo: "reto" },
+      { id: "p-2", x: 62, y: 30, tipo: "reto" },
+      { id: "p-3", x: 62, y: 0, tipo: "reto" },
+      { id: "p-4", x: 100, y: 50, tipo: "reto" },
+      { id: "p-5", x: 62, y: 100, tipo: "reto" },
+      { id: "p-6", x: 62, y: 70, tipo: "reto" },
+      { id: "p-7", x: 0, y: 70, tipo: "reto" },
+    ];
+  }
 
-if (campo.forma === "LOSANGO") {
-  return [
-    { id: "p-1", x: 50, y: 0, tipo: "reto" },
-    { id: "p-2", x: 100, y: 50, tipo: "reto" },
-    { id: "p-3", x: 50, y: 100, tipo: "reto" },
-    { id: "p-4", x: 0, y: 50, tipo: "reto" },
-  ];
-}
+  if (campo.forma === "LOSANGO") {
+    return [
+      { id: "p-1", x: 50, y: 0, tipo: "reto" },
+      { id: "p-2", x: 100, y: 50, tipo: "reto" },
+      { id: "p-3", x: 50, y: 100, tipo: "reto" },
+      { id: "p-4", x: 0, y: 50, tipo: "reto" },
+    ];
+  }
 
   if (campo.forma === "RETANGULO" || campo.forma === "QUADRADO") {
     return [
@@ -430,14 +430,14 @@ export default function FormaVetorial({
         ponto.id === pontoId
           ? ponto.tipo === "curvo"
             ? {
-                ...ponto,
-                tipo: "reto",
-                handleMode: "quebrado",
-                inX: undefined,
-                inY: undefined,
-                outX: undefined,
-                outY: undefined,
-              }
+              ...ponto,
+              tipo: "reto",
+              handleMode: "quebrado",
+              inX: undefined,
+              inY: undefined,
+              outX: undefined,
+              outY: undefined,
+            }
             : criarAlcasPadrao(ponto)
           : ponto
       )
@@ -489,12 +489,12 @@ export default function FormaVetorial({
         tipo === "curvo"
           ? criarAlcasPadrao(base)
           : {
-              ...base,
-              inX: undefined,
-              inY: undefined,
-              outX: undefined,
-              outY: undefined,
-            }
+            ...base,
+            inX: undefined,
+            inY: undefined,
+            outX: undefined,
+            outY: undefined,
+          }
       );
     }
 
@@ -515,13 +515,13 @@ export default function FormaVetorial({
         if (!pertenceAoGrupo) return ponto;
 
         if (tipo === "curvo") {
-  const externo = index % 2 === 0;
+          const externo = index % 2 === 0;
 
-  return criarAlcasEstrelaSimetrica(
-  ponto,
-  externo ? 10 : 10
-);
-}
+          return criarAlcasEstrelaSimetrica(
+            ponto,
+            externo ? 10 : 10
+          );
+        }
 
         return {
           ...ponto,
@@ -537,82 +537,82 @@ export default function FormaVetorial({
   }
 
   function converterTodosPontos(tipo: "reto" | "curvo") {
-  atualizarPontos(
-    pontos.map((ponto) => {
-      if (tipo === "curvo") {
-        return criarAlcasPadrao(ponto);
-      }
+    atualizarPontos(
+      pontos.map((ponto) => {
+        if (tipo === "curvo") {
+          return criarAlcasPadrao(ponto);
+        }
 
-      return {
-        ...ponto,
-        tipo: "reto",
-        handleMode: "quebrado",
-        inX: undefined,
-        inY: undefined,
-        outX: undefined,
-        outY: undefined,
-      };
-    })
-  );
-}
-
-function converterPontosPorLado(
-  lado: "cima" | "baixo" | "esquerda" | "direita",
-  tipo: "reto" | "curvo"
-) {
-  atualizarPontos(
-    pontos.map((ponto) => {
-      const pertenceAoLado =
-        lado === "cima"
-          ? ponto.y <= 50
-          : lado === "baixo"
-          ? ponto.y >= 50
-          : lado === "esquerda"
-          ? ponto.x <= 50
-          : ponto.x >= 50;
-
-      if (!pertenceAoLado) return ponto;
-
-      if (tipo === "curvo") {
-        return criarAlcasPadrao(ponto);
-      }
-
-      return {
-        ...ponto,
-        tipo: "reto",
-        handleMode: "quebrado",
-        inX: undefined,
-        inY: undefined,
-        outX: undefined,
-        outY: undefined,
-      };
-    })
-  );
-}
-
-function subdividirForma() {
-  if (pontos.length < 2) return;
-
-  const novosPontos: PontoForma[] = [];
-
-  for (let i = 0; i < pontos.length; i++) {
-    const atual = pontos[i];
-    const proximo = pontos[(i + 1) % pontos.length];
-
-    novosPontos.push(atual);
-
-    if (campo.forma === "LINHA" && i === pontos.length - 1) continue;
-
-    novosPontos.push({
-      id: `p-${Date.now()}-${i}`,
-      x: Number(((atual.x + proximo.x) / 2).toFixed(2)),
-      y: Number(((atual.y + proximo.y) / 2).toFixed(2)),
-      tipo: "reto",
-    });
+        return {
+          ...ponto,
+          tipo: "reto",
+          handleMode: "quebrado",
+          inX: undefined,
+          inY: undefined,
+          outX: undefined,
+          outY: undefined,
+        };
+      })
+    );
   }
 
-  atualizarPontos(novosPontos);
-}
+  function converterPontosPorLado(
+    lado: "cima" | "baixo" | "esquerda" | "direita",
+    tipo: "reto" | "curvo"
+  ) {
+    atualizarPontos(
+      pontos.map((ponto) => {
+        const pertenceAoLado =
+          lado === "cima"
+            ? ponto.y <= 50
+            : lado === "baixo"
+              ? ponto.y >= 50
+              : lado === "esquerda"
+                ? ponto.x <= 50
+                : ponto.x >= 50;
+
+        if (!pertenceAoLado) return ponto;
+
+        if (tipo === "curvo") {
+          return criarAlcasPadrao(ponto);
+        }
+
+        return {
+          ...ponto,
+          tipo: "reto",
+          handleMode: "quebrado",
+          inX: undefined,
+          inY: undefined,
+          outX: undefined,
+          outY: undefined,
+        };
+      })
+    );
+  }
+
+  function subdividirForma() {
+    if (pontos.length < 2) return;
+
+    const novosPontos: PontoForma[] = [];
+
+    for (let i = 0; i < pontos.length; i++) {
+      const atual = pontos[i];
+      const proximo = pontos[(i + 1) % pontos.length];
+
+      novosPontos.push(atual);
+
+      if (campo.forma === "LINHA" && i === pontos.length - 1) continue;
+
+      novosPontos.push({
+        id: `p-${Date.now()}-${i}`,
+        x: Number(((atual.x + proximo.x) / 2).toFixed(2)),
+        y: Number(((atual.y + proximo.y) / 2).toFixed(2)),
+        tipo: "reto",
+      });
+    }
+
+    atualizarPontos(novosPontos);
+  }
 
   function adicionarPonto(e: React.MouseEvent<SVGPathElement>) {
     if (!selecionado || modo !== "editor") return;
@@ -701,8 +701,8 @@ function subdividirForma() {
       data-forma-vetorial-root
       className={
         modo === "preview"
-  ? "pointer-events-none absolute inset-0 overflow-visible"
-  : "pointer-events-none absolute inset-0 overflow-visible"
+          ? "pointer-events-none absolute inset-0 overflow-visible"
+          : "pointer-events-none absolute inset-0 overflow-visible"
       }
     >
       <svg
@@ -736,8 +736,8 @@ function subdividirForma() {
             campo.forma === "LINHA"
               ? contornoEspessura || 4
               : campo.forma === "ESTRELA"
-              ? Math.max(4, contornoEspessura)
-              : Math.max(1, contornoEspessura)
+                ? Math.max(4, contornoEspessura)
+                : Math.max(1, contornoEspessura)
           }
           strokeOpacity={opacidade}
           strokeLinejoin="round"
@@ -747,13 +747,13 @@ function subdividirForma() {
         />
 
         {selecionado &&
-  modo === "editor" &&
-  mostrarHandles &&
-  pontos.map((ponto) => {
-  const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
-  const pontoEstaSelecionado = pontoSelecionadoId === ponto.id;
+          modo === "editor" &&
+          mostrarHandles &&
+          pontos.map((ponto) => {
+            const p = ponto.tipo === "curvo" ? criarAlcasPadrao(ponto) : ponto;
+            const pontoEstaSelecionado = pontoSelecionadoId === ponto.id;
 
-  return (
+            return (
               <g key={`controle-${ponto.id}`}>
                 {ponto.tipo === "curvo" && (
                   <>
@@ -780,10 +780,10 @@ function subdividirForma() {
                     />
 
                     <ellipse
-  cx={50 + (p.inX! - 50) * 0.94}
-  cy={50 + (p.inY! - 50) * 0.94}
-                    rx={rxAlca}
-                    ry={ryAlca}
+                      cx={50 + (p.inX! - 50) * 0.94}
+                      cy={50 + (p.inY! - 50) * 0.94}
+                      rx={rxAlca}
+                      ry={ryAlca}
                       fill="#22c55e"
                       stroke="#ffffff"
                       strokeWidth={1.2}
@@ -796,10 +796,10 @@ function subdividirForma() {
                     />
 
                     <ellipse
-  cx={50 + (p.outX! - 50) * 0.94}
-  cy={50 + (p.outY! - 50) * 0.94}
-                    rx={rxAlca}
-                    ry={ryAlca}
+                      cx={50 + (p.outX! - 50) * 0.94}
+                      cy={50 + (p.outY! - 50) * 0.94}
+                      rx={rxAlca}
+                      ry={ryAlca}
                       fill="#22c55e"
                       stroke="#ffffff"
                       strokeWidth={1.2}
@@ -814,31 +814,31 @@ function subdividirForma() {
                 )}
 
                 <ellipse
-  cx={50 + (ponto.x - 50) * 0.94}
-  cy={50 + (ponto.y - 50) * 0.94}
+                  cx={50 + (ponto.x - 50) * 0.94}
+                  cy={50 + (ponto.y - 50) * 0.94}
                   rx={rxPonto}
                   ry={ryPonto}
                   fill={ponto.tipo === "curvo" ? "#9333ea" : "#f97316"}
-stroke={pontoEstaSelecionado ? "#facc15" : "#ffffff"}
-strokeWidth={pontoEstaSelecionado ? 2.4 : 1.4}
-className="pointer-events-auto cursor-grab"
-onMouseDown={(e) => {
-  onSelecionarPonto?.(ponto.id);
+                  stroke={pontoEstaSelecionado ? "#facc15" : "#ffffff"}
+                  strokeWidth={pontoEstaSelecionado ? 2.4 : 1.4}
+                  className="pointer-events-auto cursor-grab"
+                  onMouseDown={(e) => {
+                    onSelecionarPonto?.(ponto.id);
 
-  iniciarArrastePercentual(e, (x, y) =>
-    moverPonto(ponto.id, x, y)
-  );
-}}
+                    iniciarArrastePercentual(e, (x, y) =>
+                      moverPonto(ponto.id, x, y)
+                    );
+                  }}
                   onDoubleClick={(e) => {
                     e.stopPropagation();
                     alternarTipoPonto(ponto.id);
                   }}
                   onContextMenu={(e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  deletarPonto(ponto.id);
-  onSelecionarPonto?.(null);
-}}
+                    e.preventDefault();
+                    e.stopPropagation();
+                    deletarPonto(ponto.id);
+                    onSelecionarPonto?.(null);
+                  }}
                 />
               </g>
             );
@@ -847,7 +847,7 @@ onMouseDown={(e) => {
 
       {/* Barra de edição de pontos removida daqui.
     Ela será recriada fixa no rodapé da cena no page.tsx. */}
-    
+
     </div>
   );
 }

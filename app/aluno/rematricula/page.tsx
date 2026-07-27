@@ -338,8 +338,8 @@ function formatarHorarios(horarios: HorarioTurma[]) {
         `Dia ${horario.diaSemana}`;
 
       return `${dia}, ${horario.horaInicio}${horario.horaFim
-          ? ` às ${horario.horaFim}`
-          : ""
+        ? ` às ${horario.horaFim}`
+        : ""
         }`;
     })
     .join(" · ");
@@ -980,10 +980,10 @@ export default function RematriculaAlunoPage() {
         {mensagem && (
           <div
             className={`rounded-2xl border p-4 text-sm font-semibold ${mensagem.tipo === "erro"
-                ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
-                : mensagem.tipo === "sucesso"
-                  ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
-                  : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
+              ? "border-red-300 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200"
+              : mensagem.tipo === "sucesso"
+                ? "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-200"
+                : "border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200"
               }`}
           >
             {mensagem.texto}
@@ -1142,18 +1142,18 @@ export default function RematriculaAlunoPage() {
                 <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
                   <div
                     className={`h-full rounded-full transition-all ${atingiuCargaMinima
-                        ? "bg-emerald-500"
-                        : "bg-blue-600"
+                      ? "bg-emerald-500"
+                      : "bg-blue-600"
                       }`}
                     style={{
                       width: `${cargaMinima > 0
-                          ? Math.min(
-                            (cargaSelecionadaMinima /
-                              cargaMinima) *
-                            100,
-                            100,
-                          )
-                          : 100
+                        ? Math.min(
+                          (cargaSelecionadaMinima /
+                            cargaMinima) *
+                          100,
+                          100,
+                        )
+                        : 100
                         }%`,
                     }}
                   />
@@ -1427,8 +1427,8 @@ function GrupoDisciplinas({
               <article
                 key={disciplina.disciplinaId}
                 className={`p-5 transition ${selecionada
-                    ? "bg-blue-50/70 dark:bg-blue-950/20"
-                    : ""
+                  ? "bg-blue-50/70 dark:bg-blue-950/20"
+                  : ""
                   }`}
               >
                 <div className="flex items-start gap-4">
@@ -1494,8 +1494,8 @@ function GrupoDisciplinas({
                                   requisito.disciplinaId
                                 }
                                 className={`rounded-full border px-2 py-1 text-[10px] font-bold ${requisito.cumprido
-                                    ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
-                                    : "phanyx-rematricula-prerequisito-pendente"
+                                  ? "border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300"
+                                  : "phanyx-rematricula-prerequisito-pendente"
                                   }`}
                               >
                                 {requisito.cumprido

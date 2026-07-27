@@ -85,8 +85,8 @@ export default function ConfigInstituicaoPage() {
   const [menuAssinaturaAberto, setMenuAssinaturaAberto] = useState(false);
 
   const [confirmacaoExclusao, setConfirmacaoExclusao] = useState<
-  "logo" | "assinatura" | null
->(null);
+    "logo" | "assinatura" | null
+  >(null);
 
   const [excluindoImagem, setExcluindoImagem] = useState(false);
   const [nomeArquivoPapelTimbrado, setNomeArquivoPapelTimbrado] =
@@ -94,8 +94,8 @@ export default function ConfigInstituicaoPage() {
   const [mensagem, setMensagem] = useState("");
   const [previewPapelTimbrado, setPreviewPapelTimbrado] = useState("");
   const [modoLayout, setModoLayout] = useState<
-  "PHANYX" | "PERSONALIZADO" | "SIMPLES"
->("SIMPLES");
+    "PHANYX" | "PERSONALIZADO" | "SIMPLES"
+  >("SIMPLES");
   const [previewAmpliada, setPreviewAmpliada] = useState(false);
 
   const inputFileLogoRef = useRef<HTMLInputElement | null>(null);
@@ -107,49 +107,49 @@ export default function ConfigInstituicaoPage() {
   );
 
   function montarPayloadConfiguracao(
-  alteracoes: Partial<ConfigInstituicao> = {}
-) {
-  const dados = {
-    ...form,
-    ...alteracoes,
-  };
+    alteracoes: Partial<ConfigInstituicao> = {}
+  ) {
+    const dados = {
+      ...form,
+      ...alteracoes,
+    };
 
-  const layout = normalizarLayoutProfissional(
-    dados.estiloPapelTimbrado || dados.estiloDocumento
-  );
+    const layout = normalizarLayoutProfissional(
+      dados.estiloPapelTimbrado || dados.estiloDocumento
+    );
 
-  return {
-    nomeFantasia: dados.nomeFantasia || "",
-    razaoSocial: dados.razaoSocial || "",
-    cnpj: dados.cnpj || "",
-    telefone: dados.telefone || "",
-    email: dados.email || "",
-    cep: dados.cep || "",
-    endereco: dados.endereco || "",
-    numero: dados.numero || "",
-    cidade: dados.cidade || "",
-    estado: dados.estado || "",
+    return {
+      nomeFantasia: dados.nomeFantasia || "",
+      razaoSocial: dados.razaoSocial || "",
+      cnpj: dados.cnpj || "",
+      telefone: dados.telefone || "",
+      email: dados.email || "",
+      cep: dados.cep || "",
+      endereco: dados.endereco || "",
+      numero: dados.numero || "",
+      cidade: dados.cidade || "",
+      estado: dados.estado || "",
 
-    responsavelNome: dados.responsavelNome || "",
-    responsavelCargo: dados.responsavelCargo || "",
-    cidadeAssinatura: dados.cidadeAssinatura || "",
+      responsavelNome: dados.responsavelNome || "",
+      responsavelCargo: dados.responsavelCargo || "",
+      cidadeAssinatura: dados.cidadeAssinatura || "",
 
-    logoUrl: dados.logoUrl || "",
-    certificadoAssinaturaUrl:
-      dados.certificadoAssinaturaUrl || "",
+      logoUrl: dados.logoUrl || "",
+      certificadoAssinaturaUrl:
+        dados.certificadoAssinaturaUrl || "",
 
-    contratoTemplate: dados.contratoTemplate || "",
-    observacoesContrato: dados.observacoesContrato || "",
+      contratoTemplate: dados.contratoTemplate || "",
+      observacoesContrato: dados.observacoesContrato || "",
 
-    estiloDocumento: layout,
-    estiloPapelTimbrado: layout,
+      estiloDocumento: layout,
+      estiloPapelTimbrado: layout,
 
-    usarPapelTimbrado: Boolean(dados.usarPapelTimbrado),
-    papelTimbradoUrl: dados.papelTimbradoUrl || "",
+      usarPapelTimbrado: Boolean(dados.usarPapelTimbrado),
+      papelTimbradoUrl: dados.papelTimbradoUrl || "",
 
-    corRelatorio: dados.corRelatorio || "AZUL",
-  };
-}
+      corRelatorio: dados.corRelatorio || "AZUL",
+    };
+  }
 
   async function carregar() {
     try {
@@ -162,12 +162,12 @@ export default function ConfigInstituicaoPage() {
       const json = await res.json();
 
       if (!res.ok) {
-  throw new Error(
-    json?.error ||
-      json?.message ||
-      "Erro ao carregar configurações da instituição."
-  );
-}
+        throw new Error(
+          json?.error ||
+          json?.message ||
+          "Erro ao carregar configurações da instituição."
+        );
+      }
 
       const layout = normalizarLayoutProfissional(
         json?.estiloPapelTimbrado || json?.estiloDocumento
@@ -183,16 +183,16 @@ export default function ConfigInstituicaoPage() {
 
       setPreviewPapelTimbrado(json?.papelTimbradoUrl || "");
     } catch (error: any) {
-  console.error(
-    "ERRO AO CARREGAR CONFIGURAÇÕES:",
-    error
-  );
+      console.error(
+        "ERRO AO CARREGAR CONFIGURAÇÕES:",
+        error
+      );
 
-  setMensagem(
-    error?.message ||
-      "Erro ao carregar configurações da instituição."
-  );
-} finally {
+      setMensagem(
+        error?.message ||
+        "Erro ao carregar configurações da instituição."
+      );
+    } finally {
       setLoading(false);
     }
   }
@@ -207,36 +207,36 @@ export default function ConfigInstituicaoPage() {
       );
 
       const payload = {
-  nomeFantasia: form.nomeFantasia || "",
-  razaoSocial: form.razaoSocial || "",
-  cnpj: form.cnpj || "",
-  telefone: form.telefone || "",
-  email: form.email || "",
-  cep: form.cep || "",
-  endereco: form.endereco || "",
-  numero: form.numero || "",
-  cidade: form.cidade || "",
-  estado: form.estado || "",
+        nomeFantasia: form.nomeFantasia || "",
+        razaoSocial: form.razaoSocial || "",
+        cnpj: form.cnpj || "",
+        telefone: form.telefone || "",
+        email: form.email || "",
+        cep: form.cep || "",
+        endereco: form.endereco || "",
+        numero: form.numero || "",
+        cidade: form.cidade || "",
+        estado: form.estado || "",
 
-  responsavelNome: form.responsavelNome || "",
-  responsavelCargo: form.responsavelCargo || "",
-  cidadeAssinatura: form.cidadeAssinatura || "",
+        responsavelNome: form.responsavelNome || "",
+        responsavelCargo: form.responsavelCargo || "",
+        cidadeAssinatura: form.cidadeAssinatura || "",
 
-  logoUrl: form.logoUrl || "",
-  certificadoAssinaturaUrl:
-    form.certificadoAssinaturaUrl || "",
+        logoUrl: form.logoUrl || "",
+        certificadoAssinaturaUrl:
+          form.certificadoAssinaturaUrl || "",
 
-  contratoTemplate: form.contratoTemplate || "",
-  observacoesContrato: form.observacoesContrato || "",
+        contratoTemplate: form.contratoTemplate || "",
+        observacoesContrato: form.observacoesContrato || "",
 
-  estiloDocumento: layout,
-  estiloPapelTimbrado: layout,
+        estiloDocumento: layout,
+        estiloPapelTimbrado: layout,
 
-  usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
-  papelTimbradoUrl: form.papelTimbradoUrl || "",
+        usarPapelTimbrado: Boolean(form.usarPapelTimbrado),
+        papelTimbradoUrl: form.papelTimbradoUrl || "",
 
-  corRelatorio: form.corRelatorio || "AZUL",
-};
+        corRelatorio: form.corRelatorio || "AZUL",
+      };
 
       const res = await fetch("/api/admin/configuracoes/instituicao", {
         method: "POST",
@@ -247,128 +247,128 @@ export default function ConfigInstituicaoPage() {
       });
 
       if (!res.ok) {
-  const dataErro = await res.json().catch(() => null);
+        const dataErro = await res.json().catch(() => null);
 
-  throw new Error(
-    dataErro?.error ||
-      dataErro?.message ||
-      "Erro desconhecido ao salvar configurações."
-  );
-}
+        throw new Error(
+          dataErro?.error ||
+          dataErro?.message ||
+          "Erro desconhecido ao salvar configurações."
+        );
+      }
 
-const data = await res.json();
-const configSalva = data?.config || data;
+      const data = await res.json();
+      const configSalva = data?.config || data;
 
-setForm((prev) => ({
-  ...prev,
-  ...configSalva,
-  certificadoAssinaturaUrl:
-    configSalva?.certificadoAssinaturaUrl ||
-    payload.certificadoAssinaturaUrl ||
-    "",
-  estiloDocumento: layout,
-  estiloPapelTimbrado: layout,
-}));
+      setForm((prev) => ({
+        ...prev,
+        ...configSalva,
+        certificadoAssinaturaUrl:
+          configSalva?.certificadoAssinaturaUrl ||
+          payload.certificadoAssinaturaUrl ||
+          "",
+        estiloDocumento: layout,
+        estiloPapelTimbrado: layout,
+      }));
 
       setMensagem("Configurações salvas com sucesso.");
     } catch (error: any) {
-  console.error("ERRO AO SALVAR CONFIGURAÇÕES:", error);
+      console.error("ERRO AO SALVAR CONFIGURAÇÕES:", error);
 
-  setMensagem(
-    error?.message || "Erro ao salvar configurações."
-  );
-} finally {
+      setMensagem(
+        error?.message || "Erro ao salvar configurações."
+      );
+    } finally {
       setSalvando(false);
     }
   }
 
   async function enviarLogo(file: File) {
-  try {
-    setEnviandoLogo(true);
-    setMensagem("");
-    setNomeArquivoLogo(file.name);
-
-    const tiposPermitidos = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/webp",
-    ];
-
-    if (!tiposPermitidos.includes(file.type)) {
-      throw new Error(
-        "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP."
-      );
-    }
-
-    if (file.size > 5 * 1024 * 1024) {
-      throw new Error("A imagem excede o limite de 5 MB.");
-    }
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const res = await fetch("/api/admin/upload/logo", {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-    });
-
-    const textoResposta = await res.text();
-
-    let data: any = {};
-
     try {
-      data = textoResposta ? JSON.parse(textoResposta) : {};
-    } catch {
-      throw new Error(
-        textoResposta ||
-          `O servidor retornou uma resposta inválida (${res.status}).`
-      );
-    }
+      setEnviandoLogo(true);
+      setMensagem("");
+      setNomeArquivoLogo(file.name);
 
-    if (!res.ok) {
-      throw new Error(
-        data?.error ||
+      const tiposPermitidos = [
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/webp",
+      ];
+
+      if (!tiposPermitidos.includes(file.type)) {
+        throw new Error(
+          "Formato inválido. Envie uma imagem PNG, JPG, JPEG ou WEBP."
+        );
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error("A imagem excede o limite de 5 MB.");
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload/logo", {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
+
+      const textoResposta = await res.text();
+
+      let data: any = {};
+
+      try {
+        data = textoResposta ? JSON.parse(textoResposta) : {};
+      } catch {
+        throw new Error(
+          textoResposta ||
+          `O servidor retornou uma resposta inválida (${res.status}).`
+        );
+      }
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
           data?.message ||
           `Erro ao enviar logo (${res.status}).`
-      );
-    }
+        );
+      }
 
-    const logoUrl =
-      data?.url ||
-      data?.logoUrl ||
-      data?.arquivo?.url ||
-      "";
+      const logoUrl =
+        data?.url ||
+        data?.logoUrl ||
+        data?.arquivo?.url ||
+        "";
 
-    if (!logoUrl) {
-      throw new Error(
-        "A imagem foi enviada, mas a URL da logo não foi retornada."
-      );
-    }
+      if (!logoUrl) {
+        throw new Error(
+          "A imagem foi enviada, mas a URL da logo não foi retornada."
+        );
+      }
 
-    setForm((prev) => ({
-      ...prev,
-      logoUrl,
-    }));
+      setForm((prev) => ({
+        ...prev,
+        logoUrl,
+      }));
 
-    setMensagem("Logo enviada e salva com sucesso.");
-    setMenuLogoAberto(false);
-  } catch (error: any) {
-    console.error("ERRO AO ENVIAR LOGO:", error);
+      setMensagem("Logo enviada e salva com sucesso.");
+      setMenuLogoAberto(false);
+    } catch (error: any) {
+      console.error("ERRO AO ENVIAR LOGO:", error);
 
-    setMensagem(
-      error?.message ||
+      setMensagem(
+        error?.message ||
         "Não foi possível enviar a logo da instituição."
-    );
-  } finally {
-    setEnviandoLogo(false);
+      );
+    } finally {
+      setEnviandoLogo(false);
 
-    if (inputFileLogoRef.current) {
-      inputFileLogoRef.current.value = "";
+      if (inputFileLogoRef.current) {
+        inputFileLogoRef.current.value = "";
+      }
     }
   }
-}
 
   async function enviarPapelTimbrado(file: File) {
     try {
@@ -422,235 +422,235 @@ setForm((prev) => ({
     }
   }
 
-async function enviarAssinaturaDiretor(file: File) {
-  try {
-    setEnviandoAssinatura(true);
-    setMensagem("");
-    setNomeArquivoAssinatura(file.name);
+  async function enviarAssinaturaDiretor(file: File) {
+    try {
+      setEnviandoAssinatura(true);
+      setMensagem("");
+      setNomeArquivoAssinatura(file.name);
 
-    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
-      setMensagem("Envie uma assinatura em PNG, JPG ou JPEG.");
-      return;
-    }
+      if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+        setMensagem("Envie uma assinatura em PNG, JPG ou JPEG.");
+        return;
+      }
 
-    const formData = new FormData();
-    formData.append("file", file);
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const resUpload = await fetch("/api/upload", {
-      method: "POST",
-      body: formData,
-    });
+      const resUpload = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
 
-    const dataUpload = await resUpload.json();
+      const dataUpload = await resUpload.json();
 
-    if (!resUpload.ok) {
-      throw new Error(dataUpload?.error || "Erro ao enviar assinatura.");
-    }
+      if (!resUpload.ok) {
+        throw new Error(dataUpload?.error || "Erro ao enviar assinatura.");
+      }
 
-    const assinaturaUrl = dataUpload?.url || dataUpload?.arquivo?.url;
+      const assinaturaUrl = dataUpload?.url || dataUpload?.arquivo?.url;
 
-    if (!assinaturaUrl) {
-      throw new Error("O upload não retornou a URL da assinatura.");
-    }
+      if (!assinaturaUrl) {
+        throw new Error("O upload não retornou a URL da assinatura.");
+      }
 
-    setForm((prev) => ({
-      ...prev,
-      certificadoAssinaturaUrl: assinaturaUrl,
-    }));
-
-    const resSalvar = await fetch("/api/admin/configuracoes/instituicao", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",
-      body: JSON.stringify({
-        ...form,
+      setForm((prev) => ({
+        ...prev,
         certificadoAssinaturaUrl: assinaturaUrl,
-      }),
-    });
+      }));
 
-    if (!resSalvar.ok) {
-      throw new Error("A assinatura foi enviada, mas não foi salva na instituição.");
-    }
-
-    setMensagem("Assinatura do diretor enviada e salva com sucesso.");
-    setMenuAssinaturaAberto(false);
-  } catch (error: any) {
-    setMensagem(error?.message || "Erro ao enviar assinatura do diretor.");
-  } finally {
-    setEnviandoAssinatura(false);
-  }
-}
-
-async function excluirImagemInstitucional(
-  tipo: "logo" | "assinatura"
-) {
-  try {
-    setExcluindoImagem(true);
-    setMensagem("");
-
-    const alteracoes: Partial<ConfigInstituicao> =
-      tipo === "logo"
-        ? { logoUrl: "" }
-        : { certificadoAssinaturaUrl: "" };
-
-    const payload = montarPayloadConfiguracao(alteracoes);
-
-    const res = await fetch(
-      "/api/admin/configuracoes/instituicao",
-      {
+      const resSalvar = await fetch("/api/admin/configuracoes/instituicao", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          ...form,
+          certificadoAssinaturaUrl: assinaturaUrl,
+        }),
+      });
+
+      if (!resSalvar.ok) {
+        throw new Error("A assinatura foi enviada, mas não foi salva na instituição.");
       }
-    );
 
-    const textoResposta = await res.text();
-
-    let data: any = {};
-
-    try {
-      data = textoResposta
-        ? JSON.parse(textoResposta)
-        : {};
-    } catch {
-      throw new Error(
-        textoResposta ||
-          `O servidor retornou uma resposta inválida (${res.status}).`
-      );
+      setMensagem("Assinatura do diretor enviada e salva com sucesso.");
+      setMenuAssinaturaAberto(false);
+    } catch (error: any) {
+      setMensagem(error?.message || "Erro ao enviar assinatura do diretor.");
+    } finally {
+      setEnviandoAssinatura(false);
     }
+  }
 
-    if (!res.ok) {
-      throw new Error(
-        data?.error ||
+  async function excluirImagemInstitucional(
+    tipo: "logo" | "assinatura"
+  ) {
+    try {
+      setExcluindoImagem(true);
+      setMensagem("");
+
+      const alteracoes: Partial<ConfigInstituicao> =
+        tipo === "logo"
+          ? { logoUrl: "" }
+          : { certificadoAssinaturaUrl: "" };
+
+      const payload = montarPayloadConfiguracao(alteracoes);
+
+      const res = await fetch(
+        "/api/admin/configuracoes/instituicao",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        }
+      );
+
+      const textoResposta = await res.text();
+
+      let data: any = {};
+
+      try {
+        data = textoResposta
+          ? JSON.parse(textoResposta)
+          : {};
+      } catch {
+        throw new Error(
+          textoResposta ||
+          `O servidor retornou uma resposta inválida (${res.status}).`
+        );
+      }
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
           data?.message ||
           "Não foi possível excluir a imagem."
+        );
+      }
+
+      const configSalva = data?.config || data;
+
+      if (tipo === "logo") {
+        setForm((prev) => ({
+          ...prev,
+          ...configSalva,
+          logoUrl: "",
+        }));
+
+        setNomeArquivoLogo("");
+        setMenuLogoAberto(false);
+        setMensagem("Logo excluída com sucesso.");
+      } else {
+        setForm((prev) => ({
+          ...prev,
+          ...configSalva,
+          certificadoAssinaturaUrl: "",
+        }));
+
+        setNomeArquivoAssinatura("");
+        setMenuAssinaturaAberto(false);
+        setMensagem(
+          "Assinatura do diretor excluída com sucesso."
+        );
+      }
+
+      setConfirmacaoExclusao(null);
+    } catch (error: any) {
+      console.error(
+        "ERRO AO EXCLUIR IMAGEM INSTITUCIONAL:",
+        error
       );
-    }
 
-    const configSalva = data?.config || data;
-
-    if (tipo === "logo") {
-      setForm((prev) => ({
-        ...prev,
-        ...configSalva,
-        logoUrl: "",
-      }));
-
-      setNomeArquivoLogo("");
-      setMenuLogoAberto(false);
-      setMensagem("Logo excluída com sucesso.");
-    } else {
-      setForm((prev) => ({
-        ...prev,
-        ...configSalva,
-        certificadoAssinaturaUrl: "",
-      }));
-
-      setNomeArquivoAssinatura("");
-      setMenuAssinaturaAberto(false);
       setMensagem(
-        "Assinatura do diretor excluída com sucesso."
-      );
-    }
-
-    setConfirmacaoExclusao(null);
-  } catch (error: any) {
-    console.error(
-      "ERRO AO EXCLUIR IMAGEM INSTITUCIONAL:",
-      error
-    );
-
-    setMensagem(
-      error?.message ||
+        error?.message ||
         "Não foi possível excluir a imagem."
-    );
-  } finally {
-    setExcluindoImagem(false);
+      );
+    } finally {
+      setExcluindoImagem(false);
+    }
   }
-}
 
   async function buscarEnderecoPorCep(cepInformado: string) {
-  const cepLimpo = cepInformado
-    .replace(/\D/g, "")
-    .slice(0, 8);
+    const cepLimpo = cepInformado
+      .replace(/\D/g, "")
+      .slice(0, 8);
 
-  const cepFormatado =
-    cepLimpo.length === 8
-      ? `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5)}`
-      : cepLimpo;
-
-  setForm((prev) => ({
-    ...prev,
-    cep: cepFormatado,
-  }));
-
-  if (cepLimpo.length !== 8) {
-    setMensagem("Informe um CEP com 8 números.");
-    return;
-  }
-
-  try {
-    setBuscandoCep(true);
-    setMensagem("");
-
-    const res = await fetch(
-      `https://viacep.com.br/ws/${cepLimpo}/json/`,
-      {
-        cache: "no-store",
-      }
-    );
-
-    if (!res.ok) {
-      throw new Error(
-        `Não foi possível consultar o CEP (${res.status}).`
-      );
-    }
-
-    const data = await res.json();
-
-    if (data?.erro === true) {
-      setMensagem(
-        "CEP não encontrado. Confira os números ou preencha o endereço manualmente."
-      );
-      return;
-    }
+    const cepFormatado =
+      cepLimpo.length === 8
+        ? `${cepLimpo.slice(0, 5)}-${cepLimpo.slice(5)}`
+        : cepLimpo;
 
     setForm((prev) => ({
       ...prev,
       cep: cepFormatado,
-      endereco:
-        data?.logradouro ||
-        prev.endereco ||
-        "",
-      cidade:
-        data?.localidade ||
-        prev.cidade ||
-        "",
-      estado:
-        data?.uf ||
-        prev.estado ||
-        "",
-      cidadeAssinatura:
-        prev.cidadeAssinatura ||
-        data?.localidade ||
-        "",
     }));
-  } catch (error: any) {
-    console.error("ERRO AO BUSCAR CEP:", error);
 
-    setMensagem(
-      error?.message ||
+    if (cepLimpo.length !== 8) {
+      setMensagem("Informe um CEP com 8 números.");
+      return;
+    }
+
+    try {
+      setBuscandoCep(true);
+      setMensagem("");
+
+      const res = await fetch(
+        `https://viacep.com.br/ws/${cepLimpo}/json/`,
+        {
+          cache: "no-store",
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error(
+          `Não foi possível consultar o CEP (${res.status}).`
+        );
+      }
+
+      const data = await res.json();
+
+      if (data?.erro === true) {
+        setMensagem(
+          "CEP não encontrado. Confira os números ou preencha o endereço manualmente."
+        );
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        cep: cepFormatado,
+        endereco:
+          data?.logradouro ||
+          prev.endereco ||
+          "",
+        cidade:
+          data?.localidade ||
+          prev.cidade ||
+          "",
+        estado:
+          data?.uf ||
+          prev.estado ||
+          "",
+        cidadeAssinatura:
+          prev.cidadeAssinatura ||
+          data?.localidade ||
+          "",
+      }));
+    } catch (error: any) {
+      console.error("ERRO AO BUSCAR CEP:", error);
+
+      setMensagem(
+        error?.message ||
         "Não foi possível buscar o endereço pelo CEP. Você pode preencher o endereço manualmente."
-    );
-  } finally {
-    setBuscandoCep(false);
+      );
+    } finally {
+      setBuscandoCep(false);
+    }
   }
-}
 
   useEffect(() => {
     carregar();
@@ -691,16 +691,14 @@ async function excluirImagemInstitucional(
 
         <div className="min-w-0 flex-1">
           <div
-            className={`truncate text-[10px] font-semibold ${
-              claro ? "text-white" : "text-slate-800"
-            }`}
+            className={`truncate text-[10px] font-semibold ${claro ? "text-white" : "text-slate-800"
+              }`}
           >
             {nomePreview}
           </div>
           <div
-            className={`truncate text-[8px] ${
-              claro ? "text-slate-200" : "text-slate-400"
-            }`}
+            className={`truncate text-[8px] ${claro ? "text-slate-200" : "text-slate-400"
+              }`}
           >
             {cidadeEstadoPreview || "Cidade / Estado"}
           </div>
@@ -723,47 +721,47 @@ async function excluirImagemInstitucional(
 
   function renderPreviewPapelTimbrado() {
     if (modoLayout === "SIMPLES") {
-  return (
-    <div
-  className="preview-papel phanyx-paper-surface relative h-full w-full p-6"
-  style={{ backgroundColor: "#ffffff", color: "#020617" }}
->
-      <div className="mb-6 flex items-center gap-2">
-        <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-slate-200">
-          {form.logoUrl ? (
-            <img
-              src={form.logoUrl}
-              alt="Logo da instituição"
-              className="max-h-9 max-w-9 object-contain"
-            />
-          ) : (
-            <span className="text-[8px] text-slate-400">LOGO</span>
-          )}
-        </div>
+      return (
+        <div
+          className="preview-papel phanyx-paper-surface relative h-full w-full p-6"
+          style={{ backgroundColor: "#ffffff", color: "#020617" }}
+        >
+          <div className="mb-6 flex items-center gap-2">
+            <div className="logo-preview-bg flex h-10 w-10 items-center justify-center overflow-hidden rounded-md border border-slate-200">
+              {form.logoUrl ? (
+                <img
+                  src={form.logoUrl}
+                  alt="Logo da instituição"
+                  className="max-h-9 max-w-9 object-contain"
+                />
+              ) : (
+                <span className="text-[8px] text-slate-400">LOGO</span>
+              )}
+            </div>
 
-        <div>
-          <div className="text-[10px] font-semibold text-slate-900">
-            {nomePreview}
+            <div>
+              <div className="text-[10px] font-semibold text-slate-900">
+                {nomePreview}
+              </div>
+              <div className="text-[8px] text-slate-500">
+                {cidadeEstadoPreview || "Cidade / Estado"}
+              </div>
+            </div>
           </div>
-          <div className="text-[8px] text-slate-500">
-            {cidadeEstadoPreview || "Cidade / Estado"}
+
+          <div className="mt-8">
+            <div className="mb-4 text-[11px] font-semibold text-slate-900">
+              Documento institucional
+            </div>
+            {renderLinhasTexto()}
+          </div>
+
+          <div className="absolute bottom-5 left-6 right-6 border-t border-slate-200 pt-2 text-center text-[7px] text-slate-500">
+            {contatoPreview}
           </div>
         </div>
-      </div>
-
-      <div className="mt-8">
-        <div className="mb-4 text-[11px] font-semibold text-slate-900">
-          Documento institucional
-        </div>
-        {renderLinhasTexto()}
-      </div>
-
-      <div className="absolute bottom-5 left-6 right-6 border-t border-slate-200 pt-2 text-center text-[7px] text-slate-500">
-        {contatoPreview}
-      </div>
-    </div>
-  );
-}
+      );
+    }
     if (layoutSelecionado === "PHANYX_MODERNO") {
       return (
         <div className="preview-papel phanyx-paper-surface relative h-full w-full overflow-hidden bg-white">
@@ -901,10 +899,10 @@ async function excluirImagemInstitucional(
         <div className="phanyx-paper-surface relative h-full w-full bg-white">
           <div className="absolute left-0 top-0 h-full w-5 bg-slate-200" />
           <img
-  src={previewSrc}
-  alt="Prévia do papel timbrado"
-  className="absolute inset-0 m-auto max-h-[75%] max-w-[75%] object-contain opacity-15"
-/>
+            src={previewSrc}
+            alt="Prévia do papel timbrado"
+            className="absolute inset-0 m-auto max-h-[75%] max-w-[75%] object-contain opacity-15"
+          />
           <div className="absolute left-8 right-3 top-3 rounded-lg bg-white p-2">
             {renderCabecalhoPreview()}
           </div>
@@ -1092,53 +1090,53 @@ async function excluirImagemInstitucional(
 
   return (
     <>
-    {confirmacaoExclusao && (
-  <div className="phanyx-modal-imagem-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4">
-    <div className="phanyx-modal-imagem-card w-full max-w-md rounded-2xl p-6 shadow-2xl">
-      <div className="flex items-start gap-4">
-        <div className="phanyx-modal-imagem-icone flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl">
-          ⚠️
+      {confirmacaoExclusao && (
+        <div className="phanyx-modal-imagem-overlay fixed inset-0 z-[10000] flex items-center justify-center p-4">
+          <div className="phanyx-modal-imagem-card w-full max-w-md rounded-2xl p-6 shadow-2xl">
+            <div className="flex items-start gap-4">
+              <div className="phanyx-modal-imagem-icone flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl">
+                ⚠️
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h2 className="phanyx-modal-imagem-titulo text-lg font-bold">
+                  {confirmacaoExclusao === "logo"
+                    ? "Excluir logo?"
+                    : "Excluir assinatura do diretor?"}
+                </h2>
+
+                <p className="phanyx-modal-imagem-texto mt-2 text-sm leading-6">
+                  {confirmacaoExclusao === "logo"
+                    ? "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
+                    : "A assinatura deixará de aparecer nos certificados e documentos institucionais."}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button
+                type="button"
+                onClick={() => setConfirmacaoExclusao(null)}
+                disabled={excluindoImagem}
+                className="phanyx-modal-imagem-cancelar rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={() =>
+                  excluirImagemInstitucional(confirmacaoExclusao)
+                }
+                disabled={excluindoImagem}
+                className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {excluindoImagem ? "Excluindo..." : "Excluir"}
+              </button>
+            </div>
+          </div>
         </div>
-
-        <div className="min-w-0 flex-1">
-          <h2 className="phanyx-modal-imagem-titulo text-lg font-bold">
-            {confirmacaoExclusao === "logo"
-              ? "Excluir logo?"
-              : "Excluir assinatura do diretor?"}
-          </h2>
-
-          <p className="phanyx-modal-imagem-texto mt-2 text-sm leading-6">
-            {confirmacaoExclusao === "logo"
-              ? "A logo deixará de aparecer nos documentos, relatórios e demais áreas institucionais."
-              : "A assinatura deixará de aparecer nos certificados e documentos institucionais."}
-          </p>
-        </div>
-      </div>
-
-      <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <button
-          type="button"
-          onClick={() => setConfirmacaoExclusao(null)}
-          disabled={excluindoImagem}
-          className="phanyx-modal-imagem-cancelar rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          onClick={() =>
-            excluirImagemInstitucional(confirmacaoExclusao)
-          }
-          disabled={excluindoImagem}
-          className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {excluindoImagem ? "Excluindo..." : "Excluir"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
       {previewAmpliada && (
         <div className="fixed inset-0 z-[9999] bg-slate-950/70 p-4">
           <div className="mx-auto flex h-full max-w-5xl flex-col justify-center">
@@ -1400,22 +1398,22 @@ async function excluirImagemInstitucional(
               </div>
 
               <div className="md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50 p-4">
-  <h3 className="text-sm font-bold text-blue-900">
-    Modelos de contrato
-  </h3>
+                <h3 className="text-sm font-bold text-blue-900">
+                  Modelos de contrato
+                </h3>
 
-  <p className="text-sm text-slate-700 dark:text-slate-300">
-  Gerencie os modelos institucionais em Configurações → Documentos Institucionais → Templates de Documentos.
-  Esses templates serão usados para contratos, declarações, comprovantes, recibos e demais documentos gerados pelo PHANYX.
-</p>
+                <p className="text-sm text-slate-700 dark:text-slate-300">
+                  Gerencie os modelos institucionais em Configurações → Documentos Institucionais → Templates de Documentos.
+                  Esses templates serão usados para contratos, declarações, comprovantes, recibos e demais documentos gerados pelo PHANYX.
+                </p>
 
-  <Link
-    href="/admin/documentos/templates"
-    className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-  >
-    Gerenciar templates de documentos
-  </Link>
-</div>
+                <Link
+                  href="/admin/documentos/templates"
+                  className="mt-4 inline-flex rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+                >
+                  Gerenciar templates de documentos
+                </Link>
+              </div>
             </div>
 
             <div className="mt-6">
@@ -1432,127 +1430,127 @@ async function excluirImagemInstitucional(
           <div className="space-y-4">
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="relative mb-3 flex items-center justify-between gap-3">
-  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-    Logo
-  </h2>
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  Logo
+                </h2>
 
-  <div className="flex items-center gap-2">
-    <button
-      type="button"
-      onClick={() =>
-        setAjudaLogoAberta((aberta) => !aberta)
-      }
-      aria-label={
-        ajudaLogoAberta
-          ? "Fechar orientações da logo"
-          : "Abrir orientações da logo"
-      }
-      aria-expanded={ajudaLogoAberta}
-      title="Configurações recomendadas para a logo"
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-xs font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900"
-    >
-      i
-    </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAjudaLogoAberta((aberta) => !aberta)
+                    }
+                    aria-label={
+                      ajudaLogoAberta
+                        ? "Fechar orientações da logo"
+                        : "Abrir orientações da logo"
+                    }
+                    aria-expanded={ajudaLogoAberta}
+                    title="Configurações recomendadas para a logo"
+                    className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-blue-300 bg-blue-50 text-xs font-bold text-blue-700 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:border-blue-700 dark:bg-blue-950/60 dark:text-blue-300 dark:hover:bg-blue-900"
+                  >
+                    i
+                  </button>
 
-    {form.logoUrl && (
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => {
-            setMenuLogoAberto((aberto) => !aberto);
-            setMenuAssinaturaAberto(false);
-          }}
-          aria-label="Editar logo"
-          title="Editar logo"
-          className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
-        >
-          ✏️
-        </button>
+                  {form.logoUrl && (
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMenuLogoAberto((aberto) => !aberto);
+                          setMenuAssinaturaAberto(false);
+                        }}
+                        aria-label="Editar logo"
+                        title="Editar logo"
+                        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
+                      >
+                        ✏️
+                      </button>
 
-        {menuLogoAberto && (
-  <div className="phanyx-menu-imagem absolute right-0 top-9 z-40 w-48 overflow-hidden rounded-xl p-1 shadow-xl">
-    <button
-      type="button"
-      onClick={() => {
-        setMenuLogoAberto(false);
-        inputFileLogoRef.current?.click();
-      }}
-      className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
-    >
-      <span aria-hidden="true">🔄</span>
-      <span>Trocar logo</span>
-    </button>
+                      {menuLogoAberto && (
+                        <div className="phanyx-menu-imagem absolute right-0 top-9 z-40 w-48 overflow-hidden rounded-xl p-1 shadow-xl">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMenuLogoAberto(false);
+                              inputFileLogoRef.current?.click();
+                            }}
+                            className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+                          >
+                            <span aria-hidden="true">🔄</span>
+                            <span>Trocar logo</span>
+                          </button>
 
-    <button
-      type="button"
-      onClick={() => {
-        setMenuLogoAberto(false);
-        setConfirmacaoExclusao("logo");
-      }}
-      className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
-    >
-      <span aria-hidden="true">🗑️</span>
-      <span>Excluir logo</span>
-    </button>
-  </div>
-)}
-      </div>
-    )}
-  </div>
-</div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMenuLogoAberto(false);
+                              setConfirmacaoExclusao("logo");
+                            }}
+                            className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+                          >
+                            <span aria-hidden="true">🗑️</span>
+                            <span>Excluir logo</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
 
-{ajudaLogoAberta && (
-  <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700 shadow-sm dark:border-blue-900 dark:bg-blue-950/40 dark:text-slate-200">
-    <div className="mb-2 flex items-center justify-between gap-3">
-      <h3 className="font-bold text-blue-900 dark:text-blue-200">
-        Configurações recomendadas
-      </h3>
+              {ajudaLogoAberta && (
+                <div className="mb-4 rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-slate-700 shadow-sm dark:border-blue-900 dark:bg-blue-950/40 dark:text-slate-200">
+                  <div className="mb-2 flex items-center justify-between gap-3">
+                    <h3 className="font-bold text-blue-900 dark:text-blue-200">
+                      Configurações recomendadas
+                    </h3>
 
-      <button
-        type="button"
-        onClick={() => setAjudaLogoAberta(false)}
-        className="rounded-lg px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-900"
-      >
-        Fechar
-      </button>
-    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAjudaLogoAberta(false)}
+                      className="rounded-lg px-2 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100 dark:text-blue-300 dark:hover:bg-blue-900"
+                    >
+                      Fechar
+                    </button>
+                  </div>
 
-    <div className="space-y-2 text-xs leading-5 sm:text-sm">
-      <p>
-        <strong>Formato preferencial:</strong> PNG com fundo transparente.
-      </p>
+                  <div className="space-y-2 text-xs leading-5 sm:text-sm">
+                    <p>
+                      <strong>Formato preferencial:</strong> PNG com fundo transparente.
+                    </p>
 
-      <p>
-        <strong>Formatos aceitos:</strong> PNG, JPG, JPEG e WEBP.
-      </p>
+                    <p>
+                      <strong>Formatos aceitos:</strong> PNG, JPG, JPEG e WEBP.
+                    </p>
 
-      <p>
-        <strong>Tamanho recomendado:</strong> entre 800 e 1.500 pixels
-        no lado maior.
-      </p>
+                    <p>
+                      <strong>Tamanho recomendado:</strong> entre 800 e 1.500 pixels
+                      no lado maior.
+                    </p>
 
-      <p>
-        <strong>Peso máximo:</strong> 5 MB.
-      </p>
+                    <p>
+                      <strong>Peso máximo:</strong> 5 MB.
+                    </p>
 
-      <p>
-        <strong>Proporção:</strong> mantenha a proporção original da marca,
-        sem esticar ou achatar.
-      </p>
+                    <p>
+                      <strong>Proporção:</strong> mantenha a proporção original da marca,
+                      sem esticar ou achatar.
+                    </p>
 
-      <p>
-        <strong>Margens:</strong> evite espaços vazios excessivos ao redor
-        da logo.
-      </p>
+                    <p>
+                      <strong>Margens:</strong> evite espaços vazios excessivos ao redor
+                      da logo.
+                    </p>
 
-      <p>
-        Para logos horizontais, uma medida como
-        <strong> 1.200 × 600 px</strong> funciona bem. Para logos quadradas,
-        use aproximadamente <strong>800 × 800 px</strong>.
-      </p>
-    </div>
-  </div>
-)}
+                    <p>
+                      Para logos horizontais, uma medida como
+                      <strong> 1.200 × 600 px</strong> funciona bem. Para logos quadradas,
+                      use aproximadamente <strong>800 × 800 px</strong>.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex h-28 w-full items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50">
                 {form.logoUrl ? (
@@ -1580,155 +1578,155 @@ async function excluirImagemInstitucional(
                 }}
               />
 
-{!form.logoUrl && (
-              <button
-                type="button"
-                onClick={() => inputFileLogoRef.current?.click()}
-                disabled={enviandoLogo}
-                className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-              >
-                {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
-              </button>
+              {!form.logoUrl && (
+                <button
+                  type="button"
+                  onClick={() => inputFileLogoRef.current?.click()}
+                  disabled={enviandoLogo}
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  {enviandoLogo ? "Enviando logo..." : "Selecionar logo"}
+                </button>
               )}
 
               <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
-  <div>
-    {nomeArquivoLogo
-      ? `Arquivo selecionado: ${nomeArquivoLogo}`
-      : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
-  </div>
+                <div>
+                  {nomeArquivoLogo
+                    ? `Arquivo selecionado: ${nomeArquivoLogo}`
+                    : "Formatos aceitos: PNG, JPG, JPEG e WEBP"}
+                </div>
 
-  <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
-    Se sua logo estiver com fundo branco ou colorido, remova o fundo antes:
-    <a
-      href="https://phanyx.com.br/removedor-de-fundo"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="ml-1 font-bold underline"
-    >
-      Abrir removedor PHANYX
-    </a>
-    . Depois faça o upload da imagem transparente.
-  </div>
-</div>
+                <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
+                  Se sua logo estiver com fundo branco ou colorido, remova o fundo antes:
+                  <a
+                    href="https://phanyx.com.br/removedor-de-fundo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 font-bold underline"
+                  >
+                    Abrir removedor PHANYX
+                  </a>
+                  . Depois faça o upload da imagem transparente.
+                </div>
+              </div>
             </div>
 
-<div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-  <div className="relative mb-3 flex items-center justify-between gap-3">
-  <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
-    Assinatura do diretor
-  </h2>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="relative mb-3 flex items-center justify-between gap-3">
+                <h2 className="text-lg font-semibold text-slate-800 dark:text-white">
+                  Assinatura do diretor
+                </h2>
 
-  {form.certificadoAssinaturaUrl && (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => {
-          setMenuAssinaturaAberto(
-            (aberto) => !aberto
-          );
-          setMenuLogoAberto(false);
-        }}
-        aria-label="Editar assinatura do diretor"
-        title="Editar assinatura do diretor"
-        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
-      >
-        ✏️
-      </button>
+                {form.certificadoAssinaturaUrl && (
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setMenuAssinaturaAberto(
+                          (aberto) => !aberto
+                        );
+                        setMenuLogoAberto(false);
+                      }}
+                      aria-label="Editar assinatura do diretor"
+                      title="Editar assinatura do diretor"
+                      className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-300 bg-white text-sm transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:hover:bg-slate-700"
+                    >
+                      ✏️
+                    </button>
 
-      {menuAssinaturaAberto && (
-  <div className="phanyx-menu-imagem absolute right-0 top-9 z-40 w-56 overflow-hidden rounded-xl p-1 shadow-xl">
-    <button
-      type="button"
-      onClick={() => {
-        setMenuAssinaturaAberto(false);
-        inputFileAssinaturaRef.current?.click();
-      }}
-      className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
-    >
-      <span aria-hidden="true">🔄</span>
-      <span>Trocar assinatura</span>
-    </button>
+                    {menuAssinaturaAberto && (
+                      <div className="phanyx-menu-imagem absolute right-0 top-9 z-40 w-56 overflow-hidden rounded-xl p-1 shadow-xl">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuAssinaturaAberto(false);
+                            inputFileAssinaturaRef.current?.click();
+                          }}
+                          className="phanyx-menu-imagem-trocar flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+                        >
+                          <span aria-hidden="true">🔄</span>
+                          <span>Trocar assinatura</span>
+                        </button>
 
-    <button
-      type="button"
-      onClick={() => {
-        setMenuAssinaturaAberto(false);
-        setConfirmacaoExclusao("assinatura");
-      }}
-      className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
-    >
-      <span aria-hidden="true">🗑️</span>
-      <span>Excluir assinatura</span>
-    </button>
-  </div>
-)}
-    </div>
-  )}
-</div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMenuAssinaturaAberto(false);
+                            setConfirmacaoExclusao("assinatura");
+                          }}
+                          className="phanyx-menu-imagem-excluir flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm font-semibold transition"
+                        >
+                          <span aria-hidden="true">🗑️</span>
+                          <span>Excluir assinatura</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
-  <div className="flex h-28 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50">
-  {form.certificadoAssinaturaUrl ? (
-    <img
-      src={form.certificadoAssinaturaUrl}
-      alt="Assinatura do diretor"
-      className="max-h-24 max-w-full object-contain"
-    />
-  ) : (
-    <span className="text-sm text-slate-500">
-      Nenhuma assinatura enviada
-    </span>
-  )}
-</div>
+              <div className="flex h-28 items-center justify-center overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50">
+                {form.certificadoAssinaturaUrl ? (
+                  <img
+                    src={form.certificadoAssinaturaUrl}
+                    alt="Assinatura do diretor"
+                    className="max-h-24 max-w-full object-contain"
+                  />
+                ) : (
+                  <span className="text-sm text-slate-500">
+                    Nenhuma assinatura enviada
+                  </span>
+                )}
+              </div>
 
-  <input
-    ref={inputFileAssinaturaRef}
-    type="file"
-    accept="image/png,image/jpeg,image/jpg"
-    className="hidden"
-    onChange={async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      await enviarAssinaturaDiretor(file);
-    }}
-  />
+              <input
+                ref={inputFileAssinaturaRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  await enviarAssinaturaDiretor(file);
+                }}
+              />
 
- {!form.certificadoAssinaturaUrl && (
-  <button
-    type="button"
-    onClick={() =>
-      inputFileAssinaturaRef.current?.click()
-    }
-    disabled={enviandoAssinatura}
-    className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
-  >
-    {enviandoAssinatura
-      ? "Enviando assinatura..."
-      : "Selecionar assinatura"}
-  </button>
-)}
+              {!form.certificadoAssinaturaUrl && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    inputFileAssinaturaRef.current?.click()
+                  }
+                  disabled={enviandoAssinatura}
+                  className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-60"
+                >
+                  {enviandoAssinatura
+                    ? "Enviando assinatura..."
+                    : "Selecionar assinatura"}
+                </button>
+              )}
 
-  <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
-  <div>
-    {nomeArquivoAssinatura
-      ? `Arquivo selecionado: ${nomeArquivoAssinatura}`
-      : "Formatos aceitos: PNG, JPG e JPEG. Dê preferência para PNG com fundo transparente."}
-  </div>
+              <div className="mt-3 w-full rounded-xl bg-slate-50 p-3 text-xs text-slate-600 space-y-2">
+                <div>
+                  {nomeArquivoAssinatura
+                    ? `Arquivo selecionado: ${nomeArquivoAssinatura}`
+                    : "Formatos aceitos: PNG, JPG e JPEG. Dê preferência para PNG com fundo transparente."}
+                </div>
 
-  <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
-    Se sua assinatura estiver com fundo branco ou colorido, remova o fundo antes:
-    <a
-      href="https://phanyx.com.br/removedor-de-fundo"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="ml-1 font-bold underline"
-    >
-      Abrir removedor PHANYX
-    </a>
-    . Depois faça o upload da assinatura transparente.
-  </div>
-</div>
-</div>
+                <div className="rounded-lg border border-cyan-200 bg-cyan-50 p-3 text-cyan-900">
+                  Se sua assinatura estiver com fundo branco ou colorido, remova o fundo antes:
+                  <a
+                    href="https://phanyx.com.br/removedor-de-fundo"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="ml-1 font-bold underline"
+                  >
+                    Abrir removedor PHANYX
+                  </a>
+                  . Depois faça o upload da assinatura transparente.
+                </div>
+              </div>
+            </div>
 
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 className="mb-3 text-lg font-semibold text-slate-800">
@@ -1737,32 +1735,32 @@ async function excluirImagemInstitucional(
 
               <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
 
-<button
-  type="button"
-  onClick={() => setModoLayout("SIMPLES")}
-  className={`cfg-layout-card ${modoLayout === "SIMPLES" ? "ativo" : ""}`}
->
-  <div className="text-sm font-semibold">Sem papel</div>
-  <p className="mt-1 text-[11px]">Layout simples</p>
-</button>
+                <button
+                  type="button"
+                  onClick={() => setModoLayout("SIMPLES")}
+                  className={`cfg-layout-card ${modoLayout === "SIMPLES" ? "ativo" : ""}`}
+                >
+                  <div className="text-sm font-semibold">Sem papel</div>
+                  <p className="mt-1 text-[11px]">Layout simples</p>
+                </button>
 
-<button
-  type="button"
-  onClick={() => setModoLayout("PHANYX")}
-  className={`cfg-layout-card ${modoLayout === "PHANYX" ? "ativo" : ""}`}
->
-  <div className="text-sm font-semibold">Modelo PHANYX</div>
-  <p className="mt-1 text-[11px]">Pronto para uso</p>
-</button>
+                <button
+                  type="button"
+                  onClick={() => setModoLayout("PHANYX")}
+                  className={`cfg-layout-card ${modoLayout === "PHANYX" ? "ativo" : ""}`}
+                >
+                  <div className="text-sm font-semibold">Modelo PHANYX</div>
+                  <p className="mt-1 text-[11px]">Pronto para uso</p>
+                </button>
 
-<button
-  type="button"
-  onClick={() => setModoLayout("PERSONALIZADO")}
-  className={`cfg-layout-card ${modoLayout === "PERSONALIZADO" ? "ativo" : ""}`}
->
-  <div className="text-sm font-semibold">Papel próprio</div>
-  <p className="mt-1 text-[11px]">Arte institucional</p>
-</button>
+                <button
+                  type="button"
+                  onClick={() => setModoLayout("PERSONALIZADO")}
+                  className={`cfg-layout-card ${modoLayout === "PERSONALIZADO" ? "ativo" : ""}`}
+                >
+                  <div className="text-sm font-semibold">Papel próprio</div>
+                  <p className="mt-1 text-[11px]">Arte institucional</p>
+                </button>
 
               </div>
 
@@ -1867,35 +1865,35 @@ async function excluirImagemInstitucional(
                 </div>
               )}
 
-<div className="mt-5">
-  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-    Cor dos relatórios (PDF e Excel)
-  </label>
+              <div className="mt-5">
+                <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  Cor dos relatórios (PDF e Excel)
+                </label>
 
-  <select
-    value={form.corRelatorio || "AZUL"}
-    onChange={(e) =>
-      setForm((prev) => ({
-        ...prev,
-        corRelatorio: e.target.value,
-      }))
-    }
-    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-  >
-    <option value="AZUL">🔵 Azul</option>
-    <option value="VERDE">🟢 Verde</option>
-    <option value="PRETO">⚫ Preto</option>
-    <option value="CINZA">⚪ Cinza</option>
-    <option value="AMARELO">🟡 Amarelo</option>
-    <option value="ROXO">🟣 Roxo</option>
-    <option value="ROSA">🌸 Rosa</option>
-    <option value="VERMELHO">🔴 Vermelho</option>
-  </select>
+                <select
+                  value={form.corRelatorio || "AZUL"}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      corRelatorio: e.target.value,
+                    }))
+                  }
+                  className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+                >
+                  <option value="AZUL">🔵 Azul</option>
+                  <option value="VERDE">🟢 Verde</option>
+                  <option value="PRETO">⚫ Preto</option>
+                  <option value="CINZA">⚪ Cinza</option>
+                  <option value="AMARELO">🟡 Amarelo</option>
+                  <option value="ROXO">🟣 Roxo</option>
+                  <option value="ROSA">🌸 Rosa</option>
+                  <option value="VERMELHO">🔴 Vermelho</option>
+                </select>
 
-  <p className="mt-2 text-xs text-slate-500">
-    Esta cor será utilizada automaticamente no cabeçalho dos PDFs e planilhas Excel da instituição.
-  </p>
-</div>
+                <p className="mt-2 text-xs text-slate-500">
+                  Esta cor será utilizada automaticamente no cabeçalho dos PDFs e planilhas Excel da instituição.
+                </p>
+              </div>
 
               <div className="mt-5">
                 <div className="mb-2 flex items-center justify-between">
@@ -1940,11 +1938,11 @@ async function excluirImagemInstitucional(
             </div>
 
             <Link
-  href="/admin/polos"
-  className="phanyx-primary-action"
->
-  Gerenciar polos
-</Link>
+              href="/admin/polos"
+              className="phanyx-primary-action"
+            >
+              Gerenciar polos
+            </Link>
           </div>
         </div>
       </div>

@@ -59,7 +59,7 @@ export default function ConfiguracoesDocumentosPage() {
             Configure modelos, campos, assinaturas e emissão de certificados.
           </p>
         </Link>
-                <Link
+        <Link
           href="/admin/integracoes"
           className="rounded-2xl border bg-white p-5 shadow-sm hover:border-blue-500"
         >

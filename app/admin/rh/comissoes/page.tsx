@@ -652,19 +652,19 @@ export default function AdminRHComissoesPage() {
             </p>
           </div>
 
-<div className="phanyx-comissoes-card rounded-2xl border p-4">
-  <p className="text-sm phanyx-comissoes-texto-secundario">
-    Enviadas ao holerite
-  </p>
+          <div className="phanyx-comissoes-card rounded-2xl border p-4">
+            <p className="text-sm phanyx-comissoes-texto-secundario">
+              Enviadas ao holerite
+            </p>
 
-  <p className="mt-1 text-2xl font-black">
-    {resumo.enviadosHolerite}
-  </p>
+            <p className="mt-1 text-2xl font-black">
+              {resumo.enviadosHolerite}
+            </p>
 
-  <p className="mt-2 text-sm font-bold text-violet-700">
-    {formatarMoeda(resumo.valorEnviadoHolerite)}
-  </p>
-</div>
+            <p className="mt-2 text-sm font-bold text-violet-700">
+              {formatarMoeda(resumo.valorEnviadoHolerite)}
+            </p>
+          </div>
 
           <div className="phanyx-comissoes-card rounded-2xl border p-4">
             <p className="text-sm phanyx-comissoes-texto-secundario">
@@ -1280,23 +1280,23 @@ export default function AdminRHComissoesPage() {
                                 )}
 
                                 {lancamento.enviadoHoleriteEm && (
-  <div>
-    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
-      Envio ao holerite
-    </p>
+                                  <div>
+                                    <p className="text-xs font-black uppercase tracking-wide phanyx-comissoes-texto-secundario">
+                                      Envio ao holerite
+                                    </p>
 
-    <p className="mt-1 text-sm">
-      {formatarDataHora(lancamento.enviadoHoleriteEm)}
-    </p>
+                                    <p className="mt-1 text-sm">
+                                      {formatarDataHora(lancamento.enviadoHoleriteEm)}
+                                    </p>
 
-    <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
-      Por:{" "}
-      {lancamento.enviadoHoleritePor?.nome ||
-        lancamento.enviadoHoleritePor?.email ||
-        "Responsável não registrado"}
-    </p>
-  </div>
-)}
+                                    <p className="mt-1 text-xs phanyx-comissoes-texto-secundario">
+                                      Por:{" "}
+                                      {lancamento.enviadoHoleritePor?.nome ||
+                                        lancamento.enviadoHoleritePor?.email ||
+                                        "Responsável não registrado"}
+                                    </p>
+                                  </div>
+                                )}
 
                                 {lancamento.reprovadoEm && (
                                   <div>

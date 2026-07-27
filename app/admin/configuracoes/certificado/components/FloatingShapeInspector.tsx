@@ -24,11 +24,11 @@ type CampoForma = {
   altura?: number | null;
   raioBorda?: number | null;
   cantosArredondados?: {
-  topoEsquerdo?: number;
-  topoDireito?: number;
-  baixoDireito?: number;
-  baixoEsquerdo?: number;
-} | null;
+    topoEsquerdo?: number;
+    topoDireito?: number;
+    baixoDireito?: number;
+    baixoEsquerdo?: number;
+  } | null;
   forma?: string | null;
   pontosForma?: PontoForma[] | null;
   preenchimentoCor?: string | null;
@@ -153,108 +153,108 @@ export default function FloatingShapeInspector({
     ? Math.max(3, Math.floor((campo.pontosForma?.length || 10) / 2))
     : 0;
 
-const raioInternoAtual = Number((campo as any).raioInterno ?? 22);
-const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
+  const raioInternoAtual = Number((campo as any).raioInterno ?? 22);
+  const raioExternoAtual = Number((campo as any).raioExterno ?? 44);
 
-function atualizarCampoBasico(chave: keyof CampoForma, valor: any) {
-  onAtualizarCampo({
-    ...campo,
-    [chave]: valor,
-  } as any);
-}
-
-const ehEstrela = campo.forma === "ESTRELA";
-const ehRetanguloOuQuadrado =
-  campo.forma === "RETANGULO" || campo.forma === "QUADRADO";
-const ehTriangulo = campo.forma === "TRIANGULO";
-const ehCirculo = campo.forma === "CIRCULO";
-
-const [alvoCantos, setAlvoCantos] = useState<
-  "todos" | "cima" | "baixo" | "esquerda" | "direita"
->("todos");
-
-function valorAtualDosCantos() {
-  const cantos = (campo as any).cantosArredondados || {};
-
-  if (alvoCantos === "todos") {
-    return campo.raioBorda || 0;
+  function atualizarCampoBasico(chave: keyof CampoForma, valor: any) {
+    onAtualizarCampo({
+      ...campo,
+      [chave]: valor,
+    } as any);
   }
 
-  if (alvoCantos === "cima") {
-    return cantos.topoEsquerdo ?? cantos.topoDireito ?? 0;
-  }
+  const ehEstrela = campo.forma === "ESTRELA";
+  const ehRetanguloOuQuadrado =
+    campo.forma === "RETANGULO" || campo.forma === "QUADRADO";
+  const ehTriangulo = campo.forma === "TRIANGULO";
+  const ehCirculo = campo.forma === "CIRCULO";
 
-  if (alvoCantos === "baixo") {
-    return cantos.baixoEsquerdo ?? cantos.baixoDireito ?? 0;
-  }
+  const [alvoCantos, setAlvoCantos] = useState<
+    "todos" | "cima" | "baixo" | "esquerda" | "direita"
+  >("todos");
 
-  if (alvoCantos === "esquerda") {
-    return cantos.topoEsquerdo ?? cantos.baixoEsquerdo ?? 0;
-  }
+  function valorAtualDosCantos() {
+    const cantos = (campo as any).cantosArredondados || {};
 
-  if (alvoCantos === "direita") {
-    return cantos.topoDireito ?? cantos.baixoDireito ?? 0;
-  }
-
-  return 0;
-}
-
-function aplicarArredondamentoCantos(
-  alvo:
-    | "todos"
-    | "cima"
-    | "baixo"
-    | "esquerda"
-    | "direita"
-    | "topoEsquerdo"
-    | "topoDireito"
-    | "baixoDireito"
-    | "baixoEsquerdo",
-  valor: number
-) {
-  const pontos = campo.pontosForma || [];
-
-  const deveCurvar = (ponto: PontoForma, index: number) => {
-    if (alvo === "todos") return true;
-
-    if (alvo === "cima") return ponto.y <= 50;
-    if (alvo === "baixo") return ponto.y >= 50;
-    if (alvo === "esquerda") return ponto.x <= 50;
-    if (alvo === "direita") return ponto.x >= 50;
-
-    if (alvo === "topoEsquerdo") return index === 0;
-    if (alvo === "topoDireito") return index === 1;
-    if (alvo === "baixoDireito") return index === 2;
-    if (alvo === "baixoEsquerdo") return index === 3;
-
-    return false;
-  };
-
-  const novosPontos = pontos.map((ponto, index) => {
-    if (!deveCurvar(ponto, index)) return ponto;
-
-    if (valor <= 0) {
-      return {
-        ...ponto,
-        tipo: "reto" as const,
-        handleMode: "quebrado" as const,
-        inX: undefined,
-        inY: undefined,
-        outX: undefined,
-        outY: undefined,
-      };
+    if (alvoCantos === "todos") {
+      return campo.raioBorda || 0;
     }
 
-    return criarTangenteSimetrica(ponto, valor);
-  });
+    if (alvoCantos === "cima") {
+      return cantos.topoEsquerdo ?? cantos.topoDireito ?? 0;
+    }
 
-  onAtualizarCampo({
-    ...campo,
-    raioBorda: 0,
-    cantosArredondados: null,
-    pontosForma: novosPontos,
-  } as any);
-}
+    if (alvoCantos === "baixo") {
+      return cantos.baixoEsquerdo ?? cantos.baixoDireito ?? 0;
+    }
+
+    if (alvoCantos === "esquerda") {
+      return cantos.topoEsquerdo ?? cantos.baixoEsquerdo ?? 0;
+    }
+
+    if (alvoCantos === "direita") {
+      return cantos.topoDireito ?? cantos.baixoDireito ?? 0;
+    }
+
+    return 0;
+  }
+
+  function aplicarArredondamentoCantos(
+    alvo:
+      | "todos"
+      | "cima"
+      | "baixo"
+      | "esquerda"
+      | "direita"
+      | "topoEsquerdo"
+      | "topoDireito"
+      | "baixoDireito"
+      | "baixoEsquerdo",
+    valor: number
+  ) {
+    const pontos = campo.pontosForma || [];
+
+    const deveCurvar = (ponto: PontoForma, index: number) => {
+      if (alvo === "todos") return true;
+
+      if (alvo === "cima") return ponto.y <= 50;
+      if (alvo === "baixo") return ponto.y >= 50;
+      if (alvo === "esquerda") return ponto.x <= 50;
+      if (alvo === "direita") return ponto.x >= 50;
+
+      if (alvo === "topoEsquerdo") return index === 0;
+      if (alvo === "topoDireito") return index === 1;
+      if (alvo === "baixoDireito") return index === 2;
+      if (alvo === "baixoEsquerdo") return index === 3;
+
+      return false;
+    };
+
+    const novosPontos = pontos.map((ponto, index) => {
+      if (!deveCurvar(ponto, index)) return ponto;
+
+      if (valor <= 0) {
+        return {
+          ...ponto,
+          tipo: "reto" as const,
+          handleMode: "quebrado" as const,
+          inX: undefined,
+          inY: undefined,
+          outX: undefined,
+          outY: undefined,
+        };
+      }
+
+      return criarTangenteSimetrica(ponto, valor);
+    });
+
+    onAtualizarCampo({
+      ...campo,
+      raioBorda: 0,
+      cantosArredondados: null,
+      pontosForma: novosPontos,
+    } as any);
+  }
 
   function iniciarArraste(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -281,120 +281,120 @@ function aplicarArredondamentoCantos(
   }
 
   function atualizarEstrela(opcoes: {
-  pontas?: number;
-  raioInterno?: number;
-  raioExterno?: number;
-}) {
-  if (campo.forma !== "ESTRELA") return;
+    pontas?: number;
+    raioInterno?: number;
+    raioExterno?: number;
+  }) {
+    if (campo.forma !== "ESTRELA") return;
 
-  const novasPontas = opcoes.pontas ?? pontasAtuais;
-  const novoRaioInterno = opcoes.raioInterno ?? raioInternoAtual;
-  const novoRaioExterno = opcoes.raioExterno ?? raioExternoAtual;
+    const novasPontas = opcoes.pontas ?? pontasAtuais;
+    const novoRaioInterno = opcoes.raioInterno ?? raioInternoAtual;
+    const novoRaioExterno = opcoes.raioExterno ?? raioExternoAtual;
 
-  onAtualizarCampo({
-    ...campo,
-    pontas: novasPontas,
-    pontasEstrela: novasPontas,
-    raioInterno: novoRaioInterno,
-    raioExterno: novoRaioExterno,
-    pontosForma: gerarPontosEstrela(
-      novasPontas,
-      novoRaioInterno,
-      novoRaioExterno
-    ),
-  } as any);
-}
+    onAtualizarCampo({
+      ...campo,
+      pontas: novasPontas,
+      pontasEstrela: novasPontas,
+      raioInterno: novoRaioInterno,
+      raioExterno: novoRaioExterno,
+      pontosForma: gerarPontosEstrela(
+        novasPontas,
+        novoRaioInterno,
+        novoRaioExterno
+      ),
+    } as any);
+  }
 
-function criarTangenteSimetrica(
-  ponto: PontoForma,
-  intensidade: number
-): PontoForma {
-  const centroX = 50;
-  const centroY = 50;
+  function criarTangenteSimetrica(
+    ponto: PontoForma,
+    intensidade: number
+  ): PontoForma {
+    const centroX = 50;
+    const centroY = 50;
 
-  const anguloRadial = Math.atan2(
-    ponto.y - centroY,
-    ponto.x - centroX
-  );
+    const anguloRadial = Math.atan2(
+      ponto.y - centroY,
+      ponto.x - centroX
+    );
 
-  const anguloTangente = anguloRadial + Math.PI / 2;
+    const anguloTangente = anguloRadial + Math.PI / 2;
 
-  const dx = Math.cos(anguloTangente) * intensidade;
-  const dy = Math.sin(anguloTangente) * intensidade;
+    const dx = Math.cos(anguloTangente) * intensidade;
+    const dy = Math.sin(anguloTangente) * intensidade;
 
-  return {
-    ...ponto,
-    tipo: "curvo",
-    handleMode: "alinhado",
-    inX: ponto.x - dx,
-    inY: ponto.y - dy,
-    outX: ponto.x + dx,
-    outY: ponto.y + dy,
-  };
-}
+    return {
+      ...ponto,
+      tipo: "curvo",
+      handleMode: "alinhado",
+      inX: ponto.x - dx,
+      inY: ponto.y - dy,
+      outX: ponto.x + dx,
+      outY: ponto.y + dy,
+    };
+  }
 
-function arredondarGrupoEstrela(
-  grupo: "internos" | "externos",
-  intensidade: number
-) {
-  if (campo.forma !== "ESTRELA") return;
+  function arredondarGrupoEstrela(
+    grupo: "internos" | "externos",
+    intensidade: number
+  ) {
+    if (campo.forma !== "ESTRELA") return;
 
-  const pontos = campo.pontosForma || [];
+    const pontos = campo.pontosForma || [];
 
-  onAtualizarCampo({
-    ...campo,
-    pontosForma: pontos.map((ponto, index) => {
-      const externo = index % 2 === 0;
-      const pertence =
-        grupo === "externos"
-          ? externo
-          : !externo;
+    onAtualizarCampo({
+      ...campo,
+      pontosForma: pontos.map((ponto, index) => {
+        const externo = index % 2 === 0;
+        const pertence =
+          grupo === "externos"
+            ? externo
+            : !externo;
 
-      if (!pertence) return ponto;
+        if (!pertence) return ponto;
 
-      if (intensidade <= 0) {
-        return {
-          ...ponto,
-          tipo: "reto",
-          inX: undefined,
-          inY: undefined,
-          outX: undefined,
-          outY: undefined,
-        };
-      }
+        if (intensidade <= 0) {
+          return {
+            ...ponto,
+            tipo: "reto",
+            inX: undefined,
+            inY: undefined,
+            outX: undefined,
+            outY: undefined,
+          };
+        }
 
-      return criarTangenteSimetrica(
-        ponto,
-        intensidade
-      );
-    }),
-  } as any);
-}
+        return criarTangenteSimetrica(
+          ponto,
+          intensidade
+        );
+      }),
+    } as any);
+  }
 
-function classeBotaoAlvo(alvo: typeof alvoCantos) {
-  return alvoCantos === alvo
-    ? "rounded-lg border border-blue-600 bg-blue-600 px-2 py-1 text-xs font-semibold text-white"
-    : "rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50";
-}
+  function classeBotaoAlvo(alvo: typeof alvoCantos) {
+    return alvoCantos === alvo
+      ? "rounded-lg border border-blue-600 bg-blue-600 px-2 py-1 text-xs font-semibold text-white"
+      : "rounded-lg border bg-white px-2 py-1 text-xs font-semibold hover:bg-slate-50";
+  }
 
   return (
-  <div
-    data-shape-inspector-certificado="true"
-    className="fixed min-h-[360px] w-[280px] resize-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
-    style={{
-      left: posicao.x,
-      top: posicao.y,
-      height: 620,
-      minHeight: 360,
-      maxHeight: "85vh",
-      zIndex: zIndex ?? 1000002,
-    }}
-    onMouseDown={(e) => {
-      e.stopPropagation();
-      onTrazerParaFrente?.();
-    }}
-    onClick={(e) => e.stopPropagation()}
-  >
+    <div
+      data-shape-inspector-certificado="true"
+      className="fixed min-h-[360px] w-[280px] resize-y overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+      style={{
+        left: posicao.x,
+        top: posicao.y,
+        height: 620,
+        minHeight: 360,
+        maxHeight: "85vh",
+        zIndex: zIndex ?? 1000002,
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        onTrazerParaFrente?.();
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
       <div
         onMouseDown={iniciarArraste}
         className="flex cursor-move items-center justify-between rounded-t-2xl bg-blue-600 px-4 py-3 text-white"
@@ -412,19 +412,19 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
 
       <div className="h-[calc(100%-52px)] space-y-4 overflow-y-auto p-4 text-sm text-slate-700">
         <button
-  type="button"
-  onClick={() => setMostrarHandlesForma?.((prev) => !prev)}
-  className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
->
-  Mostrar / ocultar pontos de edição
-</button>
-<button
-  type="button"
-  onClick={onOpenArray}
-  className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
->
-  🔁 Array / Multiplicar
-</button>
+          type="button"
+          onClick={() => setMostrarHandlesForma?.((prev) => !prev)}
+          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+        >
+          Mostrar / ocultar pontos de edição
+        </button>
+        <button
+          type="button"
+          onClick={onOpenArray}
+          className="w-full rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-bold uppercase tracking-wide text-blue-700 hover:bg-blue-100"
+        >
+          🔁 Array / Multiplicar
+        </button>
         <div>
           <p className="mb-1 text-xs font-bold uppercase tracking-wide text-slate-500">
             Tipo
@@ -434,165 +434,163 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
           </div>
         </div>
 
-<div className="grid grid-cols-2 gap-3">
-  <div>
-    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-      Largura
-    </p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              Largura
+            </p>
 
-    <input
-      type="number"
-      value={campo.largura || 160}
-      onChange={(e) =>
-        atualizarCampoBasico("largura", Number(e.target.value))
-      }
-      className="w-full rounded-xl border px-3 py-2"
-    />
-  </div>
+            <input
+              type="number"
+              value={campo.largura || 160}
+              onChange={(e) =>
+                atualizarCampoBasico("largura", Number(e.target.value))
+              }
+              className="w-full rounded-xl border px-3 py-2"
+            />
+          </div>
 
-  <div>
-    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-      Altura
-    </p>
+          <div>
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              Altura
+            </p>
 
-    <input
-      type="number"
-      value={campo.altura || 160}
-      onChange={(e) =>
-        atualizarCampoBasico("altura", Number(e.target.value))
-      }
-      className="w-full rounded-xl border px-3 py-2"
-    />
-  </div>
-</div>
+            <input
+              type="number"
+              value={campo.altura || 160}
+              onChange={(e) =>
+                atualizarCampoBasico("altura", Number(e.target.value))
+              }
+              className="w-full rounded-xl border px-3 py-2"
+            />
+          </div>
+        </div>
 
-<div className="mt-4">
-  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-  Virar forma
-</p>
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+            Virar forma
+          </p>
 
-  <div className="grid grid-cols-2 gap-2">
-    <button
-      type="button"
-      onClick={() =>
-        onAtualizarCampo({
-          ...campo,
-          flipX: !campo.flipX,
-        } as any)
-      }
-      className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
-        campo.flipX
-          ? "border-blue-300 bg-blue-600 text-white"
-          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-      }`}
-      title="Virar horizontalmente"
-    >
-      ↔ Horizontal
-    </button>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                onAtualizarCampo({
+                  ...campo,
+                  flipX: !campo.flipX,
+                } as any)
+              }
+              className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${campo.flipX
+                  ? "border-blue-300 bg-blue-600 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              title="Virar horizontalmente"
+            >
+              ↔ Horizontal
+            </button>
 
-    <button
-      type="button"
-      onClick={() =>
-        onAtualizarCampo({
-          ...campo,
-          flipY: !campo.flipY,
-        } as any)
-      }
-      className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${
-        campo.flipY
-          ? "border-blue-300 bg-blue-600 text-white"
-          : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-      }`}
-      title="Virar verticalmente"
-    >
-      ↕ Vertical
-    </button>
-  </div>
-</div>
+            <button
+              type="button"
+              onClick={() =>
+                onAtualizarCampo({
+                  ...campo,
+                  flipY: !campo.flipY,
+                } as any)
+              }
+              className={`rounded-xl border px-3 py-2 text-xs font-bold transition ${campo.flipY
+                  ? "border-blue-300 bg-blue-600 text-white"
+                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
+                }`}
+              title="Virar verticalmente"
+            >
+              ↕ Vertical
+            </button>
+          </div>
+        </div>
 
-{(ehRetanguloOuQuadrado || ehTriangulo) && (
-  <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3">
-    <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-      Arredondamento dos cantos
-    </p>
+        {(ehRetanguloOuQuadrado || ehTriangulo) && (
+          <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/50 p-3">
+            <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+              Arredondamento dos cantos
+            </p>
 
-    <input
-      type="range"
-      min={0}
-      max={50}
-      value={valorAtualDosCantos()}
-      onChange={(e) =>
-  aplicarArredondamentoCantos(alvoCantos, Number(e.target.value))
-}
-      className="w-full"
-    />
+            <input
+              type="range"
+              min={0}
+              max={50}
+              value={valorAtualDosCantos()}
+              onChange={(e) =>
+                aplicarArredondamentoCantos(alvoCantos, Number(e.target.value))
+              }
+              className="w-full"
+            />
 
-    <div className="mt-3 grid grid-cols-2 gap-2">
-    <button
-  type="button"
-  onClick={() => {
-    setAlvoCantos("todos");
-    aplicarArredondamentoCantos("todos", valorAtualDosCantos() || 20);
-  }}
-  className={classeBotaoAlvo("todos")}
->
-  Todos
-</button>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setAlvoCantos("todos");
+                  aplicarArredondamentoCantos("todos", valorAtualDosCantos() || 20);
+                }}
+                className={classeBotaoAlvo("todos")}
+              >
+                Todos
+              </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setAlvoCantos("cima");
-    aplicarArredondamentoCantos("cima", 20);
-  }}
-  className={classeBotaoAlvo("cima")}
->
-  Só cima
-</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAlvoCantos("cima");
+                  aplicarArredondamentoCantos("cima", 20);
+                }}
+                className={classeBotaoAlvo("cima")}
+              >
+                Só cima
+              </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setAlvoCantos("baixo");
-    aplicarArredondamentoCantos("baixo", 20);
-  }}
-  className={classeBotaoAlvo("baixo")}
->
-  Só baixo
-</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAlvoCantos("baixo");
+                  aplicarArredondamentoCantos("baixo", 20);
+                }}
+                className={classeBotaoAlvo("baixo")}
+              >
+                Só baixo
+              </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setAlvoCantos("esquerda");
-    aplicarArredondamentoCantos("esquerda", 20);
-  }}
-  className={classeBotaoAlvo("esquerda")}
->
-  Só esquerda
-</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAlvoCantos("esquerda");
+                  aplicarArredondamentoCantos("esquerda", 20);
+                }}
+                className={classeBotaoAlvo("esquerda")}
+              >
+                Só esquerda
+              </button>
 
-<button
-  type="button"
-  onClick={() => {
-    setAlvoCantos("direita");
-    aplicarArredondamentoCantos("direita", 20);
-  }}
-  className={classeBotaoAlvo("direita")}
->
-  Só direita
-</button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAlvoCantos("direita");
+                  aplicarArredondamentoCantos("direita", 20);
+                }}
+                className={classeBotaoAlvo("direita")}
+              >
+                Só direita
+              </button>
 
-      <button
-        type="button"
-        onClick={() => aplicarArredondamentoCantos(alvoCantos, 0)}
-        className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
-      >
-        Pontudo
-      </button>
-    </div>
-  </div>
-)}
+              <button
+                type="button"
+                onClick={() => aplicarArredondamentoCantos(alvoCantos, 0)}
+                className="rounded-lg border bg-white px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-50"
+              >
+                Pontudo
+              </button>
+            </div>
+          </div>
+        )}
         {campo.forma === "ESTRELA" && (
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
@@ -632,83 +630,83 @@ function classeBotaoAlvo(alvo: typeof alvoCantos) {
           </div>
         )}
 
-{ehEstrela && (
-  <>
-    <div className="mt-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-        Raio externo / tamanho das pontas
-      </p>
+        {ehEstrela && (
+          <>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Raio externo / tamanho das pontas
+              </p>
 
-      <input
-        type="range"
-        min={30}
-        max={120}
-        value={raioExternoAtual}
-        onChange={(e) =>
-          atualizarEstrela({ raioExterno: Number(e.target.value) })
-        }
-        className="w-full"
-      />
-    </div>
+              <input
+                type="range"
+                min={30}
+                max={120}
+                value={raioExternoAtual}
+                onChange={(e) =>
+                  atualizarEstrela({ raioExterno: Number(e.target.value) })
+                }
+                className="w-full"
+              />
+            </div>
 
-    <div className="mt-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-        Raio interno / profundidade
-      </p>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Raio interno / profundidade
+              </p>
 
-      <input
-        type="range"
-        min={8}
-        max={42}
-        value={raioInternoAtual}
-        onChange={(e) =>
-          atualizarEstrela({ raioInterno: Number(e.target.value) })
-        }
-        className="w-full"
-      />
-    </div>
+              <input
+                type="range"
+                min={8}
+                max={42}
+                value={raioInternoAtual}
+                onChange={(e) =>
+                  atualizarEstrela({ raioInterno: Number(e.target.value) })
+                }
+                className="w-full"
+              />
+            </div>
 
-    <div className="mt-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-        Arredondamento interno
-      </p>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Arredondamento interno
+              </p>
 
-      <input
-        type="range"
-        min={0}
-        max={40}
-        defaultValue={0}
-        onChange={(e) =>
-  arredondarGrupoEstrela(
-    "internos",
-    Number(e.target.value)
-  )
-}
-        className="w-full"
-      />
-    </div>
+              <input
+                type="range"
+                min={0}
+                max={40}
+                defaultValue={0}
+                onChange={(e) =>
+                  arredondarGrupoEstrela(
+                    "internos",
+                    Number(e.target.value)
+                  )
+                }
+                className="w-full"
+              />
+            </div>
 
-    <div className="mt-4">
-      <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
-        Arredondamento das pontas
-      </p>
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">
+                Arredondamento das pontas
+              </p>
 
-      <input
-        type="range"
-        min={0}
-        max={40}
-        defaultValue={0}
-        onChange={(e) =>
-  arredondarGrupoEstrela(
-    "externos",
-    Number(e.target.value)
-  )
-}
-        className="w-full"
-      />
-    </div>
-  </>
-)}
+              <input
+                type="range"
+                min={0}
+                max={40}
+                defaultValue={0}
+                onChange={(e) =>
+                  arredondarGrupoEstrela(
+                    "externos",
+                    Number(e.target.value)
+                  )
+                }
+                className="w-full"
+              />
+            </div>
+          </>
+        )}
 
         <div>
           <p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">

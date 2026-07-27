@@ -183,11 +183,10 @@ export default async function ValidarDocumentoPage({
 
         {!data.valido && (
           <div
-            className={`rounded-3xl border bg-white p-8 shadow-sm ${
-              data.statusValidacao === "INVALIDADO"
+            className={`rounded-3xl border bg-white p-8 shadow-sm ${data.statusValidacao === "INVALIDADO"
                 ? "border-amber-200"
                 : "border-red-200"
-            }`}
+              }`}
           >
             <h2 className="text-2xl font-bold text-slate-900">
               {data.statusValidacao === "INVALIDADO"

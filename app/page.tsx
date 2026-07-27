@@ -168,68 +168,68 @@ export default function HomePage() {
           </div>
 
           <div className="absolute right-[-6%] top-0 hidden h-full w-[42%] lg:block">
-  <div
-    className="absolute inset-0 overflow-hidden"
-    style={{
-      clipPath: "polygon(28% 0%, 100% 0%, 100% 100%, 4% 100%)",
-    }}
-  >
-    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
-    <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{
+                clipPath: "polygon(28% 0%, 100% 0%, 100% 100%, 4% 100%)",
+              }}
+            >
+              <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
 
-    <Image
-      src="/images/formax-hero.jpg"
-      alt="PHANYX plataforma acadêmica"
-      fill
-      priority
-      className="object-cover object-[68%_center] scale-[1.04]"
-    />
-  </div>
+              <Image
+                src="/images/formax-hero.jpg"
+                alt="PHANYX plataforma acadêmica"
+                fill
+                priority
+                className="object-cover object-[68%_center] scale-[1.04]"
+              />
+            </div>
 
-  <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
-  <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
-  <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
-</div>
+            <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
+            <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
+            <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
+          </div>
 
-{/* FAIXA AZUL (CONTROLÁVEL) */}
-<div className="absolute right-0 top-0 hidden h-full w-[48%] lg:block pointer-events-none">
-  <div
-    className="absolute inset-0"
-    style={{
-      clipPath: "polygon(70% 0%, 100% 0%, 100% 100%, 30% 100%)",
-    }}
-  >
-    <div className="absolute inset-0 bg-gradient-to-r from-[#06133a] via-[#06133a]/95 to-[#06133a]/60" />
-    <div className="absolute inset-0 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
-  </div>
+          {/* FAIXA AZUL (CONTROLÁVEL) */}
+          <div className="absolute right-0 top-0 hidden h-full w-[48%] lg:block pointer-events-none">
+            <div
+              className="absolute inset-0"
+              style={{
+                clipPath: "polygon(70% 0%, 100% 0%, 100% 100%, 30% 100%)",
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#06133a] via-[#06133a]/95 to-[#06133a]/60" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020817]/70 via-transparent to-transparent" />
+            </div>
 
-  {/* efeitos de luz mantidos */}
-  <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
-  <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
-  <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
+            {/* efeitos de luz mantidos */}
+            <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
+            <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
+            <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
 
-  <div
-    className="absolute inset-0 overflow-hidden"
-    style={{
-      clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 2% 100%)",
-    }}
-  >
-    <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
-    <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
+            <div
+              className="absolute inset-0 overflow-hidden"
+              style={{
+                clipPath: "polygon(18% 0%, 100% 0%, 100% 100%, 2% 100%)",
+              }}
+            >
+              <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#06133a] via-[#06133a]/40 to-transparent" />
+              <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#020817]/65 via-transparent to-transparent" />
 
-    <Image
-      src="/images/formax-hero.jpg"
-      alt="PHANYX plataforma acadêmica"
-      fill
-      priority
-      className="object-cover object-[60%_center] scale-[1.04]"
-    />
-  </div>
+              <Image
+                src="/images/formax-hero.jpg"
+                alt="PHANYX plataforma acadêmica"
+                fill
+                priority
+                className="object-cover object-[60%_center] scale-[1.04]"
+              />
+            </div>
 
-  <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
-  <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
-  <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
-</div>
+            <div className="absolute left-0 top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/15 blur-3xl" />
+            <div className="absolute left-[-20px] top-1/2 h-80 w-80 -translate-y-1/2 rounded-full bg-blue-500/12 blur-3xl" />
+            <div className="absolute bottom-[-30px] left-[-10px] h-44 w-44 rounded-full bg-cyan-400/10 blur-3xl" />
+          </div>
 
           <div className="relative z-10 mx-auto max-w-7xl px-5 pb-10 pt-6 md:px-10 md:pb-14 md:pt-10 lg:px-12 lg:pb-16 lg:pt-12">
             <div className="grid items-center gap-8 lg:grid-cols-[1.05fr_0.95fr]">
@@ -256,13 +256,13 @@ export default function HomePage() {
                   em um só ambiente.
                 </p>
 
-<p className="mt-6 text-slate-300">
-  Quer iniciar sua formação teológica? Conheça nosso{" "}
-  <a href="/ibe/matricula" className="text-blue-400 underline">
-    curso de teologia EAD
-  </a>{" "}
-  e faça sua matrícula online.
-</p>
+                <p className="mt-6 text-slate-300">
+                  Quer iniciar sua formação teológica? Conheça nosso{" "}
+                  <a href="/ibe/matricula" className="text-blue-400 underline">
+                    curso de teologia EAD
+                  </a>{" "}
+                  e faça sua matrícula online.
+                </p>
 
                 <div className="mt-8">
                   <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
@@ -286,46 +286,46 @@ export default function HomePage() {
                   </div>
 
                   <div className="mt-5 rounded-3xl border border-white/10 bg-white/10 p-3 backdrop-blur sm:inline-flex sm:rounded-2xl sm:p-2">
-  <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
-    <a
-      href="/login?portal=aluno"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center justify-center rounded-2xl border border-blue-200/50 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-    >
-      👨‍🎓 Área do aluno
-    </a>
+                    <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
+                      <a
+                        href="/login?portal=aluno"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-2xl border border-blue-200/50 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      >
+                        👨‍🎓 Área do aluno
+                      </a>
 
-    <a
-      href="/login?portal=professor"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center justify-center rounded-2xl border border-blue-200/50 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-    >
-      👨‍🏫 Área do professor
-    </a>
+                      <a
+                        href="/login?portal=professor"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-2xl border border-blue-200/50 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+                      >
+                        👨‍🏫 Área do professor
+                      </a>
 
-    <a
-      href="/login?portal=admin"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-bold text-blue-950 transition hover:bg-blue-50"
-    >
-      🛡️ Administração
-    </a>
-  </div>
-</div>
+                      <a
+                        href="/login?portal=admin"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center rounded-2xl bg-white px-4 py-3 text-sm font-bold text-blue-950 transition hover:bg-blue-50"
+                      >
+                        🛡️ Administração
+                      </a>
+                    </div>
+                  </div>
                 </div>
 
-<div className="mt-5 flex flex-wrap gap-3 text-sm">
-  <a href="/blog" className="font-semibold text-blue-300 underline-offset-4 hover:underline">
-    Blog
-  </a>
+                <div className="mt-5 flex flex-wrap gap-3 text-sm">
+                  <a href="/blog" className="font-semibold text-blue-300 underline-offset-4 hover:underline">
+                    Blog
+                  </a>
 
-  <a href="/blog/sistema-gestao-escolar" className="font-semibold text-blue-300 underline-offset-4 hover:underline">
-    Sistema de gestão escolar
-  </a>
-</div>
+                  <a href="/blog/sistema-gestao-escolar" className="font-semibold text-blue-300 underline-offset-4 hover:underline">
+                    Sistema de gestão escolar
+                  </a>
+                </div>
 
                 <div className="mt-6 hidden gap-4 xl:grid xl:grid-cols-3">
                   <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur">
@@ -588,12 +588,12 @@ export default function HomePage() {
                     Entrar em contato
                   </Link>
 
-<a
-  href="/ibe/matricula"
-  className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
->
-  Fazer matrícula em Teologia
-</a>
+                  <a
+                    href="/ibe/matricula"
+                    className="inline-flex items-center justify-center rounded-2xl bg-green-500 px-6 py-3 text-white font-semibold hover:bg-green-600 transition"
+                  >
+                    Fazer matrícula em Teologia
+                  </a>
 
                 </div>
               </div>
@@ -601,41 +601,41 @@ export default function HomePage() {
           </div>
         </section>
 
-<section className="bg-white">
-  <div className="mx-auto max-w-5xl px-6 py-20 md:px-10 lg:px-12">
-    <h2 className="text-3xl font-bold text-slate-900">
-      Sistema de gestão escolar, gestão acadêmica e plataforma EAD em um só lugar
-    </h2>
+        <section className="bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-20 md:px-10 lg:px-12">
+            <h2 className="text-3xl font-bold text-slate-900">
+              Sistema de gestão escolar, gestão acadêmica e plataforma EAD em um só lugar
+            </h2>
 
-    <p className="mt-4 text-lg leading-8 text-slate-600">
-      O PHANYX é uma plataforma completa para instituições de ensino que precisam
-      unir gestão escolar, gestão acadêmica, plataforma EAD, controle financeiro,
-      documentos institucionais e experiência digital em um único sistema.
-    </p>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              O PHANYX é uma plataforma completa para instituições de ensino que precisam
+              unir gestão escolar, gestão acadêmica, plataforma EAD, controle financeiro,
+              documentos institucionais e experiência digital em um único sistema.
+            </p>
 
-    <h2 className="mt-10 text-3xl font-bold text-slate-900">
-      Software educacional para escolas, faculdades e cursos
-    </h2>
+            <h2 className="mt-10 text-3xl font-bold text-slate-900">
+              Software educacional para escolas, faculdades e cursos
+            </h2>
 
-    <p className="mt-4 text-lg leading-8 text-slate-600">
-      Ideal para escolas, faculdades, cursos técnicos, cursos livres e operações
-      EAD, o PHANYX ajuda a organizar alunos, professores, turmas, matrículas,
-      avaliações, histórico escolar e rotinas administrativas com mais controle
-      e escalabilidade.
-    </p>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Ideal para escolas, faculdades, cursos técnicos, cursos livres e operações
+              EAD, o PHANYX ajuda a organizar alunos, professores, turmas, matrículas,
+              avaliações, histórico escolar e rotinas administrativas com mais controle
+              e escalabilidade.
+            </p>
 
-    <h2 className="mt-10 text-3xl font-bold text-slate-900">
-      Plataforma acadêmica com estrutura SaaS real
-    </h2>
+            <h2 className="mt-10 text-3xl font-bold text-slate-900">
+              Plataforma acadêmica com estrutura SaaS real
+            </h2>
 
-    <p className="mt-4 text-lg leading-8 text-slate-600">
-      Com arquitetura multi-instituição, áreas separadas para administração,
-      professores e alunos, além de base para crescimento comercial, o PHANYX
-      foi pensado para ser um produto educacional moderno, escalável e pronto
-      para expansão.
-    </p>
-  </div>
-</section>
+            <p className="mt-4 text-lg leading-8 text-slate-600">
+              Com arquitetura multi-instituição, áreas separadas para administração,
+              professores e alunos, além de base para crescimento comercial, o PHANYX
+              foi pensado para ser um produto educacional moderno, escalável e pronto
+              para expansão.
+            </p>
+          </div>
+        </section>
 
       </main>
 
