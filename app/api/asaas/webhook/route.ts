@@ -19,6 +19,10 @@ const ASAAS_API_KEY = process.env.ASAAS_API_KEY;
 const ASAAS_WEBHOOK_TOKEN =
   process.env.ASAAS_WEBHOOK_TOKEN;
 
+  const IBE_INSTITUICAO_ID = Number(
+  process.env.IBE_INSTITUICAO_ID || 0
+);
+
 function tokensIguais(
   recebido: string,
   esperado: string
@@ -1183,13 +1187,43 @@ if (
       }
 
       try {
-        const instituicaoIdIbe = 1;
+        if (
+  !Number.isInteger(IBE_INSTITUICAO_ID) ||
+  IBE_INSTITUICAO_ID <= 0
+) {
+  throw new Error(
+    "IBE_INSTITUICAO_ID não está configurado corretamente."
+  );
+}
+
+const instituicaoIdIbe =
+  IBE_INSTITUICAO_ID;
 
     
   let senhaTempIbe = "";
   let userIbe = await prisma.user.findUnique({
     where: { email: preMatricula.email },
   });
+
+  if (
+  userIbe &&
+  Number(userIbe.instituicaoId) !==
+    instituicaoIdIbe
+) {
+  throw new Error(
+    "Este e-mail já está vinculado a outra instituição no PHANYX."
+  );
+}
+
+if (
+  userIbe &&
+  String(userIbe.role).toUpperCase() !==
+    "ALUNO"
+) {
+  throw new Error(
+    "Este e-mail já pertence a um usuário que não possui perfil de aluno."
+  );
+}
 
   if (!userIbe) {
     senhaTempIbe = gerarSenhaTemporaria();
@@ -1238,6 +1272,16 @@ if (
       valorMatricula: preMatricula.valorTotal,
     },
   });
+
+  await prisma.matriculaOnlineIbe.update({
+  where: {
+    id: preMatricula.id,
+  },
+  data: {
+    alunoGeradoId: alunoIbe.id,
+    matriculaGeradaId: matriculaIbe.id,
+  },
+});
 
   const turmaIbe = await prisma.turma.findFirst({
     where: {
@@ -1446,35 +1490,89 @@ if (
     asaasPaymentId:
       asaasPaymentIdConfirmado ||
       preMatricula.asaasPaymentId,
+
+    alunoGeradoId:
+      alunoIbe.id,
+
+    matriculaGeradaId:
+      matriculaIbe.id,
+
+    acessoLiberadoEm:
+      preMatricula.acessoLiberadoEm ||
+      new Date(),
   },
 });
 
+  const baseUrl =
+  process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+  "http://localhost:3000";
+
+const linkAssinatura =
+  `${baseUrl}/assinatura/` +
+  `${contrato.tokenAssinatura}`;
+
+/*
+ * E-mail de acesso:
+ * somente uma vez por pré-matrícula.
+ */
+if (!preMatricula.emailAcessoEnviadoEm) {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3001";
-
-    const linkAssinatura = `${baseUrl}/assinatura/${contrato.tokenAssinatura}`;
-
     if (senhaTempIbe) {
       await enviarEmailPrimeiroAcesso({
         email: userIbe.email,
         nome: userIbe.nome,
         senha: senhaTempIbe,
-        instituicao: "Instituto Batista de Educação",
+        instituicao:
+          "Instituto Batista de Educação",
         portal: "aluno",
+      });
+    } else {
+      await enviarEmailAcessoExistente({
+        email: userIbe.email,
+        nome: userIbe.nome,
+        instituicao:
+          "Instituto Batista de Educação",
       });
     }
 
-    await enviarEmailAssinaturaContrato({
-      email: userIbe.email,
-      nome: userIbe.nome,
-      instituicao: "Instituto Batista de Educação",
-      titulo: "Contrato de matrícula - Bacharel Livre em Teologia",
-      linkAssinatura,
+    await prisma.matriculaOnlineIbe.update({
+      where: {
+        id: preMatricula.id,
+      },
+      data: {
+        emailAcessoEnviadoEm:
+          new Date(),
+      },
     });
-  } catch (e) {
-    console.error("Erro ao enviar email de acesso/assinatura:", e);
+  } catch (emailError) {
+    console.error(
+      "Erro ao enviar e-mail de acesso IBE:",
+      emailError
+    );
   }
+}
+
+/*
+ * O envio do contrato fica separado.
+ * Uma falha no contrato não apaga o registro
+ * de que o acesso já foi enviado.
+ */
+try {
+  await enviarEmailAssinaturaContrato({
+    email: userIbe.email,
+    nome: userIbe.nome,
+    instituicao:
+      "Instituto Batista de Educação",
+    titulo:
+      "Contrato de matrícula - Bacharel Livre em Teologia",
+    linkAssinatura,
+  });
+} catch (contratoEmailError) {
+  console.error(
+    "Erro ao enviar contrato de matrícula:",
+    contratoEmailError
+  );
+}
 
           return NextResponse.json({
           ok: true,

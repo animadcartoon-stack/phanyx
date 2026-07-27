@@ -335,6 +335,15 @@ export default function AdminShell({
     return permissoes.includes("*") || permissoes.includes(chave);
   }
 
+  const ibePolosInstituicaoId = Number(
+    process.env.NEXT_PUBLIC_IBE_INSTITUICAO_ID || 0
+  );
+
+  const ehIbePolos =
+    !carregandoUsuario &&
+    ibePolosInstituicaoId > 0 &&
+    Number(usuario?.instituicaoId) === ibePolosInstituicaoId;
+
   const roleUsuario = String(usuario?.role || "").toUpperCase();
 
   const usuarioAdmin =
@@ -457,8 +466,8 @@ export default function AdminShell({
 
   function getLinkClass(path: string) {
     return `flex items-center gap-2 p-2 rounded text-sm transition ${isActive(path)
-        ? "bg-blue-500 text-white font-medium"
-        : "text-gray-700 hover:bg-gray-100"
+      ? "bg-blue-500 text-white font-medium"
+      : "text-gray-700 hover:bg-gray-100"
       }`;
   }
 
@@ -604,6 +613,14 @@ export default function AdminShell({
                         >
                           🧠 Plataforma PHANYX
                         </Link>
+
+                        <Link
+                          href="/master/boletos-ibe"
+                          className={getLinkClass("/master/boletos-ibe")}
+                        >
+                          🧾 Gerar boleto IBE
+                        </Link>
+
                       </div>
                     )}
                   </div>
@@ -849,6 +866,18 @@ export default function AdminShell({
                           📦 Fechamento Geral
                         </Link>
                       )}
+
+                      {ehIbePolos && (
+                        <Link
+                          href="/admin/financeiro/boletos-ibe"
+                          className={getLinkClass(
+                            "/admin/financeiro/boletos-ibe"
+                          )}
+                        >
+                          🧾 Gerar boleto para interessado
+                        </Link>
+                      )}
+
                       {temPermissao("financeiro.configuracoes") && (
                         <Link
                           href="/admin/financeiro/configuracoes"
@@ -1327,6 +1356,14 @@ export default function AdminShell({
                     <Link href="/admin/financeiro/fechamento-geral" className="rounded-2xl border p-3 text-sm font-semibold text-slate-700">
                       📦 Fechamento
                     </Link>
+                    {ehIbePolos && (
+                      <Link
+                        href="/admin/financeiro/boletos-ibe"
+                        className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"
+                      >
+                        🧾 Gerar boleto
+                      </Link>
+                    )}
                     <Link
                       href="/admin/financeiro/configuracoes"
                       className="rounded-2xl border p-3 text-sm font-semibold text-slate-700"

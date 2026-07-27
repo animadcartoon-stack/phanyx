@@ -1141,6 +1141,39 @@ if (ocultoTemporariamente) {
         },
       );
 
+      const disciplinasJaSalvas =
+  new Set<number>(
+    rematriculaExistente?.itens.map(
+      (item) => item.disciplinaId,
+    ) ?? [],
+  );
+
+/*
+ * O aluno deve visualizar apenas disciplinas
+ * realmente ofertadas neste período.
+ *
+ * Mantemos uma disciplina já salva anteriormente
+ * para preservar o histórico da rematrícula caso
+ * a oferta seja retirada depois do envio.
+ */
+const disciplinasVisiveis =
+  disciplinas.filter(
+    (disciplina) =>
+      disciplina.opcoesTurma.length > 0 ||
+      disciplinasJaSalvas.has(
+        disciplina.disciplinaId,
+      ),
+  );
+
+const quantidadeSemOfertaOcultada =
+  disciplinas.filter(
+    (disciplina) =>
+      disciplina.opcoesTurma.length === 0 &&
+      !disciplinasJaSalvas.has(
+        disciplina.disciplinaId,
+      ),
+  ).length;
+
     const cargaMinima =
       periodo.cargaMinimaOverride ??
       cursoSemestreDestino.cargaMinima ??
@@ -1232,7 +1265,13 @@ if (ocultoTemporariamente) {
             : null,
       },
 
-      disciplinas,
+      disciplinas:
+  disciplinasVisiveis,
+
+resumoOfertas: {
+  disciplinasSemOfertaOcultadas:
+    quantidadeSemOfertaOcultada,
+},
 
       rematricula: rematriculaExistente,
 

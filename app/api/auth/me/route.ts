@@ -137,6 +137,7 @@ if (user.instituicaoId) {
     nome: user.nome,
     email: user.email,
     role: user.role,
+    instituicaoId: user.instituicaoId,
     plano,
     isMasterAdmin: user.isMasterAdmin,
     statusAluno,

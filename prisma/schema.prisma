@@ -2243,6 +2243,17 @@ model MatriculaOnlineIbe {
   whatsapp String
   cpf      String?
 
+  instituicaoId        Int?
+  origem               String    @default("CHECKOUT_PUBLICO")
+  criadoPorId          Int?
+  descricao            String?
+  vencimentoEscolhido  DateTime?
+  asaasCustomerId      String?
+  alunoGeradoId        Int?
+  matriculaGeradaId    Int?
+  acessoLiberadoEm     DateTime?
+  emailAcessoEnviadoEm DateTime?
+
   valorTotal Decimal @db.Decimal(10, 2)
   valorPago  Decimal @default(0) @db.Decimal(10, 2)
 
@@ -2265,6 +2276,11 @@ model MatriculaOnlineIbe {
   updatedAt DateTime @updatedAt
 
   pagamentos MatriculaOnlineIbePagamento[]
+
+  @@index([instituicaoId, status])
+  @@index([origem])
+  @@index([criadoPorId])
+  @@index([asaasCustomerId])
 }
 
 model MatriculaOnlineIbePagamento {

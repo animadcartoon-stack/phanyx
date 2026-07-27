@@ -15550,3 +15550,160 @@ html[data-theme="system"] .phanyx-turma-busca-campo {
 html[data-theme="system"] .phanyx-turma-busca-resumo {
   color: #475569 !important;
 }
+
+/* =========================================================
+   PHANYX — BOLETOS IBE
+   Legibilidade nos temas claro, escuro e sistema
+========================================================= */
+
+.phanyx-boletos-ibe-page {
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   TEMA CLARO
+========================================================= */
+
+html[data-theme="light"] .phanyx-boletos-ibe-page {
+  background: #f3f4f6 !important;
+  color: #0f172a !important;
+}
+
+/* Títulos e textos principais */
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-950,
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-900 {
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-800,
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-700 {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-600 {
+  color: #475569 !important;
+  -webkit-text-fill-color: #475569 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-500,
+html[data-theme="light"] .phanyx-boletos-ibe-page .text-slate-400 {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Cards */
+html[data-theme="light"] .phanyx-boletos-ibe-page .bg-white {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page .bg-slate-50 {
+  background: #f8fafc !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page .bg-slate-100 {
+  background: #f1f5f9 !important;
+}
+
+/* Campos */
+html[data-theme="light"] .phanyx-boletos-ibe-page input,
+html[data-theme="light"] .phanyx-boletos-ibe-page select,
+html[data-theme="light"] .phanyx-boletos-ibe-page textarea {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page input::placeholder,
+html[data-theme="light"] .phanyx-boletos-ibe-page textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Botões principais escuros */
+html[data-theme="light"] .phanyx-boletos-ibe-page button.bg-slate-950,
+html[data-theme="light"] .phanyx-boletos-ibe-page button.bg-slate-900 {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page button.bg-slate-950:hover,
+html[data-theme="light"] .phanyx-boletos-ibe-page button.bg-slate-900:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+/* Botões claros */
+html[data-theme="light"] .phanyx-boletos-ibe-page button.bg-white {
+  background: #ffffff !important;
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}
+
+html[data-theme="light"] .phanyx-boletos-ibe-page button.bg-white:hover {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  -webkit-text-fill-color: #0f172a !important;
+}
+
+/* Checkbox */
+html[data-theme="light"] .phanyx-boletos-ibe-page input[type="checkbox"] {
+  background: #ffffff !important;
+  border-color: #94a3b8 !important;
+}
+
+/* =========================================================
+   TEMA ESCURO
+========================================================= */
+
+html[data-theme="dark"] .phanyx-boletos-ibe-page {
+  background: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] .phanyx-boletos-ibe-page .bg-white {
+  background: #111827 !important;
+  border-color: #334155 !important;
+}
+
+/* =========================================================
+   TEMA SISTEMA — CINZA, SEM CARDS AZUIS
+========================================================= */
+
+html[data-theme="system"] .phanyx-boletos-ibe-page {
+  background: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"] .phanyx-boletos-ibe-page .bg-white {
+  background: #2a2a2a !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-boletos-ibe-page .bg-slate-50,
+html[data-theme="system"] .phanyx-boletos-ibe-page .bg-slate-100 {
+  background: #333333 !important;
+  border-color: #555555 !important;
+}
+
+html[data-theme="system"] .phanyx-boletos-ibe-page input,
+html[data-theme="system"] .phanyx-boletos-ibe-page select,
+html[data-theme="system"] .phanyx-boletos-ibe-page textarea {
+  background: #262626 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #666666 !important;
+}
