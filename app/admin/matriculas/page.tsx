@@ -169,6 +169,10 @@ const [podeSelecionarVendedor, setPodeSelecionarVendedor] =
   const [cursoSemestreId, setCursoSemestreId] = useState<string>("");
   const [cursoSemestreIds, setCursoSemestreIds] = useState<number[]>([]);
   const [semestresAberto, setSemestresAberto] = useState(false);
+
+  const semestresDropdownRef =
+  useRef<HTMLDivElement | null>(null);
+
   const [turmasSelecionadas, setTurmasSelecionadas] = useState<number[]>([]);
   const [valorPagoMatricula, setValorPagoMatricula] = useState<string>("");
   const [valorMensalidade, setValorMensalidade] = useState<string>("");
@@ -406,6 +410,51 @@ cursoNome:
   useEffect(() => {
   carregarTudo();
 }, []);
+
+useEffect(() => {
+  if (!semestresAberto) return;
+
+  function fecharAoClicarFora(evento: PointerEvent) {
+    const alvo = evento.target;
+
+    if (!(alvo instanceof Node)) return;
+
+    if (
+      semestresDropdownRef.current &&
+      !semestresDropdownRef.current.contains(alvo)
+    ) {
+      setSemestresAberto(false);
+    }
+  }
+
+  function fecharComEscape(evento: KeyboardEvent) {
+    if (evento.key === "Escape") {
+      setSemestresAberto(false);
+    }
+  }
+
+  document.addEventListener(
+    "pointerdown",
+    fecharAoClicarFora
+  );
+
+  document.addEventListener(
+    "keydown",
+    fecharComEscape
+  );
+
+  return () => {
+    document.removeEventListener(
+      "pointerdown",
+      fecharAoClicarFora
+    );
+
+    document.removeEventListener(
+      "keydown",
+      fecharComEscape
+    );
+  };
+}, [semestresAberto]);
 
 useEffect(() => {
   console.log("📚 Alunos carregados para matrícula:", alunos);
@@ -1784,7 +1833,10 @@ function renderGrupoDisciplina(
             <label className="text-sm font-medium text-gray-700">
               Semestre do curso
             </label>
-            <div className="relative mt-1">
+            <div
+  ref={semestresDropdownRef}
+  className="relative mt-1"
+>
   <button
     type="button"
     onClick={() => setSemestresAberto((prev) => !prev)}
