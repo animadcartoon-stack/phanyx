@@ -16288,3 +16288,53 @@ html[data-theme="system"] .phanyx-caixa-status-atrasado {
   border-color: #ef4444 !important;
   color: #fecaca !important;
 }
+
+/* =========================================================
+   RH — COMISSÕES
+   Selects neutros no tema Sistema
+========================================================= */
+
+html[data-theme="system"]
+  .phanyx-rh-comissoes-page
+  .phanyx-comissoes-input:is(select) {
+  background-color: #1f1f1f !important;
+  border-color: #737373 !important;
+  color: #ffffff !important;
+  color-scheme: dark;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-comissoes-page
+  .phanyx-comissoes-input:is(select):focus {
+  border-color: #a3a3a3 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(163, 163, 163, 0.18) !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-comissoes-page
+  .phanyx-comissoes-input
+  option {
+  background-color: #262626 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-comissoes-page
+  .phanyx-comissoes-input
+  option:checked {
+  background:
+    linear-gradient(#525252, #525252) !important;
+  background-color: #525252 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="system"]
+  .phanyx-rh-comissoes-page
+  .phanyx-comissoes-input
+  option:hover {
+  background:
+    linear-gradient(#404040, #404040) !important;
+  background-color: #404040 !important;
+  color: #ffffff !important;
+}
