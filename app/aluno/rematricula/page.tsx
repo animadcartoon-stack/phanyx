@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import PhanyxConfirmModal from "@/components/ui/PhanyxConfirmModal";
 
 type TipoDisciplinaRematricula =
   | "PROXIMO_SEMESTRE"
@@ -185,6 +186,10 @@ type RespostaRematricula = {
 
 type SelecaoDisciplinas = Record<number, number>;
 
+type AcaoRematriculaAluno =
+  | "SALVAR_RASCUNHO"
+  | "ENVIAR";
+
 type MensagemTela = {
   tipo: "erro" | "sucesso" | "aviso";
   texto: string;
@@ -358,6 +363,18 @@ export default function RematriculaAlunoPage() {
 
   const [declaracaoAceita, setDeclaracaoAceita] =
     useState(false);
+
+const [
+  processandoAcao,
+  setProcessandoAcao,
+] = useState<AcaoRematriculaAluno | null>(
+  null,
+);
+
+const [
+  confirmarEnvio,
+  setConfirmarEnvio,
+] = useState(false);
 
   const carregar = useCallback(async () => {
     try {
@@ -667,6 +684,174 @@ export default function RematriculaAlunoPage() {
         turmaDisciplinaId,
     }));
   }
+
+  async function salvarRematricula(
+  acao: AcaoRematriculaAluno,
+) {
+  setMensagem(null);
+
+  if (!dados?.periodo?.id) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        "O período de rematrícula não foi identificado.",
+    });
+
+    return;
+  }
+
+  if (!dados.edicaoPermitida) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        "Esta rematrícula não pode mais ser alterada.",
+    });
+
+    return;
+  }
+
+  if (
+    acao === "SALVAR_RASCUNHO" &&
+    !dados.periodo.permiteRascunho
+  ) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        "A instituição não permite salvar rascunho neste período.",
+    });
+
+    return;
+  }
+
+  if (acao === "ENVIAR") {
+    if (
+      disciplinasSelecionadas.length ===
+      0
+    ) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Selecione pelo menos uma disciplina antes de enviar.",
+      });
+
+      return;
+    }
+
+    if (!atingiuCargaMinima) {
+      setMensagem({
+        tipo: "erro",
+        texto: `A carga horária mínima é de ${cargaMinima} horas.`,
+      });
+
+      return;
+    }
+
+    if (ultrapassouCargaMaxima) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "A seleção ultrapassa a carga horária máxima permitida.",
+      });
+
+      return;
+    }
+
+    if (!declaracaoAceita) {
+      setMensagem({
+        tipo: "erro",
+        texto:
+          "Aceite a declaração antes de enviar a rematrícula.",
+      });
+
+      return;
+    }
+  }
+
+  const itens = disciplinasSelecionadas.map(
+    (disciplina) => ({
+      disciplinaId:
+        disciplina.disciplinaId,
+
+      turmaDisciplinaId:
+        selecionadas[
+          disciplina.disciplinaId
+        ],
+    }),
+  );
+
+  setProcessandoAcao(acao);
+
+  try {
+    const resposta = await fetch(
+      "/api/aluno/rematricula",
+      {
+        method: "POST",
+        credentials: "include",
+
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+
+        body: JSON.stringify({
+          acao,
+
+          periodoMatriculaId:
+            dados.periodo.id,
+
+          itens,
+
+          declaracaoAceita,
+
+          observacoes: null,
+        }),
+      },
+    );
+
+    const resultado =
+      (await resposta.json()) as {
+        ok?: boolean;
+        message?: string;
+        error?: string;
+
+        rematricula?: {
+          id: number;
+          protocolo?: string | null;
+          status: string;
+        } | null;
+      };
+
+    if (!resposta.ok) {
+      throw new Error(
+        resultado.error ||
+          "Não foi possível salvar a rematrícula.",
+      );
+    }
+
+    setConfirmarEnvio(false);
+
+    await carregar();
+
+    setMensagem({
+      tipo: "sucesso",
+      texto:
+        resultado.message ||
+        (acao === "ENVIAR"
+          ? "Rematrícula enviada com sucesso."
+          : "Rascunho salvo com sucesso."),
+    });
+  } catch (error) {
+    setMensagem({
+      tipo: "erro",
+      texto:
+        error instanceof Error
+          ? error.message
+          : "Não foi possível salvar a rematrícula.",
+    });
+  } finally {
+    setProcessandoAcao(null);
+  }
+}
 
   if (carregando) {
     return (
@@ -1015,29 +1200,70 @@ export default function RematriculaAlunoPage() {
                 </span>
               </label>
 
-              <div className="mt-5 grid gap-3">
-                <button
-                  type="button"
-                  disabled
-                  title="A gravação será conectada na próxima etapa."
-                  className="rounded-xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm font-bold text-slate-500 disabled:cursor-not-allowed dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400"
-                >
-                  Salvar rascunho
-                </button>
+           <div className="mt-5 grid gap-3">
+  {dados.periodo.permiteRascunho && (
+    <button
+      type="button"
+      onClick={() =>
+        salvarRematricula(
+          "SALVAR_RASCUNHO",
+        )
+      }
+      disabled={
+        processandoAcao !== null ||
+        !dados.edicaoPermitida
+      }
+      className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+    >
+      {processandoAcao ===
+      "SALVAR_RASCUNHO"
+        ? "Salvando rascunho..."
+        : dados.rematricula?.status ===
+            "RASCUNHO"
+          ? "Atualizar rascunho"
+          : "Salvar rascunho"}
+    </button>
+  )}
 
-                <button
-                  type="button"
-                  disabled
-                  title="O envio será conectado na próxima etapa."
-                  className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Enviar rematrícula
-                </button>
-              </div>
+  <button
+    type="button"
+    onClick={() =>
+      setConfirmarEnvio(true)
+    }
+    disabled={
+      processandoAcao !== null ||
+      !dados.envioPermitido ||
+      disciplinasSelecionadas.length ===
+        0 ||
+      !atingiuCargaMinima ||
+      ultrapassouCargaMaxima ||
+      !declaracaoAceita
+    }
+    title={
+      disciplinasSelecionadas.length ===
+      0
+        ? "Selecione pelo menos uma disciplina."
+        : !atingiuCargaMinima
+          ? "A carga mínima ainda não foi atingida."
+          : ultrapassouCargaMaxima
+            ? "A carga máxima foi ultrapassada."
+            : !declaracaoAceita
+              ? "Aceite a declaração para enviar."
+              : "Enviar rematrícula."
+    }
+    className="rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {processandoAcao === "ENVIAR"
+      ? "Enviando..."
+      : dados.periodo.exigeAprovacao
+        ? "Enviar para análise"
+        : "Confirmar rematrícula"}
+  </button>
+</div>
 
-              <p className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400">
-                Na próxima etapa ativaremos a gravação e o envio definitivo.
-              </p>
+<p className="mt-3 text-center text-[11px] text-slate-500 dark:text-slate-400">
+  Após o envio, a seleção não poderá ser alterada até que a instituição a devolva para correção.
+</p>
             </section>
 
             <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
@@ -1073,7 +1299,39 @@ export default function RematriculaAlunoPage() {
             </section>
           </aside>
         </section>
-      </div>
+            </div>
+
+      <PhanyxConfirmModal
+        aberto={confirmarEnvio}
+        titulo={
+          dados.periodo.exigeAprovacao
+            ? "Enviar rematrícula para análise"
+            : "Confirmar rematrícula"
+        }
+        mensagem={
+          dados.periodo.exigeAprovacao
+            ? `Sua seleção possui ${disciplinasSelecionadas.length} disciplina(s) e ${cargaSelecionadaMaxima} horas. Após o envio, ela será analisada pela instituição.`
+            : `Sua seleção possui ${disciplinasSelecionadas.length} disciplina(s) e ${cargaSelecionadaMaxima} horas. Confirme para concluir a rematrícula.`
+        }
+        textoConfirmar={
+          processandoAcao === "ENVIAR"
+            ? "Enviando..."
+            : dados.periodo.exigeAprovacao
+              ? "Enviar para análise"
+              : "Confirmar rematrícula"
+        }
+        textoCancelar="Voltar"
+        onConfirmar={() =>
+          salvarRematricula("ENVIAR")
+        }
+        onCancelar={() => {
+          if (
+            processandoAcao !== "ENVIAR"
+          ) {
+            setConfirmarEnvio(false);
+          }
+        }}
+      />
     </main>
   );
 }
