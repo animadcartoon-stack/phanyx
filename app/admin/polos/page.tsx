@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import withAuth from "@/components/auth/withAuth";
 
 type TipoUnidadePolo =
@@ -56,12 +56,12 @@ const TIPOS_UNIDADE: Array<{
   valor: TipoUnidadePolo;
   nome: string;
 }> = [
-  { valor: "SEDE", nome: "Sede" },
-  { valor: "CAMPUS", nome: "Campus" },
-  { valor: "POLO", nome: "Polo" },
-  { valor: "FILIAL", nome: "Filial" },
-  { valor: "UNIDADE", nome: "Unidade" },
-];
+    { valor: "SEDE", nome: "Sede" },
+    { valor: "CAMPUS", nome: "Campus" },
+    { valor: "POLO", nome: "Polo" },
+    { valor: "FILIAL", nome: "Filial" },
+    { valor: "UNIDADE", nome: "Unidade" },
+  ];
 
 function nomeTipoUnidade(tipo?: TipoUnidadePolo) {
   return (
@@ -159,6 +159,16 @@ function normalizarBusca(valor: unknown) {
     .trim();
 }
 
+function formatarCep(valor: string) {
+  const numeros = valor.replace(/\D/g, "").slice(0, 8);
+
+  if (numeros.length <= 5) {
+    return numeros;
+  }
+
+  return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+}
+
 function AdminPolosPage() {
   const [polos, setPolos] = useState<Polo[]>([]);
   const [busca, setBusca] = useState("");
@@ -171,6 +181,24 @@ function AdminPolosPage() {
   const [descricao, setDescricao] = useState("");
   const [cep, setCep] = useState("");
   const [endereco, setEndereco] = useState("");
+
+  const [buscandoCep, setBuscandoCep] =
+    useState(false);
+
+  const [mensagemCep, setMensagemCep] =
+    useState("");
+
+  const [
+    mensagemCepTipo,
+    setMensagemCepTipo,
+  ] = useState<"sucesso" | "aviso" | "erro" | "">("");
+
+  const numeroInputRef =
+    useRef<HTMLInputElement | null>(null);
+
+  const consultaCepEmAndamentoRef =
+    useRef<string | null>(null);
+
   const [numero, setNumero] = useState("");
   const [complemento, setComplemento] = useState("");
   const [bairro, setBairro] = useState("");
@@ -219,33 +247,143 @@ function AdminPolosPage() {
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
 
   const inputClass =
-  "phanyx-polos-input w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
+    "phanyx-polos-input w-full rounded-xl border px-3 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20";
 
-const [poloParaProvisionar, setPoloParaProvisionar] =
-  useState<Polo | null>(null);
+  const [poloParaProvisionar, setPoloParaProvisionar] =
+    useState<Polo | null>(null);
 
-const [provisionandoId, setProvisionandoId] =
-  useState<number | null>(null);
+  const [provisionandoId, setProvisionandoId] =
+    useState<number | null>(null);
 
-const [credenciaisAcesso, setCredenciaisAcesso] =
-  useState<CredenciaisAcesso | null>(null);
+  const [credenciaisAcesso, setCredenciaisAcesso] =
+    useState<CredenciaisAcesso | null>(null);
 
-const [credenciaisCopiadas, setCredenciaisCopiadas] =
-  useState(false);
+  const [credenciaisCopiadas, setCredenciaisCopiadas] =
+    useState(false);
 
   const [erroProvisionamento, setErroProvisionamento] =
-  useState("");
+    useState("");
 
-const [
-  poloParaRedefinirSenha,
-  setPoloParaRedefinirSenha,
-] = useState<Polo | null>(null);
+  const [
+    poloParaRedefinirSenha,
+    setPoloParaRedefinirSenha,
+  ] = useState<Polo | null>(null);
 
-const [redefinindoSenhaId, setRedefinindoSenhaId] =
-  useState<number | null>(null);
+  const [redefinindoSenhaId, setRedefinindoSenhaId] =
+    useState<number | null>(null);
 
-const [erroRedefinicaoSenha, setErroRedefinicaoSenha] =
-  useState("");
+  const [erroRedefinicaoSenha, setErroRedefinicaoSenha] =
+    useState("");
+
+  async function buscarEnderecoPorCep(
+    valorInformado: string
+  ) {
+    const cepNumerico = valorInformado.replace(/\D/g, "");
+
+    if (cepNumerico.length !== 8) {
+      setMensagemCep(
+        "Informe os 8 números do CEP."
+      );
+      setMensagemCepTipo("erro");
+      return;
+    }
+
+    if (
+      consultaCepEmAndamentoRef.current === cepNumerico
+    ) {
+      return;
+    }
+
+    consultaCepEmAndamentoRef.current = cepNumerico;
+
+    try {
+      setBuscandoCep(true);
+      setMensagemCep("Buscando endereço...");
+      setMensagemCepTipo("aviso");
+
+      const resposta = await fetch(
+        `/api/admin/cep/${cepNumerico}`,
+        {
+          credentials: "include",
+        }
+      );
+
+      const dados = await resposta
+        .json()
+        .catch(() => ({}));
+
+      if (!resposta.ok) {
+        throw new Error(
+          dados?.error ||
+          "Não foi possível localizar o CEP."
+        );
+      }
+
+      setCep(
+        formatarCep(
+          String(dados?.cep || cepNumerico)
+        )
+      );
+
+      setEndereco(
+        String(dados?.endereco || "")
+      );
+
+      setBairro(
+        String(dados?.bairro || "")
+      );
+
+      setCidade(
+        String(dados?.cidade || "")
+      );
+
+      setEstado(
+        String(dados?.estado || "").toUpperCase()
+      );
+
+      if (
+        dados?.complemento &&
+        !complemento.trim()
+      ) {
+        setComplemento(
+          String(dados.complemento)
+        );
+      }
+
+      if (dados?.endereco) {
+        setMensagemCep(
+          "Endereço localizado e preenchido automaticamente."
+        );
+        setMensagemCepTipo("sucesso");
+
+        requestAnimationFrame(() => {
+          numeroInputRef.current?.focus();
+        });
+      } else {
+        setMensagemCep(
+          "CEP localizado, mas sem um logradouro específico. Preencha o endereço manualmente."
+        );
+        setMensagemCepTipo("aviso");
+      }
+    } catch (error: unknown) {
+      setMensagemCep(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível consultar o CEP."
+      );
+
+      setMensagemCepTipo("erro");
+    } finally {
+      setBuscandoCep(false);
+
+      if (
+        consultaCepEmAndamentoRef.current ===
+        cepNumerico
+      ) {
+        consultaCepEmAndamentoRef.current = null;
+      }
+    }
+  }
 
   function limparFormulario() {
     setNome("");
@@ -264,6 +402,9 @@ const [erroRedefinicaoSenha, setErroRedefinicaoSenha] =
     setResponsavelEmail("");
     setResponsavelTelefone("");
     setResponsavelCargo("");
+    setMensagemCep("");
+    setMensagemCepTipo("");
+    consultaCepEmAndamentoRef.current = null;
   }
 
   function iniciarEdicao(polo: Polo) {
@@ -376,8 +517,8 @@ const [erroRedefinicaoSenha, setErroRedefinicaoSenha] =
       }
 
       limparFormulario();
-setBusca("");
-await carregarPolos();
+      setBusca("");
+      await carregarPolos();
 
       setFeedback(
         data?.aviso || "Polo criado com sucesso."
@@ -440,8 +581,8 @@ await carregarPolos();
       }
 
       setEditandoId(null);
-setBusca("");
-await carregarPolos();
+      setBusca("");
+      await carregarPolos();
 
       setFeedback("Polo atualizado com sucesso.");
       setFeedbackTipo("sucesso");
@@ -458,552 +599,553 @@ await carregarPolos();
   }
 
   async function provisionarPolo() {
-  if (!poloParaProvisionar) return;
+    if (!poloParaProvisionar) return;
 
-  setErroProvisionamento("");
+    setErroProvisionamento("");
 
-  try {
-    setProvisionandoId(poloParaProvisionar.id);
+    try {
+      setProvisionandoId(poloParaProvisionar.id);
 
-    const res = await fetch(
-      `/api/admin/polos/${poloParaProvisionar.id}/provisionar`,
-      {
-        method: "POST",
-        credentials: "include",
-      }
-    );
+      const res = await fetch(
+        `/api/admin/polos/${poloParaProvisionar.id}/provisionar`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
 
-    const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({}));
 
-    if (!res.ok) {
-      throw new Error(
-        data?.error ||
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
           "Erro ao criar a instituição e o acesso."
-      );
-    }
-
-    if (
-      !data?.instituicao?.id ||
-      !data?.instituicao?.nome ||
-      !data?.credenciaisTemporarias?.login ||
-      !data?.credenciaisTemporarias?.senha
-    ) {
-      throw new Error(
-        "A instituição foi criada, mas as credenciais retornadas são inválidas."
-      );
-    }
-
-    setPoloParaProvisionar(null);
-    setBusca("");
-
-    setCredenciaisAcesso({
-      instituicaoId: Number(data.instituicao.id),
-      instituicaoNome: String(data.instituicao.nome),
-      login: String(data.credenciaisTemporarias.login),
-      senha: String(data.credenciaisTemporarias.senha),
-      precisaTrocarSenha:
-        data.credenciaisTemporarias.precisaTrocarSenha ===
-        true,
-    });
-
-    setCredenciaisCopiadas(false);
-
-    await carregarPolos();
-
-    setFeedback(
-      "Instituição independente e acesso criados com sucesso."
-    );
-    setFeedbackTipo("sucesso");
-  } catch (error: unknown) {
-  const mensagem =
-    error instanceof Error
-      ? error.message
-      : "Erro ao criar o acesso institucional.";
-
-  setErroProvisionamento(mensagem);
-} finally {
-  setProvisionandoId(null);
-}
-}
-
-{erroProvisionamento && (
-  <div className="mt-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
-    {erroProvisionamento}
-  </div>
-)}
-
-async function copiarCredenciais() {
-  if (!credenciaisAcesso) return;
-
-  const texto = [
-  `Acesso institucional PHANYX`,
-  ``,
-  `Instituição: ${credenciaisAcesso.instituicaoNome}`,
-  `Login: ${credenciaisAcesso.login}`,
-  `Senha temporária: ${credenciaisAcesso.senha}`,
-  ``,
-  `Por segurança, troque esta senha no primeiro acesso.`,
-  `A senha anterior não funciona mais para novos acessos.`,
-  `Caso o PHANYX esteja aberto em outro dispositivo ou navegador, saia dessas sessões manualmente.`,
-  ``,
-  `Não compartilhe estas credenciais com outras pessoas.`,
-].join("\n");
-
-  try {
-    await navigator.clipboard.writeText(texto);
-    setCredenciaisCopiadas(true);
-  } catch {
-    setFeedback(
-      "Não foi possível copiar automaticamente. Selecione e copie as credenciais manualmente."
-    );
-    setFeedbackTipo("erro");
-  }
-}
-
-async function redefinirSenhaPolo() {
-  if (!poloParaRedefinirSenha) return;
-
-  setErroRedefinicaoSenha("");
-
-  try {
-    setRedefinindoSenhaId(poloParaRedefinirSenha.id);
-
-    const res = await fetch(
-      `/api/admin/polos/${poloParaRedefinirSenha.id}/redefinir-senha`,
-      {
-        method: "POST",
-        credentials: "include",
+        );
       }
-    );
 
-    const data = await res.json().catch(() => ({}));
+      if (
+        !data?.instituicao?.id ||
+        !data?.instituicao?.nome ||
+        !data?.credenciaisTemporarias?.login ||
+        !data?.credenciaisTemporarias?.senha
+      ) {
+        throw new Error(
+          "A instituição foi criada, mas as credenciais retornadas são inválidas."
+        );
+      }
 
-    if (!res.ok) {
-      throw new Error(
-        data?.error ||
-          "Erro ao gerar uma nova senha temporária."
+      setPoloParaProvisionar(null);
+      setBusca("");
+
+      setCredenciaisAcesso({
+        instituicaoId: Number(data.instituicao.id),
+        instituicaoNome: String(data.instituicao.nome),
+        login: String(data.credenciaisTemporarias.login),
+        senha: String(data.credenciaisTemporarias.senha),
+        precisaTrocarSenha:
+          data.credenciaisTemporarias.precisaTrocarSenha ===
+          true,
+      });
+
+      setCredenciaisCopiadas(false);
+
+      await carregarPolos();
+
+      setFeedback(
+        "Instituição independente e acesso criados com sucesso."
       );
+      setFeedbackTipo("sucesso");
+    } catch (error: unknown) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : "Erro ao criar o acesso institucional.";
+
+      setErroProvisionamento(mensagem);
+    } finally {
+      setProvisionandoId(null);
     }
-
-    if (
-      !data?.instituicao?.id ||
-      !data?.instituicao?.nome ||
-      !data?.credenciaisTemporarias?.login ||
-      !data?.credenciaisTemporarias?.senha
-    ) {
-      throw new Error(
-        "A senha foi redefinida, mas as novas credenciais não foram retornadas corretamente."
-      );
-    }
-
-    setPoloParaRedefinirSenha(null);
-
-    setCredenciaisAcesso({
-      instituicaoId: Number(data.instituicao.id),
-      instituicaoNome: String(data.instituicao.nome),
-      login: String(data.credenciaisTemporarias.login),
-      senha: String(data.credenciaisTemporarias.senha),
-      precisaTrocarSenha:
-        data.credenciaisTemporarias.precisaTrocarSenha ===
-        true,
-      titulo: "Nova senha temporária criada",
-      orientacao:
-  "A senha anterior deixou de funcionar para novos acessos. Guarde ou envie estas credenciais ao administrador da unidade e oriente-o a sair do PHANYX em todos os dispositivos onde já estiver conectado.",
-    });
-
-    setCredenciaisCopiadas(false);
-
-    setFeedback(
-      "Nova senha temporária criada com sucesso."
-    );
-    setFeedbackTipo("sucesso");
-  } catch (error: unknown) {
-    setErroRedefinicaoSenha(
-      error instanceof Error
-        ? error.message
-        : "Erro ao gerar uma nova senha temporária."
-    );
-  } finally {
-    setRedefinindoSenhaId(null);
   }
-}
+
+  {
+    erroProvisionamento && (
+      <div className="mt-4 rounded-xl border border-red-300 bg-red-50 p-4 text-sm font-semibold text-red-800 dark:border-red-800 dark:bg-red-950/40 dark:text-red-200">
+        {erroProvisionamento}
+      </div>
+    )
+  }
+
+  async function copiarCredenciais() {
+    if (!credenciaisAcesso) return;
+
+    const texto = [
+      `Acesso institucional PHANYX`,
+      ``,
+      `Instituição: ${credenciaisAcesso.instituicaoNome}`,
+      `Login: ${credenciaisAcesso.login}`,
+      `Senha temporária: ${credenciaisAcesso.senha}`,
+      ``,
+      `Por segurança, troque esta senha no primeiro acesso.`,
+      `A senha anterior não funciona mais para novos acessos.`,
+      `Caso o PHANYX esteja aberto em outro dispositivo ou navegador, saia dessas sessões manualmente.`,
+      ``,
+      `Não compartilhe estas credenciais com outras pessoas.`,
+    ].join("\n");
+
+    try {
+      await navigator.clipboard.writeText(texto);
+      setCredenciaisCopiadas(true);
+    } catch {
+      setFeedback(
+        "Não foi possível copiar automaticamente. Selecione e copie as credenciais manualmente."
+      );
+      setFeedbackTipo("erro");
+    }
+  }
+
+  async function redefinirSenhaPolo() {
+    if (!poloParaRedefinirSenha) return;
+
+    setErroRedefinicaoSenha("");
+
+    try {
+      setRedefinindoSenhaId(poloParaRedefinirSenha.id);
+
+      const res = await fetch(
+        `/api/admin/polos/${poloParaRedefinirSenha.id}/redefinir-senha`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(
+          data?.error ||
+          "Erro ao gerar uma nova senha temporária."
+        );
+      }
+
+      if (
+        !data?.instituicao?.id ||
+        !data?.instituicao?.nome ||
+        !data?.credenciaisTemporarias?.login ||
+        !data?.credenciaisTemporarias?.senha
+      ) {
+        throw new Error(
+          "A senha foi redefinida, mas as novas credenciais não foram retornadas corretamente."
+        );
+      }
+
+      setPoloParaRedefinirSenha(null);
+
+      setCredenciaisAcesso({
+        instituicaoId: Number(data.instituicao.id),
+        instituicaoNome: String(data.instituicao.nome),
+        login: String(data.credenciaisTemporarias.login),
+        senha: String(data.credenciaisTemporarias.senha),
+        precisaTrocarSenha:
+          data.credenciaisTemporarias.precisaTrocarSenha ===
+          true,
+        titulo: "Nova senha temporária criada",
+        orientacao:
+          "A senha anterior deixou de funcionar para novos acessos. Guarde ou envie estas credenciais ao administrador da unidade e oriente-o a sair do PHANYX em todos os dispositivos onde já estiver conectado.",
+      });
+
+      setCredenciaisCopiadas(false);
+
+      setFeedback(
+        "Nova senha temporária criada com sucesso."
+      );
+      setFeedbackTipo("sucesso");
+    } catch (error: unknown) {
+      setErroRedefinicaoSenha(
+        error instanceof Error
+          ? error.message
+          : "Erro ao gerar uma nova senha temporária."
+      );
+    } finally {
+      setRedefinindoSenhaId(null);
+    }
+  }
 
   const polosFiltrados = useMemo(() => {
-  const termo = normalizarBusca(busca);
+    const termo = normalizarBusca(busca);
 
-  if (!termo) return polos;
+    if (!termo) return polos;
 
-  return polos.filter((polo) => {
-    const conteudoPolo = normalizarBusca(
-      [
-        polo.nome,
-        polo.codigo,
-        polo.cnpj,
-        polo.tipoUnidade,
-        polo.statusComercial,
-        polo.cep,
-        polo.endereco,
-        polo.numero,
-        polo.complemento,
-        polo.bairro,
-        polo.cidade,
-        polo.estado,
-        `${polo.cidade || ""} ${polo.estado || ""}`,
-        polo.responsavelNome,
-        polo.responsavelEmail,
-        polo.responsavelTelefone,
-        polo.responsavelCargo,
-        polo.descricao,
-      ].join(" ")
-    );
+    return polos.filter((polo) => {
+      const conteudoPolo = normalizarBusca(
+        [
+          polo.nome,
+          polo.codigo,
+          polo.cnpj,
+          polo.tipoUnidade,
+          polo.statusComercial,
+          polo.cep,
+          polo.endereco,
+          polo.numero,
+          polo.complemento,
+          polo.bairro,
+          polo.cidade,
+          polo.estado,
+          `${polo.cidade || ""} ${polo.estado || ""}`,
+          polo.responsavelNome,
+          polo.responsavelEmail,
+          polo.responsavelTelefone,
+          polo.responsavelCargo,
+          polo.descricao,
+        ].join(" ")
+      );
 
-    return conteudoPolo.includes(termo);
-  });
-}, [polos, busca]);
+      return conteudoPolo.includes(termo);
+    });
+  }, [polos, busca]);
 
   return (
     <div className="phanyx-polos-page max-w-6xl space-y-6">
 
       {erroProvisionamento && (
-  <div className="fixed inset-0 z-[1000001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-[2px]">
-    <div
-      role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="titulo-erro-provisionamento"
-      className="phanyx-polos-modal-erro w-full max-w-lg rounded-2xl border p-6 shadow-2xl"
-    >
-      <div className="flex items-start gap-4">
-        <div className="phanyx-polos-modal-erro-icone flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl">
-          ⚠️
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <h2
-            id="titulo-erro-provisionamento"
-            className="phanyx-polos-modal-erro-titulo text-xl font-bold"
+        <div className="fixed inset-0 z-[1000001] flex items-center justify-center bg-black/60 p-4 backdrop-blur-[2px]">
+          <div
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="titulo-erro-provisionamento"
+            className="phanyx-polos-modal-erro w-full max-w-lg rounded-2xl border p-6 shadow-2xl"
           >
-            Não foi possível criar o acesso
-          </h2>
+            <div className="flex items-start gap-4">
+              <div className="phanyx-polos-modal-erro-icone flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl">
+                ⚠️
+              </div>
 
-          <p className="phanyx-polos-modal-erro-texto mt-2 text-sm leading-6">
-            {erroProvisionamento}
-          </p>
+              <div className="min-w-0 flex-1">
+                <h2
+                  id="titulo-erro-provisionamento"
+                  className="phanyx-polos-modal-erro-titulo text-xl font-bold"
+                >
+                  Não foi possível criar o acesso
+                </h2>
+
+                <p className="phanyx-polos-modal-erro-texto mt-2 text-sm leading-6">
+                  {erroProvisionamento}
+                </p>
+              </div>
+            </div>
+
+            {erroProvisionamento
+              .toLowerCase()
+              .includes("já existe um usuário") && (
+                <div className="phanyx-polos-modal-erro-ajuda mt-5 rounded-xl border p-4">
+                  <p className="phanyx-polos-modal-erro-ajuda-titulo text-sm font-bold">
+                    O que fazer?
+                  </p>
+
+                  <p className="phanyx-polos-modal-erro-ajuda-texto mt-2 text-sm leading-6">
+                    O e-mail do responsável já está vinculado a outro
+                    usuário do PHANYX. Edite o polo e informe um e-mail
+                    ainda não cadastrado para o primeiro administrador
+                    desta unidade.
+                  </p>
+
+                  {poloParaProvisionar?.responsavelEmail && (
+                    <div className="phanyx-polos-modal-erro-email mt-3 rounded-lg border px-3 py-2">
+                      <p className="text-xs font-semibold uppercase">
+                        E-mail informado
+                      </p>
+
+                      <p className="mt-1 break-all text-sm font-bold">
+                        {poloParaProvisionar.responsavelEmail}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setErroProvisionamento("")}
+                className="phanyx-polos-modal-erro-voltar rounded-xl border px-4 py-2 text-sm font-semibold"
+              >
+                Voltar
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const polo = poloParaProvisionar;
+
+                  setErroProvisionamento("");
+                  setPoloParaProvisionar(null);
+
+                  if (polo) {
+                    iniciarEdicao(polo);
+                  }
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Editar responsável
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {erroProvisionamento
-        .toLowerCase()
-        .includes("já existe um usuário") && (
-        <div className="phanyx-polos-modal-erro-ajuda mt-5 rounded-xl border p-4">
-          <p className="phanyx-polos-modal-erro-ajuda-titulo text-sm font-bold">
-            O que fazer?
-          </p>
+      {poloParaProvisionar && !erroProvisionamento && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-confirmar-provisionamento"
+            className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
+          >
+            <h2
+              id="titulo-confirmar-provisionamento"
+              className="text-xl font-bold"
+            >
+              Criar instituição independente
+            </h2>
 
-          <p className="phanyx-polos-modal-erro-ajuda-texto mt-2 text-sm leading-6">
-            O e-mail do responsável já está vinculado a outro
-            usuário do PHANYX. Edite o polo e informe um e-mail
-            ainda não cadastrado para o primeiro administrador
-            desta unidade.
-          </p>
+            <p className="mt-3 text-sm">
+              O polo{" "}
+              <strong>{poloParaProvisionar.nome}</strong>{" "}
+              receberá um novo ID institucional, usuários próprios e
+              dados independentes.
+            </p>
 
-          {poloParaProvisionar?.responsavelEmail && (
-            <div className="phanyx-polos-modal-erro-email mt-3 rounded-lg border px-3 py-2">
-              <p className="text-xs font-semibold uppercase">
-                E-mail informado
+            <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <span
+                  aria-hidden="true"
+                  className="phanyx-polos-alerta-icone mt-0.5 text-base"
+                >
+                  ⚠️
+                </span>
+
+                <div>
+                  <p className="phanyx-polos-alerta-titulo text-sm font-bold">
+                    Atenção
+                  </p>
+
+                  <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
+                    O plano e a cobrança continuarão vinculados à instituição
+                    contratante. O responsável receberá login e senha temporária
+                    para administrar esta unidade.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setErroProvisionamento("");
+                  setPoloParaProvisionar(null);
+                }}
+                disabled={
+                  provisionandoId === poloParaProvisionar.id
+                }
+                className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={provisionarPolo}
+                disabled={
+                  provisionandoId === poloParaProvisionar.id
+                }
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {provisionandoId === poloParaProvisionar.id
+                  ? "Criando instituição..."
+                  : "Criar instituição e acesso"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {poloParaRedefinirSenha && (
+        <div className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-[2px]">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-redefinir-senha-polo"
+            className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
+          >
+            <h2
+              id="titulo-redefinir-senha-polo"
+              className="text-xl font-bold"
+            >
+              Gerar nova senha temporária
+            </h2>
+
+            <p className="mt-3 text-sm leading-6">
+              Será criada uma nova senha para o administrador da
+              unidade{" "}
+              <strong>{poloParaRedefinirSenha.nome}</strong>.
+            </p>
+
+            <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
+              <p className="phanyx-polos-alerta-titulo text-sm font-bold">
+                Atenção
               </p>
 
-              <p className="mt-1 break-all text-sm font-bold">
-                {poloParaProvisionar.responsavelEmail}
+              <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
+                A senha atual deixará de funcionar para novos acessos.
+                O login continuará sendo o mesmo, e o administrador
+                deverá trocar a nova senha temporária no próximo acesso.
+              </p>
+
+              <p className="phanyx-polos-alerta-texto mt-3 text-sm leading-6">
+                <strong>Importante:</strong> caso o usuário já esteja com
+                o PHANYX aberto em outro computador, celular ou navegador,
+                essa sessão poderá continuar ativa até ser encerrada ou
+                expirar. Oriente o usuário a sair do sistema em todos os
+                dispositivos.
               </p>
             </div>
-          )}
+
+            {erroRedefinicaoSenha && (
+              <div className="mt-4 rounded-xl border border-red-300 !bg-red-50 p-4 text-sm font-semibold !text-red-800 dark:border-red-800 dark:!bg-red-950/40 dark:!text-red-200">
+                {erroRedefinicaoSenha}
+              </div>
+            )}
+
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setErroRedefinicaoSenha("");
+                  setPoloParaRedefinirSenha(null);
+                }}
+                disabled={
+                  redefinindoSenhaId ===
+                  poloParaRedefinirSenha.id
+                }
+                className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                onClick={redefinirSenhaPolo}
+                disabled={
+                  redefinindoSenhaId ===
+                  poloParaRedefinirSenha.id
+                }
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {redefinindoSenhaId ===
+                  poloParaRedefinirSenha.id
+                  ? "Gerando nova senha..."
+                  : "Confirmar nova senha"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => setErroProvisionamento("")}
-          className="phanyx-polos-modal-erro-voltar rounded-xl border px-4 py-2 text-sm font-semibold"
-        >
-          Voltar
-        </button>
+      {credenciaisAcesso && (
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-credenciais-unidade"
+            className="phanyx-polos-card max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border p-6 shadow-2xl"
+          >
+            <h2
+              id="titulo-credenciais-unidade"
+              className="text-xl font-bold"
+            >
+              {credenciaisAcesso.titulo ||
+                "Acesso institucional criado"}
+            </h2>
 
-        <button
-          type="button"
-          onClick={() => {
-            const polo = poloParaProvisionar;
+            <p className="mt-2 text-sm">
+              {credenciaisAcesso.orientacao ||
+                "Guarde ou envie estas credenciais ao responsável da unidade. A senha temporária será exibida somente nesta tela."}
+            </p>
 
-            setErroProvisionamento("");
-            setPoloParaProvisionar(null);
+            <div className="mt-5 space-y-3">
+              <div className="phanyx-polos-input rounded-xl border p-3">
+                <p className="text-xs font-semibold uppercase">
+                  Instituição
+                </p>
 
-            if (polo) {
-              iniciarEdicao(polo);
-            }
-          }}
-          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          Editar responsável
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                <p className="mt-1 font-bold">
+                  {credenciaisAcesso.instituicaoNome}
+                </p>
+              </div>
 
-{poloParaProvisionar && !erroProvisionamento && (
-  <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="titulo-confirmar-provisionamento"
-      className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
-    >
-      <h2
-        id="titulo-confirmar-provisionamento"
-        className="text-xl font-bold"
-      >
-        Criar instituição independente
-      </h2>
+              <div className="phanyx-polos-input rounded-xl border p-3">
+                <p className="text-xs font-semibold uppercase">
+                  Login
+                </p>
 
-      <p className="mt-3 text-sm">
-        O polo{" "}
-        <strong>{poloParaProvisionar.nome}</strong>{" "}
-        receberá um novo ID institucional, usuários próprios e
-        dados independentes.
-      </p>
+                <p className="mt-1 break-all font-mono font-bold">
+                  {credenciaisAcesso.login}
+                </p>
+              </div>
 
-      <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
-  <div className="flex items-start gap-3">
-    <span
-      aria-hidden="true"
-      className="phanyx-polos-alerta-icone mt-0.5 text-base"
-    >
-      ⚠️
-    </span>
+              <div className="phanyx-polos-input rounded-xl border p-3">
+                <p className="text-xs font-semibold uppercase">
+                  Senha temporária
+                </p>
 
-    <div>
-      <p className="phanyx-polos-alerta-titulo text-sm font-bold">
-        Atenção
-      </p>
+                <p className="mt-1 break-all font-mono text-lg font-bold">
+                  {credenciaisAcesso.senha}
+                </p>
+              </div>
+            </div>
 
-      <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
-        O plano e a cobrança continuarão vinculados à instituição
-        contratante. O responsável receberá login e senha temporária
-        para administrar esta unidade.
-      </p>
-    </div>
-  </div>
-</div>
+            {credenciaisAcesso.precisaTrocarSenha && (
+              <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                O responsável deverá trocar esta senha no primeiro
+                acesso.
+              </div>
+            )}
 
-      <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => {
-  setErroProvisionamento("");
-  setPoloParaProvisionar(null);
-}}
-          disabled={
-            provisionandoId === poloParaProvisionar.id
-          }
-          className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Cancelar
-        </button>
+            <div className="mt-6 flex flex-wrap justify-end gap-3">
+              <button
+                type="button"
+                onClick={copiarCredenciais}
+                className="rounded-xl border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/30"
+              >
+                {credenciaisCopiadas
+                  ? "Credenciais copiadas"
+                  : "Copiar credenciais"}
+              </button>
 
-        <button
-          type="button"
-          onClick={provisionarPolo}
-          disabled={
-            provisionandoId === poloParaProvisionar.id
-          }
-          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {provisionandoId === poloParaProvisionar.id
-            ? "Criando instituição..."
-            : "Criar instituição e acesso"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{poloParaRedefinirSenha && (
-  <div className="fixed inset-0 z-[1000000] flex items-center justify-center bg-black/70 p-4 backdrop-blur-[2px]">
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="titulo-redefinir-senha-polo"
-      className="phanyx-polos-card w-full max-w-xl rounded-2xl border p-6 shadow-2xl"
-    >
-      <h2
-        id="titulo-redefinir-senha-polo"
-        className="text-xl font-bold"
-      >
-        Gerar nova senha temporária
-      </h2>
-
-      <p className="mt-3 text-sm leading-6">
-        Será criada uma nova senha para o administrador da
-        unidade{" "}
-        <strong>{poloParaRedefinirSenha.nome}</strong>.
-      </p>
-
-      <div className="phanyx-polos-alerta-provisionamento mt-4 rounded-xl border p-4 shadow-sm">
-        <p className="phanyx-polos-alerta-titulo text-sm font-bold">
-          Atenção
-        </p>
-
-        <p className="phanyx-polos-alerta-texto mt-1 text-sm leading-6">
-  A senha atual deixará de funcionar para novos acessos.
-  O login continuará sendo o mesmo, e o administrador
-  deverá trocar a nova senha temporária no próximo acesso.
-</p>
-
-<p className="phanyx-polos-alerta-texto mt-3 text-sm leading-6">
-  <strong>Importante:</strong> caso o usuário já esteja com
-  o PHANYX aberto em outro computador, celular ou navegador,
-  essa sessão poderá continuar ativa até ser encerrada ou
-  expirar. Oriente o usuário a sair do sistema em todos os
-  dispositivos.
-</p>
-      </div>
-
-      {erroRedefinicaoSenha && (
-        <div className="mt-4 rounded-xl border border-red-300 !bg-red-50 p-4 text-sm font-semibold !text-red-800 dark:border-red-800 dark:!bg-red-950/40 dark:!text-red-200">
-          {erroRedefinicaoSenha}
+              <button
+                type="button"
+                onClick={() => {
+                  setCredenciaisAcesso(null);
+                  setCredenciaisCopiadas(false);
+                }}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Fechar e apagar da tela
+              </button>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <button
-          type="button"
-          onClick={() => {
-            setErroRedefinicaoSenha("");
-            setPoloParaRedefinirSenha(null);
-          }}
-          disabled={
-            redefinindoSenhaId ===
-            poloParaRedefinirSenha.id
-          }
-          className="rounded-xl border border-slate-400 px-4 py-2 text-sm font-semibold disabled:opacity-50"
-        >
-          Cancelar
-        </button>
-
-        <button
-          type="button"
-          onClick={redefinirSenhaPolo}
-          disabled={
-            redefinindoSenhaId ===
-            poloParaRedefinirSenha.id
-          }
-          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {redefinindoSenhaId ===
-          poloParaRedefinirSenha.id
-            ? "Gerando nova senha..."
-            : "Confirmar nova senha"}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
-
-{credenciaisAcesso && (
-  <div className="fixed inset-0 z-[999999] flex items-center justify-center bg-black/70 p-4">
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="titulo-credenciais-unidade"
-      className="phanyx-polos-card max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border p-6 shadow-2xl"
-    >
-      <h2
-        id="titulo-credenciais-unidade"
-        className="text-xl font-bold"
-      >
-        {credenciaisAcesso.titulo ||
-  "Acesso institucional criado"}
-      </h2>
-
-      <p className="mt-2 text-sm">
-        {credenciaisAcesso.orientacao ||
-  "Guarde ou envie estas credenciais ao responsável da unidade. A senha temporária será exibida somente nesta tela."}
-      </p>
-
-      <div className="mt-5 space-y-3">
-        <div className="phanyx-polos-input rounded-xl border p-3">
-          <p className="text-xs font-semibold uppercase">
-            Instituição
-          </p>
-
-          <p className="mt-1 font-bold">
-            {credenciaisAcesso.instituicaoNome}
-          </p>
-        </div>
-
-        <div className="phanyx-polos-input rounded-xl border p-3">
-          <p className="text-xs font-semibold uppercase">
-            Login
-          </p>
-
-          <p className="mt-1 break-all font-mono font-bold">
-            {credenciaisAcesso.login}
-          </p>
-        </div>
-
-        <div className="phanyx-polos-input rounded-xl border p-3">
-          <p className="text-xs font-semibold uppercase">
-            Senha temporária
-          </p>
-
-          <p className="mt-1 break-all font-mono text-lg font-bold">
-            {credenciaisAcesso.senha}
-          </p>
-        </div>
-      </div>
-
-      {credenciaisAcesso.precisaTrocarSenha && (
-        <div className="mt-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-          O responsável deverá trocar esta senha no primeiro
-          acesso.
-        </div>
-      )}
-
-      <div className="mt-6 flex flex-wrap justify-end gap-3">
-        <button
-          type="button"
-          onClick={copiarCredenciais}
-          className="rounded-xl border border-blue-500 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 dark:text-blue-300 dark:hover:bg-blue-950/30"
-        >
-          {credenciaisCopiadas
-            ? "Credenciais copiadas"
-            : "Copiar credenciais"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            setCredenciaisAcesso(null);
-            setCredenciaisCopiadas(false);
-          }}
-          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
-        >
-          Fechar e apagar da tela
-        </button>
-      </div>
-    </div>
-  </div>
-)}
 
       {feedback && (
         <div
-          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-            feedbackTipo === "sucesso"
-              ? "border-green-200 bg-green-50 text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200"
-              : feedbackTipo === "aviso"
-                ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
-                : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
-          }`}
+          className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${feedbackTipo === "sucesso"
+            ? "border-green-200 bg-green-50 text-green-800 dark:border-green-900/60 dark:bg-green-950/40 dark:text-green-200"
+            : feedbackTipo === "aviso"
+              ? "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-200"
+              : "border-red-200 bg-red-50 text-red-800 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-200"
+            }`}
         >
           {feedback}
         </div>
@@ -1015,14 +1157,14 @@ async function redefinirSenhaPolo() {
         </h1>
 
         <p className="phanyx-polos-subtitulo mt-1">
-  Cadastre as sedes, campi, polos, filiais ou unidades da instituição.
-</p>
+          Cadastre as sedes, campi, polos, filiais ou unidades da instituição.
+        </p>
       </div>
 
       <div className="phanyx-polos-aviso rounded-2xl border p-4 text-sm font-semibold">
-  Cada endereço ou unidade operacional real deve ser cadastrado separadamente.
-  Um único polo não deve representar várias unidades físicas da instituição.
-</div>
+        Cada endereço ou unidade operacional real deve ser cadastrado separadamente.
+        Um único polo não deve representar várias unidades físicas da instituição.
+      </div>
 
       <form
         onSubmit={criarPolo}
@@ -1035,8 +1177,8 @@ async function redefinirSenhaPolo() {
 
           <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
             O polo será cadastrado como ativo. Ao criar o acesso
-institucional, o sistema verificará se a unidade está
-incluída no contrato ou se haverá cobrança adicional.
+            institucional, o sistema verificará se a unidade está
+            incluída no contrato ou se haverá cobrança adicional.
           </p>
         </div>
 
@@ -1089,13 +1231,67 @@ incluída no contrato ou se haverá cobrança adicional.
           </h3>
 
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <input
-              type="text"
-              placeholder="CEP"
-              value={cep}
-              onChange={(e) => setCep(e.target.value)}
-              className={inputClass}
-            />
+            <div className="space-y-1">
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="postal-code"
+                maxLength={9}
+                placeholder="CEP"
+                value={cep}
+                disabled={buscandoCep}
+                onChange={(e) => {
+                  const valorFormatado = formatarCep(
+                    e.target.value
+                  );
+
+                  setCep(valorFormatado);
+                  setMensagemCep("");
+                  setMensagemCepTipo("");
+
+                  const numeros =
+                    valorFormatado.replace(/\D/g, "");
+
+                  if (numeros.length === 8) {
+                    void buscarEnderecoPorCep(
+                      valorFormatado
+                    );
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== "Enter") return;
+
+                  e.preventDefault();
+
+                  void buscarEnderecoPorCep(cep);
+                }}
+                className={inputClass}
+              />
+
+              {buscandoCep && (
+                <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                  Buscando endereço...
+                </p>
+              )}
+
+              {!buscandoCep && mensagemCep && (
+                <p
+                  role={
+                    mensagemCepTipo === "erro"
+                      ? "alert"
+                      : undefined
+                  }
+                  className={`text-xs font-medium ${mensagemCepTipo === "sucesso"
+                    ? "text-emerald-700 dark:text-emerald-300"
+                    : mensagemCepTipo === "aviso"
+                      ? "text-amber-700 dark:text-amber-300"
+                      : "text-red-700 dark:text-red-300"
+                    }`}
+                >
+                  {mensagemCep}
+                </p>
+              )}
+            </div>
 
             <input
               type="text"
@@ -1107,6 +1303,7 @@ incluída no contrato ou se haverá cobrança adicional.
             />
 
             <input
+              ref={numeroInputRef}
               type="text"
               placeholder="Número"
               value={numero}
@@ -1161,7 +1358,7 @@ incluída no contrato ou se haverá cobrança adicional.
 
             <p className="mt-1 text-sm !text-slate-700 dark:!text-slate-300">
               Após cadastrar o polo, será possível criar o acesso
-institucional do responsável.
+              institucional do responsável.
             </p>
           </div>
 
@@ -1231,16 +1428,16 @@ institucional do responsável.
           </h2>
 
           <input
-  type="search"
-  name="filtro-interno-polos"
-  autoComplete="off"
-  spellCheck={false}
-  aria-label="Buscar polos"
-  placeholder="Buscar por nome, cidade, responsável..."
-  value={busca}
-  onChange={(e) => setBusca(e.target.value)}
-  className={`${inputClass} md:w-[420px]`}
-/>
+            type="search"
+            name="filtro-interno-polos"
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="Buscar polos"
+            placeholder="Buscar por nome, cidade, responsável..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className={`${inputClass} md:w-[420px]`}
+          />
         </div>
 
         {carregando ? (
@@ -1257,27 +1454,27 @@ institucional do responsável.
               const mensagemStatus =
                 mensagemStatusPolo(polo);
 
-                const unidadeContratante =
-  String(polo.codigo || "")
-    .trim()
-    .toUpperCase() === "SEDE" &&
-  !polo.instituicaoGeradaId;
+              const unidadeContratante =
+                String(polo.codigo || "")
+                  .trim()
+                  .toUpperCase() === "SEDE" &&
+                !polo.instituicaoGeradaId;
 
-const possuiResponsavel =
-  Boolean(String(polo.responsavelNome || "").trim()) &&
-  Boolean(String(polo.responsavelEmail || "").trim());
+              const possuiResponsavel =
+                Boolean(String(polo.responsavelNome || "").trim()) &&
+                Boolean(String(polo.responsavelEmail || "").trim());
 
-const statusPermiteProvisionamento =
-  polo.statusComercial
-    ? polo.statusComercial === "ATIVO"
-    : polo.ativo === true;
+              const statusPermiteProvisionamento =
+                polo.statusComercial
+                  ? polo.statusComercial === "ATIVO"
+                  : polo.ativo === true;
 
-const podeCriarAcesso =
-  !unidadeContratante &&
-  !polo.instituicaoGeradaId &&
-  possuiResponsavel &&
-  polo.ativo === true &&
-  statusPermiteProvisionamento;
+              const podeCriarAcesso =
+                !unidadeContratante &&
+                !polo.instituicaoGeradaId &&
+                possuiResponsavel &&
+                polo.ativo === true &&
+                statusPermiteProvisionamento;
 
               return (
                 <div
@@ -1485,8 +1682,8 @@ const podeCriarAcesso =
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="space-y-1">
                         <p className="text-base font-bold !text-slate-950 dark:!text-slate-100">
-  {polo.nome}
-</p>
+                          {polo.nome}
+                        </p>
 
                         <p className="text-sm !text-slate-700 dark:!text-slate-300">
                           Tipo:{" "}
@@ -1533,78 +1730,78 @@ const podeCriarAcesso =
                         </p>
 
                         <div className="mt-3 flex flex-wrap items-center gap-3">
-  <button
-    type="button"
-    onClick={() => iniciarEdicao(polo)}
-    className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-  >
-    Editar dados
-  </button>
+                          <button
+                            type="button"
+                            onClick={() => iniciarEdicao(polo)}
+                            className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                          >
+                            Editar dados
+                          </button>
 
-  {podeCriarAcesso && (
-    <button
-      type="button"
-      onClick={() => {
-  setErroProvisionamento("");
-  setPoloParaProvisionar(polo);
-}}
-      disabled={provisionandoId === polo.id}
-      className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-    >
-      {provisionandoId === polo.id
-        ? "Criando acesso..."
-        : "Criar acesso institucional"}
-    </button>
-  )}
+                          {podeCriarAcesso && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setErroProvisionamento("");
+                                setPoloParaProvisionar(polo);
+                              }}
+                              disabled={provisionandoId === polo.id}
+                              className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                              {provisionandoId === polo.id
+                                ? "Criando acesso..."
+                                : "Criar acesso institucional"}
+                            </button>
+                          )}
 
-  {polo.instituicaoGeradaId && (
-  <>
-    <span className="rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
-      Instituição independente criada
-    </span>
+                          {polo.instituicaoGeradaId && (
+                            <>
+                              <span className="rounded-full border border-emerald-300 bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200">
+                                Instituição independente criada
+                              </span>
 
-    <button
-      type="button"
-      onClick={() => {
-        setErroRedefinicaoSenha("");
-        setPoloParaRedefinirSenha(polo);
-      }}
-      disabled={redefinindoSenhaId === polo.id}
-      className="rounded-lg border border-blue-500 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-blue-300 dark:hover:bg-blue-950/30"
-    >
-      {redefinindoSenhaId === polo.id
-        ? "Gerando nova senha..."
-        : "Gerar nova senha temporária"}
-    </button>
-  </>
-)}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setErroRedefinicaoSenha("");
+                                  setPoloParaRedefinirSenha(polo);
+                                }}
+                                disabled={redefinindoSenhaId === polo.id}
+                                className="rounded-lg border border-blue-500 px-3 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-blue-300 dark:hover:bg-blue-950/30"
+                              >
+                                {redefinindoSenhaId === polo.id
+                                  ? "Gerando nova senha..."
+                                  : "Gerar nova senha temporária"}
+                              </button>
+                            </>
+                          )}
 
-  {unidadeContratante && (
-    <span className="rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
-      Unidade contratante
-    </span>
-  )}
+                          {unidadeContratante && (
+                            <span className="rounded-full border border-blue-300 bg-blue-100 px-3 py-1 text-xs font-bold text-blue-900 dark:border-blue-800 dark:bg-blue-950/50 dark:text-blue-200">
+                              Unidade contratante
+                            </span>
+                          )}
 
-  {!unidadeContratante &&
-    !polo.instituicaoGeradaId &&
-    !possuiResponsavel && (
-      <span className="text-xs text-amber-700 dark:text-amber-300">
-        Preencha o nome e o e-mail do responsável para criar o acesso.
-      </span>
-    )}
+                          {!unidadeContratante &&
+                            !polo.instituicaoGeradaId &&
+                            !possuiResponsavel && (
+                              <span className="text-xs text-amber-700 dark:text-amber-300">
+                                Preencha o nome e o e-mail do responsável para criar o acesso.
+                              </span>
+                            )}
 
-  {mensagemStatus && (
-    <span className="text-xs text-amber-700 dark:text-amber-300">
-      {mensagemStatus}
-    </span>
-  )}
-</div>
+                          {mensagemStatus && (
+                            <span className="text-xs text-amber-700 dark:text-amber-300">
+                              {mensagemStatus}
+                            </span>
+                          )}
+                        </div>
                       </div>
 
                       <div
                         className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-bold shadow-sm ${classesStatusPolo(
-  polo
-)}`}
+                          polo
+                        )}`}
                       >
                         {nomeStatusPolo(polo)}
                       </div>
